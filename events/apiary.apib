@@ -1,0 +1,102 @@
+FORMAT: 1A
+HOST: http://polls.apiblueprint.org/
+
+# oms-events
+
+Everything related to events in the oms. You can create, list, edit, ... events.
+There is a differentiation between statutory and normal events
+
+## Events Database [/events]
+
+### List All Events [GET]
+
+This gives a bruteforce listing of all events in the database.
+You most likely won't use this one except you are programming another microservice needing the full monty of events
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": "1",
+                "url": "/events/1",
+                "name": "Develop Yourself",
+                "starts": "2015-08-05T08:40:51.620Z",
+                "ends": "2015-08-05T08:40:51.620Z",
+                "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
+                "organizing_local": "AEGEE-Dresden",
+                "type": "non-statutory",
+                "max_participants": "22",
+                "enrolled_participant": "18",
+            }
+        ]
+
+### Create a new event [POST]
+
+Add a new event, data which is left out in the first request is optional.
+If organizing local is not specified, the local of the user will be assumed.
+
++ Request (application/json)
+
+        {
+            "name": "Develop Yourself",
+            "starts": "2015-08-05T08:40:51.620Z",
+            "ends": "2015-08-05T08:40:51.620Z",
+            "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
+            "type": "non-statutory",
+        }
+
++ Response 201 (application/json)
+
+    + Headers
+
+            Location: /events/1
+
+    + Body
+
+            {
+                "id": "1",
+                "url": "/events/1",
+                "name": "Develop Yourself",
+                "starts": "2015-08-05T08:40:51.620Z",
+                "ends": "2015-08-05T08:40:51.620Z",
+                "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
+                "organizing_local": "AEGEE-Dresden",
+                "type": "non-statutory",
+                "max_participants": "",
+                "enrolled_participant": "",
+            }
+            
+            
++ Request (application/json)
+
+        {
+            "name": "Develop Yourself",
+            "starts": "2015-08-05T08:40:51.620Z",
+            "ends": "2015-08-05T08:40:51.620Z",
+            "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
+            "organizing_local": "AEGEE-Erfurt",
+            "type": "non-statutory",
+            "max_participants": "22",
+            "enrolled_participant": "18",
+        }
+
++ Response 201 (application/json)
+
+    + Headers
+
+            Location: /events/1
+
+    + Body
+
+            {
+                "id": "1",
+                "url": "/events/1",
+                "name": "Develop Yourself",
+                "starts": "2015-08-05T08:40:51.620Z",
+                "ends": "2015-08-05T08:40:51.620Z",
+                "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
+                "organizing_local": "AEGEE-Erfurt",
+                "type": "non-statutory",
+                "max_participants": "22",
+                "enrolled_participant": "18",
+            }
