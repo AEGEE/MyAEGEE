@@ -1,0 +1,41 @@
+
+dn: bodyCode=ACA,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: ACA
+bodyNameAscii: AEGEE-Academy
+mail: aegee-academy@aegee.org
+netcom: person.responsible
+o: something
+bodyCategory: External
+
+
+dn: bodyCode=GOL,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: GOL
+bodyNameAscii: AEGEE-Gold
+mail: gold@aegee.org
+netcom: person.responsible
+o: something
+bodyCategory: External
+
+
+dn: bodyCode=ANC,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: ANC
+bodyNameAscii: Les Anciens
+mail: anciens@aegee.org
+netcom: person.responsible
+o: something
+o: something else
+bodyCategory: External
+
+
+dn: bodyCode=EMP,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: EMP
+bodyNameAscii: Employees
+mail: headoffice@aegee.org
+netcom: person.responsible
+o: something
+o: something else
+bodyCategory: External

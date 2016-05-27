@@ -1,0 +1,48 @@
+#TEST STRUCTURE CALAF
+
+# Bodies with sub-DIT for boards and groups within it
+# Members with sub-DIT for bodies they belong to
+
+## (notation loose):
+## -------------------------------------
+## BASE DN                       dc aegee, dc org
+## ORGANISATIONAL UNITS          ou people/bodies (,dc aegee, dc org)
+## PERSON                        uid fabrizio.bellicano ou people (,dc aegee, dc org)  
+## ANTENNA                       uid ATH ou bodies (,dc aegee, dc org)   
+## COMMITTEE                     uid PRC ou bodies (,dc aegee, dc org) 
+## GROUP                         uid H4Y ou bodies (,dc aegee, dc org) 
+
+## and from under a person, the bodies s/he belongs to
+## bodycode ITC, uid maurits.korse ou people (,dc aegee, dc org)  
+## bodycode ENS, uid maurits.korse ou people (,dc aegee, dc org)  
+
+## and from under an antenna, committee, group, there are the internal groups (e.g. board) 
+## bodycode OUTGOING-RESP, uid ATH ou bodies (,dc aegee, dc org)  
+## bodycode BOARD, uid ITC ou bodies (,dc aegee, dc org) 
+## bodycode ITC, uid ENS ou bodies (,dc aegee, dc org)  
+## -----------------------------------------------------
+
+## DEFINE DIT ROOT/BASE/SUFFIX ####
+## uses RFC 2377 format
+## replace example and com as necessary below
+## or for experimentation leave as is
+
+## dcObject is an AUXILLIARY objectclass and MUST
+## have a STRUCTURAL objectclass (organization in this case)
+# this is an ENTRY sequence and is preceded by a BLANK line
+
+#Note: top level (o=aegee,c=eu) is already set by ldapdn
+
+## FIRST Level hierarchy - people & antennae
+## uses mixed upper and lower case for objectclass
+# this is an ENTRY sequence and is preceded by a BLANK line
+
+dn: ou=people, o=aegee,c=eu
+objectclass: organizationalunit
+ou: people
+description: All people in organisation
+
+dn: ou=bodies, o=aegee,c=eu
+objectclass: organizationalunit
+ou: bodies
+description: All bodies in organisation: Locals, Committees and Commissions, Groups and Projects, Externals

@@ -1,0 +1,298 @@
+#This contains data that can be used during automated and regression test
+
+#The hierarchy will be: under a branch ou=regression
+# there will be the usual ou=people and ou=bodies
+# and all the rest is preserved
+
+##STRUCTURE
+dn: ou=regression, o=aegee,c=eu
+objectclass: organizationalunit
+ou: regression
+description: Under this branch there will be people and bodies as normal schema
+
+
+dn: ou=people, ou=regression,o=aegee,c=eu
+objectclass: organizationalunit
+ou: people
+description: All people in organisation
+
+dn: ou=bodies, ou=regression,o=aegee,c=eu
+objectclass: organizationalunit
+ou: bodies
+description: All bodies in organisation: Locals, Committees and Commissions, Groups and Projects, Externals
+
+
+
+##ANTENNAE
+dn: bodycode=ADA,ou=bodies,ou=regression,o=aegee,c=eu
+objectclass: aegeeBodyFab
+bodycode: ADA
+bodynameascii: Adana
+mail: adana@aegee.org
+netcom: ana.potocnik
+bodyCategory: Local
+bodystatus: A
+o: something
+latitude: 36.99139
+longitude: 35.32583
+
+dn: bodycode=LOU,ou=bodies,ou=regression,o=aegee,c=eu
+objectclass: aegeeBodyFab
+bodycode: LOU
+bodynameascii: Louvain-la-Neuve
+mail: louvain-la-neuve@aegee.org
+netcom: ana.potocnik
+bodyCategory: Local
+bodystatus: CA
+o: something
+latitude: 50.66080
+longitude: 4.61183
+
+dn: bodycode=LUG,ou=bodies,ou=regression,o=aegee,c=eu
+objectclass: aegeeBodyFab
+bodycode: LUG
+bodynameascii: Lugano
+mail: lugano@aegee.org
+netcom: ana.potocnik
+bodyCategory: Local
+bodystatus: C
+o: something
+latitude: 46.02942
+longitude: 8.99480
+
+
+
+##USERS
+dn: uid=active.member,ou=people,ou=regression,o=aegee,c=eu
+objectClass: aegeePersonFab
+cn: active member
+givenName: active
+mail: active.member@aegee.org
+sn: member
+uid: active.member
+userPassword:: amhn
+birthDate: 2015-04-14
+
+dn: uid=board.member,ou=people,ou=regression,o=aegee,c=eu
+objectClass: aegeePersonFab
+cn: board member
+givenName: board
+mail: board.member@aegee.org
+sn: member
+uid: board.member
+userPassword:: cGlubw==
+birthDate: 2015-04-14
+
+dn: uid=other.member,ou=people,ou=regression,o=aegee,c=eu
+objectClass: aegeePersonFab
+cn: other member
+givenName: other
+mail: other.member@aegee.org
+sn: member
+uid: other.member
+userPassword:: amhn
+birthDate: 2015-04-14
+
+
+
+##COMMITTEES
+dn: bodyCode=ITC,ou=bodies,ou=regression,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: ITC
+bodyNameAscii: IT Committee
+mail: itc@aegee.org
+netcom: active.member
+o: something
+bodyCategory: Committee
+
+dn: bodyCode=PRC,ou=bodies,ou=regression,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: PRC
+bodyNameAscii: Public Relations Committee
+mail: prc@aegee.org
+netcom: active.member
+o: something
+bodyCategory: Committee
+
+
+
+##COMMISSIONS
+dn: bodyCode=AUD,ou=bodies,ou=regression,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: AUD
+bodyNameAscii: Audit commission
+mail: audit@aegee.org
+netcom: active.member
+o: something
+bodyCategory: Commission
+
+dn: bodyCode=NET,ou=bodies,ou=regression,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: NET
+bodyNameAscii: Network commission
+mail: netcom@aegee.org
+netcom: active.member
+o: net
+o: something
+bodyCategory: Commission
+
+
+
+##EXTERNALS
+dn: bodyCode=ACA,ou=bodies,ou=regression,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: ACA
+bodyNameAscii: AEGEE-Academy
+mail: aegee-academy@aegee.org
+netcom: active.member
+o: something
+bodyCategory: External
+
+dn: bodyCode=GOL,ou=bodies,ou=regression,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: GOL
+bodyNameAscii: AEGEE-Gold
+mail: gold@aegee.org
+netcom: active.member
+o: something
+bodyCategory: External
+
+dn: bodyCode=ANC,ou=bodies,ou=regression,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: ANC
+bodyNameAscii: Les Anciens
+mail: anciens@aegee.org
+netcom: active.member
+o: something
+o: something else
+bodyCategory: External
+
+dn: bodyCode=EMP,ou=bodies,ou=regression,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: EMP
+bodyNameAscii: Employees
+mail: headoffice@aegee.org
+netcom: active.member
+o: something
+o: something else
+bodyCategory: External
+
+
+
+#MEMBERSHIPS
+dn: bodyCode=LOU,uid=board.member,ou=people,ou=regression,o=aegee,c=eu
+objectClass: aegeePersonMembership
+cn: board member
+uid: board.member
+bodyCode: LOU
+bodyNameAscii: Louvain-la-neuve
+bodyCategory: Local
+mail: louvain@aegee.org
+o: something
+memberSinceDate: 20/5/2013
+memberUntilDate: 20/5/2014
+
+
+dn: bodyCode=LOU,uid=active.member,ou=people,ou=regression,o=aegee,c=eu
+objectClass: aegeePersonMembership
+cn: active member
+uid: active.member
+bodyCode: LOU
+bodyNameAscii: Louvain-la-neuve
+bodyCategory: Local
+mail: louvain@aegee.org
+o: something
+memberSinceDate: 20/5/2013
+memberUntilDate: 20/5/2014
+changeLog: 2014-09-19, membertype=ancien
+changeLog: 2014-09-10, membertype=board, title=president
+changeLog: 2014-09-11, membertype=member, title=null
+changeLog: 2014-02-24, membertype=member
+
+dn: bodyCode=LOU,uid=other.member,ou=people,ou=regression,o=aegee,c=eu
+objectClass: aegeePersonMembership
+cn: other member
+uid: other.member
+bodyCode: LOU
+bodyNameAscii: Louvain-la-neuve
+bodyCategory: Local
+mail: louvain@aegee.org
+o: something
+memberSinceDate: 20/5/2013
+memberUntilDate: 20/5/2013
+changeLog: 2014-09-19, membertype=ancien
+changeLog: 2014-09-10, membertype=board, title=president
+changeLog: 2014-09-11, membertype=member, title=null
+changeLog: 2014-02-24, membertype=member
+
+dn: bodyCode=ITC,uid=active.member,ou=people,ou=regression,o=aegee,c=eu
+objectClass: aegeePersonMembership
+cn: active member
+uid: active.member
+bodyCode: ITC
+bodyNameAscii: it commi
+bodyCategory: Committee
+mail: itc@aegee.org
+o: something
+memberSinceDate: 20/5/2013
+memberUntilDate: 20/5/2013
+
+dn: bodyCode=PRC,uid=active.member,ou=people,ou=regression,o=aegee,c=eu
+objectClass: aegeePersonMembership
+cn: active member
+uid: active.member
+bodyCode: PRC
+bodyNameAscii: Public Relations Committee
+bodyCategory: Committee
+mail: prc@aegee
+o: something
+memberSinceDate: 20/5/2013
+memberUntilDate: 20/5/2013
+
+
+
+#GROUPS
+dn: bodyCode=H4Y,ou=bodies,ou=regression,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: H4Y
+bodyNameAscii: Health 4 youth
+mail: health@aegee.org
+netcom: active.member
+o: something
+bodyCategory: Group
+
+
+
+#LOCAL GROUPS
+dn: bodyCode=BOARD,bodyCode=LOU,ou=bodies,ou=regression,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: BOARD
+bodyNameAscii: Board Louvain-La-Neuve
+mail: louvain+board@aegee.org
+netcom: active.member
+o: board
+bodyCategory: LocalGroup
+
+
+
+#MEMBERSHIPS IN LOCAL GROUPS
+dn: uid=board.member,bodyCode=BOARD,bodyCode=LOU,ou=bodies,ou=regression,o=aegee,c=eu
+objectClass: aegeePersonFab
+cn: board member
+givenName: board
+mail: board.member@example.com
+sn: member
+uid: board.member
+userPassword:: ZkJlbGxJ
+description: The man
+
+dn: uid=other.member,bodyCode=BOARD,bodyCode=LOU,ou=bodies,ou=regression,o=aegee,c=eu
+objectClass: aegeePersonFab
+cn: other member
+givenName: other
+mail: other.member@aegee.org
+sn: member
+uid: other.member
+userPassword:: amhn
+birthDate: 2015-04-14
+

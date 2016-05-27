@@ -1,0 +1,46 @@
+## SECOND Level hierarchy (people)
+# the ou: Comite Directeur is the department name
+
+###CHECK THIS dn DOWN HERE for authentication: which is the most used dn ? via cn or via uid? probably via uid (for auth)
+dn: uid=fabrizio.bellicano,ou=people,o=aegee,c=eu
+objectClass: aegeePersonFab
+cn: Fabrizio Bellicano
+givenName: fabrizio
+mail: j.smith@example.com
+mail: jsmith@example.com
+mail: john.smith@example.com
+sn: bellicano
+uid: fabrizio.bellicano
+userPassword:: ZkJlbGxJ
+birthDate: 324/123/1232
+description: The man
+fieldOfStudies: Gunnery Sergeant
+gender: awesome
+tShirtSize: m
+
+
+dn: uid=ana.potocnik,ou=people,o=aegee,c=eu
+objectclass: aegeePersonFab
+gn: Ana
+cn: Ana Photonica
+sn: Potocnik
+uid: ana.potocnik
+userpassword: aPotoC
+mail: s.smith@example.com
+mail: ssmith@example.com
+mail: sheri.smith@example.com
+description: something
+
+
+dn: uid=paul.smits,ou=people,o=aegee,c=eu  
+objectclass: aegeePersonFab
+gn: Paul
+cn: Paul Smits
+cn: Paul L Smits
+sn: Smits
+uid: paul.smits
+userpassword: pLsmitS
+mail: r.smith@example.com
+description: The big haired guy
+#ou: Comite Directeur
+

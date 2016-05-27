@@ -1,0 +1,144 @@
+#This contains data that gives some membership and stuff
+
+##OTHER NAMES
+dn: uid=somebody.responsible,ou=people,o=aegee,c=eu
+objectClass: aegeePersonFab
+cn: somebody responsible
+givenName: somebody
+mail: somebody@aegee.org
+sn: responsible
+uid: somebody.responsible
+userPassword:: amhn
+birthDate: 2015-04-14
+
+dn: uid=aegee.dude,ou=people,o=aegee,c=eu
+objectClass: aegeePersonFab
+cn: aegee dude
+givenName: aegee
+mail: dude@aegee.org
+sn: dude
+uid: aegee.dude
+userPassword:: cGlubw==
+birthDate: 2015-04-14
+
+#MEMBERSHIPS
+dn: bodyCode=LOU,uid=somebody.responsible,ou=people,o=aegee,c=eu
+objectClass: aegeePersonMembership
+cn: Somebody Responsible
+uid: somebody.responsible
+bodyCode: LOU
+bodyNameAscii: Louvain-la-neuve
+bodyCategory: Local
+mail: louvain@louvain
+o: something
+memberSinceDate: 20/5/2013
+memberUntilDate: 20/5/2014
+memberType: Member
+
+
+dn: bodyCode=LOU,uid=fabrizio.bellicano,ou=people,o=aegee,c=eu
+objectClass: aegeePersonMembership
+cn: Fabri bel
+uid: fabrizio.bellicano
+bodyCode: LOU
+bodyNameAscii: Louvain-la-neuve
+bodyCategory: Local
+mail: louvain@louvain
+o: something
+memberSinceDate: 20/5/2013
+memberUntilDate: 20/5/2014
+changeLog: 2014-09-19, membertype=ancien
+changeLog: 2014-09-10, membertype=board, title=president
+changeLog: 2014-09-11, membertype=member, title=null
+changeLog: 2014-02-24, membertype=member
+memberType: Member
+
+dn: bodyCode=LOU,uid=aegee.dude,ou=people,o=aegee,c=eu
+objectClass: aegeePersonMembership
+cn: aegee dude
+uid: aegee.dude
+bodyCode: LOU
+bodyNameAscii: Louvain-la-neuve
+bodyCategory: Local
+mail: louvain@louvain
+o: something
+memberSinceDate: 20/5/2013
+memberUntilDate: 20/5/2013
+changeLog: 2014-09-19, membertype=ancien
+changeLog: 2014-09-10, membertype=board, title=president
+changeLog: 2014-09-11, membertype=member, title=null
+changeLog: 2014-02-24, membertype=member
+memberType: Member
+
+dn: bodyCode=ITC,uid=somebody.responsible,ou=people,o=aegee,c=eu
+objectClass: aegeePersonMembership
+cn: Somebody Responsible
+uid: somebody.responsible
+bodyCode: ITC
+bodyNameAscii: it commi
+bodyCategory: Committee
+mail: itc@aegee.org
+o: something
+memberSinceDate: 20/5/2013
+memberUntilDate: 20/5/2013
+memberType: Member
+
+dn: bodyCode=PRC,uid=somebody.responsible,ou=people,o=aegee,c=eu
+objectClass: aegeePersonMembership
+cn: Somebody Responsible
+uid: somebody.responsible
+bodyCode: PRC
+bodyNameAscii: Public Relations Committee
+bodyCategory: Committee
+mail: prc@aegee
+o: something
+memberSinceDate: 20/5/2013
+memberUntilDate: 20/5/2013
+memberType: Member
+
+#GROUPS
+dn: bodyCode=H4Y,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: H4Y
+bodyNameAscii: Health 4 youth
+mail: health@aegee.org
+netcom: somebody.responsible
+o: something
+bodyCategory: Group
+
+#LOCAL GROUPS
+dn: bodyCode=BOARD,bodyCode=LOU,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: BOARD
+bodyNameAscii: Board Louvain-La-Neuve
+mail: louvain+board@aegee.org
+netcom: somebody.responsible
+o: board
+bodyCategory: LocalGroup
+
+#MEMBERSHIPS IN LOCAL GROUPS
+dn: uid=fabrizio.bellicano,bodyCode=BOARD,bodyCode=LOU,ou=bodies, o=aegee,c=eu
+objectClass: aegeePersonFab
+cn: Fabrizio Bellicano
+givenName: fabrizio
+mail: j.smith@example.com
+sn: bellicano
+uid: fabrizio.bellicano
+userPassword:: ZkJlbGxJ
+description: The man
+
+dn: uid=somebody.responsible,bodyCode=BOARD,bodyCode=LOU,ou=bodies,o=aegee,c=eu
+objectClass: aegeePersonFab
+cn: somebody responsible
+givenName: somebody
+mail: somebody@aegee.org
+sn: responsible
+uid: somebody.responsible
+userPassword:: amhn
+birthDate: 2015-04-14
+
+
+#TEST FOR GROUPOFURLS OBJECTCLASS
+dn: ou=testURLS,o=aegee,c=eu
+objectClass: organizationalUnit
+ou: testURLS

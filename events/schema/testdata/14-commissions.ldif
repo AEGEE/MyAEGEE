@@ -1,0 +1,66 @@
+
+dn: bodyCode=AUD,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: AUD
+bodyNameAscii: Audit commission
+mail: audit@aegee.org
+netcom: somebody.responsible
+o: something
+bodyCategory: Commission
+
+
+dn: bodyCode=NET,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: NET
+bodyNameAscii: Network commission
+mail: netcom@aegee.org
+netcom: somebody.responsible
+o: net
+o: something
+bodyCategory: Commission
+
+dn: bodyCode=MED,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: MED
+bodyNameAscii: Mediation commission
+mail: medcom@aegee.org
+netcom: somebody.responsible
+o: something
+o: medcom
+bodyCategory: Commission
+
+dn: bodyCode=JUR,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: JUR
+bodyNameAscii: Juridical commission
+mail: jc@aegee.org
+netcom: somebody.responsible
+o: something
+bodyCategory: Commission
+
+dn: bodyCode=CDX,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: CDX
+bodyNameAscii: Comité Directeur
+mail: headoffice@aegee.org
+netcom: somebody.responsible
+o: something
+bodyCategory: Commission
+
+dn: bodyCode=POR, bodyCode=CDX,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: POR
+bodyNameAscii: Pool of Representative
+mail: pool@aegee.org
+netcom: somebody.responsible
+o: something
+bodyCategory: Commission
+
+dn: bodyCode=LOX, bodyCode=CDX,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: LOX
+bodyNameAscii: Liaison Officers
+mail: liaisons@aegee.org
+netcom: somebody.responsible
+o: something
+bodyCategory: Commission

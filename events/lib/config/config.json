@@ -1,0 +1,16 @@
+{
+  "port": 8080,
+  "ldap": {
+    "url": "ldap://127.0.0.1:389",
+    "rootpw": "aegee"
+  },
+  "mongo": {
+    "url": "mongodb://localhost:27018"
+  },
+  "secret": "the rise and fall of ziggy stardust and spiders from mars",
+  "email": {
+    "address": "itc.test@aegee.eu",
+    "user": "itc.test",
+    "password": "suchsecretverypassword"
+  }
+}

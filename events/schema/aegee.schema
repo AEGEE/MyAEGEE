@@ -1,0 +1,428 @@
+# This schema was forked from the schema of an earlier OMS version,
+# which is currently hosted at http://www.zeus.aegee.org/svn/oms/.
+# The original schema is located at oms/trunk/DB-files/LDAP/aegee.schema
+# of that repository.
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.1 
+	NAME ( 'csn' 'cardSerialNumber' ) 
+	DESC 'Membership number' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.2 
+	NAME 'gender' 
+	DESC 'Gender' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.3 
+	NAME 'yearOfBirth' 
+	DESC 'Year of birth' 
+	EQUALITY integerMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.4 
+	NAME 'monthOfBirth' 
+	DESC 'Month of birth' 
+	EQUALITY integerMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.5 
+	NAME 'dayOfBirth' 
+	DESC 'Day of birth' 
+	EQUALITY integerMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.6 
+	NAME 'birthDate' 
+	DESC 'Birth date the (internal) format is according to ISO8601 YYYY-MM-DD to be formatted into DD/MM/YYYY from the application' 
+	EQUALITY caseExactIA5Match 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.7 
+	NAME 'fieldOfStudies' 
+	DESC 'Field of studies' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.8 
+	NAME 'loginCount' 
+	DESC 'Login count' 
+	EQUALITY integerMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.9 
+	NAME 'lastLoginDate' 
+	DESC 'Date of last login' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.10 
+	NAME 'lastLoginIP' 
+	DESC 'IP from where last login was made' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.11 
+	NAME 'homeCareOf' 
+	DESC 'Care of of home address' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.12 
+	NAME 'homeStreet' 
+	DESC 'Street of home address' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.13 
+	NAME 'homePostalCode' 
+	DESC 'Postal code of home address' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.14 
+	NAME 'homeLocalityName' 
+	DESC 'City of home address' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.15 
+	NAME 'homeCountryName' 
+	DESC 'Country of home address' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.16 
+	NAME 'homeFax' 
+	DESC 'Fax number of home address' 
+	EQUALITY telephoneNumberMatch 
+	SUBSTR telephoneNumberSubstringsMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.50{32} 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.17 
+	NAME 'mobileNumber' 
+	DESC 'Mobile number' 
+	EQUALITY telephoneNumberMatch 
+	SUBSTR telephoneNumberSubstringsMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.50{32} 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.18 
+	NAME 'messenger' 
+	DESC 'Instant messenger address with prefix denoting type of network' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.19 
+	NAME 'memberSinceDate' 
+	DESC 'Date since when person is member the (internal) format is according to ISO8601 YYYY-MM-DD to be formatted into DD/MM/YYYY from the application' 
+	EQUALITY caseExactIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.20 
+	NAME 'memberUntilDate' 
+	DESC 'Date until when person was member the (internal) format is according to ISO8601 YYYY-MM-DD to be formatted into DD/MM/YYYY from the application' 
+	EQUALITY caseExactIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.21 
+	NAME 'memberType' 
+	DESC 'Type of member (applicant, member, board, ancien, deleted, erasmus)' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.22 
+	NAME 'studentType' 
+	DESC 'Type of student (erasmus, bachelor, master, phd)' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.1.23 
+	NAME 'university' 
+	DESC 'University person is studying' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.2.1 
+	NAME 'netcomCode' 
+	DESC 'Netcom region (e.g. rainbow, balkan..)' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.2.2 
+	NAME 'bodyCode' 
+	DESC 'Body code - 3 letter unique name for local' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.2.3 
+	NAME 'bodyStatus' 
+	DESC 'Status of the body: [C|CA|A|S|T]' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.2.4 
+	NAME 'bodyCategory' 
+	DESC 'Category of body: [Working Group|Local|Project|Committee|Commission|LocalGroup|External]' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.2.5 
+	NAME 'exportPassword' 
+	DESC 'Export password' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.2.6 
+	NAME 'bodyName' 
+	DESC 'Body name' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.2.7 
+	NAME 'bodyNameAscii' 
+	DESC 'Body name (ASCII-7)' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.2.8 
+	NAME 'bodyCategoryOrder' 
+	DESC 'Order of the body categories' 
+	EQUALITY integerMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.2.9 
+	NAME 'officeLocation' 
+	DESC 'Location of the office' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.2.10 
+	NAME 'officeHours' 
+	DESC 'Times office is open' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.2.11 
+	NAME 'socialMeetingLocation' 
+	DESC 'Location of the social meeting' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.2.12 
+	NAME 'socialMeetingHours' 
+	DESC 'Times of social meeting' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.2.13 
+	NAME 'lastBoardElectionDate' 
+	DESC 'Date of last board election' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.2.14 
+	NAME 'foundedDate' 
+	DESC 'Date of founding' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.2.15 
+	NAME 'netcom' 
+	DESC 'Netcom person reference' 
+	EQUALITY caseExactIA5Match 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.4.1 
+	NAME 'latitude' 
+	DESC 'GPS Latitude' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.4.2 
+	NAME 'longitude' 
+	DESC 'GPS Longitude' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.4.3 
+	NAME 'changeLog' 
+	DESC 'Change log' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.4.4 
+	NAME 'careOf' 
+	DESC 'Care of' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.4.5 
+	NAME 'sipNumber' 
+	DESC 'SIP phone number' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.4.7 
+	NAME 'iban' 
+	DESC 'IBAN bank number' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.4.8 
+	NAME 'bic' 
+	DESC 'BIC bank number' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.4.9 
+	NAME 'bankAccount' 
+	DESC 'National bank account number' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.4.10 
+	NAME 'active' 
+	DESC 'Active object' 
+	EQUALITY booleanMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 
+	SINGLE-VALUE 
+ )
+
+attributetype ( 1.3.6.1.4.1.19881.1.4.6 
+	NAME 'tShirtSize' 
+	DESC 'The size of the T-Shirt' 
+	EQUALITY caseIgnoreMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+	SINGLE-VALUE 
+ )
+
+objectclass ( 1.3.6.1.4.1.19881.1.3.1 
+	NAME 'aegeePersonFab' 
+	DESC 'AEGEE person (uid=name,cn=people)' 
+	SUP person 
+	STRUCTURAL 
+	MUST ( givenName $ mail $ userPassword $ uid ) 
+	MAY ( csn $ gender $ jpegPhoto $ birthDate $ preferredLanguage $ fieldOfStudies $ changeLog $ tShirtSize $ drink ) 
+ )
+
+objectclass ( 1.3.6.1.4.1.19881.1.3.2 
+	NAME 'aegeeBodyFab' 
+	DESC 'AEGEE body (bodycode=X,cn=antennae/groups/commitees/commissions)' 
+	SUP top 
+	STRUCTURAL 
+	MUST ( bodyCode $ netcom $ bodyNameAscii $ mail $ bodyCategory ) 
+	MAY ( netcomCode $ bodyName $ labeledURI $ bodyStatus $ latitude $ longitude $ careOf $ postalCode $ l $ c $ telephoneNumber $ foundedDate $ info $ changeLog $ lastBoardElectionDate $ bankAccount $ description $ registeredAddress $ postalAddress $ o ) 
+ )
+
+objectclass ( 1.3.6.1.4.1.19881.1.3.3 
+	NAME 'aegeePersonMembership' 
+	DESC 'AEGEE membership of a person (bodycode=X,uid=name,cn=people)' 
+	SUP top 
+	STRUCTURAL 
+	MUST ( memberSinceDate $ memberUntilDate $ cn $ mail $ uid $ bodyCategory $ bodyCode $ bodyNameAscii $ memberType ) 
+	MAY ( labeledURI $ info $ changeLog $ title $ o $ studentType $ university $ bankAccount ) 
+ )
+
+objectclass ( 1.3.6.1.4.1.19881.1.3.4 
+	NAME 'omsAccount' 
+	DESC 'AEGEE OMS account' 
+	SUP account 
+	STRUCTURAL 
+	MUST ( givenName $ mail $ gender $ birthDate $ active ) 
+	MAY ( userPassword $ csn $ preferredLanguage $ fieldOfStudies $ loginCount $ lastLoginDate $ lastLoginIP $ changeLog ) 
+ )
+
+objectclass ( 1.3.6.1.4.1.19881.1.3.5 
+	NAME 'omsGroup' 
+	DESC 'AEGEE OMS group' 
+	SUP top 
+	STRUCTURAL 
+	MUST cn 
+	MAY ( memberUid $ changeLog ) 
+ )
+
+objectclass ( 1.3.6.1.4.1.19881.1.3.6 
+	NAME 'omsMember' 
+	DESC 'AEGEE OMS member' 
+	SUP person 
+	STRUCTURAL 
+	MUST ( bodyCode $ givenName ) 
+	MAY ( title $ careOf $ street $ postalCode $ localityName $ c $ telephoneNumber $ mobileNumber $ fax $ homeCareOf $ homeStreet $ homePostalCode $ homeLocalityName $ homeCountryName $ homePhone $ homeFax $ sipNumber $ mail $ memberSinceDate $ memberUntilDate $ memberType $ jpegPhoto $ iban $ bic $ bankaccount $ messenger $ labeledURI $ studentType $ university $ info $ changeLog ) 
+ )
+

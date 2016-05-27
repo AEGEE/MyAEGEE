@@ -1,0 +1,41 @@
+## SECOND Level hierarchy (committees)
+
+dn: bodyCode=ITC,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: ITC
+bodyNameAscii: IT Committee
+mail: itc@aegee.org
+netcom: somebody.responsible
+o: something
+bodyCategory: Committee
+
+dn: bodyCode=PRC,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: PRC
+bodyNameAscii: Public Relations Committee
+mail: prc@aegee.org
+netcom: somebody.responsible
+o: something
+bodyCategory: Committee
+
+dn: bodyCode=CHA,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: CHA
+bodyNameAscii: Chair team
+mail: chair@aegee.org
+netcom: somebody.responsible
+o: something
+bodyCategory: Committee
+
+dn: bodyCode=SUC,ou=bodies,o=aegee,c=eu
+objectClass: aegeeBodyFab
+bodyCode: SUC
+bodyNameAscii: Summer University Coordination Team
+mail: suct@aegee.org
+netcom: somebody.responsible
+o: something
+bodyCategory: Committee
+
+
+#Missing: ACT, CRC, HRC, EQUAC
+

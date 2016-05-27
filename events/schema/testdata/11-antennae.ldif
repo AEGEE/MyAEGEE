@@ -1,0 +1,97 @@
+##SECOND level hierarchy (antennae)
+
+dn: bodycode=CRN,ou=bodies,o=aegee,c=eu
+objectclass: aegeeBodyFab
+bodycode: CRN
+bodynameascii: A Coruna
+mail: acoruna@aegee.org
+netcom: ana.potocnik
+bodyCategory: Local
+bodystatus: A
+o: something
+latitude: 43.37278
+longitude: 8.39889
+
+dn: bodycode=AAC,ou=bodies,o=aegee,c=eu
+objectclass: aegeeBodyFab
+bodycode: AAC
+bodynameascii: Aachen
+mail: aachen@aegee.org
+netcom: ana.potocnik
+bodyCategory: Local
+bodystatus: A
+o: something
+latitude: 50.76667
+longitude: 6.1
+
+dn: bodycode=ADA,ou=bodies,o=aegee,c=eu
+objectclass: aegeeBodyFab
+bodycode: ADA
+bodynameascii: Adana
+mail: adana@aegee.org
+netcom: ana.potocnik
+bodyCategory: Local
+bodystatus: A
+o: something
+latitude: 36.99139
+longitude: 35.32583
+
+dn: bodycode=LOU,ou=bodies,o=aegee,c=eu
+objectclass: aegeeBodyFab
+bodycode: LOU
+bodynameascii: Louvain-la-Neuve
+mail: louvain-la-neuve@aegee.org
+netcom: ana.potocnik
+bodyCategory: Local
+bodystatus: CA
+o: something
+latitude: 50.66080
+longitude: 4.61183
+
+dn: bodycode=LUG,ou=bodies,o=aegee,c=eu
+objectclass: aegeeBodyFab
+bodycode: LUG
+bodynameascii: Lugano
+mail: lugano@aegee.org
+netcom: ana.potocnik
+bodyCategory: Local
+bodystatus: C
+o: something
+latitude: 46.02942
+longitude: 8.99480
+
+dn: bodycode=LUX,ou=bodies,o=aegee,c=eu
+objectclass: aegeeBodyFab
+bodycode: LUX
+bodynameascii: Luxembourg
+mail: luxembourg@aegee.org
+netcom: ana.potocnik
+bodyCategory: Local
+bodystatus: C
+o: something
+latitude: 49.60760
+longitude: 6.13587
+
+dn: bodycode=MNC,ou=bodies,o=aegee,c=eu
+objectclass: aegeeBodyFab
+bodycode: MNC
+bodynameascii: Manchester
+mail: manchester@aegee.org
+netcom: ana.potocnik
+bodyCategory: Local
+bodystatus: C
+o: something
+latitude: 53.47224
+longitude: -2.2235
+
+dn: bodycode=NEW,ou=bodies,o=aegee,c=eu
+objectclass: aegeeBodyFab
+bodycode: NEW
+bodynameascii: Newcastle-upon-Tyne
+mail: newcastle-upon-tyne@aegee.org
+netcom: ana.potocnik
+bodyCategory: Local
+bodystatus: C
+o: something
+latitude: 55.002
+longitude: -1.65684

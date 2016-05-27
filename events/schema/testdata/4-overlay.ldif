@@ -1,0 +1,20 @@
+
+#NOT WORKING YET
+
+
+#dn: olcOverlay=dynlist,o=aegee,c=eu
+#changetype: add
+#objectClass: olcConfig
+#objectClass: olcOverlayConfig
+#olcOverlay: dynlist
+#olcDlAttrSet: groupOfURLs memberURL
+#structuralObjectClass: olcDynamicList
+
+dn: olcOverlay=dynlist, olcDatabase={1}hdb,cn=config
+changetype: add
+objectClass: olcConfig
+objectClass: olcOverlayConfig
+objectClass: olcDynamicList
+olcOverlay: dynlist
+olcDlAttrSet: groupOfURLs memberURL
+#structuralObjectClass: olcDynamicList
