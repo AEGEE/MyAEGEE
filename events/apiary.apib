@@ -4,20 +4,23 @@ HOST: http://polls.apiblueprint.org/
 # oms-events
 
 Everything related to events in the oms. You can create, list, edit, ... events.
-There is a differentiation between statutory and normal events
+Please note this document is still a draft. The shown queries might not or not fully be implemented yet. 
+This is just to create a starting point for the development
+
+# Group Event-related
 
 ## Events Database [/events]
 
 ### List All Events [GET]
 
-This gives a bruteforce listing of all events in the database.
+This gives a full listing of all events in the database.
 You most likely won't use this one except you are programming another microservice needing the full monty of events
 
 + Response 200 (application/json)
 
         [
             {
-                "id": "1",
+                "id": 1,
                 "url": "/events/1",
                 "name": "Develop Yourself",
                 "starts": "2015-08-05T08:40:51.620Z",
@@ -25,8 +28,21 @@ You most likely won't use this one except you are programming another microservi
                 "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
                 "organizing_local": "AEGEE-Dresden",
                 "type": "non-statutory",
-                "max_participants": "22",
-                "enrolled_participant": "18",
+                "status": "requesting",
+                "max_participants": 22,
+                "enrolled_participants": 18,
+            }, {
+                "id": 2,
+                "url": "/events/single/2",
+                "name": "EPM Zagreb",
+                "starts": "2015-08-05T08:40:51.620Z",
+                "ends": "2015-08-05T08:40:51.620Z",
+                "description": "New strategic plan!",
+                "organizing_local": "AEGEE-Zagreb",
+                "type": "statutory",
+                "status": "approved",
+                "max_participants": 250,
+                "enrolled_participants": 0,
             }
         ]
 
@@ -34,6 +50,7 @@ You most likely won't use this one except you are programming another microservi
 
 Add a new event, data which is left out in the first request is optional.
 If organizing local is not specified, the local of the user will be assumed.
+The creating user is automatically assigned organizer status
 
 + Request (application/json)
 
@@ -54,7 +71,7 @@ If organizing local is not specified, the local of the user will be assumed.
     + Body
 
             {
-                "id": "1",
+                "id": 1,
                 "url": "/events/1",
                 "name": "Develop Yourself",
                 "starts": "2015-08-05T08:40:51.620Z",
@@ -62,8 +79,8 @@ If organizing local is not specified, the local of the user will be assumed.
                 "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
                 "organizing_local": "AEGEE-Dresden",
                 "type": "non-statutory",
-                "max_participants": "",
-                "enrolled_participant": "",
+                "max_participants": 0,
+                "enrolled_participants": 0,
             }
             
             
@@ -76,8 +93,8 @@ If organizing local is not specified, the local of the user will be assumed.
             "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
             "organizing_local": "AEGEE-Erfurt",
             "type": "non-statutory",
-            "max_participants": "22",
-            "enrolled_participant": "18",
+            "max_participants": 22,
+            "enrolled_participants": 18,
         }
 
 + Response 201 (application/json)
@@ -89,7 +106,7 @@ If organizing local is not specified, the local of the user will be assumed.
     + Body
 
             {
-                "id": "1",
+                "id": 1,
                 "url": "/events/1",
                 "name": "Develop Yourself",
                 "starts": "2015-08-05T08:40:51.620Z",
@@ -97,6 +114,226 @@ If organizing local is not specified, the local of the user will be assumed.
                 "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
                 "organizing_local": "AEGEE-Erfurt",
                 "type": "non-statutory",
-                "max_participants": "22",
-                "enrolled_participant": "18",
+                "max_participants": 22,
+                "enrolled_participants": 18,
             }
+            
+## Events Details [/events/single/{event_id}]
+
+Details actions should only be available to superusers or users linked witht the event
+
++ Parameters
+    + event_id (number) - ID of the event to get details to
+    
+### View event details [GET]
+
+Gets a more detailed view for an event including participants and organizers list.
+
++ Response 200 (application/json)
+
+        {
+            "id": 1,
+            "url": "/events/single/1",
+            "name": "Develop Yourself",
+            "starts": "2015-08-05T08:40:51.620Z",
+            "ends": "2015-08-05T08:40:51.620Z",
+            "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
+            "organizing_local": "AEGEE-Dresden",
+            "type": "non-statutory",
+            "max_participants": 22,
+            "enrolled_participants": 2,
+            "participants_list" : [
+                {
+                    "id": 8,
+                    "first_name": "Max",
+                    "last_name": "Mustermann",
+                    "status": "requesting"
+                }, {
+                    "id": 15,
+                    "first_name": "Heinz",
+                    "last_name": "Hammer",
+                    "status": "pending"
+                }, {
+                    "id": 2,
+                    "first_name": "Frank",
+                    "last_name": "Fortune",
+                    "status": "accepted"
+                }
+            ],
+            "organizers_list": [
+                {
+                    "id": 9,
+                    "first_name": "Ingo",
+                    "last_name": "Indiana"
+                }, {
+                    "id": 22,
+                    "first_name": "Karl",
+                    "last_name": "Kühne"
+                }
+            ],
+        }
+    
+### Update an event [PUT]
+
+Change details about one event. 
+For changes in participants or organizers, use events/{id}/participants bzw /organizers
+
++ Request (application/json)
+
+            {
+                "description": "It's awesome",
+            }
+            
++ Response 201 (application/json)
+
+        {
+            "id": 1,
+            "url": "/events/single/1",
+            "name": "Develop Yourself",
+            "starts": "2015-08-05T08:40:51.620Z",
+            "ends": "2015-08-05T08:40:51.620Z",
+            "description": "It's awesome",
+            "organizing_local": "AEGEE-Dresden",
+            "type": "non-statutory",
+            "max_participants": 22,
+            "enrolled_participants": 3,
+        }
+        
+
+        
+## Events Participants [/events/single/{event_id}/participants]
+
+### List all enrolled participants [GET]
+
+Returns all participants in this event and their enrolment status
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": 8,
+                "first_name": "Max",
+                "last_name": "Mustermann",
+                "status": "requesting"
+            }, {
+                "id": 15,
+                "first_name": "Heinz",
+                "last_name": "Hammer",
+                "status": "pending"
+            }, {
+                "id": 2,
+                "first_name": "Frank",
+                "last_name": "Fortune",
+                "status": "accepted"
+            }
+        ]
+    
+### Apply to an event [POST]
+
+As long as subscription is open, any user can sign up for an event.
+All user data that can be taken from the user's account will be used
+(first_name, last_name, id). Status will be "requesting".
+TODO: add custom fields (questions, etc)
+
++ Request (application/json)
+
+        {
+            "motivation": "I am unmotivated",
+            "allergies": "Glutenintolerant vegan, doesn't like tofu"
+        }
+        
++ Response 201 (text/plain)
+
+        Your application as participant has been recorded.
+        
+## Events Organizers [/events/single/{event_id}/organizers]
+
+### List all contributing organizers [GET]
+
+Organizers have full access to all event details
+
++ Response 200 (applicaton/json)
+
+        [
+            {
+                "id": 9,
+                "first_name": "Ingo",
+                "last_name": "Indiana"
+            }, {
+                "id": 22,
+                "first_name": "Karl",
+                "last_name": "Kühne"
+            }
+        ]
+        
+### Apply as organizer [POST]
+
+Takes currently logged on user credentials and requests organizer state for that user.
+Your application will have to be approved by an existing organizer
+
++ Response 201 (text/plain)
+
+        Your application as organizer has been recorded.
+        
+# Group Other views
+
+## Participation per user [/user/{user_id}/participation]
+
++ Parameters
+    + user_id (number) - ID of the user for that details should be displayed
+
+### List user's participation [GET]
+
++ Response 200 (application/json)
+    
+        [
+            {
+                "id": 1,
+                "name": "Develop Yourself",
+                "type": "organizer",
+                "status": "approved"
+            }, {
+                "id": 2,
+                "name": "EPM Zagreb",
+                "type": "participant",
+                "status": "requested"
+            }
+        ]
+
+
+## Events per antenna [/antenna/{antenna}]
+
++ Parameters
+    + antenna (string) - Name of the antenna the events are requested from
+
+### List events per antenna [GET]
+
++ Response 200 (application/json)
+        
+        [
+            {
+                "id": 1,
+                "url": "/events/1",
+                "name": "Develop Yourself",
+                "starts": "2015-08-05T08:40:51.620Z",
+                "ends": "2015-08-05T08:40:51.620Z",
+                "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
+                "organizing_local": "AEGEE-Dresden",
+                "type": "non-statutory",
+                "max_participants": 22,
+                "enrolled_participants": 18,
+            }
+        ]
+
+## Microservice status [/status/]
+
+Nerdporn and maybe also nice for resource monitoring
+
+### Get current status [GET]
+
++ Response 200 (application/json)
+
+        {
+            "uptime": "08:40:22"
+            "requests_since_boot": 918293
+        }
