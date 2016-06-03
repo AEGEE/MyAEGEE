@@ -1,6 +1,6 @@
 {
   "port": 8082,
-  
-  "secret": "Say what again. Say what again, I dare you, I double dare you motherfucker, say what one more Goddamn time!",
+  "mongourl": "mongodb://localhost:27017/events",
+  "secret": "Say what again. Say what again, I dare you, I double dare you motherfucker, say what one more Goddamn time!"
   
 }
