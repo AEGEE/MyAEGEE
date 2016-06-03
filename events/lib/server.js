@@ -31,9 +31,9 @@ server.use(events.countRequests);
 server.get({path: '/events', version: cur_version}, events.listEvents );
 server.post({path: '/events', version: cur_version}, events.addEvent );
 
-//server.get({path: '/events/single/:event_id', version: cur_version}, events.eventDetails );
+server.get({path: '/events/single/:event_id', version: cur_version}, events.eventDetails );
 //server.put({path: '/events/single/:event_id', version: cur_version}, events.editEvent );
-//server.delete({path: '/events/single/:event_id', version: cur_version}, events.deleteEvent );
+server.del({path: '/events/single/:event_id', version: cur_version}, events.deleteEvent );
 
 //server.get({path: '/events/single/:event_id/participants', version: cur_version}, events.listParticipants );
 //server.post({path: '/events/single/:event_id/participants', version: cur_version}, events.applyParticipant );
