@@ -1,11 +1,11 @@
 var bunyan = require('bunyan');
 
 var log = bunyan.createLogger({
-    name: 'oms-core',
+    name: 'oms-events',
     streams: [{
         type: 'rotating-file',
         level: 'info',
-        path: './../log/oms-core.log',
+        path: './../log/oms-events.log',
         period: '1d',
         count: 7
     }],
