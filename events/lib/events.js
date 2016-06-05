@@ -18,7 +18,6 @@ var stats = {
 /** Requests for all events **/
 
 exports.listEvents = function(req, res) {
-	log.info('Hallo Welt');
 	Event.find({}).select(['name', 'starts', 'ends', 'description', 'organizing_locals', 'type', 'status', 'max_participants', 'application_deadline', 'application_status'].join(' ')).exec(function(err, events) {
 		if (err) {log.info(err);return next(new restify.InternalError());}
 		
@@ -46,7 +45,6 @@ exports.addEvent = function(req, res, next) {
 	newevent.save(function(err) {
 		if(err)
 			return next(new restify.InvalidContentError(JSON.stringify(err)));
-		log.info('Created new event %s', newevent);
 		delete newevent.applications;
 		res.json(newevent);
 	});
@@ -56,10 +54,19 @@ exports.addEvent = function(req, res, next) {
 /** Single event **/
 
 exports.eventDetails = function(req, res, next) {
-	Event.findById(req.params.event_id).select(['-__v', '-applications', '-organizers'].join(' ')).exec(function(err, event) {
+	Event.findById(req.params.event_id).select(['-__v'].join(' ')).exec(function(err, event) {
 		if (err) {log.info(err);return next(new restify.InternalError());}
 		if (event == null) 
 			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
+		
+		var event = event.toObject();
+		
+		// TODO: Check if user is allowed to see this, meaning is organizer or participant
+		if(event.application_status == 'open')
+			delete event.applications;
+		
+		// TODO: Check if user is allowed to see this, meaning is organizer
+		// delete event.organizers;
 		
 		res.json(event);
 	});
@@ -67,16 +74,41 @@ exports.eventDetails = function(req, res, next) {
 
 exports.editEvent = function(req, res, next) {
 	var data = req.body;
-	// TODO Check for user privilegies
-	// TODO Only allow edits for draft-events
-	// TODO Only let CD/SUCT/EQUARK members change to approved
+	// TODO Check if user is organizer
 	delete data.applications;
 	delete data.organizers;
-	Event.findByIdAndUpdate(req.params.event_id, data, function(err, event) {
-		if (err)
-			return next(new restify.InvalidContentError(JSON.stringify(err)));
+	Event.findById(req.params.event_id, function(err, event) {
+		if (err) {log.info(err);return next(new restify.InternalError());}
+		if (event == null) 
+			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
 		
-		res.json(event);
+		// TODO: CD/SUCT/EQUARK can still edit even if not in draft
+		if (event.status != 'draft'){
+			delete event.name;
+			delete event.starts;
+			delete event.ends;
+			delete event.description;
+			delete event.type;
+			delete event.application_fields;
+		}
+		
+		// TODO Only let CD/SUCT/EQUARK members change to approved
+		
+		
+		for (var key in data) {
+			event[key] = data[key];
+		}
+		
+		event.save(function(err) {
+			if (err) {log.info(err);return next(new restify.InternalError());}
+			
+			var retval = event.toObject();
+			delete retval.applications;
+			delete retval.organizers;
+			delete retval.__v;
+			
+			res.json(retval);
+		});
 	});
 }
 
@@ -120,11 +152,13 @@ exports.applyParticipant = function(req, res, next) {
 		if (err) {log.info(err);return next(new restify.InternalError());}
 		if (event == null) 
 			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
+		if (event.application_status != 'open')
+			return next(new restify.ForbiddenError('Event not open for applications'));
 
 		var data = req.body;
 		delete data.application_status;
 		delete data.cache_first_name;
-		delete data.cache_last_name;
+		delete data.cache_last_napme;
 		delete data._id;
 		delete data.foreign_id;
 		delete data.cache_update;
@@ -133,15 +167,7 @@ exports.applyParticipant = function(req, res, next) {
 		// TODO check if user has applied already
 		data.foreign_id = "cave.johnson";
 		
-		// Make sure only application fields which are defined in the event are filled
-		var cleanApplication = {}
-		data.application_fields.forEach(function(rule) {
-			if(data.application.hasOwnProperty(rule.name))
-				cleanApplication[rule.name] = data.application[rule.name];
-		});
-		delete data.application;
-		data.application = cleanApplication;
-		
+		// TODO: Check for application validity (user can insert any fields now)
 		applications.push(data);
 		
 		event.save(function(err) {
@@ -193,7 +219,7 @@ exports.setApplication = function(req, res, next) {
 		delete application._id;
 		delete application.foreign_id;
 		// TODO Only let user change application status if organizer
-		
+		// TODO Check for application validity
 		event.applications[index] = application;
 		event.save(function(err) {
 			if (err) {log.info(err);return next(new restify.InternalError());}

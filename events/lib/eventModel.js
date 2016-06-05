@@ -7,7 +7,10 @@ var paxSchema = mongoose.Schema({
 	cache_update: Date, // When were cached lastname and firstname updated
 	foreign_id: {type: String, required: true}, // ID in oms-core
 	application_status: {type: String, enum: ['requesting', 'pending', 'approved', 'deleted'], default: 'requesting'},
-	application: mongoose.Schema.Types.Mixed,
+	application: [{
+		name: {type: String, required: true},
+		value: String
+	}]
 });
 
 var orgaSchema = mongoose.Schema({
@@ -15,7 +18,7 @@ var orgaSchema = mongoose.Schema({
 	cache_last_name: String,
 	cache_update: Date,
 	foreign_id: {type: String, required: true},
-	role: {type: String, enum: ['write', 'read'], default: 'write'},
+	role: {type: String, enum: ['full', 'readonly'], default: 'full'},
 });
 
 var localSchema =  mongoose.Schema({
@@ -40,7 +43,7 @@ var eventSchema =  mongoose.Schema({
 	type: {type: String, enum: ['non-statutory', 'statutory', 'su'], default: 'non-statutory'},
 	status: {type: String, enum: ['draft', 'requesting', 'approved', 'deleted'], default: 'draft'},
 	max_participants: {type: Number, default: 0},
-	application_deadline: {type: Date, required: true},
+	application_deadline: Date,
 	application_status: {type: String, enum: ['closed', 'open'], default: 'closed'},
 	application_fields: [applicationFieldSchema],
 	applications: [paxSchema],
@@ -54,6 +57,12 @@ eventSchema.pre('save', function(next) {
 		this.application_fields = [{'name':'motivation'},{'name':'allergies'},{'name':'disabilities'}];
 	}
 	next();
+});
+eventSchema.pre('validate', function(next) {
+	if(this.application_status == 'open' && this.status == 'draft')
+		next(Error('Cannot open the application on a draft event'));
+	else
+		next();
 });
 
 

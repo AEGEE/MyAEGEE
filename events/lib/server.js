@@ -54,10 +54,10 @@ server.post({path: '/single/:event_id/organizers', version: cur_version}, events
 server.del({path: 'single/:event_id/organizers/:user_id', version: cur_version}, events.delOrganizer );
 
 //server.get({path: '/single/:event_id/locals', version: cur_version}, events.listOrganizingLocals ); // optional
-server.put({path: '/single/:event_id/locals', version: cur_version}, events.setOrganizingLocals );
+//server.put({path: '/single/:event_id/locals', version: cur_version}, events.setOrganizingLocals );
 
 //server.get({path: '/single/:event_id/applicationfields', version: cur_version}, events.listApplicationFields ); // optional
-server.put({path: '/single/:event_id/applicationfields', version: cur_version}, events.setApplicationFields );
+//server.put({path: '/single/:event_id/applicationfields', version: cur_version}, events.setApplicationFields );
 
 //server.get({path: '/user/:user_id', version: cur_version}, events.listByUser );
 //server.get({path: '/antenna/:antenna_id', version: cur_version}, events.listByAntenna );
