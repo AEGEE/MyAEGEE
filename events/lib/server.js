@@ -24,30 +24,40 @@ server.use(restify.CORS());
 //for endpoints declared from here onwards, apply the middleware "verifyToken"
 //server.use(core.verifyToken);
 
+// Enable request logging
+server.pre(function (request, response, next) {
+  request.log.info({req: request}, 'start'); 
+  return next();
+});
+server.on('after', function (req, res, route) {
+  req.log.info({res: res}, "finished");
+});
+
 var cur_version = '0.0.1';
 
 server.use(events.countRequests);
 
-server.get({path: '/events', version: cur_version}, events.listEvents );
-server.post({path: '/events', version: cur_version}, events.addEvent );
+server.get({path: '/', version: cur_version}, events.listEvents );
+server.post({path: '/', version: cur_version}, events.addEvent );
 
-server.get({path: '/events/single/:event_id', version: cur_version}, events.eventDetails );
-server.put({path: '/events/single/:event_id', version: cur_version}, events.editEvent );
-server.del({path: '/events/single/:event_id', version: cur_version}, events.deleteEvent );
+server.get({path: '/single/:event_id', version: cur_version}, events.eventDetails );
+server.put({path: '/single/:event_id', version: cur_version}, events.editEvent );
+server.del({path: '/single/:event_id', version: cur_version}, events.deleteEvent );
 
-server.get({path: '/events/single/:event_id/participants', version: cur_version}, events.listParticipants );
-server.post({path: '/events/single/:event_id/participants', version: cur_version}, events.applyParticipant );
-//server.get({path: '/events/single/:event_id/participants/:user_id', version: cur_version}, events.getApplication );
-//server.put({path: '/events/single/:event_id/participants/:user_id', version: cur_version}, events.setApplication );
+server.get({path: '/single/:event_id/participants', version: cur_version}, events.listParticipants );
+server.post({path: '/single/:event_id/participants', version: cur_version}, events.applyParticipant );
+server.get({path: '/single/:event_id/participants/:user_id', version: cur_version}, events.getApplication );
+server.put({path: '/single/:event_id/participants/:user_id', version: cur_version}, events.setApplication );
 
-//server.get({path: '/events/single/:event_id/organizers', version: cur_version}, events.listOrganizers );
-//server.post({path: '/events/single/:event_id/organizers', version: cur_version}, events.applyOrganizer );
+server.get({path: '/single/:event_id/organizers', version: cur_version}, events.listOrganizers );
+server.post({path: '/single/:event_id/organizers', version: cur_version}, events.addOrganizer );
+server.del({path: 'single/:event_id/organizers/:user_id', version: cur_version}, events.delOrganizer );
 
-//server.get({path: '/events/single/:event_id/locals', version: cur_version}, events.listOrganizingLocals ); // optional
-//server.put({path: '/events/single/:event_id/locals', version: cur_version}, events.setOrganizingLocals );
+//server.get({path: '/single/:event_id/locals', version: cur_version}, events.listOrganizingLocals ); // optional
+server.put({path: '/single/:event_id/locals', version: cur_version}, events.setOrganizingLocals );
 
-//server.get({path: '/events/single/:event_id/applicationfields', version: cur_version}, events.listApplicationFields ); // optional
-//server.put({path: '/events/single/:event_id/applicationfields', version: cur_version}. events.setApplicationFields);
+//server.get({path: '/single/:event_id/applicationfields', version: cur_version}, events.listApplicationFields ); // optional
+server.put({path: '/single/:event_id/applicationfields', version: cur_version}, events.setApplicationFields );
 
 //server.get({path: '/user/:user_id', version: cur_version}, events.listByUser );
 //server.get({path: '/antenna/:antenna_id', version: cur_version}, events.listByAntenna );

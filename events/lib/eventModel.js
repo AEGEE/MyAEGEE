@@ -5,8 +5,8 @@ var paxSchema = mongoose.Schema({
 	cache_first_name: String,
 	cache_last_name: String,
 	cache_update: Date, // When were cached lastname and firstname updated
-	id: String, // ID in oms-core
-	application_status: {type: String, enum: ['requesting', 'pending', 'approved'], default: 'requesting'},
+	foreign_id: {type: String, required: true}, // ID in oms-core
+	application_status: {type: String, enum: ['requesting', 'pending', 'approved', 'deleted'], default: 'requesting'},
 	application: mongoose.Schema.Types.Mixed,
 });
 
@@ -14,38 +14,47 @@ var orgaSchema = mongoose.Schema({
 	cache_first_name: String,
 	cache_last_name: String,
 	cache_update: Date,
-	id: String,
-	application_status: {type: String, enum: ['requesting', 'approved'], default: 'requesting'},
+	foreign_id: {type: String, required: true},
 	role: {type: String, enum: ['write', 'read'], default: 'write'},
 });
 
-var localSchema = mongoose.Schema({
+var localSchema =  mongoose.Schema({
 	cache_name: String,
 	cache_update: Date,
-	id: String
+	foreign_id: {type: String, required: true},
 });
 
-var applicationFieldSchema = mongoose.Schema({
+var applicationFieldSchema =  mongoose.Schema({
 	name: {type: String, required: true},
 	// TODO Add validation, like
 	//type: {type: String, enum: ['String', 'Number'], default: 'String'},
 	//min_length: Number
 });
 
-var eventSchema = mongoose.Schema({
-	name: {type: String, required: [true, 'No name given']},
-	starts: Date,
-	ends: Date,
-	description: String,
+var eventSchema =  mongoose.Schema({
+	name: {type: String, required: true},
+	starts: {type: Date, required: true},
+	ends: {type: Date, required: true},
+	description: {type: String, default: ''},
 	organizing_locals: [localSchema],
 	type: {type: String, enum: ['non-statutory', 'statutory', 'su'], default: 'non-statutory'},
-	status: {type: String, enum: ['draft', 'requesting', 'approved'], default: 'draft'},
-	max_participants: Number,
-	application_deadline: Date,
+	status: {type: String, enum: ['draft', 'requesting', 'approved', 'deleted'], default: 'draft'},
+	max_participants: {type: Number, default: 0},
+	application_deadline: {type: Date, required: true},
 	application_status: {type: String, enum: ['closed', 'open'], default: 'closed'},
 	application_fields: [applicationFieldSchema],
-	participants: [paxSchema],
+	applications: [paxSchema],
 	organizers: [orgaSchema],
 });
+eventSchema.set('toJSON', {virtuals: true});
+eventSchema.set('toObject', {virtuals: true});
+eventSchema.virtual('url').get(function() {return '/single/' + this._id;});
+eventSchema.pre('save', function(next) {
+	if(!this.application_fields || this.application_fields.length == 0) {
+		this.application_fields = [{'name':'motivation'},{'name':'allergies'},{'name':'disabilities'}];
+	}
+	next();
+});
+
 
 module.exports = mongoose.model('Event', eventSchema);
