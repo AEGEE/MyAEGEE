@@ -9,7 +9,7 @@ This is just to create a starting point for the development
 
 # Group Event-related
 
-## Events Database [/events]
+## Events Database [/]
 
 ### List All Events [GET]
 
@@ -20,29 +20,47 @@ You most likely won't use this one except you are programming another microservi
 
         [
             {
-                "id": 1,
-                "url": "/events/1",
-                "name": "Develop Yourself",
-                "starts": "2015-08-05T08:40:51.620Z",
-                "ends": "2015-08-05T08:40:51.620Z",
-                "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
-                "organizing_local": "AEGEE-Dresden",
-                "type": "non-statutory",
-                "status": "requesting",
+                "_id": "57545087bc5d433f1656225c",
+                "name": "Develop Yourself ",
+                "starts": "2015-12-11T14:00:00.000Z",
+                "ends": "2015-12-14T11:00:00.000Z",
+                "description": "awesome training event",
                 "max_participants": 22,
-                "enrolled_participants": 18,
-            }, {
-                "id": 2,
-                "url": "/events/single/2",
+                "application_deadline": "2015-11-30T00:00:00.000Z",
+                "application_status": "closed",
+                "status": "draft",
+                "type": "non-statutory",
+                "organizing_locals": [
+                    {
+                        "foreign_id": "DRE",
+                        "name": "AEGEE-Dresden",
+                    }
+                ],
+                "url": "/single/57545087bc5d433f1656225c",
+                "id": "57545087bc5d433f1656225c"
+            },
+            {
+                "_id": "5754557ddc1639f652285755",
                 "name": "EPM Zagreb",
-                "starts": "2015-08-05T08:40:51.620Z",
-                "ends": "2015-08-05T08:40:51.620Z",
-                "description": "New strategic plan!",
-                "organizing_local": "AEGEE-Zagreb",
+                "starts": "2017-02-23T00:00:00.000Z",
+                "ends": "2017-02-27T00:00:00.000Z",
+                "description": "Drafting the Action Agenda and drinking cheap vodka",
+                "max_participants": 300,
+                "application_deadline": "2017-01-01T00:00:00.000Z",
+                "application_status": "closed",
+                "status": "draft",
                 "type": "statutory",
-                "status": "approved",
-                "max_participants": 250,
-                "enrolled_participants": 0,
+                "organizing_locals": [
+                    {
+                        "foreign_id": "ZAG",
+                        "name": "AEGEE-Zagreb"
+                    },
+                    {
+                        "foreign_id": "SOF",
+                        "name": "AEGEE-Sofia"
+                    }
+                ],
+                "url": "/single/5754557ddc1639f652285755",
             }
         ]
 
@@ -55,84 +73,77 @@ The creating user is automatically assigned organizer status
 + Request (application/json)
 
         {
-            "name": "Develop Yourself",
-            "starts": "2015-08-05T08:40:51.620Z",
-            "ends": "2015-08-05T08:40:51.620Z",
-            "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
+            "name": "Develop Yourself ",
+            "starts": "2015-12-11 15:00",
+            "ends": "2015-12-14 12:00",
+            "description": "awesome training event",
+            "application_deadline": "2015-11-30",
+            "organizing_locals": [
+                {
+                    "foreign_id": "DDD"
+                }
+            ],
             "type": "non-statutory",
+            "max_participants": 22
         }
 
 + Response 201 (application/json)
-
-    + Headers
-
-            Location: /events/1
-
-    + Body
-
-            {
-                "id": 1,
-                "url": "/events/1",
-                "name": "Develop Yourself",
-                "starts": "2015-08-05T08:40:51.620Z",
-                "ends": "2015-08-05T08:40:51.620Z",
-                "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
-                "organizing_local": "AEGEE-Dresden",
-                "type": "non-statutory",
-                "max_participants": 0,
-                "enrolled_participants": 0,
-            }
-            
-            
-+ Request (application/json)
 
         {
-            "name": "Develop Yourself",
-            "starts": "2015-08-05T08:40:51.620Z",
-            "ends": "2015-08-05T08:40:51.620Z",
-            "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
-            "organizing_local": "AEGEE-Erfurt",
-            "type": "non-statutory",
+            "name": "Develop Yourself ",
+            "starts": "2015-12-11T15:00:00.000Z",
+            "ends": "2015-12-14T12:00:00.000Z",
+            "description": "awesome training event",
             "max_participants": 22,
-            "enrolled_participants": 18,
+            "_id": "57545087bc5d433f1656225c",
+            "organizers": [
+                {
+                    "first_name": "Cave",
+                    "last_name": "Johnson",
+                    "foreign_id": "cave.johnson",
+                }
+            ],
+            "application_fields": [
+                {
+                  "name": "motivation",
+                },
+                {
+                  "name": "allergies",
+                },
+                {
+                  "name": "disabilities",
+                }
+            ],
+            "application_status": "closed",
+            "application_deadline": "2015-11-30T00:00:00.000Z",
+            "status": "draft",
+            "type": "non-statutory",
+            "organizing_locals": [
+                {
+                  "name": "AEGEE-Dresden",
+                  "foreign_id": "DRE",
+                }
+            ],
+            "url": "/single/57545087bc5d433f1656225c",
         }
-
-+ Response 201 (application/json)
-
-    + Headers
-
-            Location: /events/1
-
-    + Body
-
-            {
-                "id": 1,
-                "url": "/events/1",
-                "name": "Develop Yourself",
-                "starts": "2015-08-05T08:40:51.620Z",
-                "ends": "2015-08-05T08:40:51.620Z",
-                "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
-                "organizing_local": "AEGEE-Erfurt",
-                "type": "non-statutory",
-                "max_participants": 22,
-                "enrolled_participants": 18,
-            }
             
-## Events Details [/events/single/{event_id}]
+## Events Details [/single/{event_id}]
 
-Details actions should only be available to superusers or users linked witht the event
+Details actions should only be available to superusers or users linked with the event
 
 + Parameters
-    + event_id (number) - ID of the event to get details to
-    
+    + event_id (string) - ID of the event to get details to
+
+
 ### View event details [GET]
 
-Gets a more detailed view for an event including participants and organizers list.
+Gets a more detailed view for an event.
+For organizers or participants list, use the specialized API-Calls
 
 + Response 200 (application/json)
 
         {
-            "id": 1,
+            "id": "57545670dc1639f652285762",
             "url": "/events/single/1",
             "name": "Develop Yourself",
             "starts": "2015-08-05T08:40:51.620Z",
@@ -141,34 +152,78 @@ Gets a more detailed view for an event including participants and organizers lis
             "organizing_local": "AEGEE-Dresden",
             "type": "non-statutory",
             "max_participants": 22,
-            "enrolled_participants": 2,
+            "application_deadline": "2017-01-01T00:00:00.000Z",
+            "application_fields": [
+                {
+                    "name": "Motivation",
+                    "_id": "57545670dc1639f652285762"
+                },
+                {
+                    "name": "Allergies",
+                    "_id": "57545670dc1639f652285761"
+                },
+                {
+                    "name": "Disabilities",
+                    "_id": "57545670dc1639f652285760"
+                },
+                {
+                    "name": "TShirt-Size",
+                    "_id": "57545670dc1639f65228575f"
+                },
+                {
+                    "name": "Meaning of Life",
+                    "_id": "57545670dc1639f65228575e"
+                }
+            ],
             "participants_list" : [
                 {
-                    "id": 8,
+                    "foreign_id": "max.mustermann",
                     "first_name": "Max",
                     "last_name": "Mustermann",
-                    "status": "requesting"
+                    "status": "requesting",
+                    "application" : [
+                        {
+                            "field_id": "57545670dc1639f652285762",
+                            "value": "Unmotivated",
+                        }, {
+                            "field_id": "57545670dc1639f652285761",
+                            "value": "Gluten, Lactose, Germans",
+                        }, {
+                            "field_id": "57545670dc1639f652285760",
+                            "value": "No disabilities",
+                        }, {
+                            "field_id": "57545670dc1639f65228575f",
+                            "value": "XS",
+                        }, {
+                            "field_id": "57545670dc1639f65228575e",
+                            "value": "42",
+                        }
+                    ],
                 }, {
-                    "id": 15,
+                    "foreign_id": "heinz.hammer",
                     "first_name": "Heinz",
                     "last_name": "Hammer",
-                    "status": "pending"
+                    "status": "pending",
+                    "application": [],
                 }, {
-                    "id": 2,
+                    "foreign_id": "frank.fortune",
                     "first_name": "Frank",
                     "last_name": "Fortune",
-                    "status": "accepted"
+                    "status": "accepted",
+                    "application": [],
                 }
             ],
             "organizers_list": [
                 {
-                    "id": 9,
+                    "foreign_id": "ingo.indiana",
                     "first_name": "Ingo",
-                    "last_name": "Indiana"
+                    "last_name": "Indiana",
+                    "role": "full"
                 }, {
-                    "id": 22,
+                    "foreign_id": "karl.kühne2",
                     "first_name": "Karl",
                     "last_name": "Kühne"
+                    "role": "readonly"
                 }
             ],
         }
@@ -176,7 +231,8 @@ Gets a more detailed view for an event including participants and organizers lis
 ### Update an event [PUT]
 
 Change details about one event. 
-For changes in participants or organizers, use events/{id}/participants bzw /organizers
+For changes in participants or organizers, use events/{id}/participants or /organizers.
+Can only be done by an organizer
 
 + Request (application/json)
 
@@ -199,9 +255,17 @@ For changes in participants or organizers, use events/{id}/participants bzw /org
             "enrolled_participants": 3,
         }
         
+### Remove an event [DELETE]
 
+Removes the current event. Can only be done by an organizer. 
+Internally it won't be deleted but just set to deleted, but it won't appear in any listing. Details are however still available
+
++ Response 200 (text/plain)
         
-## Events Participants [/events/single/{event_id}/participants]
+        Event successfully deleted
+        
+
+## Events Participants [/single/{event_id}/participants]
 
 ### List all enrolled participants [GET]
 
@@ -211,42 +275,143 @@ Returns all participants in this event and their enrolment status
 
         [
             {
-                "id": 8,
+                "foreign_id": "max.mustermann",
                 "first_name": "Max",
                 "last_name": "Mustermann",
-                "status": "requesting"
+                "application_status": "requesting",
+                "application" : [
+                    {
+                        "field_id": "57545670dc1639f652285762",
+                        "value": "Unmotivated",
+                    }, {
+                        "field_id": "57545670dc1639f652285761",
+                        "value": "Gluten, Lactose, Germans",
+                    }, {
+                        "field_id": "57545670dc1639f652285760",
+                        "value": "No disabilities",
+                    }, {
+                        "field_id": "57545670dc1639f65228575f",
+                        "value": "XS",
+                    }, {
+                        "field_id": "57545670dc1639f65228575e",
+                        "value": "42",
+                    }
+                ],
             }, {
-                "id": 15,
+                "foreign_id": "heinz.hammer",
                 "first_name": "Heinz",
                 "last_name": "Hammer",
-                "status": "pending"
+                "application_status": "pending",
+                "application": [],
             }, {
-                "id": 2,
+                "foreign_id": "frank.fortune",
                 "first_name": "Frank",
                 "last_name": "Fortune",
-                "status": "accepted"
+                "application_status": "accepted",
+                "application": [{
+                        "field_id": "57545670dc1639f652285762",
+                        "value": "I like AIESEC"
+                    }],
             }
-        ]
+        ],
     
 ### Apply to an event [POST]
 
 As long as subscription is open, any user can sign up for an event.
 All user data that can be taken from the user's account will be used
 (first_name, last_name, id). Status will be "requesting".
-TODO: add custom fields (questions, etc)
+The application is an array with the _id of the field and the value you want to put. 
+The field needs to exist, but not all fields need to be filled
 
 + Request (application/json)
 
         {
-            "motivation": "I am unmotivated",
-            "allergies": "Glutenintolerant vegan, doesn't like tofu"
+            "application": [
+                {
+                    "field_id": "57545670dc1639f652285762",
+                    "value": "I am unmotivated"
+                }, {
+                    "field_id": "57545670dc1639f652285761",
+                    "value": "Glutenintolerant vegan, doesn't like tofu"
+                }, {
+                    "field_id": "57545670dc1639f652285760",
+                    "value": "Leg missing"
+                }
+            ]
         }
         
 + Response 201 (text/plain)
+    
+    + Headers
+    
+            Location: /single/57545670dc1639f652285762/participants/hanz.wurst
+    
+    + Body
 
-        Your application as participant has been recorded.
+            Your application as participant has been recorded.
         
-## Events Organizers [/events/single/{event_id}/organizers]
+        
+## Application management [/single/{event_id}/participants/{user_id}]
+
+### Get one specfic application [GET]
+
+Returns the details for this specific application. 
+Succeeds if either the user is the owner of the application, the user is organizer or participant and the application is closed, the user is board member of the same local
+
++ Response 200 (application/json)
+
+        {
+          "foreign_id": "cave.johnson3",
+          "application": [
+            {
+              "field_id": "57545670dc1639f652285762",
+              "value": "Also not very motivated"
+            },
+            {
+              "field_id": "57545670dc1639f652285761",
+              "value": "Internet Explorer"
+            },
+            {
+              "field_id": "57545670dc1639f652285760",
+              "value": "Still loading microsoft startpage"
+            }
+          ],
+          "application_status": "requesting"
+        }
+        
+### Edit an application [PUT]
+
+Can be used either by the owner of the application to change his application again (if the application is still open) or by an organizer to change the application_status to approved/etc
+
++ Request
+        
+        {
+            "application_status": "approved"
+        }
+        
++ Response 200 (application/json)
+
+        {
+          "foreign_id": "cave.johnson3",
+          "application": [
+            {
+              "field_id": "57545670dc1639f652285762",
+              "value": "Also not very motivated"
+            },
+            {
+              "field_id": "57545670dc1639f652285761",
+              "value": "Internet Explorer"
+            },
+            {
+              "field_id": "57545670dc1639f652285760",
+              "value": "Still loading microsoft startpage"
+            }
+          ],
+          "application_status": "approved"
+        }
+
+    
+## Events Organizers [/single/{event_id}/organizers]
 
 ### List all contributing organizers [GET]
 
@@ -266,15 +431,37 @@ Organizers have full access to all event details
             }
         ]
         
-### Apply as organizer [POST]
+### Add an organizer [POST]
 
-Takes currently logged on user credentials and requests organizer state for that user.
-Your application will have to be approved by an existing organizer
+Adds a new organizer to the list of people with access. Can only be done if you are organizer yourself.
+
++ Request (application/json)
+
+        {
+            "foreign_id": "cave.johnson",
+            "role": "full"
+        }
 
 + Response 201 (text/plain)
+    
+    + Headers
+    
+            Location: /single/57545670dc1639f65228575d/organizers/cave.johnson2
+    
+    + Body
+    
+            User was successfully added to organizers
 
-        Your application as organizer has been recorded.
-        
+## Delete an Organizer [/single/{event_id}/organizers/{user_id}]
+
+### Delete an Organizer [DELETE]
+
+Removes an organizer from the list. The user needs to be organizer himself to do that and there must be at least 1 more organizer left
+
++ Response 200 (text/plain)
+
+        User was deleted as organizer
+
 # Group Other views
 
 ## Participation per user [/user/{user_id}/participation]
@@ -327,13 +514,13 @@ Your application will have to be approved by an existing organizer
 
 ## Microservice status [/status/]
 
-Nerdporn and maybe also nice for resource monitoring
+Nerdporn and maybe also nice for resource monitoring. Uptime is in Seconds, requests only ocunts since last reboot.
 
 ### Get current status [GET]
 
 + Response 200 (application/json)
 
         {
-            "uptime": "08:40:22"
-            "requests_since_boot": 918293
+            "uptime": 23.5
+            "requests": 918293
         }
