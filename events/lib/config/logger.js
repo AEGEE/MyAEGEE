@@ -1,13 +1,4 @@
 var bunyan = require('bunyan');
-var Stream = require('stream');
-
-var consoleStream = new Stream()
-consoleStream.writable = true
-
-consoleStream.write = function(obj) {
-	// pretty-printing your message
-	console.log(obj.msg)
-}
 
 var log = bunyan.createLogger({
     name: 'oms-events',
@@ -18,8 +9,7 @@ var log = bunyan.createLogger({
         period: '1d',
         count: 7
     }, {
-		type: 'raw',
-		stream: consoleStream,
+		stream: process.stdout,
 		level: 'info',
 	}],
     serializers: {

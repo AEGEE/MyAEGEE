@@ -2,6 +2,7 @@ var config = require('./config/config.json');
 var log = require('./config/logger');
 var restify = require('restify');
 var mongoose = require('mongoose');
+var helpers = require('./helpers');
 
 // Connect to MongoDB
 mongoose.connect(config.mongourl);
@@ -17,11 +18,12 @@ var stats = {
 
 /** Requests for all events **/
 
-exports.listEvents = function(req, res) {
+exports.listEvents = function(req, res, next) {
 	Event.find({}).select(['name', 'starts', 'ends', 'description', 'organizing_locals', 'type', 'status', 'max_participants', 'application_deadline', 'application_status'].join(' ')).exec(function(err, events) {
 		if (err) {log.info(err);return next(new restify.InternalError());}
 		
 		res.json(events);
+		return next();
 	});
 }
 
@@ -47,8 +49,8 @@ exports.addEvent = function(req, res, next) {
 			return next(new restify.InvalidContentError(JSON.stringify(err)));
 		delete newevent.applications;
 		res.json(newevent);
+		return next();
 	});
-	
 }
 
 /** Single event **/
@@ -69,6 +71,7 @@ exports.eventDetails = function(req, res, next) {
 		// delete event.organizers;
 		
 		res.json(event);
+		return next();
 	});
 }
 
@@ -94,6 +97,7 @@ exports.editEvent = function(req, res, next) {
 		
 		// TODO Only let CD/SUCT/EQUARK members change to approved
 		
+		// TODO If organizing local is set, retrieve name for that
 		
 		for (var key in data) {
 			event[key] = data[key];
@@ -108,6 +112,7 @@ exports.editEvent = function(req, res, next) {
 			delete retval.__v;
 			
 			res.json(retval);
+			return next();
 		});
 	});
 }
@@ -125,6 +130,7 @@ exports.deleteEvent = function(req, res, next) {
 			if (err) {log.info(err);return next(new restify.InternalError());}
 
 			res.send("Event successfully deleted");
+			return next();
 		});
 	});
 }
@@ -134,48 +140,55 @@ exports.listParticipants = function(req, res, next) {
 	// TODO Check for user privilegies
 	// Idea: Only let people see applications after application period ended
 	
-	Event.findById(req.params.event_id).lean().exec(function(err, event) {
+	Event.findById(req.params.event_id).exec(function(err, event) {
 		if (err) {log.info(err);return next(new restify.InternalError());}
 		if (event == null) 
 			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
 		
-		event.applications.forEach(function(x, idx) {
-			event.applications[idx].url = event.url + '/participants/' + event.applications[idx].foreign_id;
+		var applications = event.applications.toObject();
+		
+		applications.forEach(function(x, idx) {
+			applications[idx].url = event.url + '/participants/' + applications[idx].foreign_id;
 		});
 		
-		res.json(event.applications);
+		res.json(applications);
+		return next();
 	});
 }
 
 exports.applyParticipant = function(req, res, next) {
-	Event.findById(req.params.event_id, function(err, event) {
+	Event.findById(req.params.event_id).exec(function(err, event) {
 		if (err) {log.info(err);return next(new restify.InternalError());}
 		if (event == null) 
 			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
-		if (event.application_status != 'open')
-			return next(new restify.ForbiddenError('Event not open for applications'));
+		//if (event.application_status != 'open')
+		//	return next(new restify.ForbiddenError('Event not open for applications'));
 
-		var data = req.body;
-		delete data.application_status;
-		delete data.cache_first_name;
-		delete data.cache_last_napme;
-		delete data._id;
-		delete data.foreign_id;
-		delete data.cache_update;
+		var data = {application: req.body.application};
+		var tmp = helpers.checkApplicationValidity(data.application, event.application_fields);
+		if (!tmp.passed)
+			return next(new restify.InvalidContentError('Application malformed: ' + tmp.msg));
 		
+
 		// TODO insert user credentials of applying user
-		// TODO check if user has applied already
-		data.foreign_id = "cave.johnson";
+		data.foreign_id = "cave.johnson" + Math.floor((Math.random() * 3) + 1);
 		
-		// TODO: Check for application validity (user can insert any fields now)
-		applications.push(data);
+		if(event.applications.find(function(element){return element.foreign_id == data.foreign_id;}) != undefined)
+			return next(new restify.ConflictError('You have already applied!'));
+
+		event.applications.push(data);
+		
+
 		
 		event.save(function(err) {
 			if (err) {log.info(err);return next(new restify.InternalError());}
-			
-			res.send(event.url + '/participants/' + data.id);
+			log.info('Saved');
+			res.setHeader('Location', event.url + '/participants/' + data.foreign_id);
+			res.send(201, 'Your application as participant has been recorded.');
+			return next();
 		});
 	});
+	
 }
 
 exports.getApplication = function(req, res, next) {
@@ -185,12 +198,15 @@ exports.getApplication = function(req, res, next) {
 			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
 		
 		// TODO check user privilegies
-		var application = events.applications.find(function(element) {return element == req.params.user_id;});
+		// Search for the application
+		var application = event.applications.find(function(element) {return element.foreign_id == req.params.user_id;});
 		if (application == undefined)
 			return next(new restify.NotFoundError("User " + req.params.user_id + " not found"));
 		
 		res.json(application);
+		return next();
 	});
+	
 }
 
 exports.setApplication = function(req, res, next) {
@@ -200,9 +216,11 @@ exports.setApplication = function(req, res, next) {
 			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
 		
 		// TODO check user privilegies
+		
+		// Find the corresponding application
 		var index;
-		var application = events.applications.find(function(element, idx) {
-			if(element == req.params.user_id) {
+		var application = event.applications.find(function(element, idx) {
+			if(element.foreign_id == req.params.user_id) {
 				index = idx;
 				return true;
 			}
@@ -219,12 +237,23 @@ exports.setApplication = function(req, res, next) {
 		delete application._id;
 		delete application.foreign_id;
 		// TODO Only let user change application status if organizer
-		// TODO Check for application validity
-		event.applications[index] = application;
+		if(application.application_status) {
+			event.applications[index].application_status = application.application_status;
+		}
+		
+		// If the user changed it's application, check for validity
+		if(application.application) {
+			var tmp = helpers.checkApplicationValidity(application.application, event.application_fields);
+			if (!tmp.passed)
+				return next(new restify.InvalidContentError('Application malformed: ' + tmp.msg));
+			event.applications[index].application = application.application;
+		}
+	
 		event.save(function(err) {
 			if (err) {log.info(err);return next(new restify.InternalError());}
 			
-			res.json(application);
+			res.json(event.applications[index]);
+			return next();
 		});
 	});
 }
@@ -238,7 +267,13 @@ exports.listOrganizers = function(req, res, next) {
 		if (event == null) 
 			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
 		
-		res.json(event.organizers);
+		var data = event.organizers.toObject();
+		data.forEach(function(x, idx) {
+			data[idx].url = event.url + '/organizers/' + x.foreign_id;
+		});
+		
+		res.json();
+		return next();
 	});
 }
 
@@ -257,8 +292,10 @@ exports.addOrganizer = function(req, res, next) {
 		event.organizers.push(data);
 		event.save(function(err) {
 			if (err) {log.info(err);return next(new restify.InternalError());}
-			
+			res.status(201);
+			res.setHeader('Location', event.url + '/organizers/' + data.foreign_id);
 			res.json(data);
+			return next();
 		});
 	});
 }
@@ -288,52 +325,10 @@ exports.delOrganizer = function(req, res, next) {
 			if (err) {log.info(err);return next(new restify.InternalError());}
 			
 			res.json(data);
+			return next();
 		});
 	});
-}
-
-exports.setOrganizingLocals = function(req, res, next) {
-	Event.findById(req.params.event_id, function(err, event) {
-		if (err) {log.info(err);return next(new restify.InternalError());}
-		if (event == null) 
-			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
-		
-		// Validate data
-		var data = req.body;
-		if (data != undefined && Object.prototype.toString.call( data ) === '[object Array]') {
-			data.forEach(function(item, idx) {
-				delete data[idx].cache_name;
-				delete data[idx].cache_update;
-				// TODO Query for local's names
-			});
-		}
-		else
-			return next(new restify.InvalidContentError("Request malformed"));
-			
-		
-		event.organizing_locals = data;
-		event.save(function(err) {
-			if (err) {log.info(err);return next(new restify.InternalError());}
-			
-			res.json(data);
-		});
-	});
-}
-
-exports.setApplicationFields = function(req, res, next) {
-	Event.findById(req.params.event_id, function(err, event) {
-		if (err) {log.info(err);return next(new restify.InternalError());}
-		if (event == null) 
-			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
-		
-		event.application_fields = req.body;
-		event.save(function(err) {
-			if (err) {log.info(err);return next(new restify.InternalError());}
-			
-			res.json(req.body);
-		});
-		
-	});
+	
 }
 
 /** Nerdporn Requests **/
@@ -343,17 +338,19 @@ exports.countRequests = function(req, res, next) {
 	next();
 }
 
-exports.status = function(req, res) {
+exports.status = function(req, res, next) {
 	var ret = {
 		requests: stats.requests,
 		uptime: ((new Date).getTime() - stats.started) / 1000,
 		secret: config.secret
 	}
 	res.json(ret);
+	return next();
 }
 
 exports.debug = function(req, res, next) {
 	Event.remove({}, function(err) {
 		res.send("All events removed");
+		return next();
 	});
 }

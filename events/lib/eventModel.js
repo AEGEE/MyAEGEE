@@ -8,7 +8,7 @@ var paxSchema = mongoose.Schema({
 	foreign_id: {type: String, required: true}, // ID in oms-core
 	application_status: {type: String, enum: ['requesting', 'pending', 'approved', 'deleted'], default: 'requesting'},
 	application: [{
-		name: {type: String, required: true},
+		field_id: {type: String, required: true},
 		value: String
 	}]
 });
@@ -52,6 +52,7 @@ var eventSchema =  mongoose.Schema({
 eventSchema.set('toJSON', {virtuals: true});
 eventSchema.set('toObject', {virtuals: true});
 eventSchema.virtual('url').get(function() {return '/single/' + this._id;});
+eventSchema.virtual('application_url').get(function() {return this.url + '/participants';});
 eventSchema.pre('save', function(next) {
 	if(!this.application_fields || this.application_fields.length == 0) {
 		this.application_fields = [{'name':'motivation'},{'name':'allergies'},{'name':'disabilities'}];

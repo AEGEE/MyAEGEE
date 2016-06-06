@@ -6,7 +6,7 @@ var log = require('./config/logger');
 var config = require('./config/config.json');
 
 var server = restify.createServer({
-    name: 'vega',
+    name: 'oms-events',
     log: log
 });
 
@@ -51,13 +51,13 @@ server.put({path: '/single/:event_id/participants/:user_id', version: cur_versio
 
 server.get({path: '/single/:event_id/organizers', version: cur_version}, events.listOrganizers );
 server.post({path: '/single/:event_id/organizers', version: cur_version}, events.addOrganizer );
-server.del({path: 'single/:event_id/organizers/:user_id', version: cur_version}, events.delOrganizer );
+server.del({path: '/single/:event_id/organizers/:user_id', version: cur_version}, events.delOrganizer );
 
 //server.get({path: '/single/:event_id/locals', version: cur_version}, events.listOrganizingLocals ); // optional
-//server.put({path: '/single/:event_id/locals', version: cur_version}, events.setOrganizingLocals );
+//server.put({path: '/single/:event_id/locals', version: cur_version}, events.setOrganizingLocals ); // optional
 
 //server.get({path: '/single/:event_id/applicationfields', version: cur_version}, events.listApplicationFields ); // optional
-//server.put({path: '/single/:event_id/applicationfields', version: cur_version}, events.setApplicationFields );
+//server.put({path: '/single/:event_id/applicationfields', version: cur_version}, events.setApplicationFields ); // optional
 
 //server.get({path: '/user/:user_id', version: cur_version}, events.listByUser );
 //server.get({path: '/antenna/:antenna_id', version: cur_version}, events.listByAntenna );
