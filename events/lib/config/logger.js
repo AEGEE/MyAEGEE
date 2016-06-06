@@ -8,7 +8,10 @@ var log = bunyan.createLogger({
         path: './../log/oms-events.log',
         period: '1d',
         count: 7
-    }],
+    }, {
+		stream: process.stdout,
+		level: 'info',
+	}],
     serializers: {
         err: bunyan.stdSerializers.err,
         req: bunyan.stdSerializers.req,
