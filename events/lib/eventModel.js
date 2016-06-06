@@ -53,6 +53,7 @@ eventSchema.set('toJSON', {virtuals: true});
 eventSchema.set('toObject', {virtuals: true});
 eventSchema.virtual('url').get(function() {return '/single/' + this._id;});
 eventSchema.virtual('application_url').get(function() {return this.url + '/participants';});
+eventSchema.virtual('organizer_url').get(function() {return this.url + '/organizers';});
 eventSchema.pre('save', function(next) {
 	if(!this.application_fields || this.application_fields.length == 0) {
 		this.application_fields = [{'name':'motivation'},{'name':'allergies'},{'name':'disabilities'}];

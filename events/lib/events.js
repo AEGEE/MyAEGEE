@@ -272,7 +272,7 @@ exports.listOrganizers = function(req, res, next) {
 			data[idx].url = event.url + '/organizers/' + x.foreign_id;
 		});
 		
-		res.json();
+		res.json(data);
 		return next();
 	});
 }
@@ -288,13 +288,20 @@ exports.addOrganizer = function(req, res, next) {
 		delete data.cache_last_name;
 		delete data.cache_update;
 		
+		if(!data.foreign_id)
+			return next(new restify.InvalidContentError("No foreign id provided"));
+		
+		// Check if user is organizer already
+		if(event.organizers.find(function(element) {return element.foreign_id == data.foreign_id;}) != undefined)
+			return next(new restify.ConflictError("User is registered as organizer already"));
+		
 		// TODO check if user-id really exists and fetch cached name
 		event.organizers.push(data);
 		event.save(function(err) {
 			if (err) {log.info(err);return next(new restify.InternalError());}
 			res.status(201);
 			res.setHeader('Location', event.url + '/organizers/' + data.foreign_id);
-			res.json(data);
+			res.send("User was successfully added to organizers");
 			return next();
 		});
 	});
@@ -310,7 +317,7 @@ exports.delOrganizer = function(req, res, next) {
 		
 		// Remove all items fitting
 		var changed = false;
-		events.organizers = events.organizers.filter(function(item) { 
+		event.organizers = event.organizers.filter(function(item) { 
 			if (item.foreign_id == req.params.user_id) {
 				changed = true;
 				return false;
@@ -321,10 +328,13 @@ exports.delOrganizer = function(req, res, next) {
 		if(!changed)
 			return next(new restify.NotFoundError("User " + req.params.user_id + " not found"));
 		
+		if(event.organizers.length == 0)
+			return next(new restify.ConflictError("An event needs to have at least 1 organizer"));
+		
 		event.save(function(err) {
 			if (err) {log.info(err);return next(new restify.InternalError());}
 			
-			res.json(data);
+			res.send("User was deleted as organizer");
 			return next();
 		});
 	});
