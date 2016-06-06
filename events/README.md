@@ -1,7 +1,7 @@
 #Events module
 
-Until now I just copied the oms-core to have all the settings and a working base, I will remove all the oms-code from here and put my own in place.
+A first working version of the events microservice caring for the basic event-related data-management for SUs, statutory events and casual, non-statutory events. 
 
-Soon this shall be a microservice covering everything related to events and hopefully it will integrate nicely =)
+You can find the documentation of the API-Interface on [Apiary](http://docs.omsevents.apiary.io/#)
 
-A first draft of the API is available on [Apiary](http://docs.omsevents.apiary.io/#)
+Uses restify, bunyan and mongoose.

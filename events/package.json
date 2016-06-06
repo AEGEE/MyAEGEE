@@ -18,5 +18,10 @@
   "bugs": {
     "url": "https://github.com/AEGEE/oms-events/issues"
   },
-  "homepage": "https://github.com/AEGEE/oms-events#readme"
+  "homepage": "https://github.com/AEGEE/oms-events#readme",
+  "dependencies": {
+    "bunyan": "^1.8.1",
+    "mongoose": "^4.4.20",
+    "restify": "^4.1.0"
+  }
 }
