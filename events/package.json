@@ -23,5 +23,11 @@
     "bunyan": "^1.8.1",
     "mongoose": "^4.4.20",
     "restify": "^4.1.0"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-nodemon": "^2.0.7",
+    "gulp-webserver": "^0.9.1",
+    "http-proxy-middleware": "^0.15.2"
   }
 }
