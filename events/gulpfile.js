@@ -6,17 +6,24 @@ var config = require('./lib/config/config.json');
 
 
 gulp.task('frontend', function () {
+	// Redirect api calls to the backend server
 	var apiProxy = proxy('/api', {
         target: 'http://localhost:' + config.port + '/',
 		pathRewrite: {'^/api': '/'}
+    });
+
+	// Redirect static requests to the static server of oms-profiles-module
+    var staticProxy = proxy('/static', {
+    	target: 'http://localhost:8081/'
     });
 	
     gulp.src('frontend')
 		.pipe(webserver({
 			host: '0.0.0.0',
-			livereload: true,
+			livereload: false,
 			port: 8083,
-			middleware: [apiProxy]
+			fallback: 'index.html',
+			middleware: [apiProxy, staticProxy]
 		}));
 });
 

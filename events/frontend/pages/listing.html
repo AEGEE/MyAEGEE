@@ -1,0 +1,12 @@
+
+<h1>Listing view</h1>
+<ul>
+	<li ng-repeat="event in events">
+		<table>
+			<tr><td>Title</td><td><a href="{{ hashify(event.url) }}">{{ event.name }}</a></td></tr>
+			<tr><td>Description</td><td>{{ event.description }}</td></tr>
+			<tr><td>Starts</td><td>{{ event.starts }}</td></tr>
+			<tr><td>Ends</td><td>{{ event.ends }}</td></tr>
+		</table>
+	</li>
+</ul>

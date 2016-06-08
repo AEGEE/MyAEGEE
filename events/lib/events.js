@@ -236,9 +236,9 @@ exports.setApplication = function(req, res, next) {
 		delete application.cache_update;
 		delete application._id;
 		delete application.foreign_id;
-		// TODO Only let user change application status if organizer
+		// TODO Only let user change application status if organizer and application is closed
 		if(application.application_status) {
-			event.applications[index].application_status = application.application_status;
+			event.applications[index].application_status = application.application_status;  // Just copy the field
 		}
 		
 		// If the user changed it's application, check for validity
@@ -246,7 +246,7 @@ exports.setApplication = function(req, res, next) {
 			var tmp = helpers.checkApplicationValidity(application.application, event.application_fields);
 			if (!tmp.passed)
 				return next(new restify.InvalidContentError('Application malformed: ' + tmp.msg));
-			event.applications[index].application = application.application;
+			event.applications[index].application = application.application;  // Copies the field
 		}
 	
 		event.save(function(err) {

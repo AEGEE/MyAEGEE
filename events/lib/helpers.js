@@ -19,5 +19,8 @@ exports.checkApplicationValidity = function(application, application_fields) {
 	});
 	if(error)
 		return {passed: false, msg: 'Invalid field_id'};
+
+	// TODO Check for duplicate fields
+
 	return {passed: true, msg: ''};
 }
