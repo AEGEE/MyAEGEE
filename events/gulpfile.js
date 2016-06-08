@@ -13,6 +13,7 @@ gulp.task('frontend', function () {
 	
     gulp.src('frontend')
 		.pipe(webserver({
+			host: 0.0.0.0
 			livereload: true,
 			port: 8083,
 			middleware: [apiProxy]

@@ -1,10 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Test gulp-connect</title>
-  <link rel="stylesheet" type="text/css" href="css/default.css">
+	<title>Events-test</title>
+	<link rel="stylesheet" type="text/css" href="css/default.css">
+	
+
 </head>
 <body>
-<h1 class="name">Simplest examples</h1>
+	<h1 class="name">AJAX-Loaded event-listing</h1>
+	<div ng-app="" ng-controller="eventsController">
+		<ul>
+			<li ng-repeat="event in events">
+				<table>
+					<tr><td>Title</td><td><a href="{{ apiURL + event.url }}">{{ event.name }}</a></td></tr>
+					<tr><td>Description</td><td>{{ event.description }}</td></tr>
+					<tr><td>Starts</td><td>{{ event.starts }}</td></tr>
+					<tr><td>Ends</td><td>{{ event.ends }}</td></tr>
+				</table>
+			</li>
+		</ul>
+	
+	</div>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
+	<script src="index.js"></script>
 </body>
 </html>
