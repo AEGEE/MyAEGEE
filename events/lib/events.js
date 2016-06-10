@@ -1,13 +1,10 @@
 var config = require('./config/config.json');
 var log = require('./config/logger');
 var restify = require('restify');
-var mongoose = require('mongoose');
 var helpers = require('./helpers');
+var mongoose = require('./config/mongo');
+var imageserv = require('./imageserv');
 
-// Connect to MongoDB
-mongoose.connect(config.mongourl);
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
 
 var Event = require('./eventModel');
 
@@ -40,17 +37,32 @@ exports.addEvent = function(req, res, next) {
 	
 	log.info('Creating new event %s', data);
 
-	
 	var newevent = new Event(data);
 	// TODO Add current user to organizers list
 	// TODO Add current user's local to organizing locals list
-	newevent.save(function(err) {
-		if(err)
-			return next(new restify.InvalidContentError(JSON.stringify(err)));
-		delete newevent.applications;
-		res.json(newevent);
-		return next();
-	});
+
+	if(data.headImg) {
+		imageserv.uploadImage(data.headImg, function(err, url) {
+			if(err) {log.info(err); return next(new restify.InternalError());}
+			newevent.headImg = url;
+			newevent.save(function(err) {
+				if(err)
+					return next(new restify.InvalidContentError(JSON.stringify(err)));
+				delete newevent.applications;
+				res.json(newevent);
+				return next();
+			});
+		});
+	} else {
+
+		newevent.save(function(err) {
+			if(err)
+				return next(new restify.InvalidContentError(JSON.stringify(err)));
+			delete newevent.applications;
+			res.json(newevent);
+			return next();
+		});
+	}
 }
 
 /** Single event **/
@@ -87,33 +99,61 @@ exports.editEvent = function(req, res, next) {
 		
 		// TODO: CD/SUCT/EQUARK can still edit even if not in draft
 		if (event.status != 'draft'){
-			delete event.name;
-			delete event.starts;
-			delete event.ends;
-			delete event.description;
-			delete event.type;
-			delete event.application_fields;
+			delete data.name;
+			delete data.starts;
+			delete data.ends;
+			delete data.description;
+			delete data.type;
+			delete data.application_fields;
+			delete data.headImg;
 		}
+
+		
 		
 		// TODO Only let CD/SUCT/EQUARK members change to approved
 		
 		// TODO If organizing local is set, retrieve name for that
-		
+		var headImg = data.headImg;
+		delete data.headImg;
 		for (var key in data) {
 			event[key] = data[key];
 		}
-		
-		event.save(function(err) {
-			if (err) {log.info(err);return next(new restify.InternalError());}
-			
-			var retval = event.toObject();
-			delete retval.applications;
-			delete retval.organizers;
-			delete retval.__v;
-			
-			res.json(retval);
-			return next();
-		});
+
+		// If the user submitted an image, remove the old one and put the new one
+		// Sorry for ugly code...
+		if(headImg) {
+			imageserv.removeImage(event.headImg);
+			imageserv.uploadImage(data.headImg, function(err, url) {
+				if(err) {log.info(err); return next(new restify.InternalError());}
+				event.headImg = url; // Just store the url in the image
+				event.save(function(err) {
+					if (err) {log.info(err);return next(new restify.InternalError());}
+					
+					var retval = event.toObject();
+					delete retval.applications;
+					delete retval.organizers;
+					delete retval.__v;
+					delete retval.headImg;
+					
+					res.json(retval);
+					return next();
+				});
+			});
+		}
+		else {
+			event.save(function(err) {
+				if (err) {log.info(err);return next(new restify.InternalError());}
+				
+				var retval = event.toObject();
+				delete retval.applications;
+				delete retval.organizers;
+				delete retval.__v;
+				delete retval.headImg;
+				
+				res.json(retval);
+				return next();
+			});
+		}	
 	});
 }
 

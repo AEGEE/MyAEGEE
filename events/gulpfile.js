@@ -4,7 +4,6 @@ var nodemon = require('gulp-nodemon');
 var proxy = require('http-proxy-middleware');
 var config = require('./lib/config/config.json');
 
-
 gulp.task('frontend', function () {
 	// Redirect api calls to the backend server
 	var apiProxy = proxy('/api', {
@@ -27,6 +26,7 @@ gulp.task('frontend', function () {
 		}));
 });
 
+
 gulp.task('backend', function () {
 
     // Start the Node server to provide the API
@@ -35,4 +35,6 @@ gulp.task('backend', function () {
             console.log('Node server restarted!')
         });
 });
+
+
 gulp.task('default', ['frontend', 'backend']);

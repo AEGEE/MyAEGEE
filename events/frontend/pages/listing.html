@@ -1,12 +1,22 @@
 
-<h1>Listing view</h1>
-<ul>
-	<li ng-repeat="event in events">
-		<table>
-			<tr><td>Title</td><td><a href="{{ hashify(event.url) }}">{{ event.name }}</a></td></tr>
-			<tr><td>Description</td><td>{{ event.description }}</td></tr>
-			<tr><td>Starts</td><td>{{ event.starts }}</td></tr>
-			<tr><td>Ends</td><td>{{ event.ends }}</td></tr>
-		</table>
-	</li>
-</ul>
+<h1 class="page-header">Listing view</h1>
+<div class="panel-group" id="accordion">
+	<div class="panel panel-inverse overflow-hidden" ng-repeat="event in events">
+	<div class="panel-heading">
+		<h3 class="panel-title">
+			<a class="accordion-toggle accordion-toggle-styled" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ event._id }}" aria-expanded="true">{{ event.name }}
+				<i class="fa fa-plus-circle pull-right"></i>
+			</a>
+		</h3>
+	</div>
+	<div id="collapse{{ event._id }}" class="panel-collapse collapse in">
+		<div class="panel-body">
+			<table>
+				<tr><td>Title</td><td><a href="{{ hashify(event.url) }}">{{ event.name }}</a></td></tr>
+				<tr><td>Description</td><td>{{ event.description }}</td></tr>
+				<tr><td>Starts</td><td>{{ event.starts }}</td></tr>
+				<tr><td>Ends</td><td>{{ event.ends }}</td></tr>
+			</table>
+		</div>
+	</div>
+</div>

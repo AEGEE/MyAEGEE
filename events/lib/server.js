@@ -1,6 +1,7 @@
 
 var restify = require('restify');
 var events = require('./events'); //the real place where the API callbacks are
+var imageserv = require('./imageserv');
 var log = require('./config/logger');
 
 var config = require('./config/config.json');
@@ -65,6 +66,8 @@ server.del({path: '/single/:event_id/organizers/:user_id', version: cur_version}
 
 server.get({path: '/status', version: cur_version}, events.status );
 server.get({path: '/debug', version: cur_version}, events.debug );
+
+server.get({path: '/image/:image_id', version: cur_version}, imageserv.getImage );
 
 server.listen(config.port, function() {
     console.log('%s listening at %s ', server.name, server.url);

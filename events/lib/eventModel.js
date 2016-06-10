@@ -48,6 +48,7 @@ var eventSchema =  mongoose.Schema({
 	application_fields: [applicationFieldSchema],
 	applications: [paxSchema],
 	organizers: [orgaSchema],
+	headImg: {type: String}, // url for the headimage
 });
 eventSchema.set('toJSON', {virtuals: true});
 eventSchema.set('toObject', {virtuals: true});

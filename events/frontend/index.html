@@ -2,17 +2,75 @@
 <html ng-app="eventsApp">
 <head>
 	<title>Events-test</title>
+	<!-- ================== BEGIN BASE CSS STYLE ================== -->
+    <!--<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />-->
+    <link href="/static/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/static/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/static/css/animate.min-home.css" rel="stylesheet" />
+    <link href="/static/css/style.min-home.css" rel="stylesheet" />
+    <link href="/static/css/style-responsive.min-home.css" rel="stylesheet" />
+    <link href="/static/css/theme/default_frontend.css" id="theme" rel="stylesheet" />
+    <!-- ================== END BASE CSS STYLE ================== -->
+    
+    <!-- ================== BEGIN BASE JS ================== -->
+    <script src="/static/plugins/pace/pace.min.js"></script>
+    <script src="js/angular.min.js"></script>
+	<script src="js/angular-route.js"></script>
+    <!-- ================== END BASE JS ================== -->
+    
+    <link href='/static/img/favicon.png' rel='icon' type='image/x-icon' />
+
+    <!-- OWN INCLUDES -->
 	<link rel="stylesheet" type="text/css" href="css/default.css">
-	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
-	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-route.js"></script>
 	<script src="index.js"></script>
 	<script src="pages/listing.js"></script>
 	<script src="pages/single.js"></script>
 	<!-- HTML5 History API: <base href="/">-->
 </head>
 <body ng-controller="mainController">
-	<h1 class="name">AJAX-Loaded event-listing</h1>
-	<div ng-view></div>
+	<div id="page-container">
+        <!-- begin #header -->
+        <div id="header" class="header navbar navbar-default navbar-fixed-top">
+            <!-- begin container -->
+            <div class="container">
+                <!-- begin navbar-header -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#header-navbar">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a href="index" class="navbar-brand">
+                        <span class="brand-logo"></span>
+                        <span class="brand-text">
+                            <span class="text-theme">AEGEE</span> Intranet
+                        </span>
+                    </a>
+                </div>
+                <!-- end navbar-header -->
+                <!-- begin navbar-collapse -->
+                <div class="collapse navbar-collapse" id="header-navbar">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="#home" data-click="scroll-to-target" data-target="#" >HOME </a></li>
+                        <li><a href="#about" data-click="scroll-to-target">ABOUT</a></li>
+                        <li><a href="#means" data-click="scroll-to-target">ACTIVITIES</a></li>
+                        <li><a href="#testimonials" data-click="scroll-to-target">TESTIMONIALS</a></li>
+                        <li><a href="#membership" data-click="scroll-to-target">MEMBERSHIP</a></li>
+                        <li><a href="register" >REGISTER</a></li>
+                        <li><a href="login" >LOGIN</a></li>
+                    </ul>
+                </div>
+                <!-- end navbar-collapse -->
+            </div>
+            <!-- end container -->
+        </div>
+        <!-- end #header -->
+
+        <!-- templates will be inserted here -->
+		<div ng-view></div>
+
+	</div>
+
 	
 </body>
 </html>
