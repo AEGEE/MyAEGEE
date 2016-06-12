@@ -3,26 +3,34 @@ var apiURL = '/api';
 var eventsApp = angular.module('eventsApp', ['ngRoute']);
 
 
-
-eventsApp.config(function($routeProvider, $locationProvider) {
+eventsApp.config(['$routeProvider', function($routeProvider) {
         $routeProvider
 
-            // route for the home page
+            // Listing all events
             .when('/', {
                 templateUrl : 'pages/listing.html',
                 controller  : 'listingController'
             })
 
-            // route for the about page
+            // Event details
             .when('/single/:event_id', {
                 templateUrl : 'pages/single.html',
                 controller  : 'singleController'
             })
 
-		// use the HTML5 History API
-        //$locationProvider.html5Mode(true);
-    });
+            // Edit event
+            .when('/edit/:event_id', {
+            	templateUrl : 'pages/new.html',
+            	controller  : 'editEventController'
+            })
+
+            // New event
+            .when('/edit', {
+            	templateUrl : 'pages/new.html',
+            	controller  : 'editEventController'
+            })
+    }]);
 
 eventsApp.controller('mainController', function($scope) {
-	$scope.hashify = function(url) {return '/#' + url};
+	$scope.hashify = function(url) {return '/#' + url};;
 });

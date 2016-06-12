@@ -13,18 +13,21 @@
     <!-- ================== END BASE CSS STYLE ================== -->
     
     <!-- ================== BEGIN BASE JS ================== -->
-    <script src="/static/plugins/pace/pace.min.js"></script>
-    <script src="js/angular.min.js"></script>
-	<script src="js/angular-route.js"></script>
+    <script type="text/javascript" src="/static/plugins/pace/pace.min.js"></script>
+    <!-- AngularJS -->
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-route.js"></script>
+
     <!-- ================== END BASE JS ================== -->
     
     <link href='/static/img/favicon.png' rel='icon' type='image/x-icon' />
 
     <!-- OWN INCLUDES -->
 	<link rel="stylesheet" type="text/css" href="css/default.css">
-	<script src="index.js"></script>
-	<script src="pages/listing.js"></script>
-	<script src="pages/single.js"></script>
+	<script type="text/javascript" src="index.js"></script>
+	<script type="text/javascript" src="pages/listing.js"></script>
+	<script type="text/javascript" src="pages/single.js"></script>
+	<script type="text/javascript" src="pages/new.js"></script>
 	<!-- HTML5 History API: <base href="/">-->
 </head>
 <body ng-controller="mainController">
@@ -51,13 +54,9 @@
                 <!-- begin navbar-collapse -->
                 <div class="collapse navbar-collapse" id="header-navbar">
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="#home" data-click="scroll-to-target" data-target="#" >HOME </a></li>
-                        <li><a href="#about" data-click="scroll-to-target">ABOUT</a></li>
-                        <li><a href="#means" data-click="scroll-to-target">ACTIVITIES</a></li>
-                        <li><a href="#testimonials" data-click="scroll-to-target">TESTIMONIALS</a></li>
-                        <li><a href="#membership" data-click="scroll-to-target">MEMBERSHIP</a></li>
-                        <li><a href="register" >REGISTER</a></li>
-                        <li><a href="login" >LOGIN</a></li>
+                        <li><a href="{{ hashify('/') }}" >HOME </a></li>
+                        <li><a href="{{ hashify('/edit/') }}" >NEW EVENT</a></li>
+                        <li><a href="/api/debug"> REMOVE ALL EVENTS</a></li>
                     </ul>
                 </div>
                 <!-- end navbar-collapse -->
@@ -67,7 +66,7 @@
         <!-- end #header -->
 
         <!-- templates will be inserted here -->
-		<div ng-view></div>
+		<div id="body_container" ng-view></div>
 
 	</div>
 

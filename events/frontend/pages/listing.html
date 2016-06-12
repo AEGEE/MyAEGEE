@@ -4,9 +4,9 @@
 	<div class="panel panel-inverse overflow-hidden" ng-repeat="event in events">
 	<div class="panel-heading">
 		<h3 class="panel-title">
-			<a class="accordion-toggle accordion-toggle-styled" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ event._id }}" aria-expanded="true">{{ event.name }}
-				<i class="fa fa-plus-circle pull-right"></i>
-			</a>
+			<a href="{{ hashify(event.url) }}">{{ event.name }}</a>
+				
+			
 		</h3>
 	</div>
 	<div id="collapse{{ event._id }}" class="panel-collapse collapse in">

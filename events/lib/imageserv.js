@@ -20,14 +20,12 @@ exports.getImage = function(req, res, next) {
 }
 
 // Takes an image, saves it to the db and returns the URL
-exports.uploadImage = function(image) {
+// Pass a function that take an err and the resulting url
+exports.uploadImage = function(image, callback) {
 	var newimage = new Image(image);
-	var retval = undefined;
 	newimage.save(function(err) {
-		if(err) return;
-		retval = newimage.url;
+		callback(err, newimage.url);
 	});
-	return retval;
 }
 
 exports.removeImage = function(url) {

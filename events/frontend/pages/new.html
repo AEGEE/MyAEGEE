@@ -1,0 +1,88 @@
+<form id="edit_event" ng-submit="submitForm()">
+	<fieldset>
+		<h2>{{ heading }}</h2>
+
+		<div class="form-group">
+			<label>Name</label>
+			<div class="input-group">
+				<input type="text" class="form-control" ng-model="event.name" />
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Starts</label>
+			<div class="input-group date">
+				<input type="datetime-local" class="form-control" ng-model="event.starts" />
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Ends</label>
+			<div class="input-group date">
+				<input type="datetime-local" class="form-control" ng-model="event.ends" />
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Description</label>
+			<div class="input-group">
+				<input type="text" class="form-control" ng-model="event.description" />
+			</div>
+		</div>
+
+
+		<div class="form-group">
+			<label>Type</label>
+			<div class="input-group">
+				<select ng-model="event.type">
+					<option value="non-statutory">Non-Statutory</option>
+					<option value="statutory">Statutory</option>
+					<option value="su">Summer University</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Status</label>
+			<div class="input-group">
+				<select ng-model="event.status">
+					<option value="draft">Draft</option>
+					<option value="requesting">Requesting</option>
+					<option value="approved">Approved</option>
+				</select>
+			</div>
+		</div>
+
+
+		<div class="form-group">
+			<label>Maximum Number of Participants</label>
+			<div class="input-group">
+				<input type="number" class="form-control" ng-model="event.max_participants" />
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Application Deadline</label>
+			<div class="input-group date">
+				<input type="datetime-local" class="form-control" ng-model="event.application_deadline" />
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Application Status</label>
+			<div class="input-group">
+				<select ng-model="event.application_status">
+					<option value="open">Open</option>
+					<option value="closed">Closed</option>
+				</select>
+			</div>
+		</div>
+
+		<button type="submit" class="btn btn-success btn-lg btn-block">
+			Submit!
+		</button>
+
+	</fieldset>
+</form>
+
+<div class="alert alert-info">{{ messsage }}</div>

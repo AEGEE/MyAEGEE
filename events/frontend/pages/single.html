@@ -1,10 +1,37 @@
 <h1>Single View</h1>
+<br /><br /><br />
+<a href="/#/">Back to listing</a>
 
-<a href="/">Back to listing</a>
-
-<table>
-	<tr><td>Title</td><td><a href="{{ hashify(event.url) }}">{{ event.name }}</a></td></tr>
-	<tr><td>Description</td><td>{{ event.description }}</td></tr>
-	<tr><td>Starts</td><td>{{ event.starts }}</td></tr>
-	<tr><td>Ends</td><td>{{ event.ends }}</td></tr>
-</table>
+<ul>
+	<li>Title: <a href="{{ hashify(event.url) }}">{{ event.name }}</a></li>
+	<li>Description: {{ event.description }}</li>
+	<li>Starts: {{ event.starts }}</li>
+	<li>Ends: {{ event.ends }}</li>
+	<li>Organizing locals: 
+		<ul>
+			<li ng-repeat="local in event.organizing_locals">{{ local.foreign_id }}</li>
+		</ul>
+	</li>
+	<li>Type: {{ event.type }}</li>
+	<li>Status: {{ event.status }}</li>
+	<li>Maximum # Partícipants: {{ event.max_participants }}</li>
+	<li>Type: {{ event.type }}</li>
+	<li>Application Deadline: {{ event.application_deadline }}</li>
+	<li>Application Status: {{ event.application_status }}</li>
+	<li>Application Fields:
+		<ul>
+			<li ng-repeat="app_field in event.application_fields">{{ app_field.name }}</li>
+		</ul>
+	</li>
+	<li>Organizers:
+		<ul>
+			<li ng-repeat="organizer in event.organizers">{{ organizer.foreign_id }} - {{ organizer.role }}</li>
+		</ul>
+	</li>
+	<li>Applications:
+		<ul>
+			<li ng-repeat="applicant in event.applications">{{ applicant.foreign_id }} ({{ applicant.application_status }})
+		</ul>
+	</li>
+	<li><a href="{{ hashify('/edit/' + event._id) }}">edit</a></li>
+</ul>
