@@ -5,7 +5,7 @@ var log = bunyan.createLogger({
     streams: [{
         type: 'rotating-file',
         level: 'info',
-        path: './../log/oms-events.log',
+        path: 'log/oms-events.log',
         period: '1d',
         count: 7
     }

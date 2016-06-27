@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var webserver = require('gulp-webserver');
-var nodemon = require('gulp-nodemon');
+//var nodemon = require('gulp-nodemon');
+var supervisor = require('gulp-supervisor');
 var proxy = require('http-proxy-middleware');
 var config = require('./lib/config/config.json');
 
@@ -30,10 +31,15 @@ gulp.task('frontend', function () {
 gulp.task('backend', function () {
 
     // Start the Node server to provide the API
-    nodemon({ cwd: './lib', script: 'server.js', ext: 'js' })
+    // Supervisor manages to reload stuff
+    supervisor("lib/server.js");
+    // Nodemon takes less than 20% cpu usage
+    /*nodemon({ script: 'lib/server.js', 
+    			ext: 'js',
+    			watch: ['lib', 'lib/config'] })
         .on('restart', function () {
             console.log('Node server restarted!')
-        });
+        });*/
 });
 
 

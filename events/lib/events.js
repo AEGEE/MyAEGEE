@@ -1,12 +1,12 @@
 var config = require('./config/config.json');
-var log = require('./config/logger');
+var log = require('./config/logger.js');
 var restify = require('restify');
-var helpers = require('./helpers');
-var mongoose = require('./config/mongo');
-var imageserv = require('./imageserv');
+var helpers = require('./helpers.js');
+var mongoose = require('./config/mongo.js');
+var imageserv = require('./imageserv.js');
 
 
-var Event = require('./eventModel');
+var Event = require('./eventModel.js');
 
 var stats = {
 	requests: 0,
@@ -55,9 +55,17 @@ exports.addEvent = function(req, res, next) {
 		});
 	} else {
 
+		// Validate
+		error = newevent.validateSync();
+		if(error != null) {
+			return next(new restify.InvalidArgumentError({body: error}));
+		}
+
 		newevent.save(function(err) {
-			if(err)
-				return next(new restify.InvalidContentError(JSON.stringify(err)));
+			if(err) {
+				log.info(err);
+				return next(err);
+			}
 			delete newevent.applications;
 			res.json(newevent);
 			return next();
@@ -126,6 +134,13 @@ exports.editEvent = function(req, res, next) {
 			imageserv.uploadImage(data.headImg, function(err, url) {
 				if(err) {log.info(err); return next(new restify.InternalError());}
 				event.headImg = url; // Just store the url in the image
+
+				// Validate
+				error = event.validateSync();
+				if(error != null) {
+					return next(new restify.InvalidArgumentError({body: error}));
+				}
+
 				event.save(function(err) {
 					if (err) {log.info(err);return next(new restify.InternalError());}
 					
@@ -141,6 +156,12 @@ exports.editEvent = function(req, res, next) {
 			});
 		}
 		else {
+			// Validate
+			error = event.validateSync();
+			if(error != null) {
+				return next(new restify.InvalidArgumentError({body: error}));
+			}
+
 			event.save(function(err) {
 				if (err) {log.info(err);return next(new restify.InternalError());}
 				
@@ -218,7 +239,11 @@ exports.applyParticipant = function(req, res, next) {
 
 		event.applications.push(data);
 		
-
+		// Validate
+		error = event.validateSync();
+		if(error != null) {
+			return next(new restify.InvalidArgumentError({body: error}));
+		}
 		
 		event.save(function(err) {
 			if (err) {log.info(err);return next(new restify.InternalError());}
@@ -288,7 +313,13 @@ exports.setApplication = function(req, res, next) {
 				return next(new restify.InvalidContentError('Application malformed: ' + tmp.msg));
 			event.applications[index].application = application.application;  // Copies the field
 		}
-	
+		
+		// Validate
+		error = event.validateSync();
+		if(error != null) {
+			return next(new restify.InvalidArgumentError({body: error}));
+		}
+
 		event.save(function(err) {
 			if (err) {log.info(err);return next(new restify.InternalError());}
 			
@@ -337,6 +368,13 @@ exports.addOrganizer = function(req, res, next) {
 		
 		// TODO check if user-id really exists and fetch cached name
 		event.organizers.push(data);
+
+		// Validate
+		error = event.validateSync();
+		if(error != null) {
+			return next(new restify.InvalidArgumentError({body: error}));
+		}
+		
 		event.save(function(err) {
 			if (err) {log.info(err);return next(new restify.InternalError());}
 			res.status(201);

@@ -1,8 +1,7 @@
-
 var restify = require('restify');
-var events = require('./events'); //the real place where the API callbacks are
-var imageserv = require('./imageserv');
-var log = require('./config/logger');
+var events = require('./events.js'); //the real place where the API callbacks are
+var imageserv = require('./imageserv.js');
+var log = require('./config/logger.js');
 
 var config = require('./config/config.json');
 
@@ -14,8 +13,6 @@ var server = restify.createServer({
 server.use(restify.queryParser());
 server.use(restify.bodyParser());
 server.use(restify.CORS());
-
-
 
 //Define your API here
 
@@ -72,3 +69,5 @@ server.get({path: '/image/:image_id', version: cur_version}, imageserv.getImage 
 server.listen(config.port, function() {
     console.log('%s listening at %s ', server.name, server.url);
 });
+
+module.exports = server
