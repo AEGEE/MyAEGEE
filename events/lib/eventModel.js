@@ -59,11 +59,14 @@ eventSchema.pre('save', function(next) {
 	if(!this.application_fields || this.application_fields.length == 0) {
 		this.application_fields = [{'name':'motivation'},{'name':'allergies'},{'name':'disabilities'}];
 	}
+
 	next();
 });
 eventSchema.pre('validate', function(next) {
 	if(this.application_status == 'open' && this.status == 'draft')
 		next(Error('Cannot open the application on a draft event'));
+	else if(this.application_status == 'open' && this.application_deadline == null)
+		next(Error('Cannot open the application without a deadline'));
 	else
 		next();
 });

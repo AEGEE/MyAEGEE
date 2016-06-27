@@ -49,6 +49,7 @@ exports.addEvent = function(req, res, next) {
 				if(err)
 					return next(new restify.InvalidContentError(JSON.stringify(err)));
 				delete newevent.applications;
+				res.status(201);
 				res.json(newevent);
 				return next();
 			});
@@ -67,6 +68,7 @@ exports.addEvent = function(req, res, next) {
 				return next(err);
 			}
 			delete newevent.applications;
+			res.status(201);
 			res.json(newevent);
 			return next();
 		});
@@ -374,7 +376,7 @@ exports.addOrganizer = function(req, res, next) {
 		if(error != null) {
 			return next(new restify.InvalidArgumentError({body: error}));
 		}
-		
+
 		event.save(function(err) {
 			if (err) {log.info(err);return next(new restify.InternalError());}
 			res.status(201);
