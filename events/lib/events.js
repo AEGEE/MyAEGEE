@@ -77,138 +77,86 @@ exports.addEvent = function(req, res, next) {
 
 /** Single event **/
 
-exports.fetchSingleEvent = function(req, res, next) {
-	Event.findById(req.params.event_id).exec(function(err, event) {
-		if (err) {
-			log.info(err);
-			return next(new restify.InternalError());
-		}
-		if (event == null) 
-			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
-		
-		req.event = event;
-		return next();
-	});
-}
+
 
 exports.eventDetails = function(req, res, next) {
-	Event.findById(req.params.event_id).select(['-__v'].join(' ')).exec(function(err, event) {
-		if (err) {log.info(err);return next(new restify.InternalError());}
-		if (event == null) 
-			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
-		
-		var event = event.toObject();
-		
-		// TODO: Check if user is allowed to see this, meaning is organizer or participant
-		if(event.application_status == 'open')
-			delete event.applications;
-		
-		// TODO: Check if user is allowed to see this, meaning is organizer
-		// delete event.organizers;
-		
-		res.json(event);
-		return next();
-	});
+	
+	var event = req.event.toObject();
+	
+	// TODO: Check if user is allowed to see applications, meaning is organizer or participant
+	if(event.application_status == 'open')
+		delete event.applications;
+	
+	// TODO: Check if user is allowed to see organizers, meaning is organizer
+	// delete event.organizers;
+	
+	res.json(event);
+	return next();
+
 }
 
 exports.editEvent = function(req, res, next) {
 	var data = req.body;
+	var event = req.event;
 	// TODO Check if user is organizer
 	delete data.applications;
 	delete data.organizers;
-	Event.findById(req.params.event_id, function(err, event) {
-		if (err) {log.info(err);return next(new restify.InternalError());}
-		if (event == null) 
-			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
-		
-		// TODO: CD/SUCT/EQUARK can still edit even if not in draft
-		if (event.status != 'draft'){
-			delete data.name;
-			delete data.starts;
-			delete data.ends;
-			delete data.description;
-			delete data.type;
-			delete data.application_fields;
-			delete data.headImg;
-		}
 
-		
-		
-		// TODO Only let CD/SUCT/EQUARK members change to approved
-		
-		// TODO If organizing local is set, retrieve name for that
-		var headImg = data.headImg;
+	// TODO: CD/SUCT/EQUARK should still be allowed edit even if not in draft
+	if (event.status != 'draft'){
+		delete data.name;
+		delete data.starts;
+		delete data.ends;
+		delete data.description;
+		delete data.type;
+		delete data.application_fields;
 		delete data.headImg;
-		for (var key in data) {
-			event[key] = data[key];
-		}
+	}
 
-		// If the user submitted an image, remove the old one and put the new one
-		// Sorry for ugly code...
-		if(headImg) {
-			imageserv.removeImage(event.headImg);
-			imageserv.uploadImage(data.headImg, function(err, url) {
-				if(err) {log.info(err); return next(new restify.InternalError());}
-				event.headImg = url; // Just store the url in the image
+		
+		
+	// TODO Only let CD/SUCT/EQUARK members change to approved
+	
+	// TODO If organizing local is set, retrieve name for that
+	var headImg = data.headImg;
+	delete data.headImg;
+	for (var key in data) {
+		event[key] = data[key];
+	}
 
-				// Validate
-				error = event.validateSync();
-				if(error != null) {
-					return next(new restify.InvalidArgumentError({body: error}));
-				}
+		
+	// Validate
+	error = event.validateSync();
+	if(error != null) {
+		return next(new restify.InvalidArgumentError({body: error}));
+	}
 
-				event.save(function(err) {
-					if (err) {log.info(err);return next(new restify.InternalError());}
-					
-					var retval = event.toObject();
-					delete retval.applications;
-					delete retval.organizers;
-					delete retval.__v;
-					delete retval.headImg;
-					
-					res.json(retval);
-					return next();
-				});
-			});
-		}
-		else {
-			// Validate
-			error = event.validateSync();
-			if(error != null) {
-				return next(new restify.InvalidArgumentError({body: error}));
-			}
-
-			event.save(function(err) {
-				if (err) {log.info(err);return next(new restify.InternalError());}
-				
-				var retval = event.toObject();
-				delete retval.applications;
-				delete retval.organizers;
-				delete retval.__v;
-				delete retval.headImg;
-				
-				res.json(retval);
-				return next();
-			});
-		}	
+	event.save(function(err) {
+		if (err) {log.info(err);return next(new restify.InternalError());}
+		
+		var retval = event.toObject();
+		delete retval.applications;
+		delete retval.organizers;
+		delete retval.__v;
+		delete retval.headImg;
+		
+		res.json(retval);
+		return next();
 	});
+	
 }
 
 exports.deleteEvent = function(req, res, next) {
 	// TODO Check for user privilegies
-	Event.findById(req.params.event_id, function(err, event) {
-		if (err) {log.info(err);return next(new restify.InternalError());}
-		if (event == null) 
-			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
-		
-		// Deletion is only changing status to deleted
-		event.status = 'deleted';
-		event.save(function(err) {
-			if (err) {log.info(err);return next(new restify.InternalError());}
+	var event = req.event;
 
-			res.send("Event successfully deleted");
-			return next();
-		});
+	// Deletion is only changing status to deleted
+	event.status = 'deleted';
+	event.save(function(err) {
+		if (err) {log.info(err);return next(new restify.InternalError());}
+
+		res.send("Event successfully deleted");
+		return next();
 	});
 }
 
@@ -217,131 +165,114 @@ exports.listParticipants = function(req, res, next) {
 	// TODO Check for user privilegies
 	// Idea: Only let people see applications after application period ended
 	
-	Event.findById(req.params.event_id).exec(function(err, event) {
-		if (err) {log.info(err);return next(new restify.InternalError());}
-		if (event == null) 
-			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
+	var event = req.event;
 		
-		var applications = event.applications.toObject();
-		
-		applications.forEach(function(x, idx) {
-			applications[idx].url = event.url + '/participants/' + applications[idx].foreign_id;
-		});
-		
-		res.json(applications);
-		return next();
+	var applications = event.applications.toObject();
+	
+	applications.forEach(function(x, idx) {
+		applications[idx].url = event.url + '/participants/' + applications[idx].foreign_id;
 	});
+	
+	res.json(applications);
+	return next();
 }
 
 exports.applyParticipant = function(req, res, next) {
-	Event.findById(req.params.event_id).exec(function(err, event) {
-		if (err) {log.info(err);return next(new restify.InternalError());}
-		if (event == null) 
-			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
-		//if (event.application_status != 'open')
-		//	return next(new restify.ForbiddenError('Event not open for applications'));
+	var event = req.event;
+	//if (event.application_status != 'open')
+	//	return next(new restify.ForbiddenError('Event not open for applications'));
 
-		var data = {application: req.body.application};
-		var tmp = helpers.checkApplicationValidity(data.application, event.application_fields);
-		if (!tmp.passed)
-			return next(new restify.InvalidContentError('Application malformed: ' + tmp.msg));
-		
-
-		// TODO insert user credentials of applying user
-		data.foreign_id = "cave.johnson" + Math.floor((Math.random() * 3) + 1);
-		
-		if(event.applications.find(function(element){return element.foreign_id == data.foreign_id;}) != undefined)
-			return next(new restify.ConflictError('You have already applied!'));
-
-		event.applications.push(data);
-		
-		// Validate
-		error = event.validateSync();
-		if(error != null) {
-			return next(new restify.InvalidArgumentError({body: error}));
-		}
-		
-		event.save(function(err) {
-			if (err) {log.info(err);return next(new restify.InternalError());}
-			log.info('Saved');
-			res.setHeader('Location', event.url + '/participants/' + data.foreign_id);
-			res.send(201, 'Your application as participant has been recorded.');
-			return next();
-		});
-	});
+	var data = {application: req.body.application};
+	var tmp = helpers.checkApplicationValidity(data.application, event.application_fields);
+	if (!tmp.passed)
+		return next(new restify.InvalidContentError('Application malformed: ' + tmp.msg));
 	
+
+	// TODO insert user credentials of applying user
+	data.foreign_id = "cave.johnson" + Math.floor((Math.random() * 3) + 1);
+	
+	if(event.applications.find(function(element){return element.foreign_id == data.foreign_id;}) != undefined)
+		return next(new restify.ConflictError('You have already applied!'));
+
+	event.applications.push(data);
+	
+	// Validate
+	error = event.validateSync();
+	if(error != null) {
+		return next(new restify.InvalidArgumentError({body: error}));
+	}
+	
+	event.save(function(err) {
+		if (err) {log.info(err);return next(new restify.InternalError());}
+		log.info('Saved');
+		res.setHeader('Location', event.url + '/participants/' + data.foreign_id);
+		res.send(201, 'Your application as participant has been recorded.');
+		return next();
+	});	
 }
 
 exports.getApplication = function(req, res, next) {
-	Event.findById(req.params.event_id, function(err, event) {
-		if (err) {log.info(err);return next(new restify.InternalError());}
-		if (event == null) 
-			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
+	var event = req.event;
 		
-		// TODO check user privilegies
-		// Search for the application
-		var application = event.applications.find(function(element) {return element.foreign_id == req.params.user_id;});
-		if (application == undefined)
-			return next(new restify.NotFoundError("User " + req.params.user_id + " not found"));
-		
-		res.json(application);
-		return next();
-	});
+	// TODO check user privilegies
+	// Search for the application
+	var application = event.applications.find(function(element) {return element.foreign_id == req.params.user_id;});
+	if (application == undefined)
+		return next(new restify.NotFoundError("User " + req.params.user_id + " not found"));
+	
+	res.json(application);
+	return next();
 	
 }
 
 exports.setApplication = function(req, res, next) {
-	Event.findById(req.params.event_id, function(err, event) {
-		if (err) {log.info(err);return next(new restify.InternalError());}
-		if (event == null) 
-			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
+	var event = req.event;
 		
-		// TODO check user privilegies
-		
-		// Find the corresponding application
-		var index;
-		var application = event.applications.find(function(element, idx) {
-			if(element.foreign_id == req.params.user_id) {
-				index = idx;
-				return true;
-			}
-			return false;
-		});
-		if (application == undefined)
-			return next(new restify.NotFoundError("User " + req.params.user_id + " not found"));
-		
-		application = req.body;
-		
-		delete application.cache_first_name;
-		delete application.cache_last_name;
-		delete application.cache_update;
-		delete application._id;
-		delete application.foreign_id;
-		// TODO Only let user change application status if organizer and application is closed
-		if(application.application_status) {
-			event.applications[index].application_status = application.application_status;  // Just copy the field
+	// TODO check user privilegies
+	
+	// Find the corresponding application
+	var index;
+	var application = event.applications.find(function(element, idx) {
+		if(element.foreign_id == req.params.user_id) {
+			index = idx;
+			return true;
 		}
-		
-		// If the user changed it's application, check for validity
-		if(application.application) {
-			var tmp = helpers.checkApplicationValidity(application.application, event.application_fields);
-			if (!tmp.passed)
-				return next(new restify.InvalidContentError('Application malformed: ' + tmp.msg));
-			event.applications[index].application = application.application;  // Copies the field
-		}
-		
-		// Validate
-		error = event.validateSync();
-		if(error != null) {
-			return next(new restify.InvalidArgumentError({body: error}));
-		}
+		return false;
+	});
+	if (application == undefined)
+		return next(new restify.NotFoundError("User " + req.params.user_id + " not found"));
+	
+	application = req.body;
+	
+	delete application.cache_first_name;
+	delete application.cache_last_name;
+	delete application.cache_update;
+	delete application._id;
+	delete application.foreign_id;
+	// TODO Only let user change application status if organizer and application is closed
+	if(application.application_status) {
+		event.applications[index].application_status = application.application_status;  // Just copy the field
+	}
+	
+	// If the user changed it's application, check for validity
+	if(application.application) {
+		var tmp = helpers.checkApplicationValidity(application.application, event.application_fields);
+		if (!tmp.passed)
+			return next(new restify.InvalidContentError('Application malformed: ' + tmp.msg));
+		event.applications[index].application = application.application;  // Copies the field
+	}
+	
+	// Validate
+	error = event.validateSync();
+	if(error != null) {
+		return next(new restify.InvalidArgumentError({body: error}));
+	}
 
-		event.save(function(err) {
-			if (err) {log.info(err);return next(new restify.InternalError());}
-			
-			res.json(event.applications[index]);
-			return next();
-		});
+	event.save(function(err) {
+		if (err) {log.info(err);return next(new restify.InternalError());}
+		
+		res.json(event.applications[index]);
+		return next();
 	});
 }
 
@@ -349,26 +280,22 @@ exports.setApplication = function(req, res, next) {
 
 exports.listOrganizers = function(req, res, next) {
 	// TODO Check for permissions
-	Event.findById(req.params.event_id).exec(function(err, event) {
-		if (err) {log.info(err);return next(new restify.InternalError());}
-		if (event == null) 
-			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
+	var event = req.event;
 		
-		var data = event.organizers.toObject();
-		data.forEach(function(x, idx) {
-			data[idx].url = event.url + '/organizers/' + x.foreign_id;
-		});
-		
-		res.json(data);
-		return next();
+	var data = event.organizers.toObject();
+	data.forEach(function(x, idx) {
+		data[idx].url = event.url + '/organizers/' + x.foreign_id;
 	});
+	
+	res.json(data);
+	return next();
 }
 
 exports.setOrganizers = function(req, res, next) {
 	return next();
 }
 
-exports.addOrganizer = function(req, res, next) {
+/*exports.addOrganizer = function(req, res, next) {
 	Event.findById(req.params.event_id, function(err, event) {
 		if (err) {log.info(err);return next(new restify.InternalError());}
 		if (event == null) 
@@ -437,14 +364,9 @@ exports.delOrganizer = function(req, res, next) {
 		});
 	});
 	
-}
+}*/
 
 /** Nerdporn Requests **/
-
-exports.countRequests = function(req, res, next) {
-	stats.requests++;
-	next();
-}
 
 exports.status = function(req, res, next) {
 	var ret = {
@@ -458,7 +380,60 @@ exports.status = function(req, res, next) {
 
 exports.debug = function(req, res, next) {
 	Event.remove({}, function(err) {
-		res.send("All events removed");
+		res.send("All events removed, can not be undone. Muhahaha. Wouldn't have guessed this is this serious, wouldn't you?");
 		return next();
 	});
+}
+
+/** Middleware **/
+
+exports.countRequests = function(req, res, next) {
+	stats.requests++;
+	return next();
+}
+
+exports.fetchSingleEvent = function(req, res, next) {
+	Event.findById(req.params.event_id).exec(function(err, event) {
+		if (err) {
+			log.info(err);
+			return next(new restify.InternalError());
+		}
+		if (event == null) 
+			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
+		
+		req.event = event;
+		return next();
+	});
+}
+
+exports.authenticateUser = function(req, res, next) {
+	// Dummy authentication
+	// TODO change for real authentication
+	req.user = {
+		foreign_id: "cave.johnson"
+	}
+	return next();
+}
+
+exports.fetchUserDetails = function(req, res, next) {
+	// Dummy user-details fetch
+	// TODO change for real user-details fetch
+	req.user = {
+		first_name: "Cave",
+		last_name: "Johnson",
+		foreign_id: "cave.johnson",
+		home_local: {
+			foreign_id: "AEGEE-Dresden"
+		},
+		bodies: [
+			{
+				name: "CD"
+			}, {
+				name: "EQAC"
+			}, {
+				name: "ITC"
+			}
+		],
+	}
+	return next();
 }

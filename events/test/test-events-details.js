@@ -92,7 +92,7 @@ module.exports = function() {
 			});
 	});
 
-	it('should return a 404 on arbitrary eventids on /single/id GET'. function(done) {
+	it('should return a 404 on arbitrary eventids on /single/id GET', function(done) {
 		chai.request(server)
 			.get('/single/12345')
 			.end(function(err, res) {
