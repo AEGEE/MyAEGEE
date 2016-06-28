@@ -77,6 +77,20 @@ exports.addEvent = function(req, res, next) {
 
 /** Single event **/
 
+exports.fetchSingleEvent = function(req, res, next) {
+	Event.findById(req.params.event_id).exec(function(err, event) {
+		if (err) {
+			log.info(err);
+			return next(new restify.InternalError());
+		}
+		if (event == null) 
+			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
+		
+		req.event = event;
+		return next();
+	});
+}
+
 exports.eventDetails = function(req, res, next) {
 	Event.findById(req.params.event_id).select(['-__v'].join(' ')).exec(function(err, event) {
 		if (err) {log.info(err);return next(new restify.InternalError());}
@@ -348,6 +362,10 @@ exports.listOrganizers = function(req, res, next) {
 		res.json(data);
 		return next();
 	});
+}
+
+exports.setOrganizers = function(req, res, next) {
+	return next();
 }
 
 exports.addOrganizer = function(req, res, next) {

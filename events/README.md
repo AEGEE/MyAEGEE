@@ -16,7 +16,5 @@ Setting up the events module seperately will not be supported, as it is (soon) r
 
 If you want to develop another microservice or a frontend which uses this one, find the documentation of the API-Interface on [Apiary](http://docs.omsevents.apiary.io/#). 
 
-More is explained in the readme of [oms-core](https://github.com/AEGEE/oms-core)
-
 Also, any help is appreciated! Just contact Nico (AEGEE-Dresden) or Fabricio (AEGEE-Berlin) and check the instructions in the [oms-core](https://github.com/AEGEE/oms-core) repo.
 

@@ -38,6 +38,14 @@ server.use(events.countRequests);
 server.get({path: '/', version: cur_version}, events.listEvents );
 server.post({path: '/', version: cur_version}, events.addEvent );
 
+server.get({path: '/status', version: cur_version}, events.status );
+server.get({path: '/debug', version: cur_version}, events.debug );
+
+server.get({path: '/image/:image_id', version: cur_version}, imageserv.getImage );
+
+// All requests from here on use the getEvent middleware
+server.use(events.fetchSingleEvent);
+
 server.get({path: '/single/:event_id', version: cur_version}, events.eventDetails );
 server.put({path: '/single/:event_id', version: cur_version}, events.editEvent );
 server.del({path: '/single/:event_id', version: cur_version}, events.deleteEvent );
@@ -48,8 +56,7 @@ server.get({path: '/single/:event_id/participants/:user_id', version: cur_versio
 server.put({path: '/single/:event_id/participants/:user_id', version: cur_version}, events.setApplication );
 
 server.get({path: '/single/:event_id/organizers', version: cur_version}, events.listOrganizers );
-server.post({path: '/single/:event_id/organizers', version: cur_version}, events.addOrganizer );
-server.del({path: '/single/:event_id/organizers/:user_id', version: cur_version}, events.delOrganizer );
+server.put({path: '/single/:event_id/organizers', version: cur_version}, events.setOrganizers );
 
 //server.get({path: '/single/:event_id/locals', version: cur_version}, events.listOrganizingLocals ); // optional
 //server.put({path: '/single/:event_id/locals', version: cur_version}, events.setOrganizingLocals ); // optional
@@ -61,10 +68,7 @@ server.del({path: '/single/:event_id/organizers/:user_id', version: cur_version}
 //server.get({path: '/antenna/:antenna_id', version: cur_version}, events.listByAntenna );
 //server.get({path: '/antenna/:antenna_id/participation', version: cur_version}, events.listParticipantsInAntenna );
 
-server.get({path: '/status', version: cur_version}, events.status );
-server.get({path: '/debug', version: cur_version}, events.debug );
 
-server.get({path: '/image/:image_id', version: cur_version}, imageserv.getImage );
 
 server.listen(config.port, function() {
     console.log('%s listening at %s ', server.name, server.url);

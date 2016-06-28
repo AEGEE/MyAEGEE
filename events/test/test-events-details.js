@@ -92,6 +92,15 @@ module.exports = function() {
 			});
 	});
 
+	it('should return a 404 on arbitrary eventids on /single/id GET'. function(done) {
+		chai.request(server)
+			.get('/single/12345')
+			.end(function(err, res) {
+				res.should.have.status(404);
+				done();
+			});
+	});
+
 	it('should update an event on a sane /single/<eventid> PUT', function(done) {
 		chai.request(server)
 			.get('/')
