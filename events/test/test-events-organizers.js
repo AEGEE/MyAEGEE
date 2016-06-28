@@ -23,7 +23,8 @@ module.exports = function() {
 			organizing_locals: [{foreign_id: "AEGEE-Dresden"}],
 			type: "non-statutory",
 			max_participants: 22,
-			application_deadline: "2015-11-30"
+			application_deadline: "2015-11-30",
+			organizers: [{foreign_id: "vincent.vega"}],
 		});
 
 		event1.save(function(err) {
@@ -42,7 +43,8 @@ module.exports = function() {
 					{name: "Disabilities"}, 
 					{name: "TShirt-Size"}, 
 					{name: "Meaning of Life"}
-				]
+				],
+				organizers: [{foreign_id: "vincent.vega"}],
 			});
 
 			event2.save(function(err) {
@@ -76,29 +78,40 @@ module.exports = function() {
 	});
 
 
-	it('should add a new organizer on /single/id/organizers PUT', function(done){
+	it('should change the organizers list on /single/id/organizers PUT', function(done){
 		chai.request(server)
 			.get('/')
 			.end(function(err, event) {
 				chai.request(server)
-					.get(event.body[0].url)
-					.end(function(err, event) {
+					.put(event.body[0].organizer_url)
+					.send({organizers: [
+						{
+							foreign_id: "cave.johnson",
+							role: "full"
+						}, {
+							foreign_id: "vincent.vega",
+							role: "full"
+						}
+					]})
+					.end(function(err, res) {
+						res.should.have.status(200);
+
 						chai.request(server)
-							.put(event.body.organizer_url)
-							.send([
-								{
-									foreign_id: "cave.johnson",
-									role: "full"
-								}, {
-									foreign_id: "vincent.vega",
-									role: "full"
-								}
-							])
+							.get(event.body[0].organizer_url)
 							.end(function(err, res) {
+								res.should.have.status(200);
+								res.should.be.json;
+								res.body.should.be.a('array');
+
+								res.body.should.have.lengthOf(2);
+								res.body[0].foreign_id.should.equal("cave.johnson");
+								res.body[1].foreign_id.should.equal("vincent.vega");
+
 								done();
 							});
 					});
-			});	});
+			});	
+	});
 
 
 }

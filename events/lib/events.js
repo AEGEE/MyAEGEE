@@ -38,8 +38,22 @@ exports.addEvent = function(req, res, next) {
 	log.info('Creating new event %s', data);
 
 	var newevent = new Event(data);
-	// TODO Add current user to organizers list
-	// TODO Add current user's local to organizing locals list
+	
+	// Creating user automatically becomes organizer
+	newevent.organizers = [
+		{
+			foreign_id: req.user.foreign_id,
+			role: 'full',
+		}
+	];
+
+	// Creating user's local automatically becomes organizing local
+	newevent.organizing_locals = [
+		{
+			foreign_id: req.user.home_local.foreign_id,
+		}
+	]
+
 
 	if(data.headImg) {
 		imageserv.uploadImage(data.headImg, function(err, url) {
@@ -179,17 +193,15 @@ exports.listParticipants = function(req, res, next) {
 
 exports.applyParticipant = function(req, res, next) {
 	var event = req.event;
-	//if (event.application_status != 'open')
-	//	return next(new restify.ForbiddenError('Event not open for applications'));
+	if (event.application_status != 'open')
+		return next(new restify.ForbiddenError('Event not open for applications'));
 
 	var data = {application: req.body.application};
 	var tmp = helpers.checkApplicationValidity(data.application, event.application_fields);
 	if (!tmp.passed)
 		return next(new restify.InvalidContentError('Application malformed: ' + tmp.msg));
 	
-
-	// TODO insert user credentials of applying user
-	data.foreign_id = "cave.johnson" + Math.floor((Math.random() * 3) + 1);
+	data.foreign_id = req.user.foreign_id;
 	
 	if(event.applications.find(function(element){return element.foreign_id == data.foreign_id;}) != undefined)
 		return next(new restify.ConflictError('You have already applied!'));
@@ -292,79 +304,32 @@ exports.listOrganizers = function(req, res, next) {
 }
 
 exports.setOrganizers = function(req, res, next) {
-	return next();
-}
+	var event = req.event;
 
-/*exports.addOrganizer = function(req, res, next) {
-	Event.findById(req.params.event_id, function(err, event) {
+	var data = req.body.organizers;
+	if(data.constructor !== Array)
+		return next(restify.InvalidContentError('Organizers list must be an array'));
+
+	data.forEach(function(x, idx){
+		delete data[idx].cache_first_name;
+		delete data[idx].cache_last_name;
+		delete data[idx].cache_update;
+
+	});
+
+	event.organizers = data;
+	error = event.validateSync();
+	if(error != null) {
+		return next(new restify.InvalidArgumentError({body: error}));
+	}
+
+	event.save(function(err) {
 		if (err) {log.info(err);return next(new restify.InternalError());}
-		if (event == null) 
-			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
-		
-		var data = req.body;
-		delete data.cache_first_name;
-		delete data.cache_last_name;
-		delete data.cache_update;
-		
-		if(!data.foreign_id)
-			return next(new restify.InvalidContentError("No foreign id provided"));
-		
-		// Check if user is organizer already
-		if(event.organizers.find(function(element) {return element.foreign_id == data.foreign_id;}) != undefined)
-			return next(new restify.ConflictError("User is registered as organizer already"));
-		
-		// TODO check if user-id really exists and fetch cached name
-		event.organizers.push(data);
-
-		// Validate
-		error = event.validateSync();
-		if(error != null) {
-			return next(new restify.InvalidArgumentError({body: error}));
-		}
-
-		event.save(function(err) {
-			if (err) {log.info(err);return next(new restify.InternalError());}
-			res.status(201);
-			res.setHeader('Location', event.url + '/organizers/' + data.foreign_id);
-			res.send("User was successfully added to organizers");
-			return next();
-		});
+		res.status(200);
+		res.json({organizers: event.organizers});
+		return next();
 	});
 }
-
-exports.delOrganizer = function(req, res, next) {
-	Event.findById(req.params.event_id, function(err, event) {
-		if (err) {log.info(err);return next(new restify.InternalError());}
-		if (event == null) 
-			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
-		if (req.params.user_id == undefined || req.params.user_id == "")
-			return next(new restify.InvalidArgumentError("No user-id provided!"));
-		
-		// Remove all items fitting
-		var changed = false;
-		event.organizers = event.organizers.filter(function(item) { 
-			if (item.foreign_id == req.params.user_id) {
-				changed = true;
-				return false;
-			}
-			return true;			
-		});
-		
-		if(!changed)
-			return next(new restify.NotFoundError("User " + req.params.user_id + " not found"));
-		
-		if(event.organizers.length == 0)
-			return next(new restify.ConflictError("An event needs to have at least 1 organizer"));
-		
-		event.save(function(err) {
-			if (err) {log.info(err);return next(new restify.InternalError());}
-			
-			res.send("User was deleted as organizer");
-			return next();
-		});
-	});
-	
-}*/
 
 /** Nerdporn Requests **/
 
@@ -395,11 +360,13 @@ exports.countRequests = function(req, res, next) {
 exports.fetchSingleEvent = function(req, res, next) {
 	Event.findById(req.params.event_id).exec(function(err, event) {
 		if (err) {
+			if(err['name'] == 'CastError')
+				return next(new restify.NotFoundError("Event with id " + req.params.event_id + " not found"));
 			log.info(err);
 			return next(new restify.InternalError());
 		}
 		if (event == null) 
-			return next(new restify.NotFoundError("Event " + req.params.event_id + " not found"));
+			return next(new restify.NotFoundError("Event with id " + req.params.event_id + " not found"));
 		
 		req.event = event;
 		return next();

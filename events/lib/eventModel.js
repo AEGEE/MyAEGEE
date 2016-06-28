@@ -72,8 +72,8 @@ eventSchema.pre('validate', function(next) {
 		next(Error('Event cannot end before it started'));
 	else if(this.application_deadline != null && this.starts <= this.application_deadline)
 		next(Error('Application must end before the event starts'));
-	//else if(this.organizers == null || this.organizers.length == 0)
-	//	next(Error('Organizers list can not be empty'));
+	else if(this.organizers == null || this.organizers.length == 0)
+		next(Error('Organizers list can not be empty'));
 	else
 		next();
 });

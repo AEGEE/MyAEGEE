@@ -23,7 +23,8 @@ module.exports = function() {
 			organizing_locals: [{foreign_id: "AEGEE-Dresden"}],
 			type: "non-statutory",
 			max_participants: 22,
-			application_deadline: "2015-11-30"
+			application_deadline: "2015-11-30",
+			organizers: [{foreign_id: "vincent.vega"}],
 		});
 
 		event1.save(function(err) {
@@ -42,7 +43,8 @@ module.exports = function() {
 					{name: "Disabilities"}, 
 					{name: "TShirt-Size"}, 
 					{name: "Meaning of Life"}
-				]
+				],
+				organizers: [{foreign_id: "vincent.vega"}],
 			});
 
 			event2.save(function(err) {

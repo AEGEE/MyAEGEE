@@ -23,31 +23,18 @@ module.exports = function() {
 			organizing_locals: [{foreign_id: "AEGEE-Dresden"}],
 			type: "non-statutory",
 			max_participants: 22,
-			application_deadline: "2015-11-30"
+			application_deadline: "2015-11-30",
+			application_status: "closed",
+			organizers: [{foreign_id: "cave.johnson"}],
+			application_fields : [
+					{name: "Motivation"},
+					{name: "TShirt-Size"}, 
+					{name: "Meaning of Life"}
+			],
 		});
 
 		event1.save(function(err) {
-			var event2 = new Event({
-				name: "EPM Zagreb",
-				starts: "2017-02-23",
-				ends: "2017-02-27",
-				description: "Drafting the Action Agenda and drinking cheap vodka",
-				organizing_locals: [{"foreign_id": "ZAG"},{"foreign_id": "SOF"}],
-				type: "statutory",
-				max_participants: 300,
-				application_deadline: "2017-01-01",
-				application_fields : [
-					{name: "Motivation"}, 
-					{name: "Allergies"}, 
-					{name: "Disabilities"}, 
-					{name: "TShirt-Size"}, 
-					{name: "Meaning of Life"}
-				]
-			});
-
-			event2.save(function(err) {
-				done();
-			});
+			
 		});
 	});
 
@@ -57,6 +44,8 @@ module.exports = function() {
 	});
 
 	it('should list all applications to an event on /single/id/participants/ GET');
+
+
 	it('should record an application to an event on /single/id/participants/ POST');
 	it('should return one specific application on /single/id/participants/id GET');
 	it('should edit details of one application on /single/id/participants/id PUT');
