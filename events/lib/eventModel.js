@@ -29,6 +29,7 @@ var localSchema =  mongoose.Schema({
 
 var applicationFieldSchema =  mongoose.Schema({
 	name: {type: String, required: true},
+	description: String,
 	// TODO Add validation, like
 	//type: {type: String, enum: ['String', 'Number'], default: 'String'},
 	//min_length: Number
@@ -67,6 +68,12 @@ eventSchema.pre('validate', function(next) {
 		next(Error('Cannot open the application on a draft event'));
 	else if(this.application_status == 'open' && this.application_deadline == null)
 		next(Error('Cannot open the application without a deadline'));
+	else if(this.ends <= this.starts)
+		next(Error('Event cannot end before it started'));
+	else if(this.application_deadline != null && this.starts <= this.application_deadline)
+		next(Error('Application must end before the event starts'));
+	//else if(this.organizers == null || this.organizers.length == 0)
+	//	next(Error('Organizers list can not be empty'));
 	else
 		next();
 });

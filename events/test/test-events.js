@@ -11,3 +11,5 @@ chai.use(chaiHttp);
 
 
 describe('Events Database', require('./test-events-database.js'));
+
+describe('Events Details', require('./test-events-details.js'));

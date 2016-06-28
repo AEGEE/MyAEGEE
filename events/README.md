@@ -1,4 +1,6 @@
 # Events module
+[![Build Status](https://travis-ci.org/AEGEE/oms-events.svg?branch=dev)](https://travis-ci.org/AEGEE/oms-events)
+
 
 ## Purpose
 
@@ -6,25 +8,15 @@ The event module shall implement everything related to basic events, giving a co
 
 ## Get it running
 
-1. Start a mongodb-server and put the url into lib/config/config.json
-2. Clone the repo
-3. Start the backend and frontend server with:
+I advise you to use the vagrant environment provided by [this](https://github.com/AEGEE/oms-development-vm) repo. "vagrant provision" and "vagrant up" should do everything you need, but for more details see the repo.
 
-```shell
-    npm install
-    gulp
-```
-
-`npm install` will install the dependencies and devDependencies to run the frontend and backend and is only necessary to be run once.
-
-Note that this procedure only runs a dev version. If you want a production system,
-* setup a nginx/apache/etc to serve the frontend files, 
-* run the node-server as a system-service, eg with systemctl and 
-* setup nginx/apache/etc to reverse-proxy to the backend for calls to /api
+Setting up the events module seperately will not be supported, as it is (soon) relying on other services for user authentication and token management.
 
 ## Get active
 
-If you want to develop another microservice which uses this one, find the documentation of the API-Interface on [Apiary](http://docs.omsevents.apiary.io/#). 
+If you want to develop another microservice or a frontend which uses this one, find the documentation of the API-Interface on [Apiary](http://docs.omsevents.apiary.io/#). 
 
 More is explained in the readme of [oms-core](https://github.com/AEGEE/oms-core)
+
+Also, any help is appreciated! Just contact Nico (AEGEE-Dresden) or Fabricio (AEGEE-Berlin) and check the instructions in the [oms-core](https://github.com/AEGEE/oms-core) repo.
 
