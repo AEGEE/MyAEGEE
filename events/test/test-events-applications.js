@@ -33,8 +33,26 @@ module.exports = function() {
 			],
 		});
 
-		event1.save(function(err) {
-			
+		event1.save(function(err, event1) {
+			event1.applications = [
+				{
+					foreign_id: "cave.johnson",
+					application_status: "requesting",
+					application: [
+						{
+							field_id: event1.application_fields[0]._id,
+							value: "I am unmotivated"
+						}, {
+							field_id: event1.application_fields[1]._id,
+							value: "L"
+						}
+					]
+				}
+			]
+
+			event1.save(function(err) {
+				done();
+			});
 		});
 	});
 
@@ -43,7 +61,22 @@ module.exports = function() {
 		done();
 	});
 
-	it('should list all applications to an event on /single/id/participants/ GET');
+	it('should list all applications to an event on /single/id/participants/ GET', function(done) {
+		chai.request(server)
+			.get('/')
+			.end(function(err, event) {
+				chai.request(server)
+					.get(event.body[0].application_url)
+					.end(function(err, res) {
+						res.should.have.status(200);
+						res.should.be.json;
+						res.body.should.be.a('array');
+
+						res.body.should.have.lengthOf(1);
+						done();
+					});
+			});
+	});
 
 
 	it('should record an application to an event on /single/id/participants/ POST');

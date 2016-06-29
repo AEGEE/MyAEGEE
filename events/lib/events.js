@@ -308,7 +308,10 @@ exports.setOrganizers = function(req, res, next) {
 
 	var data = req.body.organizers;
 	if(data.constructor !== Array)
-		return next(restify.InvalidContentError('Organizers list must be an array'));
+		return next(new restify.InvalidArgumentError('Organizers list must be an array'));
+	if(data.length == 0) 
+		return next(new restify.InvalidArgumentError('Organizers list can not be empty'));
+	
 
 	data.forEach(function(x, idx){
 		delete data[idx].cache_first_name;

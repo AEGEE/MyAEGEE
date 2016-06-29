@@ -113,5 +113,36 @@ module.exports = function() {
 			});	
 	});
 
+	it('should not allow to empty the organizers list on /single/id/organizers PUT', function(done) {
+		chai.request(server)
+			.get('/')
+			.end(function(err, event) {
+				chai.request(server)
+					.put(event.body[0].organizer_url)
+					.send({organizers: []})
+					.end(function(err, res) {
 
+						res.should.have.status(409);
+						done();
+					});
+			});	
+	});
+
+	it('should return a validation error on malformed /single/id/organizers PUT', function(done) {
+		chai.request(server)
+			.get('/')
+			.end(function(err, event) {
+				chai.request(server)
+					.put(event.body[0].organizer_url)
+					.send({organizers: [
+							{
+								somefield: "foo"
+							}
+						]})
+					.end(function(err, res) {
+						res.should.have.status(409);
+						done();
+					});
+			});	
+	});
 }
