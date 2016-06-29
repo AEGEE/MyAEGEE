@@ -12,6 +12,11 @@ var paxSchema = mongoose.Schema({
 		value: String
 	}]
 });
+paxSchema.set('toJSON', {virtuals: true});
+paxSchema.set('toObject', {virtuals: true});
+paxSchema.virtual('url').get(function() {
+	return this.parent().application_url + '/' + this.foreign_id;
+});
 
 var orgaSchema = mongoose.Schema({
 	cache_first_name: String,
