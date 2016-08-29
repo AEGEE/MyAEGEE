@@ -1,4 +1,90 @@
-<h1>Single View</h1>
+<h1 class="page-header">Single View</h1>
+
+<div class="profile-section">
+	<div class="profile-left">
+		<!-- insert as soon as image support in events backend
+		<div class="profile-image">
+			<img src="{{ event.image }}" />
+		</div>-->
+
+		<div class="m-b-10">
+			<a ui-sref="apply({ id: event.id })" class="btn btn-warning btn-block btn-sm">Apply</a>
+		</div>
+
+		<div class="profile-highlight">
+			<h4>Admin Panel</h4>
+			<div class="m-b-5">
+				<a ui-sref="edit({ id: event.id })">Edit event</a>
+			</div>
+		</div>
+
+	</div>
+
+	<div class="profile-right">
+		<div class="profile-info">
+			<div class="table-responsive">
+				<table class="table table-profile">
+					<thead>
+						<tr><th></th><th><h4>{{ event.name }}<small>{{ event.organizing_locals[0] }}</small></h4></th></tr>
+					</thead>
+					<tbody>
+
+						<tr>
+							<td class="field">Starts</td>
+							<td>{{ event.starts|date:'mediumDate' }}</td>
+						</tr>
+						<tr>
+							<td class="field">Ends</td>
+							<td>{{ event.ends|date:'mediumDate' }}</td>
+						</tr>
+
+						<tr class="divider"><td colspan="2"></td></tr>
+
+						<tr ng-repeat="local in event.organizing_locals">
+							<td class="field"><span ng-if="$first">Organizing Local<span ng-if="event.organizing_locals.length > 1">s</span></span></td>
+							<td>{{ local }}</td>
+						</tr>
+
+						<tr class="divider"><td colspan="2"></td></tr>
+
+						<tr>
+							<td class="field">Type</td>
+							<td>{{ event.type }}</td>
+						</tr>
+						<tr>
+							<td class="field">Status</td>
+							<td>{{ event.status }}</td>
+						</tr>
+
+						<tr class="divider"><td colspan="2"></td></tr>
+
+						<tr>
+							<td class="field">Participants</td>
+							<td>{{ event.max_participants }}</td>
+						</tr>
+						<tr>
+							<td class="field">Application Deadline</td>
+							<td>{{ event.application_deadline }}</td>
+						</tr>
+						<tr>
+							<td class="field">Application status</td>
+							<td>{{ event.application_status }}</td>
+						</tr>
+						<tr>
+							<td class="field"></td>
+							<td><a ui-sref="apply({ id: event.id })">Apply</a></td>
+						</tr>
+
+
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<!-- old version
 <br /><br /><br />
 <a href="/#/">Back to listing</a>
 
@@ -35,3 +121,5 @@
 	</li>
 	<li><a href="{{ hashify('/edit/' + event._id) }}">edit</a></li>
 </ul>
+
+-->

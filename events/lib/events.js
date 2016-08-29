@@ -8,10 +8,6 @@ var imageserv = require('./imageserv.js');
 
 var Event = require('./eventModel.js');
 
-var stats = {
-	requests: 0,
-	started: Date.now()
-}
 
 /** Requests for all events **/
 
@@ -336,15 +332,7 @@ exports.setOrganizers = function(req, res, next) {
 
 /** Nerdporn Requests **/
 
-exports.status = function(req, res, next) {
-	var ret = {
-		requests: stats.requests,
-		uptime: ((new Date).getTime() - stats.started) / 1000,
-		secret: config.secret
-	}
-	res.json(ret);
-	return next();
-}
+
 
 exports.debug = function(req, res, next) {
 	Event.remove({}, function(err) {
@@ -355,10 +343,6 @@ exports.debug = function(req, res, next) {
 
 /** Middleware **/
 
-exports.countRequests = function(req, res, next) {
-	stats.requests++;
-	return next();
-}
 
 exports.fetchSingleEvent = function(req, res, next) {
 	Event.findById(req.params.event_id).exec(function(err, event) {
@@ -376,14 +360,6 @@ exports.fetchSingleEvent = function(req, res, next) {
 	});
 }
 
-exports.authenticateUser = function(req, res, next) {
-	// Dummy authentication
-	// TODO change for real authentication
-	req.user = {
-		foreign_id: "cave.johnson"
-	}
-	return next();
-}
 
 exports.fetchUserDetails = function(req, res, next) {
 	// Dummy user-details fetch

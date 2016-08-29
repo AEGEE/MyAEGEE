@@ -1,9 +1,22 @@
 {
-  "port": 8082,
-  "mongourl": {
-  	"dev": "mongodb://localhost:27017/events",
-  	"test": "mongodb://localhost:27017/test-events"
-  },
-  "secret": "Say what again. Say what again, I dare you, I double dare you motherfucker, say what one more goddamn time!"
-  
+	"port": 8082,
+	"mongourl": {
+		"dev": "mongodb://localhost:27017/events",
+		"test": "mongodb://localhost:27017/test-events"
+	},
+
+	"frontend": {
+		"url": "http://localhost:8083",
+		"pages": [{
+			"name": "List events",
+			"code": "listing",
+			"module_link": "frontend/pages/listing.js",
+			"icon": "fa fa-star"
+		}]
+	},
+	"core": {
+		"url": "http://127.0.0.1",
+		"port": 80
+	},
+	"secret": "$2y$10$55wvSoIa2wPNdi9bWKH5E.GaxQDxw3o/KacJHQod3pu31p5XrX3re"
 }

@@ -1,5 +1,40 @@
 
 <h1 class="page-header">Listing view</h1>
+
+<ul class="timeline">
+	<li ng-repeat="event in events">
+		<div class="timeline-time">
+			<span class="date">{{ event.starts | date:'mediumDate' }}</span>
+			<span class="time">{{ event.starts | date:'HH:mm' }}</span>
+		</div>
+
+		<div class="timeline-icon" ng-switch on="event.type">
+			<a ui-sref="single({id: event.id})">
+				<i class="fa fa-paper-plane" ng-switch-when="su"></i>
+				<i class="fa fa-institution" ng-switch-when="statutory"></i>
+				<i class="fa fa-space-shuttle" ng-switch-default></i>
+			</a>
+		</div>
+
+		<div class="timeline-body">
+			<div class="timeline-header">
+				<span class="username">
+					<a ui-sref="single({id: event.id})">{{ event.name }}</a>
+				</span>
+			</div>
+
+			<div class="timeline-content">
+				<p>{{ event.description }}</p>
+			</div>
+
+			<div class="timeline-footer">
+				<a ui-sref="apply({id: event.id})">Apply</a>
+			</div>
+		</div>
+	</li>
+</ul>
+
+<!-- old version
 <div class="panel-group" id="accordion">
 	<div class="panel panel-inverse overflow-hidden" ng-repeat="event in events">
 	<div class="panel-heading">
@@ -20,3 +55,5 @@
 		</div>
 	</div>
 </div>
+
+-->

@@ -1,6 +1,13 @@
 
 
-eventsApp.controller('editEventController', function($scope, $http, $routeParams, $location) {
+eventsApp.controller('newEventController', function($scope, $http, $routeParams, $location) {
+
+	// Enable DateTimepickers on the page
+	angular.element(document).ready(function () {
+		 $('#startsDateTimePicker').datetimepicker();
+		 $('#endsDateTimePicker').datetimepicker();
+		 $('#deadlineDateTimePicker').datetimepicker();
+	});
 
 	$scope.heading = "New Event";
 	$scope.event = {};
@@ -41,4 +48,5 @@ eventsApp.controller('editEventController', function($scope, $http, $routeParams
 
 	   	});
 	}
+
 });

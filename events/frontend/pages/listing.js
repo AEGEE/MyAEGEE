@@ -1,9 +1,38 @@
+(function ()
+{
+    'use strict';
+    var baseUrl = baseUrlRepository['oms-events'];
 
 
-eventsApp.controller('listingController', function($scope, $http) {
-	$scope.apiURL = apiURL;
+    angular
+        .module('app.listing', [])
+        .config(config)
+        .controller('EventsListingController', EventsListingController);
+
+    /** @ngInject */
+    function config($stateProvider)
+    {
+        // State
+         $stateProvider
+            .state('app.listing', {
+                url: '/listing',
+                data: {'pageTitle': 'All Events'},
+                views   : {
+                    'pageContent@app': {
+                        templateUrl: baseUrl + 'frontend/pages/listing.html',
+                        controller: 'EventsListingController as vm'
+                    }
+                }
+            });
+    }
+
+    function EventsListingController($scope, $http) {        
 	
-	$http.get(apiURL).success( function(response) {
-      $scope.events = response; 
-   });
-});
+		// Fetch events from backend
+		$http.get(baseUrl).success(function(response) {
+			$scope.events = response; 
+		});
+    }
+
+})();
+

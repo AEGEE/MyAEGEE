@@ -1,4 +1,54 @@
-var apiURL = '/api';
+var eventsApp = angular.module('eventsApp', ['ui.router']);
+
+eventsApp.config(function($stateProvider, $urlRouterProvider) {
+    
+    $urlRouterProvider.otherwise('/listing');
+    
+    $stateProvider
+            .state('app.events.listing', {
+                url: '/listing',
+                views: {
+                    'main@': {
+                        templateUrl: 'pages/listing.html',
+                        controller: 'ListingController as vm'
+                    }
+                }
+            })
+            .state('app.events.single', {
+            	url: '/single/:id',
+            	views: {
+            		'main@': {
+            			templateUrl: 'pages/single.html',
+            			controller: 'SingleController as vm'
+            		}
+            	}
+            })
+            .state('app.events.edit', {
+            	url: '/edit/:id',
+            	views: {
+            		'main@': {
+            			templateUrl: 'pages/new.html',
+            			controller: 'NewController as vm'
+            		}
+            	}
+            })
+            .state('app.events.new', {
+            	url: '/new',
+            	views: {
+            		'main@': {
+            			templateUrl: 'pages/new.html',
+            			controller: 'NewController as vm'
+            		}
+            	}
+            })
+            /*.state('app.events.apply', {
+            	url: '/apply/:id'
+            })*/
+            ;
+        
+});
+
+/*var apiURL = '/api';
 
 var eventsApp = angular.module('eventsApp', ['ngRoute']);
 
@@ -33,4 +83,4 @@ eventsApp.config(['$routeProvider', function($routeProvider) {
 
 eventsApp.controller('mainController', function($scope) {
 	$scope.hashify = function(url) {return '/#' + url};;
-});
+});*/

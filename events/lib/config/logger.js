@@ -2,18 +2,18 @@ var bunyan = require('bunyan');
 
 var log = bunyan.createLogger({
     name: 'oms-events',
-    streams: [{
-        type: 'rotating-file',
-        level: 'info',
-        path: 'log/oms-events.log',
-        period: '1d',
-        count: 7
-    },
+    streams: [/*{
+        //type: 'rotating-file',
+        level: 'trace',
+        path: './log/oms-events.log',
+        //period: '1d',
+        //count: 7
+    },*/
     // Uncomment for console logging
-    /*{
+    {
 		stream: process.stdout,
-		level: 'info',
-	}*/
+		level: 'debug',
+	}
 	],
     serializers: {
         err: bunyan.stdSerializers.err,
