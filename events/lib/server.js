@@ -13,6 +13,7 @@ var server = restify.createServer({
 
 server.use(restify.queryParser());
 server.use(restify.bodyParser());
+server.use(restify.CORS());
 
 //Define your API here
 
@@ -24,12 +25,10 @@ server.use(restify.bodyParser());
 
 // Enable request logging
 server.pre(function (request, response, next) {
-  request.log.info({req: request}, 'start'); 
+  request.log.info({req: request}, 'HTTP Request'); 
   return next();
 });
-server.on('after', function (req, res, route) {
-  req.log.info({res: res}, "finished");
-});
+
 
 var cur_version = '0.0.1';
 

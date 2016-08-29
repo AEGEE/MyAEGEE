@@ -1,5 +1,6 @@
+<h1 class="page-header">All events</h1>
 
-<h1 class="page-header">Listing view</h1>
+<a ui-sref="events.new" class="btn btn-primary">Create Event</a>
 
 <ul class="timeline">
 	<li ng-repeat="event in events">
@@ -9,7 +10,7 @@
 		</div>
 
 		<div class="timeline-icon" ng-switch on="event.type">
-			<a ui-sref="single({id: event.id})">
+			<a ui-sref="events.single({id: event.id})">
 				<i class="fa fa-paper-plane" ng-switch-when="su"></i>
 				<i class="fa fa-institution" ng-switch-when="statutory"></i>
 				<i class="fa fa-space-shuttle" ng-switch-default></i>
@@ -33,27 +34,3 @@
 		</div>
 	</li>
 </ul>
-
-<!-- old version
-<div class="panel-group" id="accordion">
-	<div class="panel panel-inverse overflow-hidden" ng-repeat="event in events">
-	<div class="panel-heading">
-		<h3 class="panel-title">
-			<a href="{{ hashify(event.url) }}">{{ event.name }}</a>
-				
-			
-		</h3>
-	</div>
-	<div id="collapse{{ event._id }}" class="panel-collapse collapse in">
-		<div class="panel-body">
-			<table>
-				<tr><td>Title</td><td><a href="{{ hashify(event.url) }}">{{ event.name }}</a></td></tr>
-				<tr><td>Description</td><td>{{ event.description }}</td></tr>
-				<tr><td>Starts</td><td>{{ event.starts }}</td></tr>
-				<tr><td>Ends</td><td>{{ event.ends }}</td></tr>
-			</table>
-		</div>
-	</div>
-</div>
-
--->

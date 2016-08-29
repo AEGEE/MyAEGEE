@@ -1,9 +1,0 @@
-[
-	{
-		"name": "List events",
-		"code": "listing",
-		"module_link": "frontend/pages/listing.js",
-		"icon": "fa fa-star"
-	}
-
-]

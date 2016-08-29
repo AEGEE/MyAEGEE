@@ -8,14 +8,14 @@
 	"frontend": {
 		"url": "http://localhost:8083",
 		"pages": [{
-			"name": "List events",
-			"code": "listing",
+			"name": "Events module",
+			"code": "events",
 			"module_link": "frontend/pages/listing.js",
-			"icon": "fa fa-star"
+			"icon": "fa fa-ticket"
 		}]
 	},
 	"core": {
-		"url": "http://127.0.0.1",
+		"url": "http://localhost",
 		"port": 80
 	},
 	"secret": "$2y$10$55wvSoIa2wPNdi9bWKH5E.GaxQDxw3o/KacJHQod3pu31p5XrX3re"
