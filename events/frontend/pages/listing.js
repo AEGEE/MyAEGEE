@@ -18,7 +18,7 @@
         // State
          $stateProvider
             .state('app.events', {
-                url: '/listing',
+                url: '/events',
                 data: {'pageTitle': 'All Events'},
                 views   : {
                     'pageContent@app': {
@@ -74,22 +74,28 @@
 
 
 
-function NewController($scope, $http, $stateParams, $state) {
+function NewController($scope, $http, $stateParams, $state, $filter) {
 
-	// Enable DateTimepickers on the page
 	angular.element(document).ready(function () {
-		 $('#startsDateTimePicker').datetimepicker();
-		 $('#endsDateTimePicker').datetimepicker();
-		 $('#deadlineDateTimePicker').datetimepicker();
+		$('#startsDateTimePicker').datetimepicker();
+        $("#startsDateTimePicker").on("dp.change", function() {$scope.event.starts = $("#startsDateTimePicker > input").val();});
+
+		$('#endsDateTimePicker').datetimepicker();
+        $("#endsDateTimePicker").on("dp.change", function() {$scope.event.ends = $("#endsDateTimePicker > input").val();});
+
+		$('#deadlineDateTimePicker').datetimepicker();
+        $("#deadlineDateTimePicker").on("dp.change", function() {$scope.event.application_deadline = $("#deadlineDateTimePicker > input").val();});
+
 	});
 
 	$scope.heading = "New Event";
-	$scope.event = {};
+    $scope.event = {starts: '', ends: ''};
 
 	// If no route params are given, the user wants to create a new event -> Post
 	$scope.submitForm = function() {
+        console.log($scope.event);
 		$http.post(apiURL, $scope.event).then(function successCallback(response) {
-			$state.go(single, {id: response.data._id});
+			$state.go('app.events.single', {id: response.data._id});
 			console.log(response);
 		}, function errorCallback(response) {
 			console.log(response);
@@ -105,7 +111,7 @@ function NewController($scope, $http, $stateParams, $state) {
 		// Edit the event with a put
 		$scope.submitForm = function() {
 			$http.put(resourceURL, $scope.event).then(function successCallback(response) {
-				$state.go(single, {id: $stateParams.id});
+				$state.go('app.events.single', {id: $stateParams.id});
 			}, function errorCallback(response) {
 				console.log(response);
 
@@ -114,11 +120,9 @@ function NewController($scope, $http, $stateParams, $state) {
 		
 		$http.get(resourceURL).success( function(response) {
 	      	$scope.event = response;
-
-	      	// Ugly fix as AngularJs datetime-local inputs require Date objects
-	      	$scope.event.starts = new Date(response.starts);
-	      	$scope.event.ends = new Date(response.ends);
-	      	$scope.event.application_deadline = new Date(response.application_deadline);
+	      	$("#startsDateTimePicker > input").val($filter('date')(response.starts, 'MM/dd/yyyy h:mm a'));
+            $("#endsDateTimePicker > input").val($filter('date')(response.ends, 'MM/dd/yyyy h:mm a'));
+            $("#deadlineDateTimePicker > input").val($filter('date')(response.application_deadline, 'MM/dd/yyyy h:mm a'));
 
 	   	});
 	}

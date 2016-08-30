@@ -1,6 +1,6 @@
 <h1 class="page-header">All events</h1>
 
-<a ui-sref="events.new" class="btn btn-primary">Create Event</a>
+<a ui-sref="app.events.new" class="btn btn-primary">Create Event</a>
 
 <ul class="timeline">
 	<li ng-repeat="event in events">
@@ -10,7 +10,7 @@
 		</div>
 
 		<div class="timeline-icon" ng-switch on="event.type">
-			<a ui-sref="events.single({id: event.id})">
+			<a ui-sref="app.events.single({id: event.id})">
 				<i class="fa fa-paper-plane" ng-switch-when="su"></i>
 				<i class="fa fa-institution" ng-switch-when="statutory"></i>
 				<i class="fa fa-space-shuttle" ng-switch-default></i>
@@ -20,7 +20,7 @@
 		<div class="timeline-body">
 			<div class="timeline-header">
 				<span class="username">
-					<a ui-sref="single({id: event.id})">{{ event.name }}</a>
+					<a ui-sref="app.events.single({id: event.id})">{{ event.name }}</a>
 				</span>
 			</div>
 
@@ -29,7 +29,7 @@
 			</div>
 
 			<div class="timeline-footer">
-				<a ui-sref="apply({id: event.id})">Apply</a>
+				<a ui-sref="app.events.apply({id: event.id})">Apply</a>
 			</div>
 		</div>
 	</li>

@@ -1,8 +1,9 @@
+
 <h2 class="page-header">{{ heading }}</h2>
 
 <form id="edit_event" name="eventForm" class="form-horizontal" ng-submit="submitForm()">
 
-	<div class="form-group" ng-class="{ has-error: eventForm.name.$error }">
+	<div class="form-group" ng-class="{ 'has-error': eventForm.name.$invalid && eventForm.name.$dirty }">
 		<label class="control-label col-sm-3" for="name">Name<span class="text-danger">*</span> </label>
 		<div class="input-group col-sm-6">
 			<input 
@@ -16,14 +17,13 @@
 		</div>
 	</div>
 
-	<div class="form-group" ng-class="{ has-error: eventForm.starts.$error }">
+	<div class="form-group" ng-class="{ 'has-error': eventForm.starts.$invalid && eventForm.starts.$dirty }">
 		<label class="control-label col-sm-3" for="starts">Starts<span class="text-danger">*</span> </label>
-		<div class="input-group date" id="startsDateTimePicker">
+		<div class="input-group date col-sm-6" id="startsDateTimePicker">
 			<input 
-				type="datetime-local" 
+				type="text" 
 				class="form-control" 
 				name="starts"
-				ng-model="event.starts"
 				required />
 			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 
@@ -31,14 +31,13 @@
 		</div>
 	</div>
 
-	<div class="form-group" ng-class="{ has-error: eventForm.ends.$error }">
+	<div class="form-group" ng-class="{ 'has-error': eventForm.ends.$invalid && eventForm.ends.$dirty }">
 		<label class="control-label col-sm-3" for="ends">Ends<span class="text-danger">*</span> </label>
-		<div class="input-group date" id="endsDateTimePicker">
+		<div class="input-group date col-sm-6" id="endsDateTimePicker">
 			<input 
-				type="datetime-local" 
+				type="text" 
 				class="form-control" 
 				name="ends"
-				ng-model="event.ends"
 				required />
 			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 
@@ -46,7 +45,7 @@
 		</div>
 	</div>
 
-	<div class="form-group" ng-class="{ has-error: eventForm.description.$error }">
+	<div class="form-group" ng-class="{ 'has-error': eventForm.description.$invalid && eventForm.description.$dirty }">
 		<label class="control-label col-sm-3" for="description">Description<span class="text-danger">*</span> </label>
 		<div class="input-group col-sm-6">
 			<input 
@@ -61,7 +60,7 @@
 	</div>
 
 
-	<div class="form-group" ng-class="{ has-error: eventForm.type.$error }">
+	<div class="form-group" ng-class="{ 'has-error': eventForm.type.$invalid && eventForm.type.$dirty }">
 		<label class="control-label col-sm-3" for="type">Type</label>
 		<div class="input-group col-sm-6">
 			<select class="form-control" name="type" ng-model="event.type">
@@ -74,7 +73,7 @@
 		</div>
 	</div>
 
-	<div class="form-group" ng-class="{ has-error: eventForm.type.$error }">
+	<div class="form-group" ng-class="{ 'has-error': eventForm.status.$invalid && eventForm.status.$dirty }">
 		<label class="control-label col-sm-3" for="status">Status</label>
 		<div class="input-group col-sm-6">
 			<select class="form-control" name="status" ng-model="event.status">
@@ -88,7 +87,7 @@
 	</div>
 
 
-	<div class="form-group" ng-class="{ has-error: eventForm.max_participants.$error }">
+	<div class="form-group" ng-class="{ 'has-error': eventForm.max_participants.$invalid && eventForm.max_participants.$dirty }">
 		<label class="control-label col-sm-3" for="max_participants">Maximum Number of Participants</label>
 		<div class="input-group col-sm-6">
 			<input 
@@ -102,14 +101,14 @@
 	</div>
 
 
-	<div class="form-group" ng-class="{ has-error: eventForm.application_deadline.$error }">
+	<div class="form-group" ng-class="{ 'has-error': eventForm.application_deadline.$invalid && eventForm.application_deadline.$dirty }">
 		<label class="control-label col-sm-3" for="application_deadline">Appplication Deadline </label>
-		<div class="input-group date" id="deadlineDateTimePicker">
+		<div class="input-group date col-sm-6" id="deadlineDateTimePicker">
 			<input 
-				type="datetime-local" 
+				type="text" 
 				class="form-control" 
 				name="application_deadline"
-				ng-model="event.application_deadline" />
+				/>
 			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 
 			<p ng-show="eventForm.application_deadline.$error.message">{{ eventForm.application_deadline.$error.message }}</p>
@@ -117,9 +116,9 @@
 	</div>
 
 
-	<div class="form-group" ng-class="{ has-error: eventForm.application_status.$error }">
+	<div class="form-group" ng-class="{ 'has-error': eventForm.application_status.$invalid && eventForm.application_status.$dirty }">
 		<label class="control-label col-sm-3" for="application_status">Application Status</label>
-		<div class="input-group">
+		<div class="input-group col-sm-6">
 			<select class="form-control" name="application_status" ng-model="event.application_status">
 				<option value="open">Open</option>
 				<option value="closed">Closed</option>
