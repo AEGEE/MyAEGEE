@@ -16,14 +16,14 @@ module.exports = function() {
 	beforeEach(function(done) {
 		// Populate db
 		var event1 = new Event({
-			name: "Develop Yourself 2",
-			starts: "2015-12-11 15:00",
-			ends: "2015-12-14 12:00",
+			name: "Develop Yourself 4",
+			starts: "2017-12-11 15:00",
+			ends: "2017-12-14 12:00",
 			description: "A training event to boost your self-confidence and teamworking skills",
 			organizing_locals: [{foreign_id: "AEGEE-Dresden"}],
 			type: "non-statutory",
 			max_participants: 22,
-			application_deadline: "2015-11-30",
+			application_deadline: "2017-11-30",
 			organizers: [{foreign_id: "vincent.vega"}],
 		});
 
@@ -93,9 +93,9 @@ module.exports = function() {
 		chai.request(server)
 			.post('/')
 			.send({
-				name: "Develop Yourself 2",
-				starts: "2015-12-11 15:00",
-				ends: "2015-12-14 12:00",
+				name: "Develop Yourself 4",
+				starts: "2017-12-11 15:00",
+				ends: "2017-12-14 12:00",
 			})
 			.end(function(err, res) {
 				res.should.have.status(201);
@@ -137,9 +137,9 @@ module.exports = function() {
 		chai.request(server)
 			.post('/')
 			.send({
-				name: "Develop Yourself 2",
-				starts: "2015-12-11 15:00",
-				ends: "2015-12-14 12:00",
+				name: "Develop Yourself 4",
+				starts: "2017-12-11 15:00",
+				ends: "2017-12-14 12:00",
 				description: "A training event to boost your self-confidence and teamworking skills",
 				organizing_locals: [{foreign_id: "AEGEE-Dresden"}],
 				type: "non-statutory",
@@ -193,9 +193,9 @@ module.exports = function() {
 		chai.request(server)
 			.post('/')
 			.send({
-				name: "Develop Yourself 2",
-				starts: "2015-12-11 15:00",
-				ends: "2015-12-14 12:00",
+				name: "Develop Yourself 4",
+				starts: "2017-12-11 15:00",
+				ends: "2017-12-14 12:00",
 				organizers: [
 					{
 						foreign_id: "eve.mallory",
