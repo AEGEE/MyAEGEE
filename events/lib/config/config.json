@@ -8,10 +8,15 @@
 	"frontend": {
 		"url": "http://localhost:8083",
 		"pages": [{
-			"name": "Events module",
+			"name": "All Events",
 			"code": "events",
-			"module_link": "frontend/pages/listing.js",
+			"module_link": "frontend/all/eventsController.js",
 			"icon": "fa fa-ticket"
+		}, {
+			"name": "Event admin",
+			"code": "eventadmin",
+			"module_link": "frontend/admin/adminController.js",
+			"icon": "fa fa-wrench"
 		}]
 	},
 	"core": {

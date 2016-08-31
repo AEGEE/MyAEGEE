@@ -127,11 +127,20 @@
 	</div>
 
 	<div class="form-group">
-		<button type="submit" class="btn btn-success btn-lg btn-block">
+		<button type="submit" class="btn btn-success col-sm-6 col-sm-offset-3">
 			Submit!
 		</button>
 
 		<p ng-show="message">{{ message }}</p>
+	</div>
+
+	<div class="form-group" ng-show="event.id">
+		<button 
+			type="button"
+			class="btn btn-danger col-sm-6 col-sm-offset-3" 
+			mw-confirm-click-message="Are you bloody damn sure to delete this event?" 
+			mw-confirm-click="deleteEvent()">
+			Delete event</button>
 	</div>
 
 </form>

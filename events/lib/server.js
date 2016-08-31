@@ -24,10 +24,14 @@ server.use(restify.CORS());
 //server.use(core.verifyToken);
 
 // Enable request logging
-server.pre(function (request, response, next) {
-  request.log.info({req: request}, 'HTTP Request'); 
-  return next();
+//server.pre(function (request, response, next) {
+//  request.log.info({req: request}, 'HTTP Request'); 
+ // return next();
+//});
+server.on('after', function (req, res, route) {
+  req.log.info({res: res}, "finished");
 });
+
 
 
 var cur_version = '0.0.1';

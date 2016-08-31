@@ -8,13 +8,14 @@
 		</div>-->
 
 		<div class="m-b-10">
-			<a ui-sref="app.event.apply({ id: event.id })" class="btn btn-warning btn-block btn-sm">Apply</a>
+			<a ui-sref="app.events.apply({ id: event.id })" class="btn btn-warning btn-block btn-sm">Apply</a>
 		</div>
 
+		<!-- TODO check if user is organizer, otherwise don't show -->
 		<div class="profile-highlight">
 			<h4>Admin Panel</h4>
 			<div class="m-b-5">
-				<a ui-sref="app.events.edit({ id: event.id })" >Edit event</a>
+				<a ui-sref="app.eventadmin.edit({ id: event.id })" >Edit event</a>
 			</div>
 		</div>
 
