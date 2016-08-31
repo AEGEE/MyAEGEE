@@ -12,7 +12,13 @@ var Event = require('./eventModel.js');
 /** Requests for all events **/
 
 exports.listEvents = function(req, res, next) {
-	Event.find({}).select(['name', 'starts', 'ends', 'description', 'organizing_locals', 'type', 'status', 'max_participants', 'application_deadline', 'application_status'].join(' ')).sort('-starts').exec(function(err, events) {
+	Event
+		.where('status').ne('deleted') // Hide deleted events
+		.where('ends').gte(new Date()) // Only show events in the future
+		.select(['name', 'starts', 'ends', 'description', 'organizing_locals', 'type', 'status', 'max_participants', 'application_deadline', 'application_status'].join(' '))
+		.sort('starts')
+		.exec(function(err, events) {
+		
 		if (err) {log.info(err);return next(new restify.InternalError());}
 		
 		res.json(events);

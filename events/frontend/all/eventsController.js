@@ -37,15 +37,35 @@
 			});
 	}
 
-	function ListingController($scope, $http) {        
+	function ListingController($scope, $http, $timeout) {        
 	
 		// Fetch events from backend
 		$http.get(apiURL).success(function(response) {
 			$scope.events = response; 
 		});
+
+
+		// Display a nice ticking clock for the now timeline entry
+		var tickInterval = 60000 //ms
+
+		var tick = function() {
+			$scope.currentTime = Date.now() // get the current time
+			$timeout(tick, tickInterval); // reset the timer
+		}
+		tick();
+
+		// Start the timer
+		$timeout(tick, tickInterval);
+		
+
+		$scope.search = function (row) {
+			return (angular.lowercase(row.name).indexOf(angular.lowercase($scope.query) || '') !== -1 ||
+					angular.lowercase(row.description).indexOf(angular.lowercase($scope.query) || '') !== -1);
+		};
 	}
 
 	function SingleController($scope, $http, $stateParams) {
+		$scope.baseUrl = baseUrl;
 
 		$http.get(apiURL + 'single/' + $stateParams.id).success( function(response) {
 			$scope.event = response; 

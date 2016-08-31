@@ -1,11 +1,9 @@
-<h1 class="page-header">Single View</h1>
-
 <div class="profile-section">
 	<div class="profile-left">
-		<!-- insert as soon as image support in events backend
+		<!-- insert as soon as image support in events backend -->
 		<div class="profile-image">
-			<img src="{{ event.image }}" />
-		</div>-->
+			<img src="{{ baseUrl }}frontend/media/Dino.png" />
+		</div>
 
 		<div class="m-b-10">
 			<a ui-sref="app.events.apply({ id: event.id })" class="btn btn-warning btn-block btn-sm">Apply</a>
@@ -26,7 +24,11 @@
 			<div class="table-responsive">
 				<table class="table table-profile">
 					<thead>
-						<tr><th></th><th><h4>{{ event.name }}<small>{{ event.organizing_locals[0].foreign_id }}</small></h4></th></tr>
+						<tr><th></th><th><h4>{{ event.name }}
+							<small>
+								<span ng-repeat="local in event.organizing_locals">{{ local.foreign_id }}</span><span ng-show="$last">, </span>
+							</small>
+						</h4></th></tr>
 					</thead>
 					<tbody>
 
@@ -40,10 +42,9 @@
 						</tr>
 
 						<tr class="divider"><td colspan="2"></td></tr>
-
-						<tr ng-repeat="local in event.organizing_locals">
-							<td class="field"><span ng-if="$first">Organizing Local<span ng-if="event.organizing_locals.length > 1">s</span></span></td>
-							<td>{{ local.foreign_id }}</td>
+						<tr>
+							<td class="field">Description</td>
+							<td>{{ event.description }}</td>
 						</tr>
 
 						<tr class="divider"><td colspan="2"></td></tr>
@@ -57,7 +58,7 @@
 							<td>{{ event.status }}</td>
 						</tr>
 
-						<tr class="divider"><td colspan="2"></td></tr>
+						<!--<tr class="divider"><td colspan="2"></td></tr>-->
 
 						<tr>
 							<td class="field">Participants</td>

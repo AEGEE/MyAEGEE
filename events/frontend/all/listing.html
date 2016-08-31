@@ -1,10 +1,55 @@
-<h1 class="page-header">All events</h1>
+<h1 class="page-header">Upcoming</h1>
 
 <ul class="timeline">
-	<li ng-repeat="event in events">
+	<!-- show filter/current time -->
+	<li>
 		<div class="timeline-time">
-			<span class="date">{{ event.starts | date:'mediumDate' }}</span>
-			<span class="time">{{ event.starts | date:'HH:mm' }}</span>
+			<span class="date">{{ currentTime | date:'yyyy' }}</span>
+			<span class="time">{{ currentTime | date:'MMM d' }}</span>
+		</div>
+
+		<div class="timeline-icon">
+			<a href="#"><i class="fa fa-search"></i></a>
+		</div>
+
+		<div class="timeline-body">
+			<div class="timeline-header">
+				<span class="username">
+					Filter for events
+				</span>
+			</div>
+
+			<form>
+				<div class="timeline-content">
+					
+					<div class="col-sm-12">
+						<input class="form-control" placeholder="Search" ng-model="query">
+					</div>
+
+					<div class="col-sm-12">
+						<label class="checkbox-inline"><input type="checkbox">
+							Statutory
+						</label>
+
+						<label class="checkbox-inline"><input type="checkbox">
+							Non-Statutory
+						</label>
+
+						<label class="checkbox-inline"><input type="checkbox">
+							SU
+						</label>
+					</div>
+						
+				</div>
+			</form>
+		</div>
+	</li>
+
+	<!-- show all events -->
+	<li ng-repeat="event in events | filter: search">
+		<div class="timeline-time">
+			<span class="date">{{ event.starts | date:'yyyy' }}</span>
+			<span class="time">{{ event.starts | date:'MMM d' }}</span>
 		</div>
 
 		<div class="timeline-icon" ng-switch on="event.type">
@@ -23,7 +68,8 @@
 			</div>
 
 			<div class="timeline-content">
-				<p>{{ event.description }}</p>
+				<p>{{ event.description | limitTo: 140 }}<span ng-show="event.description.length > 140">...</span>
+				<a ui-sref="app.events.single({id: event.id})" ng-show="event.description.length > 140">Read more</a></p>
 			</div>
 
 			<div class="timeline-footer">

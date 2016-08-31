@@ -8,7 +8,7 @@
 	"frontend": {
 		"url": "http://localhost:8083",
 		"pages": [{
-			"name": "All Events",
+			"name": "All events",
 			"code": "events",
 			"module_link": "frontend/all/eventsController.js",
 			"icon": "fa fa-ticket"
