@@ -72,7 +72,7 @@
 				<a ui-sref="app.events.single({id: event.id})" ng-show="event.description.length > 140">Read more</a></p>
 			</div>
 
-			<div class="timeline-footer">
+			<div class="timeline-footer" ng-show="event.application_status == 'open'">
 				<a ui-sref="app.events.apply({id: event.id})">Apply</a>
 			</div>
 		</div>

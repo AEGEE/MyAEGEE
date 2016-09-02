@@ -118,6 +118,10 @@ exports.editEvent = function(req, res, next) {
 	delete data.applications;
 	delete data.organizers;
 
+	if(Object.keys(event).length == 0) {
+		return next(new restify.InvalidContentError({message: 'No valid field changes requested'}));
+	}
+
 	// TODO: CD/SUCT/EQUARK should still be allowed edit even if not in draft
 	if (event.status != 'draft'){
 		delete data.name;
@@ -127,6 +131,10 @@ exports.editEvent = function(req, res, next) {
 		delete data.type;
 		delete data.application_fields;
 		delete data.headImg;
+
+		if(Object.keys(event).length == 0) {
+			return next(new restify.InvalidContentError({message: 'You can not edit an event when the application is open'}));
+		}
 	}
 
 		
@@ -364,6 +372,13 @@ exports.fetchSingleEvent = function(req, res, next) {
 		req.event = event;
 		return next();
 	});
+}
+
+// Check which permissions the user has on this event
+// Requires the fetchSingleEvent and fetchUserDetails middleware to be executed beforehand
+exports.checkUserRole = function(req, res, next) {
+	// TODO implement ^^
+	return next();
 }
 
 

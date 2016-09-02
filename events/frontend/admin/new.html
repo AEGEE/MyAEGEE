@@ -126,6 +126,19 @@
 		</div>
 	</div>
 
+	<div class="form-group" ng-class="{ 'has-error': eventForm.application_status.$invalid && eventForm.application_status.$dirty }">
+		<label class="control-label col-sm-3" for="application_fields">Application Fields</label>
+		<div class="col-sm-6">
+			<div class="input-group" ng-repeat="field in event.application_fields">
+				<input type="text" ng-model="field.name"><button type="button" class="btn btn-primary btn-xs" ng-click="removeApplicationField($index)"><i class="fa fa-minus"></i></button>
+			</div>
+
+			<div class="input-group">
+				<input type="text" placeholder="Enter a question" ng-model="newfield"><button type="button" class="btn btn-primary btn-xs" ng-click="addApplicationField();"><i class="fa fa-plus"></i></button>
+			</div>
+		</div>
+	</div>
+
 	<div class="form-group">
 		<button type="submit" class="btn btn-success col-sm-6 col-sm-offset-3">
 			Submit!

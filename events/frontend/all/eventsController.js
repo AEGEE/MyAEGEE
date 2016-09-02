@@ -10,6 +10,7 @@
 		.config(config)
 		.controller('ListingController', ListingController)
 		.controller('SingleController', SingleController)
+		.controller('ApplyController', ApplyController)
 
 	/** @ngInject */
 	function config($stateProvider)
@@ -32,6 +33,15 @@
 					'pageContent@app': {
 						templateUrl: baseUrl + 'frontend/all/single.html',
 						controller: 'SingleController as vm'
+					}
+				}
+			})
+			.state('app.events.apply', {
+				url: '/apply/:id',
+				views: {
+					'pageContent@app': {
+						templateUrl: baseUrl + 'frontend/all/apply.html',
+						controller: 'ApplyController as vm'
 					}
 				}
 			});
@@ -57,7 +67,7 @@
 		// Start the timer
 		$timeout(tick, tickInterval);
 		
-
+		// Search callback to enable searching in name and description only
 		$scope.search = function (row) {
 			return (angular.lowercase(row.name).indexOf(angular.lowercase($scope.query) || '') !== -1 ||
 					angular.lowercase(row.description).indexOf(angular.lowercase($scope.query) || '') !== -1);
@@ -67,9 +77,23 @@
 	function SingleController($scope, $http, $stateParams) {
 		$scope.baseUrl = baseUrl;
 
+		// Fetch event from backend
 		$http.get(apiURL + 'single/' + $stateParams.id).success( function(response) {
 			$scope.event = response; 
 		});
+	}
+
+	function ApplyController($scope, $http, $stateParams) {
+		// Fetch event again
+		$http.get(apiURL + 'single/' + $stateParams.id).success( function(response) {
+			$scope.event = response;
+
+		});
+
+		// Sumbit form callback
+		$scope.submitForm = function() {
+			alert("submission not implemented yet, sorry");
+		}
 	}
 
 })();

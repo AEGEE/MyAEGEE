@@ -1,0 +1,23 @@
+<h1 class="page-header">Apply to {{ event.name }}</h1>
+
+<form id="apply_form" name="applyForm" class="form-horizontal" ng-submit="submitForm()">
+
+	<div class="form-group" ng-repeat="field in event.application_fields">
+		<label class="control-label col-sm-3" >{{ field.name }}<span class="text-danger" ng-show="!field.optional">*</span> </label>
+		<div class="input-group col-sm-6">
+			<input 
+				type="text" 
+				class="form-control" 
+				name="field{{ $index }}" 
+				ng-model="field.answer"
+				/>
+
+		</div>
+	</div>
+
+	<div class="form-group">
+		<button type="submit" class="btn btn-success col-sm-6 col-sm-offset-3">
+			Submit!
+		</button>
+	</div>
+</form>

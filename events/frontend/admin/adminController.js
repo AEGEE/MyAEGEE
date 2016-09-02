@@ -69,7 +69,7 @@
 	}
 
 	function NewController($scope, $http, $stateParams, $state, $filter) {
-
+		// Activate the datetimepickers and bind callbackfunctions to extract the selected date
 		angular.element(document).ready(function () {
 			$('#startsDateTimePicker').datetimepicker();
 			$("#startsDateTimePicker").on("dp.change", function() {$scope.event.starts = $("#startsDateTimePicker > input").val();});
@@ -85,6 +85,22 @@
 
 		$scope.heading = "New Event";
 		$scope.event = {starts: '', ends: ''};
+
+
+		// Add callbacks to handle application field changes
+		$scope.addApplicationField = function() {
+			if($scope.event.application_fields == null)
+				$scope.event.application_fields = [];
+			if($scope.newfield)
+				$scope.event.application_fields.push({name: $scope.newfield});
+			$scope.newfield = '';
+		}
+
+		$scope.removeApplicationField = function(index) {
+			if($scope.event.application_fields && $scope.event.application_fields.length > index)
+				$scope.event.application_fields.splice(index, 1);
+		}
+
 
 		// If no route params are given, the user wants to create a new event -> Post
 		$scope.submitForm = function() {

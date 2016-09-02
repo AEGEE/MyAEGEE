@@ -5,7 +5,7 @@
 			<img src="{{ baseUrl }}frontend/media/Dino.png" />
 		</div>
 
-		<div class="m-b-10">
+		<div class="m-b-10" ng-show="event.application_status == 'open'">
 			<a ui-sref="app.events.apply({ id: event.id })" class="btn btn-warning btn-block btn-sm">Apply</a>
 		</div>
 
@@ -14,6 +14,9 @@
 			<h4>Admin Panel</h4>
 			<div class="m-b-5">
 				<a ui-sref="app.eventadmin.edit({ id: event.id })" >Edit event</a>
+			</div>
+			<div class="m-b-5">
+				<a ui-sref="app.eventadmin.approve({ id: event.id })" >Approve participants</a>
 			</div>
 		</div>
 
@@ -44,7 +47,7 @@
 						<tr class="divider"><td colspan="2"></td></tr>
 						<tr>
 							<td class="field">Description</td>
-							<td>{{ event.description }}</td>
+							<td><p ng-bind="event.description"></p></td>
 						</tr>
 
 						<tr class="divider"><td colspan="2"></td></tr>
@@ -72,9 +75,9 @@
 							<td class="field">Application status</td>
 							<td>{{ event.application_status }}</td>
 						</tr>
-						<tr>
+						<tr ng-show="event.application_status == 'open'">
 							<td class="field"></td>
-							<td><a ui-sref="app.events.apply({ id: event.id })" class="btn btn-warning">Apply</a></td>
+							<td><a ui-sref="app.events.apply({ id: event.id })" class="btn btn-warning">Apply until {{ event.application_deadline | date:'MMM d' }}</a></td>
 						</tr>
 
 
