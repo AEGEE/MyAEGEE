@@ -7,6 +7,7 @@ var config = require('./config/config.json');
 var log = require('./config/logger.js');
 
 var httprequest = require('request');
+var mongoose = require('./config/mongo.js');
 var restify = require('restify');
 
 /* Stat thing...*/
@@ -28,6 +29,12 @@ exports.status = function(req, res, next) {
 	});
 }
 
+// TODO remove, debug only
+exports.getUser = function(req, res, next) {
+	res.json(req.user);
+	return next();
+}
+
 exports.countRequests = function(req, res, next) {
 	stats.requests++;
 	return next();
@@ -35,7 +42,6 @@ exports.countRequests = function(req, res, next) {
 
 // Register the service with the core
 exports.registerMicroservice = function(req, res, next) {
-	var options = require('./config/options.js');
 
 	var data = {
 		'name': 'OMS Events',
@@ -56,7 +62,6 @@ exports.registerMicroservice = function(req, res, next) {
 	};
 
 	
-
 	httprequest(opts, function(error, response, body) {
 		if(error) {
 			log.error("Could not register microservice", error);
@@ -64,7 +69,13 @@ exports.registerMicroservice = function(req, res, next) {
 		}
 		log.info("some data received: ", body);
 
-		body = JSON.parse(body);
+		try {
+			body = JSON.parse(body);
+		}
+		catch(err) {
+			log.error("Could not parse core response", err);
+			return next(new restify.InternalError());
+		}
 
 		if(!body.success) {
 			log.error("Could not register mircoservice, core replied with", body);
@@ -72,7 +83,7 @@ exports.registerMicroservice = function(req, res, next) {
 		}
 
 
-		options.then(function(options) {
+		require('./config/options.js').then(function(options) {
 			options.handshake_token = body.handshake_token;
 			options.save(function(err) {
 				if(err) {
@@ -93,35 +104,123 @@ exports.registerMicroservice = function(req, res, next) {
 }
 
 /* For each request, query the core for user data */
+// Cache user auth data so we don't have to query the core on each call
+var userCacheSchema = mongoose.Schema({
+	user: mongoose.Schema.Types.Mixed,
+	createdAt: {type: Date, expires: 300, default: Date.now},
+	token: {type: String, required: true, index: true}
+})
+var UserCache = mongoose.model('UserCache', userCacheSchema);
+
 exports.authenticateUser = function(req, res, next) {
-	// Dummy authentication
-	// TODO change for real authentication
-	req.user = {
-		foreign_id: "cave.johnson"
+	var token = req.header('x-auth-token');
+	if(!token) {
+		log.info("Unauthenticated request", req);
+		return next(new restify.ForbiddenError('No auth token provided'));
 	}
-	return next();
+
+	UserCache.findOne({token: token}, function(err, res) {
+		// If not found, query core
+		if(err || !res) {
+			require('./config/options.js').then(options => {
+
+				var opts = {
+					url: config.core.url + ':' + config.core.port + '/api/getUserByToken',
+					method: 'POST',
+					headers: options.getRequestHeaders(),
+					form: {
+						'token': token
+					},
+				};
+
+				httprequest(opts, function(err, res, body) {
+					if(err) {
+						log.error("Could not contact core to authenticate user", err);
+						return next(new restify.InternalError)
+					}
+
+					try {
+						body = JSON.parse(body);
+					}
+					catch(err) {
+						log.error("Could not parse core response", err);
+						return next(new restify.InternalError());
+					}
+
+					if(!body.success) {
+						log.info("Access denied to user", body);
+						return next(new restify.ForbiddenError('Access denied'));
+					}
+
+					req.user = body.user;
+					next();
+
+					// After calling next, try saving the fetched data to db
+					var saveUserData = new UserCache();
+					saveUserData.token = token;
+					saveUserData.user = body.user;
+					saveUserData.save(err => {
+						if(err)
+							log.error("Could not store user data in cache", err);
+					});
+				});
+			});
+		}
+		// If found in cache, use that one
+		else {
+			req.user = res.user;
+			return next();
+		}
+	});
+	
 }
 
 
 exports.fetchUserDetails = function(req, res, next) {
-	// Dummy user-details fetch
-	// TODO change for real user-details fetch
-	req.user = {
-		first_name: "Cave",
-		last_name: "Johnson",
-		foreign_id: "cave.johnson",
-		home_local: {
-			foreign_id: "AEGEE-Dresden"
-		},
-		bodies: [
-			{
-				name: "CD"
-			}, {
-				name: "EQAC"
-			}, {
-				name: "ITC"
+	require('./config/options.js').then(options => {
+
+		var token = req.header('x-auth-token');
+		if(!token) {
+			log.info("Unauthenticated request", req);
+			return next(new restify.ForbiddenError('No auth token provided'));
+		}
+
+		var opts = {
+			url: config.core.url + ':' + config.core.port + '/api/getUserProfile',
+			method: 'GET',
+			headers: options.getRequestHeaders(token),
+			qs: {
+				'is_ui': 0,
+			},
+		};
+
+		httprequest(opts, function(err, res, body) {
+			if(err) {
+				log.error("Could not fetch user profile details from core", err);
+				return next(new restify.InternalError)
 			}
-		],
-	}
-	return next();
+
+			try {
+				body = JSON.parse(body);
+			}
+			catch(err) {
+				log.error("Could not parse core response", err);
+				return next(new restify.InternalError());
+			}
+
+
+			if(!body.success) {
+				log.info("Core refused user profile fetch", body);
+				return next(new restify.ForbiddenError('Core refused user profile fetch'));
+			}
+
+			req.user = {};
+			req.user.details = body.user;
+			req.user.workingGroups = body.workingGroups;
+			req.user.board_positions = body.board_positions;
+			req.user.roles = body.roles;
+			req.user.fees_paid = body.fees_paid;
+			return next();
+		});
+	});
 }

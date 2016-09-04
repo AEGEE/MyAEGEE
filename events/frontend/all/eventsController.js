@@ -2,7 +2,7 @@
 {
 	'use strict';
 	var baseUrl = baseUrlRepository['oms-events'];
-	var apiURL = baseUrl + 'api/';
+	var apiUrl = baseUrl + 'api/';
 
 
 	angular
@@ -50,8 +50,10 @@
 	function ListingController($scope, $http, $timeout) {        
 	
 		// Fetch events from backend
-		$http.get(apiURL).success(function(response) {
-			$scope.events = response; 
+		//$('#loadingOverlay').show();
+		$http.get(apiUrl).success(function(response) {
+			$scope.events = response;
+			//$('#loadingOverlay').hide();
 		});
 
 
@@ -78,14 +80,14 @@
 		$scope.baseUrl = baseUrl;
 
 		// Fetch event from backend
-		$http.get(apiURL + 'single/' + $stateParams.id).success( function(response) {
+		$http.get(apiUrl + 'single/' + $stateParams.id).success( function(response) {
 			$scope.event = response; 
 		});
 	}
 
 	function ApplyController($scope, $http, $stateParams) {
 		// Fetch event again
-		$http.get(apiURL + 'single/' + $stateParams.id).success( function(response) {
+		$http.get(apiUrl + 'single/' + $stateParams.id).success( function(response) {
 			$scope.event = response;
 
 		});

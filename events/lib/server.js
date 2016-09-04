@@ -32,6 +32,16 @@ server.pre(function (request, response, next) {
 //  req.log.info({res: res}, "finished");
 //});
 
+server.on('uncaughtException', function(req, res, route, err) {
+	log.error(err);
+	res.send(err);
+})
+
+process.on('uncaughtException', function(err) {
+	log.error(err);
+	process.exit(1);
+})
+
 
 
 var cur_version = '0.0.1';
@@ -40,10 +50,12 @@ server.use(service.countRequests);
 server.use(service.authenticateUser);
 
 server.get({path: '/', version: cur_version}, events.listEvents );
-server.post({path: '/', version: cur_version}, [events.fetchUserDetails, events.addEvent] );
+server.post({path: '/', version: cur_version}, [service.fetchUserDetails, events.addEvent] );
 
+// Debugging requests, remove at some point in time
 server.get({path: '/status', version: cur_version}, service.status );
 server.get({path: '/debug', version: cur_version}, events.debug );
+server.get({path: '/getUser', version: cur_version}, [service.fetchUserDetails, service.getUser] );
 
 server.get({path: '/registerMicroservice', version: cur_version}, service.registerMicroservice);
 

@@ -381,26 +381,3 @@ exports.checkUserRole = function(req, res, next) {
 	return next();
 }
 
-
-exports.fetchUserDetails = function(req, res, next) {
-	// Dummy user-details fetch
-	// TODO change for real user-details fetch
-	req.user = {
-		first_name: "Cave",
-		last_name: "Johnson",
-		foreign_id: "cave.johnson",
-		home_local: {
-			foreign_id: "AEGEE-Dresden"
-		},
-		bodies: [
-			{
-				name: "CD"
-			}, {
-				name: "EQAC"
-			}, {
-				name: "ITC"
-			}
-		],
-	}
-	return next();
-}

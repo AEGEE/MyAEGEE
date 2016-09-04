@@ -5,11 +5,16 @@ var Promise = require('promise');
 var optionsSchema = mongoose.Schema({
 	handshake_token: String,
 })
-optionsSchema.methods.getRequestHeaders = function() {
-	return {
+optionsSchema.methods.getRequestHeaders = function(auth_token) {
+	var retval = {
 		'X-Requested-With': 'XMLHttpRequest',
 		'X-Api-Key': this.handshake_token
 	};
+
+	if(auth_token) {
+		retval['X-Auth-Token'] = auth_token;
+	}
+	return retval;
 }
 
 var Options = mongoose.model('Option', optionsSchema);
