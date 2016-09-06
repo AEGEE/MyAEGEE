@@ -2,11 +2,11 @@ var mongoose = require('mongoose');
 
 // A participant applying to an event including it's application
 var paxSchema = mongoose.Schema({
-	cache_first_name: String,
-	cache_last_name: String,
-	cache_update: Date, // When were cached lastname and firstname updated
+	first_name: String,
+	last_name: String,
+	antenna: String,
 	foreign_id: {type: String, required: true}, // ID in oms-core
-	application_status: {type: String, enum: ['requesting', 'pending', 'approved', 'deleted'], default: 'requesting'},
+	application_status: {type: String, enum: ['requesting', 'pending', 'accepted', 'rejected'], default: 'requesting'},
 	application: [{
 		field_id: {type: String, required: true},
 		value: String
@@ -19,16 +19,14 @@ paxSchema.virtual('url').get(function() {
 });
 
 var orgaSchema = mongoose.Schema({
-	cache_first_name: String,
-	cache_last_name: String,
-	cache_update: Date,
+	first_name: String,
+	last_name: String,
 	foreign_id: {type: String, required: true},
 	role: {type: String, enum: ['full', 'readonly'], default: 'full'},
 });
 
 var localSchema =  mongoose.Schema({
-	cache_name: String,
-	cache_update: Date,
+	name: String,
 	foreign_id: {type: String, required: true},
 });
 

@@ -4,7 +4,7 @@ var imageserv = require('./imageserv.js');
 var log = require('./config/logger.js');
 var service =  require('./service.js');
 
-var config = require('./config/config.json');
+var config = require('./config/config.js');
 
 var server = restify.createServer({
     name: 'oms-events',
@@ -59,19 +59,17 @@ server.get({path: '/getUser', version: cur_version}, [service.fetchUserDetails, 
 
 server.get({path: '/registerMicroservice', version: cur_version}, service.registerMicroservice);
 
-server.get({path: '/image/:image_id', version: cur_version}, imageserv.getImage );
-
 // All requests from here on use the getEvent middleware to fetch a single event from db
 server.use(events.fetchSingleEvent);
 
 server.get({path: '/single/:event_id', version: cur_version}, events.eventDetails );
-server.put({path: '/single/:event_id', version: cur_version}, [service.fetchUserDetails, events.editEvent] );
-server.del({path: '/single/:event_id', version: cur_version}, [service.fetchUserDetails, events.deleteEvent] );
+server.put({path: '/single/:event_id', version: cur_version}, [service.fetchUserDetails, events.checkUserRole, events.editEvent] );
+server.del({path: '/single/:event_id', version: cur_version}, [service.fetchUserDetails, events.checkUserRole, events.deleteEvent] );
+server.get({path: '/single/:event_id/rights', version: cur_version}, [service.fetchUserDetails, events.checkUserRole, events.getEditRights] );
 
 server.get({path: '/single/:event_id/participants', version: cur_version}, events.listParticipants );
-server.post({path: '/single/:event_id/participants', version: cur_version}, [service.fetchUserDetails, events.applyParticipant] );
-server.get({path: '/single/:event_id/participants/:user_id', version: cur_version}, events.getApplication );
-server.put({path: '/single/:event_id/participants/:user_id', version: cur_version}, [service.fetchUserDetails, events.setApplication] );
+server.put({path: '/single/:event_id/participants/mine', version: cur_version}, [service.fetchUserDetails, events.checkUserRole, events.setApplication] );
+server.get({path: '/single/:event_id/participants/mine', version: cur_version}, events.getApplication );
 
 server.get({path: '/single/:event_id/organizers', version: cur_version}, events.listOrganizers );
 server.put({path: '/single/:event_id/organizers', version: cur_version}, events.setOrganizers );

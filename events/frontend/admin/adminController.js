@@ -2,7 +2,7 @@
 {
 	'use strict';
 	var baseUrl = baseUrlRepository['oms-events'];
-	var apiURL = baseUrl + 'api/';
+	var apiUrl = baseUrl + 'api/';
 
 
 	angular
@@ -10,6 +10,7 @@
 		.config(config)
 		.controller('DashboardController', DashboardController)
 		.controller('NewController', NewController)
+		.controller('ServiceAdminController', ServiceAdminController)
 		.directive( "mwConfirmClick", [
 			function() {
 				return {
@@ -61,6 +62,15 @@
 						controller: 'NewController as vm'
 					}
 				}
+			})
+			.state('app.eventadmin.serviceadmin', {
+				url: '/service-admin',
+				views: {
+					'pageContent@app': {
+						templateUrl: baseUrl + 'frontend/admin/serviceadmin.html',
+						controller: 'ServiceAdminController as vm'
+					}
+				}
 			});
 	}
 
@@ -86,6 +96,11 @@
 		$scope.heading = "New Event";
 		$scope.event = {starts: '', ends: ''};
 
+		// Per default make event editable
+		$scope.editFields = true;
+		$scope.isAdmin = false;
+		$scope.editApplicationStatus = true;
+
 
 		// Add callbacks to handle application field changes
 		$scope.addApplicationField = function() {
@@ -105,7 +120,7 @@
 		// If no route params are given, the user wants to create a new event -> Post
 		$scope.submitForm = function() {
 			console.log($scope.event);
-			$http.post(apiURL, $scope.event).then(function successCallback(response) {
+			$http.post(apiUrl, $scope.event).then(function successCallback(response) {
 				$state.go('app.events.single', {id: response.data._id});
 				console.log(response);
 			}, function errorCallback(response) {
@@ -117,7 +132,7 @@
 		// Also use another submit message
 		if($stateParams.id) {
 
-			var resourceURL = apiURL + '/single/' + $stateParams.id;
+			var resourceURL = apiUrl + '/single/' + $stateParams.id;
 			$scope.heading = "Edit Event";
 			$scope.deleteEvent = function() {
 				$http.delete(resourceURL).then(function(res) {
@@ -137,14 +152,35 @@
 				});
 			}
 			
+			// Get the current event status
 			$http.get(resourceURL).success( function(response) {
 				$scope.event = response;
 				$("#startsDateTimePicker > input").val($filter('date')(response.starts, 'MM/dd/yyyy h:mm a'));
 				$("#endsDateTimePicker > input").val($filter('date')(response.ends, 'MM/dd/yyyy h:mm a'));
 				$("#deadlineDateTimePicker > input").val($filter('date')(response.application_deadline, 'MM/dd/yyyy h:mm a'));
 			});
+
+			// Get the rights this user has on this event
+			$http.get(apiUrl + 'single/' + $stateParams.id + '/rights').success(function(res) {
+				$scope.permissions = res.can;
+			});
 		}
 
+	}
+
+	function ServiceAdminController($scope, $http) {
+		var start1 = new Date().getTime();
+		$http.get(apiUrl + 'getUser').success( function(response) {
+			console.log(response);
+			$scope.user = response;
+			$scope.roundtrip1 = (new Date().getTime()) - start1;
+		});
+
+		var start2 = new Date().getTime();
+		$http.get(apiUrl + 'status').success( function(response) {
+			$scope.status = response;
+			$scope.roundtrip2 = (new Date().getTime()) - start2;
+		});
 	}
 
 })();

@@ -3,7 +3,7 @@
 ** Also responsible for communication with the core
 */
 
-var config = require('./config/config.json');
+var config = require('./config/config.js');
 var log = require('./config/logger.js');
 
 var httprequest = require('request');
@@ -152,7 +152,9 @@ exports.authenticateUser = function(req, res, next) {
 						return next(new restify.ForbiddenError('Access denied'));
 					}
 
-					req.user = body.user;
+					if(!req.user)
+						req.user = {};
+					req.user.basic = body.user;
 					next();
 
 					// After calling next, try saving the fetched data to db
@@ -168,7 +170,9 @@ exports.authenticateUser = function(req, res, next) {
 		}
 		// If found in cache, use that one
 		else {
-			req.user = res.user;
+			if(!req.user)
+				req.user = {}
+			req.user.basic = res.user;
 			return next();
 		}
 	});
@@ -214,12 +218,15 @@ exports.fetchUserDetails = function(req, res, next) {
 				return next(new restify.ForbiddenError('Core refused user profile fetch'));
 			}
 
-			req.user = {};
+			if(!req.user)
+				req.user = {};
 			req.user.details = body.user;
 			req.user.workingGroups = body.workingGroups;
 			req.user.board_positions = body.board_positions;
 			req.user.roles = body.roles;
 			req.user.fees_paid = body.fees_paid;
+			//log.info(req.user);
+
 			return next();
 		});
 	});

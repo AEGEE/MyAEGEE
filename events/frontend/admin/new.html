@@ -5,15 +5,19 @@
 
 	<div class="form-group" ng-class="{ 'has-error': eventForm.name.$invalid && eventForm.name.$dirty }">
 		<label class="control-label col-sm-3" for="name">Name<span class="text-danger">*</span> </label>
-		<div class="input-group col-sm-6">
-			<input 
-				type="text" 
-				class="form-control" 
-				name="name" 
-				ng-model="event.name"
-				required />
 
-			<p ng-show="eventForm.name.$error.message">{{ eventForm.name.$error.message }}</p>	
+		<div class="input-group col-sm-6">
+				<input 
+					type="text" 
+					class="form-control" 
+					name="name" 
+					ng-model="event.name"
+					required
+					ng-disabled="!permissions.edit_details"
+					 />
+					
+
+				<p ng-show="eventForm.name.$error.message">{{ eventForm.name.$error.message }}</p>
 		</div>
 	</div>
 
@@ -24,7 +28,8 @@
 				type="text" 
 				class="form-control" 
 				name="starts"
-				required />
+				required
+				ng-disabled="!permissions.edit_details" />
 			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 
 			<p ng-show="eventForm.starts.$error.message">{{ eventForm.starts.$error.message }}</p>
@@ -38,7 +43,8 @@
 				type="text" 
 				class="form-control" 
 				name="ends"
-				required />
+				required
+				ng-disabled="!permissions.edit_details" />
 			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 
 			<p ng-show="eventForm.ends.$error.message">{{ eventForm.ends.$error.message }}</p>
@@ -53,7 +59,8 @@
 				class="form-control" 
 				name="description" 
 				ng-model="event.description"
-				required />
+				required
+				ng-disabled="!permissions.edit_details" />
 
 			<p ng-show="eventForm.description.$error.message">{{ eventForm.description.$error.message }}</p>	
 		</div>
@@ -63,7 +70,10 @@
 	<div class="form-group" ng-class="{ 'has-error': eventForm.type.$invalid && eventForm.type.$dirty }">
 		<label class="control-label col-sm-3" for="type">Type</label>
 		<div class="input-group col-sm-6">
-			<select class="form-control" name="type" ng-model="event.type">
+			<select class="form-control" 
+					name="type"
+					ng-model="event.type"
+					ng-disabled="!permissions.edit_details">
 				<option value="non-statutory">Non-Statutory</option>
 				<option value="statutory">Statutory</option>
 				<option value="su">Summer University</option>
@@ -73,7 +83,8 @@
 		</div>
 	</div>
 
-	<div class="form-group" ng-class="{ 'has-error': eventForm.status.$invalid && eventForm.status.$dirty }">
+	<!-- Maybe change this to a button which is to click to request approval and only show it to admins via ng-if -->
+	<div class="form-group" ng-class="{ 'has-error': eventForm.status.$invalid && eventForm.status.$dirty }" ng-if="permissions.approve">
 		<label class="control-label col-sm-3" for="status">Status</label>
 		<div class="input-group col-sm-6">
 			<select class="form-control" name="status" ng-model="event.status">
@@ -87,6 +98,7 @@
 	</div>
 
 
+
 	<div class="form-group" ng-class="{ 'has-error': eventForm.max_participants.$invalid && eventForm.max_participants.$dirty }">
 		<label class="control-label col-sm-3" for="max_participants">Maximum Number of Participants</label>
 		<div class="input-group col-sm-6">
@@ -94,12 +106,25 @@
 				type="number" 
 				class="form-control" 
 				name="max_participants"
-				ng-model="event.max_participants" />
+				ng-model="event.max_participants"
+				ng-disabled="!permissions.edit_details" />
 
 			<p ng-show="eventForm.max_participants.$error.message">{{ eventForm.max_participants.$error.message }}</p>
 		</div>
 	</div>
 
+	<div class="form-group" ng-class="{ 'has-error': eventForm.application_status.$invalid && eventForm.application_status.$dirty }">
+		<label class="control-label col-sm-3" for="application_status">Application Status</label>
+		<div class="input-group col-sm-6">
+			<select class="form-control"
+					name="application_status" 
+					ng-model="event.application_status"
+					ng-disabled="!editApplicationStatus">
+				<option value="open">Open</option>
+				<option value="closed">Closed</option>
+			</select>
+		</div>
+	</div>
 
 	<div class="form-group" ng-class="{ 'has-error': eventForm.application_deadline.$invalid && eventForm.application_deadline.$dirty }">
 		<label class="control-label col-sm-3" for="application_deadline">Appplication Deadline </label>
@@ -108,6 +133,7 @@
 				type="text" 
 				class="form-control" 
 				name="application_deadline"
+				ng-disabled="!editApplicationStatus"
 				/>
 			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 
@@ -115,45 +141,60 @@
 		</div>
 	</div>
 
-
-	<div class="form-group" ng-class="{ 'has-error': eventForm.application_status.$invalid && eventForm.application_status.$dirty }">
-		<label class="control-label col-sm-3" for="application_status">Application Status</label>
-		<div class="input-group col-sm-6">
-			<select class="form-control" name="application_status" ng-model="event.application_status">
-				<option value="open">Open</option>
-				<option value="closed">Closed</option>
-			</select>
-		</div>
-	</div>
-
 	<div class="form-group" ng-class="{ 'has-error': eventForm.application_status.$invalid && eventForm.application_status.$dirty }">
 		<label class="control-label col-sm-3" for="application_fields">Application Fields</label>
 		<div class="col-sm-6">
-			<div class="input-group" ng-repeat="field in event.application_fields">
-				<input type="text" ng-model="field.name"><button type="button" class="btn btn-primary btn-xs" ng-click="removeApplicationField($index)"><i class="fa fa-minus"></i></button>
+			<div class="form-group" ng-repeat="field in event.application_fields">
+				<div class="input-group">
+					<input 	
+						type="text" 
+						class="form-control" 
+						ng-model="field.name" 
+						placeholder="question"
+						ng-disabled="!permissions.edit_details" />
+					<span class="input-group-addon">
+						<button type="button" class="btn btn-primary btn-xs" ng-click="removeApplicationField($index)" ng-disabled="!permissions.edit_details"><i class="fa fa-minus"></i></button>
+					</span>
+				</div>
+				<div class="input-group col-sm-12">
+					<input 
+						type="text" 
+						class="form-control" 
+						ng-model="field.description" 
+						placeholder="description"
+						ng-disabled="!permissions.edit_details">
+					
+				</div>
 			</div>
 
-			<div class="input-group">
-				<input type="text" placeholder="Enter a question" ng-model="newfield"><button type="button" class="btn btn-primary btn-xs" ng-click="addApplicationField();"><i class="fa fa-plus"></i></button>
+			<div class="input-group form-group" ng-if="permissions.edit_details">
+				<input type="text" class="form-control" placeholder="Enter a question" ng-model="newfield">
+				<span class="input-group-addon">
+					<button type="button" class="btn btn-primary btn-xs" ng-click="addApplicationField();"><i class="fa fa-plus"></i></button>
+				</span>
 			</div>
 		</div>
 	</div>
 
 	<div class="form-group">
-		<button type="submit" class="btn btn-success col-sm-6 col-sm-offset-3">
-			Submit!
-		</button>
+		<label class="control-label col-sm-3">Interactions</label>
+		<a class="btn btn-primary col-sm-3" ui-sref="app.events.approve({id: event.id})" ng-disabled="!permissions.view_participants">See applications</a>
+
+		<button 
+			ng-show="event.id"
+			type="button"
+			class="btn btn-danger col-sm-3" 
+			mw-confirm-click-message="Are you bloody damn sure to delete this event?" 
+			mw-confirm-click="deleteEvent()"
+			ng-disabled="!permissions.edit_details">
+			Delete event</button>
 
 		<p ng-show="message">{{ message }}</p>
 	</div>
 
-	<div class="form-group" ng-show="event.id">
-		<button 
-			type="button"
-			class="btn btn-danger col-sm-6 col-sm-offset-3" 
-			mw-confirm-click-message="Are you bloody damn sure to delete this event?" 
-			mw-confirm-click="deleteEvent()">
-			Delete event</button>
+	<div class="form-group">
+		<span class="col-sm-3"></span>
+		<button type="submit" class="btn btn-success col-sm-6" ng-disabled="!permissions.edit">Submit!</button>
 	</div>
 
 </form>

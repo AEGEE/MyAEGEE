@@ -1,0 +1,39 @@
+<div class="row">
+	<div class="col-lg-6">
+		<h3>Service status</h3>
+		
+		<div class="row">
+			<div class="col-sm-3">Uptime</div>
+			<div class="col-sm-6">{{ status.uptime }}</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-3">Request count</div>
+			<div class="col-sm-6">{{ status.requests }}</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-3">Handshake token</div>
+			<div class="col-sm-6">{{ status.handshake_token }}</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-3">Roundtrip</div>
+			<div class="col-sm-6">{{ roundtrip2 }}ms</div>
+		</div>
+	</div>
+
+	<div class="col-lg-6">
+		<h3>User details</h3>
+
+		<div class="row">
+			<div class="col-sm-3">Name</div>
+			<div class="col-sm-6">{{ user.details.fullname }}</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-3">Roundtrip</div>
+			<div class="col-sm-6">{{ roundtrip1 }}ms</div>
+		</div>
+	</div>
+</div>

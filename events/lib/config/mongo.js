@@ -1,12 +1,9 @@
-var config = require('./config.json');
+var config = require('./config.js');
 var mongoose = require('mongoose');
 var log = require('./logger');
 
-// Connect to MongoDB
-if(process.env.NODE_ENV == 'test')
-	mongoose.connect(config.mongourl.test);
-else
-	mongoose.connect(config.mongourl.dev);
+
+mongoose.connect(config.mongourl);
 var db = mongoose.connection;
 // Applying a fail-fast approach on mongodb connection loss
 db.on('error', function(err) {

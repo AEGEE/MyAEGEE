@@ -80,21 +80,60 @@
 		$scope.baseUrl = baseUrl;
 
 		// Fetch event from backend
-		$http.get(apiUrl + 'single/' + $stateParams.id).success( function(response) {
-			$scope.event = response; 
+		$http.get(apiUrl + 'single/' + $stateParams.id).success( function(res) {
+			$scope.event = res; 
 		});
 	}
 
 	function ApplyController($scope, $http, $stateParams) {
-		// Fetch event again
-		$http.get(apiUrl + 'single/' + $stateParams.id).success( function(response) {
-			$scope.event = response;
+
+		// Fetch event again to get form fields
+		// Also fetch if the user already has put an applicaiton
+		var reqPromise = $http.get(apiUrl + 'single/' + $stateParams.id + '/participants/mine');
+		$http.get(apiUrl + 'single/' + $stateParams.id).success( function(res) {
+			// Save fetched event to scope
+			$scope.event = res;
+
+			// Poll for existing application
+			reqPromise.success(function(res) {
+				// Loop through application fields and assign them to our model
+				res.application.forEach(function(field) {
+					// Find the matching application_field to our users application field
+					$scope.event.application_fields.some(function(item, index) {
+						if(field.field_id == item._id) {
+							$scope.event.application_fields[index].answer = field.value;
+							return true;
+						}
+						return false;
+					});
+				});
+
+				$scope.application_status = res.application_status;
+
+			}).catch(function(err) {
+				// User doesn't have submitted an application yet or something went wrong
+			});
 
 		});
 
 		// Sumbit form callback
 		$scope.submitForm = function() {
-			alert("submission not implemented yet, sorry");
+			// Copy data from the form into an object to submit it in the format the backend needs it
+			var toServer = {application: []};
+			$scope.event.application_fields.forEach(function(field) {
+				if(field.answer) {
+					toServer.application.push({
+						field_id: field._id,
+						value: field.answer
+					});
+				}
+			});
+
+			$http.put(apiUrl + 'single/' + $stateParams.id + '/participants/mine', toServer).then(function(res) {
+				alert("application saved");
+			}, function(err) {
+				console.log(err);
+			});
 		}
 	}
 
