@@ -242,7 +242,6 @@
 	function ServiceAdminController($scope, $http) {
 		var start1 = new Date().getTime();
 		$http.get(apiUrl + 'getUser').success( function(response) {
-			console.log(response);
 			$scope.user = response;
 			$scope.roundtrip1 = (new Date().getTime()) - start1;
 		});

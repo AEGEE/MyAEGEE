@@ -16,7 +16,7 @@ exports.listEvents = function(req, res, next) {
 		.where('status').ne('deleted') // Hide deleted events
 		.where('ends').gte(new Date()) // Only show events in the future
 		.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status'].join(' '))
-		.sort('starts')
+		//.sort('starts') // done on client side
 		.exec(function(err, events) {
 		
 		if (err) {log.info(err);return next(new restify.InternalError());}
@@ -216,7 +216,6 @@ exports.listParticipants = function(req, res, next) {
 exports.getApplication = function(req, res, next) {
 	var event = req.event;
 		
-	// TODO check user privilegies
 	// Search for the application
 	var application = event.applications.find(function(element) {return element.foreign_id == req.user.basic.id;});
 	if (application == undefined)
@@ -256,12 +255,6 @@ exports.setApplication = function(req, res, next) {
 	else
 		event.applications[index].application = req.body.application;
 		
-	
-	
-	// TODO Create new call to approve applications
-	//if(application.application_status) {
-	//	event.applications[index].application_status = application.application_status;  // Just copy the field
-	//}
 	
 	// Only check the current application for validity, as checking all of them would be too much overhead on big events
 	var tmp = helpers.checkApplicationValidity(event.applications[index].application, event.application_fields);
@@ -375,114 +368,5 @@ exports.debug = function(req, res, next) {
 		res.send("All events removed, can not be undone. Muhahaha. Wouldn't have guessed this is this serious, wouldn't you?");
 		return next();
 	});
-}
-
-/** Middleware **/
-
-
-exports.fetchSingleEvent = function(req, res, next) {
-	if(!req.params.event_id) {
-		log.info(req.params);
-		return next(new restify.NotFoundError("No Event-id provided"));
-	}
-
-	Event.findById(req.params.event_id).exec(function(err, event) {
-		if (err) {
-			if(err['name'] == 'CastError')
-				return next(new restify.NotFoundError("Event with id " + req.params.event_id + " not found"));
-			log.info(err);
-			return next(new restify.InternalError());
-		}
-		if (event == null) 
-			return next(new restify.NotFoundError("Event with id " + req.params.event_id + " not found"));
-		
-		req.event = event;
-		return next();
-	});
-}
-
-// Middleware to check which permissions the user has on this event 
-// Requires the fetchSingleEvent and fetchUserDetails middleware to be executed beforehand
-exports.checkUserRole = function(req, res, next) {
-	var permissions = {
-		is: {},
-		can: {}
-	}
-
-	permissions.is.organizer = req.event.organizers.some(function(item) {
-		return item.foreign_id == req.user.basic.id;
-	});
-
-	var application_index;
-
-	permissions.is.participant = req.event.applications.some(function(item, index) {
-		if(item.foreign_id == req.user.basic.id) {
-			application_index = index;
-			return true;
-		}
-		return false;
-	});
-
-	permissions.is.accepted_participant = permissions.is.participant && req.event.applications[application_index].application_status == 'accepted';
-
-	permissions.is.own_antenna = req.event.organizing_locals.some(function(item) {
-		return item.foreign_id == req.user.basic.antenna_id;
-	});
-
-	permissions.is.boardmember = permissions.is.own_antenna && req.user.board_positions.length > 0;
-
-	permissions.is.superadmin = req.user.basic.is_superadmin;
-
-	permissions.is.cdmember = false; // TODO
-
-	permissions.is.netcommie = false; // TODO maybe also check if user is netcommie for this local
-
-	permissions.is.suct = false; // TODO
-
-	permissions.can.edit_details = 
-		(permissions.is.organizer && req.event.application_status == 'closed' && req.event.status == 'draft') // Normal editing
-		|| permissions.is.superadmin // of course
-		|| permissions.is.cdmember;
-
-	permissions.can.edit_application_status = 
-		(permissions.is.organizer && req.event.status == 'approved')
-		|| permissions.is.superadmin
-		|| permissions.is.cdmember;
-
-	permissions.can.approve = 
-		permissions.is.superadmin
-		|| permissions.is.cdmember
-		|| (permissions.is.netcommie && req.event.type == 'non-statutory')
-		|| (permissions.is.suct && req.event.type == 'su');
-
-	permissions.can.edit = 
-		permissions.can.edit_details 
-		|| permissions.can.edit_application_status 
-		|| permissions.can.approve;
-
-	permissions.can.apply = !permissions.is.organizer && req.event.application_status == 'open';
-
-	permissions.can.approve_participants = permissions.is.organizer && req.event.application_status == 'closed';
-
-	permissions.can.view_participants = 
-		permissions.is.organizer 
-		|| permissions.is.accepted_participant 
-		|| permissions.is.boardmember
-		|| permissions.is.superadmin
-		|| permissions.is.cdmember
-		|| (permissions.is.netcommie && req.event.type == 'non-statutory')
-		|| (permissions.is.suct && req.event.type == 'su');
-
-	// Convert all to boolean
-	for(var attr in permissions.is) {
-		permissions.is[attr] = Boolean(permissions.is[attr]);
-	}
-	for(var attr in permissions.can) {
-		permissions.can[attr] = Boolean(permissions.can[attr]);
-	}
-
-	req.user.permissions = permissions;
-
-	return next();
 }
 

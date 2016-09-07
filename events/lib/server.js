@@ -3,6 +3,7 @@ var events = require('./events.js'); //the real place where the API callbacks ar
 var imageserv = require('./imageserv.js');
 var log = require('./config/logger.js');
 var service =  require('./service.js');
+var middlewares = require('./middlewares.js');
 
 var config = require('./config/config.js');
 
@@ -47,30 +48,30 @@ process.on('uncaughtException', function(err) {
 var cur_version = '0.0.1';
 
 server.use(service.countRequests);
-server.use(service.authenticateUser);
+server.use(middlewares.authenticateUser);
 
 server.get({path: '/', version: cur_version}, events.listEvents );
-server.post({path: '/', version: cur_version}, [service.fetchUserDetails, events.addEvent] );
+server.post({path: '/', version: cur_version}, [middlewares.fetchUserDetails, events.addEvent] );
 
 // Debugging requests, remove at some point in time
 server.get({path: '/status', version: cur_version}, service.status );
 server.get({path: '/debug', version: cur_version}, events.debug );
-server.get({path: '/getUser', version: cur_version}, [service.fetchUserDetails, service.getUser] );
+server.get({path: '/getUser', version: cur_version}, [middlewares.fetchUserDetails, service.getUser] );
 
 server.get({path: '/registerMicroservice', version: cur_version}, service.registerMicroservice);
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
-server.use(events.fetchSingleEvent);
+server.use(middlewares.fetchSingleEvent);
 
 server.get({path: '/single/:event_id', version: cur_version}, events.eventDetails );
-server.put({path: '/single/:event_id', version: cur_version}, [service.fetchUserDetails, events.checkUserRole, events.editEvent] );
-server.del({path: '/single/:event_id', version: cur_version}, [service.fetchUserDetails, events.checkUserRole, events.deleteEvent] );
-server.get({path: '/single/:event_id/rights', version: cur_version}, [service.fetchUserDetails, events.checkUserRole, events.getEditRights] );
+server.put({path: '/single/:event_id', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.editEvent] );
+server.del({path: '/single/:event_id', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.deleteEvent] );
+server.get({path: '/single/:event_id/rights', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.getEditRights] );
 
 server.get({path: '/single/:event_id/participants', version: cur_version}, events.listParticipants );
-server.put({path: '/single/:event_id/participants/status/:application_id', version: cur_version}, [service.fetchUserDetails, events.checkUserRole, events.setApplicationStatus] )
+server.put({path: '/single/:event_id/participants/status/:application_id', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.setApplicationStatus] )
 server.get({path: '/single/:event_id/participants/mine', version: cur_version}, events.getApplication );
-server.put({path: '/single/:event_id/participants/mine', version: cur_version}, [service.fetchUserDetails, events.checkUserRole, events.setApplication] );
+server.put({path: '/single/:event_id/participants/mine', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.setApplication] );
 
 server.get({path: '/single/:event_id/organizers', version: cur_version}, events.listOrganizers );
 server.put({path: '/single/:event_id/organizers', version: cur_version}, events.setOrganizers );

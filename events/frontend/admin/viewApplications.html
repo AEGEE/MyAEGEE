@@ -20,6 +20,9 @@
 				<button class="btn btn-sm btn-primary" ng-click="showModal(pax);"><i class="fa fa-pencil"></i></button>
 			</td>
 		</tr>
+		<tr ng-if="event.applications.length == 0">
+			<td colspan="4">No applications yet!</td>
+		</tr>
 	</tbody>
 </table>
 

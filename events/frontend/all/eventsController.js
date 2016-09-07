@@ -48,7 +48,11 @@
 	}
 
 	function ListingController($scope, $http, $timeout) {        
-	
+		$scope.typequery={
+			statutory: true,
+			non_statutory: true,
+			su: true
+		};
 		// Fetch events from backend
 		//$('#loadingOverlay').show();
 		$http.get(apiUrl).success(function(response) {
@@ -71,8 +75,19 @@
 		
 		// Search callback to enable searching in name and description only
 		$scope.search = function (row) {
-			return (angular.lowercase(row.name).indexOf(angular.lowercase($scope.query) || '') !== -1 ||
-					angular.lowercase(row.description).indexOf(angular.lowercase($scope.query) || '') !== -1);
+			var status_types = [];
+			if($scope.typequery.statutory)
+				status_types.push('statutory');
+			if($scope.typequery.non_statutory)
+				status_types.push('non-statutory');
+			if($scope.typequery.su)
+				status_types.push('su');
+
+			var query = angular.lowercase($scope.query);
+
+			return status_types.find(item => item == row.type) &&
+					(angular.lowercase(row.name).indexOf(query || '') !== -1 ||
+					angular.lowercase(row.description).indexOf(query || '') !== -1);
 		};
 	}
 

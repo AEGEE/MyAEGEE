@@ -47,7 +47,7 @@
 						<tr class="divider"><td colspan="2"></td></tr>
 						<tr>
 							<td class="field">Description</td>
-							<td><p ng-bind="event.description"></p></td>
+							<td><p style="white-space: pre-wrap;" ng-bind="event.description"></p></td>
 						</tr>
 
 						<tr class="divider"><td colspan="2"></td></tr>
@@ -69,7 +69,7 @@
 						</tr>
 						<tr>
 							<td class="field">Application Deadline</td>
-							<td>{{ event.application_deadline | date:'mediumDate' }}, {{ event.application_deadline | date:'HH:mm' }}</td>
+							<td>{{ event.application_deadline | date:'MMM d, yyyy hh:mm' }}</td>
 						</tr>
 						<tr>
 							<td class="field">Application status</td>

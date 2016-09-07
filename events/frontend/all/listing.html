@@ -25,15 +25,15 @@
 					</div>
 
 					<div class="col-sm-12">
-						<label class="checkbox-inline"><input type="checkbox">
+						<label class="checkbox-inline"><input type="checkbox" ng-model="typequery.statutory">
 							Statutory
 						</label>
 
-						<label class="checkbox-inline"><input type="checkbox">
+						<label class="checkbox-inline"><input type="checkbox" ng-model="typequery.non_statutory">
 							Non-Statutory
 						</label>
 
-						<label class="checkbox-inline"><input type="checkbox">
+						<label class="checkbox-inline"><input type="checkbox" ng-model="typequery.su">
 							SU
 						</label>
 					</div>
@@ -44,7 +44,7 @@
 	</li>
 
 	<!-- show all events -->
-	<li ng-repeat="event in events | filter: search">
+	<li ng-repeat="event in events | filter: search | orderBy: 'starts'">
 		<div class="timeline-time">
 			<span class="date">{{ event.starts | date:'yyyy' }}</span>
 			<span class="time">{{ event.starts | date:'MMM d' }}</span>

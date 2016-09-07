@@ -54,13 +54,13 @@
 	<div class="form-group" ng-class="{ 'has-error': eventForm.description.$invalid && eventForm.description.$dirty }">
 		<label class="control-label col-sm-3" for="description">Description<span class="text-danger">*</span> </label>
 		<div class="input-group col-sm-6">
-			<input 
-				type="text" 
+			<textarea 
 				class="form-control" 
+				rows="4"
 				name="description" 
 				ng-model="event.description"
 				required
-				ng-disabled="!permissions.edit_details" />
+				ng-disabled="!permissions.edit_details"></textarea>
 
 			<p ng-show="eventForm.description.$error.message">{{ eventForm.description.$error.message }}</p>	
 		</div>

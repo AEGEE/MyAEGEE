@@ -11,7 +11,7 @@ var paxSchema = mongoose.Schema({
 		field_id: {type: String, required: true},
 		value: String
 	}]
-}{timestamps: true});
+}, {timestamps: true});
 paxSchema.set('toJSON', {virtuals: true});
 paxSchema.set('toObject', {virtuals: true});
 paxSchema.virtual('url').get(function() {
@@ -44,6 +44,7 @@ var eventSchema =  mongoose.Schema({
 	starts: {type: Date, required: true},
 	ends: {type: Date, required: true},
 	description: {type: String, default: ''},
+	primary_local: localSchema,
 	organizing_locals: [localSchema],
 	type: {type: String, enum: ['non-statutory', 'statutory', 'su'], default: 'non-statutory'},
 	status: {type: String, enum: ['draft', 'requesting', 'approved', 'deleted'], default: 'draft'},
@@ -54,7 +55,7 @@ var eventSchema =  mongoose.Schema({
 	applications: [paxSchema],
 	organizers: [orgaSchema],
 	headImg: {type: String}, // url for the headimage
-});
+}, {timestamps: true});
 eventSchema.set('toJSON', {virtuals: true});
 eventSchema.set('toObject', {virtuals: true});
 eventSchema.virtual('url').get(function() {return '/single/' + this._id;});
