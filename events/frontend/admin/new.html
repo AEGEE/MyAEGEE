@@ -178,7 +178,7 @@
 
 	<div class="form-group">
 		<label class="control-label col-sm-3">Interactions</label>
-		<a class="btn btn-primary col-sm-3" ui-sref="app.events.approve({id: event.id})" ng-disabled="!permissions.view_participants">See applications</a>
+		<a class="btn btn-primary col-sm-3" ui-sref="app.eventadmin.approve_participants({id: event.id})" ng-disabled="!permissions.view_participants">See applications</a>
 
 		<button 
 			ng-show="event.id"

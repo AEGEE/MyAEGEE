@@ -68,8 +68,9 @@ server.del({path: '/single/:event_id', version: cur_version}, [service.fetchUser
 server.get({path: '/single/:event_id/rights', version: cur_version}, [service.fetchUserDetails, events.checkUserRole, events.getEditRights] );
 
 server.get({path: '/single/:event_id/participants', version: cur_version}, events.listParticipants );
-server.put({path: '/single/:event_id/participants/mine', version: cur_version}, [service.fetchUserDetails, events.checkUserRole, events.setApplication] );
+server.put({path: '/single/:event_id/participants/status/:application_id', version: cur_version}, [service.fetchUserDetails, events.checkUserRole, events.setApplicationStatus] )
 server.get({path: '/single/:event_id/participants/mine', version: cur_version}, events.getApplication );
+server.put({path: '/single/:event_id/participants/mine', version: cur_version}, [service.fetchUserDetails, events.checkUserRole, events.setApplication] );
 
 server.get({path: '/single/:event_id/organizers', version: cur_version}, events.listOrganizers );
 server.put({path: '/single/:event_id/organizers', version: cur_version}, events.setOrganizers );

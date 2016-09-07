@@ -283,6 +283,43 @@ exports.setApplication = function(req, res, next) {
 	});
 }
 
+exports.setApplicationStatus = function(req, res, next) {
+	// Check user permissions
+	if(!req.user.permissions.can.approve_participants) {
+		return next(new restify.ForbiddenError('You are not allowed to accept or reject participants'));
+	}
+
+	var event = req.event;
+
+	// Find the corresponding application
+	var index;
+	var application = event.applications.find(function(element, idx) {
+		if(element.id == req.params.application_id) {
+			index = idx;
+			return true;
+		}
+		return false;
+	});
+
+	if(application == undefined) {
+		return next(new restify.NotFoundError('Could not find application id ' + req.params.application_id));
+	}
+
+	// Save changes
+	event.applications[index].application_status = req.body.application_status;
+	error = event.validateSync();
+	if(error != null) {
+		return next(new restify.InvalidArgumentError({body: error}));
+	}
+
+	event.save(function(err) {
+		if (err) {log.info(err);return next(new restify.InternalError());}
+		res.status(200);
+		res.json({message: 'Application successfully updated'});
+		return next();
+	});
+}
+
 /** Organizers **/
 
 exports.listOrganizers = function(req, res, next) {
@@ -425,7 +462,7 @@ exports.checkUserRole = function(req, res, next) {
 
 	permissions.can.apply = !permissions.is.organizer && req.event.application_status == 'open';
 
-	permissions.can.approve_participants = permissions.is.organizer;
+	permissions.can.approve_participants = permissions.is.organizer && req.event.application_status == 'closed';
 
 	permissions.can.view_participants = 
 		permissions.is.organizer 

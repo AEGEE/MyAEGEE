@@ -10,6 +10,7 @@
 		.config(config)
 		.controller('DashboardController', DashboardController)
 		.controller('NewController', NewController)
+		.controller('ApproveParticipantsController', ApproveParticipantsController)
 		.controller('ServiceAdminController', ServiceAdminController)
 		.directive( "mwConfirmClick", [
 			function() {
@@ -60,6 +61,15 @@
 					'pageContent@app': {
 						templateUrl: baseUrl + 'frontend/admin/new.html',
 						controller: 'NewController as vm'
+					}
+				}
+			})
+			.state('app.eventadmin.approve_participants', {
+				url: '/approve_participants/:id',
+				views: {
+					'pageContent@app': {
+						templateUrl: baseUrl + 'frontend/admin/viewApplications.html',
+						controller: 'ApproveParticipantsController as vm'
 					}
 				}
 			})
@@ -166,6 +176,67 @@
 			});
 		}
 
+	}
+
+	function ApproveParticipantsController($scope, $http, $stateParams) {
+		// Fetch applications to this event
+		var fetchApplications = $http.get(apiUrl + 'single/' + $stateParams.id + '/participants');
+
+		// Get the event to fetch application fields
+		$http.get(apiUrl + 'single/' + $stateParams.id ).success(function(res) {
+			$scope.event = res;
+			fetchApplications.success(function(res) {
+				console.log(res);
+				$scope.event.applications = res;
+			});
+		});
+
+		// Get the rights this user has on this event
+		$http.get(apiUrl + 'single/' + $stateParams.id + '/rights').success(function(res) {
+			$scope.permissions = res.can;
+		});
+
+		$scope.calcColor = function(application) {
+			switch(application.application_status) {
+				case 'accepted':
+					return 'success';
+				case 'rejected':
+					return 'danger';
+				default:
+					return 'active';
+			}
+		}
+
+		$scope.showModal = function(application) {
+			// Loop through application fields and assign them to our model
+			application.application.forEach(function(field) {
+				// Find the matching application_field to our users application field
+				$scope.event.application_fields.some(function(item, index) {
+					if(field.field_id == item._id) {
+						$scope.event.application_fields[index].answer = field.value;
+						return true;
+					}
+					return false;
+				});
+			});
+
+			$scope.application = application;
+			$('#applicationModal').modal('show');
+		}
+
+		$scope.changeState = function(application, newState) {
+			// Store the change
+			$http.put(apiUrl + 'single/' + $stateParams.id + '/participants/status/' + application.id, {application_status: newState}).success(function(res) {
+				$scope.event.applications.some(function(item, index) {
+					if(item.id == application.id) {
+						$scope.event.applications[index].application_status = newState;
+						return true;
+					}
+					return false;
+				})
+				$('#applicationModal').modal('hide');
+			});
+		}
 	}
 
 	function ServiceAdminController($scope, $http) {

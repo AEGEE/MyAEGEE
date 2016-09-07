@@ -11,7 +11,7 @@ var paxSchema = mongoose.Schema({
 		field_id: {type: String, required: true},
 		value: String
 	}]
-});
+}{timestamps: true});
 paxSchema.set('toJSON', {virtuals: true});
 paxSchema.set('toObject', {virtuals: true});
 paxSchema.virtual('url').get(function() {
