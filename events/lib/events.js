@@ -26,6 +26,36 @@ exports.listEvents = function(req, res, next) {
 	});
 }
 
+// Returns all events the user is organizer on
+exports.listUserOrganizedEvents = function(req, res, next) {
+	Event
+		.where('status').ne('deleted') // Hide deleted events
+		.where('ends').gte(new Date()) // Only show events in the future
+		.elemMatch('organizers', {'foreign_id': req.user.basic.id})
+		.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status'].join(' '))
+		.exec(function(err, events) {
+			if (err) {log.info(err);return next(new restify.InternalError());}
+		
+			res.json(events);
+			return next();
+		});
+}
+
+
+exports.listUserAppliedEvents = function(req, res, next) {
+	Event
+		.where('status').ne('deleted') // Hide deleted events
+		.where('ends').gte(new Date()) // Only show events in the future
+		.elemMatch('applications', {'foreign_id': req.user.basic.id})
+		.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status'].join(' '))
+		.exec(function(err, events) {
+			if (err) {log.info(err);return next(new restify.InternalError());}
+		
+			res.json(events);
+			return next();
+		});
+}
+
 exports.addEvent = function(req, res, next) {
 	// Make sure the user doesn't insert malicious stuff
 	// Fields with other names will be ommitted automatically by mongoose
@@ -248,6 +278,8 @@ exports.setApplication = function(req, res, next) {
 			foreign_id: req.user.basic.id,
 			first_name: req.user.basic.first_name,
 			last_name: req.user.basic.last_name,
+			antenna: req.user.details.antenna_name,
+			antenna_id: req.user.basic.antenna_id,
 			application: req.body.application
 		});
 		index = event.applications.length - 1;
@@ -359,10 +391,7 @@ exports.setOrganizers = function(req, res, next) {
 	});
 }
 
-/** Nerdporn Requests **/
-
-
-
+// TODO remove
 exports.debug = function(req, res, next) {
 	Event.remove({}, function(err) {
 		res.send("All events removed, can not be undone. Muhahaha. Wouldn't have guessed this is this serious, wouldn't you?");

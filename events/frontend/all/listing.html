@@ -37,7 +37,13 @@
 							SU
 						</label>
 					</div>
-						
+
+					<div class="col-sm-12" ng-if="!mine">
+						<a ui-sref="app.events.mine">My events</a>
+					</div>
+					<div class="col-sm-12" ng-if="mine">
+						<a ui-sref="app.events">All events</a>
+					</div>
 				</div>
 			</form>
 		</div>

@@ -43,48 +43,51 @@ exports.countRequests = function(req, res, next) {
 // Register the service with the core
 exports.registerMicroservice = function(req, res, next) {
 
-	var data = {
-		'name': 'OMS Events',
-		'code': 'oms-events',
-		'base_url': config.frontend.url,
-		'pages': JSON.stringify(config.frontend.pages),
-	};
+	require('./config/options.js').then(function(options) {
+		if(!options.enable_change)
+			return next(new resfity.ForbiddenError("Registering Microservice is deactivated"));
 
-	var opts = {
-		url: config.core.url + ':' + config.core.port + '/api/registerMicroservice',
-		method: 'POST',
-		headers: {
-			'X-Requested-With': "XMLHttpRequest",
-			'X-Api-Key': config.secret,
-			'Content-Type': 'application/x-www-form-urlencoded',
-		},
-		form: data,
-	};
+		var data = {
+			'name': 'OMS Events',
+			'code': 'oms-events',
+			'base_url': config.frontend.url,
+			'pages': JSON.stringify(config.frontend.pages),
+		};
 
-	
-	httprequest(opts, function(error, response, body) {
-		if(error) {
-			log.error("Could not register microservice", error);
-			return next(new restify.InternalError("Could not register microservice, core communication failed"));
-		}
-		log.info("some data received: ", body);
+		var opts = {
+			url: config.core.url + ':' + config.core.port + '/api/registerMicroservice',
+			method: 'POST',
+			headers: {
+				'X-Requested-With': "XMLHttpRequest",
+				'X-Api-Key': config.secret,
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			form: data,
+		};
 
-		try {
-			body = JSON.parse(body);
-		}
-		catch(err) {
-			log.error("Could not parse core response", err);
-			return next(new restify.InternalError());
-		}
+		
+		httprequest(opts, function(error, response, body) {
+			if(error) {
+				log.error("Could not register microservice", error);
+				return next(new restify.InternalError("Could not register microservice, core communication failed"));
+			}
+			log.info("some data received: ", body);
 
-		if(!body.success) {
-			log.error("Could not register mircoservice, core replied with", body);
-			return next(new restify.InternalError("Could not register microservice"));
-		}
+			try {
+				body = JSON.parse(body);
+			}
+			catch(err) {
+				log.error("Could not parse core response", err);
+				return next(new restify.InternalError());
+			}
 
+			if(!body.success) {
+				log.error("Could not register mircoservice, core replied with", body);
+				return next(new restify.InternalError("Could not register microservice"));
+			}
 
-		require('./config/options.js').then(function(options) {
 			options.handshake_token = body.handshake_token;
+			options.enable_change = false;
 			options.save(function(err) {
 				if(err) {
 					log.error("Could not save handshake token", err);

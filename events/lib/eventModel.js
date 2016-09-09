@@ -5,6 +5,7 @@ var paxSchema = mongoose.Schema({
 	first_name: String,
 	last_name: String,
 	antenna: String,
+	antenna_id: String,
 	foreign_id: {type: String, required: true}, // ID in oms-core
 	application_status: {type: String, enum: ['requesting', 'pending', 'accepted', 'rejected'], default: 'requesting'},
 	application: [{
@@ -46,7 +47,7 @@ var eventSchema =  mongoose.Schema({
 	description: {type: String, default: ''},
 	primary_local: localSchema,
 	organizing_locals: [localSchema],
-	type: {type: String, enum: ['non-statutory', 'statutory', 'su'], default: 'non-statutory'},
+	type: {type: String, enum: ['non-statutory', 'statutory', 'su', 'local'], default: 'non-statutory'},
 	status: {type: String, enum: ['draft', 'requesting', 'approved', 'deleted'], default: 'draft'},
 	max_participants: {type: Number, default: 0},
 	application_deadline: Date,

@@ -17,7 +17,7 @@ var UserCache = mongoose.model('UserCache', userCacheSchema);
 exports.authenticateUser = function(req, res, next) {
 	var token = req.header('x-auth-token');
 	if(!token) {
-		log.info("Unauthenticated request", req);
+		//log.info("Unauthenticated request", req);
 		return next(new restify.ForbiddenError('No auth token provided'));
 	}
 
@@ -128,6 +128,7 @@ exports.fetchUserDetails = function(req, res, next) {
 			if(!req.user)
 				req.user = {};
 			req.user.details = body.user;
+			req.user.details.antenna_name = 'AEGEE-' + req.user.details.antenna;
 			req.user.workingGroups = body.workingGroups;
 			req.user.board_positions = body.board_positions;
 			req.user.roles = body.roles;

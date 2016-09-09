@@ -9,6 +9,7 @@
 		.module('app.events', [])
 		.config(config)
 		.controller('ListingController', ListingController)
+		.controller('MineController', MineController)
 		.controller('SingleController', SingleController)
 		.controller('ApplyController', ApplyController)
 
@@ -27,8 +28,19 @@
 					}
 				}
 			})
+			.state('app.events.mine', {
+				url: '/mine',
+				views: {
+					'pageContent@app': {
+						templateUrl: baseUrl + 'frontend/all/listing.html',
+						controller: 'MineController as vm'
+					}
+				}
+
+			})
 			.state('app.events.single', {
 				url: '/single/:id',
+				data: {'pageTitle': 'Single Event'},
 				views: {
 					'pageContent@app': {
 						templateUrl: baseUrl + 'frontend/all/single.html',
@@ -61,17 +73,8 @@
 		});
 
 
-		// Display a nice ticking clock for the now timeline entry
-		var tickInterval = 60000 //ms
-
-		var tick = function() {
-			$scope.currentTime = Date.now() // get the current time
-			$timeout(tick, tickInterval); // reset the timer
-		}
-		tick();
-
-		// Start the timer
-		$timeout(tick, tickInterval);
+		$scope.currentTime = Date.now() // get the current time for the timeline
+	
 		
 		// Search callback to enable searching in name and description only
 		$scope.search = function (row) {
@@ -89,6 +92,51 @@
 					(angular.lowercase(row.name).indexOf(query || '') !== -1 ||
 					angular.lowercase(row.description).indexOf(query || '') !== -1);
 		};
+	}
+
+	function MineController($scope, $http, $stateParams) {
+		$scope.typequery={
+			statutory: true,
+			non_statutory: true,
+			su: true
+		};
+
+		$scope.currentTime = Date.now();
+		$scope.mine = true;
+
+		// Search callback to enable searching in name and description only
+		$scope.search = function (row) {
+			var status_types = [];
+			if($scope.typequery.statutory)
+				status_types.push('statutory');
+			if($scope.typequery.non_statutory)
+				status_types.push('non-statutory');
+			if($scope.typequery.su)
+				status_types.push('su');
+
+			var query = angular.lowercase($scope.query);
+
+			return status_types.find(item => item == row.type) &&
+					(angular.lowercase(row.name).indexOf(query || '') !== -1 ||
+					angular.lowercase(row.description).indexOf(query || '') !== -1);
+		};
+
+		$scope.events = [];
+
+		// Fetch events where user is organizer on
+		$http.get(apiUrl + 'mine/byOrganizer').success(function(response) {
+			if(!$scope.events)
+				$scope.events = response;
+			else
+				$scope.events.push.apply(events, response);
+		});
+		// And also get all those the user has applied to
+		$http.get(apiUrl + 'mine/byApplication').success(function(response) {
+			if(!$scope.events)
+				$scope.events = response;
+			else
+				$scope.events.push.apply(events, response);		});
+
 	}
 
 	function SingleController($scope, $http, $stateParams) {

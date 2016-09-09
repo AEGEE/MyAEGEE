@@ -4,6 +4,7 @@ var Promise = require('promise');
 
 var optionsSchema = mongoose.Schema({
 	handshake_token: String,
+	enable_change: {type: Boolean, default: true}
 })
 optionsSchema.methods.getRequestHeaders = function(auth_token) {
 	var retval = {

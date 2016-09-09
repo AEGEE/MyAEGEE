@@ -68,7 +68,7 @@
 				url: '/approve_participants/:id',
 				views: {
 					'pageContent@app': {
-						templateUrl: baseUrl + 'frontend/admin/viewApplications.html',
+						templateUrl: baseUrl + 'frontend/admin/ApproveParticipants.html',
 						controller: 'ApproveParticipantsController as vm'
 					}
 				}
@@ -107,15 +107,18 @@
 		$scope.event = {starts: '', ends: ''};
 
 		// Per default make event editable
-		$scope.editFields = true;
-		$scope.isAdmin = false;
-		$scope.editApplicationStatus = true;
+		$scope.permissions = {
+			edit_details: true,
+			approve: false,
+			edit_application_status: false,
+			edit: true
+		};
+		$scope.event.application_fields = [];
+		$scope.newfield = '';
 
 
 		// Add callbacks to handle application field changes
 		$scope.addApplicationField = function() {
-			if($scope.event.application_fields == null)
-				$scope.event.application_fields = [];
 			if($scope.newfield)
 				$scope.event.application_fields.push({name: $scope.newfield});
 			$scope.newfield = '';
@@ -129,7 +132,6 @@
 
 		// If no route params are given, the user wants to create a new event -> Post
 		$scope.submitForm = function() {
-			console.log($scope.event);
 			$http.post(apiUrl, $scope.event).then(function successCallback(response) {
 				$state.go('app.events.single', {id: response.data._id});
 				console.log(response);
@@ -242,6 +244,7 @@
 	function ServiceAdminController($scope, $http) {
 		var start1 = new Date().getTime();
 		$http.get(apiUrl + 'getUser').success( function(response) {
+			console.log(response);
 			$scope.user = response;
 			$scope.roundtrip1 = (new Date().getTime()) - start1;
 		});

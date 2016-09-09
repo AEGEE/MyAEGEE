@@ -3,8 +3,11 @@
 
 <form id="edit_event" name="eventForm" class="form-horizontal" ng-submit="submitForm()">
 
+	<p class="note note-info" ng-show="!permissions.edit_details">
+	You can not edit event details any more, as the event has already been approved. If you still need to edit it, you can still un-approve it (which will close the application aswell). You will have to undergo the requesting process again afterwards.
+	</p>
 	<div class="form-group" ng-class="{ 'has-error': eventForm.name.$invalid && eventForm.name.$dirty }">
-		<label class="control-label col-sm-3" for="name">Name<span class="text-danger">*</span> </label>
+		<label class="control-label col-sm-4" for="name">Name<span class="text-danger">*</span> </label>
 
 		<div class="input-group col-sm-6">
 				<input 
@@ -22,7 +25,7 @@
 	</div>
 
 	<div class="form-group" ng-class="{ 'has-error': eventForm.starts.$invalid && eventForm.starts.$dirty }">
-		<label class="control-label col-sm-3" for="starts">Starts<span class="text-danger">*</span> </label>
+		<label class="control-label col-sm-4" for="starts">Starts<span class="text-danger">*</span> </label>
 		<div class="input-group date col-sm-6" id="startsDateTimePicker">
 			<input 
 				type="text" 
@@ -37,7 +40,7 @@
 	</div>
 
 	<div class="form-group" ng-class="{ 'has-error': eventForm.ends.$invalid && eventForm.ends.$dirty }">
-		<label class="control-label col-sm-3" for="ends">Ends<span class="text-danger">*</span> </label>
+		<label class="control-label col-sm-4" for="ends">Ends<span class="text-danger">*</span> </label>
 		<div class="input-group date col-sm-6" id="endsDateTimePicker">
 			<input 
 				type="text" 
@@ -52,7 +55,7 @@
 	</div>
 
 	<div class="form-group" ng-class="{ 'has-error': eventForm.description.$invalid && eventForm.description.$dirty }">
-		<label class="control-label col-sm-3" for="description">Description<span class="text-danger">*</span> </label>
+		<label class="control-label col-sm-4" for="description">Description<span class="text-danger">*</span> </label>
 		<div class="input-group col-sm-6">
 			<textarea 
 				class="form-control" 
@@ -68,7 +71,7 @@
 
 
 	<div class="form-group" ng-class="{ 'has-error': eventForm.type.$invalid && eventForm.type.$dirty }">
-		<label class="control-label col-sm-3" for="type">Type</label>
+		<label class="control-label col-sm-4" for="type">Type</label>
 		<div class="input-group col-sm-6">
 			<select class="form-control" 
 					name="type"
@@ -85,7 +88,7 @@
 
 	<!-- Maybe change this to a button which is to click to request approval and only show it to admins via ng-if -->
 	<div class="form-group" ng-class="{ 'has-error': eventForm.status.$invalid && eventForm.status.$dirty }" ng-if="permissions.approve">
-		<label class="control-label col-sm-3" for="status">Status</label>
+		<label class="control-label col-sm-4" for="status">Status</label>
 		<div class="input-group col-sm-6">
 			<select class="form-control" name="status" ng-model="event.status">
 				<option value="draft">Draft</option>
@@ -100,7 +103,7 @@
 
 
 	<div class="form-group" ng-class="{ 'has-error': eventForm.max_participants.$invalid && eventForm.max_participants.$dirty }">
-		<label class="control-label col-sm-3" for="max_participants">Maximum Number of Participants</label>
+		<label class="control-label col-sm-4" for="max_participants">Maximum Number of Participants</label>
 		<div class="input-group col-sm-6">
 			<input 
 				type="number" 
@@ -114,26 +117,36 @@
 	</div>
 
 	<div class="form-group" ng-class="{ 'has-error': eventForm.application_status.$invalid && eventForm.application_status.$dirty }">
-		<label class="control-label col-sm-3" for="application_status">Application Status</label>
+		<label class="control-label col-sm-4" for="application_status">Application Status 
+			<button 
+				type="button" 
+				class="btn btn-info btn-circle btn-sm" 
+				ng-click="info_application_status=!info_application_status"
+				ng-show="!permissions.edit_application_status"><i class="fa fa-question"></i></button>
+		</label>
 		<div class="input-group col-sm-6">
-			<select class="form-control"
-					name="application_status" 
-					ng-model="event.application_status"
-					ng-disabled="!editApplicationStatus">
-				<option value="open">Open</option>
-				<option value="closed">Closed</option>
-			</select>
+				<select class="form-control"
+						name="application_status" 
+						ng-model="event.application_status"
+						ng-disabled="!permissions.edit_application_status">
+					<option value="open">Open</option>
+					<option value="closed">Closed</option>
+				</select>
 		</div>
+
+		<p class="note note-info" ng-show="info_application_status">
+			You cannot open the application when the event is in draft or requesting status. Please wait for it to be approved by one of your board members or any other authorized instance.
+		</p>
 	</div>
 
 	<div class="form-group" ng-class="{ 'has-error': eventForm.application_deadline.$invalid && eventForm.application_deadline.$dirty }">
-		<label class="control-label col-sm-3" for="application_deadline">Appplication Deadline </label>
+		<label class="control-label col-sm-4" for="application_deadline">Appplication Deadline </label>
 		<div class="input-group date col-sm-6" id="deadlineDateTimePicker">
 			<input 
 				type="text" 
 				class="form-control" 
 				name="application_deadline"
-				ng-disabled="!editApplicationStatus"
+				ng-disabled="!permissions.edit_details"
 				/>
 			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 
@@ -142,7 +155,7 @@
 	</div>
 
 	<div class="form-group" ng-class="{ 'has-error': eventForm.application_status.$invalid && eventForm.application_status.$dirty }">
-		<label class="control-label col-sm-3" for="application_fields">Application Fields</label>
+		<label class="control-label col-sm-4" for="application_fields">Application Fields</label>
 		<div class="col-sm-6">
 			<div class="form-group" ng-repeat="field in event.application_fields">
 				<div class="input-group">
@@ -167,8 +180,12 @@
 				</div>
 			</div>
 
-			<div class="input-group form-group" ng-if="permissions.edit_details">
-				<input type="text" class="form-control" placeholder="Enter a question" ng-model="newfield">
+			<div class="input-group form-group" ng-show="permissions.edit_details">
+				<input 
+					type="text" 
+					class="form-control" 
+					placeholder="Enter a question" 
+					ng-model="newfield">
 				<span class="input-group-addon">
 					<button type="button" class="btn btn-primary btn-xs" ng-click="addApplicationField();"><i class="fa fa-plus"></i></button>
 				</span>
@@ -176,12 +193,11 @@
 		</div>
 	</div>
 
-	<div class="form-group">
-		<label class="control-label col-sm-3">Interactions</label>
+	<div class="form-group" ng-show="event.id">
+		<label class="control-label col-sm-4">Interactions</label>
 		<a class="btn btn-primary col-sm-3" ui-sref="app.eventadmin.approve_participants({id: event.id})" ng-disabled="!permissions.view_participants">See applications</a>
 
 		<button 
-			ng-show="event.id"
 			type="button"
 			class="btn btn-danger col-sm-3" 
 			mw-confirm-click-message="Are you bloody damn sure to delete this event?" 
@@ -193,7 +209,7 @@
 	</div>
 
 	<div class="form-group">
-		<span class="col-sm-3"></span>
+		<span class="col-sm-4"></span>
 		<button type="submit" class="btn btn-success col-sm-6" ng-disabled="!permissions.edit">Submit!</button>
 	</div>
 
