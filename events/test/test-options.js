@@ -1,3 +1,6 @@
+process.env.NODE_ENV = 'test';
+
+
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;

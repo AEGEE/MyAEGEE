@@ -67,7 +67,6 @@ exports.addEvent = function(req, res, next) {
 	delete data.application_status;
 	//delete data.organizing_locals;
 	
-	log.info('Creating new event %s', data);
 
 	var newevent = new Event(data);
 	
@@ -90,38 +89,22 @@ exports.addEvent = function(req, res, next) {
 	]
 
 
-	if(data.headImg) {
-		imageserv.uploadImage(data.headImg, function(err, url) {
-			if(err) {log.info(err); return next(new restify.InternalError());}
-			newevent.headImg = url;
-			newevent.save(function(err) {
-				if(err)
-					return next(new restify.InvalidContentError(JSON.stringify(err)));
-				delete newevent.applications;
-				res.status(201);
-				res.json(newevent);
-				return next();
-			});
-		});
-	} else {
-
-		// Validate
-		error = newevent.validateSync();
-		if(error != null) {
-			return next(new restify.InvalidArgumentError({body: error}));
-		}
-
-		newevent.save(function(err) {
-			if(err) {
-				log.info(err);
-				return next(err);
-			}
-			delete newevent.applications;
-			res.status(201);
-			res.json(newevent);
-			return next();
-		});
+	// Validate
+	error = newevent.validateSync();
+	if(error != null) {
+		return next(new restify.InvalidArgumentError({body: error}));
 	}
+
+	newevent.save(function(err) {
+		if(err) {
+			log.info(err);
+			return next(err);
+		}
+		delete newevent.applications;
+		res.status(201);
+		res.json(newevent);
+		return next();
+	});
 }
 
 /** Single event **/
@@ -145,43 +128,51 @@ exports.eventDetails = function(req, res, next) {
 }
 
 exports.editEvent = function(req, res, next) {
+	// If user can't edit anything, return error right away
+	if(!req.user.permissions.can.edit) {
+		return next(new restify.ForbiddenError('You cannot edit this event'));
+	}
+
 	var data = req.body;
 	var event = req.event;
-	// TODO Check if user is organizer
+	// Disallow changing applications and organizers, use seperate requests for that
 	delete data.applications;
 	delete data.organizers;
+	delete data.organizing_locals;
 
-	if(Object.keys(event).length == 0) {
+	if(Object.keys(data).length == 0) {
 		return next(new restify.InvalidContentError({message: 'No valid field changes requested'}));
 	}
 
-	// TODO: CD/SUCT/EQUARK should still be allowed edit even if not in draft
-	if (event.status != 'draft'){
-		delete data.name;
-		delete data.starts;
-		delete data.ends;
-		delete data.description;
-		delete data.type;
-		delete data.application_fields;
-		delete data.headImg;
-
-		if(Object.keys(event).length == 0) {
-			return next(new restify.InvalidContentError({message: 'You can not edit an event when the application is open'}));
-		}
+	// Copy fields if user can edit details
+	if (req.user.permissions.can.edit_details) {
+		if(data.name) event.name = data.name;
+		if(data.starts) event.starts = data.starts;
+		if(data.ends) event.ends = data.ends;
+		if(data.description) event.description = data.description;
+		if(data.type) event.type = data.type;
+		if(data.max_participants) event.max_participants = data.max_participants;
+		if(data.application_deadline) event.application_deadline = data.application_deadline;
+		if(data.application_fields) event.application_fields = data.application_fields;
 	}
 
 		
 		
-	// TODO Only let CD/SUCT/EQUARK members change to approved
-	
-	// TODO If organizing local is set, retrieve name for that
-	var headImg = data.headImg;
-	delete data.headImg;
-	for (var key in data) {
-		event[key] = data[key];
+	// Check if user changed the status
+	if(data.status && event.status != data.status) {
+		// Normal edit rights are enough to request approval
+		// Otherwise approval permission needed
+		if(req.user.permissions.can.approve ||
+		   (req.user.permissions.can.edit_details && event.status == 'draft' && data.status == 'requesting'))
+			event.status = data.status;
 	}
 
-		
+	// Change application status
+	if(req.user.permissions.can.edit_application_status) {
+		event.application_status = data.application_status;
+		event.application_deadline = data.application_deadline;
+	}
+
 	// Validate
 	error = event.validateSync();
 	if(error != null) {

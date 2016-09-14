@@ -3,64 +3,34 @@ process.env.NODE_ENV = 'test';
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 var server = require('../lib/server.js');
-var mongoose = require('../lib/config/mongo.js');
 var should = chai.should();
-var Event = require('../lib/eventModel.js');
+var db = require('./populate-db.js');
 
 module.exports = function() {
-	before(function(done) {
-		Event.collection.drop();
-		done();
-	});
+	var events;
 
 	beforeEach(function(done) {
+		db.clear();
 		// Populate db
-		var event1 = new Event({
-			name: "Develop Yourself 4",
-			starts: "2017-12-11 15:00",
-			ends: "2017-12-14 12:00",
-			description: "A training event to boost your self-confidence and teamworking skills",
-			organizing_locals: [{foreign_id: "AEGEE-Dresden"}],
-			type: "non-statutory",
-			max_participants: 22,
-			application_deadline: "2017-11-30",
-			organizers: [{foreign_id: "vincent.vega"}],
-		});
-
-		event1.save(function(err) {
-			var event2 = new Event({
-				name: "EPM Zagreb",
-				starts: "2017-02-23",
-				ends: "2017-02-27",
-				description: "Drafting the Action Agenda and drinking cheap vodka",
-				organizing_locals: [{"foreign_id": "ZAG"},{"foreign_id": "SOF"}],
-				type: "statutory",
-				max_participants: 300,
-				application_deadline: "2017-01-01",
-				application_fields : [
-					{name: "Motivation"}, 
-					{name: "Allergies"}, 
-					{name: "Disabilities"}, 
-					{name: "TShirt-Size"}, 
-					{name: "Meaning of Life"}
-				],
-				organizers: [{foreign_id: "vincent.vega"}],
-			});
-
-			event2.save(function(err) {
-				done();
-			});
+		db.populate(function(res) {
+			events = res;
+			done();
 		});
 	});
 
-	afterEach(function(done) {
-		Event.collection.drop();
-		done();
+	it('should reject requests without X-Auth-Token', function(done) {
+		chai.request(server)
+			.get('/')
+			.end(function(err, res) {
+				res.should.have.status(403);
+				done();
+			});
 	});
 
 	it('should list all events on / GET', function(done) {
 		chai.request(server)
 			.get('/')
+			.set('X-Auth-Token', 'foobar')
 			.end(function(err, res) {
 				res.should.have.status(200);
 				res.should.be.json;
@@ -70,20 +40,13 @@ module.exports = function() {
 				res.body[0].should.have.property('name');
 				res.body[0].should.have.property('starts');
 				res.body[0].should.have.property('ends');
-				res.body[0].should.have.property('application_deadline');
 				res.body[0].should.have.property('application_status');
-				res.body[0].should.have.property('max_participants');
 				res.body[0].should.have.property('status');
 				res.body[0].should.have.property('type');
-				res.body[0].should.have.property('organizing_locals');
 				res.body[0].should.have.property('description');
 				res.body[0].should.have.property('url');
 				res.body[0].should.have.property('organizer_url');
 				res.body[0].should.have.property('application_url');
-
-				res.body[0].should.not.have.property('application_fields');
-				res.body[0].should.not.have.property('organizers');
-				res.body[0].should.not.have.property('applications');
 
 				done();
 			});
@@ -92,6 +55,7 @@ module.exports = function() {
 	it('should create a new event on minimal sane / POST', function(done) {
 		chai.request(server)
 			.post('/')
+			.set('X-Auth-Token', 'foobar')
 			.send({
 				name: "Develop Yourself 4",
 				starts: "2017-12-11 15:00",
@@ -136,6 +100,7 @@ module.exports = function() {
 	it('should create a new event on exhausive sane / POST', function(done) {
 		chai.request(server)
 			.post('/')
+			.set('X-Auth-Token', 'foobar')
 			.send({
 				name: "Develop Yourself 4",
 				starts: "2017-12-11 15:00",
@@ -192,6 +157,7 @@ module.exports = function() {
 	it('should discart superflous fields on overly detailed / POST', function(done) {
 		chai.request(server)
 			.post('/')
+			.set('X-Auth-Token', 'foobar')
 			.send({
 				name: "Develop Yourself 4",
 				starts: "2017-12-11 15:00",
@@ -223,6 +189,7 @@ module.exports = function() {
 	it('should return validation errors on malformed / POST', function(done) {
 		chai.request(server)
 			.post('/')
+			.set('X-Auth-Token', 'foobar')
 			.send({
 				starts: "2015-12-11 15:00",
 				ends: "sometime, dunno yet"

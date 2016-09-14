@@ -45,7 +45,6 @@ var eventSchema =  mongoose.Schema({
 	starts: {type: Date, required: true},
 	ends: {type: Date, required: true},
 	description: {type: String, default: ''},
-	primary_local: localSchema,
 	organizing_locals: [localSchema],
 	type: {type: String, enum: ['non-statutory', 'statutory', 'su', 'local'], default: 'non-statutory'},
 	status: {type: String, enum: ['draft', 'requesting', 'approved', 'deleted'], default: 'draft'},

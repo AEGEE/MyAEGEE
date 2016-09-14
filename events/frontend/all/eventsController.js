@@ -125,17 +125,12 @@
 
 		// Fetch events where user is organizer on
 		$http.get(apiUrl + 'mine/byOrganizer').success(function(response) {
-			if(!$scope.events)
-				$scope.events = response;
-			else
-				$scope.events.push.apply(events, response);
+			$scope.events.push.apply($scope.events, response);
 		});
 		// And also get all those the user has applied to
 		$http.get(apiUrl + 'mine/byApplication').success(function(response) {
-			if(!$scope.events)
-				$scope.events = response;
-			else
-				$scope.events.push.apply(events, response);		});
+			$scope.events.push.apply($scope.events, response);		
+		});
 
 	}
 

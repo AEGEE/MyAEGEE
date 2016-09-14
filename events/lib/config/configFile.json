@@ -25,11 +25,12 @@
 	},
 
 	"test": {
+		"port": 8084,
 		"mongourl": "mongodb://localhost:27017/test-events",
 
 		
 		"core": {
-			"url": "http://localhost",
+			"url": "http://private-ff598-omsneocore.apiary-mock.com",
 			"port": 80
 		}
 	}

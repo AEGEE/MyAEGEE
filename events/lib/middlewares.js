@@ -234,7 +234,8 @@ exports.checkUserRole = function(req, res, next) {
 		permissions.is.superadmin
 		|| permissions.is.cdmember
 		|| (permissions.is.netcommie && req.event.type == 'non-statutory')
-		|| (permissions.is.suct && req.event.type == 'su');
+		|| (permissions.is.suct && req.event.type == 'su')
+		|| (permissions.is.boardmember && req.event.type == 'local');
 
 	permissions.can.edit = 
 		permissions.can.edit_details 

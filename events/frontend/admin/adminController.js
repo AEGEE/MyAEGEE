@@ -115,6 +115,7 @@
 		};
 		$scope.event.application_fields = [];
 		$scope.newfield = '';
+		$scope.newevent = true;
 
 
 		// Add callbacks to handle application field changes
@@ -143,6 +144,8 @@
 		// Load data from server, if eventid specified
 		// Also use another submit message
 		if($stateParams.id) {
+
+			$scope.newevent = false;
 
 			var resourceURL = apiUrl + '/single/' + $stateParams.id;
 			$scope.heading = "Edit Event";
