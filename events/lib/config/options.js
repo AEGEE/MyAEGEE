@@ -4,7 +4,13 @@ var Promise = require('promise');
 
 var optionsSchema = mongoose.Schema({
 	handshake_token: String,
-	enable_change: {type: Boolean, default: true}
+	enable_change: {type: Boolean, default: true},
+	roles: {
+		su_admin: String,
+		non_statutory_admin: String,
+		statutory_admin: String,
+		super_admin: String,
+	}
 })
 optionsSchema.methods.getRequestHeaders = function(auth_token) {
 	var retval = {

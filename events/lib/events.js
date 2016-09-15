@@ -4,6 +4,7 @@ var restify = require('restify');
 var helpers = require('./helpers.js');
 var mongoose = require('./config/mongo.js');
 var imageserv = require('./imageserv.js');
+var cron = require('./cron.js');
 
 
 var Event = require('./eventModel.js');
@@ -101,6 +102,11 @@ exports.addEvent = function(req, res, next) {
 			return next(err);
 		}
 		delete newevent.applications;
+
+		// Register cronjob for deadline
+		if(data.application_deadline)
+			cron.registerDeadline(newevent.id, newevent.application_deadline);
+
 		res.status(201);
 		res.json(newevent);
 		return next();
@@ -135,6 +141,7 @@ exports.editEvent = function(req, res, next) {
 
 	var data = req.body;
 	var event = req.event;
+	var registerDeadline = false;
 	// Disallow changing applications and organizers, use seperate requests for that
 	delete data.applications;
 	delete data.organizers;
@@ -152,8 +159,12 @@ exports.editEvent = function(req, res, next) {
 		if(data.description) event.description = data.description;
 		if(data.type) event.type = data.type;
 		if(data.max_participants) event.max_participants = data.max_participants;
-		if(data.application_deadline) event.application_deadline = data.application_deadline;
 		if(data.application_fields) event.application_fields = data.application_fields;
+		if(data.application_deadline) {
+			event.application_deadline = data.application_deadline;
+			registerDeadline = true;
+		}
+
 	}
 
 		
@@ -187,6 +198,10 @@ exports.editEvent = function(req, res, next) {
 		delete retval.organizers;
 		delete retval.__v;
 		delete retval.headImg;
+
+		// If deadline was registered, pass that to cron
+		if(registerDeadline)
+			cron.registerDeadline(event.id, event.application_deadline);
 		
 		res.json(retval);
 		return next();
@@ -249,9 +264,10 @@ exports.getApplication = function(req, res, next) {
 
 exports.setApplication = function(req, res, next) {
 	var event = req.event;
-		
-	// TODO check user privilegies
-	// TODO check if event is open for application
+	
+	// Check for permission
+	if(!req.user.permissions.can_apply)
+		return next(new restify.ForbiddenError({message: "You cannot apply to this event"}));
 	
 	// Find the corresponding application
 	var index;

@@ -22,6 +22,7 @@
   "dependencies": {
     "bunyan": "^1.8.1",
     "mongoose": "^4.4.20",
+    "node-schedule": "^1.1.1",
     "promise": "^7.1.1",
     "restify": "^4.1.0"
   },

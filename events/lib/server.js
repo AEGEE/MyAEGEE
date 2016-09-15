@@ -4,7 +4,7 @@ var imageserv = require('./imageserv.js');
 var log = require('./config/logger.js');
 var service =  require('./service.js');
 var middlewares = require('./middlewares.js');
-
+var cron = require('./cron.js');
 var config = require('./config/config.js');
 
 var server = restify.createServer({
@@ -60,7 +60,8 @@ server.post({path: '/', version: cur_version}, [middlewares.fetchUserDetails, ev
 server.get({path: '/status', version: cur_version}, service.status );
 server.get({path: '/debug', version: cur_version}, events.debug );
 server.get({path: '/getUser', version: cur_version}, [middlewares.fetchUserDetails, service.getUser] );
-
+server.get({path: '/roles', version: cur_version}, service.getRoles);
+server.put({path: '/roles', version: cur_version}, service.registerRoles);
 
 server.get({path: '/mine/byOrganizer', version: cur_version}, [middlewares.fetchUserDetails, events.listUserOrganizedEvents ] );
 server.get({path: '/mine/byApplication', version: cur_version}, [middlewares.fetchUserDetails, events.listUserAppliedEvents ] );
@@ -99,6 +100,7 @@ server.listen(config.port, function() {
 	// try if there is a mongodb connection
 	require('./config/options.js').then(function(options) {
 		log.info("Up and running, %s listening on %s", server.name, server.url);
+		cron.scanDB();
 	});
 });
 

@@ -105,3 +105,31 @@ exports.registerMicroservice = function(req, res, next) {
 		});
 	});
 }
+
+// List the current roles
+exports.getRoles = function(req, res, next) {
+	require('./config/options.js').then(function(options) {
+		res.json(options.roles);
+		return next();
+	});
+}
+
+// Register which role acts as an admin for which kind of events
+exports.registerRoles = function(req, res, next) {
+	if(!req.user.basic.is_superadmin)
+		return next(new restify.ForbiddenError({message: "Need to be superadmin"}));
+
+	require('./config/options.js').then(function(options) {
+		options.roles = req.body.roles;
+		options.save(function(err) {
+			if(err) {
+				log.error("Could not save new roles", err);
+				return next(new restify.InternalError("Could not save new roles"));
+			}
+			res.json({
+				success: true,
+				message: "New roles saved"
+			});
+		});
+	});
+}

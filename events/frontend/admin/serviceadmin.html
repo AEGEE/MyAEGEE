@@ -37,3 +37,52 @@
 		</div>
 	</div>
 </div>
+
+<div class="row">
+	<h3>Role Management</h3>
+	<form>
+
+	<div class="form-group">
+		<label class="control-label col-sm-3">Summer University Admin</label>
+		<div class="input-group col-sm-6">
+			<select class="form-control" ng-model="su_admin" ng-options="role.name for role in roles">
+				<option value="">-- choose role --</option>
+			</select>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="control-label col-sm-3">Statutory Admin</label>
+		<div class="input-group col-sm-6">
+			<select class="form-control" ng-model="statutory_admin" ng-options="role.name for role in roles">
+				<option value="">-- choose role --</option>
+			</select>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="control-label col-sm-3">Non-Statutory Admin</label>
+		<div class="input-group col-sm-6">
+			<select class="form-control" ng-model="non_statutory_admin" ng-options="role.name for role in roles">
+				<option value="">-- choose role --</option>
+			</select>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="control-label col-sm-3">Super Admin</label>
+		<div class="input-group col-sm-6">
+			<select class="form-control" ng-model="super_admin" ng-options="role.name for role in roles">
+				<option value="">-- choose role --</option>
+			</select>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<span class="col-sm-3"></span>
+		<button type="button" class="btn btn-primary col-sm-6" ng-click="submitForm()">Submit</button>
+	</div>
+
+	</form>
+
+</div>

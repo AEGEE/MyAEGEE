@@ -68,7 +68,7 @@
 				url: '/approve_participants/:id',
 				views: {
 					'pageContent@app': {
-						templateUrl: baseUrl + 'frontend/admin/ApproveParticipants.html',
+						templateUrl: baseUrl + 'frontend/admin/approveParticipants.html',
 						controller: 'ApproveParticipantsController as vm'
 					}
 				}
@@ -199,6 +199,7 @@
 		// Get the rights this user has on this event
 		$http.get(apiUrl + 'single/' + $stateParams.id + '/rights').success(function(res) {
 			$scope.permissions = res.can;
+			console.log(res);
 		});
 
 		$scope.calcColor = function(application) {
@@ -247,7 +248,6 @@
 	function ServiceAdminController($scope, $http) {
 		var start1 = new Date().getTime();
 		$http.get(apiUrl + 'getUser').success( function(response) {
-			console.log(response);
 			$scope.user = response;
 			$scope.roundtrip1 = (new Date().getTime()) - start1;
 		});
@@ -257,7 +257,51 @@
 			$scope.status = response;
 			$scope.roundtrip2 = (new Date().getTime()) - start2;
 		});
-	}
 
+		$http.get('/api/getRoles').success(function(allRoles) {
+			$scope.roles = [];
+			allRoles.rows.forEach(item => {
+				$scope.roles.push({
+					id: item.cell[0],
+					name: item.cell[1]
+				});
+			});
+
+			$http.get(apiUrl + 'roles').success(function(setRoles) {
+				if(setRoles.su_admin) {
+					$scope.su_admin = $scope.roles.find(item => item.id == setRoles.su_admin);
+				}
+				if(setRoles.statutory_admin) {
+					$scope.statutory_admin = $scope.roles.find(item => item.id == setRoles.statutory_admin);
+				}
+				if(setRoles.non_statutory_admin) {
+					$scope.non_statutory_admin = $scope.roles.find(item => item.id == setRoles.non_statutory_admin);
+				}
+				if(setRoles.super_admin) {
+					$scope.super_admin = $scope.roles.find(item => item.id == setRoles.super_admin);
+				}
+			});
+		});
+
+
+		$scope.submitForm = function() {
+			var data = {roles: {
+				su_admin: "",
+				statutory_admin: "",
+				non_statutory_admin: "",
+				super_admin: "",
+			}};
+
+			if($scope.su_admin) data.roles.su_admin = $scope.su_admin.id;
+			if($scope.statutory_admin) data.roles.statutory_admin = $scope.statutory_admin.id;
+			if($scope.non_statutory_admin) data.roles.non_statutory_admin = $scope.non_statutory_admin.id;
+			if($scope.super_admin) data.roles.super_admin = $scope.super_admin.id;
+
+
+			$http.put(apiUrl + 'roles', data).success(function(response) {
+				alert("Saved successfully");
+			});
+		}
+	}
 })();
 
