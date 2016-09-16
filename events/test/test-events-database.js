@@ -44,9 +44,6 @@ module.exports = function() {
 				res.body[0].should.have.property('status');
 				res.body[0].should.have.property('type');
 				res.body[0].should.have.property('description');
-				res.body[0].should.have.property('url');
-				res.body[0].should.have.property('organizer_url');
-				res.body[0].should.have.property('application_url');
 
 				done();
 			});
@@ -76,9 +73,6 @@ module.exports = function() {
 				res.body.should.have.property('type');
 				res.body.should.have.property('organizing_locals');
 				res.body.should.have.property('description');
-				res.body.should.have.property('url');
-				res.body.should.have.property('organizer_url');
-				res.body.should.have.property('application_url');
 				res.body.should.have.property('application_fields');
 				res.body.should.have.property('organizers');
 				res.body.should.have.property('applications');
@@ -87,7 +81,7 @@ module.exports = function() {
 				res.body.status.should.equal('draft');
 				res.body.type.should.equal('non-statutory');
 				res.body.application_status.should.equal('closed');
-				res.body.application_fields.should.have.lengthOf(3);
+				res.body.application_fields.should.have.lengthOf(0);
 				res.body.max_participants.should.equal(0);
 
 				// application deadline optional when application closed
@@ -138,9 +132,6 @@ module.exports = function() {
 				res.body.should.have.property('type');
 				res.body.should.have.property('organizing_locals');
 				res.body.should.have.property('description');
-				res.body.should.have.property('url');
-				res.body.should.have.property('organizer_url');
-				res.body.should.have.property('application_url');
 				res.body.should.have.property('application_fields');
 				res.body.should.have.property('organizers');
 				res.body.should.have.property('applications');

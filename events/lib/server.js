@@ -65,6 +65,7 @@ server.put({path: '/roles', version: cur_version}, service.registerRoles);
 
 server.get({path: '/mine/byOrganizer', version: cur_version}, [middlewares.fetchUserDetails, events.listUserOrganizedEvents ] );
 server.get({path: '/mine/byApplication', version: cur_version}, [middlewares.fetchUserDetails, events.listUserAppliedEvents ] );
+server.get({path: '/mine/approvable', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.listApprovableEvents ] );
 //server.get({path: '/mine/byLocal', version: cur_version}, [middlewares.fetchUserDetails, events.getUserEvents] );
 
 
@@ -74,6 +75,7 @@ server.use(middlewares.fetchSingleEvent);
 server.get({path: '/single/:event_id', version: cur_version}, events.eventDetails );
 server.put({path: '/single/:event_id', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.editEvent] );
 server.del({path: '/single/:event_id', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.deleteEvent] );
+server.put({path: '/single/:event_id/status', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.setApprovalStatus ]);
 server.get({path: '/single/:event_id/rights', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.getEditRights] );
 
 server.get({path: '/single/:event_id/participants', version: cur_version}, events.listParticipants );

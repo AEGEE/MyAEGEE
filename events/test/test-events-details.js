@@ -5,6 +5,8 @@ var chaiHttp = require('chai-http');
 var server = require('../lib/server.js');
 var should = chai.should();
 var db = require('./populate-db.js');
+var Event = require('../lib/eventModel.js');
+
 
 module.exports = function() {
 	var events;
@@ -36,12 +38,9 @@ module.exports = function() {
 				res.body.should.have.property('type');
 				res.body.should.have.property('organizing_locals');
 				res.body.should.have.property('description');
-				res.body.should.have.property('url');
-				res.body.should.have.property('organizer_url');
-				res.body.should.have.property('application_url');
 				res.body.should.have.property('application_fields');
-				res.body.should.have.property('organizers');
-				res.body.should.have.property('applications');
+				res.body.should.not.have.property('organizers');
+				res.body.should.not.have.property('applications');
 
 				res.body._id.should.equal(events.event1.id);
 
@@ -95,23 +94,15 @@ module.exports = function() {
 			.put('/single/' + events.event1.id)
 			.set('X-Auth-Token', 'foobar')
 			.send({
-				applications: [
-					{
-						first_name: "mallory",
-						last_name: "eve",
-						foreign_id: "666",
-						status: "approved",
-					}
-				],
+				status: 'approved',
 			})
 			.end(function(err, res) {
 				chai.request(server)
 					.get('/single/' + events.event1.id)
 					.set('X-Auth-Token', 'foobar')
 					.end(function(err, res) {
-						res.body.applications.forEach(item => {
-							item.foreign_id.should.not.equal("666");
-						});
+						res.should.have.status(200);
+						res.body.status.should.not.equal('approved');
 
 						done();
 					});
@@ -151,14 +142,34 @@ module.exports = function() {
 						],
 					})
 					.end(function(err, res) {
-						chai.request(server)
-							.get('/single/' + events.event1.id)
-							.set('X-Auth-Token', 'foobar')
-							.end(function(err, res) {
-								res.body.organizers.should.deep.equal(event.body.organizers);
+						Event.findById(events.event1.id).exec(function(err, res) {
+							res.organizers.forEach(item => item.foreign_id.should.not.equal('vincent.vega'));
+						});
+						done();
+					});
+			});
+	});
 
-								done();
-							});
+	it('should not update the applications list with /single/<eventid> PUT', function(done) {
+		chai.request(server)
+			.get('/single/' + events.event1.id)
+			.set('X-Auth-Token', 'foobar')
+			.end(function(err, event) {
+				chai.request(server)
+					.put('/single/' + events.event1.id)
+					.set('X-Auth-Token', 'foobar')
+					.send({
+						applications: [
+							{
+								foreign_id: "vincent.vega"
+							}
+						],
+					})
+					.end(function(err, res) {
+						Event.findById(events.event1.id).exec(function(err, res) {
+							res.applications.forEach(item => item.foreign_id.should.not.equal('vincent.vega'));
+						});
+						done();
 					});
 			});
 	});

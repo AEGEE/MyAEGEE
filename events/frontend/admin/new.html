@@ -88,16 +88,38 @@
 	</div>
 
 	<!-- Maybe change this to a button which is to click to request approval and only show it to admins via ng-if -->
-	<div class="form-group" ng-class="{ 'has-error': eventForm.status.$invalid && eventForm.status.$dirty }" ng-show="permissions.approve && !newevent">
+	<div class="form-group" ng-class="{ 'has-error': eventForm.status.$invalid && eventForm.status.$dirty }" ng-show="!newevent">
 		<label class="control-label col-sm-4" for="status">Status</label>
-		<div class="input-group col-sm-6">
-			<select class="form-control" name="status" ng-model="event.status">
+		<div class="input-group col-sm-3">
+			<select class="form-control" name="status" ng-model="event.status" disabled>
 				<option value="draft">Draft</option>
 				<option value="requesting">Requesting</option>
 				<option value="approved">Approved</option>
 			</select>
-
-			<p ng-show="eventForm.status.$error.message">{{ eventForm.status.$error.message }}</p>
+		</div>
+		<div class="input-group col-sm-3" ng-switch="event.status">
+			<button 
+				type="button" 
+				class="btn btn-primary btn-block" 
+				ng-switch-when="draft"
+				ng-disabled="$dirty"
+				ng-click="setApproval('requesting')">Request Approval</button>
+			<button 
+				type="button" 
+				class="btn btn-primary btn-block" 
+				ng-switch-when="requesting"
+				ng-click="setApproval('draft')">Pull back approval request</button>
+			<button 
+				type="button" 
+				class="btn btn-primary btn-block" 
+				ng-switch-when="approved"
+				ng-show="permissions.approve"
+				ng-click="setApproval('draft')">Unapprove</button>
+			<button 
+				type="button" 
+				class="btn btn-primary btn-block" 
+				ng-switch-when="deleted"
+				ng-click="setApproval('draft')">Undelete</button>
 		</div>
 	</div>
 

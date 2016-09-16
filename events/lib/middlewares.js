@@ -208,61 +208,63 @@ exports.checkUserRole = function(req, res, next) {
 			permissions.is.non_statutory_admin = req.user.roles.some(item => item.id == options.roles.non_statutory_admin);
 		}
 
-		permissions.is.organizer = req.event.organizers.some(function(item) {
-			return item.foreign_id == req.user.basic.id;
-		});
+		if(req.event) {
+			permissions.is.organizer = req.event.organizers.some(function(item) {
+				return item.foreign_id == req.user.basic.id;
+			});
 
-		var application_index;
+			var application_index;
 
-		permissions.is.participant = req.event.applications.some(function(item, index) {
-			if(item.foreign_id == req.user.basic.id) {
-				application_index = index;
-				return true;
-			}
-			return false;
-		});
+			permissions.is.participant = req.event.applications.some(function(item, index) {
+				if(item.foreign_id == req.user.basic.id) {
+					application_index = index;
+					return true;
+				}
+				return false;
+			});
 
-		permissions.is.accepted_participant = permissions.is.participant && req.event.applications[application_index].application_status == 'accepted';
+			permissions.is.accepted_participant = permissions.is.participant && req.event.applications[application_index].application_status == 'accepted';
 
-		permissions.is.own_antenna = req.event.organizing_locals.some(function(item) {
-			return item.foreign_id == req.user.basic.antenna_id;
-		});
+			permissions.is.own_antenna = req.event.organizing_locals.some(function(item) {
+				return item.foreign_id == req.user.basic.antenna_id;
+			});
 
-		permissions.is.boardmember = permissions.is.own_antenna && req.user.board_positions.length > 0;
+			permissions.is.boardmember = permissions.is.own_antenna && req.user.board_positions.length > 0;
 
 
-		permissions.can.edit_details = 
-			(permissions.is.organizer && req.event.application_status == 'closed' && req.event.status == 'draft') // Normal editing
-			|| permissions.is.superadmin;
+			permissions.can.edit_details = 
+				(permissions.is.organizer && req.event.application_status == 'closed' && req.event.status == 'draft') // Normal editing
+				|| permissions.is.superadmin;
 
-		permissions.can.edit_application_status = 
-			(permissions.is.organizer && req.event.status == 'approved')
-			|| permissions.is.superadmin;
+			permissions.can.edit_application_status = 
+				(permissions.is.organizer && req.event.status == 'approved')
+				|| permissions.is.superadmin;
 
-		permissions.can.approve = 
-			permissions.is.superadmin
-			|| (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
-			|| (permissions.is.su_admin && req.event.type == 'su')
-			|| (permissions.is.statutory_admin && req.event.type == 'statutory')
-			|| (permissions.is.boardmember && req.event.type == 'local');
+			permissions.can.approve = 
+				permissions.is.superadmin
+				|| (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
+				|| (permissions.is.su_admin && req.event.type == 'su')
+				|| (permissions.is.statutory_admin && req.event.type == 'statutory')
+				|| (permissions.is.boardmember && req.event.type == 'local');
 
-		permissions.can.edit = 
-			permissions.can.edit_details 
-			|| permissions.can.edit_application_status 
-			|| permissions.can.approve;
+			permissions.can.edit = 
+				permissions.can.edit_details 
+				|| permissions.can.edit_application_status 
+				|| permissions.can.approve;
 
-		permissions.can.apply = !permissions.is.organizer && req.event.application_status == 'open';
+			permissions.can.apply = !permissions.is.organizer && req.event.application_status == 'open';
 
-		permissions.can.approve_participants = permissions.is.organizer && req.event.application_status == 'closed';
+			permissions.can.approve_participants = permissions.is.organizer && req.event.application_status == 'closed';
 
-		permissions.can.view_participants = 
-			permissions.is.organizer 
-			|| permissions.is.accepted_participant 
-			|| permissions.is.boardmember
-			|| permissions.is.superadmin
-			|| (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
-			|| (permissions.is.su_admin && req.event.type == 'su')
-			|| (permissions.is.statutory_admin && req.event.type == 'statutory');
+			permissions.can.view_participants = 
+				permissions.is.organizer 
+				|| permissions.is.accepted_participant 
+				|| permissions.is.boardmember
+				|| permissions.is.superadmin
+				|| (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
+				|| (permissions.is.su_admin && req.event.type == 'su')
+				|| (permissions.is.statutory_admin && req.event.type == 'statutory');
+		}
 
 		// Convert all to boolean
 		for(var attr in permissions.is) {

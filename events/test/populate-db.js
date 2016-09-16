@@ -2,14 +2,20 @@ process.env.NODE_ENV = 'test';
 
 var mongoose = require('../lib/config/mongo.js');
 var Event = require('../lib/eventModel.js');
+var log = require('../lib/config/logger.js');
+
+var futureDate = function(offset) {
+	var retval = new Date();
+	retval.setDate(retval.getDate() + offset);
+	return retval;
+}
 
 exports.populate = function(callback) {
 	var now = new Date();
-
 	var event1 = new Event({
 		name: "Develop Yourself 4",
-		starts: now.getDate()+14,
-		ends: now.getDate()+15,
+		starts: futureDate(14),
+		ends: futureDate(15),
 		description: "A training event to boost your self-confidence and teamworking skills",
 		organizing_locals: [{
 			foreign_id: "1",
@@ -18,7 +24,7 @@ exports.populate = function(callback) {
 		type: "non-statutory",
 		status: "draft",
 		max_participants: 22,
-		application_deadline: now.getDate()+13,
+		application_deadline: futureDate(13),
 		application_status: "closed",
 		organizers: [{
 			first_name: "Cave",
@@ -27,16 +33,16 @@ exports.populate = function(callback) {
 		}],
 	});
 
-	event1.save(function(err, event1) {
+	event1.save(function(err, event) {
 		if(err) {
-			console.log(err);
+			log.error("could not save event 1", err, event1);
 			throw err;
 		}
 
 		var event2 = new Event({
 			name: "EPM Zagreb",
-			starts: "2017-02-23",
-			ends: "2017-02-27",
+			starts: futureDate(16),
+			ends: futureDate(17),
 			description: "Drafting the Action Agenda and drinking cheap vodka",
 			organizing_locals: [
 				{foreign_id: "2", name: "AEGEE-Zagreb"},
@@ -45,7 +51,7 @@ exports.populate = function(callback) {
 			type: "statutory",
 			status: "approved",
 			max_participants: 300,
-			application_deadline: "2017-01-01",
+			application_deadline: futureDate(14),
 			application_status: "open",
 			application_fields : [
 				{name: "Motivation"}, 
@@ -64,20 +70,20 @@ exports.populate = function(callback) {
 
 		event2.save(function(err, event2) {
 			if(err) {
-				console.log(err);
+				log.error("Could not save event 2", err);
 				throw err;
 			}
 
 			var event3 = new Event({
 				name: "NWM-Manchester",
-				starts: "2017-12-11 15:00",
-				ends: "2017-12-14 12:00",
+				starts: futureDate(24),
+				ends: futureDate(25),
 				description: "A training event to boost your self-confidence and teamworking skills",
 				organizing_locals: [{foreign_id: "AEGEE-Dresden"}],
 				type: "non-statutory",
 				status: "approved",
 				max_participants: 22,
-				application_deadline: "2017-11-30",
+				application_deadline: futureDate(14),
 				application_status: "open",
 				organizers: [{foreign_id: "cave.johnson"}],
 				application_fields : [
@@ -90,7 +96,7 @@ exports.populate = function(callback) {
 
 			event3.save(function(err, event3) {
 				if(err){
-					console.log(err);
+					log.error("Could not save event 3", err);
 					throw err;
 				}
 				event3.applications = [
@@ -126,7 +132,7 @@ exports.populate = function(callback) {
 
 				event3.save(function(err) {
 					if(err) {
-						console.log(err);
+						log.error("Could not resave event 3", err);
 						throw err;
 					}
 

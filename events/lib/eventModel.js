@@ -58,31 +58,21 @@ var eventSchema =  mongoose.Schema({
 }, {timestamps: true});
 eventSchema.set('toJSON', {virtuals: true});
 eventSchema.set('toObject', {virtuals: true});
-eventSchema.virtual('url').get(function() {return '/single/' + this._id;});
-eventSchema.virtual('application_url').get(function() {return this.url + '/participants';});
-eventSchema.virtual('organizer_url').get(function() {return this.url + '/organizers';});
-eventSchema.pre('save', function(next) {
-	if(!this.application_fields || this.application_fields.length == 0) {
-		this.application_fields = [{'name':'motivation'},{'name':'allergies'},{'name':'disabilities'}];
-	}
 
-	next();
-});
+// Validators
 eventSchema.pre('validate', function(next) {
 	if(this.application_status == 'open' && this.status == 'draft')
-		next(Error('Cannot open the application on a draft event'));
-	else if(this.application_status == 'open' && this.application_deadline == null)
-		next(Error('Cannot open the application without a deadline'));
-	else if(this.application_status == 'open' && this.application_deadline <= (new Date()))
-		next(Error('Cannot set an application deadline in the past'));
-	else if(this.ends <= this.starts)
-		next(Error('Event cannot end before it started'));
-	else if(this.application_deadline != null && this.starts <= this.application_deadline)
-		next(Error('Application must end before the event starts'));
-	else if(this.organizers == null || this.organizers.length == 0)
-		next(Error('Organizers list can not be empty'));
-	else
-		next();
+		this.invalidate('application_status', 'Cannot open the application on a draft event', this.application_status);
+	if(this.application_status == 'open' && this.application_deadline == null)
+		this.invalidate('application_deadline', 'Cannot open the application without a deadline', this.application_deadline);
+	if(this.ends <= this.starts)
+		this.invalidate('ends', 'Event cannot end before it started', this.ends);
+	if(this.application_deadline != null && this.starts <= this.application_deadline)
+		this.invalidate('application_deadline', 'Application must end before the event starts', this.application_deadline);
+	if(this.organizers == null || this.organizers.length == 0)
+		this.invalidate('organizers', 'Organizers list can not be empty', this.organizers);
+	
+	next();
 });
 
 

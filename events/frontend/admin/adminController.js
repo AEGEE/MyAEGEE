@@ -11,6 +11,7 @@
 		.controller('DashboardController', DashboardController)
 		.controller('NewController', NewController)
 		.controller('ApproveParticipantsController', ApproveParticipantsController)
+		.controller('ApproveEventsController', ApproveEventsController)
 		.controller('ServiceAdminController', ServiceAdminController)
 		.directive( "mwConfirmClick", [
 			function() {
@@ -70,6 +71,15 @@
 					'pageContent@app': {
 						templateUrl: baseUrl + 'frontend/admin/approveParticipants.html',
 						controller: 'ApproveParticipantsController as vm'
+					}
+				}
+			})
+			.state('app.eventadmin.approve_events', {
+				url: '/approve_events',
+				views: {
+					'pageContent@app': {
+						templateUrl: baseUrl + 'frontend/admin/approveEvents.html',
+						controller: 'ApproveEventsController as vm'
 					}
 				}
 			})
@@ -133,11 +143,13 @@
 
 		// If no route params are given, the user wants to create a new event -> Post
 		$scope.submitForm = function() {
-			$http.post(apiUrl, $scope.event).then(function successCallback(response) {
-				$state.go('app.events.single', {id: response.data._id});
-				console.log(response);
-			}, function errorCallback(response) {
-				console.log(response);
+			$http.post(apiUrl, $scope.event).success(function (response) {
+				$state.go('app.events.single', {id: $stateParams.id});
+			}).catch(function (err) {
+				for(var attr in err.data.errors) {
+					$scope.eventForm.$setValidity(attr, false, $scope.eventForm);
+					$scope.eventForm[attr].$error.message = err.data.errors[attr].message;
+				}
 			});
 		}
 
@@ -147,6 +159,7 @@
 
 			$scope.newevent = false;
 
+			// Add callbacks to delete the
 			var resourceURL = apiUrl + '/single/' + $stateParams.id;
 			$scope.heading = "Edit Event";
 			$scope.deleteEvent = function() {
@@ -157,13 +170,22 @@
 				})
 			};
 
+			// Add callbacks to request approval
+			$scope.setApproval = function(newstatus) {
+				$http.put(resourceURL + '/status', {status: newstatus}).success(function(response) {
+					$state.go('app.events.single', {id: $stateParams.id});
+				});
+			}
+
 			// Edit the event with a put
 			$scope.submitForm = function() {
-				$http.put(resourceURL, $scope.event).then(function successCallback(response) {
+				$http.put(resourceURL, $scope.event).success(function (response) {
 					$state.go('app.events.single', {id: $stateParams.id});
-				}, function errorCallback(err) {
-					console.log(err);
-
+				}).catch(function (err) {
+					for(var attr in err.data.errors) {
+						$scope.eventForm[attr].$setValidity('server',false);
+						$scope.eventForm[attr].$error.message = err.data.errors[attr].message;
+					}
 				});
 			}
 			
@@ -202,6 +224,7 @@
 			console.log(res);
 		});
 
+		// Depending on status, return right css class
 		$scope.calcColor = function(application) {
 			switch(application.application_status) {
 				case 'accepted':
@@ -241,6 +264,26 @@
 					return false;
 				})
 				$('#applicationModal').modal('hide');
+			});
+		}
+	}
+
+	function ApproveEventsController($scope, $http) {
+
+		$http.get(apiUrl + 'mine/approvable').success(function(response) {
+			$scope.events = response;
+		});
+
+		$scope.changeState = function(event, newstate) {
+			$http.put(apiUrl + 'single/' + event.id + '/status', {status: newstate}).success(function(response) {
+				$scope.events.splice($scope.events.find(item => item.id == event.id));
+				$.gritter.add({
+                    title: 'Event approved',
+                    text: event.name + 'has been approved and is now visible on event listing',
+                    sticky: true,
+                    time: '',
+                    class_name: 'my-sticky-class'
+                });
 			});
 		}
 	}
