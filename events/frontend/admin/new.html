@@ -6,7 +6,7 @@
 	<p class="note note-info" ng-show="!permissions.edit_details">
 	You can not edit event details any more, as the event has already been approved. If you still need to edit it, you can still un-approve it (which will close the application aswell). You will have to undergo the requesting process again afterwards.
 	</p>
-	<div class="form-group" ng-class="{ 'has-error': eventForm.name.$invalid && eventForm.name.$dirty }">
+	<div class="form-group" ng-class="{ 'has-error': (eventForm.name.$invalid && eventForm.name.$dirty) || eventForm.name.$error.message }">
 		<label class="control-label col-sm-4" for="name">Name<span class="text-danger">*</span> </label>
 
 		<div class="input-group col-sm-6">
@@ -24,37 +24,51 @@
 		</div>
 	</div>
 
-	<div class="form-group" ng-class="{ 'has-error': eventForm.starts.$invalid && eventForm.starts.$dirty }">
+	<div class="form-group" ng-class="{ 'has-error': (eventForm.starts.$invalid && eventForm.starts.$dirty) || eventForm.starts.$error.message }">
 		<label class="control-label col-sm-4" for="starts">Starts<span class="text-danger">*</span> </label>
-		<div class="input-group date col-sm-6" id="startsDateTimePicker">
+		<div class="input-group col-sm-6">
 			<input 
 				type="text" 
 				class="form-control" 
-				name="starts"
-				required
-				ng-disabled="!permissions.edit_details" />
-			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-
-			<p ng-show="eventForm.starts.$error.message">{{ eventForm.starts.$error.message }}</p>
+				style="background-color: #fff; opacity: 1;" 
+				value="{{ event.starts|date:'MMM d, yyyy hh:mm' }}" 
+				readonly />
+			<a href="#" class="input-group-addon" ng-click="showStartsSelector = !showStartsSelector"><i class="fa fa-calendar"></i></a>			
+			
 		</div>
+			<p class="col-sm-offset-4" ng-show="eventForm.starts.$error.message">{{ eventForm.starts.$error.message }}</p>
+
+		<datetimepicker 
+				class="col-sm-offset-4"
+				datetimepicker-config="{ minuteStep: 10 }"
+				ng-model="event.starts" 
+				required 
+				ng-show="permissions.edit_details && showStartsSelector"></datetimepicker>
 	</div>
 
-	<div class="form-group" ng-class="{ 'has-error': eventForm.ends.$invalid && eventForm.ends.$dirty }">
+	<div class="form-group" ng-class="{ 'has-error': (eventForm.ends.$invalid && eventForm.ends.$dirty) || eventForm.ends.$error.message }">
 		<label class="control-label col-sm-4" for="ends">Ends<span class="text-danger">*</span> </label>
-		<div class="input-group date col-sm-6" id="endsDateTimePicker">
+		<div class="input-group col-sm-6">
 			<input 
 				type="text" 
 				class="form-control" 
-				name="ends"
-				required
-				ng-disabled="!permissions.edit_details" />
-			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-
-			<p ng-show="eventForm.ends.$error.message">{{ eventForm.ends.$error.message }}</p>
+				style="background-color: #fff; opacity: 1;" 
+				value="{{ event.ends|date:'MMM d, yyyy hh:mm' }}" 
+				readonly />
+			<a class="input-group-addon" href="#" ng-click="showEndsSelector = !showEndsSelector"><i class="fa fa-calendar"></i></a>		
+			
+			
 		</div>
+		<p class="col-sm-offset-4" ng-show="eventForm.ends.$error.message">{{ eventForm.ends.$error.message }}</p>
+		<datetimepicker 
+				class="col-sm-offset-4"
+				datetimepicker-config="{ minuteStep: 10 }"
+				ng-model="event.ends" 
+				required 
+				ng-show="permissions.edit_details && showEndsSelector"></datetimepicker>
 	</div>
 
-	<div class="form-group" ng-class="{ 'has-error': eventForm.description.$invalid && eventForm.description.$dirty }">
+	<div class="form-group" ng-class="{ 'has-error': (eventForm.description.$invalid && eventForm.description.$dirty) || eventForm.description.$error.message }">
 		<label class="control-label col-sm-4" for="description">Description<span class="text-danger">*</span> </label>
 		<div class="input-group col-sm-6">
 			<textarea 
@@ -69,13 +83,30 @@
 		</div>
 	</div>
 
+	<div class="form-group" ng-class="{ 'has-error': (eventForm.fee.$invalid && eventForm.fee.$dirty) || eventForm.fee.$error.message }">
+		<label class="control-label col-sm-4" for="fee">Fee</label>
+		<div class="input-group col-sm-6">
+			<input 
+				type="number" 
+				class="form-control" 
+				name="fee"
+				ng-model="event.fee"
+				ng-disabled="!permissions.edit_details" />
 
-	<div class="form-group" ng-class="{ 'has-error': eventForm.type.$invalid && eventForm.type.$dirty }">
-		<label class="control-label col-sm-4" for="type">Type</label>
+			<span class="input-group-addon"><i class="fa fa-euro"></i></span>
+
+			<p ng-show="eventForm.fee.$error.message">{{ eventForm.fee.$error.message }}</p>
+		</div>
+	</div>
+
+
+	<div class="form-group" ng-class="{ 'has-error': (eventForm.type.$invalid && eventForm.type.$dirty) || eventForm.type.$error.message }">
+		<label class="control-label col-sm-4" for="type">Type<span class="text-danger">*</span></label>
 		<div class="input-group col-sm-6">
 			<select class="form-control" 
 					name="type"
 					ng-model="event.type"
+					required
 					ng-disabled="!permissions.edit_details">
 				<option value="non-statutory">Non-Statutory</option>
 				<option value="statutory">Statutory</option>
@@ -88,44 +119,59 @@
 	</div>
 
 	<!-- Maybe change this to a button which is to click to request approval and only show it to admins via ng-if -->
-	<div class="form-group" ng-class="{ 'has-error': eventForm.status.$invalid && eventForm.status.$dirty }" ng-show="!newevent">
-		<label class="control-label col-sm-4" for="status">Status</label>
-		<div class="input-group col-sm-3">
+	<div class="form-group" ng-class="{ 'has-error': (eventForm.status.$invalid && eventForm.status.$dirty) || eventForm.status.$error.message }" ng-show="!newevent">
+		<label class="control-label col-sm-4" for="status">Status
+			<button 
+				type="button" 
+				class="btn btn-info btn-circle btn-sm" 
+				ng-click="info_status=!info_status">
+				<i class="fa fa-question"></i>
+			</button>
+		</label>
+		<div class="input-group col-sm-6">
 			<select class="form-control" name="status" ng-model="event.status" disabled>
 				<option value="draft">Draft</option>
 				<option value="requesting">Requesting</option>
 				<option value="approved">Approved</option>
 			</select>
+
+			<div class="input-group-btn" ng-switch="event.status">
+				<button 
+					type="button" 
+					class="btn btn-primary" 
+					ng-switch-when="draft"
+					ng-disabled="eventForm.$dirty"
+					ng-click="setApproval('requesting')">Request Approval</button>
+				<button 
+					type="button" 
+					class="btn btn-primary btn-block" 
+					ng-switch-when="requesting"
+					ng-click="setApproval('draft')">Pull back approval request</button>
+				<button 
+					type="button" 
+					class="btn btn-primary btn-block" 
+					ng-switch-when="approved"
+					ng-show="permissions.approve"
+					ng-click="setApproval('draft')">Unapprove</button>
+				<button 
+					type="button" 
+					class="btn btn-primary btn-block" 
+					ng-switch-when="deleted"
+					ng-click="setApproval('draft')">Undelete</button>
+			</div>
 		</div>
-		<div class="input-group col-sm-3" ng-switch="event.status">
-			<button 
-				type="button" 
-				class="btn btn-primary btn-block" 
-				ng-switch-when="draft"
-				ng-disabled="$dirty"
-				ng-click="setApproval('requesting')">Request Approval</button>
-			<button 
-				type="button" 
-				class="btn btn-primary btn-block" 
-				ng-switch-when="requesting"
-				ng-click="setApproval('draft')">Pull back approval request</button>
-			<button 
-				type="button" 
-				class="btn btn-primary btn-block" 
-				ng-switch-when="approved"
-				ng-show="permissions.approve"
-				ng-click="setApproval('draft')">Unapprove</button>
-			<button 
-				type="button" 
-				class="btn btn-primary btn-block" 
-				ng-switch-when="deleted"
-				ng-click="setApproval('draft')">Undelete</button>
-		</div>
+		
+		<p class="note note-info" ng-show="info_status">
+			The status of the event determines the visibility of the event. Only approved events will be listed in the main events listing, but you can only edit draft events. If you want to open the application, your event needs to be approved.
+			<span ng-show="eventForm.$dirty"><br>
+			Please save your edits before you request approval
+			</span>
+		</p>
 	</div>
 
 
 
-	<div class="form-group" ng-class="{ 'has-error': eventForm.max_participants.$invalid && eventForm.max_participants.$dirty }">
+	<div class="form-group" ng-class="{ 'has-error': (eventForm.max_participants.$invalid && eventForm.max_participants.$dirty) || eventForm.max_participants.$error.message }">
 		<label class="control-label col-sm-4" for="max_participants">Maximum Number of Participants</label>
 		<div class="input-group col-sm-6">
 			<input 
@@ -139,7 +185,7 @@
 		</div>
 	</div>
 
-	<div class="form-group" ng-class="{ 'has-error': eventForm.application_status.$invalid && eventForm.application_status.$dirty }" ng-show="!newevent">
+	<div class="form-group" ng-class="{ 'has-error': (eventForm.application_status.$invalid && eventForm.application_status.$dirty) || eventForm.application_status.$error.message }" ng-show="!newevent">
 		<label class="control-label col-sm-4" for="application_status">Application Status 
 			<button 
 				type="button" 
@@ -162,22 +208,27 @@
 		</p>
 	</div>
 
-	<div class="form-group" ng-class="{ 'has-error': eventForm.application_deadline.$invalid && eventForm.application_deadline.$dirty }">
-		<label class="control-label col-sm-4" for="application_deadline">Appplication Deadline </label>
-		<div class="input-group date col-sm-6" id="deadlineDateTimePicker">
+	<div class="form-group" ng-class="{ 'has-error': (eventForm.application_deadline.$invalid && eventForm.application_deadline.$dirty) || eventForm.application_deadline.$error.message }">
+		<label class="control-label col-sm-4" for="application_deadline">Application Deadline </label>
+		<div class="input-group col-sm-6">
 			<input 
 				type="text" 
 				class="form-control" 
-				name="application_deadline"
-				ng-disabled="!permissions.edit_details"
-				/>
-			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-
-			<p ng-show="eventForm.application_deadline.$error.message">{{ eventForm.application_deadline.$error.message }}</p>
+				style="background-color: #fff; opacity: 1;" 
+				value="{{ event.application_deadline|date:'MMM d, yyyy hh:mm' }}" 
+				readonly />
+			<a class="input-group-addon" href="#" ng-click="showDeadlineSelector = !showDeadlineSelector"><i class="fa fa-calendar"></i></a>			
 		</div>
+		<p class="col-sm-offset-4" ng-show="eventForm.application_deadline.$error.message">{{ eventForm.application_deadline.$error.message }}</p>
+		<datetimepicker 
+				class="col-sm-offset-4"
+				datetimepicker-config="{ minuteStep: 10 }"
+				ng-model="event.application_deadline" 
+				required 
+				ng-show="permissions.edit_details && showDeadlineSelector"></datetimepicker>
 	</div>
 
-	<div class="form-group" ng-class="{ 'has-error': eventForm.application_status.$invalid && eventForm.application_status.$dirty }">
+	<div class="form-group" ng-class="{ 'has-error': (eventForm.application_fields.$invalid && eventForm.application_fields.$dirty) || eventForm.application_fields.$error.message }">
 		<label class="control-label col-sm-4" for="application_fields">Application Fields</label>
 		<div class="col-sm-6">
 			<div class="form-group" ng-repeat="field in event.application_fields">
@@ -216,19 +267,16 @@
 		</div>
 	</div>
 
-	<div class="form-group" ng-show="event.id">
+	<div class="form-group" ng-show="event.id && permissions.edit_details && !eventForm.$dirty">
 		<label class="control-label col-sm-4">Interactions</label>
-		<a class="btn btn-primary col-sm-3" ui-sref="app.eventadmin.approve_participants({id: event.id})" ng-disabled="!permissions.view_participants">See applications</a>
 
 		<button 
 			type="button"
-			class="btn btn-danger col-sm-3" 
+			class="btn btn-danger col-sm-6" 
 			mw-confirm-click-message="Are you bloody damn sure to delete this event?" 
 			mw-confirm-click="deleteEvent()"
 			ng-disabled="!permissions.edit_details">
 			Delete event</button>
-
-		<p ng-show="message">{{ message }}</p>
 	</div>
 
 	<div class="form-group">

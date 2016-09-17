@@ -12,10 +12,10 @@
  <tbody>
  	<tr ng-repeat="event in events">
  		<td>{{ $index+1 }}</td>
- 		<td><a ui-sref="app.eventadmin.edit({ event.id })">{{ event.name }}</a></td>
+ 		<td><a ui-sref="app.events.single({ id: event.id })">{{ event.name }}</a></td>
  		<td>{{ event.type }}</td>
  		<td>
-			<button class="btn btn-sm btn-success" ng-click="changeState(event, 'accepted')"><i class="fa fa-plus-circle"></i> Approve</button>
+			<button class="btn btn-sm btn-success" ng-click="changeState(event, 'approved')"><i class="fa fa-plus-circle"></i> Approve</button>
 			<button class="btn btn-sm btn-danger" ng-click="changeState(event, 'draft')"><i class="fa fa-minus-circle"></i> Back to Draft</button>
  		</td>
  	</tr>

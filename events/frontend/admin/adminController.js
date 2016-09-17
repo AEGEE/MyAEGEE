@@ -6,7 +6,7 @@
 
 
 	angular
-		.module('app.eventadmin', [])
+		.module('app.eventadmin', ['ui.bootstrap.datetimepicker'])
 		.config(config)
 		.controller('DashboardController', DashboardController)
 		.controller('NewController', NewController)
@@ -98,21 +98,7 @@
 
 	}
 
-	function NewController($scope, $http, $stateParams, $state, $filter) {
-		// Activate the datetimepickers and bind callbackfunctions to extract the selected date
-		angular.element(document).ready(function () {
-			$('#startsDateTimePicker').datetimepicker();
-			$("#startsDateTimePicker").on("dp.change", function() {$scope.event.starts = $("#startsDateTimePicker > input").val();});
-
-			$('#endsDateTimePicker').datetimepicker();
-			$("#endsDateTimePicker").on("dp.change", function() {$scope.event.ends = $("#endsDateTimePicker > input").val();});
-
-			$('#deadlineDateTimePicker').datetimepicker();
-			$("#deadlineDateTimePicker").on("dp.change", function() {$scope.event.application_deadline = $("#deadlineDateTimePicker > input").val();});
-
-			
-		});
-
+	function NewController($scope, $http, $stateParams, $state, $filter, $parse) {
 		$scope.heading = "New Event";
 		$scope.event = {starts: '', ends: ''};
 
@@ -147,8 +133,9 @@
 				$state.go('app.events.single', {id: $stateParams.id});
 			}).catch(function (err) {
 				for(var attr in err.data.errors) {
+					var serverMessage = $parse('eventForm.' + attr + '.$error.message');
 					$scope.eventForm.$setValidity(attr, false, $scope.eventForm);
-					$scope.eventForm[attr].$error.message = err.data.errors[attr].message;
+					serverMessage.assign($scope, err.data.errors[attr].message);
 				}
 			});
 		}
@@ -173,7 +160,10 @@
 			// Add callbacks to request approval
 			$scope.setApproval = function(newstatus) {
 				$http.put(resourceURL + '/status', {status: newstatus}).success(function(response) {
-					$state.go('app.events.single', {id: $stateParams.id});
+					if(newstatus == 'requesting')
+						$state.go('app.events.single', {id: $stateParams.id});
+					else
+						$state.reload();
 				});
 			}
 
@@ -183,8 +173,9 @@
 					$state.go('app.events.single', {id: $stateParams.id});
 				}).catch(function (err) {
 					for(var attr in err.data.errors) {
-						$scope.eventForm[attr].$setValidity('server',false);
-						$scope.eventForm[attr].$error.message = err.data.errors[attr].message;
+						var serverMessage = $parse('eventForm.' + attr + '.$error.message');
+						$scope.eventForm.$setValidity(attr, false, $scope.eventForm);
+						serverMessage.assign($scope, err.data.errors[attr].message);
 					}
 				});
 			}
@@ -192,9 +183,6 @@
 			// Get the current event status
 			$http.get(resourceURL).success( function(response) {
 				$scope.event = response;
-				$("#startsDateTimePicker > input").val($filter('date')(response.starts, 'MM/dd/yyyy h:mm a'));
-				$("#endsDateTimePicker > input").val($filter('date')(response.ends, 'MM/dd/yyyy h:mm a'));
-				$("#deadlineDateTimePicker > input").val($filter('date')(response.application_deadline, 'MM/dd/yyyy h:mm a'));
 			});
 
 			// Get the rights this user has on this event
@@ -277,13 +265,24 @@
 		$scope.changeState = function(event, newstate) {
 			$http.put(apiUrl + 'single/' + event.id + '/status', {status: newstate}).success(function(response) {
 				$scope.events.splice($scope.events.find(item => item.id == event.id));
-				$.gritter.add({
-                    title: 'Event approved',
-                    text: event.name + 'has been approved and is now visible on event listing',
-                    sticky: true,
-                    time: '',
-                    class_name: 'my-sticky-class'
-                });
+				if(newstate == 'approved') {
+					$.gritter.add({
+	                    title: 'Event approved',
+	                    text: event.name + 'has been approved and is now visible on event listing',
+	                    sticky: true,
+	                    time: '',
+	                    class_name: 'my-sticky-class'
+	                });
+				}
+				else {
+					$.gritter.add({
+	                    title: 'Event reset',
+	                    text: event.name + 'has been sent to draft again, the organizers will edit it',
+	                    sticky: true,
+	                    time: '',
+	                    class_name: 'my-sticky-class'
+	                });
+				}
 			});
 		}
 	}

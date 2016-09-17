@@ -6,6 +6,7 @@ var paxSchema = mongoose.Schema({
 	last_name: String,
 	antenna: String,
 	antenna_id: String,
+	board_comment: String,
 	foreign_id: {type: String, required: true}, // ID in oms-core
 	application_status: {type: String, enum: ['requesting', 'pending', 'accepted', 'rejected'], default: 'requesting'},
 	application: [{
@@ -45,10 +46,20 @@ var eventSchema =  mongoose.Schema({
 	starts: {type: Date, required: true},
 	ends: {type: Date, required: true},
 	description: {type: String, default: ''},
+	fee: {
+		type: Number,
+		get: v => Math.round(v*100) / 100,
+		set: v => Math.round(v*100) / 100
+	},
 	organizing_locals: [localSchema],
 	type: {type: String, enum: ['non-statutory', 'statutory', 'su', 'local'], default: 'non-statutory'},
 	status: {type: String, enum: ['draft', 'requesting', 'approved', 'deleted'], default: 'draft'},
-	max_participants: {type: Number, default: 0},
+	max_participants: {
+		type: Number, 
+		default: 0,
+		get: v => Math.round(v),
+		set: v => Math.round(v)
+	},
 	application_deadline: Date,
 	application_status: {type: String, enum: ['closed', 'open'], default: 'closed'},
 	application_fields: [applicationFieldSchema],
@@ -60,6 +71,9 @@ eventSchema.set('toJSON', {virtuals: true});
 eventSchema.set('toObject', {virtuals: true});
 
 // Validators
+eventSchema.path('max_participants').validate(value => value >= 0, 'Participants number can not be negative');
+eventSchema.path('fee').validate(value => value >= 0, 'Fee can\'t be negative');
+
 eventSchema.pre('validate', function(next) {
 	if(this.application_status == 'open' && this.status == 'draft')
 		this.invalidate('application_status', 'Cannot open the application on a draft event', this.application_status);

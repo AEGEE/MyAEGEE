@@ -63,7 +63,8 @@
 		$scope.typequery={
 			statutory: true,
 			non_statutory: true,
-			su: true
+			su: true,
+			local: true
 		};
 		// Fetch events from backend
 		//$('#loadingOverlay').show();
@@ -85,6 +86,8 @@
 				status_types.push('non-statutory');
 			if($scope.typequery.su)
 				status_types.push('su');
+			if($scope.typequery.local)
+				status_types.push('local');
 
 			var query = angular.lowercase($scope.query);
 

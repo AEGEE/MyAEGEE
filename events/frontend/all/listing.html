@@ -12,8 +12,15 @@
 
 		<div class="timeline-body">
 			<div class="timeline-header">
-				<span class="username">
-					Upcoming events
+				<span class="username dropdown">
+					<a href="javascript:;", data-toggle="dropdown">
+						<span ng-if="!mine">Upcoming events</span>
+						<span ng-if="mine">My events</span>
+					<b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li><a ui-sref="app.events">Upcoming events</a></li>
+						<li><a ui-sref="app.events.mine">My events</a></li>
+					</ul>
 				</span>
 			</div>
 
@@ -36,14 +43,18 @@
 						<label class="checkbox-inline"><input type="checkbox" ng-model="typequery.su">
 							SU
 						</label>
+
+						<label class="checkbox-inline"><input type="checkbox" ng-model="typequery.local">
+							Local
+						</label>
 					</div>
 
-					<div class="col-sm-12" ng-if="!mine">
+					<!--<div class="col-sm-12" ng-if="!mine">
 						<a ui-sref="app.events.mine">My events</a>
 					</div>
 					<div class="col-sm-12" ng-if="mine">
 						<a ui-sref="app.events">All events</a>
-					</div>
+					</div>-->
 				</div>
 			</form>
 		</div>

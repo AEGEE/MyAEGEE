@@ -15,16 +15,25 @@ var Event = require('./eventModel.js');
 exports.listEvents = function(req, res, next) {
 	Event
 		.where('status', 'approved')
+		.where('type').ne('local')
 		.where('ends').gte(new Date()) // Only show events in the future
-		.select(['id', 'name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status'].join(' '))
-		//.sort('starts') // done on client side
+		.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status'].join(' '))
 		.exec(function(err, events) {
-		
-		if (err) {log.info(err);return next(new restify.InternalError());}
-		
-		res.json(events);
-		return next();
-	});
+			if (err) {log.error(err);return next(new restify.InternalError());}
+
+			Event
+				.where('status', 'approved')
+				.where('type', 'local')
+				.where('ends').gte(new Date())
+				.elemMatch('organizing_locals', {'foreign_id': req.user.basic.antenna_id})
+				.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status'].join(' '))
+				.exec(function(err, localEvents) {
+					if (err) {log.error(err);return next(new restify.InternalError());}
+
+					res.json(events.concat(localEvents));
+					return next();
+				});
+		});
 }
 
 // Returns all events the user is organizer on
@@ -226,7 +235,9 @@ exports.editEvent = function(req, res, next) {
 }
 
 exports.deleteEvent = function(req, res, next) {
-	// TODO Check for user privilegies
+	if(!req.user.permissions.can.delete)
+		return next(new restify.ForbiddenError("You are not permitted to delete events"));
+
 	var event = req.event;
 
 	// Deletion is only changing status to deleted
@@ -242,23 +253,29 @@ exports.deleteEvent = function(req, res, next) {
 exports.setApprovalStatus = function(req, res, next) {
 	// Normal edit rights are enough to request approval
 	// Otherwise approval permission needed
+	log.info("a");
+	log.info(req.user.permissions);
 	if(req.user.permissions.can.approve ||
 	   (req.user.permissions.can.edit_details && 
 	   		(req.event.status == 'draft' && req.body.status == 'requesting') ||
 	   		(req.event.status == 'requesting' && req.body.status == 'draft'))) {
 		req.event.status = req.body.status;
+		log.info("b");
 
 		// Validate
-		error = event.validateSync();
+		error = req.event.validateSync();
 		if(error != null) {
 			return next(new restify.InvalidArgumentError({body: error}));
 		}
+		log.info("c");
 
 		req.event.save(function(err) {
 			if(err) {
 				log.error("Could not save event status");
 				return next(new restify.InternalError());
 			}
+				log.info("d");
+
 			res.json({
 				success: true,
 				message: "Successfully changed approval status"
@@ -279,7 +296,8 @@ exports.getEditRights = function(req, res, next) {
 
 /** Participants **/
 exports.listParticipants = function(req, res, next) {
-	// TODO Check for user privilegies
+	if(!req.user.permissions.can.view_applications)
+		return next(new restify.ForbiddenError("You are not permitted to view applications to this event"));
 	// Idea: Only let people see applications after application period ended
 	
 	var event = req.event;

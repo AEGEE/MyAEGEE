@@ -30,7 +30,7 @@ server.pre(function (request, response, next) {
 	return next();
 });
 //server.on('after', function (req, res, route) {
-//  req.log.info({res: res}, "finished");
+ // log.trace("Request finished", req, res);
 //});
 
 server.on('uncaughtException', function(req, res, route, err) {
@@ -52,36 +52,40 @@ server.get({path: '/registerMicroservice', version: cur_version}, service.regist
 
 
 server.use(middlewares.authenticateUser);
+server.use(middlewares.fetchUserDetails); // TODO merge to one
+server.use(middlewares.checkUserRole);
+
 
 server.get({path: '/', version: cur_version}, events.listEvents );
-server.post({path: '/', version: cur_version}, [middlewares.fetchUserDetails, events.addEvent] );
+server.post({path: '/', version: cur_version}, events.addEvent );
 
 // Debugging requests, remove at some point in time
 server.get({path: '/status', version: cur_version}, service.status );
 server.get({path: '/debug', version: cur_version}, events.debug );
-server.get({path: '/getUser', version: cur_version}, [middlewares.fetchUserDetails, service.getUser] );
+server.get({path: '/getUser', version: cur_version}, service.getUser );
 server.get({path: '/roles', version: cur_version}, service.getRoles);
 server.put({path: '/roles', version: cur_version}, service.registerRoles);
 
-server.get({path: '/mine/byOrganizer', version: cur_version}, [middlewares.fetchUserDetails, events.listUserOrganizedEvents ] );
-server.get({path: '/mine/byApplication', version: cur_version}, [middlewares.fetchUserDetails, events.listUserAppliedEvents ] );
-server.get({path: '/mine/approvable', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.listApprovableEvents ] );
-//server.get({path: '/mine/byLocal', version: cur_version}, [middlewares.fetchUserDetails, events.getUserEvents] );
+server.get({path: '/mine/byOrganizer', version: cur_version}, events.listUserOrganizedEvents );
+server.get({path: '/mine/byApplication', version: cur_version}, events.listUserAppliedEvents );
+server.get({path: '/mine/approvable', version: cur_version}, events.listApprovableEvents );
+//server.get({path: '/mine/byLocal', version: cur_version}, events.getUserEvents );
 
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
 server.use(middlewares.fetchSingleEvent);
+server.use(middlewares.checkEventPermissions);
 
 server.get({path: '/single/:event_id', version: cur_version}, events.eventDetails );
-server.put({path: '/single/:event_id', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.editEvent] );
-server.del({path: '/single/:event_id', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.deleteEvent] );
-server.put({path: '/single/:event_id/status', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.setApprovalStatus ]);
-server.get({path: '/single/:event_id/rights', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.getEditRights] );
+server.put({path: '/single/:event_id', version: cur_version}, events.editEvent );
+server.del({path: '/single/:event_id', version: cur_version}, events.deleteEvent );
+server.put({path: '/single/:event_id/status', version: cur_version}, events.setApprovalStatus );
+server.get({path: '/single/:event_id/rights', version: cur_version}, events.getEditRights );
 
 server.get({path: '/single/:event_id/participants', version: cur_version}, events.listParticipants );
-server.put({path: '/single/:event_id/participants/status/:application_id', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.setApplicationStatus] )
+server.put({path: '/single/:event_id/participants/status/:application_id', version: cur_version}, events.setApplicationStatus )
 server.get({path: '/single/:event_id/participants/mine', version: cur_version}, events.getApplication );
-server.put({path: '/single/:event_id/participants/mine', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkUserRole, events.setApplication] );
+server.put({path: '/single/:event_id/participants/mine', version: cur_version}, events.setApplication );
 
 server.get({path: '/single/:event_id/organizers', version: cur_version}, events.listOrganizers );
 server.put({path: '/single/:event_id/organizers', version: cur_version}, events.setOrganizers );

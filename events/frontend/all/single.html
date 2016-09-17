@@ -29,7 +29,7 @@
 					<thead>
 						<tr><th></th><th><h4>{{ event.name }}
 							<small>
-								<span ng-repeat="local in event.organizing_locals">{{ local.foreign_id }}</span><span ng-show="$last">, </span>
+								<span ng-repeat="local in event.organizing_locals">{{ local.name }}</span><span ng-show="$last">, </span>
 							</small>
 						</h4></th></tr>
 					</thead>
@@ -37,17 +37,22 @@
 
 						<tr>
 							<td class="field">Starts</td>
-							<td>{{ event.starts|date:'mediumDate' }}, {{ event.starts|date:'HH:mm' }}</td>
+							<td>{{ event.starts|date:'MMM d, yyyy hh:mm' }}</td>
 						</tr>
 						<tr>
 							<td class="field">Ends</td>
-							<td>{{ event.ends|date:'mediumDate' }}, {{ event.ends|date:'HH:mm' }}</td>
+							<td>{{ event.ends|date:'MMM d, yyyy hh:mm' }}</td>
 						</tr>
 
 						<tr class="divider"><td colspan="2"></td></tr>
 						<tr>
 							<td class="field">Description</td>
 							<td><p style="white-space: pre-wrap;" ng-bind="event.description"></p></td>
+						</tr>
+						
+						<tr>
+							<td class="field">Fee</td>
+							<td>{{ event.fee|number:2 }}€</td>
 						</tr>
 
 						<tr class="divider"><td colspan="2"></td></tr>

@@ -185,6 +185,86 @@ exports.fetchSingleEvent = function(req, res, next) {
 
 // Middleware to check which permissions the user has, in regart to the current event if there is one
 // Requires the fetchSingleEvent and fetchUserDetails middleware to be executed beforehand
+exports.checkEventPermissions = function(req, res, next) {
+	var permissions = {
+		is: {},
+		can: {}
+	}
+	if(req.user.permissions)
+		permissions = req.user.permissions;
+
+	permissions.is.organizer = req.event.organizers.some(function(item) {
+		return item.foreign_id == req.user.basic.id;
+	});
+
+	var application_index;
+
+	permissions.is.participant = req.event.applications.some(function(item, index) {
+		if(item.foreign_id == req.user.basic.id) {
+			application_index = index;
+			return true;
+		}
+		return false;
+	});
+
+	permissions.is.accepted_participant = permissions.is.participant && req.event.applications[application_index].application_status == 'accepted';
+
+	permissions.is.own_antenna = req.event.organizing_locals.some(function(item) {
+		return item.foreign_id == req.user.basic.antenna_id;
+	});
+
+	permissions.is.boardmember = permissions.is.own_antenna && req.user.board_positions.length > 0;
+
+
+	permissions.can.edit_details = 
+		(permissions.is.organizer && req.event.application_status == 'closed' && req.event.status == 'draft') // Normal editing
+		|| permissions.is.superadmin;
+
+	permissions.can.edit_application_status = 
+		(permissions.is.organizer && req.event.status == 'approved')
+		|| permissions.is.superadmin;
+
+	permissions.can.approve = 
+		permissions.is.superadmin
+		|| (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
+		|| (permissions.is.su_admin && req.event.type == 'su')
+		|| (permissions.is.statutory_admin && req.event.type == 'statutory')
+		|| (permissions.is.boardmember && req.event.type == 'local');
+
+	permissions.can.edit = 
+		permissions.can.edit_details 
+		|| permissions.can.edit_application_status 
+		|| permissions.can.approve;
+
+	permissions.can.apply = !permissions.is.organizer && req.event.application_status == 'open';
+
+	permissions.can.approve_participants = permissions.is.organizer && req.event.application_status == 'closed';
+
+	permissions.can.view_participants = 
+		permissions.is.organizer 
+		|| permissions.is.accepted_participant 
+		|| permissions.is.boardmember
+		|| permissions.is.superadmin
+		|| (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
+		|| (permissions.is.su_admin && req.event.type == 'su')
+		|| (permissions.is.statutory_admin && req.event.type == 'statutory');
+
+	permissions.can.delete = req.event.status == 'draft' && permissions.can.edit_details;
+
+
+	// Convert all to boolean and assign
+	if(!req.user.permissions)
+		req.user.permissions = {is:{}, can:{}};
+	for(var attr in permissions.is) {
+		req.user.permissions.is[attr] = Boolean(permissions.is[attr]);
+	}
+	for(var attr in permissions.can) {
+		req.user.permissions.can[attr] = Boolean(permissions.can[attr]);
+	}
+
+	return next();
+}
+
 exports.checkUserRole = function(req, res, next) {
 	require('./config/options.js').then(function(options) {
 
@@ -208,73 +288,15 @@ exports.checkUserRole = function(req, res, next) {
 			permissions.is.non_statutory_admin = req.user.roles.some(item => item.id == options.roles.non_statutory_admin);
 		}
 
-		if(req.event) {
-			permissions.is.organizer = req.event.organizers.some(function(item) {
-				return item.foreign_id == req.user.basic.id;
-			});
-
-			var application_index;
-
-			permissions.is.participant = req.event.applications.some(function(item, index) {
-				if(item.foreign_id == req.user.basic.id) {
-					application_index = index;
-					return true;
-				}
-				return false;
-			});
-
-			permissions.is.accepted_participant = permissions.is.participant && req.event.applications[application_index].application_status == 'accepted';
-
-			permissions.is.own_antenna = req.event.organizing_locals.some(function(item) {
-				return item.foreign_id == req.user.basic.antenna_id;
-			});
-
-			permissions.is.boardmember = permissions.is.own_antenna && req.user.board_positions.length > 0;
-
-
-			permissions.can.edit_details = 
-				(permissions.is.organizer && req.event.application_status == 'closed' && req.event.status == 'draft') // Normal editing
-				|| permissions.is.superadmin;
-
-			permissions.can.edit_application_status = 
-				(permissions.is.organizer && req.event.status == 'approved')
-				|| permissions.is.superadmin;
-
-			permissions.can.approve = 
-				permissions.is.superadmin
-				|| (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
-				|| (permissions.is.su_admin && req.event.type == 'su')
-				|| (permissions.is.statutory_admin && req.event.type == 'statutory')
-				|| (permissions.is.boardmember && req.event.type == 'local');
-
-			permissions.can.edit = 
-				permissions.can.edit_details 
-				|| permissions.can.edit_application_status 
-				|| permissions.can.approve;
-
-			permissions.can.apply = !permissions.is.organizer && req.event.application_status == 'open';
-
-			permissions.can.approve_participants = permissions.is.organizer && req.event.application_status == 'closed';
-
-			permissions.can.view_participants = 
-				permissions.is.organizer 
-				|| permissions.is.accepted_participant 
-				|| permissions.is.boardmember
-				|| permissions.is.superadmin
-				|| (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
-				|| (permissions.is.su_admin && req.event.type == 'su')
-				|| (permissions.is.statutory_admin && req.event.type == 'statutory');
-		}
-
-		// Convert all to boolean
+		// Convert all to boolean and assign
+		if(!req.user.permissions)
+			req.user.permissions = {is:{}, can:{}};
 		for(var attr in permissions.is) {
-			permissions.is[attr] = Boolean(permissions.is[attr]);
+			req.user.permissions.is[attr] = Boolean(permissions.is[attr]);
 		}
 		for(var attr in permissions.can) {
-			permissions.can[attr] = Boolean(permissions.can[attr]);
+			req.user.permissions.can[attr] = Boolean(permissions.can[attr]);
 		}
-
-		req.user.permissions = permissions;
 
 		return next();
 	});
