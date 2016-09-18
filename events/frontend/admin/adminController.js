@@ -6,12 +6,13 @@
 
 
 	angular
-		.module('app.eventadmin', ['ui.bootstrap.datetimepicker'])
+		.module('app.eventadmin', ['ui.bootstrap.datetimepicker', 'bootstrap3-typeahead'])
 		.config(config)
 		.controller('DashboardController', DashboardController)
 		.controller('NewController', NewController)
 		.controller('ApproveParticipantsController', ApproveParticipantsController)
 		.controller('ApproveEventsController', ApproveEventsController)
+		.controller('OrganizersController', OrganizersController)
 		.controller('ServiceAdminController', ServiceAdminController)
 		.directive( "mwConfirmClick", [
 			function() {
@@ -83,6 +84,15 @@
 					}
 				}
 			})
+			.state('app.eventadmin.organizers', {
+				url: '/organizers/:id',
+				views: {
+					'pageContent@app': {
+						templateUrl: baseUrl + 'frontend/admin/organizers.html',
+						controller: 'OrganizersController as vm'
+					}
+				}
+			})
 			.state('app.eventadmin.serviceadmin', {
 				url: '/service-admin',
 				views: {
@@ -112,6 +122,7 @@
 		$scope.event.application_fields = [];
 		$scope.newfield = '';
 		$scope.newevent = true;
+		$scope.neworganizer = {}
 
 
 		// Add callbacks to handle application field changes
@@ -120,17 +131,44 @@
 				$scope.event.application_fields.push({name: $scope.newfield});
 			$scope.newfield = '';
 		}
-
 		$scope.removeApplicationField = function(index) {
 			if($scope.event.application_fields && $scope.event.application_fields.length > index)
 				$scope.event.application_fields.splice(index, 1);
 		}
 
+		var ticketcount = 0;
+		$scope.fetchNames = function(query) {
+			ticketcount = ticketcount+1;
+			var myticket = ticketcount;
+			$http.get('/api/getUsers?limit=10&name=' + query).success(function(res) {
+				// Do ticket synchronization if one request passes the other one
+				// This way we will only display the result of the last search
+				if(ticketcount == myticket) {
+					$scope.neworganizer.proposals = [];
+					res.rows.forEach(item => {
+						$scope.neworganizer.proposals.push({
+							foreign_id: item.cell[0],
+							name: item.cell[1],
+							antenna_name: item.cell[5]
+						});
+					});
+					console.log($scope.neworganizer.proposals);
+				}
+			});
+		}
+		$scope.addOrganizer = function(organizer) {
+			$scope.event.organizers.push(organizer);
+			$scope.neworganizer.query = '';
+		}
+		$scope.removeOrganizer = function(index) {
+			if($scope.event.organizers && $scope.event.organizers.length > index)
+				$scope.event.organizers.splice(index, 1);
+		}
 
 		// If no route params are given, the user wants to create a new event -> Post
 		$scope.submitForm = function() {
 			$http.post(apiUrl, $scope.event).success(function (response) {
-				$state.go('app.events.single', {id: $stateParams.id});
+				$state.reload();
 			}).catch(function (err) {
 				for(var attr in err.data.errors) {
 					var serverMessage = $parse('eventForm.' + attr + '.$error.message');
@@ -170,8 +208,9 @@
 			// Edit the event with a put
 			$scope.submitForm = function() {
 				$http.put(resourceURL, $scope.event).success(function (response) {
-					$state.go('app.events.single', {id: $stateParams.id});
+					$state.reload();
 				}).catch(function (err) {
+					console.log(err);
 					for(var attr in err.data.errors) {
 						var serverMessage = $parse('eventForm.' + attr + '.$error.message');
 						$scope.eventForm.$setValidity(attr, false, $scope.eventForm);
@@ -185,8 +224,13 @@
 				$scope.event = response;
 			});
 
+			// Get organizers
+			$http.get(resourceURL + '/organizers').success(function (res) {
+				$scope.event.organizers = res;
+			});
+
 			// Get the rights this user has on this event
-			$http.get(apiUrl + 'single/' + $stateParams.id + '/rights').success(function(res) {
+			$http.get(resourceURL + '/rights').success(function(res) {
 				$scope.permissions = res.can;
 			});
 		}
@@ -287,6 +331,25 @@
 		}
 	}
 
+	function OrganizersController($scope, $http, $stateParams) {
+		$scope.setSearch = function(local) {
+			if(local) $scope.search = {antenna_id: local.foreign_id};
+			else $scope.search = {};
+		}
+
+		$http.get(apiUrl + 'single/' + $stateParams.id + '/organizers').success(function(res) {
+			$scope.organizers = res;
+			$scope.locals = [];
+			res.forEach(organizer => {
+				if(!$scope.locals.some(local => local.foreign_id == organizer.antenna_id))
+					$scope.locals.push({
+						foreign_id: organizer.antenna_id,
+						name: organizer.antenna_name
+					});
+			});
+		});
+	}
+
 	function ServiceAdminController($scope, $http) {
 		var start1 = new Date().getTime();
 		$http.get(apiUrl + 'getUser').success( function(response) {
@@ -298,6 +361,10 @@
 		$http.get(apiUrl + 'status').success( function(response) {
 			$scope.status = response;
 			$scope.roundtrip2 = (new Date().getTime()) - start2;
+		});
+
+		$http.get('/api/getUsers?name=fla').success(function(res) {
+			console.log(res);
 		});
 
 		$http.get('/api/getRoles').success(function(allRoles) {

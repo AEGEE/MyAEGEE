@@ -21,7 +21,8 @@
 			"url": "http://localhost",
 			"port": 80
 		},
-		"secret": "$2y$10$55wvSoIa2wPNdi9bWKH5E.GaxQDxw3o/KacJHQod3pu31p5XrX3re"
+		"secret": "$2y$10$55wvSoIa2wPNdi9bWKH5E.GaxQDxw3o/KacJHQod3pu31p5XrX3re",
+		"enableUserCaching": true
 	},
 
 	"test": {
@@ -32,6 +33,7 @@
 		"core": {
 			"url": "http://private-ff598-omsneocore.apiary-mock.com",
 			"port": 80
-		}
+		},
+		"enableUserCaching": false
 	}
 }

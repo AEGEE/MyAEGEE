@@ -113,13 +113,16 @@ exports.addEvent = function(req, res, next) {
 			last_name: req.user.basic.last_name,
 			foreign_id: req.user.basic.id,
 			role: 'full',
+			antenna_id: req.user.basic.antenna_id,
+			antenna_name: req.user.basic.antenna_name,
+			main_organizer: true
 		}
 	];
 
 	// Creating user's local automatically becomes organizing local
 	newevent.organizing_locals = [
 		{
-			name: req.user.details.antenna_city,
+			name: req.user.basic.antenna_name,
 			foreign_id: req.user.basic.antenna_id,
 		}
 	]
@@ -176,7 +179,6 @@ exports.editEvent = function(req, res, next) {
 	var registerDeadline = false;
 	// Disallow changing applications and organizers, use seperate requests for that
 	delete data.applications;
-	delete data.organizers;
 	delete data.organizing_locals;
 	delete data.status;
 
@@ -190,6 +192,7 @@ exports.editEvent = function(req, res, next) {
 		if(data.starts) event.starts = data.starts;
 		if(data.ends) event.ends = data.ends;
 		if(data.description) event.description = data.description;
+		if(data.fee) event.fee = data.fee;
 		if(data.type) event.type = data.type;
 		if(data.max_participants) event.max_participants = data.max_participants;
 		if(data.application_fields) event.application_fields = data.application_fields;
@@ -205,6 +208,52 @@ exports.editEvent = function(req, res, next) {
 		event.application_status = data.application_status;
 		event.application_deadline = data.application_deadline;
 	}
+
+	if(req.user.permissions.can.edit_organizers && data.organizers) {
+		// Loop through organizers, copy data
+		data.organizers.forEach(organizer => {
+			var index;
+			var neworganizer = !event.organizers.some((item, idx) => {
+				if(item.foreign_id == organizer.foreign_id) {
+					index = idx;
+					return true;
+				}
+				return false;
+			});
+			// If user already exists, copy only new stuff
+			if(!neworganizer) {
+				if(organizer.comment) event.organizers[index].comment = organizer.comment;
+				if(organizer.main_organizer) event.organizers[index].main_organizer = organizer.main_organizer;
+				event.organizers[index].touched = true;
+			}
+			else {
+				helpers.getUserById(req.header('x-auth-token'), organizer.foreign_id, function(err, res) {
+					if(err) {
+						log.warn("Could not retrieve user details");
+					}
+					else {
+						event.organizers.push({
+							foreign_id: organizer.foreign_id,
+							first_name: res.basic.first_name,
+							last_name: res.basic.last_name,
+							antenna_id: req.basic.antenna_id,
+							antenna_name: res.basic.antenna_name,
+							comment: organizer.comment,
+							main_organizer: organizer.main_organizer,
+							touched: true
+						});
+					}
+				});
+			}
+		});
+
+		// Now check if we deleted an organizer (untouched)
+		for(var i = event.organizers.length -1; i>=0; i--) {
+			if(!event.organizers[i].touched)
+				event.organizers.splice(i, 1);
+		}
+	}
+
 
 	// Try to save
 	event.save(function(err) {
@@ -349,7 +398,7 @@ exports.setApplication = function(req, res, next) {
 			foreign_id: req.user.basic.id,
 			first_name: req.user.basic.first_name,
 			last_name: req.user.basic.last_name,
-			antenna: req.user.details.antenna_name,
+			antenna: req.user.basic.antenna_name,
 			antenna_id: req.user.basic.antenna_id,
 			application: req.body.application
 		});

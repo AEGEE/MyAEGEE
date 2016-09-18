@@ -57,16 +57,19 @@ exports.authenticateUser = function(req, res, next) {
 					if(!req.user)
 						req.user = {};
 					req.user.basic = body.user;
+					req.user.basic.antenna_name = "AEGEE-Unimplemented";
 					next();
 
 					// After calling next, try saving the fetched data to db
-					var saveUserData = new UserCache();
-					saveUserData.token = token;
-					saveUserData.user = req.user;
-					saveUserData.save(err => {
-						if(err)
-							log.warn("Could not store user data in cache", err);
-					});
+					if(config.enableUserCaching) {
+						var saveUserData = new UserCache();
+						saveUserData.token = token;
+						saveUserData.user = req.user;
+						saveUserData.save(err => {
+							if(err)
+								log.warn("Could not store user data in cache", err);
+						});
+					}
 				});
 			});
 		}
@@ -128,7 +131,6 @@ exports.fetchUserDetails = function(req, res, next) {
 			if(!req.user)
 				req.user = {};
 			req.user.details = body.user;
-			req.user.details.antenna_name = 'AEGEE-' + req.user.details.antenna;
 			req.user.workingGroups = body.workingGroups;
 			req.user.board_positions = body.board_positions;
 			req.user.roles = body.roles;
@@ -138,27 +140,28 @@ exports.fetchUserDetails = function(req, res, next) {
 			next();
 
 			// Save fetched user details to cache
-			UserCache.findOne({token: req.header('x-auth-token')}, function(err, res) {
-				if(err) {
-					log.warn("Could not fetch user from cache", err);
-					return;
-				}
-				// Shouldn't happen
-				if(!res) {
-					res = new UserCache();
-					res.token = req.header('x-auth-token');
-				}
-				res.user = req.user;
-				delete res.user.permissions;
-				res.save(err => {
-					if(err)
-						log.warn("Could not store user data in cache", err);
+			if(config.enableUserCaching) {
+				UserCache.findOne({token: req.header('x-auth-token')}, function(err, res) {
+					if(err) {
+						log.warn("Could not fetch user from cache", err);
+						return;
+					}
+					// Shouldn't happen
+					if(!res) {
+						res = new UserCache();
+						res.token = req.header('x-auth-token');
+					}
+					res.user = req.user;
+					delete res.user.permissions;
+					res.save(err => {
+						if(err)
+							log.warn("Could not store user data in cache", err);
+					});
 				});
-			});
+			}
 		});
 	});
 }
-
 
 
 exports.fetchSingleEvent = function(req, res, next) {
@@ -185,7 +188,7 @@ exports.fetchSingleEvent = function(req, res, next) {
 
 // Middleware to check which permissions the user has, in regart to the current event if there is one
 // Requires the fetchSingleEvent and fetchUserDetails middleware to be executed beforehand
-exports.checkEventPermissions = function(req, res, next) {
+exports.checkPermissions = function(req, res, next) {
 	var permissions = {
 		is: {},
 		can: {}
@@ -193,64 +196,95 @@ exports.checkEventPermissions = function(req, res, next) {
 	if(req.user.permissions)
 		permissions = req.user.permissions;
 
-	permissions.is.organizer = req.event.organizers.some(function(item) {
-		return item.foreign_id == req.user.basic.id;
-	});
-
-	var application_index;
-
-	permissions.is.participant = req.event.applications.some(function(item, index) {
-		if(item.foreign_id == req.user.basic.id) {
-			application_index = index;
-			return true;
-		}
-		return false;
-	});
-
-	permissions.is.accepted_participant = permissions.is.participant && req.event.applications[application_index].application_status == 'accepted';
-
-	permissions.is.own_antenna = req.event.organizing_locals.some(function(item) {
-		return item.foreign_id == req.user.basic.antenna_id;
-	});
-
-	permissions.is.boardmember = permissions.is.own_antenna && req.user.board_positions.length > 0;
+	permissions.is.superadmin = req.user.basic.is_superadmin;
 
 
-	permissions.can.edit_details = 
-		(permissions.is.organizer && req.event.application_status == 'closed' && req.event.status == 'draft') // Normal editing
-		|| permissions.is.superadmin;
+	// If user details are available, fill additional roles
+	if(req.user.details) {
+		permissions.is.boardmember = permissions.is.own_antenna && req.user.board_positions.length > 0;
+		require('./config/options.js').then(function(options) {
 
-	permissions.can.edit_application_status = 
-		(permissions.is.organizer && req.event.status == 'approved')
-		|| permissions.is.superadmin;
+			var permissions = {
+				is: {},
+				can: {}
+			}
 
-	permissions.can.approve = 
-		permissions.is.superadmin
-		|| (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
-		|| (permissions.is.su_admin && req.event.type == 'su')
-		|| (permissions.is.statutory_admin && req.event.type == 'statutory')
-		|| (permissions.is.boardmember && req.event.type == 'local');
+			if(options.roles.super_admin) {
+				permissions.is.superadmin = permissions.is.superadmin || req.user.roles.some(item => item.id == options.roles.super_admin);
+			}
 
-	permissions.can.edit = 
-		permissions.can.edit_details 
-		|| permissions.can.edit_application_status 
-		|| permissions.can.approve;
+			if(options.roles.su_admin) {
+				permissions.is.su_admin = req.user.roles.some(item => item.id == options.roles.su_admin);
+			}
+			if(options.roles.statutory_admin) {
+				permissions.is.statutory_admin = req.user.roles.some(item => item.id == options.roles.statutory_admin);
+			}
+			if(options.roles.non_statutory_admin) {
+				permissions.is.non_statutory_admin = req.user.roles.some(item => item.id == options.roles.non_statutory_admin);
+			}
+		});
+	}
 
-	permissions.can.apply = !permissions.is.organizer && req.event.application_status == 'open';
+	// If an event was fetched, add event-based permissions
+	if(req.event) {
 
-	permissions.can.approve_participants = permissions.is.organizer && req.event.application_status == 'closed';
+		permissions.is.organizer = req.event.organizers.some(function(item) {
+			return item.foreign_id == req.user.basic.id;
+		});
 
-	permissions.can.view_participants = 
-		permissions.is.organizer 
-		|| permissions.is.accepted_participant 
-		|| permissions.is.boardmember
-		|| permissions.is.superadmin
-		|| (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
-		|| (permissions.is.su_admin && req.event.type == 'su')
-		|| (permissions.is.statutory_admin && req.event.type == 'statutory');
+		var application_index;
 
-	permissions.can.delete = req.event.status == 'draft' && permissions.can.edit_details;
+		permissions.is.participant = req.event.applications.some(function(item, index) {
+			if(item.foreign_id == req.user.basic.id) {
+				application_index = index;
+				return true;
+			}
+			return false;
+		});
 
+		permissions.is.accepted_participant = permissions.is.participant && req.event.applications[application_index].application_status == 'accepted';
+
+		permissions.is.own_antenna = req.event.organizing_locals.some(function(item) {
+			return item.foreign_id == req.user.basic.antenna_id;
+		});
+
+		permissions.can.edit_organizers = permissions.is.organizer;
+
+		permissions.can.edit_details = 
+			(permissions.is.organizer && req.event.application_status == 'closed' && req.event.status == 'draft') // Normal editing
+			|| permissions.is.superadmin;
+
+		permissions.can.edit_application_status = 
+			(permissions.is.organizer && req.event.status == 'approved')
+			|| permissions.is.superadmin;
+
+		permissions.can.approve = 
+			permissions.is.superadmin
+			|| (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
+			|| (permissions.is.su_admin && req.event.type == 'su')
+			|| (permissions.is.statutory_admin && req.event.type == 'statutory')
+			|| (permissions.is.boardmember && req.event.type == 'local');
+
+		permissions.can.edit = 
+			permissions.can.edit_details 
+			|| permissions.can.edit_application_status 
+			|| permissions.can.approve;
+
+		permissions.can.apply = !permissions.is.organizer && req.event.application_status == 'open';
+
+		permissions.can.approve_participants = permissions.is.organizer && req.event.application_status == 'closed';
+
+		permissions.can.view_participants = 
+			permissions.is.organizer 
+			|| permissions.is.accepted_participant 
+			|| permissions.is.boardmember
+			|| permissions.is.superadmin
+			|| (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
+			|| (permissions.is.su_admin && req.event.type == 'su')
+			|| (permissions.is.statutory_admin && req.event.type == 'statutory');
+
+		permissions.can.delete = req.event.status == 'draft' && permissions.can.edit_details;
+	}
 
 	// Convert all to boolean and assign
 	if(!req.user.permissions)
@@ -264,41 +298,3 @@ exports.checkEventPermissions = function(req, res, next) {
 
 	return next();
 }
-
-exports.checkUserRole = function(req, res, next) {
-	require('./config/options.js').then(function(options) {
-
-		var permissions = {
-			is: {},
-			can: {}
-		}
-
-		if(options.roles.super_admin) {
-			permissions.is.superadmin = req.user.roles.some(item => item.id == options.roles.super_admin);
-		}
-		permissions.is.superadmin = permissions.is.superadmin || req.user.basic.is_superadmin;
-
-		if(options.roles.su_admin) {
-			permissions.is.su_admin = req.user.roles.some(item => item.id == options.roles.su_admin);
-		}
-		if(options.roles.statutory_admin) {
-			permissions.is.statutory_admin = req.user.roles.some(item => item.id == options.roles.statutory_admin);
-		}
-		if(options.roles.non_statutory_admin) {
-			permissions.is.non_statutory_admin = req.user.roles.some(item => item.id == options.roles.non_statutory_admin);
-		}
-
-		// Convert all to boolean and assign
-		if(!req.user.permissions)
-			req.user.permissions = {is:{}, can:{}};
-		for(var attr in permissions.is) {
-			req.user.permissions.is[attr] = Boolean(permissions.is[attr]);
-		}
-		for(var attr in permissions.can) {
-			req.user.permissions.can[attr] = Boolean(permissions.can[attr]);
-		}
-
-		return next();
-	});
-}
-

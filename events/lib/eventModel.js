@@ -23,6 +23,10 @@ paxSchema.virtual('url').get(function() {
 var orgaSchema = mongoose.Schema({
 	first_name: String,
 	last_name: String,
+	comment: String,
+	main_organizer: Boolean,
+	antenna_id: {type: String, required: true},
+	antenna_name: String,
 	foreign_id: {type: String, required: true},
 	role: {type: String, enum: ['full', 'readonly'], default: 'full'},
 });

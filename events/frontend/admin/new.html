@@ -264,8 +264,66 @@
 					<button type="button" class="btn btn-primary btn-xs" ng-click="addApplicationField();"><i class="fa fa-plus"></i></button>
 				</span>
 			</div>
+			<p ng-show="eventForm.application_fields.$error.message">{{ eventForm.application_fields.$error.message }}</p>
 		</div>
 	</div>
+
+	<div class="form-group" ng-class="{ 'has-error': (eventForm.organizers.$invalid && eventForm.organizers.$dirty) || eventForm.organizers.$error.message }">
+		<label class="control-label col-sm-4" for="organizers">Organizers</label>
+		<div class="col-sm-6">
+			<div class="form-group" ng-repeat="field in event.organizers">
+				<div class="input-group">
+					<input 	
+						type="text" 
+						class="form-control" 
+						readonly
+						style="background-color: #fff; opacity: 1;"  
+						value="{{ field.name }}{{ field.first_name }} {{ field.last_name}}" />
+					<span class="input-group-addon">
+						<button type="button" class="btn btn-primary btn-xs" ng-click="removeOrganizer($index)" ng-disabled="!permissions.edit_organizers"><i class="fa fa-minus"></i></button>
+					</span>
+				</div>
+				<div class="input-group col-sm-12">
+					<input 
+						type="text" 
+						class="form-control" 
+						ng-model="field.comment" 
+						placeholder="comment"
+						ng-disabled="!permissions.edit_organizers">
+				</div>
+			</div>
+
+			<div class="input-group form-group" ng-show="permissions.edit_organizers">
+				<input 
+					class="form-control" 
+					placeholder="Type a name" 
+					ng-model="neworganizer.query"
+					ng-change="fetchNames(neworganizer.query)"
+					>
+				<span class="input-group-addon">
+					<i class="fa fa-plus"></i>
+				</span>
+
+			</div>
+			<p ng-show="eventForm.organizers.$error.message">{{ eventForm.organizers.$error.message }}</p>
+
+			<div class="dropdownAutocomplete" ng-show="neworganizer.query">
+				<ul>
+					<li ng-repeat="user in neworganizer.proposals" ng-click="addOrganizer(user)">
+						<img class="comment-photo" src="/api/getUserAvatar/{{ user.id }}"> 
+						<span class="comment-name">{{ user.name }}<br />
+							<small>{{ user.antenna_name }}</small>
+						</span>
+					</li>
+					<li ng-if="neworganizer.proposals.length == 0">
+						No results found
+					</li>
+				</ul>
+			</div>
+		</div>
+		
+	</div>
+		
 
 	<div class="form-group" ng-show="event.id && permissions.edit_details && !eventForm.$dirty">
 		<label class="control-label col-sm-4">Interactions</label>

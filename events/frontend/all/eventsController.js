@@ -66,15 +66,14 @@
 			su: true,
 			local: true
 		};
+		$scope.currentTime = Date.now() // get the current time for the timeline
+
 		// Fetch events from backend
 		//$('#loadingOverlay').show();
 		$http.get(apiUrl).success(function(response) {
 			$scope.events = response;
 			//$('#loadingOverlay').hide();
 		});
-
-
-		$scope.currentTime = Date.now() // get the current time for the timeline
 	
 		
 		// Search callback to enable searching in name and description only

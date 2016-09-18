@@ -52,9 +52,6 @@ server.get({path: '/registerMicroservice', version: cur_version}, service.regist
 
 
 server.use(middlewares.authenticateUser);
-server.use(middlewares.fetchUserDetails); // TODO merge to one
-server.use(middlewares.checkUserRole);
-
 
 server.get({path: '/', version: cur_version}, events.listEvents );
 server.post({path: '/', version: cur_version}, events.addEvent );
@@ -62,19 +59,20 @@ server.post({path: '/', version: cur_version}, events.addEvent );
 // Debugging requests, remove at some point in time
 server.get({path: '/status', version: cur_version}, service.status );
 server.get({path: '/debug', version: cur_version}, events.debug );
-server.get({path: '/getUser', version: cur_version}, service.getUser );
-server.get({path: '/roles', version: cur_version}, service.getRoles);
-server.put({path: '/roles', version: cur_version}, service.registerRoles);
+server.get({path: '/getUser', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkPermissions, service.getUser] );
+server.get({path: '/roles', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkPermissions, service.getRoles]);
+server.put({path: '/roles', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkPermissions, service.registerRoles]);
 
 server.get({path: '/mine/byOrganizer', version: cur_version}, events.listUserOrganizedEvents );
 server.get({path: '/mine/byApplication', version: cur_version}, events.listUserAppliedEvents );
-server.get({path: '/mine/approvable', version: cur_version}, events.listApprovableEvents );
+server.get({path: '/mine/approvable', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkPermissions, events.listApprovableEvents] );
 //server.get({path: '/mine/byLocal', version: cur_version}, events.getUserEvents );
 
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
 server.use(middlewares.fetchSingleEvent);
-server.use(middlewares.checkEventPermissions);
+server.use(middlewares.fetchUserDetails);
+server.use(middlewares.checkPermissions);
 
 server.get({path: '/single/:event_id', version: cur_version}, events.eventDetails );
 server.put({path: '/single/:event_id', version: cur_version}, events.editEvent );
@@ -88,7 +86,6 @@ server.get({path: '/single/:event_id/participants/mine', version: cur_version}, 
 server.put({path: '/single/:event_id/participants/mine', version: cur_version}, events.setApplication );
 
 server.get({path: '/single/:event_id/organizers', version: cur_version}, events.listOrganizers );
-server.put({path: '/single/:event_id/organizers', version: cur_version}, events.setOrganizers );
 
 //server.get({path: '/single/:event_id/locals', version: cur_version}, events.listOrganizingLocals ); // optional
 //server.put({path: '/single/:event_id/locals', version: cur_version}, events.setOrganizingLocals ); // optional
