@@ -236,7 +236,7 @@ exports.editEvent = function(req, res, next) {
 							foreign_id: organizer.foreign_id,
 							first_name: res.basic.first_name,
 							last_name: res.basic.last_name,
-							antenna_id: req.basic.antenna_id,
+							antenna_id: res.basic.antenna_id,
 							antenna_name: res.basic.antenna_name,
 							comment: organizer.comment,
 							main_organizer: organizer.main_organizer,

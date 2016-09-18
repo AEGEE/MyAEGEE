@@ -59,9 +59,7 @@ exports.getUserById = function(authToken, id, callback) {
 				return callback(null, null);
 			}
 
-			// TODO dirty hack
-			body.user.antenna_name = 'AEGEE-' + body.user.antenna.city;
-
+			body.user.antenna_name = body.user.antenna.name;
 			return callback(null, {basic: body.user});
 		});
 	});

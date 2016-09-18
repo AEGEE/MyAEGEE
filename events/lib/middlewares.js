@@ -57,7 +57,7 @@ exports.authenticateUser = function(req, res, next) {
 					if(!req.user)
 						req.user = {};
 					req.user.basic = body.user;
-					req.user.basic.antenna_name = "AEGEE-Unimplemented";
+					req.user.basic.antenna_name = body.user.antenna;
 					next();
 
 					// After calling next, try saving the fetched data to db

@@ -168,7 +168,7 @@
 		// If no route params are given, the user wants to create a new event -> Post
 		$scope.submitForm = function() {
 			$http.post(apiUrl, $scope.event).success(function (response) {
-				$state.reload();
+				$state.go(app.events.mine);
 			}).catch(function (err) {
 				for(var attr in err.data.errors) {
 					var serverMessage = $parse('eventForm.' + attr + '.$error.message');
@@ -363,7 +363,7 @@
 			$scope.roundtrip2 = (new Date().getTime()) - start2;
 		});
 
-		$http.get('/api/getUsers?name=fla').success(function(res) {
+		$http.get('/api/getUser?id=1').success(function(res) {
 			console.log(res);
 		});
 
