@@ -201,7 +201,6 @@ exports.checkPermissions = function(req, res, next) {
 
 	// If user details are available, fill additional roles
 	if(req.user.details) {
-		permissions.is.boardmember = permissions.is.own_antenna && req.user.board_positions.length > 0;
 		require('./config/options.js').then(function(options) {
 
 			var permissions = {
@@ -248,25 +247,35 @@ exports.checkPermissions = function(req, res, next) {
 			return item.foreign_id == req.user.basic.antenna_id;
 		});
 
+		// TODO check if this is the right way to determine board positions
+		permissions.is.boardmember = permissions.is.own_antenna && req.user.board_positions.length > 0;
+
 		permissions.can.edit_organizers = permissions.is.organizer;
 
 		permissions.can.edit_details = 
 			(permissions.is.organizer && req.event.application_status == 'closed' && req.event.status == 'draft') // Normal editing
 			|| permissions.is.superadmin;
 
+		permissions.can.delete = req.event.status == 'draft' && permissions.can.edit_details;
+
 		permissions.can.edit_application_status = 
 			(permissions.is.organizer && req.event.status == 'approved')
 			|| permissions.is.superadmin;
 
+		permissions.can.edit_application_comment = permissions.is.boardmember;
+
 		permissions.can.approve = 
-			permissions.is.superadmin
-			|| (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
-			|| (permissions.is.su_admin && req.event.type == 'su')
-			|| (permissions.is.statutory_admin && req.event.type == 'statutory')
-			|| (permissions.is.boardmember && req.event.type == 'local');
+			req.event.application_status == 'closed'
+			||(permissions.is.superadmin
+				|| (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
+				|| (permissions.is.su_admin && req.event.type == 'su')
+				|| (permissions.is.statutory_admin && req.event.type == 'statutory')
+				|| (permissions.is.boardmember && req.event.type == 'local'));
 
 		permissions.can.edit = 
 			permissions.can.edit_details 
+			|| permissions.can.edit_organizers
+			|| permissions.can.delete
 			|| permissions.can.edit_application_status 
 			|| permissions.can.approve;
 
@@ -274,21 +283,18 @@ exports.checkPermissions = function(req, res, next) {
 
 		permissions.can.approve_participants = permissions.is.organizer && req.event.application_status == 'closed';
 
-		permissions.can.view_participants = 
+		permissions.can.view_applications = 
 			permissions.is.organizer 
-			|| permissions.is.accepted_participant 
 			|| permissions.is.boardmember
 			|| permissions.is.superadmin
 			|| (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
 			|| (permissions.is.su_admin && req.event.type == 'su')
 			|| (permissions.is.statutory_admin && req.event.type == 'statutory');
 
-		permissions.can.delete = req.event.status == 'draft' && permissions.can.edit_details;
 	}
 
 	// Convert all to boolean and assign
-	if(!req.user.permissions)
-		req.user.permissions = {is:{}, can:{}};
+	req.user.permissions = {is:{}, can:{}};
 	for(var attr in permissions.is) {
 		req.user.permissions.is[attr] = Boolean(permissions.is[attr]);
 	}

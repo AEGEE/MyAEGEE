@@ -55,6 +55,11 @@
 						<td><b>{{ field.name }}</b></td>
 						<td>{{ field.answer }}</td>
 					</tr>
+
+					<tr ng-show="field.board_comment">
+						<td><b>Board comment</b></td>
+						<td>{{ field.board_comment }}</td>
+					</tr>
 				</table>
 			</div>
 			<div class="modal-footer">

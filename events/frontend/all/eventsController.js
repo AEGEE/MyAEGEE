@@ -12,6 +12,9 @@
 		.controller('MineController', MineController)
 		.controller('SingleController', SingleController)
 		.controller('ApplyController', ApplyController)
+		.controller('OrganizersController', OrganizersController)
+		.controller('ParticipantsController', ParticipantsController)
+
 
 	/** @ngInject */
 	function config($stateProvider)
@@ -45,6 +48,24 @@
 					'pageContent@app': {
 						templateUrl: baseUrl + 'frontend/all/single.html',
 						controller: 'SingleController as vm'
+					}
+				}
+			})
+			.state('app.events.organizers', {
+				url: '/organizers/:id',
+				views: {
+					'pageContent@app': {
+						templateUrl: baseUrl + 'frontend/all/userListing.html',
+						controller: 'OrganizersController as vm'
+					}
+				}
+			})
+			.state('app.events.participants', {
+				url: '/participants/:id',
+				views: {
+					'pageContent@app': {
+						templateUrl: baseUrl + 'frontend/all/userListing.html',
+						controller: 'ParticipantsController as vm'
 					}
 				}
 			})
@@ -143,6 +164,11 @@
 		$http.get(apiUrl + 'single/' + $stateParams.id).success( function(res) {
 			$scope.event = res; 
 		});
+
+		// TODO integrate this into the /single requers
+		$http.get(apiUrl + 'single/' + $stateParams.id + '/rights').success( function(res) {
+			$scope.permissions = res.can; 
+		});
 	}
 
 	function ApplyController($scope, $http, $stateParams) {
@@ -196,6 +222,55 @@
 			});
 		}
 	}
+
+
+	function OrganizersController($scope, $http, $stateParams) {
+		$scope.organizer_view = true;
+		$scope.setSearch = function(local) {
+			if(local) $scope.query_antenna = local.foreign_id;
+			else $scope.query_antenna = '';
+		}
+
+		$scope.search = function(row) {
+			var query = angular.lowercase($scope.query_name);
+			var name = angular.lowercase(row.first_name + ' ' + row.last_name);
+			return (!$scope.query_antenna || row.antenna_id == $scope.query_antenna)
+				&& (!$scope.query_name || name.indexOf(query) !== -1);
+		}
+
+		$http.get(apiUrl + 'single/' + $stateParams.id + '/organizers').success(function(res) {
+			$scope.users = res;
+			$scope.locals = [];
+			res.forEach(user => {
+				if(!$scope.locals.some(local => local.foreign_id == user.antenna_id))
+					$scope.locals.push({
+						foreign_id: user.antenna_id,
+						name: user.antenna_name
+					});
+			});
+		});
+	}
+
+	function ParticipantsController($scope, $http, $stateParams) {
+		$scope.organizer_view = false;
+		$scope.setSearch = function(local) {
+			if(local) $scope.search = {antenna_id: local.foreign_id};
+			else $scope.search = {};
+		}
+
+		$http.get(apiUrl + 'single/' + $stateParams.id + '/participants?status=accepted').success(function(res) {
+			$scope.users = res;
+			$scope.locals = [];
+			res.forEach(user => {
+				if(!$scope.locals.some(local => local.foreign_id == user.antenna_id))
+					$scope.locals.push({
+						foreign_id: user.antenna_id,
+						name: user.antenna_name
+					});
+			});
+		});
+	}
+
 
 })();
 

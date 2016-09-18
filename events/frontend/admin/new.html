@@ -1,11 +1,23 @@
 
-<h2 class="page-header">{{ heading }}</h2>
-
+<h2 class="page-header" ng-show="!newevent">Edit event</h2>
+<h2 class="page-header" ng-show="newevent">New event 	
+	<button 
+		type="button" 
+		class="btn btn-info btn-circle btn-sm" 
+		ng-click="info_eventcreation = !info_eventcreation">
+		<i class="fa fa-question"></i></button>
+</h2>
 <form id="edit_event" name="eventForm" class="form-horizontal" ng-submit="submitForm()">
 
 	<p class="note note-info" ng-show="!permissions.edit_details">
 	You can not edit event details any more, as the event has already been approved. If you still need to edit it, you can still un-approve it (which will close the application aswell). You will have to undergo the requesting process again afterwards.
 	</p>
+
+	<p class="note note-info" ng-show="info_eventcreation">
+	Every user can create events. Pay attention to the type of event you select, as it will greatly influence the lifecycle the event will undergo. Most likely, you will just want to create a local event, which will be only visible to members of your local but also just requires board approval. <br>
+	If you want to create a non-statutory, statutory event or a summer university, the according committees (SUCT, EQAC, CD, etc) will have to approve your event, which will be more difficult and take more time.
+	</p>
+
 	<div class="form-group" ng-class="{ 'has-error': (eventForm.name.$invalid && eventForm.name.$dirty) || eventForm.name.$error.message }">
 		<label class="control-label col-sm-4" for="name">Name<span class="text-danger">*</span> </label>
 
@@ -160,9 +172,12 @@
 					ng-click="setApproval('draft')">Undelete</button>
 			</div>
 		</div>
-		
+		<div class="col-sm-offset-4">
+			<p ng-show="eventForm.status.$error.message">{{ eventForm.status.$error.message }}</p>
+		</div>
+
 		<p class="note note-info" ng-show="info_status">
-			The status of the event determines the visibility of the event. Only approved events will be listed in the main events listing, but you can only edit draft events. If you want to open the application, your event needs to be approved.
+			The status of the event determines the visibility of the event. Only approved events will be listed in the main events listing, but you can only edit draft events. If you want to open the application, your event needs to be approved. WARNING: Only admins can undo a given approval, as soon as the event was approved you will only be able to edit the application status and deadline, so make sure you have no typos anywhere!
 			<span ng-show="eventForm.$dirty"><br>
 			Please save your edits before you request approval
 			</span>
@@ -192,6 +207,11 @@
 				class="btn btn-info btn-circle btn-sm" 
 				ng-click="info_application_status=!info_application_status"
 				ng-show="!permissions.edit_application_status"><i class="fa fa-question"></i></button>
+			<button 
+				type="button" 
+				class="btn btn-info btn-circle btn-sm" 
+				ng-click="info_application=!info_application"
+				ng-show="permissions.edit_application_status"><i class="fa fa-question"></i></button>
 		</label>
 		<div class="input-group col-sm-6">
 				<select class="form-control"
@@ -201,10 +221,16 @@
 					<option value="open">Open</option>
 					<option value="closed">Closed</option>
 				</select>
+				<p ng-show="eventForm.application_status.$error.message">{{ eventForm.application_status.$error.message }}</p>
 		</div>
 
 		<p class="note note-info" ng-show="info_application_status">
 			You cannot open the application when the event is in draft or requesting status. Please wait for it to be approved by one of your board members or any other authorized instance.
+		</p>
+
+		<p class="note note-info" ng-show="info_application">
+			When the application status is open, participants will be able to apply. However, you can not accept any participants before the end of the deadline, so choose that date wisely. After you have accepted participants, you will be able to reopen the application as often as you wish to do an open call. 
+			<br> The application will be automatically closed upon the application deadline
 		</p>
 	</div>
 
@@ -325,7 +351,7 @@
 	</div>
 		
 
-	<div class="form-group" ng-show="event.id && permissions.edit_details && !eventForm.$dirty">
+	<div class="form-group" ng-show="!newevent && permissions.delete && !eventForm.$dirty">
 		<label class="control-label col-sm-4">Interactions</label>
 
 		<button 

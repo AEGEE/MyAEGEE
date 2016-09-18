@@ -1,0 +1,49 @@
+<h2 class="page-header" ng-if="organizer_view">Organizers</h2>
+<h2 class="page-header" ng-if="!organizer_view">Participants</h2>
+
+<div class="row">
+	<form class="m-b-10 p-l-0 col-sm-4">
+		<div class="input-group">
+			<input type="text" class="form-control" ng-model="query_name" placeholder="Search for users">
+			<span class="input-group-addon"><i class="fa fa-search"></i></span>
+		</div>
+	</form>
+</div>
+
+<div class="row">
+	<div id="options" class="m-b-10">
+		<span class="gallery-option-set">
+			<a 
+				href="javascript:;" 
+				ng-click="setSearch()" 
+				class="btn btn-default btn-xs" 
+				ng-class="{'active': search.antenna_id == ''}">Show all</a>
+			<span ng-repeat="local in locals">
+				<a 
+					href="javascript:;" 
+					ng-click="setSearch(local)"
+					class="btn btn-default btn-xs"
+					ng-class="{'active': search.antenna_id == local.foreign_id}">{{ local.name }}</a>
+			</span>
+		</span>
+	</div>
+</div>
+<div class="row">
+	<div class="gallery isotope">
+		<div ng-repeat="user in users | filter:search" class="image isotope-item">
+			<div class="image-inner"><img src="/api/getUserAvatar/{{ user.foreign_id }}"></div>
+			<div class="image-info">
+				<span ng-if="organizer_view">
+					<h6 class="pull-right" ng-show="user.main_organizer">Main organizer</h6>
+					<h5>{{ user.first_name }} {{ user.last_name }}</h5>
+					<h6>{{ user.antenna_name }}</h6>
+					<div class="desc">{{ user.comment }}</div>
+				</span>
+				<span ng-if="!organizer_view">
+					<h5>{{ user.first_name }} {{ user.last_name }}</h5>
+					<h6>{{ user.antenna_name }}</h6>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>

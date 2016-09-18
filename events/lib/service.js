@@ -9,6 +9,7 @@ var log = require('./config/logger.js');
 var httprequest = require('request');
 var mongoose = require('./config/mongo.js');
 var restify = require('restify');
+var cron = require('./cron.js');
 
 /* Stat thing... remove!*/
 var stats = {
@@ -21,6 +22,7 @@ exports.status = function(req, res, next) {
 		var ret = {
 			requests: stats.requests,
 			uptime: ((new Date).getTime() - stats.started) / 1000,
+			deadline_crons: cron.countJobs(),
 			// For debugging purposes only, TODO remove!
 			handshake_token: options.handshake_token
 		}

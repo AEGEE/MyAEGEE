@@ -77,10 +77,13 @@ eventSchema.set('toObject', {virtuals: true});
 // Validators
 eventSchema.path('max_participants').validate(value => value >= 0, 'Participants number can not be negative');
 eventSchema.path('fee').validate(value => value >= 0, 'Fee can\'t be negative');
+eventSchema.path('application_deadline').validate(value => !value || value>Date.now(), 'Application deadline can\'t be in the past');
 
 eventSchema.pre('validate', function(next) {
-	if(this.application_status == 'open' && this.status == 'draft')
+	if(this.application_status == 'open' && this.status == 'draft') {
+		this.invalidate('status', 'Cannot open the application on a draft event', this.application_status);
 		this.invalidate('application_status', 'Cannot open the application on a draft event', this.application_status);
+	}
 	if(this.application_status == 'open' && this.application_deadline == null)
 		this.invalidate('application_deadline', 'Cannot open the application without a deadline', this.application_deadline);
 	if(this.ends <= this.starts)

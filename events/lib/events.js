@@ -188,16 +188,21 @@ exports.editEvent = function(req, res, next) {
 
 	// Copy fields if user can edit details
 	if (req.user.permissions.can.edit_details) {
+		// Some properties will be ignored upon empty
 		if(data.name) event.name = data.name;
 		if(data.starts) event.starts = data.starts;
 		if(data.ends) event.ends = data.ends;
 		if(data.description) event.description = data.description;
-		if(data.fee) event.fee = data.fee;
 		if(data.type) event.type = data.type;
-		if(data.max_participants) event.max_participants = data.max_participants;
 		if(data.application_fields) event.application_fields = data.application_fields;
-		if(data.application_deadline) {
-			event.application_deadline = data.application_deadline;
+		
+		// Others are resettable
+		event.max_participants = data.max_participants;
+		event.fee = data.fee;
+		event.application_deadline = data.application_deadline;
+		// Register deadline if changed
+		if(data.application_deadline && 
+			(!event.application_deadline ||	data.application_deadline.getTime() != event.application_deadline.getTime())) {
 			registerDeadline = true;
 		}
 
@@ -263,7 +268,7 @@ exports.editEvent = function(req, res, next) {
 				return next(new restify.InvalidArgumentError({body: err}));
 			}
 
-			log.error(err);
+			log.error("Could not edit event", err);
 			return next(new restify.InternalError());
 		}
 		
@@ -292,9 +297,20 @@ exports.deleteEvent = function(req, res, next) {
 	// Deletion is only changing status to deleted
 	event.status = 'deleted';
 	event.save(function(err) {
-		if (err) {log.info(err);return next(new restify.InternalError());}
+		if (err) {
+			// Send validation-errors back to client
+			if(err.name == 'ValidationError') {
+				return next(new restify.InvalidArgumentError({body: err}));
+			}
 
-		res.send("Event successfully deleted");
+			log.error("Could not delete event", err);
+			return next(new restify.InternalError());
+		}
+
+		res.json({
+			success: true, 
+			message: "Event successfully deleted"
+		});
 		return next();
 	});
 }
@@ -302,28 +318,24 @@ exports.deleteEvent = function(req, res, next) {
 exports.setApprovalStatus = function(req, res, next) {
 	// Normal edit rights are enough to request approval
 	// Otherwise approval permission needed
-	log.info("a");
-	log.info(req.user.permissions);
+
 	if(req.user.permissions.can.approve ||
 	   (req.user.permissions.can.edit_details && 
 	   		(req.event.status == 'draft' && req.body.status == 'requesting') ||
 	   		(req.event.status == 'requesting' && req.body.status == 'draft'))) {
 		req.event.status = req.body.status;
-		log.info("b");
-
-		// Validate
-		error = req.event.validateSync();
-		if(error != null) {
-			return next(new restify.InvalidArgumentError({body: error}));
-		}
-		log.info("c");
+			
 
 		req.event.save(function(err) {
-			if(err) {
-				log.error("Could not save event status");
+			if (err) {
+				// Send validation-errors back to client
+				if(err.name == 'ValidationError') {
+					return next(new restify.InvalidArgumentError({body: err}));
+				}
+
+				log.error("Could not save event status", err);
 				return next(new restify.InternalError());
 			}
-				log.info("d");
 
 			res.json({
 				success: true,
@@ -331,6 +343,8 @@ exports.setApprovalStatus = function(req, res, next) {
 			});
 			return next();
 		});
+	} else {
+		return next(new restify.ForbiddenError());
 	}
 
 }
@@ -345,17 +359,26 @@ exports.getEditRights = function(req, res, next) {
 
 /** Participants **/
 exports.listParticipants = function(req, res, next) {
-	if(!req.user.permissions.can.view_applications)
-		return next(new restify.ForbiddenError("You are not permitted to view applications to this event"));
-	// Idea: Only let people see applications after application period ended
-	
 	var event = req.event;
-		
+	var status = req.params.status;
 	var applications = event.applications.toObject();
-	
-	applications.forEach(function(x, idx) {
-		applications[idx].url = event.url + '/participants/' + applications[idx].foreign_id;
-	});
+
+	// Only authorized persons can see all applications
+	// Others will only see accepted ones and will not see their application text
+	if(!req.user.permissions.can.view_applications)
+		status = 'accepted';
+
+	for(var i = applications.length - 1; i>=0; i--) {
+		applications[i].url = event.url + '/participants/' + applications[i].foreign_id;
+		if(!req.user.permissions.can.approve_participants) {
+			delete applications[i].board_comment;
+			delete applications[i].application;
+		}
+
+		if(status && applications[i].application_status != status) {
+			applications.splice(i, 1);
+		}
+	}
 	
 	res.json(applications);
 	return next();
@@ -414,16 +437,22 @@ exports.setApplication = function(req, res, next) {
 		return next(new restify.InvalidContentError('Application malformed: ' + tmp.msg));
 	
 	
-	// Validate
-	error = event.validateSync();
-	if(error != null) {
-		return next(new restify.InvalidArgumentError({body: error}));
-	}
-
 	event.save(function(err) {
-		if (err) {log.info(err);return next(new restify.InternalError());}
-		
-		res.json(event.applications[index]);
+		if (err) {
+			// Send validation-errors back to client
+			if(err.name == 'ValidationError') {
+				return next(new restify.InvalidArgumentError({body: err}));
+			}
+
+			log.error("Could not save application", err);
+			return next(new restify.InternalError());
+		}
+
+		res.json({
+			success: true,
+			message: "Application saved",
+			application: event.applications[index]
+		});
 		return next();
 	});
 }
@@ -452,15 +481,22 @@ exports.setApplicationStatus = function(req, res, next) {
 
 	// Save changes
 	event.applications[index].application_status = req.body.application_status;
-	error = event.validateSync();
-	if(error != null) {
-		return next(new restify.InvalidArgumentError({body: error}));
-	}
 
 	event.save(function(err) {
-		if (err) {log.info(err);return next(new restify.InternalError());}
-		res.status(200);
-		res.json({message: 'Application successfully updated'});
+		if (err) {
+			// Send validation-errors back to client
+			if(err.name == 'ValidationError') {
+				return next(new restify.InvalidArgumentError({body: err}));
+			}
+
+			log.error("Could not set application status", err);
+			return next(new restify.InternalError());
+		}		
+
+		res.json({
+			success: true,
+			message: 'Application successfully updated'
+		});
 		return next();
 	});
 }
@@ -498,20 +534,28 @@ exports.setOrganizers = function(req, res, next) {
 	});
 
 	event.organizers = data;
-	error = event.validateSync();
-	if(error != null) {
-		return next(new restify.InvalidArgumentError({body: error}));
-	}
 
 	event.save(function(err) {
-		if (err) {log.info(err);return next(new restify.InternalError());}
-		res.status(200);
-		res.json({organizers: event.organizers});
+		if (err) {
+			// Send validation-errors back to client
+			if(err.name == 'ValidationError') {
+				return next(new restify.InvalidArgumentError({body: err}));
+			}
+
+			log.error("Could not edit organizers", err);
+			return next(new restify.InternalError());
+		}
+
+		res.json({
+			success: true,
+			message: "Successfully saved organizers",
+			organizers: event.organizers
+		});
 		return next();
 	});
 }
 
-// TODO remove
+// TODO remove. Or maybe not? :D
 exports.debug = function(req, res, next) {
 	Event.remove({}, function(err) {
 		res.send("All events removed, can not be undone. Muhahaha. Wouldn't have guessed this is this serious, wouldn't you?");

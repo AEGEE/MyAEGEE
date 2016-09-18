@@ -4,6 +4,19 @@
 	var baseUrl = baseUrlRepository['oms-events'];
 	var apiUrl = baseUrl + 'api/';
 
+	var showError = function(err) {
+		console.log(err);
+		var message = 'unknown cause';
+		if(err.message) message = err.message;
+		else if(err.data.message) message = err.data.message;
+		$.gritter.add({
+			title: 'Error',
+			text: 'Could not process action: ' + message,
+			sticky: false,
+			time: 8000,
+			class_name: 'my-sticky-class'
+		});
+	}
 
 	angular
 		.module('app.eventadmin', ['ui.bootstrap.datetimepicker', 'bootstrap3-typeahead'])
@@ -12,7 +25,6 @@
 		.controller('NewController', NewController)
 		.controller('ApproveParticipantsController', ApproveParticipantsController)
 		.controller('ApproveEventsController', ApproveEventsController)
-		.controller('OrganizersController', OrganizersController)
 		.controller('ServiceAdminController', ServiceAdminController)
 		.directive( "mwConfirmClick", [
 			function() {
@@ -84,15 +96,7 @@
 					}
 				}
 			})
-			.state('app.eventadmin.organizers', {
-				url: '/organizers/:id',
-				views: {
-					'pageContent@app': {
-						templateUrl: baseUrl + 'frontend/admin/organizers.html',
-						controller: 'OrganizersController as vm'
-					}
-				}
-			})
+
 			.state('app.eventadmin.serviceadmin', {
 				url: '/service-admin',
 				views: {
@@ -109,9 +113,6 @@
 	}
 
 	function NewController($scope, $http, $stateParams, $state, $filter, $parse) {
-		$scope.heading = "New Event";
-		$scope.event = {starts: '', ends: ''};
-
 		// Per default make event editable
 		$scope.permissions = {
 			edit_details: true,
@@ -119,6 +120,7 @@
 			edit_application_status: false,
 			edit: true
 		};
+		$scope.event = {};
 		$scope.event.application_fields = [];
 		$scope.newfield = '';
 		$scope.newevent = true;
@@ -154,6 +156,8 @@
 					});
 					console.log($scope.neworganizer.proposals);
 				}
+			}).catch(function(err) {
+				showError(err);
 			});
 		}
 		$scope.addOrganizer = function(organizer) {
@@ -186,22 +190,42 @@
 
 			// Add callbacks to delete the
 			var resourceURL = apiUrl + '/single/' + $stateParams.id;
-			$scope.heading = "Edit Event";
 			$scope.deleteEvent = function() {
-				$http.delete(resourceURL).then(function(res) {
+				$http.delete(resourceURL).success(function(res) {
+					$.gritter.add({
+						title: 'Event deleted',
+						text: 'The event was deleted. If you wish to undo that, contact an admin.',
+						sticky: false,
+						time: 8000,
+						class_name: 'my-sticky-class'
+					});
 					$state.go('app.events');
-				}, function(err) {
-					console.log(err);
-				})
-			};
+				}).catch(function(err) {
+					showError(err);
+				});
+			}
 
 			// Add callbacks to request approval
 			$scope.setApproval = function(newstatus) {
 				$http.put(resourceURL + '/status', {status: newstatus}).success(function(response) {
-					if(newstatus == 'requesting')
+					if(newstatus == 'requesting') {
+						$.gritter.add({
+							title: 'Approval requested',
+							text: 'Your event is now waiting for approval. You can still withdraw your approval request in the edit section',
+							sticky: false,
+							time: 8000,
+							class_name: 'my-sticky-class'
+						});
 						$state.go('app.events.single', {id: $stateParams.id});
+					}
 					else
 						$state.reload();
+				}).catch(function(err) {
+					for(var attr in err.data.errors) {
+						var serverMessage = $parse('eventForm.' + attr + '.$error.message');
+						$scope.eventForm.$setValidity(attr, false, $scope.eventForm);
+						serverMessage.assign($scope, err.data.errors[attr].message);
+					}
 				});
 			}
 
@@ -210,7 +234,6 @@
 				$http.put(resourceURL, $scope.event).success(function (response) {
 					$state.reload();
 				}).catch(function (err) {
-					console.log(err);
 					for(var attr in err.data.errors) {
 						var serverMessage = $parse('eventForm.' + attr + '.$error.message');
 						$scope.eventForm.$setValidity(attr, false, $scope.eventForm);
@@ -222,16 +245,22 @@
 			// Get the current event status
 			$http.get(resourceURL).success( function(response) {
 				$scope.event = response;
+			}).catch(function(err) {
+				showError(err);
 			});
 
 			// Get organizers
 			$http.get(resourceURL + '/organizers').success(function (res) {
 				$scope.event.organizers = res;
+			}).catch(function(err) {
+				showError(err);
 			});
 
 			// Get the rights this user has on this event
 			$http.get(resourceURL + '/rights').success(function(res) {
 				$scope.permissions = res.can;
+			}).catch(function(err) {
+				showError(err);
 			});
 		}
 
@@ -248,12 +277,16 @@
 				console.log(res);
 				$scope.event.applications = res;
 			});
+		}).catch(function(err) {
+			showError(err);
 		});
 
 		// Get the rights this user has on this event
 		$http.get(apiUrl + 'single/' + $stateParams.id + '/rights').success(function(res) {
 			$scope.permissions = res.can;
 			console.log(res);
+		}).catch(function(err) {
+			showError(err);
 		});
 
 		// Depending on status, return right css class
@@ -296,6 +329,8 @@
 					return false;
 				})
 				$('#applicationModal').modal('hide');
+			}).catch(function(err) {
+				showError(err);
 			});
 		}
 	}
@@ -304,6 +339,8 @@
 
 		$http.get(apiUrl + 'mine/approvable').success(function(response) {
 			$scope.events = response;
+		}).catch(function(err) {
+			showError(err);
 		});
 
 		$scope.changeState = function(event, newstate) {
@@ -312,42 +349,25 @@
 				if(newstate == 'approved') {
 					$.gritter.add({
 	                    title: 'Event approved',
-	                    text: event.name + 'has been approved and is now visible on event listing',
-	                    sticky: true,
-	                    time: '',
+	                    text: event.name + ' has been approved and is now visible on event listing',
+	                    sticky: false,
+	                    time: 8000,
 	                    class_name: 'my-sticky-class'
 	                });
 				}
 				else {
 					$.gritter.add({
 	                    title: 'Event reset',
-	                    text: event.name + 'has been sent to draft again, the organizers will edit it',
-	                    sticky: true,
-	                    time: '',
+	                    text: event.name + ' has been sent to draft again, the organizers will edit it',
+	                    sticky: false,
+	                    time: 8000,
 	                    class_name: 'my-sticky-class'
 	                });
 				}
+			}).catch(function(err) {
+				showError(err);
 			});
 		}
-	}
-
-	function OrganizersController($scope, $http, $stateParams) {
-		$scope.setSearch = function(local) {
-			if(local) $scope.search = {antenna_id: local.foreign_id};
-			else $scope.search = {};
-		}
-
-		$http.get(apiUrl + 'single/' + $stateParams.id + '/organizers').success(function(res) {
-			$scope.organizers = res;
-			$scope.locals = [];
-			res.forEach(organizer => {
-				if(!$scope.locals.some(local => local.foreign_id == organizer.antenna_id))
-					$scope.locals.push({
-						foreign_id: organizer.antenna_id,
-						name: organizer.antenna_name
-					});
-			});
-		});
 	}
 
 	function ServiceAdminController($scope, $http) {
@@ -355,16 +375,22 @@
 		$http.get(apiUrl + 'getUser').success( function(response) {
 			$scope.user = response;
 			$scope.roundtrip1 = (new Date().getTime()) - start1;
+		}).catch(function(err) {
+			showError(err);
 		});
 
 		var start2 = new Date().getTime();
 		$http.get(apiUrl + 'status').success( function(response) {
 			$scope.status = response;
 			$scope.roundtrip2 = (new Date().getTime()) - start2;
+		}).catch(function(err) {
+			showError(err);
 		});
 
 		$http.get('/api/getUser?id=1').success(function(res) {
 			console.log(res);
+		}).catch(function(err) {
+			showError(err);
 		});
 
 		$http.get('/api/getRoles').success(function(allRoles) {
@@ -390,6 +416,8 @@
 					$scope.super_admin = $scope.roles.find(item => item.id == setRoles.super_admin);
 				}
 			});
+		}).catch(function(err) {
+			showError(err);
 		});
 
 
@@ -408,7 +436,15 @@
 
 
 			$http.put(apiUrl + 'roles', data).success(function(response) {
-				alert("Saved successfully");
+				$.gritter.add({
+					title: 'Roles saved',
+					text: 'Your changes to the roles were successfully saved',
+					sticky: false,
+					time: 8000,
+					class_name: 'my-sticky-class'
+				});
+			}).catch(function(err) {
+				showError(err);
 			});
 		}
 	}

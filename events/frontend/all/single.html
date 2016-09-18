@@ -12,14 +12,17 @@
 		<!-- TODO check if user is organizer, otherwise don't show -->
 		<div class="profile-highlight">
 			<h4>Admin Panel</h4>
-			<div class="m-b-5">
+			<div class="m-b-5" ng-if="permissions.edit">
 				<a ui-sref="app.eventadmin.edit({ id: event.id })" >Edit event</a>
 			</div>
-			<div class="m-b-5">
-				<a ui-sref="app.eventadmin.organizers({ id: event.id })">See organizers</a>
+			<div class="m-b-5" ng-if="permissions.view_applications">
+				<a ui-sref="app.eventadmin.approve_participants({ id: event.id })">View applications</a>
 			</div>
 			<div class="m-b-5">
-				<a ui-sref="app.eventadmin.approve_participants({ id: event.id })" >See participants</a>
+				<a ui-sref="app.events.organizers({ id: event.id })">See organizers</a>
+			</div>
+			<div class="m-b-5">
+				<a ui-sref="app.events.participants({ id: event.id })" >See participants</a>
 			</div>
 		</div>
 
@@ -55,14 +58,18 @@
 						
 						<tr>
 							<td class="field">Fee</td>
-							<td>{{ event.fee|number:2 }}€</td>
+							<td ng-show="event.fee">{{ event.fee|number:2 }} €</td>
+							<td ng-show="!event.fee">Free</td>
 						</tr>
-
-						<tr class="divider"><td colspan="2"></td></tr>
-
+						
 						<tr>
 							<td class="field">Type</td>
-							<td>{{ event.type }}</td>
+							<td ng-switch="event.type">
+								<span ng-switch-when="su">Summer University</span>
+								<span ng-switch-when="statutory">Statutory Event</span>
+								<span ng-switch-when="non-statutory">Non-Statutory Event</span>
+								<span ng-switch-when="local">Local Event</span>
+							</td>
 						</tr>
 						<tr>
 							<td class="field">Status</td>
@@ -73,7 +80,7 @@
 
 						<tr>
 							<td class="field">Participants</td>
-							<td>{{ event.max_participants }}</td>
+							<td>Up to {{ event.max_participants }}</td>
 						</tr>
 						<tr>
 							<td class="field">Application Deadline</td>
