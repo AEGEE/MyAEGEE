@@ -239,6 +239,13 @@
 			// Edit the event with a put
 			$scope.submitForm = function() {
 				$http.put(resourceURL, $scope.event).success(function (response) {
+					$.gritter.add({
+						title: 'Event edited',
+						text: 'Your changes were successfully saved.',
+						sticky: false,
+						time: 8000,
+						class_name: 'my-sticky-class'
+					});
 					$state.reload();
 				}).catch(function (err) {
 					for(var attr in err.data.errors) {

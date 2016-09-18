@@ -203,9 +203,10 @@ exports.editEvent = function(req, res, next) {
 		event.max_participants = data.max_participants;
 		event.fee = data.fee;
 		event.application_deadline = data.application_deadline;
+		var cmp_deadline = new Date(data.application_deadline);
 		// Register deadline if changed
 		if(data.application_deadline && 
-			(!event.application_deadline ||	data.application_deadline.getTime() != event.application_deadline.getTime())) {
+			(!event.application_deadline ||	cmp_deadline.getTime() != event.application_deadline.getTime())) {
 			registerDeadline = true;
 		}
 
