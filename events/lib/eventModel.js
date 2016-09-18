@@ -71,19 +71,27 @@ var eventSchema =  mongoose.Schema({
 	organizers: [orgaSchema],
 	headImg: {type: String}, // url for the headimage
 }, {timestamps: true});
+// Allow virtuals to get the id field
 eventSchema.set('toJSON', {virtuals: true});
 eventSchema.set('toObject', {virtuals: true});
+
+// If application is closed, set all current applications to pending
+eventSchema.pre('save', function(next) {
+	if(this.application_status == 'closed' && this.applications && this.applications.length > 0) {
+		this.applications.forEach((item, index) => {
+			if(this.applications[index].application_status == 'requesting')
+				this.applications[index].application_status = 'pending';
+		});
+	}
+});
 
 // Validators
 eventSchema.path('max_participants').validate(value => value >= 0, 'Participants number can not be negative');
 eventSchema.path('fee').validate(value => value >= 0, 'Fee can\'t be negative');
 eventSchema.path('application_deadline').validate(value => !value || value>Date.now(), 'Application deadline can\'t be in the past');
-
 eventSchema.pre('validate', function(next) {
-	if(this.application_status == 'open' && this.status == 'draft') {
-		this.invalidate('status', 'Cannot open the application on a draft event', this.application_status);
+	if(this.application_status == 'open' && this.status == 'draft') 
 		this.invalidate('application_status', 'Cannot open the application on a draft event', this.application_status);
-	}
 	if(this.application_status == 'open' && this.application_deadline == null)
 		this.invalidate('application_deadline', 'Cannot open the application without a deadline', this.application_deadline);
 	if(this.ends <= this.starts)

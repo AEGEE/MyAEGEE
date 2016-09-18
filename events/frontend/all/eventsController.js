@@ -172,7 +172,7 @@
 	}
 
 	function ApplyController($scope, $http, $stateParams) {
-
+		$scope.newapplication = true;
 		// Fetch event again to get form fields
 		// Also fetch if the user already has put an applicaiton
 		var reqPromise = $http.get(apiUrl + 'single/' + $stateParams.id + '/participants/mine');
@@ -182,6 +182,7 @@
 
 			// Poll for existing application
 			reqPromise.success(function(res) {
+				$scope.newapplication = false;
 				// Loop through application fields and assign them to our model
 				res.application.forEach(function(field) {
 					// Find the matching application_field to our users application field

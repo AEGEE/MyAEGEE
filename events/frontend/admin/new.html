@@ -294,7 +294,7 @@
 		</div>
 	</div>
 
-	<div class="form-group" ng-class="{ 'has-error': (eventForm.organizers.$invalid && eventForm.organizers.$dirty) || eventForm.organizers.$error.message }">
+	<div class="form-group" ng-class="{ 'has-error': (eventForm.organizers.$invalid && eventForm.organizers.$dirty) || eventForm.organizers.$error.message }" ng-show="!newevent">
 		<label class="control-label col-sm-4" for="organizers">Organizers</label>
 		<div class="col-sm-6">
 			<div class="form-group" ng-repeat="field in event.organizers">
