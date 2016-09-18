@@ -127,26 +127,29 @@ exports.addEvent = function(req, res, next) {
 		}
 	]
 
-
-	// Validate
-	error = newevent.validateSync();
-	if(error != null) {
-		return next(new restify.InvalidArgumentError({body: error}));
-	}
-
+	log.info("Attempting save");
 	newevent.save(function(err) {
-		if(err) {
-			log.info(err);
-			return next(err);
+			log.info("Done with save");
+
+		if (err) {
+			// Send validation-errors back to client
+			if(err.name == 'ValidationError') {
+				return next(new restify.InvalidArgumentError({body: err}));
+			}
+
+			log.error("Could not edit event", err);
+			return next(new restify.InternalError());
 		}
-		delete newevent.applications;
 
 		// Register cronjob for deadline
 		if(data.application_deadline)
 			cron.registerDeadline(newevent.id, newevent.application_deadline);
 
 		res.status(201);
-		res.json(newevent);
+		res.json({
+			success: true,
+			message: "Event successfully created",
+			event: newevent});
 		return next();
 	});
 }

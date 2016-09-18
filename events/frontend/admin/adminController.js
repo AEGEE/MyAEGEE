@@ -172,7 +172,14 @@
 		// If no route params are given, the user wants to create a new event -> Post
 		$scope.submitForm = function() {
 			$http.post(apiUrl, $scope.event).success(function (response) {
-				$state.go(app.events.mine);
+				$.gritter.add({
+					title: 'Event added',
+					text: 'The event was successfully added.',
+					sticky: false,
+					time: 8000,
+					class_name: 'my-sticky-class'
+				});
+				$state.go('app.events.single', {id: response.event.id});
 			}).catch(function (err) {
 				for(var attr in err.data.errors) {
 					var serverMessage = $parse('eventForm.' + attr + '.$error.message');

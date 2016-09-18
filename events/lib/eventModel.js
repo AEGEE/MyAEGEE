@@ -83,6 +83,7 @@ eventSchema.pre('save', function(next) {
 				this.applications[index].application_status = 'pending';
 		});
 	}
+	next();
 });
 
 // Validators
