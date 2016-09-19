@@ -2,7 +2,8 @@
 	<div class="profile-left">
 		<!-- insert as soon as image support in events backend -->
 		<div class="profile-image">
-			<img src="{{ baseUrl }}frontend/media/Dino.png" />
+			<img ng-show="!event.head_image" src="{{ baseUrl }}frontend/media/Dino.png" />
+			<img ng-show="event.head_image" ng-src="{{ event.head_image.url }}" />
 		</div>
 
 		<div class="m-b-10" ng-show="event.application_status == 'open'">
@@ -35,7 +36,10 @@
 					<thead>
 						<tr><th></th><th><h4>{{ event.name }}
 							<small>
-								<span ng-repeat="local in event.organizing_locals">{{ local.name }}</span><span ng-show="$last">, </span>
+								<span ng-repeat="local in event.organizing_locals">
+									<span ng-show="!$last">, </span>
+									{{ local.name }}
+								</span>
 							</small>
 						</h4></th></tr>
 					</thead>
@@ -59,7 +63,7 @@
 						<tr>
 							<td class="field">Fee</td>
 							<td ng-show="event.fee">{{ event.fee|number:2 }} €</td>
-							<td ng-show="!event.fee">Free</td>
+							<td ng-show="!event.fee">Free as your spirit</td>
 						</tr>
 						
 						<tr>
@@ -80,7 +84,8 @@
 
 						<tr>
 							<td class="field">Participants</td>
-							<td>Up to {{ event.max_participants }}</td>
+							<td ng-show="event.max_participants">Up to {{ event.max_participants }}</td>
+							<td ng-show="!event.max_participants">No limit</td>
 						</tr>
 						<tr>
 							<td class="field">Application Deadline</td>

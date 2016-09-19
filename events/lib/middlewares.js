@@ -61,7 +61,7 @@ exports.authenticateUser = function(req, res, next) {
 					next();
 
 					// After calling next, try saving the fetched data to db
-					if(config.enableUserCaching) {
+					if(config.enable_user_caching) {
 						var saveUserData = new UserCache();
 						saveUserData.token = token;
 						saveUserData.user = req.user;
@@ -140,7 +140,7 @@ exports.fetchUserDetails = function(req, res, next) {
 			next();
 
 			// Save fetched user details to cache
-			if(config.enableUserCaching) {
+			if(config.enable_user_caching) {
 				UserCache.findOne({token: req.header('x-auth-token')}, function(err, res) {
 					if(err) {
 						log.warn("Could not fetch user from cache", err);

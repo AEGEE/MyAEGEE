@@ -7,13 +7,15 @@ var middlewares = require('./middlewares.js');
 var cron = require('./cron.js');
 var config = require('./config/config.js');
 
+
 var server = restify.createServer({
     name: 'oms-events',
     log: log
 });
 
 server.use(restify.queryParser());
-server.use(restify.bodyParser());
+server.use(restify.jsonBodyParser());
+//server.use(restify.bodyParser());
 server.use(restify.CORS());
 
 //Define your API here
@@ -25,13 +27,15 @@ server.use(restify.CORS());
 //server.use(core.verifyToken);
 
 // Enable request logging
-server.pre(function (request, response, next) {
-	request.log.info({req: request}, 'HTTP Request'); 
-	return next();
-});
-//server.on('after', function (req, res, route) {
- // log.trace("Request finished", req, res);
+//server.pre(function (request, response, next) {
+//	log.info(request.method + ' ' + request.url); 
+//	return next();
 //});
+server.on('after', function (req, res, route) {
+	try {
+		log.info(req.method + ' ' + req.url + ' - ' + res._header.split('\n')[0]);
+	} catch(err){}
+});
 
 server.on('uncaughtException', function(req, res, route, err) {
 	log.error(err);
@@ -75,10 +79,11 @@ server.use(middlewares.fetchUserDetails);
 server.use(middlewares.checkPermissions);
 
 server.get({path: '/single/:event_id', version: cur_version}, events.eventDetails );
-server.put({path: '/single/:event_id', version: cur_version}, events.editEvent );
+server.put({path: '/single/:event_id', version: cur_version},  events.editEvent );
 server.del({path: '/single/:event_id', version: cur_version}, events.deleteEvent );
 server.put({path: '/single/:event_id/status', version: cur_version}, events.setApprovalStatus );
 server.get({path: '/single/:event_id/rights', version: cur_version}, events.getEditRights );
+server.post({path: '/single/:event_id/upload', version: cur_version},  imageserv.uploadImage);
 
 server.get({path: '/single/:event_id/participants', version: cur_version}, events.listParticipants );
 server.put({path: '/single/:event_id/participants/status/:application_id', version: cur_version}, events.setApplicationStatus )

@@ -18,13 +18,31 @@
 	If you want to create a non-statutory, statutory event or a summer university, the according committees (SUCT, EQAC, CD, etc) will have to approve your event, which will be more difficult and take more time.
 	</p>
 
+	<div class="form-group">
+		<label class="control-label col-sm-4" for="head_image"></label>
+
+		<div class="input-group col-sm-6">
+				<div class="row">
+					<img class="img-rounded img-responsive" ng-show="event.head_image" ng-src="{{ event.head_image.url }}" />
+				</div>
+				<button 
+					type="button" 
+					class="form-control btn btn-primary" 
+					onclick="$('#uploaderBtn').click()"
+					ng-disabled="eventForm.$dirty">
+					Change image
+				</button>
+				<input style="display:none" id="uploaderBtn" class="hiddenElement" type="file" accept="image/*" nv-file-select="" uploader="uploadFile">
+		</div>
+	</div>
+
 	<div class="form-group" ng-class="{ 'has-error': (eventForm.name.$invalid && eventForm.name.$dirty) || eventForm.name.$error.message }">
 		<label class="control-label col-sm-4" for="name">Name<span class="text-danger">*</span> </label>
 
 		<div class="input-group col-sm-6">
 				<input 
 					type="text" 
-					class="form-control" 
+					class="form-control width-full" 
 					name="name" 
 					ng-model="event.name"
 					required
@@ -158,17 +176,20 @@
 					type="button" 
 					class="btn btn-primary btn-block" 
 					ng-switch-when="requesting"
+					ng-disabled="eventForm.$dirty"
 					ng-click="setApproval('draft')">Pull back approval request</button>
 				<button 
 					type="button" 
 					class="btn btn-primary btn-block" 
 					ng-switch-when="approved"
 					ng-show="permissions.approve"
+					ng-disabled="eventForm.$dirty"
 					ng-click="setApproval('draft')">Unapprove</button>
 				<button 
 					type="button" 
 					class="btn btn-primary btn-block" 
 					ng-switch-when="deleted"
+					ng-disabled="eventForm.$dirty"
 					ng-click="setApproval('draft')">Undelete</button>
 			</div>
 		</div>

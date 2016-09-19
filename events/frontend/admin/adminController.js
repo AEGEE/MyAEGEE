@@ -112,7 +112,7 @@
 
 	}
 
-	function NewController($scope, $http, $stateParams, $state, $filter, $parse) {
+	function NewController($scope, $http, $stateParams, $state, $filter, $parse, FileUploader) {
 		// Per default make event editable
 		$scope.permissions = {
 			edit_details: true,
@@ -125,7 +125,6 @@
 		$scope.newfield = '';
 		$scope.newevent = true;
 		$scope.neworganizer = {}
-
 
 		// Add callbacks to handle application field changes
 		$scope.addApplicationField = function() {
@@ -195,7 +194,7 @@
 
 			$scope.newevent = false;
 
-			// Add callbacks to delete the
+			// Add callbacks to delete the event
 			var resourceURL = apiUrl + '/single/' + $stateParams.id;
 			$scope.deleteEvent = function() {
 				$http.delete(resourceURL).success(function(res) {
@@ -255,6 +254,26 @@
 					}
 				});
 			}
+
+			// File change possible
+			$scope.uploadFile = new FileUploader();
+			$scope.uploadFile.url = resourceURL + '/upload';
+			$scope.uploadFile.alias = "head_image";
+			$scope.uploadFile.autoUpload = true;
+			$scope.uploadFile.headers = {
+			    'X-Auth-Token': xAuthToken
+			};
+			$scope.uploadFile.onCompleteAll = function(res) {
+				console.log(res);
+			    $.gritter.add({
+					title: 'Image uploaded',
+					text: 'Your image was updated!',
+					sticky: false,
+					time: 8000,
+					class_name: 'my-sticky-class'
+				});
+				$state.reload();
+			};
 			
 			// Get the current event status
 			$http.get(resourceURL).success( function(response) {

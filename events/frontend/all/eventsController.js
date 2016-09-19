@@ -4,6 +4,19 @@
 	var baseUrl = baseUrlRepository['oms-events'];
 	var apiUrl = baseUrl + 'api/';
 
+	var showError = function(err) {
+		console.log(err);
+		var message = 'unknown cause';
+		if(err.message) message = err.message;
+		else if(err.data.message) message = err.data.message;
+		$.gritter.add({
+			title: 'Error',
+			text: 'Could not process action: ' + message,
+			sticky: false,
+			time: 8000,
+			class_name: 'my-sticky-class'
+		});
+	}
 
 	angular
 		.module('app.events', [])
@@ -42,7 +55,7 @@
 
 			})
 			.state('app.events.single', {
-				url: '/single/:id',
+				url: '/view/:id',
 				data: {'pageTitle': 'Single Event'},
 				views: {
 					'pageContent@app': {
@@ -80,7 +93,7 @@
 			});
 	}
 
-	function ListingController($scope, $http, $timeout) {        
+	var initTimeline = function($scope) {
 		$scope.typequery={
 			statutory: true,
 			non_statutory: true,
@@ -89,14 +102,6 @@
 		};
 		$scope.currentTime = Date.now() // get the current time for the timeline
 
-		// Fetch events from backend
-		//$('#loadingOverlay').show();
-		$http.get(apiUrl).success(function(response) {
-			$scope.events = response;
-			//$('#loadingOverlay').hide();
-		});
-	
-		
 		// Search callback to enable searching in name and description only
 		$scope.search = function (row) {
 			var status_types = [];
@@ -117,42 +122,38 @@
 		};
 	}
 
+	function ListingController($scope, $http, $timeout) {        
+		initTimeline($scope);
+
+		// Fetch events from backend
+		//$('#loadingOverlay').show();
+		$http.get(apiUrl).success(function(response) {
+			$scope.events = response;
+			//$('#loadingOverlay').hide();
+		}).catch(function(err) {
+			showError(err);
+		});
+	
+	}
+
 	function MineController($scope, $http, $stateParams) {
-		$scope.typequery={
-			statutory: true,
-			non_statutory: true,
-			su: true
-		};
 
-		$scope.currentTime = Date.now();
+		initTimeline($scope);
+		
 		$scope.mine = true;
-
-		// Search callback to enable searching in name and description only
-		$scope.search = function (row) {
-			var status_types = [];
-			if($scope.typequery.statutory)
-				status_types.push('statutory');
-			if($scope.typequery.non_statutory)
-				status_types.push('non-statutory');
-			if($scope.typequery.su)
-				status_types.push('su');
-
-			var query = angular.lowercase($scope.query);
-
-			return status_types.find(item => item == row.type) &&
-					(angular.lowercase(row.name).indexOf(query || '') !== -1 ||
-					angular.lowercase(row.description).indexOf(query || '') !== -1);
-		};
-
 		$scope.events = [];
 
 		// Fetch events where user is organizer on
 		$http.get(apiUrl + 'mine/byOrganizer').success(function(response) {
 			$scope.events.push.apply($scope.events, response);
+		}).catch(function(err) {
+			showError(err);
 		});
 		// And also get all those the user has applied to
 		$http.get(apiUrl + 'mine/byApplication').success(function(response) {
 			$scope.events.push.apply($scope.events, response);		
+		}).catch(function(err) {
+			showError(err);
 		});
 
 	}
@@ -163,11 +164,15 @@
 		// Fetch event from backend
 		$http.get(apiUrl + 'single/' + $stateParams.id).success( function(res) {
 			$scope.event = res; 
+		}).catch(function(err) {
+			showError(err);
 		});
 
 		// TODO integrate this into the /single requers
 		$http.get(apiUrl + 'single/' + $stateParams.id + '/rights').success( function(res) {
 			$scope.permissions = res.can; 
+		}).catch(function(err) {
+			showError(err);
 		});
 	}
 
@@ -201,6 +206,8 @@
 				// User doesn't have submitted an application yet or something went wrong
 			});
 
+		}).catch(function(err) {
+			showError(err);
 		});
 
 		// Sumbit form callback
@@ -216,10 +223,16 @@
 				}
 			});
 
-			$http.put(apiUrl + 'single/' + $stateParams.id + '/participants/mine', toServer).then(function(res) {
-				alert("application saved");
-			}, function(err) {
-				console.log(err);
+			$http.put(apiUrl + 'single/' + $stateParams.id + '/participants/mine', toServer).success(function(res) {
+				$.gritter.add({
+					title: 'Application saved',
+					text: 'Your application was saved, you can still edit it until the application period ends',
+					sticky: false,
+					time: 8000,
+					class_name: 'my-sticky-class'
+				});
+			}).catch(function(err) {
+				showError(err);
 			});
 		}
 	}
@@ -249,6 +262,8 @@
 						name: user.antenna_name
 					});
 			});
+		}).catch(function(err) {
+			showError(err);
 		});
 	}
 
@@ -269,6 +284,8 @@
 						name: user.antenna_name
 					});
 			});
+		}).catch(function(err) {
+			showError(err);
 		});
 	}
 

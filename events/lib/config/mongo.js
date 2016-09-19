@@ -2,7 +2,7 @@ var config = require('./config.js');
 var mongoose = require('mongoose');
 var log = require('./logger');
 
-
+mongoose.Promise = global.Promise;
 mongoose.connect(config.mongourl);
 var db = mongoose.connection;
 // Applying a fail-fast approach on mongodb connection loss

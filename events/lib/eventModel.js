@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var config = require('./config/config.js');
 
 // A participant applying to an event including it's application
 var paxSchema = mongoose.Schema({
@@ -46,6 +47,10 @@ var applicationFieldSchema =  mongoose.Schema({
 });
 
 var eventSchema =  mongoose.Schema({
+	head_image: {
+		//url: String, virtual
+		path: String
+	},
 	name: {type: String, required: true},
 	starts: {type: Date, required: true},
 	ends: {type: Date, required: true},
@@ -71,6 +76,10 @@ var eventSchema =  mongoose.Schema({
 	organizers: [orgaSchema],
 	headImg: {type: String}, // url for the headimage
 }, {timestamps: true});
+eventSchema.virtual('head_image.url').get(function() {
+	return config.frontend.url + '/' + this.head_image.path;
+});
+
 // Allow virtuals to get the id field
 eventSchema.set('toJSON', {virtuals: true});
 eventSchema.set('toObject', {virtuals: true});
@@ -89,7 +98,7 @@ eventSchema.pre('save', function(next) {
 // Validators
 eventSchema.path('max_participants').validate(value => value >= 0, 'Participants number can not be negative');
 eventSchema.path('fee').validate(value => value >= 0, 'Fee can\'t be negative');
-eventSchema.path('application_deadline').validate(value => !value || value>Date.now(), 'Application deadline can\'t be in the past');
+//eventSchema.path('application_deadline').validate(value => !value || value>Date.now(), 'Application deadline can\'t be in the past');
 eventSchema.pre('validate', function(next) {
 	if(this.application_status == 'open' && this.status == 'draft') 
 		this.invalidate('application_status', 'Cannot open the application on a draft event', this.application_status);

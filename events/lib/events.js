@@ -13,20 +13,22 @@ var Event = require('./eventModel.js');
 /** Requests for all events **/
 
 exports.listEvents = function(req, res, next) {
+	// Get statutory, non-statutory and su
 	Event
 		.where('status', 'approved')
 		.where('type').ne('local')
 		.where('ends').gte(new Date()) // Only show events in the future
-		.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status'].join(' '))
+		.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
 		.exec(function(err, events) {
 			if (err) {log.error(err);return next(new restify.InternalError());}
 
+			// Local events need another query with elemMatch
 			Event
 				.where('status', 'approved')
 				.where('type', 'local')
 				.where('ends').gte(new Date())
 				.elemMatch('organizing_locals', {'foreign_id': req.user.basic.antenna_id})
-				.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status'].join(' '))
+				.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
 				.exec(function(err, localEvents) {
 					if (err) {log.error(err);return next(new restify.InternalError());}
 
@@ -42,7 +44,7 @@ exports.listUserOrganizedEvents = function(req, res, next) {
 		.where('status').ne('deleted') // Hide deleted events
 		.where('ends').gte(new Date()) // Only show events in the future
 		.elemMatch('organizers', {'foreign_id': req.user.basic.id})
-		.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status'].join(' '))
+		.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
 		.exec(function(err, events) {
 			if (err) {log.info(err);return next(new restify.InternalError());}
 		
@@ -57,7 +59,7 @@ exports.listUserAppliedEvents = function(req, res, next) {
 		.where('status').ne('deleted') // Hide deleted events
 		.where('ends').gte(new Date()) // Only show events in the future
 		.elemMatch('applications', {'foreign_id': req.user.basic.id})
-		.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status'].join(' '))
+		.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals'].join(' '))
 		.exec(function(err, events) {
 			if (err) {log.info(err);return next(new restify.InternalError());}
 		
@@ -156,8 +158,6 @@ exports.addEvent = function(req, res, next) {
 
 /** Single event **/
 
-
-
 exports.eventDetails = function(req, res, next) {
 	
 	var event = req.event.toObject();
@@ -204,8 +204,8 @@ exports.editEvent = function(req, res, next) {
 		event.fee = data.fee;
 		event.application_deadline = data.application_deadline;
 		var cmp_deadline = new Date(data.application_deadline);
-		// Register deadline if changed
-		if(data.application_deadline && 
+		// Register deadline with cron if changed
+		if(data.application_deadline && data.application_deadline > Date.now() &&
 			(!event.application_deadline ||	cmp_deadline.getTime() != event.application_deadline.getTime())) {
 			registerDeadline = true;
 		}
