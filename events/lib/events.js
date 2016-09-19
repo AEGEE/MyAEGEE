@@ -157,14 +157,11 @@ exports.addEvent = function(req, res, next) {
 }
 
 /** Single event **/
-
 exports.eventDetails = function(req, res, next) {
 	
 	var event = req.event.toObject();
 	
-	delete event.applications;
-	delete event.organizers;
-	
+	delete event.applications;	
 	
 	res.json(event);
 	return next();
@@ -406,8 +403,9 @@ exports.setApplication = function(req, res, next) {
 	var event = req.event;
 	
 	// Check for permission
-	if(!req.user.permissions.can_apply)
+	if(!req.user.permissions.can.apply) {
 		return next(new restify.ForbiddenError({message: "You cannot apply to this event"}));
+	}
 	
 	// Find the corresponding application
 	var index;

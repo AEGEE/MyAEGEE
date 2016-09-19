@@ -7,7 +7,7 @@
 			<th>First Name</th>
 			<th>Last Name</th>
 			<th>Antenna</th>
-			<th ng-if="permissions.approve_participants">Approve</th>
+			<th ng-if="permissions.approve_participants">Status</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -17,7 +17,13 @@
 			<td>{{ pax.last_name }}</td>
 			<td>{{ pax.antenna }}</td>
 			<td ng-if="permissions.approve_participants">
-				<button class="btn btn-sm btn-primary" ng-click="showModal(pax);"><i class="fa fa-pencil"></i></button>
+				<span ng-switch="pax.application_status">
+					<span ng-switch-when="requesting">Requesting</span>
+					<span ng-switch-when="pending">Pending</span>
+					<span ng-switch-when="accepted">Accepted</span>
+					<span ng-switch-when="rejected">Rejected</span>
+				</span>
+				<button class="btn btn-sm btn-primary m-0" ng-click="showModal(pax);"><i class="fa fa-pencil"></i></button>
 			</td>
 		</tr>
 		<tr ng-if="event.applications.length == 0">
@@ -49,6 +55,11 @@
 					<tr>
 						<td><b>Antenna</b></td>
 						<td>{{ application.antenna }}</td>
+					</tr>
+					
+					<tr>
+						<td><b>Application date</b></td>
+						<td>{{ application.createdAt|date:'MMM d, yyyy HH:mm' }}</td>
 					</tr>
 
 					<tr ng-repeat="field in event.application_fields">

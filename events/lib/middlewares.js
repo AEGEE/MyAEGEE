@@ -279,7 +279,9 @@ exports.checkPermissions = function(req, res, next) {
 			|| permissions.can.edit_application_status 
 			|| permissions.can.approve;
 
-		permissions.can.apply = !permissions.is.organizer && req.event.application_status == 'open';
+		permissions.can.apply = 
+			(!permissions.is.organizer && req.event.application_status == 'open')
+			|| permissions.is.superadmin;
 
 		permissions.can.approve_participants = permissions.is.organizer && req.event.application_status == 'closed';
 

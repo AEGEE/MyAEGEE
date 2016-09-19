@@ -21,14 +21,20 @@
 	</div>
 
 	<div class="form-group">
-		<button type="submit" class="btn btn-success col-sm-6 col-sm-offset-3">
+		<button type="submit" class="btn btn-primary col-sm-6 col-sm-offset-3" ng-show="!saved">
 			Save application!
+		</button>
+		<button type="submit" class="btn btn-success col-sm-6 col-sm-offset-3" ng-show="saved">
+			Application saved!
 		</button>
 	</div>
 
 	<div class="form-group" ng-show="!newapplication">
 		<div class="alert alert-info col-sm-offset-3 col-sm-6" ng-switch="application_status">
-			<span ng-switch-when="requesting">Your application was saved, please wait for the organizers to close the application process and start evaluating. You can still edit your application until then.</span>
+			<span ng-switch-when="requesting">
+			Your application was saved, please wait for the organizers to close the application process and start evaluating. 
+			<span ng-show="event.application_fields.length > 0">You can still edit your application until then.</span>
+			</span>
 			<span ng-switch-when="pending">Your application is being processed, please wait for the organizers to evaluate your application. Unfortunately you can not edit it any more</span>
 			<span ng-switch-when="approved">Congratulations, you have been accepted to the event!</span>
 			<span ng-switch-when="rejected">Sorry, but you were not accepted to the event.</span>

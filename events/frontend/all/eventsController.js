@@ -178,6 +178,7 @@
 
 	function ApplyController($scope, $http, $stateParams) {
 		$scope.newapplication = true;
+		$scope.saved = false;
 		// Fetch event again to get form fields
 		// Also fetch if the user already has put an applicaiton
 		var reqPromise = $http.get(apiUrl + 'single/' + $stateParams.id + '/participants/mine');
@@ -224,6 +225,7 @@
 			});
 
 			$http.put(apiUrl + 'single/' + $stateParams.id + '/participants/mine', toServer).success(function(res) {
+				
 				$.gritter.add({
 					title: 'Application saved',
 					text: 'Your application was saved, you can still edit it until the application period ends',
@@ -231,6 +233,9 @@
 					time: 8000,
 					class_name: 'my-sticky-class'
 				});
+				$scope.saved = true;
+				$scope.newapplication = false;
+				$scope.application_status = 'requesting';
 			}).catch(function(err) {
 				showError(err);
 			});
@@ -240,6 +245,7 @@
 
 	function OrganizersController($scope, $http, $stateParams) {
 		$scope.organizer_view = true;
+		$scope.order = 'user.main_organizer';
 		$scope.setSearch = function(local) {
 			if(local) $scope.query_antenna = local.foreign_id;
 			else $scope.query_antenna = '';
@@ -269,6 +275,11 @@
 
 	function ParticipantsController($scope, $http, $stateParams) {
 		$scope.organizer_view = false;
+		// Sort by random
+		$scope.order = function() {
+			return 0.5 - Math.random();
+		}
+
 		$scope.setSearch = function(local) {
 			if(local) $scope.search = {antenna_id: local.foreign_id};
 			else $scope.search = {};
@@ -281,7 +292,7 @@
 				if(!$scope.locals.some(local => local.foreign_id == user.antenna_id))
 					$scope.locals.push({
 						foreign_id: user.antenna_id,
-						name: user.antenna_name
+						name: user.antenna
 					});
 			});
 		}).catch(function(err) {

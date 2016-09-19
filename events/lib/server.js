@@ -90,8 +90,6 @@ server.put({path: '/single/:event_id/participants/status/:application_id', versi
 server.get({path: '/single/:event_id/participants/mine', version: cur_version}, events.getApplication );
 server.put({path: '/single/:event_id/participants/mine', version: cur_version}, events.setApplication );
 
-server.get({path: '/single/:event_id/organizers', version: cur_version}, events.listOrganizers );
-
 //server.get({path: '/single/:event_id/locals', version: cur_version}, events.listOrganizingLocals ); // optional
 //server.put({path: '/single/:event_id/locals', version: cur_version}, events.setOrganizingLocals ); // optional
 

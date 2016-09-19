@@ -61,7 +61,7 @@
 				type="text" 
 				class="form-control" 
 				style="background-color: #fff; opacity: 1;" 
-				value="{{ event.starts|date:'MMM d, yyyy hh:mm' }}" 
+				value="{{ event.starts|date:'MMM d, yyyy HH:mm' }}" 
 				readonly />
 			<a href="#" class="input-group-addon" ng-click="showStartsSelector = !showStartsSelector"><i class="fa fa-calendar"></i></a>			
 			
@@ -83,7 +83,7 @@
 				type="text" 
 				class="form-control" 
 				style="background-color: #fff; opacity: 1;" 
-				value="{{ event.ends|date:'MMM d, yyyy hh:mm' }}" 
+				value="{{ event.ends|date:'MMM d, yyyy HH:mm' }}" 
 				readonly />
 			<a class="input-group-addon" href="#" ng-click="showEndsSelector = !showEndsSelector"><i class="fa fa-calendar"></i></a>		
 			
@@ -262,7 +262,7 @@
 				type="text" 
 				class="form-control" 
 				style="background-color: #fff; opacity: 1;" 
-				value="{{ event.application_deadline|date:'MMM d, yyyy hh:mm' }}" 
+				value="{{ event.application_deadline|date:'MMM d, yyyy HH:mm' }}" 
 				readonly />
 			<a class="input-group-addon" href="#" ng-click="showDeadlineSelector = !showDeadlineSelector"><i class="fa fa-calendar"></i></a>			
 		</div>
@@ -340,7 +340,7 @@
 				</div>
 			</div>
 
-			<div class="input-group form-group" ng-show="permissions.edit_organizers">
+			<div class="input-group form-group m-b-0" ng-show="permissions.edit_organizers">
 				<input 
 					class="form-control" 
 					placeholder="Type a name" 
@@ -352,23 +352,24 @@
 				</span>
 
 			</div>
-			<p ng-show="eventForm.organizers.$error.message">{{ eventForm.organizers.$error.message }}</p>
 
-			<div class="dropdownAutocomplete" ng-show="neworganizer.query">
+			<div class="input-group">
+			<div class="dropdownAutocomplete" style="z-index: 20; top:0;" ng-show="neworganizer.query">
 				<ul>
 					<li ng-repeat="user in neworganizer.proposals" ng-click="addOrganizer(user)">
-						<img class="comment-photo" src="/api/getUserAvatar/{{ user.id }}"> 
+						<img class="comment-photo" ng-src="/api/getUserAvatar/{{ user.foreign_id }}"> 
 						<span class="comment-name">{{ user.name }}<br />
 							<small>{{ user.antenna_name }}</small>
 						</span>
 					</li>
-					<li ng-if="neworganizer.proposals.length == 0">
+					<li class="row" ng-show="neworganizer.proposals.length == 0">
 						No results found
 					</li>
 				</ul>
 			</div>
 		</div>
-		
+			<p ng-show="eventForm.organizers.$error.message">{{ eventForm.organizers.$error.message }}</p>
+		</div>
 	</div>
 		
 

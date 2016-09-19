@@ -283,11 +283,11 @@
 			});
 
 			// Get organizers
-			$http.get(resourceURL + '/organizers').success(function (res) {
+			/*$http.get(resourceURL + '/organizers').success(function (res) {
 				$scope.event.organizers = res;
 			}).catch(function(err) {
 				showError(err);
-			});
+			});*/
 
 			// Get the rights this user has on this event
 			$http.get(resourceURL + '/rights').success(function(res) {
@@ -307,7 +307,6 @@
 		$http.get(apiUrl + 'single/' + $stateParams.id ).success(function(res) {
 			$scope.event = res;
 			fetchApplications.success(function(res) {
-				console.log(res);
 				$scope.event.applications = res;
 			});
 		}).catch(function(err) {
