@@ -6,9 +6,9 @@
 
 	var showError = function(err) {
 		console.log(err);
-		var message = 'unknown cause';
-		if(err.message) message = err.message;
-		else if(err.data.message) message = err.data.message;
+		var message = 'Unknown cause';
+		if(err && err.message) message = err.message;
+		else if(err && err.data && err.data.message) message = err.data.message;
 		$.gritter.add({
 			title: 'Error',
 			text: 'Could not process action: ' + message,
@@ -25,6 +25,7 @@
 		.controller('NewController', NewController)
 		.controller('ApproveParticipantsController', ApproveParticipantsController)
 		.controller('ApproveEventsController', ApproveEventsController)
+		.controller('BoardviewController', BoardviewController)
 		.controller('ServiceAdminController', ServiceAdminController)
 		.directive( "mwConfirmClick", [
 			function() {
@@ -87,6 +88,15 @@
 					}
 				}
 			})
+			.state('app.eventadmin.boardview', {
+				url: '/boardview',
+				views: {
+					'pageContent@app': {
+						templateUrl: baseUrl + 'frontend/admin/boardview.html',
+						controller: 'BoardviewController as vm'
+					}
+				}
+			})
 			.state('app.eventadmin.approve_events', {
 				url: '/approve_events',
 				views: {
@@ -96,7 +106,6 @@
 					}
 				}
 			})
-
 			.state('app.eventadmin.serviceadmin', {
 				url: '/service-admin',
 				views: {
@@ -308,6 +317,7 @@
 			$scope.event = res;
 			fetchApplications.success(function(res) {
 				$scope.event.applications = res;
+				console.log(res);
 			});
 		}).catch(function(err) {
 			showError(err);
@@ -402,6 +412,31 @@
 		}
 	}
 
+	function BoardviewController($scope, $http) {
+		$http.get(apiUrl + 'boardview').success(function(response) {
+			$scope.events = response.events;
+		}).catch(function(err) {
+			showError(err);
+		});
+
+		$scope.submitComment = function(event, application) {
+			var data = {board_comment: application.board_comment};
+			$http.put(apiUrl + 'single/' + event.id + '/participants/comment/' + application._id, data).success(function(res) {
+				$.gritter.add({
+                    title: 'Comment saved',
+                    text: 'Your comment has been saved',
+                    sticky: false,
+                    time: 8000,
+                    class_name: 'my-sticky-class'
+                });
+				application.clean=true;
+			}).catch(function(err) {
+				showError(err);
+				application.clean=false;
+			});
+		}
+	}
+
 	function ServiceAdminController($scope, $http) {
 		var start1 = new Date().getTime();
 		$http.get(apiUrl + 'getUser').success( function(response) {
@@ -419,7 +454,7 @@
 			showError(err);
 		});
 
-		$http.get('/api/getUser?id=1').success(function(res) {
+		$http.get(apiUrl + '/boardview').success(function(res) {
 			console.log(res);
 		}).catch(function(err) {
 			showError(err);

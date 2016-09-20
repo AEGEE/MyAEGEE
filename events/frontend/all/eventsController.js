@@ -6,9 +6,9 @@
 
 	var showError = function(err) {
 		console.log(err);
-		var message = 'unknown cause';
-		if(err.message) message = err.message;
-		else if(err.data.message) message = err.data.message;
+		var message = 'Unknown cause';
+		if(err && err.message) message = err.message;
+		else if(err && err.data && err.data.message) message = err.data.message;
 		$.gritter.add({
 			title: 'Error',
 			text: 'Could not process action: ' + message,
@@ -164,6 +164,7 @@
 		// Fetch event from backend
 		$http.get(apiUrl + 'single/' + $stateParams.id).success( function(res) {
 			$scope.event = res; 
+			console.log(res);
 		}).catch(function(err) {
 			showError(err);
 		});
@@ -189,6 +190,7 @@
 			// Poll for existing application
 			reqPromise.success(function(res) {
 				$scope.newapplication = false;
+				$scope.saved = true;
 				// Loop through application fields and assign them to our model
 				res.application.forEach(function(field) {
 					// Find the matching application_field to our users application field
@@ -258,10 +260,10 @@
 				&& (!$scope.query_name || name.indexOf(query) !== -1);
 		}
 
-		$http.get(apiUrl + 'single/' + $stateParams.id + '/organizers').success(function(res) {
-			$scope.users = res;
+		$http.get(apiUrl + 'single/' + $stateParams.id).success(function(res) {
+			$scope.users = res.organizers;
 			$scope.locals = [];
-			res.forEach(user => {
+			res.organizers.forEach(user => {
 				if(!$scope.locals.some(local => local.foreign_id == user.antenna_id))
 					$scope.locals.push({
 						foreign_id: user.antenna_id,

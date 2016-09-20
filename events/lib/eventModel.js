@@ -6,7 +6,7 @@ var paxSchema = mongoose.Schema({
 	first_name: String,
 	last_name: String,
 	antenna: String,
-	antenna_id: String,
+	antenna_id: {type: String, required: true},
 	board_comment: String,
 	foreign_id: {type: String, required: true}, // ID in oms-core
 	application_status: {type: String, enum: ['requesting', 'pending', 'accepted', 'rejected'], default: 'requesting'},
@@ -47,6 +47,7 @@ var applicationFieldSchema =  mongoose.Schema({
 });
 
 var eventSchema =  mongoose.Schema({
+	url: String,
 	head_image: {
 		//url: String, virtual
 		path: String
@@ -77,7 +78,9 @@ var eventSchema =  mongoose.Schema({
 	headImg: {type: String}, // url for the headimage
 }, {timestamps: true});
 eventSchema.virtual('head_image.url').get(function() {
-	return config.frontend.url + '/' + this.head_image.path;
+	if(this.head_image && this.head_image.path)
+		return config.frontend.url + '/' + this.head_image.path;
+	return '';
 });
 
 // Allow virtuals to get the id field

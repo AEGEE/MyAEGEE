@@ -18,12 +18,12 @@
 	If you want to create a non-statutory, statutory event or a summer university, the according committees (SUCT, EQAC, CD, etc) will have to approve your event, which will be more difficult and take more time.
 	</p>
 
-	<div class="form-group">
+	<div class="form-group" ng-show="!newevent">
 		<label class="control-label col-sm-4" for="head_image"></label>
 
 		<div class="input-group col-sm-6">
 				<div class="row">
-					<img class="img-rounded img-responsive" ng-show="event.head_image" ng-src="{{ event.head_image.url }}" />
+					<img class="img-rounded img-responsive" ng-show="event.head_image.url" ng-src="{{ event.head_image.url }}" />
 				</div>
 				<button 
 					type="button" 

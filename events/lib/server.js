@@ -64,13 +64,14 @@ server.post({path: '/', version: cur_version}, events.addEvent );
 server.get({path: '/status', version: cur_version}, service.status );
 server.get({path: '/debug', version: cur_version}, events.debug );
 server.get({path: '/getUser', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkPermissions, service.getUser] );
-server.get({path: '/roles', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkPermissions, service.getRoles]);
-server.put({path: '/roles', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkPermissions, service.registerRoles]);
+server.get({path: '/roles', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkPermissions, service.getRoles] );
+server.put({path: '/roles', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkPermissions, service.registerRoles] );
 
 server.get({path: '/mine/byOrganizer', version: cur_version}, events.listUserOrganizedEvents );
 server.get({path: '/mine/byApplication', version: cur_version}, events.listUserAppliedEvents );
 server.get({path: '/mine/approvable', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkPermissions, events.listApprovableEvents] );
-//server.get({path: '/mine/byLocal', version: cur_version}, events.getUserEvents );
+
+server.get({path: '/boardview', version: cur_version}, [middlewares.fetchUserDetails, middlewares.checkPermissions, events.listLocalInvolvedEvents] );
 
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
@@ -87,13 +88,13 @@ server.post({path: '/single/:event_id/upload', version: cur_version},  imageserv
 
 server.get({path: '/single/:event_id/participants', version: cur_version}, events.listParticipants );
 server.put({path: '/single/:event_id/participants/status/:application_id', version: cur_version}, events.setApplicationStatus )
+server.put({path: '/single/:event_id/participants/comment/:application_id', version: cur_version}, events.setApplicationComment )
 server.get({path: '/single/:event_id/participants/mine', version: cur_version}, events.getApplication );
 server.put({path: '/single/:event_id/participants/mine', version: cur_version}, events.setApplication );
 
-//server.get({path: '/single/:event_id/locals', version: cur_version}, events.listOrganizingLocals ); // optional
-//server.put({path: '/single/:event_id/locals', version: cur_version}, events.setOrganizingLocals ); // optional
-
-//server.get({path: '/single/:event_id/applicationfields', version: cur_version}, events.listApplicationFields ); // would optimize some frontend views
+// possible optimization gets
+//server.get({path: '/single/:event_id/organizers', version: cur_version}, events.listOrganizers );
+//server.get({path: '/single/:event_id/applicationfields', version: cur_version}, events.listApplicationFields );
 
 
 //server.get({path: '/user/:user_id', version: cur_version}, events.listByUser );

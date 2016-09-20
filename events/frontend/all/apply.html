@@ -15,9 +15,16 @@
 				class="form-control" 
 				name="field{{ $index }}" 
 				ng-model="field.answer"
+				ng-change="saved=false"
 				/>
 
 		</div>
+	</div>
+
+	<div class="form-group" ng-show="event.application_fields.length == 0">
+		<p>
+			You do not need to fill in any application fields to apply for this event! Just press the button.
+		</p>
 	</div>
 
 	<div class="form-group">

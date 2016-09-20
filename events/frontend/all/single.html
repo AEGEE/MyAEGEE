@@ -2,8 +2,8 @@
 	<div class="profile-left">
 		<!-- insert as soon as image support in events backend -->
 		<div class="profile-image">
-			<img ng-show="!event.head_image" src="{{ baseUrl }}frontend/media/Dino.png" />
-			<img ng-show="event.head_image" ng-src="{{ event.head_image.url }}" />
+			<img ng-show="!event.head_image.url" ng-src="{{ baseUrl }}frontend/media/Dino.png" />
+			<img ng-show="event.head_image.url" ng-src="{{ event.head_image.url }}" />
 		</div>
 
 		<div class="m-b-10" ng-show="event.application_status == 'open'">

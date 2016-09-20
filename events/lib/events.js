@@ -74,6 +74,8 @@ exports.listApprovableEvents = function(req, res, next) {
 		.where('ends').gte(new Date())
 		.select(['name', 'type', 'max_participants', 'application_status'].join(' '))
 		.exec(function(err, events) {
+			if (err) {log.info(err);return next(new restify.InternalError());}
+
 			var retval = [];
 			events.forEach(item => {
 				if(req.user.permissions.is.superadmin)
@@ -90,6 +92,36 @@ exports.listApprovableEvents = function(req, res, next) {
 			});
 
 			res.json(retval);
+			return next();
+		});
+}
+
+// All event where a local has participated
+exports.listLocalInvolvedEvents = function(req, res, next) {
+	// Only visible to board members
+	if(!req.user.permissions.can.view_local_involved_events)
+		return next(new restify.ForbiddenError("You are not allowed to see this"));
+
+	// The first query where mongodb actually has a job
+	Event
+		.aggregate([
+			{$match: {'applications.antenna_id': String(req.user.basic.antenna_id)}},
+			{$unwind: '$applications'},
+			{$match: {'applications.antenna_id': String(req.user.basic.antenna_id)}},
+			{$group: {
+				'_id': '$_id',
+				'id': {$first: '$_id'},
+				'name': {$first: '$name'},
+				'applications': {$push: '$applications'}
+			}}
+  		])
+		.exec(function(err, events) {
+			if (err) {log.info(err);return next(new restify.InternalError());}
+
+			res.json({
+				success: true,
+				events: events
+			});
 			return next();
 		});
 }
@@ -503,10 +535,53 @@ exports.setApplicationStatus = function(req, res, next) {
 	});
 }
 
-/** Organizers **/
+exports.setApplicationComment = function(req, res, next) {
+	// Check user permissions
+	if(!req.user.permissions.can.view_local_involved_events) {
+		return next(new restify.ForbiddenError('You are not allowed to put board comments'));
+	}
 
+	var event = req.event;
+
+	// Find the corresponding application
+	var index;
+	var application = event.applications.find(function(element, idx) {
+		if(element.id == req.params.application_id) {
+			index = idx;
+			return true;
+		}
+		return false;
+	});
+
+	if(application == undefined) {
+		return next(new restify.NotFoundError('Could not find application id ' + req.params.application_id));
+	}
+
+	// Save changes
+	event.applications[index].board_comment = req.body.board_comment;
+
+	event.save(function(err) {
+		if (err) {
+			// Send validation-errors back to client
+			if(err.name == 'ValidationError') {
+				return next(new restify.InvalidArgumentError({body: err}));
+			}
+
+			log.error("Could not set board comment", err);
+			return next(new restify.InternalError());
+		}		
+
+		res.json({
+			success: true,
+			message: 'Board comment stored'
+		});
+		return next();
+	});
+}
+
+/** Organizers **/
+/* Not used
 exports.listOrganizers = function(req, res, next) {
-	// TODO Check for permissions
 	var event = req.event;
 		
 	var data = event.organizers.toObject();
@@ -555,7 +630,7 @@ exports.setOrganizers = function(req, res, next) {
 		});
 		return next();
 	});
-}
+}*/
 
 // TODO remove. Or maybe not? :D
 exports.debug = function(req, res, next) {
