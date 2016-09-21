@@ -21,7 +21,7 @@
 			"url": "http://localhost",
 			"port": 80
 		},
-		"secret": "$2y$10$55wvSoIa2wPNdi9bWKH5E.GaxQDxw3o/KacJHQod3pu31p5XrX3re",
+		"secret": "CHANGEME" 
 		"enable_user_caching": true,
 		"media_dir": "./frontend/media"
 	},
