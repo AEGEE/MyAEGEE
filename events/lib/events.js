@@ -161,9 +161,7 @@ exports.addEvent = function(req, res, next) {
 		}
 	]
 
-	log.info("Attempting save");
 	newevent.save(function(err) {
-			log.info("Done with save");
 
 		if (err) {
 			// Send validation-errors back to client
@@ -230,7 +228,7 @@ exports.editEvent = function(req, res, next) {
 		
 		// Others are resettable
 		event.max_participants = data.max_participants;
-		event.fee = data.fee;
+		if(data.fee) event.fee = data.fee;
 		event.application_deadline = data.application_deadline;
 		var cmp_deadline = new Date(data.application_deadline);
 		// Register deadline with cron if changed
