@@ -58,8 +58,7 @@ var eventSchema =  mongoose.Schema({
 	description: {type: String, default: ''},
 	fee: {
 		type: Number,
-		get: v => Math.round(v*100) / 100,
-		set: v => Math.round(v*100) / 100
+		get: v => Math.round(v*100) / 100
 	},
 	organizing_locals: [localSchema],
 	type: {type: String, enum: ['non-statutory', 'statutory', 'su', 'local'], default: 'non-statutory'},
@@ -67,8 +66,7 @@ var eventSchema =  mongoose.Schema({
 	max_participants: {
 		type: Number, 
 		default: 0,
-		get: v => Math.round(v),
-		set: v => Math.round(v)
+		get: v => Math.round(v)
 	},
 	application_deadline: Date,
 	application_status: {type: String, enum: ['closed', 'open'], default: 'closed'},
@@ -77,13 +75,14 @@ var eventSchema =  mongoose.Schema({
 	organizers: [orgaSchema],
 	headImg: {type: String}, // url for the headimage
 }, {timestamps: true});
+// Virtuals
 eventSchema.virtual('head_image.url').get(function() {
 	if(this.head_image && this.head_image.path)
 		return config.frontend.url + '/' + this.head_image.path;
 	return '';
 });
 
-// Allow virtuals to get the id field
+// Allow virtuals
 eventSchema.set('toJSON', {virtuals: true});
 eventSchema.set('toObject', {virtuals: true});
 

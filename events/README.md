@@ -19,17 +19,18 @@ There are some things you have to do to get this service running.
   * mongodb
 * Git clone this repo and cd into it
 * `npm install` to install all necessary dependencies
-* If you want, edit /lib/config/config.json to your needs.
+* Rename lib/config/configFile.json.example to lib/config/configFile.json, if you want edit it
 * Set up static serving with nginx (if you are using another web server, good luck.)
 ```shell
-sudo ln -s your/path/to/oms-events/nginx.conf /etc/nginx/sites-enables/omsevents
+mv nginx.conf.example nginx.conf
+sudo ln -s your/path/to/oms-events/nginx.conf /etc/nginx/sites-enabled/omsevents
 sudo systemctl reload nginx.service
 ```
 
 Now you will need to connect the microservice to the core.
-* Edit lib/config/config.json and put the secret that you obtained from the core.
+* Edit lib/config/configFile.json and put the secret that you obtained from the core.
 * Start the server with `node lib/server.js`
-* Query the running server on `curl localhost:8083/api/registerMicroservice` to fire up registration. *(if you fucked up the nginx config you can also query `localhost:8082`)*
+* Query the running server on `curl localhost:8083/api/registerMicroservice` to fire up registration. *(if you fucked up the nginx reverse-proxy you can also query `localhost:8082`)*
 * Enable it in the core backend and refresh the page.
 
 ### Get it running
@@ -43,6 +44,10 @@ and you should have a working instance. If you also want to be able to read the 
 `sudo npm install bunyan -g` to install bunyan logger and start the server with
 ```
 node lib/server.js | bunyan --color --output short
+```
+It's recommended to run with a supervisor-daemon to restart after crashes, you can use node-supervisor (install with `sudo npm install supervisor -g`) and run
+```
+supervisor lib/server.js | bunyan --color --output short
 ```
 
 

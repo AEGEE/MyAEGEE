@@ -4,6 +4,7 @@ var log = require('./config/logger');
 var config = require('./config/config.js');
 var Event = require('./eventModel.js');
 var multer  = require('multer');
+var fs = require('fs');
 
 var storage = multer.diskStorage({ //multers disk storage settings
 	destination: function (req, file, cb) {
@@ -21,6 +22,9 @@ exports.uploadImage = function(req, res, next) {
 			log.error("Could not store image", err);
 			return next(new restify.InternalError());
 		}
+		// If there was an old image, move that away later
+		var oldimg = req.event.head_image;
+
 		req.event.head_image = {
 			path: req.file.path
 		}
@@ -36,7 +40,18 @@ exports.uploadImage = function(req, res, next) {
 				message: "File uploaded successfully",
 				head_image: req.event.head_image
 			});
-			return next();
+			// Send back the request
+			next();
+
+			// Move old file away
+			if(oldimg && oldimg.path) {
+				var path = oldimg.path.split('/');
+				fs.rename(oldimg.path, config.media_dir + '/old/' + path[path.length-1], function(err) {
+					if(err) {
+						log.warn("Could not move unused image into media/old folder", err);
+					}
+				});
+			}
 		});
 	});
 }
