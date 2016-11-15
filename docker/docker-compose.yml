@@ -8,6 +8,8 @@ services:
         image: tianon/true
         volumes:
             - ../oms-core:/var/www
+            - ./omscore/.env:/var/www/.env
+            - ./omscore/bootstrap.sh:/root/bootstrap.sh
 
 ### Workspace Utilities Container ###########################
 
@@ -109,23 +111,18 @@ services:
 
     mongodb:
         build: ./mongo
-        expose:
-            - "27017"
         volumes:
-            - mongo:/data/db
+            - mongodb:/data/db
 
 ### Omsevents backend #######################################
 
     omsevents:
         build:
             context: ./omsevents
-            args:
-                - FRONTEND_IP=10.0.75.1
-        expose: 
-            - "8082"
         volumes:
-            - "/usr/app/frontend"
-            - "../oms-events:/usr/app/oms-events"
+            - "../oms-events-frontend:/usr/app/frontend"
+            - "../oms-events:/usr/app/oms-events:ro"
+            - "./omsevents/configFile.json:/usr/app/oms-events/lib/config/configFile.json:ro"
         links:
             - mongodb
 
@@ -134,9 +131,21 @@ services:
     omsevents-frontend:
         build:
             context: ./omsevents-frontend
-        volumes_from:
-            - omsevents
+        volumes:
+            - "../oms-events-frontend:/usr/app/frontend:ro"
         ports:
             - "8083:8083"
         links:
             - omsevents
+
+
+
+### Volumes Setup ###########################################
+
+volumes:
+    postgres:
+        driver: "local"
+    mongodb:
+        driver: "local"
+
+

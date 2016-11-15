@@ -1,17 +1,17 @@
 FROM node:7
 
-RUN apt-get update
 RUN npm install -g supervisor bunyan
 
-RUN mkdir -p /usr/src/frontend
-WORKDIR /usr/src/
-RUN mv -r ./oms-events/frontend ./frontend
-WORKDIR oms-events
-ADD ./configFile.json /usr/src/oms-events/lib/config/configFile.json
+RUN mkdir -p /usr/app/
+RUN mkdir -p /usr/app/frontend
+RUN mkdir -p /usr/app/events
 
-ARG FRONTEND_IP
-RUN sed -i 's/FRONTEND_IP/${FRONTEND_IP}/g' /usr/src/oms-events/lib/config/configFile.json
+WORKDIR /usr/app
+# Would be cool to not having to download that this way...
+ADD https://raw.githubusercontent.com/AEGEE/oms-events/dev/package.json /usr/app/package.json
 
-CMD supervisor src/server.js | bunyan
+RUN npm install
+
+CMD supervisor /usr/app/oms-events/lib/server.js | bunyan
 
 EXPOSE 8082

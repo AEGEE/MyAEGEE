@@ -4,3 +4,6 @@
 [submodule "oms-core"]
 	path = oms-core
 	url = git@github.com:AEGEE/oms-neo-core.git
+[submodule "oms-events-frontend"]
+	path = oms-events-frontend
+	url = git@github.com:AEGEE/oms-events-frontend.git

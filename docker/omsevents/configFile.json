@@ -1,10 +1,10 @@
 {
 	"dev": {
-		"port": 8082,
+		"port": 8085,
 		"mongourl": "mongodb://mongodb:27017/events",
 
 		"frontend": {
-			"url": "http://FRONTEND_IP:8083",
+			"url": "http://10.0.75.1:8083",
 			"pages": [{
 				"name": "All events",
 				"code": "events",
