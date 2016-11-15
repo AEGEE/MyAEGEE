@@ -1,6 +1,6 @@
 {
 	"dev": {
-		"port": 8085,
+		"port": 8082,
 		"mongourl": "mongodb://mongodb:27017/events",
 
 		"frontend": {
