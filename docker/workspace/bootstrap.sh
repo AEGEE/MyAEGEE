@@ -1,5 +1,6 @@
 #!/bin/bash
 
+cp ./.env /var/www/.env
 cd /var/www
 composer install
 php artisan config:cache

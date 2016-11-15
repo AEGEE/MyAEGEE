@@ -5,11 +5,10 @@ services:
 ### Applications Code Container #############################
 
     omscore-data:
-        image: tianon/true
+        build:
+            context: ./omscore
         volumes:
             - ../oms-core:/var/www
-            - ./omscore/.env:/var/www/.env
-            - ./omscore/bootstrap.sh:/root/bootstrap.sh
 
 ### Workspace Utilities Container ###########################
 
@@ -17,17 +16,9 @@ services:
         build:
             context: ./workspace
             args:
-                - INSTALL_XDEBUG=false
-                - INSTALL_MONGO=false
-                - INSTALL_NODE=false
-                - INSTALL_YARN=false
-                - INSTALL_DRUSH=false
-                - INSTALL_AEROSPIKE_EXTENSION=false
                 - COMPOSER_GLOBAL_INSTALL=false
-                - INSTALL_WORKSPACE_SSH=false
                 - PUID=1000
                 - PGID=1000
-                - NODE_VERSION=stable
                 - TZ=UTC
         volumes_from:
             - omscore-data
@@ -123,6 +114,7 @@ services:
             - "../oms-events-frontend:/usr/app/frontend"
             - "../oms-events:/usr/app/oms-events:ro"
             - "./omsevents/configFile.json:/usr/app/oms-events/lib/config/configFile.json:ro"
+            - "./api-key:/root/api-key:ro"
         links:
             - mongodb
 
