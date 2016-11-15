@@ -1,0 +1,40 @@
+{
+	"dev": {
+		"port": 8082,
+		"mongourl": "mongodb://mongodb:27017/events",
+
+		"frontend": {
+			"url": "http://oms-events-frontend:8083",
+			"pages": [{
+				"name": "All events",
+				"code": "events",
+				"module_link": "frontend/all/eventsController.js",
+				"icon": "fa fa-ticket"
+			}, {
+				"name": "Event admin",
+				"code": "eventadmin",
+				"module_link": "frontend/admin/adminController.js",
+				"icon": "fa fa-wrench"
+			}]
+		},
+		"core": {
+			"url": "http://localhost",
+			"port": 80
+		},
+		"secret": "$2y$10$55wvSoIa2wPNdi9bWKH5E.GaxQDxw3o/KacJHQod3pu31p5XrX3re",
+		"media_dir": "/usr/app/frontend",
+		"enableUserCaching": true
+	},
+
+	"test": {
+		"port": 8084,
+		"mongourl": "mongodb://mongodb:27017/test-events",
+
+		
+		"core": {
+			"url": "http://private-ff598-omsneocore.apiary-mock.com",
+			"port": 80
+		},
+		"enableUserCaching": false
+	}
+}
