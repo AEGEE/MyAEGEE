@@ -119,6 +119,8 @@ services:
     omsevents:
         build:
             context: ./omsevents
+            args:
+                - FRONTEND_IP=10.0.75.1
         expose: 
             - "8082"
         volumes:
