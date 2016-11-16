@@ -112,9 +112,8 @@ services:
             context: ./omsevents
         volumes:
             - "../oms-events-frontend:/usr/app/frontend"
-            - "../oms-events:/usr/app/oms-events:ro"
-            - "./omsevents/configFile.json:/usr/app/oms-events/lib/config/configFile.json:ro"
-            - "./api-key:/root/api-key:ro"
+            - "../oms-events:/usr/app/oms-events"
+            - "./api-key:/root/api-key"
         links:
             - mongodb
 
