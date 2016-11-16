@@ -5,7 +5,7 @@
 
 var config = require('./config/config.js');
 var log = require('./config/logger.js');
-
+var fs = require('fs');
 var httprequest = require('request');
 var mongoose = require('./config/mongo.js');
 var restify = require('restify');
@@ -56,12 +56,18 @@ exports.registerMicroservice = function(req, res, next) {
 			'pages': JSON.stringify(config.frontend.pages),
 		};
 
+		// If wanted, overwrite the API-Key from a file
+		var secret = config.secret;
+		if(config.secret_overwrite) {
+			secret = fs.readFileSync(config.secret_overwrite).trim();
+		}
+
 		var opts = {
 			url: config.core.url + ':' + config.core.port + '/api/registerMicroservice',
 			method: 'POST',
 			headers: {
 				'X-Requested-With': "XMLHttpRequest",
-				'X-Api-Key': config.secret,
+				'X-Api-Key': secret,
 				'Content-Type': 'application/x-www-form-urlencoded',
 			},
 			form: data,

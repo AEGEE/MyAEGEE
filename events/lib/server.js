@@ -53,6 +53,7 @@ var cur_version = '0.0.1';
 
 server.use(service.countRequests);
 server.get({path: '/registerMicroservice', version: cur_version}, service.registerMicroservice);
+server.get({path: '/ping', version: cur_version}, function(req, res, next) {res.send("pong"); return next();});
 
 
 server.use(middlewares.authenticateUser);
