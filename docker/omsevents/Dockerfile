@@ -11,8 +11,9 @@ WORKDIR /usr/app
 ADD https://raw.githubusercontent.com/AEGEE/oms-events/dev/package.json /usr/app/package.json
 RUN npm install
 
-COPY ./boostrap.sh /root/bootstrap.sh
-COPY ./configFile.json /root/configFile.json
+# Done via volume mounts
+#COPY ./boostrap.sh /root/bootstrap.sh
+#COPY ./configFile.json /root/configFile.json
 
 
 

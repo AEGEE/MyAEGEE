@@ -8,7 +8,9 @@ services:
         build:
             context: ./omscore
         volumes:
-            - ../oms-core:/var/www
+            - "../oms-core:/var/www"
+            - "./workspace/.env:/root/.env:ro"
+            - "./workspace/bootstrap.sh:/root/bootstrap.sh:ro"
 
 ### Workspace Utilities Container ###########################
 
@@ -114,6 +116,8 @@ services:
             - "../oms-events-frontend:/usr/app/frontend"
             - "../oms-events:/usr/app/oms-events"
             - "./api-key:/root/api-key"
+            - "./omsevents/bootstrap.sh:/root/bootstrap.sh:ro"
+            - "./omsevents/configFile.json:/root/configFile.json:ro"
         links:
             - mongodb
 

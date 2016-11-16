@@ -88,8 +88,9 @@ RUN echo "" >> ~/.bashrc && \
 #####################################
 # Copy own scripts
 #####################################
-COPY ./.env /root/.env
-COPY ./bootstrap.sh /root/bootstrap.sh
+# Done via volume mounts
+#COPY ./.env /root/.env
+#COPY ./bootstrap.sh /root/bootstrap.sh
 
 #
 #--------------------------------------------------------------------------
