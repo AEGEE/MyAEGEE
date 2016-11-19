@@ -5,8 +5,7 @@ services:
 ### Applications Code Container #############################
 
     omscore-data:
-        build:
-            context: ./omscore
+        image: tianon/true
         volumes:
             - "../oms-core:/var/www"
             - "./workspace/.env:/root/.env:ro"
