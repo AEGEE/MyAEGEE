@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #taken from https://docs.docker.com/engine/installation/linux/ubuntulinux/
 
 echo "Installing docker from script file"
@@ -16,4 +18,11 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 sudo apt-get install -y git vim
 
+#checking if the repo has been cloned or downloaded through zip 
+if [ ! -f /home/vagrant/oms-docker/oms-core/composer.json ]; then
+    git clone -b dev --recursive https://github.com/AEGEE/oms-docker.git fixme
+    #mv fixme/ oms-docker/
+fi
+
 echo "now install as per the instruction of the readme"
+#soon it will be orchestrated by vagrant

@@ -7,9 +7,8 @@ Vagrant.configure("2") do |config|
     vb.customize [
       "modifyvm", :id,
       "--memory", "1024",
-      "name" = "AEGEEdocker"
+      "--name", "docker-AEGEE",
     ]
-    #vb.name = "docker-AEGEE"
   end
 
   #Port forwarding
@@ -22,9 +21,13 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "./oms-core",              "/home/vagrant/oms-docker/oms-core"
   config.vm.synced_folder "./oms-events",              "/home/vagrant/oms-docker/oms-events"
   config.vm.synced_folder "./oms-events-frontend",              "/home/vagrant/oms-docker/oms-events-frontend"
+  config.vm.synced_folder "./docker",              "/home/vagrant/oms-docker/docker"
+
 
   #install docker the easy way
   config.vm.provision "shell", path: "vagrant-post-script/install_docker.sh"
+
+  #..or with puppet.. todo? :v
 
   #provision docker orchestration
   #TODO
