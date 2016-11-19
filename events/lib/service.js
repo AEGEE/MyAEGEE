@@ -59,7 +59,8 @@ exports.registerMicroservice = function(req, res, next) {
 		// If wanted, overwrite the API-Key from a file
 		var secret = config.secret;
 		if(config.secret_overwrite) {
-			secret = fs.readFileSync(config.secret_overwrite);
+			secret = fs.readFileSync(config.secret_overwrite, 'utf8').trim();
+			console.log(secret);
 		}
 
 		var opts = {
