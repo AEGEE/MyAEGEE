@@ -14,4 +14,6 @@ curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose
 sudo mv ~/docker-compose /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 
+sudo apt-get install -y git vim
+
 echo "now install as per the instruction of the readme"
