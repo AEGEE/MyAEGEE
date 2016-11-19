@@ -21,8 +21,13 @@ sudo apt-get install -y git vim
 #checking if the repo has been cloned or downloaded through zip 
 if [ ! -f /home/vagrant/oms-docker/oms-core/composer.json ]; then
     git clone -b dev --recursive https://github.com/AEGEE/oms-docker.git fixme
-    #mv fixme/ oms-docker/
+    rsync --remove-source-files -av fixme/ oms-docker/
+    rm -rf fixme
 fi
 
-echo "now install as per the instruction of the readme"
+echo "now installation as per the instruction of the readme"
 #soon it will be orchestrated by vagrant
+
+cd oms-docker/docker
+docker-compose up -d
+docker-compose exec omscore bash /root/bootstrap.sh
