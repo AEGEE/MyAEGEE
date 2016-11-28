@@ -9,9 +9,6 @@ var Event = require('../lib/eventModel.js');
 
 chai.use(chaiHttp);
 
-
 describe('Events Database', require('./test-events-database.js'));
 describe('Events Details', require('./test-events-details.js'));
-//describe('Events Applications', require('./test-events-applications.js'));
-//describe('Events Organizers', require('./test-events-organizers.js'));
 describe('Options', require('./test-options.js'));
