@@ -7,16 +7,16 @@ Vagrant.configure("2") do |config|
     vb.customize [
       "modifyvm", :id,
       "--memory", "1024",
-      "--name", "tandoori-docker-AEGEE",
+      "--name", "badass-docker-AEGEE",
     ]
   end
 
-  config.vm.define "tandoori"
+  config.vm.define "badass"
 
   #Port forwarding
   #SSH from anywhere on the network (sshd)
   config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
-  #forward 8083 for API of events module, error if port busy
+  #forward 8083 for API of events module (needed by events frontend), error if port busy
   config.vm.network :forwarded_port, guest: 8083, host: 8083, id: "events-API", auto_correct: false
   
   #sync of folders
@@ -26,7 +26,6 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "./docker",              "/home/vagrant/oms-docker/docker"
 
   config.vm.provision "docker" do |d|
-  #  d.build_image "/vagrant/app"
     d.pull_images "laradock/php-fpm:7.0--1.2"
     d.pull_images "laradock/workspace:1.2"
     d.pull_images "tianon/true"
@@ -35,15 +34,12 @@ Vagrant.configure("2") do |config|
     d.pull_images "node:7"
     d.pull_images "nginx:alpine"
     d.pull_images "mongo:latest"
+    #d.build_image "/vagrant/app"
   end
 
-  #install docker the easy way
-  config.vm.provision "shell", path: "vagrant-post-script/install_docker.sh"
-  config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh"
-
-  #..or with puppet.. todo? :v
-
+  #install docker composer the easy way
+  config.vm.provision "shell", path: "vagrant-post-script/install_docker_composer.sh"
   #provision docker orchestration
-  #TODO
+  config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh"
 
 end

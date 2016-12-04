@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#soon it will be orchestrated by vagrant
-
 cd oms-docker/docker
 docker-compose up -d
 echo "############# ok until here"
