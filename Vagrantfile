@@ -7,9 +7,11 @@ Vagrant.configure("2") do |config|
     vb.customize [
       "modifyvm", :id,
       "--memory", "1024",
-      "--name", "docker-AEGEE",
+      "--name", "tandoori-docker-AEGEE",
     ]
   end
+
+  config.vm.define "tandoori"
 
   #Port forwarding
   #SSH from anywhere on the network (sshd)
@@ -23,9 +25,21 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "./oms-events-frontend",              "/home/vagrant/oms-docker/oms-events-frontend"
   config.vm.synced_folder "./docker",              "/home/vagrant/oms-docker/docker"
 
+  config.vm.provision "docker" do |d|
+  #  d.build_image "/vagrant/app"
+    d.pull_images "laradock/php-fpm:7.0--1.2"
+    d.pull_images "laradock/workspace:1.2"
+    d.pull_images "tianon/true"
+    d.pull_images "postgres:latest"
+    d.pull_images "fenglc/pgadmin4"
+    d.pull_images "node:7"
+    d.pull_images "nginx:alpine"
+    d.pull_images "mongo:latest"
+  end
 
   #install docker the easy way
   config.vm.provision "shell", path: "vagrant-post-script/install_docker.sh"
+  config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh"
 
   #..or with puppet.. todo? :v
 
