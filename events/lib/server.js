@@ -1,5 +1,6 @@
 var restify = require('restify');
-var events = require('./events.js'); //the real place where the API callbacks are
+var events = require('./events.js'); // the real place where the API callbacks are
+var lifecycle = require('./lifecycle.js'); // API callbacks for lifecycle managing
 var imageserv = require('./imageserv.js');
 var log = require('./config/logger.js');
 var service =  require('./service.js');
@@ -67,6 +68,8 @@ server.get({ path: '/roles', version: cur_version },
            [middlewares.fetchUserDetails, middlewares.checkPermissions, service.getRoles]);
 server.put({ path: '/roles', version: cur_version },
            [middlewares.fetchUserDetails, middlewares.checkPermissions, service.registerRoles]);
+
+server.post({ path: '/lifecycle/status', version: cur_version }, lifecycle.createStatus);
 
 server.get({ path: '/mine/byOrganizer', version: cur_version }, events.listUserOrganizedEvents);
 server.get({ path: '/mine/byApplication', version: cur_version }, events.listUserAppliedEvents);
