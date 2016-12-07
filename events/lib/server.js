@@ -69,6 +69,7 @@ server.get({ path: '/roles', version: cur_version },
 server.put({ path: '/roles', version: cur_version },
            [middlewares.fetchUserDetails, middlewares.checkPermissions, service.registerRoles]);
 
+server.post({ path: '/lifecycle', version: cur_version }, lifecycle.createLifecycle);
 server.post({ path: '/lifecycle/status', version: cur_version }, lifecycle.createStatus);
 
 server.get({ path: '/mine/byOrganizer', version: cur_version }, events.listUserOrganizedEvents);

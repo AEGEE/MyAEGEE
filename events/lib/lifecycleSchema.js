@@ -26,7 +26,7 @@ var lifecycleSchema = mongoose.Schema({
   // id
   eventType: String,
   transitions: [transitionSchema],
-  status: [statusSchema],
+  status: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Status' }],
   initialStatus: statusSchema,
 });
 
