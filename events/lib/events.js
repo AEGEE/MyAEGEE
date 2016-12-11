@@ -7,6 +7,9 @@ var imageserv = require('./imageserv.js');
 var cron = require('./cron.js');
 
 var Event = require('./eventModel.js');
+var lifecycleSchema = require('./lifecycleSchema');
+var Lifecycle = lifecycleSchema.Lifecycle;
+var Status = lifecycleSchema.Status;
 
 
 /** Requests for all events **/
@@ -151,48 +154,61 @@ exports.addEvent = function (req, res, next) {
 
   // Creating user automatically becomes organizer
   newevent.organizers = [
-   {
-    first_name: req.user.basic.first_name,
-    last_name: req.user.basic.last_name,
-    foreign_id: req.user.basic.id,
-    role: 'full',
-    antenna_id: req.user.basic.antenna_id,
-    antenna_name: req.user.basic.antenna_name,
-    main_organizer: true,
-  },
+    {
+      first_name: req.user.basic.first_name,
+      last_name: req.user.basic.last_name,
+      foreign_id: req.user.basic.id,
+      role: 'full',
+      antenna_id: req.user.basic.antenna_id,
+      antenna_name: req.user.basic.antenna_name,
+      main_organizer: true,
+    },
   ];
 
   // Creating user's local automatically becomes organizing local
   newevent.organizing_locals = [
-   {
-    name: req.user.basic.antenna_name,
-    foreign_id: req.user.basic.antenna_id,
-  },
+    {
+      name: req.user.basic.antenna_name,
+      foreign_id: req.user.basic.antenna_id,
+    },
   ];
 
-  newevent.save(function (err) {
-
-    if (err) {
-      // Send validation-errors back to client
-      if (err.name == 'ValidationError') {
-        return next(new restify.InvalidArgumentError({ body: err }));
+  Lifecycle
+    .findOne({ eventType: data.type })
+    .populate('initialStatus')
+    .then((lifecycle) => {
+      if (!lifecycle || !lifecycle.initialStatus) {// no lifecycle exists for this type of event
+        return restify.InvalidArgumentError({ body: `No lifecycle is specified for this type of event: ${data.type},\
+cannot set initial status.` });
       }
 
-      log.error('Could not edit event', err);
-      return next(new restify.InternalError());
-    }
+      newevent.status = lifecycle.initialStatus._id;
 
-    // Register cronjob for deadline
-    if (data.application_deadline)
-     cron.registerDeadline(newevent.id, newevent.application_deadline);
+      return newevent.save((err) => {
+        if (err) {
+          // Send validation-errors back to client
+          if (err.name === 'ValidationError') {
+            return next(new restify.InvalidArgumentError({ body: err }));
+          }
 
-    res.status(201);
-    res.json({
-      success: true,
-      message: 'Event successfully created',
-      event: newevent, });
-    return next();
-  });
+          log.error('Could not edit event', err);
+          return next(new restify.InternalError());
+        }
+
+        // Register cronjob for deadline
+        if (data.application_deadline) {
+          cron.registerDeadline(newevent.id, newevent.application_deadline);
+        }
+
+        res.status(201);
+        res.json({
+          success: true,
+          message: 'Event successfully created',
+          event: newevent,
+        });
+        return next();
+      });
+    });
 };
 
 /** Single event **/
@@ -242,7 +258,7 @@ exports.editEvent = function (req, res, next) {
     var cmp_deadline = new Date(data.application_deadline);
     // Register deadline with cron if changed
     if (data.application_deadline && data.application_deadline > Date.now() &&
-     (!event.application_deadline ||	cmp_deadline.getTime() != event.application_deadline.getTime())) {
+     (!event.application_deadline ||  cmp_deadline.getTime() != event.application_deadline.getTime())) {
       registerDeadline = true;
     }
 
@@ -588,54 +604,54 @@ exports.setApplicationComment = function (req, res, next) {
 /** Organizers **/
 /* Not used
 exports.listOrganizers = function(req, res, next) {
-	var event = req.event;
+  var event = req.event;
 
-	var data = event.organizers.toObject();
-	data.forEach(function(x, idx) {
-		data[idx].url = event.url + '/organizers/' + x.foreign_id;
-	});
+  var data = event.organizers.toObject();
+  data.forEach(function(x, idx) {
+   data[idx].url = event.url + '/organizers/' + x.foreign_id;
+  });
 
-	res.json(data);
-	return next();
+  res.json(data);
+  return next();
 }
 
 exports.setOrganizers = function(req, res, next) {
-	var event = req.event;
+  var event = req.event;
 
-	var data = req.body.organizers;
-	if(data.constructor !== Array)
-		return next(new restify.InvalidArgumentError('Organizers list must be an array'));
-	if(data.length == 0)
-		return next(new restify.InvalidArgumentError('Organizers list can not be empty'));
+  var data = req.body.organizers;
+  if(data.constructor !== Array)
+   return next(new restify.InvalidArgumentError('Organizers list must be an array'));
+  if(data.length == 0)
+   return next(new restify.InvalidArgumentError('Organizers list can not be empty'));
 
 
-	data.forEach(function(x, idx){
-		delete data[idx].cache_first_name;
-		delete data[idx].cache_last_name;
-		delete data[idx].cache_update;
+  data.forEach(function(x, idx){
+   delete data[idx].cache_first_name;
+   delete data[idx].cache_last_name;
+   delete data[idx].cache_update;
 
-	});
+  });
 
-	event.organizers = data;
+  event.organizers = data;
 
-	event.save(function(err) {
-		if (err) {
-			// Send validation-errors back to client
-			if(err.name == 'ValidationError') {
-				return next(new restify.InvalidArgumentError({body: err}));
-			}
+  event.save(function(err) {
+   if (err) {
+     // Send validation-errors back to client
+     if(err.name == 'ValidationError') {
+      return next(new restify.InvalidArgumentError({body: err}));
+     }
 
-			log.error("Could not edit organizers", err);
-			return next(new restify.InternalError());
-		}
+     log.error("Could not edit organizers", err);
+     return next(new restify.InternalError());
+   }
 
-		res.json({
-			success: true,
-			message: "Successfully saved organizers",
-			organizers: event.organizers
-		});
-		return next();
-	});
+   res.json({
+     success: true,
+     message: "Successfully saved organizers",
+     organizers: event.organizers
+   });
+   return next();
+  });
 }*/
 
 // TODO remove. Or maybe not? :D

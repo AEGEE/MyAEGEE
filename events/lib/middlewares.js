@@ -169,7 +169,10 @@ exports.fetchSingleEvent = function (req, res, next) {
     return next(new restify.NotFoundError('No Event-id provided'));
   }
 
-  Event.findById(req.params.event_id).exec(function (err, event) {
+  Event
+    .findById(req.params.event_id)
+    .populate('status')
+    .exec(function (err, event) {
     if (err) {
       if (err.name == 'CastError')
         return next(new restify .NotFoundError(
