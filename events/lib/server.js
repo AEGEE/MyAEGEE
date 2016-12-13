@@ -17,19 +17,19 @@ server.use(restify.queryParser());
 server.use(restify.jsonBodyParser());
 server.use(restify.CORS());
 
-//Define your API here
+// Define your API here
 
-//this endpoint is for public access
-//server.post({path: '/authenticate', version: '0.0.6'} , core.authenticate );
+// this endpoint is for public access
+// server.post({path: '/authenticate', version: '0.0.6'} , core.authenticate );
 
-//for endpoints declared from here onwards, apply the middleware "verifyToken"
-//server.use(core.verifyToken);
+// for endpoints declared from here onwards, apply the middleware "verifyToken"
+// server.use(core.verifyToken);
 
 // Enable request logging
-//server.pre(function (request, response, next) {
-//	log.info(request.method + ' ' + request.url);
-//	return next();
-//});
+// server.pre(function (request, response, next) {
+//  log.info(request.method + ' ' + request.url);
+//  return next();
+// );
 server.on('after', function (req, res, route) {
   try {
     log.info(req.method + ' ' + req.url + ' - ' + res._header.split('\n')[0]);
@@ -94,11 +94,11 @@ server.use(middlewares.fetchUserDetails);
 server.use(middlewares.checkPermissions);
 
 server.get({ path: '/single/:event_id', version: cur_version }, events.eventDetails);
-server.put({ path: '/single/:event_id', version: cur_version },  events.editEvent);
+server.put({ path: '/single/:event_id', version: cur_version }, events.editEvent);
 server.del({ path: '/single/:event_id', version: cur_version }, events.deleteEvent);
 server.put({ path: '/single/:event_id/status', version: cur_version }, events.setApprovalStatus);
 server.get({ path: '/single/:event_id/rights', version: cur_version }, events.getEditRights);
-server.post({ path: '/single/:event_id/upload', version: cur_version },  imageserv.uploadImage);
+server.post({ path: '/single/:event_id/upload', version: cur_version }, imageserv.uploadImage);
 
 server.get({ path: '/single/:event_id/participants', version: cur_version },
            events.listParticipants);

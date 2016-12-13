@@ -63,48 +63,50 @@ exports.listUserOrganizedEvents = function (req, res, next) {
 
 exports.listUserAppliedEvents = function (req, res, next) {
   Event
-   .where('status').ne('deleted') // Hide deleted events
-   .where('ends').gte(new Date()) // Only show events in the future
-   .elemMatch('applications', { foreign_id: req.user.basic.id })
-   .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals'].join(' '))
-   .exec(function (err, events) {
-    if (err) {
-      log.info(err);return next(new restify.InternalError());
-    }
+    .where('status').ne('deleted') // Hide deleted events
+    .where('ends').gte(new Date()) // Only show events in the future
+    .elemMatch('applications', { foreign_id: req.user.basic.id })
+    .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals'].join(' '))
+    .exec(function (err, events) {
+      if (err) {
+        log.info(err);
+        return next(new restify.InternalError());
+      }
 
-    res.json(events);
-    return next();
-  });
+      res.json(events);
+      return next();
+    });
 };
 
 exports.listApprovableEvents = function (req, res, next) {
   Event
-   .where('status', 'requesting')
-   .where('ends').gte(new Date())
-   .select(['name', 'type', 'max_participants', 'application_status'].join(' '))
-   .exec(function (err, events) {
-    if (err) {
-      log.info(err);return next(new restify.InternalError());
-    }
+    .where('status', 'requesting')
+    .where('ends').gte(new Date())
+    .select(['name', 'type', 'max_participants', 'application_status'].join(' '))
+    .exec(function (err, events) {
+      if (err) {
+        log.info(err);
+        return next(new restify.InternalError());
+      }
 
-    var retval = [];
-    events.forEach(item => {
-      if (req.user.permissions.is.superadmin)
-       retval.push(item);
-      else if (req.user.permissions.is.su_admin && item.type == 'su')
-       retval.push(item);
-      else if (req.user.permissions.is.statutory_admin && item.type == 'statutory')
-       retval.push(item);
-      else if (req.user.permissions.is.non_statutory_admin && item.type == 'non-statutory')
-       retval.push(item);
-      else if (item.type == 'local' && req.user.board_positions.length > 0
-       && item.organizing_locals.some(i => i.foreign_id == req.user.basic.antenna_id))
-       retval.push(item);
+      var retval = [];
+      events.forEach(item => {
+        if (req.user.permissions.is.superadmin)
+          retval.push(item);
+        else if (req.user.permissions.is.su_admin && item.type == 'su')
+          retval.push(item);
+        else if (req.user.permissions.is.statutory_admin && item.type == 'statutory')
+          retval.push(item);
+        else if (req.user.permissions.is.non_statutory_admin && item.type == 'non-statutory')
+          retval.push(item);
+        else if (item.type == 'local' && req.user.board_positions.length > 0
+         && item.organizing_locals.some(i => i.foreign_id == req.user.basic.antenna_id))
+          retval.push(item);
+      });
+
+      res.json(retval);
+      return next();
     });
-
-    res.json(retval);
-    return next();
-  });
 };
 
 // All event where a local has participated
@@ -115,27 +117,28 @@ exports.listLocalInvolvedEvents = function (req, res, next) {
 
   // The first query where mongodb actually has a job
   Event
-   .aggregate([
-    { $match: { 'applications.antenna_id': String(req.user.basic.antenna_id) } },
-    { $unwind: '$applications' },
-    { $match: { 'applications.antenna_id': String(req.user.basic.antenna_id) } },
-    { $group: {
-    _id: '$_id',
-    id: { $first: '$_id' },
-    name: { $first: '$name' },
-    applications: { $push: '$applications' },
-  }, },
-     ])
-   .exec(function (err, events) {
-    if (err) {
-      log.info(err);return next(new restify.InternalError());
-    }
+    .aggregate([
+      { $match: { 'applications.antenna_id': String(req.user.basic.antenna_id) } },
+      { $unwind: '$applications' },
+      { $match: { 'applications.antenna_id': String(req.user.basic.antenna_id) } },
+      { $group: {
+        _id: '$_id',
+        id: { $first: '$_id' },
+        name: { $first: '$name' },
+        applications: { $push: '$applications' },
+      } },
+    ])
+    .exec(function (err, events) {
+      if (err) {
+        log.info(err);
+        return next(new restify.InternalError());
+      }
 
-    res.json({
-      success: true,
-      events: events,
-    });
-    return next();
+      res.json({
+        success: true,
+        events: events,
+      });
+      return next();
   });
 };
 
@@ -177,7 +180,7 @@ exports.addEvent = function (req, res, next) {
     .findOne({ eventType: data.type })
     .populate('initialStatus')
     .then((lifecycle) => {
-      if (!lifecycle || !lifecycle.initialStatus) {// no lifecycle exists for this type of event
+      if (!lifecycle || !lifecycle.initialStatus) { // no lifecycle exists for this type of event
         return restify.InvalidArgumentError({ body: `No lifecycle is specified for this type of event: ${data.type},\
 cannot set initial status.` });
       }
