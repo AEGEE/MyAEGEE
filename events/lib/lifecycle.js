@@ -59,3 +59,37 @@ exports.createLifecycle = (req, res, next) => {
     return next();
   });
 };
+
+// probably should remove this one
+// to load all statuses via its lifecycles
+exports.getStatuses = (req, res, next) => {
+  Status.find({}).then((statuses) => {
+    res.status(201);
+    res.json({
+      success: true,
+      statuses,
+    });
+
+    return next();
+  });
+};
+
+exports.getLifecycles = (req, res, next) => {
+  Lifecycle
+    .find({})
+    .populate([
+      'status',
+      'initialStatus',
+      { path: 'transitions.from', model: 'Status' },
+      { path: 'transitions.to', model: 'Status' },
+    ])
+    .then((lifecycles) => {
+      res.status(201);
+      res.json({
+        success: true,
+        lifecycles,
+      });
+
+      return next();
+    });
+};
