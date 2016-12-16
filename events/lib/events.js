@@ -14,38 +14,31 @@ var Status = lifecycleSchema.Status;
 
 /** Requests for all events **/
 
-exports.listEvents = function (req, res, next) {
+exports.listEvents = (req, res, next) => {
   // Get statutory, non-statutory and su
   Event
-   .where('status', 'approved')
-   .where('type').ne('local')
-   .where('ends').gte(new Date()) // Only show events in the future
-   .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
-   .exec(function (err, events) {
-    if (err) {
-      log.error(err);return next(new restify.InternalError());
-    }
-
-    // Local events need another query with elemMatch
-    Event
-     .where('status', 'approved')
-     .where('type', 'local')
-     .where('ends').gte(new Date())
-     .elemMatch('organizing_locals', { foreign_id: req.user.basic.antenna_id })
-     .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
-     .exec(function (err, localEvents) {
+    .where('ends').gte(new Date()) // Only show events in the future
+    .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
+    .populate('status')
+    .exec((err, events) => {
       if (err) {
-        log.error(err);return next(new restify.InternalError());
+        log.error(err);
+        return next(new restify.InternalError());
       }
 
-      res.json(events.concat(localEvents));
+      // Displaying only events user is allowed to see
+      const filteredEvents = events.filter((event) => {
+        // TODO: include roles, bodies and special
+        return event.status.visibility.users.includes(req.user.basic.id.toString());
+      });
+
+      res.json(filteredEvents);
       return next();
     });
-  });
 };
 
 // Returns all events the user is organizer on
-exports.listUserOrganizedEvents = function (req, res, next) {
+exports.listUserOrganizedEvents = (req, res, next) => {
   Event
    .where('status').ne('deleted') // Hide deleted events
    .where('ends').gte(new Date()) // Only show events in the future
@@ -53,7 +46,8 @@ exports.listUserOrganizedEvents = function (req, res, next) {
    .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
    .exec(function (err, events) {
     if (err) {
-      log.info(err);return next(new restify.InternalError());
+      log.info(err);
+      return next(new restify.InternalError());
     }
 
     res.json(events);
