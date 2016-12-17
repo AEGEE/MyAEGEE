@@ -8,14 +8,14 @@ services:
         image: tianon/true
         volumes:
             - "../oms-core:/var/www"
-            - "./workspace/.env:/root/.env:ro"
-            - "./workspace/bootstrap.sh:/root/bootstrap.sh:ro"
+            - "./omscore/.env:/root/.env:ro"
+            - "./omscore/bootstrap.sh:/root/bootstrap.sh:ro"
 
 ### Workspace Utilities Container ###########################
 
     omscore:
         build:
-            context: ./workspace
+            context: ./omscore
             args:
                 - COMPOSER_GLOBAL_INSTALL=false
                 - PUID=1000

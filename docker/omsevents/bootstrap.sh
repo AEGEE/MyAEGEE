@@ -7,4 +7,4 @@ printf 'Config updated, waiting for service to restart\n'
 sleep 10
 
 # Set up the api-key in the configuration file.
-curl http://localhost:8082/registerMicroservice
+curl -sS http://localhost:8082/registerMicroservice
