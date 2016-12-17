@@ -9,3 +9,5 @@ php artisan key:generate
 php artisan config:cache
 php artisan db:seed
 php artisan config:cache
+
+echo "app()->call([app()->make('App\\Http\\Controllers\\ModuleController'), 'getSharedSecret'], []);" | php artisan tinker
