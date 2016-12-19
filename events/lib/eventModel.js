@@ -77,6 +77,7 @@ var eventSchema =  mongoose.Schema({
     default: 'non-statutory',
   },
   status: { type: mongoose.Schema.Types.ObjectId, ref: 'Status' },
+  lifecycle: { type: mongoose.Schema.Types.ObjectId, ref: 'Lifecycle' },
   max_participants: {
     type: Number,
     default: 0,

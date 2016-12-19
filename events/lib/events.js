@@ -147,10 +147,10 @@ exports.addEvent = function (req, res, next) {
   delete data.application_status;
   //delete data.organizing_locals;
 
-  var newevent = new Event(data);
+  var newEvent = new Event(data);
 
   // Creating user automatically becomes organizer
-  newevent.organizers = [
+  newEvent.organizers = [
     {
       first_name: req.user.basic.first_name,
       last_name: req.user.basic.last_name,
@@ -163,7 +163,7 @@ exports.addEvent = function (req, res, next) {
   ];
 
   // Creating user's local automatically becomes organizing local
-  newevent.organizing_locals = [
+  newEvent.organizing_locals = [
     {
       name: req.user.basic.antenna_name,
       foreign_id: req.user.basic.antenna_id,
@@ -179,9 +179,10 @@ exports.addEvent = function (req, res, next) {
 cannot set initial status.` });
       }
 
-      newevent.status = lifecycle.initialStatus._id;
+      newEvent.status = lifecycle.initialStatus._id;
+      newEvent.lifecycle = lifecycle._id;
 
-      return newevent.save((err) => {
+      return newEvent.save((err) => {
         if (err) {
           // Send validation-errors back to client
           if (err.name === 'ValidationError') {
@@ -194,14 +195,14 @@ cannot set initial status.` });
 
         // Register cronjob for deadline
         if (data.application_deadline) {
-          cron.registerDeadline(newevent.id, newevent.application_deadline);
+          cron.registerDeadline(newEvent.id, newEvent.application_deadline);
         }
 
         res.status(201);
         res.json({
           success: true,
           message: 'Event successfully created',
-          event: newevent,
+          event: newEvent,
         });
         return next();
       });
