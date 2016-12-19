@@ -14,18 +14,17 @@ var userCacheSchema = mongoose.Schema({
 });
 var UserCache = mongoose.model('UserCache', userCacheSchema);
 
-exports.authenticateUser = function (req, res, next) {
+exports.authenticateUser = (req, res, next) => {
   var token = req.header('x-auth-token');
   if (!token) {
-    //log.info("Unauthenticated request", req);
+    // log.info("Unauthenticated request", req);
     return next(new restify.ForbiddenError('No auth token provided'));
   }
 
-  UserCache.findOne({ token: token }, function (err, res) {
+  UserCache.findOne({ token: token }, (userCacheErr, userCacheRes) => {
     // If not found, query core
-    if (err || !res) {
-      require('./config/options.js').then(options => {
-
+    if (userCacheErr || !userCacheRes) {
+      require('./config/options.js').then((options) => {
         var opts = {
           url: config.core.url + ':' + config.core.port + '/api/getUserByToken',
           method: 'POST',
@@ -35,7 +34,7 @@ exports.authenticateUser = function (req, res, next) {
           },
         };
 
-        httprequest(opts, function (err, res, body) {
+        httprequest(opts, (err, res, body) => {
           if (err) {
             log.error('Could not contact core to authenticate user', err);
             return next(new restify.InternalError);
@@ -65,7 +64,7 @@ exports.authenticateUser = function (req, res, next) {
             var saveUserData = new UserCache();
             saveUserData.token = token;
             saveUserData.user = req.user;
-            saveUserData.save(err => {
+            saveUserData.save((err) => {
               if (err)
                 log.warn('Could not store user data in cache', err);
             });
@@ -78,7 +77,7 @@ exports.authenticateUser = function (req, res, next) {
     else {
       if (!req.user)
         req.user = {};
-      req.user = res.user;
+      req.user = userCacheRes.user;
       return next();
     }
   });
