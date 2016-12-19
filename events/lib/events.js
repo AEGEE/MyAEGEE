@@ -72,33 +72,35 @@ exports.listUserAppliedEvents = function (req, res, next) {
     });
 };
 
-exports.listApprovableEvents = function (req, res, next) {
+exports.listApprovableEvents = (req, res, next) => {
+  // Loading events and a lifecycle and its statuses for each event.
   Event
-    .where('status', 'requesting')
     .where('ends').gte(new Date())
-    .select(['name', 'type', 'max_participants', 'application_status'].join(' '))
-    .exec(function (err, events) {
+    .populate({ path: 'lifecycle', model: 'Lifecycle', populate: { path: 'status', model: 'Status' } })
+    .exec((err, events) => {
       if (err) {
         log.info(err);
         return next(new restify.InternalError());
       }
 
-      var retval = [];
-      events.forEach(item => {
-        if (req.user.permissions.is.superadmin)
-          retval.push(item);
-        else if (req.user.permissions.is.su_admin && item.type == 'su')
-          retval.push(item);
-        else if (req.user.permissions.is.statutory_admin && item.type == 'statutory')
-          retval.push(item);
-        else if (req.user.permissions.is.non_statutory_admin && item.type == 'non-statutory')
-          retval.push(item);
-        else if (item.type == 'local' && req.user.board_positions.length > 0
-         && item.organizing_locals.some(i => i.foreign_id == req.user.basic.antenna_id))
-          retval.push(item);
+      // Checking if we have at least 1 transition
+      // from current status to any status
+      // which is allowed for this user/body/role/special
+      const retVal = events.filter((event) => {
+        return event.lifecycle.transitions.some((transition) => {
+          // TODO: add roles/bodies/special
+          return (transition.from.equals(event.status)
+            && (transition.allowedFor.users.includes(req.user.basic.id.toString())));
+        });
       });
 
-      res.json(retval);
+      // Deleting lifecycles from events, we don't need to send this information.
+      // (TODO: to think about it)
+      retVal.forEach((event) => {
+        event.lifecycle = event.lifecycle._id;
+      });
+
+      res.json(retVal);
       return next();
     });
 };
