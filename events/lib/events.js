@@ -40,19 +40,19 @@ exports.listEvents = (req, res, next) => {
 // Returns all events the user is organizer on
 exports.listUserOrganizedEvents = (req, res, next) => {
   Event
-   .where('status').ne('deleted') // Hide deleted events
-   .where('ends').gte(new Date()) // Only show events in the future
-   .elemMatch('organizers', { foreign_id: req.user.basic.id })
-   .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
-   .exec(function (err, events) {
-    if (err) {
-      log.info(err);
-      return next(new restify.InternalError());
-    }
+    // .where('status').ne('deleted') // Hide deleted events
+    .where('ends').gte(new Date()) // Only show events in the future
+    .elemMatch('organizers', { foreign_id: req.user.basic.id })
+    .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
+    .exec((err, events) => {
+      if (err) {
+        log.info(err);
+        return next(new restify.InternalError());
+      }
 
-    res.json(events);
-    return next();
-  });
+      res.json(events);
+      return next();
+    });
 };
 
 exports.listUserAppliedEvents = function (req, res, next) {
