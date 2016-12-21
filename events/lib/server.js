@@ -55,6 +55,7 @@ server.get({ path: '/ping', version: cur_version }, function (req, res, next) {
 });
 
 server.use(middlewares.authenticateUser);
+server.use(middlewares.fetchUserDetails);
 
 server.get({ path: '/', version: cur_version }, events.listEvents);
 server.post({ path: '/', version: cur_version }, events.addEvent);
@@ -63,11 +64,11 @@ server.post({ path: '/', version: cur_version }, events.addEvent);
 server.get({ path: '/status', version: cur_version }, service.status);
 server.get({ path: '/debug', version: cur_version }, events.debug);
 server.get({ path: '/getUser', version: cur_version },
-           [middlewares.fetchUserDetails, middlewares.checkPermissions, service.getUser]);
+           [middlewares.checkPermissions, service.getUser]);
 server.get({ path: '/roles', version: cur_version },
-           [middlewares.fetchUserDetails, middlewares.checkPermissions, service.getRoles]);
+           [middlewares.checkPermissions, service.getRoles]);
 server.put({ path: '/roles', version: cur_version },
-           [middlewares.fetchUserDetails, middlewares.checkPermissions, service.registerRoles]);
+           [middlewares.checkPermissions, service.registerRoles]);
 
 server.post({ path: '/lifecycle', version: cur_version }, lifecycle.createLifecycle);
 server.get({ path: '/lifecycle', version: cur_version }, lifecycle.getLifecycles);
@@ -77,14 +78,12 @@ server.get({ path: '/lifecycle/status', version: cur_version }, lifecycle.getSta
 server.get({ path: '/mine/byOrganizer', version: cur_version }, events.listUserOrganizedEvents);
 server.get({ path: '/mine/byApplication', version: cur_version }, events.listUserAppliedEvents);
 server.get({ path: '/mine/approvable', version: cur_version },
-           [middlewares.fetchUserDetails,
-            middlewares.checkPermissions,
+           [middlewares.checkPermissions,
             events.listApprovableEvents,
            ]);
 
 server.get({ path: '/boardview', version: cur_version },
-           [middlewares.fetchUserDetails,
-            middlewares.checkPermissions,
+           [middlewares.checkPermissions,
             events.listLocalInvolvedEvents,
            ]);
 

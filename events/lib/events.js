@@ -28,8 +28,10 @@ exports.listEvents = (req, res, next) => {
 
       // Displaying only events user is allowed to see
       const filteredEvents = events.filter((event) => {
-        // TODO: include roles, bodies and special
-        return event.status.visibility.users.includes(req.user.basic.id.toString());
+        // TODO: include roles and bodies
+        return event.status.visibility.users.includes(req.user.basic.id.toString())
+          || event.status.visibility.special
+                .filter(special => req.user.special.includes(special)).length > 0;
       });
 
       res.json(filteredEvents);
