@@ -94,12 +94,7 @@ exports.listApprovableEvents = (req, res, next) => {
         });
       });
 
-      // Deleting lifecycles from events, we don't need to send this information.
-      // (TODO: to think about it)
-      retVal.forEach((event) => {
-        event.lifecycle = event.lifecycle._id;
-      });
-
+      // Return events and their lifecycles.
       res.json(retVal);
       return next();
     });
