@@ -73,7 +73,6 @@ server.put({ path: '/roles', version: cur_version },
 server.post({ path: '/lifecycle', version: cur_version }, lifecycle.createLifecycle);
 server.get({ path: '/lifecycle', version: cur_version }, lifecycle.getLifecycles);
 server.post({ path: '/lifecycle/status', version: cur_version }, lifecycle.createStatus);
-server.get({ path: '/lifecycle/status', version: cur_version }, lifecycle.getStatuses);
 
 server.get({ path: '/mine/byOrganizer', version: cur_version }, events.listUserOrganizedEvents);
 server.get({ path: '/mine/byApplication', version: cur_version }, events.listUserAppliedEvents);
@@ -89,7 +88,6 @@ server.get({ path: '/boardview', version: cur_version },
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
 server.use(middlewares.fetchSingleEvent);
-server.use(middlewares.fetchUserDetails);
 server.use(middlewares.checkPermissions);
 
 server.get({ path: '/single/:event_id', version: cur_version }, events.eventDetails);
