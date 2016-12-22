@@ -91,9 +91,12 @@ exports.listApprovableEvents = (req, res, next) => {
       // which is allowed for this user/body/role/special
       const retVal = events.filter((event) => {
         return event.lifecycle.transitions.some((transition) => {
-          // TODO: add roles/bodies/special
+          // TODO: add roles/bodies
+          // TODO: make this little less awkward
           return (transition.from.equals(event.status)
-            && (transition.allowedFor.users.includes(req.user.basic.id.toString())));
+            && (transition.allowedFor.users.includes(req.user.basic.id.toString())
+              || transition.allowedFor.special.filter(special =>
+                    req.user.special.includes(special)).length > 0));
         });
       });
 
@@ -403,8 +406,11 @@ exports.setApprovalStatus = (req, res, next) => {
       }
 
       // Checking if this user/role/body/special has the rights to do the transition.
-      // TODO: add user roles, special etc.
-      if (!transition.allowedFor.users.includes(req.user.basic.id.toString())) {
+      // TODO: add bodies and groups.
+      // TODO: make this little less awkward.
+      if (!transition.allowedFor.users.includes(req.user.basic.id.toString())
+          && !transition.allowedFor.special.filter(
+              s => req.user.special.includes(s)).length === 0) {
         return next(new restify.ForbiddenError());
       }
 
