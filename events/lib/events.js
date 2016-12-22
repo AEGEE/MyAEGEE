@@ -173,17 +173,17 @@ exports.addEvent = function (req, res, next) {
   // Loading event type and its default lifecycle
   EventType
     .findOne({ name: data.type })
-    .populate('lifecycle')
+    .populate('defaultLifecycle')
     .then((eventType) => {
-      if (!eventType || !eventType.lifecycle) { // no lifecycle exists for this type of event
+      if (!eventType || !eventType.defaultLifecycle) { // no lifecycle exists for this type of event
         return restify.InvalidArgumentError({
           body: `No lifecycle is specified for this type of event: ${data.type},\
 cannot set initial status.`,
         });
       }
 
-      newEvent.status = eventType.lifecycle.initialStatus;
-      newEvent.lifecycle = eventType.lifecycle._id;
+      newEvent.status = eventType.defaultLifecycle.initialStatus;
+      newEvent.lifecycle = eventType.defaultLifecycle._id;
 
       return newEvent.save((err) => {
         if (err) {
@@ -344,6 +344,11 @@ exports.editEvent = function (req, res, next) {
 
 };
 
+
+// TODO: something with that.
+// Maybe remove it and add 'deleted' status for each lifecycle?
+// If so, we won't need this endpoint, we will be doing stuff via
+// the status change endpoint.
 exports.deleteEvent = function (req, res, next) {
   if (!req.user.permissions.can.delete)
    return next(new restify.ForbiddenError('You are not permitted to delete events'));

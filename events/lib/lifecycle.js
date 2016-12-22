@@ -93,20 +93,27 @@ exports.createLifecycle = (req, res, next) => {
   });
 };
 
+// TODO: Refactor this so we won't need to do additional queries
+// to load initialStatus and transition statuses, while
+// we could just copy them from the statuses array.
 exports.getLifecycles = (req, res, next) => {
-  Lifecycle
+  EventType
     .find({})
-    .populate([
-      'status',
-      'initialStatus',
-      { path: 'transitions.from', model: 'Status' },
-      { path: 'transitions.to', model: 'Status' },
-    ])
-    .then((lifecycles) => {
-      res.status(201);
+    .populate({
+      path: 'defaultLifecycle',
+      model: 'Lifecycle',
+      populate: [
+        'status',
+        'initialStatus',
+        { path: 'transitions.from', model: 'Status' },
+        { path: 'transitions.to', model: 'Status' },
+      ],
+    })
+    .then((eventTypes) => {
+      res.status(200);
       res.json({
         success: true,
-        lifecycles,
+        eventTypes,
       });
 
       return next();
