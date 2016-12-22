@@ -33,12 +33,19 @@ exports.createStatus = (req, res, next) => {
   });
 };
 
+// TODO: refactor this function so it would create statuses,
+// save them and store their ID in lifecycle, so we
+// won't need the createStatus endpoint.
 exports.createLifecycle = (req, res, next) => {
   const data = req.body;
   delete data._id;
 
+  if (!data.eventType) {
+    return next(new restify.InvalidArgumentError({ body: 'No event type was specified.' }));
+  }
+
   const newLifecycle = new Lifecycle(data);
-  newLifecycle.save((err) => {
+  return newLifecycle.save((err, lifecycle) => {
     if (err) {
       // Send validation-errors back to client
       if (err.name === 'ValidationError') {
@@ -49,28 +56,39 @@ exports.createLifecycle = (req, res, next) => {
       return next(new restify.InternalError());
     }
 
-    res.status(201);
-    res.json({
-      success: true,
-      message: 'Lifecycle successfully created',
-      lifecycle: newLifecycle,
-    });
+    // Getting EventType with this name.
+    return EventType
+      .findOne({ name: data.eventType })
+      .exec((eventTypeFindErr, eventType) => {
+        // Handling saving errors.
+        if (eventTypeFindErr) {
+          return next(new restify.InternalError());
+        }
 
-    return next();
-  });
-};
+        // If no EventType is specified, we create one.
+        if (!eventType) {
+          eventType = new EventType({
+            name: data.eventType,
+          });
+        }
 
-// probably should remove this one
-// to load all statuses via its lifecycles
-exports.getStatuses = (req, res, next) => {
-  Status.find({}).then((statuses) => {
-    res.status(201);
-    res.json({
-      success: true,
-      statuses,
-    });
+        // Setting its default lifecycle to the created one and save.
+        eventType.defaultLifecycle = lifecycle._id;
+        return eventType.save((eventTypeSaveErr) => {
+          if (eventTypeSaveErr) {
+            return next(new restify.InternalError());
+          }
 
-    return next();
+          res.status(201);
+          res.json({
+            success: true,
+            message: 'Lifecycle successfully created',
+            lifecycle: newLifecycle,
+          });
+
+          return next();
+        });
+      });
   });
 };
 
