@@ -65,10 +65,6 @@ server.get({ path: '/status', version: cur_version }, service.status);
 server.get({ path: '/debug', version: cur_version }, events.debug);
 server.get({ path: '/getUser', version: cur_version },
            [middlewares.checkPermissions, service.getUser]);
-server.get({ path: '/roles', version: cur_version },
-           [middlewares.checkPermissions, service.getRoles]);
-server.put({ path: '/roles', version: cur_version },
-           [middlewares.checkPermissions, service.registerRoles]);
 
 server.post({ path: '/lifecycle', version: cur_version }, lifecycle.createLifecycle);
 server.get({ path: '/lifecycle', version: cur_version }, lifecycle.getLifecycles);

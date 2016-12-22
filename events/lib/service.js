@@ -33,22 +33,22 @@ exports.status = function (req, res, next) {
 };
 
 // TODO remove, debug only
-exports.getUser = function (req, res, next) {
+exports.getUser = (req, res, next) => {
   res.json(req.user);
   return next();
 };
 
-exports.countRequests = function (req, res, next) {
+exports.countRequests = (req, res, next) => {
   stats.requests++;
   return next();
 };
 
 // Register the service with the core
-exports.registerMicroservice = function (req, res, next) {
-
-  require('./config/options.js').then(function (options) {
-    if (!options.enable_change)
-     return next(new resfity.ForbiddenError('Registering Microservice is deactivated'));
+exports.registerMicroservice = (req, res, next) => {
+  require('./config/options.js').then((options) => {
+    if (!options.enable_change) {
+      return next(new restify.ForbiddenError('Registering Microservice is deactivated'));
+    }
 
     var data = {
       name: 'OMS Events',
@@ -75,7 +75,7 @@ exports.registerMicroservice = function (req, res, next) {
       form: data,
     };
 
-    httprequest(opts, function (error, response, body) {
+    return httprequest(opts, (error, response, body) => {
       if (error) {
         log.error('Could not register microservice', error);
         return next(
@@ -86,8 +86,7 @@ exports.registerMicroservice = function (req, res, next) {
 
       try {
         body = JSON.parse(body);
-      }
-      catch (err) {
+      } catch (err) {
         log.error('Could not parse core response', err);
         return next(new restify.InternalError());
       }
@@ -99,7 +98,7 @@ exports.registerMicroservice = function (req, res, next) {
 
       options.handshake_token = body.handshake_token;
       options.enable_change = false;
-      options.save(function (err) {
+      return options.save((err) => {
         if (err) {
           log.error('Could not save handshake token', err);
           return next(new restify.InternalError('Could not save handshake token'));
@@ -112,35 +111,6 @@ exports.registerMicroservice = function (req, res, next) {
           message: 'New handshake token registered',
         });
         return next();
-      });
-    });
-  });
-};
-
-// List the current roles
-exports.getRoles = function (req, res, next) {
-  require('./config/options.js').then(function (options) {
-    res.json(options.roles);
-    return next();
-  });
-};
-
-// Register which role acts as an admin for which kind of events
-exports.registerRoles = function (req, res, next) {
-  if (!req.user.basic.is_superadmin)
-   return next(new restify.ForbiddenError({ message: 'Need to be superadmin' }));
-
-  require('./config/options.js').then(function (options) {
-    options.roles = req.body.roles;
-    options.save(function (err) {
-      if (err) {
-        log.error('Could not save new roles', err);
-        return next(new restify.InternalError('Could not save new roles'));
-      }
-
-      res.json({
-        success: true,
-        message: 'New roles saved',
       });
     });
   });
