@@ -176,7 +176,10 @@ exports.addEvent = function (req, res, next) {
   // Loading event type and its default lifecycle
   EventType
     .findOne({ name: data.type })
-    .populate('defaultLifecycle')
+    .populate({
+      path: 'defaultLifecycle',
+      populate: { path: 'initialStatus' },
+    })
     .then((eventType) => {
       if (!eventType || !eventType.defaultLifecycle) { // no lifecycle exists for this type of event
         return restify.InvalidArgumentError({
@@ -185,7 +188,7 @@ cannot set initial status.`,
         });
       }
 
-      newEvent.status = eventType.defaultLifecycle.initialStatus;
+      newEvent.status = eventType.defaultLifecycle.initialStatus._id;
       newEvent.lifecycle = eventType.defaultLifecycle._id;
 
       return newEvent.save((err) => {
@@ -198,6 +201,9 @@ cannot set initial status.`,
           log.error('Could not edit event', err);
           return next(new restify.InternalError());
         }
+
+        // Setting event status as object, not ID.
+        newEvent.status = eventType.defaultLifecycle.initialStatus;
 
         // Register cronjob for deadline
         if (data.application_deadline) {
