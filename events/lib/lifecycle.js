@@ -6,6 +6,7 @@ const Status = lifecycleSchema.Status;
 const Lifecycle = lifecycleSchema.Lifecycle;
 const EventType = lifecycleSchema.EventType;
 
+// TODO: move this into createLifecycle, see below.
 exports.createStatus = (req, res, next) => {
   const data = req.body;
   delete data._id;

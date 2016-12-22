@@ -1,3 +1,5 @@
+// TODO: move this into 3 separate files and into separate folder.
+
 var mongoose = require('mongoose');
 var config = require('./config/config.js');
 

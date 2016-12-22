@@ -145,7 +145,7 @@ exports.addEvent = function (req, res, next) {
   delete data.applications;
   delete data.organizers;
   delete data.application_status;
-  //delete data.organizing_locals;
+  // delete data.organizing_locals;
 
   var newEvent = new Event(data);
 
