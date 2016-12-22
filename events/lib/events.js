@@ -9,7 +9,8 @@ var cron = require('./cron.js');
 var Event = require('./eventModel.js');
 var lifecycleSchema = require('./lifecycleSchema');
 var Lifecycle = lifecycleSchema.Lifecycle;
-var Status = lifecycleSchema.Status;
+var EventType = lifecycleSchema.EventType;
+
 
 
 /** Requests for all events **/
@@ -169,17 +170,20 @@ exports.addEvent = function (req, res, next) {
     },
   ];
 
-  Lifecycle
-    .findOne({ eventType: data.type })
-    .populate('initialStatus')
-    .then((lifecycle) => {
-      if (!lifecycle || !lifecycle.initialStatus) { // no lifecycle exists for this type of event
-        return restify.InvalidArgumentError({ body: `No lifecycle is specified for this type of event: ${data.type},\
-cannot set initial status.` });
+  // Loading event type and its default lifecycle
+  EventType
+    .findOne({ name: data.type })
+    .populate('lifecycle')
+    .then((eventType) => {
+      if (!eventType || !eventType.lifecycle) { // no lifecycle exists for this type of event
+        return restify.InvalidArgumentError({
+          body: `No lifecycle is specified for this type of event: ${data.type},\
+cannot set initial status.`,
+        });
       }
 
-      newEvent.status = lifecycle.initialStatus._id;
-      newEvent.lifecycle = lifecycle._id;
+      newEvent.status = eventType.lifecycle.initialStatus;
+      newEvent.lifecycle = eventType.lifecycle._id;
 
       return newEvent.save((err) => {
         if (err) {
