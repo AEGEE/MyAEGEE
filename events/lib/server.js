@@ -68,7 +68,6 @@ server.get({ path: '/getUser', version: cur_version },
 
 server.post({ path: '/lifecycle', version: cur_version }, lifecycle.createLifecycle);
 server.get({ path: '/lifecycle', version: cur_version }, lifecycle.getLifecycles);
-server.post({ path: '/lifecycle/status', version: cur_version }, lifecycle.createStatus);
 
 server.get({ path: '/mine/byOrganizer', version: cur_version }, events.listUserOrganizedEvents);
 server.get({ path: '/mine/byApplication', version: cur_version }, events.listUserAppliedEvents);
