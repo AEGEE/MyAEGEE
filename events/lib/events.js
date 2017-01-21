@@ -297,24 +297,28 @@ exports.editEvent = function (req, res, next) {
       });
       // If user already exists, copy only new stuff
       if (!neworganizer) {
-        if (organizer.comment) event.organizers[index].comment = organizer.comment;
-        if (organizer.main_organizer) event.organizers[index].main_organizer = organizer.main_organizer;
+        if (organizer.comment) {
+          event.organizers[index].comment = organizer.comment;
+        }
+        if (organizer.main_organizer) {
+          event.organizers[index].main_organizer = organizer.main_organizer;
+        }
         event.organizers[index].touched = true;
       } else {
         helpers.getUserById(req.header('x-auth-token'), organizer.foreign_id, function (err, res) {
           if (err) {
-           log.warn('Could not retrieve user details');
+            log.warn('Could not retrieve user details');
           } else {
-           event.organizers.push({
-            foreign_id: organizer.foreign_id,
-            first_name: res.basic.first_name,
-            last_name: res.basic.last_name,
-            antenna_id: res.basic.antenna_id,
-            antenna_name: res.basic.antenna_name,
-            comment: organizer.comment,
-            main_organizer: organizer.main_organizer,
-            touched: true,
-           });
+            event.organizers.push({
+              foreign_id: organizer.foreign_id,
+              first_name: res.basic.first_name,
+              last_name: res.basic.last_name,
+              antenna_id: res.basic.antenna_id,
+              antenna_name: res.basic.antenna_name,
+              comment: organizer.comment,
+              main_organizer: organizer.main_organizer,
+              touched: true,
+            });
           }
         });
       }
@@ -485,17 +489,17 @@ exports.getApplication = function (req, res, next) {
   var event = req.event;
 
   // Search for the application
-  var application = event.applications.find(function (element) {return element.foreign_id == req.user.basic.id;});
+  var application = event.applications.find(element => element.foreign_id === req.user.basic.id);
 
-  if (application == undefined)
-   return next(new restify.ResourceNotFoundError('User ' + req.user.basic.id + ' not found'));
+  if (application == undefined) {
+    return next(new restify.ResourceNotFoundError('User ' + req.user.basic.id + ' not found'));
+  }
 
   res.json(application);
   return next();
-
 };
 
-exports.setApplication = function (req, res, next) {
+exports.setApplication = (req, res, next) => {
   var event = req.event;
 
   // Check for permission
