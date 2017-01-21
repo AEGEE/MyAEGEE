@@ -1,3 +1,5 @@
+// TODO: move this into separate folder
+
 var mongoose = require('mongoose');
 var config = require('./config/config.js');
 
@@ -58,7 +60,7 @@ var applicationFieldSchema =  mongoose.Schema({
 var eventSchema =  mongoose.Schema({
   url: String,
   head_image: {
-    //url: String, virtual
+    // url: String, virtual
     path: String,
   },
   name: { type: String, required: true },
@@ -71,10 +73,13 @@ var eventSchema =  mongoose.Schema({
   },
   organizing_locals: [localSchema],
   type:
-  { type: String,
+  {
+    type: String,
     enum: ['non-statutory', 'statutory', 'su', 'local'],
-    default: 'non-statutory', },
-  status: { type: String, enum: ['draft', 'requesting', 'approved', 'deleted'], default: 'draft' },
+    default: 'non-statutory',
+  },
+  status: { type: mongoose.Schema.Types.ObjectId, ref: 'Status' },
+  lifecycle: { type: mongoose.Schema.Types.ObjectId, ref: 'Lifecycle' },
   max_participants: {
     type: Number,
     default: 0,

@@ -14,18 +14,17 @@ var userCacheSchema = mongoose.Schema({
 });
 var UserCache = mongoose.model('UserCache', userCacheSchema);
 
-exports.authenticateUser = function (req, res, next) {
+exports.authenticateUser = (req, res, next) => {
   var token = req.header('x-auth-token');
   if (!token) {
-    //log.info("Unauthenticated request", req);
+    log.info("Unauthenticated request", req);
     return next(new restify.ForbiddenError('No auth token provided'));
   }
 
-  UserCache.findOne({ token: token }, function (err, res) {
+  UserCache.findOne({ token: token }, (userCacheErr, userCacheRes) => {
     // If not found, query core
-    if (err || !res) {
-      require('./config/options.js').then(options => {
-
+    if (userCacheErr || !userCacheRes) {
+      require('./config/options.js').then((options) => {
         var opts = {
           url: config.core.url + ':' + config.core.port + '/api/getUserByToken',
           method: 'POST',
@@ -35,7 +34,7 @@ exports.authenticateUser = function (req, res, next) {
           },
         };
 
-        httprequest(opts, function (err, res, body) {
+        httprequest(opts, (err, res, body) => {
           if (err) {
             log.error('Could not contact core to authenticate user', err);
             return next(new restify.InternalError);
@@ -65,7 +64,7 @@ exports.authenticateUser = function (req, res, next) {
             var saveUserData = new UserCache();
             saveUserData.token = token;
             saveUserData.user = req.user;
-            saveUserData.save(err => {
+            saveUserData.save((err) => {
               if (err)
                 log.warn('Could not store user data in cache', err);
             });
@@ -78,7 +77,7 @@ exports.authenticateUser = function (req, res, next) {
     else {
       if (!req.user)
         req.user = {};
-      req.user = res.user;
+      req.user = userCacheRes.user;
       return next();
     }
   });
@@ -90,7 +89,6 @@ exports.fetchUserDetails = function (req, res, next) {
   if (req.user.details)
     return next();
 
-  //
   require('./config/options.js').then(options => {
 
     var token = req.header('x-auth-token');
@@ -135,6 +133,8 @@ exports.fetchUserDetails = function (req, res, next) {
       req.user.roles = body.roles;
       req.user.fees_paid = body.fees_paid;
 
+      req.user.special = ['Public'];
+
       next();
 
       // Save fetched user details to cache
@@ -169,7 +169,10 @@ exports.fetchSingleEvent = function (req, res, next) {
     return next(new restify.NotFoundError('No Event-id provided'));
   }
 
-  Event.findById(req.params.event_id).exec(function (err, event) {
+  Event
+    .findById(req.params.event_id)
+    .populate('status')
+    .exec(function (err, event) {
     if (err) {
       if (err.name == 'CastError')
         return next(new restify .NotFoundError(
@@ -189,124 +192,97 @@ exports.fetchSingleEvent = function (req, res, next) {
 // Middleware to check which permissions the user has, in regart to the current
 // event if there is one Requires the fetchSingleEvent and fetchUserDetails
 // middleware to be executed beforehand
-exports.checkPermissions = function (req, res, next) {
-  require('./config/options.js').then(function (options) {
-    var permissions = {
-      is: {},
-      can: {},
-    };
+exports.checkPermissions = (req, res, next) => {
+  var permissions = {
+    is: {},
+    can: {},
+  };
 
-    permissions.is.superadmin = req.user.basic.is_superadmin;
+  permissions.is.superadmin = req.user.basic.is_superadmin;
 
-    // If user details are available, fill additional roles
-    if (req.user.details) {
-      if (options.roles.super_admin) {
-        permissions.is.superadmin = permissions.is.superadmin ||
-          req.user.roles.some(item => item.id == options.roles.super_admin);
+  // If user details are available, fill additional roles
+  if (req.user.details) {
+    permissions.is.boardmember = req.user.board_positions.length > 0;
+
+    permissions.can.view_local_involved_events = permissions.is.boardmember ||
+      permissions.is.superadmin;
+  }
+
+  // If an event was fetched, add event-based permissions
+  if (req.event) {
+    permissions.is.organizer = req.event.organizers.some(function (item) {
+      return item.foreign_id == req.user.basic.id;
+    });
+
+    var application_index;
+
+    permissions.is.participant = req.event.applications.some(function (item, index) {
+      if (item.foreign_id === req.user.basic.id) {
+        application_index = index;
+        return true;
       }
 
-      if (options.roles.su_admin) {
-        permissions.is.su_admin = req.user.roles.some(item => item.id == options.roles.su_admin);
-      }
+      return false;
+    });
 
-      if (options.roles.statutory_admin) {
-        permissions.is.statutory_admin = req.user.roles.some(
-          item => item.id == options.roles.statutory_admin);
-      }
+    permissions.is.accepted_participant = permissions.is.participant &&
+      req.event.applications[application_index].application_status === 'accepted';
 
-      if (options.roles.non_statutory_admin) {
-        permissions.is.non_statutory_admin = req.user.roles.some(
-          item => item.id == options.roles.non_statutory_admin);
-      }
+    permissions.is.own_antenna = req.event.organizing_locals.some(item =>
+      item.foreign_id === req.user.basic.antenna_id);
 
-      permissions.is.boardmember = req.user.board_positions.length > 0;
+    // TODO check if this is the right way to determine board positions
 
-      permissions.can.view_local_involved_events = permissions.is.boardmember ||
-        permissions.is.superadmin;
-    }
+    permissions.can.edit_organizers = permissions.is.organizer;
 
-    // If an event was fetched, add event-based permissions
-    if (req.event) {
+    permissions.can.edit_details =
+      (permissions.is.organizer &&
+       req.event.application_status == 'closed' && req.event.status == 'draft') // Normal editing
+      || permissions.is.superadmin;
 
-      permissions.is.organizer = req.event.organizers.some(function (item) {
-        return item.foreign_id == req.user.basic.id;
-      });
+    permissions.can.delete = req.event.status == 'draft' && permissions.can.edit_details;
 
-      var application_index;
+    permissions.can.edit_application_status =
+      (permissions.is.organizer && req.event.status == 'approved')
+      || permissions.is.superadmin;
 
-      permissions.is.participant = req.event.applications.some(function (item, index) {
-        if (item.foreign_id == req.user.basic.id) {
-          application_index = index;
-          return true;
-        }
+    // TODO: probably remove this one, since we have the lifecycle workflow
+    permissions.can.approve =
+      req.event.application_status === 'closed' || permissions.is.superadmin;
 
-        return false;
-      });
+    permissions.can.edit =
+      permissions.can.edit_details
+      || permissions.can.edit_organizers
+      || permissions.can.delete
+      || permissions.can.edit_application_status
+      || permissions.can.approve;
 
-      permissions.is.accepted_participant = permissions.is.participant &&
-        req.event.applications[application_index].application_status == 'accepted';
+    permissions.can.apply =
+      (!permissions.is.organizer && req.event.application_status == 'open')
+      || permissions.is.superadmin;
 
-      permissions.is.own_antenna = req.event.organizing_locals.some(function (item) {
-        return item.foreign_id == req.user.basic.antenna_id;
-      });
+    permissions.can.approve_participants = permissions.is.organizer &&
+      req.event.application_status == 'closed';
 
-      // TODO check if this is the right way to determine board positions
+    permissions.can.view_applications =
+      permissions.is.organizer
+      || (permissions.is.boardmember && permissions.is.own_antenna)
+      || permissions.is.superadmin;
+  }
 
-      permissions.can.edit_organizers = permissions.is.organizer;
+  if (permissions.is.organizer) {
+    req.user.special.push('Organizer');
+  }
 
-      permissions.can.edit_details =
-        (permissions.is.organizer &&
-         req.event.application_status == 'closed' && req.event.status == 'draft') // Normal editing
-        || permissions.is.superadmin;
+  // Convert all to boolean and assign
+  req.user.permissions = { is: {}, can: {} };
+  for (var attr in permissions.is) {
+    req.user.permissions.is[attr] = Boolean(permissions.is[attr]);
+  }
 
-      permissions.can.delete = req.event.status == 'draft' && permissions.can.edit_details;
+  for (var attr in permissions.can) {
+    req.user.permissions.can[attr] = Boolean(permissions.can[attr]);
+  }
 
-      permissions.can.edit_application_status =
-        (permissions.is.organizer && req.event.status == 'approved')
-        || permissions.is.superadmin;
-
-      permissions.can.approve =
-        req.event.application_status == 'closed'
-        || (permissions.is.superadmin
-            || (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
-            || (permissions.is.su_admin && req.event.type == 'su')
-            || (permissions.is.statutory_admin && req.event.type == 'statutory')
-            || (permissions.is.boardmember &&
-                permissions.is.own_antenna && req.event.type == 'local'));
-
-      permissions.can.edit =
-        permissions.can.edit_details
-        || permissions.can.edit_organizers
-        || permissions.can.delete
-        || permissions.can.edit_application_status
-        || permissions.can.approve;
-
-      permissions.can.apply =
-        (!permissions.is.organizer && req.event.application_status == 'open')
-        || permissions.is.superadmin;
-
-      permissions.can.approve_participants = permissions.is.organizer &&
-        req.event.application_status == 'closed';
-
-      permissions.can.view_applications =
-        permissions.is.organizer
-        || (permissions.is.boardmember && permissions.is.own_antenna)
-        || permissions.is.superadmin
-        || (permissions.is.non_statutory_admin && req.event.type == 'non-statutory')
-        || (permissions.is.su_admin && req.event.type == 'su')
-        || (permissions.is.statutory_admin && req.event.type == 'statutory');
-    }
-
-    // Convert all to boolean and assign
-    req.user.permissions = { is: {}, can: {} };
-    for (var attr in permissions.is) {
-      req.user.permissions.is[attr] = Boolean(permissions.is[attr]);
-    }
-
-    for (var attr in permissions.can) {
-      req.user.permissions.can[attr] = Boolean(permissions.can[attr]);
-    }
-
-    return next();
-  });
+  return next();
 };

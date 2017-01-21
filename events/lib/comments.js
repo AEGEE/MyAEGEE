@@ -1,6 +1,8 @@
 // Could theoretically be split into a seperate server, doesn't interact with the rest of the module
 // Idea: implement in elxir?
 // Idea accepted =)
+
+// TODO: move the model into separate file and folder.
 var mongoose = require('mongoose');
 var log = require('./config/logger.js');
 var restify = require('restify');
