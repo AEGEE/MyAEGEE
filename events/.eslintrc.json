@@ -7,6 +7,6 @@
     "no-underscore-dangle": "off",
     "no-param-reassign": ["error", { "props": false }],
     "no-restricted-syntax": "off",
-    "np-plusplus": "off"
+    "no-plusplus": "off"
   }
 }

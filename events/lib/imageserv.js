@@ -1,39 +1,38 @@
-var mongoose = require('./config/mongo');
-var restify = require('restify');
-var log = require('./config/logger');
-var config = require('./config/config.js');
-var Event = require('./models/Event');
-var multer  = require('multer');
-var fs = require('fs');
+const restify = require('restify');
+const fs = require('fs');
+const multer = require('multer');
+const log = require('./config/logger');
+const config = require('./config/config.js');
 
-var storage = multer.diskStorage({ //multers disk storage settings
-  destination: function (req, file, cb) {
-    cb(null, config.media_dir + '/headimages');
+
+const storage = multer.diskStorage({ // multers disk storage settings
+  destination(req, file, cb) {
+    cb(null, `${config.media_dir}/headimages`);
   },
 
-  filename: function (req, file, cb) {
-    cb(null, req.event.id + '-' + (new Date()).getTime());
+  filename(req, file, cb) {
+    cb(null, `${req.event.id}-${(new Date()).getTime()}`);
   },
 });
-var upload = multer({ storage: storage }).single('head_image');
+const upload = multer({ storage }).single('head_image');
 
-exports.uploadImage = function (req, res, next) {
-  upload(req, res, function (err) {
-    if (err) {
-      log.error('Could not store image', err);
+exports.uploadImage = (req, res, next) => {
+  upload(req, res, (uploadErr) => {
+    if (uploadErr) {
+      log.error('Could not store image', uploadErr);
       return next(new restify.InternalError());
     }
 
     // If there was an old image, move that away later
-    var oldimg = req.event.head_image;
+    const oldimg = req.event.head_image;
 
     req.event.head_image = {
       path: req.file.path,
     };
 
-    req.event.save(function (err) {
-      if (err) {
-        log.error('Could not store image metadata to db', err);
+    return req.event.save((saveErr) => {
+      if (saveErr) {
+        log.error('Could not store image metadata to db', saveErr);
         return next(new restify.InternalError());
       }
 
@@ -43,18 +42,18 @@ exports.uploadImage = function (req, res, next) {
         head_image: req.event.head_image,
       });
 
-      // Send back the request
-      next();
-
       // Move old file away
       if (oldimg && oldimg.path) {
-        var path = oldimg.path.split('/');
-        fs.rename(oldimg.path, config.media_dir + '/old/' + path[path.length - 1], function (err) {
+        const path = oldimg.path.split('/');
+        fs.rename(oldimg.path, `${config.media_dir}/old/${path[path.length - 1]}`, (err) => {
           if (err) {
             log.warn('Could not move unused image into media/old folder', err);
           }
         });
       }
+
+      // Send back the request
+      return next();
     });
   });
 };

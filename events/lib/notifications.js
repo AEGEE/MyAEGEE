@@ -1,7 +1,8 @@
-var config = require('./config/config.js');
-var log = require('./config/logger.js');
-var httprequest = require('request');
+/* const httprequest = require('request');
 
-exports.notify = function (params) {
+const config = require('./config/config.js');
+const log = require('./config/logger.js'); */
+
+exports.notify = () => {
 
 };

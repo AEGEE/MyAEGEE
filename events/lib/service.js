@@ -3,25 +3,24 @@
 ** Also responsible for communication with the core
 */
 
-var config = require('./config/config.js');
-var log = require('./config/logger.js');
-var fs = require('fs');
-var httprequest = require('request');
-var mongoose = require('./config/mongo.js');
-var restify = require('restify');
-var cron = require('./cron.js');
+const config = require('./config/config.js');
+const log = require('./config/logger.js');
+const fs = require('fs');
+const httprequest = require('request');
+const restify = require('restify');
+const cron = require('./cron.js');
 
 /* Stat thing... remove!*/
-var stats = {
+const stats = {
   requests: 0,
   started: Date.now(),
 };
 
-exports.status = function (req, res, next) {
-  require('./config/options.js').then(function (options) {
-    var ret = {
+exports.status = (req, res, next) => {
+  require('./config/options.js').then((options) => {
+    const ret = {
       requests: stats.requests,
-      uptime: ((new Date).getTime() - stats.started) / 1000,
+      uptime: ((new Date()).getTime() - stats.started) / 1000,
       deadline_crons: cron.countJobs(),
 
       // For debugging purposes only, TODO remove!
@@ -50,7 +49,7 @@ exports.registerMicroservice = (req, res, next) => {
       return next(new restify.ForbiddenError('Registering Microservice is deactivated'));
     }
 
-    var data = {
+    const data = {
       name: 'OMS Events',
       code: 'oms-events',
       base_url: config.frontend.url,
@@ -58,14 +57,14 @@ exports.registerMicroservice = (req, res, next) => {
     };
 
     // If wanted, overwrite the API-Key from a file
-    var secret = config.secret;
+    const secret = config.secret;
     if (config.secret_overwrite) {
       secret = fs.readFileSync(config.secret_overwrite, 'utf8').trim();
       console.log(secret);
     }
 
-    var opts = {
-      url: config.core.url + ':' + config.core.port + '/api/registerMicroservice',
+    const opts = {
+      url: `${config.core.url}:${config.core.port}/api/registerMicroservice`,
       method: 'POST',
       headers: {
         'X-Requested-With': 'XMLHttpRequest',
@@ -75,17 +74,18 @@ exports.registerMicroservice = (req, res, next) => {
       form: data,
     };
 
-    return httprequest(opts, (error, response, body) => {
-      if (error) {
-        log.error('Could not register microservice', error);
+    return httprequest(opts, (requestErr, requestRes, requestBody) => {
+      if (requestErr) {
+        log.error('Could not register microservice', requestErr);
         return next(
           new restify.InternalError('Could not register microservice, core communication failed'));
       }
 
-      log.info('some data received: ', body);
+      log.info('some data received: ', requestBody);
 
+      let body;
       try {
-        body = JSON.parse(body);
+        body = JSON.parse(requestBody);
       } catch (err) {
         log.error('Could not parse core response', err);
         return next(new restify.InternalError());
@@ -104,7 +104,7 @@ exports.registerMicroservice = (req, res, next) => {
           return next(new restify.InternalError('Could not save handshake token'));
         }
 
-        log.info('New handshake token registered: ' + body.handshake_token);
+        log.info(`New handshake token registered: ${body.handshake_token}`);
 
         res.json({
           success: true,
