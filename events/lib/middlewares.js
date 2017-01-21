@@ -1,40 +1,41 @@
-var config = require('./config/config.js');
-var log = require('./config/logger.js');
-var httprequest = require('request');
-var restify = require('restify');
+const httprequest = require('request');
+const restify = require('restify');
+
+const config = require('./config/config.js');
+const log = require('./config/logger.js');
 const Event = require('./models/Event');
 const UserCache = require('./models/UserCache');
 
 exports.authenticateUser = (req, res, next) => {
-  var token = req.header('x-auth-token');
+  const token = req.header('x-auth-token');
   if (!token) {
-    log.info("Unauthenticated request", req);
+    log.info('Unauthenticated request', req);
     return next(new restify.ForbiddenError('No auth token provided'));
   }
 
-  UserCache.findOne({ token: token }, (userCacheErr, userCacheRes) => {
+  return UserCache.findOne({ token }, (userCacheErr, userCacheRes) => {
     // If not found, query core
     if (userCacheErr || !userCacheRes) {
-      require('./config/options.js').then((options) => {
-        var opts = {
-          url: config.core.url + ':' + config.core.port + '/api/getUserByToken',
+      return require('./config/options.js').then((options) => {
+        const opts = {
+          url: `${config.core.url}:${config.core.port}/api/getUserByToken`,
           method: 'POST',
           headers: options.getRequestHeaders(),
           form: {
-            token: token,
+            token,
           },
         };
 
-        httprequest(opts, (err, res, body) => {
-          if (err) {
-            log.error('Could not contact core to authenticate user', err);
-            return next(new restify.InternalError);
+        httprequest(opts, (requestError, requestResult, requestBody) => {
+          if (requestError) {
+            log.error('Could not contact core to authenticate user', requestError);
+            return next(new restify.InternalError());
           }
 
+          let body;
           try {
-            body = JSON.parse(body);
-          }
-          catch (err) {
+            body = JSON.parse(requestBody);
+          } catch (err) {
             log.error('Could not parse core response', err);
             return next(new restify.InternalError());
           }
@@ -44,52 +45,53 @@ exports.authenticateUser = (req, res, next) => {
             return next(new restify.ForbiddenError('Access denied'));
           }
 
-          if (!req.user)
+          if (!req.user) {
             req.user = {};
+          }
           req.user.basic = body.user;
           req.user.basic.antenna_name = body.user.antenna;
-          next();
 
           // After calling next, try saving the fetched data to db
           if (config.enable_user_caching) {
-            var saveUserData = new UserCache();
+            const saveUserData = new UserCache();
             saveUserData.token = token;
             saveUserData.user = req.user;
-            saveUserData.save((err) => {
-              if (err)
-                log.warn('Could not store user data in cache', err);
+            saveUserData.save((saveErr) => {
+              if (saveErr) {
+                log.warn('Could not store user data in cache', saveErr);
+              }
             });
           }
+
+          return next();
         });
       });
     }
 
     // If found in cache, use that one
-    else {
-      if (!req.user)
-        req.user = {};
-      req.user = userCacheRes.user;
-      return next();
+    if (!req.user) {
+      req.user = {};
     }
+    req.user = userCacheRes.user;
+    return next();
   });
-
 };
 
-exports.fetchUserDetails = function (req, res, next) {
+exports.fetchUserDetails = (req, res, next) => {
   // Check if authenticate user already fetched details from cache
-  if (req.user.details)
+  if (req.user.details) {
     return next();
+  }
 
-  require('./config/options.js').then(options => {
-
-    var token = req.header('x-auth-token');
+  return require('./config/options.js').then((options) => {
+    const token = req.header('x-auth-token');
     if (!token) {
       log.info('Unauthenticated request', req);
       return next(new restify.ForbiddenError('No auth token provided'));
     }
 
-    var opts = {
-      url: config.core.url + ':' + config.core.port + '/api/getUserProfile',
+    const opts = {
+      url: `${config.core.url}:${config.core.port}/api/getUserProfile`,
       method: 'GET',
       headers: options.getRequestHeaders(token),
       qs: {
@@ -97,16 +99,16 @@ exports.fetchUserDetails = function (req, res, next) {
       },
     };
 
-    httprequest(opts, function (err, res, body) {
-      if (err) {
-        log.error('Could not fetch user profile details from core', err);
-        return next(new restify.InternalError);
+    return httprequest(opts, (requestError, requestResult, requestBody) => {
+      if (requestError) {
+        log.error('Could not fetch user profile details from core', requestError);
+        return next(new restify.InternalError());
       }
 
+      let body;
       try {
-        body = JSON.parse(body);
-      }
-      catch (err) {
+        body = JSON.parse(requestBody);
+      } catch (err) {
         log.error('Could not parse core response', err);
         return next(new restify.InternalError());
       }
@@ -116,8 +118,9 @@ exports.fetchUserDetails = function (req, res, next) {
         return next(new restify.ForbiddenError('Core refused user profile fetch'));
       }
 
-      if (!req.user)
+      if (!req.user) {
         req.user = {};
+      }
       req.user.details = body.user;
       req.user.workingGroups = body.workingGroups;
       req.user.board_positions = body.board_positions;
@@ -126,65 +129,68 @@ exports.fetchUserDetails = function (req, res, next) {
 
       req.user.special = ['Public'];
 
-      next();
-
       // Save fetched user details to cache
       if (config.enable_user_caching) {
-        UserCache.findOne({ token: req.header('x-auth-token') }, function (err, res) {
-          if (err) {
-            log.warn('Could not fetch user from cache', err);
+        UserCache.findOne({ token: req.header('x-auth-token') }, (userCacheErr, userCacheRes) => {
+          if (userCacheErr) {
+            log.warn('Could not fetch user from cache', userCacheErr);
             return;
           }
 
           // Shouldn't happen
-          if (!res) {
-            res = new UserCache();
+          if (!userCacheRes) {
+            userCacheRes = new UserCache();
             res.token = req.header('x-auth-token');
           }
 
-          res.user = req.user;
-          delete res.user.permissions;
-          res.save(err => {
-            if (err)
-              log.warn('Could not store user data in cache', err);
+          userCacheRes.user = req.user;
+          delete userCacheRes.user.permissions;
+          userCacheRes.save((saveErr) => {
+            if (saveErr) {
+              log.warn('Could not store user data in cache', saveErr);
+            }
           });
         });
       }
+
+      return next();
     });
   });
 };
 
-exports.fetchSingleEvent = function (req, res, next) {
+exports.fetchSingleEvent = (req, res, next) => {
   if (!req.params.event_id) {
     log.info(req.params);
     return next(new restify.NotFoundError('No Event-id provided'));
   }
 
-  Event
+  return Event
     .findById(req.params.event_id)
     .populate('status')
-    .exec(function (err, event) {
-    if (err) {
-      if (err.name == 'CastError')
-        return next(new restify .NotFoundError(
-          'Event with id ' + req.params.event_id + ' not found'));
-      log.info(err);
-      return next(new restify.InternalError());
-    }
+    .exec((err, event) => {
+      if (err) {
+        if (err.name === 'CastError') {
+          return next(new restify.NotFoundError(
+            `Event with id ${req.params.event_id} not found`));
+        }
+        log.info(err);
+        return next(new restify.InternalError());
+      }
 
-    if (event == null)
-      return next(new restify.NotFoundError('Event with id ' + req.params.event_id + ' not found'));
+      if (event == null) {
+        return next(new restify.NotFoundError(`Event with id ${req.params.event_id} not found`));
+      }
 
-    req.event = event;
-    return next();
-  });
+      req.event = event;
+      return next();
+    });
 };
 
 // Middleware to check which permissions the user has, in regart to the current
 // event if there is one Requires the fetchSingleEvent and fetchUserDetails
 // middleware to be executed beforehand
 exports.checkPermissions = (req, res, next) => {
-  var permissions = {
+  const permissions = {
     is: {},
     can: {},
   };
@@ -201,15 +207,14 @@ exports.checkPermissions = (req, res, next) => {
 
   // If an event was fetched, add event-based permissions
   if (req.event) {
-    permissions.is.organizer = req.event.organizers.some(function (item) {
-      return item.foreign_id == req.user.basic.id;
-    });
+    permissions.is.organizer =
+      req.event.organizers.some(item => item.foreign_id === req.user.basic.id);
 
-    var application_index;
+    let applicationIndex;
 
-    permissions.is.participant = req.event.applications.some(function (item, index) {
+    permissions.is.participant = req.event.applications.some((item, index) => {
       if (item.foreign_id === req.user.basic.id) {
-        application_index = index;
+        applicationIndex = index;
         return true;
       }
 
@@ -217,7 +222,7 @@ exports.checkPermissions = (req, res, next) => {
     });
 
     permissions.is.accepted_participant = permissions.is.participant &&
-      req.event.applications[application_index].application_status === 'accepted';
+      req.event.applications[applicationIndex].application_status === 'accepted';
 
     permissions.is.own_antenna = req.event.organizing_locals.some(item =>
       item.foreign_id === req.user.basic.antenna_id);
@@ -228,13 +233,13 @@ exports.checkPermissions = (req, res, next) => {
 
     permissions.can.edit_details =
       (permissions.is.organizer &&
-       req.event.application_status == 'closed' && req.event.status == 'draft') // Normal editing
+       req.event.application_status === 'closed' && req.event.status === 'draft') // Normal editing
       || permissions.is.superadmin;
 
-    permissions.can.delete = req.event.status == 'draft' && permissions.can.edit_details;
+    permissions.can.delete = req.event.status === 'draft' && permissions.can.edit_details;
 
     permissions.can.edit_application_status =
-      (permissions.is.organizer && req.event.status == 'approved')
+      (permissions.is.organizer && req.event.status === 'approved')
       || permissions.is.superadmin;
 
     // TODO: probably remove this one, since we have the lifecycle workflow
@@ -249,11 +254,11 @@ exports.checkPermissions = (req, res, next) => {
       || permissions.can.approve;
 
     permissions.can.apply =
-      (!permissions.is.organizer && req.event.application_status == 'open')
+      (!permissions.is.organizer && req.event.application_status === 'open')
       || permissions.is.superadmin;
 
     permissions.can.approve_participants = permissions.is.organizer &&
-      req.event.application_status == 'closed';
+      req.event.application_status === 'closed';
 
     permissions.can.view_applications =
       permissions.is.organizer
@@ -267,11 +272,11 @@ exports.checkPermissions = (req, res, next) => {
 
   // Convert all to boolean and assign
   req.user.permissions = { is: {}, can: {} };
-  for (var attr in permissions.is) {
+  for (const attr in permissions.is) {
     req.user.permissions.is[attr] = Boolean(permissions.is[attr]);
   }
 
-  for (var attr in permissions.can) {
+  for (const attr in permissions.can) {
     req.user.permissions.can[attr] = Boolean(permissions.can[attr]);
   }
 

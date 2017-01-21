@@ -1,15 +1,15 @@
-var config = require('./config.js');
-var mongoose = require('mongoose');
-var log = require('./logger');
+const config = require('./config.js');
+const mongoose = require('mongoose');
+const log = require('./logger');
 
 mongoose.Promise = global.Promise;
 mongoose.connect(config.mongourl);
-var db = mongoose.connection;
+const db = mongoose.connection;
 // Applying a fail-fast approach on mongodb connection loss
-db.on('error', function(err) {
-	log.info("Fatal error, exiting (%s)", err);
-	console.log("Fatal mongodb error, exiting");
-	process.exit(-1);
+db.on('error', (err) => {
+  log.info('Fatal error, exiting (%s)', err);
+  console.log('Fatal mongodb error, exiting: ', err);
+  process.exit(-1);
 });
 
 module.exports = mongoose;

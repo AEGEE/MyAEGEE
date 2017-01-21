@@ -1,23 +1,23 @@
-var log = require('./logger.js');
-var restify = require('restify');
+const restify = require('restify');
+const log = require('./logger.js');
 
+exports.checkError = (msg, err, next) => {
+  if (err) {
+    log.error(msg, err);
 
+    if (next) {
+      next(new restify.InternalError(msg));
+    }
+  }
+};
 
-exports.checkError = function(msg, err, next) {
-	if(err) {
-		log.error(msg, err);
+exports.checkFatal = (msg, err, next) => {
+  if (err) {
+    log.error(`FATAL: ${msg}`, err);
 
-		if(next)
-			next(new restify.InternalError(msg));
-	}
-}
-
-exports.checkFatal = function (msg, err, next) {
-	if(err) {
-		log.error("FATAL: " + msg, err);
-
-		if(next)
-			next(new restify.InternalError(msg));
-		process.exit(1);
-	}
-}
+    if (next) {
+      next(new restify.InternalError(msg));
+    }
+    process.exit(1);
+  }
+};

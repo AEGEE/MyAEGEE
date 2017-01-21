@@ -25,7 +25,7 @@ const paxSchema = mongoose.Schema({
 paxSchema.set('toJSON', { virtuals: true });
 
 paxSchema.set('toObject', { virtuals: true });
-paxSchema.virtual('url').get(function () {
+paxSchema.virtual('url').get(function url() {
   return `${this.parent().application_url}/${this.foreign_id}`;
 });
 
@@ -92,7 +92,7 @@ const eventSchema = mongoose.Schema({
 }, { timestamps: true });
 
 // Virtuals
-eventSchema.virtual('head_image.url').get(function () {
+eventSchema.virtual('head_image.url').get(function imageUrl() {
   if (this.head_image && this.head_image.path) {
     return `${config.frontend.url}/${this.head_image.path}`;
   }
@@ -104,7 +104,7 @@ eventSchema.set('toJSON', { virtuals: true });
 eventSchema.set('toObject', { virtuals: true });
 
 // If application is closed, set all current applications to pending
-eventSchema.pre('save', function (next) {
+eventSchema.pre('save', function save(next) {
   if (this.application_status === 'closed' && this.applications && this.applications.length > 0) {
     this.applications.forEach((item, index) => {
       if (this.applications[index].application_status === 'requesting') {
@@ -121,7 +121,7 @@ eventSchema.path('max_participants')
   .validate(value => value >= 0, 'Participants number can not be negative');
 eventSchema.path('fee')
   .validate(value => value >= 0, 'Fee can\'t be negative');
-eventSchema.pre('validate', function (next) {
+eventSchema.pre('validate', function validate(next) {
   if (this.application_status === 'open' && this.status === 'draft') {
     this.invalidate('application_status',
                     'Cannot open the application on a draft event',
