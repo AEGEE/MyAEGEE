@@ -2,27 +2,11 @@
 // Idea: implement in elxir?
 // Idea accepted =)
 
-// TODO: move the model into separate file and folder.
-var mongoose = require('mongoose');
-var log = require('./config/logger.js');
-var restify = require('restify');
-var helpers = require('./helpers.js');
+const log = require('./config/logger.js');
+const restify = require('restify');
+const helpers = require('./helpers.js');
 
-var commentSchema = mongoose.Schema({
-  event_id: { type: String, required: true, index: true },
-  user: {
-    foreign_id: { type: String, required: true },
-    antenna_id: { type: String, required: true },
-    antenna_name: String,
-    name: String,
-    profile_url: String,
-  },
-  comment: String,
-}, { timestamps: true });
-commentSchema.set('toJSON', { virtuals: true });
-commentSchema.set('toObject', { virtuals: true });
-
-var Comment = mongoose.model('Comment', commentSchema);
+const Comment = require('./models/Comment');
 
 exports.listComments = function (req, res, next) {
   Comment

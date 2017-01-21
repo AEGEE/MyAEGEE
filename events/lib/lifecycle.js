@@ -1,10 +1,9 @@
 const restify = require('restify');
 const log = require('./config/logger.js');
-const lifecycleSchema = require('./lifecycleSchema');
 
-const Status = lifecycleSchema.Status;
-const Lifecycle = lifecycleSchema.Lifecycle;
-const EventType = lifecycleSchema.EventType;
+const Status = require('./models/Status');
+const Lifecycle = require('./models/Lifecycle');
+const EventType = require('./models/EventType');
 
 exports.createLifecycle = (req, res, next) => {
   const data = req.body;

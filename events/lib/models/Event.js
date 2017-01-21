@@ -1,10 +1,8 @@
-// TODO: move this into separate folder
-
-var mongoose = require('mongoose');
-var config = require('./config/config.js');
+const mongoose = require('mongoose');
+const config = require('../config/config.js');
 
 // A participant applying to an event including it's application
-var paxSchema = mongoose.Schema({
+const paxSchema = mongoose.Schema({
   first_name: String,
   last_name: String,
   antenna: String,
@@ -28,10 +26,10 @@ paxSchema.set('toJSON', { virtuals: true });
 
 paxSchema.set('toObject', { virtuals: true });
 paxSchema.virtual('url').get(function () {
-  return this.parent().application_url + '/' + this.foreign_id;
+  return `${this.parent().application_url}/${this.foreign_id}`;
 });
 
-var orgaSchema = mongoose.Schema({
+const orgaSchema = mongoose.Schema({
   first_name: String,
   last_name: String,
   comment: String,
@@ -42,12 +40,12 @@ var orgaSchema = mongoose.Schema({
   role: { type: String, enum: ['full', 'readonly'], default: 'full' },
 });
 
-var localSchema =  mongoose.Schema({
+const localSchema = mongoose.Schema({
   name: String,
   foreign_id: { type: String, required: true },
 });
 
-var applicationFieldSchema =  mongoose.Schema({
+const applicationFieldSchema = mongoose.Schema({
   name: { type: String, required: true },
   description: String,
   optional: { type: Boolean, default: false },
@@ -57,7 +55,7 @@ var applicationFieldSchema =  mongoose.Schema({
   //min_length: Number
 });
 
-var eventSchema =  mongoose.Schema({
+const eventSchema = mongoose.Schema({
   url: String,
   head_image: {
     // url: String, virtual
@@ -95,8 +93,9 @@ var eventSchema =  mongoose.Schema({
 
 // Virtuals
 eventSchema.virtual('head_image.url').get(function () {
-  if (this.head_image && this.head_image.path)
-   return config.frontend.url + '/' + this.head_image.path;
+  if (this.head_image && this.head_image.path) {
+    return `${config.frontend.url}/${this.head_image.path}`;
+  }
   return '';
 });
 
@@ -106,10 +105,11 @@ eventSchema.set('toObject', { virtuals: true });
 
 // If application is closed, set all current applications to pending
 eventSchema.pre('save', function (next) {
-  if (this.application_status == 'closed' && this.applications && this.applications.length > 0) {
+  if (this.application_status === 'closed' && this.applications && this.applications.length > 0) {
     this.applications.forEach((item, index) => {
-      if (this.applications[index].application_status == 'requesting')
-       this.applications[index].application_status = 'pending';
+      if (this.applications[index].application_status === 'requesting') {
+        this.applications[index].application_status = 'pending';
+      }
     });
   }
 
@@ -122,24 +122,29 @@ eventSchema.path('max_participants')
 eventSchema.path('fee')
   .validate(value => value >= 0, 'Fee can\'t be negative');
 eventSchema.pre('validate', function (next) {
-  if (this.application_status == 'open' && this.status == 'draft')
+  if (this.application_status === 'open' && this.status === 'draft') {
     this.invalidate('application_status',
                     'Cannot open the application on a draft event',
                     this.application_status);
-  if (this.application_status == 'open' && this.application_deadline == null)
+  }
+  if (this.application_status === 'open' && this.application_deadline === null) {
     this.invalidate('application_deadline',
                     'Cannot open the application without a deadline',
                     this.application_deadline);
-  if (this.ends <= this.starts)
+  }
+  if (this.ends <= this.starts) {
     this.invalidate('ends',
                     'Event cannot end before it started',
                     this.ends);
-  if (this.application_deadline != null && this.starts <= this.application_deadline)
+  }
+  if (this.application_deadline != null && this.starts <= this.application_deadline) {
     this.invalidate('application_deadline',
                     'Application must end before the event starts',
                     this.application_deadline);
-  if (this.organizers == null || this.organizers.length == 0)
-   this.invalidate('organizers', 'Organizers list can not be empty', this.organizers);
+  }
+  if (this.organizers == null || this.organizers.length === 0) {
+    this.invalidate('organizers', 'Organizers list can not be empty', this.organizers);
+  }
 
   next();
 });

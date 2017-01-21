@@ -2,7 +2,7 @@ var mongoose = require('./config/mongo');
 var restify = require('restify');
 var log = require('./config/logger');
 var config = require('./config/config.js');
-var Event = require('./eventModel.js');
+var Event = require('./models/Event');
 var multer  = require('multer');
 var fs = require('fs');
 

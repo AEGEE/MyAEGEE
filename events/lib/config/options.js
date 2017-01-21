@@ -1,26 +1,8 @@
 const Promise = require('promise');
-const mongoose = require('./mongo.js');
 const log = require('./logger.js');
 
-// TODO: Move this into separate file and folder.
-const optionsSchema = mongoose.Schema({
-  handshake_token: String,
-  enable_change: { type: Boolean, default: true },
-});
+const Options = require('../models/Options');
 
-optionsSchema.methods.getRequestHeaders = function getRequestHeaders(authToken) {
-  const retval = {
-    'X-Requested-With': 'XMLHttpRequest',
-    'X-Api-Key': this.handshake_token,
-  };
-
-  if (authToken) {
-    retval['X-Auth-Token'] = authToken;
-  }
-  return retval;
-};
-
-const Options = mongoose.model('Option', optionsSchema);
 let fetchedOptions = null;
 
 module.exports = new Promise((resolve, reject) => {
