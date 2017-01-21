@@ -88,8 +88,6 @@ exports.listApprovableEvents = (req, res, next) => {
         return next(new restify.InternalError());
       }
 
-      console.log(JSON.stringify(req.user, null, '  '));
-
       // Checking if we have at least 1 transition
       // from current status to any status
       // which is allowed for this user/body/role/special
