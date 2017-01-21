@@ -6,10 +6,9 @@ var mongoose = require('./config/mongo.js');
 var imageserv = require('./imageserv.js');
 var cron = require('./cron.js');
 
-var Event = require('./eventModel.js');
-var lifecycleSchema = require('./lifecycleSchema');
-var Lifecycle = lifecycleSchema.Lifecycle;
-var EventType = lifecycleSchema.EventType;
+const Event = require('./models/Event');
+const Lifecycle = require('./models/Lifecycle');
+const EventType = require('./models/EventType');
 
 
 // Helper function for determining if two arrays are intersecting or not.

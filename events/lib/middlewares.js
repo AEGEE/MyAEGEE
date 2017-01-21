@@ -1,18 +1,9 @@
 var config = require('./config/config.js');
 var log = require('./config/logger.js');
 var httprequest = require('request');
-var mongoose = require('./config/mongo.js');
 var restify = require('restify');
-var Event = require('./eventModel.js');
-
-// For each request, query the core for user data
-// Cache user auth data so we don't have to query the core on each call
-var userCacheSchema = mongoose.Schema({
-  user: mongoose.Schema.Types.Mixed,
-  createdAt: { type: Date, expires: 300, default: Date.now },
-  token: { type: String, required: true, index: true },
-});
-var UserCache = mongoose.model('UserCache', userCacheSchema);
+const Event = require('./models/Event');
+const UserCache = require('./models/UserCache');
 
 exports.authenticateUser = (req, res, next) => {
   var token = req.header('x-auth-token');

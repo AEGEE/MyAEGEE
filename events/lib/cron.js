@@ -1,5 +1,5 @@
 var schedule = require('node-schedule');
-var Event = require('./eventModel.js');
+var Event = require('./models/Event');
 var mongoose = require('./config/mongo.js');
 var log = require('./config/logger.js');
 
