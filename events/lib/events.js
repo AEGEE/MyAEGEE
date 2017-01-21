@@ -62,7 +62,10 @@ exports.listUserOrganizedEvents = (req, res, next) => {
 
 exports.listUserAppliedEvents = function (req, res, next) {
   Event
-    .where('status').ne('deleted') // Hide deleted events
+    // TODO: Fix this stuff.
+    // Either delete this line, or change it to load the 'deleted' field.
+    // See the 'deleteEvent' endpoint comment.
+    // .where('status').ne('deleted') // Hide deleted events
     .where('ends').gte(new Date()) // Only show events in the future
     .elemMatch('applications', { foreign_id: req.user.basic.id })
     .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals'].join(' '))
