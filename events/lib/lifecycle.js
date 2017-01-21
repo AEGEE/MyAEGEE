@@ -11,37 +11,77 @@ exports.createLifecycle = (req, res, next) => {
   delete data._id;
 
   if (!data.eventType) {
-    return next(new restify.InvalidArgumentError({ body: { message: 'No event type was specified.' } }));
+    return next(new restify.InvalidArgumentError({
+      body: {
+        success: false,
+        message: 'No event type was specified.',
+      },
+    }));
   }
 
   if (!data.status || data.status.length === 0) {
-    return next(new restify.InvalidArgumentError({ body: { message: 'No statuses were specified.' } }));
+    return next(new restify.InvalidArgumentError({
+      body: {
+        success: false,
+        message: 'No statuses were specified.',
+      },
+    }));
   }
 
   if (!data.initialStatus) {
-    return next(new restify.InvalidArgumentError({ body: { message: 'No initial status was specified.' } }));
+    return next(new restify.InvalidArgumentError({
+      body: {
+        success: false,
+        message: 'No initial status was specified.',
+      },
+    }));
   }
 
   if (!data.transitions || data.transitions.length === 0) {
-    return next(new restify.InvalidArgumentError({ body: { message: 'No statuses were specified.' } }));
+    return next(new restify.InvalidArgumentError({
+      body: {
+        success: false,
+        message: 'No transitions were specified.',
+      },
+    }));
   }
 
   // Checking if there are statuses with the same name.
   const statusesNames = data.status.map(status => status.name);
   if (new Set(statusesNames).size !== statusesNames.length) {
-    return next(new restify.InvalidArgumentError({ body: { message: 'There are many statuses with the same name.' } }));
+    return next(new restify.InvalidArgumentError({
+      body: {
+        success: false,
+        message: 'There are many statuses with the same name.',
+      },
+    }));
   }
 
   if (!statusesNames.includes(data.initialStatus)) {
-    return next(new restify.InvalidArgumentError({ body: { message: `No such status: ${data.initialStatus}.` } }));
+    return next(new restify.InvalidArgumentError({
+      body: {
+        success: false,
+        message: `No such status: ${data.initialStatus}.`,
+      },
+    }));
   }
 
   for (const transition of data.transitions) {
     if (!statusesNames.includes(transition.from)) {
-      return next(new restify.InvalidArgumentError({ body: { message: `No such status: ${transition.from}.` } }));
+      return next(new restify.InvalidArgumentError({
+        body: {
+          success: false,
+          message: `No such status: ${transition.from}.`,
+        },
+      }));
     }
     if (!statusesNames.includes(transition.to)) {
-      return next(new restify.InvalidArgumentError({ body: { message: `No such status: ${transition.to}.` } }));
+      return next(new restify.InvalidArgumentError({
+        body: {
+          success: false,
+          message: `No such status: ${transition.to}.`,
+        },
+      }));
     }
   }
 
@@ -52,7 +92,12 @@ exports.createLifecycle = (req, res, next) => {
     if (statusesSaveError) {
       // Send validation-errors back to client
       if (statusesSaveError.name === 'ValidationError') {
-        return next(new restify.InvalidArgumentError({ body: statusesSaveError }));
+        return next(new restify.InvalidArgumentError({
+          body: {
+            success: false,
+            message: statusesSaveError.message,
+          },
+        }));
       }
 
       log.error('Could not create statuses', statusesSaveError);
@@ -75,7 +120,12 @@ exports.createLifecycle = (req, res, next) => {
       if (lifecycleSaveError) {
         // Send validation-errors back to client
         if (lifecycleSaveError.name === 'ValidationError') {
-          return next(new restify.InvalidArgumentError({ body: lifecycleSaveError }));
+          return next(new restify.InvalidArgumentError({
+            body: {
+              success: false,
+              message: lifecycleSaveError.message,
+            },
+          }));
         }
 
         log.error('Could not create lifecycle', lifecycleSaveError);
@@ -94,7 +144,12 @@ exports.createLifecycle = (req, res, next) => {
         if (eventTypeSaveError) {
           // Send validation-errors back to client
           if (eventTypeSaveError.name === 'ValidationError') {
-            return next(new restify.InvalidArgumentError({ body: eventTypeSaveError }));
+            return next(new restify.InvalidArgumentError({
+              body: {
+                success: false,
+                message: eventTypeSaveError.message,
+              },
+            }));
           }
 
           log.error('Could not create/update EventType', eventTypeSaveError);
@@ -114,27 +169,33 @@ exports.createLifecycle = (req, res, next) => {
   });
 };
 
-// TODO: Refactor this so we won't need to do additional queries
-// to load initialStatus and transition statuses, while
-// we could just copy them from the statuses array.
 exports.getLifecycles = (req, res, next) => {
   EventType
     .find({})
     .populate({
       path: 'defaultLifecycle',
       model: 'Lifecycle',
-      populate: [
-        'status',
-        'initialStatus',
-        { path: 'transitions.from', model: 'Status' },
-        { path: 'transitions.to', model: 'Status' },
-      ],
+      populate: ['status'],
     })
+    .lean() // To tell Mongoose we just need a plain JS object, so we can modify it.
     .then((eventTypes) => {
+      // Replacing IDs with names for initial statuses and transitions' statuses.
+      for (const eventType of eventTypes) {
+        const lifecycle = eventType.defaultLifecycle;
+
+        eventType.defaultLifecycle.initialStatus = lifecycle.status.find(s =>
+          s._id.equals(lifecycle.initialStatus)).name;
+
+        for (const transition of lifecycle.transitions) {
+          transition.from = lifecycle.status.find(s => s._id.equals(transition.from)).name;
+          transition.to = lifecycle.status.find(s => s._id.equals(transition.to)).name;
+        }
+      }
+
       res.status(200);
       res.json({
         success: true,
-        eventTypes,
+        data: eventTypes,
       });
 
       return next();
