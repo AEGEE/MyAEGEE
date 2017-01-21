@@ -17,7 +17,7 @@ var UserCache = mongoose.model('UserCache', userCacheSchema);
 exports.authenticateUser = (req, res, next) => {
   var token = req.header('x-auth-token');
   if (!token) {
-    // log.info("Unauthenticated request", req);
+    log.info("Unauthenticated request", req);
     return next(new restify.ForbiddenError('No auth token provided'));
   }
 
