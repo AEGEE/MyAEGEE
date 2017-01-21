@@ -177,17 +177,20 @@ exports.addEvent = (req, res, next) => {
 
   // Loading event type and its default lifecycle
   EventType
-    .findOne({ name: data.type })
+    .findOne({ name: newEvent.type })
     .populate({
       path: 'defaultLifecycle',
       populate: { path: 'initialStatus' },
     })
     .then((eventType) => {
       if (!eventType || !eventType.defaultLifecycle) { // no lifecycle exists for this type of event
-        return restify.InvalidArgumentError({
-          body: `No lifecycle is specified for this type of event: ${data.type},\
-cannot set initial status.`,
-        });
+        return next(new restify.InvalidArgumentError({
+          body: {
+            success: false,
+            message: `No lifecycle is specified for this type of event: ${data.type},\
+  cannot set initial status.`,
+          },
+        }));
       }
 
       newEvent.status = eventType.defaultLifecycle.initialStatus._id;
@@ -197,10 +200,15 @@ cannot set initial status.`,
         if (err) {
           // Send validation-errors back to client
           if (err.name === 'ValidationError') {
-            return next(new restify.InvalidArgumentError({ body: err }));
+            return next(new restify.InvalidArgumentError({
+              body: {
+                success: false,
+                message: err.message,
+              },
+            }));
           }
 
-          log.error('Could not edit event', err);
+          log.error('Could not add event', err);
           return next(new restify.InternalError());
         }
 

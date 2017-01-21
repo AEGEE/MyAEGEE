@@ -26,10 +26,11 @@ server.use(restify.CORS());
 // server.use(core.verifyToken);
 
 // Enable request logging
-// server.pre(function (request, response, next) {
-//  log.info(request.method + ' ' + request.url);
-//  return next();
-// );
+// server.pre((request, response, next) => {
+//   log.info(request.method + ' ' + request.url);
+//   return next();
+// });
+
 server.on('after', (req, res) => {
   try {
     log.info(`${req.method} ${req.url} - ${res._header.split('\n')[0]}`);
