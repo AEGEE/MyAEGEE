@@ -12,6 +12,8 @@ var Lifecycle = lifecycleSchema.Lifecycle;
 var EventType = lifecycleSchema.EventType;
 
 
+// Helper function for determining if two arrays are intersecting or not.
+const intersects = (array1, array2) => array1.filter(elt => array2.includes(elt)).length > 0;
 
 /** Requests for all events **/
 
@@ -29,10 +31,10 @@ exports.listEvents = (req, res, next) => {
 
       // Displaying only events user is allowed to see
       const filteredEvents = events.filter((event) => {
-        // TODO: include roles and bodies
+        // TODO: Include bodies
         return event.status.visibility.users.includes(req.user.basic.id.toString())
-          || event.status.visibility.special
-                .filter(special => req.user.special.includes(special)).length > 0;
+          || intersects(event.status.visibility.roles, req.user.roles)
+          || intersects(event.status.visibility.special, req.user.special);
       });
 
       res.json(filteredEvents);
@@ -86,17 +88,18 @@ exports.listApprovableEvents = (req, res, next) => {
         return next(new restify.InternalError());
       }
 
+      console.log(JSON.stringify(req.user, null, '  '));
+
       // Checking if we have at least 1 transition
       // from current status to any status
       // which is allowed for this user/body/role/special
       const retVal = events.filter((event) => {
         return event.lifecycle.transitions.some((transition) => {
-          // TODO: add roles/bodies
-          // TODO: make this little less awkward
+          // TODO: Add bodies
           return (transition.from.equals(event.status)
             && (transition.allowedFor.users.includes(req.user.basic.id.toString())
-              || transition.allowedFor.special.filter(special =>
-                    req.user.special.includes(special)).length > 0));
+              || intersects(transition.allowedFor.roles, req.user.roles)
+              || intersects(transition.allowedFor.special, req.user.special)));
         });
       });
 
@@ -354,10 +357,10 @@ exports.editEvent = function (req, res, next) {
 };
 
 
-// TODO: something with that.
-// Maybe remove it and add 'deleted' status for each lifecycle?
-// If so, we won't need this endpoint, we will be doing stuff via
-// the status change endpoint.
+// This endpoint won't work because of the events lifecycle.
+// Two ways to solve this:
+// 1) add a 'deleted' field to the Event schema to represent if the event was deleted or not;
+// 2) add a 'deleted' status to the lifecycle, if so, this endpoint will be useless.
 exports.deleteEvent = function (req, res, next) {
   if (!req.user.permissions.can.delete)
    return next(new restify.ForbiddenError('You are not permitted to delete events'));
@@ -412,11 +415,11 @@ exports.setApprovalStatus = (req, res, next) => {
       }
 
       // Checking if this user/role/body/special has the rights to do the transition.
-      // TODO: add bodies and groups.
-      // TODO: make this little less awkward.
+      // TODO: Add bodies.
+
       if (!transition.allowedFor.users.includes(req.user.basic.id.toString())
-          && !transition.allowedFor.special.filter(
-              s => req.user.special.includes(s)).length === 0) {
+          && !intersects(transition.allowedFor.roles, req.user.roles)
+          && !intersects(transition.allowedFor.special, req.user.special)) {
         return next(new restify.ForbiddenError());
       }
 
