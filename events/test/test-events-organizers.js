@@ -5,7 +5,7 @@ var chaiHttp = require('chai-http');
 var server = require('../lib/server.js');
 var mongoose = require('../lib/config/mongo.js');
 var should = chai.should();
-var Event = require('../lib/eventModel.js');
+var Event = require('../lib/models/Event');
 
 module.exports = function () {
   before(function (done) {

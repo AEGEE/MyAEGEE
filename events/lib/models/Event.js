@@ -76,8 +76,8 @@ const eventSchema = mongoose.Schema({
     enum: ['non-statutory', 'statutory', 'su', 'local'],
     default: 'non-statutory',
   },
-  status: { type: mongoose.Schema.Types.ObjectId, ref: 'Status' },
-  lifecycle: { type: mongoose.Schema.Types.ObjectId, ref: 'Lifecycle' },
+  status: { type: mongoose.Schema.Types.ObjectId, ref: 'Status', required: true },
+  lifecycle: { type: mongoose.Schema.Types.ObjectId, ref: 'Lifecycle', required: true },
   max_participants: {
     type: Number,
     default: 0,
