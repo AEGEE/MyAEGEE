@@ -1,7 +1,8 @@
 process.env.NODE_ENV = 'test';
 
-const mongoose = require('../lib/config/mongo.js');
 const log = require('../lib/config/logger.js');
+
+const mongoose = require('../lib/config/mongo');
 
 const Event = require('../lib/models/Event');
 const Status = require('../lib/models/Status');
@@ -14,8 +15,28 @@ const futureDate = (offset) => {
   return retval;
 };
 
+const eventTypeNames = [
+  'non-statutory',
+  'statutory',
+  'su',
+  'local',
+];
+
+// A helper to split one big array to a bunch of smaller.
+const arraySplit = (array, chunksNum) => {
+  const chunkSize = array.length / chunksNum;
+  const newArray = [];
+
+  for (let i = 0; i < array.length; i += chunkSize) {
+    newArray.push(array.slice(i, i + chunkSize));
+  }
+
+  return newArray;
+};
+
 function populateStatuses(callback) {
-  const statuses = [{
+  // Creating a bunch of statuses for each lifecycle.
+  const statuses = eventTypeNames.map(() => ([{
     name: 'Draft',
     visibility: {
       users: [],
@@ -57,9 +78,11 @@ function populateStatuses(callback) {
       bodies: [],
       special: [],
     },
-  }];
+  }]));
 
-  Status.insertMany(statuses, (err, statusesFromDb) => {
+  const statusesMerged = statuses.reduce((a, b) => a.concat(b));
+
+  Status.insertMany(statusesMerged, (err, statusesFromDb) => {
     if (err) {
       log.error('Cannot save statuses: ', err);
       throw err;
@@ -70,77 +93,86 @@ function populateStatuses(callback) {
 }
 
 function populateLifecycle(statuses, callback) {
-  const draftStatus = statuses.find(s => s.name === 'Draft')._id;
-  const requestingStatus = statuses.find(s => s.name === 'Requesting')._id;
-  const approvedStatus = statuses.find(s => s.name === 'Approved')._id;
+  // Splitting statuses array to a bunch of arrays,
+  // each array for one lifecycle.
+  const splitStatuses = arraySplit(statuses, eventTypeNames.length);
 
-  const data = {
-    name: 'non-statutory',
-    status: statuses.map(s => s._id),
-    transitions: [{
-      from: draftStatus,
-      to: requestingStatus,
-      allowedFor: {
-        users: ['1'],
-        roles: [],
-        bodies: [],
-        special: [],
-      },
-    }, {
-      from: requestingStatus,
-      to: approvedStatus,
-      allowedFor: {
-        users: ['1'],
-        roles: [],
-        bodies: [],
-        special: [],
-      },
-    }, {
-      from: requestingStatus,
-      to: draftStatus,
-      allowedFor: {
-        users: ['1'],
-        roles: [],
-        bodies: [],
-        special: [],
-      },
-    }],
-    initialStatus: draftStatus,
-  };
+  const data = eventTypeNames.map((name, index) => {
+    const draftStatus = splitStatuses[index].find(s => s.name === 'Draft')._id;
+    const requestingStatus = splitStatuses[index].find(s => s.name === 'Requesting')._id;
+    const approvedStatus = splitStatuses[index].find(s => s.name === 'Approved')._id;
 
-  const newLifecycle = new Lifecycle(data);
-  newLifecycle.save((err, lifecycleFromDb) => {
+    return {
+      eventType: name,
+      status: splitStatuses[index].map(s => s._id),
+      transitions: [{
+        from: draftStatus,
+        to: requestingStatus,
+        allowedFor: {
+          users: ['1'],
+          roles: [],
+          bodies: [],
+          special: [],
+        },
+      }, {
+        from: requestingStatus,
+        to: approvedStatus,
+        allowedFor: {
+          users: ['1'],
+          roles: [],
+          bodies: [],
+          special: [],
+        },
+      }, {
+        from: requestingStatus,
+        to: draftStatus,
+        allowedFor: {
+          users: ['1'],
+          roles: [],
+          bodies: [],
+          special: [],
+        },
+      }],
+      initialStatus: draftStatus,
+    };
+  });
+
+  Lifecycle.insertMany(data, (err, lifecyclesFromDb) => {
+    if (err) {
+      log.error('Cannot save lifecycles: ', err);
+      throw err;
+    }
+
+    callback(lifecyclesFromDb);
+  });
+}
+
+function populateEventTypes(lifecycles, callback) {
+  const data = eventTypeNames.map((name) => {
+    return {
+      name,
+      defaultLifecycle: lifecycles.find(l => l.eventType === name)._id,
+    };
+  });
+
+  EventType.insertMany(data, (err, eventTypesFromDb) => {
     if (err) {
       log.error('Cannot save lifecycle: ', err);
       throw err;
     }
 
-    callback(lifecycleFromDb);
+    callback(eventTypesFromDb);
   });
 }
 
-function populateEventType(lifecycle, callback) {
-  const eventType = new EventType({
-    name: 'non-statutory',
-    defaultLifecycle: lifecycle._id,
-  });
+function populateEvents(statuses, lifecycles, callback) {
+  const nonStatutoryLifecycle = lifecycles.find(l => l.eventType === 'non-statutory');
+  const nonStatutoryStatuses = statuses.filter(s => nonStatutoryLifecycle.status.includes(s._id));
 
-  eventType.save((err, eventTypeFromDb) => {
-    if (err) {
-      log.error('Cannot save lifecycle: ', err);
-      throw err;
-    }
+  const draftStatus = nonStatutoryStatuses.find(s => s.name === 'Draft')._id;
+  const requestingStatus = nonStatutoryStatuses.find(s => s.name === 'Requesting')._id;
+  const approvedStatus = nonStatutoryStatuses.find(s => s.name === 'Approved')._id;
 
-    callback(eventTypeFromDb);
-  });
-}
-
-function populateEvents(statuses, lifecycle, callback) {
-  const draftStatus = statuses.find(s => s.name === 'Draft')._id;
-  const requestingStatus = statuses.find(s => s.name === 'Requesting')._id;
-  const approvedStatus = statuses.find(s => s.name === 'Approved')._id;
-
-  const now = new Date();
   const event1 = new Event({
     name: 'Develop Yourself 4',
     starts: futureDate(14),
@@ -152,7 +184,7 @@ function populateEvents(statuses, lifecycle, callback) {
     }],
     type: 'non-statutory',
     status: draftStatus,
-    lifecycle,
+    lifecycle: nonStatutoryLifecycle,
     max_participants: 22,
     application_deadline: futureDate(13),
     application_status: 'closed',
@@ -164,13 +196,13 @@ function populateEvents(statuses, lifecycle, callback) {
     }],
   });
 
-  event1.save((err, event) => {
-    if (err) {
-      log.error('could not save event 1', err, event1);
-      throw err;
+  event1.save((event1SaveErr) => {
+    if (event1SaveErr) {
+      log.error('could not save event 1', event1SaveErr, event1);
+      throw event1SaveErr;
     }
 
-    var event2 = new Event({
+    const event2 = new Event({
       name: 'EPM Zagreb',
       starts: futureDate(16),
       ends: futureDate(17),
@@ -184,7 +216,7 @@ function populateEvents(statuses, lifecycle, callback) {
       application_deadline: futureDate(14),
       application_status: 'open',
       status: requestingStatus,
-      lifecycle,
+      lifecycle: nonStatutoryLifecycle,
       application_fields: [
         { name: 'Motivation' },
         { name: 'Allergies' },
@@ -203,13 +235,13 @@ function populateEvents(statuses, lifecycle, callback) {
       ],
     });
 
-    event2.save((err, event2) => {
-      if (err) {
-        log.error('Could not save event 2', err);
-        throw err;
+    event2.save((event2SaveErr) => {
+      if (event2SaveErr) {
+        log.error('Could not save event 2', event2SaveErr);
+        throw event2SaveErr;
       }
 
-      var event3 = new Event({
+      const event3 = new Event({
         name: 'NWM-Manchester',
         starts: futureDate(24),
         ends: futureDate(25),
@@ -217,7 +249,7 @@ function populateEvents(statuses, lifecycle, callback) {
         organizing_locals: [{ foreign_id: 'AEGEE-Dresden' }],
         type: 'non-statutory',
         status: approvedStatus,
-        lifecycle,
+        lifecycle: nonStatutoryLifecycle,
         max_participants: 22,
         application_deadline: futureDate(14),
         application_status: 'open',
@@ -230,7 +262,7 @@ function populateEvents(statuses, lifecycle, callback) {
         ],
       });
 
-      event3.save((err, event3) => {
+      event3.save((err) => {
         if (err) {
           log.error('Could not save event 3', err);
           throw err;
@@ -267,10 +299,10 @@ function populateEvents(statuses, lifecycle, callback) {
           },
         ];
 
-        event3.save((err) => {
-          if (err) {
-            log.error('Could not resave event 3', err);
-            throw err;
+        event3.save((event3SaveErr) => {
+          if (event3SaveErr) {
+            log.error('Could not resave event 3', event3SaveErr);
+            throw event3SaveErr;
           }
 
           if (callback) {
@@ -280,6 +312,8 @@ function populateEvents(statuses, lifecycle, callback) {
               event3,
             });
           }
+
+          return null;
         });
       });
     });
@@ -288,9 +322,9 @@ function populateEvents(statuses, lifecycle, callback) {
 
 exports.populateEvents = (callback) => {
   populateStatuses((statuses) => {
-    populateLifecycle(statuses, (lifecycle) => {
-      populateEventType(lifecycle, () => {
-        populateEvents(statuses, lifecycle, events => callback(events));
+    populateLifecycle(statuses, (lifecycles) => {
+      populateEventTypes(lifecycles, () => {
+        populateEvents(statuses, lifecycles, events => callback(events));
       });
     });
   });
@@ -298,16 +332,16 @@ exports.populateEvents = (callback) => {
 
 exports.populateLifecycles = (callback) => {
   populateStatuses((statuses) => {
-    populateLifecycle(statuses, (lifecycle) => {
-      populateEventType(lifecycle, eventType => callback({
+    populateLifecycle(statuses, (lifecycles) => {
+      populateEventTypes(lifecycles, eventTypes => callback({
         statuses,
-        lifecycle,
-        eventType,
+        lifecycles,
+        eventTypes,
       }));
     });
   });
 };
 
 exports.clear = () => {
-  Event.collection.drop();
+  mongoose.connection.dropDatabase();
 };

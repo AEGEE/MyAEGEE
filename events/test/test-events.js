@@ -12,4 +12,7 @@ describe('Events Creation', require('./test-events-creation.js'));
 describe('Events Details', require('./test-events-details.js'));
 // describe('Events Organizers', require('./test-events-organizers.js'));
 // describe('Events Applications', require('./test-events-applications.js'));
+
+describe('Lifecycles listing', require('./test-lifecycles-listing.js'));
+
 describe('Options', require('./test-options.js'));
