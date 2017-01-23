@@ -1,10 +1,13 @@
 process.env.NODE_ENV = 'test';
 
 const chai = require('chai');
+const chaiHttp = require('chai-http');
 const server = require('../lib/server.js');
 const db = require('./populate-db.js');
 
-module.exports = () => {
+chai.use(chaiHttp);
+
+describe('Events listing', () => {
   let events;
 
   beforeEach((done) => {
@@ -47,4 +50,4 @@ module.exports = () => {
         done();
       });
   });
-};
+});

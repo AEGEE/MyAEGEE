@@ -1,19 +1,18 @@
 process.env.NODE_ENV = 'test';
 
 const chai = require('chai');
+const chaiHttp = require('chai-http');
 const server = require('../lib/server.js');
 const db = require('./populate-db.js');
 
-module.exports = () => {
-  let statuses;
-  let lifecycles;
+chai.use(chaiHttp);
+
+describe('Lifecycles listing', () => {
   let eventTypes;
 
   beforeEach((done) => {
     db.clear();
     db.populateLifecycles((res) => {
-      statuses = res.statuses;
-      lifecycles = res.lifecycles;
       eventTypes = res.eventTypes;
 
       done();
@@ -46,4 +45,4 @@ module.exports = () => {
         done();
       });
   });
-};
+});

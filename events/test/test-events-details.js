@@ -6,9 +6,9 @@ const server = require('../lib/server.js');
 const db = require('./populate-db.js');
 const Event = require('../lib/models/Event');
 
-const should = chai.should();
+chai.use(chaiHttp);
 
-module.exports = function () {
+describe('Events details', () => {
   var events;
 
   beforeEach((done) => {
@@ -210,4 +210,4 @@ module.exports = function () {
             });
         });
     });*/
-};
+});

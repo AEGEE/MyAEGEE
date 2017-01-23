@@ -11,7 +11,7 @@ let accessObject = {
   special: [],
 };
 
-module.exports = () => {
+describe('Lifecycles creation', () => {
   let statuses;
   let lifecycles;
   let eventTypes;
@@ -249,4 +249,4 @@ module.exports = () => {
         done();
       });
   });
-};
+});
