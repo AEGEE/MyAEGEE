@@ -21,7 +21,7 @@ module.exports = function () {
 
   it('should return a single event on /single/<eventid> GET', (done) => {
     chai.request(server)
-      .get(`/single/${events.event1.id}`)
+      .get(`/single/${events[0].id}`)
       .set('X-Auth-Token', 'foobar')
       .end((err, res) => {
         res.should.have.status(200);
@@ -44,7 +44,7 @@ module.exports = function () {
         res.body.should.not.have.property('applications');
 
 
-        res.body._id.should.equal(events.event1.id);
+        res.body._id.should.equal(events[0].id);
 
         done();
       });
@@ -62,7 +62,7 @@ module.exports = function () {
 
   it('should update an event on a sane /single/<eventid> PUT', (done) => {
     chai.request(server)
-      .put(`/single/${events.event1.id}`)
+      .put(`/single/${events[0].id}`)
       .set('X-Auth-Token', 'foobar')
       .send({
         description: 'some new description',
@@ -75,14 +75,14 @@ module.exports = function () {
 
   it('should store the changes on update after a sane /single/<eventid> PUT', (done) => {
     chai.request(server)
-      .put(`/single/${events.event1.id}`)
+      .put(`/single/${events[0].id}`)
       .set('X-Auth-Token', 'foobar')
       .send({
         description: 'some new description',
       })
       .end(function (err, res) {
         chai.request(server)
-          .get(`/single/${events.event1.id}`)
+          .get(`/single/${events[0].id}`)
           .set('X-Auth-Token', 'foobar')
           .end(function (err, res) {
             res.body.description.should.equal('some new description');
@@ -93,14 +93,14 @@ module.exports = function () {
 
   it('should ignore superflous fields on overly detailed /single/<eventid> PUT', (done) => {
     chai.request(server)
-      .put(`/single/${events.event1.id}`)
+      .put(`/single/${events[0].id}`)
       .set('X-Auth-Token', 'foobar')
       .send({
         status: '507f191e810c19729de860ea', // random ObjectID
       })
       .end(() => {
         chai.request(server)
-          .get(`/single/${events.event1.id}`)
+          .get(`/single/${events[0].id}`)
           .set('X-Auth-Token', 'foobar')
           .end((getError, res) => {
             res.should.have.status(200);
@@ -113,7 +113,7 @@ module.exports = function () {
 
   it('should return a validation error on malformed /single/<eventid> PUT', (done) => {
     chai.request(server)
-      .put(`/single/${events.event1.id}`)
+      .put(`/single/${events[0].id}`)
       .set('X-Auth-Token', 'foobar')
       .send({
         ends: 'sometime',
@@ -127,11 +127,11 @@ module.exports = function () {
 
   it('should not update the organizers list with /single/<eventid> PUT', (done) => {
     chai.request(server)
-      .get(`/single/${events.event1.id}`)
+      .get(`/single/${events[0].id}`)
       .set('X-Auth-Token', 'foobar')
       .end((err, event) => {
         chai.request(server)
-          .put(`/single/${events.event1.id}`)
+          .put(`/single/${events[0].id}`)
           .set('X-Auth-Token', 'foobar')
           .send({
             organizers: [
@@ -142,7 +142,7 @@ module.exports = function () {
             ],
           })
           .end((err, res) => {
-            Event.findById(events.event1.id).exec((err, res) => {
+            Event.findById(events[0].id).exec((err, res) => {
               res.organizers.forEach(item => item.foreign_id.should.not.equal('vincent.vega'));
             });
 
@@ -153,11 +153,11 @@ module.exports = function () {
 
   it('should not update the applications list with /single/<eventid> PUT', (done) => {
     chai.request(server)
-      .get(`/single/${events.event1.id}`)
+      .get(`/single/${events[0].id}`)
       .set('X-Auth-Token', 'foobar')
       .end((err, event) => {
         chai.request(server)
-          .put(`/single/${events.event1.id}`)
+          .put(`/single/${events[0].id}`)
           .set('X-Auth-Token', 'foobar')
           .send({
             applications: [
@@ -167,7 +167,7 @@ module.exports = function () {
             ],
           })
           .end((err, res) => {
-            Event.findById(events.event1.id).exec((err, res) => {
+            Event.findById(events[0].id).exec((err, res) => {
               res.applications.forEach(item => item.foreign_id.should.not.equal('vincent.vega'));
             });
 
@@ -181,19 +181,19 @@ module.exports = function () {
     (done) => {
       // Delete one event
       chai.request(server)
-        .delete(`/single/${events.event1.id}`)
+        .delete(`/single/${events[0].id}`)
         .set('X-Auth-Token', 'foobar')
         .end(function (err, res) {
           // Get that single event (should still be possible)
           chai.request(server)
-            .get(`/single/${events.event1.id}`)
+            .get(`/single/${events[0].id}`)
             .set('X-Auth-Token', 'foobar')
             .end(function (err, res) {
               res.should.have.status(200);
               res.should.be.json;
               res.should.be.a('object');
 
-              res.body._id.should.equal(events.event1.id);
+              res.body._id.should.equal(events[0].id);
               res.body.status.should.equal('deleted');
 
               // Get all again, check if event is still in there
@@ -202,7 +202,7 @@ module.exports = function () {
                 .set('X-Auth-Token', 'foobar')
                 .end((err, res) => {
                   for (let i = 0; i < res.body.length; i++) {
-                    res.body[i]._id.should.not.equal(events.event1.id);
+                    res.body[i]._id.should.not.equal(events[0].id);
                   }
 
                   done();
