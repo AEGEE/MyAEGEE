@@ -187,7 +187,7 @@ exports.addEvent = (req, res, next) => {
         return next(new restify.InvalidArgumentError({
           body: {
             success: false,
-            message: `No lifecycle is specified for this type of event: ${data.type},\
+            message: `No lifecycle is specified for this type of event: ${newEvent.type},\
   cannot set initial status.`,
           },
         }));
@@ -203,6 +203,7 @@ exports.addEvent = (req, res, next) => {
             return next(new restify.InvalidArgumentError({
               body: {
                 success: false,
+                errors: err.errors,
                 message: err.message,
               },
             }));

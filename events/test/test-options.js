@@ -1,10 +1,12 @@
 process.env.NODE_ENV = 'test';
 
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
+const chai = require('chai');
 
-module.exports = function () {
+const assert = chai.assert;
+const expect = chai.expect;
+
+
+describe('Options', () => {
   it('should import options', function (done) {
     var options = require('../lib/config/options.js');
 
@@ -34,4 +36,4 @@ module.exports = function () {
       });
     });
   });
-};
+});

@@ -4,3 +4,9 @@ node_js:
 
 services:
   - mongodb
+
+before_install:
+  - npm install
+
+install:
+  - cp ./lib/config/configFile.json.example ./lib/config/configFile.json

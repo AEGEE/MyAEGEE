@@ -9,24 +9,27 @@ var db = require('./populate-db.js');
 module.exports = function () {
   var events;
 
-  beforeEach(function (done) {
+  beforeEach((done) => {
     db.clear();
-    db.populate(function (res) {
+    db.populateEvents(function (res) {
       events = res;
       done();
     });
   });
 
-  it('should list all applications to an event on /single/id/participants/ GET', function (done) {
+  it('should list all applications to an event on /single/id/participants/ GET', (done) => {
     chai.request(server)
       .get('/')
-      .end(function (err, event) {
-        var closedEvent = event.body.find(function (x) {return x.application_status == 'closed';});
+      .set('X-Auth-Token', 'foobar')
+      .end((err, responseEvents) => {
+        const closedEvent = responseEvents.body.find(x => x.application_status === 'closed');
 
+        console.log(responseEvents.body);
         closedEvent.should.be.ok;
         chai.request(server)
           .get(closedEvent.application_url)
-          .end(function (err, res) {
+          .end((err, res) => {
+            console.log(err)
             res.should.have.status(200);
             res.should.be.json;
             res.body.should.be.a('array');
@@ -37,16 +40,16 @@ module.exports = function () {
       });
   });
 
-  it('should record an application to an event on /single/id/participants/ POST', function (done) {
+  it('should record an application to an event on /single/id/participants/ POST', (done) => {
     chai.request(server)
       .get('/')
-      .end(function (err, event) {
-        var openEvent = event.body.find(function (x) {return x.application_status == 'open';});
+      .end((err, event) => {
+        const openEvent = event.body.find(x => x.application_status === 'open');
 
         openEvent.should.be.ok;
         chai.request(server)
           .get(openEvent.url)
-          .end(function (err, event) {
+          .end((err, event) => {
             chai.request(server)
               .post(event.body.application_url)
               .send({
@@ -80,7 +83,7 @@ module.exports = function () {
       });
   });
 
-  it('should return one specific application on /single/id/participants/id GET', function (done) {
+  it('should return one specific application on /single/id/participants/id GET', (done) => {
     chai.request(server)
       .get('/')
       .end(function (err, event) {
