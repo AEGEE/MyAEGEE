@@ -5,6 +5,7 @@ const chaiHttp = require('chai-http');
 const server = require('../lib/server.js');
 const db = require('./populate-db.js');
 
+const should = chai.should();
 chai.use(chaiHttp);
 
 describe('Events listing', () => {
@@ -15,7 +16,7 @@ describe('Events listing', () => {
 
     // Populate db
     db.populateEvents((res) => {
-      events = res;
+      events = res.events;
       done();
     });
   });

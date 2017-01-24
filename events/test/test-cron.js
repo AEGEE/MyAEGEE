@@ -18,7 +18,7 @@ describe('Cron testing', () => {
 
     // Populate db
     db.populateEvents((res) => {
-      events = res;
+      events = res.events;
       done();
     });
   });
