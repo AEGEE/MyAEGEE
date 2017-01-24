@@ -275,6 +275,12 @@ exports.checkPermissions = (req, res, next) => {
   if (permissions.is.organizer) {
     req.user.special.push('Organizer');
   }
+  if (permissions.is.superadmin) {
+    req.user.special.push('Superadmin');
+  }
+  if (permissions.is.boardmember) {
+    req.user.special.push('Board Member');
+  }
 
   // Convert all to boolean and assign
   req.user.permissions = { is: {}, can: {} };
