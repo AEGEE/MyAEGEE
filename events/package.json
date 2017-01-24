@@ -47,6 +47,7 @@
     "http-proxy-middleware": "^0.15.2",
     "istanbul": "^0.4.4",
     "mocha": "^2.5.3",
-    "mocha-lcov-reporter": "^1.2.0"
+    "mocha-lcov-reporter": "^1.2.0",
+    "timekeeper": "^1.0.0"
   }
 }
