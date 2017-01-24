@@ -22,11 +22,13 @@
   "homepage": "https://github.com/AEGEE/oms-events#readme",
   "dependencies": {
     "bunyan": "^1.8.1",
+    "file-type": "^4.1.0",
     "fs-extra": "^2.0.0",
     "mongoose": "^4.4.20",
     "multer": "^1.2.0",
     "node-schedule": "^1.1.1",
     "promise": "^7.1.1",
+    "read-chunk": "^2.0.0",
     "request": "^2.79.0",
     "restify": "^4.1.0"
   },
