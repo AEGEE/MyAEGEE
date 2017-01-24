@@ -67,8 +67,10 @@ server.post({ path: '/', version: curVersion }, events.addEvent);
 // Debugging requests, remove at some point in time
 server.get({ path: '/status', version: curVersion }, service.status);
 server.get({ path: '/debug', version: curVersion }, events.debug);
-server.get({ path: '/getUser', version: curVersion },
-           [middlewares.checkPermissions, service.getUser]);
+server.get({ path: '/getUser', version: curVersion }, [
+  middlewares.checkPermissions,
+  service.getUser,
+]);
 
 server.post({ path: '/lifecycle', version: curVersion }, lifecycle.createLifecycle);
 server.get({ path: '/lifecycle', version: curVersion }, lifecycle.getLifecycles);

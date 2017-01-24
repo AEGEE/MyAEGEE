@@ -18,7 +18,19 @@ exports.listEvents = (req, res, next) => {
   // Get statutory, non-statutory and su
   Event
     .where('ends').gte(new Date()) // Only show events in the future
-    .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
+    .select([
+      'name',
+      'starts',
+      'ends',
+      'description',
+      'type',
+      'status',
+      'max_participants',
+      'application_status',
+      'application_deadline',
+      'fee',
+      'organizing_locals.name',
+    ].join(' '))
     .populate('status')
     .exec((err, events) => {
       if (err) {
@@ -187,6 +199,8 @@ exports.addEvent = (req, res, next) => {
         return next(new restify.InvalidArgumentError({
           body: {
             success: false,
+            errors: [new Error(`No lifecycle is specified for this type of event: ${newEvent.type},\
+  cannot set initial status.`)],
             message: `No lifecycle is specified for this type of event: ${newEvent.type},\
   cannot set initial status.`,
           },
@@ -412,7 +426,11 @@ exports.setApprovalStatus = (req, res, next) => {
       // circumstances), raise an error and do nothing.
       if (!lifecycle) {
         return next(restify.InvalidArgumentError({
-          body: `No lifecycle is specified for this type of event: ${req.event.type}.`,
+          body: {
+            success: false,
+            errors: [new Error(`No lifecycle is specified for this type of event: ${req.event.type}.`)],
+            message: `No lifecycle is specified for this type of event: ${req.event.type}.`,
+          },
         }));
       }
 
@@ -423,7 +441,13 @@ exports.setApprovalStatus = (req, res, next) => {
 
       // If there is no transition found, it's disallowed to everybody.
       if (!transition) {
-        return next(new restify.ForbiddenError());
+        return next(new restify.ForbiddenError({
+          body: {
+            success: false,
+            errors: [new Error('You are not allowed to perform a transition.')],
+            message: 'You are not allowed to perform a transition.',
+          },
+        }));
       }
 
       // Checking if this user/role/body/special has the rights to do the transition.
@@ -432,7 +456,13 @@ exports.setApprovalStatus = (req, res, next) => {
       if (!transition.allowedFor.users.includes(req.user.basic.id.toString())
           && !intersects(transition.allowedFor.roles, req.user.roles)
           && !intersects(transition.allowedFor.special, req.user.special)) {
-        return next(new restify.ForbiddenError());
+        return next(new restify.ForbiddenError({
+          body: {
+            success: false,
+            errors: [new Error('You are not allowed to perform a transition.')],
+            message: 'You are not allowed to perform a transition.',
+          },
+        }));
       }
 
       // We only get here if the user is allowed to do a status transition.
@@ -442,11 +472,23 @@ exports.setApprovalStatus = (req, res, next) => {
         if (err) {
           // Send validation-errors back to client
           if (err.name === 'ValidationError') {
-            return next(new restify.InvalidArgumentError({ body: err }));
+            return next(new restify.InvalidArgumentError({
+              body: {
+                success: false,
+                errors: err.errors,
+                message: err.message,
+              },
+            }));
           }
 
           log.error('Could not update event status', err);
-          return next(new restify.InternalError());
+          return next(new restify.InternalError({
+            body: {
+              success: false,
+              errors: [err],
+              message: err.message,
+            },
+          }));
         }
 
         res.json({
