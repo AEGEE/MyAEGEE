@@ -51,4 +51,38 @@ describe('Events listing', () => {
         done();
       });
   });
+
+  it('should include the event that is visible to the user', (done) => {
+    chai.request(server)
+      .get('/')
+      .set('X-Auth-Token', 'foobar')
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.should.be.json;
+        res.body.should.be.a('array');
+
+        // The second event should be visible to user
+        // and it should be included into events listing.
+        res.body.filter(e => e._id === events[1].id).length.should.equal(1);
+
+        done();
+      });
+  });
+
+  it('should not include the event that is not visible to the user', (done) => {
+    chai.request(server)
+      .get('/')
+      .set('X-Auth-Token', 'foobar')
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.should.be.json;
+        res.body.should.be.a('array');
+
+        // The first event shouldn;t be visible to user
+        // and it shouldn't be included into events listing.
+        res.body.filter(e => e._id === events[0].id).length.should.equal(0);
+
+        done();
+      });
+  });
 });
