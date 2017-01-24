@@ -1,13 +1,14 @@
 const restify = require('restify');
-const fs = require('fs');
+const fs = require('fs-extra');
 const multer = require('multer');
 const log = require('./config/logger');
 const config = require('./config/config.js');
 
+const uploadFolderName = `${config.media_dir}/headimages`;
 
 const storage = multer.diskStorage({ // multers disk storage settings
   destination(req, file, cb) {
-    cb(null, `${config.media_dir}/headimages`);
+    cb(null, uploadFolderName);
   },
 
   filename(req, file, cb) {
@@ -15,6 +16,11 @@ const storage = multer.diskStorage({ // multers disk storage settings
   },
 });
 const upload = multer({ storage }).single('head_image');
+
+// If upload folder doesn't exists, create it.
+if (!fs.existsSync(uploadFolderName)) {
+  fs.mkdirpSync(uploadFolderName);
+}
 
 exports.uploadImage = (req, res, next) => {
   upload(req, res, (uploadErr) => {
