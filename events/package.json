@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcov -- -R spec --timeout 5000 && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcov -- -R spec --timeout 10000 && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "lint": "node_modules/.bin/eslint lib/"
   },
   "repository": {
@@ -22,10 +22,13 @@
   "homepage": "https://github.com/AEGEE/oms-events#readme",
   "dependencies": {
     "bunyan": "^1.8.1",
+    "file-type": "^4.1.0",
+    "fs-extra": "^2.0.0",
     "mongoose": "^4.4.20",
     "multer": "^1.2.0",
     "node-schedule": "^1.1.1",
     "promise": "^7.1.1",
+    "read-chunk": "^2.0.0",
     "request": "^2.79.0",
     "restify": "^4.1.0"
   },
