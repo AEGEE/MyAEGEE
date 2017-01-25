@@ -4,9 +4,9 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../lib/server.js');
 const db = require('./populate-db.js');
-const Event = require('../lib/models/Event')
+const Event = require('../lib/models/Event');
 
-const should = chai.should();
+const expect = chai.expect;
 chai.use(chaiHttp);
 
 describe('Events approval', () => {
@@ -26,6 +26,45 @@ describe('Events approval', () => {
     });
   });
 
+  it('should include the event that can be changed in approvable events', (done) => {
+    const lifecycle = lifecycles.find(l => l.eventType === 'non-statutory');
+    const status = statuses.find(s => lifecycle.status.includes(s._id) && s.name === 'Draft');
+    const event = events.find(e => e.status === status._id);
+
+    chai.request(server)
+      .get('/mine/approvable')
+      .set('X-Auth-Token', 'foobar')
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
+
+        const ids = res.body.map(e => e.id);
+        expect(ids.find(id => event._id.equals(id))).to.be.ok;
+
+        done();
+      });
+  });
+
+  it('should not include the event that cannot be changed in approvable events', (done) => {
+    const lifecycle = lifecycles.find(l => l.eventType === 'non-statutory');
+    const status = statuses.find(s => lifecycle.status.includes(s._id) && s.name === 'Approved');
+    const event = events.find(e => e.status === status._id);
+
+    chai.request(server)
+      .get('/mine/approvable')
+      .set('X-Auth-Token', 'foobar')
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
+
+        const ids = res.body.map(e => e.id);
+        expect(ids.find(id => event._id.equals(id))).to.not.exist;
+        done();
+      });
+  });
+
   it('should perform status change when it\'s allowed', (done) => {
     const lifecycle = lifecycles.find(l => l.eventType === 'non-statutory');
     const statusFrom = statuses.find(s => lifecycle.status.includes(s._id) && s.name === 'Draft');
@@ -39,16 +78,16 @@ describe('Events approval', () => {
         status: statusTo._id,
       })
       .end((err, res) => {
-        res.should.have.status(200);
-        res.should.be.json;
-        res.should.be.a('object');
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
 
-        res.body.success.should.be.true;
-        res.body.should.have.property('message');
+        expect(res.body.success).to.be.true;
+        expect(res.body).to.have.property('message');
 
         Event.findOne({ _id: event._id })
           .then((eventFromDb) => {
-            eventFromDb.status.equals(statusTo._id).should.be.true;
+            expect(eventFromDb.status.equals(statusTo._id)).to.be.true;
             done();
           });
       });
@@ -67,17 +106,17 @@ describe('Events approval', () => {
         status: statusTo._id,
       })
       .end((err, res) => {
-        res.should.have.status(403);
-        res.should.be.json;
-        res.should.be.a('object');
+        expect(res).to.have.status(403);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
 
-        res.body.success.should.be.false;
-        res.body.should.have.property('errors');
-        res.body.should.have.property('message');
+        expect(res.body.success).to.be.false;
+        expect(res.body).to.have.property('errors');
+        expect(res.body).to.have.property('message');
 
         Event.findOne({ _id: event._id })
           .then((eventFromDb) => {
-            eventFromDb.status.equals(statusFrom._id).should.be.true;
+            expect(eventFromDb.status.equals(statusFrom._id)).to.be.true;
             done();
           });
       });
@@ -96,17 +135,17 @@ describe('Events approval', () => {
         status: statusTo._id,
       })
       .end((err, res) => {
-        res.should.have.status(403);
-        res.should.be.json;
-        res.should.be.a('object');
+        expect(res).to.have.status(403);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
 
-        res.body.success.should.be.false;
-        res.body.should.have.property('errors');
-        res.body.should.have.property('message');
+        expect(res.body.success).to.be.false;
+        expect(res.body).to.have.property('errors');
+        expect(res.body).to.have.property('message');
 
         Event.findOne({ _id: event._id })
           .then((eventFromDb) => {
-            eventFromDb.status.equals(statusFrom._id).should.be.true;
+            expect(eventFromDb.status.equals(statusFrom._id)).to.be.true;
             done();
           });
       });
@@ -138,9 +177,9 @@ describe('Events approval', () => {
         application_status: 'closed',
       })
       .end((err, res) => {
-        res.should.have.status(201);
-        res.should.be.json;
-        res.should.be.a('object');
+        expect(res).to.have.status(201);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
 
         res.body.success.should.be.true;
         res.body.event.should.have.property('_id');
@@ -228,9 +267,9 @@ describe('Events approval', () => {
         type: 'zxcazxs',
       })
       .end((err, res) => {
-        res.should.have.status(409);
-        res.should.be.json;
-        res.should.be.a('object');
+        expect(res).to.have.status(409);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
 
         res.body.success.should.be.false;
         res.body.should.have.property('errors');
