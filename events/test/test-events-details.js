@@ -14,7 +14,7 @@ describe('Events details', () => {
   beforeEach((done) => {
     db.clear();
     db.populateEvents((res) => {
-      events = res;
+      events = res.events;
       done();
     });
   });

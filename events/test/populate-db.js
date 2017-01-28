@@ -127,7 +127,7 @@ function populateLifecycle(statuses, callback) {
         from: requestingStatus,
         to: draftStatus,
         allowedFor: {
-          users: ['1'],
+          users: [],
           roles: [],
           bodies: [],
           special: [],
@@ -170,8 +170,12 @@ function populateEvents(statuses, lifecycles, callback) {
   const nonStatutoryStatuses = statuses.filter(s => nonStatutoryLifecycle.status.includes(s._id));
 
   const draftStatus = nonStatutoryStatuses.find(s => s.name === 'Draft')._id;
-  const requestingStatus = nonStatutoryStatuses.find(s => s.name === 'Requesting')._id;
   const approvedStatus = nonStatutoryStatuses.find(s => s.name === 'Approved')._id;
+
+  const statutoryLifecycle = lifecycles.find(l => l.eventType === 'statutory');
+  const statutoryStatuses = statuses.filter(s => statutoryLifecycle.status.includes(s._id));
+
+  const requestingStatus = statutoryStatuses.find(s => s.name === 'Requesting')._id;
 
   const events = [{
     name: 'Develop Yourself 4',
@@ -208,7 +212,7 @@ function populateEvents(statuses, lifecycles, callback) {
     application_deadline: futureDate(14),
     application_status: 'closed',
     status: requestingStatus,
-    lifecycle: nonStatutoryLifecycle,
+    lifecycle: statutoryLifecycle,
     application_fields: [
       { name: 'Motivation' },
       { name: 'Allergies' },
@@ -294,8 +298,13 @@ function populateEvents(statuses, lifecycles, callback) {
 exports.populateEvents = (callback) => {
   populateStatuses((statuses) => {
     populateLifecycle(statuses, (lifecycles) => {
-      populateEventTypes(lifecycles, () => {
-        populateEvents(statuses, lifecycles, events => callback(events));
+      populateEventTypes(lifecycles, (eventTypes) => {
+        populateEvents(statuses, lifecycles, events => callback({
+          statuses,
+          lifecycles,
+          eventTypes,
+          events,
+        }));
       });
     });
   });

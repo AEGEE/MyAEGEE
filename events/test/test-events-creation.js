@@ -5,6 +5,7 @@ const chaiHttp = require('chai-http');
 const server = require('../lib/server.js');
 const db = require('./populate-db.js');
 
+const should = chai.should();
 chai.use(chaiHttp);
 
 describe('Events creation', () => {
@@ -15,7 +16,7 @@ describe('Events creation', () => {
 
     // Populate db
     db.populateEvents((res) => {
-      events = res;
+      events = res.events;
       done();
     });
   });
@@ -30,6 +31,7 @@ describe('Events creation', () => {
       })
       .end((err, res) => {
         res.should.have.status(403);
+        res.body.success.should.be.false;
         done();
       });
   });
@@ -48,6 +50,7 @@ describe('Events creation', () => {
         res.should.be.json;
         res.should.be.a('object');
 
+        res.body.success.should.be.true;
         res.body.event.should.have.property('_id');
         res.body.event.should.have.property('name');
         res.body.event.should.have.property('starts');
@@ -105,6 +108,7 @@ describe('Events creation', () => {
         res.should.be.json;
         res.should.be.a('object');
 
+        res.body.success.should.be.true;
         res.body.event.should.have.property('_id');
         res.body.event.should.have.property('name');
         res.body.event.should.have.property('starts');
@@ -170,10 +174,33 @@ describe('Events creation', () => {
         ends: 'sometime, dunno yet',
       })
       .end((err, res) => {
+        res.body.success.should.be.false;
         res.body.should.have.property('errors');
         res.body.errors.should.have.property('ends');
         res.body.errors.should.have.property('name');
 
+        done();
+      });
+  });
+
+  it('should fail if there\'s no such event type', (done) => {
+    chai.request(server)
+      .post('/')
+      .set('X-Auth-Token', 'foobar')
+      .send({
+        name: 'Develop Yourself 4',
+        starts: '2017-12-11 15:00',
+        ends: '2017-12-14 12:00',
+        type: 'zxcazxs',
+      })
+      .end((err, res) => {
+        res.should.have.status(409);
+        res.should.be.json;
+        res.should.be.a('object');
+
+        res.body.success.should.be.false;
+        res.body.should.have.property('errors');
+        res.body.should.have.property('message');
         done();
       });
   });

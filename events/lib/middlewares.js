@@ -10,7 +10,13 @@ exports.authenticateUser = (req, res, next) => {
   const token = req.header('x-auth-token');
   if (!token) {
     log.info('Unauthenticated request', req);
-    return next(new restify.ForbiddenError('No auth token provided'));
+    return next(new restify.ForbiddenError({
+      body: {
+        success: false,
+        errors: [new Error('No auth token provided')],
+        message: 'No auth token provided',
+      },
+    }));
   }
 
   return UserCache.findOne({ token }, (userCacheErr, userCacheRes) => {
@@ -268,6 +274,12 @@ exports.checkPermissions = (req, res, next) => {
 
   if (permissions.is.organizer) {
     req.user.special.push('Organizer');
+  }
+  if (permissions.is.superadmin) {
+    req.user.special.push('Superadmin');
+  }
+  if (permissions.is.boardmember) {
+    req.user.special.push('Board Member');
   }
 
   // Convert all to boolean and assign

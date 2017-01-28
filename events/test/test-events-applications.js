@@ -1,18 +1,21 @@
 process.env.NODE_ENV = 'test';
 
-var chai = require('chai');
-var chaiHttp = require('chai-http');
-var server = require('../lib/server.js');
-var should = chai.should();
-var db = require('./populate-db.js');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const server = require('../lib/server.js');
+const db = require('./populate-db.js');
 
-module.exports = function () {
-  var events;
+const should = chai.should();
+chai.use(chaiHttp);
+
+
+describe('Event applications', () => {
+  /* var events;
 
   beforeEach((done) => {
     db.clear();
-    db.populateEvents(function (res) {
-      events = res;
+    db.populateEvents((res) => {
+      events = res.events;
       done();
     });
   });
@@ -22,14 +25,13 @@ module.exports = function () {
       .get('/')
       .set('X-Auth-Token', 'foobar')
       .end((err, responseEvents) => {
-        const closedEvent = responseEvents.body.find(x => x.application_status === 'closed');
+        const openEvent = responseEvents.body.find(x => x.application_status === 'open');
 
-        console.log(responseEvents.body);
-        closedEvent.should.be.ok;
+        openEvent.should.be.ok;
         chai.request(server)
-          .get(closedEvent.application_url)
+          .get(`/single/${openEvent._id}/participants`)
+          .set('X-Auth-Token', 'foobar')
           .end((err, res) => {
-            console.log(err)
             res.should.have.status(200);
             res.should.be.json;
             res.body.should.be.a('array');
@@ -43,15 +45,17 @@ module.exports = function () {
   it('should record an application to an event on /single/id/participants/ POST', (done) => {
     chai.request(server)
       .get('/')
+      .set('X-Auth-Token', 'foobar')
       .end((err, event) => {
         const openEvent = event.body.find(x => x.application_status === 'open');
-
         openEvent.should.be.ok;
         chai.request(server)
-          .get(openEvent.url)
+          .get(`/single/${openEvent._id}`)
+          .set('X-Auth-Token', 'foobar')
           .end((err, event) => {
             chai.request(server)
-              .post(event.body.application_url)
+              .put(`/single/${openEvent._id}/participants/mine`)
+              .set('X-Auth-Token', 'foobar')
               .send({
                 application: [
                   {
@@ -63,14 +67,13 @@ module.exports = function () {
                   },
                 ],
               })
-              .end(function (err, res) {
+              .end((err, res) => {
                 res.should.have.status(201);
 
-                Event.findById(event.body._id).exec(function (err, savedEvent) {
+                Event.findById(event.body._id).exec((err, savedEvent) => {
                   savedEvent.applications.should.be.a('array');
                   var ownUserID = 'cave.johnson';
-                  var ownApplication = savedEvent.applications.find(
-                    function (x) {return x.foreign_id == ownUserID;});
+                  var ownApplication = savedEvent.applications.find(x => x.foreign_id == ownUserID);
 
                   ownApplication.should.be.ok;
                   ownApplication.application.should.be.a('array');
@@ -103,5 +106,5 @@ module.exports = function () {
       });
   });
 
-  it('should edit details of one application on /single/id/participants/id PUT');
-};
+  it('should edit details of one application on /single/id/participants/id PUT'); */
+});
