@@ -170,21 +170,39 @@ exports.fetchSingleEvent = (req, res, next) => {
     return next(new restify.NotFoundError('No Event-id provided'));
   }
 
+  // Checking if the passed ID is ObjectID or not.
+  // We don't use ObjectID.isValid method, since it's not always
+  // working properly, see http://stackoverflow.com/a/29231016/1206421
+  let findObject;
+  if (req.params.event_id.match(/^[0-9a-fA-F]{24}$/)) { // if it's indeed an ObjectID
+    findObject = { _id: req.params.event_id };
+  } else {
+    findObject = { url: req.params.event_id };
+  }
+
   return Event
-    .findById(req.params.event_id)
+    .findOne(findObject)
     .populate('status')
     .exec((err, event) => {
       if (err) {
-        if (err.name === 'CastError') {
-          return next(new restify.NotFoundError(
-            `Event with id ${req.params.event_id} not found`));
-        }
         log.info(err);
-        return next(new restify.InternalError());
+        return next(new restify.InternalError({
+          body: {
+            success: false,
+            errors: [err],
+            message: err.message,
+          },
+        }));
       }
 
       if (event == null) {
-        return next(new restify.NotFoundError(`Event with id ${req.params.event_id} not found`));
+        return next(new restify.NotFoundError({
+          body: {
+            success: false,
+            errors: [new Error(`Event with id ${req.params.event_id} not found`)],
+            message: `Event with id ${req.params.event_id} not found`,
+          },
+        }));
       }
 
       req.event = event;

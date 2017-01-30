@@ -280,6 +280,7 @@ exports.editEvent = (req, res, next) => {
     if (data.name) event.name = data.name;
     if (data.starts) event.starts = data.starts;
     if (data.ends) event.ends = data.ends;
+    if (data.url) event.url = data.url;
     if (data.description) event.description = data.description;
     if (data.type) event.type = data.type;
     if (data.application_fields) event.application_fields = data.application_fields;
