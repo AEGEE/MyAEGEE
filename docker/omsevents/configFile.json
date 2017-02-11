@@ -22,7 +22,7 @@
 			"port": 80
 		},
 		"secret": "invalid_key",
-		"secret_overwrite": "/root/api-key",
+		"secret_overwrite": "/usr/shared/api-key",
 		"media_dir": "/usr/app/frontend/media",
 		"enableUserCaching": true
 	},

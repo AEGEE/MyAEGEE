@@ -5,18 +5,16 @@ RUN npm install -g supervisor bunyan
 RUN mkdir -p /usr/app/
 RUN mkdir -p /usr/app/frontend
 RUN mkdir -p /usr/app/events
+RUN mkdir -p /usr/scripts
+RUN mkdir -p /usr/shared
 
 WORKDIR /usr/app
-# Would be cool to not having to download that this way...
-ADD https://raw.githubusercontent.com/AEGEE/oms-events/dev/package.json /usr/app/package.json
-RUN npm install
 
-# Done via volume mounts
-#COPY ./boostrap.sh /root/bootstrap.sh
-#COPY ./configFile.json /root/configFile.json
+RUN npm install -g bunyan
+RUN npm install -g supervisor
 
+ADD ./start.sh /usr/scripts/start.sh
 
-
-CMD supervisor -e 'node,js,json' /usr/app/oms-events/lib/server.js | bunyan
+CMD sh /usr/scripts/start.sh
 
 EXPOSE 8082
