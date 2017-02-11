@@ -7,16 +7,22 @@ else
 	echo "Bootstrapping..."
 	cp -n /root/.env /var/www/.env
 	cd /var/www
-	composer install
-	php artisan config:cache
-	php artisan migrate
-	php artisan key:generate
-	php artisan config:cache
-	php artisan db:seed
-	php artisan config:cache
+	su laradock
+	
+		composer install
+		php artisan config:cache
+		php artisan migrate
+		php artisan key:generate
+		php artisan config:cache
+		php artisan db:seed
+		php artisan config:cache
 
-	# Make omscore write out the api-key
-	echo "app()->call([app()->make('App\\Http\\Controllers\\ModuleController'), 'getSharedSecret'], []);" | php artisan tinker
+		mkdir -p storage
+
+		# Make omscore write out the api-key
+		echo "app()->call([app()->make('App\\Http\\Controllers\\ModuleController'), 'getSharedSecret'], []);" | php artisan tinker
+
+	exit
 
 	# Copy the key into the volume mount so other 
 	mkdir -p /var/shared
