@@ -7,22 +7,20 @@ else
 	echo "Bootstrapping..."
 	cp -n /root/.env /var/www/.env
 	cd /var/www
-	su laradock
-	
-		composer install
-		php artisan config:cache
-		php artisan migrate
-		php artisan key:generate
-		php artisan config:cache
-		php artisan db:seed
-		php artisan config:cache
+	su laradock -c 'composer install'
+	php artisan config:cache
+	php artisan migrate
+	php artisan key:generate
+	php artisan config:cache
+	php artisan db:seed
+	php artisan config:cache
 
-		mkdir -p storage
+	mkdir -p storage
 
-		# Make omscore write out the api-key
-		echo "app()->call([app()->make('App\\Http\\Controllers\\ModuleController'), 'getSharedSecret'], []);" | php artisan tinker
-
-	exit
+	# Make omscore write out the api-key
+	su laradock <<EOSU
+	echo "app()->call([app()->make('App\\Http\\Controllers\\ModuleController'), 'getSharedSecret'], []);" | php artisan tinker
+EOSU
 
 	# Copy the key into the volume mount so other 
 	mkdir -p /var/shared
