@@ -13,7 +13,7 @@ sudo apt-get install -y git vim
 #checking if the repo has been cloned or downloaded through zip 
 if [ ! -f /home/vagrant/oms-docker/oms-core/composer.json ]; then
     echo "###################     repository was downloaded zipped, or cloned not recursively"
-    git clone -b dev --recursive https://github.com/AEGEE/oms-docker.git fixme
+    git clone --recursive https://github.com/AEGEE/oms-docker.git fixme
     rsync --remove-source-files -av fixme/ oms-docker/
     rm -rf fixme
 else
