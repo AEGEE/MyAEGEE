@@ -207,6 +207,27 @@ exports.removeLifecycle = (req, res, next) => {
     })));
 };
 
+exports.getLifecyclesNames = (req, res, next) => {
+  EventType
+    .find({})
+    .then((eventTypes) => {
+      const names = eventTypes.map(e => e.name);
+
+      res.send({
+        success: true,
+        data: names,
+      });
+      return next();
+    })
+    .catch(err => next(new restify.InternalError({
+      body: {
+        success: false,
+        errors: [err],
+        message: err.message,
+      },
+    })));
+};
+
 exports.getLifecycles = (req, res, next) => {
   EventType
     .find({})

@@ -72,6 +72,7 @@ server.get({ path: '/getUser', version: curVersion }, [
   service.getUser,
 ]);
 
+server.get({ path: '/lifecycle/names', version: curVersion }, lifecycle.getLifecyclesNames);
 server.post({ path: '/lifecycle', version: curVersion }, lifecycle.createLifecycle);
 server.get({ path: '/lifecycle', version: curVersion }, lifecycle.getLifecycles);
 server.del({ path: '/lifecycle/:lifecycle_id', version: curVersion }, lifecycle.removeLifecycle);

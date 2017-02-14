@@ -73,7 +73,6 @@ const eventSchema = mongoose.Schema({
   type:
   {
     type: String,
-    enum: ['non-statutory', 'statutory', 'su', 'local'],
     default: 'non-statutory',
   },
   status: { type: mongoose.Schema.Types.ObjectId, ref: 'Status', required: true },
