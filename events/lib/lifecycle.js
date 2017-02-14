@@ -168,6 +168,45 @@ exports.createLifecycle = (req, res, next) => {
   });
 };
 
+exports.removeLifecycle = (req, res, next) => {
+  if (!req.params.lifecycle_id) {
+    return next(new restify.InvalidArgumentError({
+      body: {
+        success: false,
+        errors: [new Error('No lifecycle name was specified.')],
+        message: 'No lifecycle name was specified.',
+      },
+    }));
+  }
+
+  return EventType
+    .findOneAndRemove({ name: req.params.lifecycle_id }, {})
+    .then((doc) => {
+      if (!doc) {
+        return next(new restify.InternalError({
+          body: {
+            success: false,
+            errors: [(new Error('Lifecycle with that name was not found.'))],
+            message: 'Lifecycle with that name was not found.',
+          },
+        }));
+      }
+
+      res.json({
+        success: true,
+        message: `The lifecycle for the event type '${req.params.lifecycle_id}' was successfully deleted.`,
+      });
+      return next();
+    })
+    .catch(err => next(new restify.InternalError({
+      body: {
+        success: false,
+        errors: [err],
+        message: err.message,
+      },
+    })));
+};
+
 exports.getLifecycles = (req, res, next) => {
   EventType
     .find({})
