@@ -74,6 +74,7 @@ server.get({ path: '/getUser', version: curVersion }, [
 
 server.post({ path: '/lifecycle', version: curVersion }, lifecycle.createLifecycle);
 server.get({ path: '/lifecycle', version: curVersion }, lifecycle.getLifecycles);
+server.del({ path: '/lifecycle/:lifecycle_id', version: curVersion }, lifecycle.removeLifecycle);
 
 server.get({ path: '/mine/byOrganizer', version: curVersion }, events.listUserOrganizedEvents);
 server.get({ path: '/mine/byApplication', version: curVersion }, events.listUserAppliedEvents);
