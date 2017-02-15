@@ -105,6 +105,12 @@ exports.listApprovableEvents = (req, res, next) => {
       // which is allowed for this user/body/role/special
       const retVal = events.filter((event) => {
         return event.lifecycle.transitions.some((transition) => {
+          // Skipping all transitions without 'from' status,
+          // since each event has a status
+          if (!transition.from) {
+            return false;
+          }
+
           // TODO: Add bodies
           return (transition.from.equals(event.status)
             && (transition.allowedFor.users.includes(req.user.basic.id.toString())
@@ -207,6 +213,36 @@ exports.addEvent = (req, res, next) => {
         }));
       }
 
+      // Checking if the user is allowed to create an event.
+      // Trying to find a transition from 'null' to 'initialStatus'
+      const transition = eventType.defaultLifecycle.transitions.find(t =>
+        !t.from && t.to.equals(eventType.defaultLifecycle.initialStatus._id));
+
+      if (!transition) {
+        return next(new restify.InvalidArgumentError({
+          body: {
+            success: false,
+            errors: [new Error('Nobody is allowed to create events of this type.')],
+            message: 'Nobody is allowed to create events of this type.',
+          },
+        }));
+      }
+
+      // Checking if the user is allowed to create events of this type.
+      // TODO: Add bodies support.
+      if (!transition.allowedFor.users.includes(req.user.basic.id.toString())
+          && !intersects(transition.allowedFor.roles, req.user.roles)
+          && !intersects(transition.allowedFor.special, req.user.special)) {
+        return next(new restify.ForbiddenError({
+          body: {
+            success: false,
+            errors: [new Error('You are not allowed to create an event.')],
+            message: 'You are not allowed to create an event.',
+          },
+        }));
+      }
+
+      // Now we've got here, the user is allowed to create the event.
       newEvent.status = eventType.defaultLifecycle.initialStatus._id;
       newEvent.lifecycle = eventType.defaultLifecycle._id;
 
@@ -224,7 +260,13 @@ exports.addEvent = (req, res, next) => {
           }
 
           log.error('Could not add event', err);
-          return next(new restify.InternalError());
+          return next(new restify.InternalError({
+            body: {
+              success: false,
+              errors: [err],
+              message: err.message,
+            },
+          }));
         }
 
         // Setting event status as object, not ID.
@@ -438,7 +480,9 @@ exports.setApprovalStatus = (req, res, next) => {
       // Trying to find a transition from event's current status
       // to the required status.
       const transition = lifecycle.transitions.find(t =>
-        t.from.equals(req.event.status._id) && t.to.equals(req.body.status));
+        t.from // This field is not necessary
+        && t.from.equals(req.event.status._id)
+        && t.to.equals(req.body.status));
 
       // If there is no transition found, it's disallowed to everybody.
       if (!transition) {

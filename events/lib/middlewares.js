@@ -135,6 +135,13 @@ exports.fetchUserDetails = (req, res, next) => {
 
       req.user.special = ['Public'];
 
+      if (req.user.basic.is_superadmin) {
+        req.user.special.push('Superadmin');
+      }
+      if (req.user.board_positions.length > 0) {
+        req.user.special.push('Board Member');
+      }
+
       // Save fetched user details to cache
       if (config.enable_user_caching) {
         UserCache.findOne({ token: req.header('x-auth-token') }, (userCacheErr, userCacheRes) => {
@@ -292,12 +299,6 @@ exports.checkPermissions = (req, res, next) => {
 
   if (permissions.is.organizer) {
     req.user.special.push('Organizer');
-  }
-  if (permissions.is.superadmin) {
-    req.user.special.push('Superadmin');
-  }
-  if (permissions.is.boardmember) {
-    req.user.special.push('Board Member');
   }
 
   // Convert all to boolean and assign

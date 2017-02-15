@@ -68,7 +68,7 @@ exports.createLifecycle = (req, res, next) => {
   }
 
   for (const transition of data.transitions) {
-    if (!statusesNames.includes(transition.from)) {
+    if (transition.from && !statusesNames.includes(transition.from)) {
       return next(new restify.InvalidArgumentError({
         body: {
           success: false,
@@ -84,6 +84,18 @@ exports.createLifecycle = (req, res, next) => {
         },
       }));
     }
+  }
+
+  const createTransition = data.transitions.find(t =>
+    !t.from && t.to === data.initialStatus);
+
+  if (!createTransition) {
+    return next(new restify.InvalidArgumentError({
+      body: {
+        success: false,
+        message: `No transition for creating event (null => ${data.initialStatus}) is specified.`,
+      },
+    }));
   }
 
   // Removing statuses IDs
@@ -109,7 +121,11 @@ exports.createLifecycle = (req, res, next) => {
     // Adding the new statuses' IDs into the new lifecycle.
     data.initialStatus = statuses.find(s => s.name === data.initialStatus)._id;
     for (const transition of data.transitions) {
-      transition.from = statuses.find(s => s.name === transition.from)._id;
+      if (transition.from) {
+        transition.from = statuses.find(s => s.name === transition.from)._id;
+      } else {
+        transition.from = null;
+      }
       transition.to = statuses.find(s => s.name === transition.to)._id;
     }
     data.status = statuses.map(s => s._id);
@@ -124,6 +140,7 @@ exports.createLifecycle = (req, res, next) => {
           return next(new restify.InvalidArgumentError({
             body: {
               success: false,
+              errors: lifecycleSaveError.errors,
               message: lifecycleSaveError.message,
             },
           }));
@@ -170,6 +187,7 @@ exports.createLifecycle = (req, res, next) => {
   });
 };
 
+// TODO: Remove statuses
 exports.removeLifecycle = (req, res, next) => {
   if (!req.params.lifecycle_id) {
     return next(new restify.InvalidArgumentError({
@@ -257,7 +275,11 @@ exports.getLifecycles = (req, res, next) => {
           s._id.equals(lifecycle.initialStatus)).name;
 
         for (const transition of lifecycle.transitions) {
-          transition.from = lifecycle.status.find(s => s._id.equals(transition.from)).name;
+          if (transition.from) {
+            transition.from = lifecycle.status.find(s => s._id.equals(transition.from)).name;
+          } else {
+            transition.from = null;
+          }
           transition.to = lifecycle.status.find(s => s._id.equals(transition.to)).name;
         }
       }
