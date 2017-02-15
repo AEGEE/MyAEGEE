@@ -73,6 +73,7 @@ server.get({ path: '/getUser', version: curVersion }, [
 ]);
 
 server.get({ path: '/lifecycle/names', version: curVersion }, lifecycle.getLifecyclesNames);
+server.get({ path: '/lifecycle/pseudo', version: curVersion }, lifecycle.getPseudoRolesList);
 server.post({ path: '/lifecycle', version: curVersion }, lifecycle.createLifecycle);
 server.get({ path: '/lifecycle', version: curVersion }, lifecycle.getLifecycles);
 server.del({ path: '/lifecycle/:lifecycle_id', version: curVersion }, lifecycle.removeLifecycle);

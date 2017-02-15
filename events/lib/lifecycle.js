@@ -5,6 +5,8 @@ const Status = require('./models/Status');
 const Lifecycle = require('./models/Lifecycle');
 const EventType = require('./models/EventType');
 
+const pseudoRoles = require('./config/pseudo');
+
 exports.createLifecycle = (req, res, next) => {
   const data = req.body;
   delete data._id;
@@ -226,6 +228,15 @@ exports.getLifecyclesNames = (req, res, next) => {
         message: err.message,
       },
     })));
+};
+
+exports.getPseudoRolesList = (req, res, next) => {
+  res.json({
+    success: true,
+    data: pseudoRoles,
+  });
+
+  return next();
 };
 
 exports.getLifecycles = (req, res, next) => {
