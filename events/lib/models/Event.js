@@ -56,7 +56,7 @@ const applicationFieldSchema = mongoose.Schema({
 });
 
 const eventSchema = mongoose.Schema({
-  url: { type: String, unique: true },
+  url: { type: String, unique: true, sparse: true },
   head_image: {
     // url: String, virtual
     path: String,
