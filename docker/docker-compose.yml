@@ -10,6 +10,7 @@ services:
             - "../oms-core:/var/www"
             - "./omscore/.env:/root/.env:ro"
             - "./omscore/bootstrap.sh:/root/bootstrap.sh:ro"
+            - shared:/var/shared
 
 ### Workspace Utilities Container ###########################
 
@@ -74,7 +75,29 @@ services:
         links:
             - php-fpm
 
+### Bootstrapper ##################################
 
+    omscore-bootstrap:
+        build:
+            context: ./omscore
+            args:
+                - COMPOSER_GLOBAL_INSTALL=false
+                - PUID=1000
+                - PGID=1000
+                - TZ=UTC
+        volumes_from:
+            - omscore-data
+        volumes:
+           - strapstate:/root/strapstate
+        links:
+            - omscore
+        extra_hosts:
+            # IMPORTANT: Replace with your Docker Host IP (will be appended to /etc/hosts)
+            - "dockerhost:10.0.75.1"
+        environment:
+            # IMPORTANT: Set the Remote Interpreter entry matching name to `laravel`
+            - PHP_IDE_CONFIG=serverName=laravel
+        command: sh /root/bootstrap.sh
 
 ### PostgreSQL Container ####################################
 
@@ -116,11 +139,13 @@ services:
         volumes:
             - "../oms-events-frontend:/usr/app/frontend"
             - "../oms-events:/usr/app/oms-events"
-            - "./api-key:/root/api-key"
-            - "./omsevents/bootstrap.sh:/root/bootstrap.sh:ro"
-            - "./omsevents/configFile.json:/root/configFile.json:ro"
+            - shared:/usr/shared:ro
+            - "./omsevents/bootstrap.sh:/usr/scripts/bootstrap.sh:ro"
+            - "./omsevents/configFile.json:/usr/scripts/configFile.json:ro"
+            - strapstate:/usr/scripts/strapstate
         links:
             - mongodb
+ 
 
 ### Omsevents frontend #######################################
 
@@ -134,6 +159,16 @@ services:
         links:
             - omsevents
 
+### Bootstrapper frontend #######################################
+
+    omsevents-bootstrap:
+        build:
+            context: ./omsevents
+        volumes_from:
+            - omsevents
+        links:
+            - omsevents
+        command: sh /usr/scripts/bootstrap.sh
 
 
 ### Volumes Setup ###########################################
@@ -143,5 +178,8 @@ volumes:
         driver: "local"
     mongodb:
         driver: "local"
-
+    shared:
+        driver: "local"
+    strapstate:
+        driver: "local"
 

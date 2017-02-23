@@ -3,9 +3,19 @@ This is a dev environment based on Docker, as an alternative to the homestead vi
 
 # Installing
 
+On all operating systems:
 ```
 git clone --recursive https://github.com/AEGEE/oms-docker.git
 vagrant up
+```
+
+If you are on linux and want an installation without vagrant:
+```
+git clone --recursive https://github.com/AEGEE/oms-docker.git
+cd oms-docker/docker
+docker-compose up -d
+# Wait until the bootstrap procedure has finished
+docker-compose logs -f omscore-bootstrap && docker-compose logs -f omsevents-bootstrap
 ```
 
 Open you browser on `http://192.168.192.168` and login with the default credentials. Navigate to the modules tab and activate the modules microservice
