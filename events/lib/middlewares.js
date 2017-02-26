@@ -239,12 +239,12 @@ exports.checkPermissions = (req, res, next) => {
   // If an event was fetched, add event-based permissions
   if (req.event) {
     permissions.is.organizer =
-      req.event.organizers.some(item => item.foreign_id === req.user.basic.id);
+      req.event.organizers.some(item => item.foreign_id == req.user.basic.id);
 
     let applicationIndex;
 
     permissions.is.participant = req.event.applications.some((item, index) => {
-      if (item.foreign_id === req.user.basic.id) {
+      if (item.foreign_id == req.user.basic.id) {
         applicationIndex = index;
         return true;
       }
@@ -256,7 +256,7 @@ exports.checkPermissions = (req, res, next) => {
       req.event.applications[applicationIndex].application_status === 'accepted';
 
     permissions.is.own_antenna = req.event.organizing_locals.some(item =>
-      item.foreign_id === req.user.basic.antenna_id);
+      item.foreign_id == req.user.basic.antenna_id);
 
     // TODO check if this is the right way to determine board positions
 
