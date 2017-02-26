@@ -111,6 +111,9 @@ eventSchema.pre('save', function save(next) {
       }
     });
   }
+  // If no url is given, default to the id
+  if(!this.url)
+    this.url = this.get('_id');
 
   next();
 });

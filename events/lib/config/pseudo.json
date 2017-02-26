@@ -1,6 +1,7 @@
 [
-  { "name": "Public", "description": "Every user is included into this group. This group is not dependent on the event/events." },
-  { "name": "Board Member", "description": "Board members are included into this group. This group is not dependent on the event/events." },
-  { "name": "Superadmin", "description": "Members with the is_superadmin flag set to true are included into this group. This group is not dependent on the event/events." },
-  { "name": "Organizer", "description": "Event organizers are included into this group. This group is dependent on the event/events." }
+  { "name": "Public", "description": "Every user is included into this group.", "event_dependent": false },
+  { "name": "Board Member", "description": "Board members are included into this group.", "event_dependent": false },
+  { "name": "Organizing Board Member", "description": "Board members that are in the board of one of the organizing locals.", "event_dependent": true },
+  { "name": "Superadmin", "description": "Members with the is_superadmin flag set to true are included into this group", "event_dependent": false },
+  { "name": "Organizer", "description": "Event organizers are included into this group.", "event_dependent": true  }
 ]

@@ -133,6 +133,7 @@ exports.fetchUserDetails = (req, res, next) => {
       req.user.roles = body.roles;
       req.user.fees_paid = body.fees_paid;
 
+      // Special roles
       req.user.special = ['Public'];
 
       if (req.user.basic.is_superadmin) {
@@ -202,7 +203,7 @@ exports.fetchSingleEvent = (req, res, next) => {
         }));
       }
 
-      if (event == null) {
+      if (event === null) {
         return next(new restify.NotFoundError({
           body: {
             success: false,
@@ -230,6 +231,7 @@ exports.checkPermissions = (req, res, next) => {
 
   // If user details are available, fill additional roles
   if (req.user.details) {
+    // TODO check if this is the right way to determine board positions
     permissions.is.boardmember = req.user.board_positions.length > 0;
 
     permissions.can.view_local_involved_events = permissions.is.boardmember ||
@@ -258,7 +260,6 @@ exports.checkPermissions = (req, res, next) => {
     permissions.is.own_antenna = req.event.organizing_locals.some(item =>
       item.foreign_id == req.user.basic.antenna_id);
 
-    // TODO check if this is the right way to determine board positions
 
     permissions.can.edit_organizers = permissions.is.organizer;
 
@@ -270,7 +271,7 @@ exports.checkPermissions = (req, res, next) => {
     permissions.can.delete = req.event.status === 'draft' && permissions.can.edit_details;
 
     permissions.can.edit_application_status =
-      (permissions.is.organizer && req.event.status === 'approved')
+      (permissions.is.organizer && req.event.status === 'approved') // TODO not valid with lifecycle anymore
       || permissions.is.superadmin;
 
     // TODO: probably remove this one, since we have the lifecycle workflow
@@ -297,9 +298,12 @@ exports.checkPermissions = (req, res, next) => {
       || permissions.is.superadmin;
   }
 
+  // Special roles
   if (permissions.is.organizer) {
     req.user.special.push('Organizer');
   }
+  if (permissions.is.boardmember && permissions.is.own_antenna)
+    req.user.special.push('Organizing Board Member');
 
   // Convert all to boolean and assign
   req.user.permissions = { is: {}, can: {} };

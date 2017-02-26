@@ -236,8 +236,8 @@ exports.addEvent = (req, res, next) => {
         return next(new restify.ForbiddenError({
           body: {
             success: false,
-            errors: [new Error('You are not allowed to create an event.')],
-            message: 'You are not allowed to create an event.',
+            errors: [new Error('You are not allowed to create an event of this type.')],
+            message: 'You are not allowed to create an event of this type.',
           },
         }));
       }
