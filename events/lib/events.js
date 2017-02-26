@@ -104,6 +104,8 @@ exports.listApprovableEvents = (req, res, next) => {
       // from current status to any status
       // which is allowed for this user/body/role/special
       const retVal = events.filter((event) => {
+        var permissions = helpers.getEventPermissions(event, req.user);
+
         return event.lifecycle.transitions.some((transition) => {
           // Skipping all transitions without 'from' status,
           // since each event has a status
@@ -115,7 +117,8 @@ exports.listApprovableEvents = (req, res, next) => {
           return (transition.from.equals(event.status)
             && (transition.allowedFor.users.includes(req.user.basic.id.toString())
               || intersects(transition.allowedFor.roles, req.user.roles)
-              || intersects(transition.allowedFor.special, req.user.special)));
+              || intersects(transition.allowedFor.special, req.user.special)
+              || intersects(transition.allowedFor.special, permissions.special)));
         });
       });
 

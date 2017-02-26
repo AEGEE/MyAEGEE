@@ -5,6 +5,7 @@ const config = require('./config/config.js');
 const log = require('./config/logger.js');
 const Event = require('./models/Event');
 const UserCache = require('./models/UserCache');
+const helpers = require('./helpers.js');
 
 exports.authenticateUser = (req, res, next) => {
   const token = req.header('x-auth-token');
@@ -238,82 +239,24 @@ exports.checkPermissions = (req, res, next) => {
       permissions.is.superadmin;
   }
 
-  // If an event was fetched, add event-based permissions
-  if (req.event) {
-    permissions.is.organizer =
-      req.event.organizers.some(item => item.foreign_id == req.user.basic.id);
-
-    let applicationIndex;
-
-    permissions.is.participant = req.event.applications.some((item, index) => {
-      if (item.foreign_id == req.user.basic.id) {
-        applicationIndex = index;
-        return true;
-      }
-
-      return false;
-    });
-
-    permissions.is.accepted_participant = permissions.is.participant &&
-      req.event.applications[applicationIndex].application_status === 'accepted';
-
-    permissions.is.own_antenna = req.event.organizing_locals.some(item =>
-      item.foreign_id == req.user.basic.antenna_id);
-
-
-    permissions.can.edit_organizers = permissions.is.organizer;
-
-    permissions.can.edit_details =
-      (permissions.is.organizer &&
-       req.event.application_status === 'closed' && req.event.status === 'draft') // Normal editing
-      || permissions.is.superadmin;
-
-    permissions.can.delete = req.event.status === 'draft' && permissions.can.edit_details;
-
-    permissions.can.edit_application_status =
-      (permissions.is.organizer && req.event.status === 'approved') // TODO not valid with lifecycle anymore
-      || permissions.is.superadmin;
-
-    // TODO: probably remove this one, since we have the lifecycle workflow
-    permissions.can.approve =
-      req.event.application_status === 'closed' || permissions.is.superadmin;
-
-    permissions.can.edit =
-      permissions.can.edit_details
-      || permissions.can.edit_organizers
-      || permissions.can.delete
-      || permissions.can.edit_application_status
-      || permissions.can.approve;
-
-    permissions.can.apply =
-      (!permissions.is.organizer && req.event.application_status === 'open')
-      || permissions.is.superadmin;
-
-    permissions.can.approve_participants = permissions.is.organizer &&
-      req.event.application_status === 'closed';
-
-    permissions.can.view_applications =
-      permissions.is.organizer
-      || (permissions.is.boardmember && permissions.is.own_antenna)
-      || permissions.is.superadmin;
-  }
-
-  // Special roles
-  if (permissions.is.organizer) {
-    req.user.special.push('Organizer');
-  }
-  if (permissions.is.boardmember && permissions.is.own_antenna)
-    req.user.special.push('Organizing Board Member');
+  const event_permissions = helpers.getEventPermissions(req.event, req.user);
 
   // Convert all to boolean and assign
   req.user.permissions = { is: {}, can: {} };
   for (const attr in permissions.is) {
     req.user.permissions.is[attr] = Boolean(permissions.is[attr]);
   }
-
   for (const attr in permissions.can) {
     req.user.permissions.can[attr] = Boolean(permissions.can[attr]);
   }
+  for (const attr in event_permissions.is) {
+    req.user.permissions.is[attr] = Boolean(event_permissions.is[attr]);
+  }
+  for (const attr in event_permissions.can) {
+    req.user.permissions.can[attr] = Boolean(event_permissions.can[attr]);
+  }
+  if(event_permissions.special)
+    req.user.special.push.apply(event_permissions.special);
 
   return next();
 };

@@ -63,3 +63,83 @@ exports.getUserById = (authToken, id, callback) => {
     });
   });
 };
+
+
+exports.getEventPermissions = (event, user) => {
+  permissions = {
+    is: {},
+    can: {},
+    special: []
+  };
+
+  if(!event || !user)
+    return permissions;
+
+  permissions.is.organizer = event.organizers.some(item => item.foreign_id == user.basic.id);
+
+  let applicationIndex;
+
+  // TODO remove
+  {
+    permissions.is.participant = event.applications.some((item, index) => {
+      if (item.foreign_id == user.basic.id) {
+        applicationIndex = index;
+        return true;
+      }
+
+      return false;
+    });
+
+    permissions.is.accepted_participant = permissions.is.participant &&
+      event.applications[applicationIndex].application_status === 'accepted';
+  }
+
+  permissions.is.own_antenna = event.organizing_locals.some(item =>
+    item.foreign_id == user.basic.antenna_id);
+
+
+  permissions.can.edit_organizers = permissions.is.organizer;
+
+  permissions.can.edit_details =
+    (permissions.is.organizer &&
+     event.application_status === 'closed') // && event.status === 'draft')  TODO add lifecycle awareness
+    || permissions.is.superadmin;
+
+  permissions.can.delete = permissions.can.edit_details;
+
+  permissions.can.edit_application_status =
+    (permissions.is.organizer) // && event.status === 'approved') TODO not valid with lifecycle anymore
+    || permissions.is.superadmin;
+
+  // TODO: probably remove this one, since we have the lifecycle workflow
+  permissions.can.approve =
+    event.application_status === 'closed' || permissions.is.superadmin;
+
+  permissions.can.edit =
+    permissions.can.edit_details
+    || permissions.can.edit_organizers
+    || permissions.can.delete
+    || permissions.can.edit_application_status
+    || permissions.can.approve;
+
+  permissions.can.apply =
+    (!permissions.is.organizer && event.application_status === 'open')
+    || permissions.is.superadmin;
+
+  permissions.can.approve_participants = permissions.is.organizer &&
+    event.application_status === 'closed';
+
+  permissions.can.view_applications =
+    permissions.is.organizer
+    || (permissions.is.boardmember && permissions.is.own_antenna)
+    || permissions.is.superadmin;
+
+  // Special roles
+  if (permissions.is.organizer) {
+    permissions.special.push('Organizer');
+  }
+  if (permissions.is.boardmember && permissions.is.own_antenna)
+    permissions.special.push('Organizing Board Member');
+
+  return permissions;
+};
