@@ -140,6 +140,8 @@ exports.getEventPermissions = (event, user) => {
   }
   if (permissions.is.boardmember && permissions.is.own_antenna)
     permissions.special.push('Organizing Board Member');
+  if (permissions.is.own_antenna)
+    permissions.special.push('Organizing Local Member');
 
   return permissions;
 };
