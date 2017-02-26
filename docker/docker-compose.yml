@@ -131,6 +131,15 @@ services:
         volumes:
             - mongodb:/data/db
 
+### mongoui Container #######################################
+
+    mongoui:
+        build: ./mongoui
+        ports:
+            - "3000:3000"
+        links:
+            - mongodb
+
 ### Omsevents backend #######################################
 
     omsevents:
