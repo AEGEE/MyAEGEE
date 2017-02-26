@@ -499,15 +499,14 @@ exports.setApprovalStatus = (req, res, next) => {
 
       // Checking if this user/role/body/special has the rights to do the transition.
       // TODO: Add bodies.
-
       if (!transition.allowedFor.users.includes(req.user.basic.id.toString())
           && !intersects(transition.allowedFor.roles, req.user.roles)
           && !intersects(transition.allowedFor.special, req.user.special)) {
         return next(new restify.ForbiddenError({
           body: {
             success: false,
-            errors: [new Error('You are not allowed to perform a transition.')],
-            message: 'You are not allowed to perform a transition.',
+            errors: [new Error('You are not allowed to perform this transition.')],
+            message: 'You are not allowed to perform this transition.',
           },
         }));
       }

@@ -255,8 +255,9 @@ exports.checkPermissions = (req, res, next) => {
   for (const attr in event_permissions.can) {
     req.user.permissions.can[attr] = Boolean(event_permissions.can[attr]);
   }
-  if(event_permissions.special)
-    req.user.special.push.apply(event_permissions.special);
+  if(event_permissions.special) {
+    Array.prototype.push.apply(req.user.special, event_permissions.special);
+  }
 
   return next();
 };
