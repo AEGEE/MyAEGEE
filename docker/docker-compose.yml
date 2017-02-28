@@ -68,7 +68,7 @@ services:
         volumes_from:
             - omscore-data
         volumes:
-            - ./logs/nginx/:/var/log/nginx
+            - ./logs/omscore/:/var/log/nginx
         ports:
             - "80:80"
             - "443:443"
@@ -146,7 +146,7 @@ services:
         build:
             context: ./omsevents
         volumes:
-            - "../oms-events-frontend:/usr/app/frontend"
+            - omsevents_media:/usr/app/media
             - "../oms-events:/usr/app/oms-events"
             - shared:/usr/shared:ro
             - "./omsevents/bootstrap.sh:/usr/scripts/bootstrap.sh:ro"
@@ -163,6 +163,8 @@ services:
             context: ./omsevents-frontend
         volumes:
             - "../oms-events-frontend:/usr/app/frontend:ro"
+            - omsevents_media:/usr/app/media
+            - ./logs/omsevents-frontend/:/var/log/nginx
         ports:
             - "8083:8083"
         links:
@@ -186,6 +188,8 @@ volumes:
     postgres:
         driver: "local"
     mongodb:
+        driver: "local"
+    omsevents_media:
         driver: "local"
     shared:
         driver: "local"

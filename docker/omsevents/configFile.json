@@ -15,7 +15,8 @@
 				"code": "eventadmin",
 				"module_link": "frontend/admin/adminController.js",
 				"icon": "fa fa-wrench"
-			}]
+			}],
+			"media_url": "/media"
 		},
 		"core": {
 			"url": "http://omscore-nginx",
@@ -23,7 +24,7 @@
 		},
 		"secret": "invalid_key",
 		"secret_overwrite": "/usr/shared/api-key",
-		"media_dir": "/usr/app/frontend/media",
+		"media_dir": "/usr/app/media",
 		"enableUserCaching": true
 	},
 
