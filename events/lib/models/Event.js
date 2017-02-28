@@ -56,10 +56,11 @@ const applicationFieldSchema = mongoose.Schema({
 });
 
 const eventSchema = mongoose.Schema({
-  url: { type: String, unique: true, sparse: true },
+  url: { type: String, unique: true }, // defaults to _id, see pre-save hook
   head_image: {
     // url: String, virtual
     path: String,
+    filename: String,
   },
   name: { type: String, required: true },
   starts: { type: Date, required: true },
@@ -87,13 +88,12 @@ const eventSchema = mongoose.Schema({
   application_fields: [applicationFieldSchema],
   applications: [paxSchema],
   organizers: [orgaSchema],
-  headImg: { type: String }, // url for the headimage
 }, { timestamps: true });
 
 // Virtuals
 eventSchema.virtual('head_image.url').get(function imageUrl() {
-  if (this.head_image && this.head_image.path) {
-    return `${config.frontend.url}/${this.head_image.path}`;
+  if (this.head_image && this.head_image.filename) {
+    return `${config.frontend.url}/${config.frontend.media_url}/headimages/${this.head_image.filename}`;
   }
   return '';
 });

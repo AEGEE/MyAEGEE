@@ -138,7 +138,7 @@ exports.getEventPermissions = (event, user) => {
   if (permissions.is.organizer) {
     permissions.special.push('Organizer');
   }
-  if (permissions.is.boardmember && permissions.is.own_antenna)
+  if (permissions.is.boardmember && permissions.is.own_antenna) // TODO that doesn't work that way, boardmember is generic for all boardmembers
     permissions.special.push('Organizing Board Member');
   if (permissions.is.own_antenna)
     permissions.special.push('Organizing Local Member');

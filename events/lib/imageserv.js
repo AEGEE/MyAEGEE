@@ -16,8 +16,9 @@ const storage = multer.diskStorage({ // multers disk storage settings
     cb(null, uploadFolderName);
   },
 
+  // Filename is 4 character random string and the current datetime to avoid collisions
   filename(req, file, cb) {
-    cb(null, `${req.event.id}-${(new Date()).getTime()}`);
+    cb(null, `${(Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 4))}-${(new Date()).getTime()}`);
   },
 });
 const upload = multer({
@@ -86,6 +87,7 @@ exports.uploadImage = (req, res, next) => {
 
     req.event.head_image = {
       path: req.file.path,
+      filename: req.file.filename
     };
 
     return req.event.save((saveErr) => {
@@ -115,6 +117,8 @@ exports.uploadImage = (req, res, next) => {
           }
         });
       }
+
+      console.log(req.file);
 
       // Send back the request
       return next();
