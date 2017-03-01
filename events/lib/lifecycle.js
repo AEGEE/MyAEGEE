@@ -6,6 +6,7 @@ const Lifecycle = require('./models/Lifecycle');
 const EventType = require('./models/EventType');
 
 const pseudoRoles = require('./config/pseudo');
+const eventRoles = require('./config/eventroles');
 
 exports.createLifecycle = (req, res, next) => {
   const data = req.body;
@@ -249,9 +250,17 @@ exports.getLifecyclesNames = (req, res, next) => {
 };
 
 exports.getPseudoRolesList = (req, res, next) => {
+  var result = pseudoRoles;
+  eventRoles.roles.forEach((item) => {
+    result.push({
+      "name": item.name,
+      "description": item.description + " (event role)"
+    });
+  });
+
   res.json({
     success: true,
-    data: pseudoRoles,
+    data: result,
   });
 
   return next();

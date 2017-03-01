@@ -28,41 +28,6 @@ exports.checkApplicationValidity = (application, applicationFields) => {
   return { passed: true, msg: '' };
 };
 
-exports.getUserById = (authToken, id, callback) => {
-  require('./config/options.js').then((options) => {
-    const opts = {
-      url: `${config.core.url}:${config.core.port}/api/getUser`,
-      method: 'GET',
-      headers: options.getRequestHeaders(authToken),
-      qs: {
-        id,
-      },
-    };
-
-    httprequest(opts, (requestError, requestResult, requestBody) => {
-      if (requestError) {
-        // log.error("Could not contact core", err);
-        return callback(requestError, null);
-      }
-
-      let body;
-      try {
-        body = JSON.parse(requestBody);
-      } catch (err) {
-        // log.error("Could not parse core response", err);
-        return callback(err, null);
-      }
-
-      if (!body.success) {
-        // log.info("Access denied to user", body);
-        return callback(null, null);
-      }
-
-      body.user.antenna_name = body.user.antenna.name;
-      return callback(null, { basic: body.user });
-    });
-  });
-};
 
 
 exports.getEventPermissions = (event, user) => {

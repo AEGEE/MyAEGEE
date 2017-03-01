@@ -9,6 +9,7 @@ const fs = require('fs');
 const httprequest = require('request');
 const restify = require('restify');
 const cron = require('./cron.js');
+const eventroles = require('./config/eventroles');
 
 /* Stat thing... remove!*/
 const stats = {

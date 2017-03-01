@@ -1,9 +1,10 @@
 const restify = require('restify');
 
 const log = require('./config/logger.js');
+const eventRoles = require('./config/eventroles');
 const helpers = require('./helpers.js');
 const cron = require('./cron.js');
-
+const user = require('./user.js');
 const Event = require('./models/Event');
 const Lifecycle = require('./models/Lifecycle');
 const EventType = require('./models/EventType');
@@ -175,120 +176,119 @@ exports.addEvent = (req, res, next) => {
 
   const newEvent = new Event(data);
 
-  // Creating user automatically becomes organizer
-  newEvent.organizers = [
-    {
-      first_name: req.user.basic.first_name,
-      last_name: req.user.basic.last_name,
-      foreign_id: req.user.basic.id,
-      role: 'full',
-      antenna_id: req.user.basic.antenna_id,
-      antenna_name: req.user.basic.antenna_name,
-      main_organizer: true,
-    },
-  ];
+  // Get the default role to assign to the user
+  user.getDefaultEventRoles((defaultRoles) => {
+    // Creating user automatically becomes organizer
+    newEvent.organizers = [
+      {
+        foreign_id: req.user.basic.id,
+        roles: defaultRoles
+      },
+    ];
 
-  // Creating user's local automatically becomes organizing local
-  newEvent.organizing_locals = [
-    {
-      name: req.user.basic.antenna_name,
-      foreign_id: req.user.basic.antenna_id,
-    },
-  ];
+    // Creating user's local automatically becomes organizing local
+    newEvent.organizing_locals = [
+      {
+        name: req.user.basic.antenna_name,
+        foreign_id: req.user.basic.antenna_id,
+      },
+    ];
 
-  // Loading event type and its default lifecycle
-  EventType
-    .findOne({ name: newEvent.type })
-    .populate({
-      path: 'defaultLifecycle',
-      populate: { path: 'initialStatus' },
-    })
-    .then((eventType) => {
-      if (!eventType || !eventType.defaultLifecycle) { // no lifecycle exists for this type of event
-        return next(new restify.InvalidArgumentError({
-          body: {
-            success: false,
-            errors: [new Error(`No lifecycle is specified for this type of event: ${newEvent.type},\
-  cannot set initial status.`)],
-            message: `No lifecycle is specified for this type of event: ${newEvent.type},\
-  cannot set initial status.`,
-          },
-        }));
-      }
+    // Loading event type and its default lifecycle
+    EventType
+      .findOne({ name: newEvent.type })
+      .populate({
+        path: 'defaultLifecycle',
+        populate: { path: 'initialStatus' },
+      })
+      .then((eventType) => {
+        if (!eventType || !eventType.defaultLifecycle) { // no lifecycle exists for this type of event
+          return next(new restify.InvalidArgumentError({
+            body: {
+              success: false,
+              errors: [new Error(`No lifecycle is specified for this type of event: ${newEvent.type},\
+    cannot set initial status.`)],
+              message: `No lifecycle is specified for this type of event: ${newEvent.type},\
+    cannot set initial status.`,
+            },
+          }));
+        }
 
-      // Checking if the user is allowed to create an event.
-      // Trying to find a transition from 'null' to 'initialStatus'
-      const transition = eventType.defaultLifecycle.transitions.find(t =>
-        !t.from && t.to.equals(eventType.defaultLifecycle.initialStatus._id));
+        // Checking if the user is allowed to create an event.
+        // Trying to find a transition from 'null' to 'initialStatus'
+        const transition = eventType.defaultLifecycle.transitions.find(t =>
+          !t.from && t.to.equals(eventType.defaultLifecycle.initialStatus._id));
 
-      if (!transition) {
-        return next(new restify.InvalidArgumentError({
-          body: {
-            success: false,
-            errors: [new Error('Nobody is allowed to create events of this type.')],
-            message: 'Nobody is allowed to create events of this type.',
-          },
-        }));
-      }
+        if (!transition) {
+          return next(new restify.InvalidArgumentError({
+            body: {
+              success: false,
+              errors: [new Error('Nobody is allowed to create events of this type.')],
+              message: 'Nobody is allowed to create events of this type.',
+            },
+          }));
+        }
 
-      // Checking if the user is allowed to create events of this type.
-      // TODO: Add bodies support.
-      if (!transition.allowedFor.users.includes(req.user.basic.id.toString())
-          && !intersects(transition.allowedFor.roles, req.user.roles)
-          && !intersects(transition.allowedFor.special, req.user.special)) {
-        return next(new restify.ForbiddenError({
-          body: {
-            success: false,
-            errors: [new Error('You are not allowed to create an event of this type.')],
-            message: 'You are not allowed to create an event of this type.',
-          },
-        }));
-      }
+        // Checking if the user is allowed to create events of this type.
+        // TODO: Add bodies support.
+        if (!transition.allowedFor.users.includes(req.user.basic.id.toString())
+            && !intersects(transition.allowedFor.roles, req.user.roles)
+            && !intersects(transition.allowedFor.special, req.user.special)) {
+          return next(new restify.ForbiddenError({
+            body: {
+              success: false,
+              errors: [new Error('You are not allowed to create an event of this type.')],
+              message: 'You are not allowed to create an event of this type.',
+            },
+          }));
+        }
 
-      // Now we've got here, the user is allowed to create the event.
-      newEvent.status = eventType.defaultLifecycle.initialStatus._id;
-      newEvent.lifecycle = eventType.defaultLifecycle._id;
+        // Now we've got here, the user is allowed to create the event.
+        newEvent.status = eventType.defaultLifecycle.initialStatus._id;
+        newEvent.lifecycle = eventType.defaultLifecycle._id;
 
-      return newEvent.save((err) => {
-        if (err) {
-          // Send validation-errors back to client
-          if (err.name === 'ValidationError') {
-            return next(new restify.InvalidArgumentError({
+        return newEvent.save((err) => {
+          if (err) {
+            // Send validation-errors back to client
+            if (err.name === 'ValidationError') {
+              return next(new restify.InvalidArgumentError({
+                body: {
+                  success: false,
+                  errors: err.errors,
+                  message: err.message,
+                },
+              }));
+            }
+
+            log.error('Could not add event', err);
+            return next(new restify.InternalError({
               body: {
                 success: false,
-                errors: err.errors,
+                errors: [err],
                 message: err.message,
               },
             }));
           }
 
-          log.error('Could not add event', err);
-          return next(new restify.InternalError({
-            body: {
-              success: false,
-              errors: [err],
-              message: err.message,
-            },
-          }));
-        }
+          // Setting event status as object, not ID.
+          newEvent.status = eventType.defaultLifecycle.initialStatus;
 
-        // Setting event status as object, not ID.
-        newEvent.status = eventType.defaultLifecycle.initialStatus;
+          // Register cronjob for deadline
+          if (data.application_deadline) {
+            cron.registerDeadline(newEvent.id, newEvent.application_deadline);
+          }
 
-        // Register cronjob for deadline
-        if (data.application_deadline) {
-          cron.registerDeadline(newEvent.id, newEvent.application_deadline);
-        }
-
-        res.status(201);
-        res.json({
-          success: true,
-          message: 'Event successfully created',
-          event: newEvent,
+          res.status(201);
+          res.json({
+            success: true,
+            message: 'Event successfully created',
+            event: newEvent,
+          });
+          return next();
         });
-        return next();
       });
-    });
+
+  });
 };
 
 /** Single event **/
@@ -296,9 +296,13 @@ exports.eventDetails = (req, res, next) => {
   const event = req.event.toObject();
 
   delete event.applications;
+  // Populate organizers
+  user.populateUsers(event.organizers, req.headers['x-auth-token'], (organizers) => {
+    event.organizers = organizers;
 
-  res.json(event);
-  return next();
+    res.json(event);
+    return next();
+  });
 };
 
 exports.editEvent = (req, res, next) => {
@@ -334,6 +338,7 @@ exports.editEvent = (req, res, next) => {
     if (data.fee) event.fee = data.fee;
     event.application_deadline = data.application_deadline;
     const cmpDeadline = new Date(data.application_deadline);
+
     // Register deadline with cron if changed
     if (data.application_deadline && data.application_deadline > Date.now() &&
      (!event.application_deadline
@@ -351,40 +356,34 @@ exports.editEvent = (req, res, next) => {
   if (req.user.permissions.can.edit_organizers && data.organizers) {
     // Loop through organizers, copy data
     data.organizers.forEach((organizer) => {
-      let index;
-      const neworganizer = !event.organizers.some((item, idx) => {
-        if (item.foreign_id === organizer.foreign_id) {
-          index = idx;
-          return true;
+      // Change the roles to only hold ids
+      if(orgnaizer.roles) {
+        organizer.roles = organizer.roles.map((role) => {
+          if(role.id)
+            return role.id;
+          return role;
+        });
+      }
+
+      // Try to find organizer in list
+      let index = event.organizers.findIndex((item) => item.foreign_id === organizer.foreign_id);
+
+      // If user already exists, copy only new stuff
+      if (index !== undefined && index !== -1) {
+        if (organizer.comment) {event.organizers[index].comment = organizer.comment;} // Comment not resettable
+        // Roles resettable, but only store ids
+        if (organizer.roles) {
+          event.organizers[index].roles = organizer.roles;
         }
 
-        return false;
-      });
-      // If user already exists, copy only new stuff
-      if (!neworganizer) {
-        if (organizer.comment) {
-          event.organizers[index].comment = organizer.comment;
-        }
-        if (organizer.main_organizer) {
-          event.organizers[index].main_organizer = organizer.main_organizer;
-        }
+        // Mark as touched
         event.organizers[index].touched = true;
       } else {
-        helpers.getUserById(req.header('x-auth-token'), organizer.foreign_id, (err, userRes) => {
-          if (err) {
-            log.warn('Could not retrieve user details');
-          } else {
-            event.organizers.push({
-              foreign_id: organizer.foreign_id,
-              first_name: userRes.basic.first_name,
-              last_name: userRes.basic.last_name,
-              antenna_id: userRes.basic.antenna_id,
-              antenna_name: userRes.basic.antenna_name,
-              comment: organizer.comment,
-              main_organizer: organizer.main_organizer,
-              touched: true,
-            });
-          }
+        event.organizers.push({
+          foreign_id: organizer.foreign_id,
+          comment: organizer.comment,
+          roles: organizer.roles,
+          touched: true,
         });
       }
     });

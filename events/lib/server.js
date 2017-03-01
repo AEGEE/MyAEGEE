@@ -7,6 +7,7 @@ const service = require('./service.js');
 const middlewares = require('./middlewares.js');
 const cron = require('./cron.js');
 const config = require('./config/config.js');
+const user = require('./user.js');
 
 const server = restify.createServer({
   name: 'oms-events',
@@ -78,6 +79,8 @@ server.post({ path: '/lifecycle', version: curVersion }, lifecycle.createLifecyc
 server.get({ path: '/lifecycle', version: curVersion }, lifecycle.getLifecycles);
 server.del({ path: '/lifecycle/:lifecycle_id', version: curVersion }, lifecycle.removeLifecycle);
 
+server.get({ path: '/eventroles', version: curVersion }, user.getEventRoles);
+
 server.get({ path: '/mine/byOrganizer', version: curVersion }, events.listUserOrganizedEvents);
 server.get({ path: '/mine/byApplication', version: curVersion }, events.listUserAppliedEvents);
 server.get({ path: '/mine/approvable', version: curVersion }, [
@@ -117,6 +120,7 @@ server.listen(config.port, () => {
   require('./config/options.js').then(() => {
     log.info('Up and running, %s listening on %s', server.name, server.url);
     cron.scanDB();
+    user.updateEventRoles();
   });
 });
 

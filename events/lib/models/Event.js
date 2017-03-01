@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const config = require('../config/config.js');
+const orgaSchema = require('./Organizer.js');
 
 // A participant applying to an event including it's application
 const paxSchema = mongoose.Schema({
@@ -27,17 +28,6 @@ paxSchema.set('toJSON', { virtuals: true });
 paxSchema.set('toObject', { virtuals: true });
 paxSchema.virtual('url').get(function url() {
   return `${this.parent().application_url}/${this.foreign_id}`;
-});
-
-const orgaSchema = mongoose.Schema({
-  first_name: String,
-  last_name: String,
-  comment: String,
-  main_organizer: Boolean,
-  antenna_id: { type: String, required: true },
-  antenna_name: String,
-  foreign_id: { type: String, required: true },
-  role: { type: String, enum: ['full', 'readonly'], default: 'full' },
 });
 
 const localSchema = mongoose.Schema({

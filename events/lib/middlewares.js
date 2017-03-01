@@ -6,6 +6,7 @@ const log = require('./config/logger.js');
 const Event = require('./models/Event');
 const UserCache = require('./models/UserCache');
 const helpers = require('./helpers.js');
+const user = require('./user.js');
 
 exports.authenticateUser = (req, res, next) => {
   const token = req.header('x-auth-token');
@@ -63,6 +64,7 @@ exports.authenticateUser = (req, res, next) => {
             const saveUserData = new UserCache();
             saveUserData.token = token;
             saveUserData.user = req.user;
+            saveUserData.foreign_id = req.user.basic.id;
             saveUserData.save((saveErr) => {
               if (saveErr) {
                 log.warn('Could not store user data in cache', saveErr);
@@ -159,6 +161,7 @@ exports.fetchUserDetails = (req, res, next) => {
           }
 
           userCacheRes.user = req.user;
+          userCacheRes.foreign_id = req.user.basic.id;
           delete userCacheRes.user.permissions;
           userCacheRes.save((saveErr) => {
             if (saveErr) {
@@ -192,6 +195,8 @@ exports.fetchSingleEvent = (req, res, next) => {
   return Event
     .findOne(findObject)
     .populate('status')
+    .populate('organizers.roles')
+    .populate('organizers.cached')
     .exec((err, event) => {
       if (err) {
         log.info(err);
@@ -214,6 +219,7 @@ exports.fetchSingleEvent = (req, res, next) => {
         }));
       }
 
+    
       req.event = event;
       return next();
     });
