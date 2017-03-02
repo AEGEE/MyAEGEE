@@ -100,13 +100,18 @@ exports.getEventPermissions = (event, user) => {
     || permissions.is.superadmin;
 
   // Special roles
-  if (permissions.is.organizer) {
-    permissions.special.push('Organizer');
-  }
   if (permissions.is.boardmember && permissions.is.own_antenna) // TODO that doesn't work that way, boardmember is generic for all boardmembers
     permissions.special.push('Organizing Board Member');
   if (permissions.is.own_antenna)
     permissions.special.push('Organizing Local Member');
+
+  // Also all eventroles become special roles
+  var myorg = event.organizers.find((item) => item.foreign_id == user.basic.id);
+  if(myorg && myorg.roles && myorg.roles.length > 0) {
+    myorg.roles.forEach((item) => {
+      permissions.special.push(item.name);
+    });
+  }
 
   return permissions;
 };

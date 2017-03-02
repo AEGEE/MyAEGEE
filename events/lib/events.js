@@ -297,12 +297,20 @@ exports.eventDetails = (req, res, next) => {
 
   delete event.applications;
   // Populate organizers
+  var transformUserData = (user) => {
+    return {
+      'first_name': user.basic.first_name,
+      'last_name': user.basic.last_name,
+      'antenna_name': user.basic.antenna_name
+    };
+  };
+
   user.populateUsers(event.organizers, req.headers['x-auth-token'], (organizers) => {
     event.organizers = organizers;
 
     res.json(event);
     return next();
-  });
+  }, transformUserData);
 };
 
 exports.editEvent = (req, res, next) => {
@@ -357,7 +365,7 @@ exports.editEvent = (req, res, next) => {
     // Loop through organizers, copy data
     data.organizers.forEach((organizer) => {
       // Change the roles to only hold ids
-      if(orgnaizer.roles) {
+      if(organizer.roles) {
         organizer.roles = organizer.roles.map((role) => {
           if(role.id)
             return role.id;

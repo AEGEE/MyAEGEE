@@ -78,12 +78,10 @@ exports.populateUsers = (somearray, authtoken, callback, transform=identityTrans
           log.warn("User with id " + foreign_id + " could not be retrieved");
         else
           item.data = transform(fetchedResults[item.foreign_id]);
-        //console.log(item.data);
-        console.log(item);
+
         return item;
       }
     });
-    console.log(results);
     return callback(results);
   };
 
@@ -166,7 +164,7 @@ exports.updateEventRoles = () => {
 
 
 exports.getEventRoles = (req, res, next) => {
-  EventRole.find({}).exec((err, res) => {
+  EventRole.find({}).exec((err, roles) => {
     if (err) {
       log.error(err);
       return next(new restify.InternalError());
@@ -174,7 +172,7 @@ exports.getEventRoles = (req, res, next) => {
 
     res.json({
       success: true,
-      data: res
+      data: roles
     });
 
     return next();
