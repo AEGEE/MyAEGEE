@@ -1,57 +1,127 @@
-var mongoose = require('./config/mongo');
-var restify = require('restify');
-var log = require('./config/logger');
-var config = require('./config/config.js');
-var Event = require('./eventModel.js');
-var multer  = require('multer');
-var fs = require('fs');
+const restify = require('restify');
+const fs = require('fs-extra');
+const path = require('path');
+const multer = require('multer');
+const readChunk = require('read-chunk');
+const fileType = require('file-type');
 
-var storage = multer.diskStorage({ //multers disk storage settings
-	destination: function (req, file, cb) {
-		cb(null, config.media_dir + '/headimages');
-	},
-	filename: function (req, file, cb) {
-		cb(null, req.event.id + '-' + (new Date()).getTime());
-	}
+const log = require('./config/logger');
+const config = require('./config/config.js');
+
+const uploadFolderName = `${config.media_dir}/headimages`;
+const allowedExtensions = ['.png', '.jpg', '.jpeg'];
+
+const storage = multer.diskStorage({ // multers disk storage settings
+  destination(req, file, cb) {
+    cb(null, uploadFolderName);
+  },
+
+  // Filename is 4 character random string and the current datetime to avoid collisions
+  filename(req, file, cb) {
+    cb(null, `${(Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 4))}-${(new Date()).getTime()}`);
+  },
 });
-var upload = multer({storage: storage}).single('head_image');
+const upload = multer({
+  storage,
+  fileFilter(req, file, cb) {
+    const extension = path.extname(file.originalname);
+    if (!allowedExtensions.includes(extension)) {
+      const allowed = allowedExtensions.map(e => `'${e}'`).join(', ');
+      return cb(new Error(`Allowed extensions: ${allowed}, but '${extension}' was passed.`));
+    }
 
-exports.uploadImage = function(req, res, next) {
-	upload(req, res, function(err) {
-		if(err) {
-			log.error("Could not store image", err);
-			return next(new restify.InternalError());
-		}
-		// If there was an old image, move that away later
-		var oldimg = req.event.head_image;
+    return cb(null, true);
+  },
+}).single('head_image');
 
-		req.event.head_image = {
-			path: req.file.path
-		}
+exports.uploadImage = (req, res, next) => {
+  // If upload folder doesn't exists, create it.
+  if (!fs.existsSync(uploadFolderName)) {
+    fs.mkdirpSync(uploadFolderName);
+  }
 
-		req.event.save(function(err) {
-			if(err) {
-				log.error("Could not store image metadata to db", err);
-				return next(new restify.InternalError());
-			}
+  upload(req, res, (uploadErr) => {
+    if (uploadErr) {
+      log.error('Could not store image', uploadErr);
+      return next(new restify.InternalError({
+        body: {
+          success: false,
+          errors: [uploadErr],
+          message: uploadErr.message,
+        },
+      }));
+    }
 
-			res.json({
-				success: true,
-				message: "File uploaded successfully",
-				head_image: req.event.head_image
-			});
-			// Send back the request
-			next();
+    // If the head_image field is missing, do nothing.
+    if (!req.file) {
+      return next(new restify.InternalError({
+        body: {
+          success: false,
+          errors: [new Error('No head_image is specified.')],
+          message: 'No head_image is specified.',
+        },
+      }));
+    }
 
-			// Move old file away
-			if(oldimg && oldimg.path) {
-				var path = oldimg.path.split('/');
-				fs.rename(oldimg.path, config.media_dir + '/old/' + path[path.length-1], function(err) {
-					if(err) {
-						log.warn("Could not move unused image into media/old folder", err);
-					}
-				});
-			}
-		});
-	});
-}
+    // If the file's content is malformed, don't save it.
+    const buffer = readChunk.sync(req.file.path, 0, 4100);
+    const type = fileType(buffer);
+
+    const originalExtension = path.extname(req.file.originalname);
+    const determinedExtension = (type && type.ext ? `.${type.ext}` : 'unknown');
+
+    if (originalExtension !== determinedExtension
+      || !allowedExtensions.includes(determinedExtension)) {
+      return next(new restify.InternalError({
+        body: {
+          success: false,
+          errors: [new Error('Malformed file content.')],
+          message: 'Malformed file content.',
+        },
+      }));
+    }
+
+
+    // If there was an old image, move that away later
+    const oldimg = req.event.head_image;
+
+    req.event.head_image = {
+      path: req.file.path,
+      filename: req.file.filename
+    };
+
+    return req.event.save((saveErr) => {
+      if (saveErr) {
+        log.error('Could not store image metadata to db', saveErr);
+        return next(new restify.InternalError({
+          body: {
+            success: false,
+            errors: [saveErr],
+            message: saveErr.message,
+          },
+        }));
+      }
+
+      res.json({
+        success: true,
+        message: 'File uploaded successfully',
+        head_image: req.event.head_image,
+      });
+
+      // Move old file away
+      if (oldimg && oldimg.path) {
+        const oldPath = oldimg.path.split('/');
+        fs.rename(oldimg.path, `${config.media_dir}/old/${oldPath[path.length - 1]}`, (err) => {
+          if (err) {
+            log.warn('Could not move unused image into media/old folder', err);
+          }
+        });
+      }
+
+      console.log(req.file);
+
+      // Send back the request
+      return next();
+    });
+  });
+};

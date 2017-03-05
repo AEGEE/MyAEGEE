@@ -1,640 +1,826 @@
-var config = require('./config/config.js');
-var log = require('./config/logger.js');
-var restify = require('restify');
-var helpers = require('./helpers.js');
-var mongoose = require('./config/mongo.js');
-var imageserv = require('./imageserv.js');
-var cron = require('./cron.js');
+const restify = require('restify');
+
+const log = require('./config/logger.js');
+const eventRoles = require('./config/eventroles');
+const helpers = require('./helpers.js');
+const cron = require('./cron.js');
+const user = require('./user.js');
+const Event = require('./models/Event');
+const Lifecycle = require('./models/Lifecycle');
+const EventType = require('./models/EventType');
 
 
-var Event = require('./eventModel.js');
-
+// Helper function for determining if two arrays are intersecting or not.
+const intersects = (array1, array2) => array1.filter(elt => array2.includes(elt)).length > 0;
 
 /** Requests for all events **/
 
-exports.listEvents = function(req, res, next) {
-	// Get statutory, non-statutory and su
-	Event
-		.where('status', 'approved')
-		.where('type').ne('local')
-		.where('ends').gte(new Date()) // Only show events in the future
-		.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
-		.exec(function(err, events) {
-			if (err) {log.error(err);return next(new restify.InternalError());}
+exports.listEvents = (req, res, next) => {
+  Event
+    .where('ends').gte(new Date()) // Only show events in the future
+    .select([
+      'name',
+      'starts',
+      'ends',
+      'description',
+      'type',
+      'status',
+      'max_participants',
+      'application_status',
+      'application_deadline',
+      'fee',
+      'organizing_locals.name',
+    ].join(' '))
+    .populate('status')
+    .exec((err, events) => {
+      if (err) {
+        log.error(err);
+        return next(new restify.InternalError());
+      }
 
-			// Local events need another query with elemMatch
-			Event
-				.where('status', 'approved')
-				.where('type', 'local')
-				.where('ends').gte(new Date())
-				.elemMatch('organizing_locals', {'foreign_id': req.user.basic.antenna_id})
-				.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
-				.exec(function(err, localEvents) {
-					if (err) {log.error(err);return next(new restify.InternalError());}
+      // Displaying only events user is allowed to see
+      const filteredEvents = events.filter((event) => {
+        // TODO: Include bodies
+        return event.status.visibility.users.includes(req.user.basic.id.toString())
+          || intersects(event.status.visibility.roles, req.user.roles)
+          || intersects(event.status.visibility.special, req.user.special);
+      });
 
-					res.json(events.concat(localEvents));
-					return next();
-				});
-		});
-}
+      res.json({
+        success: true,
+        data: filteredEvents,
+      });
+      return next();
+    });
+};
 
 // Returns all events the user is organizer on
-exports.listUserOrganizedEvents = function(req, res, next) {
-	Event
-		.where('status').ne('deleted') // Hide deleted events
-		.where('ends').gte(new Date()) // Only show events in the future
-		.elemMatch('organizers', {'foreign_id': req.user.basic.id})
-		.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
-		.exec(function(err, events) {
-			if (err) {log.info(err);return next(new restify.InternalError());}
-		
-			res.json(events);
-			return next();
-		});
-}
+exports.listUserOrganizedEvents = (req, res, next) => {
+  Event
+    // .where('status').ne('deleted') // Hide deleted events
+    .where('ends').gte(new Date()) // Only show events in the future
+    .elemMatch('organizers', { foreign_id: req.user.basic.id })
+    .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
+    .exec((err, events) => {
+      if (err) {
+        log.info(err);
+        return next(new restify.InternalError());
+      }
 
+      res.json(events);
+      return next();
+    });
+};
 
-exports.listUserAppliedEvents = function(req, res, next) {
-	Event
-		.where('status').ne('deleted') // Hide deleted events
-		.where('ends').gte(new Date()) // Only show events in the future
-		.elemMatch('applications', {'foreign_id': req.user.basic.id})
-		.select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals'].join(' '))
-		.exec(function(err, events) {
-			if (err) {log.info(err);return next(new restify.InternalError());}
-		
-			res.json(events);
-			return next();
-		});
-}
+exports.listUserAppliedEvents = (req, res, next) => {
+  Event
+    // TODO: Fix this stuff.
+    // Either delete this line, or change it to load the 'deleted' field.
+    // See the 'deleteEvent' endpoint comment.
+    // .where('status').ne('deleted') // Hide deleted events
+    .where('ends').gte(new Date()) // Only show events in the future
+    .elemMatch('applications', { foreign_id: req.user.basic.id })
+    .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals'].join(' '))
+    .exec((err, events) => {
+      if (err) {
+        log.info(err);
+        return next(new restify.InternalError());
+      }
 
-exports.listApprovableEvents = function(req, res, next) {
-	Event
-		.where('status', 'requesting')
-		.where('ends').gte(new Date())
-		.select(['name', 'type', 'max_participants', 'application_status'].join(' '))
-		.exec(function(err, events) {
-			if (err) {log.info(err);return next(new restify.InternalError());}
+      res.json(events);
+      return next();
+    });
+};
 
-			var retval = [];
-			events.forEach(item => {
-				if(req.user.permissions.is.superadmin)
-					retval.push(item);
-				else if(req.user.permissions.is.su_admin && item.type == 'su')
-					retval.push(item);
-				else if(req.user.permissions.is.statutory_admin && item.type == 'statutory')
-					retval.push(item);
-				else if(req.user.permissions.is.non_statutory_admin && item.type == 'non-statutory')
-					retval.push(item);
-				else if(item.type == 'local' && req.user.board_positions.length > 0
-					&& item.organizing_locals.some(i => i.foreign_id == req.user.basic.antenna_id))
-					retval.push(item);
-			});
+exports.listApprovableEvents = (req, res, next) => {
+  // Loading events and a lifecycle and its statuses for each event.
+  Event
+    .where('ends').gte(new Date())
+    .populate({ path: 'lifecycle', model: 'Lifecycle', populate: { path: 'status', model: 'Status' } })
+    .exec((err, events) => {
+      if (err) {
+        log.info(err);
+        return next(new restify.InternalError());
+      }
 
-			res.json(retval);
-			return next();
-		});
-}
+      // Checking if we have at least 1 transition
+      // from current status to any status
+      // which is allowed for this user/body/role/special
+      const retVal = events.filter((event) => {
+        var permissions = helpers.getEventPermissions(event, req.user);
+
+        return event.lifecycle.transitions.some((transition) => {
+          // Skipping all transitions without 'from' status,
+          // since each event has a status
+          if (!transition.from) {
+            return false;
+          }
+
+          // TODO: Add bodies
+          return (transition.from.equals(event.status)
+            && (transition.allowedFor.users.includes(req.user.basic.id.toString())
+              || intersects(transition.allowedFor.roles, req.user.roles)
+              || intersects(transition.allowedFor.special, req.user.special)
+              || intersects(transition.allowedFor.special, permissions.special)));
+        });
+      });
+
+      // Return events and their lifecycles.
+      res.json(retVal);
+      return next();
+    });
+};
 
 // All event where a local has participated
-exports.listLocalInvolvedEvents = function(req, res, next) {
-	// Only visible to board members
-	if(!req.user.permissions.can.view_local_involved_events)
-		return next(new restify.ForbiddenError("You are not allowed to see this"));
+exports.listLocalInvolvedEvents = (req, res, next) => {
+  // Only visible to board members
+  if (!req.user.permissions.can.view_local_involved_events) {
+    return next(new restify.ForbiddenError('You are not allowed to see this'));
+  }
 
-	// The first query where mongodb actually has a job
-	Event
-		.aggregate([
-			{$match: {'applications.antenna_id': String(req.user.basic.antenna_id)}},
-			{$unwind: '$applications'},
-			{$match: {'applications.antenna_id': String(req.user.basic.antenna_id)}},
-			{$group: {
-				'_id': '$_id',
-				'id': {$first: '$_id'},
-				'name': {$first: '$name'},
-				'applications': {$push: '$applications'}
-			}}
-  		])
-		.exec(function(err, events) {
-			if (err) {log.info(err);return next(new restify.InternalError());}
+  // The first query where mongodb actually has a job
+  return Event
+    .aggregate([
+      { $match: { 'applications.antenna_id': String(req.user.basic.antenna_id) } },
+      { $unwind: '$applications' },
+      { $match: { 'applications.antenna_id': String(req.user.basic.antenna_id) } },
+      { $group: {
+        _id: '$_id',
+        id: { $first: '$_id' },
+        name: { $first: '$name' },
+        applications: { $push: '$applications' },
+      } },
+    ])
+    .exec((err, events) => {
+      if (err) {
+        log.info(err);
+        return next(new restify.InternalError());
+      }
 
-			res.json({
-				success: true,
-				events: events
-			});
-			return next();
-		});
-}
+      res.json({
+        success: true,
+        events,
+      });
+      return next();
+    });
+};
 
-exports.addEvent = function(req, res, next) {
-	// Make sure the user doesn't insert malicious stuff
-	// Fields with other names will be ommitted automatically by mongoose
-	var data = req.body;
-	delete data._id;
-	delete data.status;
-	delete data.applications;
-	delete data.organizers;
-	delete data.application_status;
-	//delete data.organizing_locals;
-	
+exports.addEvent = (req, res, next) => {
+  // Make sure the user doesn't insert malicious stuff
+  // Fields with other names will be ommitted automatically by mongoose
+  const data = req.body;
+  delete data._id;
+  delete data.status;
+  delete data.applications;
+  delete data.organizers;
+  delete data.application_status;
+  // delete data.organizing_locals;
 
-	var newevent = new Event(data);
-	
-	// Creating user automatically becomes organizer
-	newevent.organizers = [
-		{
-			first_name: req.user.basic.first_name,
-			last_name: req.user.basic.last_name,
-			foreign_id: req.user.basic.id,
-			role: 'full',
-			antenna_id: req.user.basic.antenna_id,
-			antenna_name: req.user.basic.antenna_name,
-			main_organizer: true
-		}
-	];
+  const newEvent = new Event(data);
 
-	// Creating user's local automatically becomes organizing local
-	newevent.organizing_locals = [
-		{
-			name: req.user.basic.antenna_name,
-			foreign_id: req.user.basic.antenna_id,
-		}
-	]
+  // Get the default role to assign to the user
+  user.getDefaultEventRoles((defaultRoles) => {
+    // Creating user automatically becomes organizer
+    newEvent.organizers = [
+      {
+        foreign_id: req.user.basic.id,
+        roles: defaultRoles
+      },
+    ];
 
-	newevent.save(function(err) {
+    // Creating user's local automatically becomes organizing local
+    newEvent.organizing_locals = [
+      {
+        name: req.user.basic.antenna_name,
+        foreign_id: req.user.basic.antenna_id,
+      },
+    ];
 
-		if (err) {
-			// Send validation-errors back to client
-			if(err.name == 'ValidationError') {
-				return next(new restify.InvalidArgumentError({body: err}));
-			}
+    // Loading event type and its default lifecycle
+    EventType
+      .findOne({ name: newEvent.type })
+      .populate({
+        path: 'defaultLifecycle',
+        populate: { path: 'initialStatus' },
+      })
+      .then((eventType) => {
+        if (!eventType || !eventType.defaultLifecycle) { // no lifecycle exists for this type of event
+          return next(new restify.InvalidArgumentError({
+            body: {
+              success: false,
+              errors: [new Error(`No lifecycle is specified for this type of event: ${newEvent.type},\
+    cannot set initial status.`)],
+              message: `No lifecycle is specified for this type of event: ${newEvent.type},\
+    cannot set initial status.`,
+            },
+          }));
+        }
 
-			log.error("Could not edit event", err);
-			return next(new restify.InternalError());
-		}
+        // Checking if the user is allowed to create an event.
+        // Trying to find a transition from 'null' to 'initialStatus'
+        const transition = eventType.defaultLifecycle.transitions.find(t =>
+          !t.from && t.to.equals(eventType.defaultLifecycle.initialStatus._id));
 
-		// Register cronjob for deadline
-		if(data.application_deadline)
-			cron.registerDeadline(newevent.id, newevent.application_deadline);
+        if (!transition) {
+          return next(new restify.InvalidArgumentError({
+            body: {
+              success: false,
+              errors: [new Error('Nobody is allowed to create events of this type.')],
+              message: 'Nobody is allowed to create events of this type.',
+            },
+          }));
+        }
 
-		res.status(201);
-		res.json({
-			success: true,
-			message: "Event successfully created",
-			event: newevent});
-		return next();
-	});
-}
+        // Checking if the user is allowed to create events of this type.
+        // TODO: Add bodies support.
+        if (!transition.allowedFor.users.includes(req.user.basic.id.toString())
+            && !intersects(transition.allowedFor.roles, req.user.roles)
+            && !intersects(transition.allowedFor.special, req.user.special)) {
+          return next(new restify.ForbiddenError({
+            body: {
+              success: false,
+              errors: [new Error('You are not allowed to create an event of this type.')],
+              message: 'You are not allowed to create an event of this type.',
+            },
+          }));
+        }
+
+        // Now we've got here, the user is allowed to create the event.
+        newEvent.status = eventType.defaultLifecycle.initialStatus._id;
+        newEvent.lifecycle = eventType.defaultLifecycle._id;
+
+        return newEvent.save((err) => {
+          if (err) {
+            // Send validation-errors back to client
+            if (err.name === 'ValidationError') {
+              return next(new restify.InvalidArgumentError({
+                body: {
+                  success: false,
+                  errors: err.errors,
+                  message: err.message,
+                },
+              }));
+            }
+
+            log.error('Could not add event', err);
+            return next(new restify.InternalError({
+              body: {
+                success: false,
+                errors: [err],
+                message: err.message,
+              },
+            }));
+          }
+
+          // Setting event status as object, not ID.
+          newEvent.status = eventType.defaultLifecycle.initialStatus;
+
+          // Register cronjob for deadline
+          if (data.application_deadline) {
+            cron.registerDeadline(newEvent.id, newEvent.application_deadline);
+          }
+
+          res.status(201);
+          res.json({
+            success: true,
+            message: 'Event successfully created',
+            event: newEvent,
+          });
+          return next();
+        });
+      });
+
+  });
+};
 
 /** Single event **/
-exports.eventDetails = function(req, res, next) {
-	
-	var event = req.event.toObject();
-	
-	delete event.applications;	
-	
-	res.json(event);
-	return next();
+exports.eventDetails = (req, res, next) => {
+  const event = req.event.toObject();
 
-}
+  delete event.applications;
+  // Populate organizers
+  var transformUserData = (user) => {
+    return {
+      'first_name': user.basic.first_name,
+      'last_name': user.basic.last_name,
+      'antenna_name': user.basic.antenna_name
+    };
+  };
 
-exports.editEvent = function(req, res, next) {
-	// If user can't edit anything, return error right away
-	if(!req.user.permissions.can.edit) {
-		return next(new restify.ForbiddenError('You cannot edit this event'));
-	}
+  user.populateUsers(event.organizers, req.headers['x-auth-token'], (organizers) => {
+    event.organizers = organizers;
 
-	var data = req.body;
-	var event = req.event;
-	var registerDeadline = false;
-	// Disallow changing applications and organizers, use seperate requests for that
-	delete data.applications;
-	delete data.organizing_locals;
-	delete data.status;
+    res.json({
+      success: true,
+      data: event,
+      permissions: req.user.permissions,
+      special: req.user.special
+    });
+    return next();
+  }, transformUserData);
+};
 
-	if(Object.keys(data).length == 0) {
-		return next(new restify.InvalidContentError({message: 'No valid field changes requested'}));
-	}
+exports.editEvent = (req, res, next) => {
+  // If user can't edit anything, return error right away
+  if (!req.user.permissions.can.edit) {
+    return next(new restify.ForbiddenError('You cannot edit this event'));
+  }
 
-	// Copy fields if user can edit details
-	if (req.user.permissions.can.edit_details) {
-		// Some properties will be ignored upon empty
-		if(data.name) event.name = data.name;
-		if(data.starts) event.starts = data.starts;
-		if(data.ends) event.ends = data.ends;
-		if(data.description) event.description = data.description;
-		if(data.type) event.type = data.type;
-		if(data.application_fields) event.application_fields = data.application_fields;
-		
-		// Others are resettable
-		event.max_participants = data.max_participants;
-		if(data.fee) event.fee = data.fee;
-		event.application_deadline = data.application_deadline;
-		var cmp_deadline = new Date(data.application_deadline);
-		// Register deadline with cron if changed
-		if(data.application_deadline && data.application_deadline > Date.now() &&
-			(!event.application_deadline ||	cmp_deadline.getTime() != event.application_deadline.getTime())) {
-			registerDeadline = true;
-		}
+  const data = req.body;
+  const event = req.event;
+  let registerDeadline = false;
+  // Disallow changing applications and organizers, use seperate requests for that
+  delete data.applications;
+  delete data.organizing_locals;
+  delete data.status;
 
-	}
+  if (Object.keys(data).length === 0) {
+    return next(new restify.InvalidContentError({ message: 'No valid field changes requested' }));
+  }
 
-	// Change application status
-	if(req.user.permissions.can.edit_application_status) {
-		event.application_status = data.application_status;
-		event.application_deadline = data.application_deadline;
-	}
+  // Copy fields if user can edit details
+  if (req.user.permissions.can.edit_details) {
+    // Some properties will be ignored upon empty
+    if (data.name) event.name = data.name;
+    if (data.starts) event.starts = data.starts;
+    if (data.ends) event.ends = data.ends;
+    if (data.url) event.url = data.url;
+    if (data.description) event.description = data.description;
+    if (data.application_fields) event.application_fields = data.application_fields;
 
-	if(req.user.permissions.can.edit_organizers && data.organizers) {
-		// Loop through organizers, copy data
-		data.organizers.forEach(organizer => {
-			var index;
-			var neworganizer = !event.organizers.some((item, idx) => {
-				if(item.foreign_id == organizer.foreign_id) {
-					index = idx;
-					return true;
-				}
-				return false;
-			});
-			// If user already exists, copy only new stuff
-			if(!neworganizer) {
-				if(organizer.comment) event.organizers[index].comment = organizer.comment;
-				if(organizer.main_organizer) event.organizers[index].main_organizer = organizer.main_organizer;
-				event.organizers[index].touched = true;
-			}
-			else {
-				helpers.getUserById(req.header('x-auth-token'), organizer.foreign_id, function(err, res) {
-					if(err) {
-						log.warn("Could not retrieve user details");
-					}
-					else {
-						event.organizers.push({
-							foreign_id: organizer.foreign_id,
-							first_name: res.basic.first_name,
-							last_name: res.basic.last_name,
-							antenna_id: res.basic.antenna_id,
-							antenna_name: res.basic.antenna_name,
-							comment: organizer.comment,
-							main_organizer: organizer.main_organizer,
-							touched: true
-						});
-					}
-				});
-			}
-		});
+    // Others are resettable
+    event.max_participants = data.max_participants;
+    if (data.fee) event.fee = data.fee;
+    event.application_deadline = data.application_deadline;
+    const cmpDeadline = new Date(data.application_deadline);
 
-		// Now check if we deleted an organizer (untouched)
-		for(var i = event.organizers.length -1; i>=0; i--) {
-			if(!event.organizers[i].touched)
-				event.organizers.splice(i, 1);
-		}
-	}
+    // Register deadline with cron if changed
+    if (data.application_deadline && data.application_deadline > Date.now() &&
+     (!event.application_deadline
+      || cmpDeadline.getTime() !== event.application_deadline.getTime())) {
+      registerDeadline = true;
+    }
+  }
+
+  // Change application status
+  if (req.user.permissions.can.edit_application_status) {
+    event.application_status = data.application_status;
+    event.application_deadline = data.application_deadline;
+  }
+
+  if (req.user.permissions.can.edit_organizers && data.organizers) {
+    // Loop through organizers, copy data
+    data.organizers.forEach((organizer) => {
+      // Change the roles to only hold ids
+      if(organizer.roles) {
+        organizer.roles = organizer.roles.map((role) => {
+          if(role.id)
+            return role.id;
+          return role;
+        });
+      }
+
+      // Try to find organizer in list
+      let index = event.organizers.findIndex((item) => item.foreign_id === organizer.foreign_id);
+
+      // If user already exists, copy only new stuff
+      if (index !== undefined && index !== -1) {
+        if (organizer.comment) {event.organizers[index].comment = organizer.comment;} // Comment not resettable
+        // Roles resettable, but only store ids
+        if (organizer.roles) {
+          event.organizers[index].roles = organizer.roles;
+        }
+
+        // Mark as touched
+        event.organizers[index].touched = true;
+      } else {
+        event.organizers.push({
+          foreign_id: organizer.foreign_id,
+          comment: organizer.comment,
+          roles: organizer.roles,
+          touched: true,
+        });
+      }
+    });
+
+    // Now check if we deleted an organizer (untouched)
+    for (let i = event.organizers.length - 1; i >= 0; i--) {
+      if (!event.organizers[i].touched) {
+        event.organizers.splice(i, 1);
+      }
+    }
+  }
 
 
-	// Try to save
-	event.save(function(err) {
-		if (err) {
-			// Send validation-errors back to client
-			if(err.name == 'ValidationError') {
-				return next(new restify.InvalidArgumentError({body: err}));
-			}
+  // Try to save
+  return event.save((err) => {
+    if (err) {
+      // Send validation-errors back to client
+      if (err.name === 'ValidationError') {
+        return next(new restify.InvalidArgumentError({ body: err }));
+      }
 
-			log.error("Could not edit event", err);
-			return next(new restify.InternalError());
-		}
-		
-		var retval = event.toObject();
-		delete retval.applications;
-		delete retval.organizers;
-		delete retval.__v;
-		delete retval.headImg;
+      log.error('Could not edit event', err);
+      return next(new restify.InternalError());
+    }
 
-		// If deadline was registered, pass that to cron
-		if(registerDeadline)
-			cron.registerDeadline(event.id, event.application_deadline);
-		
-		res.json(retval);
-		return next();
-	});
-	
-}
+    const retval = event.toObject();
+    delete retval.applications;
+    delete retval.organizers;
+    delete retval.__v;
+    delete retval.headImg;
 
-exports.deleteEvent = function(req, res, next) {
-	if(!req.user.permissions.can.delete)
-		return next(new restify.ForbiddenError("You are not permitted to delete events"));
+    // If deadline was registered, pass that to cron
+    if (registerDeadline) {
+      cron.registerDeadline(event.id, event.application_deadline);
+    }
 
-	var event = req.event;
+    res.json(retval);
+    return next();
+  });
+};
 
-	// Deletion is only changing status to deleted
-	event.status = 'deleted';
-	event.save(function(err) {
-		if (err) {
-			// Send validation-errors back to client
-			if(err.name == 'ValidationError') {
-				return next(new restify.InvalidArgumentError({body: err}));
-			}
 
-			log.error("Could not delete event", err);
-			return next(new restify.InternalError());
-		}
+// This endpoint won't work because of the events lifecycle.
+// Two ways to solve this:
+// 1) add a 'deleted' field to the Event schema to represent if the event was deleted or not;
+// 2) add a 'deleted' status to the lifecycle, if so, this endpoint will be useless.
+exports.deleteEvent = (req, res, next) => {
+  if (!req.user.permissions.can.delete) {
+    return next(new restify.ForbiddenError('You are not permitted to delete events'));
+  }
 
-		res.json({
-			success: true, 
-			message: "Event successfully deleted"
-		});
-		return next();
-	});
-}
+  const event = req.event;
 
-exports.setApprovalStatus = function(req, res, next) {
-	// Normal edit rights are enough to request approval
-	// Otherwise approval permission needed
+  // Deletion is only changing status to deleted
+  event.status = 'deleted';
+  return event.save((err) => {
+    if (err) {
+      // Send validation-errors back to client
+      if (err.name === 'ValidationError') {
+        return next(new restify.InvalidArgumentError({ body: err }));
+      }
 
-	if(req.user.permissions.can.approve ||
-	   (req.user.permissions.can.edit_details && 
-	   		(req.event.status == 'draft' && req.body.status == 'requesting') ||
-	   		(req.event.status == 'requesting' && req.body.status == 'draft'))) {
-		req.event.status = req.body.status;
-			
+      log.error('Could not delete event', err);
+      return next(new restify.InternalError());
+    }
 
-		req.event.save(function(err) {
-			if (err) {
-				// Send validation-errors back to client
-				if(err.name == 'ValidationError') {
-					return next(new restify.InvalidArgumentError({body: err}));
-				}
+    res.json({
+      success: true,
+      message: 'Event successfully deleted',
+    });
+    return next();
+  });
+};
 
-				log.error("Could not save event status", err);
-				return next(new restify.InternalError());
-			}
+exports.setApprovalStatus = (req, res, next) => {
+  // Loading event's lifecycle.
+  // Don't need the info about its' statuses,
+  // as we care only about transitions info
+  // and statuses' ids.
+  Lifecycle
+    .findById(req.event.lifecycle)
+    .then((lifecycle) => {
+      // If there is no lifecycle (which can't happen in usual
+      // circumstances), raise an error and do nothing.
+      if (!lifecycle) {
+        return next(restify.InvalidArgumentError({
+          body: {
+            success: false,
+            errors: [new Error(`No lifecycle is specified for this type of event: ${req.event.type}.`)],
+            message: `No lifecycle is specified for this type of event: ${req.event.type}.`,
+          },
+        }));
+      }
 
-			res.json({
-				success: true,
-				message: "Successfully changed approval status"
-			});
-			return next();
-		});
-	} else {
-		return next(new restify.ForbiddenError());
-	}
+      // Trying to find a transition from event's current status
+      // to the required status.
+      const transition = lifecycle.transitions.find(t =>
+        t.from // This field is not necessary
+        && t.from.equals(req.event.status._id)
+        && t.to.equals(req.body.status));
 
-}
+      // If there is no transition found, it's disallowed to everybody.
+      if (!transition) {
+        return next(new restify.ForbiddenError({
+          body: {
+            success: false,
+            errors: [new Error('You are not allowed to perform a transition.')],
+            message: 'You are not allowed to perform a transition.',
+          },
+        }));
+      }
+
+      // Checking if this user/role/body/special has the rights to do the transition.
+      // TODO: Add bodies.
+      if (!transition.allowedFor.users.includes(req.user.basic.id.toString())
+          && !intersects(transition.allowedFor.roles, req.user.roles)
+          && !intersects(transition.allowedFor.special, req.user.special)) {
+        return next(new restify.ForbiddenError({
+          body: {
+            success: false,
+            errors: [new Error('You are not allowed to perform this transition.')],
+            message: 'You are not allowed to perform this transition.',
+          },
+        }));
+      }
+
+      // We only get here if the user is allowed to do a status transition.
+      req.event.status = req.body.status;
+
+      return req.event.save((err) => {
+        if (err) {
+          // Send validation-errors back to client
+          if (err.name === 'ValidationError') {
+            return next(new restify.InvalidArgumentError({
+              body: {
+                success: false,
+                errors: err.errors,
+                message: err.message,
+              },
+            }));
+          }
+
+          log.error('Could not update event status', err);
+          return next(new restify.InternalError({
+            body: {
+              success: false,
+              errors: [err],
+              message: err.message,
+            },
+          }));
+        }
+
+        res.json({
+          success: true,
+          message: 'Successfully changed approval status',
+        });
+        return next();
+      });
+    });
+};
 
 // Just forward the edit rights generated by checkUserRole
-exports.getEditRights = function(req, res, next) {
-	var retval = req.user.permissions;
-
-	res.json(retval);
-	return next();
-}
+exports.getEditRights = (req, res, next) => {
+  var retval = req.user.permissions;
+  retval.special = req.user.special;
+  res.json(retval);
+  return next();
+};
 
 /** Participants **/
-exports.listParticipants = function(req, res, next) {
-	var event = req.event;
-	var status = req.params.status;
-	var applications = event.applications.toObject();
+exports.listParticipants = (req, res, next) => {
+  const event = req.event;
+  let status = req.params.status;
+  const applications = event.applications.toObject();
 
-	// Only authorized persons can see all applications
-	// Others will only see accepted ones and will not see their application text
-	if(!req.user.permissions.can.view_applications)
-		status = 'accepted';
+  // Only authorized persons can see all applications
+  // Others will only see accepted ones and will not see their application text
+  if (!req.user.permissions.can.view_applications) {
+    status = 'accepted';
+  }
 
-	for(var i = applications.length - 1; i>=0; i--) {
-		applications[i].url = event.url + '/participants/' + applications[i].foreign_id;
-		if(!req.user.permissions.can.approve_participants) {
-			delete applications[i].board_comment;
-			delete applications[i].application;
-		}
+  for (let i = applications.length - 1; i >= 0; i--) {
+    applications[i].url = `${event.url}/participants/${applications[i].foreign_id}`;
+    if (!req.user.permissions.can.approve_participants) {
+      delete applications[i].board_comment;
+      delete applications[i].application;
+    }
 
-		if(status && applications[i].application_status != status) {
-			applications.splice(i, 1);
-		}
-	}
-	
-	res.json(applications);
-	return next();
-}
+    if (status && applications[i].application_status !== status) {
+      applications.splice(i, 1);
+    }
+  }
+
+  res.json(applications);
+  return next();
+};
+
+exports.getApplication = (req, res, next) => {
+  const event = req.event;
+
+  // Search for the application
+  const application = event.applications.find(element => element.foreign_id === req.user.basic.id);
+
+  if (application === undefined) {
+    return next(new restify.ResourceNotFoundError(`User ${req.user.basic.id} not found`));
+  }
+
+  res.json(application);
+  return next();
+};
+
+exports.setApplication = (req, res, next) => {
+  const event = req.event;
+
+  // Check for permission
+  if (!req.user.permissions.can.apply) {
+    return next(new restify.ForbiddenError({ message: 'You cannot apply to this event' }));
+  }
+
+  // Find the corresponding application
+  let index;
+  const application = event.applications.find((element, idx) => {
+    if (element.foreign_id === req.user.basic.id) {
+      index = idx;
+      return true;
+    }
+
+    return false;
+  });
+
+  // If user hasn't applied yet, create an application
+  if (application === undefined) {
+    event.applications.push({
+      foreign_id: req.user.basic.id,
+      first_name: req.user.basic.first_name,
+      last_name: req.user.basic.last_name,
+      antenna: req.user.basic.antenna_name,
+      antenna_id: req.user.basic.antenna_id,
+      application: req.body.application,
+    });
+    index = event.applications.length - 1;
+  } else {
+    event.applications[index].application = req.body.application;
+  }
 
 
-exports.getApplication = function(req, res, next) {
-	var event = req.event;
-		
-	// Search for the application
-	var application = event.applications.find(function(element) {return element.foreign_id == req.user.basic.id;});
-	if (application == undefined)
-		return next(new restify.ResourceNotFoundError("User " + req.user.basic.id + " not found"));
-	
-	res.json(application);
-	return next();
-	
-}
+  // Only check the current application for validity,
+  // as checking all of them would be too much overhead on big events
+  const tmp = helpers.checkApplicationValidity(
+    event.applications[index].application, event.application_fields);
+  if (!tmp.passed) {
+    return next(new restify.InvalidContentError(`Application malformed: ${tmp.msg}`));
+  }
 
-exports.setApplication = function(req, res, next) {
-	var event = req.event;
-	
-	// Check for permission
-	if(!req.user.permissions.can.apply) {
-		return next(new restify.ForbiddenError({message: "You cannot apply to this event"}));
-	}
-	
-	// Find the corresponding application
-	var index;
-	var application = event.applications.find(function(element, idx) {
-		if(element.foreign_id == req.user.basic.id) {
-			index = idx;
-			return true;
-		}
-		return false;
-	});
+  return event.save((err) => {
+    if (err) {
+      // Send validation-errors back to client
+      if (err.name === 'ValidationError') {
+        return next(new restify.InvalidArgumentError({ body: err }));
+      }
 
-	// If user hasn't applied yet, create an application
-	if (application == undefined) {
-		event.applications.push({
-			foreign_id: req.user.basic.id,
-			first_name: req.user.basic.first_name,
-			last_name: req.user.basic.last_name,
-			antenna: req.user.basic.antenna_name,
-			antenna_id: req.user.basic.antenna_id,
-			application: req.body.application
-		});
-		index = event.applications.length - 1;
-	}
-	else
-		event.applications[index].application = req.body.application;
-		
-	
-	// Only check the current application for validity, as checking all of them would be too much overhead on big events
-	var tmp = helpers.checkApplicationValidity(event.applications[index].application, event.application_fields);
-	if (!tmp.passed)
-		return next(new restify.InvalidContentError('Application malformed: ' + tmp.msg));
-	
-	
-	event.save(function(err) {
-		if (err) {
-			// Send validation-errors back to client
-			if(err.name == 'ValidationError') {
-				return next(new restify.InvalidArgumentError({body: err}));
-			}
+      log.error('Could not save application', err);
+      return next(new restify.InternalError());
+    }
 
-			log.error("Could not save application", err);
-			return next(new restify.InternalError());
-		}
+    res.json({
+      success: true,
+      message: 'Application saved',
+      application: event.applications[index],
+    });
+    return next();
+  });
+};
 
-		res.json({
-			success: true,
-			message: "Application saved",
-			application: event.applications[index]
-		});
-		return next();
-	});
-}
+exports.setApplicationStatus = (req, res, next) => {
+  // Check user permissions
+  if (!req.user.permissions.can.approve_participants) {
+    return next(new restify.ForbiddenError('You are not allowed to accept or reject participants'));
+  }
 
-exports.setApplicationStatus = function(req, res, next) {
-	// Check user permissions
-	if(!req.user.permissions.can.approve_participants) {
-		return next(new restify.ForbiddenError('You are not allowed to accept or reject participants'));
-	}
+  const event = req.event;
 
-	var event = req.event;
+  // Find the corresponding application
+  let index;
+  const application = event.applications.find((element, idx) => {
+    if (element.id === req.params.application_id) {
+      index = idx;
+      return true;
+    }
 
-	// Find the corresponding application
-	var index;
-	var application = event.applications.find(function(element, idx) {
-		if(element.id == req.params.application_id) {
-			index = idx;
-			return true;
-		}
-		return false;
-	});
+    return false;
+  });
 
-	if(application == undefined) {
-		return next(new restify.NotFoundError('Could not find application id ' + req.params.application_id));
-	}
+  if (application === undefined) {
+    return next(new restify.NotFoundError(`Could not find application id ${req.params.application_id}`));
+  }
 
-	// Save changes
-	event.applications[index].application_status = req.body.application_status;
+  // Save changes
+  event.applications[index].application_status = req.body.application_status;
 
-	event.save(function(err) {
-		if (err) {
-			// Send validation-errors back to client
-			if(err.name == 'ValidationError') {
-				return next(new restify.InvalidArgumentError({body: err}));
-			}
+  return event.save((err) => {
+    if (err) {
+      // Send validation-errors back to client
+      if (err.name === 'ValidationError') {
+        return next(new restify.InvalidArgumentError({ body: err }));
+      }
 
-			log.error("Could not set application status", err);
-			return next(new restify.InternalError());
-		}		
+      log.error('Could not set application status', err);
+      return next(new restify.InternalError());
+    }
 
-		res.json({
-			success: true,
-			message: 'Application successfully updated'
-		});
-		return next();
-	});
-}
+    res.json({
+      success: true,
+      message: 'Application successfully updated',
+    });
+    return next();
+  });
+};
 
-exports.setApplicationComment = function(req, res, next) {
-	// Check user permissions
-	if(!req.user.permissions.can.view_local_involved_events) {
-		return next(new restify.ForbiddenError('You are not allowed to put board comments'));
-	}
+exports.setApplicationComment = (req, res, next) => {
+  // Check user permissions
+  if (!req.user.permissions.can.view_local_involved_events) {
+    return next(new restify.ForbiddenError('You are not allowed to put board comments'));
+  }
 
-	var event = req.event;
+  const event = req.event;
 
-	// Find the corresponding application
-	var index;
-	var application = event.applications.find(function(element, idx) {
-		if(element.id == req.params.application_id) {
-			index = idx;
-			return true;
-		}
-		return false;
-	});
+  // Find the corresponding application
+  let index;
+  const application = event.applications.find((element, idx) => {
+    if (element.id === req.params.application_id) {
+      index = idx;
+      return true;
+    }
 
-	if(application == undefined) {
-		return next(new restify.NotFoundError('Could not find application id ' + req.params.application_id));
-	}
+    return false;
+  });
 
-	// Save changes
-	event.applications[index].board_comment = req.body.board_comment;
+  if (application === undefined) {
+    return next(new restify.NotFoundError(`Could not find application id ${req.params.application_id}`));
+  }
 
-	event.save(function(err) {
-		if (err) {
-			// Send validation-errors back to client
-			if(err.name == 'ValidationError') {
-				return next(new restify.InvalidArgumentError({body: err}));
-			}
+  // Save changes
+  event.applications[index].board_comment = req.body.board_comment;
 
-			log.error("Could not set board comment", err);
-			return next(new restify.InternalError());
-		}		
+  return event.save((err) => {
+    if (err) {
+      // Send validation-errors back to client
+      if (err.name === 'ValidationError') {
+        return next(new restify.InvalidArgumentError({ body: err }));
+      }
 
-		res.json({
-			success: true,
-			message: 'Board comment stored'
-		});
-		return next();
-	});
-}
+      log.error('Could not set board comment', err);
+      return next(new restify.InternalError());
+    }
+
+    res.json({
+      success: true,
+      message: 'Board comment stored',
+    });
+    return next();
+  });
+};
 
 /** Organizers **/
 /* Not used
 exports.listOrganizers = function(req, res, next) {
-	var event = req.event;
-		
-	var data = event.organizers.toObject();
-	data.forEach(function(x, idx) {
-		data[idx].url = event.url + '/organizers/' + x.foreign_id;
-	});
-	
-	res.json(data);
-	return next();
+  var event = req.event;
+
+  var data = event.organizers.toObject();
+  data.forEach(function(x, idx) {
+   data[idx].url = event.url + '/organizers/' + x.foreign_id;
+  });
+
+  res.json(data);
+  return next();
 }
 
 exports.setOrganizers = function(req, res, next) {
-	var event = req.event;
+  var event = req.event;
 
-	var data = req.body.organizers;
-	if(data.constructor !== Array)
-		return next(new restify.InvalidArgumentError('Organizers list must be an array'));
-	if(data.length == 0) 
-		return next(new restify.InvalidArgumentError('Organizers list can not be empty'));
-	
+  var data = req.body.organizers;
+  if(data.constructor !== Array)
+   return next(new restify.InvalidArgumentError('Organizers list must be an array'));
+  if(data.length == 0)
+   return next(new restify.InvalidArgumentError('Organizers list can not be empty'));
 
-	data.forEach(function(x, idx){
-		delete data[idx].cache_first_name;
-		delete data[idx].cache_last_name;
-		delete data[idx].cache_update;
 
-	});
+  data.forEach(function(x, idx){
+   delete data[idx].cache_first_name;
+   delete data[idx].cache_last_name;
+   delete data[idx].cache_update;
 
-	event.organizers = data;
+  });
 
-	event.save(function(err) {
-		if (err) {
-			// Send validation-errors back to client
-			if(err.name == 'ValidationError') {
-				return next(new restify.InvalidArgumentError({body: err}));
-			}
+  event.organizers = data;
 
-			log.error("Could not edit organizers", err);
-			return next(new restify.InternalError());
-		}
+  event.save(function(err) {
+   if (err) {
+     // Send validation-errors back to client
+     if(err.name == 'ValidationError') {
+      return next(new restify.InvalidArgumentError({body: err}));
+     }
 
-		res.json({
-			success: true,
-			message: "Successfully saved organizers",
-			organizers: event.organizers
-		});
-		return next();
-	});
+     log.error("Could not edit organizers", err);
+     return next(new restify.InternalError());
+   }
+
+   res.json({
+     success: true,
+     message: "Successfully saved organizers",
+     organizers: event.organizers
+   });
+   return next();
+  });
 }*/
 
 // TODO remove. Or maybe not? :D
-exports.debug = function(req, res, next) {
-	Event.remove({}, function(err) {
-		res.send("All events removed, can not be undone. Muhahaha. Wouldn't have guessed this is this serious, wouldn't you?");
-		return next();
-	});
-}
+exports.debug = (req, res, next) => {
+  Event.remove({}, () => {
+    res.send('All events removed, can not be undone. Muhahaha. Wouldn\'t have guessed this is this serious, wouldn\'t you?');
+    return next();
+  });
+};
 

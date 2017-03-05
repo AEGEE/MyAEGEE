@@ -1,101 +1,110 @@
 process.env.NODE_ENV = 'test';
 
-var chai = require('chai');
-var chaiHttp = require('chai-http');
-var server = require('../lib/server.js');
-var should = chai.should();
-var db = require('./populate-db.js');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const server = require('../lib/server.js');
+const db = require('./populate-db.js');
 
-module.exports = function() {
-	var events;
-
-	beforeEach(function(done) {
-		db.clear();
-		db.populate(function(res) {
-			events = res;
-			done();
-		});
-	});
-
-	it('should list all applications to an event on /single/id/participants/ GET', function(done) {
-		chai.request(server)
-			.get('/')
-			.end(function(err, event) {
-				var closedEvent = event.body.find(function(x) {return x.application_status == 'closed';});
-				closedEvent.should.be.ok;
-				chai.request(server)
-					.get(closedEvent.application_url)
-					.end(function(err, res) {
-						res.should.have.status(200);
-						res.should.be.json;
-						res.body.should.be.a('array');
-
-						res.body.should.have.lengthOf(2);
-						done();
-					});
-			});
-	});
+const should = chai.should();
+chai.use(chaiHttp);
 
 
-	it('should record an application to an event on /single/id/participants/ POST', function(done) {
-		chai.request(server)
-			.get('/')
-			.end(function(err, event) {
-				var openEvent = event.body.find(function(x) {return x.application_status == 'open';});
-				openEvent.should.be.ok;
-				chai.request(server)
-					.get(openEvent.url)
-					.end(function(err, event) {
-						chai.request(server)
-							.post(event.body.application_url)
-							.send({
-								application: [
-									{
-										field_id: event.body.application_fields[0]._id,
-										value: "I am super motivated"
-									}, {
-										field_id: event.body.application_fields[2]._id,
-										value: "42"
-									}
-								]
-							})
-							.end(function(err, res) {
-								res.should.have.status(201);
+describe('Event applications', () => {
+  /* var events;
 
-								Event.findById(event.body._id).exec(function(err, savedEvent) {
-									savedEvent.applications.should.be.a('array');
-									var ownUserID = 'cave.johnson';
-									var ownApplication = savedEvent.applications.find(function(x) {return x.foreign_id==ownUserID;});
-									ownApplication.should.be.ok;
-									ownApplication.application.should.be.a('array');
-									ownApplication.application.should.have.lengthOf(2);
+  beforeEach((done) => {
+    db.clear();
+    db.populateEvents((res) => {
+      events = res.events;
+      done();
+    });
+  });
 
-									done();
-								});
-							});
-					});
-			});
-	});
+  it('should list all applications to an event on /single/id/participants/ GET', (done) => {
+    chai.request(server)
+      .get('/')
+      .set('X-Auth-Token', 'foobar')
+      .end((err, responseEvents) => {
+        const openEvent = responseEvents.body.find(x => x.application_status === 'open');
 
-	it('should return one specific application on /single/id/participants/id GET', function(done) {
-		chai.request(server)
-			.get('/')
-			.end(function(err, event) {
-				var openEvent = event.body.find(function(x) {return x.application_status == 'open';});
-				openEvent.should.be.ok;
-				chai.request(server)
-					.get(openEvent.url)
-					.end(function(err, event) {
-						chai.request(server)
-							.get(event.body.application_url + '/vincent.vega')
-							.end(function(err, res) {
-								res.should.have.status(200);
-								done();
-							});
-					});
-			});
-	});
+        openEvent.should.be.ok;
+        chai.request(server)
+          .get(`/single/${openEvent._id}/participants`)
+          .set('X-Auth-Token', 'foobar')
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a('array');
 
+            res.body.should.have.lengthOf(2);
+            done();
+          });
+      });
+  });
 
-	it('should edit details of one application on /single/id/participants/id PUT');
-}
+  it('should record an application to an event on /single/id/participants/ POST', (done) => {
+    chai.request(server)
+      .get('/')
+      .set('X-Auth-Token', 'foobar')
+      .end((err, event) => {
+        const openEvent = event.body.find(x => x.application_status === 'open');
+        openEvent.should.be.ok;
+        chai.request(server)
+          .get(`/single/${openEvent._id}`)
+          .set('X-Auth-Token', 'foobar')
+          .end((err, event) => {
+            chai.request(server)
+              .put(`/single/${openEvent._id}/participants/mine`)
+              .set('X-Auth-Token', 'foobar')
+              .send({
+                application: [
+                  {
+                    field_id: event.body.application_fields[0]._id,
+                    value: 'I am super motivated',
+                  }, {
+                    field_id: event.body.application_fields[2]._id,
+                    value: '42',
+                  },
+                ],
+              })
+              .end((err, res) => {
+                res.should.have.status(201);
+
+                Event.findById(event.body._id).exec((err, savedEvent) => {
+                  savedEvent.applications.should.be.a('array');
+                  var ownUserID = 'cave.johnson';
+                  var ownApplication = savedEvent.applications.find(x => x.foreign_id == ownUserID);
+
+                  ownApplication.should.be.ok;
+                  ownApplication.application.should.be.a('array');
+                  ownApplication.application.should.have.lengthOf(2);
+
+                  done();
+                });
+              });
+          });
+      });
+  });
+
+  it('should return one specific application on /single/id/participants/id GET', (done) => {
+    chai.request(server)
+      .get('/')
+      .end(function (err, event) {
+        var openEvent = event.body.find(function (x) {return x.application_status == 'open';});
+
+        openEvent.should.be.ok;
+        chai.request(server)
+          .get(openEvent.url)
+          .end(function (err, event) {
+            chai.request(server)
+              .get(event.body.application_url + '/vincent.vega')
+              .end(function (err, res) {
+                res.should.have.status(200);
+                done();
+              });
+          });
+      });
+  });
+
+  it('should edit details of one application on /single/id/participants/id PUT'); */
+});

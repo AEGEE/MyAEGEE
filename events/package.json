@@ -7,7 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec | ./node_modules/bunyan/bin/bunyan && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcov -- -R spec --timeout 10000 && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "lint": "node_modules/.bin/eslint lib/"
   },
   "repository": {
     "type": "git",
@@ -21,22 +22,32 @@
   "homepage": "https://github.com/AEGEE/oms-events#readme",
   "dependencies": {
     "bunyan": "^1.8.1",
+    "file-type": "^4.1.0",
+    "fs-extra": "^2.0.0",
     "mongoose": "^4.4.20",
     "multer": "^1.2.0",
     "node-schedule": "^1.1.1",
     "promise": "^7.1.1",
+    "read-chunk": "^2.0.0",
+    "request": "^2.79.0",
     "restify": "^4.1.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",
     "coveralls": "^2.11.9",
+    "eslint": "^3.11.1",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "2.2.3",
+    "eslint-plugin-react": "^6.7.1",
     "gulp": "^3.9.1",
     "gulp-nodemon": "^2.0.7",
     "gulp-webserver": "^0.9.1",
     "http-proxy-middleware": "^0.15.2",
     "istanbul": "^0.4.4",
     "mocha": "^2.5.3",
-    "mocha-lcov-reporter": "^1.2.0"
+    "mocha-lcov-reporter": "^1.2.0",
+    "timekeeper": "^1.0.0"
   }
 }

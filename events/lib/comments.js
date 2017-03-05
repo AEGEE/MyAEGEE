@@ -1,65 +1,61 @@
 // Could theoretically be split into a seperate server, doesn't interact with the rest of the module
 // Idea: implement in elxir?
 // Idea accepted =)
-var mongoose = require('mongoose');
-var log = require('./config/logger.js');
-var restify = require('restify');
-var helpers = require('./helpers.js');
 
-var commentSchema = mongoose.Schema({
-	event_id: {type: String, required: true, index: true},
-	user: {
-		foreign_id: {type: String, required: true},
-		antenna_id: {type: String, required: true},
-		antenna_name: String,
-		name: String,
-		profile_url: String
-	},
-	comment: String
-}, {timestamps: true});
-commentSchema.set('toJSON', {virtuals: true});
-commentSchema.set('toObject', {virtuals: true});
+const log = require('./config/logger.js');
+const restify = require('restify');
+const helpers = require('./helpers.js');
 
-var Comment = mongoose.model('Comment', commentSchema);
+const Comment = require('./models/Comment');
 
-exports.listComments = function(req, res, next) {
-	Comment
-		.find({event_id: req.params.event_id})
-		.exec(function(err, res) {
-			if(err) {
-				log.error("Could not retrieve comments", err);
-				return next(new restify.InternalError());
-			}
-			res.json({
-				success: 1,
-				comments: res
-			});
-			return next();
-		});
-}
+exports.listComments = (req, res, next) => {
+  Comment
+    .find({ event_id: req.params.event_id })
+    .exec((err, comments) => {
+      if (err) {
+        log.error('Could not retrieve comments', err);
+        return next(new restify.InternalError());
+      }
 
-exports.createComment = function(req, res, next) {
-	var data = req.body;
+      res.json({
+        success: true,
+        comments,
+      });
+      return next();
+    });
+};
 
-	// Fetch user-data
-	helpers.getUserById(req.header('x-auth-token'), data.user.foreign_id, function(err, user) {
-		if(err) {
-			log.error("Could not fetch user", err);
-			return next(new restify.InternalError());
-		}
+exports.createComment = (req, res, next) => {
+  const data = req.body;
 
-		data.user.antenna_id = user.antenna_id;
-		data.user.antenna_name = user.antenna_name;
-		data.user.name = user.first_name + ' ' + user.last_name;
-		data.user.profile_url = user.seo;
+  // Fetch user-data
+  helpers.getUserById(req.header('x-auth-token'), data.user.foreign_id, (err, user) => {
+    if (err) {
+      log.error('Could not fetch user', err);
+      return next(new restify.InternalError());
+    }
 
-		var comment = new Comment(data);
-		comment.save(function(err) {
-			res.json({
-				success: true,
-				message: "Comment saved successfully",
-			});
-			return next();
-		});
-	});
-}
+    data.user.antenna_id = user.antenna_id;
+    data.user.antenna_name = user.antenna_name;
+    data.user.name = `${user.first_name} ${user.last_name}`;
+    data.user.profile_url = user.seo;
+
+    const comment = new Comment(data);
+    return comment.save((saveError) => {
+      if (saveError) {
+        return next(new restify.InternalError({
+          body: {
+            success: false,
+            message: saveError.message,
+          },
+        }));
+      }
+
+      res.json({
+        success: true,
+        message: 'Comment saved successfully',
+      });
+      return next();
+    });
+  });
+};

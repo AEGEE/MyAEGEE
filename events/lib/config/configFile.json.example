@@ -23,7 +23,8 @@
 		},
 		"secret": "CHANGEME",
 		"enable_user_caching": true,
-		"media_dir": "./frontend/media"
+		"media_dir": "./frontend/media",
+		"media_url": "/frontend/media"
 	},
 
 	"test": {
