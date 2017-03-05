@@ -16,7 +16,6 @@ const intersects = (array1, array2) => array1.filter(elt => array2.includes(elt)
 /** Requests for all events **/
 
 exports.listEvents = (req, res, next) => {
-  // Get statutory, non-statutory and su
   Event
     .where('ends').gte(new Date()) // Only show events in the future
     .select([
@@ -47,7 +46,10 @@ exports.listEvents = (req, res, next) => {
           || intersects(event.status.visibility.special, req.user.special);
       });
 
-      res.json(filteredEvents);
+      res.json({
+        success: true,
+        data: filteredEvents,
+      });
       return next();
     });
 };
