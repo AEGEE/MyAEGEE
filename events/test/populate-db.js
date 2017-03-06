@@ -106,6 +106,15 @@ function populateLifecycle(statuses, callback) {
       eventType: name,
       status: splitStatuses[index].map(s => s._id),
       transitions: [{
+        from: null,
+        to: draftStatus,
+        allowedFor: {
+          users: ['1'],
+          roles: [],
+          bodies: [],
+          special: [],
+        },
+      }, {
         from: draftStatus,
         to: requestingStatus,
         allowedFor: {

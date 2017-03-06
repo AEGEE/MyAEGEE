@@ -37,16 +37,19 @@ describe('Events listing', () => {
       .end((err, res) => {
         res.should.have.status(200);
         res.should.be.json;
-        res.body.should.be.a('array');
 
-        res.body[0].should.have.property('_id');
-        res.body[0].should.have.property('name');
-        res.body[0].should.have.property('starts');
-        res.body[0].should.have.property('ends');
-        res.body[0].should.have.property('application_status');
-        res.body[0].should.have.property('status');
-        res.body[0].should.have.property('type');
-        res.body[0].should.have.property('description');
+        res.body.success.should.be.true;
+        res.body.should.have.property('data');
+        res.body.data.should.be.a('array');
+
+        res.body.data[0].should.have.property('_id');
+        res.body.data[0].should.have.property('name');
+        res.body.data[0].should.have.property('starts');
+        res.body.data[0].should.have.property('ends');
+        res.body.data[0].should.have.property('application_status');
+        res.body.data[0].should.have.property('status');
+        res.body.data[0].should.have.property('type');
+        res.body.data[0].should.have.property('description');
 
         done();
       });
@@ -59,11 +62,14 @@ describe('Events listing', () => {
       .end((err, res) => {
         res.should.have.status(200);
         res.should.be.json;
-        res.body.should.be.a('array');
+
+        res.body.success.should.be.true;
+        res.body.should.have.property('data');
+        res.body.data.should.be.a('array');
 
         // The second event should be visible to user
         // and it should be included into events listing.
-        res.body.filter(e => e._id === events[1].id).length.should.equal(1);
+        res.body.data.filter(e => e._id === events[1].id).length.should.equal(1);
 
         done();
       });
@@ -76,11 +82,14 @@ describe('Events listing', () => {
       .end((err, res) => {
         res.should.have.status(200);
         res.should.be.json;
-        res.body.should.be.a('array');
+
+        res.body.success.should.be.true;
+        res.body.should.have.property('data');
+        res.body.data.should.be.a('array');
 
         // The first event shouldn;t be visible to user
         // and it shouldn't be included into events listing.
-        res.body.filter(e => e._id === events[0].id).length.should.equal(0);
+        res.body.data.filter(e => e._id === events[0].id).length.should.equal(0);
 
         done();
       });

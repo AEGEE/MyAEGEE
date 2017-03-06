@@ -28,6 +28,7 @@ describe('Events creation', () => {
         name: 'Develop Yourself 4',
         starts: '2017-12-11 15:00',
         ends: '2017-12-14 12:00',
+        type: 'non-statutory',
       })
       .end((err, res) => {
         res.should.have.status(403);
@@ -44,8 +45,9 @@ describe('Events creation', () => {
         name: 'Develop Yourself 4',
         starts: '2017-12-11 15:00',
         ends: '2017-12-14 12:00',
+        type: 'non-statutory',
       })
-      .end(function (err, res) {
+      .end((err, res) => {
         res.should.have.status(201);
         res.should.be.json;
         res.should.be.a('object');
@@ -78,7 +80,7 @@ describe('Events creation', () => {
       });
   });
 
-  it('should create a new event on exhausive sane / POST', function (done) {
+  it('should create a new event on exhausive sane / POST', (done) => {
     chai.request(server)
       .post('/')
       .set('X-Auth-Token', 'foobar')
@@ -86,6 +88,7 @@ describe('Events creation', () => {
         name: 'Develop Yourself 4',
         starts: '2017-12-11 15:00',
         ends: '2017-12-14 12:00',
+        type: 'non-statutory',
         description: 'A training event to boost your self-confidence and teamworking skills',
         organizing_locals: [{ foreign_id: 'AEGEE-Dresden' }],
         type: 'non-statutory',
@@ -141,6 +144,7 @@ describe('Events creation', () => {
         name: 'Develop Yourself 4',
         starts: '2017-12-11 15:00',
         ends: '2017-12-14 12:00',
+        type: 'non-statutory',
         organizers: [
           {
             foreign_id: 'eve.mallory',
@@ -172,6 +176,7 @@ describe('Events creation', () => {
       .send({
         starts: '2015-12-11 15:00',
         ends: 'sometime, dunno yet',
+        type: 'non-statutory',
       })
       .end((err, res) => {
         res.body.success.should.be.false;
@@ -179,6 +184,26 @@ describe('Events creation', () => {
         res.body.errors.should.have.property('ends');
         res.body.errors.should.have.property('name');
 
+        done();
+      });
+  });
+
+  it('should fail if there\'s no event type specified', (done) => {
+    chai.request(server)
+      .post('/')
+      .set('X-Auth-Token', 'foobar')
+      .send({
+        name: 'Develop Yourself 4',
+        starts: '2017-12-11 15:00',
+        ends: '2017-12-14 12:00',
+      })
+      .end((err, res) => {
+        res.should.have.status(409);
+        res.should.be.json;
+        res.should.be.a('object');
+
+        res.body.success.should.be.false;
+        res.body.should.have.property('message');
         done();
       });
   });

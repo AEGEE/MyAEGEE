@@ -8,7 +8,6 @@ const db = require('./populate-db.js');
 const config = require('../lib/config/config.js');
 
 const should = chai.should();
-
 chai.use(chaiHttp);
 
 describe('File upload', () => {
