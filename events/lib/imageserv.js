@@ -87,7 +87,7 @@ exports.uploadImage = (req, res, next) => {
 
     req.event.head_image = {
       path: req.file.path,
-      filename: req.file.filename
+      filename: req.file.filename,
     };
 
     return req.event.save((saveErr) => {
@@ -117,8 +117,6 @@ exports.uploadImage = (req, res, next) => {
           }
         });
       }
-
-      console.log(req.file);
 
       // Send back the request
       return next();
