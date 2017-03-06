@@ -46,7 +46,7 @@ const applicationFieldSchema = mongoose.Schema({
 });
 
 const eventSchema = mongoose.Schema({
-  url: { type: String, unique: true }, // defaults to _id, see pre-save hook
+  url: { type: String, unique: true, sparse: true }, // defaults to _id, see pre-save hook
   head_image: {
     // url: String, virtual
     path: String,
