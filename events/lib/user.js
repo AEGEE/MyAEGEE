@@ -8,7 +8,6 @@ const httprequest = require('request');
 const config = require('./config/config.js');
 
 const getUserById = (authToken, id, callback) => {
-
   require('./config/options.js').then((options) => {
     const opts = {
       url: `${config.core.url}:${config.core.port}/api/getUser`,
@@ -20,7 +19,6 @@ const getUserById = (authToken, id, callback) => {
     };
 
     httprequest(opts, (requestError, requestResult, requestBody) => {
-
       if (requestError) {
         // log.error("Could not contact core", err);
         return callback(requestError, null);
@@ -49,35 +47,40 @@ exports.getUserById = getUserById;
 
 // Everything related to users
 
-const identityTransform = (user) => {return user;};
+const identityTransform = (user) => { return user; };
 
 
-// This function expects an array of objects with the field "foreign_id" and fetches userdata for each object in this array and stores it in the "data" field
-// To improve performance, you can add a field "cached" to each object, which you populate with the UserCache directly
-// If you did that, this function will copy all data from "cached" to "data" and fetch the missing ones
-// Also you can pass a transform function that transforms the data somehow
-// The authtoken should be the authtoken of the requesting user
-exports.populateUsers = (somearray, authtoken, callback, transform=identityTransform) => {
-	var personsToFetch = [];
+// This function expects an array of objects with the field "foreign_id"
+// and fetches userdata for each object in this array and stores it in the "data" field.
+// To improve performance, you can add a field "cached" to each object,
+// which you populate with the UserCache directly.
+// If you did that, this function will copy all data
+// from "cached" to "data" and fetch the missing ones.
+// Also you can pass a transform function that transforms the data somehow.
+// The authtoken should be the authtoken of the requesting user.
+exports.populateUsers = (somearray, authtoken, callback, transform = identityTransform) => {
+  var personsToFetch = [];
 
-	// Find what there is to fetch
-	somearray.forEach((item) => {
-		// Only add those where we need to fetch something
-		if(item.foreign_id && !(item.cached && item.cached.length && item.cached.length > 0))
-			personsToFetch.push(item.foreign_id);
-	});
+  // Find what there is to fetch
+  somearray.forEach((item) => {
+    // Only add those where we need to fetch something
+    if (item.foreign_id && !(item.cached && item.cached.length && item.cached.length > 0)) {
+      personsToFetch.push(item.foreign_id);
+    }
+  });
 
   var mapcallback = (fetchedResults) => {
     var results = somearray.map((item) => {
-      if(item.cached && item.cached.length && item.cached.length > 0) {
+      if (item.cached && item.cached.length && item.cached.length > 0) {
         item.data = transform(item.cached[0]);
         delete item.cached;
         return item;
       } else {
-        if(!fetchedResults[item.foreign_id])
-          log.warn("User with id " + foreign_id + " could not be retrieved");
-        else
+        if (!fetchedResults[item.foreign_id]) {
+          log.warn('User with id ' + foreign_id + ' could not be retrieved');
+        } else {
           item.data = transform(fetchedResults[item.foreign_id]);
+        }
 
         return item;
       }
@@ -85,41 +88,43 @@ exports.populateUsers = (somearray, authtoken, callback, transform=identityTrans
     return callback(results);
   };
 
-	// Fetch
-	// TODO add batch fetch
-	var fetchedResults = {};
-  var count = personsToFetch.length;
-  if(count === 0) {
-    return mapcallback(fetchedResults);
-  }  
 
-	personsToFetch.forEach((foreign_id) => {
+  // Fetch
+  // TODO add batch fetch
+  var fetchedResults = {};
+  var count = personsToFetch.length;
+  if (count === 0) {
+    return mapcallback(fetchedResults);
+  }
+  personsToFetch.forEach((foreign_id) => {
     getUserById(authtoken, foreign_id, (err, res) => {
-      if(err) {
+      if (err) {
         log.error('A request to the core fetching user data failed', err);
         fetchedResults[foreign_id] = {};
-      }
-      else
+      } else {
         fetchedResults[foreign_id] = res;
+      }
 
       count--;
-      if(count === 0) {
+      if (count === 0) {
         return mapcallback(fetchedResults);
       }
     });
-	});
+  });
 };
 
 // Updates the eventRoles in the database to what there is in the .json file
 exports.updateEventRoles = () => {
-
   var unupdatedRoles = eventRolesConfig.roles;
+
   // Update existing roles
   var addMissing = () => {
     unupdatedRoles.forEach((item) => {
       var role = new EventRole(item);
       role.save((err) => {
-        if(err) {log.error("Could not save new event role", err);}
+        if (err) {
+          log.error('Could not save new event role', err);
+        }
       });
     });
   };
@@ -128,7 +133,7 @@ exports.updateEventRoles = () => {
   EventRole.find({}).exec((err, res) => {
     var barrier = res.length;
     // No items existing yet
-    if(barrier === 0) {
+    if (barrier === 0) {
       addMissing();
       return;
     }
@@ -180,7 +185,7 @@ exports.getEventRoles = (req, res, next) => {
 };
 
 exports.getDefaultEventRoles = (callback) => {
-  EventRole.findOne({'cfg_id': eventRolesConfig.default_role}).exec((err, res) => {
+  EventRole.findOne({ 'cfg_id': eventRolesConfig.default_role }).exec((err, res) => {
     if(err) {
       log.error("Could not fetch default user role");
       return callback([]);

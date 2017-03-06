@@ -193,7 +193,7 @@ exports.addEvent = (req, res, next) => {
     newEvent.organizers = [
       {
         foreign_id: req.user.basic.id,
-        roles: defaultRoles
+        roles: defaultRoles,
       },
     ];
 
@@ -213,7 +213,8 @@ exports.addEvent = (req, res, next) => {
         populate: { path: 'initialStatus' },
       })
       .then((eventType) => {
-        if (!eventType || !eventType.defaultLifecycle) { // no lifecycle exists for this type of event
+        if (!eventType || !eventType.defaultLifecycle) {
+          // no lifecycle exists for this type of event
           return next(new restify.InvalidArgumentError({
             body: {
               success: false,
@@ -308,11 +309,11 @@ exports.eventDetails = (req, res, next) => {
 
   delete event.applications;
   // Populate organizers
-  var transformUserData = (user) => {
+  const transformUserData = (u) => {
     return {
-      'first_name': user.basic.first_name,
-      'last_name': user.basic.last_name,
-      'antenna_name': user.basic.antenna_name
+      first_name: u.basic.first_name,
+      last_name: u.basic.last_name,
+      antenna_name: u.basic.antenna_name,
     };
   };
 
