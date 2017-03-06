@@ -61,11 +61,7 @@ const eventSchema = mongoose.Schema({
     get: v => Math.round(v * 100) / 100,
   },
   organizing_locals: [localSchema],
-  type:
-  {
-    type: String,
-    default: 'non-statutory',
-  },
+  type: { type: String, required: true },
   status: { type: mongoose.Schema.Types.ObjectId, ref: 'Status', required: true },
   lifecycle: { type: mongoose.Schema.Types.ObjectId, ref: 'Lifecycle', required: true },
   max_participants: {

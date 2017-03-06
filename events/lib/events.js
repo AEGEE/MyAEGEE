@@ -176,6 +176,15 @@ exports.addEvent = (req, res, next) => {
   delete data.application_status;
   // delete data.organizing_locals;
 
+  if (!data.type) {
+    return next(new restify.InvalidArgumentError({
+      body: {
+        success: false,
+        message: 'No event type is specified.',
+      },
+    }));
+  }
+
   const newEvent = new Event(data);
 
   // Get the default role to assign to the user
