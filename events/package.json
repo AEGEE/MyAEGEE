@@ -7,8 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "test-coverage": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcov -- -R spec --timeout 10000",
-    "test": "mocha --timeout 10000",
+    "test-coverage": "NODE_ENV=test istanbul cover ./node_modules/mocha/bin/_mocha --report lcov -- -R spec --timeout 10000",
+    "test": "NODE_ENV=test mocha --timeout 10000",
     "lint": "node_modules/.bin/eslint lib/"
   },
   "repository": {
