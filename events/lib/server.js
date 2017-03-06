@@ -47,7 +47,13 @@ server.on('uncaughtException', (req, res, route, err) => {
 
 process.on('uncaughtException', (err) => {
   log.error(err);
-  process.exit(1);
+  // If something goes wrong, the process will exit.
+  // If the server is running with Mocha, the Mocha process
+  // will silently exit without stack trace. That's why
+  // this checking is still here.
+  if (process.env.NODE_ENV !== 'test') {
+    process.exit(1);
+  }
 });
 
 const curVersion = '0.0.1';
