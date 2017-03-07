@@ -1,5 +1,6 @@
 const restify = require('restify');
 const events = require('./events.js'); // the real place where the API callbacks are
+const applications = require('./applications.js'); // API callbacks for events applications
 const lifecycle = require('./lifecycle.js'); // API callbacks for lifecycle managing
 const imageserv = require('./imageserv.js');
 const log = require('./config/logger.js');
@@ -88,7 +89,7 @@ server.del({ path: '/lifecycle/:lifecycle_id', version: curVersion }, lifecycle.
 server.get({ path: '/eventroles', version: curVersion }, user.getEventRoles);
 
 server.get({ path: '/mine/byOrganizer', version: curVersion }, events.listUserOrganizedEvents);
-server.get({ path: '/mine/byApplication', version: curVersion }, events.listUserAppliedEvents);
+server.get({ path: '/mine/byApplication', version: curVersion }, applications.listUserAppliedEvents);
 server.get({ path: '/mine/approvable', version: curVersion }, [
   middlewares.checkPermissions,
   events.listApprovableEvents,
@@ -111,15 +112,15 @@ server.get({ path: '/single/:event_id/rights', version: curVersion }, events.get
 server.post({ path: '/single/:event_id/upload', version: curVersion }, imageserv.uploadImage);
 
 server.get({ path: '/single/:event_id/participants', version: curVersion },
-           events.listParticipants);
+           applications.listParticipants);
 server.put({ path: '/single/:event_id/participants/status/:application_id', version: curVersion },
-           events.setApplicationStatus);
+           applications.setApplicationStatus);
 server.put({ path: '/single/:event_id/participants/comment/:application_id', version: curVersion },
-           events.setApplicationComment);
+           applications.setApplicationComment);
 server.get({ path: '/single/:event_id/participants/mine', version: curVersion },
-           events.getApplication);
+           applications.getApplication);
 server.put({ path: '/single/:event_id/participants/mine', version: curVersion },
-           events.setApplication);
+           applications.setApplication);
 
 server.listen(config.port, () => {
   // try if there is a mongodb connection
