@@ -9,6 +9,9 @@ const middlewares = require('./middlewares.js');
 const cron = require('./cron.js');
 const config = require('./config/config.js');
 const user = require('./user.js');
+const bugsnag = require('bugsnag');
+
+bugsnag.register(config.bugsnagKey);
 
 const server = restify.createServer({
   name: 'oms-events',
@@ -22,7 +25,7 @@ server.use(restify.CORS());
 // Define your API here
 
 // this endpoint is for public access
-// server.post({path: '/authenticate', version: '0.0.6'} , core.authenticate );
+// server.post({path: '/authenticate', version: '0.0.6'} , core.authenticate);
 
 // for endpoints declared from here onwards, apply the middleware "verifyToken"
 // server.use(core.verifyToken);
@@ -44,10 +47,22 @@ server.on('after', (req, res) => {
 server.on('uncaughtException', (req, res, route, err) => {
   log.error(err);
   res.send(err);
+
+  // We don't need the Bugsnag for the test env, do we?
+  // Also Bugsnag should quit the process if some kind of error
+  // will happen, and this will probably break the test environment.
+  if (process.env.NODE_ENV !== 'test') {
+    bugsnag.notify(err);
+  }
 });
 
-process.on('uncaughtException', (err) => {
+// Everything (even the process errors) should be handled
+// by the handler below.
+
+/* process.on('uncaughtException', (err) => {
   log.error(err);
+  console.log('process error');
+
   // If something goes wrong, the process will exit.
   // If the server is running with Mocha, the Mocha process
   // will silently exit without stack trace. That's why
@@ -55,6 +70,13 @@ process.on('uncaughtException', (err) => {
   if (process.env.NODE_ENV !== 'test') {
     process.exit(1);
   }
+});*/
+
+process.on('unhandledRejection', (err) => {
+  log.error('Unhandled rejection: ', err);
+
+  // Leaving severity as 'warning' by default, as it's not critical.
+  bugsnag.notify(err, { errorName: 'unhandledRejection' });
 });
 
 const curVersion = '0.0.1';

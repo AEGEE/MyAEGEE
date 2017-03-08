@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/AEGEE/oms-events#readme",
   "dependencies": {
+    "bugsnag": "^1.9.1",
     "bunyan": "^1.8.1",
     "file-type": "^4.1.0",
     "fs-extra": "^2.0.0",
