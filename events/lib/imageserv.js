@@ -46,7 +46,6 @@ exports.uploadImage = (req, res, next) => {
       return next(new restify.InternalError({
         body: {
           success: false,
-          errors: [uploadErr],
           message: uploadErr.message,
         },
       }));
@@ -57,7 +56,6 @@ exports.uploadImage = (req, res, next) => {
       return next(new restify.InternalError({
         body: {
           success: false,
-          errors: [new Error('No head_image is specified.')],
           message: 'No head_image is specified.',
         },
       }));
@@ -75,7 +73,6 @@ exports.uploadImage = (req, res, next) => {
       return next(new restify.InternalError({
         body: {
           success: false,
-          errors: [new Error('Malformed file content.')],
           message: 'Malformed file content.',
         },
       }));
@@ -96,7 +93,6 @@ exports.uploadImage = (req, res, next) => {
         return next(new restify.InternalError({
           body: {
             success: false,
-            errors: [saveErr],
             message: saveErr.message,
           },
         }));
@@ -105,7 +101,7 @@ exports.uploadImage = (req, res, next) => {
       res.json({
         success: true,
         message: 'File uploaded successfully',
-        head_image: req.event.head_image,
+        data: [req.event.head_image],
       });
 
       // Move old file away

@@ -115,12 +115,12 @@ exports.populateUsers = (somearray, authtoken, callback, transform = identityTra
 
 // Updates the eventRoles in the database to what there is in the .json file
 exports.updateEventRoles = () => {
-  var unupdatedRoles = eventRolesConfig.roles;
+  const unupdatedRoles = eventRolesConfig.roles;
 
   // Update existing roles
-  var addMissing = () => {
+  const addMissing = () => {
     unupdatedRoles.forEach((item) => {
-      var role = new EventRole(item);
+      const role = new EventRole(item);
       role.save((err) => {
         if (err) {
           log.error('Could not save new event role', err);
@@ -131,7 +131,7 @@ exports.updateEventRoles = () => {
 
   // Find all roles there are and update them
   EventRole.find({}).exec((err, res) => {
-    var barrier = res.length;
+    let barrier = res.length;
     // No items existing yet
     if (barrier === 0) {
       addMissing();
@@ -140,26 +140,29 @@ exports.updateEventRoles = () => {
 
     // Update or delete each element
     res.forEach((item) => {
-      var idx = unupdatedRoles.findIndex((i) => i.cfg_id == item.cfg_id);
-      if(idx === undefined || idx === -1) {
+      const idx = unupdatedRoles.findIndex(i => i.cfg_id === item.cfg_id);
+      if (idx === undefined || idx === -1) {
         // This element should not be in the db anymore
-        item.remove((err) => {
-          if(err) {log.error("Could not remove userrole", err);}
+        item.remove((removeErr) => {
+          if (removeErr) {
+            log.error('Could not remove userrole', removeErr);
+          }
         });
-      }
-      else {
+      } else {
         // Update the element, even if it needs no updating
         item.name = unupdatedRoles[idx].name;
         item.description = unupdatedRoles[idx].description;
         unupdatedRoles.splice(idx, 1);
-        item.save((err) => {
-          if(err) {log.error("Could not update userrole", err);}
+        item.save((saveErr) => {
+          if (saveErr) {
+            log.error('Could not update userrole', saveErr);
+          }
         });
       }
 
       // If all items were updated, add the missing ones
       barrier--;
-      if(barrier === 0) {
+      if (barrier === 0) {
         addMissing();
         log.info(`Updated ${res.length} eventroles and added ${unupdatedRoles.length} new ones`);
       }
@@ -172,12 +175,17 @@ exports.getEventRoles = (req, res, next) => {
   EventRole.find({}).exec((err, roles) => {
     if (err) {
       log.error(err);
-      return next(new restify.InternalError());
+      return next(new restify.InternalError({
+        body: {
+          success: false,
+          message: err.message,
+        },
+      }));
     }
 
     res.json({
       success: true,
-      data: roles
+      data: roles,
     });
 
     return next();
@@ -185,9 +193,9 @@ exports.getEventRoles = (req, res, next) => {
 };
 
 exports.getDefaultEventRoles = (callback) => {
-  EventRole.findOne({ 'cfg_id': eventRolesConfig.default_role }).exec((err, res) => {
-    if(err) {
-      log.error("Could not fetch default user role");
+  EventRole.findOne({ cfg_id: eventRolesConfig.default_role }).exec((err, res) => {
+    if (err) {
+      log.error('Could not fetch default user role');
       return callback([]);
     }
     callback([res]);

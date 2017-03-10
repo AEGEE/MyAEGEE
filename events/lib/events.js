@@ -35,7 +35,12 @@ exports.listEvents = (req, res, next) => {
     .exec((err, events) => {
       if (err) {
         log.error(err);
-        return next(new restify.InternalError());
+        return next(new restify.InternalError({
+          body: {
+            success: false,
+            message: err.message,
+          },
+        }));
       }
 
       // Displaying only events user is allowed to see
@@ -64,10 +69,18 @@ exports.listUserOrganizedEvents = (req, res, next) => {
     .exec((err, events) => {
       if (err) {
         log.info(err);
-        return next(new restify.InternalError());
+        return next(new restify.InternalError({
+          body: {
+            success: false,
+            message: err.message,
+          },
+        }));
       }
 
-      res.json(events);
+      res.json({
+        success: true,
+        data: events,
+      });
       return next();
     });
 };
@@ -80,7 +93,12 @@ exports.listApprovableEvents = (req, res, next) => {
     .exec((err, events) => {
       if (err) {
         log.info(err);
-        return next(new restify.InternalError());
+        return next(new restify.InternalError({
+          body: {
+            success: false,
+            message: err.message,
+          },
+        }));
       }
 
       // Checking if we have at least 1 transition
@@ -106,7 +124,10 @@ exports.listApprovableEvents = (req, res, next) => {
       });
 
       // Return events and their lifecycles.
-      res.json(retVal);
+      res.json({
+        success: true,
+        data: retVal,
+      });
       return next();
     });
 };
@@ -134,12 +155,17 @@ exports.listLocalInvolvedEvents = (req, res, next) => {
     .exec((err, events) => {
       if (err) {
         log.info(err);
-        return next(new restify.InternalError());
+        return next(new restify.InternalError({
+          body: {
+            success: false,
+            message: err.message,
+          },
+        }));
       }
 
       res.json({
         success: true,
-        events,
+        data: events,
       });
       return next();
     });
@@ -198,10 +224,8 @@ exports.addEvent = (req, res, next) => {
           return next(new restify.InvalidArgumentError({
             body: {
               success: false,
-              errors: [new Error(`No lifecycle is specified for this type of event: ${newEvent.type},\
-    cannot set initial status.`)],
-              message: `No lifecycle is specified for this type of event: ${newEvent.type},\
-    cannot set initial status.`,
+              message: `No lifecycle is specified for this type of event: ${newEvent.type}, \
+cannot set initial status.`,
             },
           }));
         }
@@ -215,7 +239,6 @@ exports.addEvent = (req, res, next) => {
           return next(new restify.InvalidArgumentError({
             body: {
               success: false,
-              errors: [new Error('Nobody is allowed to create events of this type.')],
               message: 'Nobody is allowed to create events of this type.',
             },
           }));
@@ -229,7 +252,6 @@ exports.addEvent = (req, res, next) => {
           return next(new restify.ForbiddenError({
             body: {
               success: false,
-              errors: [new Error('You are not allowed to create an event of this type.')],
               message: 'You are not allowed to create an event of this type.',
             },
           }));
@@ -256,7 +278,6 @@ exports.addEvent = (req, res, next) => {
             return next(new restify.InternalError({
               body: {
                 success: false,
-                errors: [err],
                 message: err.message,
               },
             }));
@@ -274,7 +295,7 @@ exports.addEvent = (req, res, next) => {
           res.json({
             success: true,
             message: 'Event successfully created',
-            event: newEvent,
+            data: [newEvent],
           });
           return next();
         });
@@ -303,7 +324,7 @@ exports.eventDetails = (req, res, next) => {
       success: true,
       data: event,
       permissions: req.user.permissions,
-      special: req.user.special
+      special: req.user.special,
     });
     return next();
   }, transformUserData);
@@ -361,9 +382,9 @@ exports.editEvent = (req, res, next) => {
     // Loop through organizers, copy data
     data.organizers.forEach((organizer) => {
       // Change the roles to only hold ids
-      if(organizer.roles) {
+      if (organizer.roles) {
         organizer.roles = organizer.roles.map((role) => {
-          if(role.id)
+          if (role.id)
             return role.id;
           return role;
         });
@@ -374,7 +395,7 @@ exports.editEvent = (req, res, next) => {
 
       // If user already exists, copy only new stuff
       if (index !== undefined && index !== -1) {
-        if (organizer.comment) {event.organizers[index].comment = organizer.comment;} // Comment not resettable
+        if (organizer.comment) { event.organizers[index].comment = organizer.comment; } // Comment not resettable
         // Roles resettable, but only store ids
         if (organizer.roles) {
           event.organizers[index].roles = organizer.roles;
@@ -424,7 +445,10 @@ exports.editEvent = (req, res, next) => {
       cron.registerDeadline(event.id, event.application_deadline);
     }
 
-    res.json(retval);
+    res.json({
+      success: true,
+      data: retval
+    });
     return next();
   });
 };
@@ -476,7 +500,6 @@ exports.setApprovalStatus = (req, res, next) => {
         return next(restify.InvalidArgumentError({
           body: {
             success: false,
-            errors: [new Error(`No lifecycle is specified for this type of event: ${req.event.type}.`)],
             message: `No lifecycle is specified for this type of event: ${req.event.type}.`,
           },
         }));
@@ -494,7 +517,6 @@ exports.setApprovalStatus = (req, res, next) => {
         return next(new restify.ForbiddenError({
           body: {
             success: false,
-            errors: [new Error('You are not allowed to perform a transition.')],
             message: 'You are not allowed to perform a transition.',
           },
         }));
@@ -508,7 +530,6 @@ exports.setApprovalStatus = (req, res, next) => {
         return next(new restify.ForbiddenError({
           body: {
             success: false,
-            errors: [new Error('You are not allowed to perform this transition.')],
             message: 'You are not allowed to perform this transition.',
           },
         }));
@@ -534,7 +555,6 @@ exports.setApprovalStatus = (req, res, next) => {
           return next(new restify.InternalError({
             body: {
               success: false,
-              errors: [err],
               message: err.message,
             },
           }));
@@ -553,7 +573,10 @@ exports.setApprovalStatus = (req, res, next) => {
 exports.getEditRights = (req, res, next) => {
   var retval = req.user.permissions;
   retval.special = req.user.special;
-  res.json(retval);
+  res.json({
+    success: true,
+    data: retval,
+  });
   return next();
 };
 

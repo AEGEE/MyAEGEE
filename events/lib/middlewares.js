@@ -15,7 +15,6 @@ exports.authenticateUser = (req, res, next) => {
     return next(new restify.ForbiddenError({
       body: {
         success: false,
-        errors: [new Error('No auth token provided')],
         message: 'No auth token provided',
       },
     }));
@@ -37,7 +36,12 @@ exports.authenticateUser = (req, res, next) => {
         httprequest(opts, (requestError, requestResult, requestBody) => {
           if (requestError) {
             log.error('Could not contact core to authenticate user', requestError);
-            return next(new restify.InternalError());
+            return next(new restify.InternalError({
+              body: {
+                success: false,
+                message: requestError.message,
+              },
+            }));
           }
 
           let body;
@@ -45,12 +49,22 @@ exports.authenticateUser = (req, res, next) => {
             body = JSON.parse(requestBody);
           } catch (err) {
             log.error('Could not parse core response', err);
-            return next(new restify.InternalError());
+            return next(new restify.InternalError({
+              body: {
+                success: false,
+                err: err.message,
+              },
+            }));
           }
 
           if (!body.success) {
             log.info('Access denied to user', body);
-            return next(new restify.ForbiddenError('Access denied'));
+            return next(new restify.ForbiddenError({
+              body: {
+                success: false,
+                message: 'Access denied',
+              },
+            }));
           }
 
           if (!req.user) {
@@ -111,7 +125,12 @@ exports.fetchUserDetails = (req, res, next) => {
     return httprequest(opts, (requestError, requestResult, requestBody) => {
       if (requestError) {
         log.error('Could not fetch user profile details from core', requestError);
-        return next(new restify.InternalError());
+        return next(new restify.InternalError({
+          body: {
+            success: false,
+            message: `Could not fetch user profile details from core: ${requestError}`,
+          },
+        }));
       }
 
       let body;
@@ -119,12 +138,22 @@ exports.fetchUserDetails = (req, res, next) => {
         body = JSON.parse(requestBody);
       } catch (err) {
         log.error('Could not parse core response', err);
-        return next(new restify.InternalError());
+        return next(new restify.InternalError({
+          body: {
+            success: false,
+            message: `Could not parse core response: ${err}`,
+          },
+        }));
       }
 
       if (!body.success) {
         log.info('Core refused user profile fetch', body);
-        return next(new restify.ForbiddenError('Core refused user profile fetch'));
+        return next(new restify.ForbiddenError({
+          body: {
+            success: false,
+            message: 'Core refused user profile fetch',
+          },
+        }));
       }
 
       if (!req.user) {
@@ -203,7 +232,6 @@ exports.fetchSingleEvent = (req, res, next) => {
         return next(new restify.InternalError({
           body: {
             success: false,
-            errors: [err],
             message: err.message,
           },
         }));
@@ -213,13 +241,11 @@ exports.fetchSingleEvent = (req, res, next) => {
         return next(new restify.NotFoundError({
           body: {
             success: false,
-            errors: [new Error(`Event with id ${req.params.event_id} not found`)],
             message: `Event with id ${req.params.event_id} not found`,
           },
         }));
       }
 
-    
       req.event = event;
       return next();
     });
@@ -261,7 +287,7 @@ exports.checkPermissions = (req, res, next) => {
   for (const attr in event_permissions.can) {
     req.user.permissions.can[attr] = Boolean(event_permissions.can[attr]);
   }
-  if(event_permissions.special) {
+  if (event_permissions.special) {
     Array.prototype.push.apply(req.user.special, event_permissions.special);
   }
 

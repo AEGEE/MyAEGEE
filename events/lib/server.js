@@ -57,7 +57,7 @@ server.on('uncaughtException', (req, res, route, err) => {
 });
 
 // Everything (even the process errors) should be handled
-// by the handler below.
+// by the handler above.
 
 /* process.on('uncaughtException', (err) => {
   log.error(err);

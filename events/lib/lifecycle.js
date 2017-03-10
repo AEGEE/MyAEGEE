@@ -115,7 +115,12 @@ exports.createLifecycle = (req, res, next) => {
       }
 
       log.error('Could not create statuses', statusesSaveError);
-      return next(new restify.InternalError());
+      return next(new restify.InternalError({
+        body: {
+          success: false,
+          message: err.message,
+        }
+      }));
     }
 
 
@@ -148,7 +153,12 @@ exports.createLifecycle = (req, res, next) => {
         }
 
         log.error('Could not create lifecycle', lifecycleSaveError);
-        return next(new restify.InternalError());
+        return next(new restify.InternalError({
+          body: {
+            success: false,
+            message: err.message,
+          },
+        }));
       }
 
       // Lifecycle saved, now updating (or creating) the EventType.
@@ -172,7 +182,12 @@ exports.createLifecycle = (req, res, next) => {
           }
 
           log.error('Could not create/update EventType', eventTypeSaveError);
-          return next(new restify.InternalError());
+          return next(new restify.InternalError({
+            body: {
+              success: false,
+              message: eventTypeSaveError.message,
+            },
+          }));
         }
 
         // Everything is saved.
@@ -194,7 +209,6 @@ exports.removeLifecycle = (req, res, next) => {
     return next(new restify.InvalidArgumentError({
       body: {
         success: false,
-        errors: [new Error('No lifecycle name was specified.')],
         message: 'No lifecycle name was specified.',
       },
     }));
@@ -207,7 +221,6 @@ exports.removeLifecycle = (req, res, next) => {
         return next(new restify.InternalError({
           body: {
             success: false,
-            errors: [(new Error('Lifecycle with that name was not found.'))],
             message: 'Lifecycle with that name was not found.',
           },
         }));
@@ -222,7 +235,6 @@ exports.removeLifecycle = (req, res, next) => {
     .catch(err => next(new restify.InternalError({
       body: {
         success: false,
-        errors: [err],
         message: err.message,
       },
     })));
@@ -243,7 +255,6 @@ exports.getLifecyclesNames = (req, res, next) => {
     .catch(err => next(new restify.InternalError({
       body: {
         success: false,
-        errors: [err],
         message: err.message,
       },
     })));
@@ -253,8 +264,8 @@ exports.getPseudoRolesList = (req, res, next) => {
   var result = pseudoRoles;
   eventRoles.roles.forEach((item) => {
     result.push({
-      "name": item.name,
-      "description": item.description + " (event role)"
+      name: item.name,
+      description: item.description + ' (event role)',
     });
   });
 

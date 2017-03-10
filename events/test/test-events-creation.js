@@ -51,26 +51,26 @@ describe('Events creation', () => {
         res.should.be.a('object');
 
         res.body.success.should.be.true;
-        res.body.event.should.have.property('_id');
-        res.body.event.should.have.property('name');
-        res.body.event.should.have.property('starts');
-        res.body.event.should.have.property('ends');
-        res.body.event.should.have.property('application_status');
-        res.body.event.should.have.property('max_participants');
-        res.body.event.should.have.property('status');
-        res.body.event.should.have.property('type');
-        res.body.event.should.have.property('organizing_locals');
-        res.body.event.should.have.property('description');
-        res.body.event.should.have.property('application_fields');
-        res.body.event.should.have.property('organizers');
-        res.body.event.should.have.property('applications');
+        res.body.data[0].should.have.property('_id');
+        res.body.data[0].should.have.property('name');
+        res.body.data[0].should.have.property('starts');
+        res.body.data[0].should.have.property('ends');
+        res.body.data[0].should.have.property('application_status');
+        res.body.data[0].should.have.property('max_participants');
+        res.body.data[0].should.have.property('status');
+        res.body.data[0].should.have.property('type');
+        res.body.data[0].should.have.property('organizing_locals');
+        res.body.data[0].should.have.property('description');
+        res.body.data[0].should.have.property('application_fields');
+        res.body.data[0].should.have.property('organizers');
+        res.body.data[0].should.have.property('applications');
 
         // Check auto-filled fields
-        res.body.event.status.name.should.equal('Draft');
-        res.body.event.type.should.equal('non-statutory');
-        res.body.event.application_status.should.equal('closed');
-        res.body.event.application_fields.should.have.lengthOf(0);
-        res.body.event.max_participants.should.equal(0);
+        res.body.data[0].status.name.should.equal('Draft');
+        res.body.data[0].type.should.equal('non-statutory');
+        res.body.data[0].application_status.should.equal('closed');
+        res.body.data[0].application_fields.should.have.lengthOf(0);
+        res.body.data[0].max_participants.should.equal(0);
 
         // application deadline optional when application closed
         //res.body.should.have.property('application_deadline');
@@ -110,25 +110,25 @@ describe('Events creation', () => {
         res.should.be.a('object');
 
         res.body.success.should.be.true;
-        res.body.event.should.have.property('_id');
-        res.body.event.should.have.property('name');
-        res.body.event.should.have.property('starts');
-        res.body.event.should.have.property('ends');
-        res.body.event.should.have.property('application_deadline');
-        res.body.event.should.have.property('application_status');
-        res.body.event.should.have.property('max_participants');
-        res.body.event.should.have.property('status');
-        res.body.event.should.have.property('type');
-        res.body.event.should.have.property('organizing_locals');
-        res.body.event.should.have.property('description');
-        res.body.event.should.have.property('application_fields');
-        res.body.event.should.have.property('organizers');
-        res.body.event.should.have.property('applications');
+        res.body.data[0].should.have.property('_id');
+        res.body.data[0].should.have.property('name');
+        res.body.data[0].should.have.property('starts');
+        res.body.data[0].should.have.property('ends');
+        res.body.data[0].should.have.property('application_deadline');
+        res.body.data[0].should.have.property('application_status');
+        res.body.data[0].should.have.property('max_participants');
+        res.body.data[0].should.have.property('status');
+        res.body.data[0].should.have.property('type');
+        res.body.data[0].should.have.property('organizing_locals');
+        res.body.data[0].should.have.property('description');
+        res.body.data[0].should.have.property('application_fields');
+        res.body.data[0].should.have.property('organizers');
+        res.body.data[0].should.have.property('applications');
 
-        res.body.event.application_fields.should.have.lengthOf(2);
+        res.body.data[0].application_fields.should.have.lengthOf(2);
 
         // Not yet implemented
-        //res.body.organizers.should.have.lengthOf(1);
+        // res.body.organizers.should.have.lengthOf(1);
 
         done();
       });
@@ -157,7 +157,7 @@ describe('Events creation', () => {
         ],
       })
       .end((err, res) => {
-        res.body.event.applications.should.have.lengthOf(0);
+        res.body.data[0].applications.should.have.lengthOf(0);
 
         // Not implemented yet
         // res.body.organizers.should.have.lengthOf(1);
@@ -222,7 +222,6 @@ describe('Events creation', () => {
         res.should.be.a('object');
 
         res.body.success.should.be.false;
-        res.body.should.have.property('errors');
         res.body.should.have.property('message');
         done();
       });

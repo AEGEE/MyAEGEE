@@ -49,7 +49,6 @@ describe('File upload', () => {
         res.should.be.a('object');
 
         res.body.success.should.be.false;
-        res.body.should.have.property('errors');
         res.body.should.have.property('message');
 
         done();
@@ -67,7 +66,6 @@ describe('File upload', () => {
         res.should.be.a('object');
 
         res.body.success.should.be.false;
-        res.body.should.have.property('errors');
         res.body.should.have.property('message');
 
         done();
@@ -84,7 +82,6 @@ describe('File upload', () => {
         res.should.be.a('object');
 
         res.body.success.should.be.false;
-        res.body.should.have.property('errors');
         res.body.should.have.property('message');
 
         done();
@@ -102,7 +99,7 @@ describe('File upload', () => {
         res.should.be.a('object');
 
         res.body.success.should.be.true;
-        res.body.should.have.property('head_image');
+        res.body.should.have.property('data');
 
         done();
       });

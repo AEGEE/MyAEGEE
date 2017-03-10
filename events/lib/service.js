@@ -27,14 +27,21 @@ exports.status = (req, res, next) => {
       // For debugging purposes only, TODO remove!
       handshake_token: options.handshake_token,
     };
-    res.json(ret);
+
+    res.json({
+      success: true,
+      data: [ret],
+    });
     return next();
   });
 };
 
 // TODO remove, debug only
 exports.getUser = (req, res, next) => {
-  res.json(req.user);
+  res.json({
+    success: true,
+    data: [req.user],
+  });
   return next();
 };
 

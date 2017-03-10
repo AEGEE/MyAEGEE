@@ -19,7 +19,7 @@ exports.listComments = (req, res, next) => {
 
       res.json({
         success: true,
-        comments,
+        data: comments,
       });
       return next();
     });

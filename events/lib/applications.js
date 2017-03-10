@@ -19,7 +19,10 @@ exports.listUserAppliedEvents = (req, res, next) => {
         return next(new restify.InternalError());
       }
 
-      res.json(events);
+      res.json({
+        success: true,
+        data: events,
+      });
       return next();
     });
 };
@@ -48,7 +51,10 @@ exports.listParticipants = (req, res, next) => {
     }
   }
 
-  res.json(applications);
+  res.json({
+    success: true,
+    data: applications,
+  });
   return next();
 };
 
@@ -59,10 +65,18 @@ exports.getApplication = (req, res, next) => {
   const application = event.applications.find(element => element.foreign_id === req.user.basic.id);
 
   if (application === undefined) {
-    return next(new restify.ResourceNotFoundError(`User ${req.user.basic.id} not found`));
+    return next(new restify.ResourceNotFoundError({
+      body: {
+        success: false,
+        message: `User ${req.user.basic.id} not found`,
+      },
+    }));
   }
 
-  res.json(application);
+  res.json({
+    success: true,
+    data: [application],
+  });
   return next();
 };
 
@@ -71,7 +85,12 @@ exports.setApplication = (req, res, next) => {
 
   // Check for permission
   if (!req.user.permissions.can.apply) {
-    return next(new restify.ForbiddenError({ message: 'You cannot apply to this event' }));
+    return next(new restify.ForbiddenError({
+      body: {
+        success: false,
+        message: 'You cannot apply to this event',
+      },
+    }));
   }
 
   // Find the corresponding application
@@ -106,18 +125,34 @@ exports.setApplication = (req, res, next) => {
   const tmp = helpers.checkApplicationValidity(
     event.applications[index].application, event.application_fields);
   if (!tmp.passed) {
-    return next(new restify.InvalidContentError(`Application malformed: ${tmp.msg}`));
+    return next(new restify.InvalidContentError({
+      body: {
+        success: false,
+        message: `Application malformed: ${tmp.msg}`,
+      },
+    }));
   }
 
   return event.save((err) => {
     if (err) {
       // Send validation-errors back to client
       if (err.name === 'ValidationError') {
-        return next(new restify.InvalidArgumentError({ body: err }));
+        return next(new restify.InvalidArgumentError({
+          body: {
+            success: false,
+            errors: err.errors,
+            message: err.message,
+          },
+        }));
       }
 
       log.error('Could not save application', err);
-      return next(new restify.InternalError());
+      return next(new restify.InternalError({
+        body: {
+          success: false,
+          message: err.message,
+        },
+      }));
     }
 
     res.json({
@@ -132,7 +167,12 @@ exports.setApplication = (req, res, next) => {
 exports.setApplicationStatus = (req, res, next) => {
   // Check user permissions
   if (!req.user.permissions.can.approve_participants) {
-    return next(new restify.ForbiddenError('You are not allowed to accept or reject participants'));
+    return next(new restify.ForbiddenError({
+      body: {
+        success: false,
+        message: 'You are not allowed to accept or reject participants',
+      },
+    }));
   }
 
   const event = req.event;
@@ -149,7 +189,12 @@ exports.setApplicationStatus = (req, res, next) => {
   });
 
   if (application === undefined) {
-    return next(new restify.NotFoundError(`Could not find application id ${req.params.application_id}`));
+    return next(new restify.NotFoundError({
+      body: {
+        success: false,
+        message: `Could not find application id ${req.params.application_id}`,
+      },
+    }));
   }
 
   // Save changes
@@ -159,11 +204,22 @@ exports.setApplicationStatus = (req, res, next) => {
     if (err) {
       // Send validation-errors back to client
       if (err.name === 'ValidationError') {
-        return next(new restify.InvalidArgumentError({ body: err }));
+        return next(new restify.InvalidArgumentError({
+          body: {
+            success: false,
+            errors: err.errors,
+            message: err.message,
+          },
+        }));
       }
 
       log.error('Could not set application status', err);
-      return next(new restify.InternalError());
+      return next(new restify.InternalError({
+        body: {
+          success: false,
+          message: err.message,
+        },
+      }));
     }
 
     res.json({
@@ -177,7 +233,12 @@ exports.setApplicationStatus = (req, res, next) => {
 exports.setApplicationComment = (req, res, next) => {
   // Check user permissions
   if (!req.user.permissions.can.view_local_involved_events) {
-    return next(new restify.ForbiddenError('You are not allowed to put board comments'));
+    return next(new restify.ForbiddenError({
+      body: {
+        success: false,
+        message: 'You are not allowed to put board comments',
+      },
+    }));
   }
 
   const event = req.event;
@@ -194,7 +255,12 @@ exports.setApplicationComment = (req, res, next) => {
   });
 
   if (application === undefined) {
-    return next(new restify.NotFoundError(`Could not find application id ${req.params.application_id}`));
+    return next(new restify.NotFoundError({
+      body: {
+        success: false,
+        message: `Could not find application id ${req.params.application_id}`,
+      },
+    }));
   }
 
   // Save changes
@@ -204,11 +270,22 @@ exports.setApplicationComment = (req, res, next) => {
     if (err) {
       // Send validation-errors back to client
       if (err.name === 'ValidationError') {
-        return next(new restify.InvalidArgumentError({ body: err }));
+        return next(new restify.InvalidArgumentError({
+          body: {
+            success: false,
+            errors: err.errors,
+            message: err.message,
+          },
+        }));
       }
 
       log.error('Could not set board comment', err);
-      return next(new restify.InternalError());
+      return next(new restify.InternalError({
+        body: {
+          success: false,
+          message: err.message,
+        },
+      }));
     }
 
     res.json({
