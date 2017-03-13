@@ -76,7 +76,9 @@ process.on('unhandledRejection', (err) => {
   log.error('Unhandled rejection: ', err);
 
   // Leaving severity as 'warning' by default, as it's not critical.
-  bugsnag.notify(err, { errorName: 'unhandledRejection' });
+  if (process.env.NODE_ENV !== 'test') {
+    bugsnag.notify(err, { errorName: 'unhandledRejection' });
+  }
 });
 
 const curVersion = '0.0.1';
