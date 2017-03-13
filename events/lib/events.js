@@ -486,6 +486,56 @@ exports.deleteEvent = (req, res, next) => {
   });
 };
 
+exports.listPossibleStatuses = (req, res, next) => {
+  Lifecycle
+    .findById(req.event.lifecycle)
+    .populate('status')
+    .then((lifecycle) => {
+      // If there is no lifecycle (which can't happen in usual
+      // circumstances), raise an error and do nothing.
+      if (!lifecycle) {
+        return next(restify.InvalidArgumentError({
+          body: {
+            success: false,
+            message: `No lifecycle is specified for this type of event: ${req.event.type}.`,
+          },
+        }));
+      }
+
+      const possibleTransitions = lifecycle.transitions.filter((transition) => {
+        // Skipping all transitions without 'from' status,
+        // since each event has a status
+        if (!transition.from) {
+          return false;
+        }
+
+        // TODO: Add bodies
+        return (transition.from.equals(req.event.status._id)
+          && (transition.allowedFor.users.includes(req.user.basic.id.toString())
+            || intersects(transition.allowedFor.roles, req.user.roles)
+            || intersects(transition.allowedFor.special, req.user.special)));
+      });
+
+      // Appending statuses, so we won't have to load them manually.
+      possibleTransitions.forEach((t) => {
+        t.from = lifecycle.status.find(s => s._id.equals(t.from));
+        t.to = lifecycle.status.find(s => s._id.equals(t.to));
+      });
+
+      res.send({
+        success: true,
+        data: possibleTransitions,
+      });
+      return next();
+    })
+    .catch(err => next(new restify.InternalError({
+      body: {
+        success: false,
+        message: err.message,
+      },
+    })));
+};
+
 exports.setApprovalStatus = (req, res, next) => {
   // Loading event's lifecycle.
   // Don't need the info about its' statuses,

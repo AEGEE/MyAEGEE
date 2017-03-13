@@ -129,6 +129,7 @@ server.use(middlewares.checkPermissions);
 server.get({ path: '/single/:event_id', version: curVersion }, events.eventDetails);
 server.put({ path: '/single/:event_id', version: curVersion }, events.editEvent);
 server.del({ path: '/single/:event_id', version: curVersion }, events.deleteEvent);
+server.get({ path: '/single/:event_id/status', version: curVersion }, events.listPossibleStatuses);
 server.put({ path: '/single/:event_id/status', version: curVersion }, events.setApprovalStatus);
 server.get({ path: '/single/:event_id/rights', version: curVersion }, events.getEditRights);
 server.post({ path: '/single/:event_id/upload', version: curVersion }, imageserv.uploadImage);
