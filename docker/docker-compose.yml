@@ -2,6 +2,21 @@ version: '2'
 
 services:
 
+### OMS TUNNEL        #######################################
+### main container, dev version #######################################
+
+    traefik:
+        build:
+            context: ./traefik
+        ports:
+            - "80:80"
+            - "8080:8080"
+            - "443:443"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./traefik/traefik.toml:/etc/traefik/traefik.toml
+
+### OMS CORE        #######################################
 ### Applications Code Container #############################
 
     omscore-data:
@@ -68,12 +83,18 @@ services:
         volumes_from:
             - omscore-data
         volumes:
-            - ./logs/nginx/:/var/log/nginx
-        ports:
-            - "80:80"
-            - "443:443"
+            - ./logs/omscore/:/var/log/nginx
         links:
             - php-fpm
+        expose:
+            - 80
+        labels:
+            - "traefik.backend=omscore"
+            - "traefik.port=80"
+            - "traefik.frontend.rule=Host:localhost"
+            - "traefik.frontend.priority=10"
+            - "traefik.enable=true"
+
 
 ### Bootstrapper ##################################
 
@@ -145,7 +166,13 @@ services:
             - strapstate:/usr/scripts/strapstate
         links:
             - mongodb
- 
+        labels:
+            - "traefik.backend=omsevents"
+            - "traefik.port=8082"
+            - "traefik.frontend.rule=Host:localhost;PathPrefix:/omsevents/api;PathPrefixStrip:/omsevents/api"
+            - "traefik.frontend.priority=110"
+            - "traefik.enable=true"
+
 
 ### Omsevents frontend #######################################
 
@@ -154,10 +181,17 @@ services:
             context: ./omsevents-frontend
         volumes:
             - "../oms-events-frontend:/usr/app/frontend:ro"
-        ports:
-            - "8083:8083"
+            - omsevents_media:/usr/app/media
+            - ./logs/omsevents-frontend/:/var/log/nginx
         links:
             - omsevents
+        labels:
+            - "traefik.frontend.rule=Host:localhost;PathPrefix:/omsevents;PathPrefixStrip:/omsevents"
+            - "traefik.frontend.priority=100"
+            - "traefik.port=8083"
+            - "traefik.backend=omsevents-frontend"
+            - "traefik.enable=true"
+
 
 ### Bootstrapper frontend #######################################
 
