@@ -2,6 +2,9 @@ language: node_js
 node_js:
   - 'node'
 
+notifications:
+  slack: myaegee:Qe6muWYLbq3K6zt1VcLVx9br
+
 services:
   - mongodb
 
