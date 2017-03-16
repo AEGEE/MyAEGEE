@@ -74,6 +74,7 @@ const eventSchema = mongoose.Schema({
   application_fields: [applicationFieldSchema],
   applications: [paxSchema],
   organizers: [orgaSchema],
+  deleted: { type: Boolean, default: false },
 }, { timestamps: true });
 
 // Virtuals

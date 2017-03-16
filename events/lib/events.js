@@ -17,7 +17,8 @@ const intersects = (array1, array2) => array1.filter(elt => array2.includes(elt)
 
 exports.listEvents = (req, res, next) => {
   Event
-    .where('ends').gte(new Date()) // Only show events in the future
+    .where('ends').gte(new Date())  // Only show events in the future
+    .where('deleted').equals(false) // Filter out deleted events
     .select([
       'name',
       'starts',
@@ -62,8 +63,8 @@ exports.listEvents = (req, res, next) => {
 // Returns all events the user is organizer on
 exports.listUserOrganizedEvents = (req, res, next) => {
   Event
-    // .where('status').ne('deleted') // Hide deleted events
-    .where('ends').gte(new Date()) // Only show events in the future
+    .where('deleted').equals(false) // Hide deleted events
+    .where('ends').gte(new Date())  // Only show events in the future
     .elemMatch('organizers', { foreign_id: req.user.basic.id })
     .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
     .exec((err, events) => {
@@ -89,6 +90,7 @@ exports.listApprovableEvents = (req, res, next) => {
   // Loading events and a lifecycle and its statuses for each event.
   Event
     .where('ends').gte(new Date())
+    .where('deleted').equals(false)
     .populate({ path: 'lifecycle', model: 'Lifecycle', populate: { path: 'status', model: 'Status' } })
     .exec((err, events) => {
       if (err) {
@@ -447,35 +449,46 @@ exports.editEvent = (req, res, next) => {
 
     res.json({
       success: true,
-      data: retval
+      data: retval,
     });
     return next();
   });
 };
 
-
-// This endpoint won't work because of the events lifecycle.
-// Two ways to solve this:
-// 1) add a 'deleted' field to the Event schema to represent if the event was deleted or not;
-// 2) add a 'deleted' status to the lifecycle, if so, this endpoint will be useless.
 exports.deleteEvent = (req, res, next) => {
   if (!req.user.permissions.can.delete) {
-    return next(new restify.ForbiddenError('You are not permitted to delete events'));
+    return next(new restify.ForbiddenError({
+      body: {
+        success: false,
+        message: 'You are not permitted to delete events',
+      },
+    }));
   }
 
   const event = req.event;
 
-  // Deletion is only changing status to deleted
-  event.status = 'deleted';
+  // Deletion is only setting the 'deleted' field to true.
+  event.deleted = true;
   return event.save((err) => {
     if (err) {
       // Send validation-errors back to client
       if (err.name === 'ValidationError') {
-        return next(new restify.InvalidArgumentError({ body: err }));
+        return next(new restify.InvalidArgumentError({
+          body: {
+            success: false,
+            errors: [err.errors],
+            message: err.message,
+          },
+        }));
       }
 
       log.error('Could not delete event', err);
-      return next(new restify.InternalError());
+      return next(new restify.InternalError({
+        body: {
+          success: false,
+          message: err.message,
+        },
+      }));
     }
 
     res.json({
