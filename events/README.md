@@ -4,7 +4,7 @@
 
 ## General
 
-The event module shall implement everything related to basic events, giving a common ground for non-statutory events, statutory events and SUs. Find the API documentation on [Apiary](http://docs.omsevents.apiary.io/#). 
+The event module shall implement everything related to basic events, giving a common ground for non-statutory events, statutory events and SUs. Find the API documentation on [Apiary](http://docs.omsevents.apiary.io/#).
 
 Also, any help is appreciated! Just contact Nico (AEGEE-Dresden, blacksph3re) and/or check the instructions in the [wiki](https://oms-project.atlassian.net/wiki/).
 
@@ -13,13 +13,13 @@ Also, any help is appreciated! Just contact Nico (AEGEE-Dresden, blacksph3re) an
 ### Installing
 
 There are some things you have to do to get this service running.
-* This service depends on [oms-core](https://github.com/AEGEE/oms-neo-core), get it up and running. I advise to use [homestead](https://github.com/laravel/homestead) as a virtualisation
-* Further dependencies (included in homestead): 
+* This service depends on [oms-core](https://github.com/AEGEE/oms-neo-core), get it up and running. I advise to use [OMS Docker image](https://github.com/AEGEE/oms-docker), it includes this microservice, the MongoDB database, `oms-core` and its dependencies.
+* Further dependencies (included in Docker):
   * nodejs including npm
   * mongodb
 * Git clone this repo and cd into it
 * `npm install` to install all necessary dependencies
-* Rename lib/config/configFile.json.example to lib/config/configFile.json, if you want edit it
+* Rename `lib/config/configFile.json.example` to `lib/config/configFile.json`, if you want edit it
 * Set up static serving with nginx (if you are using another web server, good luck.)
 ```shell
 mv nginx.conf.example nginx.conf
@@ -28,10 +28,14 @@ sudo systemctl reload nginx.service
 ```
 
 Now you will need to connect the microservice to the core.
-* Edit lib/config/configFile.json and put the secret that you obtained from the core.
+* Edit `lib/config/configFile.json` and put the secret that you obtained from the core.
 * Start the server with `node lib/server.js`
 * Query the running server on `curl localhost:8083/api/registerMicroservice` to fire up registration. *(if you fucked up the nginx reverse-proxy you can also query `localhost:8082`)*
 * Enable it in the core backend and refresh the page.
+
+### Configuring
+
+You can specify the microservice configuration by editing the `lib/config.json` file. Check out the example at `lib/configFile.json.example` and the comments in `lib/config.js` for more information.
 
 ### Get it running
 
