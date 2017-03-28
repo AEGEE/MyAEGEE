@@ -6,8 +6,6 @@ RUN mkdir -p /usr/app/ && mkdir -p /usr/app/frontend && mkdir -p /usr/app/media 
 
 WORKDIR /usr/app
 
-RUN npm install -g bunyan supervisor
-
 ADD ./start.sh /usr/scripts/start.sh
 
 CMD sh /usr/scripts/start.sh

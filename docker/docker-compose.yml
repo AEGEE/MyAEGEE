@@ -229,6 +229,27 @@ services:
         command: sh /usr/scripts/bootstrap.sh
 
 
+### OMS APPLICATIONS           #######################################
+### Applications to oms-events #######################################
+
+    omsapplications:
+        build:
+            context: ./omsapplications
+        volumes:
+            - "../oms-applications:/usr/app"
+            - shared:/usr/shared:ro
+        links:
+            - mongodb
+        labels:
+            - "traefik.backend=omsapplications"
+            - "traefik.port=8085"
+            - "traefik.frontend.rule=Host:localhost;PathPrefix:/services/omsapplications/api;PathPrefixStrip:/services/omsapplications/api"
+            - "traefik.frontend.priority=110"
+            - "traefik.enable=true"
+            - "registry.categories=(applications, 10);(events_frontend, 10)"
+            - "registry.servicename=omsapplications"
+
+
 ### Volumes Setup ###########################################
 
 volumes:
