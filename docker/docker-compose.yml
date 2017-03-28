@@ -24,6 +24,7 @@ services:
         volumes:
             - ./docker-compose.yml:/usr/src/docker-compose.yml:ro
             - ../oms-serviceregistry:/usr/src/app
+            - shared:/usr/src/shared
 
 ### OMS CORE        #######################################
 ### Applications Code Container #############################
