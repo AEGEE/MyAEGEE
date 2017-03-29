@@ -191,7 +191,7 @@ services:
         labels:
             - "traefik.backend=omsevents"
             - "traefik.port=8082"
-            - "traefik.frontend.rule=Host:localhost;PathPrefix:/omsevents/api;PathPrefixStrip:/omsevents/api"
+            - "traefik.frontend.rule=Host:localhost;PathPrefix:/services/omsevents/api;PathPrefixStrip:/services/omsevents/api"
             - "traefik.frontend.priority=110"
             - "traefik.enable=true"
             - "registry.categories=(events, 10);(notifications, 10)"
@@ -210,7 +210,7 @@ services:
         links:
             - omsevents
         labels:
-            - "traefik.frontend.rule=Host:localhost;PathPrefix:/omsevents;PathPrefixStrip:/omsevents"
+            - "traefik.frontend.rule=Host:localhost;PathPrefix:/services/omsevents;PathPrefixStrip:/services/omsevents"
             - "traefik.frontend.priority=100"
             - "traefik.port=8083"
             - "traefik.backend=omsevents-frontend"
