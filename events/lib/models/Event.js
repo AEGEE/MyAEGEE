@@ -45,6 +45,15 @@ const applicationFieldSchema = mongoose.Schema({
   //min_length: Number
 });
 
+// A schema for storing per-event links to different microservices' features.
+// The 'params' field is optional, because we won't need it all the time, I suppose.
+// TODO: Add visibility field with the AccessObject
+const linkSchema = mongoose.Schema({
+  controller: { type: String, required: true },
+  params: { type: mongoose.Schema.Types.Mixed },
+  displayName: { type: String, required: true },
+});
+
 const eventSchema = mongoose.Schema({
   url: { type: String, unique: true, sparse: true }, // defaults to _id, see pre-save hook
   head_image: {
@@ -61,6 +70,7 @@ const eventSchema = mongoose.Schema({
     get: v => Math.round(v * 100) / 100,
   },
   organizing_locals: [localSchema],
+  links: [linkSchema],
   type: { type: String, required: true },
   status: { type: mongoose.Schema.Types.ObjectId, ref: 'Status', required: true },
   lifecycle: { type: mongoose.Schema.Types.ObjectId, ref: 'Lifecycle', required: true },

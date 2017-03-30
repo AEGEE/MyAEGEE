@@ -195,6 +195,15 @@ exports.addEvent = (req, res, next) => {
 
   const newEvent = new Event(data);
 
+  // Adding default links to the event.
+  newEvent.links = [
+    { controller: 'app.events.apply', displayName: 'Apply to event' },
+    { controller: 'app.eventadmin.edit', displayName: 'Edit event' },
+    { controller: 'app.eventadmin.approve_participants', displayName: 'Approve participants' },
+    { controller: 'app.events.organizers', displayName: 'See organizers' },
+    { controller: 'app.events.participants', displayName: 'See participants' },
+  ];
+
   // Get the default role to assign to the user
   user.getDefaultEventRoles((defaultRoles) => {
     // Creating user automatically becomes organizer
@@ -641,6 +650,45 @@ exports.getEditRights = (req, res, next) => {
     data: [retval],
   });
   return next();
+};
+
+exports.addEventLink = (req, res, next) => {
+  if (!req.body.controller || !req.body.displayName) {
+    return next(new restify.InvalidArgumentError({ body: {
+      success: false,
+      message: 'Malformed request.',
+    } }));
+  }
+
+  // Adding link to event and saving it.
+  req.event.links.push(req.body);
+  return req.event.save((err) => {
+    if (err) {
+      // Send validation-errors back to client
+      if (err.name === 'ValidationError') {
+        return next(new restify.InvalidArgumentError({
+          body: {
+            success: false,
+            errors: err.errors,
+            message: err.message,
+          },
+        }));
+      }
+
+      return next(new restify.InternalError({
+        body: {
+          success: false,
+          message: err.message,
+        },
+      }));
+    }
+
+    res.json({
+      success: true,
+      message: 'Link added.',
+    });
+    return next();
+  });
 };
 
 /** Organizers **/
