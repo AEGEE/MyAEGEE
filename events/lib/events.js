@@ -201,7 +201,7 @@ exports.addEvent = (req, res, next) => {
     { controller: 'app.eventadmin.edit', displayName: 'Edit event' },
     { controller: 'app.eventadmin.approve_participants', displayName: 'Approve participants' },
     { controller: 'app.events.organizers', displayName: 'See organizers' },
-    { controller: 'app.events.participants', displayName: 'See organizers' },
+    { controller: 'app.events.participants', displayName: 'See participants' },
   ];
 
   // Get the default role to assign to the user
