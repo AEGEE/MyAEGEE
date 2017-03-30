@@ -652,6 +652,45 @@ exports.getEditRights = (req, res, next) => {
   return next();
 };
 
+exports.addEventLink = (req, res, next) => {
+  if (!req.body.controller || !req.body.displayName) {
+    return next(new restify.InvalidArgumentError({ body: {
+      success: false,
+      message: 'Malformed request.',
+    } }));
+  }
+
+  // Adding link to event and saving it.
+  req.event.links.push(req.body);
+  return req.event.save((err) => {
+    if (err) {
+      // Send validation-errors back to client
+      if (err.name === 'ValidationError') {
+        return next(new restify.InvalidArgumentError({
+          body: {
+            success: false,
+            errors: err.errors,
+            message: err.message,
+          },
+        }));
+      }
+
+      return next(new restify.InternalError({
+        body: {
+          success: false,
+          message: err.message,
+        },
+      }));
+    }
+
+    res.json({
+      success: true,
+      message: 'Link added.',
+    });
+    return next();
+  });
+};
+
 /** Organizers **/
 /* Not used
 exports.listOrganizers = function(req, res, next) {
