@@ -2,6 +2,32 @@ version: '2'
 
 services:
 
+### OMS TUNNEL        #######################################
+### main container, dev version #######################################
+
+    traefik:
+        build:
+            context: ./traefik
+        ports:
+            - "80:80"
+            - "8080:8080"
+            - "443:443"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./traefik/traefik.toml:/etc/traefik/traefik.toml
+
+    omsserviceregistry:
+        build:
+            context: ./oms-serviceregistry
+        ports:
+            - "7000:7000"
+        volumes:
+            - ./docker-compose.yml:/usr/src/docker-compose.yml:ro
+            - ../oms-serviceregistry:/usr/src/app
+            - shared:/usr/src/shared
+            - strapstate:/usr/scripts/strapstate:ro
+
+### OMS CORE        #######################################
 ### Applications Code Container #############################
 
     omscore-data:
@@ -69,11 +95,20 @@ services:
             - omscore-data
         volumes:
             - ./logs/omscore/:/var/log/nginx
-        ports:
-            - "80:80"
-            - "443:443"
         links:
             - php-fpm
+        expose:
+            - 80
+        labels:
+            - "traefik.backend=omscore"
+            - "traefik.port=80"
+            - "traefik.frontend.rule=Host:localhost"
+            - "traefik.frontend.priority=10"
+            - "traefik.enable=true"
+            - "registry.categories=(users, 10);(antennae, 10);(notifications, 0)"
+            - "registry.backend=/api"
+            - "registry.description=The core module with both backend and frontend"
+
 
 ### Bootstrapper ##################################
 
@@ -154,7 +189,15 @@ services:
             - strapstate:/usr/scripts/strapstate
         links:
             - mongodb
- 
+        labels:
+            - "traefik.backend=omsevents"
+            - "traefik.port=8082"
+            - "traefik.frontend.rule=Host:localhost;PathPrefix:/services/omsevents/api;PathPrefixStrip:/services/omsevents/api"
+            - "traefik.frontend.priority=110"
+            - "traefik.enable=true"
+            - "registry.categories=(events, 10);(notifications, 10)"
+            - "registry.servicename=omsevents"
+
 
 ### Omsevents frontend #######################################
 
@@ -165,10 +208,13 @@ services:
             - "../oms-events-frontend:/usr/app/frontend:ro"
             - omsevents_media:/usr/app/media
             - ./logs/omsevents-frontend/:/var/log/nginx
-        ports:
-            - "8083:8083"
-        links:
-            - omsevents
+        labels:
+            - "traefik.frontend.rule=Host:localhost;PathPrefix:/services/omsevents;PathPrefixStrip:/services/omsevents"
+            - "traefik.frontend.priority=100"
+            - "traefik.port=8083"
+            - "traefik.backend=omsevents-frontend"
+            - "traefik.enable=true"
+            - "registry.modules=/frontend/getModules.json"
 
 ### Bootstrapper frontend #######################################
 
@@ -180,6 +226,42 @@ services:
         links:
             - omsevents
         command: sh /usr/scripts/bootstrap.sh
+
+
+### OMS APPLICATIONS           #######################################
+### Applications to oms-events #######################################
+
+    omsapplications:
+        build:
+            context: ./omsapplications
+        volumes:
+            - "../oms-applications:/usr/app"
+            - shared:/usr/shared:ro
+        links:
+            - mongodb
+        labels:
+            - "traefik.backend=omsapplications"
+            - "traefik.port=8085"
+            - "traefik.frontend.rule=Host:localhost;PathPrefix:/services/omsapplications/api;PathPrefixStrip:/services/omsapplications/api"
+            - "traefik.frontend.priority=110"
+            - "traefik.enable=true"
+            - "registry.categories=(applications, 10);(events_frontend, 10)"
+            - "registry.servicename=omsapplications"
+
+### Applications frontend #######################################
+
+    omsapplications-frontend:
+        build:
+            context: ./omsapplications-frontend
+        volumes:
+            - "../oms-applications-frontend:/usr/app:ro"
+        labels:
+            - "traefik.frontend.rule=Host:localhost;PathPrefix:/services/omsapplications;PathPrefixStrip:/services/omsapplications"
+            - "traefik.frontend.priority=100"
+            - "traefik.port=8086"
+            - "traefik.backend=omsapplications-frontend"
+            - "traefik.enable=true"
+            - "registry.modules=/getModules.json"
 
 
 ### Volumes Setup ###########################################
