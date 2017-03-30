@@ -51,7 +51,7 @@ const applicationFieldSchema = mongoose.Schema({
 const linkSchema = mongoose.Schema({
   controller: { type: String, required: true },
   params: { type: mongoose.Schema.Types.Mixed },
-  displayText: { type: String, required: true },
+  displayName: { type: String, required: true },
 });
 
 const eventSchema = mongoose.Schema({
