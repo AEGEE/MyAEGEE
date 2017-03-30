@@ -195,13 +195,16 @@ exports.addEvent = (req, res, next) => {
 
   const newEvent = new Event(data);
 
+  const organizerAccess = { users: [], bodies: [], roles: [], special: ['Organizer'] };
+  const publicAccess = { users: [], bodies: [], roles: [], special: ['Public'] };
+
   // Adding default links to the event.
   newEvent.links = [
-    { controller: 'app.events.apply', displayName: 'Apply to event' },
-    { controller: 'app.eventadmin.edit', displayName: 'Edit event' },
-    { controller: 'app.eventadmin.approve_participants', displayName: 'Approve participants' },
-    { controller: 'app.events.organizers', displayName: 'See organizers' },
-    { controller: 'app.events.participants', displayName: 'See participants' },
+    { controller: 'app.events.apply', displayName: 'Apply to event', visibility: publicAccess },
+    { controller: 'app.eventadmin.edit', displayName: 'Edit event', visibility: organizerAccess },
+    { controller: 'app.eventadmin.approve_participants', displayName: 'Approve participants', visibility: organizerAccess },
+    { controller: 'app.events.organizers', displayName: 'See organizers', visibility: publicAccess },
+    { controller: 'app.events.participants', displayName: 'See participants', visibility: publicAccess },
   ];
 
   // Get the default role to assign to the user

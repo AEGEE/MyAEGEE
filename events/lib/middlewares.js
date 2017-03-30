@@ -291,5 +291,13 @@ exports.checkPermissions = (req, res, next) => {
     Array.prototype.push.apply(req.user.special, event_permissions.special);
   }
 
+  // Filter out links
+  const intersects = (array1, array2) => array1.filter(elt => array2.includes(elt)).length > 0;
+  req.event.links = req.event.links.filter((link) => {
+    return link.visibility.users.includes(req.user.basic.id.toString())
+      || intersects(link.visibility.roles, req.user.roles)
+      || intersects(link.visibility.special, req.user.special);
+  });
+
   return next();
 };

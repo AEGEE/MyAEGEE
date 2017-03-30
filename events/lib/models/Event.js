@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const config = require('../config/config.js');
 const orgaSchema = require('./Organizer.js');
+const accessObject = require('./AccessObject');
 
 // A participant applying to an event including it's application
 const paxSchema = mongoose.Schema({
@@ -41,8 +42,8 @@ const applicationFieldSchema = mongoose.Schema({
   optional: { type: Boolean, default: false },
 
   // TODO Add validation, like
-  //type: {type: String, enum: ['String', 'Number'], default: 'String'},
-  //min_length: Number
+  // type: {type: String, enum: ['String', 'Number'], default: 'String'},
+  // min_length: Number
 });
 
 // A schema for storing per-event links to different microservices' features.
@@ -52,6 +53,7 @@ const linkSchema = mongoose.Schema({
   controller: { type: String, required: true },
   params: { type: mongoose.Schema.Types.Mixed },
   displayName: { type: String, required: true },
+  visibility: { type: accessObject, required: true },
 });
 
 const eventSchema = mongoose.Schema({
