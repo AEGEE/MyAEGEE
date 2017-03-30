@@ -25,6 +25,7 @@ services:
             - ./docker-compose.yml:/usr/src/docker-compose.yml:ro
             - ../oms-serviceregistry:/usr/src/app
             - shared:/usr/src/shared
+            - strapstate:/usr/scripts/strapstate:ro
 
 ### OMS CORE        #######################################
 ### Applications Code Container #############################
@@ -207,8 +208,6 @@ services:
             - "../oms-events-frontend:/usr/app/frontend:ro"
             - omsevents_media:/usr/app/media
             - ./logs/omsevents-frontend/:/var/log/nginx
-        links:
-            - omsevents
         labels:
             - "traefik.frontend.rule=Host:localhost;PathPrefix:/services/omsevents;PathPrefixStrip:/services/omsevents"
             - "traefik.frontend.priority=100"
@@ -248,6 +247,21 @@ services:
             - "traefik.enable=true"
             - "registry.categories=(applications, 10);(events_frontend, 10)"
             - "registry.servicename=omsapplications"
+
+### Applications frontend #######################################
+
+    omsapplications-frontend:
+        build:
+            context: ./omsapplications-frontend
+        volumes:
+            - "../oms-applications-frontend:/usr/app:ro"
+        labels:
+            - "traefik.frontend.rule=Host:localhost;PathPrefix:/services/omsapplications;PathPrefixStrip:/services/omsapplications"
+            - "traefik.frontend.priority=100"
+            - "traefik.port=8086"
+            - "traefik.backend=omsapplications-frontend"
+            - "traefik.enable=true"
+            - "registry.modules=/getModules.json"
 
 
 ### Volumes Setup ###########################################
