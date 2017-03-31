@@ -31,14 +31,15 @@ exports.checkApplicationValidity = (application, applicationFields) => {
 
 
 exports.getEventPermissions = (event, user) => {
-  permissions = {
+  const permissions = {
     is: {},
     can: {},
-    special: []
+    special: [],
   };
 
-  if(!event || !user)
+  if (!event || !user) {
     return permissions;
+  }
 
   permissions.is.organizer = event.organizers.some(item => item.foreign_id == user.basic.id);
 
@@ -104,6 +105,9 @@ exports.getEventPermissions = (event, user) => {
     permissions.special.push('Organizing Board Member');
   if (permissions.is.own_antenna)
     permissions.special.push('Organizing Local Member');
+  if (permissions.is.organizer) {
+    permissions.special.push('Organizer');
+  }
 
   // Also all eventroles become special roles
   var myorg = event.organizers.find((item) => item.foreign_id == user.basic.id);
