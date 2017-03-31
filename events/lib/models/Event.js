@@ -56,6 +56,13 @@ const linkSchema = mongoose.Schema({
   visibility: { type: accessObject, required: true },
 });
 
+// A schema to store location data.
+const locationSchema = mongoose.Schema({
+  latitude: { type: Number, required: true },
+  longitude: { type: Number, required: true },
+  name: { type: String, required: true },
+});
+
 const eventSchema = mongoose.Schema({
   url: { type: String, unique: true, sparse: true }, // defaults to _id, see pre-save hook
   head_image: {
@@ -73,6 +80,7 @@ const eventSchema = mongoose.Schema({
   },
   organizing_locals: [localSchema],
   links: [linkSchema],
+  locations: [locationSchema],
   type: { type: String, required: true },
   status: { type: mongoose.Schema.Types.ObjectId, ref: 'Status', required: true },
   lifecycle: { type: mongoose.Schema.Types.ObjectId, ref: 'Lifecycle', required: true },
