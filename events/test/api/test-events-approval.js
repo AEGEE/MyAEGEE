@@ -1,8 +1,8 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const server = require('../lib/server.js');
-const db = require('./populate-db.js');
-const Event = require('../lib/models/Event');
+const server = require('../../lib/server.js');
+const db = require('../scripts/populate-db.js');
+const Event = require('../../lib/models/Event');
 
 const expect = chai.expect;
 chai.use(chaiHttp);

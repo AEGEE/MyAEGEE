@@ -1,13 +1,13 @@
 process.env.NODE_ENV = 'test';
 
-const log = require('../lib/config/logger.js');
+const log = require('../../lib/config/logger.js');
 
-const mongoose = require('../lib/config/mongo');
+const mongoose = require('../../lib/config/mongo');
 
-const Event = require('../lib/models/Event');
-const Status = require('../lib/models/Status');
-const Lifecycle = require('../lib/models/Lifecycle');
-const EventType = require('../lib/models/EventType');
+const Event = require('../../lib/models/Event');
+const Status = require('../../lib/models/Status');
+const Lifecycle = require('../../lib/models/Lifecycle');
+const EventType = require('../../lib/models/EventType');
 
 const futureDate = (offset) => {
   const retval = new Date();

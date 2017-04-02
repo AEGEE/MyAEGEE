@@ -6,7 +6,7 @@ const expect = chai.expect;
 
 describe('Options', () => {
   it('should import options', function (done) {
-    var options = require('../lib/config/options.js');
+    var options = require('../../lib/config/options.js');
 
     options.then(function (res) {
       expect(res).not.to.equal(null);
@@ -15,7 +15,7 @@ describe('Options', () => {
   });
 
   it('should save handshake token to db', function (done) {
-    var options = require('../lib/config/options.js');
+    var options = require('../../lib/config/options.js');
 
     expect(options).not.to.equal(null);
 
@@ -26,7 +26,7 @@ describe('Options', () => {
       options.save(function (err) {
         expect(err).to.be.null;
 
-        var options = require('../lib/config/options.js');
+        var options = require('../../lib/config/options.js');
         options.then(function (options) {
           expect(options.handshake_toḱen).to.equal('someToken');
           done();

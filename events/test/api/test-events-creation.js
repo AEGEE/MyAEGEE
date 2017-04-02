@@ -1,7 +1,7 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const server = require('../lib/server.js');
-const db = require('./populate-db.js');
+const server = require('../../lib/server.js');
+const db = require('../scripts/populate-db.js');
 
 const should = chai.should();
 chai.use(chaiHttp);

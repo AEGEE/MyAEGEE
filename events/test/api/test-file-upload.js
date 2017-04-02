@@ -1,9 +1,9 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const fs = require('fs-extra');
-const server = require('../lib/server.js');
-const db = require('./populate-db.js');
-const config = require('../lib/config/config.js');
+const server = require('../../lib/server.js');
+const db = require('../scripts/populate-db.js');
+const config = require('../../lib/config/config.js');
 
 const should = chai.should();
 chai.use(chaiHttp);
