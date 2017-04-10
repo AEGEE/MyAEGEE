@@ -41,7 +41,7 @@ Vagrant.configure("2") do |config|
 
   #install docker composer the easy way
   config.vm.provision "shell", path: "vagrant-post-script/install_docker_composer.sh"
-  #provision docker orchestration
-  config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh"
+  #provision docker orchestration (set to always run)
+  config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh", run: "always"
 
 end
