@@ -1,14 +1,28 @@
 # Description
-This is a dev environment based on Docker, as an alternative to the homestead virtualization which already exists. As Docker is not yet too mature on OSX and Windows, I'd recommend using the Vagrantfile attached which will bootstrap a VM where you will be able to use the power of Docker.
+This is a dev environment based on Docker, as an alternative to the homestead virtualization which already exists. As Docker is not yet too mature on OSX and Windows, I'd recommend using the Vagrantfile attached which will bootstrap a VM where you will be able to use the power of Docker. This will also allow you to cluster VMs with Docker swarm.
 
 # Installing
 
+On all operating systems:
 ```
 git clone --recursive https://github.com/AEGEE/oms-docker.git
 vagrant up
 ```
 
-Open you browser on `http://192.168.192.168` and login with the default credentials. Navigate to the modules tab and activate the modules microservice
+If you are on linux and want an installation without Vagrant:
+```
+git clone --recursive https://github.com/AEGEE/oms-docker.git
+cd oms-docker/docker
+# If you have GNUmake (90% of chance yes)
+make bootstrap
+# If you have a really minimal installation
+docker-compose up -d # But no rush! Wait until the bootstrap procedure has finished, check when with the following:
+docker-compose logs -f omscore-bootstrap && docker-compose logs -f omsevents-bootstrap
+```
+
+NOTE: Because Traefik works reading the URL of the request, it is necessary to add to your `/etc/hosts` file a name for your address (127.0.0.1 if bare Docker, 192.168.192.168 if Vagrant) - Traefik is configured under the name **appserver**. 
+
+Open you browser on `http://appserver` and login with the default credentials. Navigate to the modules tab and activate all the microservices
 
 
 Now some optional steps could follow. However, most likely you will not need them
