@@ -215,9 +215,9 @@ services:
         build:
             context: ./omsapplications
         volumes:
-            - "../oms-applications:/usr/app"
+            - "code-applications:/usr/app"
             - shared:/usr/shared:ro
-        links:
+        depends_on:
             - mongodb
         labels:
             - "traefik.backend=omsapplications"
@@ -234,7 +234,10 @@ services:
         build:
             context: ./omsapplications-frontend
         volumes:
-            - "../oms-applications-frontend:/usr/app:ro"
+            - "code-applications-frontend:/usr/app/frontend:ro"
+            - "./omsapplications-frontend/sites/omsapplications.conf:/etc/nginx/sites-available/omsapplications.conf:ro"
+        depends_on:
+            - omsapplications
         labels:
             - "traefik.frontend.rule=Host:appserver;PathPrefix:/services/omsapplications;PathPrefixStrip:/services/omsapplications"
             - "traefik.frontend.priority=100"
@@ -242,7 +245,6 @@ services:
             - "traefik.backend=omsapplications-frontend"
             - "traefik.enable=true"
             - "registry.modules=/getModules.json"
-
 
 ### Volumes Setup ###########################################
 
@@ -287,4 +289,16 @@ volumes:
         driver_opts:
               type: none
               device: /home/vagrant/oms-docker/oms-serviceregistry/ #NOTE needs full path
+              o: bind
+    code-applications: 
+#        driver: "local"
+        driver_opts:
+              type: none
+              device: /home/vagrant/oms-docker/oms-applications/ #NOTE needs full path
+              o: bind
+    code-applications-frontend:
+#        driver: "local"
+        driver_opts:
+              type: none
+              device: /home/vagrant/oms-docker/oms-applications-frontend/ #NOTE needs full path
               o: bind
