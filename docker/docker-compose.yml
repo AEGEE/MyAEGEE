@@ -54,6 +54,19 @@ services:
 #        networks:
 #            - "backend"
 
+    omscore-bootstrap:
+        build:
+            context: ./omscore
+            dockerfile: Dockerfile ####
+        volumes:
+            - shared:/var/shared
+            - strapstate:/var/strapstate
+            - code-core:/var/www
+        depends_on:
+            - "omscore" #or viceversa?
+        command: sh /var/shared/core/bootstrap.sh
+ 
+            
 ### PHP-FPM Container #######################################
 
     php-fpm: #necessary ? or in the image is already there since these people put ALL the shit in their dockerfiles?
@@ -66,9 +79,9 @@ services:
             - "9000"
         depends_on:
             - "omscore-bootstrap"
-    #        networks:
-    #            - "backend"
-
+#        networks:
+#            - "backend"
+        
 ### Nginx Server Container ##################################
 
     omscore-nginx:
@@ -96,68 +109,8 @@ services:
 #            - "backend"
 
 
-### Bootstrapper ##################################
-
-    omscore-bootstrap:
-        build:
-            context: ./omscore
-        volumes:
-            - shared:/var/shared
-            - strapstate:/var/strapstate
-            - code-core:/var/www
-        depends_on:
-            - "omscore" 
-        command: sh /var/shared/core/bootstrap.sh
-
-### PostgreSQL Container ####################################
-
-    postgres:
-        build: ./postgres
-        volumes:
-            - postgres:/var/lib/postgresql/data
-        expose:
-            - "5432"
-        environment:
-            POSTGRES_DB: homestead
-            POSTGRES_USER: homestead
-            POSTGRES_PASSWORD: secret
-#        networks:
-#            - "backend"
-
-### pgAdmin Container #######################################
-
-    pgadmin:
-        build: ./pgadmin
-        ports:
-            - "5050:5050"
-        depends_on:
-            - "postgres"
-#        networks:
-#            - "backend"    
 
 ### OMS EVENTS        #######################################
-### mongodb Container #######################################
-
-    mongodb:
-        build: ./mongo
-        ports:
-            - "27017:27017"
-        volumes:
-            - mongodb:/data/db
-#        networks:
-#            - "backend"
-
-### mongoui Container #######################################
-
-    mongoui:
-        build: ./mongoui
-        ports:
-            - "3000:3000"
-        depends_on:
-            - "mongodb"
-#        networks:
-#            - "backend"
-
 ### Omsevents backend #######################################
 
     omsevents:
@@ -179,7 +132,19 @@ services:
             - "traefik.enable=true"
             - "registry.categories=(events, 10);(notifications, 10)"
             - "registry.servicename=omsevents"
-
+            
+    omsevents-bootstrap:
+        build:
+            context: ./omsevents
+        volumes:
+            - omsevents_media:/usr/app/media
+            - code-events:/usr/app/oms-events
+            - shared:/usr/shared:ro
+            - strapstate:/usr/scripts/strapstate
+        depends_on:
+            - "omsevents" 
+        command: bash /usr/scripts/start.sh 
+            
 
 ### Omsevents frontend #######################################
 
@@ -199,21 +164,6 @@ services:
             - "traefik.backend=omsevents-frontend"
             - "traefik.enable=true"
             - "registry.modules=/frontend/getModules.json"    
-
-### Bootstrapper frontend #######################################
-
-    omsevents-bootstrap:
-        build:
-            context: ./omsevents
-        volumes:
-            - omsevents_media:/usr/app/media
-            - code-events:/usr/app/oms-events
-            - shared:/usr/shared:ro
-            - strapstate:/usr/scripts/strapstate
-        depends_on:
-            - "omsevents" 
-        command: bash /usr/scripts/start.sh 
-
 
 ### OMS APPLICATIONS           #######################################
 ### Applications to oms-events #######################################
@@ -252,7 +202,58 @@ services:
             - "traefik.backend=omsapplications-frontend"
             - "traefik.enable=true"
             - "registry.modules=/getModules.json"
+            
+### DATA storage parts
+### PostgreSQL Container ####################################
 
+    postgres:
+        build: ./postgres
+        volumes:
+            - postgres:/var/lib/postgresql/data
+        expose:
+            - "5432"
+        environment:
+            POSTGRES_DB: homestead
+            POSTGRES_USER: homestead
+            POSTGRES_PASSWORD: secret
+#        networks:
+#            - "backend"
+
+### pgAdmin Container #######################################
+
+    pgadmin:
+        build: ./pgadmin
+        ports:
+            - "5050:5050"
+        depends_on:
+            - "postgres"
+#        networks:
+#            - "backend"            
+            
+
+### mongodb Container #######################################
+
+    mongodb:
+        build: ./mongo
+        ports:
+            - "27017:27017"
+        volumes:
+            - mongodb:/data/db
+#        networks:
+#            - "backend"
+
+### mongoui Container #######################################
+
+    mongoui:
+        build: ./mongoui
+        ports:
+            - "3000:3000"
+        depends_on:
+            - "mongodb"
+#        networks:
+#            - "backend"
+
+            
 ### Volumes Setup ###########################################
 
 volumes:
