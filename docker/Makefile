@@ -1,9 +1,9 @@
   
 default:  
-	echo 'Options are bootstrap, start, monitor, stop, restart, nuke'
+	echo 'Options are bootstrap, start, monitor, stop, restart, nuke, clean (cleans untagged/unnamed images)'
 
 start:  
-	sudo docker-compose up -d
+	export COMPOSE_PROJECT_NAME=myaegee && sudo docker-compose up -d
   
 bootstrap: start monitor
 
@@ -17,3 +17,14 @@ restart: stop bootstrap
 
 nuke:  
 	sudo docker-compose down -v
+  
+clean:
+	sudo docker rmi $(docker images -qf "dangling=true")
+###How to remove all containers:
+#  docker rm $(docker ps -aq)
+###How to kill/stop and remove all containers:
+#  docker rm $(docker {kill|stop} $(docker ps -aq))
+###How to remove all dangling images:
+#  docker rmi $(docker images -qf "dangling=true")
+###How to remove all images:
+#  docker rmi $(docker images -q)
