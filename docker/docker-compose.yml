@@ -30,77 +30,49 @@ services:
             - strapstate:/usr/scripts/strapstate:ro
 
 ### OMS CORE        #######################################
-### Applications Code Container #############################
-
-    omscore-data:
-        image: tianon/true
-        volumes:
-            - "../oms-core:/var/www"
-            - "./omscore/.env:/root/.env:ro"
-            - "./omscore/bootstrap.sh:/root/bootstrap.sh:ro"
-            - shared:/var/shared
-
 ### Workspace Utilities Container ###########################
 
     omscore:
         build:
             context: ./omscore
-            args:
-                - COMPOSER_GLOBAL_INSTALL=false
-                - PUID=1000
-                - PGID=1000
-                - TZ=UTC
-        volumes_from:
-            - omscore-data
-        extra_hosts:
-            # IMPORTANT: Replace with your Docker Host IP (will be appended to /etc/hosts)
-            - "dockerhost:10.0.75.1"
-        ports:
-           - "2222:22"
-        tty: true
+        volumes:
+            - shared:/var/shared
+            - strapstate:/var/strapstate
+            - code-core:/var/www
+        depends_on:
+            - "postgres"
+#        networks:
+#            - "backend"
 
 ### PHP-FPM Container #######################################
 
-    php-fpm:
+    php-fpm: #necessary ? or in the image is already there since these people put ALL the shit in their dockerfiles?
         build:
             context: ./php-fpm
-            args:
-                - INSTALL_XDEBUG=false
-                - INSTALL_MONGO=false
-                - INSTALL_ZIP_ARCHIVE=false
-                - INSTALL_MEMCACHED=false
-                - INSTALL_OPCACHE=false
-                - INSTALL_AEROSPIKE_EXTENSION=false
-                - CODEIGNITER=false
-            dockerfile: Dockerfile-70
-        volumes_from:
-            - omscore-data
+        volumes:
+            - shared:/var/shared
+            - code-core:/var/www
         expose:
             - "9000"
-        links:
-            - omscore
-        extra_hosts:
-            # IMPORTANT: Replace with your Docker Host IP (will be appended to /etc/hosts)
-            - "dockerhost:10.0.75.1"
-        environment:
-            # IMPORTANT: Set the Remote Interpreter entry matching name to `laravel`
-            - PHP_IDE_CONFIG=serverName=laravel
+        depends_on:
+            - "omscore-bootstrap"
+    #        networks:
+    #            - "backend"
 
 ### Nginx Server Container ##################################
 
     omscore-nginx:
         build:
             context: ./omscore-nginx
-            args:
-                - PHP_UPSTREAM=php-fpm
-        volumes_from:
-            - omscore-data
         volumes:
-            - ./logs/omscore/:/var/log/nginx
-        links:
-            - php-fpm
+            - logs:/var/log/nginx
+            - shared:/var/shared
+            - strapstate:/var/strapstate ####
+            - code-core:/var/www
         expose:
-            - 80
+            - "80"
+        depends_on:
+            - "php-fpm"
         labels:
             - "traefik.backend=omscore"
             - "traefik.port=80"
@@ -110,6 +82,8 @@ services:
             - "registry.categories=(users, 10);(antennae, 10);(notifications, 0)"
             - "registry.backend=/api"
             - "registry.description=The core module with both backend and frontend"
+#        networks:
+#            - "backend"
 
 
 ### Bootstrapper ##################################
@@ -117,24 +91,13 @@ services:
     omscore-bootstrap:
         build:
             context: ./omscore
-            args:
-                - COMPOSER_GLOBAL_INSTALL=false
-                - PUID=1000
-                - PGID=1000
-                - TZ=UTC
-        volumes_from:
-            - omscore-data
         volumes:
-           - strapstate:/root/strapstate
-        links:
-            - omscore
-        extra_hosts:
-            # IMPORTANT: Replace with your Docker Host IP (will be appended to /etc/hosts)
-            - "dockerhost:10.0.75.1"
-        environment:
-            # IMPORTANT: Set the Remote Interpreter entry matching name to `laravel`
-            - PHP_IDE_CONFIG=serverName=laravel
-        command: sh /root/bootstrap.sh
+            - shared:/var/shared
+            - strapstate:/var/strapstate
+            - code-core:/var/www
+        depends_on:
+            - "omscore" 
+        command: sh /var/shared/core/bootstrap.sh
 
 ### PostgreSQL Container ####################################
 
@@ -277,14 +240,26 @@ services:
 ### Volumes Setup ###########################################
 
 volumes:
-    #Databases
+    #Databases/logs
     postgres:
         driver: "local"
     mongodb:
         driver: "local"
+    logs:
+        driver: "local"
+    logs-events:
+        driver: "local"
+    #Shared stuff
     omsevents_media:
         driver: "local"
     shared:
         driver: "local"
-    strapstate:
+    strapstate: # TODO integrate within shared
         driver: "local"
+    #Code
+    code-core:
+#        driver: "local" #uncomment for non-dev and comment the below
+        driver_opts:
+              type: none
+              device: /home/vagrant/oms-docker/oms-core/ #NOTE needs abs path
+              o: bind
