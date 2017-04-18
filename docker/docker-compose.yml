@@ -155,13 +155,12 @@ services:
             context: ./omsevents
         volumes:
             - omsevents_media:/usr/app/media
-            - "../oms-events:/usr/app/oms-events"
+            - code-events:/usr/app/oms-events
             - shared:/usr/shared:ro
-            - "./omsevents/bootstrap.sh:/usr/scripts/bootstrap.sh:ro"
-            - "./omsevents/configFile.json:/usr/scripts/configFile.json:ro"
             - strapstate:/usr/scripts/strapstate
-        links:
-            - mongodb
+        depends_on:
+            - "mongodb"
+            - "omscore-bootstrap"
         labels:
             - "traefik.backend=omsevents"
             - "traefik.port=8082"
@@ -178,27 +177,32 @@ services:
         build:
             context: ./omsevents-frontend
         volumes:
-            - "../oms-events-frontend:/usr/app/frontend:ro"
+            - "code-events-frontend:/usr/app/frontend:ro"
             - omsevents_media:/usr/app/media
-            - ./logs/omsevents-frontend/:/var/log/nginx
+            - logs-events:/var/log/nginx
+        depends_on:
+            - omsevents
         labels:
             - "traefik.frontend.rule=Host:appserver;PathPrefix:/services/omsevents;PathPrefixStrip:/services/omsevents"
             - "traefik.frontend.priority=100"
             - "traefik.port=8083"
             - "traefik.backend=omsevents-frontend"
             - "traefik.enable=true"
-            - "registry.modules=/frontend/getModules.json"
+            - "registry.modules=/frontend/getModules.json"    
 
 ### Bootstrapper frontend #######################################
 
     omsevents-bootstrap:
         build:
             context: ./omsevents
-        volumes_from:
-            - omsevents
-        links:
-            - omsevents
-        command: sh /usr/scripts/bootstrap.sh
+        volumes:
+            - omsevents_media:/usr/app/media
+            - code-events:/usr/app/oms-events
+            - shared:/usr/shared:ro
+            - strapstate:/usr/scripts/strapstate
+        depends_on:
+            - "omsevents" 
+        command: bash /usr/scripts/start.sh 
 
 
 ### OMS APPLICATIONS           #######################################
@@ -262,4 +266,16 @@ volumes:
         driver_opts:
               type: none
               device: /home/vagrant/oms-docker/oms-core/ #NOTE needs abs path
+              o: bind
+    code-events: 
+#        driver: "local"
+        driver_opts:
+              type: none
+              device: /home/vagrant/oms-docker/oms-events/ #NOTE needs full path
+              o: bind
+    code-events-frontend:
+#        driver: "local"
+        driver_opts:
+              type: none
+              device: /home/vagrant/oms-docker/oms-events-frontend/ #NOTE needs full path
               o: bind
