@@ -1,4 +1,11 @@
-version: '2'
+version: '3'
+
+## TODO: set read only where needed, in volume sharing (as of now, it shadows docker-compose, but maybe more is needed)
+## TODO: restart_policy
+## TODO: HEALTHCHECK
+#Swarm
+# TODO: will we need flocker when we are swarm-ready?
+# TODO: no depends_on in swarm mode???
 
 services:
 
@@ -302,3 +309,15 @@ volumes:
               type: none
               device: /home/vagrant/oms-docker/oms-applications-frontend/ #NOTE needs full path
               o: bind
+
+### Networks Setup ###########################################
+        
+networks:
+    devel:
+        driver: bridge
+        ipam:
+          driver: default
+    backend:
+        driver: bridge
+        ipam:
+          driver: default
