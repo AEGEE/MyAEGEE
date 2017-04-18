@@ -20,14 +20,17 @@ services:
 
     omsserviceregistry:
         build:
-            context: ./oms-serviceregistry
+            context: ./omsserviceregistry
         ports:
             - "7000:7000"
         volumes:
-            - ./docker-compose.yml:/usr/src/docker-compose.yml:ro
-            - ../oms-serviceregistry:/usr/src/app
             - shared:/usr/src/shared
             - strapstate:/usr/scripts/strapstate:ro
+            - code-serviceregistry:/usr/src/app
+        depends_on:
+            - "mongodb"
+#        networks:
+#            - "backend"
 
 ### OMS CORE        #######################################
 ### Workspace Utilities Container ###########################
@@ -278,4 +281,10 @@ volumes:
         driver_opts:
               type: none
               device: /home/vagrant/oms-docker/oms-events-frontend/ #NOTE needs full path
+              o: bind
+    code-serviceregistry:
+#        driver: "local"
+        driver_opts:
+              type: none
+              device: /home/vagrant/oms-docker/oms-serviceregistry/ #NOTE needs full path
               o: bind
