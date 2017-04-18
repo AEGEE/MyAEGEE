@@ -2,7 +2,7 @@ version: '2'
 
 services:
 
-### OMS TUNNEL        #######################################
+### OMS Tunnel        #######################################
 ### main container, dev version #######################################
 
     traefik:
@@ -13,7 +13,9 @@ services:
             - "8080:8080"
             - "443:443"
         volumes:
+          #this is necessary
             - /var/run/docker.sock:/var/run/docker.sock
+          #this is optional, for live modifications 
             - ./traefik/traefik.toml:/etc/traefik/traefik.toml
 
     omsserviceregistry:
@@ -146,6 +148,8 @@ services:
             POSTGRES_DB: homestead
             POSTGRES_USER: homestead
             POSTGRES_PASSWORD: secret
+#        networks:
+#            - "backend"
 
 ### pgAdmin Container #######################################
 
@@ -153,8 +157,10 @@ services:
         build: ./pgadmin
         ports:
             - "5050:5050"
-        links:
-            - postgres
+        depends_on:
+            - "postgres"
+#        networks:
+#            - "backend"    
 
 ### OMS EVENTS        #######################################
 ### mongodb Container #######################################
@@ -165,6 +171,8 @@ services:
             - "27017:27017"
         volumes:
             - mongodb:/data/db
+#        networks:
+#            - "backend"
 
 ### mongoui Container #######################################
 
@@ -172,8 +180,10 @@ services:
         build: ./mongoui
         ports:
             - "3000:3000"
-        links:
-            - mongodb
+        depends_on:
+            - "mongodb"
+#        networks:
+#            - "backend"
 
 ### Omsevents backend #######################################
 
@@ -267,6 +277,7 @@ services:
 ### Volumes Setup ###########################################
 
 volumes:
+    #Databases
     postgres:
         driver: "local"
     mongodb:
