@@ -4,7 +4,7 @@
 		"mongourl": "mongodb://mongodb:27017/events",
 
 		"frontend": {
-			"url": "http://localhost/services/omsevents",
+			"url": "/services/omsevents",
 			"pages": [{
 				"name": "All events",
 				"code": "events",
