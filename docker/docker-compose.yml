@@ -1,4 +1,4 @@
-version: '3'
+version: '2'
 
 ## TODO: set read only where needed, in volume sharing (as of now, it shadows docker-compose, but maybe more is needed)
 ## TODO: restart_policy

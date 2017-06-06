@@ -1,8 +1,8 @@
 FROM node:7
 
 WORKDIR /
-RUN git clone https://github.com/mrvautin/adminMongo.git 
-    && cd adminMongo 
+RUN git clone https://github.com/mrvautin/adminMongo.git \
+    && cd adminMongo \
     && npm i
     
 COPY ./app.json /adminMongo/config/app.json
