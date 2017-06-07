@@ -18,8 +18,8 @@ restart: stop bootstrap
 nuke:  
 	sudo docker-compose down -v
   
-#clean:
-#	sudo docker rmi $(docker images -qf "dangling=true")
+clean:
+	sudo docker rmi $(docker images -qf "dangling=true")
 ###How to remove all containers:
 #  docker rm $(docker ps -aq)
 ###How to kill/stop and remove all containers:
