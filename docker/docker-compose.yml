@@ -33,7 +33,8 @@ services:
         volumes:
             - shared:/usr/src/shared
             - strapstate:/usr/scripts/strapstate:ro
-            - code-serviceregistry:/usr/src/app
+            #only for dev: direct mount instead of mount of named vol
+            - ../oms-serviceregistry:/usr/src/app
         depends_on:
             - "mongodb"
 #        networks:
@@ -48,7 +49,8 @@ services:
         volumes:
             - shared:/var/shared
             - strapstate:/var/strapstate
-            - code-core:/var/www
+            #only for dev: direct mount instead of mount of named vol
+            - ../oms-core:/var/www
         depends_on:
             - "postgres"
 #        networks:
@@ -61,7 +63,8 @@ services:
         volumes:
             - shared:/var/shared
             - strapstate:/var/strapstate
-            - code-core:/var/www
+            #only for dev: direct mount instead of mount of named vol
+            - ../oms-core:/var/www
         depends_on:
             - "omscore" #or viceversa?
         command: sh /var/shared/core/bootstrap.sh
@@ -74,7 +77,8 @@ services:
             context: ./php-fpm
         volumes:
             - shared:/var/shared
-            - code-core:/var/www
+            #only for dev: direct mount instead of mount of named vol
+            - ../oms-core:/var/www
         expose:
             - "9000"
         depends_on:
@@ -91,7 +95,8 @@ services:
             - logs:/var/log/nginx
             - shared:/var/shared
             - strapstate:/var/strapstate ####
-            - code-core:/var/www
+            #only for dev: direct mount instead of mount of named vol
+            - ../oms-core:/var/www
         expose:
             - "80"
         depends_on:
@@ -118,9 +123,10 @@ services:
             context: ./omsevents
         volumes:
             - omsevents_media:/usr/app/media
-            - code-events:/usr/app/oms-events
             - shared:/usr/shared:ro
             - strapstate:/usr/scripts/strapstate
+            #only for dev: direct mount instead of mount of named vol
+            - ../oms-events:/usr/app/oms-events    
         depends_on:
             - "mongodb"
             - "omscore-bootstrap"
@@ -138,9 +144,10 @@ services:
             context: ./omsevents
         volumes:
             - omsevents_media:/usr/app/media
-            - code-events:/usr/app/oms-events
             - shared:/usr/shared:ro
             - strapstate:/usr/scripts/strapstate
+            #only for dev: direct mount instead of mount of named vol
+            - ../oms-events:/usr/app/oms-events
         depends_on:
             - "omsevents" 
         command: bash /usr/scripts/start.sh 
@@ -152,9 +159,10 @@ services:
         build:
             context: ./omsevents-frontend
         volumes:
-            - "code-events-frontend:/usr/app/frontend:ro"
             - omsevents_media:/usr/app/media
             - logs-events:/var/log/nginx
+            #only for dev: direct mount instead of mount of named vol
+            - ../oms-events-frontend:/usr/app/frontend:ro
         depends_on:
             - omsevents
         labels:
@@ -172,8 +180,9 @@ services:
         build:
             context: ./omsapplications
         volumes:
-            - "code-applications:/usr/app"
             - shared:/usr/shared:ro
+            #only for dev: direct mount instead of mount of named vol
+            - ../oms-applications:/usr/app
         depends_on:
             - mongodb
         labels:
@@ -191,8 +200,9 @@ services:
         build:
             context: ./omsapplications-frontend
         volumes:
-            - "code-applications-frontend:/usr/app/frontend:ro"
-            - "./omsapplications-frontend/sites/omsapplications.conf:/etc/nginx/sites-available/omsapplications.conf:ro"
+            #only for dev: direct mount instead of mount of named vol
+            - ../oms-applications-frontend:/usr/app/frontend:ro
+            - ./omsapplications-frontend/sites/omsapplications.conf:/etc/nginx/sites-available/omsapplications.conf:ro
         depends_on:
             - omsapplications
         labels:
@@ -273,43 +283,7 @@ volumes:
         driver: "local"
     strapstate: # TODO integrate within shared
         driver: "local"
-    #Code
-    code-core:
-#        driver: "local" #uncomment for non-dev and comment the below
-        driver_opts:
-              type: none
-              device: /home/vagrant/oms-docker/oms-core/ #NOTE needs abs path
-              o: bind
-    code-events: 
-#        driver: "local"
-        driver_opts:
-              type: none
-              device: /home/vagrant/oms-docker/oms-events/ #NOTE needs full path
-              o: bind
-    code-events-frontend:
-#        driver: "local"
-        driver_opts:
-              type: none
-              device: /home/vagrant/oms-docker/oms-events-frontend/ #NOTE needs full path
-              o: bind
-    code-serviceregistry:
-#        driver: "local"
-        driver_opts:
-              type: none
-              device: /home/vagrant/oms-docker/oms-serviceregistry/ #NOTE needs full path
-              o: bind
-    code-applications: 
-#        driver: "local"
-        driver_opts:
-              type: none
-              device: /home/vagrant/oms-docker/oms-applications/ #NOTE needs full path
-              o: bind
-    code-applications-frontend:
-#        driver: "local"
-        driver_opts:
-              type: none
-              device: /home/vagrant/oms-docker/oms-applications-frontend/ #NOTE needs full path
-              o: bind
+
 
 ### Networks Setup ###########################################
         
