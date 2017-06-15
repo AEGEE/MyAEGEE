@@ -91,6 +91,7 @@ RUN chown -R laradock:laradock /var/scripts/
 WORKDIR /var/www
 
 CMD chown -R laradock:laradock /var/www \
+    && touch /var/shared/api-key \ # Create any file in the shared volume to overcome docker bug
     && chown -R laradock:laradock /var/shared \
     && su - laradock -c 'sh /var/scripts/bootstrap.sh' \
-    && gulp watch
+    && gulp watch # TODO: also run this as laradock
