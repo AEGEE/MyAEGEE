@@ -20,12 +20,22 @@ else
 	php artisan db:seed      || { echo "Error at db:seed"; exit 15; }
 	php artisan config:cache || { echo "Error at config:cache (3)"; exit 16; }
 
+	# Make omscore write out the api-key
+  su laradock <<EOSU
+	echo "app()->call([app()->make('App\\Http\\Controllers\\ModuleController'), 'getSharedSecret'], []);" | php artisan tinker || { echo "Error at artisan tinker"; exit 17; }
+EOSU
+
+
+	# Copy the key into the volume mount so other 
+	cp /var/www/storage/key /var/shared/api-key
+
 	npm install
 
 	mkdir -p storage
+	mkdir -p /var/shared/strapstate
 
 	# Create a file on strapstate to indicate we do not need to run this again
-	touch /var/strapstate/omscore
+	touch /var/shared/strapstate/omscore
 
 	echo "Bootstrap finished"
 fi

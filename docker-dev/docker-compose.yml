@@ -25,7 +25,6 @@ services:
             - ./docker-compose.yml:/usr/src/docker-compose.yml:ro
             - ../oms-serviceregistry:/usr/src/app
             - shared:/usr/src/shared
-            - strapstate:/usr/scripts/strapstate:ro
 
 ### OMS CORE        #######################################
 ### Applications Code Container #############################
@@ -59,8 +58,6 @@ services:
         image: aegee/omscore-nginx:dev
         volumes_from:
             - omscore-data
-        volumes:
-            - ./logs/omscore/:/var/log/nginx
         links:
             - php-fpm
         expose:
@@ -124,7 +121,6 @@ services:
             - omsevents_media:/usr/app/media
             - "../oms-events:/usr/app/oms-events"
             - shared:/usr/shared:ro
-            - strapstate:/usr/scripts/strapstate
         links:
             - mongodb
         expose:
@@ -146,7 +142,6 @@ services:
         volumes:
             - "../oms-events-frontend:/usr/app/frontend:ro"
             - omsevents_media:/usr/app/media
-            - ./logs/omsevents-frontend/:/var/log/nginx
         expose:
             - "8083"
         labels:
@@ -182,7 +177,7 @@ services:
 ### Applications frontend #######################################
 
     omsapplications-frontend:
-        image: aegee/omsapplications:dev
+        image: aegee/omsapplications-frontend:dev
         volumes:
             - "../oms-applications-frontend:/usr/app:ro"
         expose:
@@ -206,6 +201,4 @@ volumes:
     omsevents_media:
         driver: "local"
     shared:
-        driver: "local"
-    strapstate:
         driver: "local"
