@@ -21,9 +21,7 @@ else
 	php artisan config:cache || { echo "Error at config:cache (3)"; exit 16; }
 
 	# Make omscore write out the api-key
-  su laradock <<EOSU
 	echo "app()->call([app()->make('App\\Http\\Controllers\\ModuleController'), 'getSharedSecret'], []);" | php artisan tinker || { echo "Error at artisan tinker"; exit 17; }
-EOSU
 
 
 	# Copy the key into the volume mount so other 
