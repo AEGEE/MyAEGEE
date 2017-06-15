@@ -58,7 +58,8 @@ RUN apt-get update && \
         npm  && \
     apt-get clean && \
     npm install -g gulp && \
-    npm cache clean --force
+    npm cache clean --force && \
+    ln -s /usr/bin/nodejs /usr/bin/node
 
 #####################################
 # Composer:
@@ -80,4 +81,6 @@ RUN . ~/.bashrc
 ADD ./.env /root/.env
 ADD ./bootstrap.sh /root/bootstrap.sh
 
-CMD sh /root/bootstrap.sh && /sbin/my_init
+WORKDIR /var/www
+
+CMD sh /root/bootstrap.sh && gulp watch

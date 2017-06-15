@@ -20,6 +20,8 @@ else
 	php artisan db:seed      || { echo "Error at db:seed"; exit 15; }
 	php artisan config:cache || { echo "Error at config:cache (3)"; exit 16; }
 
+	npm install
+
 	mkdir -p storage
 
 	# Create a file on strapstate to indicate we do not need to run this again
