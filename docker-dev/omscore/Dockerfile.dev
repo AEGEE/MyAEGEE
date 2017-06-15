@@ -70,6 +70,11 @@ RUN curl -s http://getcomposer.org/installer | php && \
     echo "export PATH=${PATH}:/var/www/vendor/bin" >> ~/.bashrc && \
     mv composer.phar /usr/local/bin/composer
 
+ARG PUID=1000
+ARG PGID=1000
+RUN groupadd -g $PGID laradock && \
+    useradd -u $PUID -g laradock -m laradock
+
 # Source the bash
 RUN . ~/.bashrc
 
@@ -78,9 +83,14 @@ RUN . ~/.bashrc
 # omscore bootstrap
 #####################################
 
-ADD ./.env /root/.env
-ADD ./bootstrap.sh /root/bootstrap.sh
+ADD ./.env /var/scripts/.env
+ADD ./bootstrap.sh /var/scripts/bootstrap.sh
+
+RUN chown -R laradock:laradock /var/scripts/
 
 WORKDIR /var/www
 
-CMD sh /root/bootstrap.sh && gulp watch
+CMD chown -R laradock:laradock /var/www \
+    && chown -R laradock:laradock /var/shared \
+    && su - laradock -c 'sh /var/scripts/bootstrap.sh' \
+    && gulp watch

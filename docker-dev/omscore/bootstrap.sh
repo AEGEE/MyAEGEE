@@ -2,7 +2,6 @@
 
 #better safe than sorry - I still have to read about permissions for volumes
 # in overlay-fs
-chown -R laradock:laradock /var/www  && chown -R laradock:laradock /var/shared/core
 
 if [ -f "/var/strapstate/omscore" ]
 then
@@ -10,7 +9,7 @@ then
 else
 	echo "Bootstrapping..."
   sleep 15 #give time to postgres container to startup
-    cp /root/.env /var/www/.env
+    cp /var/scripts/.env /var/www/.env
 	cd /var/www
     composer install || { echo "Error at composer install"; exit 10; }
 	php artisan config:cache || { echo "Error at config:cache"; exit 11; }
