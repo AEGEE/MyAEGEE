@@ -10,9 +10,9 @@ then
 else
 	echo "Bootstrapping..."
   sleep 15 #give time to postgres container to startup
-  su laradock -c 'cp /var/shared/core/.env /var/www/.env'
+    cp /root/.env /var/www/.env
 	cd /var/www
-  su laradock -c 'composer install || { echo "Error at composer install"; exit 10; }'
+    composer install || { echo "Error at composer install"; exit 10; }
 	php artisan config:cache || { echo "Error at config:cache"; exit 11; }
 	php artisan migrate      || { echo "Error at migrate"; exit 12; }
 	php artisan key:generate || { echo "Error at key:generate"; exit 13; }
