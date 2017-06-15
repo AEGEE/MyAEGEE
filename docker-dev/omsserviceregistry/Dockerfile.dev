@@ -1,0 +1,10 @@
+FROM node:8
+
+RUN npm install -g supervisor bunyan && \
+	npm cache clean --force
+
+RUN mkdir -p /usr/src/shared
+
+WORKDIR /usr/src/app
+
+CMD npm install && supervisor -e 'node,js,json' /usr/src/app/index.js | bunyan
