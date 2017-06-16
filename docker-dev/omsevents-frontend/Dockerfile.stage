@@ -6,8 +6,7 @@ RUN apk update \
     && adduser -D -H -u 1000 -s /bin/bash www-data \
 	&& rm /etc/nginx/conf.d/default.conf 
     
-RUN mkdir -p /usr/app/ \
-	&& git clone -b dev https://github.com/AEGEE/oms-events-frontend.git /usr/app \
+RUN git clone -b dev https://github.com/AEGEE/oms-events-frontend.git /usr/app \
     && mkdir -p /usr/app/frontend \
     && mkdir -p /usr/app/media \
     && mkdir -p /usr/scripts \

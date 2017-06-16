@@ -96,6 +96,8 @@ RUN chown -R laradock:laradock /var/scripts/ \
     && chown -R laradock:laradock /var/www
 
 # Create any file in the shared volume to overcome docker bug
-CMD sh /var/scripts/bootstrap.sh
+CMD sh /var/scripts/bootstrap.sh \
+    && chown -R laradock:laradock /var/www \
+    && chown -R laradock:laradock /var/shared
 
 
