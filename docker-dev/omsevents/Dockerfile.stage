@@ -1,0 +1,25 @@
+FROM node:8
+
+RUN npm install -g supervisor bunyan && \
+	npm cache clean --force
+
+RUN mkdir -p /usr/src/shared
+
+###UNTIL HERE SAME AS SERVICEREGISTRY
+#WORKDIR /usr/src/app
+
+RUN mkdir -p /usr/app/ \
+        && mkdir -p /usr/app/frontend \
+        && mkdir -p /usr/app/media \
+        && mkdir -p /usr/scripts \
+        && mkdir -p /usr/shared
+
+WORKDIR /usr/app
+
+RUN git clone -b dev https://github.com/AEGEE/oms-events.git /usr/app/oms-events \
+	&& npm install
+ADD ./configFile.json /usr/app/oms-events/lib/config/configFile.json
+
+CMD supervisor -e 'node,js,json' /usr/app/oms-events/lib/server.js | bunyan
+
+EXPOSE 8082

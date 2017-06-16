@@ -86,13 +86,16 @@ RUN . ~/.bashrc
 ADD ./.env /var/scripts/.env
 ADD ./bootstrap.sh /var/scripts/bootstrap.sh
 
-RUN chown -R laradock:laradock /var/scripts/
-
 WORKDIR /var/www
 
+RUN chown -R laradock:laradock /var/scripts/ \
+    && git clone -b fix-modules https://github.com/AEGEE/oms-neo-core.git /var/www \
+    && composer install \
+    && npm install \
+    && gulp --prod \
+    && chown -R laradock:laradock /var/www
+
 # Create any file in the shared volume to overcome docker bug
-CMD chown -R laradock:laradock /var/www \
-    && touch /var/shared/api-key \
-    && chown -R laradock:laradock /var/shared \
-    && su - laradock -c 'sh /var/scripts/bootstrap.sh' \
-    && gulp watch # TODO: also run this as laradock
+CMD sh /var/scripts/bootstrap.sh
+
+

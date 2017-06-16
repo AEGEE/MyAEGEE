@@ -6,7 +6,7 @@ services:
 ### Proxy container #######################################
 
     traefik:
-        image: aegee/traefik:dev
+        image: aegee/traefik:staging
         ports:
             - "80:80"
             - "8080:8080"
@@ -17,46 +17,37 @@ services:
 ### service registry #######################################
 
     omsserviceregistry:
-        image: aegee/omsserviceregistry:dev
+        image: aegee/omsserviceregistry:staging
         ports:
             - "7000:7000"
         volumes:
-            - ./docker-compose.yml:/usr/src/docker-compose.yml:ro
-            - ../oms-serviceregistry:/usr/src/app
             - shared:/usr/src/shared
 
 ### OMS CORE        #######################################
-### Applications Code Container #############################
-
-    omscore-data:
-        image: tianon/true
-        volumes:
-            - "../oms-core:/var/www"
-            - shared:/var/shared
-
 ### Workspace Utilities Container ###########################
 
     omscore:
-        image: aegee/omscore:dev
-        volumes_from:
-            - omscore-data
+        image: aegee/omscore:staging
+        volumes:
+            - omscore-code:/var/www
+            - shared:/var/shared
 
 
 ### PHP-FPM Container #######################################
 
     php-fpm:
-        image: aegee/php-fpm:dev
+        image: aegee/php-fpm:staging
         volumes_from:
-            - omscore-data
+            - omscore
         expose:
             - "9000"
 
 ### Nginx Server Container ##################################
 
     omscore-nginx:
-        image: aegee/omscore-nginx:dev
+        image: aegee/omscore-nginx:staging
         volumes_from:
-            - omscore-data
+            - omscore
         links:
             - php-fpm
         expose:
@@ -84,15 +75,6 @@ services:
             POSTGRES_USER: homestead
             POSTGRES_PASSWORD: secret
 
-### pgAdmin Container #######################################
-
-    pgadmin:
-        image: fenglc/pgadmin4
-        ports:
-            - "8081:5050"
-        links:
-            - postgres
-
 ### OMS EVENTS        #######################################
 ### mongodb Container #######################################
 
@@ -103,22 +85,12 @@ services:
         volumes:
             - mongodb:/data/db
 
-### mongoui Container #######################################
-
-    mongoui:
-        image: aegee/mongoui:dev
-        ports:
-            - "8082:3000"
-        links:
-            - mongodb
-
 ### Omsevents backend #######################################
 
     omsevents:
-        image: aegee/omsevents:dev
+        image: aegee/omsevents:staging
         volumes:
             - omsevents_media:/usr/app/media
-            - "../oms-events:/usr/app/oms-events"
             - shared:/usr/shared:ro
         links:
             - mongodb
@@ -137,9 +109,8 @@ services:
 ### Omsevents frontend #######################################
 
     omsevents-frontend:
-        image: aegee/omsevents-frontend:dev
+        image: aegee/omsevents-frontend:staging
         volumes:
-            - "../oms-events-frontend:/usr/app/frontend:ro"
             - omsevents_media:/usr/app/media
         expose:
             - "8083"
@@ -156,9 +127,8 @@ services:
 ### Applications to oms-events #######################################
 
     omsapplications:
-        image: aegee/omsapplications:dev
+        image: aegee/omsapplications:staging
         volumes:
-            - "../oms-applications:/usr/app"
             - shared:/usr/shared:ro
         links:
             - mongodb
@@ -176,9 +146,7 @@ services:
 ### Applications frontend #######################################
 
     omsapplications-frontend:
-        image: aegee/omsapplications-frontend:dev
-        volumes:
-            - "../oms-applications-frontend:/usr/app:ro"
+        image: aegee/omsapplications-frontend:staging
         expose:
             - "8086"
         labels:
@@ -200,4 +168,6 @@ volumes:
     omsevents_media:
         driver: "local"
     shared:
+        driver: "local"
+    omscore-code:
         driver: "local"
