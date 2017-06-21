@@ -3,11 +3,24 @@
 ################################################################
 logLevel = "DEBUG"
 
-defaultEntryPoints = ["http"]
+defaultEntryPoints = ["http", "https"]
 [entryPoints]
   [entryPoints.http]
   address = ":80"
+  [entryPoints.http.redirect]
+  entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
 
+################################################################
+# ACME configuration
+################################################################
+[acme]
+email = "derk.snijders@aegee.org"
+storage = "acme.json"
+entryPoint = "https"
+onDemand = false
+OnHostRule = true
 
 ################################################################
 # Web configuration backend
