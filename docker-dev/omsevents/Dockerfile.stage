@@ -8,8 +8,8 @@ RUN mkdir -p /usr/src/shared
 ###UNTIL HERE SAME AS SERVICEREGISTRY
 #WORKDIR /usr/src/app
 
-RUN git clone -b dev https://github.com/AEGEE/oms-events.git /usr/app/oms-events \
-	&& cd /usr/app/oms-events \
+RUN git clone -b dev https://github.com/AEGEE/oms-events.git /usr/app \
+	&& cd /usr/app \
 	&& npm install
 
 RUN mkdir -p /usr/app/frontend \
@@ -17,11 +17,11 @@ RUN mkdir -p /usr/app/frontend \
         && mkdir -p /usr/scripts \
         && mkdir -p /usr/shared
 
-WORKDIR /usr/app
+WORKDIR /usr/app/
 
 
-ADD ./configFile.json /usr/app/oms-events/lib/config/configFile.json
+ADD ./configFile.json /usr/app/lib/config/configFile.json
 
-CMD supervisor -e 'node,js,json' /usr/app/oms-events/lib/server.js | bunyan
+CMD supervisor -e 'node,js,json' /usr/app/lib/server.js | bunyan
 
 EXPOSE 8082

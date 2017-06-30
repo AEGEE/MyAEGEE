@@ -18,8 +18,8 @@ WORKDIR /usr/app
 
 ADD ./configFile.json /usr/scripts/configFile.json
 
-CMD cp /usr/scripts/configFile.json /usr/app/oms-events/lib/config/configFile.json && \
+CMD cp /usr/scripts/configFile.json /usr/app/lib/config/configFile.json && \
 	npm install && \
-	supervisor -e 'node,js,json' /usr/app/oms-events/lib/server.js | bunyan
+	supervisor -e 'node,js,json' /usr/app/lib/server.js | bunyan
 
 EXPOSE 8082
