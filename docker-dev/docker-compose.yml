@@ -18,6 +18,15 @@ services:
 #https://github.com/AEGEE/oms-docker/blob/45dff00d8db4dbac1242cf43e7420c42ee723250/docker-dev/docker-compose.yml
 
 ### OMS CORE        #######################################
+### Applications Code Container #############################
+
+    omscore-data:
+        image: tianon/true
+        volumes:
+            - "../oms-core:/var/www"
+            - shared:/var/shared
+
+            
 ### Workspace Utilities Container ###########################
 
     omscore:
