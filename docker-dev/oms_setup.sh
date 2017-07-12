@@ -68,7 +68,7 @@ if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "stable" ] || [ "$CONTAINER" =
     docker build -t omscore -f ./omscore/Dockerfile.$TAG ./omscore
     docker tag omscore aegee/omscore:$TAG
     if [ "$PUSH" == "YES" ]; then
-        echo "---- Building omscore ----"
+        echo "---- Pushing omscore ----"
         docker push aegee/omscore:$TAG
     fi
 fi
@@ -78,7 +78,7 @@ if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "stable" ] || [ "$CONTAINER" =
     docker build -t omscore-nginx -f ./omscore-nginx/Dockerfile.$TAG ./omscore-nginx
     docker tag omscore-nginx aegee/omscore-nginx:$TAG
     if [ "$PUSH" == "YES" ]; then
-        echo "---- Building omscore-nginx ----"
+        echo "---- Pushing omscore-nginx ----"
         docker push aegee/omscore-nginx:$TAG
     fi
 fi
@@ -88,7 +88,7 @@ if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "omsevents" ]; then
     docker build -t omsevents -f ./omsevents/Dockerfile.$TAG ./omsevents
     docker tag omsevents aegee/omsevents:$TAG
     if [ "$PUSH" == "YES" ]; then
-        echo "---- Building omsevents ----"
+        echo "---- Pushing omsevents ----"
         docker push aegee/omsevents:$TAG
     fi
 fi
@@ -98,7 +98,7 @@ if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "omsevents-frontend" ]; then
     docker build -t omsevents-frontend -f ./omsevents-frontend/Dockerfile.$TAG ./omsevents-frontend
     docker tag omsevents-frontend aegee/omsevents-frontend:$TAG
     if [ "$PUSH" == "YES" ]; then
-        echo "---- Building omsevents-frontend ----"
+        echo "---- Pushing omsevents-frontend ----"
         docker push aegee/omsevents-frontend:$TAG
     fi
 fi
@@ -108,7 +108,7 @@ if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "omsserviceregistry" ]; then
     docker build -t omsserviceregistry -f ./omsserviceregistry/Dockerfile.$TAG ./omsserviceregistry
     docker tag omsserviceregistry aegee/omsserviceregistry:$TAG
     if [ "$PUSH" == "YES" ]; then
-        echo "---- Building omsserviceregistry ----"
+        echo "---- Pushing omsserviceregistry ----"
         docker push aegee/omsserviceregistry:$TAG
     fi
 fi
@@ -118,7 +118,7 @@ if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "stable" ] || [ "$CONTAINER" =
     docker build -t php-fpm -f ./php-fpm/Dockerfile.$TAG ./php-fpm
     docker tag php-fpm aegee/php-fpm:$TAG
     if [ "$PUSH" == "YES" ]; then
-        echo "---- Building php-fpm ----"
+        echo "---- Pushing php-fpm ----"
         docker push aegee/php-fpm:$TAG
     fi
 fi
@@ -128,7 +128,7 @@ if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "stable" ] || [ "$CONTAINER" =
     docker build -t traefik -f ./traefik/Dockerfile.$TAG ./traefik
     docker tag traefik aegee/traefik:$TAG
     if [ "$PUSH" == "YES" ]; then
-        echo "---- Building traefik ----"
+        echo "---- Pushing traefik ----"
         docker push aegee/traefik:$TAG
     fi
 fi
