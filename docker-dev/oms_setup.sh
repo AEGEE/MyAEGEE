@@ -83,7 +83,7 @@ if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "stable" ] || [ "$CONTAINER" =
     fi
 fi
 
-if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "omsevents" ]; thenpp
+if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "omsevents" ]; then
     echo -e "###\n###### Building container: omsevents \n###"
     docker build -t omsevents -f ../oms-events/docker/Dockerfile.$TAG ../oms-events/docker
     docker tag omsevents aegee/omsevents:$TAG
