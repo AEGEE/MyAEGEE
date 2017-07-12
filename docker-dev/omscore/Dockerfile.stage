@@ -83,7 +83,7 @@ RUN . ~/.bashrc
 # omscore bootstrap
 #####################################
 
-ADD ./.env /var/scripts/.env
+ADD ./example.env /var/scripts/.env
 ADD ./bootstrap.sh /var/scripts/bootstrap.sh
 
 WORKDIR /var/www
@@ -100,5 +100,3 @@ CMD chown -R laradock:laradock /var/www \
     && touch /var/shared/api-key \
     && chown -R laradock:laradock /var/shared \
     && su - laradock -c 'sh /var/scripts/bootstrap.sh'
-
-

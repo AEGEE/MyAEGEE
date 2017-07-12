@@ -84,7 +84,7 @@ RUN . ~/.bashrc
 # omscore bootstrap
 #####################################
 
-ADD ./.env /var/scripts/.env
+ADD ./example.env /var/scripts/.env
 ADD ./bootstrap.sh /var/scripts/bootstrap.sh
 
 RUN chown -R laradock:laradock /var/scripts/
