@@ -65,7 +65,7 @@ fi
 
 if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "stable" ] || [ "$CONTAINER" == "omscore" ]; then
     echo -e "###\n###### Building container: omscore ----"
-    docker build -t omscore -f ./omscore/Dockerfile.$TAG ./omscore
+    docker build -t omscore -f ../oms-core/docker/Dockerfile.$TAG ../oms-core/docker
     docker tag omscore aegee/omscore:$TAG
     if [ "$PUSH" == "YES" ]; then
         echo -e "###\n###### Pushing container: omscore \n###"
