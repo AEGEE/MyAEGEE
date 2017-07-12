@@ -37,7 +37,7 @@ if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "mongoui" ]; then
     echo -e "###\n###### Building container: mongoui \n###"
     docker build -t mongoui -f ./mongoui/Dockerfile.$TAG ./mongoui
     docker tag mongoui aegee/mongoui:$TAG
-    if [ "$PUSH" == "YES"]; then
+    if [ "$PUSH" == "YES" ]; then
         echo -e "###\n###### Pushing container: mongoui \n###"
         docker push aegee/mongoui:$TAG
     fi
