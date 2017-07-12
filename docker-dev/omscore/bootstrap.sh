@@ -20,10 +20,11 @@ else
 	php artisan config:cache || { echo "Error at config:cache (3)"; exit 16; }
 
 	# Make omscore write out the api-key
+    echo "Write out API Key:"
 	echo "app()->call([app()->make('App\\Http\\Controllers\\ModuleController'), 'getSharedSecret'], []);" | php artisan tinker || { echo "Error at artisan tinker"; exit 17; }
 
 
-	# Copy the key into the volume mount 
+	# Copy the key into the volume mount
 	cp /var/www/storage/key /var/shared/api-key
 
 	npm install
