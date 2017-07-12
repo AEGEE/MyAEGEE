@@ -83,9 +83,9 @@ if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "stable" ] || [ "$CONTAINER" =
     fi
 fi
 
-if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "omsevents" ]; then
+if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "omsevents" ]; thenpp
     echo -e "###\n###### Building container: omsevents \n###"
-    docker build -t omsevents -f ./omsevents/Dockerfile.$TAG ./omsevents
+    docker build -t omsevents -f ../oms-events/docker/Dockerfile.$TAG ../oms-events/docker
     docker tag omsevents aegee/omsevents:$TAG
     if [ "$PUSH" == "YES" ]; then
         echo -e "###\n###### Pushing container: omsevents \n###"
@@ -95,7 +95,7 @@ fi
 
 if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "omsevents-frontend" ]; then
     echo -e "###\n###### Building container: omsevents-frontend \n###"
-    docker build -t omsevents-frontend -f ./omsevents-frontend/Dockerfile.$TAG ./omsevents-frontend
+    docker build -t omsevents-frontend -f ../oms-events-frontend/docker/Dockerfile.$TAG ../oms-events-frontend/docker
     docker tag omsevents-frontend aegee/omsevents-frontend:$TAG
     if [ "$PUSH" == "YES" ]; then
         echo -e "###\n###### Pushing container: omsevents-frontend \n###"
