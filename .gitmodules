@@ -7,12 +7,3 @@
 [submodule "oms-events-frontend"]
 	path = oms-events-frontend
 	url = https://github.com/AEGEE/oms-events-frontend.git
-[submodule "oms-applications"]
-  path = oms-applications
-	url = https://github.com/AEGEE/oms-applications.git
-[submodule "oms-applications-frontend"]
-  path = oms-applications-frontend
-	url = https://github.com/AEGEE/oms-applications-frontend.git
-[submodule "oms-serviceregistry"]
-	path = oms-serviceregistry
-  url = https://github.com/AEGEE/oms-serviceregistry.git
