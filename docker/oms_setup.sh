@@ -64,7 +64,7 @@ if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "omsapplications-frontend" ]; 
 fi
 
 if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "stable" ] || [ "$CONTAINER" == "omscore" ]; then
-    echo -e "###\n###### Building container: omscore ----"
+    echo -e "###\n###### Building container: omscore \n###"
     docker build -t omscore -f ../oms-core/docker/Dockerfile.$TAG ../oms-core/docker
     docker tag omscore aegee/omscore:$TAG
     if [ "$PUSH" == "YES" ]; then
