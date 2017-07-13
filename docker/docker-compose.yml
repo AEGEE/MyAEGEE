@@ -2,84 +2,72 @@ version: '2'
 
 services:
 
+### OMS TUNNEL        #######################################
+### Proxy container #######################################
+
+    traefik:
+        image: aegee/traefik:dev
+        ports:
+            - "80:80"
+            - "8080:8080"
+            - "443:443"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+
+### service registry #######################################
+#https://github.com/AEGEE/oms-docker/blob/45dff00d8db4dbac1242cf43e7420c42ee723250/docker-dev/docker-compose.yml
+
+### OMS CORE        #######################################
 ### Applications Code Container #############################
 
     omscore-data:
         image: tianon/true
         volumes:
             - "../oms-core:/var/www"
-            - "./omscore/.env:/root/.env:ro"
-            - "./omscore/bootstrap.sh:/root/bootstrap.sh:ro"
+            - shared:/var/shared
 
+            
 ### Workspace Utilities Container ###########################
 
     omscore:
-        build:
-            context: ./omscore
-            args:
-                - COMPOSER_GLOBAL_INSTALL=false
-                - PUID=1000
-                - PGID=1000
-                - TZ=UTC
+        image: aegee/omscore:dev
         volumes_from:
             - omscore-data
-        extra_hosts:
-            # IMPORTANT: Replace with your Docker Host IP (will be appended to /etc/hosts)
-            - "dockerhost:10.0.75.1"
-        ports:
-           - "2222:22"
-        tty: true
+
 
 ### PHP-FPM Container #######################################
 
     php-fpm:
-        build:
-            context: ./php-fpm
-            args:
-                - INSTALL_XDEBUG=false
-                - INSTALL_MONGO=false
-                - INSTALL_ZIP_ARCHIVE=false
-                - INSTALL_MEMCACHED=false
-                - INSTALL_OPCACHE=false
-                - INSTALL_AEROSPIKE_EXTENSION=false
-                - CODEIGNITER=false
-            dockerfile: Dockerfile-70
+        image: aegee/php-fpm:dev
         volumes_from:
             - omscore-data
         expose:
             - "9000"
-        links:
-            - omscore
-        extra_hosts:
-            # IMPORTANT: Replace with your Docker Host IP (will be appended to /etc/hosts)
-            - "dockerhost:10.0.75.1"
-        environment:
-            # IMPORTANT: Set the Remote Interpreter entry matching name to `laravel`
-            - PHP_IDE_CONFIG=serverName=laravel
 
 ### Nginx Server Container ##################################
 
     omscore-nginx:
-        build:
-            context: ./omscore-nginx
-            args:
-                - PHP_UPSTREAM=php-fpm
+        image: aegee/omscore-nginx:dev
         volumes_from:
             - omscore-data
-        volumes:
-            - ./logs/nginx/:/var/log/nginx
-        ports:
-            - "80:80"
-            - "443:443"
         links:
             - php-fpm
-
-
+        expose:
+            - "80"
+        labels:
+            - "traefik.backend=omscore"
+            - "traefik.port=80"
+            - "traefik.frontend.rule=HostRegexp:{domain:[a-z0-9.]+}"
+            - "traefik.frontend.priority=10"
+            - "traefik.enable=true"
+            - "registry.categories=(users, 10);(antennae, 10);(notifications, 0)"
+            - "registry.backend=/api"
+            - "registry.description=The core module with both backend and frontend"
 
 ### PostgreSQL Container ####################################
 
     postgres:
-        build: ./postgres
+        image: postgres:latest
         volumes:
             - postgres:/var/lib/postgresql/data
         expose:
@@ -92,47 +80,20 @@ services:
 ### pgAdmin Container #######################################
 
     pgadmin:
-        build: ./pgadmin
+        image: fenglc/pgadmin4
         ports:
-            - "5050:5050"
+            - "8081:5050"
         links:
             - postgres
 
 ### OMS EVENTS        #######################################
 ### mongodb Container #######################################
-
-    mongodb:
-        build: ./mongo
-        volumes:
-            - mongodb:/data/db
-
-### Omsevents backend #######################################
-
-    omsevents:
-        build:
-            context: ./omsevents
-        volumes:
-            - "../oms-events-frontend:/usr/app/frontend"
-            - "../oms-events:/usr/app/oms-events"
-            - "./api-key:/root/api-key"
-            - "./omsevents/bootstrap.sh:/root/bootstrap.sh:ro"
-            - "./omsevents/configFile.json:/root/configFile.json:ro"
-        links:
-            - mongodb
-
-### Omsevents frontend #######################################
-
-    omsevents-frontend:
-        build:
-            context: ./omsevents-frontend
-        volumes:
-            - "../oms-events-frontend:/usr/app/frontend:ro"
-        ports:
-            - "8083:8083"
-        links:
-            - omsevents
+#https://github.com/AEGEE/oms-docker/blob/45dff00d8db4dbac1242cf43e7420c42ee723250/docker-dev/docker-compose.yml
 
 
+### OMS APPLICATIONS           #######################################
+### Applications to oms-events #######################################
+#https://github.com/AEGEE/oms-docker/blob/45dff00d8db4dbac1242cf43e7420c42ee723250/docker-dev/docker-compose.yml
 
 ### Volumes Setup ###########################################
 
@@ -141,5 +102,7 @@ volumes:
         driver: "local"
     mongodb:
         driver: "local"
-
-
+    omsevents_media:
+        driver: "local"
+    shared:
+        driver: "local"
