@@ -1,0 +1,26 @@
+language: shell
+dist: trusty
+sudo: required
+
+before_install:
+    - sudo apt-get update
+    - sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+    - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    - sudo apt-get update || true
+    - sudo apt-get install docker-ce
+    - sudo docker run hello-world
+
+
+before_script:
+    - cd docker
+    - docker-compose up -d
+    - docker-compose logs
+
+
+script:
+    - sudo docker-compose run -T omscore composer install
+    - sudo docker-compose run -T omscore php artisan key:generate
+    - sudo docker-compose run -T omscore php artisan config:cache
+    - sudo docker-compose run -T omscore php artisan migrate:refresh --seed
+    - sudo docker-compose run -T omscore ./vendor/bin/phpunit
