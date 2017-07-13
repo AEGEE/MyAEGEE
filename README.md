@@ -1,26 +1,16 @@
 # Description
-This is a dev environment based on Docker, as an alternative to the homestead virtualization which already exists. As Docker is not yet too mature on OSX and Windows, I'd recommend using the Vagrantfile attached which will bootstrap a VM where you will be able to use the power of Docker. This will also allow you to cluster VMs with Docker swarm.
+This is a dev environment based on Docker, as an alternative to the homestead virtualization which already exists. Docker works best on Linux, we as developers are mainly using Ubuntu to test it. With a Linux operating system installation of the system is really simple, if you do not have Linux you can look into setting up a Virtual Machine yourself or trying out our Vagrant option, which is at the time of writing not 100% stable.
 
 # Installing
 
-On all operating systems:
+Linux:
 ```
 git clone --recursive https://github.com/AEGEE/oms-docker.git
-vagrant up
+cd oms-docker/docker-dev
+sudo docker-compose up
 ```
 
-If you are on linux and want an installation without Vagrant:
-```
-git clone --recursive https://github.com/AEGEE/oms-docker.git
-cd oms-docker/docker
-# If you have GNUmake (90% of chance yes)
-make bootstrap
-# If you have a really minimal installation
-docker-compose up -d # But no rush! Wait until the bootstrap procedure has finished, check when with the following:
-docker-compose logs -f omscore-bootstrap && docker-compose logs -f omsevents-bootstrap
-```
-
-NOTE: Because Traefik works reading the URL of the request, it is necessary to add to your `/etc/hosts` file a name for your address (127.0.0.1 if bare Docker, 192.168.192.168 if Vagrant) - Traefik is configured under the name **appserver**. 
+NOTE: Because Traefik works reading the URL of the request, it is necessary to add to your `/etc/hosts` file a name for your address (127.0.0.1 if bare Docker, 192.168.192.168 if Vagrant) - Traefik is configured under the name **appserver**.
 
 Open you browser on `http://appserver` and login with the default credentials. Navigate to the modules tab and activate all the microservices
 
