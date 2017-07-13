@@ -14,11 +14,12 @@ before_install:
 
 before_script:
     - cd docker
-    - docker-compose up -d
-    - docker-compose logs
 
 
 script:
+    - sudo bash ./oms_setup.sh
+    - docker-compose up -d
+    - docker-compose logs
     - sudo docker-compose run -T omscore composer install
     - sudo docker-compose run -T omscore php artisan key:generate
     - sudo docker-compose run -T omscore php artisan config:cache
