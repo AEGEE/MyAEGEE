@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Move this file 1 level above the oms-docker installation!
+
 echo -e "###\n### Deploying OMS...\n###"
 cd oms-docker/docker
 docker-compose down -v
