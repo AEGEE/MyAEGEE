@@ -21,12 +21,12 @@ script:
     - docker-compose up -d
     - docker-compose logs
     - sleep 60
-    - sudo docker-compose exec -T traefik true 2>/dev/null || exit 1
-    - sudo docker-compose exec -T omscore true 2>/dev/null || exit 1
-    - sudo docker-compose exec -T php-fpm true 2>/dev/null || exit 1
-    - sudo docker-compose exec -T omscore-nginx true 2>/dev/null || exit 1
-    - sudo docker-compose exec -T postgres true 2>/dev/null || exit 1
-    - sudo docker-compose exec -T pgadmin true 2>/dev/null || exit 1
+    - sudo docker-compose exec -T -d traefik help 2>/dev/null || exit 1
+    - sudo docker-compose exec -T -d omscore true 2>/dev/null || exit 1
+    - sudo docker-compose exec -T -d php-fpm true 2>/dev/null || exit 1
+    - sudo docker-compose exec -T -d omscore-nginx true 2>/dev/null || exit 1
+    - sudo docker-compose exec -T -d postgres true 2>/dev/null || exit 1
+    - sudo docker-compose exec -T -d pgadmin true 2>/dev/null || exit 1
     - sudo docker-compose exec -T omscore composer install
     - sudo docker-compose exec -T omscore php artisan key:generate
     - sudo docker-compose exec -T omscore php artisan config:cache
