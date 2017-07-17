@@ -1,11 +1,14 @@
-# Description
+#AEGEE-Europe's Online Membership System
+## OMS-docker
+
+## Description
 The provisional repository for the Online Management System (OMS), an open-source project of student association AEGEE-Europe.
 
 It makes use of docker, and docker-compose.
 
 [Read more about it.](https://oms-project.atlassian.net/wiki/spaces/GENERAL/overview)
 
-# Installing
+## Installing
 
 [Install docker and docker-compose](https://docs.docker.com/compose/install/)
 
@@ -20,13 +23,13 @@ sudo docker-compose up
 
 [**More information on the installation**](https://oms-project.atlassian.net/wiki/spaces/GENERAL/pages/17235970/Installation)
 
-# Usage
+## Usage
 After running the system, you can navigate to it in your web browser: http://localhost
 
 For more detailed usage guides, see the repository of the containers.
 
-# Contribute
+## Contribute
 [You can read more about contributing on our confluence.](https://oms-project.atlassian.net/wiki/spaces/GENERAL/overview)
 
-# License
+## License
 Apache License 2.0, see LICENSE.txt for more information.
