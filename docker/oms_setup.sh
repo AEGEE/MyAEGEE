@@ -1,12 +1,13 @@
 #!/bin/bash
 # FROM: https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
 
-echo "USAGE: [sudo] bash ./oms_setup.sh [-c=? | -t=? | --push]";
+echo -e "USAGE: bash ./oms_setup.sh [[-c=? | -t=? | --push] | --reset]\n";
 
 # Default settings
 CONTAINER=stable
 PUSH=NO
 TAG=dev
+RESET=NO
 
 for i in "$@"
 do
@@ -19,6 +20,10 @@ case $i in
     PUSH=YES
     shift # past argument=value
     ;;
+    --reset)
+    RESET=YES
+    shift # past argument=value
+    ;;
     -t=*|--tag=*)
     TAG="${i#*=}"
     shift # past argument=value
@@ -29,9 +34,20 @@ case $i in
 esac
 
 done
-echo "CONTAINER     (-c=?)      = ${CONTAINER}"
-echo "PUSH          (--push)    = ${PUSH}"
-echo "TAG           (-t=?)      = ${TAG}"
+echo -e "CONTAINER     (-c=?)          = ${CONTAINER}"
+echo -e "PUSH          (--push)        = ${PUSH}"
+echo -e "TAG           (-t=?)          = ${TAG}"
+echo -e "TAG           (--reset)       = ${RESET}\n\n"
+
+
+if [ "$RESET" == "YES" ]; then
+    echo -e "###\n###### RESETTING _ALL_ DOCKER CONTAINERS + IMAGES\n###\n\n"
+
+    docker stop $(docker ps -aq)
+    docker rm $(docker ps -aq)
+    docker rmi $(docker images -a)
+    exit 0
+fi
 
 if [ "$CONTAINER" == "all" ] || [ "$CONTAINER" == "mongoui" ]; then
     echo -e "###\n###### Building container: mongoui \n###"
