@@ -20,8 +20,15 @@ script:
     - sudo bash ./oms_setup.sh
     - docker-compose up -d
     - docker-compose logs
-    - sudo docker-compose run -T omscore composer install
-    - sudo docker-compose run -T omscore php artisan key:generate
-    - sudo docker-compose run -T omscore php artisan config:cache
-    - sudo docker-compose run -T omscore php artisan migrate:refresh --seed
-    - sudo docker-compose run -T omscore ./vendor/bin/phpunit
+    - sleep 60
+    - sudo docker-compose exec -T traefik true 2>/dev/null || exit 1
+    - sudo docker-compose exec -T omscore true 2>/dev/null || exit 1
+    - sudo docker-compose exec -T php-fpm true 2>/dev/null || exit 1
+    - sudo docker-compose exec -T omscore-nginx true 2>/dev/null || exit 1
+    - sudo docker-compose exec -T postgres true 2>/dev/null || exit 1
+    - sudo docker-compose exec -T pgadmin true 2>/dev/null || exit 1
+    - sudo docker-compose exec -T omscore composer install
+    - sudo docker-compose exec -T omscore php artisan key:generate
+    - sudo docker-compose exec -T omscore php artisan config:cache
+    - sudo docker-compose exec -T omscore php artisan migrate:refresh --seed
+    - sudo docker-compose exec -T omscore ./vendor/bin/phpunit
