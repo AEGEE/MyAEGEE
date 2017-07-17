@@ -27,3 +27,6 @@ For more detailed usage guides, see the repository of the containers.
 
 # Contribute
 [You can read more about contributing on our confluence.](https://oms-project.atlassian.net/wiki/spaces/GENERAL/overview)
+
+# License
+Apache License 2.0, see LICENSE.txt for more information.
