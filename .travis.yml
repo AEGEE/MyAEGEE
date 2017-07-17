@@ -19,8 +19,8 @@ before_script:
 script:
     - sudo bash ./oms_setup.sh
     - docker-compose up -d
-    - docker-compose logs
     - sleep 60
+    - docker-compose logs
     - sudo docker-compose exec -T -d traefik help 2>/dev/null || exit 1
     - sudo docker-compose exec -T -d omscore true 2>/dev/null || exit 1
     - sudo docker-compose exec -T -d php-fpm true 2>/dev/null || exit 1
