@@ -12,7 +12,7 @@ It makes use of docker, and docker-compose.
 Install OMS:
 ```
 git clone --recursive https://github.com/AEGEE/oms-docker.git
-cd oms-docker/docker-dev
+cd oms-docker/docker
 sudo docker-compose up
 ```
 
