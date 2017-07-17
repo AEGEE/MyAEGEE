@@ -1,4 +1,4 @@
-#AEGEE-Europe's Online Membership System
+# AEGEE-Europe's Online Membership System
 ## OMS-docker
 
 ## Description
