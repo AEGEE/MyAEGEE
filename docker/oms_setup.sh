@@ -37,7 +37,7 @@ done
 echo -e "CONTAINER     (-c=?)          = ${CONTAINER}"
 echo -e "PUSH          (--push)        = ${PUSH}"
 echo -e "TAG           (-t=?)          = ${TAG}"
-echo -e "TAG           (--reset)       = ${RESET}\n\n"
+echo -e "RESET         (--reset)       = ${RESET}\n\n"
 
 
 if [ "$RESET" == "YES" ]; then
