@@ -2,7 +2,7 @@
 ## OMS-docker
 
 ## Description
-The provisional repository for the Online Management System (OMS), an open-source project of student association AEGEE-Europe.
+The provisional repository for the [Online Management System (OMS)](https://github.com/AEGEE/oms-docker), an open-source project of student association [AEGEE-Europe](http://aegee.org/).
 
 It makes use of docker, and docker-compose.
 
