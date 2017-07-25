@@ -26,10 +26,14 @@ sudo docker-compose up
 ## Usage
 After running the system, you can navigate to it in your web browser: http://localhost
 
-For more detailed usage guides, see the repository of the containers.
+[For more detailed usage guides see this usage tips page.](https://oms-project.atlassian.net/wiki/spaces/GENERAL/pages/23655986/Usage+tips)
+For container-specific usage guides see the container's repository.
 
 ## Contribute
 [You can read more about contributing on our confluence.](https://oms-project.atlassian.net/wiki/spaces/GENERAL/overview)
+
+## Issue tracker
+[We use JIRA as our preferred issue tracker.](https://oms-project.atlassian.net/projects/GENERAL/issues)
 
 ## License
 Apache License 2.0, see LICENSE.txt for more information.
