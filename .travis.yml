@@ -32,3 +32,5 @@ script:
     - sudo docker-compose exec -T omscore php artisan config:cache
     - sudo docker-compose exec -T omscore php artisan migrate:refresh --seed
     - sudo docker-compose exec -T omscore ./vendor/bin/phpunit
+    - cd ../tests/LocalLoopbackTest
+    - sudo bash ./LocalLoopbackTest.sh
