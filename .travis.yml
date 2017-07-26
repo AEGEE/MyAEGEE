@@ -20,15 +20,15 @@ script:
     - sleep 60
     - cd docker
     - docker-compose logs
-    - sudo docker-compose exec -T -d traefik help 2>/dev/null || exit 1
+    - docker-compose exec -T -d traefik help 2>/dev/null || exit 1
     - cd ../oms-core/docker
     - docker-compose logs
-    - sudo docker-compose exec -T -d omscore true 2>/dev/null || exit 1
-    - sudo docker-compose exec -T -d php-fpm true 2>/dev/null || exit 1
-    - sudo docker-compose exec -T -d omscore-nginx true 2>/dev/null || exit 1
-    - sudo docker-compose exec -T -d postgres true 2>/dev/null || exit 1
-    - sudo docker-compose exec -T -d pgadmin true 2>/dev/null || exit 1
-    - cd ../../
+    - docker-compose exec -T -d omscore true 2>/dev/null || exit 1
+    - docker-compose exec -T -d php-fpm true 2>/dev/null || exit 1
+    - docker-compose exec -T -d omscore-nginx true 2>/dev/null || exit 1
+    - docker-compose exec -T -d postgres true 2>/dev/null || exit 1
+    - docker-compose exec -T -d pgadmin true 2>/dev/null || exit 1
     - docker-compose exec -T omscore ./vendor/bin/phpunit
+    - cd ../../
     - cd ./tests/LocalLoopbackTest
     - sudo bash ./LocalLoopbackTest.sh
