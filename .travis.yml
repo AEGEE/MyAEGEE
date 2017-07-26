@@ -5,16 +5,6 @@ sudo: required
 services:
   - docker
 
-before_script:
-    - bash ./run.sh --build --down_v
-    - sleep 60
-    - cd docker
-    - docker-compose logs
-    - cd ../oms-core/docker
-    - docker-compose logs
-    - cd ../../
-
-
 script:
     - bash ./run.sh --build --down_v
     - sleep 60
