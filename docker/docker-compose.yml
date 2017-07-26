@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 
 services:
 
@@ -6,6 +6,9 @@ services:
 ### Proxy container #######################################
 
     traefik:
+        build:
+          context: ./traefik/
+          dockerfile: ./Dockerfile.dev
         image: aegee/traefik:dev
         ports:
             - "80:80"

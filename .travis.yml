@@ -2,35 +2,33 @@ language: shell
 dist: trusty
 sudo: required
 
-before_install:
-    - sudo apt-get update
-    - sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
-    - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-    - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-    - sudo apt-get update || true
-    - sudo apt-get install docker-ce
-    - sudo docker run hello-world
-
+services:
+  - docker
 
 before_script:
+    - bash ./run.sh --build --down_v
+    - sleep 60
     - cd docker
+    - docker-compose logs
+    - cd ../oms-core/docker
+    - docker-compose logs
+    - cd ../../
 
 
 script:
-    - sudo bash ./oms_setup.sh
-    - docker-compose up -d
+    - bash ./run.sh --build --down_v
     - sleep 60
+    - cd docker
     - docker-compose logs
     - sudo docker-compose exec -T -d traefik help 2>/dev/null || exit 1
+    - cd ../oms-core/docker
+    - docker-compose logs
     - sudo docker-compose exec -T -d omscore true 2>/dev/null || exit 1
     - sudo docker-compose exec -T -d php-fpm true 2>/dev/null || exit 1
     - sudo docker-compose exec -T -d omscore-nginx true 2>/dev/null || exit 1
     - sudo docker-compose exec -T -d postgres true 2>/dev/null || exit 1
     - sudo docker-compose exec -T -d pgadmin true 2>/dev/null || exit 1
-    - sudo docker-compose exec -T omscore composer install
-    - sudo docker-compose exec -T omscore php artisan key:generate
-    - sudo docker-compose exec -T omscore php artisan config:cache
-    - sudo docker-compose exec -T omscore php artisan migrate:refresh --seed
-    - sudo docker-compose exec -T omscore ./vendor/bin/phpunit
-    - cd ../tests/LocalLoopbackTest
+    - cd ../../
+    - docker-compose exec -T omscore ./vendor/bin/phpunit
+    - cd ./tests/LocalLoopbackTest
     - sudo bash ./LocalLoopbackTest.sh
