@@ -5,15 +5,10 @@ default:
 start:  
 	export COMPOSE_PROJECT_NAME=myaegee && sudo docker-compose up -d
   
-bootstrap: start monitor
-
-monitor:
-	sudo docker-compose logs -f omscore-bootstrap && sudo docker-compose logs -f omsevents-bootstrap
-
 stop:  
 	sudo docker-compose down
   
-restart: stop bootstrap
+restart: stop start
 
 nuke:  
 	sudo docker-compose down -v
