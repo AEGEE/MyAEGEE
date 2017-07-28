@@ -80,7 +80,7 @@ services:
 ### pgAdmin Container #######################################
 
     pgadmin:
-        image: fenglc/pgadmin4
+        image: fenglc/pgadmin4:1.6
         ports:
             - "8081:5050"
         links:

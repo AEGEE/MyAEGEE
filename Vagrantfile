@@ -22,20 +22,12 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "./oms-core",              "/home/vagrant/oms-docker/oms-core"
   config.vm.synced_folder "./oms-events",              "/home/vagrant/oms-docker/oms-events"
   config.vm.synced_folder "./oms-events-frontend",              "/home/vagrant/oms-docker/oms-events-frontend"
-  config.vm.synced_folder "./oms-serviceregistry",              "/home/vagrant/oms-docker/oms-serviceregistry"
-  config.vm.synced_folder "./oms-applications",              "/home/vagrant/oms-docker/oms-applications"
-  config.vm.synced_folder "./oms-applications-frontend",              "/home/vagrant/oms-docker/oms-applications-frontend"
   config.vm.synced_folder "./docker",              "/home/vagrant/oms-docker/docker"
 
   config.vm.provision "docker" do |d|
-    d.pull_images "laradock/php-fpm:7.0--1.2"
-    d.pull_images "laradock/workspace:1.2"
     d.pull_images "tianon/true"
     d.pull_images "postgres:latest"
-    d.pull_images "fenglc/pgadmin4"
-    d.pull_images "node:7"
-    d.pull_images "nginx:alpine"
-    d.pull_images "mongo:latest"
+    d.pull_images "fenglc/pgadmin4:1.6"
     #d.build_image "/vagrant/app"
   end
 
