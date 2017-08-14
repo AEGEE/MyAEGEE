@@ -12,25 +12,25 @@ before_install:
     - sudo docker run hello-world
 
 
-before_script:
-    - cd docker
+#before_script:
+#    - cd docker
 
 
 script:
     - sudo bash ./oms_setup.sh
-    - docker-compose up -d
+    - ./docker-compose.sh up -d
     - sleep 60
-    - docker-compose logs
-    - sudo docker-compose exec -T -d traefik help 2>/dev/null || exit 1
-    - sudo docker-compose exec -T -d omscore true 2>/dev/null || exit 1
-    - sudo docker-compose exec -T -d php-fpm true 2>/dev/null || exit 1
-    - sudo docker-compose exec -T -d omscore-nginx true 2>/dev/null || exit 1
-    - sudo docker-compose exec -T -d postgres true 2>/dev/null || exit 1
-    - sudo docker-compose exec -T -d pgadmin true 2>/dev/null || exit 1
-    - sudo docker-compose exec -T omscore composer install
-    - sudo docker-compose exec -T omscore php artisan key:generate
-    - sudo docker-compose exec -T omscore php artisan config:cache
-    - sudo docker-compose exec -T omscore php artisan migrate:refresh --seed
-    - sudo docker-compose exec -T omscore ./vendor/bin/phpunit
-    - cd ../tests/LocalLoopbackTest
+    - ./docker-compose.sh logs
+    - sudo ./docker-compose.sh exec -T -d traefik help 2>/dev/null || exit 1
+    - sudo ./docker-compose.sh exec -T -d omscore true 2>/dev/null || exit 1
+    - sudo ./docker-compose.sh exec -T -d php-fpm true 2>/dev/null || exit 1
+    - sudo ./docker-compose.sh exec -T -d omscore-nginx true 2>/dev/null || exit 1
+    - sudo ./docker-compose.sh exec -T -d postgres true 2>/dev/null || exit 1
+    - sudo ./docker-compose.sh exec -T -d pgadmin true 2>/dev/null || exit 1
+    - sudo ./docker-compose.sh exec -T omscore composer install
+    - sudo ./docker-compose.sh exec -T omscore php artisan key:generate
+    - sudo ./docker-compose.sh exec -T omscore php artisan config:cache
+    - sudo ./docker-compose.sh exec -T omscore php artisan migrate:refresh --seed
+    - sudo ./docker-compose.sh exec -T omscore ./vendor/bin/phpunit
+    - cd ./tests/LocalLoopbackTest
     - sudo bash ./LocalLoopbackTest.sh
