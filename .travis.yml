@@ -6,7 +6,7 @@ services:
   - docker
 
 script:
-    - bash ./run.sh --build --down_v
+    - bash ./oms.sh --build --down_v
     - sleep 60
     - cd docker
     - docker-compose logs
