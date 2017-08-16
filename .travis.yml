@@ -7,7 +7,7 @@ services:
 
 script:
     - bash ./oms.sh --build --down_v
-    - sleep 60
+    - sleep 120
     - cd docker
     - docker-compose logs
     - docker-compose exec -T -d traefik help 2>/dev/null || exit 1
