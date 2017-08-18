@@ -1,43 +1,58 @@
 #
+# WORKAROUND
+# due to an issue with apt the laradock/php-fpm image is being skipped
+# A modified version of php:7.1-fpm is used instead 
+# See: https://github.com/laradock/php-fpm/issues/13
+#
+
+
+
+#
 #--------------------------------------------------------------------------
 # Image Setup
 #--------------------------------------------------------------------------
 #
-# To edit the 'php-fpm' base Image, visit its repository on Github
-#    https://github.com/LaraDock/php-fpm
-#
-# To change its version, see the available Tags on the Docker Hub:
-#    https://hub.docker.com/r/laradock/php-fpm/tags/
-#
 
-FROM laradock/php-fpm:7.1--1.4
+FROM php:7.1-fpm
 
 MAINTAINER Mahmoud Zalt <mahmoud@zalt.me>
-
-#
-#--------------------------------------------------------------------------
-# Mandatory Software's Installation
-#--------------------------------------------------------------------------
-#
-# Mandatory Software's such as ("mcrypt", "pdo_mysql", "libssl-dev", ....)
-# are installed on the base image 'laradock/php-fpm' image. If you want
-# to add more Software's or remove existing one, you need to edit the
-# base image (https://github.com/LaraDock/php-fpm).
-#
-
-# Add the "PHP 7" ppa
-RUN apt-get install -y software-properties-common && \
-    add-apt-repository -y ppa:ondrej/php
 
 #
 #--------------------------------------------------------------------------
 # Software's Installation
 #--------------------------------------------------------------------------
 #
+# Installing tools and PHP extentions using "apt", "docker-php", "pecl",
+#
 
-# Install "PHP Extentions", "libraries", "Software's"
-RUN apt-get update -y
-RUN apt-get install -y php7.1-intl
+# Install "curl", "libmemcached-dev", "libpq-dev", "libjpeg-dev",
+#         "libpng12-dev", "libfreetype6-dev", "libssl-dev", "libmcrypt-dev",
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    curl \
+    libmemcached-dev \
+    libz-dev \
+    libpq-dev \
+    libjpeg-dev \
+    libpng12-dev \
+    libfreetype6-dev \
+    libssl-dev \
+    libmcrypt-dev
+
+# Install the PHP mcrypt extention
+RUN docker-php-ext-install mcrypt \
+  # Install the PHP pdo_mysql extention
+  && docker-php-ext-install pdo_mysql \
+  # Install the PHP pdo_pgsql extention
+  && docker-php-ext-install pdo_pgsql \
+  # Install the PHP gd library
+  && docker-php-ext-configure gd \
+    --enable-gd-native-ttf \
+    --with-jpeg-dir=/usr/lib \
+    --with-freetype-dir=/usr/include/freetype2 && \
+    docker-php-ext-install gd
+
+
 
 
 #
@@ -45,6 +60,12 @@ RUN apt-get install -y php7.1-intl
 # Final Touch
 #--------------------------------------------------------------------------
 #
+
+#https://github.com/docker-library/php/issues/57
+RUN apt-get update \
+  && apt-get install -y zlib1g-dev libicu-dev g++ \
+  && docker-php-ext-configure intl \
+  && docker-php-ext-install intl
 
 ADD ./laravel.ini /usr/local/etc/php/conf.d
 ADD ./laravel.pool.conf /usr/local/etc/php-fpm.d/
