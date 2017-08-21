@@ -1,0 +1,23 @@
+version: '3.2'
+
+services:
+
+### OMS TUNNEL        #######################################
+### Proxy container #######################################
+
+    traefik:
+        build:
+          context: ./$PATH_OMS_GLOBAL/traefik/
+          dockerfile: ./Dockerfile.dev
+        image: aegee/traefik:dev
+        ports:
+            - "80:80"
+            - "8080:8080"
+            - "443:443"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+
+networks:
+  default:
+    external:
+      name: OMS
