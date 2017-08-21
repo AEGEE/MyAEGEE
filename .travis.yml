@@ -16,4 +16,4 @@ script:
     - bash ./oms.sh exec -T -d postgres true 2>/dev/null || exit 1
     - bash ./oms.sh exec -T -d pgadmin true 2>/dev/null || exit 1
     - bash ./oms.sh exec -T omscore ./vendor/bin/phpunit
-    - sudo bash ./tests/LocalLoopbackTest.sh
+    - bash ./tests/LocalLoopbackTest/LocalLoopbackTest.sh
