@@ -23,7 +23,7 @@
 		},
 		"secret_overwrite": "/usr/shared/api-key",
 		"enable_user_caching": true,
-		"media_dir": "./frontend/media",
+		"media_dir": "/usr/app/media",
 		"media_url": "/frontend/media",
 		"bugsnagKey": "CHANGEME"
 	},
