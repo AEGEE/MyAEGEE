@@ -15,7 +15,7 @@ docker network create OMS
 
 
 ## Declare docker-compose.yml folders
-declare -a services=("oms-global" "oms-core")
+declare -a services=("oms-global" "oms-core" "oms-serviceregistry")
 
 command="docker-compose -f empty-docker-compose.yml"
 for s in "${services[@]}"; do
