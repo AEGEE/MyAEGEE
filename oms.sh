@@ -13,9 +13,13 @@ fi
 echo -e "[OMS] Creating OMS docker network"
 docker network create OMS
 
-
-## Declare docker-compose.yml folders
-declare -a services=("oms-global" "oms-core" "oms-serviceregistry" "oms-events" "oms-events-frontend")
+## Export all environment variables from .env to this script in case we need them some time
+export $(cat .env | grep -v ^# | xargs)
+## ENABLED_SERVICES holds a string separated by : with all enabled services (like "oms-global:omscore:oms-serviceregistry")
+## If you want to change the enabled services, change the array in .env
+service_string=$(printenv ENABLED_SERVICES)
+## Split services into array
+services=(${service_string//:/ })
 
 command="docker-compose -f empty-docker-compose.yml"
 for s in "${services[@]}"; do
