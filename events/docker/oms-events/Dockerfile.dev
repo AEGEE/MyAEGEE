@@ -1,22 +1,18 @@
 FROM node:8
 
-RUN npm install -g --silent supervisor bunyan && \
+RUN npm install -g --loglevel warn supervisor bunyan && \
 	npm cache clean --force
 
-RUN mkdir -p /usr/src/shared
-
-RUN mkdir -p /usr/app/ \
+RUN mkdir -p /usr/app/src \
         && mkdir -p /usr/app/media \
-        && mkdir -p /usr/scripts \
-        && mkdir -p /usr/shared \
-        && mkdir -p /usr/app/oms-events
+        && mkdir -p /usr/app/scripts
 
-WORKDIR /usr/app/oms-events
+WORKDIR /usr/app/src
 
-ADD ./configFile.json /usr/scripts/configFile.json
+ADD ./configFile.json /usr/app/scripts/configFile.json
 
-CMD cp /usr/scripts/configFile.json lib/config/configFile.json && \
-	npm install --silent && \
+CMD cp /usr/app/scripts/configFile.json lib/config/configFile.json && \
+	npm install --loglevel warn && \
 	supervisor -e 'node,js,json' lib/server.js | bunyan
 
 EXPOSE 8082

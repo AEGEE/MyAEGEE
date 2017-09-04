@@ -20,8 +20,8 @@ services:
         image: aegee/omsevents:dev
         volumes:
             - omsevents_media:/usr/app/media
-            - ./$PATH_OMS_EVENTS/../:/usr/app/oms-events
-            - shared:/usr/shared:ro
+            - ./$PATH_OMS_EVENTS/../:/usr/app/src
+            - shared:/usr/app/shared:ro
         links:
             - mongodb
         expose:
