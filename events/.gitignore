@@ -5,3 +5,5 @@ log
 nginx.conf
 npm-debug.log
 frontend/
+.nyc_output/
+test/oms-testing

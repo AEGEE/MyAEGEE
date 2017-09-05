@@ -1,4 +1,7 @@
 const restify = require('restify');
+const bugsnag = require('bugsnag');
+const wrap = require('@gilbertco/restify-async-wrap');
+
 const events = require('./events.js'); // the real place where the API callbacks are
 const applications = require('./applications.js'); // API callbacks for events applications
 const lifecycle = require('./lifecycle.js'); // API callbacks for lifecycle managing
@@ -9,7 +12,7 @@ const middlewares = require('./middlewares.js');
 const cron = require('./cron.js');
 const config = require('./config/config.js');
 const user = require('./user.js');
-const bugsnag = require('bugsnag');
+
 
 bugsnag.register(config.bugsnagKey);
 
@@ -90,8 +93,7 @@ server.get({ path: '/ping', version: curVersion }, (req, res, next) => {
   return next();
 });
 
-server.use(middlewares.authenticateUser);
-server.use(middlewares.fetchUserDetails);
+server.use(wrap(middlewares.authenticateUser));
 
 server.get({ path: '/', version: curVersion }, events.listEvents);
 server.post({ path: '/', version: curVersion }, events.addEvent);
@@ -100,7 +102,7 @@ server.post({ path: '/', version: curVersion }, events.addEvent);
 server.get({ path: '/status', version: curVersion }, service.status);
 server.get({ path: '/debug', version: curVersion }, events.debug);
 server.get({ path: '/getUser', version: curVersion }, [
-  middlewares.checkPermissions,
+  // middlewares.checkPermissions,
   service.getUser,
 ]);
 

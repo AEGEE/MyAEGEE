@@ -9,10 +9,9 @@ RUN mkdir -p /usr/app/src \
 
 WORKDIR /usr/app/src
 
-ADD ./configFile.json /usr/app/scripts/configFile.json
+ADD ./bootstrap.sh /usr/app/scripts/bootstrap.sh
 
-CMD cp /usr/app/scripts/configFile.json lib/config/configFile.json && \
-	npm install --loglevel warn && \
-	supervisor -e 'node,js,json' lib/server.js | bunyan
+CMD sh /usr/app/scripts/bootstrap.sh && \
+	supervisor --no-restart-on error -e 'node,js,json' lib/server.js | bunyan
 
 EXPOSE 8082

@@ -40,7 +40,7 @@ exports.status = (req, res, next) => {
 exports.getUser = (req, res, next) => {
   res.json({
     success: true,
-    data: [req.user],
+    data: req.user,
   });
   return next();
 };
