@@ -29,7 +29,7 @@ services:
         labels:
             - "traefik.backend=omsevents"
             - "traefik.port=8082"
-            - "traefik.frontend.rule=HostRegexp:{domain:[a-z]+};PathPrefix:/services/omsevents/api;PathPrefixStrip:/services/omsevents/api"
+            - "traefik.frontend.rule=HostRegexp:{domain:[a-z0-9.]+};PathPrefix:/services/omsevents/api;PathPrefixStrip:/services/omsevents/api"
             - "traefik.frontend.priority=110"
             - "traefik.enable=true"
             - "registry.categories=(events, 10);(notifications, 10)"
@@ -44,3 +44,8 @@ volumes:
         driver: "local"
     shared:
         driver: "local"
+
+networks:
+  default:
+    external:
+      name: OMS
