@@ -1,0 +1,67 @@
+version: '3.2'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.2
+    environment:
+      ES_JAVA_OPTS: '-Xms256m -Xmx256m'
+      xpack.security.enabled: 'false'
+      xpack.monitoring.enabled: 'false'
+      xpack.graph.enabled: 'false'
+      xpack.watcher.enabled: 'false'
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:5.5.2
+    volumes:
+      - ./$PATH_OMS_MONITOR/../logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    depends_on:
+      - elasticsearch
+
+
+  logspout:
+    image: bekt/logspout-logstash
+    restart: on-failure
+    environment:
+      ROUTE_URIS: 'logstash://logstash:5000'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - logstash
+# Deploy on every swarm node
+#    deploy:
+#      mode: global
+#      restart_policy:
+#        condition: on-failure
+#        delay: 30s
+
+  dockbeat:
+    image: ingensi/dockbeat
+    restart: on-failure
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./$PATH_OMS_MONITOR/../dockbeat.yml:/etc/dockbeat/dockbeat.yml:ro
+    depends_on:
+      - elasticsearch
+
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:5.5.2
+    ports:
+      - '8084:5601'
+    volumes:
+      - ./$PATH_OMS_MONITOR/../kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    depends_on:
+      - elasticsearch
+    environment:
+      ELASTICSEARCH_URL: 'http://elasticsearch:9200'
+      XPACK_SECURITY_ENABLED: 'false'
+      XPACK_MONITORING_ENABLED: 'false'
+
+
+volumes:
+  esdata:
+    driver: local
