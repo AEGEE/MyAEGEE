@@ -13,3 +13,9 @@
 [submodule "alastair"]
 	path = alastair
 	url = https://github.com/blacksph3re/alastair2.git
+[submodule "oms-notification-cast"]
+	path = oms-notification-cast
+	url = https://github.com/AEGEE/oms-notification-cast.git
+[submodule "oms-notification-onscreen"]
+	path = oms-notification-onscreen
+	url = https://github.com/AEGEE/oms-notification-onscreen.git
