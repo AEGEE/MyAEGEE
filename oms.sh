@@ -10,8 +10,7 @@ if ! [[ -f "$DIR/.env" ]]; then
     cp $DIR/.env.example $DIR/.env
 fi
 
-echo -e "[OMS] Creating OMS docker network"
-docker network create OMS
+docker network inspect OMS &>/dev/null || (echo -e "[OMS] Creating OMS docker network" && docker network create OMS)
 
 
 ## Declare docker-compose.yml folders
