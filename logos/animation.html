@@ -1,0 +1,136 @@
+<head>
+<style>
+    div.OMS_logo{
+        background-color: white;
+        transform: scale(1, 1);
+    }
+
+    .OMS_logo_element{
+        position:absolute;
+        left: 0px;
+    }
+
+    #OMS_logo_O {
+        opacity: 0;
+        animation-name: step1;
+        animation-duration: 2s;
+        animation-delay: 6s;
+        animation-fill-mode: forwards;
+    }
+
+    #OMS_logo_M {
+        opacity: 0;
+        left: 256px;
+        animation-name: step2;
+        animation-duration: 2s;
+        animation-delay: 6s;
+        animation-fill-mode: forwards;
+    }
+
+    #OMS_logo_S {
+        opacity: 0;
+        left: 512px;
+        animation-name: step3;
+        animation-duration: 2s;
+        animation-delay: 6s;
+        animation-fill-mode: forwards;
+    }
+
+    #OMS_logo_OMS {
+        opacity: 0;
+        left: 896px;
+        animation-name: step4;
+        animation-duration: 2s;
+        animation-delay: 6s;
+        animation-fill-mode: forwards;
+    }
+
+    #OMS_logo_moving_1 {
+        opacity: 0;
+        animation-name: move1;
+        animation-duration: 2s;
+        animation-delay: 6s;
+        animation-fill-mode: forwards;
+        animation-timing-function: linear;
+    }
+
+    #OMS_logo_moving_2 {
+        opacity: 0;
+        animation-name: move2;
+        animation-duration: 2s;
+        animation-delay: 6s;
+        animation-fill-mode: forwards;
+        animation-timing-function: linear;
+    }
+
+    #OMS_logo_moving_3 {
+        opacity: 0;
+        animation-name: move3;
+        animation-duration: 2s;
+        animation-delay: 6s;
+        animation-fill-mode: forwards;
+        animation-timing-function: linear;
+    }
+
+    @keyframes step1 {
+        0% {opacity: 0;}
+        30% {opacity: 1;}
+        100% {opacity: 1;}
+    }
+
+    @keyframes step2 {
+        0% {opacity: 0;}
+        10% {opacity: 0;}
+        40% {opacity: 1;}
+        100% {opacity: 1;}
+    }
+
+    @keyframes step3 {
+        0% {opacity: 0;}
+        20% {opacity: 0;}
+        50% {opacity: 1;}
+        100% {opacity: 1;}
+    }
+
+    @keyframes step4 {
+        0% {opacity: 0;}
+        30% {opacity: 0;}
+        65% {opacity: 1;}
+        100% {opacity: 1;}
+    }
+
+    @keyframes move1 {
+        0% {left: 0; opacity: 0;}
+        10% {left: 256; opacity: 0.1;}
+        20% {left: 512;opacity: 0;}
+        35% {left: 896;}
+        100% {left: 896; opacity: 0;}
+    }
+    @keyframes move2 {
+        0% {left: 256; opacity: 0;}
+        10% {left: 256; opacity: 0;}
+        20% {left: 512; opacity: 0.1;}
+        35% {left: 896; opacity: 0;}
+        100% {left: 896; opacity: 0;}
+    }
+    @keyframes move3 {
+        0% {left: 512; opacity: 0;}
+        20% {left: 512; opacity: 0;}
+        35% {left: 896;}
+        100% {left: 896; opacity: 1;}
+    }
+    @keyframes fade {
+    }
+</style>
+</head>
+
+<div class="OMS_logo">
+    <img id="OMS_logo_O" class="OMS_logo_element" src="OMS_logo_O.svg.png" width="256">
+    <img id="OMS_logo_M" class="OMS_logo_element" src="OMS_logo_M.svg.png" width="256">
+    <img id="OMS_logo_S" class="OMS_logo_element" src="OMS_logo_S.svg.png" width="256">
+    <div class="moving_container">
+        <img id="OMS_logo_moving_1" class="OMS_logo_element" src="OMS_logo_O.svg.png" width="256">
+        <img id="OMS_logo_moving_2" class="OMS_logo_element" src="OMS_logo_OM.svg.png" width="256">
+        <img id="OMS_logo_moving_3" class="OMS_logo_element" src="OMS_logo_OMS.svg.png" width="256">
+    </div>
+</div>
