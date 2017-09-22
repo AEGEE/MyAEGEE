@@ -5,6 +5,13 @@
         transform: scale(1, 1);
     }
 
+    div.oms_logo_bold{
+        opacity: 0;
+        animation-name: afterFade;
+        animation-duration: 4s;
+        animation-fill-mode: forwards;
+    }
+
     .OMS_logo_element{
         position:absolute;
         left: 0px;
@@ -13,7 +20,7 @@
     #OMS_logo_O {
         opacity: 0;
         animation-name: step1;
-        animation-duration: 2s;
+        animation-duration: 4s;
         animation-fill-mode: forwards;
     }
 
@@ -21,7 +28,7 @@
         opacity: 0;
         left: 256px;
         animation-name: step2;
-        animation-duration: 2s;
+        animation-duration: 4s;
         animation-fill-mode: forwards;
     }
 
@@ -29,7 +36,7 @@
         opacity: 0;
         left: 512px;
         animation-name: step3;
-        animation-duration: 2s;
+        animation-duration: 4s;
         animation-fill-mode: forwards;
     }
 
@@ -37,14 +44,14 @@
         opacity: 0;
         left: 896px;
         animation-name: step4;
-        animation-duration: 2s;
+        animation-duration: 4s;
         animation-fill-mode: forwards;
     }
 
     #OMS_logo_moving_1 {
         opacity: 0;
         animation-name: move1;
-        animation-duration: 2s;
+        animation-duration: 4s;
         animation-fill-mode: forwards;
         animation-timing-function: linear;
     }
@@ -52,7 +59,7 @@
     #OMS_logo_moving_2 {
         opacity: 0;
         animation-name: move2;
-        animation-duration: 2s;
+        animation-duration: 4s;
         animation-fill-mode: forwards;
         animation-timing-function: linear;
     }
@@ -60,7 +67,7 @@
     #OMS_logo_moving_3 {
         opacity: 0;
         animation-name: move3;
-        animation-duration: 2s;
+        animation-duration: 4s;
         animation-fill-mode: forwards;
         animation-timing-function: linear;
     }
@@ -112,15 +119,25 @@
         35% {left: 896;}
         100% {left: 896; opacity: 1;}
     }
-    @keyframes fade {
+    @keyframes afterFade {
+        0% {opacity: 0;}
+        50% {opacity: 0;}
+        100% {opacity: 1;}
     }
 </style>
 </head>
 
 <div class="OMS_logo">
-    <img id="OMS_logo_O" class="OMS_logo_element" src="OMS_logo_O.svg" width="256">
-    <img id="OMS_logo_M" class="OMS_logo_element" src="OMS_logo_M.svg" width="256">
-    <img id="OMS_logo_S" class="OMS_logo_element" src="OMS_logo_S.svg" width="256">
+    <div class="oms_logo">
+        <img id="OMS_logo_O" class="OMS_logo_element" src="OMS_logo_O.svg" width="256">
+        <img id="OMS_logo_M" class="OMS_logo_element" src="OMS_logo_M.svg" width="256">
+        <img id="OMS_logo_S" class="OMS_logo_element" src="OMS_logo_S.svg" width="256">
+    </div>
+    <div class="oms_logo_bold">
+        <img id="OMS_logo_O_bold" class="OMS_logo_element" src="OMS_logo_bold_O.svg" width="256" style="left: 0;">
+        <img id="OMS_logo_M_bold" class="OMS_logo_element" src="OMS_logo_bold_M.svg" width="256" style="left: 256;">
+        <img id="OMS_logo_S_bold" class="OMS_logo_element" src="OMS_logo_bold_S.svg" width="256" style="left: 512;">
+    </div>
     <div class="moving_container">
         <img id="OMS_logo_moving_1" class="OMS_logo_element" src="OMS_logo_O.svg" width="256">
         <img id="OMS_logo_moving_2" class="OMS_logo_element" src="OMS_logo_OM.svg" width="256">
