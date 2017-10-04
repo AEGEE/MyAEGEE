@@ -1,0 +1,52 @@
+version: '3.2'
+
+services:
+  cadvisor:
+    image: google/cadvisor
+    volumes:
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+
+  node-exporter:
+    image: prom/node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    command: '-collector.procfs=/host/proc -collector.sysfs=/host/sys'
+    expose:
+      - 9100
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./$PATH_OMS_MONITOR/../prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - cadvisor
+      - node-exporter
+
+  grafana:
+    image: grafana/grafana:latest
+    build:
+      context: ./$PATH_OMS_MONITOR/grafana/
+      dockerfile: ./Dockerfile
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=1234
+      - GF_DASHBOARD_JSON_ENABLED=true
+      - GF_DASHBOARD_JSON_PATH=/usr/app/dashboards
+    depends_on:
+      - prometheus
+    ports:
+      - "8080:3000"
+
+volumes:
+  grafana-storage:
+    driver: local
+
+networks:
+  default:
+    external:
+      name: OMS

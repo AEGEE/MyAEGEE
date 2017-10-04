@@ -12,11 +12,11 @@ services:
         image: aegee/traefik:dev
         ports:
             - "80:80"
-            - "8080:8080"
             - "443:443"
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
-
+        command: --web.metrics.prometheus
+ 
 networks:
   default:
     external:
