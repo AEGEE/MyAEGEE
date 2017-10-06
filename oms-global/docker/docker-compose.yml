@@ -1,5 +1,5 @@
-version: '3.2'
-
+version: "3.2"
+# TODO add the nice things and remove "8080:"
 services:
 
 ### OMS TUNNEL        #######################################
@@ -11,11 +11,20 @@ services:
           dockerfile: ./Dockerfile.dev
         image: aegee/traefik:dev
         ports:
-            - "80:80"
-            - "8080:8080"
-            - "443:443"
+          - 80:80
+          - 443:443
+          - 8080
         volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
+          - /var/run/docker.sock:/var/run/docker.sock
+          - /home/ubuntu/traefik.toml:/etc/traefik/traefik.toml
+#        networks:
+#          - management
+        labels:
+          - traefik.enable=true
+          - traefik.backend=traefik
+          - traefik.port=8080
+          - traefik.frontend.rule=HostRegexp:{domain:traefik.[a-z0-9.]+}
+          - traefik.frontend.priority=20
 
 networks:
   default:
