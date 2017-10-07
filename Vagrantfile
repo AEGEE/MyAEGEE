@@ -41,7 +41,7 @@ Vagrant.configure("2") do |config|
   end
   
   ##TODO: change folders name (/home/vagrant becomes /home/ubuntu) and find other way to check if it was cloned recursive (but also: is it needed? do we need to clone the repo for dev?)
-  config.vm.provision "shell", path: "vagrant-post-script/check_cloned_recursively.sh"
+  #config.vm.provision "shell", path: "vagrant-post-script/check_cloned_recursively.sh"
   #provision docker orchestration (set to always run)
   config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh", run: "always"
 
