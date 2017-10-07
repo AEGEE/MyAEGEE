@@ -16,7 +16,6 @@ services:
           - 8080
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
-          - /home/ubuntu/traefik.toml:/etc/traefik/traefik.toml
 #        networks:
 #          - management
         labels:

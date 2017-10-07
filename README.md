@@ -32,9 +32,16 @@ vagrant up
 [**More information on the installation**](https://oms-project.atlassian.net/wiki/spaces/GENERAL/pages/17235970/Installation)
 
 ## Usage
-After running the system, you can navigate to it in your web browser: http://localhost
+After running the system, you can navigate to it in your web browser. The URLs differ based on how you run it; however no matter how you decide to run it, _it is suggested_ to edit the `/etc/hosts` file to add the entry: `192.168.168.168 appserver traefik.appserver portainer.appserver`, to be able to use advanced features.
 
-TODO: change the domain name
+For using it, it becomes:
+
+|Case|URL|
+|---|---|
+|Pure docker| http://localhost |
+|Vagrant| http://localhost:8888 |
+| Vagrant, applying the advice above| http://appserver, with the possibility of going to http://portainer.appserver or http://traefik.appserver |
+
 
 [For more detailed usage guides see this usage tips page.](https://oms-project.atlassian.net/wiki/spaces/GENERAL/pages/23655986/Usage+tips)
 For container-specific usage guides see the container's repository.

@@ -1,13 +1,13 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/xenial64"
   config.vm.hostname = "appserver.dev"
-  config.vm.network :private_network, ip: "192.168.192.168"
+  config.vm.network :private_network, ip: "192.168.168.168"
 
   config.vm.provider :virtualbox do |vb|
     vb.customize [
       "modifyvm", :id,
       "--memory", "1024",
-      "--name", "appserver-docker-AEGEE-wow",
+      "--name", "appserver-docker-AEGEE",
     ]
   end
 
@@ -16,12 +16,15 @@ Vagrant.configure("2") do |config|
   #Port forwarding
   #SSH from anywhere on the network (sshd)
   config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
+  #In case somebody does not use "appserver" but "localhost"
+  config.vm.network :forwarded_port, guest: 80, host: 8888, id: "main"
   
   
   #sync of folders (only for dev purpose)
-  #config.vm.synced_folder "./oms-core",              "/home/vagrant/oms-docker/oms-core"
-  #config.vm.synced_folder "./oms-events",              "/home/vagrant/oms-docker/oms-events"
-  #config.vm.synced_folder "./oms-events-frontend",              "/home/vagrant/oms-docker/oms-events-frontend"
+  #config.vm.synced_folder "./oms-global",              "/home/ubuntu/oms-docker/oms-global"
+  #config.vm.synced_folder "./oms-core",              "/home/ubuntu/oms-docker/oms-core"
+  #config.vm.synced_folder "./oms-events",              "/home/ubuntu/oms-docker/oms-events"
+  #config.vm.synced_folder "./oms-events-frontend",              "/home/ubuntu/oms-docker/oms-events-frontend"
 
   #install docker and docker-composer the easy way
   config.vm.provision "shell", path: "vagrant-post-script/install_docker.sh"
@@ -40,10 +43,10 @@ Vagrant.configure("2") do |config|
   #end
   
   ##TODO: change folders name (/home/vagrant becomes /home/ubuntu) and find other way to check if it was cloned recursive (but also: is it needed? do we need to clone the repo for dev?)
-  #config.vm.provision "shell", path: "vagrant-post-script/check_cloned_recursively.sh"
+  config.vm.provision "shell", path: "vagrant-post-script/check_cloned_recursively.sh"
   #provision docker orchestration (set to always run)
-  #config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh", run: "always"
+  config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh", run: "always"
 
-  config.vm.post_up_message = "Setup is complete, now open your browser to http://blc.dev (did you configure /etc/hosts?)"
+  config.vm.post_up_message = "Setup is complete, now open your browser to http://appserver (did you configure /etc/hosts?)"
   
 end
