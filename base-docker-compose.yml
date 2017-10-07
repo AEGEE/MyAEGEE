@@ -10,7 +10,7 @@ services:
   #to get the password (hashed): (also remember to escape $ with anotehr $)
   # docker run --rm httpd:2.4-alpine htpasswd -nbB admin pass123 | cut -d ":" -f 2
   portainer:
-    image: portainer/portainer
+    image: portainer/portainer:1.14.2
     command: --admin-password "$$2y$$05$$xyGGmUIFoXSDXjBQ10gc7uIjinlWrIZxCmjZ6OGDwoqWk605lCPxi"
     ports:
       - 9000
