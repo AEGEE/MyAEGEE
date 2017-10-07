@@ -1,5 +1,5 @@
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/xenial64"
+  config.vm.box = "bento/ubuntu-16.04"
   config.vm.hostname = "appserver.dev"
   config.vm.network :private_network, ip: "192.168.168.168"
 
@@ -21,10 +21,10 @@ Vagrant.configure("2") do |config|
   
   
   #sync of folders (only for dev purpose)
-  #config.vm.synced_folder "./oms-global",              "/home/ubuntu/oms-docker/oms-global"
-  #config.vm.synced_folder "./oms-core",              "/home/ubuntu/oms-docker/oms-core"
-  #config.vm.synced_folder "./oms-events",              "/home/ubuntu/oms-docker/oms-events"
-  #config.vm.synced_folder "./oms-events-frontend",              "/home/ubuntu/oms-docker/oms-events-frontend"
+  #config.vm.synced_folder "./oms-global",              "/home/vagrant/oms-docker/oms-global"
+  #config.vm.synced_folder "./oms-core",              "/home/vagrant/oms-docker/oms-core"
+  #config.vm.synced_folder "./oms-events",              "/home/vagrant/oms-docker/oms-events"
+  #config.vm.synced_folder "./oms-events-frontend",              "/home/vagrant/oms-docker/oms-events-frontend"
 
   #install docker and docker-composer the easy way
   config.vm.provision "shell", path: "vagrant-post-script/install_docker.sh"
@@ -40,7 +40,7 @@ Vagrant.configure("2") do |config|
     #d.build_image "/vagrant/app"
   end
   
-  ##TODO: change folders name (/home/vagrant becomes /home/ubuntu) and find other way to check if it was cloned recursive (but also: is it needed? do we need to clone the repo for dev?)
+  ##TODO: is it needed? do we need to clone the repo for dev?
   #config.vm.provision "shell", path: "vagrant-post-script/check_cloned_recursively.sh"
   #provision docker orchestration (set to always run)
   config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh", run: "always"

@@ -15,7 +15,7 @@ services:
     ports:
       - 9000
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:rw
     labels:
       - traefik.enable=true
       - traefik.backend=portainer
