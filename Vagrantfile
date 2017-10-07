@@ -30,23 +30,21 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", path: "vagrant-post-script/install_docker.sh"
   config.vm.provision "shell", path: "vagrant-post-script/install_docker_composer.sh"
   
-  #config.vm.provision "docker" do |d|
-    #d.pull_images "laradock/php-fpm:7.0--1.2"
-    #d.pull_images "laradock/workspace:1.2"
-    #d.pull_images "tianon/true"
-    #d.pull_images "postgres:latest"
-    #d.pull_images "fenglc/pgadmin4"
-    #d.pull_images "node:7"
-    #d.pull_images "nginx:alpine"
-    #d.pull_images "mongo:latest"
+  config.vm.provision "docker" do |d|
+    d.pull_images "portainer/portainer:1.14.2"
+    d.pull_images "postgres:10.0"
+    d.pull_images "fenglc/pgadmin4:1.6"
+    d.pull_images "phusion/baseimage:0.9.22"
+    d.pull_images "laradock/php-fpm:1.4-71"
+    d.pull_images "nginx:alpine"
     #d.build_image "/vagrant/app"
-  #end
+  end
   
   ##TODO: change folders name (/home/vagrant becomes /home/ubuntu) and find other way to check if it was cloned recursive (but also: is it needed? do we need to clone the repo for dev?)
   config.vm.provision "shell", path: "vagrant-post-script/check_cloned_recursively.sh"
   #provision docker orchestration (set to always run)
   config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh", run: "always"
 
-  config.vm.post_up_message = "Setup is complete, now open your browser to http://appserver (did you configure /etc/hosts?)"
+  config.vm.post_up_message = "[FINALLY!] Setup is complete, wait some minutes for the bootstrap of oms-core and then open your browser to http://appserver (did you configure /etc/hosts?)"
   
 end
