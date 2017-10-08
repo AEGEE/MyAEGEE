@@ -3,20 +3,26 @@ default:
 	echo 'Options are bootstrap, start, monitor, stop, restart, nuke, clean (cleans untagged/unnamed images)'
 
 start:  
-	export COMPOSE_PROJECT_NAME=myaegee && sudo docker-compose up -d
+	sudo ./oms.sh up -d
   
 bootstrap: start monitor
 
 monitor:
-	sudo docker-compose logs -f omscore-bootstrap && sudo docker-compose logs -f omsevents-bootstrap
+	sudo ./oms.sh logs -f omscore && sudo ./oms.sh logs -f omsevents-bootstrap
 
+refresh:  
+	sudo ./oms.sh build
+  
+live-refresh:  
+	sudo ./oms.sh up --build
+  
 stop:  
-	sudo docker-compose down
+	sudo ./oms.sh down
   
 restart: stop bootstrap
 
 nuke:  
-	sudo docker-compose down -v
+	sudo ./oms.sh down -v
   
 #clean:
 #	sudo docker rmi $(docker images -qf "dangling=true")
