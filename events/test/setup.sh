@@ -49,7 +49,7 @@ cd ../../..
 cp lib/config/configFile.json.example lib/config/configFile.json
 
 echo "Running tests..."
-NODE_ENV=test
+export NODE_ENV=test
 TESTS_OK=true # we still need to send test report to Coveralls whatever the tests status is
 
 ./node_modules/.bin/nyc ./node_modules/mocha/bin/_mocha --reporter=html --timeout 10000 test/api/*.js || TESTS_OK=false
