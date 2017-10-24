@@ -52,7 +52,7 @@ echo "Running tests..."
 export NODE_ENV=test
 TESTS_OK=true # we still need to send test report to Coveralls whatever the tests status is
 
-./node_modules/.bin/nyc ./node_modules/mocha/bin/_mocha --reporter=html --timeout 10000 test/api/*.js || TESTS_OK=false
+./node_modules/.bin/nyc ./node_modules/mocha/bin/_mocha --timeout 10000 test/api/*.js || TESTS_OK=false
 ./node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/coveralls/bin/coveralls.js 
 
 if [ "$TESTS_OK" = false ]
