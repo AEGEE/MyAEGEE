@@ -55,7 +55,7 @@ TESTS_OK=true # we still need to send test report to Coveralls whatever the test
 ./node_modules/.bin/nyc ./node_modules/mocha/bin/_mocha --reporter=html --timeout 10000 test/api/*.js || TESTS_OK=false
 ./node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/coveralls/bin/coveralls.js 
 
-if [ "TESTS_OK" = false ]
+if [ "$TESTS_OK" = false ]
 then
     echo "Tests failed."
     exit 2
