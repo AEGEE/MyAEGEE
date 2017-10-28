@@ -25,7 +25,7 @@ exports.authenticateUser = async (req, res, next) => {
 
     // Query the core
     const body = await request({
-      url: `${service.backend_url}/tokens/user`,
+      url: `${service.backend_url}/api/tokens/user`,
       method: 'POST',
       headers,
       form: {

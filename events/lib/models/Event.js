@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const config = require('../config/config.js');
-const orgaSchema = require('./Organizer.js');
-const accessObject = require('./AccessObject');
+const orgaSchema = require('../schemas/Organizer.js');
+const accessObject = require('../schemas/AccessObject');
+const Status = require('../schemas/Status');
+const Lifecycle = require('../schemas/Lifecycle');
 
 // A participant applying to an event including it's application
 const paxSchema = mongoose.Schema({
@@ -48,7 +50,6 @@ const applicationFieldSchema = mongoose.Schema({
 
 // A schema for storing per-event links to different microservices' features.
 // The 'params' field is optional, because we won't need it all the time, I suppose.
-// TODO: Add visibility field with the AccessObject
 const linkSchema = mongoose.Schema({
   controller: { type: String, required: true },
   params: { type: mongoose.Schema.Types.Mixed },
@@ -82,8 +83,8 @@ const eventSchema = mongoose.Schema({
   links: [linkSchema],
   locations: [locationSchema],
   type: { type: String, required: true },
-  status: { type: mongoose.Schema.Types.ObjectId, ref: 'Status', required: true },
-  lifecycle: { type: mongoose.Schema.Types.ObjectId, ref: 'Lifecycle', required: true },
+  status: { type: Status, required: true },
+  lifecycle: { type: Lifecycle, required: true },
   max_participants: {
     type: Number,
     default: 0,
@@ -119,8 +120,9 @@ eventSchema.pre('save', function save(next) {
     });
   }
   // If no url is given, default to the id
-  if(!this.url)
+  if (!this.url) {
     this.url = this.get('_id');
+  }
 
   next();
 });
@@ -130,6 +132,9 @@ eventSchema.path('max_participants')
   .validate(value => value >= 0, 'Participants number can not be negative');
 eventSchema.path('fee')
   .validate(value => value >= 0, 'Fee can\'t be negative');
+
+// The stuff below is most likely to be rewritten
+// since the lifecycle workflow is almost implemented.
 eventSchema.pre('validate', function validate(next) {
   if (this.application_status === 'open' && this.status === 'draft') {
     this.invalidate('application_status',

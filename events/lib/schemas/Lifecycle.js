@@ -3,18 +3,17 @@ const AccessObject = require('../schemas/AccessObject');
 const Status = require('../schemas/Status');
 
 const transitionSchema = mongoose.Schema({
-  from: Status,
-  to: Status,
-  allowedFor: AccessObject,
-});
+  from: String, // storing only name of the status there. This field can be null.
+  to: { type: String, required: true }, // and also there
+  allowedFor: { type: AccessObject, required: true },
+}, { _id: false });
 
 const lifecycleSchema = mongoose.Schema({
-  // id
   eventType: { type: String, required: true },
   transitions: [transitionSchema],
   statuses: [Status],
   initialStatus: { type: String, required: true },
-});
+}, { _id: false });
 
 lifecycleSchema.pre('validate', function validate(next) {
   // Checking if there are at least 1 status
@@ -24,7 +23,7 @@ lifecycleSchema.pre('validate', function validate(next) {
 
   // Checking if there is at least 1 transition
   if (!this.transitions || this.transitions.length === 0) {
-    this.invalidate('transitions', 'Need at least 1 transition');
+    this.invalidate('transitions', 'Need at least 1 transition.');
   }
 
   // Checking if there are no duplicate statuses
@@ -45,7 +44,7 @@ lifecycleSchema.pre('validate', function validate(next) {
       this.invalidate('transitions', `The 'from' status of the transition doesn't exist: ${transition.from}.`);
     }
     if (!statusesNames.includes(transition.to)) {
-      this.invalidate('transitions', `The 'tp' status of the transition doesn't exist: ${transition.to}.`);
+      this.invalidate('transitions', `The 'to' status of the transition doesn't exist: ${transition.to}.`);
     }
   }
 

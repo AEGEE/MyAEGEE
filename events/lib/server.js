@@ -27,12 +27,6 @@ server.use(restify.CORS());
 
 // Define your API here
 
-// this endpoint is for public access
-// server.post({path: '/authenticate', version: '0.0.6'} , core.authenticate);
-
-// for endpoints declared from here onwards, apply the middleware "verifyToken"
-// server.use(core.verifyToken);
-
 // Enable request logging
 // server.pre((request, response, next) => {
 //   log.info(request.method + ' ' + request.url);
@@ -48,7 +42,7 @@ server.on('after', (req, res) => {
 });
 
 server.on('uncaughtException', (req, res, route, err) => {
-  log.error(err);
+  log.error(err.stack);
   res.send(err);
 
   // We don't need the Bugsnag for the test env, do we?
@@ -58,22 +52,6 @@ server.on('uncaughtException', (req, res, route, err) => {
     bugsnag.notify(err);
   }
 });
-
-// Everything (even the process errors) should be handled
-// by the handler above.
-
-/* process.on('uncaughtException', (err) => {
-  log.error(err);
-  console.log('process error');
-
-  // If something goes wrong, the process will exit.
-  // If the server is running with Mocha, the Mocha process
-  // will silently exit without stack trace. That's why
-  // this checking is still here.
-  if (process.env.NODE_ENV !== 'test') {
-    process.exit(1);
-  }
-});*/
 
 process.on('unhandledRejection', (err) => {
   log.error('Unhandled rejection: ', err);
@@ -95,8 +73,8 @@ server.get({ path: '/ping', version: curVersion }, (req, res, next) => {
 
 server.use(wrap(middlewares.authenticateUser));
 
-server.get({ path: '/', version: curVersion }, events.listEvents);
-server.post({ path: '/', version: curVersion }, events.addEvent);
+server.get({ path: '/', version: curVersion }, wrap(events.listEvents));
+server.post({ path: '/', version: curVersion }, wrap(events.addEvent));
 
 // Debugging requests, remove at some point in time
 server.get({ path: '/status', version: curVersion }, service.status);
@@ -106,11 +84,11 @@ server.get({ path: '/getUser', version: curVersion }, [
   service.getUser,
 ]);
 
-server.get({ path: '/lifecycle/names', version: curVersion }, lifecycle.getLifecyclesNames);
-server.get({ path: '/lifecycle/pseudo', version: curVersion }, lifecycle.getPseudoRolesList);
-server.post({ path: '/lifecycle', version: curVersion }, lifecycle.createLifecycle);
-server.get({ path: '/lifecycle', version: curVersion }, lifecycle.getLifecycles);
-server.del({ path: '/lifecycle/:lifecycle_id', version: curVersion }, lifecycle.removeLifecycle);
+server.get({ path: '/lifecycle/names', version: curVersion }, wrap(lifecycle.getLifecyclesNames));
+server.get({ path: '/lifecycle/pseudo', version: curVersion }, wrap(lifecycle.getPseudoRolesList));
+server.post({ path: '/lifecycle', version: curVersion }, wrap(lifecycle.createLifecycle));
+server.get({ path: '/lifecycle', version: curVersion }, wrap(lifecycle.getLifecycles));
+server.del({ path: '/lifecycle/:lifecycle_id', version: curVersion }, wrap(lifecycle.removeLifecycle));
 
 server.get({ path: '/eventroles', version: curVersion }, user.getEventRoles);
 

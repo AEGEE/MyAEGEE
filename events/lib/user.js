@@ -192,12 +192,12 @@ exports.getEventRoles = (req, res, next) => {
   });
 };
 
-exports.getDefaultEventRoles = (callback) => {
-  EventRole.findOne({ cfg_id: eventRolesConfig.default_role }).exec((err, res) => {
-    if (err) {
-      log.error('Could not fetch default user role');
-      return callback([]);
-    }
-    callback([res]);
-  });
+exports.getDefaultEventRoles = async () => {
+  try {
+    const roles = await EventRole.findOne({ cfg_id: eventRolesConfig.default_role });
+    return [roles];
+  } catch (err) {
+    log.error('Could not fetch default user role');
+    return [];
+  }
 };

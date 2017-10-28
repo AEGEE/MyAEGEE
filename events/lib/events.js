@@ -6,7 +6,7 @@ const helpers = require('./helpers.js');
 const cron = require('./cron.js');
 const user = require('./user.js');
 const Event = require('./models/Event');
-const Lifecycle = require('./models/Lifecycle');
+const Lifecycle = require('./schemas/Lifecycle');
 const EventType = require('./models/EventType');
 
 

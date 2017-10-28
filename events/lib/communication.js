@@ -22,13 +22,19 @@ module.exports.getServiceByName = async (name) => {
     return namecache[name];
   }
 
+  let body;
+
   // Right after startup we will have to query the registry for the data
   try {
-    const body = await request({
-      url: `${config.registry.url}:${config.registry.port}/service/${name}`,
+    body = await request({
+      url: `${config.registry.url}:${config.registry.port}/services/${name}`,
       json: true,
     });
+  } catch (err) {
+    throw new Error(`Error getting info about core from service registry, response: ${err.message}`);
+  }
 
+  try {
     if (!body.success) {
       throw new Error(`Error when looking up service, registry replied: ${body.message}`);
     }
