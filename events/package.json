@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "./test/setup.sh",
+    "test-local": "NODE_ENV=test nyc ./node_modules/mocha/bin/_mocha --timeout 10000 test/api/*.js",
     "lint": "node_modules/.bin/eslint lib/"
   },
   "repository": {
