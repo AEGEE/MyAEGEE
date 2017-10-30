@@ -6,14 +6,14 @@ const transitionSchema = mongoose.Schema({
   from: String, // storing only name of the status there. This field can be null.
   to: { type: String, required: true }, // and also there
   allowedFor: { type: AccessObject, required: true },
-}, { _id: false });
+}, { _id: false, minimize: false });
 
 const lifecycleSchema = mongoose.Schema({
   eventType: { type: String, required: true },
-  transitions: [transitionSchema],
-  statuses: [Status],
+  transitions: { type: [transitionSchema], required: true },
+  statuses: { type: [Status], required: true },
   initialStatus: { type: String, required: true },
-}, { _id: false });
+}, { _id: false, minimize: false });
 
 lifecycleSchema.pre('validate', function validate(next) {
   // Checking if there are at least 1 status

@@ -65,60 +65,58 @@ exports.removeLifecycle = async (req, res, next) => {
     }));
   }
 
-  return EventType
-    .findOneAndRemove({ name: req.params.lifecycle_id }, {})
-    .then((doc) => {
-      if (!doc) {
-        return next(new restify.InternalError({
-          body: {
-            success: false,
-            message: 'Lifecycle with that name was not found.',
-          },
-        }));
-      }
+  try {
+    const doc = await EventType.findOneAndRemove({ name: req.params.lifecycle_id }, {});
 
-      res.json({
-        success: true,
-        message: `The lifecycle for the event type '${req.params.lifecycle_id}' was successfully deleted.`,
-      });
-      return next();
-    })
-    .catch(err => next(new restify.InternalError({
-      body: {
-        success: false,
-        message: err.message,
-      },
-    })));
-};
+    if (!doc) {
+      return next(new restify.InternalError({
+        body: {
+          success: false,
+          message: 'Lifecycle with that name was not found.',
+        },
+      }));
+    }
 
-exports.getLifecyclesNames = (req, res, next) => {
-  EventType
-    .find({})
-    .then((eventTypes) => {
-      const names = eventTypes.map(e => e.name);
-
-      res.send({
-        success: true,
-        data: names,
-      });
-      return next();
-    })
-    .catch(err => next(new restify.InternalError({
-      body: {
-        success: false,
-        message: err.message,
-      },
-    })));
-};
-
-exports.getPseudoRolesList = (req, res, next) => {
-  var result = pseudoRoles;
-  eventRoles.roles.forEach((item) => {
-    result.push({
-      name: item.name,
-      description: item.description + ' (event role)',
+    res.json({
+      success: true,
+      message: `The lifecycle for the event type '${req.params.lifecycle_id}' was successfully deleted.`,
     });
-  });
+    return next();
+  } catch (err) {
+    return next(new restify.InternalError({
+      body: {
+        success: false,
+        message: err.message,
+      },
+    }));
+  }
+};
+
+exports.getLifecyclesNames = async (req, res, next) => {
+  try {
+    const eventTypes = await EventType.find({});
+    const names = eventTypes.map(e => e.name);
+
+    res.send({
+      success: true,
+      data: names,
+    });
+    return next();
+  } catch (err) {
+    return next(new restify.InternalError({
+      body: {
+        success: false,
+        message: err.message,
+      },
+    }));
+  }
+};
+
+exports.getPseudoRolesList = async (req, res, next) => {
+  const result = eventRoles.roles.map(item => ({
+    name: item.name,
+    description: item.description + ' (event role)',
+  }));
 
   res.json({
     success: true,

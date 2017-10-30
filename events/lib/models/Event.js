@@ -35,7 +35,7 @@ paxSchema.virtual('url').get(function url() {
 
 const localSchema = mongoose.Schema({
   name: String,
-  foreign_id: { type: String, required: true },
+  foreign_id: { type: Number, required: true },
 });
 
 const applicationFieldSchema = mongoose.Schema({
@@ -96,7 +96,7 @@ const eventSchema = mongoose.Schema({
   applications: [paxSchema],
   organizers: [orgaSchema],
   deleted: { type: Boolean, default: false },
-}, { timestamps: true });
+}, { timestamps: true, minimize: false });
 
 // Virtuals
 eventSchema.virtual('head_image.url').get(function imageUrl() {

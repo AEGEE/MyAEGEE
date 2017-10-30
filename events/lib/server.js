@@ -105,14 +105,14 @@ server.get({ path: '/boardview', version: curVersion }, [
 ]);
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
-server.use(middlewares.fetchSingleEvent);
-server.use(middlewares.checkPermissions);
+server.use(wrap(middlewares.fetchSingleEvent));
+server.use(wrap(middlewares.checkPermissions));
 
-server.get({ path: '/single/:event_id', version: curVersion }, events.eventDetails);
-server.put({ path: '/single/:event_id', version: curVersion }, events.editEvent);
-server.del({ path: '/single/:event_id', version: curVersion }, events.deleteEvent);
-server.get({ path: '/single/:event_id/status', version: curVersion }, events.listPossibleStatuses);
-server.put({ path: '/single/:event_id/status', version: curVersion }, events.setApprovalStatus);
+server.get({ path: '/single/:event_id', version: curVersion }, wrap(events.eventDetails));
+server.put({ path: '/single/:event_id', version: curVersion }, wrap(events.editEvent));
+server.del({ path: '/single/:event_id', version: curVersion }, wrap(events.deleteEvent));
+server.get({ path: '/single/:event_id/status', version: curVersion }, wrap(events.listPossibleStatuses));
+server.put({ path: '/single/:event_id/status', version: curVersion }, wrap(events.setApprovalStatus));
 server.get({ path: '/single/:event_id/rights', version: curVersion }, events.getEditRights);
 server.put({ path: '/single/:event_id/link', version: curVersion }, events.addEventLink);
 server.post({ path: '/single/:event_id/upload', version: curVersion }, imageserv.uploadImage);

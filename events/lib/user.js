@@ -3,43 +3,35 @@ const eventRolesConfig = require('./config/eventroles');
 const mongoose = require('mongoose');
 const log = require('./config/logger.js');
 const restify = require('restify');
-const httprequest = require('request');
+const httprequest = require('request-promise-native');
+
+const communication = require('./communication');
 
 const config = require('./config/config.js');
 
-const getUserById = (authToken, id, callback) => {
-  require('./config/options.js').then((options) => {
-    const opts = {
-      url: `${config.core.url}:${config.core.port}/api/getUser`,
-      method: 'GET',
-      headers: options.getRequestHeaders(authToken),
-      qs: {
-        id,
-      },
-    };
+const getUserById = async (authToken, id) => {
+  const core = await communication.getServiceByName('omscore-nginx');
 
-    httprequest(opts, (requestError, requestResult, requestBody) => {
-      if (requestError) {
-        // log.error("Could not contact core", err);
-        return callback(requestError, null);
-      }
+  const opts = {
+    url: `${core.backend_url}/api/users/${id}`,
+    method: 'GET',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-Auth-Token': authToken
+    },
+    qs: {
+      id,
+    },
+    json: true
+  };
 
-      let body;
-      try {
-        body = JSON.parse(requestBody);
-      } catch (err) {
-        // log.error("Could not parse core response", err);
-        return callback(err, null);
-      }
+  const body = await httprequest(opts);
 
-      if (!body.success) {
-        // log.info("Access denied to user", body);
-        return callback(null, null);
-      }
-      body.user.antenna_name = body.user.antenna.name;
-      return callback(null, { basic: body.user });
-    });
-  });
+  if (!body.success) {
+    throw new Error(`Error while getting user from core: ${body}`);
+  }
+
+  return body.data;
 };
 
 exports.getUserById = getUserById;
@@ -52,65 +44,32 @@ const identityTransform = (user) => { return user; };
 
 // This function expects an array of objects with the field "foreign_id"
 // and fetches userdata for each object in this array and stores it in the "data" field.
-// To improve performance, you can add a field "cached" to each object,
-// which you populate with the UserCache directly.
-// If you did that, this function will copy all data
-// from "cached" to "data" and fetch the missing ones.
 // Also you can pass a transform function that transforms the data somehow.
 // The authtoken should be the authtoken of the requesting user.
-exports.populateUsers = (somearray, authtoken, callback, transform = identityTransform) => {
-  var personsToFetch = [];
+exports.populateUsers = async (usersArray, authToken, transform = identityTransform) => {
+  const personsToFetch = [];
 
   // Find what there is to fetch
-  somearray.forEach((item) => {
+  usersArray.forEach((item) => {
     // Only add those where we need to fetch something
     if (item.foreign_id && !(item.cached && item.cached.length && item.cached.length > 0)) {
       personsToFetch.push(item.foreign_id);
     }
   });
 
-  var mapcallback = (fetchedResults) => {
-    var results = somearray.map((item) => {
-      if (item.cached && item.cached.length && item.cached.length > 0) {
-        item.data = transform(item.cached[0]);
-        delete item.cached;
-        return item;
-      } else {
-        if (!fetchedResults[item.foreign_id]) {
-          log.warn('User with id ' + foreign_id + ' could not be retrieved');
-        } else {
-          item.data = transform(fetchedResults[item.foreign_id]);
-        }
-
-        return item;
-      }
-    });
-    return callback(results);
+  const fetchUser = async (personId) => {
+    try {
+      const personData = await getUserById(authToken, personId);
+      return transform(personData);
+    } catch (err) {
+      log.error('A request to the core fetching user data failed', err);
+      return {};
+    }
   };
 
+  const fetchedResults = await Promise.all(personsToFetch.map(fetchUser));
 
-  // Fetch
-  // TODO add batch fetch
-  var fetchedResults = {};
-  var count = personsToFetch.length;
-  if (count === 0) {
-    return mapcallback(fetchedResults);
-  }
-  personsToFetch.forEach((foreign_id) => {
-    getUserById(authtoken, foreign_id, (err, res) => {
-      if (err) {
-        log.error('A request to the core fetching user data failed', err);
-        fetchedResults[foreign_id] = {};
-      } else {
-        fetchedResults[foreign_id] = res;
-      }
-
-      count--;
-      if (count === 0) {
-        return mapcallback(fetchedResults);
-      }
-    });
-  });
+  return fetchedResults;
 };
 
 // Updates the eventRoles in the database to what there is in the .json file

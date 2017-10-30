@@ -28,9 +28,7 @@ exports.checkApplicationValidity = (application, applicationFields) => {
   return { passed: true, msg: '' };
 };
 
-
-
-exports.getEventPermissions = (event, user) => {
+function getEventPermissions(event, user) {
   const permissions = {
     is: {},
     can: {},
@@ -41,27 +39,10 @@ exports.getEventPermissions = (event, user) => {
     return permissions;
   }
 
-  permissions.is.organizer = event.organizers.some(item => item.foreign_id == user.basic.id);
+  permissions.is.organizer = event.organizers.some(item => item.foreign_id === user.id);
 
-  let applicationIndex;
-
-  // TODO remove
-  {
-    permissions.is.participant = event.applications.some((item, index) => {
-      if (item.foreign_id == user.basic.id) {
-        applicationIndex = index;
-        return true;
-      }
-
-      return false;
-    });
-
-    permissions.is.accepted_participant = permissions.is.participant &&
-      event.applications[applicationIndex].application_status === 'accepted';
-  }
-
-  permissions.is.own_antenna = event.organizing_locals.some(item =>
-    item.foreign_id == user.basic.antenna_id);
+  permissions.is.own_antenna = event.organizing_locals.some(organizer =>
+    user.bodies.some(body => organizer.foreign_id === body.id));
 
 
   permissions.can.edit_organizers = permissions.is.organizer;
@@ -88,9 +69,9 @@ exports.getEventPermissions = (event, user) => {
     || permissions.can.edit_application_status
     || permissions.can.approve;
 
-  permissions.can.apply =
+  /* permissions.can.apply =
     (!permissions.is.organizer && event.application_status === 'open')
-    || permissions.is.superadmin;
+    || permissions.is.superadmin; */
 
   permissions.can.approve_participants = permissions.is.organizer &&
     event.application_status === 'closed';
@@ -101,21 +82,58 @@ exports.getEventPermissions = (event, user) => {
     || permissions.is.superadmin;
 
   // Special roles
-  if (permissions.is.boardmember && permissions.is.own_antenna) // TODO that doesn't work that way, boardmember is generic for all boardmembers
+
+  // TODO that doesn't work that way, boardmember is generic for all boardmembers
+  if (permissions.is.boardmember && permissions.is.own_antenna) {
     permissions.special.push('Organizing Board Member');
-  if (permissions.is.own_antenna)
+  }
+  if (permissions.is.own_antenna) {
     permissions.special.push('Organizing Local Member');
+  }
   if (permissions.is.organizer) {
     permissions.special.push('Organizer');
   }
 
   // Also all eventroles become special roles
-  var myorg = event.organizers.find((item) => item.foreign_id == user.basic.id);
-  if(myorg && myorg.roles && myorg.roles.length > 0) {
+  const myorg = event.organizers.find(item => item.foreign_id === user.id);
+  if (myorg && myorg.roles && myorg.roles.length > 0) {
     myorg.roles.forEach((item) => {
       permissions.special.push(item.name);
     });
   }
 
   return permissions;
+}
+
+exports.getEventPermissions = getEventPermissions;
+
+// Helper function for determining if two arrays are intersecting or not.
+const intersects = (array1, array2) => array1.filter(elt => array2.includes(elt)).length > 0;
+
+// Helper function for determining if the user has the right to do something
+// TODO: Add circle awareness.
+module.exports.canUserAccess = (user, accessObject, event = null) => {
+  // Checking users.
+  if (accessObject.users && accessObject.users.includes(user.id.toString())) {
+    return true;
+  }
+
+  // Checking roles.
+  if (accessObject.roles && intersects(accessObject.roles, user.roles)) {
+    return true;
+  }
+
+  // Checking event-related special roles.
+  if (event) {
+    const permissions = getEventPermissions(event, user);
+    if (intersects(permissions.special, accessObject.special)) {
+      return true;
+    }
+  }
+
+  if (accessObject.special && intersects(accessObject.special, user.special)) {
+    return true;
+  }
+
+  return false;
 };

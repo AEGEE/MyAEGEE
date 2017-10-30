@@ -7,6 +7,6 @@ const statusSchema = mongoose.Schema({
   applicable: { type: AccessObject, required: true },
   edit_details: { type: AccessObject, required: true },
   edit_organizers: { type: AccessObject, required: true }
-}, { _id: false });
+}, { _id: false, minimize: false });
 
 module.exports = statusSchema;

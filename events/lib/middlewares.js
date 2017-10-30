@@ -43,13 +43,17 @@ exports.authenticateUser = async (req, res, next) => {
       req.user = body.data;
     }
 
+    if (!req.user.special) {
+      req.user.special = ['Public']; // Everybody is included in 'Public', right?
+    }
+
     return next();
   } catch (err) {
     throw err;
   }
 };
 
-exports.fetchSingleEvent = (req, res, next) => {
+exports.fetchSingleEvent = async (req, res, next) => {
   if (!req.params.event_id) {
     log.info(req.params);
     return next(new restify.NotFoundError('No Event-id provided'));
@@ -65,46 +69,41 @@ exports.fetchSingleEvent = (req, res, next) => {
     findObject = { url: req.params.event_id };
   }
 
-  return Event
-    .findOne(findObject)
-    .populate('status')
-    .populate('organizers.roles')
-    .populate('organizers.cached')
-    .exec((err, event) => {
-      if (err) {
-        log.info(err);
-        return next(new restify.InternalError({
-          body: {
-            success: false,
-            message: err.message,
-          },
-        }));
-      }
+  try {
+    const event = await Event.findOne(findObject);
 
-      if (event === null) {
-        return next(new restify.NotFoundError({
-          body: {
-            success: false,
-            message: `Event with id ${req.params.event_id} not found`,
-          },
-        }));
-      }
+    if (event === null) {
+      return next(new restify.NotFoundError({
+        body: {
+          success: false,
+          message: `Event with id ${req.params.event_id} not found`,
+        },
+      }));
+    }
 
-      req.event = event;
-      return next();
-    });
+    req.event = event;
+    return next();
+  } catch (err) {
+    log.error('Error getting single event: ', err);
+    return next(new restify.InternalError({
+      body: {
+        success: false,
+        message: err.message,
+      },
+    }));
+  }
 };
 
 // Middleware to check which permissions the user has, in regart to the current
 // event if there is one Requires the fetchSingleEvent and fetchUserDetails
 // middleware to be executed beforehand
-exports.checkPermissions = (req, res, next) => {
+exports.checkPermissions = async (req, res, next) => {
   const permissions = {
     is: {},
     can: {},
   };
 
-  permissions.is.superadmin = req.user.basic.is_superadmin;
+  permissions.is.superadmin = req.user.is_superadmin;
 
   // If user details are available, fill additional roles
   if (req.user.details) {
@@ -115,7 +114,7 @@ exports.checkPermissions = (req, res, next) => {
       permissions.is.superadmin;
   }
 
-  const event_permissions = helpers.getEventPermissions(req.event, req.user);
+  const eventPermissions = helpers.getEventPermissions(req.event, req.user);
 
   // Convert all to boolean and assign
   req.user.permissions = { is: {}, can: {} };
@@ -125,24 +124,20 @@ exports.checkPermissions = (req, res, next) => {
   for (const attr in permissions.can) {
     req.user.permissions.can[attr] = Boolean(permissions.can[attr]);
   }
-  for (const attr in event_permissions.is) {
-    req.user.permissions.is[attr] = Boolean(event_permissions.is[attr]);
+  for (const attr in eventPermissions.is) {
+    req.user.permissions.is[attr] = Boolean(eventPermissions.is[attr]);
   }
-  for (const attr in event_permissions.can) {
-    req.user.permissions.can[attr] = Boolean(event_permissions.can[attr]);
+  for (const attr in eventPermissions.can) {
+    req.user.permissions.can[attr] = Boolean(eventPermissions.can[attr]);
   }
-  if (event_permissions.special) {
-    Array.prototype.push.apply(req.user.special, event_permissions.special);
+  if (eventPermissions.special) {
+    Array.prototype.push.apply(req.user.special, eventPermissions.special);
   }
 
   // Filter out links
   if (req.event) {
-    const intersects = (array1, array2) => array1.filter(elt => array2.includes(elt)).length > 0;
-    req.event.links = req.event.links.filter((link) => {
-      return link.visibility.users.includes(req.user.basic.id.toString())
-        || intersects(link.visibility.roles, req.user.roles)
-        || intersects(link.visibility.special, req.user.special);
-    });
+    req.event.links = req.event.links.filter(link =>
+      helpers.canUserAccess(req.user, link.visibility));
   }
 
   return next();
