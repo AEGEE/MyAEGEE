@@ -26,6 +26,9 @@ Vagrant.configure("2") do |config|
   #config.vm.synced_folder "./oms-events",              "/home/vagrant/oms-docker/oms-events"
   #config.vm.synced_folder "./oms-events-frontend",              "/home/vagrant/oms-docker/oms-events-frontend"
 
+  #make it work also for windows
+  config.vm.provision "shell", inline: "apt-get install dos2unix -y; cd /vagrant && dos2unix *.sh; dos2unix vagrant-post-script/*.sh"
+  
   #install docker and docker-composer the easy way
   config.vm.provision "shell", path: "vagrant-post-script/install_docker.sh"
   config.vm.provision "shell", path: "vagrant-post-script/install_docker_composer.sh"
