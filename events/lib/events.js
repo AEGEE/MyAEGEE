@@ -323,7 +323,7 @@ exports.eventDetails = async (req, res, next) => {
   return next();
 };
 
-exports.editEvent = (req, res, next) => {
+exports.editEvent = async (req, res, next) => {
   // If user can't edit anything, return error right away
   if (!req.user.permissions.can.edit) {
     return next(new restify.ForbiddenError('You cannot edit this event'));
@@ -416,16 +416,8 @@ exports.editEvent = (req, res, next) => {
 
 
   // Try to save
-  return event.save((err) => {
-    if (err) {
-      // Send validation-errors back to client
-      if (err.name === 'ValidationError') {
-        return next(new restify.InvalidArgumentError({ body: err }));
-      }
-
-      log.error('Could not edit event', err);
-      return next(new restify.InternalError());
-    }
+  try {
+    await event.save();
 
     const retval = event.toObject();
     delete retval.applications;
@@ -443,7 +435,19 @@ exports.editEvent = (req, res, next) => {
       data: retval,
     });
     return next();
-  });
+  } catch (err) {
+    // Send validation-errors back to client
+    if (err.name === 'ValidationError') {
+      return next(new restify.InvalidArgumentError({ body: {
+        success: false,
+        errors: err.errors,
+        message: err.message
+      } }));
+    }
+
+    log.error('Could not edit event', err);
+    return next(new restify.InternalError());
+  }
 };
 
 exports.deleteEvent = async (req, res, next) => {

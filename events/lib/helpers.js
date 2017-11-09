@@ -114,7 +114,7 @@ const intersects = (array1, array2) => array1.filter(elt => array2.includes(elt)
 // TODO: Add circle awareness.
 module.exports.canUserAccess = (user, accessObject, event = null) => {
   // Checking users.
-  if (accessObject.users && accessObject.users.includes(user.id.toString())) {
+  if (accessObject.users && accessObject.users.includes(user.id)) {
     return true;
   }
 

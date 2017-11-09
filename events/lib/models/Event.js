@@ -35,7 +35,7 @@ paxSchema.virtual('url').get(function url() {
 
 const localSchema = mongoose.Schema({
   name: String,
-  foreign_id: { type: Number, required: true },
+  foreign_id: { type: String, required: true },
 });
 
 const applicationFieldSchema = mongoose.Schema({

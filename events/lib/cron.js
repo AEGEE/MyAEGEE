@@ -40,28 +40,22 @@ exports.registerDeadline = (id, plannedTime) => {
   scheduledJobs++;
 };
 
-exports.scanDB = (done) => {
+exports.scanDB = async () => {
   let counter = 0;
-  Event
-    .where('application_status', 'open')
-    .exec((err, events) => {
-      events.forEach((item) => {
-        if (item.application_deadline) {
-        // Close past events immediately - could happen if service was down while deadline passed
-          if (item.application_deadline < Date.now()) {
-            closeDeadline(item.id, item.application_deadline);
-            counter++;
-          } else { // Otherwise schedule it
-            exports.registerDeadline(item.id, item.application_deadline);
-            counter++;
-          }
-        }
-      });
+  const events = await Event.where('application_status', 'open');
 
-      log.info(`Set up cron timers for ${counter} events with approaching deadlines`);
-
-      if (done) {
-        done();
+  events.forEach((item) => {
+    if (item.application_deadline) {
+      // Close past events immediately - could happen if service was down while deadline passed
+      if (item.application_deadline < Date.now()) {
+        closeDeadline(item.id, item.application_deadline);
+        counter++;
+      } else { // Otherwise schedule it
+        exports.registerDeadline(item.id, item.application_deadline);
+        counter++;
       }
-    });
+    }
+  });
+
+  log.info(`Set up cron timers for ${counter} events with approaching deadlines`);
 };

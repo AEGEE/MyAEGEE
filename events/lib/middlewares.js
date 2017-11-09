@@ -12,7 +12,10 @@ const user = require('./user.js');
 exports.authenticateUser = async (req, res, next) => {
   const token = req.header('x-auth-token');
   if (!token) {
-    throw new Error('No auth token provided');
+    return next(new restify.ForbiddenError({ body: {
+      success: false,
+      message: 'No auth token provided'
+    } }));
   }
 
 
@@ -25,7 +28,7 @@ exports.authenticateUser = async (req, res, next) => {
 
     // Query the core
     const body = await request({
-      url: `${service.backend_url}/api/tokens/user`,
+      url: `${service.backend_url}api/tokens/user`,
       method: 'POST',
       headers,
       form: {
