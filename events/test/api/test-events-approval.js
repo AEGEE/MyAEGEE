@@ -12,19 +12,18 @@ describe('Events approval', () => {
   let statuses;
   let lifecycles;
 
-  beforeEach((done) => {
+  // TODO: Fix all of these.
+  /* beforeEach(async () => {
     db.clear();
 
     // Populate db
-    db.populateEvents((res) => {
-      events = res.events;
-      statuses = res.statuses;
-      lifecycles = res.lifecycles;
-      done();
-    });
+    const res = await db.populateEvents();
+    events = res.events;
+    statuses = res.statuses;
+    lifecycles = res.lifecycles;
   });
 
-  it('should include the event that can be changed in approvable events', (done) => {
+  it('should include the event that can be changed in approvable events', async () => {
     const lifecycle = lifecycles.find(l => l.eventType === 'non-statutory');
     const status = statuses.find(s => lifecycle.status.includes(s._id) && s.name === 'Draft');
     const event = events.find(e => e.status === status._id);

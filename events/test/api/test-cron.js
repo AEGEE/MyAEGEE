@@ -11,28 +11,24 @@ const sleep = delay => new Promise(res => setTimeout(res, delay));
 describe('Cron testing', () => {
   let events;
 
-  beforeEach((done) => {
+  beforeEach(async () => {
     db.clear();
 
     // Populate db
-    db.populateEvents((res) => {
-      events = res.events;
-      done();
-    });
+    const res = await db.populateEvents();
+    events = res.events;
   });
 
-  it('should register deadline for all events', (done) => {
+  it('should register deadline for all events', async () => {
     const plannedEventsCount = events
       .filter(e => e.application_status === 'open' && e.starts > Date.now())
       .length;
 
-    cron.scanDB(() => {
-      cron.countJobs().should.equal(plannedEventsCount);
-      done();
-    });
+    await cron.scanDB();
+    cron.countJobs().should.equal(plannedEventsCount);
   });
 
-  it('should close the deadline for passed event', (done) => {
+  it('should close the deadline for passed event', async () => {
     const openEvents = events.filter(e => e.application_status === 'open'
       && e.application_deadline && e.application_deadline > Date.now());
     openEvents.length.should.be.above(0);
@@ -41,14 +37,12 @@ describe('Cron testing', () => {
     const newDate = new Date((new Date()).setFullYear((new Date()).getFullYear() + 1));
     tk.travel(newDate);
 
-    cron.scanDB(() => {
-      // Ugly, but don't know how to fix yet, since we don't have
-      // the callback for closeDeadline() function.
-      sleep(1000).then(() => {
-        cron.countJobs().should.equal(0);
-        tk.reset();
-        done();
-      });
-    });
+    await cron.scanDB();
+
+    // Ugly, but don't know how to fix yet, since we don't have
+    // the callback for closeDeadline() function.
+    await sleep(1000);
+    cron.countJobs().should.equal(0);
+    tk.reset();
   });
 });

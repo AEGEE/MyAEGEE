@@ -1,38 +1,34 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+const nock = require('nock');
+const path = require('path');
+
 const server = require('../../lib/server.js');
 const db = require('../scripts/populate-db.js');
+const config = require('../../lib/config/config.js');
 
 const should = chai.should();
 chai.use(chaiHttp);
 
 describe('Events creation', () => {
   let events;
+  let omscoreStub;
+  let omsserviceregistryStub;
 
-  beforeEach((done) => {
+  beforeEach(async () => {
     db.clear();
 
     // Populate db
-    db.populateEvents((res) => {
-      events = res.events;
-      done();
-    });
-  });
+    const res = await db.populateEvents();
+    events = res.events;
 
-  it('should reject requests without X-Auth-Token', (done) => {
-    chai.request(server)
-      .post('/')
-      .send({
-        name: 'Develop Yourself 4',
-        starts: '2017-12-11 15:00',
-        ends: '2017-12-14 12:00',
-        type: 'non-statutory',
-      })
-      .end((err, res) => {
-        res.should.have.status(403);
-        res.body.success.should.be.false;
-        done();
-      });
+    omsserviceregistryStub = nock(config.registry.url + ':' + config.registry.port)
+      .get('/services/omscore-nginx')
+      .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-serviceregistry-valid.json'));
+
+    omscoreStub = nock('http://omscore-nginx')
+      .post('/api/tokens/user')
+      .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
   });
 
   it('should create a new event on minimal sane / POST', (done) => {
@@ -63,7 +59,6 @@ describe('Events creation', () => {
         res.body.data[0].should.have.property('description');
         res.body.data[0].should.have.property('application_fields');
         res.body.data[0].should.have.property('organizers');
-        res.body.data[0].should.have.property('applications');
 
         // Check auto-filled fields
         res.body.data[0].status.name.should.equal('Draft');
@@ -72,8 +67,6 @@ describe('Events creation', () => {
         res.body.data[0].application_fields.should.have.lengthOf(0);
         res.body.data[0].max_participants.should.equal(0);
 
-        // application deadline optional when application closed
-        //res.body.should.have.property('application_deadline');
         done();
       });
   });
@@ -89,7 +82,6 @@ describe('Events creation', () => {
         type: 'non-statutory',
         description: 'A training event to boost your self-confidence and teamworking skills',
         organizing_locals: [{ foreign_id: 'AEGEE-Dresden' }],
-        type: 'non-statutory',
         max_participants: 22,
         application_deadline: '2015-11-30',
         application_fields: [
@@ -123,7 +115,6 @@ describe('Events creation', () => {
         res.body.data[0].should.have.property('description');
         res.body.data[0].should.have.property('application_fields');
         res.body.data[0].should.have.property('organizers');
-        res.body.data[0].should.have.property('applications');
 
         res.body.data[0].application_fields.should.have.lengthOf(2);
 
@@ -134,7 +125,8 @@ describe('Events creation', () => {
       });
   });
 
-  it('should discart superflous fields on overly detailed / POST', (done) => {
+  // TODO: Implement
+  it('should discart superflous fields on overly detailed / POST'/*, (done) => {
     chai.request(server)
       .post('/')
       .set('X-Auth-Token', 'foobar')
@@ -165,7 +157,7 @@ describe('Events creation', () => {
 
         done();
       });
-  });
+  }*/);
 
   it('should return validation errors on malformed / POST', (done) => {
     chai.request(server)
@@ -214,7 +206,7 @@ describe('Events creation', () => {
         name: 'Develop Yourself 4',
         starts: '2017-12-11 15:00',
         ends: '2017-12-14 12:00',
-        type: 'zxcazxs',
+        type: 'random-event-type',
       })
       .end((err, res) => {
         res.should.have.status(409);

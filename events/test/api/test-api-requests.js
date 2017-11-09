@@ -10,16 +10,16 @@ const config = require('../../lib/config/config.js');
 const should = chai.should();
 chai.use(chaiHttp);
 
-describe('Lifecycles listing', () => {
-  let eventTypes;
-
+describe('API requests', () => {
   let omscoreStub;
   let omsserviceregistryStub;
 
   beforeEach(async () => {
     db.clear();
-    const res = await db.populateLifecycles();
-    eventTypes = res.eventTypes;
+
+    // Populate db
+    const res = await db.populateEvents();
+    events = res.events;
 
     omsserviceregistryStub = nock(config.registry.url + ':' + config.registry.port)
       .get('/services/omscore-nginx')
@@ -30,30 +30,16 @@ describe('Lifecycles listing', () => {
       .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
   });
 
-  it('should return lifecycles info on GET /lifecycle', (done) => {
+  it('should reject requests without X-Auth-Token', (done) => {
     chai.request(server)
-      .get('/lifecycle')
-      .set('X-Auth-Token', 'foobar')
+      .get('/getUser')
       .end((err, res) => {
-        res.should.have.status(200);
-        res.should.be.json;
-        res.should.be.a('object');
-
-        res.body.success.should.be.true;
-
-        for (const eventType of res.body.data) {
-          eventType.should.have.property('_id');
-          eventType.should.have.property('name');
-          eventType.should.have.property('defaultLifecycle');
-        }
-
-        res.body.data.length.should.equal(eventTypes.length);
-
-        for (const eventType of eventTypes) {
-          res.body.data.map(e => e._id.toString()).should.include(eventType._id.toString());
-        }
+        res.should.have.status(403);
+        res.body.success.should.be.false;
 
         done();
       });
   });
+
+  it('should fail if the user is unauthorized');
 });

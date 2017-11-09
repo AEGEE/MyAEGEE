@@ -1,21 +1,35 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+const nock = require('nock');
+const path = require('path');
+
 const server = require('../../lib/server.js');
+const config = require('../../lib/config/config.js');
+
 const db = require('../scripts/populate-db.js');
 const Event = require('../../lib/models/Event');
+
 
 const should = chai.should();
 chai.use(chaiHttp);
 
 describe('Events details', () => {
-  var events;
+  let events;
+  let omscoreStub;
+  let omsserviceregistryStub;
 
-  beforeEach((done) => {
+  beforeEach(async () => {
     db.clear();
-    db.populateEvents((res) => {
-      events = res.events;
-      done();
-    });
+    const res = await db.populateEvents();
+    events = res.events;
+
+    omsserviceregistryStub = nock(config.registry.url + ':' + config.registry.port)
+      .get('/services/omscore-nginx')
+      .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-serviceregistry-valid.json'));
+
+    omscoreStub = nock('http://omscore-nginx')
+      .post('/api/tokens/user')
+      .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
   });
 
   // This is broken because oms-core mock doesn't have an '/api/getUser' endpoint.
@@ -76,7 +90,7 @@ describe('Events details', () => {
 
   // The same as the 1st one, broken.
   // TODO: Fix it.
-  /* it('should store the changes on update after a sane /single/<eventid> PUT', (done) => {
+  it('should store the changes on update after a sane /single/<eventid> PUT'/* , (done) => {
     chai.request(server)
       .put(`/single/${events[0].id}`)
       .set('X-Auth-Token', 'foobar')
@@ -92,11 +106,11 @@ describe('Events details', () => {
             done();
           });
       });
-  }); */
+  }*/);
 
   // The same.
-  /*
-  it('should ignore superflous fields on overly detailed /single/<eventid> PUT', (done) => {
+  
+  it('should ignore superflous fields on overly detailed /single/<eventid> PUT'/*, (done) => {
     chai.request(server)
       .put(`/single/${events[0].id}`)
       .set('X-Auth-Token', 'foobar')
@@ -114,7 +128,7 @@ describe('Events details', () => {
             done();
           });
       });
-  }); */
+  }*/);
 
   it('should return a validation error on malformed /single/<eventid> PUT', (done) => {
     chai.request(server)
@@ -131,8 +145,8 @@ describe('Events details', () => {
   });
 
   // The same.
-  /*
-  it('should not update the organizers list with /single/<eventid> PUT', (done) => {
+  
+  it('should not update the organizers list with /single/<eventid> PUT'/*, (done) => {
     chai.request(server)
       .get(`/single/${events[0].id}`)
       .set('X-Auth-Token', 'foobar')
@@ -156,11 +170,11 @@ describe('Events details', () => {
             done();
           });
       });
-  });*/
+  }*/);
 
   // The same.
-  /*
-  it('should not update the applications list with /single/<eventid> PUT', (done) => {
+  
+  it('should not update the applications list with /single/<eventid> PUT'/*, (done) => {
     chai.request(server)
       .get(`/single/${events[0].id}`)
       .set('X-Auth-Token', 'foobar')
@@ -183,11 +197,10 @@ describe('Events details', () => {
             done();
           });
       });
-  });
-  */
+  }*/);
 
   // Deleting doesn't work for now, so that's why I commented it out.
-  /* it('should hide an event from / GET but keep it for /single GET after /single DELETE',
+  it('should hide an event from / GET but keep it for /single GET after /single DELETE'/*,
     (done) => {
       // Delete one event
       chai.request(server)
@@ -219,5 +232,5 @@ describe('Events details', () => {
                 });
             });
         });
-    });*/
+    }*/);
 });

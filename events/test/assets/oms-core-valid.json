@@ -1,0 +1,71 @@
+{
+    "success": true,
+    "meta": null,
+    "data": {
+        "id": 1,
+        "address_id": 1,
+        "personal_email": "admin@aegee.org",
+        "first_name": "Super",
+        "last_name": "Admin",
+        "date_of_birth": "1985-04-16 00:00:00",
+        "gender": "other",
+        "phone": null,
+        "description": null,
+        "remember_token": "Q1uErx06K6Q4ePEw2KiciFLjzz76oDXvPEbiUVJ7KTu5a8SoiUZ07VA3fLDN",
+        "is_superadmin": 1,
+        "is_suspended": null,
+        "suspended_reason": null,
+        "seo_url": "superadmin",
+        "activated_at": "2017-10-30 17:16:47",
+        "created_at": "2017-10-30 17:16:47",
+        "updated_at": "2017-10-30 17:16:47",
+        "internal_email": null,
+        "first_name_simple": "Super",
+        "last_name_simple": "Admin",
+        "address": {
+            "id": 1,
+            "country_id": 21,
+            "street": "Notelaarsstraat 55",
+            "zipcode": "1000",
+            "city": "Brussels",
+            "created_at": "2017-10-30 17:16:47",
+            "updated_at": "2017-10-30 17:16:47"
+        },
+        "bodies": [
+            {
+                "id": 1,
+                "type_id": 2,
+                "address_id": 1,
+                "name": "AEGEE-Europe",
+                "email": "headoffice@aegee.org",
+                "phone": null,
+                "description": null,
+                "legacy_key": "AEU",
+                "created_at": "2017-10-30 17:16:47",
+                "updated_at": "2017-10-30 17:16:47",
+                "name_simple": "AEGEE-Europe",
+                "pivot": {
+                    "user_id": 1,
+                    "body_id": 1
+                }
+            }
+        ],
+        "circles": [
+            {
+                "id": 4,
+                "body_id": 4,
+                "parent_id": 1,
+                "name": "Lia & Derk",
+                "description": "IT people in da house",
+                "created_at": "2017-10-30 17:16:47",
+                "updated_at": "2017-10-30 17:16:47",
+                "name_simple": "Lia & Derk",
+                "pivot": {
+                    "user_id": 1,
+                    "circle_id": 4
+                }
+            }
+        ]
+    },
+    "message": null
+}
