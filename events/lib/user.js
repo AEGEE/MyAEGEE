@@ -73,82 +73,73 @@ exports.populateUsers = async (usersArray, authToken, transform = identityTransf
 };
 
 // Updates the eventRoles in the database to what there is in the .json file
-exports.updateEventRoles = () => {
+exports.updateEventRoles = async () => {
   const unupdatedRoles = eventRolesConfig.roles;
 
-  // Update existing roles
-  const addMissing = () => {
-    unupdatedRoles.forEach((item) => {
-      const role = new EventRole(item);
-      role.save((err) => {
-        if (err) {
-          log.error('Could not save new event role', err);
-        }
-      });
-    });
-  };
+  let addedRoles = 0;
+  let updatedRoles = 0;
+  let deletedRoles = 0;
 
   // Find all roles there are and update them
-  EventRole.find({}).exec((err, res) => {
-    let barrier = res.length;
-    // No items existing yet
-    if (barrier === 0) {
-      addMissing();
-      return;
+  const roles = await EventRole.find({});
+
+  for (const role of roles) {
+    const idx = unupdatedRoles.findIndex(i => i.cfg_id === role.cfg_id);
+    if (idx === undefined || idx === -1) {
+      // This element should not be in the db anymore
+      try {
+        await role.remove();
+        deletedRoles++;
+      } catch (err) {
+        log.error('Could not remove userrole', err);
+      }
+    } else {
+      // Update the element, even if it needs no updating
+      role.name = unupdatedRoles[idx].name;
+      role.description = unupdatedRoles[idx].description;
+      unupdatedRoles.splice(idx, 1);
+      try {
+        await role.save();
+        updatedRoles++;
+      } catch (err) {
+        log.error('Could not update userrole', err);
+      }
     }
+  }
 
-    // Update or delete each element
-    res.forEach((item) => {
-      const idx = unupdatedRoles.findIndex(i => i.cfg_id === item.cfg_id);
-      if (idx === undefined || idx === -1) {
-        // This element should not be in the db anymore
-        item.remove((removeErr) => {
-          if (removeErr) {
-            log.error('Could not remove userrole', removeErr);
-          }
-        });
-      } else {
-        // Update the element, even if it needs no updating
-        item.name = unupdatedRoles[idx].name;
-        item.description = unupdatedRoles[idx].description;
-        unupdatedRoles.splice(idx, 1);
-        item.save((saveErr) => {
-          if (saveErr) {
-            log.error('Could not update userrole', saveErr);
-          }
-        });
-      }
+  // Add the non-existant ones.
+  for (const item of unupdatedRoles) {
+    const role = new EventRole(item);
+    try {
+      addedRoles++;
+      await role.save();
+    } catch (err) {
+      log.error('Could not save new event role', err);
+    }
+  }
 
-      // If all items were updated, add the missing ones
-      barrier--;
-      if (barrier === 0) {
-        addMissing();
-        log.info(`Updated ${res.length} eventroles and added ${unupdatedRoles.length} new ones`);
-      }
-    });
-  });
+  log.info(`Event roles: added: ${addedRoles}, updated: ${updatedRoles}, deleted: ${unupdatedRoles.length}.`);
 };
 
 
-exports.getEventRoles = (req, res, next) => {
-  EventRole.find({}).exec((err, roles) => {
-    if (err) {
-      log.error(err);
-      return next(new restify.InternalError({
-        body: {
-          success: false,
-          message: err.message,
-        },
-      }));
-    }
-
+exports.getEventRoles = async (req, res, next) => {
+  try {
+    const roles = await EventRole.find({});
     res.json({
       success: true,
-      data: roles,
+      data: roles
     });
 
     return next();
-  });
+  } catch (err) {
+    log.error(err);
+    return next(new restify.InternalError({
+      body: {
+        success: false,
+        message: err.message
+      }
+    }));
+  }
 };
 
 exports.getDefaultEventRoles = async () => {
