@@ -2,11 +2,8 @@ const chai = require('chai');
 const tk = require('timekeeper');
 const cron = require('../../lib/cron');
 const db = require('../scripts/populate-db');
-const Event = require('../../lib/models/Event');
 
 const should = chai.should();
-
-const sleep = delay => new Promise(res => setTimeout(res, delay));
 
 describe('Cron testing', () => {
   let events;
@@ -38,11 +35,10 @@ describe('Cron testing', () => {
     tk.travel(newDate);
 
     await cron.scanDB();
-
-    // Ugly, but don't know how to fix yet, since we don't have
-    // the callback for closeDeadline() function.
-    await sleep(1000);
     cron.countJobs().should.equal(0);
     tk.reset();
   });
+
+  it('shouldn\'t close the deadline for non-existant event');
+  it('shouldn\'t close the deadline if it\'s already closed');
 });

@@ -432,7 +432,7 @@ exports.editEvent = async (req, res, next) => {
 
     res.json({
       success: true,
-      data: retval,
+      data: retval
     });
     return next();
   } catch (err) {
