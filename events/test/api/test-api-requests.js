@@ -42,4 +42,6 @@ describe('API requests', () => {
   });
 
   it('should fail if the user is unauthorized');
+  it('should fail if the oms-serviceregistry is unaccessible');
+  it('should fail if the oms-core is unaccessible');
 });
