@@ -65,7 +65,6 @@ process.on('unhandledRejection', (err) => {
 const curVersion = '0.0.1';
 
 server.use(service.countRequests);
-server.get({ path: '/registerMicroservice', version: curVersion }, service.registerMicroservice);
 server.get({ path: '/ping', version: curVersion }, (req, res, next) => {
   res.send('pong');
   return next();
@@ -130,11 +129,9 @@ server.put({ path: '/single/:event_id/participants/mine', version: curVersion },
 
 server.listen(config.port, () => {
   // try if there is a mongodb connection
-  require('./config/options.js').then(() => {
-    log.info('Up and running, %s listening on %s', server.name, server.url);
-    cron.scanDB();
-    user.updateEventRoles();
-  });
+  log.info('Up and running, %s listening on %s', server.name, server.url);
+  cron.scanDB();
+  user.updateEventRoles();
 });
 
 module.exports = server;
