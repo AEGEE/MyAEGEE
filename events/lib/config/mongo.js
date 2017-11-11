@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const log = require('./logger');
 
 mongoose.Promise = global.Promise;
-mongoose.connect(config.mongourl);
+mongoose.connect(config.mongourl, { useMongoClient: true });
 const db = mongoose.connection;
 // Applying a fail-fast approach on mongodb connection loss
 db.on('error', (err) => {
