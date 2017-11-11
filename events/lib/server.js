@@ -13,8 +13,9 @@ const cron = require('./cron.js');
 const config = require('./config/config.js');
 const user = require('./user.js');
 
-
-bugsnag.register(config.bugsnagKey);
+if (process.env.NODE_ENV !== 'test') {
+  bugsnag.register(config.bugsnagKey);
+}
 
 const server = restify.createServer({
   name: 'oms-events',
@@ -43,7 +44,10 @@ server.on('after', (req, res) => {
 
 server.on('uncaughtException', (req, res, route, err) => {
   log.error(err.stack);
-  res.send(err);
+  res.json({
+    success: false,
+    message: err.message
+  });
 
   // We don't need the Bugsnag for the test env, do we?
   // Also Bugsnag should quit the process if some kind of error
@@ -85,9 +89,9 @@ server.get({ path: '/getUser', version: curVersion }, [
 
 server.get({ path: '/lifecycle/names', version: curVersion }, wrap(lifecycle.getLifecyclesNames));
 server.get({ path: '/lifecycle/pseudo', version: curVersion }, wrap(lifecycle.getPseudoRolesList));
-server.post({ path: '/lifecycle', version: curVersion }, wrap(lifecycle.createLifecycle));
 server.get({ path: '/lifecycle', version: curVersion }, wrap(lifecycle.getLifecycles));
-server.del({ path: '/lifecycle/:lifecycle_id', version: curVersion }, wrap(lifecycle.removeLifecycle));
+server.post({ path: '/lifecycle', version: curVersion }, wrap(middlewares.checkPermissions), wrap(lifecycle.createLifecycle));
+server.del({ path: '/lifecycle/:lifecycle_id', version: curVersion }, wrap(middlewares.checkPermissions), wrap(lifecycle.removeLifecycle));
 
 server.get({ path: '/eventroles', version: curVersion }, user.getEventRoles);
 

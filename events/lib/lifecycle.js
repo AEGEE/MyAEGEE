@@ -10,6 +10,13 @@ exports.createLifecycle = async (req, res, next) => {
   const data = req.body;
   delete data._id;
 
+  if (!req.user.permissions.can.edit_lifecycles) {
+    return next(new restify.ForbiddenError({ body: {
+      success: false,
+      message: 'You are not allowed to create/edit lifecycles.'
+    } }));
+  }
+
   if (!data.eventType) {
     return next(new restify.InvalidArgumentError({ body: {
       success: false,
@@ -56,12 +63,19 @@ exports.createLifecycle = async (req, res, next) => {
 };
 
 exports.removeLifecycle = async (req, res, next) => {
+  if (!req.user.permissions.can.delete_lifecycles) {
+    return next(new restify.ForbiddenError({ body: {
+      success: false,
+      message: 'You are not allowed to delete lifecycles.'
+    } }));
+  }
+
   if (!req.params.lifecycle_id) {
     return next(new restify.InvalidArgumentError({
       body: {
         success: false,
-        message: 'No lifecycle name was specified.',
-      },
+        message: 'No lifecycle name was specified.'
+      }
     }));
   }
 
@@ -69,11 +83,11 @@ exports.removeLifecycle = async (req, res, next) => {
     const doc = await EventType.findOneAndRemove({ name: req.params.lifecycle_id }, {});
 
     if (!doc) {
-      return next(new restify.InternalError({
+      return next(new restify.NotFoundError({
         body: {
           success: false,
-          message: 'Lifecycle with that name was not found.',
-        },
+          message: 'Lifecycle with that name was not found.'
+        }
       }));
     }
 
@@ -99,28 +113,28 @@ exports.getLifecyclesNames = async (req, res, next) => {
 
     res.send({
       success: true,
-      data: names,
+      data: names
     });
     return next();
   } catch (err) {
     return next(new restify.InternalError({
       body: {
         success: false,
-        message: err.message,
-      },
+        message: err.message
+      }
     }));
   }
 };
 
 exports.getPseudoRolesList = async (req, res, next) => {
-  const result = eventRoles.roles.map(item => ({
+  const result = pseudoRoles.map(item => ({
     name: item.name,
-    description: item.description + ' (event role)',
+    description: item.description + ' (event role)'
   }));
 
   res.json({
     success: true,
-    data: result,
+    data: result
   });
 
   return next();

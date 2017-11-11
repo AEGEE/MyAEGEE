@@ -17,7 +17,7 @@ let accessObject = {
   special: [],
 };
 
-describe('Lifecycles edition', () => {
+describe('Lifecycles deletion', () => {
   let statuses;
   let lifecycles;
   let eventTypes;
@@ -26,7 +26,7 @@ describe('Lifecycles edition', () => {
   let omscoreStub;
   let omsserviceregistryStub;
 
-  /* beforeEach(async () => {
+  beforeEach(async () => {
     newLifecycle = {
       eventType: 'non-statutory',
       statuses: [{
@@ -82,9 +82,62 @@ describe('Lifecycles edition', () => {
     omscoreStub = nock('http://omscore-nginx')
       .post('/api/tokens/user')
       .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
-  }); */
+  });
 
-  it('should fail on validation errors');
-  it('should fail on unautorized access');
-  it('should success on correct request');
+  it('should fail if no event type exists', (done) => {
+    chai.request(server)
+      .delete('/lifecycle/non-existant')
+      .set('X-Auth-Token', 'foobar')
+      .send(newLifecycle)
+      .end((err, res) => {
+        res.should.have.status(404);
+        res.should.be.json;
+        res.should.be.a('object');
+
+        res.body.success.should.be.false;
+
+        done();
+      });
+  });
+
+  it('should fail on unautorized access', (done) => {
+    nock.cleanAll();
+    omsserviceregistryStub = nock(config.registry.url + ':' + config.registry.port)
+      .get('/services/omscore-nginx')
+      .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-serviceregistry-valid.json'));
+
+    omscoreStub = nock('http://omscore-nginx')
+      .post('/api/tokens/user')
+      .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-not-superadmin.json'));
+
+    chai.request(server)
+      .delete('/lifecycle/statutory')
+      .set('X-Auth-Token', 'foobar')
+      .send(newLifecycle)
+      .end((err, res) => {
+        res.should.have.status(403);
+        res.should.be.json;
+        res.should.be.a('object');
+
+        res.body.success.should.be.false;
+
+        done();
+      });
+  });
+
+  it('should success on correct request', (done) => {
+    chai.request(server)
+      .delete('/lifecycle/statutory')
+      .set('X-Auth-Token', 'foobar')
+      .send(newLifecycle)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.should.be.json;
+        res.should.be.a('object');
+
+        res.body.success.should.be.true;
+
+        done();
+      });
+  });
 });

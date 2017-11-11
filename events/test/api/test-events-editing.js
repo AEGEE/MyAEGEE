@@ -139,7 +139,7 @@ describe('Events editing', () => {
       .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-serviceregistry-valid.json'));
 
     omscoreStub = nock('http://omscore-nginx')
-    .persist()
+      .persist()
       .post('/api/tokens/user')
       .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
 

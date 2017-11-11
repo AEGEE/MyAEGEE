@@ -117,6 +117,9 @@ exports.checkPermissions = async (req, res, next) => {
       permissions.is.superadmin;
   }
 
+  permissions.can.edit_lifecycles = permissions.is.superadmin;
+  permissions.can.delete_lifecycles = permissions.is.superadmin;
+
   const eventPermissions = helpers.getEventPermissions(req.event, req.user);
 
   // Convert all to boolean and assign

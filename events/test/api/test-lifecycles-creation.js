@@ -17,7 +17,7 @@ let accessObject = {
   special: [],
 };
 
-describe('Lifecycles creation', () => {
+describe('Lifecycles management', () => {
   let statuses;
   let lifecycles;
   let eventTypes;
@@ -82,6 +82,31 @@ describe('Lifecycles creation', () => {
     omscoreStub = nock('http://omscore-nginx')
       .post('/api/tokens/user')
       .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
+  });
+
+  it('should not create/update lifecycle if not superadmin', (done) => {
+    nock.cleanAll();
+    omsserviceregistryStub = nock(config.registry.url + ':' + config.registry.port)
+      .get('/services/omscore-nginx')
+      .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-serviceregistry-valid.json'));
+
+    omscoreStub = nock('http://omscore-nginx')
+      .post('/api/tokens/user')
+      .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-not-superadmin.json'));
+
+    chai.request(server)
+      .post('/lifecycle')
+      .set('X-Auth-Token', 'foobar')
+      .send(newLifecycle)
+      .end((err, res) => {
+        res.should.have.status(403);
+        res.should.be.json;
+        res.should.be.a('object');
+
+        res.body.success.should.be.false;
+
+        done();
+      });
   });
 
   it('should not create/update lifecycle if no eventType is specified', (done) => {
