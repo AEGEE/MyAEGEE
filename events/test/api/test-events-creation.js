@@ -47,25 +47,25 @@ describe('Events creation', () => {
         res.should.be.a('object');
 
         res.body.success.should.be.true;
-        res.body.data[0].should.have.property('_id');
-        res.body.data[0].should.have.property('name');
-        res.body.data[0].should.have.property('starts');
-        res.body.data[0].should.have.property('ends');
-        res.body.data[0].should.have.property('application_status');
-        res.body.data[0].should.have.property('max_participants');
-        res.body.data[0].should.have.property('status');
-        res.body.data[0].should.have.property('type');
-        res.body.data[0].should.have.property('organizing_locals');
-        res.body.data[0].should.have.property('description');
-        res.body.data[0].should.have.property('application_fields');
-        res.body.data[0].should.have.property('organizers');
+        res.body.data.should.have.property('_id');
+        res.body.data.should.have.property('name');
+        res.body.data.should.have.property('starts');
+        res.body.data.should.have.property('ends');
+        res.body.data.should.have.property('application_status');
+        res.body.data.should.have.property('max_participants');
+        res.body.data.should.have.property('status');
+        res.body.data.should.have.property('type');
+        res.body.data.should.have.property('organizing_locals');
+        res.body.data.should.have.property('description');
+        res.body.data.should.have.property('application_fields');
+        res.body.data.should.have.property('organizers');
 
         // Check auto-filled fields
-        res.body.data[0].status.name.should.equal('Draft');
-        res.body.data[0].type.should.equal('non-statutory');
-        res.body.data[0].application_status.should.equal('closed');
-        res.body.data[0].application_fields.should.have.lengthOf(0);
-        res.body.data[0].max_participants.should.equal(0);
+        res.body.data.status.name.should.equal('Draft');
+        res.body.data.type.should.equal('non-statutory');
+        res.body.data.application_status.should.equal('closed');
+        res.body.data.application_fields.should.have.lengthOf(0);
+        res.body.data.max_participants.should.equal(0);
 
         done();
       });
@@ -102,24 +102,24 @@ describe('Events creation', () => {
         res.should.be.a('object');
 
         res.body.success.should.be.true;
-        res.body.data[0].should.have.property('_id');
-        res.body.data[0].should.have.property('name');
-        res.body.data[0].should.have.property('starts');
-        res.body.data[0].should.have.property('ends');
-        res.body.data[0].should.have.property('application_deadline');
-        res.body.data[0].should.have.property('application_status');
-        res.body.data[0].should.have.property('max_participants');
-        res.body.data[0].should.have.property('status');
-        res.body.data[0].should.have.property('type');
-        res.body.data[0].should.have.property('organizing_locals');
-        res.body.data[0].should.have.property('description');
-        res.body.data[0].should.have.property('application_fields');
-        res.body.data[0].should.have.property('organizers');
+        res.body.data.should.have.property('_id');
+        res.body.data.should.have.property('name');
+        res.body.data.should.have.property('starts');
+        res.body.data.should.have.property('ends');
+        res.body.data.should.have.property('application_deadline');
+        res.body.data.should.have.property('application_status');
+        res.body.data.should.have.property('max_participants');
+        res.body.data.should.have.property('status');
+        res.body.data.should.have.property('type');
+        res.body.data.should.have.property('organizing_locals');
+        res.body.data.should.have.property('description');
+        res.body.data.should.have.property('application_fields');
+        res.body.data.should.have.property('organizers');
 
-        res.body.data[0].application_fields.should.have.lengthOf(2);
+        res.body.data.application_fields.should.have.lengthOf(2);
 
-        // Not yet implemented
-        // res.body.organizers.should.have.lengthOf(1);
+        res.body.data.organizers.should.have.lengthOf(1);
+        res.body.data.organizing_locals.should.have.lengthOf(1);
 
         done();
       });

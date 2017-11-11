@@ -170,10 +170,9 @@ exports.addEvent = async (req, res, next) => {
   const data = req.body;
   delete data._id;
   delete data.status;
-  delete data.applications;
   delete data.organizers;
   delete data.application_status;
-  // delete data.organizing_locals;
+  delete data.organizing_locals;
 
   if (!data.type) {
     return next(new restify.InvalidArgumentError({
@@ -273,7 +272,7 @@ cannot set initial status.`,
     res.json({
       success: true,
       message: 'Event successfully created',
-      data: [newEvent],
+      data: newEvent,
     });
     return next();
   } catch (err) {
