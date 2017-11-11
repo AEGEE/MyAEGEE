@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
   #config.vm.synced_folder "./oms-events-frontend",              "/home/vagrant/oms-docker/oms-events-frontend"
 
   #make it work also for windows
-  config.vm.provision "shell", inline: "apt-get install dos2unix -y; cd /vagrant && dos2unix *.sh; dos2unix vagrant-post-script/*.sh"
+  config.vm.provision "shell", inline: "apt-get install dos2unix -qq -y; cd /vagrant && dos2unix *.sh; dos2unix vagrant-post-script/*.sh"
   
   #install docker and docker-composer the easy way
   config.vm.provision "shell", path: "vagrant-post-script/install_docker.sh"
@@ -35,18 +35,18 @@ Vagrant.configure("2") do |config|
   
   config.vm.provision "docker" do |d|
     d.pull_images "portainer/portainer:1.14.2"
-    d.pull_images "postgres:10.0"
-    d.pull_images "fenglc/pgadmin4:1.6"
-    d.pull_images "phusion/baseimage:0.9.22"
-    d.pull_images "laradock/php-fpm:1.4-71"
-    d.pull_images "nginx:alpine"
+    #d.pull_images "postgres:10.0"
+    #d.pull_images "fenglc/pgadmin4:1.6"
+    #d.pull_images "phusion/baseimage:0.9.22"
+    #d.pull_images "laradock/php-fpm:1.4-71"
+    #d.pull_images "nginx:alpine"
     #d.build_image "/vagrant/app"
   end
   
   ##TODO: is it needed? do we need to clone the repo for dev?
   #config.vm.provision "shell", path: "vagrant-post-script/check_cloned_recursively.sh"
   #provision docker orchestration (set to always run)
-  config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh", run: "always"
+  #config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh", run: "always"
 
   config.vm.post_up_message = "[FINALLY!] Setup is complete, wait some minutes for the bootstrap of oms-core and then open your browser to http://appserver (did you configure /etc/hosts?)"
   

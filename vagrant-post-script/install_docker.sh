@@ -6,7 +6,7 @@ echo "[Vagrant] ###################     Installing docker"
 
 sudo apt-get update
 
-sudo apt-get install -y \
+sudo apt-get install -qq -y \
     apt-transport-https \
     ca-certificates \
     curl \
@@ -22,7 +22,7 @@ sudo add-apt-repository \
    stable"
 
 sudo apt-get update
-sudo apt-get install -y docker-ce=17.06.0~ce-0~ubuntu || { echo "[Vagrant] ###################     Installation error, exiting"; exit; }
+sudo apt-get install -qq -y docker-ce=17.06.0~ce-0~ubuntu || { echo "[Vagrant] ###################     Installation error, exiting"; exit; }
 
 echo "[Vagrant] ###################     Installation complete"
 
