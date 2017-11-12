@@ -77,52 +77,34 @@ exports.listUserOrganizedEvents = (req, res, next) => {
     });
 };
 
-exports.listApprovableEvents = (req, res, next) => {
+exports.listApprovableEvents = async (req, res, next) => {
   // Loading events and a lifecycle and its statuses for each event.
-  Event
+  const events = await Event
     .where('ends').gte(new Date())
-    .where('deleted').equals(false)
-    .populate({ path: 'lifecycle', model: 'Lifecycle', populate: { path: 'status', model: 'Status' } })
-    .exec((err, events) => {
-      if (err) {
-        log.info(err);
-        return next(new restify.InternalError({
-          body: {
-            success: false,
-            message: err.message,
-          },
-        }));
+    .where('deleted').equals(false);
+
+  // Checking if we have at least 1 transition
+  // from current status to any status
+  // which is allowed for this user/body/role/special
+  const retVal = events.filter((event) => {
+    return event.lifecycle.transitions.some((transition) => {
+      // Skipping all transitions without 'from' status,
+      // since each event has a status
+      if (!transition.from) {
+        return false;
       }
 
-      // Checking if we have at least 1 transition
-      // from current status to any status
-      // which is allowed for this user/body/role/special
-      const retVal = events.filter((event) => {
-        var permissions = helpers.getEventPermissions(event, req.user);
-
-        return event.lifecycle.transitions.some((transition) => {
-          // Skipping all transitions without 'from' status,
-          // since each event has a status
-          if (!transition.from) {
-            return false;
-          }
-
-          // TODO: Add bodies
-          return (transition.from.equals(event.status)
-            && (transition.allowedFor.users.includes(req.user.basic.id.toString())
-              || intersects(transition.allowedFor.roles, req.user.roles)
-              || intersects(transition.allowedFor.special, req.user.special)
-              || intersects(transition.allowedFor.special, permissions.special)));
-        });
-      });
-
-      // Return events and their lifecycles.
-      res.json({
-        success: true,
-        data: retVal,
-      });
-      return next();
+      return (transition.from === event.status.name
+        && helpers.canUserAccess(req.user, transition.allowedFor, event));
     });
+  });
+
+  // Return events and their lifecycles.
+  res.json({
+    success: true,
+    data: retVal,
+  });
+  return next();
 };
 
 // All event where a local has participated

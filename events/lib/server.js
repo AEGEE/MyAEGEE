@@ -96,8 +96,8 @@ server.get({ path: '/eventroles', version: curVersion }, user.getEventRoles);
 
 server.get({ path: '/mine/byOrganizer', version: curVersion }, events.listUserOrganizedEvents);
 server.get({ path: '/mine/approvable', version: curVersion }, [
-  middlewares.checkPermissions,
-  events.listApprovableEvents,
+  wrap(middlewares.checkPermissions),
+  wrap(events.listApprovableEvents),
 ]);
 
 server.get({ path: '/boardview', version: curVersion }, [
