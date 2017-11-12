@@ -1,12 +1,12 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const nock = require('nock');
-const path = require('path');
 
 const server = require('../../lib/server.js');
-const config = require('../../lib/config/config.js');
+const Event = require('../../lib/models/Event');
 
 const db = require('../scripts/populate-db.js');
+const mock = require('../scripts/mock-core-registry');
+
 
 const should = chai.should();
 chai.use(chaiHttp);
@@ -21,17 +21,9 @@ describe('Events editing', () => {
     const res = await db.populateEvents();
     events = res.events;
 
-    omsserviceregistryStub = nock(config.registry.url + ':' + config.registry.port)
-      .get('/services/omscore-nginx')
-      .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-serviceregistry-valid.json'));
-
-    omscoreStub = nock('http://omscore-nginx')
-      .post('/api/tokens/user')
-      .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
-  });
-
-  afterEach(async () => {
-    nock.cleanAll();
+    const mocked = mock.mockAll();
+    omscoreStub = mocked.omscoreStub;
+    omsserviceregistryStub = mocked.omsserviceregistryStub;
   });
 
   it('should update an event on a sane /single/<eventid> PUT', (done) => {
@@ -47,34 +39,30 @@ describe('Events editing', () => {
       });
   });
 
-  // The same as the 1st one, broken.
-  // TODO: Fix it.
-  it('should store the changes on update after a sane /single/<eventid> PUT'/* , (done) => {
+  it('should store the changes on update after a sane /single/<eventid> PUT', (done) => {
     chai.request(server)
       .put(`/single/${events[0].id}`)
       .set('X-Auth-Token', 'foobar')
       .send({
         description: 'some new description',
       })
-      .end(function (err, res) {
+      .end(() => {
         chai.request(server)
           .get(`/single/${events[0].id}`)
           .set('X-Auth-Token', 'foobar')
-          .end(function (err, res) {
-            res.body.description.should.equal('some new description');
+          .end((secondErr, res) => {
+            res.body.data.description.should.equal('some new description');
             done();
           });
       });
-  }*/);
+  });
 
-  // The same.
-  
-  it('should ignore superflous fields on overly detailed /single/<eventid> PUT'/*, (done) => {
+  it('should ignore superflous fields on overly detailed /single/<eventid> PUT', (done) => {
     chai.request(server)
       .put(`/single/${events[0].id}`)
       .set('X-Auth-Token', 'foobar')
       .send({
-        status: '507f191e810c19729de860ea', // random ObjectID
+        status: 'approved'
       })
       .end(() => {
         chai.request(server)
@@ -82,12 +70,12 @@ describe('Events editing', () => {
           .set('X-Auth-Token', 'foobar')
           .end((getError, res) => {
             res.should.have.status(200);
-            res.body.status.should.not.equal('507f191e810c19729de860ea');
+            res.body.data.status.should.not.equal('approved');
 
             done();
           });
       });
-  }*/);
+  });
 
   it('should return a validation error on malformed /single/<eventid> PUT', (done) => {
     chai.request(server)
@@ -103,13 +91,11 @@ describe('Events editing', () => {
       });
   });
 
-  // The same.
-  
-  it('should not update the organizers list with /single/<eventid> PUT'/*, (done) => {
+  it('should not update the organizers list with /single/<eventid> PUT', (done) => {
     chai.request(server)
       .get(`/single/${events[0].id}`)
       .set('X-Auth-Token', 'foobar')
-      .end((err, event) => {
+      .end(() => {
         chai.request(server)
           .put(`/single/${events[0].id}`)
           .set('X-Auth-Token', 'foobar')
@@ -121,7 +107,7 @@ describe('Events editing', () => {
               },
             ],
           })
-          .end((err, res) => {
+          .end(() => {
             Event.findById(events[0].id).exec((err, res) => {
               res.organizers.forEach(item => item.foreign_id.should.not.equal('vincent.vega'));
             });
@@ -129,20 +115,9 @@ describe('Events editing', () => {
             done();
           });
       });
-  }*/);
+  });
 
   it('should hide an event from / GET but keep it for /single GET after /single DELETE', (done) => {
-    nock.cleanAll();
-
-    omsserviceregistryStub = nock(config.registry.url + ':' + config.registry.port)
-      .get('/services/omscore-nginx')
-      .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-serviceregistry-valid.json'));
-
-    omscoreStub = nock('http://omscore-nginx')
-      .persist()
-      .post('/api/tokens/user')
-      .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
-
     // Delete one event
     chai.request(server)
       .delete(`/single/${events[0].id}`)
