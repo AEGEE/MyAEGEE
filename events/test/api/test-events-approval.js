@@ -85,17 +85,52 @@ describe('Events approval', () => {
       });
   });
 
-  it('should perform status change when it\'s allowed'/*, (done) => {
-    const lifecycle = lifecycles.find(l => l.eventType === 'non-statutory');
-    const statusFrom = statuses.find(s => lifecycle.status.includes(s._id) && s.name === 'Draft');
-    const statusTo = statuses.find(s => lifecycle.status.includes(s._id) && s.name === 'Requesting');
-    const event = events.find(e => e.status === statusFrom._id);
+  it('should list possible statuses on GET /single/:id/status', (done) => {
+    const possibleStatuses = events[0].lifecycle.statuses.filter((status) => {
+      return events[0].lifecycle.transitions.some((transition) => {
+        return transition.from === events[0].status.name
+          && transition.to === status.name
+          && helpers.canUserAccess(user, transition.allowedFor, events[0]);
+      });
+    });
 
     chai.request(server)
-      .put(`/single/${event.id}/status`)
+      .get('/single/' + events[0]._id + '/status')
+      .set('X-Auth-Token', 'foobar')
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
+        expect(res.body.success).to.be.true;
+        expect(res.body.data).to.have.lengthOf(possibleStatuses.length);
+
+        const names = possibleStatuses.map(s => s.name);
+        const gotNames = res.body.data.map(t => t.to.name);
+
+        for (const name of names) {
+          expect(gotNames.indexOf(name)).not.to.equal(-1);
+        }
+
+        done();
+      });
+  });
+
+  it('should perform status change when it\'s allowed', (done) => {
+    const possibleStatuses = events[0].lifecycle.statuses.filter((status) => {
+      return events[0].lifecycle.transitions.some((transition) => {
+        return transition.from === events[0].status.name
+          && transition.to === status.name
+          && helpers.canUserAccess(user, transition.allowedFor, events[0]);
+      });
+    });
+
+    const statusToChangeTo = possibleStatuses[0].name;
+
+    chai.request(server)
+      .put(`/single/${events[0].id}/status`)
       .set('X-Auth-Token', 'foobar')
       .send({
-        status: statusTo._id,
+        status: statusToChangeTo,
       })
       .end((err, res) => {
         expect(res).to.have.status(200);
@@ -105,25 +140,34 @@ describe('Events approval', () => {
         expect(res.body.success).to.be.true;
         expect(res.body).to.have.property('message');
 
-        Event.findOne({ _id: event._id })
+        Event.findOne({ _id: events[0]._id })
           .then((eventFromDb) => {
-            expect(eventFromDb.status.equals(statusTo._id)).to.be.true;
+            expect(eventFromDb.status.name).to.be.equal(statusToChangeTo);
             done();
           });
       });
-  }*/);
+  });
 
-  it('should not perform status change when the user is not allowed to do it'/*, (done) => {
-    const lifecycle = lifecycles.find(l => l.eventType === 'statutory');
-    const statusFrom = statuses.find(s => lifecycle.status.includes(s._id) && s.name === 'Requesting');
-    const statusTo = statuses.find(s => lifecycle.status.includes(s._id) && s.name === 'Draft');
-    const event = events.find(e => e.status === statusFrom._id);
+  it('should not perform status change when the user is not allowed to do it', (done) => {
+    const possibleStatuses = events[0].lifecycle.statuses.filter((status) => {
+      return events[0].lifecycle.transitions.some((transition) => {
+        return transition.from === events[0].status.name
+          && transition.to === status.name
+          && helpers.canUserAccess(user, transition.allowedFor, events[0]);
+      });
+    }).map(s => s.name);
+
+    const notPossibleStatuses = events[0].lifecycle.statuses.filter((status) => {
+      return !possibleStatuses.includes(status.name);
+    }).map(s => s.name);
+
+    const statusToChangeTo = notPossibleStatuses[0].name;
 
     chai.request(server)
-      .put(`/single/${event.id}/status`)
+      .put(`/single/${events[0].id}/status`)
       .set('X-Auth-Token', 'foobar')
       .send({
-        status: statusTo._id,
+        status: statusToChangeTo,
       })
       .end((err, res) => {
         expect(res).to.have.status(403);
@@ -133,25 +177,25 @@ describe('Events approval', () => {
         expect(res.body.success).to.be.false;
         expect(res.body).to.have.property('message');
 
-        Event.findOne({ _id: event._id })
-          .then((eventFromDb) => {
-            expect(eventFromDb.status.equals(statusFrom._id)).to.be.true;
-            done();
-          });
+        Event.findOne({ _id: events[0]._id }).then((eventFromDb) => {
+          expect(eventFromDb.status.name).not.to.equal(statusToChangeTo);
+          done();
+        });
       });
-  }*/);
+  });
 
-  it('should not perform status change when there\'s no transition'/*, (done) => {
-    const lifecycle = lifecycles.find(l => l.eventType === 'non-statutory');
-    const statusFrom = statuses.find(s => lifecycle.status.includes(s._id) && s.name === 'Draft');
-    const statusTo = statuses.find(s => lifecycle.status.includes(s._id) && s.name === 'Approved');
-    const event = events.find(e => e.status === statusFrom._id);
+  it('should not perform status change when there\'s no transition', (done) => {
+    const statusWithoutTransition = events[0].lifecycle.statuses.find((status) => {
+      return status.name !== events[0].status.name && events[0].lifecycle.transitions.filter((transition) => {
+        return transition.from === events[0].status.name && transition.to === status.name;
+      }).length === 0;
+    }).name;
 
     chai.request(server)
-      .put(`/single/${event.id}/status`)
+      .put(`/single/${events[0].id}/status`)
       .set('X-Auth-Token', 'foobar')
       .send({
-        status: statusTo._id,
+        status: statusWithoutTransition,
       })
       .end((err, res) => {
         expect(res).to.have.status(403);
@@ -161,11 +205,11 @@ describe('Events approval', () => {
         expect(res.body.success).to.be.false;
         expect(res.body).to.have.property('message');
 
-        Event.findOne({ _id: event._id })
+        Event.findOne({ _id: events[0]._id })
           .then((eventFromDb) => {
-            expect(eventFromDb.status.equals(statusFrom._id)).to.be.true;
+            expect(eventFromDb.status.name).not.to.be.equal(statusWithoutTransition);
             done();
           });
       });
-  }*/);
+  });
 });
