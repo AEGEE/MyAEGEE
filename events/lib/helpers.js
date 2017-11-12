@@ -1,33 +1,6 @@
 const httprequest = require('request');
 const config = require('./config/config.js');
 
-exports.checkApplicationValidity = (application, applicationFields) => {
-  // Check if every field in the application array resembles to a field in event.applicationFields
-  if (application === undefined || Object.prototype.toString.call(application) !== '[object Array]') {
-    return { passed: false, msg: 'Not an array' };
-  }
-  if (application.length > applicationFields.length) {
-    return { passed: false, msg: 'Application too long' };
-  }
-
-  // O(N*N), let's hope applications don't get big
-  let error = false;
-  application.forEach((userField) => {
-    if (applicationFields
-        .find(applicationField => applicationField._id === userField.field_id) === undefined) {
-      error = true;
-    }
-  });
-
-  if (error) {
-    return { passed: false, msg: 'Invalid field_id' };
-  }
-
-  // TODO Check for duplicate fields
-
-  return { passed: true, msg: '' };
-};
-
 function getEventPermissions(event, user) {
   const permissions = {
     is: {},
@@ -43,7 +16,6 @@ function getEventPermissions(event, user) {
 
   permissions.is.own_antenna = event.organizing_locals.some(organizer =>
     user.bodies.some(body => organizer.foreign_id === body.id));
-
 
   permissions.can.edit_organizers = permissions.is.organizer;
 
