@@ -14,9 +14,10 @@ docker network inspect OMS &>/dev/null || (echo -e "[OMS] Creating OMS docker ne
 
 
 ## Declare docker-compose.yml folders
+# HUMAN INTERVENTION NEEDED: register here your services
 declare -a services=("oms-global" "oms-core")
 
-command="docker-compose -f empty-docker-compose.yml"
+command="docker-compose -f base-docker-compose.yml"
 for s in "${services[@]}"; do
     if [[ -f "$DIR/${s}/docker/docker-compose.yml" ]]; then
         command="${command} -f $DIR/${s}/docker/docker-compose.yml"
