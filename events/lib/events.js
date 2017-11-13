@@ -46,29 +46,18 @@ exports.listEvents = async (req, res, next) => {
 };
 
 // Returns all events the user is organizer on
-exports.listUserOrganizedEvents = (req, res, next) => {
-  Event
+exports.listUserOrganizedEvents = async (req, res, next) => {
+  const events = await Event
     .where('deleted').equals(false) // Hide deleted events
     .where('ends').gte(new Date())  // Only show events in the future
-    .elemMatch('organizers', { foreign_id: req.user.basic.id })
-    .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
-    .exec((err, events) => {
-      if (err) {
-        log.info(err);
-        return next(new restify.InternalError({
-          body: {
-            success: false,
-            message: err.message,
-          },
-        }));
-      }
+    .elemMatch('organizers', { foreign_id: req.user.id })
+    .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '));
 
-      res.json({
-        success: true,
-        data: events,
-      });
-      return next();
-    });
+  res.json({
+    success: true,
+    data: events,
+  });
+  return next();
 };
 
 exports.listApprovableEvents = async (req, res, next) => {
@@ -102,7 +91,8 @@ exports.listApprovableEvents = async (req, res, next) => {
 };
 
 // All event where a local has participated
-exports.listLocalInvolvedEvents = (req, res, next) => {
+// Not working: TODO: make it work
+/* exports.listLocalInvolvedEvents = (req, res, next) => {
   // Only visible to board members
   if (!req.user.permissions.can.view_local_involved_events) {
     return next(new restify.ForbiddenError('You are not allowed to see this'));
@@ -138,7 +128,7 @@ exports.listLocalInvolvedEvents = (req, res, next) => {
       });
       return next();
     });
-};
+}; */
 
 exports.addEvent = async (req, res, next) => {
   // Make sure the user doesn't insert malicious stuff
@@ -203,12 +193,8 @@ cannot set initial status.`));
     const transition = eventType.defaultLifecycle.transitions.find(t =>
       !t.from && t.to === eventType.defaultLifecycle.initialStatus);
 
-    if (!transition) {
-      return next(helpers.makeForbiddenError('Nobody is allowed to create events of this type.'));
-    }
-
     // Checking if the user is allowed to create events of this type.
-    if (!helpers.canUserAccess(req.user, transition.allowedFor)) {
+    if (!transition || !helpers.canUserAccess(req.user, transition.allowedFor)) {
       return next(helpers.makeForbiddenError('You are not allowed to create an event of this type.'));
     }
 
@@ -269,7 +255,7 @@ exports.eventDetails = async (req, res, next) => {
 
 exports.editEvent = async (req, res, next) => {
   // If user can't edit anything, return error right away
-  if (!req.user.permissions.can.edit) {
+  if (!req.user.permissions.can.edit_details) {
     return next(helpers.makeForbiddenError('You cannot edit this event'));
   }
 

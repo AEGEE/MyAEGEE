@@ -25,6 +25,32 @@ describe('Events creation', () => {
     omsserviceregistryStub = mocked.omsserviceregistryStub;
   });
 
+  it('should not create a new event if the user doesn\'t have rights / POST', (done) => {
+    const mocked = mock.mockAll({ core: { notSuperadmin: true } });
+    omscoreStub = mocked.omscoreStub;
+    omsserviceregistryStub = mocked.omsserviceregistryStub;
+
+    chai.request(server)
+      .post('/')
+      .set('X-Auth-Token', 'foobar')
+      .send({
+        name: 'Develop Yourself 4',
+        starts: '2017-12-11 15:00',
+        ends: '2017-12-14 12:00',
+        type: 'non-statutory',
+      })
+      .end((err, res) => {
+        res.should.have.status(403);
+        res.should.be.json;
+        res.should.be.a('object');
+
+        res.body.success.should.be.false;
+        res.body.should.have.property('message');
+
+        done();
+      });
+  });
+
   it('should create a new event on minimal sane / POST', (done) => {
     chai.request(server)
       .post('/')

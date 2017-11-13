@@ -83,7 +83,7 @@ server.get({ path: '/status', version: curVersion }, service.status);
 server.get({ path: '/debug', version: curVersion }, events.debug);
 server.get({ path: '/getUser', version: curVersion }, [
   // middlewares.checkPermissions,
-  service.getUser,
+  wrap(service.getUser),
 ]);
 
 server.get({ path: '/lifecycle/names', version: curVersion }, wrap(lifecycle.getLifecyclesNames));
@@ -92,18 +92,18 @@ server.get({ path: '/lifecycle', version: curVersion }, wrap(lifecycle.getLifecy
 server.post({ path: '/lifecycle', version: curVersion }, wrap(middlewares.checkPermissions), wrap(lifecycle.createLifecycle));
 server.del({ path: '/lifecycle/:lifecycle_id', version: curVersion }, wrap(middlewares.checkPermissions), wrap(lifecycle.removeLifecycle));
 
-server.get({ path: '/eventroles', version: curVersion }, user.getEventRoles);
+server.get({ path: '/eventroles', version: curVersion }, wrap(user.getEventRoles));
 
-server.get({ path: '/mine/byOrganizer', version: curVersion }, events.listUserOrganizedEvents);
+server.get({ path: '/mine/byOrganizer', version: curVersion }, wrap(events.listUserOrganizedEvents));
 server.get({ path: '/mine/approvable', version: curVersion }, [
   wrap(middlewares.checkPermissions),
   wrap(events.listApprovableEvents),
 ]);
 
-server.get({ path: '/boardview', version: curVersion }, [
-  middlewares.checkPermissions,
-  events.listLocalInvolvedEvents,
-]);
+/* server.get({ path: '/boardview', version: curVersion }, [
+  wrap(middlewares.checkPermissions),
+  wrap(events.listLocalInvolvedEvents),
+]); */
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
 server.use(wrap(middlewares.fetchSingleEvent));
@@ -114,8 +114,8 @@ server.put({ path: '/single/:event_id', version: curVersion }, wrap(events.editE
 server.del({ path: '/single/:event_id', version: curVersion }, wrap(events.deleteEvent));
 server.get({ path: '/single/:event_id/status', version: curVersion }, wrap(events.listPossibleStatuses));
 server.put({ path: '/single/:event_id/status', version: curVersion }, wrap(events.setApprovalStatus));
-server.get({ path: '/single/:event_id/rights', version: curVersion }, events.getEditRights);
-server.put({ path: '/single/:event_id/link', version: curVersion }, events.addEventLink);
+server.get({ path: '/single/:event_id/rights', version: curVersion }, wrap(events.getEditRights));
+server.put({ path: '/single/:event_id/link', version: curVersion }, wrap(events.addEventLink));
 server.post({ path: '/single/:event_id/upload', version: curVersion }, wrap(imageserv.uploadImage));
 
 server.listen(config.port, () => {

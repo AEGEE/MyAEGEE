@@ -7,7 +7,6 @@ const Event = require('../../lib/models/Event');
 const db = require('../scripts/populate-db.js');
 const mock = require('../scripts/mock-core-registry');
 
-
 const should = chai.should();
 chai.use(chaiHttp);
 
@@ -26,6 +25,25 @@ describe('Events editing', () => {
     omsserviceregistryStub = mocked.omsserviceregistryStub;
   });
 
+  it('should disallow event editing if the user doesn\'t have rights to do it', (done) => {
+    const mocked = mock.mockAll({ core: { notSuperadmin: true } });
+    omscoreStub = mocked.omscoreStub;
+    omsserviceregistryStub = mocked.omsserviceregistryStub;
+
+    chai.request(server)
+      .put(`/single/${events[0].id}`)
+      .set('X-Auth-Token', 'foobar')
+      .send({
+        description: 'some new description',
+      })
+      .end((err, res) => {
+        res.should.have.status(403);
+        res.body.success.should.be.false;
+        res.body.should.have.property('message');
+        done();
+      });
+  });
+
   it('should update an event on a sane /single/<eventid> PUT', (done) => {
     chai.request(server)
       .put(`/single/${events[0].id}`)
@@ -33,7 +51,7 @@ describe('Events editing', () => {
       .send({
         description: 'some new description',
       })
-      .end(function (err, res) {
+      .end((err, res) => {
         res.should.have.status(200);
         done();
       });
