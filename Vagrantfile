@@ -42,11 +42,11 @@ Vagrant.configure("2") do |config|
     #d.pull_images "nginx:alpine"
     #d.build_image "/vagrant/app"
   end
-  
-  ##TODO: is it needed? do we need to clone the repo for dev?
-  #config.vm.provision "shell", path: "vagrant-post-script/check_cloned_recursively.sh"
+ 
+  #for users who just download the repo to 'vagrant up' it
+  config.vm.provision "shell", path: "vagrant-post-script/check_cloned_recursively.sh"
   #provision docker orchestration (set to always run)
-  #config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh", run: "always"
+  config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh", run: "always"
 
   config.vm.post_up_message = "[FINALLY!] Setup is complete, wait some minutes for the bootstrap of oms-core and then open your browser to http://appserver (did you configure /etc/hosts?)"
   
