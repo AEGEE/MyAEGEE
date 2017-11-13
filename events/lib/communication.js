@@ -67,7 +67,7 @@ const getAuthToken = async () => {
     });
 
     if (!body.success) {
-      return Promise.reject(new Error(`Error when getting access token, registry replied: ${body.message}`));
+      throw new Error(`Error when getting access token, registry replied: ${body.message}`);
     }
 
     authtoken = body.data;

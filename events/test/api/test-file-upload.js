@@ -50,7 +50,7 @@ describe('File upload', () => {
       .set('X-Auth-Token', 'foobar')
       .attach('head_image', fs.readFileSync('./test/assets/invalid_image.txt'), 'image.txt')
       .end((err, res) => {
-        res.should.have.status(500);
+        res.should.have.status(409);
         res.should.be.json;
         res.should.be.a('object');
 
@@ -67,7 +67,7 @@ describe('File upload', () => {
       .set('X-Auth-Token', 'foobar')
       .attach('head_image', fs.readFileSync('./test/assets/invalid_image.jpg'), 'image.jpg')
       .end((err, res) => {
-        res.should.have.status(500);
+        res.should.have.status(409);
         res.should.be.json;
         res.should.be.a('object');
 
@@ -83,7 +83,7 @@ describe('File upload', () => {
       .post(`/single/${events[0]._id}/upload`)
       .set('X-Auth-Token', 'foobar')
       .end((err, res) => {
-        res.should.have.status(500);
+        res.should.have.status(409);
         res.should.be.json;
         res.should.be.a('object');
 

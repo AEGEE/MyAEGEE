@@ -6,7 +6,6 @@ const helpers = require('./helpers.js');
 const cron = require('./cron.js');
 const user = require('./user.js');
 const Event = require('./models/Event');
-const Lifecycle = require('./schemas/Lifecycle');
 const EventType = require('./models/EventType');
 
 /** Requests for all events **/
@@ -42,12 +41,7 @@ exports.listEvents = async (req, res, next) => {
     return next();
   } catch (err) {
     log.error('Error getting events list:', err);
-    return next(new restify.InternalError({
-      body: {
-        success: false,
-        message: err.message,
-      },
-    }));
+    throw err;
   }
 };
 
@@ -157,12 +151,7 @@ exports.addEvent = async (req, res, next) => {
   delete data.organizing_locals;
 
   if (!data.type) {
-    return next(new restify.InvalidArgumentError({
-      body: {
-        success: false,
-        message: 'No event type is specified.',
-      },
-    }));
+    return next(helpers.makeValidationError('No event type is specified.'));
   }
 
   const newEvent = new Event(data);
@@ -205,13 +194,8 @@ exports.addEvent = async (req, res, next) => {
 
     if (!eventType || !eventType.defaultLifecycle) {
       // no lifecycle exists for this type of event
-      return next(new restify.InvalidArgumentError({
-        body: {
-          success: false,
-          message: `No lifecycle is specified for this type of event: ${newEvent.type}, \
-cannot set initial status.`,
-        },
-      }));
+      return next(helpers.makeValidationError(`No lifecycle is specified for this type of event: ${newEvent.type}, \
+cannot set initial status.`));
     }
 
     // Checking if the user is allowed to create an event.
@@ -220,22 +204,12 @@ cannot set initial status.`,
       !t.from && t.to === eventType.defaultLifecycle.initialStatus);
 
     if (!transition) {
-      return next(new restify.InvalidArgumentError({
-        body: {
-          success: false,
-          message: 'Nobody is allowed to create events of this type.',
-        },
-      }));
+      return next(helpers.makeForbiddenError('Nobody is allowed to create events of this type.'));
     }
 
     // Checking if the user is allowed to create events of this type.
     if (!helpers.canUserAccess(req.user, transition.allowedFor)) {
-      return next(new restify.ForbiddenError({
-        body: {
-          success: false,
-          message: 'You are not allowed to create an event of this type.',
-        },
-      }));
+      return next(helpers.makeForbiddenError('You are not allowed to create an event of this type.'));
     }
 
     // Now we've got here, the user is allowed to create the event.
@@ -260,22 +234,11 @@ cannot set initial status.`,
   } catch (err) {
     // Send validation-errors back to client
     if (err.name === 'ValidationError') {
-      return next(new restify.InvalidArgumentError({
-        body: {
-          success: false,
-          errors: err.errors,
-          message: err.message
-        },
-      }));
+      return next(helpers.makeValidationError(err));
     }
 
     log.error('Could not add event', err);
-    return next(new restify.InternalError({
-      body: {
-        success: false,
-        message: err.message
-      }
-    }));
+    throw err;
   }
 };
 
@@ -307,7 +270,7 @@ exports.eventDetails = async (req, res, next) => {
 exports.editEvent = async (req, res, next) => {
   // If user can't edit anything, return error right away
   if (!req.user.permissions.can.edit) {
-    return next(new restify.ForbiddenError('You cannot edit this event'));
+    return next(helpers.makeForbiddenError('You cannot edit this event'));
   }
 
   const data = req.body;
@@ -319,7 +282,7 @@ exports.editEvent = async (req, res, next) => {
   delete data.status;
 
   if (Object.keys(data).length === 0) {
-    return next(new restify.InvalidContentError({ message: 'No valid field changes requested' }));
+    return next(helpers.makeValidationError('No valid field changes requested'));
   }
 
   // Copy fields if user can edit details
@@ -419,26 +382,17 @@ exports.editEvent = async (req, res, next) => {
   } catch (err) {
     // Send validation-errors back to client
     if (err.name === 'ValidationError') {
-      return next(new restify.InvalidArgumentError({ body: {
-        success: false,
-        errors: err.errors,
-        message: err.message
-      } }));
+      return next(helpers.makeValidationError(err));
     }
 
     log.error('Could not edit event', err);
-    return next(new restify.InternalError());
+    throw err;
   }
 };
 
 exports.deleteEvent = async (req, res, next) => {
   if (!req.user.permissions.can.delete) {
-    return next(new restify.ForbiddenError({
-      body: {
-        success: false,
-        message: 'You are not permitted to delete events',
-      },
-    }));
+    return next(helpers.makeForbiddenError('You are not permitted to delete this event.'));
   }
 
   const event = req.event;
@@ -446,7 +400,7 @@ exports.deleteEvent = async (req, res, next) => {
   // Deletion is only setting the 'deleted' field to true.
   event.deleted = true;
   try {
-    event.save();
+    await event.save();
 
     res.json({
       success: true,
@@ -456,22 +410,11 @@ exports.deleteEvent = async (req, res, next) => {
   } catch (err) {
     // Send validation-errors back to client
     if (err.name === 'ValidationError') {
-      return next(new restify.InvalidArgumentError({
-        body: {
-          success: false,
-          errors: [err.errors],
-          message: err.message,
-        },
-      }));
+      return next(helpers.makeValidationError(err));
     }
 
     log.error('Could not delete event', err);
-    return next(new restify.InternalError({
-      body: {
-        success: false,
-        message: err.message,
-      },
-    }));
+    throw err;
   }
 };
 
@@ -512,22 +455,12 @@ exports.setApprovalStatus = async (req, res, next) => {
 
   // If there is no transition found, it's disallowed to everybody.
   if (!transition) {
-    return next(new restify.ForbiddenError({
-      body: {
-        success: false,
-        message: 'You are not allowed to perform a transition.',
-      },
-    }));
+    return next(helpers.makeForbiddenError('You are not allowed to perform a transition.'));
   }
 
   // Checking if this user/role/body/special has the rights to do the transition.
   if (!helpers.canUserAccess(req.user, transition.allowedFor, req.events)) {
-    return next(new restify.ForbiddenError({
-      body: {
-        success: false,
-        message: 'You are not allowed to perform this transition.',
-      },
-    }));
+    return next(helpers.makeForbiddenError('You are not allowed to perform this transition.'));
   }
 
   // We only get here if the user is allowed to do a status transition.
@@ -543,22 +476,11 @@ exports.setApprovalStatus = async (req, res, next) => {
     return next();
   } catch (err) {
     if (err.name === 'ValidationError') {
-      return next(new restify.InvalidArgumentError({
-        body: {
-          success: false,
-          errors: err.errors,
-          message: err.message,
-        },
-      }));
+      return next(helpers.makeValidationError(err));
     }
 
     log.error('Could not update event status', err);
-    return next(new restify.InternalError({
-      body: {
-        success: false,
-        message: err.message,
-      },
-    }));
+    throw err;
   }
 };
 
@@ -568,48 +490,34 @@ exports.getEditRights = (req, res, next) => {
   retval.special = req.user.special;
   res.json({
     success: true,
-    data: [retval],
+    data: retval
   });
   return next();
 };
 
-exports.addEventLink = (req, res, next) => {
+exports.addEventLink = async (req, res, next) => {
   if (!req.body.controller || !req.body.displayName) {
-    return next(new restify.InvalidArgumentError({ body: {
-      success: false,
-      message: 'Malformed request.',
-    } }));
+    return next(helpers.makeValidationError('Malformed request.'));
   }
 
   // Adding link to event and saving it.
   req.event.links.push(req.body);
-  return req.event.save((err) => {
-    if (err) {
-      // Send validation-errors back to client
-      if (err.name === 'ValidationError') {
-        return next(new restify.InvalidArgumentError({
-          body: {
-            success: false,
-            errors: err.errors,
-            message: err.message,
-          },
-        }));
-      }
-
-      return next(new restify.InternalError({
-        body: {
-          success: false,
-          message: err.message,
-        },
-      }));
-    }
+  try {
+    await req.event.save();
 
     res.json({
       success: true,
       message: 'Link added.',
     });
     return next();
-  });
+  } catch (err) {
+    // Send validation-errors back to client
+    if (err.name === 'ValidationError') {
+      return next(helpers.makeValidationError(err));
+    }
+
+    throw err;
+  }
 };
 
 /** Organizers **/

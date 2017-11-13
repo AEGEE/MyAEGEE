@@ -1,4 +1,6 @@
 const restify = require('restify');
+
+const helpers = require('./helpers');
 const log = require('./config/logger.js');
 
 const EventType = require('./models/EventType');
@@ -11,17 +13,11 @@ exports.createLifecycle = async (req, res, next) => {
   delete data._id;
 
   if (!req.user.permissions.can.edit_lifecycles) {
-    return next(new restify.ForbiddenError({ body: {
-      success: false,
-      message: 'You are not allowed to create/edit lifecycles.'
-    } }));
+    return next(helpers.makeForbiddenError('You are not allowed to create/edit lifecycles.'));
   }
 
   if (!data.eventType) {
-    return next(new restify.InvalidArgumentError({ body: {
-      success: false,
-      message: 'No eventType is specified.'
-    } }));
+    return next(helpers.makeValidationError('No eventType is specified.'));
   }
 
   try {
@@ -43,87 +39,46 @@ exports.createLifecycle = async (req, res, next) => {
   } catch (err) {
     // Send validation-errors back to client
     if (err.name === 'ValidationError') {
-      return next(new restify.InvalidArgumentError({
-        body: {
-          success: false,
-          errors: err.errors,
-          message: err.message,
-        },
-      }));
+      return next(helpers.makeValidationError(err));
     }
 
     log.error('Could not create/update EventType', err);
-    return next(new restify.InternalError({
-      body: {
-        success: false,
-        message: err.message,
-      },
-    }));
+    throw err;
   }
 };
 
 exports.removeLifecycle = async (req, res, next) => {
+  // Errors that can happen there are to be caught in 'uncaughtException' handler.
   if (!req.user.permissions.can.delete_lifecycles) {
-    return next(new restify.ForbiddenError({ body: {
-      success: false,
-      message: 'You are not allowed to delete lifecycles.'
-    } }));
+    return next(helpers.makeForbiddenError('You are not allowed to delete lifecycles.'));
   }
 
   if (!req.params.lifecycle_id) {
-    return next(new restify.InvalidArgumentError({
-      body: {
-        success: false,
-        message: 'No lifecycle name was specified.'
-      }
-    }));
+    return next(helpers.makeValidationError('No lifecycle name was specified.'));
   }
 
-  try {
-    const doc = await EventType.findOneAndRemove({ name: req.params.lifecycle_id }, {});
+  const doc = await EventType.findOneAndRemove({ name: req.params.lifecycle_id }, {});
 
-    if (!doc) {
-      return next(new restify.NotFoundError({
-        body: {
-          success: false,
-          message: 'Lifecycle with that name was not found.'
-        }
-      }));
-    }
-
-    res.json({
-      success: true,
-      message: `The lifecycle for the event type '${req.params.lifecycle_id}' was successfully deleted.`,
-    });
-    return next();
-  } catch (err) {
-    return next(new restify.InternalError({
-      body: {
-        success: false,
-        message: err.message,
-      },
-    }));
+  if (!doc) {
+    return next(helpers.makeNotFoundError('Lifecycle with that name was not found.'));
   }
+
+  res.json({
+    success: true,
+    message: `The lifecycle for the event type '${req.params.lifecycle_id}' was successfully deleted.`,
+  });
+  return next();
 };
 
 exports.getLifecyclesNames = async (req, res, next) => {
-  try {
-    const eventTypes = await EventType.find({});
-    const names = eventTypes.map(e => e.name);
+  const eventTypes = await EventType.find({});
+  const names = eventTypes.map(e => e.name);
 
-    res.send({
-      success: true,
-      data: names
-    });
-    return next();
-  } catch (err) {
-    return next(new restify.InternalError({
-      body: {
-        success: false,
-        message: err.message
-      }
-    }));
-  }
+  res.send({
+    success: true,
+    data: names
+  });
+  return next();
 };
 
 exports.getPseudoRolesList = async (req, res, next) => {
@@ -141,21 +96,14 @@ exports.getPseudoRolesList = async (req, res, next) => {
 };
 
 exports.getLifecycles = async (req, res, next) => {
-  try {
-    const eventTypes = await EventType.find({})
-      .lean(); // To tell Mongoose we just need a plain JS object, so we can modify it.
+  const eventTypes = await EventType.find({})
+    .lean(); // To tell Mongoose we just need a plain JS object, so we can modify it.
 
-    res.status(200);
-    res.json({
-      success: true,
-      data: eventTypes,
-    });
+  res.status(200);
+  res.json({
+    success: true,
+    data: eventTypes,
+  });
 
-    return next();
-  } catch (err) {
-    return next(new restify.InternalError({ body: {
-      success: false,
-      error: err.message
-    } }));
-  }
+  return next();
 };

@@ -12,10 +12,7 @@ const user = require('./user.js');
 exports.authenticateUser = async (req, res, next) => {
   const token = req.header('x-auth-token');
   if (!token) {
-    return next(new restify.ForbiddenError({ body: {
-      success: false,
-      message: 'No auth token provided'
-    } }));
+    return next(helpers.makeForbiddenError('No auth token provided'));
   }
 
 
@@ -39,7 +36,7 @@ exports.authenticateUser = async (req, res, next) => {
 
     if (!body.success) {
       // We are not authenticated
-      throw new Error('User not authenticated');
+      return next(helpers.makeForbiddenError('User is not authenticated.'));
     }
 
     if (!req.user) {
@@ -59,7 +56,7 @@ exports.authenticateUser = async (req, res, next) => {
 exports.fetchSingleEvent = async (req, res, next) => {
   if (!req.params.event_id) {
     log.info(req.params);
-    return next(new restify.NotFoundError('No Event-id provided'));
+    return next(helpers.makeForbiddenError('No Event-id provided'));
   }
 
   // Checking if the passed ID is ObjectID or not.
@@ -76,12 +73,7 @@ exports.fetchSingleEvent = async (req, res, next) => {
     const event = await Event.findOne(findObject);
 
     if (event === null) {
-      return next(new restify.NotFoundError({
-        body: {
-          success: false,
-          message: `Event with id ${req.params.event_id} not found`,
-        },
-      }));
+      return next(helpers.makeNotFoundError(`Event with id ${req.params.event_id} not found`));
     }
 
     req.event = event;

@@ -1,5 +1,8 @@
 const httprequest = require('request');
-const config = require('./config/config.js');
+const restify = require('restify');
+
+const log = require('./config/logger');
+const config = require('./config/config');
 
 function getEventPermissions(event, user) {
   const permissions = {
@@ -109,3 +112,39 @@ module.exports.canUserAccess = (user, accessObject, event = null) => {
 
   return false;
 };
+
+exports.makeError = (constructor, err, message) => {
+  // 3 cases:
+  // 1) 'err' is a string
+  // 2) 'err' is a ValidationError
+  // 3) 'err' is Error
+
+  // If the error is a string, just forward it to user.
+  if (typeof err === 'string') {
+    return new constructor({ body: {
+      success: false,
+      message: err
+    } });
+  }
+
+  const msgText = message ? message + ' ' + err.message : err.message;
+
+  // If the error is ValidationError, pass the errors details to the user.
+  if (err.name && err.name === 'ValidationError') {
+    return new constructor({ body: {
+      success: false,
+      errors: err.errors,
+      message: msgText
+    } });
+  }
+
+  // Otherwise, just pass the error message.
+  return new constructor({ body: {
+    success: false,
+    message: msgText
+  } });
+};
+
+exports.makeValidationError = (err, message) => exports.makeError(restify.InvalidArgumentError, err, message);
+exports.makeForbiddenError = (err, message) => exports.makeError(restify.ForbiddenError, err, message);
+exports.makeNotFoundError = (err, message) => exports.makeError(restify.NotFoundError, err, message);

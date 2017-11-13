@@ -116,7 +116,7 @@ server.get({ path: '/single/:event_id/status', version: curVersion }, wrap(event
 server.put({ path: '/single/:event_id/status', version: curVersion }, wrap(events.setApprovalStatus));
 server.get({ path: '/single/:event_id/rights', version: curVersion }, events.getEditRights);
 server.put({ path: '/single/:event_id/link', version: curVersion }, events.addEventLink);
-server.post({ path: '/single/:event_id/upload', version: curVersion }, imageserv.uploadImage);
+server.post({ path: '/single/:event_id/upload', version: curVersion }, wrap(imageserv.uploadImage));
 
 server.listen(config.port, () => {
   // try if there is a mongodb connection
