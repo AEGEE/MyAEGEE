@@ -90,46 +90,6 @@ exports.listApprovableEvents = async (req, res, next) => {
   return next();
 };
 
-// All event where a local has participated
-// Not working: TODO: make it work
-/* exports.listLocalInvolvedEvents = (req, res, next) => {
-  // Only visible to board members
-  if (!req.user.permissions.can.view_local_involved_events) {
-    return next(new restify.ForbiddenError('You are not allowed to see this'));
-  }
-
-  // The first query where mongodb actually has a job
-  return Event
-    .aggregate([
-      { $match: { 'applications.antenna_id': String(req.user.basic.antenna_id) } },
-      { $unwind: '$applications' },
-      { $match: { 'applications.antenna_id': String(req.user.basic.antenna_id) } },
-      { $group: {
-        _id: '$_id',
-        id: { $first: '$_id' },
-        name: { $first: '$name' },
-        applications: { $push: '$applications' },
-      } },
-    ])
-    .exec((err, events) => {
-      if (err) {
-        log.info(err);
-        return next(new restify.InternalError({
-          body: {
-            success: false,
-            message: err.message,
-          },
-        }));
-      }
-
-      res.json({
-        success: true,
-        data: events,
-      });
-      return next();
-    });
-}; */
-
 exports.addEvent = async (req, res, next) => {
   // Make sure the user doesn't insert malicious stuff
   // Fields with other names will be ommitted automatically by mongoose

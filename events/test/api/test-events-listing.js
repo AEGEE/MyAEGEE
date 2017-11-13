@@ -82,7 +82,7 @@ describe('Events listing', () => {
         res.body.should.have.property('data');
         res.body.data.should.be.a('array');
 
-        // The first event shouldn;t be visible to user
+        // The first event shouldn't be visible to user
         // and it shouldn't be included into events listing.
         res.body.data.filter(e => e._id === events[0].id).length.should.equal(0);
 

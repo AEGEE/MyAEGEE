@@ -155,13 +155,13 @@ describe('Events approval', () => {
           && transition.to === status.name
           && helpers.canUserAccess(user, transition.allowedFor, events[0]);
       });
-    }).map(s => s.name);
+    });
 
-    const notPossibleStatuses = events[0].lifecycle.statuses.filter((status) => {
-      return !possibleStatuses.includes(status.name);
-    }).map(s => s.name);
+    const statusToChangeTo = possibleStatuses[0].name;
 
-    const statusToChangeTo = notPossibleStatuses[0].name;
+    const mocked = mock.mockAll({ core: { notSuperadmin: true } });
+    omscoreStub = mocked.omscoreStub;
+    omsserviceregistryStub = mocked.omsserviceregistryStub;
 
     chai.request(server)
       .put(`/single/${events[0].id}/status`)

@@ -135,6 +135,23 @@ describe('Events editing', () => {
       });
   });
 
+  it('should disallow event deleting if the user doesn\'t have rights', (done) => {
+    const mocked = mock.mockAll({ core: { notSuperadmin: true } });
+    omscoreStub = mocked.omscoreStub;
+    omsserviceregistryStub = mocked.omsserviceregistryStub;
+
+    chai.request(server)
+      .delete(`/single/${events[0].id}`)
+      .set('X-Auth-Token', 'foobar')
+      .end((err, res) => {
+        res.should.have.status(403);
+        res.body.success.should.be.false;
+        res.body.should.have.property('message');
+
+        done();
+      });
+  });
+
   it('should hide an event from / GET but keep it for /single GET after /single DELETE', (done) => {
     // Delete one event
     chai.request(server)

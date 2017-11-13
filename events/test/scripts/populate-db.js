@@ -175,7 +175,7 @@ async function populateEvents(eventTypes) {
         {
           first_name: 'Vincent',
           last_name: 'Vega',
-          foreign_id: '2',
+          foreign_id: 2,
           antenna_id: 'ANT',
         },
       ],
