@@ -23,7 +23,11 @@ const storage = multer.diskStorage({ // multers disk storage settings
 
   // Filename is 4 character random string and the current datetime to avoid collisions
   filename(req, file, cb) {
-    cb(null, `${(Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 4))}-${(new Date()).getTime()}`);
+    const prefix = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 4);
+    const date = (new Date()).getTime();
+    const extension = path.extname(file.originalname);
+
+    cb(null, `${prefix}-${date}${extension}`);
   },
 });
 const upload = multer({
@@ -81,17 +85,25 @@ exports.uploadImage = async (req, res, next) => {
   try {
     await req.event.save();
 
+    // Move old file away
+    if (oldimg && oldimg.path) {
+      const oldImageStorage = `${config.media_dir}/old/headimages`;
+      const oldPath = oldimg.path;
+      const newPath = `${oldImageStorage}/${oldimg.filename}`;
+
+      // If upload folder doesn't exists, create it.
+      if (!await existsAsync(oldImageStorage)) {
+        await mkdirAsync(oldImageStorage);
+      }
+
+      await renameAsync(oldPath, newPath);
+    }
+
     res.json({
       success: true,
       message: 'File uploaded successfully',
       data: req.event.head_image,
     });
-
-    // Move old file away
-    if (oldimg && oldimg.path) {
-      const oldPath = oldimg.path.split('/');
-      await renameAsync(oldimg.path, `${config.media_dir}/old/${oldPath[path.length - 1]}`);
-    }
 
     // Send back the request
     return next();
