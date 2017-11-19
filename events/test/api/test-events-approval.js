@@ -59,6 +59,8 @@ describe('Events approval', () => {
   });
 
   it('should not include the event that cannot be changed in approvable events', (done) => {
+    user.permissions = helpers.getBasicPermissions(user);
+
     const notAccessibleEvents = events.filter((event) => {
       return event.lifecycle.transitions.filter((transition) => {
         return transition.from === event.status.name

@@ -80,39 +80,15 @@ exports.fetchSingleEvent = async (req, res, next) => {
     return next();
   } catch (err) {
     log.error('Error getting single event: ', err);
-    return next(new restify.InternalError({
-      body: {
-        success: false,
-        message: err.message,
-      },
-    }));
+    throw err;
   }
 };
 
 // Middleware to check which permissions the user has, in regart to the current
-// event if there is one Requires the fetchSingleEvent and fetchUserDetails
-// middleware to be executed beforehand
+// event if there is one. Requires the fetchSingleEvent and fetchUserDetails
+// middleware to be executed beforehand.
 exports.checkPermissions = async (req, res, next) => {
-  const permissions = {
-    is: {},
-    can: {},
-  };
-
-  permissions.is.superadmin = req.user.is_superadmin;
-
-  // If user details are available, fill additional roles
-  if (req.user.details) {
-    // TODO check if this is the right way to determine board positions
-    permissions.is.boardmember = req.user.board_positions.length > 0;
-
-    permissions.can.view_local_involved_events = permissions.is.boardmember ||
-      permissions.is.superadmin;
-  }
-
-  permissions.can.edit_lifecycles = permissions.is.superadmin;
-  permissions.can.delete_lifecycles = permissions.is.superadmin;
-
-  const eventPermissions = helpers.getEventPermissions(req.event, req.user);
+  const permissions = helpers.getBasicPermissions(req.user);
 
   // Convert all to boolean and assign
   req.user.permissions = { is: {}, can: {} };
@@ -122,6 +98,15 @@ exports.checkPermissions = async (req, res, next) => {
   for (const attr in permissions.can) {
     req.user.permissions.can[attr] = Boolean(permissions.can[attr]);
   }
+  req.user.special = [...req.user.special, ...permissions.special];
+
+  return next();
+};
+
+// This should be executed after .fetchSingleEvent call
+exports.checkEventPermissions = async (req, res, next) => {
+  const eventPermissions = helpers.getEventPermissions(req.event, req.user);
+
   for (const attr in eventPermissions.is) {
     req.user.permissions.is[attr] = Boolean(eventPermissions.is[attr]);
   }
@@ -133,10 +118,8 @@ exports.checkPermissions = async (req, res, next) => {
   }
 
   // Filter out links
-  if (req.event) {
-    req.event.links = req.event.links.filter(link =>
-      helpers.canUserAccess(req.user, link.visibility));
-  }
+  req.event.links = req.event.links.filter(link =>
+    helpers.canUserAccess(req.user, link.visibility));
 
-  return next();
+  next();
 };

@@ -68,46 +68,35 @@ process.on('unhandledRejection', (err) => {
 const curVersion = '0.0.1';
 
 server.use(service.countRequests);
-server.get({ path: '/ping', version: curVersion }, (req, res, next) => {
-  res.send('pong');
-  return next();
-});
+
+server.get({ path: '/status', version: curVersion }, service.status);
 
 server.use(wrap(middlewares.authenticateUser));
+server.use(wrap(middlewares.checkPermissions));
 
 server.get({ path: '/', version: curVersion }, wrap(events.listEvents));
 server.post({ path: '/', version: curVersion }, wrap(events.addEvent));
 
 // Debugging requests, remove at some point in time
-server.get({ path: '/status', version: curVersion }, service.status);
-server.get({ path: '/debug', version: curVersion }, events.debug);
-server.get({ path: '/getUser', version: curVersion }, [
-  // middlewares.checkPermissions,
-  wrap(service.getUser),
-]);
+server.get({ path: '/debug', version: curVersion }, wrap(events.debug));
+server.get({ path: '/getUser', version: curVersion }, wrap(service.getUser));
 
 server.get({ path: '/lifecycle/names', version: curVersion }, wrap(lifecycle.getLifecyclesNames));
 server.get({ path: '/lifecycle/pseudo', version: curVersion }, wrap(lifecycle.getPseudoRolesList));
 server.get({ path: '/lifecycle', version: curVersion }, wrap(lifecycle.getLifecycles));
-server.post({ path: '/lifecycle', version: curVersion }, wrap(middlewares.checkPermissions), wrap(lifecycle.createLifecycle));
-server.del({ path: '/lifecycle/:lifecycle_id', version: curVersion }, wrap(middlewares.checkPermissions), wrap(lifecycle.removeLifecycle));
+server.post({ path: '/lifecycle', version: curVersion }, wrap(lifecycle.createLifecycle));
+server.del({ path: '/lifecycle/:lifecycle_id', version: curVersion }, wrap(lifecycle.removeLifecycle));
 
 server.get({ path: '/eventroles', version: curVersion }, wrap(user.getEventRoles));
 
 server.get({ path: '/mine/byOrganizer', version: curVersion }, wrap(events.listUserOrganizedEvents));
-server.get({ path: '/mine/approvable', version: curVersion }, [
-  wrap(middlewares.checkPermissions),
-  wrap(events.listApprovableEvents),
-]);
+server.get({ path: '/mine/approvable', version: curVersion }, wrap(events.listApprovableEvents));
 
-/* server.get({ path: '/boardview', version: curVersion }, [
-  wrap(middlewares.checkPermissions),
-  wrap(events.listLocalInvolvedEvents),
-]); */
+/* server.get({ path: '/boardview', version: curVersion }, wrap(events.listLocalInvolvedEvents)); */
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
 server.use(wrap(middlewares.fetchSingleEvent));
-server.use(wrap(middlewares.checkPermissions));
+server.use(wrap(middlewares.checkEventPermissions));
 
 server.get({ path: '/single/:event_id', version: curVersion }, wrap(events.eventDetails));
 server.put({ path: '/single/:event_id', version: curVersion }, wrap(events.editEvent));
@@ -119,7 +108,6 @@ server.put({ path: '/single/:event_id/link', version: curVersion }, wrap(events.
 server.post({ path: '/single/:event_id/upload', version: curVersion }, wrap(imageserv.uploadImage));
 
 server.listen(config.port, () => {
-  // try if there is a mongodb connection
   log.info('Up and running, %s listening on %s', server.name, server.url);
   cron.scanDB();
   user.updateEventRoles();

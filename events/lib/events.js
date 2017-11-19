@@ -63,7 +63,7 @@ exports.listUserOrganizedEvents = async (req, res, next) => {
 exports.listApprovableEvents = async (req, res, next) => {
   // Loading events and a lifecycle and its statuses for each event.
   const events = await Event
-    .where('ends').gte(new Date())
+    .where('starts').gte(new Date())
     .where('deleted').equals(false);
 
   // Checking if we have at least 1 transition

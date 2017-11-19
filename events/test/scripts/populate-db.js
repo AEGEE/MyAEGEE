@@ -2,6 +2,8 @@ const mongoose = require('../../lib/config/mongo');
 
 const Event = require('../../lib/models/Event');
 const EventType = require('../../lib/models/EventType');
+const firstUser = require('../assets/oms-core-valid').data;
+const secondUser = require('../assets/oms-core-valid-not-superadmin').data;
 
 const futureDate = (offset) => {
   const retval = new Date();
@@ -43,7 +45,7 @@ async function populateEventTypes() {
     }, {
       name: 'Requesting',
       visibility: {
-        users: [1],
+        users: [firstUser.id],
         roles: [],
         bodies: [],
         special: [],
@@ -143,9 +145,9 @@ async function populateEvents(eventTypes) {
       application_deadline: futureDate(13),
       application_status: 'closed',
       organizers: [{
-        first_name: 'Cave',
-        last_name: 'Johnson',
-        foreign_id: 1,
+        first_name: firstUser.first_name,
+        last_name: firstUser.last_name,
+        foreign_id: firstUser.id,
         antenna_id: 'DRE',
       }],
     }, {
@@ -173,9 +175,9 @@ async function populateEvents(eventTypes) {
       organizers:
       [
         {
-          first_name: 'Vincent',
-          last_name: 'Vega',
-          foreign_id: 2,
+          first_name: secondUser.first_name,
+          last_name: secondUser.last_name,
+          foreign_id: secondUser.id,
           antenna_id: 'ANT',
         },
       ],

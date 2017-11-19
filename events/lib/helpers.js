@@ -1,8 +1,35 @@
-const httprequest = require('request');
 const restify = require('restify');
 
 const log = require('./config/logger');
-const config = require('./config/config');
+
+function getBasicPermissions(user) {
+  const permissions = {
+    is: {},
+    can: {},
+    special: []
+  };
+
+  permissions.is.superadmin = user.is_superadmin;
+  if (permissions.is.superadmin) {
+    permissions.special.push('Superadmin');
+  }
+
+  // If user details are available, fill additional roles
+  if (user.details) {
+    // TODO check if this is the right way to determine board positions
+    permissions.is.boardmember = user.board_positions.length > 0;
+
+    permissions.can.view_local_involved_events = permissions.is.boardmember ||
+      permissions.is.superadmin;
+  }
+
+  permissions.can.edit_lifecycles = permissions.is.superadmin;
+  permissions.can.delete_lifecycles = permissions.is.superadmin;
+
+  return permissions;
+}
+
+exports.getBasicPermissions = getBasicPermissions;
 
 function getEventPermissions(event, user) {
   const permissions = {
@@ -12,6 +39,7 @@ function getEventPermissions(event, user) {
   };
 
   if (!event || !user) {
+    log.warn('No event or user is provided, returning empty object as a response.');
     return permissions;
   }
 
@@ -20,22 +48,21 @@ function getEventPermissions(event, user) {
   permissions.is.own_antenna = event.organizing_locals.some(organizer =>
     user.bodies.some(body => organizer.foreign_id === body.id));
 
-  permissions.can.edit_organizers = permissions.is.organizer;
+  permissions.can.edit_organizers = permissions.is.organizer || user.permissions.is.superadmin;
 
   permissions.can.edit_details =
-    (permissions.is.organizer &&
-     event.application_status === 'closed') // && event.status === 'draft')  TODO add lifecycle awareness
-    || permissions.is.superadmin;
+    (permissions.is.organizer && event.application_status === 'closed')
+    || user.permissions.is.superadmin;
 
   permissions.can.delete = permissions.can.edit_details;
 
   permissions.can.edit_application_status =
     (permissions.is.organizer) // && event.status === 'approved') TODO not valid with lifecycle anymore
-    || permissions.is.superadmin;
+    || user.permissions.is.superadmin;
 
   // TODO: probably remove this one, since we have the lifecycle workflow
   permissions.can.approve =
-    event.application_status === 'closed' || permissions.is.superadmin;
+    event.application_status === 'closed' || user.permissions.is.superadmin;
 
   permissions.can.edit =
     permissions.can.edit_details
@@ -48,15 +75,14 @@ function getEventPermissions(event, user) {
     (!permissions.is.organizer && event.application_status === 'open')
     || permissions.is.superadmin; */
 
-  permissions.can.approve_participants = permissions.is.organizer &&
-    event.application_status === 'closed';
+  permissions.can.approve_participants = 
+    (permissions.is.organizer && event.application_status === 'closed')
+    || user.permissions.is.superadmin;
 
   permissions.can.view_applications =
     permissions.is.organizer
     || (permissions.is.boardmember && permissions.is.own_antenna)
-    || permissions.is.superadmin;
-
-  // Special roles
+    || user.permissions.is.superadmin;
 
   // TODO that doesn't work that way, boardmember is generic for all boardmembers
   if (permissions.is.boardmember && permissions.is.own_antenna) {
