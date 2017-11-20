@@ -118,28 +118,18 @@ exports.updateEventRoles = async () => {
     }
   }
 
-  log.info(`Event roles: added: ${addedRoles}, updated: ${updatedRoles}, deleted: ${unupdatedRoles.length}.`);
+  log.info(`Event roles: added: ${addedRoles}, updated: ${updatedRoles}, deleted: ${deletedRoles}.`);
 };
 
 
 exports.getEventRoles = async (req, res, next) => {
-  try {
-    const roles = await EventRole.find({});
-    res.json({
-      success: true,
-      data: roles
-    });
+  const roles = await EventRole.find({});
+  res.json({
+    success: true,
+    data: roles
+  });
 
-    return next();
-  } catch (err) {
-    log.error(err);
-    return next(new restify.InternalError({
-      body: {
-        success: false,
-        message: err.message
-      }
-    }));
-  }
+  return next();
 };
 
 exports.getDefaultEventRoles = async () => {
