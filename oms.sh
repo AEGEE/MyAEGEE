@@ -21,6 +21,8 @@ command="docker-compose -f base-docker-compose.yml"
 for s in "${services[@]}"; do
     if [[ -f "$DIR/${s}/docker/docker-compose.yml" ]]; then
         command="${command} -f $DIR/${s}/docker/docker-compose.yml"
+    else
+        echo -e "[OMS] WARNING: No docker file found for ${s}"
     fi
 done
 
