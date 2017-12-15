@@ -9,9 +9,7 @@ RUN mkdir -p /usr/app/src \
 
 WORKDIR /usr/app/src
 
-ADD ./bootstrap.sh /usr/app/scripts/bootstrap.sh
 
-CMD sh /usr/app/scripts/bootstrap.sh && \
-	supervisor --no-restart-on error -e 'node,js,json' lib/server.js | bunyan
+CMD	supervisor --no-restart-on error -e 'node,js,json' lib/server.js | bunyan
 
 EXPOSE 8082
