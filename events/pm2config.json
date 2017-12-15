@@ -1,0 +1,8 @@
+{
+  "apps": [{
+    "name": "oms-events",
+    "script": "lib/server.js",
+    "watch": ["lib"],
+    "ignore_watch" : ["node_modules"]
+  }]
+}
