@@ -1,24 +1,30 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const fs = require('fs-extra');
+
 const server = require('../../lib/server.js');
 const db = require('../scripts/populate-db.js');
-const config = require('../../lib/config/config.js');
+const mock = require('../scripts/mock-core-registry');
+const config = require('../../lib/config/config');
 
 const should = chai.should();
 chai.use(chaiHttp);
 
 describe('File upload', () => {
   let events;
+  let omscoreStub;
+  let omsserviceregistryStub;
 
-  beforeEach((done) => {
+  beforeEach(async () => {
     db.clear();
 
     // Populate db
-    db.populateEvents((res) => {
-      events = res.events;
-      done();
-    });
+    const res = await db.populateEvents();
+    events = res.events;
+    
+    const mocked = mock.mockAll();
+    omscoreStub = mocked.omscoreStub;
+    omsserviceregistryStub = mocked.omsserviceregistryStub;
   });
 
   after(() => {
@@ -32,7 +38,7 @@ describe('File upload', () => {
       .post(`/single/${events[0]._id}/upload`)
       .set('X-Auth-Token', 'foobar')
       .attach('head_image', fs.readFileSync('./test/assets/valid_image.png'), 'image.png')
-      .end((err, res) => {
+      .end((err) => {
         fs.existsSync(config.media_dir).should.be.true;
         done();
       });
@@ -44,7 +50,7 @@ describe('File upload', () => {
       .set('X-Auth-Token', 'foobar')
       .attach('head_image', fs.readFileSync('./test/assets/invalid_image.txt'), 'image.txt')
       .end((err, res) => {
-        res.should.have.status(500);
+        res.should.have.status(409);
         res.should.be.json;
         res.should.be.a('object');
 
@@ -61,7 +67,7 @@ describe('File upload', () => {
       .set('X-Auth-Token', 'foobar')
       .attach('head_image', fs.readFileSync('./test/assets/invalid_image.jpg'), 'image.jpg')
       .end((err, res) => {
-        res.should.have.status(500);
+        res.should.have.status(409);
         res.should.be.json;
         res.should.be.a('object');
 
@@ -77,7 +83,7 @@ describe('File upload', () => {
       .post(`/single/${events[0]._id}/upload`)
       .set('X-Auth-Token', 'foobar')
       .end((err, res) => {
-        res.should.have.status(500);
+        res.should.have.status(409);
         res.should.be.json;
         res.should.be.a('object');
 

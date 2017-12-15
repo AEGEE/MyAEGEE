@@ -7,4 +7,4 @@ exports = mongoose.Schema({
   special: [String],
   // special are Public, Member, Organizer, Bodyadmin, Bodymember - dynamically
   // assigned roles based on the relation User and current Event
-});
+}, { _id: false });

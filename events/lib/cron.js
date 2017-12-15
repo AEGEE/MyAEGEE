@@ -4,33 +4,36 @@ const log = require('./config/logger.js');
 
 let scheduledJobs = 0;
 
-const closeDeadline = (id, plannedTime) => {
+const closeDeadline = async (id, plannedTime) => {
   scheduledJobs--;
-  Event.findById(id).exec((err, event) => {
-    if (err) {
-      log.error(`Could not close deadline for event ${id}`, err);
-      return;
-    }
+  try {
+    const event = await Event.findById(id);
 
     // Check if wrong id,
     // deadline had changed since we started the cron
     // or the application was closed already
-    if (!event ||
-     event.application_deadline.getTime() !== plannedTime.getTime() ||
-     event.application_status === 'closed') {
+    if (!event) {
+      log.warn('Can\'t close the deadline: event not found.');
+      return;
+    }
+
+    if (event.application_deadline.getTime() !== plannedTime.getTime()) {
+      log.warn('Didn\'t close the deadline: planned and actual time mismatch.');
+      return;
+    }
+
+    if (event.application_status === 'closed') {
+      log.warn('Didn\'t close the deadline: already closed.');
       return;
     }
 
     // Change application status to closed
     event.application_status = 'closed';
-    event.save((saveErr) => {
-      if (saveErr) {
-        log.error('Could not save event after auto-closing application', saveErr);
-      } else {
-        log.info(`Automatically closed application of event ${event.name}`);
-      }
-    });
-  });
+    await event.save();
+    log.info(`Automatically closed application of event ${event.name}`);
+  } catch (err) {
+    log.error('Could not close deadline for event', err.message);
+  }
 };
 
 exports.countJobs = () => scheduledJobs;
@@ -40,28 +43,22 @@ exports.registerDeadline = (id, plannedTime) => {
   scheduledJobs++;
 };
 
-exports.scanDB = (done) => {
+exports.scanDB = async () => {
   let counter = 0;
-  Event
-    .where('application_status', 'open')
-    .exec((err, events) => {
-      events.forEach((item) => {
-        if (item.application_deadline) {
-        // Close past events immediately - could happen if service was down while deadline passed
-          if (item.application_deadline < Date.now()) {
-            closeDeadline(item.id, item.application_deadline);
-            counter++;
-          } else { // Otherwise schedule it
-            exports.registerDeadline(item.id, item.application_deadline);
-            counter++;
-          }
-        }
-      });
+  const events = await Event.where('application_status', 'open');
 
-      log.info(`Set up cron timers for ${counter} events with approaching deadlines`);
-
-      if (done) {
-        done();
+  for (const item of events) {
+    if (item.application_deadline) {
+      // Close past events immediately - could happen if service was down while deadline passed
+      if (item.application_deadline < Date.now()) {
+        await closeDeadline(item.id, item.application_deadline);
+        counter++;
+      } else { // Otherwise schedule it
+        exports.registerDeadline(item.id, item.application_deadline);
+        counter++;
       }
-    });
+    }
+  }
+
+  log.info(`Set up cron timers for ${counter} events with approaching deadlines`);
 };

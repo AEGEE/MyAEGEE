@@ -1,31 +1,28 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+
 const server = require('../../lib/server.js');
 const db = require('../scripts/populate-db.js');
+const mock = require('../scripts/mock-core-registry');
 
 const should = chai.should();
 chai.use(chaiHttp);
 
 describe('Events listing', () => {
   let events;
+  let omscoreStub;
+  let omsserviceregistryStub;
 
-  beforeEach((done) => {
+  beforeEach(async () => {
     db.clear();
 
     // Populate db
-    db.populateEvents((res) => {
-      events = res.events;
-      done();
-    });
-  });
-
-  it('should reject requests without X-Auth-Token', (done) => {
-    chai.request(server)
-      .get('/')
-      .end((err, res) => {
-        res.should.have.status(403);
-        done();
-      });
+    const res = await db.populateEvents();
+    events = res.events;
+    
+    const mocked = mock.mockAll();
+    omscoreStub = mocked.omscoreStub;
+    omsserviceregistryStub = mocked.omsserviceregistryStub;
   });
 
   it('should list all events on / GET', (done) => {
@@ -85,7 +82,7 @@ describe('Events listing', () => {
         res.body.should.have.property('data');
         res.body.data.should.be.a('array');
 
-        // The first event shouldn;t be visible to user
+        // The first event shouldn't be visible to user
         // and it shouldn't be included into events listing.
         res.body.data.filter(e => e._id === events[0].id).length.should.equal(0);
 
