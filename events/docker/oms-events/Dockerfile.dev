@@ -1,0 +1,15 @@
+FROM node:8
+
+RUN npm install -g --loglevel warn supervisor bunyan && \
+	npm cache clean --force
+
+RUN mkdir -p /usr/app/src \
+        && mkdir -p /usr/app/media \
+        && mkdir -p /usr/app/scripts
+
+WORKDIR /usr/app/src
+
+
+CMD	supervisor --no-restart-on error -e 'node,js,json' lib/server.js | bunyan
+
+EXPOSE 8082
