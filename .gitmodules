@@ -12,4 +12,4 @@
 	url = https://github.com/AEGEE/oms-serviceregistry.git
 [submodule "alastair"]
 	path = alastair
-	url = https://github.com/i3anaan/alastair2.git
+	url = https://github.com/blacksph3re/alastair2.git
