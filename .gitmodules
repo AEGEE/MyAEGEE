@@ -7,3 +7,9 @@
 [submodule "oms-events-frontend"]
 	path = oms-events-frontend
 	url = https://github.com/AEGEE/oms-events-frontend.git
+[submodule "oms-serviceregistry"]
+	path = oms-serviceregistry
+	url = https://github.com/AEGEE/oms-serviceregistry.git
+[submodule "alastair"]
+	path = alastair
+	url = https://github.com/blacksph3re/alastair2.git
