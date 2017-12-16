@@ -56,7 +56,29 @@ services:
 #           - traefik.frontend.rule=HostRegexp:{domain:wiki.[a-z0-9.]+}
 #           - traefik.frontend.priority=20
 
-
+#     survey:
+#         image: crramirez/limesurvey:2.72.3
+#         expose: 
+#             - 80
+#         #volumes:
+#          # - /var/www/html/images
+#             # After initial setup, download LocalSettings.php to the same directory as
+#             #       # this yaml and uncomment the following line and use compose to restart
+#             #             # the mediawiki service
+#             #                   # - ./LocalSettings.php:/var/www/html/LocalSettings.php
+# #        networks:
+# #          - management
+#         volumes:
+#           - upload:/app/upload
+#         labels:
+#           - traefik.enable=true
+#           - traefik.backend=survey
+#           - traefik.port=80
+#           - traefik.frontend.rule=HostRegexp:{domain:survey.[a-z0-9.]+}
+#           - traefik.frontend.priority=20
+# 
+# volumes:
+#   upload:
 
 networks:
   default:
