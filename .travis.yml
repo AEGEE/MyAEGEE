@@ -10,6 +10,7 @@ script:
     - bash ./oms.sh up -d
     - sleep 120
     - bash ./oms.sh logs
+    - bash ./oms.sh ps
     - bash ./oms.sh exec -T -d traefik help 2>/dev/null || exit 1
     - bash ./oms.sh exec -T -d omscore true 2>/dev/null || exit 1
     - bash ./oms.sh exec -T -d php-fpm true 2>/dev/null || exit 1
