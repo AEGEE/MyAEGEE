@@ -10,8 +10,7 @@ if ! [[ -f "$DIR/.env" ]]; then
     cp $DIR/.env.example $DIR/.env
 fi
 
-echo -e "[OMS] Creating OMS docker network"
-docker network create OMS
+docker network inspect OMS &>/dev/null || (echo -e "[OMS] Creating OMS docker network" && docker network create OMS)
 
 
 ## Export all environment variables from .env to this script in case we need them some time
@@ -22,10 +21,12 @@ service_string=$(printenv ENABLED_SERVICES)
 ## Split services into array
 services=(${service_string//:/ })
 
-command="docker-compose -f empty-docker-compose.yml"
+command="docker-compose -f base-docker-compose.yml"
 for s in "${services[@]}"; do
     if [[ -f "$DIR/${s}/docker/docker-compose.yml" ]]; then
         command="${command} -f $DIR/${s}/docker/docker-compose.yml"
+    else
+        echo -e "[OMS] WARNING: No docker file found for ${s}"
     fi
 done
 
