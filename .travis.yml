@@ -19,5 +19,6 @@ script:
     - bash ./oms.sh exec -T -d omsevents-frontend true 2>/dev/null || exit 1
     - bash ./oms.sh exec -T -d mongodb true 2>/dev/null || exit 1
     - bash ./oms.sh exec -T -d omsserviceregistry true 2>/dev/null || exit 1
+    - bash ./oms.sh exec -T -d alastair true 2>/dev/null || exit 1
     - bash ./oms.sh exec -T omscore ./vendor/bin/phpunit
     - bash ./tests/LocalLoopbackTest/LocalLoopbackTest.sh

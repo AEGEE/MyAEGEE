@@ -13,6 +13,7 @@ fi
 echo -e "[OMS] Creating OMS docker network"
 docker network create OMS
 
+
 ## Export all environment variables from .env to this script in case we need them some time
 export $(cat .env | grep -v ^# | xargs)
 ## ENABLED_SERVICES holds a string separated by : with all enabled services (like "oms-global:omscore:oms-serviceregistry")
