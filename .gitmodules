@@ -13,3 +13,6 @@
 [submodule "alastair"]
 	path = alastair
 	url = https://github.com/blacksph3re/alastair2.git
+[submodule "oms-logo-print"]
+	path = oms-logo-print
+    url = https://github.com/AEGEE/oms-logo-print.git
