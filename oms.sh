@@ -14,7 +14,7 @@ docker network inspect OMS &>/dev/null || (echo -e "[OMS] Creating OMS docker ne
 
 
 ## Export all environment variables from .env to this script in case we need them some time
-export $(cat .env | grep -v ^# | xargs)
+export $(cat $DIR/.env | grep -v ^# | xargs)
 ## ENABLED_SERVICES holds a string separated by : with all enabled services (like "oms-global:omscore:oms-serviceregistry")
 ## If you want to change the enabled services, change the array in .env
 service_string=$(printenv ENABLED_SERVICES)
