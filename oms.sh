@@ -21,7 +21,7 @@ service_string=$(printenv ENABLED_SERVICES)
 ## Split services into array
 services=(${service_string//:/ })
 
-command="docker-compose -f base-docker-compose.yml"
+command="docker-compose -f $DIR/base-docker-compose.yml"
 for s in "${services[@]}"; do
     if [[ -f "$DIR/${s}/docker/docker-compose.yml" ]]; then
         command="${command} -f $DIR/${s}/docker/docker-compose.yml"
