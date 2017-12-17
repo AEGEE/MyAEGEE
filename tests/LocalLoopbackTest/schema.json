@@ -1,0 +1,17 @@
+{
+	"title": "Login attempt",
+	"description": "Attempting to login",
+	"type": "object",
+	"properties": {
+		"success": {
+			"type": "boolean"
+		},
+		"errors": {
+			"type": "object"
+		},
+		"message": {
+			"type": "string"
+		}
+	},
+	"required": ["success", "errors", "message"]
+}

@@ -1,38 +1,56 @@
-# Description
-This is a dev environment based on Docker, as an alternative to the homestead virtualization which already exists. As Docker is not yet too mature on OSX and Windows, I'd recommend using the Vagrantfile attached which will bootstrap a VM where you will be able to use the power of Docker.
+# AEGEE-Europe's Online Membership System
+## OMS-docker
 
-# Installing
+## Description
+The repository for the [Online Membership System (OMS)](https://github.com/AEGEE/oms-docker), an open-source project of the student/youth association [AEGEE-Europe](http://aegee.org/).
 
-On all operating systems:
+It makes use of docker, and docker-compose.
+
+[Read more about it and docker requirements](https://oms-project.atlassian.net/wiki/spaces/GENERAL/overview)
+
+## Installing
+
+[Install docker and docker-compose](https://docs.docker.com/compose/install/) (make sure you install the correct versions)
+
+Install the web application:
 ```
 git clone --recursive https://github.com/AEGEE/oms-docker.git
-vagrant up
+cd oms-docker
+./oms.sh up 
 ```
 
-If you are on linux and want an installation without vagrant:
+*This is assuming you are running a Linux installation, for other operating systems virtualization is recommended.*
+
+If you have a non-Linux installation, then the commands are as following (assuming you have Virtualbox and Vagrant installed as per the link below the commands)
+
 ```
 git clone --recursive https://github.com/AEGEE/oms-docker.git
-cd oms-docker/docker
-docker-compose up -d
-# Wait until the bootstrap procedure has finished
-docker-compose logs -f omscore-bootstrap && docker-compose logs -f omsevents-bootstrap
+cd oms-docker
+vagrant up 
 ```
 
-Open you browser on `http://192.168.192.168` and login with the default credentials. Navigate to the modules tab and activate the modules microservice
+[**More information on the installation**](https://oms-project.atlassian.net/wiki/spaces/GENERAL/pages/17235970/Installation)
+
+## Usage
+After running the system, you can navigate to it in your web browser. The URLs differ based on how you run it; however no matter how you decide to run it, _it is suggested_ to edit the `/etc/hosts` file to add the entry: `192.168.168.168 appserver traefik.appserver portainer.appserver`, to be able to use advanced features.
+
+For using it, it becomes:
+
+|Case|URL|
+|---|---|
+|Pure docker| http://localhost |
+|Vagrant| http://localhost:8888 |
+| Vagrant, applying the advice above| http://appserver, with the possibility of going to http://portainer.appserver or http://traefik.appserver |
 
 
-Now some optional steps could follow. However, most likely you will not need them
-* Set another postgres password in `oms-docker/docker/workspace/.env` and `oms-docker/docker/docker-compose.yml (section postgres)`
-* If you want to reach the website somewhat different than over localhost, modify the URL in `oms-docker/docker/omscore/.env` and `oms-docker/docker/omsevents/configFile.json`
+[For more detailed usage guides see this usage tips page.](https://oms-project.atlassian.net/wiki/spaces/GENERAL/pages/23655986/Usage+tips)
+For container-specific usage guides see the container's repository.
 
+## Contribute
+[You can read more about contributing on our confluence.](https://oms-project.atlassian.net/wiki/spaces/GENERAL/overview)
 
-# Usage
-To do anything, just know you have to be in the host VM (accessible through `vagrant ssh` ).
-Once logged in, `cd ~/oms-docker/docker` to run all the `docker-compose` commands
+## Issue tracker
+[We use JIRA as our preferred issue tracker.](https://oms-project.atlassian.net/projects/GENERAL/issues)
 
-To stop everything, run `docker-compose down` in the folder. You can start everything again with `docker-compose up -d` Other than that, you should have a working dev-environment by now. If something breaks during development, you can try rebuilding everything with `docker-compose build`. Maybe also calling the bootstrap scripts again could help, but in theory they should only be needed upon creation.
-
-With `docker ps` you can see which containers are currently running. If you want to "log into" the omscore, you can run `docker-compose exec omscore bash`. For omsevents run `docker-compose exec omsevents bash`
-
-# Credits
-This repo was loosely based upon laradock, the docker-alternative to the native homestead.
+## Licence
+Apache License 2.0, see LICENSE.txt for more information.

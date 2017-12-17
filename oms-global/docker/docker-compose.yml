@@ -1,0 +1,129 @@
+version: "3.2"
+#TODO make sure all services always have the appropriate
+#       restart: on-failure
+#TODO: maybe add also the web interfaces for postgre, mongo, whichever?
+services:
+
+### OMS TUNNEL        #######################################
+### Proxy container #######################################
+
+    traefik:
+        build:
+          context: ./$PATH_OMS_GLOBAL/traefik/
+          dockerfile: ./Dockerfile.dev
+        image: aegee/traefik:dev
+        restart: always
+        ports:
+          - 80:80
+          - 443:443
+          - 8080
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock:ro
+#        networks:
+#          - management
+        labels:
+          - traefik.enable=true
+          - traefik.backend=traefik
+          - traefik.port=8080
+          - traefik.frontend.rule=HostRegexp:{domain:traefik.[a-z0-9.]+}
+          - traefik.frontend.priority=20
+          
+    portal:
+        build:
+          context: ./$PATH_OMS_GLOBAL/portal/
+          dockerfile: ./Dockerfile.dev
+        image: aegee/portal:dev
+        restart: always
+        ports:
+          - 9876:80
+        labels:
+          - traefik.enable=true
+          - traefik.backend=portal
+          #- traefik.port=9876
+          - traefik.frontend.rule=HostRegexp:{domain:portal.[a-z0-9.]+}
+          - traefik.frontend.priority=20
+
+### DB admin (UIs) Containers #######################################
+
+### pgAdmin Container #######################################
+
+    pgadmin:
+        image: fenglc/pgadmin4:2.0
+        restart: on-failure
+        expose:
+            - 5050
+        labels:
+          - traefik.enable=true
+          - traefik.backend=pgadmin
+          - traefik.port=5050
+          - traefik.frontend.rule=HostRegexp:{domain:pgadmin.[a-z0-9.]+}
+          - traefik.frontend.priority=20
+          
+### mongoui Container #######################################
+    # mongoui:
+    #     build:
+    #        context: ./oms-util/docker/mongoui
+    #        dockerfile: ./Dockerfile.dev
+    #     expose:
+    #         - 3000
+    #     labels:
+    #       - traefik.enable=true
+    #       - traefik.backend=mongoui
+    #       - traefik.port=3000
+    #       - traefik.frontend.rule=HostRegexp:{domain:mongoui.[a-z0-9.]+}
+    #       - traefik.frontend.priority=20
+
+### additional services Container #######################################
+
+#     mediawiki:
+#         #image: mediawiki:1.30
+#         build:
+#             context: ./oms-util/docker/mediawiki
+#             dockerfile: ./Dockerfile.dev
+#         restart: always
+#         expose: 
+#             - 80
+#         volumes:
+#           - /var/www/html/images
+#             # After initial setup, download LocalSettings.php to the same directory as
+#             #       # this yaml and uncomment the following line and use compose to restart
+#             #             # the mediawiki service
+#             #                   # - ./LocalSettings.php:/var/www/html/LocalSettings.php
+# #        networks:
+# #          - management
+#         labels:
+#           - traefik.enable=true
+#           - traefik.backend=wiki
+#           - traefik.port=80
+#           - traefik.frontend.rule=HostRegexp:{domain:wiki.[a-z0-9.]+}
+#           - traefik.frontend.priority=20
+
+#     survey:
+#         image: crramirez/limesurvey:2.72.3
+#         expose: 
+#             - 80
+#         #volumes:
+#          # - /var/www/html/images
+#             # After initial setup, download LocalSettings.php to the same directory as
+#             #       # this yaml and uncomment the following line and use compose to restart
+#             #             # the mediawiki service
+#             #                   # - ./LocalSettings.php:/var/www/html/LocalSettings.php
+# #        networks:
+# #          - management
+#         volumes:
+#           - upload:/app/upload
+#         labels:
+#           - traefik.enable=true
+#           - traefik.backend=survey
+#           - traefik.port=80
+#           - traefik.frontend.rule=HostRegexp:{domain:survey.[a-z0-9.]+}
+#           - traefik.frontend.priority=20
+# 
+# volumes:
+#   upload:
+
+
+networks:
+  default:
+    external:
+      name: OMS

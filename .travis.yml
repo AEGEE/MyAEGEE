@@ -1,0 +1,26 @@
+language: shell
+dist: trusty
+sudo: required
+
+services:
+  - docker
+
+script:
+    - bash ./oms.sh build --no-cache
+    - bash ./oms.sh up -d
+    - sleep 120
+    - bash ./oms.sh logs
+    - bash ./oms.sh ps
+    - bash ./oms.sh exec -T -d traefik help 2>/dev/null || exit 1
+    - bash ./oms.sh exec -T -d omscore true 2>/dev/null || exit 1
+    - bash ./oms.sh exec -T -d php-fpm true 2>/dev/null || exit 1
+    - bash ./oms.sh exec -T -d omscore-nginx true 2>/dev/null || exit 1
+    - bash ./oms.sh exec -T -d postgres true 2>/dev/null || exit 1
+    - bash ./oms.sh exec -T -d pgadmin true 2>/dev/null || exit 1
+    - bash ./oms.sh exec -T -d omsevents true 2>/dev/null || exit 1
+    - bash ./oms.sh exec -T -d omsevents-frontend true 2>/dev/null || exit 1
+    - bash ./oms.sh exec -T -d mongodb true 2>/dev/null || exit 1
+    - bash ./oms.sh exec -T -d omsserviceregistry true 2>/dev/null || exit 1
+    - bash ./oms.sh exec -T -d alastair true 2>/dev/null || exit 1
+    - bash ./oms.sh exec -T omscore ./vendor/bin/phpunit
+    - bash ./tests/LocalLoopbackTest/LocalLoopbackTest.sh
