@@ -11,7 +11,8 @@ fi
 bash $DIR/oms-docker/oms.sh down -v
 rm -Rf oms-docker
 docker stop $(docker ps -aq)
-docker rmi $(docker images -a)
+docker rm -f $(docker ps -aq)
+docker rmi -f $(docker images -a)
 echo -e "\nFinished cleanup\n"
 
 git clone --recursive --branch master https://github.com/AEGEE/oms-docker.git
@@ -19,7 +20,13 @@ cp $DIR/oms-core.env $DIR/oms-docker/oms-core/.env.example
 echo -e "\nFinished setting up files\n"
 
 if [[ -f "$DIR/oms-docker/oms-core/storage/key" ]]; then
-  echo "WARNING: The application key is already set, security compromised!"
+    echo -e "WARNING: The application key is already set, security compromised!"
+    echo -e "WARNING: The application key is already set, security compromised!"
+    echo -e "WARNING: The application key is already set, security compromised!"
+    echo -e "WARNING: The application key is already set, security compromised!"
+    echo -e "WARNING: The application key is already set, security compromised!"
+    echo -e "WARNING: The application key is already set, security compromised!"
+    echo -e "WARNING: The application key is already set, security compromised!"
 fi
 
 bash $DIR/oms-docker/oms.sh up -d
