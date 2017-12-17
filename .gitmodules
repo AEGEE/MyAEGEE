@@ -16,3 +16,6 @@
 [submodule "oms-logo-print"]
 	path = oms-logo-print
     url = https://github.com/AEGEE/oms-logo-print.git
+[submodule "oms-global/docker/portal/files"]
+	path = oms-global/docker/portal/files
+	url = https://github.com/AEGEE/AEGEEPortal

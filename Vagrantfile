@@ -28,7 +28,10 @@ Vagrant.configure("2") do |config|
 
   #make it work also for windows
   config.vm.provision "shell", inline: "apt-get install dos2unix -qq -y; cd /vagrant && dos2unix *.sh; dos2unix vagrant-post-script/*.sh"
-  
+
+  #nice-to-have prompt and completion
+  config.vm.provision "shell", inline: "echo vagrant-post-script/bashrc >> /home/vagrant/.bashrc"
+    
   #install docker and docker-composer the easy way
   config.vm.provision "shell", path: "vagrant-post-script/install_docker.sh"
   config.vm.provision "shell", path: "vagrant-post-script/install_docker_composer.sh"
