@@ -13,14 +13,21 @@ fi
 docker network inspect OMS &>/dev/null || (echo -e "[OMS] Creating OMS docker network" && docker network create OMS)
 
 
-## Declare docker-compose.yml folders
-# HUMAN INTERVENTION NEEDED: register here your services
-declare -a services=("oms-global" "oms-util" "oms-core")
+# HUMAN INTERVENTION NEEDED: register in .env your services
+## Export all environment variables from .env to this script in case we need them some time
+export $(cat .env | grep -v ^# | xargs)
+## ENABLED_SERVICES holds a string separated by : with all enabled services (like "oms-global:omscore:oms-serviceregistry")
+## If you want to change the enabled services, change the array in .env
+service_string=$(printenv ENABLED_SERVICES)
+## Split services into array
+services=(${service_string//:/ })
 
 command="docker-compose -f base-docker-compose.yml"
 for s in "${services[@]}"; do
     if [[ -f "$DIR/${s}/docker/docker-compose.yml" ]]; then
         command="${command} -f $DIR/${s}/docker/docker-compose.yml"
+    else
+        echo -e "[OMS] WARNING: No docker file found for ${s}"
     fi
 done
 
