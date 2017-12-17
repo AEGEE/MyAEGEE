@@ -12,6 +12,7 @@ services:
   portainer:
     image: portainer/portainer:1.15.5
     command: --admin-password "$$2y$$05$$xyGGmUIFoXSDXjBQ10gc7uIjinlWrIZxCmjZ6OGDwoqWk605lCPxi"
+    restart: on-failure
     expose:
       - 9000
     volumes:

@@ -1,5 +1,6 @@
 version: "3.2"
-
+#TODO make sure all services always have the appropriate
+#       restart: on-failure
 services:
 
 ### DB admin (UIs) Containers #######################################
@@ -8,6 +9,7 @@ services:
 
     pgadmin:
         image: fenglc/pgadmin4:2.0
+        restart: on-failure
         expose:
             - 5050
         labels:

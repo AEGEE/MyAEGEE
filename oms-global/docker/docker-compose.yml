@@ -10,6 +10,7 @@ services:
           context: ./$PATH_OMS_GLOBAL/traefik/
           dockerfile: ./Dockerfile.dev
         image: aegee/traefik:dev
+        restart: always
         ports:
           - 80:80
           - 443:443
