@@ -18,6 +18,10 @@ git clone --recursive --branch master https://github.com/AEGEE/oms-docker.git
 cp $DIR/oms-core.env $DIR/oms-docker/oms-core/.env.example
 echo -e "\nFinished setting up files\n"
 
+if [[ -f "$DIR/oms-docker/oms-core/storage/key" ]]; then
+  echo "WARNING: The application key is already set, security compromised!"
+fi
+
 bash $DIR/oms-docker/oms.sh up -d
 echo -e "\nInitializing..."
 echo -e "This might take a while"
