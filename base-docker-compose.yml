@@ -2,17 +2,18 @@ version: "3.2"
 
 #This docker-compose file contains utility containers not vital for the working of the web application, such as an orchestrator manager (portainer) and a continuous integration app (drone)
 
-#TODO: maybe add also the web interfaces for postgre, mongo, whichever?
 #TODO: maybe add also the swagger-editor and swaggerapi visualiser
 #TODO: logging containers, consul...
+#FIXME: --logo in portainer is deprecated, should be removed
 
 services:
   #to get the password (hashed): (also remember to escape $ with anotehr $)
   # docker run --rm httpd:2.4-alpine htpasswd -nbB admin pass123 | cut -d ":" -f 2
   portainer:
-    image: portainer/portainer:1.14.2
-    command: --admin-password "$$2y$$05$$xyGGmUIFoXSDXjBQ10gc7uIjinlWrIZxCmjZ6OGDwoqWk605lCPxi"
-    ports:
+    image: portainer/portainer:1.15.5
+    command: -H unix:///var/run/docker.sock --logo "http://www.aegee.org/wp-content/uploads/logo_rgb_blue_transparent_small.png" --admin-password "$$2y$$05$$xyGGmUIFoXSDXjBQ10gc7uIjinlWrIZxCmjZ6OGDwoqWk605lCPxi"
+    restart: on-failure
+    expose:
       - 9000
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
