@@ -1,6 +1,7 @@
 version: "3.2"
 #TODO make sure all services always have the appropriate
 #       restart: on-failure
+#TODO: maybe add also the web interfaces for postgre, mongo, whichever?
 services:
 
 ### DB admin (UIs) Containers #######################################
