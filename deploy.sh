@@ -10,8 +10,8 @@ if [ $(grep ADMIN_PASSWORD $DIR/oms-core.env) == "ADMIN_PASSWORD=admin" ]; then
 fi
 bash $DIR/oms-docker/oms.sh down -v
 rm -Rf oms-docker
-bash docker stop $(docker ps -aq)
-bash docker rmi $(docker images -a)
+docker stop $(docker ps -aq)
+docker rmi $(docker images -a)
 echo -e "\nFinished cleanup\n"
 
 git clone --recursive --branch master https://github.com/AEGEE/oms-docker.git
