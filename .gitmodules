@@ -19,3 +19,9 @@
 [submodule "oms-global/docker/portal/files"]
 	path = oms-global/docker/portal/files
 	url = https://github.com/AEGEE/AEGEEPortal
+[submodule "oms-legacy"]
+	path = oms-legacy
+	url = ./oms-legacy
+[submodule "oms-static"]
+	path = oms-static
+	url = ./oms-static
