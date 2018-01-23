@@ -1,0 +1,13 @@
+FROM debian
+
+COPY ./i3anaan.jpg /i3anaan.jpg
+COPY ./OMS.jpg /OMS.jpg
+
+ENV TERM dumb
+ENV LOGO /OMS.jpg
+ENV IMAGE /i3anaan.jpg
+
+RUN apt-get update
+RUN apt-get install -y jp2a
+
+CMD ["/bin/bash", "-c", "(test $[RANDOM%100+1] -gt 80 && jp2a $IMAGE --colors --border --chars=.:#) || jp2a $LOGO --colors --border"]

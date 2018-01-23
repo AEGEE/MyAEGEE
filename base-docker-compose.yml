@@ -23,6 +23,36 @@ services:
       - traefik.port=9000
       - traefik.frontend.rule=HostRegexp:{domain:portainer.[a-z0-9.]+}
       - traefik.frontend.priority=20
+      
+  # grafana:
+  #   image: grafana/grafana:4.6.2
+  #   restart: on-failure
+  #   expose:
+  #     - 3000
+  #   volumes:
+  #     - /var/lib/grafana
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.backend=grafana
+  #     - traefik.port=3000
+  #     - traefik.frontend.rule=HostRegexp:{domain:grafana.[a-z0-9.]+}
+  #     - traefik.frontend.priority=20
+  #   environment:
+  #     - GF_SERVER_ROOT_URL=http://grafana.vespucci
+  #     - GF_SECURITY_ADMIN_PASSWORD=secret
+      
+  # prometheus:
+  #   #image: quay.io/prometheus/prometheus
+  #   image: prom/prometheus:v2.0.0
+  #   restart: on-failure
+  #   expose:
+  #     - 9090
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.backend=prometheus
+  #     - traefik.port=9090
+  #     - traefik.frontend.rule=HostRegexp:{domain:prometheus.[a-z0-9.]+}
+  #     - traefik.frontend.priority=20
 
   # drone-server:
   #   image: drone/drone:0.7
