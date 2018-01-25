@@ -54,3 +54,27 @@ For container-specific usage guides see the container's repository.
 
 ## Licence
 Apache License 2.0, see LICENSE.txt for more information.
+
+## Ports registered on traefik
+| Port | What | Container |
+|---|---|---|
+| 80,443 | standard entrypoint | traefik |
+| 5432 | not registered | postgres |
+
+## Deployment script
+The types of deployment:
+-local (docker/vagrant), with default silly Passwords
+-local (docker/vagrant), with hardened passwords
+-remote, with a zero-downtime upgrade
+-remote, with a complete wipe (major overhauls)
+
+a script is provided for you (deploy.sh), in which you can specify the target (deploy.sh --target=local)
+
+### TESTS to perform for the deploy script
+OK fresh install (problema di permission denied per modificare .env -solved with sudo)
+- refresh
+- nuke (problema di permission denied per rimuovere node modules e vendor php -solved with sudo) 
+- through provision script
+
+
+- base docker compose is needed because it is the "base" to get the relative path of all the future docker compose files

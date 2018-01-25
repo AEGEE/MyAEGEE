@@ -10,7 +10,7 @@ if ! [[ -f "$DIR/.env" ]]; then
     cp $DIR/.env.example $DIR/.env
 fi
 
-docker network inspect OMS &>/dev/null || (echo -e "[OMS] Creating OMS docker network" && docker network create OMS)
+sudo docker network inspect OMS &>/dev/null || (echo -e "[OMS] Creating OMS docker network" && sudo docker network create OMS)
 
 
 # HUMAN INTERVENTION NEEDED: register in .env your services
@@ -22,7 +22,7 @@ service_string=$(printenv ENABLED_SERVICES)
 ## Split services into array
 services=(${service_string//:/ })
 
-command="docker-compose -f $DIR/base-docker-compose.yml"
+command="sudo docker-compose -f $DIR/base-docker-compose.yml"
 for s in "${services[@]}"; do
     if [[ -f "$DIR/${s}/docker/docker-compose.yml" ]]; then
         command="${command} -f $DIR/${s}/docker/docker-compose.yml"
