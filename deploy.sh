@@ -68,7 +68,7 @@ if [ -f oms-docker/.env ]; then
 else
   echo -e "\n[Deployment] New installation\n"
   echo -e "\n[Deployment] Cloning repo (output suppressed)\n"
-  git clone --recursive --branch feat-autodeploy https://github.com/AEGEE/oms-docker.git 1>/dev/null 2>&1
+  git clone --recursive --branch dev https://github.com/AEGEE/oms-docker.git 1>/dev/null 2>&1
   cp $DIR/oms-docker/.env.example $DIR/oms-docker/.env
   #Ask if one wants to tweak the .env before starting it up
   echo "Do you wish to edit .env file? (write the number)"
