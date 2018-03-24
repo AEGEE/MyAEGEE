@@ -6,6 +6,8 @@
 #This script assumes that it is run on a production server. It is meant to be safe for cron updates
 # NOTE: to change passwords through the script, one must do a HARD reset (a new install or a nuke is what takes the password script to run). The script will error if passwords are not set properly
 
+#TODO: who is the user launching it? check sudos
+
 #STEP 1 check if we have to make a new setup (first time/nuke) or an update (default: assumes non-destructive update, rolls back to the first time - never nukes unless specified)
 #STEP 2 run password script (if new deployment)
 #STEP 3 application will be deployed
@@ -38,12 +40,13 @@ fi
 
 EDITOR=$(env | grep EDITOR | grep -oe '[^=]*$');
 if [ -z "$EDITOR" ]; then
-  export EDITOR="nano"
+  export EDITOR="vim";
 fi
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 #DEBUG echo
-echo 'the directory is ${DIR} and bash source is ${BASH_SOURCE[0]} and the wtf is $( dirname "${BASH_SOURCE[0]}" )'
+echo -e "\n the directory is ${DIR} and bash source is ${BASH_SOURCE[0]} and the wtf is $( dirname '${BASH_SOURCE[0]}' )"
+
 #assuming i am in /opt/MyAEGEE
 if [ "$fresh" == "true" ]; then
   echo -e "\n[Deployment] Nuking installation (removing .env = $nuke )\n"
@@ -56,25 +59,37 @@ if [ "$fresh" == "true" ]; then
   fi
 fi
 
-if [ -f oms-docker/.env ]; then
+if [ -f ./oms-docker/.env ]; then
   echo -e "\n[Deployment] Updating installation\n"
-  cd oms-docker/
-  git pull
-  git submodule init
-  git submodule update
+  
+  #cd oms-docker/
+  pwd #REMOVEE
+  #PROD: git pull
+  #git pull
+  #git submodule init
+  #git submodule update
+  #DEV: rsync from /opt/masterRepo
+  rsync -hrPt --include=.git --exclude=node_modules/ --delete /opt/masterRepo/ /opt/oms-docker
+   
   echo -e "\n[Deployment] Update performed, restarting containers\n"
   mv ../.env $DIR/oms-docker/.env 
   bash $DIR/oms-docker/oms.sh up -d
 else
   echo -e "\n[Deployment] New installation\n"
-  echo -e "\n[Deployment] Cloning repo (output suppressed)\n"
-  git clone --recursive --branch feat-autodeploy https://github.com/AEGEE/oms-docker.git 1>/dev/null 2>&1
+  echo -e "\n[Deployment] Cloning repo (normal output suppressed)\n"
+  #PRODUCTION: a git clone
+  #git clone --recursive --branch feat-autodeploy https://github.com/AEGEE/oms-docker.git 1>/dev/null
+  #DEVELOPMENT: a copy from filesystem (from an up-to-date, manually edited repo)
+  sudo cp -R /opt/masterRepo /opt/oms-docker
+  
+  sudo chown -R grasshopper:grasshopper /opt/oms-docker #NOTE user?
   cp $DIR/oms-docker/.env.example $DIR/oms-docker/.env
+  cp $DIR/oms-docker/.env $DIR/.env
   #Ask if one wants to tweak the .env before starting it up
   echo "Do you wish to edit .env file? (write the number)"
   select yn in "Yes" "No"; do
     case $yn in
-        Yes ) cp oms-docker/.env.example oms-docker/.env; sudo $EDITOR oms-docker/.env; break;;
+        Yes ) $EDITOR oms-docker/.env; break;;
         No ) break;;
     esac
   done
