@@ -19,3 +19,12 @@
 [submodule "oms-notification-onscreen"]
 	path = oms-notification-onscreen
 	url = https://github.com/AEGEE/oms-notification-onscreen.git
+[submodule "oms-central-frontend"]
+	path = oms-central-frontend
+	url = git@github.com:AEGEE/oms-central-frontend.git
+[submodule "oms-core-elixir"]
+	path = oms-core-elixir
+	url = git@github.com:AEGEE/oms-core-elixir.git
+[submodule "oms-loginservice"]
+	path = oms-loginservice
+	url = git@github.com:AEGEE/oms-loginservice.git
