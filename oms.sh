@@ -31,6 +31,12 @@ if ! [[ -f "$DIR/secrets/sendgrid_key" ]]; then
   cat /dev/random | head -c 256 | base64 > $DIR/secrets/sendgrid_key
 fi
 
+## If no certificate is provided, use a self-signed one
+if ! [[ -f "$DIR/secrets/cert.pem" ]]; then
+  mkdir -p $DIR/secrets
+  openssl req -x509 -newkey rsa:4096 -keyout $DIR/secrets/key.pem -out $DIR/secrets/cert.pem -days 365 -nodes -batch
+fi
+
 
 ## ENABLED_SERVICES holds a string separated by : with all enabled services (like "oms-global:omscore:oms-serviceregistry")
 ## If you want to change the enabled services, change the array in .env

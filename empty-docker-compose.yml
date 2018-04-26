@@ -5,3 +5,7 @@ secrets:
         file: secrets/jwt_key
     sendgrid_key:
         file: secrets/sendgrid_key
+    https_cert:
+        file: secrets/cert.pem
+    https_key:
+        file: secrets/key.pem

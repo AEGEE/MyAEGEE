@@ -16,6 +16,9 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         command: --web.metrics.prometheus
+        secrets:
+            - https_key
+            - https_cert
  
 networks:
   default:
