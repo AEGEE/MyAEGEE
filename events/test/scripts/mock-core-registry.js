@@ -9,69 +9,69 @@ exports.mockRegistry = (options) => {
   if (options.netError) {
     return nock(config.registry.url + ':' + config.registry.port)
       .persist()
-      .get('/services/omscore-nginx')
+      .get('/services/oms-core-elixir')
       .replyWithError('Some random error.');
   }
 
   if (options.badResponse) {
     return nock(config.registry.url + ':' + config.registry.port)
       .persist()
-      .get('/services/omscore-nginx')
+      .get('/services/oms-core-elixir')
       .reply(500, 'Some random error.');
   }
 
   if (options.unsuccessfulResponse) {
     return nock(config.registry.url + ':' + config.registry.port)
       .persist()
-      .get('/services/omscore-nginx')
+      .get('/services/oms-core-elixir')
       .reply(500, { success: false, message: 'Some error.' });
   }
 
   return nock(config.registry.url + ':' + config.registry.port)
     .persist()
-    .get('/services/omscore-nginx')
+    .get('/services/oms-core-elixir')
     .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-serviceregistry-valid.json'));
 }; 
 
 exports.mockCore = (options) => {
   if (options.netError) {
-    return nock('http://omscore-nginx')
+    return nock('http://oms-core-elixir')
       .persist()
-      .post('/api/tokens/user')
+      .post('/tokens/user')
       .replyWithError('Some random error.');
   }
 
   if (options.badResponse) {
-    return nock('http://omscore-nginx')
+    return nock('http://oms-core-elixir')
       .persist()
-      .post('/api/tokens/user')
+      .post('/tokens/user')
       .reply(500, 'Some error happened.');
   }
 
   if (options.unsuccessfulResponse) {
-    return nock('http://omscore-nginx')
+    return nock('http://oms-core-elixir')
       .persist()
-      .post('/api/tokens/user')
+      .post('/tokens/user')
       .reply(500, { success: false, message: 'Some error' });
   }
 
   if (options.unauthorized) {
-    return nock('http://omscore-nginx')
+    return nock('http://oms-core-elixir')
       .persist()
-      .post('/api/tokens/user')
+      .post('/tokens/user')
       .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
   }
 
   if (options.notSuperadmin) {
-    return nock('http://omscore-nginx')
+    return nock('http://oms-core-elixir')
       .persist()
-      .post('/api/tokens/user')
+      .post('/tokens/user')
       .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-not-superadmin.json'));
   }
 
-  return nock('http://omscore-nginx')
+  return nock('http://oms-core-elixir')
     .persist()
-    .post('/api/tokens/user')
+    .post('/tokens/user')
     .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
 };
 
