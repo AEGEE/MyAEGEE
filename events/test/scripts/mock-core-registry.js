@@ -35,41 +35,41 @@ exports.mockRegistry = (options) => {
 
 exports.mockCore = (options) => {
   if (options.netError) {
-    return nock('http://oms-core-elixir')
+    return nock('http://oms-core-elixir:4000')
       .persist()
       .post('/tokens/user')
       .replyWithError('Some random error.');
   }
 
   if (options.badResponse) {
-    return nock('http://oms-core-elixir')
+    return nock('http://oms-core-elixir:4000')
       .persist()
       .post('/tokens/user')
       .reply(500, 'Some error happened.');
   }
 
   if (options.unsuccessfulResponse) {
-    return nock('http://oms-core-elixir')
+    return nock('http://oms-core-elixir:4000')
       .persist()
       .post('/tokens/user')
       .reply(500, { success: false, message: 'Some error' });
   }
 
   if (options.unauthorized) {
-    return nock('http://oms-core-elixir')
+    return nock('http://oms-core-elixir:4000')
       .persist()
       .post('/tokens/user')
       .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
   }
 
   if (options.notSuperadmin) {
-    return nock('http://oms-core-elixir')
+    return nock('http://oms-core-elixir:4000')
       .persist()
       .post('/tokens/user')
       .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-not-superadmin.json'));
   }
 
-  return nock('http://oms-core-elixir')
+  return nock('http://oms-core-elixir:4000')
     .persist()
     .post('/tokens/user')
     .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
