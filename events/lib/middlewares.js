@@ -18,14 +18,14 @@ exports.authenticateUser = async (req, res, next) => {
 
   try {
     // Find the core service
-    const service = await communication.getServiceByName('omscore-nginx');
+    const service = await communication.getServiceByName('oms-core-elixir');
 
     // Get the request headers to send an auth token
     const headers = await communication.getRequestHeaders(req);
 
     // Query the core
     const body = await request({
-      url: `${service.backend_url}api/tokens/user`,
+      url: `${service.backend_url}/tokens/user`,
       method: 'POST',
       headers,
       form: {

@@ -1,7 +1,7 @@
 {
   "success": true,
   "data": {
-    "name": "omscore-nginx",
+    "name": "oms-core-elixir",
     "categories": [
       {
         "name": "users",
@@ -13,12 +13,12 @@
       }
     ],
     "backend": "",
-    "port": 80,
+    "port": 4000,
     "description": "The core module with both backend and frontend",
     "enabled": true,
-    "status_url": "http://omscore-nginx:80//service/health/ping",
+    "status_url": "http://oms-core-elixir:4000/service/health/ping",
     "frontend_url": "",
-    "backend_url": "http://omscore-nginx:80/",
+    "backend_url": "http://oms-core-elixir:4000",
     "up": true
   }
 }
