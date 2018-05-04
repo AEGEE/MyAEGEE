@@ -50,12 +50,17 @@ echo -e "\n the directory is ${DIR} and bash source is ${BASH_SOURCE[0]} and the
 #assuming i am in /opt/MyAEGEE
 if [ "$fresh" == "true" ]; then
   echo -e "\n[Deployment] Nuking installation (removing .env = $nuke )\n"
-  bash $DIR/oms-docker/oms.sh down -v
-  cp $DIR/oms-docker/.env .env
-  rm -Rf $DIR/oms-docker
+  bash $DIR/oms-docker/oms.sh down -v 
+  #ONLY FOR DEv
+  bash $DIR/oms-docker/oms.sh down -v --remove-orphans
+  #END ONLY FOR DEV
+  sudo cp $DIR/oms-docker/.env $DIR/.env #NOTE check how many times/why i copy .env outside the folder
+  sudo rm -Rf $DIR/oms-docker/
+  sudo mkdir $DIR/oms-docker/
+  sudo chown grasshopper:grasshopper $DIR/oms-docker/
   if [ "$nuke" == "true" ]; then
     echo -e "\n[Deployment] Removing .env\n"
-    rm .env
+    sudo rm .env
   fi
 fi
 
@@ -72,7 +77,7 @@ if [ -f ./oms-docker/.env ]; then
   rsync -hrPt --include=.git --exclude=node_modules/ --delete /opt/masterRepo/ /opt/oms-docker
    
   echo -e "\n[Deployment] Update performed, restarting containers\n"
-  mv ../.env $DIR/oms-docker/.env 
+  sudo mv /opt/.env $DIR/oms-docker/.env #NOTE useless basically (but see above anyway)
   bash $DIR/oms-docker/oms.sh up -d
 else
   echo -e "\n[Deployment] New installation\n"
@@ -80,11 +85,11 @@ else
   #PRODUCTION: a git clone
   #git clone --recursive --branch feat-autodeploy https://github.com/AEGEE/oms-docker.git 1>/dev/null
   #DEVELOPMENT: a copy from filesystem (from an up-to-date, manually edited repo)
-  sudo cp -R /opt/masterRepo /opt/oms-docker
+  rsync -hrPt --include=.git --exclude=node_modules/ --delete /opt/masterRepo/ /opt/oms-docker
   
   sudo chown -R grasshopper:grasshopper /opt/oms-docker #NOTE user?
   cp $DIR/oms-docker/.env.example $DIR/oms-docker/.env
-  cp $DIR/oms-docker/.env $DIR/.env
+  sudo cp $DIR/oms-docker/.env $DIR/.env
   #Ask if one wants to tweak the .env before starting it up
   echo "Do you wish to edit .env file? (write the number)"
   select yn in "Yes" "No"; do
