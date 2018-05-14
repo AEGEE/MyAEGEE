@@ -9,6 +9,9 @@
     "no-param-reassign": ["error", { "props": false }],
     "no-restricted-syntax": "off",
     "no-plusplus": "off",
-    "comma-dangle": "off"
+    "comma-dangle": "off",
+    "max-len": "off",
+    "prefer-template": "off",
+    "guard-for-in": "off"
   }
 }
