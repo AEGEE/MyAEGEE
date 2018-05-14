@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-var eventRoleSchema = mongoose.Schema({
+const eventRoleSchema = mongoose.Schema({
   cfg_id: String,
   name: String,
   description: String
