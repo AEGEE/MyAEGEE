@@ -46,7 +46,7 @@ const eventSchema = mongoose.Schema({
 // Virtuals
 eventSchema.virtual('head_image.url').get(function imageUrl() {
   if (this.head_image && this.head_image.filename) {
-    return `${config.frontend.url}/${config.frontend.media_url}/headimages/${this.head_image.filename}`;
+    return `/${config.media_url}/headimages/${this.head_image.filename}`;
   }
   return '';
 });
