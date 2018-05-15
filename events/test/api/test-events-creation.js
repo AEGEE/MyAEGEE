@@ -14,7 +14,7 @@ describe('Events creation', () => {
   let omsserviceregistryStub;
 
   beforeEach(async () => {
-    db.clear();
+    await db.clear();
 
     // Populate db
     const res = await db.populateEvents();
@@ -208,7 +208,7 @@ describe('Events creation', () => {
         ends: '2017-12-14 12:00',
       })
       .end((err, res) => {
-        res.should.have.status(409);
+        res.should.have.status(422);
         res.should.be.json;
         res.should.be.a('object');
 
@@ -229,7 +229,7 @@ describe('Events creation', () => {
         type: 'random-event-type',
       })
       .end((err, res) => {
-        res.should.have.status(409);
+        res.should.have.status(422);
         res.should.be.json;
         res.should.be.a('object');
 

@@ -1,23 +1,20 @@
-const restify = require('restify');
-
 const helpers = require('./helpers');
 const log = require('./config/logger.js');
 
 const EventType = require('./models/EventType');
 
 const pseudoRoles = require('./config/pseudo');
-const eventRoles = require('./config/eventroles');
 
 exports.createLifecycle = async (req, res, next) => {
   const data = req.body;
   delete data._id;
 
   if (!req.user.permissions.can.edit_lifecycles) {
-    return next(helpers.makeForbiddenError('You are not allowed to create/edit lifecycles.'));
+    return helpers.makeForbiddenError(res, 'You are not allowed to create/edit lifecycles.');
   }
 
   if (!data.eventType) {
-    return next(helpers.makeValidationError('No eventType is specified.'));
+    return helpers.makeValidationError(res, 'No eventType is specified.');
   }
 
   try {
@@ -39,7 +36,7 @@ exports.createLifecycle = async (req, res, next) => {
   } catch (err) {
     // Send validation-errors back to client
     if (err.name === 'ValidationError') {
-      return next(helpers.makeValidationError(err));
+      return helpers.makeValidationError(res, err);
     }
 
     log.error('Could not create/update EventType', err);
@@ -50,17 +47,17 @@ exports.createLifecycle = async (req, res, next) => {
 exports.removeLifecycle = async (req, res, next) => {
   // Errors that can happen there are to be caught in 'uncaughtException' handler.
   if (!req.user.permissions.can.delete_lifecycles) {
-    return next(helpers.makeForbiddenError('You are not allowed to delete lifecycles.'));
+    return helpers.makeForbiddenError(res, 'You are not allowed to delete lifecycles.');
   }
 
   if (!req.params.lifecycle_id) {
-    return next(helpers.makeValidationError('No lifecycle name was specified.'));
+    return helpers.makeValidationError(res, 'No lifecycle name was specified.');
   }
 
   const doc = await EventType.findOneAndRemove({ name: req.params.lifecycle_id }, {});
 
   if (!doc) {
-    return next(helpers.makeNotFoundError('Lifecycle with that name was not found.'));
+    return helpers.makeNotFoundError(res, 'Lifecycle with that name was not found.');
   }
 
   res.json({

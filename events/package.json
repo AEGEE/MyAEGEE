@@ -21,10 +21,13 @@
   },
   "homepage": "https://github.com/AEGEE/oms-events#readme",
   "dependencies": {
-    "@gilbertco/restify-async-wrap": "^0.1.2",
+    "async-middleware": "^1.2.1",
+    "body-parser": "^1.18.2",
     "bugsnag": "^1.9.1",
     "bunyan": "^1.8.1",
     "deep-assign": "^2.0.0",
+    "express": "^4.16.3",
+    "express-promise-router": "^3.0.2",
     "file-type": "^4.1.0",
     "fs-extra": "^2.0.0",
     "mongoose": "^4.12.5",
@@ -34,12 +37,11 @@
     "promise": "^7.1.1",
     "read-chunk": "^2.0.0",
     "request": "^2.79.0",
-    "request-promise-native": "^1.0.4",
-    "restify": "^4.1.0"
+    "request-promise-native": "^1.0.4"
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "chai-http": "^3.0.0",
+    "chai-http": "git+https://github.com/chaijs/chai-http.git",
     "codecov": "^3.0.0",
     "eslint": "^3.17.0",
     "eslint-config-airbnb": "^13.0.0",

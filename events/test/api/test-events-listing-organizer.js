@@ -15,7 +15,7 @@ describe('Events organizer listing', () => {
   let omsserviceregistryStub;
 
   beforeEach(async () => {
-    db.clear();
+    await db.clear();
 
     // Populate db
     const res = await db.populateEvents();
@@ -28,7 +28,7 @@ describe('Events organizer listing', () => {
 
   it('should list events where the user is organizer on /mine/byOrganizer GET', (done) => {
     const mineEvents = events.filter((event) => {
-      return event.organizers.some(org => org.foreign_id === user.id);
+      return event.organizers.some(org => org.user_id === user.id);
     });
 
     chai.request(server)
@@ -52,7 +52,7 @@ describe('Events organizer listing', () => {
 
   it('should not include events where the user is not organizer on /mine/byOrganizer GET', (done) => {
     const notMineEvents = events.filter((event) => {
-      return event.organizers.some(org => org.foreign_id !== user.id);
+      return event.organizers.some(org => org.user_id !== user.id);
     });
 
     chai.request(server)

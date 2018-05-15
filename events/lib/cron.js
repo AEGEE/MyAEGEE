@@ -44,7 +44,8 @@ exports.registerDeadline = (id, plannedTime) => {
 };
 
 exports.scanDB = async () => {
-  let counter = 0;
+  let closedDeadlines = 0;
+  let registeredDeadlines = 0;
   const events = await Event.where('application_status', 'open');
 
   for (const item of events) {
@@ -52,13 +53,13 @@ exports.scanDB = async () => {
       // Close past events immediately - could happen if service was down while deadline passed
       if (item.application_deadline < Date.now()) {
         await closeDeadline(item.id, item.application_deadline);
-        counter++;
+        closedDeadlines++;
       } else { // Otherwise schedule it
         exports.registerDeadline(item.id, item.application_deadline);
-        counter++;
+        registeredDeadlines++;
       }
     }
   }
 
-  log.info(`Set up cron timers for ${counter} events with approaching deadlines`);
+  log.info(`Closed deadlines for ${closedDeadlines} events and set up cron timers for ${registeredDeadlines} events with approaching deadlines`);
 };

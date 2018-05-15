@@ -31,7 +31,7 @@ exports.mockRegistry = (options) => {
     .persist()
     .get('/services/oms-core-elixir')
     .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-serviceregistry-valid.json'));
-}; 
+};
 
 exports.mockCore = (options) => {
   if (options.netError) {

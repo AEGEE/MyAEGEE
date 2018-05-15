@@ -1,18 +1,15 @@
 const request = require('request-promise-native');
-const restify = require('restify');
+const bugsnag = require('bugsnag');
 
-const config = require('./config/config.js');
 const log = require('./config/logger.js');
 const Event = require('./models/Event');
-const UserCache = require('./models/UserCache');
 const helpers = require('./helpers.js');
 const communication = require('./communication');
-const user = require('./user.js');
 
 exports.authenticateUser = async (req, res, next) => {
   const token = req.header('x-auth-token');
   if (!token) {
-    return next(helpers.makeForbiddenError('No auth token provided'));
+    return helpers.makeForbiddenError(res, 'No auth token provided');
   }
 
 
@@ -28,15 +25,20 @@ exports.authenticateUser = async (req, res, next) => {
       url: `${service.backend_url}/tokens/user`,
       method: 'POST',
       headers,
+      simple: false,
       form: {
         token: headers['X-Auth-Token'],
       },
       json: true,
     });
 
+    if (typeof body !== 'object') {
+      return helpers.makeInternalError(res, 'Malformed response from core: ' + body);
+    }
+
     if (!body.success) {
       // We are not authenticated
-      return next(helpers.makeForbiddenError('User is not authenticated.'));
+      return helpers.makeForbiddenError(res, 'User is not authenticated.');
     }
 
     if (!req.user) {
@@ -49,14 +51,14 @@ exports.authenticateUser = async (req, res, next) => {
 
     return next();
   } catch (err) {
-    throw err;
+    return helpers.makeInternalError(res, err);
   }
 };
 
 exports.fetchSingleEvent = async (req, res, next) => {
   if (!req.params.event_id) {
     log.info(req.params);
-    return next(helpers.makeForbiddenError('No Event-id provided'));
+    return helpers.makeNotFoundError(res, 'No Event-id provided');
   }
 
   // Checking if the passed ID is ObjectID or not.
@@ -73,7 +75,7 @@ exports.fetchSingleEvent = async (req, res, next) => {
     const event = await Event.findOne(findObject);
 
     if (event === null) {
-      return next(helpers.makeNotFoundError(`Event with id ${req.params.event_id} not found`));
+      return helpers.makeNotFoundError(res, `Event with id ${req.params.event_id} not found`);
     }
 
     req.event = event;
@@ -122,4 +124,21 @@ exports.checkEventPermissions = async (req, res, next) => {
     helpers.canUserAccess(req.user, link.visibility));
 
   next();
+};
+
+/* eslint-disable no-unused-vars */
+exports.notFound = (req, res, next) => helpers.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl);
+
+/* eslint-disable no-unused-vars */
+exports.errorHandler = (err, req, res, next) => {
+  // Handling invalid JSON
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return helpers.makeBadRequestError(res, 'Invalid JSON.');
+  }
+
+  log.error(err.stack);
+  if (process.env.NODE_ENV !== 'test') {
+    bugsnag.notify(err);
+  }
+  return helpers.makeInternalError(res, err);
 };

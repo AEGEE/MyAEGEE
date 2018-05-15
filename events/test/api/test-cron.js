@@ -9,12 +9,13 @@ describe('Cron testing', () => {
   let events;
 
   beforeEach(async () => {
-    db.clear();
+    await db.clear();
 
     // Populate db
     const res = await db.populateEvents();
     events = res.events;
   });
+
 
   it('should register deadline for all events', async () => {
     const plannedEventsCount = events
@@ -38,7 +39,4 @@ describe('Cron testing', () => {
     cron.countJobs().should.equal(0);
     tk.reset();
   });
-
-  it('shouldn\'t close the deadline for non-existant event');
-  it('shouldn\'t close the deadline if it\'s already closed');
 });

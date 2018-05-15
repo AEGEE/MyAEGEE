@@ -14,12 +14,12 @@ describe('Events listing', () => {
   let omsserviceregistryStub;
 
   beforeEach(async () => {
-    db.clear();
+    await db.clear();
 
     // Populate db
     const res = await db.populateEvents();
     events = res.events;
-    
+
     const mocked = mock.mockAll();
     omscoreStub = mocked.omscoreStub;
     omsserviceregistryStub = mocked.omsserviceregistryStub;

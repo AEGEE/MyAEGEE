@@ -1,15 +1,4 @@
-/**
-** This file provides basic functionalities not related to events
-** Also responsible for communication with the core
-*/
-
-const config = require('./config/config.js');
-const log = require('./config/logger.js');
-const fs = require('fs');
-const httprequest = require('request');
-const restify = require('restify');
-const cron = require('./cron.js');
-const eventroles = require('./config/eventroles');
+const cron = require('./cron');
 
 /* Stat thing... remove!*/
 const stats = {

@@ -3,24 +3,30 @@ const chaiHttp = require('chai-http');
 const server = require('../../lib/server.js');
 const Event = require('../../lib/models/Event');
 const db = require('../scripts/populate-db');
+const mock = require('../scripts/mock-core-registry');
 
-const should = chai.should();
+const expect = chai.expect;
 chai.use(chaiHttp);
 
 describe('Event organizers', () => {
   let events;
+  let omscoreStub;
+  let omsserviceregistryStub;
 
-  beforeEach((done) => {
-    db.clear();
+  beforeEach(async () => {
+    await db.clear();
 
     // Populate db
-    db.populateEvents((res) => {
-      events = res.events;
-      done();
-    });
+    const res = await db.populateEvents();
+    events = res.events;
+
+    const mocked = mock.mockAll();
+    omscoreStub = mocked.omscoreStub;
+    omsserviceregistryStub = mocked.omsserviceregistryStub;
   });
 
-  /* it('should list all contributing organizers on /single/id/organizers GET', (done) => {
+
+  it('should list all contributing organizers on /single/:id/organizers GET'/*, (done) => {
     chai.request(server)
       .get('/')
       .set('X-Auth-Token', 'foobar')
@@ -37,9 +43,9 @@ describe('Event organizers', () => {
             done();
           });
       });
-  }); */
+  }*/);
 
-  it('should change the organizers list on /single/id/organizers PUT'/*, (done) => {
+  it('should change the organizers list on /single/:id/organizers PUT'/*, (done) => {
     chai.request(server)
       .get('/')
       .end((err, event) => {
@@ -82,7 +88,7 @@ describe('Event organizers', () => {
        .send({ organizers: [] })
        .end(function (err, res) {
 
-        res.should.have.status(409);
+        res.should.have.status(422);
         done();
       });
     });
@@ -100,7 +106,7 @@ describe('Event organizers', () => {
         },
         ], })
        .end(function (err, res) {
-        res.should.have.status(409);
+        res.should.have.status(422);
         done();
       });
     });

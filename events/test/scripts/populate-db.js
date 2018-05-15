@@ -24,16 +24,37 @@ async function populateEventTypes() {
 
     const organizerAccess = {
       users: [],
-      roles: [],
+      circles: [],
       bodies: [],
       special: ['Organizer'],
     };
 
     const publicAccess = {
       users: [],
-      roles: [],
+      circles: [],
       bodies: [],
       special: ['Public'],
+    };
+
+    const firstUserAccess = {
+      users: [firstUser.id],
+      circles: [],
+      bodies: [],
+      special: [],
+    };
+
+    const secondUserAccess = {
+      users: [secondUser.id],
+      circles: [],
+      bodies: [],
+      special: [],
+    };
+
+    const emptyAccess = {
+      users: [],
+      circles: [],
+      bodies: [],
+      special: [],
     };
 
     const statuses = [{
@@ -41,24 +62,28 @@ async function populateEventTypes() {
       visibility: organizerAccess,
       applicable: organizerAccess,
       edit_details: organizerAccess,
-      edit_organizers: organizerAccess
+      edit_organizers: organizerAccess,
+      edit_application_status: organizerAccess,
+      approve_participants: organizerAccess,
+      view_applications: organizerAccess
     }, {
       name: 'Requesting',
-      visibility: {
-        users: [firstUser.id],
-        roles: [],
-        bodies: [],
-        special: [],
-      },
+      visibility: firstUserAccess,
       applicable: organizerAccess,
       edit_details: organizerAccess,
-      edit_organizers: organizerAccess
+      edit_organizers: organizerAccess,
+      edit_application_status: organizerAccess,
+      approve_participants: organizerAccess,
+      view_applications: organizerAccess
     }, {
       name: 'Approved',
       visibility: publicAccess,
       applicable: publicAccess,
       edit_details: organizerAccess,
-      edit_organizers: organizerAccess
+      edit_organizers: organizerAccess,
+      edit_application_status: organizerAccess,
+      approve_participants: organizerAccess,
+      view_applications: organizerAccess
     }];
 
     // Setting statuses for transitions
@@ -72,39 +97,19 @@ async function populateEventTypes() {
       transitions: [{
         from: null,
         to: draftStatus.name,
-        allowedFor: {
-          users: [1],
-          roles: [],
-          bodies: [],
-          special: [],
-        },
+        allowedFor: firstUserAccess,
       }, {
         from: draftStatus.name,
         to: requestingStatus.name,
-        allowedFor: {
-          users: [1],
-          roles: [],
-          bodies: [],
-          special: [],
-        },
+        allowedFor: firstUserAccess,
       }, {
         from: requestingStatus.name,
         to: approvedStatus.name,
-        allowedFor: {
-          users: [1],
-          roles: [],
-          bodies: [],
-          special: [],
-        },
+        allowedFor: firstUserAccess,
       }, {
         from: requestingStatus.name,
         to: draftStatus.name,
-        allowedFor: {
-          users: [],
-          roles: [],
-          bodies: [],
-          special: [],
-        },
+        allowedFor: emptyAccess,
       }],
       initialStatus: draftStatus.name,
     };
@@ -121,7 +126,7 @@ async function populateEventTypes() {
   } catch (err) {
     console.log('Error while saving event types:', err);
     throw err;
-  }  
+  }
 }
 
 async function populateEvents(eventTypes) {
@@ -135,8 +140,7 @@ async function populateEvents(eventTypes) {
       ends: futureDate(15),
       description: 'A training event to boost your self-confidence and teamworking skills',
       organizing_locals: [{
-        foreign_id: 1,
-        name: 'AEGEE-Dresden',
+        body_id: 1
       }],
       type: 'non-statutory',
       status: nonStatutoryEventType.defaultLifecycle.statuses.find(s => s.name === 'Draft'),
@@ -145,10 +149,7 @@ async function populateEvents(eventTypes) {
       application_deadline: futureDate(13),
       application_status: 'closed',
       organizers: [{
-        first_name: firstUser.first_name,
-        last_name: firstUser.last_name,
-        foreign_id: firstUser.id,
-        antenna_id: 'DRE',
+        user_id: firstUser.id
       }],
     }, {
       name: 'EPM Zagreb',
@@ -156,8 +157,8 @@ async function populateEvents(eventTypes) {
       ends: futureDate(17),
       description: 'Drafting the Action Agenda and drinking cheap vodka',
       organizing_locals: [
-        { foreign_id: 2, name: 'AEGEE-Zagreb' },
-        { foreign_id: 3, name: 'AEGEE-Somethingelse' },
+        { body_id: 2 },
+        { body_id: 3 },
       ],
       type: 'statutory',
       max_participants: 300,
@@ -175,10 +176,7 @@ async function populateEvents(eventTypes) {
       organizers:
       [
         {
-          first_name: secondUser.first_name,
-          last_name: secondUser.last_name,
-          foreign_id: secondUser.id,
-          antenna_id: 'ANT',
+          user_id: secondUser.id
         },
       ],
     }, {
@@ -186,14 +184,33 @@ async function populateEvents(eventTypes) {
       starts: futureDate(24),
       ends: futureDate(25),
       description: 'A training event to boost your self-confidence and teamworking skills',
-      organizing_locals: [{ foreign_id: 'AEGEE-Dresden' }],
+      organizing_locals: [{ body_id: 'AEGEE-Dresden' }],
       type: 'non-statutory',
       status: nonStatutoryEventType.defaultLifecycle.statuses.find(s => s.name === 'Approved'),
       lifecycle: nonStatutoryEventType.defaultLifecycle,
       max_participants: 22,
       application_deadline: futureDate(14),
       application_status: 'open',
-      organizers: [{ foreign_id: 333, antenna_id: 'CAV' }],
+      organizers: [{ user_id: 333 }],
+      application_fields: [
+        { name: 'Motivation' },
+        { name: 'TShirt-Size' },
+        { name: 'Meaning of Life' },
+        { name: 'Allergies' },
+      ],
+    }, {
+      name: 'SUPS Voronezh',
+      starts: futureDate(24),
+      ends: futureDate(25),
+      description: 'A training event to boost your self-confidence and teamworking skills',
+      organizing_locals: [{ body_id: 'AEGEE-Voronezh' }],
+      type: 'non-statutory',
+      status: nonStatutoryEventType.defaultLifecycle.statuses.find(s => s.name === 'Approved'),
+      lifecycle: nonStatutoryEventType.defaultLifecycle,
+      max_participants: 22,
+      application_deadline: null,
+      application_status: 'closed',
+      organizers: [{ user_id: firstUser.id }],
       application_fields: [
         { name: 'Motivation' },
         { name: 'TShirt-Size' },
@@ -224,6 +241,6 @@ exports.populateLifecycles = async () => {
   return { eventTypes };
 };
 
-exports.clear = () => {
-  mongoose.connection.dropDatabase();
+exports.clear = async () => {
+  await mongoose.connection.dropDatabase();
 };

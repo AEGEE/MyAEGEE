@@ -1,10 +1,7 @@
-const restify = require('restify');
-
 const log = require('./config/logger.js');
-const eventRoles = require('./config/eventroles');
-const helpers = require('./helpers.js');
-const cron = require('./cron.js');
-const user = require('./user.js');
+const helpers = require('./helpers');
+const cron = require('./cron');
+const user = require('./user');
 const Event = require('./models/Event');
 const EventType = require('./models/EventType');
 
@@ -31,7 +28,7 @@ exports.listEvents = async (req, res, next) => {
 
     // Displaying only events user is allowed to see
     const filteredEvents = events.filter(event =>
-      helpers.canUserAccess(req.user, event.status.visibility));
+      helpers.canUserAccess({ user: req.user, accessObject: event.status.visibility }));
 
     res.json({
       success: true,
@@ -50,7 +47,7 @@ exports.listUserOrganizedEvents = async (req, res, next) => {
   const events = await Event
     .where('deleted').equals(false) // Hide deleted events
     .where('ends').gte(new Date())  // Only show events in the future
-    .elemMatch('organizers', { foreign_id: req.user.id })
+    .elemMatch('organizers', { user_id: req.user.id })
     .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '));
 
   res.json({
@@ -69,6 +66,8 @@ exports.listApprovableEvents = async (req, res, next) => {
   // Checking if we have at least 1 transition
   // from current status to any status
   // which is allowed for this user/body/role/special
+
+  /* eslint-disable arrow-body-style */
   const retVal = events.filter((event) => {
     return event.lifecycle.transitions.some((transition) => {
       // Skipping all transitions without 'from' status,
@@ -78,7 +77,7 @@ exports.listApprovableEvents = async (req, res, next) => {
       }
 
       return (transition.from === event.status.name
-        && helpers.canUserAccess(req.user, transition.allowedFor, event));
+        && helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor, event }));
     });
   });
 
@@ -101,22 +100,10 @@ exports.addEvent = async (req, res, next) => {
   delete data.organizing_locals;
 
   if (!data.type) {
-    return next(helpers.makeValidationError('No event type is specified.'));
+    return helpers.makeValidationError(res, 'No event type is specified.');
   }
 
   const newEvent = new Event(data);
-
-  const organizerAccess = { users: [], bodies: [], roles: [], special: ['Organizer'] };
-  const publicAccess = { users: [], bodies: [], roles: [], special: ['Public'] };
-
-  // Adding default links to the event.
-  newEvent.links = [
-    { controller: 'app.events.apply', displayName: 'Apply to event', visibility: publicAccess },
-    { controller: 'app.eventadmin.edit', displayName: 'Edit event', visibility: organizerAccess },
-    { controller: 'app.eventadmin.approve_participants', displayName: 'Approve participants', visibility: organizerAccess },
-    { controller: 'app.events.organizers', displayName: 'See organizers', visibility: publicAccess },
-    { controller: 'app.events.participants', displayName: 'See participants', visibility: publicAccess },
-  ];
 
   try {
     // Get the default role to assign to the user
@@ -124,7 +111,7 @@ exports.addEvent = async (req, res, next) => {
     // Creating user automatically becomes organizer
     newEvent.organizers = [
       {
-        foreign_id: req.user.id,
+        user_id: req.user.id,
         roles: defaultRoles,
       },
     ];
@@ -132,20 +119,15 @@ exports.addEvent = async (req, res, next) => {
     // Creating user's local automatically becomes organizing local
     // TODO: rethink and rewrite it, since user can have many bodies,
     // and for now we're just getting the first one
-    newEvent.organizing_locals = [
-      {
-        name: req.user.bodies[0].name,
-        foreign_id: req.user.bodies[0].id,
-      },
-    ];
+    newEvent.organizing_locals = [{ body_id: req.user.bodies[0].id }];
 
     // Loading event type and its default lifecycle
     const eventType = await EventType.findOne({ name: newEvent.type });
 
     if (!eventType || !eventType.defaultLifecycle) {
       // no lifecycle exists for this type of event
-      return next(helpers.makeValidationError(`No lifecycle is specified for this type of event: ${newEvent.type}, \
-cannot set initial status.`));
+      return helpers.makeValidationError(res, `No lifecycle is specified for this type of event: ${newEvent.type}, \
+cannot set initial status.`);
     }
 
     // Checking if the user is allowed to create an event.
@@ -154,8 +136,8 @@ cannot set initial status.`));
       !t.from && t.to === eventType.defaultLifecycle.initialStatus);
 
     // Checking if the user is allowed to create events of this type.
-    if (!transition || !helpers.canUserAccess(req.user, transition.allowedFor)) {
-      return next(helpers.makeForbiddenError('You are not allowed to create an event of this type.'));
+    if (!transition || !helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor })) {
+      return helpers.makeForbiddenError(res, 'You are not allowed to create an event of this type.');
     }
 
     // Now we've got here, the user is allowed to create the event.
@@ -180,7 +162,7 @@ cannot set initial status.`));
   } catch (err) {
     // Send validation-errors back to client
     if (err.name === 'ValidationError') {
-      return next(helpers.makeValidationError(err));
+      return helpers.makeValidationError(res, err);
     }
 
     log.error('Could not add event', err);
@@ -216,7 +198,7 @@ exports.eventDetails = async (req, res, next) => {
 exports.editEvent = async (req, res, next) => {
   // If user can't edit anything, return error right away
   if (!req.user.permissions.can.edit_details) {
-    return next(helpers.makeForbiddenError('You cannot edit this event'));
+    return helpers.makeForbiddenError(res, 'You cannot edit this event');
   }
 
   const data = req.body;
@@ -228,7 +210,7 @@ exports.editEvent = async (req, res, next) => {
   delete data.status;
 
   if (Object.keys(data).length === 0) {
-    return next(helpers.makeValidationError('No valid field changes requested'));
+    return helpers.makeValidationError(res, 'No valid field changes requested');
   }
 
   // Copy fields if user can edit details
@@ -266,15 +248,11 @@ exports.editEvent = async (req, res, next) => {
     data.organizers.forEach((organizer) => {
       // Change the roles to only hold ids
       if (organizer.roles) {
-        organizer.roles = organizer.roles.map((role) => {
-          if (role.id)
-            return role.id;
-          return role;
-        });
+        organizer.roles = organizer.roles.map(role => (role.id ? role.id : role));
       }
 
       // Try to find organizer in list
-      let index = event.organizers.findIndex((item) => item.foreign_id === organizer.foreign_id);
+      const index = event.organizers.findIndex(item => item.foreign_id === organizer.foreign_id);
 
       // If user already exists, copy only new stuff
       if (index !== undefined && index !== -1) {
@@ -328,7 +306,7 @@ exports.editEvent = async (req, res, next) => {
   } catch (err) {
     // Send validation-errors back to client
     if (err.name === 'ValidationError') {
-      return next(helpers.makeValidationError(err));
+      return helpers.makeValidationError(res, err);
     }
 
     log.error('Could not edit event', err);
@@ -338,7 +316,7 @@ exports.editEvent = async (req, res, next) => {
 
 exports.deleteEvent = async (req, res, next) => {
   if (!req.user.permissions.can.delete) {
-    return next(helpers.makeForbiddenError('You are not permitted to delete this event.'));
+    return helpers.makeForbiddenError(res, 'You are not permitted to delete this event.');
   }
 
   const event = req.event;
@@ -356,7 +334,7 @@ exports.deleteEvent = async (req, res, next) => {
   } catch (err) {
     // Send validation-errors back to client
     if (err.name === 'ValidationError') {
-      return next(helpers.makeValidationError(err));
+      return helpers.makeValidationError(res, err);
     }
 
     log.error('Could not delete event', err);
@@ -375,7 +353,7 @@ exports.listPossibleStatuses = async (req, res, next) => {
     }
 
     return transition.from === req.event.status.name
-      && helpers.canUserAccess(req.user, transition.allowedFor, req.event);
+      && helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor, event: req.event });
   }).map(transition => transition.toObject());
 
   // Appending statuses, so we won't have to load them manually.
@@ -384,7 +362,7 @@ exports.listPossibleStatuses = async (req, res, next) => {
     t.to = req.event.lifecycle.statuses.find(s => s.name === t.to);
   });
 
-  res.send({
+  res.json({
     success: true,
     data: possibleTransitions,
   });
@@ -401,12 +379,12 @@ exports.setApprovalStatus = async (req, res, next) => {
 
   // If there is no transition found, it's disallowed to everybody.
   if (!transition) {
-    return next(helpers.makeForbiddenError('You are not allowed to perform a transition.'));
+    return helpers.makeForbiddenError(res, 'You are not allowed to perform a transition.');
   }
 
   // Checking if this user/role/body/special has the rights to do the transition.
-  if (!helpers.canUserAccess(req.user, transition.allowedFor, req.events)) {
-    return next(helpers.makeForbiddenError('You are not allowed to perform this transition.'));
+  if (!helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor, event: req.event })) {
+    return helpers.makeForbiddenError(res, 'You are not allowed to perform this transition.');
   }
 
   // We only get here if the user is allowed to do a status transition.
@@ -422,7 +400,7 @@ exports.setApprovalStatus = async (req, res, next) => {
     return next();
   } catch (err) {
     if (err.name === 'ValidationError') {
-      return next(helpers.makeValidationError(err));
+      return helpers.makeValidationError(res, err);
     }
 
     log.error('Could not update event status', err);
@@ -443,7 +421,7 @@ exports.getEditRights = (req, res, next) => {
 
 exports.addEventLink = async (req, res, next) => {
   if (!req.body.controller || !req.body.displayName) {
-    return next(helpers.makeValidationError('Malformed request.'));
+    return helpers.makeValidationError(res, 'Malformed request.');
   }
 
   // Adding link to event and saving it.
@@ -459,7 +437,7 @@ exports.addEventLink = async (req, res, next) => {
   } catch (err) {
     // Send validation-errors back to client
     if (err.name === 'ValidationError') {
-      return next(helpers.makeValidationError(err));
+      return helpers.makeValidationError(res, err);
     }
 
     throw err;

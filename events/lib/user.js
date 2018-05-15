@@ -1,13 +1,11 @@
-const EventRole = require('./models/EventRole.js');
-const eventRolesConfig = require('./config/eventroles');
-const mongoose = require('mongoose');
-const log = require('./config/logger.js');
-const restify = require('restify');
 const httprequest = require('request-promise-native');
+
+const EventRole = require('./models/EventRole');
+const eventRolesConfig = require('./config/eventroles');
+const log = require('./config/logger');
 
 const communication = require('./communication');
 
-const config = require('./config/config.js');
 
 const getUserById = async (authToken, id) => {
   const core = await communication.getServiceByName('omscore-nginx');
@@ -39,7 +37,7 @@ exports.getUserById = getUserById;
 
 // Everything related to users
 
-const identityTransform = (user) => { return user; };
+const identityTransform = user => user;
 
 
 // This function expects an array of objects with the field "foreign_id"

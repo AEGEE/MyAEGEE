@@ -14,12 +14,10 @@ USER node
 
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
 
-RUN npm install -g --loglevel warn pm2 bunyan && \
+RUN npm install -g --loglevel warn bunyan && \
 	npm cache clean --force
 
 
-CMD sh /usr/app/scripts/bootstrap.sh && \
-	/home/node/.npm-global/bin/pm2 start pm2config.json && \
-	/home/node/.npm-global/bin/pm2 logs --raw | /home/node/.npm-global/bin/bunyan
+CMD sh /usr/app/scripts/bootstrap.sh && node lib/server.js | /home/node/.npm-global/bin/bunyan
 
 EXPOSE 8082

@@ -18,7 +18,7 @@ const readFileWrapper = (file, enc = 'utf-8') => new Promise((res, rej) => {
 
 module.exports.getServiceByName = async (name) => {
   // If we already fetched that name, just return it as it is not going to change quickly
-  if (namecache.hasOwnProperty(name)) {
+  if (namecache[name]) {
     return namecache[name];
   }
 
