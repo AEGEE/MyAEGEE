@@ -1,71 +1,114 @@
 {
     "success": true,
-    "meta": null,
     "data": {
-        "id": 2,
-        "address_id": 1,
-        "personal_email": "user@aegee.org",
-        "first_name": "Just",
-        "last_name": "User",
-        "date_of_birth": "1985-04-16 00:00:00",
-        "gender": "other",
-        "phone": null,
-        "description": null,
-        "remember_token": "Q1uErx06K6Q4ePEw2KiciFLjzz76oDXvPEbiUVJ7KTu5a8SoiUZ07VA3fLDN",
-        "is_superadmin": 0,
-        "is_suspended": null,
-        "suspended_reason": null,
-        "seo_url": "user",
-        "activated_at": "2017-10-30 17:16:47",
-        "created_at": "2017-10-30 17:16:47",
-        "updated_at": "2017-10-30 17:16:47",
-        "internal_email": null,
-        "first_name_simple": "Just",
-        "last_name_simple": "User",
-        "address": {
-            "id": 1,
-            "country_id": 21,
-            "street": "Notelaarsstraat 55",
-            "zipcode": "1000",
-            "city": "Brussels",
-            "created_at": "2017-10-30 17:16:47",
-            "updated_at": "2017-10-30 17:16:47"
+        "user_id": 10,
+        "user": {
+            "superadmin": false,
+            "name": "janphilipp.rauprich",
+            "member_id": 5,
+            "inserted_at": "2018-05-05T09:15:24.373952",
+            "id": 10,
+            "email": "jan.philipp.rauprich@aegee.org",
+            "active": true
         },
-        "bodies": [
-            {
+        "seo_url": "70941758_",
+        "primary_body_id": null,
+        "primary_body": null,
+        "phone": null,
+        "last_name": "Rauprich",
+        "join_requests": [{
+            "motivation": "I love Nico who is the smartest programmer on this planet because he finished an infinite project and solved a task which was impossibile to solve for AEGEE. The Intranet",
+            "member_id": 5,
+            "member": null,
+            "id": 2,
+            "body_id": 1,
+            "body": {
+                "shadow_circle_id": 63,
+                "shadow_circle": null,
+                "seo_url": 1,
+                "phone": "don't call us",
+                "name": "AEGEE-Dresden",
+                "legacy_key": "DRE",
                 "id": 1,
-                "type_id": 2,
-                "address_id": 1,
-                "name": "AEGEE-Europe",
-                "email": "headoffice@aegee.org",
-                "phone": null,
-                "description": null,
-                "legacy_key": "AEU",
-                "created_at": "2017-10-30 17:16:47",
-                "updated_at": "2017-10-30 17:16:47",
-                "name_simple": "AEGEE-Europe",
-                "pivot": {
-                    "user_id": 1,
-                    "body_id": 1
-                }
+                "email": "info@aegee-dresden.org",
+                "description": "Very prehistoric antenna",
+                "circles": null,
+                "address": "Dresden"
+            },
+            "approved": true
+        }],
+        "id": 5,
+        "gender": "Male",
+        "first_name": "Jan Philipp",
+        "date_of_birth": "1970-01-01",
+        "circles": [{
+            "seo_url": 7,
+            "permissions": null,
+            "parent_circle_id": 6,
+            "parent_circle": null,
+            "name": "Members AEGEE-Dresden",
+            "joinable": false,
+            "id": 7,
+            "description": "Circle of members in Dresden. All local members should be members of this circle to apply permissions of AEGEE membership.",
+            "child_circles": null,
+            "body_id": 1,
+            "body": null
+        }],
+        "circle_memberships": [{
+            "position": null,
+            "member_id": 5,
+            "member": null,
+            "id": 5,
+            "circle_id": 7,
+            "circle_admin": false,
+            "circle": {
+                "seo_url": 7,
+                "permissions": null,
+                "parent_circle_id": 6,
+                "parent_circle": null,
+                "name": "Members AEGEE-Dresden",
+                "joinable": false,
+                "id": 7,
+                "description": "Circle of members in Dresden. All local members should be members of this circle to apply permissions of AEGEE membership.",
+                "child_circles": null,
+                "body_id": 1,
+                "body": null
             }
-        ],
-        "circles": [
-            {
-                "id": 4,
-                "body_id": 4,
-                "parent_id": 1,
-                "name": "Lia & Derk",
-                "description": "IT people in da house",
-                "created_at": "2017-10-30 17:16:47",
-                "updated_at": "2017-10-30 17:16:47",
-                "name_simple": "Lia & Derk",
-                "pivot": {
-                    "user_id": 1,
-                    "circle_id": 4
-                }
+        }],
+        "body_memberships": [{
+            "member_id": 5,
+            "member": null,
+            "id": 7,
+            "comment": null,
+            "body_id": 1,
+            "body": {
+                "shadow_circle_id": 63,
+                "shadow_circle": null,
+                "seo_url": 1,
+                "phone": "don't call us",
+                "name": "AEGEE-Dresden",
+                "legacy_key": "DRE",
+                "id": 1,
+                "email": "info@aegee-dresden.org",
+                "description": "Very prehistoric antenna",
+                "circles": null,
+                "address": "Dresden"
             }
-        ]
-    },
-    "message": null
+        }],
+        "bodies": [{
+            "shadow_circle_id": 63,
+            "shadow_circle": null,
+            "seo_url": 1,
+            "phone": "don't call us",
+            "name": "AEGEE-Dresden",
+            "legacy_key": "DRE",
+            "id": 1,
+            "email": "info@aegee-dresden.org",
+            "description": "Very prehistoric antenna",
+            "circles": null,
+            "address": "Dresden"
+        }],
+        "address": null,
+        "about_me": null
+    }
 }

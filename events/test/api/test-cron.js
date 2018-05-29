@@ -14,6 +14,8 @@ describe('Cron testing', () => {
     // Populate db
     const res = await db.populateEvents();
     events = res.events;
+
+    delete require.cache[require.resolve('../../lib/cron')];
   });
 
 

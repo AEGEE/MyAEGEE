@@ -112,7 +112,7 @@ describe('Events approval', () => {
         expect(res.body.data).to.have.lengthOf(possibleStatuses.length);
 
         const names = possibleStatuses.map(s => s.name);
-        const gotNames = res.body.data.map(t => t.to.name);
+        const gotNames = res.body.data.map(t => t.name);
 
         for (const name of names) {
           expect(gotNames.indexOf(name)).not.to.equal(-1);

@@ -151,6 +151,22 @@ async function populateEvents(eventTypes) {
       organizers: [{
         user_id: firstUser.id
       }],
+      applications: [{
+        user_id: firstUser.id,
+        body_id: 111,
+        status: 'requesting',
+        board_comment: 'Good guy, accept him plz!!'
+      }, {
+        user_id: 1337,
+        body_id: 111,
+        status: 'requesting',
+        board_comment: 'Not sure about her'
+      }, {
+        user_id: 3112,
+        body_id: 111,
+        status: 'requesting',
+        board_comment: 'Not suitable for event.'
+      }]
     }, {
       name: 'EPM Zagreb',
       starts: futureDate(16),
@@ -162,7 +178,6 @@ async function populateEvents(eventTypes) {
       ],
       type: 'statutory',
       max_participants: 300,
-      application_deadline: futureDate(14),
       application_status: 'closed',
       status: statutoryEventType.defaultLifecycle.statuses.find(s => s.name === 'Requesting'),
       lifecycle: statutoryEventType.defaultLifecycle,
@@ -202,20 +217,101 @@ async function populateEvents(eventTypes) {
       name: 'SUPS Voronezh',
       starts: futureDate(24),
       ends: futureDate(25),
-      description: 'A training event to boost your self-confidence and teamworking skills',
+      description: 'Party like a Russian',
       organizing_locals: [{ body_id: 'AEGEE-Voronezh' }],
       type: 'non-statutory',
-      status: nonStatutoryEventType.defaultLifecycle.statuses.find(s => s.name === 'Approved'),
+      status: nonStatutoryEventType.defaultLifecycle.statuses.find(s => s.name === 'Draft'),
       lifecycle: nonStatutoryEventType.defaultLifecycle,
       max_participants: 22,
-      application_deadline: null,
-      application_status: 'closed',
-      organizers: [{ user_id: firstUser.id }],
+      application_deadline: futureDate(14),
+      application_status: 'open',
+      organizers: [{ user_id: secondUser.id }],
       application_fields: [
         { name: 'Motivation' },
         { name: 'TShirt-Size' },
         { name: 'Meaning of Life' },
         { name: 'Allergies' },
+      ],
+    }, {
+      name: 'LTC Ryazan',
+      starts: futureDate(24),
+      ends: futureDate(25),
+      description: 'They have mushrooms with eyes!',
+      organizing_locals: [{ body_id: 'AEGEE-Ryazan' }],
+      type: 'non-statutory',
+      status: nonStatutoryEventType.defaultLifecycle.statuses.find(s => s.name === 'Approved'),
+      lifecycle: nonStatutoryEventType.defaultLifecycle,
+      max_participants: 22,
+      application_deadline: futureDate(14),
+      application_status: 'open',
+      organizers: [{ user_id: firstUser.id }],
+      applications: [{
+        user_id: secondUser.id,
+        body_id: 111,
+        status: 'requesting',
+        board_comment: 'Good guy, accept him plz!!',
+        application: [
+          { field_id: 1, value: 'Lalala' },
+          { field_id: 2, value: 'No value' }
+        ]
+      }],
+      application_fields: [
+        { id: 1, name: 'Motivation' },
+        { id: 2, name: 'T-Shirt' }
+      ],
+    }, {
+      name: 'LTC Samara',
+      starts: futureDate(24),
+      ends: futureDate(25),
+      description: 'That is awesome!',
+      organizing_locals: [{ body_id: 'AEGEE-Samara' }],
+      type: 'non-statutory',
+      status: nonStatutoryEventType.defaultLifecycle.statuses.find(s => s.name === 'Draft'),
+      lifecycle: nonStatutoryEventType.defaultLifecycle,
+      max_participants: 22,
+      application_deadline: futureDate(14),
+      application_status: 'open',
+      organizers: [{ user_id: firstUser.id }],
+      applications: [{
+        user_id: secondUser.id,
+        body_id: 1112,
+        status: 'requesting',
+        board_comment: 'Good guy, accept him plz!!2',
+        application: [
+          { field_id: 1, value: 'Lalala' },
+          { field_id: 2, value: 'No value' }
+        ]
+      }],
+      application_fields: [
+        { id: 1, name: 'Motivation' },
+        { id: 2, name: 'T-Shirt' }
+      ],
+    }, {
+      name: 'RTC Rostov',
+      starts: futureDate(24),
+      ends: futureDate(25),
+      description: 'That is awesome!',
+      organizing_locals: [{ body_id: 'AEGEE-Rostov-na-Donu' }],
+      type: 'non-statutory',
+      status: nonStatutoryEventType.defaultLifecycle.statuses.find(s => s.name === 'Approved'),
+      lifecycle: nonStatutoryEventType.defaultLifecycle,
+      max_participants: 22,
+      application_deadline: futureDate(14),
+      application_status: 'closed',
+      organizers: [{ user_id: secondUser.id }, { user_id: firstUser.id }],
+      applications: [{
+        user_id: secondUser.id,
+        body_id: 111,
+        status: 'requesting',
+        board_comment: 'Not that good',
+        application: [
+          { field_id: 1, value: 'Lalala' },
+          { field_id: 2, value: 'No value' }
+        ]
+      }],
+      application_fields: [
+        { id: 1, name: 'Motivation' },
+        { id: 2, name: 'T-Shirt' }
       ],
     }];
 

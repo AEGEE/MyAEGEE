@@ -160,7 +160,7 @@ describe('Events editing', () => {
         chai.request(server)
           .get(`/single/${events[0].id}`)
           .set('X-Auth-Token', 'foobar')
-          .end(function (singleErr, singleRes) {
+          .end((singleErr, singleRes) => {
             singleRes.should.have.status(200);
             singleRes.should.be.json;
             singleRes.should.be.a('object');
@@ -184,6 +184,10 @@ describe('Events editing', () => {
   });
 
   it('should disallow opening applications without deadline set', (done) => {
+    const mocked = mock.mockAll({ core: { notSuperadmin: true } });
+    omscoreStub = mocked.omscoreStub;
+    omsserviceregistryStub = mocked.omsserviceregistryStub;
+
     const eventWithoutAplicationDeadline = events.find(e => !e.application_deadline);
 
     chai.request(server)
