@@ -13,11 +13,11 @@ WORKDIR /usr/app/src
 USER node
 
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
+ENV PATH="/home/node/.npm-global/bin:${PATH}"
 
-RUN npm install -g --loglevel warn bunyan && \
-	npm cache clean --force
+RUN npm install -g --loglevel warn supervisor && npm cache clean --force
 
 
-CMD sh /usr/app/scripts/bootstrap.sh && node lib/server.js | /home/node/.npm-global/bin/bunyan
+CMD sh /usr/app/scripts/bootstrap.sh && supervisor  --watch "." --timestamp --extensions "js,json" lib/server.js
 
 EXPOSE 8082
