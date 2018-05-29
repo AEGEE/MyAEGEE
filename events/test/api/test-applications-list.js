@@ -128,4 +128,48 @@ describe('Events application listing', () => {
         done();
       });
   });
+
+  it('should not display events I haven\'t applied at /mine/participating', (done) => {
+    const notMineEvents = events.filter(e => e.applications.every(a => a.user_id !== admin.id)).map(e => e.id);
+
+    chai.request(server)
+      .get(`/mine/participating`)
+      .set('X-Auth-Token', 'foobar')
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
+
+        expect(res.body.success).to.be.true;
+        expect(res.body).to.have.property('data');
+
+        for (const event of res.body.data) {
+          expect(notMineEvents).not.to.include(event.id)
+        }
+
+        done();
+      });
+  });
+
+  it('should display events I\'ve applied at /mine/participating', (done) => {
+    const myEvents = events.filter(e => e.applications.some(a => a.user_id === admin.id)).map(e => e.id);
+
+    chai.request(server)
+      .get(`/mine/participating`)
+      .set('X-Auth-Token', 'foobar')
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
+
+        expect(res.body.success).to.be.true;
+        expect(res.body).to.have.property('data');
+
+        for (const event of res.body.data) {
+          expect(myEvents).to.include(event.id)
+        }
+
+        done();
+      });
+  });
 });

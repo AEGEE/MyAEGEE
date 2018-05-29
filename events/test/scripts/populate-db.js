@@ -301,7 +301,7 @@ async function populateEvents(eventTypes) {
       organizers: [{ user_id: secondUser.id }, { user_id: firstUser.id }],
       applications: [{
         user_id: secondUser.id,
-        body_id: 111,
+        body_id: secondUser.bodies[1].id,
         status: 'requesting',
         board_comment: 'Not that good',
         application: [

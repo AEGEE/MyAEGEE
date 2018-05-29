@@ -16,38 +16,24 @@ exports.createLifecycle = async (req, res, next) => {
     return helpers.makeValidationError(res, 'No eventType is specified.');
   }
 
-  try {
-    // Validation is specified within the model.
-    await EventType.findOneAndUpdate(
-      { name: data.eventType },
-      { defaultLifecycle: data },
-      { upsert: true, runValidators: true } // create lifecycle if not found
-    );
+  // Validation is specified within the model.
+  await EventType.findOneAndUpdate(
+    { name: data.eventType },
+    { defaultLifecycle: data },
+    { upsert: true, runValidators: true } // create lifecycle if not found
+  );
 
-    // Everything is saved.
-    return res.status(201).json({
-      success: true,
-      message: 'Lifecycle successfully updated.',
-    });
-  } catch (err) {
-    // Send validation-errors back to client
-    if (err.name === 'ValidationError') {
-      return helpers.makeValidationError(res, err);
-    }
-
-    log.error('Could not create/update EventType', err);
-    throw err;
-  }
+  // Everything is saved.
+  return res.status(201).json({
+    success: true,
+    message: 'Lifecycle successfully updated.',
+  });
 };
 
 exports.removeLifecycle = async (req, res, next) => {
   // Errors that can happen there are to be caught in 'uncaughtException' handler.
   if (!req.user.permissions.can.delete_lifecycles) {
     return helpers.makeForbiddenError(res, 'You are not allowed to delete lifecycles.');
-  }
-
-  if (!req.params.lifecycle_id) {
-    return helpers.makeValidationError(res, 'No lifecycle name was specified.');
   }
 
   const doc = await EventType.findOneAndRemove({ name: req.params.lifecycle_id }, {});
@@ -94,6 +80,7 @@ exports.getLifecycles = async (req, res, next) => {
   });
 };
 
+/* istanbul ignore next */
 exports.seed = async (req, res, next) => {
   if (!req.user.permissions.is.superadmin) {
     return helpers.makeForbiddenError('Only superadmin can seed lifecycles.');
