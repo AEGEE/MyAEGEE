@@ -36,6 +36,44 @@ exports.listEvents = async (req, res, next) => {
   });
 };
 
+// All event where a local has participated
+exports.listLocalInvolvedEvents = async (req, res, next) => {
+  const bodyId = parseInt(req.params.body_id);
+  if (Number.isNaN(bodyId)) {
+    return helpers.makeBadRequestError(res, 'bodyId is not a number.');
+  }
+
+  // Only visible to board members
+  if (!req.user.permissions.is.board_member_of[bodyId]) {
+    return helpers.makeForbiddenError(res, 'You are not allowed to see this');
+  }
+
+  // The first query where mongodb actually has a job
+  const events = await Event
+    .aggregate([
+      { $unwind: '$applications' },
+      { $match: { 'applications.body_id': bodyId } },
+      { $project: {
+        id: false,
+        name: true,
+        url: true,
+        'application_id': '$applications._id',
+        'id': '$_id',
+        'user_id': '$applications.user_id',
+        'body_id': '$applications.body_id',
+        'createdAt': '$applications.createdAt',
+        'updatedAt': '$applications.updatedAt',
+        'board_comment': '$applications.board_comment',
+        'application': '$applications.application',
+      }}
+    ]);
+
+  return res.json({
+    success: true,
+    data: events,
+  });
+};
+
 // Returns all events the user is organizer on
 exports.listUserOrganizedEvents = async (req, res, next) => {
   const events = await Event

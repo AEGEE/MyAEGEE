@@ -62,6 +62,7 @@ GeneralRouter.get('/eventroles', user.getEventRoles);
 GeneralRouter.get('/mine/organizing', events.listUserOrganizedEvents);
 GeneralRouter.get('/mine/participating', applications.listUserAppliedEvents);
 GeneralRouter.get('/mine/approvable', events.listApprovableEvents);
+GeneralRouter.get('/boardview/:body_id', events.listLocalInvolvedEvents);
 
 /* server.get('/boardview', events.listLocalInvolvedEvents); */
 
