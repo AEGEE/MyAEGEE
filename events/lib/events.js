@@ -5,41 +5,35 @@ const user = require('./user');
 const Event = require('./models/Event');
 const EventType = require('./models/EventType');
 
+const displayedFields = [
+  'name',
+  'starts',
+  'ends',
+  'description',
+  'type',
+  'status',
+  'max_participants',
+  'application_status',
+  'application_deadline',
+  'fee',
+]
+
 /** Requests for all events **/
 
 exports.listEvents = async (req, res, next) => {
-  try {
-    const events = await Event
-    .where('ends').gte(new Date())  // Only show events in the future
-    .where('deleted').equals(false) // Filter out deleted events
-    .select([
-      'name',
-      'starts',
-      'ends',
-      'description',
-      'type',
-      'status',
-      'max_participants',
-      'application_status',
-      'application_deadline',
-      'fee',
-      'organizing_locals.name',
-    ].join(' '));
+  const events = await Event
+  .where('ends').gte(new Date())  // Only show events in the future
+  .where('deleted').equals(false) // Filter out deleted events
+  .select(displayedFields.join(' '));
 
-    // Displaying only events user is allowed to see
-    const filteredEvents = events.filter(event =>
-      helpers.canUserAccess({ user: req.user, accessObject: event.status.visibility }));
+  // Displaying only events user is allowed to see
+  const filteredEvents = events.filter(event =>
+    helpers.canUserAccess({ user: req.user, accessObject: event.status.visibility }));
 
-    res.json({
-      success: true,
-      data: filteredEvents,
-    });
-
-    return next();
-  } catch (err) {
-    log.error('Error getting events list:', err);
-    throw err;
-  }
+  return res.json({
+    success: true,
+    data: filteredEvents,
+  });
 };
 
 // Returns all events the user is organizer on
@@ -48,13 +42,12 @@ exports.listUserOrganizedEvents = async (req, res, next) => {
     .where('deleted').equals(false) // Hide deleted events
     .where('ends').gte(new Date())  // Only show events in the future
     .elemMatch('organizers', { user_id: req.user.id })
-    .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '));
+    .select(displayedFields.join(' '));
 
-  res.json({
+  return res.json({
     success: true,
     data: events,
   });
-  return next();
 };
 
 exports.listApprovableEvents = async (req, res, next) => {
@@ -82,11 +75,10 @@ exports.listApprovableEvents = async (req, res, next) => {
   });
 
   // Return events and their lifecycles.
-  res.json({
+  return res.json({
     success: true,
     data: retVal,
   });
-  return next();
 };
 
 exports.addEvent = async (req, res, next) => {
@@ -96,8 +88,10 @@ exports.addEvent = async (req, res, next) => {
   delete data._id;
   delete data.status;
   delete data.organizers;
+  delete data.applications;
   delete data.application_status;
   delete data.organizing_locals;
+  delete data.deleted;
 
   if (!data.type) {
     return helpers.makeValidationError(res, 'No event type is specified.');
@@ -105,69 +99,55 @@ exports.addEvent = async (req, res, next) => {
 
   const newEvent = new Event(data);
 
-  try {
-    // Get the default role to assign to the user
-    const defaultRoles = await user.getDefaultEventRoles();
-    // Creating user automatically becomes organizer
-    newEvent.organizers = [
-      {
-        user_id: req.user.id,
-        roles: defaultRoles,
-      },
-    ];
+  // Get the default role to assign to the user
+  const defaultRoles = await user.getDefaultEventRoles();
+  // Creating user automatically becomes organizer
+  newEvent.organizers = [
+    {
+      user_id: req.user.id,
+      roles: defaultRoles,
+    },
+  ];
 
-    // Creating user's local automatically becomes organizing local
-    // TODO: rethink and rewrite it, since user can have many bodies,
-    // and for now we're just getting the first one
-    newEvent.organizing_locals = [{ body_id: req.user.bodies[0].id }];
-
-    // Loading event type and its default lifecycle
-    const eventType = await EventType.findOne({ name: newEvent.type });
-
-    if (!eventType || !eventType.defaultLifecycle) {
-      // no lifecycle exists for this type of event
-      return helpers.makeValidationError(res, `No lifecycle is specified for this type of event: ${newEvent.type}, \
-cannot set initial status.`);
-    }
-
-    // Checking if the user is allowed to create an event.
-    // Trying to find a transition from 'null' to 'initialStatus'
-    const transition = eventType.defaultLifecycle.transitions.find(t =>
-      !t.from && t.to === eventType.defaultLifecycle.initialStatus);
-
-    // Checking if the user is allowed to create events of this type.
-    if (!transition || !helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor })) {
-      return helpers.makeForbiddenError(res, 'You are not allowed to create an event of this type.');
-    }
-
-    // Now we've got here, the user is allowed to create the event.
-    newEvent.status = eventType.defaultLifecycle.statuses.find(s =>
-      s.name === eventType.defaultLifecycle.initialStatus);
-    newEvent.lifecycle = eventType.defaultLifecycle;
-
-    await newEvent.save();
-
-    // Register cronjob for deadline
-    if (data.application_deadline) {
-      cron.registerDeadline(newEvent.id, newEvent.application_deadline);
-    }
-
-    res.status(201);
-    res.json({
-      success: true,
-      message: 'Event successfully created',
-      data: newEvent,
-    });
-    return next();
-  } catch (err) {
-    // Send validation-errors back to client
-    if (err.name === 'ValidationError') {
-      return helpers.makeValidationError(res, err);
-    }
-
-    log.error('Could not add event', err);
-    throw err;
+  // Checking if the user IS the member of the body.
+  if (!data.body_id || !req.user.permissions.is.member_of[data.body_id]) {
+    return helpers.makeForbiddenError(res, 'You are not a member of this body and cannot create an event on behalf of it.');
   }
+  newEvent.organizing_locals = [{ body_id: data.body_id }];
+
+  // Loading event type and its default lifecycle
+  const eventType = await EventType.findOne({ name: newEvent.type });
+
+  // if no lifecycle exists for this type of event
+  if (!eventType || !eventType.defaultLifecycle) {
+    return helpers.makeValidationError(res, `No lifecycle is specified for this type of event: ${newEvent.type}, cannot set initial status.`);
+  }
+
+  // Checking if the user is allowed to create an event.
+  // Trying to find a transition from 'null' to 'initialStatus'
+  const transition = eventType.defaultLifecycle.transitions.find(t => !t.from && t.to === eventType.defaultLifecycle.initialStatus);
+
+  // Checking if the user is allowed to create events of this type.
+  if (!transition || !helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor })) {
+    return helpers.makeForbiddenError(res, 'You are not allowed to create an event of this type.');
+  }
+
+  // Now we've got here, the user is allowed to create the event.
+  newEvent.status = eventType.defaultLifecycle.statuses.find(s => s.name === eventType.defaultLifecycle.initialStatus);
+  newEvent.lifecycle = eventType.defaultLifecycle;
+
+  await newEvent.save();
+
+  // Register cronjob for deadline
+  if (data.application_deadline) {
+    cron.registerDeadline(newEvent.id, newEvent.application_deadline);
+  }
+
+  return res.status(201).json({
+    success: true,
+    message: 'Event successfully created',
+    data: newEvent,
+  });
 };
 
 /** Single event **/
@@ -175,24 +155,14 @@ exports.eventDetails = async (req, res, next) => {
   const event = req.event.toObject();
 
   delete event.applications;
-  // Populate organizers
-  const transformUserData = (u) => {
-    return {
-      first_name: u.first_name,
-      last_name: u.last_name
-    };
-  };
+  delete event.lifecycle;
 
-  const organizers = await user.populateUsers(event.organizers, req.headers['x-auth-token'], transformUserData);
-  event.organizers = organizers;
-
-  res.json({
+  return res.json({
     success: true,
     data: event,
     permissions: req.user.permissions,
     special: req.user.special,
   });
-  return next();
 };
 
 exports.editEvent = async (req, res, next) => {
@@ -204,28 +174,28 @@ exports.editEvent = async (req, res, next) => {
   const data = req.body;
   const event = req.event;
   let registerDeadline = false;
+
   // Disallow changing applications and organizers, use seperate requests for that
   delete data.applications;
   delete data.organizing_locals;
+  delete data.organizers;
+  delete data.lifecycle;
   delete data.status;
 
   if (Object.keys(data).length === 0) {
     return helpers.makeValidationError(res, 'No valid field changes requested');
   }
 
-  // Copy fields if user can edit details
   if (req.user.permissions.can.edit_details) {
-    // Some properties will be ignored upon empty
     if (data.name) event.name = data.name;
     if (data.starts) event.starts = data.starts;
     if (data.ends) event.ends = data.ends;
     if (data.url) event.url = data.url;
     if (data.description) event.description = data.description;
     if (data.application_fields) event.application_fields = data.application_fields;
-
-    // Others are resettable
-    event.max_participants = data.max_participants;
+    if (data.max_participants) event.max_participants = data.max_participants;
     if (data.fee) event.fee = data.fee;
+
     event.application_deadline = data.application_deadline;
     const cmpDeadline = new Date(data.application_deadline);
 
@@ -239,79 +209,27 @@ exports.editEvent = async (req, res, next) => {
 
   // Change application status
   if (req.user.permissions.can.edit_application_status) {
-    event.application_status = data.application_status;
-    event.application_deadline = data.application_deadline;
+    if (data.application_status) event.application_status = data.application_status;
+    if (data.application_deadline) event.application_deadline = data.application_deadline;
   }
 
-  if (req.user.permissions.can.edit_organizers && data.organizers) {
-    // Loop through organizers, copy data
-    data.organizers.forEach((organizer) => {
-      // Change the roles to only hold ids
-      if (organizer.roles) {
-        organizer.roles = organizer.roles.map(role => (role.id ? role.id : role));
-      }
+  await event.save();
 
-      // Try to find organizer in list
-      const index = event.organizers.findIndex(item => item.foreign_id === organizer.foreign_id);
+  const retval = event.toObject();
+  delete retval.applications;
+  delete retval.organizers;
+  delete retval.__v;
+  delete retval.headImg;
 
-      // If user already exists, copy only new stuff
-      if (index !== undefined && index !== -1) {
-        if (organizer.comment) { event.organizers[index].comment = organizer.comment; } // Comment not resettable
-        // Roles resettable, but only store ids
-        if (organizer.roles) {
-          event.organizers[index].roles = organizer.roles;
-        }
-
-        // Mark as touched
-        event.organizers[index].touched = true;
-      } else {
-        event.organizers.push({
-          foreign_id: organizer.foreign_id,
-          comment: organizer.comment,
-          roles: organizer.roles,
-          touched: true,
-        });
-      }
-    });
-
-    // Now check if we deleted an organizer (untouched)
-    for (let i = event.organizers.length - 1; i >= 0; i--) {
-      if (!event.organizers[i].touched) {
-        event.organizers.splice(i, 1);
-      }
-    }
+  // If deadline was registered, pass that to cron
+  if (registerDeadline) {
+    cron.registerDeadline(event.id, event.application_deadline);
   }
 
-
-  // Try to save
-  try {
-    await event.save();
-
-    const retval = event.toObject();
-    delete retval.applications;
-    delete retval.organizers;
-    delete retval.__v;
-    delete retval.headImg;
-
-    // If deadline was registered, pass that to cron
-    if (registerDeadline) {
-      cron.registerDeadline(event.id, event.application_deadline);
-    }
-
-    res.json({
-      success: true,
-      data: retval
-    });
-    return next();
-  } catch (err) {
-    // Send validation-errors back to client
-    if (err.name === 'ValidationError') {
-      return helpers.makeValidationError(res, err);
-    }
-
-    log.error('Could not edit event', err);
-    throw err;
-  }
+  return res.json({
+    success: true,
+    data: retval
+  });
 };
 
 exports.deleteEvent = async (req, res, next) => {
@@ -323,50 +241,39 @@ exports.deleteEvent = async (req, res, next) => {
 
   // Deletion is only setting the 'deleted' field to true.
   event.deleted = true;
-  try {
-    await event.save();
+  await event.save();
 
-    res.json({
-      success: true,
-      message: 'Event successfully deleted',
-    });
-    return next();
-  } catch (err) {
-    // Send validation-errors back to client
-    if (err.name === 'ValidationError') {
-      return helpers.makeValidationError(res, err);
-    }
-
-    log.error('Could not delete event', err);
-    throw err;
-  }
+  return res.json({
+    success: true,
+    message: 'Event successfully deleted',
+  });
 };
 
 exports.listPossibleStatuses = async (req, res, next) => {
-  // The .map() call is here because otherwise, when setting 't.from'
-  // and 't.to', we get string instead of object.
-  const possibleTransitions = req.event.lifecycle.transitions.filter((transition) => {
-    // Skipping all transitions without 'from' status,
-    // since each event has a status
-    if (!transition.from) {
-      return false;
-    }
+  // Returning only statuses to which this user can change this event.
+  const possibleStatuses = req.event.lifecycle.statuses.filter((status) => {
+    // Finding a transition from current status to this status that current user can perform.
+    return req.event.lifecycle.transitions.some((transition) => {
+      if (!transition.from) {
+        return false;
+      }
 
-    return transition.from === req.event.status.name
-      && helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor, event: req.event });
-  }).map(transition => transition.toObject());
+      if (transition.from !== req.event.status.name) {
+        return false;
+      }
 
-  // Appending statuses, so we won't have to load them manually.
-  possibleTransitions.forEach((t) => {
-    t.from = req.event.lifecycle.statuses.find(s => s.name === t.from);
-    t.to = req.event.lifecycle.statuses.find(s => s.name === t.to);
-  });
+      if (transition.to !== status.name) {
+        return false;
+      }
 
-  res.json({
+      return helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor, event: req.event });
+    });
+  }).map(status => status.toObject());
+
+  return res.json({
     success: true,
-    data: possibleTransitions,
+    data: possibleStatuses,
   });
-  return next();
 };
 
 exports.setApprovalStatus = async (req, res, next) => {
@@ -390,36 +297,27 @@ exports.setApprovalStatus = async (req, res, next) => {
   // We only get here if the user is allowed to do a status transition.
   req.event.status = req.event.lifecycle.statuses.find(status => status.name === req.body.status);
 
-  try {
-    await req.event.save();
+  await req.event.save();
 
-    res.json({
-      success: true,
-      message: 'Successfully changed approval status',
-    });
-    return next();
-  } catch (err) {
-    if (err.name === 'ValidationError') {
-      return helpers.makeValidationError(res, err);
-    }
-
-    log.error('Could not update event status', err);
-    throw err;
-  }
+  return res.json({
+    success: true,
+    message: 'Successfully changed approval status',
+  });
 };
 
 // Just forward the edit rights generated by checkUserRole
 exports.getEditRights = (req, res, next) => {
   const retval = req.user.permissions;
   retval.special = req.user.special;
-  res.json({
+  return res.json({
     success: true,
     data: retval
   });
-  return next();
 };
 
-exports.addEventLink = async (req, res, next) => {
+// Currently not needed
+// TODO: either re-implement it or remove it.
+/* exports.addEventLink = async (req, res, next) => {
   if (!req.body.controller || !req.body.displayName) {
     return helpers.makeValidationError(res, 'Malformed request.');
   }
@@ -429,11 +327,10 @@ exports.addEventLink = async (req, res, next) => {
   try {
     await req.event.save();
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Link added.',
     });
-    return next();
   } catch (err) {
     // Send validation-errors back to client
     if (err.name === 'ValidationError') {
@@ -442,66 +339,80 @@ exports.addEventLink = async (req, res, next) => {
 
     throw err;
   }
-};
+}; */
 
 /** Organizers **/
-/* Not used
-exports.listOrganizers = function(req, res, next) {
-  var event = req.event;
+exports.addOrganizer = async (req, res, next) => {
+  if (!req.user.permissions.can.edit_organizers) {
+    return helpers.makeForbiddenError(res, 'You are not allowed to edit organizers.');
+  }
 
-  var data = event.organizers.toObject();
-  data.forEach(function(x, idx) {
-   data[idx].url = event.url + '/organizers/' + x.foreign_id;
-  });
+  const organizer = req.event.organizers.find(org => org.user_id === req.body.user_id);
+  if (organizer) {
+    return helpers.makeBadRequestError(res, 'User with id ' + req.body.user_id + ' is already an organizer.');
+  }
 
-  res.json(data);
-  return next();
-}
+  req.event.organizers.push({
+    user_id: req.body.user_id,
+    comment: req.body.comment,
+    roles: req.body.roles
+  })
 
-exports.setOrganizers = function(req, res, next) {
-  var event = req.event;
+  await req.event.save();
 
-  var data = req.body.organizers;
-  if(data.constructor !== Array)
-   return next(new restify.InvalidArgumentError('Organizers list must be an array'));
-  if(data.length == 0)
-   return next(new restify.InvalidArgumentError('Organizers list can not be empty'));
-
-
-  data.forEach(function(x, idx){
-   delete data[idx].cache_first_name;
-   delete data[idx].cache_last_name;
-   delete data[idx].cache_update;
-
-  });
-
-  event.organizers = data;
-
-  event.save(function(err) {
-   if (err) {
-     // Send validation-errors back to client
-     if(err.name == 'ValidationError') {
-      return next(new restify.InvalidArgumentError({body: err}));
-     }
-
-     log.error("Could not edit organizers", err);
-     return next(new restify.InternalError());
-   }
-
-   res.json({
-     success: true,
-     message: "Successfully saved organizers",
-     organizers: event.organizers
-   });
-   return next();
-  });
-}*/
-
-// TODO remove. Or maybe not? :D
-exports.debug = (req, res, next) => {
-  Event.remove({}, () => {
-    res.send('All events removed, can not be undone. Muhahaha. Wouldn\'t have guessed this is this serious, wouldn\'t you?');
-    return next();
+  return res.json({
+    success: true,
+    message: 'Organizer is added.'
   });
 };
 
+exports.editOrganizer = async (req, res, next) => {
+  if (!req.user.permissions.can.edit_organizers) {
+    return helpers.makeForbiddenError(res, 'You are not allowed to edit organizers.');
+  }
+
+  const userId = parseInt(req.params.user_id, 10);
+  if (Number.isNaN(userId)) {
+    return helpers.makeBadRequestError(res, 'userId is not a number.');
+  }
+
+  const organizer = req.event.organizers.find(org => org.user_id === userId);
+  if (!organizer) {
+    return helpers.makeNotFoundError(res, 'Organizer with id ' + userId + ' is not found.');
+  }
+
+  if (req.body.comment) organizer.comment = req.body.comment;
+  if (req.body.roles) organizer.roles = req.body.roles;
+
+  await req.event.save();
+
+  return res.json({
+    success: true,
+    message: 'Organizer is updated.'
+  });
+};
+
+exports.deleteOrganizer = async (req, res, next) => {
+  if (!req.user.permissions.can.edit_organizers) {
+    return helpers.makeForbiddenError(res, 'You are not allowed to edit organizers.');
+  }
+
+  const userId = parseInt(req.params.user_id, 10);
+  if (Number.isNaN(userId)) {
+    return helpers.makeBadRequestError(res, 'userId is not a number.');
+  }
+
+  const organizerIndex = req.event.organizers.findIndex(org => org.user_id === userId);
+  if (organizerIndex === -1) {
+    return helpers.makeNotFoundError(res, 'Organizer with id ' + userId + ' is not found.');
+  }
+
+  req.event.organizers.splice(organizerIndex, 1);
+
+  await req.event.save();
+
+  return res.json({
+    success: true,
+    message: 'Organizer is deleted.'
+  });
+};

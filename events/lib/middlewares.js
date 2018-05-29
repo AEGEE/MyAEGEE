@@ -22,13 +22,10 @@ exports.authenticateUser = async (req, res, next) => {
 
     // Query the core
     const body = await request({
-      url: `${service.backend_url}/tokens/user`,
-      method: 'POST',
+      url: `${service.backend_url}members/me`,
+      method: 'GET',
       headers,
       simple: false,
-      form: {
-        token: headers['X-Auth-Token'],
-      },
       json: true,
     });
 
@@ -95,10 +92,10 @@ exports.checkPermissions = async (req, res, next) => {
   // Convert all to boolean and assign
   req.user.permissions = { is: {}, can: {} };
   for (const attr in permissions.is) {
-    req.user.permissions.is[attr] = Boolean(permissions.is[attr]);
+    req.user.permissions.is[attr] = permissions.is[attr];
   }
   for (const attr in permissions.can) {
-    req.user.permissions.can[attr] = Boolean(permissions.can[attr]);
+    req.user.permissions.can[attr] = permissions.can[attr];
   }
   req.user.special = [...req.user.special, ...permissions.special];
 
@@ -110,10 +107,10 @@ exports.checkEventPermissions = async (req, res, next) => {
   const eventPermissions = helpers.getEventPermissions(req.event, req.user);
 
   for (const attr in eventPermissions.is) {
-    req.user.permissions.is[attr] = Boolean(eventPermissions.is[attr]);
+    req.user.permissions.is[attr] = eventPermissions.is[attr];
   }
   for (const attr in eventPermissions.can) {
-    req.user.permissions.can[attr] = Boolean(eventPermissions.can[attr]);
+    req.user.permissions.can[attr] = eventPermissions.can[attr];
   }
   if (eventPermissions.special) {
     Array.prototype.push.apply(req.user.special, eventPermissions.special);
@@ -134,6 +131,11 @@ exports.errorHandler = (err, req, res, next) => {
   // Handling invalid JSON
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
     return helpers.makeBadRequestError(res, 'Invalid JSON.');
+  }
+
+  // Handling validation errors
+  if (err.name && err.name === 'ValidationError') {
+    return helpers.makeValidationError(res, err);
   }
 
   log.error(err.stack);

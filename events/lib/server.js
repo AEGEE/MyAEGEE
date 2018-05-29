@@ -2,6 +2,7 @@ const express = require('express');
 const bugsnag = require('bugsnag');
 const router = require('express-promise-router');
 const bodyParser = require('body-parser');
+const morgan = require('morgan');
 
 const events = require('./events'); // API middlewares for events management
 const lifecycle = require('./lifecycle'); // API middlewares for lifecycle managing
@@ -16,6 +17,7 @@ const user = require('./user');
 
 const EventsRouter = router({ mergeParams: true });
 const GeneralRouter = router({ mergeParams: true });
+const ImagesRouter = router({ mergeParams: true });
 
 if (process.env.NODE_ENV !== 'test') {
   bugsnag.register(config.bugsnagKey);
@@ -23,27 +25,21 @@ if (process.env.NODE_ENV !== 'test') {
 
 const server = express();
 server.use(bodyParser.json());
-
-server.on('after', (req, res) => {
-  try {
-    log.info(`${req.method} ${req.url} - ${res._header.split('\n')[0]}`);
-  } catch (err) {
-    log.error('Error while logging: ', err);
-  }
-});
+server.use(morgan(':method :url :status - :response-time ms', { stream: log.stream }));
 
 process.on('unhandledRejection', (err) => {
   log.error('Unhandled rejection: ', err);
 
   // Leaving severity as 'warning' by default, as it's not critical.
   if (process.env.NODE_ENV !== 'test') {
-    bugsnag.notify(err, { errorName: 'unhandledRejection' });
+    bugsnag.notify(err);
   }
 });
 
 GeneralRouter.use(service.countRequests);
-
 GeneralRouter.get('/status', service.status);
+
+ImagesRouter.use(express.static(config.media_dir)); // Serving images.
 
 GeneralRouter.use(middlewares.authenticateUser);
 GeneralRouter.use(middlewares.checkPermissions);
@@ -52,18 +48,19 @@ GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', events.addEvent);
 
 // Debugging requests, remove at some point in time
-GeneralRouter.get('/debug', events.debug);
 GeneralRouter.get('/getUser', service.getUser);
 
 GeneralRouter.get('/lifecycle/names', lifecycle.getLifecyclesNames);
 GeneralRouter.get('/lifecycle/pseudo', lifecycle.getPseudoRolesList);
 GeneralRouter.get('/lifecycle', lifecycle.getLifecycles);
 GeneralRouter.post('/lifecycle', lifecycle.createLifecycle);
+GeneralRouter.get('/lifecycle/seed', lifecycle.seed);
 GeneralRouter.delete('/lifecycle/:lifecycle_id', lifecycle.removeLifecycle);
 
 GeneralRouter.get('/eventroles', user.getEventRoles);
 
-GeneralRouter.get('/mine/byOrganizer', events.listUserOrganizedEvents);
+GeneralRouter.get('/mine/organizing', events.listUserOrganizedEvents);
+GeneralRouter.get('/mine/participating', applications.listUserAppliedEvents);
 GeneralRouter.get('/mine/approvable', events.listApprovableEvents);
 
 /* server.get('/boardview', events.listLocalInvolvedEvents); */
@@ -78,7 +75,7 @@ EventsRouter.delete('/', events.deleteEvent);
 EventsRouter.get('/status', events.listPossibleStatuses);
 EventsRouter.put('/status', events.setApprovalStatus);
 EventsRouter.get('/rights', events.getEditRights);
-EventsRouter.put('/link', events.addEventLink);
+// EventsRouter.put('/link', events.addEventLink);
 EventsRouter.post('/upload', imageserv.uploadImage);
 
 EventsRouter.get('/participants', applications.listParticipants);
@@ -87,16 +84,21 @@ EventsRouter.put('/participants/:application_id/comment/', applications.setAppli
 EventsRouter.get('/participants/mine', applications.getApplication);
 EventsRouter.put('/participants/mine', applications.setApplication);
 
+EventsRouter.post('/organizers', events.addOrganizer);
+EventsRouter.put('/organizers/:user_id', events.editOrganizer);
+EventsRouter.delete('/organizers/:user_id', events.deleteOrganizer);
+
+server.use(config.media_url, ImagesRouter);
 server.use('/', GeneralRouter);
 server.use('/single/:event_id', EventsRouter);
 
 server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);
 
-const app = server.listen(config.port, () => {
-  log.info('Up and running, %s listening on %s', server.name, server.url);
-  cron.scanDB();
-  user.updateEventRoles();
+const app = server.listen(config.port, async () => {
+  log.info('Up and running, listening on http://localhost:%d', config.port);
+  await cron.scanDB();
+  await user.updateEventRoles();
 });
 
 module.exports = app;

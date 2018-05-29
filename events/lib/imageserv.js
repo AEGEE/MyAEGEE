@@ -46,6 +46,8 @@ const upload = multer({
 const uploadAsync = util.promisify(upload);
 
 exports.uploadImage = async (req, res, next) => {
+  const oldimg = JSON.parse(JSON.stringify(req.event.head_image));
+
   // If upload folder doesn't exists, create it.
   if (!await existsAsync(uploadFolderName)) {
     await mkdirAsync(uploadFolderName);
@@ -75,40 +77,30 @@ exports.uploadImage = async (req, res, next) => {
     return helpers.makeValidationError(res, 'Malformed file content.');
   }
 
-  const oldimg = req.event.head_image;
-
   req.event.head_image = {
     path: req.file.path,
     filename: req.file.filename,
   };
 
-  try {
-    await req.event.save();
+  await req.event.save();
 
-    // Move old file away
-    if (oldimg && oldimg.path) {
-      const oldImageStorage = `${config.media_dir}/old/headimages`;
-      const oldPath = oldimg.path;
-      const newPath = `${oldImageStorage}/${oldimg.filename}`;
+  // Move old file away
+  if (oldimg && oldimg.path) {
+    const oldImageStorage = `${config.media_dir}/old/headimages`;
+    const oldPath = oldimg.path;
+    const newPath = `${oldImageStorage}/${oldimg.filename}`;
 
-      // If upload folder doesn't exists, create it.
-      if (!await existsAsync(oldImageStorage)) {
-        await mkdirAsync(oldImageStorage);
-      }
-
-      await renameAsync(oldPath, newPath);
+    // If upload folder doesn't exists, create it.
+    if (!await existsAsync(oldImageStorage)) {
+      await mkdirAsync(oldImageStorage);
     }
 
-    res.json({
-      success: true,
-      message: 'File uploaded successfully',
-      data: req.event.head_image,
-    });
-
-    // Send back the request
-    return next();
-  } catch (err) {
-    log.error('Could not store image metadata to db', err);
-    throw err;
+    await renameAsync(oldPath, newPath);
   }
+
+  return res.json({
+    success: true,
+    message: 'File uploaded successfully',
+    data: req.event.head_image,
+  });
 };

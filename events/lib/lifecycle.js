@@ -1,9 +1,8 @@
 const helpers = require('./helpers');
 const log = require('./config/logger.js');
-
 const EventType = require('./models/EventType');
-
 const pseudoRoles = require('./config/pseudo');
+const seed = require('../scripts/seed');
 
 exports.createLifecycle = async (req, res, next) => {
   const data = req.body;
@@ -26,13 +25,10 @@ exports.createLifecycle = async (req, res, next) => {
     );
 
     // Everything is saved.
-    res.status(201);
-    res.json({
+    return res.status(201).json({
       success: true,
       message: 'Lifecycle successfully updated.',
     });
-
-    return next();
   } catch (err) {
     // Send validation-errors back to client
     if (err.name === 'ValidationError') {
@@ -60,22 +56,20 @@ exports.removeLifecycle = async (req, res, next) => {
     return helpers.makeNotFoundError(res, 'Lifecycle with that name was not found.');
   }
 
-  res.json({
+  return res.json({
     success: true,
     message: `The lifecycle for the event type '${req.params.lifecycle_id}' was successfully deleted.`,
   });
-  return next();
 };
 
 exports.getLifecyclesNames = async (req, res, next) => {
   const eventTypes = await EventType.find({});
   const names = eventTypes.map(e => e.name);
 
-  res.send({
+  return res.json({
     success: true,
     data: names
   });
-  return next();
 };
 
 exports.getPseudoRolesList = async (req, res, next) => {
@@ -84,23 +78,36 @@ exports.getPseudoRolesList = async (req, res, next) => {
     description: item.description + ' (event role)'
   }));
 
-  res.json({
+  return res.json({
     success: true,
     data: result
   });
-
-  return next();
 };
 
 exports.getLifecycles = async (req, res, next) => {
   const eventTypes = await EventType.find({})
     .lean(); // To tell Mongoose we just need a plain JS object, so we can modify it.
 
-  res.status(200);
-  res.json({
+  return res.status(200).json({
     success: true,
     data: eventTypes,
   });
-
-  return next();
 };
+
+exports.seed = async (req, res, next) => {
+  if (!req.user.permissions.is.superadmin) {
+    return helpers.makeForbiddenError('Only superadmin can seed lifecycles.');
+  }
+
+  const [ bodies, circles ] = await Promise.all(['bodies?limit=1000', 'circles?limit=1000'].map(elt => seed.queryAPI(elt, req.headers)));
+
+  await EventType.remove({});
+
+  const seedData = await seed.generateLifecycles({ bodies, circles });
+  await EventType.insertMany(seedData);
+
+  return res.json({
+    success: true,
+    data: 'Seeding lifecycles was successful.'
+  });
+}
