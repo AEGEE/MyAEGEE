@@ -33,6 +33,13 @@ exports.listEvents = async (req, res, next) => {
     filter.starts = { $gte: new Date() };
   }
 
+  if (req.query.search) {
+    filter.$or = [
+      { name: new RegExp(req.query.search, 'i') },
+      { description: new RegExp(req.query.search, 'i') }
+    ]
+  }
+
   const events = await Event
     .where(filter)
     .select(displayedFields.join(' '));

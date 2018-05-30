@@ -299,4 +299,44 @@ describe('Events listing', () => {
         done();
       });
   });
+
+  it('should filter by name case-insensitive', (done) => {
+    chai.request(server)
+      .get('/?search=nwm')
+      .set('X-Auth-Token', 'foobar')
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
+
+        expect(res.body.success).to.be.true;
+        expect(res.body).to.have.property('data');
+        expect(res.body.data).to.be.a('array');
+
+        for (const event of res.body.data) {
+          expect(event.name.toLowerCase()).to.contain('nwm');
+        }
+
+        done();
+      });
+  });
+
+  it('should filter by description case-insensitive', (done) => {
+    chai.request(server)
+      .get('/?search=action agenda')
+      .set('X-Auth-Token', 'foobar')
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
+
+        expect(res.body.success).to.be.true;
+        expect(res.body).to.have.property('data');
+        expect(res.body.data).to.be.a('array');
+
+        for (const event of res.body.data) {
+          expect(event.description.toLowerCase()).to.contain('action agenda');
+        }
+
+        done();
+      });
+  });
 });
