@@ -19,6 +19,7 @@ const EventsRouter = router({ mergeParams: true });
 const GeneralRouter = router({ mergeParams: true });
 const ImagesRouter = router({ mergeParams: true });
 
+/* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {
   bugsnag.register(config.bugsnagKey);
 }
@@ -27,10 +28,10 @@ const server = express();
 server.use(bodyParser.json());
 server.use(morgan(':method :url :status - :response-time ms', { stream: log.stream }));
 
+/* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
   log.error('Unhandled rejection: ', err);
 
-  // Leaving severity as 'warning' by default, as it's not critical.
   if (process.env.NODE_ENV !== 'test') {
     bugsnag.notify(err);
   }
@@ -63,8 +64,6 @@ GeneralRouter.get('/mine/organizing', events.listUserOrganizedEvents);
 GeneralRouter.get('/mine/participating', applications.listUserAppliedEvents);
 GeneralRouter.get('/mine/approvable', events.listApprovableEvents);
 GeneralRouter.get('/boardview/:body_id', events.listLocalInvolvedEvents);
-
-/* server.get('/boardview', events.listLocalInvolvedEvents); */
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
 EventsRouter.use(middlewares.fetchSingleEvent);
