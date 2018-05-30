@@ -3,6 +3,7 @@ const bugsnag = require('bugsnag');
 const router = require('express-promise-router');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const boolParser = require('express-query-boolean');
 
 const events = require('./events'); // API middlewares for events management
 const lifecycle = require('./lifecycle'); // API middlewares for lifecycle managing
@@ -27,6 +28,7 @@ if (process.env.NODE_ENV !== 'test') {
 const server = express();
 server.use(bodyParser.json());
 server.use(morgan(':method :url :status - :response-time ms', { stream: log.stream }));
+server.use(boolParser());
 
 /* istanbul ignore next */
 process.on('unhandledRejection', (err) => {

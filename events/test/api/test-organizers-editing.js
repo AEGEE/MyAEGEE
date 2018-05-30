@@ -233,7 +233,7 @@ describe('Events organization management', () => {
       });
   });
 
-  it('should disallow editing organizer if the user is not an organizer', (done) => {
+  it('should disallow deleting organizer if the user is not an organizer', (done) => {
     const notEditableEvent = events.find(e =>
       e.organizers.some(org => org.user_id === user.id) && e.organizers.every(org => org.user_id !== admin.id));
 
@@ -252,7 +252,26 @@ describe('Events organization management', () => {
       });
   });
 
-  it('should allow adding organizer for event you can edit', (done) => {
+  it('should disallow deleting organizer if the user is only organizer', (done) => {
+    const editableEvent = events.find(e =>
+      e.organizers.length === 1 && e.organizers[0].user_id === user.id);
+
+    chai.request(server)
+      .del(`/single/${editableEvent.id}/organizers/${user.id}`)
+      .set('X-Auth-Token', 'foobar')
+      .end((err, res) => {
+        expect(res).to.have.status(422);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
+
+        expect(res.body.success).to.be.false;
+        expect(res.body).to.have.property('message');
+
+        done();
+      });
+  });
+
+  it('should allow deleting organizer for event you can edit', (done) => {
     const editableEvent = events.find(e =>
       e.organizers.some(org => org.user_id === user.id) && e.organizers.some(org => org.user_id === admin.id));
 

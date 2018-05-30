@@ -21,18 +21,52 @@ const displayedFields = [
 /** Requests for all events **/
 
 exports.listEvents = async (req, res, next) => {
+  const filter = {
+    deleted: false // Filter out deleted events
+  };
+
+  if (req.query.type) {
+    filter.type = Array.isArray(req.query.type) ? { $in: req.query.type } : req.query.type;
+  }
+
+  if (req.query.displayPast === false) {
+    filter.starts = { $gte: new Date() };
+  }
+
   const events = await Event
-  .where('ends').gte(new Date())  // Only show events in the future
-  .where('deleted').equals(false) // Filter out deleted events
-  .select(displayedFields.join(' '));
+    .where(filter)
+    .select(displayedFields.join(' '));
 
   // Displaying only events user is allowed to see
-  const filteredEvents = events.filter(event =>
-    helpers.canUserAccess({ user: req.user, accessObject: event.status.visibility }));
+  const filteredEvents = events.filter(event => helpers.canUserAccess({ user: req.user, accessObject: event.status.visibility }));
+
+  let queryOffset = 0;
+  let queryLimit = filteredEvents.length;
+
+  if (req.query.offset) {
+    const offset = parseInt(req.query.offset, 10);
+    if (!Number.isNaN(offset) && offset >= 0) {
+      queryOffset = offset;
+    }
+  }
+
+  if (req.query.limit) {
+    const limit = parseInt(req.query.limit, 10);
+    if (!Number.isNaN(limit) && limit > 0) {
+      queryLimit = limit;
+    }
+  }
+
+  const eventsWithOffsetAndLimit = filteredEvents.slice(queryOffset, queryOffset + queryLimit);
 
   return res.json({
     success: true,
-    data: filteredEvents,
+    data: eventsWithOffsetAndLimit,
+    meta: {
+      offset: queryOffset,
+      limit: queryLimit,
+      moreAvailable: (queryOffset + queryLimit) < filteredEvents.length
+    }
   });
 };
 

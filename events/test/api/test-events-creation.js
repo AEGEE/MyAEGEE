@@ -247,13 +247,15 @@ describe('Events creation', () => {
         starts: '2015-12-11 15:00',
         ends: 'sometime, dunno yet',
         type: 'non-statutory',
-        body_id: user.bodies[0].id
+        body_id: user.bodies[0].id,
+        fee: -150
       })
       .end((err, res) => {
         expect(res.body.success).to.be.false;
         expect(res.body).to.have.property('errors');
         expect(res.body.errors).to.have.property('ends');
         expect(res.body.errors).to.have.property('name');
+        expect(res.body.errors).to.have.property('fee');
 
         done();
       });
