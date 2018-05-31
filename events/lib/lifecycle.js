@@ -95,6 +95,6 @@ exports.seed = async (req, res, next) => {
 
   return res.json({
     success: true,
-    data: 'Seeding lifecycles was successful.'
+    message: 'Seeding lifecycles was successful.'
   });
 }
