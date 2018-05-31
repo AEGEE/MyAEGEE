@@ -77,7 +77,6 @@ EventsRouter.delete('/', events.deleteEvent);
 EventsRouter.get('/status', events.listPossibleStatuses);
 EventsRouter.put('/status', events.setApprovalStatus);
 EventsRouter.get('/rights', events.getEditRights);
-// EventsRouter.put('/link', events.addEventLink);
 EventsRouter.post('/upload', imageserv.uploadImage);
 
 EventsRouter.get('/participants', applications.listParticipants);
@@ -89,6 +88,9 @@ EventsRouter.put('/participants/mine', applications.setApplication);
 EventsRouter.post('/organizers', events.addOrganizer);
 EventsRouter.put('/organizers/:user_id', events.editOrganizer);
 EventsRouter.delete('/organizers/:user_id', events.deleteOrganizer);
+
+EventsRouter.post('/locals', events.addLocal);
+EventsRouter.delete('/locals/:body_id', events.deleteLocal);
 
 server.use(config.media_url, ImagesRouter);
 server.use('/', GeneralRouter);

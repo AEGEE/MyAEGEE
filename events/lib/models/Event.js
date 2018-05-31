@@ -89,6 +89,9 @@ eventSchema.pre('validate', function validate(next) {
   if (this.organizers == null || this.organizers.length === 0) {
     this.invalidate('organizers', 'Organizers list can not be empty', this.organizers);
   }
+  if (this.organizing_locals == null || this.organizing_locals.length === 0) {
+    this.invalidate('organizing_locals', 'Organizing locals list can not be empty', this.organizing_locals);
+  }
 
   next();
 });

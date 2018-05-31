@@ -495,3 +495,51 @@ exports.deleteOrganizer = async (req, res, next) => {
     message: 'Organizer is deleted.'
   });
 };
+
+/** Locals **/
+exports.addLocal = async (req, res, next) => {
+  if (!req.user.permissions.can.edit_organizers) {
+    return helpers.makeForbiddenError(res, 'You are not allowed to edit organizing locals.');
+  }
+
+  const organizer = req.event.organizing_locals.find(org => org.body_id === req.body.body_id);
+  if (organizer) {
+    return helpers.makeBadRequestError(res, 'Body with id ' + req.body.body_id + ' is already an organizing local of this event.');
+  }
+
+  req.event.organizing_locals.push({
+    body_id: req.body.body_id,
+  })
+
+  await req.event.save();
+
+  return res.json({
+    success: true,
+    message: 'Organizing local is added.'
+  });
+};
+
+exports.deleteLocal = async (req, res, next) => {
+  if (!req.user.permissions.can.edit_organizers) {
+    return helpers.makeForbiddenError(res, 'You are not allowed to edit organizing locals.');
+  }
+
+  const bodyId = parseInt(req.params.body_id, 10);
+  if (Number.isNaN(bodyId)) {
+    return helpers.makeBadRequestError(res, 'bodyId is not a number.');
+  }
+
+  const localIndex = req.event.organizing_locals.findIndex(org => org.body_id === bodyId);
+  if (localIndex === -1) {
+    return helpers.makeNotFoundError(res, 'Body with id ' + bodyId + ' is not an organizing local of this event.');
+  }
+
+  req.event.organizing_locals.splice(localIndex, 1);
+
+  await req.event.save();
+
+  return res.json({
+    success: true,
+    message: 'Organizer is deleted.'
+  });
+};
