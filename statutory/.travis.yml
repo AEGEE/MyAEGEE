@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+  - 'node'
+
+notifications:
+  slack: myaegee:qtrNisDJvfh5wDBQmSves9oP
+
+services:
+  - postgresql
+  - docker
+
+before_install:
+  - npm install
+
+install:
+  - cp ./config/config.json.example ./config/config.json
+  - psql -U postgres -c "create extension postgis"
+  - npm run db:create
+  - npm run db:migrate
