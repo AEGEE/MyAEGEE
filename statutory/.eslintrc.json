@@ -1,0 +1,18 @@
+{
+    "root": true,
+    "env": {
+        "node": true
+    },
+    "extends": "airbnb",
+    "rules": {
+        "no-underscore-dangle": "off",
+        "no-param-reassign": ["error", { "props": false }],
+        "no-restricted-syntax": "off",
+        "no-plusplus": "off",
+        "comma-dangle": "off",
+        "max-len": "off",
+        "prefer-template": "off",
+        "guard-for-in": "off",
+        "indent": ["error", 4]
+    }
+}

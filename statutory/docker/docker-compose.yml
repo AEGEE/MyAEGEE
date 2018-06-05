@@ -1,0 +1,49 @@
+version: '3.2'
+### OMS STATUTORY     #######################################
+### mongodb Container #######################################
+services:
+    postgres-oms-statutory:
+        image: postgres:latest
+        volumes:
+            - postgres:/var/lib/postgresql/data
+        expose:
+            - "5432"
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+    oms-statutory:
+        build:
+            context: ./$PATH_OMS_STATUTORY/oms-statutory
+            dockerfile: ./Dockerfile.dev
+        image: aegee/oms-statutory:dev
+        volumes:
+            - oms-statutory-media:/usr/app/media
+            - ./$PATH_OMS_STATUTORY/../:/usr/app/src
+            - shared:/usr/app/shared:ro
+        links:
+            - postgres-oms-statutory
+        expose:
+            - "8084"
+        labels:
+            - "traefik.backend=oms-statutory"
+            - "traefik.port=8084"
+            - "traefik.frontend.rule=HostRegexp:{domain:[a-z0-9.]+};PathPrefix:/services/oms-statutory/api;PathPrefixStrip:/services/oms-statutory/api"
+            - "traefik.frontend.priority=110"
+            - "traefik.enable=true"
+            - "registry.categories=(statutory, 10);(events, 10);(notifications, 10)"
+            - "registry.servicename=oms-statutory"
+
+
+
+volumes:
+    postgres:
+        driver: "local"
+    oms-statutory-media:
+        driver: "local"
+    shared:
+        driver: "local"
+
+networks:
+  default:
+    external:
+      name: OMS
