@@ -20,7 +20,7 @@
 
 	},
 	"test": {
-		"port": 8084,
+		"port": 8085,
 		"database": "postgresql://localhost:5432/test-statutory",
 
 		"registry": {

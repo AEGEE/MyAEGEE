@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ ! -f config/configFile.json ]
+if [ ! -f config/config.json ]
 then
-  cp config/configFile.json.example config/configFile.json
+  cp config/config.json.example config/config.json
 fi
 
 echo "Installing packages..."

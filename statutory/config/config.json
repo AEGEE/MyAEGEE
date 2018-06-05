@@ -2,7 +2,7 @@
 	"default": {
 		"port": 8084,
 		"postgres": {
-			"host": "postgres-oms-statutory",
+			"host": "postgresql-oms-statutory",
 			"port": 5432,
 			"username": "postgres",
 			"password": "postgres",
@@ -20,7 +20,7 @@
 
 	},
 	"test": {
-		"port": 8084,
+		"port": 8085,
 		"postgres": {
 			"host": "localhost",
 			"port": 5432,

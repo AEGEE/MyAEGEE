@@ -6,7 +6,18 @@
   "scripts": {
     "lint": "eslint .",
     "db:create": "sequelize db:create",
-    "db:migrate": "sequelize db:migrate"
+    "db:migrate": "sequelize db:migrate",
+    "test": "NODE_ENV=test nyc ./node_modules/mocha/bin/_mocha --timeout 10000 test/api/*.js && nyc report > coverage.lcov && codecov"
+  },
+  "nyc": {
+    "include": [
+      "lib/**/*.js"
+    ],
+    "reporter": [
+      "lcov",
+      "text"
+    ],
+    "all": true
   },
   "keywords": [],
   "author": "Sergey Peshkov <github.com/serge1peshcoff>",
@@ -34,10 +45,15 @@
     "winston": "^3.0.0-rc6"
   },
   "devDependencies": {
+    "chai": "^4.1.2",
+    "codecov": "^3.0.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.12.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.9.1"
+    "eslint-plugin-react": "^7.9.1",
+    "mocha": "^5.2.0",
+    "nock": "^9.3.0",
+    "nyc": "^12.0.2"
   }
 }

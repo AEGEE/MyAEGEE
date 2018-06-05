@@ -18,6 +18,6 @@ ENV PATH="/home/node/.npm-global/bin:${PATH}"
 RUN npm install -g --loglevel warn supervisor && npm cache clean --force
 
 
-CMD sh /usr/app/scripts/bootstrap.sh && supervisor  --watch "." --timestamp --extensions "js,json" lib/server.js
+CMD sh /usr/app/scripts/bootstrap.sh && supervisor  --watch "." --timestamp --extensions "js,json" lib/run.js
 
 EXPOSE 8084

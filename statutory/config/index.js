@@ -1,6 +1,6 @@
 const deepAssign = require('deep-assign');
 
-const config = require('./configFile.json');
+const config = require('./config.json');
 
 // Assuming by default that we run in 'development' environment, if no
 // NODE_ENV is specified.

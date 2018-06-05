@@ -1,4 +1,4 @@
-const config = require('./config.js');
+const config = require('./index');
 
 // Workaround for running Sequelize migrations
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';

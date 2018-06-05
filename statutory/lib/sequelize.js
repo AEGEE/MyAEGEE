@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
 const logger = require('./logger');
-const config = require('../config/config');
+const config = require('../config');
 
 const requiredFields = ['database', 'username', 'password', 'host', 'port'];
 for (const field of requiredFields) {
@@ -11,25 +11,31 @@ for (const field of requiredFields) {
     }
 }
 
-const sequelize = new Sequelize(config.postgres.database, config.postgres.username, config.postgres.password, {
-    host: config.postgres.host,
-    port: config.postgres.port,
-    dialect: 'postgres',
-    operatorsAliases: false,
-    logging: logger.debug
-});
+let sequelize;
 
 exports.sequelize = sequelize;
 exports.Sequelize = Sequelize;
 
-exports.authenticate = () => sequelize.authenticate().then(() => {
-    logger.info(
-        'Connected to PostgreSQL at postgres://%s:%s/%s',
-        config.postgres.host,
-        config.postgres.port,
-        config.postgres.database
-    );
-}).catch((err) => {
-    logger.error('Unable to connect to the database: %s', err);
-    process.exit(1);
-});
+exports.authenticate = () => {
+    sequelize = new Sequelize(config.postgres.database, config.postgres.username, config.postgres.password, {
+        host: config.postgres.host,
+        port: config.postgres.port,
+        dialect: 'postgres',
+        operatorsAliases: false,
+        logging: logger.debug
+    });
+
+    return sequelize.authenticate().then(() => {
+        logger.info(
+            'Connected to PostgreSQL at postgres://%s:%s/%s',
+            config.postgres.host,
+            config.postgres.port,
+            config.postgres.database
+        );
+    }).catch((err) => {
+        logger.error('Unable to connect to the database: %s', err);
+        process.exit(1);
+    });
+};
+
+exports.close = () => sequelize.close();
