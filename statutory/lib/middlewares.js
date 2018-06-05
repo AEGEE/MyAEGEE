@@ -1,7 +1,7 @@
 const bugsnag = require('bugsnag');
 
-const log = require('../logger');
-const helpers = require('../helpers');
+const log = require('./logger');
+const helpers = require('./helpers');
 
 
 /* eslint-disable no-unused-vars */

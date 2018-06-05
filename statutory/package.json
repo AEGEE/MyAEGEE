@@ -4,7 +4,9 @@
   "description": "Statutory events module for OMS",
   "main": "lib/server.js",
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "db:create": "sequelize db:create",
+    "db:migrate": "sequelize db:migrate"
   },
   "keywords": [],
   "author": "Sergey Peshkov <github.com/serge1peshcoff>",

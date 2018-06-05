@@ -20,4 +20,4 @@ RUN npm install -g --loglevel warn supervisor && npm cache clean --force
 
 CMD sh /usr/app/scripts/bootstrap.sh && supervisor  --watch "." --timestamp --extensions "js,json" lib/server.js
 
-EXPOSE 8082
+EXPOSE 8084

@@ -3,10 +3,10 @@ const bugsnag = require('bugsnag');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 
-const config = require('./config/config');
+const config = require('../config/config');
 const log = require('./logger');
-const middlewares = require('./callbacks/middlewares');
-const db = require('./models/sequelize');
+const middlewares = require('./middlewares');
+const db = require('./sequelize');
 
 /* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {

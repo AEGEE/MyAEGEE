@@ -1,11 +1,11 @@
 const Sequelize = require('sequelize');
 
-const logger = require('../logger');
+const logger = require('./logger');
 const config = require('../config/config');
 
 const requiredFields = ['database', 'username', 'password', 'host', 'port'];
 for (const field of requiredFields) {
-    if (!config.postgres[field]) {
+    if (typeof config.postgres[field] === undefined) { // if var is set
         logger.error('Missing config field: config.postgres.%s', field);
         process.exit(1);
     }
@@ -15,7 +15,8 @@ const sequelize = new Sequelize(config.postgres.database, config.postgres.userna
     host: config.postgres.host,
     port: config.postgres.port,
     dialect: 'postgres',
-    operatorsAliases: false
+    operatorsAliases: false,
+    logging: logger.debug
 });
 
 exports.sequelize = sequelize;
