@@ -4,7 +4,7 @@
 
 ## General
 
-The event module shall implement everything related to basic events, giving a common ground for non-statutory events, statutory events and SUs. Find the API documentation on [Apiary](http://docs.omsevents.apiary.io/#).
+The event module shall implement everything related to basic events and their applications. Statutory events and SUs will be implemented in another microservices. Find the API documentation on [Apiary](http://docs.omsevents.apiary.io/#).
 
 Also, any help is appreciated! Just contact Nico (AEGEE-Dresden, blacksph3re) and/or check the instructions in the [wiki](https://oms-project.atlassian.net/wiki/).
 
@@ -37,15 +37,13 @@ You will need to do the following steps:
 
 * [Installing and setting up core module](https://oms-project.atlassian.net/wiki/display/OMSCORE/Installing+the+core)
 * Installing and setting up Node.js and NPM (the Docker container uses the latest version)
-* `cd /path/to/oms-events` (replace the path with the path to oms-events on your system)`
+* `cd /path/to/oms-events` (replace the path with the path to oms-events on your system)
 * `npm install`
 * (optional) Install `supervisord` to auto-restart process after crashes and file changes (`npm i -g supervisor`)
-* (optional) Install `bunyan` for logging (`npm i -g bunyan`)
 * Modify the `lib/config/configFile.json` (set up core URL, database URL etc.)
 * Run it
   * Without supervisor: `node lib/server.js`
   * With supervisor: `supervisor lib/server.js`
-  * With supervisor and logging: `supervisor lib/server.js | bunyan --color --output sh`
 
 
 ### Configuring
@@ -54,7 +52,7 @@ You can specify the microservice configuration by editing the `lib/config.json` 
 
 ## LICENSE
 
-Copyright 2015-2016 Fabrizio Bellicano (AEGEE-Europe) and contributors
+Copyright 2015-2018 Fabrizio Bellicano (AEGEE-Europe) and contributors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
