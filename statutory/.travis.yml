@@ -9,6 +9,9 @@ services:
   - postgresql
   - docker
 
+addons:
+  postgresql: "10"
+
 before_install:
   - npm install
 
