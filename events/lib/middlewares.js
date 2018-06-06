@@ -1,21 +1,22 @@
 const request = require('request-promise-native');
 const bugsnag = require('bugsnag');
+const { errors, communication } = require('oms-common-nodejs');
 
 const log = require('./config/logger.js');
 const Event = require('./models/Event');
 const helpers = require('./helpers.js');
-const communication = require('./communication');
+const config = require('./config/config.js');
 
 exports.authenticateUser = async (req, res, next) => {
   const token = req.header('x-auth-token');
   if (!token) {
-    return helpers.makeForbiddenError(res, 'No auth token provided');
+    return errors.makeForbiddenError(res, 'No auth token provided');
   }
 
 
   try {
     // Find the core service
-    const service = await communication.getServiceByName('oms-core-elixir');
+    const service = await communication.getServiceByName(config.registry, 'oms-core-elixir');
 
     // Get the request headers to send an auth token
     const headers = await communication.getRequestHeaders(req);
@@ -30,12 +31,12 @@ exports.authenticateUser = async (req, res, next) => {
     });
 
     if (typeof body !== 'object') {
-      return helpers.makeInternalError(res, 'Malformed response from core: ' + body);
+      return errors.makeInternalError(res, 'Malformed response from core: ' + body);
     }
 
     if (!body.success) {
       // We are not authenticated
-      return helpers.makeForbiddenError(res, 'User is not authenticated.');
+      return errors.makeForbiddenError(res, 'User is not authenticated.');
     }
 
     if (!req.user) {
@@ -48,14 +49,14 @@ exports.authenticateUser = async (req, res, next) => {
 
     return next();
   } catch (err) {
-    return helpers.makeInternalError(res, err);
+    return errors.makeInternalError(res, err);
   }
 };
 
 exports.fetchSingleEvent = async (req, res, next) => {
   if (!req.params.event_id) {
     log.info(req.params);
-    return helpers.makeNotFoundError(res, 'No Event-id provided');
+    return errors.makeNotFoundError(res, 'No Event-id provided');
   }
 
   // Checking if the passed ID is ObjectID or not.
@@ -72,7 +73,7 @@ exports.fetchSingleEvent = async (req, res, next) => {
     const event = await Event.findOne(findObject);
 
     if (event === null) {
-      return helpers.makeNotFoundError(res, `Event with id ${req.params.event_id} not found`);
+      return errors.makeNotFoundError(res, `Event with id ${req.params.event_id} not found`);
     }
 
     req.event = event;
@@ -124,23 +125,23 @@ exports.checkEventPermissions = async (req, res, next) => {
 };
 
 /* eslint-disable no-unused-vars */
-exports.notFound = (req, res, next) => helpers.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl);
+exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl);
 
 /* eslint-disable no-unused-vars */
 exports.errorHandler = (err, req, res, next) => {
   // Handling invalid JSON
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    return helpers.makeBadRequestError(res, 'Invalid JSON.');
+    return errors.makeBadRequestError(res, 'Invalid JSON.');
   }
 
   // Handling validation errors
   if (err.name && err.name === 'ValidationError') {
-    return helpers.makeValidationError(res, err);
+    return errors.makeValidationError(res, err);
   }
 
   log.error(err.stack);
   if (process.env.NODE_ENV !== 'test') {
     bugsnag.notify(err);
   }
-  return helpers.makeInternalError(res, err);
+  return errors.makeInternalError(res, err);
 };

@@ -1,3 +1,5 @@
+const { errors } = require('oms-common-nodejs');
+
 const log = require('./config/logger.js');
 const helpers = require('./helpers');
 const cron = require('./cron');
@@ -81,12 +83,12 @@ exports.listEvents = async (req, res, next) => {
 exports.listLocalInvolvedEvents = async (req, res, next) => {
   const bodyId = parseInt(req.params.body_id);
   if (Number.isNaN(bodyId)) {
-    return helpers.makeBadRequestError(res, 'bodyId is not a number.');
+    return errors.makeBadRequestError(res, 'bodyId is not a number.');
   }
 
   // Only visible to board members
   if (!req.user.permissions.is.board_member_of[bodyId]) {
-    return helpers.makeForbiddenError(res, 'You are not allowed to see this');
+    return errors.makeForbiddenError(res, 'You are not allowed to see this');
   }
 
   // The first query where mongodb actually has a job
@@ -173,7 +175,7 @@ exports.addEvent = async (req, res, next) => {
   delete data.deleted;
 
   if (!data.type) {
-    return helpers.makeValidationError(res, 'No event type is specified.');
+    return errors.makeValidationError(res, 'No event type is specified.');
   }
 
   const newEvent = new Event(data);
@@ -190,7 +192,7 @@ exports.addEvent = async (req, res, next) => {
 
   // Checking if the user IS the member of the body.
   if (!data.body_id || !req.user.permissions.is.member_of[data.body_id]) {
-    return helpers.makeForbiddenError(res, 'You are not a member of this body and cannot create an event on behalf of it.');
+    return errors.makeForbiddenError(res, 'You are not a member of this body and cannot create an event on behalf of it.');
   }
   newEvent.organizing_locals = [{ body_id: data.body_id }];
 
@@ -199,7 +201,7 @@ exports.addEvent = async (req, res, next) => {
 
   // if no lifecycle exists for this type of event
   if (!eventType || !eventType.defaultLifecycle) {
-    return helpers.makeValidationError(res, `No lifecycle is specified for this type of event: ${newEvent.type}, cannot set initial status.`);
+    return errors.makeValidationError(res, `No lifecycle is specified for this type of event: ${newEvent.type}, cannot set initial status.`);
   }
 
   // Checking if the user is allowed to create an event.
@@ -208,7 +210,7 @@ exports.addEvent = async (req, res, next) => {
 
   // Checking if the user is allowed to create events of this type.
   if (!transition || !helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor })) {
-    return helpers.makeForbiddenError(res, 'You are not allowed to create an event of this type.');
+    return errors.makeForbiddenError(res, 'You are not allowed to create an event of this type.');
   }
 
   // Now we've got here, the user is allowed to create the event.
@@ -247,7 +249,7 @@ exports.eventDetails = async (req, res, next) => {
 exports.editEvent = async (req, res, next) => {
   // If user can't edit anything, return error right away
   if (!req.user.permissions.can.edit_details) {
-    return helpers.makeForbiddenError(res, 'You cannot edit this event');
+    return errors.makeForbiddenError(res, 'You cannot edit this event');
   }
 
   const data = req.body;
@@ -262,7 +264,7 @@ exports.editEvent = async (req, res, next) => {
   delete data.status;
 
   if (Object.keys(data).length === 0) {
-    return helpers.makeValidationError(res, 'No valid field changes requested');
+    return errors.makeValidationError(res, 'No valid field changes requested');
   }
 
   if (req.user.permissions.can.edit_details) {
@@ -313,7 +315,7 @@ exports.editEvent = async (req, res, next) => {
 
 exports.deleteEvent = async (req, res, next) => {
   if (!req.user.permissions.can.delete) {
-    return helpers.makeForbiddenError(res, 'You are not permitted to delete this event.');
+    return errors.makeForbiddenError(res, 'You are not permitted to delete this event.');
   }
 
   const event = req.event;
@@ -365,12 +367,12 @@ exports.setApprovalStatus = async (req, res, next) => {
 
   // If there is no transition found, it's disallowed to everybody.
   if (!transition) {
-    return helpers.makeForbiddenError(res, 'You are not allowed to perform a transition.');
+    return errors.makeForbiddenError(res, 'You are not allowed to perform a transition.');
   }
 
   // Checking if this user/role/body/special has the rights to do the transition.
   if (!helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor, event: req.event })) {
-    return helpers.makeForbiddenError(res, 'You are not allowed to perform this transition.');
+    return errors.makeForbiddenError(res, 'You are not allowed to perform this transition.');
   }
 
   // We only get here if the user is allowed to do a status transition.
@@ -398,7 +400,7 @@ exports.getEditRights = (req, res, next) => {
 // TODO: either re-implement it or remove it.
 /* exports.addEventLink = async (req, res, next) => {
   if (!req.body.controller || !req.body.displayName) {
-    return helpers.makeValidationError(res, 'Malformed request.');
+    return errors.makeValidationError(res, 'Malformed request.');
   }
 
   // Adding link to event and saving it.
@@ -413,7 +415,7 @@ exports.getEditRights = (req, res, next) => {
   } catch (err) {
     // Send validation-errors back to client
     if (err.name === 'ValidationError') {
-      return helpers.makeValidationError(res, err);
+      return errors.makeValidationError(res, err);
     }
 
     throw err;
@@ -423,12 +425,12 @@ exports.getEditRights = (req, res, next) => {
 /** Organizers **/
 exports.addOrganizer = async (req, res, next) => {
   if (!req.user.permissions.can.edit_organizers) {
-    return helpers.makeForbiddenError(res, 'You are not allowed to edit organizers.');
+    return errors.makeForbiddenError(res, 'You are not allowed to edit organizers.');
   }
 
   const organizer = req.event.organizers.find(org => org.user_id === req.body.user_id);
   if (organizer) {
-    return helpers.makeBadRequestError(res, 'User with id ' + req.body.user_id + ' is already an organizer.');
+    return errors.makeBadRequestError(res, 'User with id ' + req.body.user_id + ' is already an organizer.');
   }
 
   req.event.organizers.push({
@@ -447,17 +449,17 @@ exports.addOrganizer = async (req, res, next) => {
 
 exports.editOrganizer = async (req, res, next) => {
   if (!req.user.permissions.can.edit_organizers) {
-    return helpers.makeForbiddenError(res, 'You are not allowed to edit organizers.');
+    return errors.makeForbiddenError(res, 'You are not allowed to edit organizers.');
   }
 
   const userId = parseInt(req.params.user_id, 10);
   if (Number.isNaN(userId)) {
-    return helpers.makeBadRequestError(res, 'userId is not a number.');
+    return errors.makeBadRequestError(res, 'userId is not a number.');
   }
 
   const organizer = req.event.organizers.find(org => org.user_id === userId);
   if (!organizer) {
-    return helpers.makeNotFoundError(res, 'Organizer with id ' + userId + ' is not found.');
+    return errors.makeNotFoundError(res, 'Organizer with id ' + userId + ' is not found.');
   }
 
   if (req.body.comment) organizer.comment = req.body.comment;
@@ -473,17 +475,17 @@ exports.editOrganizer = async (req, res, next) => {
 
 exports.deleteOrganizer = async (req, res, next) => {
   if (!req.user.permissions.can.edit_organizers) {
-    return helpers.makeForbiddenError(res, 'You are not allowed to edit organizers.');
+    return errors.makeForbiddenError(res, 'You are not allowed to edit organizers.');
   }
 
   const userId = parseInt(req.params.user_id, 10);
   if (Number.isNaN(userId)) {
-    return helpers.makeBadRequestError(res, 'userId is not a number.');
+    return errors.makeBadRequestError(res, 'userId is not a number.');
   }
 
   const organizerIndex = req.event.organizers.findIndex(org => org.user_id === userId);
   if (organizerIndex === -1) {
-    return helpers.makeNotFoundError(res, 'Organizer with id ' + userId + ' is not found.');
+    return errors.makeNotFoundError(res, 'Organizer with id ' + userId + ' is not found.');
   }
 
   req.event.organizers.splice(organizerIndex, 1);
@@ -499,12 +501,12 @@ exports.deleteOrganizer = async (req, res, next) => {
 /** Locals **/
 exports.addLocal = async (req, res, next) => {
   if (!req.user.permissions.can.edit_organizers) {
-    return helpers.makeForbiddenError(res, 'You are not allowed to edit organizing locals.');
+    return errors.makeForbiddenError(res, 'You are not allowed to edit organizing locals.');
   }
 
   const organizer = req.event.organizing_locals.find(org => org.body_id === req.body.body_id);
   if (organizer) {
-    return helpers.makeBadRequestError(res, 'Body with id ' + req.body.body_id + ' is already an organizing local of this event.');
+    return errors.makeBadRequestError(res, 'Body with id ' + req.body.body_id + ' is already an organizing local of this event.');
   }
 
   req.event.organizing_locals.push({
@@ -521,17 +523,17 @@ exports.addLocal = async (req, res, next) => {
 
 exports.deleteLocal = async (req, res, next) => {
   if (!req.user.permissions.can.edit_organizers) {
-    return helpers.makeForbiddenError(res, 'You are not allowed to edit organizing locals.');
+    return errors.makeForbiddenError(res, 'You are not allowed to edit organizing locals.');
   }
 
   const bodyId = parseInt(req.params.body_id, 10);
   if (Number.isNaN(bodyId)) {
-    return helpers.makeBadRequestError(res, 'bodyId is not a number.');
+    return errors.makeBadRequestError(res, 'bodyId is not a number.');
   }
 
   const localIndex = req.event.organizing_locals.findIndex(org => org.body_id === bodyId);
   if (localIndex === -1) {
-    return helpers.makeNotFoundError(res, 'Body with id ' + bodyId + ' is not an organizing local of this event.');
+    return errors.makeNotFoundError(res, 'Body with id ' + bodyId + ' is not an organizing local of this event.');
   }
 
   req.event.organizing_locals.splice(localIndex, 1);

@@ -1,4 +1,4 @@
-const helpers = require('./helpers');
+const { errors } = require('oms-common-nodejs');
 const log = require('./config/logger.js');
 const EventType = require('./models/EventType');
 const pseudoRoles = require('./config/pseudo');
@@ -9,11 +9,11 @@ exports.createLifecycle = async (req, res, next) => {
   delete data._id;
 
   if (!req.user.permissions.can.edit_lifecycles) {
-    return helpers.makeForbiddenError(res, 'You are not allowed to create/edit lifecycles.');
+    return errors.makeForbiddenError(res, 'You are not allowed to create/edit lifecycles.');
   }
 
   if (!data.eventType) {
-    return helpers.makeValidationError(res, 'No eventType is specified.');
+    return errors.makeValidationError(res, 'No eventType is specified.');
   }
 
   // Validation is specified within the model.
@@ -33,13 +33,13 @@ exports.createLifecycle = async (req, res, next) => {
 exports.removeLifecycle = async (req, res, next) => {
   // Errors that can happen there are to be caught in 'uncaughtException' handler.
   if (!req.user.permissions.can.delete_lifecycles) {
-    return helpers.makeForbiddenError(res, 'You are not allowed to delete lifecycles.');
+    return errors.makeForbiddenError(res, 'You are not allowed to delete lifecycles.');
   }
 
   const doc = await EventType.findOneAndRemove({ name: req.params.lifecycle_id }, {});
 
   if (!doc) {
-    return helpers.makeNotFoundError(res, 'Lifecycle with that name was not found.');
+    return errors.makeNotFoundError(res, 'Lifecycle with that name was not found.');
   }
 
   return res.json({
@@ -83,7 +83,7 @@ exports.getLifecycles = async (req, res, next) => {
 /* istanbul ignore next */
 exports.seed = async (req, res, next) => {
   if (!req.user.permissions.is.superadmin) {
-    return helpers.makeForbiddenError('Only superadmin can seed lifecycles.');
+    return errors.makeForbiddenError('Only superadmin can seed lifecycles.');
   }
 
   const [ bodies, circles ] = await Promise.all(['bodies?limit=1000', 'circles?limit=1000'].map(elt => seed.queryAPI(elt, req.headers)));

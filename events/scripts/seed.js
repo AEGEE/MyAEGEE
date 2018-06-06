@@ -1,5 +1,7 @@
 const request = require('request-promise-native');
-const communication = require('../lib/communication');
+const { communication } = require('oms-common-nodejs');
+
+const config = require('../lib/config/config');
 
 exports.makeAccessObject = access => {
   const result = { users: [], bodies: [], circles: [], special: [] };
@@ -16,7 +18,7 @@ exports.organizerSchema = exports.makeAccessObject({ special: ['Organizer'] });
 exports.emptySchema = exports.makeAccessObject({});
 
 exports.queryAPI = async (url, headers) => {
-  const service = await communication.getServiceByName('oms-core-elixir');
+  const service = await communication.getServiceByName(config.registry, 'oms-core-elixir');
   const result = await request({
     url: service.backend_url + url,
     method: 'GET',

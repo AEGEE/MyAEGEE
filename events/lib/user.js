@@ -4,8 +4,6 @@ const EventRole = require('./models/EventRole');
 const eventRolesConfig = require('./config/eventroles');
 const log = require('./config/logger');
 
-const communication = require('./communication');
-
 // Updates the eventRoles in the database to what there is in the .json file
 exports.updateEventRoles = async () => {
   const unupdatedRoles = eventRolesConfig.roles;

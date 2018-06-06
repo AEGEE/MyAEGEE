@@ -43,6 +43,7 @@
     "morgan": "^1.9.0",
     "multer": "^1.2.0",
     "node-schedule": "^1.3.0",
+    "oms-common-nodejs": "git+https://git@github.com/AEGEE/oms-common-nodejs.git",
     "read-chunk": "^2.0.0",
     "request": "^2.79.0",
     "request-promise-native": "^1.0.4",

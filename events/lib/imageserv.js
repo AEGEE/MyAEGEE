@@ -5,7 +5,7 @@ const readChunk = require('read-chunk');
 const fileType = require('file-type');
 const util = require('util');
 
-const helpers = require('./helpers');
+const { errors } = require('oms-common-nodejs');
 const log = require('./config/logger');
 const config = require('./config/config.js');
 
@@ -57,12 +57,12 @@ exports.uploadImage = async (req, res, next) => {
     await uploadAsync(req, res);
   } catch (err) {
     log.error('Could not store image', err);
-    return helpers.makeValidationError(res, err);
+    return errors.makeValidationError(res, err);
   }
 
   // If the head_image field is missing, do nothing.
   if (!req.file) {
-    return helpers.makeValidationError(res, 'No head_image is specified.');
+    return errors.makeValidationError(res, 'No head_image is specified.');
   }
 
   // If the file's content is malformed, don't save it.
@@ -74,7 +74,7 @@ exports.uploadImage = async (req, res, next) => {
 
   if (originalExtension !== determinedExtension
    || !allowedExtensions.includes(determinedExtension)) {
-    return helpers.makeValidationError(res, 'Malformed file content.');
+    return errors.makeValidationError(res, 'Malformed file content.');
   }
 
   req.event.head_image = {

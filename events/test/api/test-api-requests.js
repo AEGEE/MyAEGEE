@@ -1,7 +1,8 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+const { communication } = require('oms-common-nodejs');
 
-let server = require('../../lib/server.js');
+const server = require('../../lib/server.js');
 const mock = require('../scripts/mock-core-registry');
 
 const expect = chai.expect;
@@ -15,17 +16,6 @@ describe('API requests', () => {
     const mocked = mock.mockAll();
     omscoreStub = mocked.omscoreStub;
     omsserviceregistryStub = mocked.omsserviceregistryStub;
-  });
-
-  afterEach(() => {
-    // Remove require() cache, needed for testing, otherwise oms-serviceregistry address is cached.
-    server.close();
-
-    const cached = Object.keys(require.cache)
-      .filter(n => n.includes('lib') && !n.includes('node_modules') && !n.includes('models')&& !n.includes('schemas'));
-
-    cached.forEach(function(key) { delete require.cache[key]; });
-    server = require('../../lib/server.js');
   });
 
   it('should reject requests without X-Auth-Token', (done) => {
