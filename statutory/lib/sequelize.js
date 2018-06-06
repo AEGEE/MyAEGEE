@@ -5,7 +5,7 @@ const config = require('../config');
 
 const requiredFields = ['database', 'username', 'password', 'host', 'port'];
 for (const field of requiredFields) {
-    if (typeof config.postgres[field] === undefined) { // if var is set
+    if (typeof config.postgres[field] === 'undefined') { // if var is set
         logger.error('Missing config field: config.postgres.%s', field);
         process.exit(1);
     }
