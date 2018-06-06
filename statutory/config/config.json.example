@@ -4,8 +4,8 @@
 		"postgres": {
 			"host": "postgres-oms-statutory",
 			"port": 5432,
-			"username": null,
-			"password": null,
+			"username": "postgres",
+			"password": "postgres",
 			"database": "statutory"
 		},
 		"registry": {
@@ -21,13 +21,15 @@
 	},
 	"test": {
 		"port": 8085,
-		"database": "postgresql://localhost:5432/test-statutory",
-
+		"postgres": {
+			"host": "localhost"
+		},
 		"registry": {
 			"url": "http://localhost",
 			"port": 7000
 		},
 		"enable_user_caching": false,
-		"media_dir": "./tmp_upload"
+		"media_dir": "./tmp_upload",
+		"bugsnagKey": "CHANGEME"
 	}
 }
