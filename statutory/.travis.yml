@@ -9,6 +9,9 @@ services:
   - postgresql
   - docker
 
+env:
+  - NODE_ENV=test
+
 addons:
   postgresql: "9.6"
 
