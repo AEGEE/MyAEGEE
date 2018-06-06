@@ -1,37 +1,20 @@
-exports.makeError = (res, statusCode, err, message) => {
-    // 3 cases:
-    // 1) 'err' is a string
-    // 2) 'err' is a ValidationError
-    // 3) 'err' is Error
+exports.getPermissions = (user) => {
+    const permissions = {
+        is: {},
+        can: {}
+    };
 
-    // If the error is a string, just forward it to user.
-    if (typeof err === 'string') {
-        return res.status(statusCode).json({
-            success: false,
-            message: err
-        });
+    permissions.is.superadmin = user.user && user.user.superadmin;
+    permissions.is.chair_team = user.bodies.some(body => body.name.includes('Chair Team'));
+    permissions.is.jc = user.bodies.some(body => body.name.includes('Juridical Commission'));
+
+    permission.is.member_of = {};
+    permission.is.board_member_of = {};
+
+    for (const body of user.bodies) {
+        permission.is.member_of[body.id] = true;
+        permission.is.board_member_of[body.id] = user.circles.some(c => c.body_id === body.id && c.name.toLowerCase.includes('board'));
     }
 
-    const msgText = message ? message + ' ' + err.message : err.message;
-
-    // If the error is ValidationError, pass the errors details to the user.
-    if (err.name && err.name === 'ValidationError') {
-        return res.status(statusCode).json({
-            success: false,
-            message: msgText,
-            errors: err.errors
-        });
-    }
-
-    // Otherwise, just pass the error message.
-    return res.status(statusCode).json({
-        success: false,
-        message: msgText
-    });
+    return permissions;
 };
-
-exports.makeValidationError = (res, err, message) => exports.makeError(res, 422, err, message);
-exports.makeForbiddenError = (res, err, message) => exports.makeError(res, 403, err, message);
-exports.makeNotFoundError = (res, err, message) => exports.makeError(res, 404, err, message);
-exports.makeInternalError = (res, err, message) => exports.makeError(res, 500, err, message);
-exports.makeBadRequestError = (res, err, message) => exports.makeError(res, 400, err, message);

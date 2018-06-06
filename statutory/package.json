@@ -37,6 +37,7 @@
     "express-promise-router": "^3.0.2",
     "jest": "^23.1.0",
     "morgan": "^1.9.0",
+    "oms-common-nodejs": "git+https://git@github.com/AEGEE/oms-common-nodejs.git",
     "pg": "^7.4.3",
     "request": "^2.87.0",
     "request-promise-native": "^1.0.5",
