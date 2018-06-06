@@ -19,6 +19,5 @@ install:
   - cp ./config/config.json.example ./config/config.json
 
 before_script:
-  - psql -U postgres -c "create extension postgis"
   - npm run db:create
   - npm run db:migrate
