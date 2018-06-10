@@ -21,6 +21,6 @@ before_install:
 install:
   - cp ./config/config.json.example ./config/config.json
 
-before_script:
-  - npm run db:create
-  - npm run db:migrate
+script:
+  - npm test
+  - codecov

@@ -11,31 +11,42 @@ for (const field of requiredFields) {
     }
 }
 
-let sequelize;
+Sequelize.postgres.DECIMAL.parse = value => parseFloat(value);
+
+const getSequelize = () => new Sequelize(config.postgres.database, config.postgres.username, config.postgres.password, {
+    host: config.postgres.host,
+    port: config.postgres.port,
+    dialect: 'postgres',
+    operatorsAliases: false,
+    logging: logger.debug,
+});
+
+let sequelize = getSequelize();
 
 exports.sequelize = sequelize;
 exports.Sequelize = Sequelize;
 
-exports.authenticate = () => {
-    sequelize = new Sequelize(config.postgres.database, config.postgres.username, config.postgres.password, {
-        host: config.postgres.host,
-        port: config.postgres.port,
-        dialect: 'postgres',
-        operatorsAliases: false,
-        logging: logger.debug
-    });
+exports.authenticate = async () => {
+    if (!sequelize) {
+        sequelize = getSequelize();
+    }
 
-    return sequelize.authenticate().then(() => {
+    try {
+        await sequelize.authenticate();
         logger.info(
             'Connected to PostgreSQL at postgres://%s:%s/%s',
             config.postgres.host,
             config.postgres.port,
             config.postgres.database
         );
-    }).catch((err) => {
+    } catch (err) {
         logger.error('Unable to connect to the database: %s', err);
         process.exit(1);
-    });
+    };
 };
 
-exports.close = () => sequelize.close();
+exports.close = async () => {
+    logger.info('Closing PostgreSQL connection...');
+    await sequelize.close();
+    sequelize = null;
+};

@@ -22,7 +22,8 @@
 	"test": {
 		"port": 8085,
 		"postgres": {
-			"host": "localhost"
+			"host": "localhost",
+			"database": "statutory-testing"
 		},
 		"registry": {
 			"url": "http://localhost",

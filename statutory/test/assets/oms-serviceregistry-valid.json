@@ -1,0 +1,24 @@
+{
+  "success": true,
+  "data": {
+    "name": "oms-core-elixir",
+    "categories": [
+      {
+        "name": "users",
+        "priority": 10
+      },
+      {
+        "name": "antennae",
+        "priority": 10
+      }
+    ],
+    "backend": "",
+    "port": 4000,
+    "description": "The core module with both backend and frontend",
+    "enabled": true,
+    "status_url": "http://oms-core-elixir:4000/service/health/ping",
+    "frontend_url": "",
+    "backend_url": "http://oms-core-elixir:4000/",
+    "up": true
+  }
+}

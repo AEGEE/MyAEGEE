@@ -1,5 +1,6 @@
 const express = require('express');
 const bugsnag = require('bugsnag');
+const router = require('express-promise-router');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 
@@ -7,6 +8,9 @@ const config = require('../config');
 const log = require('./logger');
 const middlewares = require('./middlewares');
 const db = require('./sequelize');
+const events = require('./events');
+
+const GeneralRouter = router({ mergeParams: true });
 
 /* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {
@@ -26,6 +30,14 @@ process.on('unhandledRejection', (err) => {
     }
 });
 
+GeneralRouter.use(middlewares.authenticateUser);
+GeneralRouter.use(middlewares.getPermissions);
+
+GeneralRouter.get('/', events.listEvents);
+GeneralRouter.post('/', events.addEvent);
+
+server.use('/', GeneralRouter);
+
 server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);
 
@@ -38,10 +50,6 @@ async function startServer() {
             await db.authenticate();
             return res();
         });
-        localApp.on('close', async () => {
-            log.info('Shutting down server...');
-            await db.close();
-        });
         localApp.on('error', err => rej(new Error('Error starting server: ' + err.stack)));
     });
 }
@@ -49,6 +57,7 @@ async function startServer() {
 async function stopServer() {
     log.info('Stopping server...');
     app.close();
+    if (process.env.NODE_ENV !== 'test') await db.close();
     app = null;
 }
 

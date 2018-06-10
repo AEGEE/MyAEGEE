@@ -62,17 +62,24 @@ exports.mockCore = (options) => {
             .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
     }
 
-    if (options.notSuperadmin) {
+    if (options.regularUser) {
         return nock('http://oms-core-elixir:4000')
             .persist()
             .get('/members/me')
-            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-not-superadmin.json'));
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-regular-user.json'));
+    }
+
+    if (options.chairTeam) {
+        return nock('http://oms-core-elixir:4000')
+            .persist()
+            .get('/members/me')
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-chair-teamr.json'));
     }
 
     return nock('http://oms-core-elixir:4000')
         .persist()
         .get('/members/me')
-        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-superadmin.json'));
 };
 
 exports.mockAll = (options = {}) => {

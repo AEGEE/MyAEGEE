@@ -1,0 +1,191 @@
+{
+    "success": true,
+    "data": {
+        "user_id": 10,
+        "user": {
+            "superadmin": false,
+            "name": "janphilipp.rauprich",
+            "member_id": 5,
+            "inserted_at": "2018-05-05T09:15:24.373952",
+            "id": 10,
+            "email": "jan.philipp.rauprich@aegee.org",
+            "active": true
+        },
+        "seo_url": "70941758_",
+        "primary_body_id": null,
+        "primary_body": null,
+        "phone": null,
+        "last_name": "Rauprich",
+        "id": 5,
+        "gender": "Male",
+        "first_name": "Jan Philipp",
+        "date_of_birth": "1970-01-01",
+        "circles": [{
+            "seo_url": 63,
+            "permissions": null,
+            "parent_circle_id": 6,
+            "parent_circle": null,
+            "name": "Members AEGEE-Dresden",
+            "joinable": true,
+            "id": 63,
+            "description": "Members circle for members of AEGEE-Dresden",
+            "child_circles": null,
+            "body_id": 1,
+            "body": null
+        }],
+        "circle_memberships": [{
+            "position": null,
+            "member_id": 1,
+            "member": null,
+            "id": 17,
+            "circle_id": 63,
+            "circle_admin": false,
+            "circle": {
+                "seo_url": 63,
+                "permissions": null,
+                "parent_circle_id": 6,
+                "parent_circle": null,
+                "name": "Members AEGEE-Dresden",
+                "joinable": true,
+                "id": 63,
+                "description": "Members circle for members of AEGEE-Dresden",
+                "child_circles": null,
+                "body_id": 1,
+                "body": null
+            }
+        }, {
+            "position": null,
+            "member_id": 1,
+            "member": null,
+            "id": 16,
+            "circle_id": 258,
+            "circle_admin": false,
+            "circle": {
+                "seo_url": 258,
+                "permissions": null,
+                "parent_circle_id": 2,
+                "parent_circle": null,
+                "name": "Board AEGEE-Voronezh",
+                "joinable": true,
+                "id": 258,
+                "description": "Board circle of AEGEE-Voronezh",
+                "child_circles": null,
+                "body_id": 173,
+                "body": null
+            }
+        }, {
+            "position": null,
+            "member_id": 1,
+            "member": null,
+            "id": 15,
+            "circle_id": 257,
+            "circle_admin": false,
+            "circle": {
+                "seo_url": 257,
+                "permissions": null,
+                "parent_circle_id": 6,
+                "parent_circle": null,
+                "name": "Members AEGEE-Voronezh",
+                "joinable": true,
+                "id": 257,
+                "description": "Members circle for members of AEGEE-Voronezh",
+                "child_circles": null,
+                "body_id": 173,
+                "body": null
+            }
+        }, {
+            "position": null,
+            "member_id": 1,
+            "member": null,
+            "id": 3,
+            "circle_id": 4,
+            "circle_admin": false,
+            "circle": {
+                "seo_url": 4,
+                "permissions": null,
+                "parent_circle_id": null,
+                "parent_circle": null,
+                "name": "Superadmins",
+                "joinable": false,
+                "id": 4,
+                "description": "This circle holds all permissions in the system and thus effectively makes you superadmin",
+                "child_circles": null,
+                "body_id": null,
+                "body": null
+            }
+        }],
+        "body_memberships": [{
+            "member_id": 1,
+            "member": null,
+            "id": 6,
+            "comment": null,
+            "body_id": 9,
+            "body": {
+                "shadow_circle_id": null,
+                "shadow_circle": null,
+                "seo_url": 9,
+                "phone": null,
+                "name": "Chair Team of the Agora",
+                "legacy_key": "XCH",
+                "id": 9,
+                "email": "chair@aegee.org",
+                "description": "The Chair team is responsible for preparing and moderating the Agorae. They preside over them, take the minutes and are responsible for the IT during the events.",
+                "circles": null,
+                "address": "Notelaarsstraat 55"
+            }
+        }, {
+            "member_id": 1,
+            "member": null,
+            "id": 9,
+            "comment": null,
+            "body_id": 173,
+            "body": {
+                "shadow_circle_id": 257,
+                "shadow_circle": null,
+                "seo_url": 173,
+                "phone": "+7 9066742361",
+                "name": "AEGEE-Voronezh",
+                "legacy_key": "VOR",
+                "id": 173,
+                "email": "voronezh.aegee@gmail.com",
+                "description": "Local in Voronezh",
+                "circles": null,
+                "address": "Mariia LureRussian Federation  Voronezh  Suvorova Street, 94  394000 (Voronezh, Russia)"
+            }
+        }, {
+            "member_id": 1,
+            "member": null,
+            "id": 10,
+            "comment": null,
+            "body_id": 1,
+            "body": {
+                "shadow_circle_id": 63,
+                "shadow_circle": null,
+                "seo_url": 1,
+                "phone": "don't call us",
+                "name": "AEGEE-Dresden",
+                "legacy_key": "DRE",
+                "id": 1,
+                "email": "info@aegee-dresden.org",
+                "description": "Very prehistoric antenna",
+                "circles": null,
+                "address": "Dresden"
+            }
+        }],
+        "bodies": [{
+            "shadow_circle_id": 257,
+            "shadow_circle": null,
+            "seo_url": 173,
+            "phone": "+7 9066742361",
+            "name": "AEGEE-Voronezh",
+            "legacy_key": "VOR",
+            "id": 173,
+            "email": "voronezh.aegee@gmail.com",
+            "description": "Local in Voronezh",
+            "circles": null,
+            "address": "Mariia LureRussian Federation  Voronezh  Suvorova Street, 94  394000 (Voronezh, Russia)"
+        }],
+        "address": null,
+        "about_me": null
+    }
+}

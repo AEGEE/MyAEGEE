@@ -7,4 +7,4 @@ npm-debug.log
 frontend/
 .nyc_output/
 test/oms-testing
-lib/config/configFile.json
+config/config.json
