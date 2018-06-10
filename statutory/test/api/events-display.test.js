@@ -6,7 +6,7 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const Event = require('../../models/Event');
 
-describe('Events listing', () => {
+describe('Events listing for single', () => {
     beforeEach(async () => {
         mock.mockAll();
         await startServer();
@@ -14,42 +14,45 @@ describe('Events listing', () => {
 
     afterEach(async () => {
         await stopServer();
+        await generator.clearAll();
         mock.cleanAll();
     });
 
-    test('should display published event', async () => {
-        const event = await generator.createEvent({ status: 'published' });
-
+    test('should return 404 if the event is not found', async () => {
         const res = await request({
-            uri: '/',
+            uri: '/event/nonexistant',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        expect(res.body).not.toHaveProperty('errors');
-        expect(res.body).toHaveProperty('data');
-
-        const ids = res.body.data.map(e => e.id);
-        expect(ids).toContain(event.id);
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
     });
 
-    test('should not display draft event', async () => {
-        const event = await generator.createEvent({ status: 'draft' });
-
+    test('should find event by url', async () => {
+        const event = await generator.createEvent({ url: 'test-slug' });
         const res = await request({
-            uri: '/',
+            uri: '/event/test-slug',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
-        expect(res.body).not.toHaveProperty('errors');
-        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.name).toEqual(event.name);
+    });
 
-        const ids = res.body.data.map(e => e.id);
-        expect(ids).not.toContain(event.id);
+    test('should find event by ID', async () => {
+        const event = await generator.createEvent();
+        const res = await request({
+            uri: '/event/' + event.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.name).toEqual(event.name);
     });
 });

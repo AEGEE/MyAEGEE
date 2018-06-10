@@ -4,6 +4,8 @@ const { errors, communication } = require('oms-common-nodejs');
 
 const config = require('../config');
 const helpers = require('./helpers');
+const Event = require('../models/Event');
+const { Sequelize } = require('./sequelize');
 
 exports.authenticateUser = async (req, res, next) => {
     const token = req.header('x-auth-token');
@@ -36,13 +38,9 @@ exports.authenticateUser = async (req, res, next) => {
             return errors.makeForbiddenError(res, 'User is not authenticated.');
         }
 
-        if (!req.user) {
-            req.user = body.data;
-        }
-
-        if (!req.user.special) {
-            req.user.special = ['Public']; // Everybody is included in 'Public', right?
-        }
+        req.user = body.data;
+        req.user.permissions = helpers.getPermissions(req.user);
+        req.user.special = ['Public']; // Everybody is included in 'Public', right?
 
         return next();
     } catch (err) {
@@ -50,10 +48,30 @@ exports.authenticateUser = async (req, res, next) => {
     }
 };
 
-exports.getPermissions = async (req, res, next) => {
-    req.user.permissions = helpers.getPermissions(req.user);
+exports.fetchEvent = async (req, res, next) => {
+    let query = {
+        where: {
+            id: req.params.event_id,
+        }
+    };
+
+    // If event_id is not an integer, assuming it's the event URL.
+    if (Number.isNaN(parseInt(req.params.event_id))) {
+        query = {
+            where: {
+                url: { [Sequelize.Op.iLike]: req.params.event_id },
+            }
+        }
+    }
+    const event = await Event.findOne(query);
+
+    if (!event) {
+        return errors.makeNotFoundError(res, 'Event with such url or ID is not found.');
+    }
+
+    req.event = event;
     return next();
-};
+}
 
 
 /* eslint-disable no-unused-vars */

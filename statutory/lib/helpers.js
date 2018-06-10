@@ -28,11 +28,12 @@ exports.getPermissions = (user) => {
         permissions.is.board_member_of[body.id] = user.circles.some(c => c.body_id === body.id && c.name.toLowerCase().includes('board'));
     }
 
-    permissions.can.create_events = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
-    permissions.can.edit_events = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
+    permissions.can.create_event = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
+    permissions.can.edit_event = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
+    permissions.can.change_event_status = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
     permissions.can.edit_organizers = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
     permissions.can.edit_bodies = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
-    permissions.can.delete_events = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
+    permissions.can.delete_event = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
 
     permissions.can.set_participants_status = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
 

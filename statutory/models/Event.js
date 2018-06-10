@@ -163,10 +163,14 @@ const Event = sequelize.define('event', {
         get() {
             return moment().isBetween(this.application_period_starts, this.application_period_ends, null, '[]'); // inclusive
         }
+    },
+    url: {
+        type: Sequelize.STRING,
+        allowNull: true
     }
 }, { underscored: true });
 
-Event.afterValidate((event, options) => {
+Event.beforeCreate((event, options) => {
     if (!event.url) event.setDataValue('url', event.name.toLowerCase().replace(/ /g, '-').replace(/[^a-zA-Z0-9-]/g, ''));
     options.fields.push('url');
 });

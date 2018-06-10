@@ -11,6 +11,7 @@ const db = require('./sequelize');
 const events = require('./events');
 
 const GeneralRouter = router({ mergeParams: true });
+const EventsRouter = router({ mergeParams: true });
 
 /* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {
@@ -31,12 +32,17 @@ process.on('unhandledRejection', (err) => {
 });
 
 GeneralRouter.use(middlewares.authenticateUser);
-GeneralRouter.use(middlewares.getPermissions);
 
 GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', events.addEvent);
 
+EventsRouter.use(middlewares.fetchEvent);
+
+EventsRouter.get('/', events.displayEvent);
+EventsRouter.put('/', events.editEvent);
+
 server.use('/', GeneralRouter);
+server.use('/event/:event_id', EventsRouter);
 
 server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);

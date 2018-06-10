@@ -19,3 +19,7 @@ exports.generateEvent = (options = {}) => {
 exports.createEvent = (options = {}) => {
     return Event.create(exports.generateEvent(options));
 };
+
+exports.clearAll = async () => {
+    await Event.destroy({ where: {}, truncate: true });
+};
