@@ -45,3 +45,20 @@ exports.editEvent = async (req, res) => {
         data: dbResult[1][0]
     });
 };
+
+exports.changeEventStatus = async (req, res) => {
+    if (!req.body.status) {
+        return errors.makeBadRequestError(res, 'New status is not set.');
+    }
+
+    if (!req.user.permissions.can.change_event_status[req.event.type]) {
+        return errors.makeForbiddenError(res, 'You are not allowed to change status for events of this type.');
+    }
+
+    const dbResult = await Event.update({ status: req.body.status }, { where: { id: req.event.id }, returning: true });
+
+    return res.json({
+        success: true,
+        message: 'Event status was changed successfully.'
+    });
+};

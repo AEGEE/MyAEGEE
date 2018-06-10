@@ -8,3 +8,4 @@ frontend/
 .nyc_output/
 test/oms-testing
 config/config.json
+**/.DS_Store
