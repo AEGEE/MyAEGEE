@@ -3,6 +3,7 @@ const moment = require('moment-timezone');
 moment.tz.setDefault('CET');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const Question = require('./Question');
 
 // A lot of workarounds here like this one:
 // allowNull: false,

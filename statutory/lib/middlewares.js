@@ -4,6 +4,7 @@ const { errors, communication } = require('oms-common-nodejs');
 
 const config = require('../config');
 const helpers = require('./helpers');
+const logger = require('./logger');
 const Event = require('../models/Event');
 const { Sequelize } = require('./sequelize');
 
@@ -92,5 +93,7 @@ exports.errorHandler = (err, req, res, next) => {
     if (process.env.NODE_ENV !== 'test') {
         bugsnag.notify(err);
     }
+
+    logger.error(err.stack);
     return errors.makeInternalError(res, err);
 };

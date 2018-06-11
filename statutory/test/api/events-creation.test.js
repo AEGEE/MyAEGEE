@@ -4,7 +4,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const Event = require('../../models/Event');
+const { Event, Question } = require('../../models');
 
 describe('Events creation', () => {
     beforeEach(async () => {
@@ -51,12 +51,16 @@ describe('Events creation', () => {
         expect(res.body.data.fee).toEqual(event.fee);
         expect(res.body.data.type).toEqual(event.type);
 
-        const eventFromDb = await Event.findOne({ where: { id: res.body.data.id } });
+        const eventFromDb = await Event.findOne({ where: { id: res.body.data.id }, include: [Question] });
 
         expect(eventFromDb.name).toEqual(res.body.data.name);
         expect(eventFromDb.description).toEqual(res.body.data.description);
         expect(eventFromDb.fee).toEqual(res.body.data.fee);
         expect(eventFromDb.type).toEqual(res.body.data.type);
+
+        for (const question of event.questions) {
+            expect(eventFromDb.questions.find(q => question.name === q.name)).toBeTruthy();
+        }
     });
 
     test('should fail if the dates are in the past', async () => {
@@ -201,5 +205,35 @@ describe('Events creation', () => {
         expect(res.body.success).toEqual(false);
         expect(Object.keys(res.body.errors).length).toEqual(1);
         expect(res.body.errors).toHaveProperty('bodies');
+    });
+
+    test('should fail if no questions are set', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                questions: []
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if questions are malformed', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                questions: [{
+                    description: ''
+                }]
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
     });
 });

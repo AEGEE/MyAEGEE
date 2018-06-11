@@ -1,6 +1,6 @@
 const { errors } = require('oms-common-nodejs');
 
-const Event = require('../models/Event');
+const { Event, Question } = require('../models');
 
 exports.addEvent = async (req, res) => {
     if (!req.user.permissions.can.create_event[req.body.type]) {
@@ -9,7 +9,13 @@ exports.addEvent = async (req, res) => {
 
     delete req.body.status;
 
-    const newEvent = await Event.create(req.body);
+    if (!req.body.questions || !req.body.questions.length) {
+        return errors.makeValidationError(res, 'At least one application question should be set.');
+    }
+
+    const newEvent = await Event.create(req.body, {
+        include: [ Question ]
+    });
     return res.json({
         success: true,
         data: newEvent
