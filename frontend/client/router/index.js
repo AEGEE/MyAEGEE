@@ -1,23 +1,14 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import menuModule from 'vuex-store/modules/menu'
+
 Vue.use(Router)
 
 export default new Router({
-  mode: 'hash', // Demo is living in GitHub.io, so required!
+  mode: 'hash', // TODO: replace/remove when moving to production
   linkActiveClass: 'is-active',
   scrollBehavior: () => ({ y: 0 }),
   routes: [
-    {
-      name: 'Home',
-      path: '/',
-      component: require('../views/Home')
-    },
-    {
-      name: 'Login',
-      path: '/login',
-      component: require('../views/auth/Login')
-    },
     ...generateRoutesFromMenu(menuModule.state.items),
     {
       path: '*',
@@ -26,16 +17,24 @@ export default new Router({
   ]
 })
 
-// Menu should have 2 levels.
-function generateRoutesFromMenu (menu = [], routes = []) {
-  for (let i = 0, l = menu.length; i < l; i++) {
-    let item = menu[i]
-    if (item.path) {
-      routes.push(item)
+function generateRouteForComponents (componentsList, secondIteration = false) {
+  const routes = []
+
+  for (const menuItem of componentsList) {
+    if (menuItem.path) {
+      routes.push(menuItem)
     }
-    if (!item.component) {
-      generateRoutesFromMenu(item.children, routes)
-    }
+
+    /* if (!secondIteration && item.children) {
+      routes.push(...generateRouteForComponents(item.children, true))
+    } */
   }
+
   return routes
+}
+
+function generateRoutesFromMenu (menu = []) {
+  return menu
+    .map(category => generateRouteForComponents(category.components))
+    .reduce((acc, val) => acc.concat(val), [])
 }

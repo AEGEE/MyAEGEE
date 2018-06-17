@@ -1,0 +1,68 @@
+[
+  {
+    "categoryName": "General",
+    "components": [
+      {
+        "name": "Home",
+        "path": "/",
+        "component": "Home",
+        "meta": {
+          "skipMenu": true,
+          "skipLazyLoad": true,
+          "auth": false
+        }
+      },
+      {
+        "name": "Login",
+        "path": "/login",
+        "component": "auth/Login",
+        "meta": {
+          "skipMenu": true,
+          "skipLazyLoad": true,
+          "auth": false
+        }
+      },
+      {
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "meta": {
+          "auth": true,
+          "icon": "fa-tachometer"
+        },
+        "component": "dashboard/index"
+      }
+    ]
+  },
+  {
+    "categoryName": "OMS Core",
+    "components": [
+      {
+        "name": "Members",
+        "path": "/members",
+        "component": "core/members/index",
+        "meta": {
+          "icon": "fa-tachometer"
+        },
+        "children": [
+          {
+            "name": "View members",
+            "path": "list",
+            "component": "core/members/List",
+            "meta": {
+              "icon": "fa-tachometer"
+            }
+          },
+          {
+            "name": "View single member",
+            "path": ":id",
+            "component": "core/members/Single",
+            "meta": {
+              "skipMenu": true,
+              "icon": "fa-tachometer"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

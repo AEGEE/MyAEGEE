@@ -1,0 +1,4 @@
+{
+  "oms-core-elixir": "services/oms-core-elixir/api",
+  "oms-events": "/services/oms-events/api"
+}

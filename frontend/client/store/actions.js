@@ -20,3 +20,17 @@ export const switchEffect = ({ commit }, effectItem) => {
     commit(types.SWITCH_EFFECT, effectItem)
   }
 }
+
+export const login = ({ commit }) => {
+  commit(types.LOGIN)
+}
+
+export const setUser = ({ commit }, user) => {
+  if (user) {
+    commit(types.SET_USER, user)
+  }
+}
+
+export const logout = ({ commit }) => {
+  commit(types.LOGOUT)
+}
