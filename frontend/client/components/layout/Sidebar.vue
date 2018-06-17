@@ -1,36 +1,38 @@
 <template>
   <aside class="menu app-sidebar animated" :class="{ slideInLeft: show, slideOutLeft: !show }">
-    <p class="menu-label">
-      General
-    </p>
-    <ul class="menu-list">
-      <li v-for="(item, index) in menu">
-        <router-link :to="item.path" :exact="true" :aria-expanded="isExpanded(item) ? 'true' : 'false'" v-if="item.path" @click.native="toggle(index, item)">
-          <span class="icon is-small"><i :class="['fa', item.meta.icon]"></i></span>
-          {{ item.meta.label || item.name }}
-          <span class="icon is-small is-angle" v-if="item.children && item.children.length">
-            <i class="fa fa-angle-down"></i>
-          </span>
-        </router-link>
-        <a :aria-expanded="isExpanded(item)" v-else @click="toggle(index, item)">
-          <span class="icon is-small"><i :class="['fa', item.meta.icon]"></i></span>
-          {{ item.meta.label || item.name }}
-          <span class="icon is-small is-angle" v-if="item.children && item.children.length">
-            <i class="fa fa-angle-down"></i>
-          </span>
-        </a>
+    <div v-for="(category, categoryIndex) in menu" v-bind:key="category.categoryName">
+      <p class="menu-label">
+        {{ category.categoryName}}
+      </p>
+      <ul class="menu-list">
+        <li v-for="(item, index) in category.components" v-bind:key="item.name" v-if="!item.meta.skipMenu">
+          <router-link :to="{ name: item.name }" :exact="true" :aria-expanded="isExpanded(item) ? 'true' : 'false'" v-if="item.path" @click.native="toggle(index, categoryIndex, item)">
+            <span class="icon is-small"><i :class="['fa', item.meta.icon]"></i></span>
+            {{ item.meta.label || item.name }}
+            <span class="icon is-small is-angle" v-if="item.children && item.children.length">
+              <i class="fa fa-angle-down"></i>
+            </span>
+          </router-link>
+          <a :aria-expanded="isExpanded(item)" v-else @click="toggle(index, categoryIndex, item)">
+            <span class="icon is-small"><i :class="['fa', item.meta.icon]"></i></span>
+            {{ item.meta.label || item.name }}
+            <span class="icon is-small is-angle" v-if="item.children && item.children.length">
+              <i class="fa fa-angle-down"></i>
+            </span>
+          </a>
 
-        <expanding v-if="item.children && item.children.length">
-          <ul v-show="isExpanded(item)">
-            <li v-for="subItem in item.children" v-if="subItem.path">
-              <router-link :to="generatePath(item, subItem)">
-                {{ subItem.meta && subItem.meta.label || subItem.name }}
-              </router-link>
-            </li>
-          </ul>
-        </expanding>
-      </li>
-    </ul>
+          <expanding v-if="item.children && item.children.length">
+            <ul v-show="isExpanded(item)">
+              <li v-for="subItem in item.children" v-bind:key="subItem.name" v-if="subItem.path && !subItem.meta.skipMenu">
+                <router-link :to="{ name: item.name }">
+                  {{ subItem.meta && subItem.meta.label || subItem.name }}
+                </router-link>
+              </li>
+            </ul>
+          </expanding>
+        </li>
+      </ul>
+    </div>
   </aside>
 </template>
 
@@ -74,9 +76,10 @@ export default {
       return item.meta.expanded
     },
 
-    toggle (index, item) {
+    toggle (index, categoryIndex, item) {
       this.expandMenu({
         index: index,
+        categoryIndex: categoryIndex,
         expanded: !item.meta.expanded
       })
     },
@@ -167,7 +170,7 @@ export default {
   }
 
   .menu-label {
-    padding-left: 5px;
+    padding-left: 10px;
   }
 
   .menu-list {

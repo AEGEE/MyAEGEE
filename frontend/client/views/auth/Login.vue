@@ -9,24 +9,16 @@
         <form v-on:submit.prevent="login">
           <label class="label">Email</label>
           <p class="control">
-            <input v-model="data.body.username" class="input" type="text" placeholder="email@example.org">
+            <input v-model="data.username" required class="input" type="text" placeholder="email@example.org">
           </p>
           <label class="label">Password</label>
           <p class="control">
-            <input v-model="data.body.password" class="input" type="password" placeholder="password">
-          </p>
-
-          <p class="control">
-            <label class="checkbox">
-              <input type="checkbox" v-model="data.rememberMe">
-              Remember me
-            </label>
+            <input v-model="data.password" required class="input" type="password" placeholder="password">
           </p>
 
           <hr>
           <p class="control">
             <button type="submit" class="button is-primary">Login</button>
-            <button class="button is-default">Cancel</button>
           </p>
         </form>
       </div>

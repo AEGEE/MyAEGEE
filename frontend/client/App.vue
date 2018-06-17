@@ -67,8 +67,8 @@ export default {
 $fa-font-path: '~font-awesome/fonts/';
 @import '~font-awesome/scss/font-awesome';
 
-html {
-  background-color: whitesmoke;
+body {
+  background-color: #fafafa;
 }
 
 .nprogress-container {
