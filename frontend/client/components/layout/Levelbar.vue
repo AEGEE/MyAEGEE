@@ -25,12 +25,10 @@
 
 <script>
 import Breadcrumb from 'vue-bulma-breadcrumb'
-import Tooltip from 'vue-bulma-tooltip'
 
 export default {
   components: {
-    Breadcrumb,
-    Tooltip
+    Breadcrumb
   },
 
   data () {
