@@ -1,0 +1,24 @@
+version: '3.2'
+
+services:
+
+### OMS SERVICE REGISTRY #######################################
+    vue-admin:
+        build:
+            context: ./$PATH_VUE_ADMIN/vue-admin/
+            dockerfile: ./Dockerfile.dev
+        volumes:
+            - "./$PATH_VUE_ADMIN/../:/usr/app/src"
+        labels:
+            - "traefik.frontend.rule=HostRegexp:{domain:[a-z0-9.]+};PathPrefix:/"
+            - "traefik.frontend.priority=11"
+            - "traefik.port=80"
+            - "traefik.backend=vue-admin"
+            - "traefik.enable=true"
+            - "registry.status=status.json"
+            - "registry.modules=getModules.json"
+
+networks:
+  default:
+    external:
+      name: OMS
