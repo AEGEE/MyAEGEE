@@ -7,7 +7,7 @@ const projectRoot = path.resolve(__dirname, '../')
 
 module.exports = {
   entry: {
-    app: ['./client/index.js'],
+    app: ['babel-polyfill', './client/index.js'],
     // If you want to support IE < 11, should add `babel-polyfill` to vendor.
     // e.g. ['babel-polyfill', 'vue', 'vue-router', 'vuex']
     vendor: [
