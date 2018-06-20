@@ -3,6 +3,7 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import NProgress from 'vue-nprogress'
 import { sync } from 'vuex-router-sync'
+import Buefy from 'buefy'
 import App from './App.vue'
 import router from './router'
 import store from './store'
@@ -14,6 +15,7 @@ Vue.router = router
 Vue.use(VueAxios, axios)
 Vue.use(Auth)
 Vue.use(NProgress)
+Vue.use(Buefy, { defaultNoticeQueue: false, defaultIconPack: 'fa' })
 
 // Enable devtools
 Vue.config.devtools = true

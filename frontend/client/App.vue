@@ -61,6 +61,7 @@ export default {
 }
 
 @import '~bulma';
+@import '~buefy/lib/buefy.css';
 
 @import '~wysiwyg.css/wysiwyg.sass';
 
