@@ -59,23 +59,30 @@
 
         <div class="field">
           <label class="label">Primary body</label>
-          <p class="help" v-if="user.primary_body">{{ user.primary_body.name }}</p>
-          <p class="help" v-if="!user.primary_body"><i>Not set.</i></p>
-          <b-autocomplete
-            v-model="autocompleteBody"
-            :data="user.bodies"
-            open-on-focus="true"
-            @select="body => { user.primary_body_id = body.id; user.primary_body = body } ">
-            <template slot-scope="props">
-              <div class="media">
-                <div class="media-content">
-                    {{ props.option.name }}
-                    <br>
-                    <small> {{ props.option.description }} </small>
-                </div>
-              </div>
-            </template>
-          </b-autocomplete>
+          <p class="control">
+            <div class="field has-addons">
+              <b-autocomplete
+                v-model="autocompleteBody"
+                :data="user.bodies"
+                open-on-focus="true"
+                @select="body => { user.primary_body_id = body.id; user.primary_body = body } ">
+                <template slot-scope="props">
+                  <div class="media">
+                    <div class="media-content">
+                        {{ props.option.name }}
+                        <br>
+                        <small> {{ props.option.description }} </small>
+                    </div>
+                  </div>
+                </template>
+              </b-autocomplete>
+              <p class="control">
+                <a class="button is-danger"
+                  @click="user.primary_body_id = null; user.primary_body = null"
+                  v-if="user.primary_body">{{ user.primary_body.name }} (Click to unset)</a>
+                <a class="button is-static" v-if="!user.primary_body">Not set.</a>
+              </p>
+            </div>
           <p class="help is-danger" v-if="errors.primary_body_id">{{ errors.primary_body_id.join(', ')}}</p>
         </div>
 
