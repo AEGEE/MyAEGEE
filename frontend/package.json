@@ -63,6 +63,7 @@
     "vue-bulma-tabs": "^1.1.2",
     "vue-bulma-tooltip": "^1.0.3",
     "vue-cleave": "1.1.1",
+    "vue-infinite-loading": "^2.3.1",
     "vue-lory": "0.0.4",
     "vue-nprogress": "0.1.5",
     "vue-peity": "0.5.0",
