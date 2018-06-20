@@ -37,28 +37,57 @@
     "categoryName": "OMS Core",
     "components": [
       {
-        "name": "Members",
+        "name": "oms.members",
         "path": "/members",
         "component": "core/members/index",
         "meta": {
-          "icon": "fa-tachometer"
+          "label": "Members",
+          "icon": "fa-user"
         },
         "children": [
           {
-            "name": "View members",
+            "name": "oms.members.list",
             "path": "list",
             "component": "core/members/List",
             "meta": {
-              "icon": "fa-tachometer"
+              "label": "View members"
             }
           },
           {
-            "name": "View single member",
+            "name": "oms.members.edit",
+            "path": ":id/edit",
+            "component": "core/members/Edit",
+            "meta": {
+              "label": "Edit single member",
+              "skipMenu": true
+            }
+          },
+          {
+            "name": "oms.members.view",
             "path": ":id",
             "component": "core/members/Single",
             "meta": {
-              "skipMenu": true,
-              "icon": "fa-tachometer"
+              "label": "View single member",
+              "skipMenu": true
+            }
+          }
+        ]
+      },
+      {
+        "name": "oms.bodies",
+        "path": "/bodies",
+        "component": "core/bodies/index",
+        "meta": {
+          "label": "Bodies",
+          "icon": "fa-flag"
+        },
+        "children": [
+          {
+            "name": "oms.bodies.list",
+            "path": "list",
+            "component": "core/bodies/List",
+            "meta": {
+              "label": "View bodies"
             }
           }
         ]
