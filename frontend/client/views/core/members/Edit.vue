@@ -19,6 +19,21 @@
         </div>
 
         <div class="field">
+          <label class="label">Profile URL</label>
+          <div class="control">
+            <div class="field has-addons">
+              <div class="control">
+                <a class="button is-static">/members/</a>
+              </div>
+              <div class="control">
+                <input class="input" type="text" required v-model="user.seo_url" />
+              </div>
+            </div>
+          </div>
+          <p class="help is-danger" v-if="errors.seo_url">{{ errors.seo_url.join(', ')}}</p>
+        </div>
+
+        <div class="field">
           <label class="label">Email</label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><i class="fa fa-envelope"></i></span>
