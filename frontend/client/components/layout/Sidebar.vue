@@ -24,8 +24,8 @@
           <expanding v-if="item.children && item.children.length">
             <ul v-show="isExpanded(item)">
               <li v-for="subItem in item.children" v-bind:key="subItem.name" v-if="subItem.path && !subItem.meta.skipMenu">
-                <router-link :to="{ name: item.name }">
-                  {{ subItem.meta && subItem.meta.label || subItem.name }}
+                <router-link :to="{ name: subItem.name }">
+                  {{ subItem.meta ? subItem.meta.label : subItem.name }}
                 </router-link>
               </li>
             </ul>

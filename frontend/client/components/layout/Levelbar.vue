@@ -34,7 +34,7 @@ export default {
 
   computed: {
     name () {
-      return this.$route.name
+      return this.$route.meta.label
     }
   },
 

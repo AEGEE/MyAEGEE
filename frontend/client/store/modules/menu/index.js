@@ -13,6 +13,7 @@ import categories from '../../components'
 // -- children: the array of the child elements containing the same fields.
 // Children cannot have another children (because menu is only 2 levels deep).
 // -- meta: the optional object for component storing meta information and having these fields:
+// -- meta.label: the label that would be displayed in sidebar and as the name
 // -- meta.icon: the icon (FontAwesome one) for sidebar
 // -- meta.auth: if set to false, the user can go to this route unauthorized and the user fetching is skipped
 // -- meta.skipMenu: if set to true, this item won't be displayed in the sidebar (but will be available as a route)
@@ -26,6 +27,7 @@ const mapComponent = (component, nested = false) => ({
   path: component.path,
   meta: {
     auth: (component.meta && typeof component.meta.auth !== 'undefined') ? component.meta.auth : true,
+    label: (component.meta && typeof component.meta.label !== 'undefined') ? component.meta.label : component.name,
     icon: (component.meta && typeof component.meta.icon !== 'undefined') ? component.meta.icon : null,
     skipMenu: (component.meta && typeof component.meta.skipMenu !== 'undefined') ? component.meta.skipMenu : false,
     skipLazyLoad: (component.meta && typeof component.meta.skipLazyLoad !== 'undefined') ? component.meta.skipLazyLoad : false,
