@@ -18,14 +18,14 @@
           </div>
 
           <div class="field is-grouped" v-if="isOwnProfile">
-            <router-link :to="{ name: 'oms.members.edit', params: { id: user.url || user.id } }" class="button is-fullwidth is-danger">
+            <router-link :to="{ name: 'oms.members.edit', params: { id: user.seo_url || user.id } }" class="button is-fullwidth is-danger">
               <span>Edit profile</span>
               <span class="icon"><i class="fa fa-edit"></i></span>
-            </a>
+            </router-link>
           </div>
 
           <div class="field is-grouped" v-if="isOwnProfile">
-            <a class="button is-fullwidth is-danger">
+            <a class="button is-fullwidth is-danger" @click="askDeleteUser()">
               <span>Delete profile</span>
               <span class="icon"><i class="fa fa-times"></i></span>
             </a>
@@ -173,12 +173,34 @@ export default {
         message: 'This feature is not implemented yet, come join the OMS to help us implementing it ;)',
         type: 'is-info'
       })
+    },
+    askDeleteUser () {
+      this.$dialog.confirm({
+        title: 'Deleting a user',
+        message: 'Are you sure you want to <b>delete</b> this user? This action cannot be undone.',
+        confirmText: 'Delete user',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.deleteUser()
+      })
+    },
+    deleteUser () {
+      this.axios.delete(services['oms-core-elixir'] + '/user/' + this.user.user.id).then((response) => {
+        this.$toast.open('User is deleted.')
+        this.$router.push({ name: 'oms.members.list' })
+      }).catch((err) => this.$toast.open({
+        duration: 3000,
+        message: 'Could not delete user: ' + err.message,
+        type: 'is-danger'
+      }))
     }
   },
   mounted () {
+    this.isLoading = true
     this.axios.get(services['oms-core-elixir'] + '/members/' + this.$route.params.id).then((response) => {
       this.user = response.data.data
       this.isOwnProfile = this.user.id === this.loginUser.id
+      this.isLoading = false
     })
   },
   computed: mapGetters({
