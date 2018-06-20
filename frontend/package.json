@@ -23,9 +23,11 @@
     "npm": ">=3"
   },
   "scripts": {
-    "build": "cross-env NODE_ENV=production node build/build.js",
+    "build:watch": "cross-env NODE_ENV=production webpack --progress --watch --colors",
+    "build": "cross-env NODE_ENV=production webpack",
     "clean": "rm -rf dist",
-    "dev": "cross-env NODE_ENV=development node build/dev-server.js",
+    "dev:watch": "cross-env NODE_ENV=development webpack --progress --watch --colors",
+    "dev": "cross-env NODE_ENV=development webpack",
     "lint": "eslint --ext .js .vue client/*",
     "lint:fix": "eslint --fix --ext .js .vue electron.js client/* build/* config/*"
   },
