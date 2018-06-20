@@ -9,15 +9,22 @@
         </article>
       </div>
       <div class="tile is-parent">
-        <article class="tile is-child is-info">
+        <article class="tile is-child is-info" v-if="isOwnProfile">
           <div class="field is-grouped">
-            <a class="button is-fullwidth is-primary">
+            <a class="button is-fullwidth is-primary" @click="updatePicture()">
               <span>Change picture</span>
               <span class="icon"><i class="fa fa-camera"></i></span>
             </a>
           </div>
 
-          <div class="field is-grouped">
+          <div class="field is-grouped" v-if="isOwnProfile">
+            <router-link :to="{ name: 'oms.members.edit', params: { id: user.url || user.id } }" class="button is-fullwidth is-danger">
+              <span>Edit profile</span>
+              <span class="icon"><i class="fa fa-edit"></i></span>
+            </a>
+          </div>
+
+          <div class="field is-grouped" v-if="isOwnProfile">
             <a class="button is-fullwidth is-danger">
               <span>Delete profile</span>
               <span class="icon"><i class="fa fa-times"></i></span>
@@ -133,6 +140,8 @@
 <script>
 import services from '../../../services.json'
 
+import { mapGetters } from 'vuex'
+
 export default {
   data () {
     return {
@@ -142,18 +151,38 @@ export default {
         id: null,
         seo_url: null,
         primary_body: null,
-        bodies: null,
-        circles: null,
+        bodies: [],
+        circles: [],
         date_of_birth: null,
         gender: null,
-        phone: null
-      }
+        phone: null,
+        user: {
+          email: null,
+          active: null,
+          superadmin: null,
+          name: null
+        }
+      },
+      isOwnProfile: false
+    }
+  },
+  methods: {
+    updatePicture () {
+      this.$toast.open({
+        duration: 3000,
+        message: 'This feature is not implemented yet, come join the OMS to help us implementing it ;)',
+        type: 'is-info'
+      })
     }
   },
   mounted () {
     this.axios.get(services['oms-core-elixir'] + '/members/' + this.$route.params.id).then((response) => {
       this.user = response.data.data
+      this.isOwnProfile = this.user.id === this.loginUser.id
     })
-  }
+  },
+  computed: mapGetters({
+    loginUser: 'user'
+  })
 }
 </script>

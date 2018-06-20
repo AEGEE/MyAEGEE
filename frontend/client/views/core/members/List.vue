@@ -1,8 +1,15 @@
 <template>
   <div class="tile is-ancestor">
-    <div class="tile is-parent">
-      <article class="tile is-child box">
-        <h4 class="title">Table Responsive</h4>
+    <div class="tile is-parent is-vertical">
+      <article class="tile is-child">
+        <h4 class="title">User list</h4>
+        <div class="field">
+          <label class="label">Search by name or surname</label>
+          <div class="control">
+            <input class="input" type="text" v-model="query" placeholder="Search by name or surname" @input="refetch()">
+          </div>
+        </div>
+
         <div class="table-responsive">
           <table class="table is-bordered is-striped is-narrow is-fullwidth">
             <thead>
@@ -22,18 +29,33 @@
               </tr>
             </tfoot>
             <tbody>
-              <tr v-for="user in users" v-bind:key="user.id">
+              <tr v-show="users.length" v-for="user in users" v-bind:key="user.id">
                 <td>{{ user.id }}</td>
                 <td>{{ user.first_name + ' ' + user.last_name }}</td>
                 <td>{{ user.date_of_birth }}</td>
                 <td>
-                  <router-link :to="{ name: 'View single member', params: { id: user.seo_url || user.id } }">
+                  <router-link :to="{ name: 'oms.members.view', params: { id: user.seo_url || user.id } }">
                     {{ '/members/' + (user.seo_url || user.id) }}
                   </router-link>
                 </td>
               </tr>
+              <tr v-show="!users.length && !isLoading">
+                <td colspan="4" class="has-text-centered">User list is empty</td>
+              </tr>
+              <tr v-show="isLoading">
+                <td colspan="4" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
+              </tr>
             </tbody>
           </table>
+
+          <div class="field">
+            <button
+              class="button is-primary is-fullwidth"
+              :class="{ 'is-loading': isLoading }"
+              :disabled="isLoading"
+              v-show="canLoadMore"
+              @click="fetchData()">Load more users</button>
+          </div>
         </div>
       </article>
     </div>
@@ -44,15 +66,57 @@
 import services from '../../../services.json'
 
 export default {
+  name: 'UsersList',
   data () {
     return {
-      users: []
+      users: [],
+      isLoading: false,
+      query: '',
+      limit: 30,
+      offset: 0,
+      canLoadMore: true,
+      source: null
+    }
+  },
+  computed: {
+    queryObject () {
+      const queryObj = {
+        limit: this.limit,
+        offset: this.offset
+      }
+
+      if (this.query) queryObj.query = this.query
+      return queryObj
+    }
+  },
+  methods: {
+    refetch () {
+      this.users = []
+      this.offset = 0
+      this.canLoadMore = true
+      this.fetchData()
+    },
+    fetchData (state) {
+      this.isLoading = true
+      if (this.source) this.source.cancel()
+      this.source = this.axios.CancelToken.source()
+
+      this.axios.get(services['oms-core-elixir'] + '/members', { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
+        this.users = this.users.concat(response.data.data)
+        this.offset += this.limit
+        this.canLoadMore = response.data.data.length === this.limit
+        this.isLoading = false
+      }).catch((err) => {
+        if (this.axios.isCancel(err)) {
+          return console.debug('Request cancelled.')
+        }
+
+        throw err
+      })
     }
   },
   mounted () {
-    this.axios.get(services['oms-core-elixir'] + '/members').then((response) => {
-      this.users = response.data.data
-    })
+    this.fetchData()
   }
 }
 </script>
