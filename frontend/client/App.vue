@@ -68,7 +68,7 @@ export default {
 $fa-font-path: '~font-awesome/fonts/';
 @import '~font-awesome/scss/font-awesome';
 
-body {
+html, body, #app, .app-main {
   background-color: #fafafa;
 }
 
