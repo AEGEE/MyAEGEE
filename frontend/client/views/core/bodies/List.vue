@@ -15,6 +15,7 @@
             <thead>
               <tr>
                 <th>Body ID</th>
+                <th>Body code</th>
                 <th>Name and surname</th>
                 <th>Description</th>
                 <th>Link</th>
@@ -23,6 +24,7 @@
             <tfoot>
               <tr>
                 <th>Body ID</th>
+                <th>Body code</th>
                 <th>Name and surname</th>
                 <th>Description</th>
                 <th>Link</th>
@@ -31,6 +33,7 @@
             <tbody>
               <tr v-show="bodies.length" v-for="body in bodies" v-bind:key="body.id">
                 <td>{{ body.id }}</td>
+                <td>{{ body.legacy_key }}</td>
                 <td>{{ body.name }}</td>
                 <td>{{ body.description }}</td>
                 <td>
