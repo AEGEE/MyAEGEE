@@ -199,6 +199,15 @@ export default {
       this.user = response.data.data
       this.birthday = response.data.data.date_of_birth ? moment(response.data.data.date_of_birth, 'YYYY-MM-DD').toDate() : null
       this.isLoading = false
+    }).catch((err) => {
+      let message = (err.response.status === 404) ? 'User is not found' : 'Some error happened: ' + err.message
+
+      this.$toast.open({
+        duration: 3000,
+        message,
+        type: 'is-danger'
+      })
+      this.$router.push({ name: 'oms.members.list' })
     })
   }
 }

@@ -158,6 +158,15 @@ export default {
     this.axios.get(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
       this.body = response.data.data
       this.isLoading = false
+    }).catch((err) => {
+      let message = (err.response.status === 404) ? 'Body is not found' : 'Some error happened: ' + err.message
+
+      this.$toast.open({
+        duration: 3000,
+        message,
+        type: 'is-danger'
+      })
+      this.$router.push({ name: 'oms.bodies.list' })
     })
   }
 }

@@ -156,9 +156,11 @@ export default {
       this.isOwnProfile = this.loginUser.bodies.some(body => body.id === this.body.id)
       this.isLoading = false
     }).catch((err) => {
+      let message = (err.response.status === 404) ? 'Body is not found' : 'Some error happened: ' + err.message
+
       this.$toast.open({
         duration: 3000,
-        message: 'Could not delete body: ' + err.message,
+        message,
         type: 'is-danger'
       })
       this.$router.push({ name: 'oms.bodies.list' })

@@ -114,7 +114,11 @@ export default {
           return console.debug('Request cancelled.')
         }
 
-        throw err
+        this.$toast.open({
+          duration: 3000,
+          message: 'Could not fetch bodies list: ' + err.message,
+          type: 'is-danger'
+        })
       })
     }
   },

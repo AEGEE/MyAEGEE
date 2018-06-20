@@ -205,6 +205,15 @@ export default {
       this.user = response.data.data
       this.isOwnProfile = this.user.id === this.loginUser.id
       this.isLoading = false
+    }).catch((err) => {
+      let message = (err.response.status === 404) ? 'User is not found' : 'Some error happened: ' + err.message
+
+      this.$toast.open({
+        duration: 3000,
+        message,
+        type: 'is-danger'
+      })
+      this.$router.push({ name: 'oms.members.list' })
     })
   },
   computed: mapGetters({
