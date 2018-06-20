@@ -48,7 +48,8 @@
                 </tr>
                 <tr>
                   <th>Primary body</th>
-                  <td>{{ user.primary_body ? user.primary_body.name : '' }}</td>
+                  <td v-if="user.primary_body"><router-link :to="{ name: 'oms.bodies.view', params: { id: user.primary_body.id } }">{{ user.primary_body.name }}</router-link></td>
+                  <td v-if="!user.primary_body"><i>Not set.</i></td>
                 </tr>
                 <tr>
                   <th>Phone</th>
@@ -75,8 +76,8 @@
                   <td>{{ (user.user && user.user.superadmin) ? 'Yes' : 'No' }}</td>
                 </tr>
                 <tr>
-                  <th>Email</th>
-                  <td>{{ user.user.email }}</td>
+                  <th>Email</th><td v-if="user.user.email"><a :href="'mailto:' + user.user.email">{{ user.user.email }}</td>
+                  <td v-if="!user.user.email"><i>Not set.</i></td>
                 </tr>
                 <tr>
                   <th>Username</th>
@@ -104,7 +105,7 @@
                   <th>Description</th>
                 </tr>
                 <tr v-for="body in user.bodies" v-bind:key="body.id">
-                  <td>{{ body.legacy_key }}</td>
+                  <td><router-link :to="{ name: 'oms.bodies.view', params: { id: body.id } }">{{ body.legacy_key }}</router-link></td>
                   <td>{{ body.name }}</td>
                   <td>{{ body.description }}</td>
                 </tr>
@@ -125,7 +126,7 @@
                   <th>Description</th>
                 </tr>
                 <tr v-for="circle in user.circles" v-bind:key="circle.id">
-                  <td>{{ circle.name }}</td>
+                  <td><router-link :to="{ name: 'oms.circles.view', params: { id: circle.id } }">{{ circle.name }}</router-link></td>
                   <td>{{ circle.description }}</td>
                 </tr>
               </tbody>
@@ -134,6 +135,8 @@
         </div>
       </article>
     </div>
+
+    <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
   </div>
 </template>
 
@@ -163,7 +166,8 @@ export default {
           name: null
         }
       },
-      isOwnProfile: false
+      isOwnProfile: false,
+      isLoading: false
     }
   },
   methods: {
