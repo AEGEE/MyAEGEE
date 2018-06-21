@@ -10,14 +10,14 @@
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info">
-          <div class="field is-grouped">
+          <div class="field is-grouped" v-if="can.edit">
             <router-link :to="{ name: 'oms.bodies.edit', params: { id: body.id } }" class="button is-fullwidth is-warning">
               <span>Edit body details</span>
               <span class="icon"><i class="fa fa-edit"></i></span>
             </router-link>
           </div>
 
-          <div class="field is-grouped">
+          <div class="field is-grouped" v-if="can.delete">
             <a class="button is-fullwidth is-danger" @click="askDeleteBody()">
               <span>Delete body</span>
               <span class="icon"><i class="fa fa-times"></i></span>
@@ -117,7 +117,12 @@ export default {
         shadow_circle_id: null
       },
       isLoading: false,
-      isOwnBody: false
+      isOwnBody: false,
+      permissions: [],
+      can: {
+        edit: false,
+        delete: false
+      }
     }
   },
   methods: {
@@ -154,6 +159,16 @@ export default {
     this.axios.get(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
       this.body = response.data.data
       this.isOwnProfile = this.loginUser.bodies.some(body => body.id === this.body.id)
+
+      return this.axios.get(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
+    }).then((response) => {
+      this.permissions = response.data.data
+
+      this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:body'))
+      this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:body'))
+      this.can.seeJoinRequests = this.permissions.some(permission => permission.combined.endsWith('view:join_requests'))
+      this.can.processJoinRequests = this.permissions.some(permission => permission.combined.endsWith('process:join_requests'))
+
       this.isLoading = false
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Body is not found' : 'Some error happened: ' + err.message
