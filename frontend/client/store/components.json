@@ -109,6 +109,34 @@
             }
           }
         ]
+      },
+      {
+        "name": "oms.permissions",
+        "path": "/permissions",
+        "component": "core/permissions/index",
+        "meta": {
+          "label": "Permissions",
+          "icon": "fa-key"
+        },
+        "children": [
+          {
+            "name": "oms.permissions.list",
+            "path": "list",
+            "component": "core/permissions/List",
+            "meta": {
+              "label": "View permissions"
+            }
+          },
+          {
+            "name": "oms.permissions.view",
+            "path": ":id",
+            "component": "core/permissions/Single",
+            "meta": {
+              "label": "View single permission",
+              "skipMenu": true
+            }
+          }
+        ]
       }
     ]
   }

@@ -1,0 +1,129 @@
+<template>
+  <div class="tile is-ancestor">
+    <div class="tile is-parent is-vertical">
+      <article class="tile is-child">
+        <h4 class="title">Permissions list</h4>
+        <div class="field">
+          <label class="label">Search permission</label>
+          <div class="control">
+            <input class="input" type="text" v-model="query" placeholder="Search permissions" @input="refetch()">
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table is-bordered is-striped is-narrow is-fullwidth">
+            <thead>
+              <tr>
+                <th>Permission ID</th>
+                <th>Permission code</th>
+                <th>Description</th>
+                <th>Additional info</th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr>
+                <th>Permission ID</th>
+                <th>Permission code</th>
+                <th>Description</th>
+                <th>Additional info</th>
+              </tr>
+            </tfoot>
+            <tbody>
+              <tr v-show="permissions.length" v-for="permission in permissions" v-bind:key="permission.id">
+                <td>{{ permission.id }}</td>
+                <td>
+                  <router-link :to="{ name: 'oms.permissions.view', params: { id: permission.id } }">
+                    {{ permission.combined }}
+                  </router-link>
+                </td>
+                <td>{{ permission.description }}</td>
+                <td>
+                  <span class="tag is-info" v-if="permission.always_assigned">Always assigned</span>
+                  <span class="tag is-warning" v-if="permission.filters.length > 0">Has filters</span>
+                </td>
+              </tr>
+              <tr v-show="!permissions.length && !isLoading">
+                <td colspan="4" class="has-text-centered">Permissions list is empty</td>
+              </tr>
+              <tr v-show="isLoading">
+                <td colspan="4" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="field">
+            <button
+              class="button is-primary is-fullwidth"
+              :class="{ 'is-loading': isLoading }"
+              :disabled="isLoading"
+              v-show="canLoadMore"
+              @click="fetchData()">Load more permissions</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</template>
+
+<script>
+import services from '../../../services.json'
+
+export default {
+  name: 'PermissionsList',
+  data () {
+    return {
+      permissions: [],
+      isLoading: false,
+      query: '',
+      limit: 30,
+      offset: 0,
+      canLoadMore: true,
+      source: null
+    }
+  },
+  computed: {
+    queryObject () {
+      const queryObj = {
+        limit: this.limit,
+        offset: this.offset
+      }
+
+      if (this.query) queryObj.query = this.query
+      return queryObj
+    }
+  },
+  methods: {
+    refetch () {
+      this.permissions = []
+      this.offset = 0
+      this.canLoadMore = true
+      this.fetchData()
+    },
+    fetchData (state) {
+      this.isLoading = true
+      if (this.source) this.source.cancel()
+      this.source = this.axios.CancelToken.source()
+
+      this.axios.get(services['oms-core-elixir'] + '/permissions', { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
+        this.permissions = this.permissions.concat(response.data.data)
+        this.offset += this.limit
+        this.canLoadMore = response.data.data.length === this.limit
+        this.isLoading = false
+      }).catch((err) => {
+        if (this.axios.isCancel(err)) {
+          return console.debug('Request cancelled.')
+        }
+
+        this.$toast.open({
+          duration: 3000,
+          message: 'Could not fetch permissions list: ' + err.message,
+          type: 'is-danger'
+        })
+      })
+    }
+  },
+  mounted () {
+    this.fetchData()
+  }
+}
+</script>
