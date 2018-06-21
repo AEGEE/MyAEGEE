@@ -142,6 +142,7 @@ export default {
 
 .app-sidebar {
   position: fixed;
+  z-index: 1;
   top: 53px;
   left: 0;
   bottom: 0;
@@ -150,7 +151,6 @@ export default {
   min-width: 45px;
   max-height: 100vh;
   height: calc(100% - 50px);
-  z-index: 1024 - 1;
   background: #FFF;
   box-shadow: 0 2px 3px rgba(17, 17, 17, 0.1), 0 0 0 1px rgba(17, 17, 17, 0.1);
   overflow-y: auto;
@@ -158,6 +158,10 @@ export default {
 
   @include mobile() {
     transform: translate3d(-180px, 0, 0);
+  }
+
+  @include tablet-only() {
+    padding-top: 100px
   }
 
   .icon {

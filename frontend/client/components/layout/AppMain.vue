@@ -43,6 +43,11 @@ export default {
 
   @include mobile() {
     margin-left: 0;
+    padding-top: 170px
+  }
+
+  @include tablet-only() {
+    padding-top: 130px
   }
 
 }
