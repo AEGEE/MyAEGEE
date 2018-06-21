@@ -37,6 +37,7 @@ router.beforeEach((route, redirect, next) => {
   }
 
   router.app.$auth.fetchUserWithExistingData().then(() => {
+    document.title = 'OMS | ' + route.meta.label
     return next()
   }).catch((err) => {
     console.log('Error fetching user, redirect to /login. Error: ' + err)
