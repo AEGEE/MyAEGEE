@@ -9,7 +9,7 @@
         </article>
       </div>
       <div class="tile is-parent">
-        <article class="tile is-child is-info" v-if="isOwnProfile">
+        <article class="tile is-child is-info" v-if="can.edit">
           <div class="field is-grouped">
             <a class="button is-fullwidth is-primary" @click="updatePicture()">
               <span>Change picture</span>
@@ -17,14 +17,26 @@
             </a>
           </div>
 
-          <div class="field is-grouped" v-if="isOwnProfile">
-            <router-link :to="{ name: 'oms.members.edit', params: { id: user.seo_url || user.id } }" class="button is-fullwidth is-danger">
+          <div class="field is-grouped" v-if="can.edit">
+            <router-link :to="{ name: 'oms.members.edit', params: { id: user.seo_url || user.id } }" class="button is-fullwidth is-warning">
               <span>Edit profile</span>
               <span class="icon"><i class="fa fa-edit"></i></span>
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="isOwnProfile">
+          <div class="field is-grouped" v-if="can.setActive">
+            <a v-if="user.user.active" class="button is-fullwidth is-danger" @click="toggleActive()">
+              <span>Suspend user</span>
+              <span class="icon"><i class="fa fa-edit"></i></span>
+            </a>
+
+            <a v-if="!user.user.active" lass="button is-fullwidth is-success" @click="toggleActive()">
+              <span>Activate user</span>
+              <span class="icon"><i class="fa fa-edit"></i></span>
+            </a>
+          </div>
+
+          <div class="field is-grouped" v-if="can.delete">
             <a class="button is-fullwidth is-danger" @click="askDeleteUser()">
               <span>Delete profile</span>
               <span class="icon"><i class="fa fa-times"></i></span>
@@ -167,7 +179,13 @@ export default {
         }
       },
       isOwnProfile: false,
-      isLoading: false
+      isLoading: false,
+      permissions: [],
+      can: {
+        edit: false,
+        setActive: false,
+        delete: false
+      }
     }
   },
   methods: {
@@ -197,6 +215,9 @@ export default {
         message: 'Could not delete user: ' + err.message,
         type: 'is-danger'
       }))
+    },
+    toggleActive () {
+
     }
   },
   mounted () {
@@ -204,6 +225,14 @@ export default {
     this.axios.get(services['oms-core-elixir'] + '/members/' + this.$route.params.id).then((response) => {
       this.user = response.data.data
       this.isOwnProfile = this.user.id === this.loginUser.id
+
+      return this.axios.get(services['oms-core-elixir'] + '/members/' + this.$route.params.id + '/my_permissions')
+    }).then((response) => {
+      this.permissions = response.data.data
+
+      this.can.setActive = this.permissions.some(permission => permission.combined.endsWith('update_active:user'))
+      this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:member'))
+      this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:user'))
       this.isLoading = false
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'User is not found' : 'Some error happened: ' + err.message
