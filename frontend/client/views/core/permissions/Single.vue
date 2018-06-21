@@ -46,7 +46,7 @@
       </article>
 
       <article class="tile is-child">
-        <router-link class="button is-warning" :to="{ name: 'oms.permissions.edit', params: permission.id }" v-if="can.edit">
+        <router-link class="button is-warning" :to="{ name: 'oms.permissions.edit', params: { id: permission.id } }" v-if="can.edit">
           Edit permission
         </router-link>
 

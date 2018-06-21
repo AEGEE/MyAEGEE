@@ -3,16 +3,6 @@
     "categoryName": "General",
     "components": [
       {
-        "name": "Home",
-        "path": "/",
-        "component": "Home",
-        "meta": {
-          "skipMenu": true,
-          "skipLazyLoad": true,
-          "auth": false
-        }
-      },
-      {
         "name": "Login",
         "path": "/login",
         "component": "auth/Login",
@@ -37,9 +27,6 @@
     "categoryName": "OMS Core",
     "components": [
       {
-        "name": "oms.members",
-        "path": "/members",
-        "component": "core/members/index",
         "meta": {
           "label": "Members",
           "icon": "fa-user"
@@ -47,7 +34,7 @@
         "children": [
           {
             "name": "oms.members.list",
-            "path": "list",
+            "path": "/members",
             "component": "core/members/List",
             "meta": {
               "label": "View members"
@@ -55,7 +42,7 @@
           },
           {
             "name": "oms.members.edit",
-            "path": ":id/edit",
+            "path": "/members/:id/edit",
             "component": "core/members/Edit",
             "meta": {
               "label": "Edit single member",
@@ -64,7 +51,7 @@
           },
           {
             "name": "oms.members.view",
-            "path": ":id",
+            "path": "/members/:id",
             "component": "core/members/Single",
             "meta": {
               "label": "View single member",
@@ -74,9 +61,6 @@
         ]
       },
       {
-        "name": "oms.bodies",
-        "path": "/bodies",
-        "component": "core/bodies/index",
         "meta": {
           "label": "Bodies",
           "icon": "fa-flag"
@@ -84,7 +68,7 @@
         "children": [
           {
             "name": "oms.bodies.list",
-            "path": "list",
+            "path": "/bodies",
             "component": "core/bodies/List",
             "meta": {
               "label": "View bodies"
@@ -92,7 +76,7 @@
           },
           {
             "name": "oms.bodies.edit",
-            "path": ":id/edit",
+            "path": "/bodies/:id/edit",
             "component": "core/bodies/Edit",
             "meta": {
               "label": "Edit single body",
@@ -101,7 +85,7 @@
           },
           {
             "name": "oms.bodies.view",
-            "path": ":id",
+            "path": "/bodies/:id",
             "component": "core/bodies/Single",
             "meta": {
               "label": "View single body",
@@ -111,9 +95,6 @@
         ]
       },
       {
-        "name": "oms.permissions",
-        "path": "/permissions",
-        "component": "core/permissions/index",
         "meta": {
           "label": "Permissions",
           "icon": "fa-key"
@@ -121,15 +102,24 @@
         "children": [
           {
             "name": "oms.permissions.list",
-            "path": "list",
+            "path": "/permissions",
             "component": "core/permissions/List",
             "meta": {
               "label": "View permissions"
             }
           },
           {
+            "name": "oms.permissions.edit",
+            "path": "/permissions/:id/edit",
+            "component": "core/permissions/Edit",
+            "meta": {
+              "label": "Edit single permission",
+              "skipMenu": true
+            }
+          },
+          {
             "name": "oms.permissions.view",
-            "path": ":id",
+            "path": "/permissions/:id",
             "component": "core/permissions/Single",
             "meta": {
               "label": "View single permission",

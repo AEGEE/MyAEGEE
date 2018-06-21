@@ -2,11 +2,11 @@
   <aside class="menu app-sidebar animated" :class="{ slideInLeft: show, slideOutLeft: !show }">
     <div v-for="(category, categoryIndex) in menu" v-bind:key="category.categoryName">
       <p class="menu-label">
-        {{ category.categoryName}}
+        {{ category.categoryName }}
       </p>
       <ul class="menu-list">
         <li v-for="(item, index) in category.components" v-bind:key="item.name" v-if="!item.meta.skipMenu">
-          <router-link :to="{ name: item.name }" :exact="true" :aria-expanded="isExpanded(item) ? 'true' : 'false'" v-if="item.path" @click.native="toggle(index, categoryIndex, item)">
+          <router-link :to="{ name: item.name }" exact="true" :aria-expanded="isExpanded(item) ? 'true' : 'false'" v-if="item.path" @click.native="toggle(index, categoryIndex, item)">
             <span class="icon is-small"><i :class="['fa', item.meta.icon]"></i></span>
             {{ item.meta.label || item.name }}
             <span class="icon is-small is-angle" v-if="item.children && item.children.length">
@@ -24,7 +24,7 @@
           <expanding v-if="item.children && item.children.length">
             <ul v-show="isExpanded(item)">
               <li v-for="subItem in item.children" v-bind:key="subItem.name" v-if="subItem.path && !subItem.meta.skipMenu">
-                <router-link :to="{ name: subItem.name }">
+                <router-link :to="{ name: subItem.name }" exact="true">
                   {{ subItem.meta ? subItem.meta.label : subItem.name }}
                 </router-link>
               </li>
@@ -103,10 +103,6 @@ export default {
           expanded: true
         })
       }
-    },
-
-    generatePath (item, subItem) {
-      return `${item.component ? item.path + '/' : ''}${subItem.path}`
     },
 
     findParentFromMenu (route) {

@@ -12,7 +12,7 @@ export default new Router({
     ...generateRoutesFromMenu(menuModule.state.items),
     {
       path: '*',
-      redirect: '/'
+      redirect: '/dashboard'
     }
   ]
 })
@@ -23,11 +23,9 @@ function generateRouteForComponents (componentsList, secondIteration = false) {
   for (const menuItem of componentsList) {
     if (menuItem.path) {
       routes.push(menuItem)
+    } else if (!secondIteration && menuItem.children) {
+      routes.push(...generateRouteForComponents(menuItem.children, true))
     }
-
-    /* if (!secondIteration && item.children) {
-      routes.push(...generateRouteForComponents(item.children, true))
-    } */
   }
 
   return routes
