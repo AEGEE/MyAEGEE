@@ -25,12 +25,12 @@
           </div>
 
           <div class="field is-grouped" v-if="can.setActive">
-            <a v-if="user.user.active" class="button is-fullwidth is-danger" @click="toggleActive()">
+            <a v-if="user.user.active" class="button is-fullwidth is-danger" :class="{'is-loading': isSwitchingStatus }" @click="askToggleActive()">
               <span>Suspend user</span>
               <span class="icon"><i class="fa fa-edit"></i></span>
             </a>
 
-            <a v-if="!user.user.active" lass="button is-fullwidth is-success" @click="toggleActive()">
+            <a v-if="!user.user.active" class="button is-fullwidth is-success" :class="{'is-loading': isSwitchingStatus }" @click="askToggleActive()">
               <span>Activate user</span>
               <span class="icon"><i class="fa fa-edit"></i></span>
             </a>
@@ -97,7 +97,7 @@
                 </tr>
                 <tr>
                   <th>Login suspended?</th>
-                  <td>{{ user.user.active ? 'Yes' : 'No' }}</td>
+                  <td>{{ user.user.active ? 'No' : 'Yes' }}</td>
                 </tr>
               </tbody>
             </table>
@@ -180,6 +180,7 @@ export default {
       },
       isOwnProfile: false,
       isLoading: false,
+      isSwitchingStatus: false,
       permissions: [],
       can: {
         edit: false,
@@ -216,8 +217,30 @@ export default {
         type: 'is-danger'
       }))
     },
+    askToggleActive () {
+      const active = this.user.user.active
+      this.$dialog.confirm({
+        title: active ? 'Suspend user' : 'Activate user',
+        message: 'Are you sure you want to <b>' + (active ? 'suspend' : 'acivate') + '</b> this user?',
+        confirmText: active ? 'Suspend user' : 'Activate user',
+        type: active ? 'is-danger' : 'is-primary',
+        hasIcon: true,
+        onConfirm: () => this.toggleActive()
+      })
+    },
     toggleActive () {
-
+      this.isSwitchingStatus = true
+      this.axios.put(services['oms-core-elixir'] + '/user/' + this.user.user.id, { active: !this.user.user.active }).then((response) => {
+        this.user.user.active = response.data.data.active
+        this.isSwitchingStatus = false
+      }).catch((err) => {
+        this.$toast.open({
+          duration: 3000,
+          message: 'Error changing user status: ' + err.message,
+          type: 'is-danger'
+        })
+        this.isSwitchingStatus = false
+      })
     }
   },
   mounted () {
