@@ -6,7 +6,7 @@
         <p>Powered by <a href="//oms.aegee.org">Online membership system</a></p>
       </div>
 
-      <article class="message is-danger">
+      <article class="footer-message message is-danger">
         <div class="message-header">
           <p>DEBUG BUILD</p>
         </div>
@@ -38,6 +38,10 @@ export default {
 
   @include mobile() {
     margin-left: 0;
+  }
+
+  .footer-message {
+    border: 1px solid #ff3860;
   }
 
   .social a {
