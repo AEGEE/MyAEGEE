@@ -10,6 +10,12 @@
           </div>
         </div>
 
+        <div class="field" v-if="can.create">
+          <div class="control">
+            <router-link class="button is-primary" :to="{ name: 'oms.bodies.create' }">Create body</router-link>
+          </div>
+        </div>
+
         <div class="table-responsive">
           <table class="table is-bordered is-striped is-narrow is-fullwidth">
             <thead>
@@ -78,7 +84,11 @@ export default {
       limit: 30,
       offset: 0,
       canLoadMore: true,
-      source: null
+      source: null,
+      permissions: [],
+      can: {
+        create: false
+      }
     }
   },
   computed: {
@@ -108,6 +118,14 @@ export default {
         this.bodies = this.bodies.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit
+
+        return this.axios.get(services['oms-core-elixir'] + '/my_permissions')
+      }).then((response) => {
+        this.permissions = response.data.data
+
+        console.log(this.permissions.map(p => p.combined).join('\n'))
+
+        this.can.create = this.permissions.some(permission => permission.combined.endsWith('create:body'))
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
