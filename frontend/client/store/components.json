@@ -84,6 +84,15 @@
             }
           },
           {
+            "name": "oms.bodies.create",
+            "path": "/bodies/new",
+            "component": "core/bodies/Edit",
+            "meta": {
+              "label": "Create a body",
+              "skipMenu": true
+            }
+          },
+          {
             "name": "oms.bodies.view",
             "path": "/bodies/:id",
             "component": "core/bodies/Single",

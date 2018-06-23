@@ -53,7 +53,7 @@
           <p class="help is-danger" v-if="errors.address">{{ errors.address.join(', ')}}</p>
         </div>
 
-        <div class="field">
+        <div class="field" v-if="$route.params.id">
           <label class="label">Shadow circle</label>
           <p class="control">
             <div class="field has-addons">
@@ -113,7 +113,7 @@ export default {
         circles: []
       },
       errors: {},
-      isLoading: true,
+      isLoading: false,
       isSaving: false
     }
   },
@@ -122,7 +122,11 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      this.axios.put(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id, { body: this.body }).then((response) => {
+      let promise = this.$route.params.id
+        ? this.axios.put(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id, { body: this.body })
+        : this.axios.post(services['oms-core-elixir'] + '/bodies/', { body: this.body })
+
+      promise.then((response) => {
         this.isSaving = false
 
         this.$toast.open({
@@ -133,7 +137,7 @@ export default {
 
         return this.$router.push({
           name: 'oms.bodies.view',
-          params: { id: this.body.id }
+          params: { id: response.data.data.id }
         })
       }).catch((err) => {
         if (err.response.status === 422) { // validation errors
@@ -154,6 +158,10 @@ export default {
     }
   },
   mounted () {
+    if (!this.$route.params.id) {
+      return // if creating new body
+    }
+
     this.isLoading = true
     this.axios.get(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
       this.body = response.data.data
