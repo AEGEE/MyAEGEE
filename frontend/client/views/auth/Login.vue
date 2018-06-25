@@ -1,7 +1,5 @@
 <template>
-<div class="content has-text-centered">
-  <h1 class="is-title is-bold">Login</h1>
-
+<div class="content has-text-centered login-block">
   <div class="columns is-vcentered">
     <div class="column is-6 is-offset-3">
       <div class="box">
@@ -67,5 +65,9 @@ export default {
 <style lang="scss" scoped>
 .is-title {
     text-transform: capitalize;
+}
+
+.login-block {
+  width: 100%
 }
 </style>
