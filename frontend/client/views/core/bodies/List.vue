@@ -123,8 +123,6 @@ export default {
       }).then((response) => {
         this.permissions = response.data.data
 
-        console.log(this.permissions.map(p => p.combined).join('\n'))
-
         this.can.create = this.permissions.some(permission => permission.combined.endsWith('create:body'))
         this.isLoading = false
       }).catch((err) => {

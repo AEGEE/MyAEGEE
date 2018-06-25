@@ -140,6 +140,8 @@ export default {
           params: { id: response.data.data.id }
         })
       }).catch((err) => {
+        this.isSaving = false
+
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
           return this.$toast.open({
