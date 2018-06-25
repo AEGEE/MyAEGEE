@@ -41,6 +41,15 @@
             }
           },
           {
+            "name": "oms.members.edituser",
+            "path": "/members/edituser",
+            "component": "core/members/EditUser",
+            "meta": {
+              "label": "Edit user info",
+              "skipMenu": true
+            }
+          },
+          {
             "name": "oms.members.edit",
             "path": "/members/:id/edit",
             "component": "core/members/Edit",

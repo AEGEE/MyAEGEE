@@ -24,6 +24,13 @@
             </router-link>
           </div>
 
+          <div class="field is-grouped" v-if="isOwnProfile">
+            <router-link :to="{ name: 'oms.members.edituser', params: { id: user.seo_url || user.id } }" class="button is-fullwidth is-warning">
+              <span>Edit user info</span>
+              <span class="icon"><i class="fa fa-edit"></i></span>
+            </router-link>
+          </div>
+
           <div class="field is-grouped" v-if="can.setActive">
             <a v-if="user.user.active" class="button is-fullwidth is-danger" :class="{'is-loading': isSwitchingStatus }" @click="askToggleActive()">
               <span>Suspend user</span>
