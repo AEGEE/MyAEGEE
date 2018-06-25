@@ -89,7 +89,7 @@ export default {
         filters: []
       },
       errors: {},
-      isLoading: true,
+      isLoading: false,
       isSaving: false,
       tmpFilter: ''
     }
@@ -99,7 +99,11 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      this.axios.put(services['oms-core-elixir'] + '/permissions/' + this.$route.params.id, { permission: this.permission }).then((response) => {
+      const promise = this.$route.params.id
+        ? this.axios.put(services['oms-core-elixir'] + '/permissions/' + this.$route.params.id, { permission: this.permission })
+        : this.axios.post(services['oms-core-elixir'] + '/permissions/', { permission: this.permission })
+
+      promise.then((response) => {
         this.isSaving = false
 
         this.$toast.open({
@@ -110,9 +114,11 @@ export default {
 
         return this.$router.push({
           name: 'oms.permissions.view',
-          params: { id: this.permission.id }
+          params: { id: response.data.data.id }
         })
       }).catch((err) => {
+        this.isSaving = false
+
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
           return this.$toast.open({
@@ -138,6 +144,10 @@ export default {
     }
   },
   mounted () {
+    if (!this.$route.params.id) {
+      return
+    }
+
     this.isLoading = true
     this.axios.get(services['oms-core-elixir'] + '/permissions/' + this.$route.params.id).then((response) => {
       this.permission = response.data.data

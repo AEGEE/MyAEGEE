@@ -10,6 +10,12 @@
           </div>
         </div>
 
+        <div class="field" v-if="can.create">
+          <div class="control">
+            <router-link class="button is-primary" :to="{ name: 'oms.permissions.create' }">Create permission</router-link>
+          </div>
+        </div>
+
         <div class="table-responsive">
           <table class="table is-bordered is-striped is-narrow is-fullwidth">
             <thead>
@@ -78,7 +84,10 @@ export default {
       limit: 30,
       offset: 0,
       canLoadMore: true,
-      source: null
+      source: null,
+      can: {
+        create: false
+      }
     }
   },
   computed: {
@@ -108,6 +117,13 @@ export default {
         this.permissions = this.permissions.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit
+
+        return this.axios.get(services['oms-core-elixir'] + '/my_permissions')
+      }).then((response) => {
+        this.permissions = response.data.data
+
+        this.can.create = this.permissions.some(permission => permission.combined.endsWith('create:permission'))
+
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
@@ -119,6 +135,8 @@ export default {
           message: 'Could not fetch permissions list: ' + err.message,
           type: 'is-danger'
         })
+
+        this.isLoading = false
       })
     }
   },

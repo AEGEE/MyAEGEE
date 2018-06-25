@@ -136,6 +136,15 @@
             }
           },
           {
+            "name": "oms.permissions.create",
+            "path": "/permissions/new",
+            "component": "core/permissions/Edit",
+            "meta": {
+              "label": "Create a permission",
+              "skipMenu": true
+            }
+          },
+          {
             "name": "oms.permissions.view",
             "path": "/permissions/:id",
             "component": "core/permissions/Single",
