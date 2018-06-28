@@ -10,6 +10,27 @@
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info">
+          <div class="field is-grouped" v-if="can.seeMembers">
+            <router-link :to="{ name: 'oms.bodies.members', params: { id: body.id } }" class="button is-fullwidth is-info">
+              <span>View members</span>
+              <span class="icon"><i class="fa fa-user"></i></span>
+            </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="can.seeJoinRequests">
+            <router-link :to="{ name: 'oms.bodies.join_requests', params: { id: body.id } }" class="button is-fullwidth is-info">
+              <span>View join requests</span>
+              <span class="icon"><i class="fa fa-user"></i></span>
+            </router-link>
+          </div>
+
+          <div class="field is-grouped">
+            <a @click="askToJoinBody()" class="button is-fullwidth is-info">
+              <span>Request to join</span>
+              <span class="icon"><i class="fa fa-user"></i></span>
+            </a>
+          </div>
+
           <div class="field is-grouped" v-if="can.edit">
             <router-link :to="{ name: 'oms.bodies.edit', params: { id: body.id } }" class="button is-fullwidth is-warning">
               <span>Edit body details</span>
@@ -152,6 +173,37 @@ export default {
         message: 'Could not delete body: ' + err.message,
         type: 'is-danger'
       }))
+    },
+    askToJoinBody () {
+      this.$dialog.prompt({
+        message: 'Join body',
+        inputAttrs: {
+          placeholder: 'Motivation',
+          required: true
+        },
+        onConfirm: (motivation) => this.joinBody(motivation)
+      })
+    },
+    joinBody (motivation) {
+      this.isLoading = true
+      this.axios.post(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members', {
+        join_request: { motivation }
+      }).then((response) => {
+        this.$toast.open({
+          message: 'Join request is sent.',
+          type: 'is-success'
+        })
+        this.isLoading = false
+      }).catch((err) => {
+        this.isLoading = false
+        let message = err.response.status === 422 ? 'You\'ve already requested to join this body.' : err.message
+
+        this.$toast.open({
+          duration: 3000,
+          message,
+          type: 'is-danger'
+        })
+      })
     }
   },
   mounted () {
@@ -166,8 +218,8 @@ export default {
 
       this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:body'))
       this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:body'))
-      this.can.seeJoinRequests = this.permissions.some(permission => permission.combined.endsWith('view:join_requests'))
-      this.can.processJoinRequests = this.permissions.some(permission => permission.combined.endsWith('process:join_requests'))
+      this.can.seeMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
+      this.can.seeJoinRequests = this.permissions.some(permission => permission.combined.endsWith('view:join_request'))
 
       this.isLoading = false
     }).catch((err) => {

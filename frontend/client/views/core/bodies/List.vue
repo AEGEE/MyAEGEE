@@ -20,33 +20,25 @@
           <table class="table is-bordered is-striped is-narrow is-fullwidth">
             <thead>
               <tr>
-                <th>Body ID</th>
                 <th>Body code</th>
-                <th>Name and surname</th>
+                <th>Name</th>
                 <th>Description</th>
-                <th>Link</th>
               </tr>
             </thead>
             <tfoot>
               <tr>
-                <th>Body ID</th>
                 <th>Body code</th>
-                <th>Name and surname</th>
+                <th>Name</th>
                 <th>Description</th>
-                <th>Link</th>
               </tr>
             </tfoot>
             <tbody>
               <tr v-show="bodies.length" v-for="body in bodies" v-bind:key="body.id">
-                <td>{{ body.id }}</td>
                 <td>{{ body.legacy_key }}</td>
-                <td>{{ body.name }}</td>
-                <td>{{ body.description }}</td>
                 <td>
-                  <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id } }">
-                    {{ '/bodies/' + body.id }}
-                  </router-link>
+                  <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id } }">{{ body.name}}</router-link>
                 </td>
+                <td>{{ body.description }}</td>
               </tr>
               <tr v-show="!bodies.length && !isLoading">
                 <td colspan="4" class="has-text-centered">Bodies list is empty</td>

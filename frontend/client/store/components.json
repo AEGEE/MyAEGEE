@@ -84,6 +84,24 @@
             }
           },
           {
+            "name": "oms.bodies.members",
+            "path": "/bodies/:id/members",
+            "component": "core/bodies/ViewMembers",
+            "meta": {
+              "label": "View members of a body",
+              "skipMenu": true
+            }
+          },
+          {
+            "name": "oms.bodies.join_requests",
+            "path": "/bodies/:id/join_requests",
+            "component": "core/bodies/ViewJoinRequests",
+            "meta": {
+              "label": "View join requests of a body",
+              "skipMenu": true
+            }
+          },
+          {
             "name": "oms.bodies.edit",
             "path": "/bodies/:id/edit",
             "component": "core/bodies/Edit",
