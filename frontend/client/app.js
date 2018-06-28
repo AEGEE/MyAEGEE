@@ -4,6 +4,9 @@ import VueAxios from 'vue-axios'
 import NProgress from 'vue-nprogress'
 import { sync } from 'vuex-router-sync'
 import Buefy from 'buefy'
+import bugsnag from 'bugsnag-js'
+import bugsnagVue from 'bugsnag-vue'
+
 import App from './App.vue'
 import router from './router'
 import store from './store'
@@ -54,6 +57,11 @@ axios.interceptors.request.use(config => {
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
 })
+
+// Report errors with Bugsnag
+const bugsnagClient = bugsnag('c9ce5a05c60e8d35a7a9f04fe3ec98b0')
+bugsnagClient.use(bugsnagVue(Vue))
+
 
 const app = new Vue({
   router,

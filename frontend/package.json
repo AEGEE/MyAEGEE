@@ -36,6 +36,8 @@
     "animejs": "^2.0.1",
     "axios": "^0.15.3",
     "buefy": "^0.6.6",
+    "bugsnag-js": "^4.7.2",
+    "bugsnag-vue": "^1.0.1",
     "bulma": "^0.7.1",
     "font-awesome": "4.7.0",
     "mdi": "^1.8.36",
