@@ -1,5 +1,7 @@
 # OMS Frontend
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/fab731e5b48ec139320b/maintainability)](https://codeclimate.com/github/AEGEE/oms-frontend/maintainability)
+
 This repository contains the united frontend for OMS (aka "the new frontend for AEGEE", aka https://oms.aegee.org), written in Vue.
 
 ## Technologies used
