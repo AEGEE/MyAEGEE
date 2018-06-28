@@ -172,6 +172,65 @@
             }
           }
         ]
+      },
+      {
+        "meta": {
+          "label": "Circles",
+          "icon": "fa-circle"
+        },
+        "children": [
+          {
+            "name": "oms.circles.list",
+            "path": "/circles",
+            "component": "core/circles/List",
+            "meta": {
+              "label": "View circles"
+            }
+          }
+        ]
+      },
+      {
+        "meta": {
+          "label": "Campaigns",
+          "icon": "fa-sign-in"
+        },
+        "children": [
+          {
+            "name": "oms.campaigns.list",
+            "path": "/campaigns",
+            "component": "core/campaigns/List",
+            "meta": {
+              "label": "View campaigns"
+            }
+          },
+          {
+            "name": "oms.campaigns.edit",
+            "path": "/campaigns/:id/edit",
+            "component": "core/campaigns/Edit",
+            "meta": {
+              "label": "Edit single campaign",
+              "skipMenu": true
+            }
+          },
+          {
+            "name": "oms.campaigns.create",
+            "path": "/campaigns/new",
+            "component": "core/campaigns/Edit",
+            "meta": {
+              "label": "Create a campaign",
+              "skipMenu": true
+            }
+          },
+          {
+            "name": "oms.campaigns.view",
+            "path": "/campaigns/:id",
+            "component": "core/campaigns/Single",
+            "meta": {
+              "label": "View single campaign",
+              "skipMenu": true
+            }
+          }
+        ]
       }
     ]
   }
