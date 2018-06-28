@@ -1,0 +1,7 @@
+eslint:
+  enabled: true
+  config:
+    extensions:
+    - .js
+    - .html
+    - .vue
