@@ -161,7 +161,7 @@ export default {
     }
   },
   mounted () {
-    this.axios.get(services['oms-core-elixir'] + '/bodies/', { params: { limit: 1000 } }).then((response) => {  // TODO rethink
+    this.axios.get(services['oms-core-elixir'] + '/bodies/', { params: { limit: 1000 } }).then((response) => { // TODO rethink
       this.bodies = response.data.data
     }).catch((err) => {
       this.$toast.open({

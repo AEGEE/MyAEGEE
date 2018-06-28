@@ -11,7 +11,7 @@ import login from './modules/login'
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
-  strict: true,  // process.env.NODE_ENV !== 'production',
+  strict: true, // process.env.NODE_ENV !== 'production',
   actions,
   getters,
   modules: {
