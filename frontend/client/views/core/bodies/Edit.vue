@@ -98,6 +98,7 @@
 import services from '../../../services.json'
 
 export default {
+  name: 'EditBody',
   data () {
     return {
       body: {

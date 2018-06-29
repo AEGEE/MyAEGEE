@@ -64,6 +64,7 @@
 import services from '../../../services.json'
 
 export default {
+  name: 'EditUser',
   data () {
     return {
       user: {

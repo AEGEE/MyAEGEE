@@ -127,6 +127,7 @@ import moment from 'moment'
 import services from '../../../services.json'
 
 export default {
+  name: 'EditMember',
   data () {
     return {
       user: {

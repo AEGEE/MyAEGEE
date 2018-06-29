@@ -79,6 +79,7 @@
 import services from '../../../services.json'
 
 export default {
+  name: 'EditPermission',
   data () {
     return {
       permission: {

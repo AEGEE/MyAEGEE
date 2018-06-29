@@ -66,6 +66,7 @@ import services from '../../../services.json'
 import { mapGetters } from 'vuex'
 
 export default {
+  name: 'SinglePermission',
   data () {
     return {
       permission: {

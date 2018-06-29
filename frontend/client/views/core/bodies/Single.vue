@@ -122,6 +122,7 @@ import services from '../../../services.json'
 import { mapGetters } from 'vuex'
 
 export default {
+  name: 'SingleBody',
   data () {
     return {
       body: {
