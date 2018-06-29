@@ -11,14 +11,14 @@
       <div class="tile is-parent">
         <article class="tile is-child is-info">
           <div class="field is-grouped" v-if="can.seeMembers">
-            <router-link :to="{ name: 'oms.bodies.members', params: { id: body.id } }" class="button is-fullwidth is-info">
+            <router-link :to="{ name: 'oms.bodies.members', params: { id: body.id } }" class="button is-fullwidth is-white">
               <span>View members</span>
               <span class="icon"><i class="fa fa-user"></i></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.seeJoinRequests">
-            <router-link :to="{ name: 'oms.bodies.join_requests', params: { id: body.id } }" class="button is-fullwidth is-info">
+            <router-link :to="{ name: 'oms.bodies.join_requests', params: { id: body.id } }" class="button is-fullwidth is-white">
               <span>View join requests</span>
               <span class="icon"><i class="fa fa-user"></i></span>
             </router-link>
@@ -28,6 +28,13 @@
             <a @click="askToJoinBody()" class="button is-fullwidth is-info">
               <span>Request to join</span>
               <span class="icon"><i class="fa fa-user"></i></span>
+            </a>
+          </div>
+
+          <div class="field is-grouped" v-if="can.createCircle">
+            <a @click="isAddingCircle = true" class="button is-fullwidth is-warning">
+              <span>Add bound circle</span>
+              <span class="icon"><i class="fa fa-edit"></i></span>
             </a>
           </div>
 
@@ -113,6 +120,44 @@
     </div>
 
     <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+
+    <div class="modal is-active" v-show="isAddingCircle">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Add circle</p>
+          <button class="delete" aria-label="close" @click="isAddingCircle = false"></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="field">
+            <label class="label">Name</label>
+            <div class="control">
+              <input class="input" type="text" required v-model="tmpCircle.name" />
+            </div>
+            <p class="help is-danger" v-if="circleErrors.name">{{ circleErrors.name.join(', ')}}</p>
+          </div>
+
+          <div class="field">
+            <label class="label">Description</label>
+            <div class="control">
+              <input class="input" type="text" required v-model="tmpCircle.description" />
+            </div>
+            <p class="help is-danger" v-if="circleErrors.description">{{ circleErrors.description.join(', ')}}</p>
+          </div>
+
+          <div class="field">
+            <label class="label">Joinable?
+              <input class="checkbox" type="checkbox" v-model="tmpCircle.joinable" />
+            </label>
+            <p class="help is-danger" v-if="circleErrors.description">{{ circleErrors.description.join(', ')}}</p>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <button class="button is-success" @click="saveBoundCircle()">Save changes</button>
+          <button class="button" @click="isAddingCircle = false">Cancel</button>
+        </footer>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -140,21 +185,22 @@ export default {
       },
       isLoading: false,
       isOwnBody: false,
+      isAddingCircle: false,
       permissions: [],
+      tmpCircle: {
+        name: '',
+        description: '',
+        joinable: false
+      },
+      circleErrors: {},
       can: {
         edit: false,
-        delete: false
+        delete: false,
+        createCircle: false
       }
     }
   },
   methods: {
-    updatePicture () {
-      this.$toast.open({
-        duration: 3000,
-        message: 'This feature is not implemented yet, come join the OMS to help us implementing it ;)',
-        type: 'is-info'
-      })
-    },
     askDeleteBody () {
       this.$dialog.confirm({
         title: 'Deleting a body',
@@ -205,6 +251,33 @@ export default {
           type: 'is-danger'
         })
       })
+    },
+    saveBoundCircle () {
+      this.isLoading = true
+      this.axios.post(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/circles', {
+        circle: this.tmpCircle
+      }).then((response) => {
+        this.$toast.open({
+          message: 'Bound circle is created.',
+          type: 'is-success'
+        })
+
+        this.tmpCircle = { name: '', description: '', joinable: false }
+        this.body.circles.push(response.data.data)
+
+        this.isLoading = false
+        this.isAddingCircle = false
+      }).catch((err) => {
+        this.isLoading = false
+        let message = err.response.status === 422 ? 'Some fields were not set: ' : err.message
+        if (err.response.errors) this.circleErrors = err.response.errors
+
+        this.$toast.open({
+          duration: 3000,
+          message,
+          type: 'is-danger'
+        })
+      })
     }
   },
   mounted () {
@@ -221,6 +294,7 @@ export default {
       this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:body'))
       this.can.seeMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
       this.can.seeJoinRequests = this.permissions.some(permission => permission.combined.endsWith('view:join_request'))
+      this.can.createCircle = this.permissions.some(permission => permission.combined.endsWith('create:bound_circle'))
 
       this.isLoading = false
     }).catch((err) => {
