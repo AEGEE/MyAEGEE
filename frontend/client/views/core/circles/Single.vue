@@ -1,0 +1,182 @@
+<template>
+  <div class="tile is-ancestor">
+    <div class="tile is-vertical is-parent">
+      <article class="tile is-child">
+        <div class="content">
+          <p class="title">{{ circle.name }}</p>
+          <div class="content">
+            <table class="table is-narrow">
+              <tbody>
+                <tr>
+                  <th>Name</th>
+                  <td>{{ circle.name }}</td>
+                </tr>
+                <tr>
+                  <th>Description</th>
+                  <td>{{ circle.description }}</td>
+                </tr>
+                <tr>
+                  <th>Body</th>
+                  <td v-if="circle.body"><router-link :to="{ name: 'oms.bodies.view', params:{ id: circle.body.id } }">{{ circle.body.name }} </router-link></td>
+                  <td v-if="!circle.body"><i>This circle is not associated to a body</i></td>
+                </tr>
+                <tr>
+                  <th>Joinable?</th>
+                  <td>{{ circle.joinable }}</td>
+                </tr>
+                <tr>
+                  <th>Parent circle</th>
+                  <td v-if="circle.parent_circle"><router-link :to="{ name: 'oms.circles.view', params:{ id: circle.parent_circle.id } }">{{ circle.parent_circle.name }} </router-link></td>
+                  <td v-if="!circle.parent_circle"><i>This circle is a toplevel circle</i></td>
+                </tr>
+                <tr>
+                  <th>Child circles</th>
+                  <td v-if="circle.child_circles.length === 0"><i>This circle does not have child circles.</i></td>
+                  <td v-if="circle.child_circles.length > 0">
+                    <ul>
+                      <li v-for="childCircle in circle.child_circles" v-bind:key="childCircle.id">
+                        <router-link :to="{ name: 'oms.circles.view', params: { id: childCircle.id } }">
+                          {{ childCircle.name }}
+                        </router-link>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Attached permissions</th>
+                  <td v-if="circle.permissions.length === 0"><i> No permissions directly attached.</i></td>
+                  <td v-if="circle.permissions.length > 0">
+                    <ul>
+                      <li v-for="permission in circle.permissions" v-bind:key="permission.id">
+                        <router-link :to="{ name: 'oms.permissions.view', params: { id: permission.id } }">
+                          {{ permission.combined }}
+                        </router-link>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Inherited permissions</th>
+                  <td v-if="inheritedPermissions.length === 0"><i> No permissions directly attached.</i></td>
+                  <td v-if="inheritedPermissions.length > 0">
+                    <ul>
+                      <li v-for="permission in inheritedPermissions" v-bind:key="permission.id">
+                        <router-link :to="{ name: 'oms.permissions.view', params: { id: permission.id } }">
+                          {{ permission.combined }}
+                        </router-link>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+
+      <article class="tile is-child">
+        <router-link class="button is-warning" :to="{ name: 'oms.circles.edit', params: { id: circle.id } }" v-if="can.edit">
+          Edit circle
+        </router-link>
+
+        <a class="button is-danger" @click="askDeleteCircle()" v-if="can.delete">
+          Delete circle
+        </a>
+      </article>
+    </div>
+
+    <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+  </div>
+</template>
+
+<script>
+import services from '../../../services.json'
+
+import { mapGetters } from 'vuex'
+
+export default {
+  name: 'SingleCircle',
+  data () {
+    return {
+      circle: {
+        id: null,
+        name: '',
+        descsription: '',
+        joinable: false,
+        parent_circle: null,
+        child_circles: [],
+        permissions: []
+      },
+      inheritedPermissions: [],
+      isOwnProfile: false,
+      isLoading: false,
+      permissions: [],
+      can: {
+        edit: false,
+        delete: false
+      }
+    }
+  },
+  methods: {
+    askDeleteCircle () {
+      this.$dialog.confirm({
+        title: 'Deleting circcle',
+        message: 'Are you sure you want to <b>delete</b> this circcle? This action cannot be undone.',
+        confirmText: 'Delete circcle',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.deleteCircle()
+      })
+    },
+    deleteCircle () {
+      this.axios.delete(services['oms-core-elixir'] + '/circles/' + this.circle.id).then((response) => {
+        this.$toast.open('Circle is deleted.')
+        this.$router.push({ name: 'oms.circles.list' })
+      }).catch((err) => this.$toast.open({
+        duration: 3000,
+        message: 'Could not delete circle: ' + err.message,
+        type: 'is-danger'
+      }))
+    },
+    loadData (id) {
+      this.isLoading = true
+      this.axios.get(services['oms-core-elixir'] + '/circles/' + id).then((response) => {
+        this.circle = response.data.data
+
+        return this.axios.get(services['oms-core-elixir'] + '/circles/' + id + '/my_permissions')
+      }).then((response) => {
+        this.permissions = response.data.data
+
+        this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:circle'))
+        this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:circle'))
+
+        return this.axios.get(services['oms-core-elixir'] + '/circles/' + id + '/permissions')
+      }).then((response) => {
+        this.inheritedPermissions = response.data.data
+
+        this.isLoading = false
+      }).catch((err) => {
+        let message = (err.response.status === 404) ? 'Permission is not found' : 'Some error happened: ' + err.message
+
+        this.$toast.open({
+          duration: 3000,
+          message,
+          type: 'is-danger'
+        })
+        this.$router.push({ name: 'oms.permissions.list' })
+      })
+    }
+  },
+  mounted () {
+    this.loadData(this.$route.params.id)
+  },
+  watch: {
+    '$route.params.id' (newId, oldId) {
+      this.loadData(newId)
+    }
+  },
+  computed: mapGetters({
+    loginUser: 'user'
+  })
+}
+</script>

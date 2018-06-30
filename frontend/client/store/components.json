@@ -195,6 +195,15 @@
             "meta": {
               "label": "View circles"
             }
+          },
+          {
+            "name": "oms.circles.view",
+            "path": "/circles/:id",
+            "component": "core/circles/Single",
+            "meta": {
+              "label": "View single circle",
+              "skipMenu": true
+            }
           }
         ]
       },
