@@ -102,6 +102,15 @@
             }
           },
           {
+            "name": "oms.bodies.new_member",
+            "path": "/bodies/:id/new_member",
+            "component": "core/bodies/CreateMember",
+            "meta": {
+              "label": "Create a member for body",
+              "skipMenu": true
+            }
+          },
+          {
             "name": "oms.bodies.edit",
             "path": "/bodies/:id/edit",
             "component": "core/bodies/Edit",

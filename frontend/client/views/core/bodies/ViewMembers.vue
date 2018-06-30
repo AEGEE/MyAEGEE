@@ -10,6 +10,10 @@
           </div>
         </div>
 
+        <div class="field" v-if="can.create">
+          <router-link :to="{ name: 'oms.bodies.new_member', params: { id: $route.params.id } }" class="button" >Create member</router-link>
+        </div>
+
         <div class="tile">
           <div class="tile is-vertical is-2" v-for="member in members" v-bind:key="member.id">
 
@@ -81,7 +85,8 @@ export default {
       permissions: [],
       can: {
         putComments: false,
-        delete: false
+        delete: false,
+        create: false
       }
     }
   },
@@ -177,7 +182,9 @@ export default {
         this.permissions = response.data.data
 
         this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update_member:body'))
+        this.can.putComments = this.can.edit
         this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete_member:body'))
+        this.can.create = this.permissions.some(permission => permission.combined.endsWith('create:member'))
 
         this.isLoading = false
       }).catch((err) => {
