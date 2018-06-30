@@ -79,6 +79,7 @@ export default {
   data () {
     return {
       permissions: [],
+      myPermissions: [],
       isLoading: false,
       query: '',
       limit: 30,
@@ -120,9 +121,9 @@ export default {
 
         return this.axios.get(services['oms-core-elixir'] + '/my_permissions')
       }).then((response) => {
-        this.permissions = response.data.data
+        this.myPermissions = response.data.data
 
-        this.can.create = this.permissions.some(permission => permission.combined.endsWith('create:permission'))
+        this.can.create = this.myPermissions.some(permission => permission.combined.endsWith('create:permission'))
 
         this.isLoading = false
       }).catch((err) => {
