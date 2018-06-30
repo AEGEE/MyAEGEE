@@ -38,6 +38,10 @@ export default {
 <style lang="scss">
 @import "~bulma";
 
+html {
+  background-color: #fafafa;
+}
+
 .app-main {
   padding-top: 50px;
   margin-left: 180px;
