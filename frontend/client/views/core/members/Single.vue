@@ -214,7 +214,7 @@ export default {
       })
     },
     deleteUser () {
-      this.axios.delete(services['oms-core-elixir'] + '/user/' + this.user.user.id).then((response) => {
+      this.axios.delete(this.services['oms-core-elixir'] + '/user/' + this.user.user.id).then((response) => {
         this.$toast.open('User is deleted.')
         this.$router.push({ name: 'oms.members.list' })
       }).catch((err) => this.$toast.open({
@@ -236,7 +236,7 @@ export default {
     },
     toggleActive () {
       this.isSwitchingStatus = true
-      this.axios.put(services['oms-core-elixir'] + '/user/' + this.user.user.id, { active: !this.user.user.active }).then((response) => {
+      this.axios.put(this.services['oms-core-elixir'] + '/user/' + this.user.user.id, { active: !this.user.user.active }).then((response) => {
         this.user.user.active = response.data.data.active
         this.isSwitchingStatus = false
       }).catch((err) => {
@@ -251,11 +251,11 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(services['oms-core-elixir'] + '/members/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id).then((response) => {
       this.user = response.data.data
       this.isOwnProfile = this.user.id === this.loginUser.id
 
-      return this.axios.get(services['oms-core-elixir'] + '/members/' + this.$route.params.id + '/my_permissions')
+      return this.axios.get(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id + '/my_permissions')
     }).then((response) => {
       this.permissions = response.data.data
 

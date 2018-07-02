@@ -99,7 +99,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'CircleMembersList',
@@ -198,14 +198,14 @@ export default {
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/members', {
+      this.axios.get(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/members', {
         params: this.queryObject, cancelToken: this.source.token
       }).then((response) => {
         this.members = this.members.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit
 
-        return this.axios.get(services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/my_permissions')
+        return this.axios.get(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/my_permissions')
       }).then((response) => {
         this.permissions = response.data.data
 

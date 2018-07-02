@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'EditUser',
@@ -102,7 +102,7 @@ export default {
       }
 
       this.isSaving = true
-      this.axios.put(services['oms-core-elixir'] + '/user/', obj).then((response) => {
+      this.axios.put(this.services['oms-core-elixir'] + '/user/', obj).then((response) => {
         this.isSaving = false
 
         this.$toast.open({

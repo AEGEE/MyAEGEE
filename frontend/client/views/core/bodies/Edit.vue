@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'EditBody',
@@ -167,7 +167,7 @@ export default {
     }
 
     this.isLoading = true
-    this.axios.get(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
       this.body = response.data.data
       this.isLoading = false
     }).catch((err) => {

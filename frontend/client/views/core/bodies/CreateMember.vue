@@ -109,7 +109,7 @@
 
 <script>
 import moment from 'moment'
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'CreateMemberForBody',
