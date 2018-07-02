@@ -91,6 +91,10 @@
           Join circle
         </a>
 
+        <a class="button is-danger" @click="askLeaveCircle()" v-if="isMember">
+          Leave circle
+        </a>
+
         <a class="button is-danger" @click="askDeleteCircle()" v-if="can.delete">
           Delete circle
         </a>
@@ -220,9 +224,9 @@ export default {
     },
     askDeleteCircle () {
       this.$dialog.confirm({
-        title: 'Deleting circcle',
+        title: 'Deleting circle',
         message: 'Are you sure you want to <b>delete</b> this circle? This action cannot be undone.',
-        confirmText: 'Delete circcle',
+        confirmText: 'Delete circle',
         type: 'is-danger',
         hasIcon: true,
         onConfirm: () => this.deleteCircle()
@@ -243,6 +247,7 @@ export default {
       this.axios.post(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members').then((response) => {
         this.$toast.open('Successfully joined circle.')
         this.can.join = false
+        this.isMember = true
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
@@ -251,6 +256,35 @@ export default {
           ((err.response.data.errors && 'circle_membership_unique' in err.response.data.errors)
             ? 'You are already a member of this circle.'
             : err.message)
+
+        this.$toast.open({
+          duration: 3000,
+          message,
+          type: 'is-danger'
+        })
+      })
+    },
+    askLeaveCircle () {
+      this.$dialog.confirm({
+        title: 'Leave circle',
+        message: 'Are you sure you want to <b>leave</b> this circle? You will probably not be able to join it later.',
+        confirmText: 'Leave circle',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.leaveCircle()
+      })
+    },
+    leaveCircle () {
+      this.isLoading = true
+      this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members').then((response) => {
+        this.$toast.open({ message: 'Successfully left circle.', type: 'is-success' })
+        this.can.join = true
+        this.isMember = false
+        this.isLoading = false
+      }).catch((err) => {
+        this.isLoading = false
+
+        let message = 'Could not leave circle: ' + err.message
 
         this.$toast.open({
           duration: 3000,
