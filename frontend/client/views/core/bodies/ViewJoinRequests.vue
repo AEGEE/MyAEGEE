@@ -93,7 +93,7 @@ export default {
       if (this.query) queryObj.query = this.query
       return queryObj
     },
-    ...mapGetters(['servicess'])
+    ...mapGetters(['services'])
   },
   methods: {
     askSetMemberApproved (member, approved) {
