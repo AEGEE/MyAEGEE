@@ -24,10 +24,17 @@
             </router-link>
           </div>
 
-          <div class="field is-grouped">
+          <div class="field is-grouped" v-if="!isMember && !isRequestingMembership">
             <a @click="askToJoinBody()" class="button is-fullwidth is-info">
               <span>Request to join</span>
               <span class="icon"><i class="fa fa-user"></i></span>
+            </a>
+          </div>
+
+          <div class="field is-grouped" v-if="isMember">
+            <a @click="askLeaveBody()" class="button is-fullwidth is-danger">
+              <span>Leave body</span>
+              <span class="icon"><i class="fa fa-sign-out"></i></span>
             </a>
           </div>
 
@@ -182,7 +189,8 @@ export default {
         shadow_circle_id: null
       },
       isLoading: false,
-      isOwnBody: false,
+      isMember: false,
+      isRequestingMembership: false,
       isAddingCircle: false,
       permissions: [],
       tmpCircle: {
@@ -239,6 +247,7 @@ export default {
           type: 'is-success'
         })
         this.isLoading = false
+        this.isRequestingMembership = true
       }).catch((err) => {
         this.isLoading = false
         let message = err.response.status === 422 ? 'You\'ve already requested to join this body.' : err.message
@@ -246,6 +255,29 @@ export default {
         this.$toast.open({
           duration: 3000,
           message,
+          type: 'is-danger'
+        })
+      })
+    },
+    askLeaveBody () {
+      this.$dialog.confirm({
+        title: 'Leaving a body',
+        message: 'Are you sure you want to <b>leave</b> this body? You will probably not be able to join later.',
+        confirmText: 'Leave body',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.leaveBody()
+      })
+    },
+    leaveBody () {
+      this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members').then((response) => {
+        this.isMember = false
+        this.isRequestingMembership = false
+        this.$toast.open({ message: 'You are not the member anymore.', type: 'is-success' })
+      }).catch((err) => {
+        this.$toast.open({
+          duration: 3000,
+          message: 'Could not delete body: ' + err.message,
           type: 'is-danger'
         })
       })
@@ -282,7 +314,8 @@ export default {
     this.isLoading = true
     this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
       this.body = response.data.data
-      this.isOwnProfile = this.loginUser.bodies.some(body => body.id === this.body.id)
+      this.isMember = this.loginUser.bodies.some(body => body.id === this.body.id)
+      this.isRequestingMembership = this.loginUser.join_requests.some(request => request.body_id === this.body.id)
 
       return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
     }).then((response) => {
