@@ -83,6 +83,10 @@
           Edit circle
         </router-link>
 
+        <a class="button is-info" @click="isAddingMember = true" v-if="can.addMembers">
+          Add member
+        </a>
+
         <a class="button is-info" @click="joinCircle()" v-if="can.join && !isMember">
           Join circle
         </a>
@@ -91,6 +95,38 @@
           Delete circle
         </a>
       </article>
+    </div>
+
+    <div class="modal is-active" v-show="isAddingMember">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Add member</p>
+          <button class="delete" aria-label="close" @click="isAddingMember = false; addedMember = null"></button>
+        </header>
+        <section class="modal-card-body" style="height:200px;">
+          <div class="field has-addons">
+            <b-autocomplete
+              v-model="addedMemberName"
+              :data="members"
+              field="title"
+              :loading="isLoadingMembers"
+              @input="fetchMembers"
+              expanded="true"
+              @select="option => addMember(option)">
+
+              <template slot-scope="props">
+                <div class="media">
+                  <div class="media-content">{{ props.option.first_name }} {{ props.option.last_name }}</div>
+                </div>
+              </template>
+              </b-autocomplete>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <button class="button" @click="isAddingMember = false; addedMember = null">Cancel</button>
+        </footer>
+      </div>
     </div>
 
     <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
@@ -118,15 +154,70 @@ export default {
       isLoading: false,
       permissions: [],
       isMember: false,
+      isAddingMember: false,
+      isLoadingMembers: false,
+      addedMemberName: '',
+      cancelToken: null,
+      members: [],
       can: {
         edit: false,
         delete: false,
         join: false,
-        viewMembers: false
+        viewMembers: false,
+        addMembers: false
       }
     }
   },
   methods: {
+    fetchMembers () {
+      this.isLoadingMembers = true
+      this.members = []
+
+      if (this.token) this.token.cancel()
+      this.token = this.axios.CancelToken.source()
+
+      this.axios.get(this.services['oms-core-elixir'] + '/members', {
+        cancelToken: this.token.token,
+        params: { query: this.addedMemberName }
+      }).then((response) => {
+        this.members = response.data.data
+        this.isLoadingMembers = false
+      }).catch((err) => {
+        if (this.axios.isCancel(err)) {
+          return console.log('Request canceled')
+        }
+
+        this.isLoadingMembers = false
+        this.$toast.open({
+          duration: 3000,
+          message: 'Could not fetch members: ' + err.message,
+          type: 'is-danger'
+        })
+      })
+    },
+    addMember (member) {
+      this.axios.post(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/add_member', {
+        member_id: member.id
+      }).then(() => {
+        this.$toast.open({
+          duration: 3000,
+          message: 'Member is added.',
+          type: 'is-success'
+        })
+        this.isAddingMember = false
+      }).catch((err) => {
+        const message = 'Could not add member: ' +
+          (err.response.status === 422 && 'circle_membership_unique' in err.response.data.errors
+            ? 'This person is already a member of this circle.'
+            : err.message)
+
+        this.$toast.open({
+          duration: 3000,
+          message,
+          type: 'is-danger'
+        })
+      })
+    },
     askDeleteCircle () {
       this.$dialog.confirm({
         title: 'Deleting circcle',
@@ -183,6 +274,7 @@ export default {
         this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:circle'))
         this.can.join = this.permissions.some(permission => permission.combined.endsWith('join:circle')) && this.circle.joinable
         this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view_members:circle'))
+        this.can.addMembers = this.permissions.some(permission => permission.combined.endsWith('add_member:circle'))
 
         return this.axios.get(this.services['oms-core-elixir'] + '/circles/' + id + '/permissions')
       }).then((response) => {
