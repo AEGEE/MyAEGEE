@@ -37,7 +37,11 @@ router.beforeEach((route, redirect, next) => {
     return next()
   }
 
-  router.app.$auth.fetchUserWithExistingData().then(() => {
+  // If user if fetched, just redirect.
+  if (state.login.user) return state.login.isLoggedIn ? next() : next('/login')
+
+  // Fetching user if not fetched.
+  return router.app.$auth.fetchUserWithExistingData().then(() => {
     document.title = 'OMS | ' + route.meta.label
     return next()
   }).catch((err) => {
@@ -51,6 +55,34 @@ axios.interceptors.request.use(config => {
   config.headers['X-Auth-Token'] = token
   return config
 })
+
+axios.interceptors.response.use(
+  response => response, // success handler
+  error => {
+    let originalRequest = error.config
+    if (error.response.status !== 401 || originalRequest._retry) {
+      return Promise.reject(error)
+    }
+
+    console.log('Token expired, renewing...')
+    originalRequest._retry = true
+
+    const refreshToken = window.localStorage.getItem('refresh-token')
+    if (!refreshToken) {
+      console.log('No refresh token provided')
+      router.push('/login')
+      return Promise.reject(error)
+    }
+
+    return Vue.axios.post(state.services['oms-core-elixir'] + '/renew', { refresh_token: refreshToken }).then((result) => {
+      console.log('Renew access token successfully.')
+
+      window.localStorage.setItem('access-token', result.data.access_token)
+      originalRequest.headers['X-Auth-Token'] = result.data.access_token
+      return axios(originalRequest)
+    })
+  }
+)
 
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
