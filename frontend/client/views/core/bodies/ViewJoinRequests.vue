@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import services from '../../../services.json'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'JoinRequestsList',
@@ -92,7 +92,8 @@ export default {
 
       if (this.query) queryObj.query = this.query
       return queryObj
-    }
+    },
+    ...mapGetters(['servicess'])
   },
   methods: {
     askSetMemberApproved (member, approved) {
@@ -113,7 +114,7 @@ export default {
       })
     },
     setMemberApproved (member, approved) {
-      this.axios.post(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/join_requests/' + member.id, {
+      this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/join_requests/' + member.id, {
         approved
       }).then((response) => {
         this.$toast.open({
@@ -143,7 +144,7 @@ export default {
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/join_requests', {
+      this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/join_requests', {
         params: this.queryObject, cancelToken: this.source.token
       }).then((response) => {
         this.members = this.members.concat(response.data.data)

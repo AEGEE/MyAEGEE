@@ -162,8 +162,6 @@
 </template>
 
 <script>
-import services from '../../../services.json'
-
 import { mapGetters } from 'vuex'
 
 export default {
@@ -212,7 +210,7 @@ export default {
       })
     },
     deleteBody () {
-      this.axios.delete(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
+      this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
         this.$toast.open('Body is deleted.')
         this.$router.push({ name: 'oms.bodies.list' })
       }).catch((err) => this.$toast.open({
@@ -233,7 +231,7 @@ export default {
     },
     joinBody (motivation) {
       this.isLoading = true
-      this.axios.post(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members', {
+      this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members', {
         join_request: { motivation }
       }).then((response) => {
         this.$toast.open({
@@ -254,7 +252,7 @@ export default {
     },
     saveBoundCircle () {
       this.isLoading = true
-      this.axios.post(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/circles', {
+      this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/circles', {
         circle: this.tmpCircle
       }).then((response) => {
         this.$toast.open({
@@ -282,11 +280,11 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
       this.body = response.data.data
       this.isOwnProfile = this.loginUser.bodies.some(body => body.id === this.body.id)
 
-      return this.axios.get(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
+      return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
     }).then((response) => {
       this.permissions = response.data.data
 
@@ -309,7 +307,8 @@ export default {
     })
   },
   computed: mapGetters({
-    loginUser: 'user'
+    loginUser: 'user',
+    services: 'services'
   })
 }
 </script>

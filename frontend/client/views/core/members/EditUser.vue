@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import services from '../../../services.json'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'EditUser',
@@ -140,8 +140,9 @@ export default {
       })
     }
   },
+  computed: mapGetters(['services']),
   mounted () {
-    this.axios.get(services['oms-core-elixir'] + '/members/me').then((response) => {
+    this.axios.get(this.services['oms-core-elixir'] + '/members/me').then((response) => {
       this.user = response.data.data.user
       this.user.password = ''
       this.isLoading = false

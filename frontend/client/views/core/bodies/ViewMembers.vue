@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import services from '../../../services.json'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'BodyMembersList',
@@ -99,7 +99,8 @@ export default {
 
       if (this.query) queryObj.query = this.query
       return queryObj
-    }
+    },
+    ...mapGetters(['services'])
   },
   methods: {
     askDeleteMember (member) {
@@ -118,7 +119,7 @@ export default {
       })
     },
     deleteMember (member) {
-      this.axios.delete(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members/' + member.id).then((response) => {
+      this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members/' + member.id).then((response) => {
         this.$toast.open('Member is deleted.')
 
         const index = this.members.findIndex(m => m.id === member.id)
@@ -140,7 +141,7 @@ export default {
     },
     changeComment (member, comment) {
       this.isLoading = true
-      this.axios.put(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members/' + member.id, {
+      this.axios.put(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members/' + member.id, {
         body_membership: { comment }
       }).then((response) => {
         this.$toast.open({
@@ -170,14 +171,14 @@ export default {
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members', {
+      this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members', {
         params: this.queryObject, cancelToken: this.source.token
       }).then((response) => {
         this.members = this.members.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit
 
-        return this.axios.get(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
+        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
       }).then((response) => {
         this.permissions = response.data.data
 

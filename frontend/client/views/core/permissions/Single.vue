@@ -61,8 +61,6 @@
 </template>
 
 <script>
-import services from '../../../services.json'
-
 import { mapGetters } from 'vuex'
 
 export default {
@@ -97,7 +95,7 @@ export default {
       })
     },
     deletePermission () {
-      this.axios.delete(services['oms-core-elixir'] + '/permissions/' + this.permission.id).then((response) => {
+      this.axios.delete(this.services['oms-core-elixir'] + '/permissions/' + this.permission.id).then((response) => {
         this.$toast.open('Permission is deleted.')
         this.$router.push({ name: 'oms.permissions.list' })
       }).catch((err) => this.$toast.open({
@@ -109,10 +107,10 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(services['oms-core-elixir'] + '/permissions/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['oms-core-elixir'] + '/permissions/' + this.$route.params.id).then((response) => {
       this.permission = response.data.data
 
-      return this.axios.get(services['oms-core-elixir'] + '/my_permissions')
+      return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions')
     }).then((response) => {
       this.permissions = response.data.data
 
@@ -131,7 +129,8 @@ export default {
     })
   },
   computed: mapGetters({
-    loginUser: 'user'
+    loginUser: 'user',
+    services: 'services'
   })
 }
 </script>

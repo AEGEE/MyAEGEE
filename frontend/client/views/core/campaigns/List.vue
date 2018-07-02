@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import services from '../../../services.json'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'CampaignsList',
@@ -97,7 +97,8 @@ export default {
 
       if (this.query) queryObj.query = this.query
       return queryObj
-    }
+    },
+    ...mapGetters(['services'])
   },
   methods: {
     refetch () {
@@ -111,12 +112,12 @@ export default {
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(services['oms-core-elixir'] + '/backend_campaigns', { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
+      this.axios.get(this.services['oms-core-elixir'] + '/backend_campaigns', { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
         this.campaigns = this.campaigns.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit
 
-        return this.axios.get(services['oms-core-elixir'] + '/my_permissions')
+        return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions')
       }).then((response) => {
         this.permissions = response.data.data
 

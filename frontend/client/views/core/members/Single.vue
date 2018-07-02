@@ -160,8 +160,6 @@
 </template>
 
 <script>
-import services from '../../../services.json'
-
 import { mapGetters } from 'vuex'
 
 export default {
@@ -277,7 +275,8 @@ export default {
     })
   },
   computed: mapGetters({
-    loginUser: 'user'
+    loginUser: 'user',
+    services: 'services'
   })
 }
 </script>

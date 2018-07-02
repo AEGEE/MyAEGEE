@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import services from '../../../services.json'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'EditPermission',
@@ -101,8 +101,8 @@ export default {
       this.errors = {}
 
       const promise = this.$route.params.id
-        ? this.axios.put(services['oms-core-elixir'] + '/permissions/' + this.$route.params.id, { permission: this.permission })
-        : this.axios.post(services['oms-core-elixir'] + '/permissions/', { permission: this.permission })
+        ? this.axios.put(this.services['oms-core-elixir'] + '/permissions/' + this.$route.params.id, { permission: this.permission })
+        : this.axios.post(this.services['oms-core-elixir'] + '/permissions/', { permission: this.permission })
 
       promise.then((response) => {
         this.isSaving = false
@@ -144,13 +144,14 @@ export default {
       this.tmpFilter = ''
     }
   },
+  computed: mapGetters(['services']),
   mounted () {
     if (!this.$route.params.id) {
       return
     }
 
     this.isLoading = true
-    this.axios.get(services['oms-core-elixir'] + '/permissions/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['oms-core-elixir'] + '/permissions/' + this.$route.params.id).then((response) => {
       this.permission = response.data.data
       this.isLoading = false
     }).catch((err) => {

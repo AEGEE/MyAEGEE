@@ -124,7 +124,7 @@
 
 <script>
 import moment from 'moment'
-import services from '../../../services.json'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'EditMember',
@@ -164,7 +164,7 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      this.axios.put(services['oms-core-elixir'] + '/members/' + this.$route.params.id, { member: this.user }).then((response) => {
+      this.axios.put(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id, { member: this.user }).then((response) => {
         this.isSaving = false
 
         this.$toast.open({
@@ -197,8 +197,9 @@ export default {
       })
     }
   },
+  computed: mapGetters(['services']),
   mounted () {
-    this.axios.get(services['oms-core-elixir'] + '/members/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id).then((response) => {
       this.user = response.data.data
       this.birthday = response.data.data.date_of_birth ? moment(response.data.data.date_of_birth, 'YYYY-MM-DD').toDate() : null
       this.isLoading = false

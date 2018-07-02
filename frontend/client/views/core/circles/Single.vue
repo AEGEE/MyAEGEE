@@ -22,7 +22,7 @@
                 </tr>
                 <tr>
                   <th>Joinable?</th>
-                  <td>{{ circle.joinable }}</td>
+                  <td>{{ circle.joinable ? 'Yes' : 'No' }}</td>
                 </tr>
                 <tr>
                   <th>Parent circle</th>
@@ -57,7 +57,7 @@
                 </tr>
                 <tr>
                   <th>Inherited permissions</th>
-                  <td v-if="inheritedPermissions.length === 0"><i> No permissions directly attached.</i></td>
+                  <td v-if="inheritedPermissions.length === 0"><i> No permissions inherited.</i></td>
                   <td v-if="inheritedPermissions.length > 0">
                     <ul>
                       <li v-for="permission in inheritedPermissions" v-bind:key="permission.id">
@@ -75,9 +75,17 @@
       </article>
 
       <article class="tile is-child">
+        <router-link class="button" :to="{ name: 'oms.circles.members', params: { id: circle.id } }" v-if="can.viewMembers">
+          View members
+        </router-link>
+
         <router-link class="button is-warning" :to="{ name: 'oms.circles.edit', params: { id: circle.id } }" v-if="can.edit">
           Edit circle
         </router-link>
+
+        <a class="button is-info" @click="joinCircle()" v-if="can.join && !isMember">
+          Join circle
+        </a>
 
         <a class="button is-danger" @click="askDeleteCircle()" v-if="can.delete">
           Delete circle
@@ -90,8 +98,6 @@
 </template>
 
 <script>
-import services from '../../../services.json'
-
 import { mapGetters } from 'vuex'
 
 export default {
@@ -111,9 +117,12 @@ export default {
       isOwnProfile: false,
       isLoading: false,
       permissions: [],
+      isMember: false,
       can: {
         edit: false,
-        delete: false
+        delete: false,
+        join: false,
+        viewMembers: false
       }
     }
   },
@@ -121,7 +130,7 @@ export default {
     askDeleteCircle () {
       this.$dialog.confirm({
         title: 'Deleting circcle',
-        message: 'Are you sure you want to <b>delete</b> this circcle? This action cannot be undone.',
+        message: 'Are you sure you want to <b>delete</b> this circle? This action cannot be undone.',
         confirmText: 'Delete circcle',
         type: 'is-danger',
         hasIcon: true,
@@ -129,7 +138,7 @@ export default {
       })
     },
     deleteCircle () {
-      this.axios.delete(services['oms-core-elixir'] + '/circles/' + this.circle.id).then((response) => {
+      this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.circle.id).then((response) => {
         this.$toast.open('Circle is deleted.')
         this.$router.push({ name: 'oms.circles.list' })
       }).catch((err) => this.$toast.open({
@@ -138,32 +147,57 @@ export default {
         type: 'is-danger'
       }))
     },
-    loadData (id) {
+    joinCircle () {
       this.isLoading = true
-      this.axios.get(services['oms-core-elixir'] + '/circles/' + id).then((response) => {
-        this.circle = response.data.data
-
-        return this.axios.get(services['oms-core-elixir'] + '/circles/' + id + '/my_permissions')
-      }).then((response) => {
-        this.permissions = response.data.data
-
-        this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:circle'))
-        this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:circle'))
-
-        return this.axios.get(services['oms-core-elixir'] + '/circles/' + id + '/permissions')
-      }).then((response) => {
-        this.inheritedPermissions = response.data.data
-
+      this.axios.post(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members').then((response) => {
+        this.$toast.open('Successfully joined circle.')
+        this.can.join = false
         this.isLoading = false
       }).catch((err) => {
-        let message = (err.response.status === 404) ? 'Permission is not found' : 'Some error happened: ' + err.message
+        this.isLoading = false
+
+        let message = 'Could not join circle: ' +
+          ((err.response.data.errors && 'circle_membership_unique' in err.response.data.errors)
+            ? 'You are already a member of this circle.'
+            : err.message)
 
         this.$toast.open({
           duration: 3000,
           message,
           type: 'is-danger'
         })
-        this.$router.push({ name: 'oms.permissions.list' })
+      })
+    },
+    loadData (id) {
+      this.isLoading = true
+      this.axios.get(this.services['oms-core-elixir'] + '/circles/' + id).then((response) => {
+        this.circle = response.data.data
+
+        this.isMember = this.loginUser.circle_memberships.some(membership => membership.circle.id === this.circle.id)
+
+        return this.axios.get(this.services['oms-core-elixir'] + '/circles/' + id + '/my_permissions')
+      }).then((response) => {
+        this.permissions = response.data.data
+
+        this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:circle'))
+        this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:circle'))
+        this.can.join = this.permissions.some(permission => permission.combined.endsWith('join:circle')) && this.circle.joinable
+        this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view_members:circle'))
+
+        return this.axios.get(this.services['oms-core-elixir'] + '/circles/' + id + '/permissions')
+      }).then((response) => {
+        this.inheritedPermissions = response.data.data
+
+        this.isLoading = false
+      }).catch((err) => {
+        let message = (err.response.status === 404) ? 'Circle is not found' : 'Some error happened: ' + err.message
+
+        this.$toast.open({
+          duration: 3000,
+          message,
+          type: 'is-danger'
+        })
+        this.$router.push({ name: 'oms.circles.list' })
       })
     }
   },
@@ -176,7 +210,8 @@ export default {
     }
   },
   computed: mapGetters({
-    loginUser: 'user'
+    loginUser: 'user',
+    services: 'services'
   })
 }
 </script>

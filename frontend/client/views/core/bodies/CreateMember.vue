@@ -109,7 +109,7 @@
 
 <script>
 import moment from 'moment'
-import services from '../../../services.json'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'CreateMemberForBody',
@@ -135,6 +135,7 @@ export default {
       isSaving: false
     }
   },
+  computed: mapGetters(['services']),
   methods: {
     parseDate (date) {
       return moment(date, 'YYYY-MM-DD').toDate()
@@ -149,7 +150,7 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      this.axios.post(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/new_member', {
+      this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/new_member', {
         member: this.user.member,
         user: this.user.user
       }).then((response) => {

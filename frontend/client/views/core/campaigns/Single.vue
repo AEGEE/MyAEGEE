@@ -96,8 +96,6 @@
 </template>
 
 <script>
-import services from '../../../services.json'
-
 import { mapGetters } from 'vuex'
 
 export default {
@@ -135,7 +133,7 @@ export default {
       })
     },
     deleteCampaign () {
-      this.axios.delete(services['oms-core-elixir'] + '/backend_campaigns/' + this.$route.params.id).then((response) => {
+      this.axios.delete(this.services['oms-core-elixir'] + '/backend_campaigns/' + this.$route.params.id).then((response) => {
         this.$toast.open('Campaign is deleted.')
         this.$router.push({ name: 'oms.campaigns.list' })
       }).catch((err) => this.$toast.open({
@@ -147,10 +145,10 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(services['oms-core-elixir'] + '/backend_campaigns/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['oms-core-elixir'] + '/backend_campaigns/' + this.$route.params.id).then((response) => {
       this.campaign = response.data.data
 
-      return this.axios.get(services['oms-core-elixir'] + '/my_permissions')
+      return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions')
     }).then((response) => {
       this.permissions = response.data.data
 
@@ -170,7 +168,8 @@ export default {
     })
   },
   computed: mapGetters({
-    loginUser: 'user'
+    loginUser: 'user',
+    services: 'services'
   })
 }
 </script>

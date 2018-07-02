@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import services from '../../../services.json'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'EditBody',
@@ -118,14 +118,15 @@ export default {
       isSaving: false
     }
   },
+  computed: mapGetters(['services']),
   methods: {
     saveBody () {
       this.isSaving = true
       this.errors = {}
 
       let promise = this.$route.params.id
-        ? this.axios.put(services['oms-core-elixir'] + '/bodies/' + this.$route.params.id, { body: this.body })
-        : this.axios.post(services['oms-core-elixir'] + '/bodies/', { body: this.body })
+        ? this.axios.put(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id, { body: this.body })
+        : this.axios.post(this.services['oms-core-elixir'] + '/bodies/', { body: this.body })
 
       promise.then((response) => {
         this.isSaving = false

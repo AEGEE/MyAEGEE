@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import services from '../../../services.json'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'EditCampaign',
@@ -125,8 +125,8 @@ export default {
       this.errors = {}
 
       let promise = this.$route.params.id
-        ? this.axios.put(services['oms-core-elixir'] + '/backend_campaigns/' + this.$route.params.id, { campaign: this.campaign })
-        : this.axios.post(services['oms-core-elixir'] + '/backend_campaigns/', { campaign: this.campaign })
+        ? this.axios.put(this.services['oms-core-elixir'] + '/backend_campaigns/' + this.$route.params.id, { campaign: this.campaign })
+        : this.axios.post(this.services['oms-core-elixir'] + '/backend_campaigns/', { campaign: this.campaign })
 
       promise.then((response) => {
         this.isSaving = false
@@ -161,8 +161,9 @@ export default {
       })
     }
   },
+  computed: mapGetters(['services']),
   mounted () {
-    this.axios.get(services['oms-core-elixir'] + '/bodies/', { params: { limit: 1000 } }).then((response) => { // TODO rethink
+    this.axios.get(this.services['oms-core-elixir'] + '/bodies/', { params: { limit: 1000 } }).then((response) => { // TODO rethink
       this.bodies = response.data.data
     }).catch((err) => {
       this.$toast.open({
@@ -177,7 +178,7 @@ export default {
     }
 
     this.isLoading = true
-    this.axios.get(services['oms-core-elixir'] + '/backend_campaigns/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['oms-core-elixir'] + '/backend_campaigns/' + this.$route.params.id).then((response) => {
       this.campaign = response.data.data
       this.isLoading = false
     }).catch((err) => {
