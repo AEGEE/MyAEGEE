@@ -10,13 +10,11 @@
           </div>
         </div>
 
-        <div class="field" v-if="can.createFree">
-          <div class="control">
+        <div class="field is-grouped">
+          <div class="control" v-if="can.createFree">
             <router-link class="button is-primary" :to="{ name: 'oms.circles.create' }">Create circle</router-link>
           </div>
-        </div>
 
-        <div class="field">
           <a class="button" v-if="includeBoundCircles" @click="toggleBoundCircles()">Show only free circles</a>
           <a class="button" v-if="!includeBoundCircles" @click="toggleBoundCircles()">Show also bound circles</a>
         </div>

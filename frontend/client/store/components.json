@@ -204,6 +204,33 @@
               "label": "View single circle",
               "skipMenu": true
             }
+          },
+          {
+            "name": "oms.circles.members",
+            "path": "/circles/:id/members",
+            "component": "core/circles/ViewMembers",
+            "meta": {
+              "label": "View members of a circle",
+              "skipMenu": true
+            }
+          },
+          {
+            "name": "oms.circles.edit",
+            "path": "/circles/:id/edit",
+            "component": "core/circles/Edit",
+            "meta": {
+              "label": "Edit single circle",
+              "skipMenu": true
+            }
+          },
+          {
+            "name": "oms.circles.create",
+            "path": "/circles/new",
+            "component": "core/circles/Edit",
+            "meta": {
+              "label": "Create a circle",
+              "skipMenu": true
+            }
           }
         ]
       },
