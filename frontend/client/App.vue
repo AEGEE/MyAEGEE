@@ -4,6 +4,7 @@
     <navbar :show="true"></navbar>
     <sidebar :show="sidebar.opened && !sidebar.hidden"></sidebar>
     <app-main></app-main>
+    <hr />
     <footer-bar></footer-bar>
   </div>
 </template>
