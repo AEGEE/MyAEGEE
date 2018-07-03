@@ -1,6 +1,7 @@
 'use strict'
 
 const path = require('path')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const config = require('../config')
 const utils = require('./utils')
 const projectRoot = path.resolve(__dirname, '../')
@@ -80,6 +81,12 @@ module.exports = {
       }
     ]
   },
+  plugins: [
+    new CopyWebpackPlugin([
+      { from: path.resolve(__dirname, '../client/static/status.json'), to: path.resolve(__dirname, '../dist') },
+      { from: path.resolve(__dirname, '../client/static/getModules.json'), to: path.resolve(__dirname, '../dist') }
+    ])
+  ],
   // See https://github.com/webpack/webpack/issues/3486
   performance: {
     hints: false
