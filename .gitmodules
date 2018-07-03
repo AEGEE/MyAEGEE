@@ -15,7 +15,13 @@
 	url = https://github.com/blacksph3re/alastair2.git
 [submodule "oms-logo-print"]
 	path = oms-logo-print
-    url = https://github.com/AEGEE/oms-logo-print.git
+    	url = https://github.com/AEGEE/oms-logo-print.git
 [submodule "oms-global/docker/portal/files"]
 	path = oms-global/docker/portal/files
 	url = https://github.com/AEGEE/AEGEEPortal
+[submodule "oms-legacy"]
+	path = oms-legacy
+	url = https://github.com/AEGEE/oms-legacy.git
+[submodule "oms-static"]
+	path = oms-static
+	url = https://github.com/AEGEE/oms-static.git
