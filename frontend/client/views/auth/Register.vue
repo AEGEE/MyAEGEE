@@ -62,6 +62,13 @@
              <p class="help is-danger" v-if="errors.motivation">{{ errors.motivation.join(', ')}}</p>
           </div>
 
+          <div class="field">
+            <label class="label">I agree to the Privacy Policy
+              <input type="checkbox" class="checkbox" v-model="agreedToPrivacyPolicy" />
+            </label>
+             <p class="help is-danger" v-if="errors.agreedToPrivacyPolicy">{{ errors.agreedToPrivacyPolicy.join(', ')}}</p>
+          </div>
+
           <hr />
           <p class="control">
             <button type="submit" class="button is-primary">Register</button>
@@ -91,6 +98,7 @@ export default {
         email: '',
         motivation: ''
       },
+      agreedToPrivacyPolicy: false,
       errors: {}
     }
   },
@@ -98,6 +106,11 @@ export default {
   methods: {
     register () {
       this.errors = {}
+
+      if (!this.agreedToPrivacyPolicy) {
+        this.errors.agreedToPrivacyPolicy = ['You need to agree with our Privacy Policy.']
+        return
+      }
 
       if (this.submission.password !== this.submission.password_copy) {
         this.errors.password = ['The passwords do not match.']

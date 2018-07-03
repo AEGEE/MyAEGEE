@@ -66,6 +66,16 @@
           "icon": "fa-tachometer"
         },
         "component": "dashboard/index"
+      },
+      {
+        "name": "oms.legal.simple",
+        "path": "/legal/simple",
+        "meta": {
+          "label": "Privacy policy (simple)",
+          "skipMenu": true,
+          "auth": false
+        },
+        "component": "static/LegalSimple"
       }
     ]
   },
