@@ -17,6 +17,8 @@
           <hr>
           <p class="control">
             <button type="submit" class="button is-primary">Login</button>
+            <router-link :to="{ name: 'oms.register', params: { id: 'default' } }" class="button">Register</router-link>
+            <router-link :to="{ name: 'oms.password_reset' }" class="button">Forgot your password?</router-link>
           </p>
         </form>
       </div>
@@ -53,13 +55,6 @@ export default {
       })
     }
   }
-  // filters: {
-  //   json: function (value) {
-  //     console.log(value)
-  //     return value
-  //   }
-  // }
-
 }
 </script>
 

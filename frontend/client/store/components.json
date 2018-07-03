@@ -3,19 +3,65 @@
     "categoryName": "General",
     "components": [
       {
-        "name": "Login",
+        "name": "oms.login",
         "path": "/login",
         "component": "auth/Login",
         "meta": {
+          "label": "Login",
           "skipMenu": true,
           "skipLazyLoad": true,
           "auth": false
         }
       },
       {
-        "name": "Dashboard",
+        "name": "oms.register",
+        "path": "/signup/:id",
+        "component": "auth/Register",
+        "meta": {
+          "label": "Register",
+          "skipMenu": true,
+          "skipLazyLoad": true,
+          "auth": false
+        }
+      },
+      {
+        "name": "oms.confirm_token",
+        "path": "/confirm_signup/",
+        "component": "auth/ConfirmToken",
+        "meta": {
+          "label": "Confirm your email",
+          "skipMenu": true,
+          "skipLazyLoad": true,
+          "auth": false
+        }
+      },
+      {
+        "name": "oms.password_reset",
+        "path": "/password_reset/",
+        "component": "auth/PasswordReset",
+        "meta": {
+          "label": "Reset your password",
+          "skipMenu": true,
+          "skipLazyLoad": true,
+          "auth": false
+        }
+      },
+      {
+        "name": "oms.password_confirm",
+        "path": "/password_confirm/",
+        "component": "auth/PasswordConfirm",
+        "meta": {
+          "label": "Confirm your password",
+          "skipMenu": true,
+          "skipLazyLoad": true,
+          "auth": false
+        }
+      },
+      {
+        "name": "oms.dashboard",
         "path": "/dashboard",
         "meta": {
+          "label": "Dashboard",
           "auth": true,
           "icon": "fa-tachometer"
         },
