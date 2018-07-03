@@ -78,7 +78,7 @@ export default {
           message: 'Password is changed.',
           type: 'is-success'
         })
-        this.$router.push({ name: oms.login })
+        this.$router.push({ name: 'oms.login' })
       }).catch((err) => {
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
