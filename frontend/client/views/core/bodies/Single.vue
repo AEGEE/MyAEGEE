@@ -11,30 +11,30 @@
       <div class="tile is-parent">
         <article class="tile is-child is-info">
           <div class="field is-grouped" v-if="can.seeMembers">
-            <router-link :to="{ name: 'oms.bodies.members', params: { id: body.id } }" class="button is-fullwidth is-white">
+            <router-link :to="{ name: 'oms.bodies.members', params: { id: body.id } }" class="button is-fullwidth">
               <span>View members</span>
-              <span class="icon"><i class="fa fa-user"></i></span>
+              <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.seeJoinRequests">
-            <router-link :to="{ name: 'oms.bodies.join_requests', params: { id: body.id } }" class="button is-fullwidth is-white">
+            <router-link :to="{ name: 'oms.bodies.join_requests', params: { id: body.id } }" class="button is-fullwidth">
               <span>View join requests</span>
-              <span class="icon"><i class="fa fa-user"></i></span>
+              <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="!isMember && !isRequestingMembership">
             <a @click="askToJoinBody()" class="button is-fullwidth is-info">
               <span>Request to join</span>
-              <span class="icon"><i class="fa fa-user"></i></span>
+              <span class="icon"><i class="fa fa-user-plus"></i></span>
             </a>
           </div>
 
           <div class="field is-grouped" v-if="isMember">
             <a @click="askLeaveBody()" class="button is-fullwidth is-danger">
               <span>Leave body</span>
-              <span class="icon"><i class="fa fa-sign-out"></i></span>
+              <span class="icon"><i class="fa fa-user-minus"></i></span>
             </a>
           </div>
 
