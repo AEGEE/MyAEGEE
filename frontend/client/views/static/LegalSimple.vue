@@ -14,11 +14,13 @@
         <li>Your date of birth</li>
         <li>Your gender</li>
         <li>Your profile picture</li>
+        <li>List of bodies you've joined or requested to join</li>
+        <li>List of circles you're a member of</li>
       </ul>
 
-      <br/>
+      <br/><br/>
 
-      <p>This information is stored until you (or person who has rights in the system) delete your profile from the system.</p>
+      <p>This information is stored permanently until you (or person who has rights in the system) delete your profile from the system.</p>
       <p>You can delete your profile at any given point.</p>
 
       <br/>
@@ -26,10 +28,24 @@
       <strong>This information is stored permanently:</strong><br/>
 
       <ul>
-        <li>List of bodies you've joined or requested to join</li>
-        <li>List of circles you're a member of</li>
         <li>List of events you've applied to and your application</li>
       </ul>
+
+
+      <br/>
+
+      <strong>Also we share this information with this services:</strong><br/>
+
+      <ul>
+        <li><a href="https://podio.com/">Podio</a> - for managing surveys and other stuff</li>
+        <li><a href="https://ru.atlassian.com/">Atlassian</a> - for internal bug fixing using JIRA</li>
+        <li><a href="https://www.google.com/">Google</a> - for providing GSuite accounts</li>
+        <li><a href="https://www.microsoft.com/">Microsoft</a></li>
+      </ul>
+
+      <br/>
+
+      <p>To get full info, please visit <router-link :to="{ name: 'oms.legal.full' }">this page</router-link>.</p>
     </div>
   </div>
 </template>

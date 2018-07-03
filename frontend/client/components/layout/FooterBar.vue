@@ -2,13 +2,12 @@
   <footer class="footer">
     <div class="container">
       <div class="content has-text-centered">
-        <p>© 2017 AEGEE - OMS-Frontend version {{ version }}</p>
+        <p>© 2017-2018 AEGEE - OMS-Frontend version {{ version }}</p>
         <p>Powered by <a href="//oms.aegee.org">Online membership system</a></p>
         <p>
           <router-link :to="{ name: 'oms.legal.simple' }">Legal info (simple)</router-link> &bull;
-          <router-link :to="{ name: 'oms.legal.full' }">Legal info (complex)</router-link> &bull;
-          <router-link :to="{ name: 'oms.get_involved' }">How to get involved</router-link> &bull;
-          <router-link :to="{ name: 'oms.contacts' }">Contacts and developers</router-link>
+          <router-link :to="{ name: 'oms.legal.full' }">(complex)</router-link> &bull;
+          <router-link :to="{ name: 'oms.about' }">About OMS</router-link>
         </p>
       </div>
 
