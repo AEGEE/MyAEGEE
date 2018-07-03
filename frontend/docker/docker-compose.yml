@@ -1,19 +1,23 @@
 version: '3.2'
 
 services:
-
-### OMS SERVICE REGISTRY #######################################
-    vue-admin:
+    oms-frontend:
         build:
-            context: ./$PATH_VUE_ADMIN/vue-admin/
+            context: ./$PATH_OMS_FRONTEND/oms-frontend/
             dockerfile: ./Dockerfile.dev
         volumes:
-            - "./$PATH_VUE_ADMIN/../:/usr/app/src"
+            - "./$PATH_OMS_FRONTEND/../:/usr/app/src"
+    oms-frontend-nginx:
+        build:
+            context: ./$PATH_OMS_FRONTEND/oms-frontend-nginx/
+            dockerfile: ./Dockerfile.dev
+        volumes:
+            - "./$PATH_OMS_FRONTEND/../:/usr/app/src"
         labels:
             - "traefik.frontend.rule=HostRegexp:{domain:[a-z0-9.]+};PathPrefix:/"
             - "traefik.frontend.priority=11"
             - "traefik.port=80"
-            - "traefik.backend=vue-admin"
+            - "traefik.backend=oms-frontend"
             - "traefik.enable=true"
             - "registry.status=status.json"
             - "registry.modules=getModules.json"

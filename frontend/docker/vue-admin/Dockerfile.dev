@@ -1,9 +1,0 @@
-FROM node:10
-
-WORKDIR /usr/app/src
-
-
-
-RUN npm i -g http-server
-
-CMD http-server -p 80 dist

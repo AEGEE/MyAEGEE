@@ -5,7 +5,7 @@ import menuModule from 'vuex-store/modules/menu'
 Vue.use(Router)
 
 export default new Router({
-  mode: 'hash', // TODO: replace/remove when moving to production
+  mode: 'history',
   linkActiveClass: 'is-active',
   scrollBehavior: () => ({ y: 0 }),
   routes: [
