@@ -66,46 +66,6 @@
           "icon": "fa-tachometer"
         },
         "component": "dashboard/index"
-      },
-      {
-        "name": "oms.legal.simple",
-        "path": "/legal/simple",
-        "meta": {
-          "label": "Privacy policy (simple)",
-          "skipMenu": true,
-          "auth": false
-        },
-        "component": "static/LegalSimple"
-      },
-      {
-        "name": "oms.legal.simple",
-        "path": "/legal/simple",
-        "meta": {
-          "label": "Privacy policy (simple)",
-          "skipMenu": true,
-          "auth": false
-        },
-        "component": "static/LegalSimple"
-      },
-      {
-        "name": "oms.legal.full",
-        "path": "/legal/full",
-        "meta": {
-          "label": "Privacy policy (full)",
-          "skipMenu": true,
-          "auth": false
-        },
-        "component": "static/LegalFull"
-      },
-      {
-        "name": "oms.about",
-        "path": "/about",
-        "meta": {
-          "label": "About OMS",
-          "skipMenu": true,
-          "auth": false
-        },
-        "component": "static/About"
       }
     ]
   },
@@ -362,6 +322,60 @@
             }
           }
         ]
+      }
+    ]
+  },
+  {
+    "categoryName": "Resources",
+    "components": [
+      {
+        "name": "oms.legal.simple",
+        "path": "/legal/simple",
+        "meta": {
+          "label": "Privacy policy (simple)",
+          "skipMenu": true,
+          "auth": false
+        },
+        "component": "static/LegalSimple"
+      },
+      {
+        "name": "oms.legal.simple",
+        "path": "/legal/simple",
+        "meta": {
+          "label": "Privacy policy (simple)",
+          "skipMenu": true,
+          "auth": false
+        },
+        "component": "static/LegalSimple"
+      },
+      {
+        "name": "oms.legal.full",
+        "path": "/legal/full",
+        "meta": {
+          "label": "Privacy policy (full)",
+          "skipMenu": true,
+          "auth": false
+        },
+        "component": "static/LegalFull"
+      },
+      {
+        "name": "oms.about",
+        "path": "/about",
+        "meta": {
+          "label": "About OMS",
+          "skipMenu": true,
+          "auth": false
+        },
+        "component": "static/About"
+      },
+      {
+        "name": "oms.discounts",
+        "path": "/discounts",
+        "meta": {
+          "label": "Discounts",
+          "icon": "fa-percent"
+        },
+        "component": "static/Discounts"
       }
     ]
   }
