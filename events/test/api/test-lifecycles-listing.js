@@ -15,7 +15,8 @@ describe('Lifecycles listing', () => {
   let omsserviceregistryStub;
 
   beforeEach(async () => {
-    db.clear();
+    await db.clear();
+
     const res = await db.populateLifecycles();
     eventTypes = res.eventTypes;
 

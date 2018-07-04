@@ -12,7 +12,7 @@ describe('Events/users rights', () => {
   let events;
 
   beforeEach(async () => {
-    db.clear();
+    await db.clear();
     const res = await db.populateEvents();
     events = res.events;
 
@@ -67,6 +67,7 @@ describe('Events/users rights', () => {
         res.body.success.should.be.true;
         res.body.data.is.organizer.should.be.true;
         res.body.data.is.superadmin.should.be.false;
+        res.body.data.special.should.not.include('Superadmin');
         res.body.data.special.should.include('Organizer');
 
         res.body.data.can.edit_organizers.should.be.true;
@@ -80,7 +81,7 @@ describe('Events/users rights', () => {
       });
   });
 
-  it('should not llow event editing for the user who is neither superadmin nor organizer', (done) => {
+  it('should not allow event editing for the user who is neither superadmin nor organizer', (done) => {
     mock.mockAll({ core: { notSuperadmin: true } });
 
     chai.request(server)

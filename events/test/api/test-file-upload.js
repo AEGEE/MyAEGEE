@@ -1,13 +1,14 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const fs = require('fs-extra');
+const path = require('path');
 
 const server = require('../../lib/server.js');
 const db = require('../scripts/populate-db.js');
 const mock = require('../scripts/mock-core-registry');
 const config = require('../../lib/config/config');
 
-const should = chai.should();
+const expect = chai.expect;
 chai.use(chaiHttp);
 
 describe('File upload', () => {
@@ -16,12 +17,12 @@ describe('File upload', () => {
   let omsserviceregistryStub;
 
   beforeEach(async () => {
-    db.clear();
+    await db.clear();
 
     // Populate db
     const res = await db.populateEvents();
     events = res.events;
-    
+
     const mocked = mock.mockAll();
     omscoreStub = mocked.omscoreStub;
     omsserviceregistryStub = mocked.omsserviceregistryStub;
@@ -39,7 +40,7 @@ describe('File upload', () => {
       .set('X-Auth-Token', 'foobar')
       .attach('head_image', fs.readFileSync('./test/assets/valid_image.png'), 'image.png')
       .end((err) => {
-        fs.existsSync(config.media_dir).should.be.true;
+        expect(fs.existsSync(config.media_dir)).to.be.true;
         done();
       });
   });
@@ -50,12 +51,12 @@ describe('File upload', () => {
       .set('X-Auth-Token', 'foobar')
       .attach('head_image', fs.readFileSync('./test/assets/invalid_image.txt'), 'image.txt')
       .end((err, res) => {
-        res.should.have.status(409);
-        res.should.be.json;
-        res.should.be.a('object');
+        expect(res).to.have.status(422);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
 
-        res.body.success.should.be.false;
-        res.body.should.have.property('message');
+        expect(res.body.success).to.be.false;
+        expect(res.body).to.have.property('message');
 
         done();
       });
@@ -67,12 +68,12 @@ describe('File upload', () => {
       .set('X-Auth-Token', 'foobar')
       .attach('head_image', fs.readFileSync('./test/assets/invalid_image.jpg'), 'image.jpg')
       .end((err, res) => {
-        res.should.have.status(409);
-        res.should.be.json;
-        res.should.be.a('object');
+        expect(res).to.have.status(422);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
 
-        res.body.success.should.be.false;
-        res.body.should.have.property('message');
+        expect(res.body.success).to.be.false;
+        expect(res.body).to.have.property('message');
 
         done();
       });
@@ -83,12 +84,12 @@ describe('File upload', () => {
       .post(`/single/${events[0]._id}/upload`)
       .set('X-Auth-Token', 'foobar')
       .end((err, res) => {
-        res.should.have.status(409);
-        res.should.be.json;
-        res.should.be.a('object');
+        expect(res).to.have.status(422);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
 
-        res.body.success.should.be.false;
-        res.body.should.have.property('message');
+        expect(res.body.success).to.be.false;
+        expect(res.body).to.have.property('message');
 
         done();
       });
@@ -100,12 +101,14 @@ describe('File upload', () => {
       .set('X-Auth-Token', 'foobar')
       .attach('head_image', fs.readFileSync('./test/assets/valid_image.png'), 'image.png')
       .end((err, res) => {
-        res.should.have.status(200);
-        res.should.be.json;
-        res.should.be.a('object');
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
 
-        res.body.success.should.be.true;
-        res.body.should.have.property('data');
+        expect(res.body.success).to.be.true;
+        expect(res.body).to.have.property('data');
+
+        expect(fs.existsSync(path.join(__dirname, '..', '..', res.body.data.path))).to.be.true;
 
         done();
       });

@@ -12,7 +12,7 @@ chai.use(chaiHttp);
 
 let accessObject = {
   users: [],
-  roles: [],
+  circles: [],
   bodies: [],
   special: [],
 };
@@ -33,19 +33,28 @@ describe('Lifecycles management', () => {
         visibility: accessObject,
         applicable: accessObject,
         edit_organizers: accessObject,
-        edit_details: accessObject
+        edit_details: accessObject,
+        edit_application_status: accessObject,
+        approve_participants: accessObject,
+        view_applications: accessObject
       }, {
         name: 'Status 2',
         visibility: accessObject,
         applicable: accessObject,
         edit_organizers: accessObject,
-        edit_details: accessObject
+        edit_details: accessObject,
+        edit_application_status: accessObject,
+        approve_participants: accessObject,
+        view_applications: accessObject
       }, {
         name: 'Status 3',
         visibility: accessObject,
         applicable: accessObject,
         edit_organizers: accessObject,
-        edit_details: accessObject
+        edit_details: accessObject,
+        edit_application_status: accessObject,
+        approve_participants: accessObject,
+        view_applications: accessObject
       }],
       transitions: [{
         from: null,
@@ -67,7 +76,7 @@ describe('Lifecycles management', () => {
       initialStatus: 'Status 1',
     };
 
-    db.clear();
+    await db.clear();
     const res = await db.populateLifecycles();
 
     lifecycles = res.lifecycles;
@@ -105,7 +114,7 @@ describe('Lifecycles management', () => {
       .set('X-Auth-Token', 'foobar')
       .send(newLifecycle)
       .end((err, res) => {
-        res.should.have.status(409);
+        res.should.have.status(422);
         res.should.be.json;
         res.should.be.a('object');
 
@@ -122,7 +131,7 @@ describe('Lifecycles management', () => {
       .set('X-Auth-Token', 'foobar')
       .send(newLifecycle)
       .end((err, res) => {
-        res.should.have.status(409);
+        res.should.have.status(422);
         res.should.be.json;
         res.should.be.a('object');
 
@@ -139,7 +148,7 @@ describe('Lifecycles management', () => {
       .set('X-Auth-Token', 'foobar')
       .send(newLifecycle)
       .end((err, res) => {
-        res.should.have.status(409);
+        res.should.have.status(422);
         res.should.be.json;
         res.should.be.a('object');
 
@@ -156,7 +165,7 @@ describe('Lifecycles management', () => {
       .set('X-Auth-Token', 'foobar')
       .send(newLifecycle)
       .end((err, res) => {
-        res.should.have.status(409);
+        res.should.have.status(422);
         res.should.be.json;
         res.should.be.a('object');
 
@@ -173,7 +182,7 @@ describe('Lifecycles management', () => {
       .set('X-Auth-Token', 'foobar')
       .send(newLifecycle)
       .end((err, res) => {
-        res.should.have.status(409);
+        res.should.have.status(422);
         res.should.be.json;
         res.should.be.a('object');
 
@@ -190,7 +199,7 @@ describe('Lifecycles management', () => {
       .set('X-Auth-Token', 'foobar')
       .send(newLifecycle)
       .end((err, res) => {
-        res.should.have.status(409);
+        res.should.have.status(422);
         res.should.be.json;
         res.should.be.a('object');
 
@@ -211,7 +220,7 @@ describe('Lifecycles management', () => {
       .set('X-Auth-Token', 'foobar')
       .send(newLifecycle)
       .end((err, res) => {
-        res.should.have.status(409);
+        res.should.have.status(422);
         res.should.be.json;
         res.should.be.a('object');
 
@@ -228,7 +237,7 @@ describe('Lifecycles management', () => {
       .set('X-Auth-Token', 'foobar')
       .send(newLifecycle)
       .end((err, res) => {
-        res.should.have.status(409);
+        res.should.have.status(422);
         res.should.be.json;
         res.should.be.a('object');
 
@@ -245,7 +254,7 @@ describe('Lifecycles management', () => {
       .set('X-Auth-Token', 'foobar')
       .send(newLifecycle)
       .end((err, res) => {
-        res.should.have.status(409);
+        res.should.have.status(422);
         res.should.be.json;
         res.should.be.a('object');
 
@@ -262,7 +271,7 @@ describe('Lifecycles management', () => {
       .set('X-Auth-Token', 'foobar')
       .send(newLifecycle)
       .end((err, res) => {
-        res.should.have.status(409);
+        res.should.have.status(422);
         res.should.be.json;
         res.should.be.a('object');
 
@@ -280,7 +289,7 @@ describe('Lifecycles management', () => {
       .set('X-Auth-Token', 'foobar')
       .send(newLifecycle)
       .end((err, res) => {
-        res.should.have.status(409);
+        res.should.have.status(422);
         res.should.be.json;
         res.should.be.a('object');
 

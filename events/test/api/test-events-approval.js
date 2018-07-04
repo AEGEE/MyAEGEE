@@ -18,9 +18,8 @@ describe('Events approval', () => {
   let omscoreStub;
   let omsserviceregistryStub;
 
-  // TODO: Fix all of these.
   beforeEach(async () => {
-    db.clear();
+    await db.clear();
 
     // Populate db
     const res = await db.populateEvents();
@@ -33,10 +32,14 @@ describe('Events approval', () => {
   });
 
   it('should include the event that can be changed in approvable events', (done) => {
+    const permissions = helpers.getBasicPermissions(user);
+    user.permissions = { is: permissions.is, can: permissions.can };
+    user.special = permissions.special;
+
     const accessibleEvents = events.filter((event) => {
       return event.lifecycle.transitions.some((transition) => {
         return transition.from === event.status.name
-          && helpers.canUserAccess(user, transition.allowedFor, event);
+          && helpers.canUserAccess({ user, accessObject: transition.allowedFor, event });
       });
     });
 
@@ -46,7 +49,7 @@ describe('Events approval', () => {
       .end((err, res) => {
         expect(res).to.have.status(200);
         expect(res).to.be.json;
-        expect(res).to.be.a('object');
+        expect(res.body).to.be.a('object');
         expect(res.body.success).to.be.true;
         expect(res.body.data).to.have.lengthOf(accessibleEvents.length);
 
@@ -59,12 +62,14 @@ describe('Events approval', () => {
   });
 
   it('should not include the event that cannot be changed in approvable events', (done) => {
-    user.permissions = helpers.getBasicPermissions(user);
+    const permissions = helpers.getBasicPermissions(user);
+    user.permissions = { is: permissions.is, can: permissions.can };
+    user.special = permissions.special;
 
     const notAccessibleEvents = events.filter((event) => {
       return event.lifecycle.transitions.filter((transition) => {
         return transition.from === event.status.name
-          && helpers.canUserAccess(user, transition.allowedFor, event);
+          && helpers.canUserAccess({ user, accessObject: transition.allowedFor, event });
       }).length === 0;
     });
 
@@ -92,7 +97,7 @@ describe('Events approval', () => {
       return events[0].lifecycle.transitions.some((transition) => {
         return transition.from === events[0].status.name
           && transition.to === status.name
-          && helpers.canUserAccess(user, transition.allowedFor, events[0]);
+          && helpers.canUserAccess({ user, accessObject: transition.allowedFor, event: events[0] });
       });
     });
 
@@ -107,7 +112,7 @@ describe('Events approval', () => {
         expect(res.body.data).to.have.lengthOf(possibleStatuses.length);
 
         const names = possibleStatuses.map(s => s.name);
-        const gotNames = res.body.data.map(t => t.to.name);
+        const gotNames = res.body.data.map(t => t.name);
 
         for (const name of names) {
           expect(gotNames.indexOf(name)).not.to.equal(-1);
@@ -122,7 +127,7 @@ describe('Events approval', () => {
       return events[0].lifecycle.transitions.some((transition) => {
         return transition.from === events[0].status.name
           && transition.to === status.name
-          && helpers.canUserAccess(user, transition.allowedFor, events[0]);
+          && helpers.canUserAccess({ user, accessObject: transition.allowedFor, event: events[0] });
       });
     });
 
@@ -155,7 +160,7 @@ describe('Events approval', () => {
       return events[0].lifecycle.transitions.some((transition) => {
         return transition.from === events[0].status.name
           && transition.to === status.name
-          && helpers.canUserAccess(user, transition.allowedFor, events[0]);
+          && helpers.canUserAccess({ user, accessObject: transition.allowedFor, event: events[0] });
       });
     });
 

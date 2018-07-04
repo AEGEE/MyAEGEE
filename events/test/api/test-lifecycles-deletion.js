@@ -66,7 +66,7 @@ describe('Lifecycles deletion', () => {
       initialStatus: 'Status 1',
     };
 
-    db.clear();
+    await db.clear();
     const res = await db.populateLifecycles();
     lifecycles = res.lifecycles;
     eventTypes = res.eventTypes;

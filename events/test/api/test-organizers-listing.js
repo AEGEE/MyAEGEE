@@ -6,7 +6,7 @@ const db = require('../scripts/populate-db.js');
 const mock = require('../scripts/mock-core-registry');
 const user = require('../assets/oms-core-valid').data;
 
-const should = chai.should();
+const expect = chai.expect;
 chai.use(chaiHttp);
 
 describe('Events organizer listing', () => {
@@ -15,7 +15,7 @@ describe('Events organizer listing', () => {
   let omsserviceregistryStub;
 
   beforeEach(async () => {
-    db.clear();
+    await db.clear();
 
     // Populate db
     const res = await db.populateEvents();
@@ -26,47 +26,43 @@ describe('Events organizer listing', () => {
     omsserviceregistryStub = mocked.omsserviceregistryStub;
   });
 
-  it('should list events where the user is organizer on /mine/byOrganizer GET', (done) => {
-    const mineEvents = events.filter((event) => {
-      return event.organizers.some(org => org.foreign_id === user.id);
-    });
+  it('should list events where the user is organizer on /mine/organizing GET', (done) => {
+    const mineEvents = events.filter(event => event.organizers.some(org => org.user_id === user.id));
 
     chai.request(server)
-      .get('/mine/byOrganizer')
+      .get('/mine/organizing')
       .set('X-Auth-Token', 'foobar')
       .end((err, res) => {
-        res.should.have.status(200);
-        res.should.be.json;
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
 
-        res.body.success.should.be.true;
-        res.body.data.length.should.be.equal(mineEvents.length);
+        expect(res.body.success).to.be.true;
+        expect(res.body.data.length).to.be.equal(mineEvents.length);
 
         const ids = res.body.data.map(e => e.id);
         for (const event of mineEvents) {
-          ids.indexOf(event.id).should.not.be.equal(-1);
+          expect(ids.includes(event.id)).to.be.true;
         }
 
         done();
       });
   });
 
-  it('should not include events where the user is not organizer on /mine/byOrganizer GET', (done) => {
-    const notMineEvents = events.filter((event) => {
-      return event.organizers.some(org => org.foreign_id !== user.id);
-    });
+  it('should not include events where the user is not organizer on /mine/organizing GET', (done) => {
+    const notMineEvents = events.filter(event => event.organizers.every(org => org.user_id !== user.id));
 
     chai.request(server)
-      .get('/mine/byOrganizer')
+      .get('/mine/organizing')
       .set('X-Auth-Token', 'foobar')
       .end((err, res) => {
-        res.should.have.status(200);
-        res.should.be.json;
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
 
-        res.body.success.should.be.true;
+        expect(res.body.success).to.be.true;
 
         const ids = res.body.data.map(e => e.id);
         for (const event of notMineEvents) {
-          ids.indexOf(event.id).should.be.equal(-1);
+          expect(ids.includes(event.id)).to.be.false;
         }
 
         done();

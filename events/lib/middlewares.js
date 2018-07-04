@@ -1,42 +1,42 @@
 const request = require('request-promise-native');
-const restify = require('restify');
+const bugsnag = require('bugsnag');
+const { errors, communication } = require('oms-common-nodejs');
 
-const config = require('./config/config.js');
 const log = require('./config/logger.js');
 const Event = require('./models/Event');
-const UserCache = require('./models/UserCache');
 const helpers = require('./helpers.js');
-const communication = require('./communication');
-const user = require('./user.js');
+const config = require('./config/config.js');
 
 exports.authenticateUser = async (req, res, next) => {
   const token = req.header('x-auth-token');
   if (!token) {
-    return next(helpers.makeForbiddenError('No auth token provided'));
+    return errors.makeForbiddenError(res, 'No auth token provided');
   }
 
 
   try {
     // Find the core service
-    const service = await communication.getServiceByName('oms-core-elixir');
+    const service = await communication.getServiceByName(config.registry, 'oms-core-elixir');
 
     // Get the request headers to send an auth token
     const headers = await communication.getRequestHeaders(req);
 
     // Query the core
     const body = await request({
-      url: `${service.backend_url}/tokens/user`,
-      method: 'POST',
+      url: `${service.backend_url}members/me`,
+      method: 'GET',
       headers,
-      form: {
-        token: headers['X-Auth-Token'],
-      },
+      simple: false,
       json: true,
     });
 
+    if (typeof body !== 'object') {
+      return errors.makeInternalError(res, 'Malformed response from core: ' + body);
+    }
+
     if (!body.success) {
       // We are not authenticated
-      return next(helpers.makeForbiddenError('User is not authenticated.'));
+      return errors.makeForbiddenError(res, 'User is not authenticated.');
     }
 
     if (!req.user) {
@@ -49,14 +49,14 @@ exports.authenticateUser = async (req, res, next) => {
 
     return next();
   } catch (err) {
-    throw err;
+    return errors.makeInternalError(res, err);
   }
 };
 
 exports.fetchSingleEvent = async (req, res, next) => {
   if (!req.params.event_id) {
     log.info(req.params);
-    return next(helpers.makeForbiddenError('No Event-id provided'));
+    return errors.makeNotFoundError(res, 'No Event-id provided');
   }
 
   // Checking if the passed ID is ObjectID or not.
@@ -73,7 +73,7 @@ exports.fetchSingleEvent = async (req, res, next) => {
     const event = await Event.findOne(findObject);
 
     if (event === null) {
-      return next(helpers.makeNotFoundError(`Event with id ${req.params.event_id} not found`));
+      return errors.makeNotFoundError(res, `Event with id ${req.params.event_id} not found`);
     }
 
     req.event = event;
@@ -93,10 +93,10 @@ exports.checkPermissions = async (req, res, next) => {
   // Convert all to boolean and assign
   req.user.permissions = { is: {}, can: {} };
   for (const attr in permissions.is) {
-    req.user.permissions.is[attr] = Boolean(permissions.is[attr]);
+    req.user.permissions.is[attr] = permissions.is[attr];
   }
   for (const attr in permissions.can) {
-    req.user.permissions.can[attr] = Boolean(permissions.can[attr]);
+    req.user.permissions.can[attr] = permissions.can[attr];
   }
   req.user.special = [...req.user.special, ...permissions.special];
 
@@ -108,10 +108,10 @@ exports.checkEventPermissions = async (req, res, next) => {
   const eventPermissions = helpers.getEventPermissions(req.event, req.user);
 
   for (const attr in eventPermissions.is) {
-    req.user.permissions.is[attr] = Boolean(eventPermissions.is[attr]);
+    req.user.permissions.is[attr] = eventPermissions.is[attr];
   }
   for (const attr in eventPermissions.can) {
-    req.user.permissions.can[attr] = Boolean(eventPermissions.can[attr]);
+    req.user.permissions.can[attr] = eventPermissions.can[attr];
   }
   if (eventPermissions.special) {
     Array.prototype.push.apply(req.user.special, eventPermissions.special);
@@ -122,4 +122,26 @@ exports.checkEventPermissions = async (req, res, next) => {
     helpers.canUserAccess(req.user, link.visibility));
 
   next();
+};
+
+/* eslint-disable no-unused-vars */
+exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl);
+
+/* eslint-disable no-unused-vars */
+exports.errorHandler = (err, req, res, next) => {
+  // Handling invalid JSON
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return errors.makeBadRequestError(res, 'Invalid JSON.');
+  }
+
+  // Handling validation errors
+  if (err.name && err.name === 'ValidationError') {
+    return errors.makeValidationError(res, err);
+  }
+
+  log.error(err.stack);
+  if (process.env.NODE_ENV !== 'test') {
+    bugsnag.notify(err);
+  }
+  return errors.makeInternalError(res, err);
 };

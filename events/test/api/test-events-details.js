@@ -17,7 +17,7 @@ describe('Events details', () => {
   let omsserviceregistryStub;
 
   beforeEach(async () => {
-    db.clear();
+    await db.clear();
     const res = await db.populateEvents();
     events = res.events;
 

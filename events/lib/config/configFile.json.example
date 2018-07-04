@@ -2,30 +2,14 @@
 	"default": {
 		"port": 8082,
 		"mongourl": "mongodb://mongodb:27017/events",
-
-		"frontend": {
-			"url": "/services/omsevents",
-			"pages": [{
-				"name": "All events",
-				"code": "events",
-				"module_link": "frontend/all/eventsController.js",
-				"icon": "fa fa-ticket"
-			}, {
-				"name": "Event admin",
-				"code": "eventadmin",
-				"module_link": "frontend/admin/adminController.js",
-				"icon": "fa fa-wrench"
-			}]
-		},
 		"registry": {
 			"url": "http://omsserviceregistry",
 			"port": 7000
 		},
 		"registry_api_key": "/usr/shared/new-api-key",
-		"enable_user_caching": true,
 		"media_dir": "/usr/app/media",
 		"media_url": "/frontend/media",
-		"bugsnagKey": "CHANGEME"
+		"bugsnagKey": "6f6a7c00507fceca0818c48405dbd2a6"
 	},
 	"development": {
 

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('../config/mongo');
 const Lifecycle = require('../schemas/Lifecycle');
 
 const eventTypeSchema = mongoose.Schema({

@@ -16,7 +16,7 @@ describe('Events editing', () => {
   let omsserviceregistryStub;
 
   beforeEach(async () => {
-    db.clear();
+    await db.clear();
     const res = await db.populateEvents();
     events = res.events;
 
@@ -79,9 +79,7 @@ describe('Events editing', () => {
     chai.request(server)
       .put(`/single/${events[0].id}`)
       .set('X-Auth-Token', 'foobar')
-      .send({
-        status: 'approved'
-      })
+      .send({ status: 'approved' })
       .end(() => {
         chai.request(server)
           .get(`/single/${events[0].id}`)
@@ -127,7 +125,7 @@ describe('Events editing', () => {
           })
           .end(() => {
             Event.findById(events[0].id).exec((err, res) => {
-              res.organizers.forEach(item => item.foreign_id.should.not.equal('vincent.vega'));
+              res.organizers.forEach(item => item.user_id.should.not.equal('vincent.vega'));
             });
 
             done();
@@ -162,7 +160,7 @@ describe('Events editing', () => {
         chai.request(server)
           .get(`/single/${events[0].id}`)
           .set('X-Auth-Token', 'foobar')
-          .end(function (singleErr, singleRes) {
+          .end((singleErr, singleRes) => {
             singleRes.should.have.status(200);
             singleRes.should.be.json;
             singleRes.should.be.a('object');
@@ -182,6 +180,62 @@ describe('Events editing', () => {
                 done();
               });
           });
+      });
+  });
+
+  it('should disallow opening applications without deadline set', (done) => {
+    const mocked = mock.mockAll({ core: { notSuperadmin: true } });
+    omscoreStub = mocked.omscoreStub;
+    omsserviceregistryStub = mocked.omsserviceregistryStub;
+
+    const eventWithoutAplicationDeadline = events.find(e => !e.application_deadline);
+
+    chai.request(server)
+      .put(`/single/${eventWithoutAplicationDeadline.id}`)
+      .set('X-Auth-Token', 'foobar')
+      .send({
+        application_status: 'open',
+      })
+      .end((err, res) => {
+        res.should.have.status(422);
+        res.body.success.should.be.false;
+        res.body.errors.should.have.property('application_deadline');
+        done();
+      });
+  });
+
+  it('should return error when start is after end', (done) => {
+    const laterEvent = events.find(e => e.starts > new Date());
+
+    chai.request(server)
+      .put(`/single/${laterEvent.id}`)
+      .set('X-Auth-Token', 'foobar')
+      .send({
+        ends: new Date(),
+      })
+      .end((err, res) => {
+        res.should.have.status(422);
+        res.body.success.should.be.false;
+        res.body.errors.should.have.property('ends');
+        done();
+      });
+  });
+
+  it('should return error when start is before the deadline', (done) => {
+    const newApplicationDeadlineDate = events[0].starts;
+    newApplicationDeadlineDate.setDate(newApplicationDeadlineDate.getDate() + 365);
+
+    chai.request(server)
+      .put(`/single/${events[0].id}`)
+      .set('X-Auth-Token', 'foobar')
+      .send({
+        application_deadline: newApplicationDeadlineDate,
+      })
+      .end((err, res) => {
+        res.should.have.status(422);
+        res.body.success.should.be.false;
+        res.body.errors.should.have.property('application_deadline');
+        done();
       });
   });
 });

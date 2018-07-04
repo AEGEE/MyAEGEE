@@ -4,8 +4,9 @@ const chaiHttp = require('chai-http');
 const server = require('../../lib/server.js');
 const db = require('../scripts/populate-db.js');
 const mock = require('../scripts/mock-core-registry');
+const user = require('../assets/oms-core-valid.json').data;
 
-const should = chai.should();
+const expect = chai.expect;
 chai.use(chaiHttp);
 
 describe('Events creation', () => {
@@ -14,7 +15,7 @@ describe('Events creation', () => {
   let omsserviceregistryStub;
 
   beforeEach(async () => {
-    db.clear();
+    await db.clear();
 
     // Populate db
     const res = await db.populateEvents();
@@ -38,14 +39,68 @@ describe('Events creation', () => {
         starts: '2017-12-11 15:00',
         ends: '2017-12-14 12:00',
         type: 'non-statutory',
+        body_id: user.bodies[0].id
       })
       .end((err, res) => {
-        res.should.have.status(403);
-        res.should.be.json;
-        res.should.be.a('object');
+        expect(res).to.have.status(403);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
 
-        res.body.success.should.be.false;
-        res.body.should.have.property('message');
+        expect(res.body.success).to.be.false;
+        expect(res.body).to.have.property('message');
+
+        done();
+      });
+  });
+
+  it('should not create a new event if the is not a member of the body', (done) => {
+    const mocked = mock.mockAll({ core: { notSuperadmin: true } });
+    omscoreStub = mocked.omscoreStub;
+    omsserviceregistryStub = mocked.omsserviceregistryStub;
+
+    chai.request(server)
+      .post('/')
+      .set('X-Auth-Token', 'foobar')
+      .send({
+        name: 'Develop Yourself 4',
+        starts: '2017-12-11 15:00',
+        ends: '2017-12-14 12:00',
+        type: 'non-statutory',
+        body_id: 1337
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
+
+        expect(res.body.success).to.be.false;
+        expect(res.body).to.have.property('message');
+
+        done();
+      });
+  });
+
+  it('should not create a new event if body_id is not provided', (done) => {
+    const mocked = mock.mockAll({ core: { notSuperadmin: true } });
+    omscoreStub = mocked.omscoreStub;
+    omsserviceregistryStub = mocked.omsserviceregistryStub;
+
+    chai.request(server)
+      .post('/')
+      .set('X-Auth-Token', 'foobar')
+      .send({
+        name: 'Develop Yourself 4',
+        starts: '2017-12-11 15:00',
+        ends: '2017-12-14 12:00',
+        type: 'non-statutory'
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
+
+        expect(res.body.success).to.be.false;
+        expect(res.body).to.have.property('message');
 
         done();
       });
@@ -60,32 +115,33 @@ describe('Events creation', () => {
         starts: '2017-12-11 15:00',
         ends: '2017-12-14 12:00',
         type: 'non-statutory',
+        body_id: user.bodies[0].id
       })
       .end((err, res) => {
-        res.should.have.status(201);
-        res.should.be.json;
-        res.should.be.a('object');
+        expect(res).to.have.status(201);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
 
-        res.body.success.should.be.true;
-        res.body.data.should.have.property('_id');
-        res.body.data.should.have.property('name');
-        res.body.data.should.have.property('starts');
-        res.body.data.should.have.property('ends');
-        res.body.data.should.have.property('application_status');
-        res.body.data.should.have.property('max_participants');
-        res.body.data.should.have.property('status');
-        res.body.data.should.have.property('type');
-        res.body.data.should.have.property('organizing_locals');
-        res.body.data.should.have.property('description');
-        res.body.data.should.have.property('application_fields');
-        res.body.data.should.have.property('organizers');
+        expect(res.body.success).to.be.true;
+        expect(res.body.data).to.have.property('_id');
+        expect(res.body.data).to.have.property('name');
+        expect(res.body.data).to.have.property('starts');
+        expect(res.body.data).to.have.property('ends');
+        expect(res.body.data).to.have.property('application_status');
+        expect(res.body.data).to.have.property('max_participants');
+        expect(res.body.data).to.have.property('status');
+        expect(res.body.data).to.have.property('type');
+        expect(res.body.data).to.have.property('organizing_locals');
+        expect(res.body.data).to.have.property('description');
+        expect(res.body.data).to.have.property('application_fields');
+        expect(res.body.data).to.have.property('organizers');
 
         // Check auto-filled fields
-        res.body.data.status.name.should.equal('Draft');
-        res.body.data.type.should.equal('non-statutory');
-        res.body.data.application_status.should.equal('closed');
-        res.body.data.application_fields.should.have.lengthOf(0);
-        res.body.data.max_participants.should.equal(0);
+        expect(res.body.data.status.name).to.equal('Draft');
+        expect(res.body.data.type).to.equal('non-statutory');
+        expect(res.body.data.application_status).to.equal('closed');
+        expect(res.body.data.application_fields).to.have.lengthOf(0);
+        expect(res.body.data.max_participants).to.equal(0);
 
         done();
       });
@@ -114,39 +170,40 @@ describe('Events creation', () => {
             description: 'Please be concise',
           },
         ],
+        body_id: user.bodies[0].id,
         application_status: 'closed',
       })
       .end((err, res) => {
-        res.should.have.status(201);
-        res.should.be.json;
-        res.should.be.a('object');
+        expect(res).to.have.status(201);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
 
-        res.body.success.should.be.true;
-        res.body.data.should.have.property('_id');
-        res.body.data.should.have.property('name');
-        res.body.data.should.have.property('starts');
-        res.body.data.should.have.property('ends');
-        res.body.data.should.have.property('application_deadline');
-        res.body.data.should.have.property('application_status');
-        res.body.data.should.have.property('max_participants');
-        res.body.data.should.have.property('status');
-        res.body.data.should.have.property('type');
-        res.body.data.should.have.property('organizing_locals');
-        res.body.data.should.have.property('description');
-        res.body.data.should.have.property('application_fields');
-        res.body.data.should.have.property('organizers');
+        expect(res.body.success).to.be.true;
+        expect(res.body.data).to.have.property('_id');
+        expect(res.body.data).to.have.property('name');
+        expect(res.body.data).to.have.property('starts');
+        expect(res.body.data).to.have.property('ends');
+        expect(res.body.data).to.have.property('application_deadline');
+        expect(res.body.data).to.have.property('application_status');
+        expect(res.body.data).to.have.property('max_participants');
+        expect(res.body.data).to.have.property('status');
+        expect(res.body.data).to.have.property('type');
+        expect(res.body.data).to.have.property('organizing_locals');
+        expect(res.body.data).to.have.property('description');
+        expect(res.body.data).to.have.property('application_fields');
+        expect(res.body.data).to.have.property('organizers');
 
-        res.body.data.application_fields.should.have.lengthOf(2);
+        expect(res.body.data.application_fields).to.have.lengthOf(2);
 
-        res.body.data.organizers.should.have.lengthOf(1);
-        res.body.data.organizing_locals.should.have.lengthOf(1);
+        expect(res.body.data.organizers).to.have.lengthOf(1);
+        expect(res.body.data.organizing_locals).to.have.lengthOf(1);
 
         done();
       });
   });
 
   // TODO: Implement
-  it('should discart superflous fields on overly detailed / POST'/*, (done) => {
+  it('should discart superflous fields on overly detailed / POST', (done) => {
     chai.request(server)
       .post('/')
       .set('X-Auth-Token', 'foobar')
@@ -157,27 +214,30 @@ describe('Events creation', () => {
         type: 'non-statutory',
         organizers: [
           {
-            foreign_id: 'eve.mallory',
+            user_id: 3,
+            body_id: 5,
             role: 'full',
           },
         ],
         applications: [
           {
-            foreign_id: 'eve.mallory',
-            application_status: 'approved',
+            user_id: 5,
+            body_id: 10,
+            status: 'accepted',
           },
         ],
+        body_id: user.bodies[0].id
       })
       .end((err, res) => {
-        res.body.data[0].applications.should.have.lengthOf(0);
+        expect(res.body.data.applications).to.have.lengthOf(0);
 
         // Not implemented yet
-        // res.body.organizers.should.have.lengthOf(1);
-        // res.body.organizers[0].foreign_id.should.not.equal('eve.mallory');
+        expect(res.body.data.organizers).to.have.lengthOf(1);
+        expect(res.body.data.organizers[0].user_id).to.not.equal(3);
 
         done();
       });
-  }*/);
+  });
 
   it('should return validation errors on malformed / POST', (done) => {
     chai.request(server)
@@ -187,12 +247,15 @@ describe('Events creation', () => {
         starts: '2015-12-11 15:00',
         ends: 'sometime, dunno yet',
         type: 'non-statutory',
+        body_id: user.bodies[0].id,
+        fee: -150
       })
       .end((err, res) => {
-        res.body.success.should.be.false;
-        res.body.should.have.property('errors');
-        res.body.errors.should.have.property('ends');
-        res.body.errors.should.have.property('name');
+        expect(res.body.success).to.be.false;
+        expect(res.body).to.have.property('errors');
+        expect(res.body.errors).to.have.property('ends');
+        expect(res.body.errors).to.have.property('name');
+        expect(res.body.errors).to.have.property('fee');
 
         done();
       });
@@ -206,14 +269,16 @@ describe('Events creation', () => {
         name: 'Develop Yourself 4',
         starts: '2017-12-11 15:00',
         ends: '2017-12-14 12:00',
+        body_id: user.bodies[0].id
       })
       .end((err, res) => {
-        res.should.have.status(409);
-        res.should.be.json;
-        res.should.be.a('object');
+        expect(res).to.have.status(422);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
 
-        res.body.success.should.be.false;
-        res.body.should.have.property('message');
+        expect(res.body.success).to.be.false;
+        expect(res.body).to.have.property('message');
+
         done();
       });
   });
@@ -227,14 +292,15 @@ describe('Events creation', () => {
         starts: '2017-12-11 15:00',
         ends: '2017-12-14 12:00',
         type: 'random-event-type',
+        body_id: user.bodies[0].id
       })
       .end((err, res) => {
-        res.should.have.status(409);
-        res.should.be.json;
-        res.should.be.a('object');
+        expect(res).to.have.status(422);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
 
-        res.body.success.should.be.false;
-        res.body.should.have.property('message');
+        expect(res.body.success).to.be.false;
+        expect(res.body).to.have.property('message');
         done();
       });
   });

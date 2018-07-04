@@ -1,5 +1,3 @@
-const restify = require('restify');
-
 const log = require('./config/logger');
 
 function getBasicPermissions(user) {
@@ -9,18 +7,17 @@ function getBasicPermissions(user) {
     special: []
   };
 
-  permissions.is.superadmin = user.is_superadmin;
+  permissions.is.superadmin = user.user && user.user.superadmin;
   if (permissions.is.superadmin) {
     permissions.special.push('Superadmin');
   }
 
-  // If user details are available, fill additional roles
-  if (user.details) {
-    // TODO check if this is the right way to determine board positions
-    permissions.is.boardmember = user.board_positions.length > 0;
-
-    permissions.can.view_local_involved_events = permissions.is.boardmember ||
-      permissions.is.superadmin;
+  permissions.is.board_member_of = {};
+  permissions.is.member_of = {};
+  for (const body of user.bodies) {
+    // Dirty hack, TODO: rethink it.
+    permissions.is.board_member_of[body.id] = user.circles.some(circle => circle.name.toLowerCase().includes('board') && circle.body_id === body.id);
+    permissions.is.member_of[body.id] = true;
   }
 
   permissions.can.edit_lifecycles = permissions.is.superadmin;
@@ -29,105 +26,58 @@ function getBasicPermissions(user) {
   return permissions;
 }
 
-exports.getBasicPermissions = getBasicPermissions;
+function getEventIs(event, user) {
+  const is = {};
+  is.organizer = event.organizers.some(item => item.user_id === user.id);
+  is.own_body = event.organizing_locals.some(organizer => user.bodies.some(body => organizer.body_id === body.id));
 
-function getEventPermissions(event, user) {
-  const permissions = {
-    is: {},
-    can: {},
-    special: [],
-  };
+  return is;
+}
 
-  if (!event || !user) {
-    log.warn('No event or user is provided, returning empty object as a response.');
-    return permissions;
+function getEventSpecial(event, user, is) {
+  const special = [];
+  if (is.own_body) {
+    special.push('Organizing Local Member');
   }
-
-  permissions.is.organizer = event.organizers.some(item => item.foreign_id === user.id);
-
-  permissions.is.own_antenna = event.organizing_locals.some(organizer =>
-    user.bodies.some(body => organizer.foreign_id === body.id));
-
-  permissions.can.edit_organizers = permissions.is.organizer || user.permissions.is.superadmin;
-
-  permissions.can.edit_details =
-    (permissions.is.organizer && event.application_status === 'closed')
-    || user.permissions.is.superadmin;
-
-  permissions.can.delete = permissions.can.edit_details;
-
-  permissions.can.edit_application_status =
-    (permissions.is.organizer) // && event.status === 'approved') TODO not valid with lifecycle anymore
-    || user.permissions.is.superadmin;
-
-  // TODO: probably remove this one, since we have the lifecycle workflow
-  permissions.can.approve =
-    event.application_status === 'closed' || user.permissions.is.superadmin;
-
-  permissions.can.edit =
-    permissions.can.edit_details
-    || permissions.can.edit_organizers
-    || permissions.can.delete
-    || permissions.can.edit_application_status
-    || permissions.can.approve;
-
-  /* permissions.can.apply =
-    (!permissions.is.organizer && event.application_status === 'open')
-    || permissions.is.superadmin; */
-
-  permissions.can.approve_participants = 
-    (permissions.is.organizer && event.application_status === 'closed')
-    || user.permissions.is.superadmin;
-
-  permissions.can.view_applications =
-    permissions.is.organizer
-    || (permissions.is.boardmember && permissions.is.own_antenna)
-    || user.permissions.is.superadmin;
-
-  // TODO that doesn't work that way, boardmember is generic for all boardmembers
-  if (permissions.is.boardmember && permissions.is.own_antenna) {
-    permissions.special.push('Organizing Board Member');
-  }
-  if (permissions.is.own_antenna) {
-    permissions.special.push('Organizing Local Member');
-  }
-  if (permissions.is.organizer) {
-    permissions.special.push('Organizer');
+  if (is.organizer) {
+    special.push('Organizer');
   }
 
   // Also all eventroles become special roles
-  const myorg = event.organizers.find(item => item.foreign_id === user.id);
+  const myorg = event.organizers.find(item => item.user_id === user.id);
   if (myorg && myorg.roles && myorg.roles.length > 0) {
     myorg.roles.forEach((item) => {
-      permissions.special.push(item.name);
+      special.push(item.name);
     });
   }
 
-  return permissions;
+  return special;
 }
-
-exports.getEventPermissions = getEventPermissions;
 
 // Helper function for determining if two arrays are intersecting or not.
 const intersects = (array1, array2) => array1.filter(elt => array2.includes(elt)).length > 0;
 
 // Helper function for determining if the user has the right to do something
 // TODO: Add circle awareness.
-module.exports.canUserAccess = (user, accessObject, event = null) => {
+
+const canUserAccess = (options) => {
+  const { user, accessObject, event } = options;
+
   // Checking users.
   if (accessObject.users && accessObject.users.includes(user.id)) {
     return true;
   }
 
-  // Checking roles.
-  if (accessObject.roles && intersects(accessObject.roles, user.roles)) {
+  // Checking bodies.
+  if (accessObject.bodies && intersects(accessObject.bodies, user.bodies.map(body => body.id))) {
     return true;
   }
 
   // Checking event-related special roles.
   if (event) {
-    const permissions = getEventPermissions(event, user);
-    if (intersects(permissions.special, accessObject.special)) {
+    const permissionIs = getEventIs(event, user);
+    const permissionSpecial = getEventSpecial(event, user, permissionIs);
+    if (intersects(permissionSpecial, accessObject.special)) {
       return true;
     }
   }
@@ -139,38 +89,69 @@ module.exports.canUserAccess = (user, accessObject, event = null) => {
   return false;
 };
 
-exports.makeError = (constructor, err, message) => {
-  // 3 cases:
-  // 1) 'err' is a string
-  // 2) 'err' is a ValidationError
-  // 3) 'err' is Error
+function getEventPermissions(event, user) {
+  const permissions = getBasicPermissions(user);
 
-  // If the error is a string, just forward it to user.
-  if (typeof err === 'string') {
-    return new constructor({ body: {
-      success: false,
-      message: err
-    } });
+  if (!event || !user) {
+    log.warn('No event or user is provided, returning empty object as a response.');
+    return permissions;
   }
 
-  const msgText = message ? message + ' ' + err.message : err.message;
-
-  // If the error is ValidationError, pass the errors details to the user.
-  if (err.name && err.name === 'ValidationError') {
-    return new constructor({ body: {
-      success: false,
-      errors: err.errors,
-      message: msgText
-    } });
+  const eventIs = getEventIs(event, user)
+  for (const key in eventIs) {
+    permissions.is[key] = eventIs[key];
   }
 
-  // Otherwise, just pass the error message.
-  return new constructor({ body: {
-    success: false,
-    message: msgText
-  } });
-};
+  permissions.special = [...permissions.special, ...getEventSpecial(event, user, permissions.is)];
 
-exports.makeValidationError = (err, message) => exports.makeError(restify.InvalidArgumentError, err, message);
-exports.makeForbiddenError = (err, message) => exports.makeError(restify.ForbiddenError, err, message);
-exports.makeNotFoundError = (err, message) => exports.makeError(restify.NotFoundError, err, message);
+  permissions.can.edit_organizers = canUserAccess({ user, accessObject: event.status.edit_organizers, event });
+  permissions.can.edit_details = canUserAccess({ user, accessObject: event.status.edit_details, event });
+
+  permissions.can.delete = permissions.can.edit_details;
+
+  permissions.can.edit_application_status = canUserAccess({ user, accessObject: event.status.edit_application_status, event });
+  permissions.can.edit =
+    permissions.can.edit_details
+    || permissions.can.edit_organizers
+    || permissions.can.delete
+    || permissions.can.edit_application_status;
+
+  permissions.can.see = canUserAccess({ user, accessObject: event.status.visibility, event });
+
+  permissions.can.apply =
+    permissions.can.see
+    && !permissions.is.organizer
+    && event.application_status === 'open';
+
+  permissions.can.approve_participants =
+    canUserAccess({ user, accessObject: event.status.approve_participants, event }) && event.application_status === 'closed';
+
+  permissions.can.view_applications = canUserAccess({ user, accessObject: event.status.view_applications, event });
+
+  // Allowing members of bodies to put board comments.
+  // TODO: rethink that
+  permissions.can.put_board_comment_for_application = {};
+  for (const app of event.applications) {
+    permissions.can.put_board_comment_for_application[app.id] = Object.keys(permissions.is).some(key => permissions.is.board_member_of[key]);
+  }
+
+  function setObjToTrue(obj) {
+    for (const key of Object.keys(obj)) {
+      if (typeof obj[key] === 'object'){
+        setObjToTrue(obj[key]);
+      } else {
+        obj[key] = true;
+      }
+    }
+  }
+
+  if (permissions.is.superadmin) {
+    setObjToTrue(permissions.can);
+  }
+
+  return permissions;
+}
+
+exports.canUserAccess = canUserAccess;
+exports.getEventPermissions = getEventPermissions;
+exports.getBasicPermissions = getBasicPermissions;
