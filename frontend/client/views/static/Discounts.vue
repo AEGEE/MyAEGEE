@@ -42,7 +42,7 @@
   font-weight: normal;
 }
 
-.card-header {
+.discounts .card-header {
   cursor: pointer;
 }
 </style>

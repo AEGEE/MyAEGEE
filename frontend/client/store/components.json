@@ -376,6 +376,15 @@
           "icon": "fa-percent"
         },
         "component": "static/Discounts"
+      },
+      {
+        "name": "oms.resources",
+        "path": "/resources",
+        "meta": {
+          "label": "Resources",
+          "icon": "fa-external-link"
+        },
+        "component": "static/Resources"
       }
     ]
   }
