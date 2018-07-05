@@ -37,6 +37,8 @@
 }
 .discounts .discounts-item i.fa {
   margin-right: 10px;
+  width: 20px;
+  text-align: center;
 }
 .discounts .not-bold {
   font-weight: normal;
