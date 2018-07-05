@@ -1,6 +1,10 @@
 # Events module
-[![Build Status](https://travis-ci.org/AEGEE/oms-events.svg?branch=dev)](https://travis-ci.org/AEGEE/oms-events)
-![Codecov branch for dev](https://img.shields.io/codecov/c/github/codecov/example-python/dev.svg)
+
+**master**: [![Build Status](https://travis-ci.org/AEGEE/oms-events.svg)](https://travis-ci.org/AEGEE/oms-events/)
+![Codecov branch for dev](https://img.shields.io/codecov/c/github/AEGEE/oms-events.svg)
+
+**dev**: [![Build Status](https://travis-ci.org/AEGEE/oms-events.svg?branch=dev)](https://travis-ci.org/AEGEE/oms-events/dev)
+![Codecov branch for dev](https://img.shields.io/codecov/c/github/AEGEE/oms-events/dev.svg)
 
 ## General
 
