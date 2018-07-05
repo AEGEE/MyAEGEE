@@ -1,103 +1,79 @@
 <template>
   <div>
     <div class="tile is-ancestor">
-      <div class="tile is-parent">
-        <article class="tile is-child box">
-          <p class="title">One</p>
-          <p class="subtitle">Subtitle</p>
-        </article>
-      </div>
-      <div class="tile is-parent">
-        <article class="tile is-child box">
-          <p class="title">Two</p>
-          <p class="subtitle">Subtitle</p>
-        </article>
-      </div>
-      <div class="tile is-parent">
-        <article class="tile is-child box">
-          <p class="title">Three</p>
-          <p class="subtitle">Subtitle</p>
-        </article>
-      </div>
-      <div class="tile is-parent">
-        <article class="tile is-child box">
-          <p class="title">Four</p>
-          <p class="subtitle">Subtitle</p>
-        </article>
-      </div>
-    </div>
+      <div class="tile is-vertical is-12">
+        <div class="tile">
+          <div class="tile is-6 is-parent">
+            <article class="tile is-child box">
+              <p class="title">{{ user.first_name }} {{ user.last_name }}</p>
+              <div class="content">
+                <p>You are member of these bodies:</p>
+                <ul>
+                  <li v-for="body in user.bodies" v-bind:key="body.id">
+                    <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id} }">{{ body.name }}</router-link>
+                  </li>
+                </ul>
+                <p>You are member of these circles:</p>
+                <ul>
+                  <li v-for="circle in user.circles" v-bind:key="circle.id">
+                    <router-link :to="{ name: 'oms.circles.view', params: { id: circle.id} }">{{ circle.name }}</router-link>
+                  </li>
+                </ul>
+              </div>
 
-    <div class="tile is-ancestor">
-      <div class="tile is-vertical is-9">
-        <div class="tile">
-          <div class="tile is-parent">
-            <article class="tile is-child box">
-              <p class="title">Seven</p>
-              <p class="subtitle">Subtitle</p>
-              <div class="content">
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ornare magna eros, eu pellentesque tortor vestibulum ut. Maecenas non massa sem. Etiam finibus odio quis feugiat facilisis.</p>
-              </div>
+              <b-loading :is-full-page="false" :active.sync="isUserLoading"></b-loading>
             </article>
           </div>
-          <div class="tile is-8 is-parent">
+          <div class="tile is-6 is-parent">
             <article class="tile is-child box">
-              <p class="title">Eight</p>
-              <p class="subtitle">Subtitle</p>
+              <p class="title">Events you've applied to</p>
+              <p class="subtitle">Not implemented yet.</p>
               <div class="content">
                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ornare magna eros, eu pellentesque tortor vestibulum ut. Maecenas non massa sem. Etiam finibus odio quis feugiat facilisis.</p>
               </div>
             </article>
           </div>
         </div>
-        <div class="tile">
-          <div class="tile is-8 is-parent">
-            <article class="tile is-child box">
-              <p class="title">Nine</p>
-              <p class="subtitle">Subtitle</p>
-              <div class="content">
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ornare magna eros, eu pellentesque tortor vestibulum ut. Maecenas non massa sem. Etiam finibus odio quis feugiat facilisis.</p>
-              </div>
-            </article>
-          </div>
-          <div class="tile is-parent">
-            <article class="tile is-child box">
-              <p class="title">Ten</p>
-              <p class="subtitle">Subtitle</p>
-              <div class="content">
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ornare magna eros, eu pellentesque tortor vestibulum ut. Maecenas non massa sem. Etiam finibus odio quis feugiat facilisis.</p>
-              </div>
-            </article>
-          </div>
-        </div>
-      </div>
-      <div class="tile is-parent">
-        <article class="tile is-child box">
-          <div class="content">
-            <p class="title">Eleven</p>
-            <p class="subtitle">Subtitle</p>
-            <div class="content">
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam semper diam at erat pulvinar, at pulvinar felis blandit. Vestibulum volutpat tellus diam, consequat gravida libero rhoncus ut. Morbi maximus, leo sit amet vehicula eleifend, nunc dui porta orci, quis semper odio felis ut quam.</p>
-              <p>Integer sollicitudin, tortor a mattis commodo, velit urna rhoncus erat, vitae congue lectus dolor consequat libero. Donec leo ligula, maximus et pellentesque sed, gravida a metus. Cras ullamcorper a nunc ac porta. Aliquam ut aliquet lacus, quis faucibus libero. Quisque non semper leo.</p>
-            </div>
-          </div>
-        </article>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
+  name: 'Dashboard',
   data () {
     return {
-
+      user: {
+        first_name: '',
+        last_name: '',
+        bodies: [],
+        circles: []
+      },
+      isUserLoading: false
     }
   },
   mounted () {
+    this.isUserLoading = true
+    this.axios.get(this.services['oms-core-elixir'] + '/members/me').then((response) => {
+      this.user = response.data.data
+      this.isUserLoading = false
+    }).catch((err) => {
+      this.isUserLoading = false
+      let message = 'Some error happened: ' + err.message
 
-  }
+      this.$toast.open({
+        duration: 3000,
+        message,
+        type: 'is-danger'
+      })
+    })
+  },
+  computed: mapGetters({
+    loginUser: 'user',
+    services: 'services'
+  })
 }
 </script>
-
-<style lang="scss" scoped>
-</style>
