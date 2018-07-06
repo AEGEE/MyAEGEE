@@ -13,6 +13,3 @@
 [submodule "oms-core-elixir"]
 	path = oms-core-elixir
 	url = https://github.com/AEGEE/oms-core-elixir.git
-[submodule "oms-loginservice"]
-	path = oms-loginservice
-	url = https://github.com/AEGEE/oms-loginservice.git
