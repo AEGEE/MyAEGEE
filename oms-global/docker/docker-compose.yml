@@ -16,7 +16,7 @@ services:
         ports:
           - 80:80
           - 443:443
-          - 8080:8080
+          - 8080
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock:ro
 #        networks:
@@ -27,7 +27,7 @@ services:
         labels:
           - traefik.enable=true
           - traefik.backend=traefik
-          #- traefik.port=8080
+          - traefik.port=8080
           - traefik.frontend.rule=HostRegexp:{domain:traefik.[a-z0-9.]+}
           - traefik.frontend.priority=20
 
