@@ -3,19 +3,12 @@
 ################################################################
 logLevel = "INFO"
 
-defaultEntryPoints = ["http", "https"]
+defaultEntryPoints = ["http"]
 
 [entryPoints]
   [entryPoints.http]
   address = ":80"
-    [entryPoints.http.redirect]
-    entryPoint = "https"
-  [entryPoints.https]
-  address = ":443"
-    [entryPoints.https.tls]
-      [[entryPoints.https.tls.certificates]]
-      certFile = "/run/secrets/https_cert"
-      keyFile = "/run/secrets/https_key"
+
 
 
 ################################################################
