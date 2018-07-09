@@ -34,12 +34,12 @@
           <div class="field is-grouped" v-if="can.setActive">
             <a v-if="user.user.active" class="button is-fullwidth is-danger" :class="{'is-loading': isSwitchingStatus }" @click="askToggleActive()">
               <span>Suspend user</span>
-              <span class="icon"><i class="fa fa-edit"></i></span>
+              <span class="icon"><i class="fa fa-minus"></i></span>
             </a>
 
             <a v-if="!user.user.active" class="button is-fullwidth is-success" :class="{'is-loading': isSwitchingStatus }" @click="askToggleActive()">
               <span>Activate user</span>
-              <span class="icon"><i class="fa fa-edit"></i></span>
+              <span class="icon"><i class="fa fa-plus"></i></span>
             </a>
           </div>
 

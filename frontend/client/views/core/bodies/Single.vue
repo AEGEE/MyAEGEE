@@ -31,13 +31,6 @@
             </a>
           </div>
 
-          <div class="field is-grouped" v-if="isMember">
-            <a @click="askLeaveBody()" class="button is-fullwidth is-danger">
-              <span>Leave body</span>
-              <span class="icon"><i class="fa fa-user-minus"></i></span>
-            </a>
-          </div>
-
           <div class="field is-grouped" v-if="can.createCircle">
             <a @click="isAddingCircle = true" class="button is-fullwidth is-warning">
               <span>Add bound circle</span>
@@ -50,6 +43,13 @@
               <span>Edit body details</span>
               <span class="icon"><i class="fa fa-edit"></i></span>
             </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="isMember">
+            <a @click="askLeaveBody()" class="button is-fullwidth is-danger">
+              <span>Leave body</span>
+              <span class="icon"><i class="fa fa-sign-out"></i></span>
+            </a>
           </div>
 
           <div class="field is-grouped" v-if="can.delete">
