@@ -17,7 +17,6 @@ script:
     - bash ./oms.sh exec -T -d postgres-oms-core-elixir true 2>/dev/null || exit 1
     - bash ./oms.sh exec -T -d pgadmin true 2>/dev/null || exit 1
     - bash ./oms.sh exec -T -d oms-core-elixir true 2>/dev/null || exit 1
-    - bash ./oms.sh exec -T -d oms-oms-core-elixir curl localhost:4000/campaigns 2>/dev/null || exit 1
     - bash ./oms.sh exec -T -d oms-events true 2>/dev/null || exit 1
     - bash ./oms.sh exec -T -d mongodb true 2>/dev/null || exit 1
     - bash ./oms.sh exec -T -d omsserviceregistry true 2>/dev/null || exit 1
