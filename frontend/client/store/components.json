@@ -326,6 +326,102 @@
     ]
   },
   {
+    "categoryName": "OMS Events",
+    "components": [
+      {
+        "meta": {
+          "label": "Events admin",
+          "icon": "fa-wrench"
+        },
+        "children": [
+          {
+            "name": "oms.events.admin",
+            "path": "/events/serviceadmin",
+            "component": "events/ServiceAdmin",
+            "meta": {
+              "label": "Service admin page"
+            }
+          },
+          {
+            "name": "oms.events.change_status",
+            "path": "/events/change_status",
+            "component": "events/ChangeStatus",
+            "meta": {
+              "label": "Change events statuses"
+            }
+          }
+        ]
+      },
+      {
+        "meta": {
+          "label": "Events listing",
+          "icon": "fa-calendar"
+        },
+        "children": [
+          {
+            "name": "oms.events.list.all",
+            "path": "/events",
+            "component": "events/List",
+            "meta": {
+              "label": "List all events"
+            }
+          },
+          {
+            "name": "oms.events.list.participating",
+            "path": "/events/participating",
+            "component": "events/List",
+            "meta": {
+              "label": "List events I'm participating at"
+            }
+          },
+          {
+            "name": "oms.events.list.organizing",
+            "path": "/events/organizing",
+            "component": "events/List",
+            "meta": {
+              "label": "List events I'm organizing"
+            }
+          },
+          {
+            "name": "oms.events.edit",
+            "path": "/events/:id/edit",
+            "component": "events/Edit",
+            "meta": {
+              "skipMenu": true,
+              "label": "Edit single event"
+            }
+          },
+          {
+            "name": "oms.events.edit_organizers",
+            "path": "/events/:id/edit_organizers",
+            "component": "events/EditOrganizers",
+            "meta": {
+              "skipMenu": true,
+              "label": "Edit organizers of the event"
+            }
+          },
+          {
+            "name": "oms.events.create",
+            "path": "/events/new",
+            "component": "events/Edit",
+            "meta": {
+              "label": "Create event"
+            }
+          },
+          {
+            "name": "oms.events.view",
+            "path": "/events/:id",
+            "component": "events/Single",
+            "meta": {
+              "skipMenu": true,
+              "label": "Display single event"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
     "categoryName": "Resources",
     "components": [
       {
