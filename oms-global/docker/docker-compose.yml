@@ -21,6 +21,9 @@ services:
           - /var/run/docker.sock:/var/run/docker.sock:ro
 #        networks:
 #          - management
+        secrets:
+            - https_key
+            - https_cert
         labels:
           - traefik.enable=true
           - traefik.backend=traefik

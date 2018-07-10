@@ -4,9 +4,11 @@
 logLevel = "INFO"
 
 defaultEntryPoints = ["http"]
+
 [entryPoints]
   [entryPoints.http]
   address = ":80"
+
 
 
 ################################################################
