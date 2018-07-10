@@ -39,67 +39,57 @@ if [ "$error" == "true" ]; then
   exit 8
 fi
 
-EDITOR=$(env | grep EDITOR | grep -oe '[^=]*$');
+export EDITOR=$(env | grep EDITOR | grep -oe '[^=]*$');
 if [ -z "$EDITOR" ]; then
+  echo "[Deployment] no EDITOR variable, setting it to vim"
   export EDITOR="vim";
 fi
 
+#what's this line for?! According to the commit message,
+#"Paths are now relative to script location instead of execution location"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 #DEBUG echo
 echo -e "\n the directory is ${DIR} and bash source is ${BASH_SOURCE[0]} and the wtf is $( dirname '${BASH_SOURCE[0]}' )"
 
 #FRESH/NUKE: nuke installation (bring it down and up again without volumes)
-# nuke is just removing .env and using the repo one
+# nuke is just removing .env and using the repo one (.env.example)
 if [ "$fresh" == "true" ]; then
-  echo -e "\n[Deployment] Nuking installation (removing .env = $nuke )\n"
+  echo -e "\n[Deployment] Stopping installation (removing .env = $nuke )\n"
   bash $DIR/oms-docker/oms.sh down -v 
-  #ONLY FOR DEv
-  bash $DIR/oms-docker/oms.sh down -v --remove-orphans
-  #END ONLY FOR DEV
-  cp $DIR/oms-docker/.env $DIR/.env #NOTE check how many times/why i copy .env outside the folder
-  rm -Rf $DIR/oms-docker/
-  mkdir $DIR/oms-docker/
-  #DEV only for me to mess around
-  chown -R grasshopper:grasshopper $DIR/oms-docker/
-  #END DEV for me to mess around
+  if [ ! $RUN_BY_CRON ]; then
+    #ONLY FOR Test server
+    bash $DIR/oms-docker/oms.sh down -v --remove-orphans
+  fi
+  cp $DIR/oms-docker/.env $DIR/.env 
   if [ "$nuke" == "true" ]; then
-    echo -e "\n[Deployment] Removing .env\n"
-    rm .env
+    echo -e "\n[Deployment] Removing .env (nuking)\n"
+    rm $DIR/.env
   fi
 fi
 
 #BRINGING IT UP: if there is a .env file it's an update
 # otherwise it's a fresh setup
-if [ -f ./oms-docker/.env ]; then
+if [ -f $DIR/oms-docker/.env ]; then
   echo -e "\n[Deployment] Updating installation\n"
   
-  #cd oms-docker/
-  pwd #REMOVEE
-  #PROD: git pull
-  #git pull
-  #git submodule init
-  #git submodule update
-  #DEV: rsync from /opt/masterRepo
-  rsync -hrPt --include=.git --exclude=node_modules/ --delete /opt/masterRepo/ /opt/oms-docker
+  cd $DIR/oms-docker/
+  git pull
+  git submodule init
+  git submodule update
    
   echo -e "\n[Deployment] Update performed, restarting containers\n"
-  mv /opt/.env $DIR/oms-docker/.env #NOTE useless basically (but see above anyway)
   bash $DIR/oms-docker/oms.sh up -d
 else
   echo -e "\n[Deployment] New installation\n"
   echo -e "\n[Deployment] Cloning repo (normal output suppressed)\n"
-  #PRODUCTION: a git clone
-  #git clone --recursive --branch feat-autodeploy https://github.com/AEGEE/oms-docker.git 1>/dev/null
-  #DEVELOPMENT: a copy from filesystem (from an up-to-date, manually edited repo)
-  rsync -hrPt --include=.git --exclude=node_modules/ --delete /opt/masterRepo/ /opt/oms-docker
-  
-  #DEV only for me to mess around
-  chown -R grasshopper:grasshopper /opt/oms-docker #NOTE user?
-  #END DEV only for me to mess around
+  git clone --recursive --branch dev https://github.com/AEGEE/oms-docker.git 1>/dev/null
 
-  cp $DIR/oms-docker/.env.example $DIR/oms-docker/.env
-  cp $DIR/oms-docker/.env $DIR/.env
-  
+  #if there is a .env in /opt use that, otherwise oms.sh will copy
+  if [ -f $DIR/.env ]; then
+    pwd
+    mv $DIR/.env $DIR/oms-docker/.env 
+  fi 
+
   if [ ! $RUN_BY_CRON ]; then
     #Ask if one wants to tweak the .env before starting it up
     echo "Do you wish to edit .env file? (write the number)"
@@ -112,19 +102,9 @@ else
   fi
   echo -e "\n[Deployment] Setting passwords\n"
   bash $DIR/oms-docker/password-setter.sh
-  if [[ -f "$DIR/oms-docker/oms-core/storage/key" ]]; then
-    echo -e "WARNING: The application key is already set, security compromised!"
-    echo -e "WARNING: The application key is already set, security compromised!"
-    echo -e "WARNING: The application key is already set, security compromised!"
-    echo -e "WARNING: The application key is already set, security compromised!"
-    echo -e "WARNING: The application key is already set, security compromised!"
-    echo -e "WARNING: The application key is already set, security compromised!"
-    echo -e "WARNING: The application key is already set, security compromised!"
-  fi
   echo -e "\n[Deployment] Deploying (This could take a while)\n"
-  cd $DIR/oms-docker
-  bash oms.sh up -d
-  sleep 5
+  bash $DIR/oms-docker/oms.sh up -d
+  sleep 10
   echo -e "\n[Deployment] Showing logs, feel free to cancel with ctrl+c (server keeps running anyway)\n"
   bash $DIR/oms-docker/oms.sh logs -f
 fi
