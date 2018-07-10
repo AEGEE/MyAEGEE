@@ -383,6 +383,24 @@
             }
           },
           {
+            "name": "oms.events.apply",
+            "path": "/events/:id/apply",
+            "component": "events/Apply",
+            "meta": {
+              "skipMenu": true,
+              "label": "Apply to event"
+            }
+          },
+          {
+            "name": "oms.events.participants",
+            "path": "/events/:id/participants",
+            "component": "events/Participants",
+            "meta": {
+              "skipMenu": true,
+              "label": "List/manage participants of the event"
+            }
+          },
+          {
             "name": "oms.events.edit",
             "path": "/events/:id/edit",
             "component": "events/Edit",
