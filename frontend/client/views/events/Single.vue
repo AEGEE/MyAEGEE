@@ -12,7 +12,7 @@
       <div class="tile is-parent">
         <article class="tile is-child is-info">
           <div class="field is-grouped" v-if="can.view_applications">
-            <router-link :to="{ name: 'oms.events.edit', params: { id: event.seo_url || event.id } }" class="button is-fullwidth">
+            <router-link :to="{ name: 'oms.events.participants', params: { id: event.seo_url || event.id } }" class="button is-fullwidth">
               <span>View applications</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
