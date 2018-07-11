@@ -21,7 +21,7 @@ const mutations = {
   },
 
   [types.TOGGLE_SIDEBAR] (state, config) {
-    if (state.device.isMobile && config.hasOwnProperty('opened')) {
+    if (config.hasOwnProperty('opened')) {
       state.sidebar.opened = config.opened
     } else {
       state.sidebar.opened = true
