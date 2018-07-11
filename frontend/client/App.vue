@@ -2,7 +2,7 @@
   <div id="app">
     <nprogress-container></nprogress-container>
     <navbar :show="true"></navbar>
-    <sidebar :show="sidebar.opened && !sidebar.hidden"></sidebar>
+    <sidebar :show="sidebar.opened && !sidebar.hidden && $route.meta.showSidebar"></sidebar>
     <app-main></app-main>
     <hr />
     <footer-bar></footer-bar>

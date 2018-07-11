@@ -10,7 +10,8 @@
           "label": "Login",
           "skipMenu": true,
           "skipLazyLoad": true,
-          "auth": false
+          "auth": false,
+          "showSidebar": false
         }
       },
       {
@@ -21,7 +22,8 @@
           "label": "Register",
           "skipMenu": true,
           "skipLazyLoad": true,
-          "auth": false
+          "auth": false,
+          "showSidebar": false
         }
       },
       {
@@ -32,7 +34,8 @@
           "label": "Confirm your email",
           "skipMenu": true,
           "skipLazyLoad": true,
-          "auth": false
+          "auth": false,
+          "showSidebar": false
         }
       },
       {
@@ -43,7 +46,8 @@
           "label": "Reset your password",
           "skipMenu": true,
           "skipLazyLoad": true,
-          "auth": false
+          "auth": false,
+          "showSidebar": false
         }
       },
       {
@@ -54,7 +58,8 @@
           "label": "Confirm your password",
           "skipMenu": true,
           "skipLazyLoad": true,
-          "auth": false
+          "auth": false,
+          "showSidebar": false
         }
       },
       {

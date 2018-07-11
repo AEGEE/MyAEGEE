@@ -9,7 +9,6 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import * as filters from './filters'
-import { TOGGLE_SIDEBAR } from 'vuex-store/mutation-types'
 import Auth from './auth'
 
 Vue.router = router
@@ -28,10 +27,6 @@ const nprogress = new NProgress({ parent: '.nprogress-container' })
 const { state } = store
 
 router.beforeEach((route, redirect, next) => {
-  if (state.app.device.isMobile && state.app.sidebar.opened) {
-    store.commit(TOGGLE_SIDEBAR, false)
-  }
-
   // Skipping fetching user if going to page that doesn't require authorization
   if (!route.meta.auth) {
     return next()

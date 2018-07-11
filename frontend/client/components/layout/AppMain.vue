@@ -25,7 +25,7 @@ export default {
       sidebar: 'sidebar'
     }),
     hiddenSidebarStyle () {
-      return this.sidebar.hidden ? { 'margin-left': 0 } : null
+      return (this.sidebar.hidden || !this.$route.meta.showSidebar) ? { 'margin-left': 0 } : null
     }
   },
 
