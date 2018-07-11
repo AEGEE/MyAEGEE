@@ -18,6 +18,13 @@
             </router-link>
           </div>
 
+          <div class="field is-grouped" v-if="can.view_applications">
+            <router-link :to="{ name: 'oms.events.accepted', params: { id: event.seo_url || event.id } }" class="button is-fullwidth">
+              <span>View participants</span>
+              <span class="icon"><i class="fa fa-users"></i></span>
+            </router-link>
+          </div>
+
           <div class="field is-grouped" v-if="can.apply">
             <router-link :to="{ name: 'oms.events.apply', params: { id: event.seo_url || event.id } }" class="button is-info is-fullwidth">
               <span>Apply</span>

@@ -423,6 +423,15 @@
             }
           },
           {
+            "name": "oms.events.accepted",
+            "path": "/events/:id/accepted",
+            "component": "events/Accepted",
+            "meta": {
+              "skipMenu": true,
+              "label": "List accepted participants for the event"
+            }
+          },
+          {
             "name": "oms.events.edit",
             "path": "/events/:id/edit",
             "component": "events/Edit",
