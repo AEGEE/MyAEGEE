@@ -11,7 +11,7 @@
         </div>
 
         <div class="tile">
-          <div class="tile is-vertical is-2" v-for="member in members" v-bind:key="member.id">
+          <div class="tile is-vertical is-2 box" v-for="member in members" v-bind:key="member.id">
 
             <div class="tile is-child">
               <div class="image is-1by1">
