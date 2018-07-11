@@ -1,6 +1,35 @@
 <template>
   <div class="tile is-ancestor ">
     <div class="tile is-child">
+      <div class="subtitle">Update event image</div>
+
+      <div class="field is-grouped">
+        <div class="control">
+          <div class="file has-name">
+            <label class="file-label">
+              <input class="file-input" type="file" name="resume" @change="setFile($event)">
+              <span class="file-cta">
+                <span class="file-icon">
+                  <i class="fa fa-upload"></i>
+                </span>
+                <span class="file-label">
+                  Choose a file
+                </span>
+              </span>
+              <span class="file-name">
+                {{ file ? file.name : 'Not set.' }}
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="control">
+          <a class="button is-info" :disabled="!file" @click="updateImage()">Upload!</a>
+        </div>
+      </div>
+
+      <hr />
+
       <form @submit.prevent="saveEvent()">
         <div class="field">
           <label class="label">Title</label>
@@ -226,6 +255,7 @@ export default {
         body_id: null,
         body: null
       },
+      file: null,
       eventTypes: [],
       autoComplete: {
         bodies: { name: '' },
@@ -241,6 +271,28 @@ export default {
     }
   },
   methods: {
+    setFile (event) {
+      this.file = event.target.files[0]
+    },
+    updateImage () {
+      const data = new FormData()
+      data.append('head_image', this.file)
+
+      this.axios.post(this.services['oms-events'] + '/single/' + this.$route.params.id + '/upload', data).then(() => {
+        this.$toast.open({
+          duration: 3000,
+          message: 'Event image is updated.',
+          type: 'is-success'
+        })
+        this.file = null
+      }).catch((err) => {
+        this.$toast.open({
+          duration: 3000,
+          message: 'Could not update image: ' + err.message,
+          type: 'is-danger'
+        })
+      })
+    },
     addApplicationField () {
       this.event.application_fields.push({
         name: '',

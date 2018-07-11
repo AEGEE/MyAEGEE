@@ -5,7 +5,7 @@
         <article class="tile is-child is-primary">
           <figure class="image is-4by3">
             <img v-if="!event.head_image || !event.head_image.url" src="https://bulma.io/images/placeholders/640x480.png">
-            <img v-if="event.head_image && event.head_image.url" :src="event.head_image.url">
+            <img v-if="event.head_image && event.head_image.url" :src="services['oms-events'] + event.head_image.url">
           </figure>
         </article>
       </div>
