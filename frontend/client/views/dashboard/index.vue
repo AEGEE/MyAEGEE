@@ -21,16 +21,22 @@
                 </ul>
               </div>
 
-              <b-loading :is-full-page="false" :active.sync="isUserLoading"></b-loading>
+              <b-loading :is-full-page="false" :active.sync="isLoading.user"></b-loading>
             </article>
           </div>
           <div class="tile is-6 is-parent">
             <article class="tile is-child box">
               <p class="title">Events you've applied to</p>
-              <p class="subtitle">Not implemented yet.</p>
               <div class="content">
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ornare magna eros, eu pellentesque tortor vestibulum ut. Maecenas non massa sem. Etiam finibus odio quis feugiat facilisis.</p>
+                <ul>
+                  <li v-for="event in events" v-bind:key="event.id">
+                    <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }">
+                      {{ event.name }} - {{ event.starts | date }}
+                    </router-link>
+                  </li>
+                </ul>
               </div>
+              <b-loading :is-full-page="false" :active.sync="isLoading.events"></b-loading>
             </article>
           </div>
         </div>
@@ -41,6 +47,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import moment from 'moment'
 
 export default {
   name: 'Dashboard',
@@ -52,17 +59,37 @@ export default {
         bodies: [],
         circles: []
       },
-      isUserLoading: false
+      events: [],
+      isLoading: {
+        user: false,
+        events: false
+      }
     }
   },
   mounted () {
-    this.isUserLoading = true
+    this.isLoading.user = true
+    this.isLoading.events = true
+
     this.axios.get(this.services['oms-core-elixir'] + '/members/me').then((response) => {
       this.user = response.data.data
-      this.isUserLoading = false
+      this.isLoading.user = false
     }).catch((err) => {
-      this.isUserLoading = false
-      let message = 'Some error happened: ' + err.message
+      this.isLoading.user = false
+      let message = 'Could not fetch user: ' + err.message
+
+      this.$toast.open({
+        duration: 3000,
+        message,
+        type: 'is-danger'
+      })
+    })
+
+    this.axios.get(this.services['oms-events'] + '/mine/participating').then((response) => {
+      this.events = response.data.data
+      this.isLoading.events = false
+    }).catch((err) => {
+      this.isLoading.events = false
+      let message = 'Could not fetch events list: ' + err.message
 
       this.$toast.open({
         duration: 3000,
@@ -71,9 +98,19 @@ export default {
       })
     })
   },
-  computed: mapGetters({
-    loginUser: 'user',
-    services: 'services'
-  })
+  filters: {
+    date (value) {
+      return moment(value).format('YYYY-MM-DD')
+    }
+  },
+  computed: {
+    ...mapGetters({
+      loginUser: 'user',
+      services: 'services'
+    }),
+    isAnythingLoading () {
+      return Object.keys(this.isLoading).some(key => this.isLoading[key])
+    }
+  }
 }
 </script>
