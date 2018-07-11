@@ -8,6 +8,7 @@
           <table class="table is-bordered is-striped is-narrow is-fullwidth">
             <thead>
               <tr>
+                <th>Event type</th>
                 <th>Event name</th>
                 <th>Description</th>
                 <th>Dates</th>
@@ -18,6 +19,7 @@
             </thead>
             <tfoot>
               <tr>
+                <th>Event type</th>
                 <th>Event name</th>
                 <th>Description</th>
                 <th>Dates</th>
@@ -28,6 +30,7 @@
             </tfoot>
             <tbody>
               <tr v-show="events.length" v-for="event in events" v-bind:key="event.id">
+                <td>{{ event.type }}</td>
                 <td>
                   <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }">
                     {{ event.name }}
