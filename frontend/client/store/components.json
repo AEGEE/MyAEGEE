@@ -349,6 +349,14 @@
             "meta": {
               "label": "Change events statuses"
             }
+          },
+          {
+            "name": "oms.events.boardview",
+            "path": "/events/boardview",
+            "component": "events/BoardView",
+            "meta": {
+              "label": "Board view"
+            }
           }
         ]
       },
