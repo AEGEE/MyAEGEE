@@ -5,9 +5,24 @@
         <h4 class="title">Events list</h4>
         <div class="field">
           <label class="label">Search by name or description</label>
-          <div class="control">
-            <input class="input" type="text" v-model="query" placeholder="Search by name or description" @input="refetch()">
+          <div class="field has-addons">
+            <div class="control is-expanded">
+              <input class="input" type="text" v-model="query" placeholder="Search by name or description" @input="refetch()" />
+            </div>
+            <div class="control">
+              <a class="button is-info" @click="toggleDisplayPast()">
+                {{ this.displayPast ? 'Display only future events' : 'Display past events' }}
+              </a>
+            </div>
           </div>
+        </div>
+
+        <div class="field" v-if="Object.keys(eventTypesEnabled).length > 0">
+          <label class="label">Event types</label>
+          <label v-for="(value, name) in eventTypesEnabled" v-bind:key="name">
+            <input class="checkbox" type="checkbox" v-model="eventTypesEnabled[name]" @change="refetch()" />
+            {{ name }}
+          </label>
         </div>
 
         <div class="field">
@@ -55,6 +70,16 @@
           </div>
         </div>
 
+        <div class="card" v-show="events.length === 0 && !isLoading">
+          <div class="card-content">
+            <div class="media">
+              <div class="media-content">
+                <p class="title has-text-centered">No events found.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
 
         <div class="field">
           <button
@@ -78,11 +103,12 @@ export default {
   data () {
     return {
       events: [],
-      eventTypeNames: [],
+      eventTypesEnabled: {},
       isLoading: false,
       query: '',
       limit: 30,
       offset: 0,
+      displayPast: false,
       canLoadMore: true,
       source: null
     }
@@ -96,10 +122,12 @@ export default {
     queryObject () {
       const queryObj = {
         limit: this.limit,
-        offset: this.offset
+        offset: this.offset,
+        type: Object.keys(this.eventTypesEnabled).filter(key => this.eventTypesEnabled[key]),
+        displayPast: this.displayPast
       }
 
-      if (this.query) queryObj.query = this.query
+      if (this.query) queryObj.search = this.query
       return queryObj
     },
     scope () {
@@ -112,6 +140,10 @@ export default {
     ...mapGetters(['services'])
   },
   methods: {
+    toggleDisplayPast () {
+      this.displayPast = !this.displayPast
+      this.refetch()
+    },
     refetch () {
       this.events = []
       this.offset = 0
@@ -157,8 +189,11 @@ export default {
     this.fetchData()
 
     this.axios.get(this.services['oms-events'] + '/lifecycle/names').then((response) => {
-      this.eventTypeNames = response.data.data
+      for (const type of response.data.data) {
+        this.eventTypesEnabled[type] = true
+      }
       this.isLoading = false
+      this.$forceUpdate()
     }).catch((err) => {
       this.$toast.open({
         duration: 3000,
