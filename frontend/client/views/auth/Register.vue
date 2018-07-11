@@ -63,7 +63,7 @@
           </div>
 
           <div class="field">
-            <label class="label">I agree to the Privacy Policy
+            <label class="label">I agree to the <router-link :to="{ name: 'oms.legal.simple' }">Privacy Policy</router-link>
               <input type="checkbox" class="checkbox" v-model="agreedToPrivacyPolicy" />
             </label>
              <p class="help is-danger" v-if="errors.agreedToPrivacyPolicy">{{ errors.agreedToPrivacyPolicy.join(', ')}}</p>
