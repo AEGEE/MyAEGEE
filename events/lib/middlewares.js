@@ -10,7 +10,7 @@ const config = require('./config/config.js');
 exports.authenticateUser = async (req, res, next) => {
   const token = req.header('x-auth-token');
   if (!token) {
-    return errors.makeForbiddenError(res, 'No auth token provided');
+    return errors.makeUnauthorizedError(res, 'No auth token provided');
   }
 
 
@@ -36,7 +36,7 @@ exports.authenticateUser = async (req, res, next) => {
 
     if (!body.success) {
       // We are not authenticated
-      return errors.makeForbiddenError(res, 'User is not authenticated.');
+      return errors.makeUnauthorizedError(res, 'User is not authenticated.');
     }
 
     if (!req.user) {
