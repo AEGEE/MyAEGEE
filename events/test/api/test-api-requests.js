@@ -22,7 +22,7 @@ describe('API requests', () => {
     chai.request(server)
       .get('/getUser')
       .end((err, res) => {
-        expect(res).to.have.status(403);
+        expect(res).to.have.status(401);
         expect(res.body.success).to.be.false;
 
         done();
@@ -38,7 +38,7 @@ describe('API requests', () => {
       .get('/getUser')
       .set('X-Auth-Token', 'blablabla')
       .end((err, res) => {
-        expect(res).to.have.status(403);
+        expect(res).to.have.status(401);
         expect(res).to.be.json;
         expect(res).to.be.a('object');
         expect(res.body.success).to.be.false;
@@ -146,7 +146,7 @@ describe('API requests', () => {
       .get('/getUser')
       .set('X-Auth-Token', 'blablabla')
       .end((err, res) => {
-        expect(res).to.have.status(403);
+        expect(res).to.have.status(401);
         expect(res).to.be.json;
         expect(res).to.be.a('object');
         expect(res.body.success).to.be.false;
