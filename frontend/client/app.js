@@ -60,7 +60,7 @@ axios.interceptors.response.use(
   response => response, // success handler
   error => {
     let originalRequest = error.config
-    if (axios.isCancel(error) || error.response.status !== 401 || originalRequest._retry) {
+    if (axios.isCancel(error) || !error.response || error.response.status !== 401 || originalRequest._retry) {
       return Promise.reject(error)
     }
 
