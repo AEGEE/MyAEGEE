@@ -10,8 +10,13 @@
           </div>
         </div>
 
-        <div class="field" v-if="can.create">
-          <router-link :to="{ name: 'oms.bodies.new_member', params: { id: $route.params.id } }" class="button" >Create member</router-link>
+        <div class="field is-grouped" v-if="can.create">
+          <div class="control">
+            <router-link :to="{ name: 'oms.bodies.new_member', params: { id: $route.params.id } }" class="button" >Create member</router-link>
+          </div>
+          <div class="control">
+            <router-link :to="{ name: 'oms.bodies.bulk_import', params: { id: $route.params.id } }" class="button" >Bulk import bodies</router-link>
+          </div>
         </div>
 
         <div class="tile">

@@ -157,6 +157,15 @@
             }
           },
           {
+            "name": "oms.bodies.bulk_import",
+            "path": "/bodies/:id/bulk_import",
+            "component": "core/bodies/BulkImport",
+            "meta": {
+              "label": "Bulk importing members for body",
+              "skipMenu": true
+            }
+          },
+          {
             "name": "oms.bodies.edit",
             "path": "/bodies/:id/edit",
             "component": "core/bodies/Edit",
