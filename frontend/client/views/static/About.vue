@@ -67,6 +67,11 @@
                 <td><a href="https://fontawesome.com/">FontAwesone</a></td>
                 <td>Fancy icons you can see at the sidebar, for example.</td>
               </tr>
+
+              <tr>
+                <td><a href="https://github.com/vue-bulma/vue-admin">Vue Admin</a></td>
+                <td>This whole project is a rewrite of Vue Admin and therefore uses a lof of things that were implemented as a part of Vue Admin project.</td>
+              </tr>
             </tbody>
           </table>
 
