@@ -72,7 +72,6 @@
               @click="selectedEventTypeIndex = index">
               <a>
                 <span>{{ eventType.name }}</span>
-                <span class="icon is-small" @click="askDeleteEventType(index)"><i class="fa fa-minus"></i></span>
               </a>
             </li>
             <li v-if="!eventTypes.length"><a><i>No event types are set.</i></a></li>
