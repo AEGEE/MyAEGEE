@@ -4,7 +4,7 @@
       <div class="tile is-child">
         <div class="title">Board-view</div>
 
-        <div class="field">
+        <div class="field" v-if="boardBodies.length > 0">
           <label>Select the body to view application from:</label>
           <div class="field">
             <div class="control has-icons-left">
@@ -20,9 +20,10 @@
           </div>
         </div>
 
-        <div class="subtitle" v-if="!selectedBody">You haven't selected the antenna yet.</div>
+        <div class="subtitle" v-if="boardBodies.length === 0">You are not a board member of any body.</div>
+        <div class="subtitle" v-if="!selectedBody && boardBodies.length > 0">You haven't selected the antenna yet.</div>
 
-        <table class="table is-narrow is-fullwidth" v-if="selectedBody">
+        <table class="table is-narrow is-fullwidth" v-if="selectedBody && boardBodies.length > 0">
           <thead>
             <tr>
               <th>Date modified</th>
