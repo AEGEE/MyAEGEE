@@ -20,7 +20,6 @@
           <table class="table is-bordered is-striped is-narrow is-fullwidth">
             <thead>
               <tr>
-                <th>Permission ID</th>
                 <th>Permission code</th>
                 <th>Description</th>
                 <th>Additional info</th>
@@ -28,7 +27,6 @@
             </thead>
             <tfoot>
               <tr>
-                <th>Permission ID</th>
                 <th>Permission code</th>
                 <th>Description</th>
                 <th>Additional info</th>
@@ -36,7 +34,6 @@
             </tfoot>
             <tbody>
               <tr v-show="permissions.length" v-for="permission in permissions" v-bind:key="permission.id">
-                <td>{{ permission.id }}</td>
                 <td>
                   <router-link :to="{ name: 'oms.permissions.view', params: { id: permission.id } }">
                     {{ permission.combined }}
@@ -49,10 +46,10 @@
                 </td>
               </tr>
               <tr v-show="!permissions.length && !isLoading">
-                <td colspan="4" class="has-text-centered">Permissions list is empty</td>
+                <td colspan="3" class="has-text-centered">Permissions list is empty</td>
               </tr>
               <tr v-show="isLoading">
-                <td colspan="4" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
+                <td colspan="3" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
               </tr>
             </tbody>
           </table>

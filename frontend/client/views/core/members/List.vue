@@ -14,30 +14,30 @@
           <table class="table is-bordered is-striped is-narrow is-fullwidth">
             <thead>
               <tr>
-                <th>User ID</th>
                 <th>Name and surname</th>
                 <th>Birthday</th>
-                <th>Link</th>
+                <th>Address</th>
+                <th>About user</th>
               </tr>
             </thead>
             <tfoot>
               <tr>
-                <th>User ID</th>
                 <th>Name and surname</th>
                 <th>Birthday</th>
-                <th>Link</th>
+                <th>Address</th>
+                <th>About user</th>
               </tr>
             </tfoot>
             <tbody>
               <tr v-show="users.length" v-for="user in users" v-bind:key="user.id">
-                <td>{{ user.id }}</td>
-                <td>{{ user.first_name + ' ' + user.last_name }}</td>
-                <td>{{ user.date_of_birth }}</td>
                 <td>
                   <router-link :to="{ name: 'oms.members.view', params: { id: user.seo_url || user.id } }">
-                    {{ '/members/' + (user.seo_url || user.id) }}
+                    {{ user.first_name + ' ' + user.last_name }}
                   </router-link>
                 </td>
+                <td>{{ user.date_of_birth }}</td>
+                <td>{{ user.address }}</td>
+                <td>{{ user.about_me }}</td>
               </tr>
               <tr v-show="!users.length && !isLoading">
                 <td colspan="4" class="has-text-centered">User list is empty</td>

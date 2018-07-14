@@ -23,21 +23,18 @@
           <table class="table is-bordered is-striped is-narrow is-fullwidth">
             <thead>
               <tr>
-                <th>Circle ID</th>
                 <th>Name</th>
                 <th>Description</th>
               </tr>
             </thead>
             <tfoot>
               <tr>
-                <th>Circle ID</th>
                 <th>Name</th>
                 <th>Description</th>
               </tr>
             </tfoot>
             <tbody>
               <tr v-show="circles.length" v-for="circle in circles" v-bind:key="circle.id">
-                <td>{{ circle.id }}</td>
                 <td>
                   <router-link :to="{ name: 'oms.circles.view', params: { id: circle.id } }">
                     {{ circle.name }}
@@ -46,10 +43,10 @@
                 <td>{{ circle.description }}</td>
               </tr>
               <tr v-show="!circles.length && !isLoading">
-                <td colspan="3" class="has-text-centered">Circles list is empty</td>
+                <td colspan="2" class="has-text-centered">Circles list is empty</td>
               </tr>
               <tr v-show="isLoading">
-                <td colspan="3" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
+                <td colspan="2" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
               </tr>
             </tbody>
           </table>

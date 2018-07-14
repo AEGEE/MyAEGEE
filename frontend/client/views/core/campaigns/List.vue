@@ -20,7 +20,6 @@
           <table class="table is-bordered is-striped is-narrow is-fullwidth">
             <thead>
               <tr>
-                <th>Campaign ID</th>
                 <th>Campaign name</th>
                 <th>Description</th>
                 <th>Link</th>
@@ -28,7 +27,6 @@
             </thead>
             <tfoot>
               <tr>
-                <th>Campaign ID</th>
                 <th>Campaign name</th>
                 <th>Description</th>
                 <th>Link</th>
@@ -36,7 +34,6 @@
             </tfoot>
             <tbody>
               <tr v-show="campaigns.length" v-for="campaign in campaigns" v-bind:key="campaign.id">
-                <td>{{ campaign.id }}</td>
                 <td>
                   <router-link :to="{ name: 'oms.campaigns.view', params: { id: campaign.id } }">
                     {{ campaign.name }}
