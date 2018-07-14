@@ -151,6 +151,7 @@
                 <td>
                   <div class="select">
                     <select v-model="transition.from">
+                      <option v-bind:value="null"></option>
                       <option v-for="status in eventTypes[selectedEventTypeIndex].defaultLifecycle.statuses" v-bind:key="status.name" v-bind:value="status.name">
                         {{ status.name }}
                       </option>
@@ -170,7 +171,11 @@
                   <button class="button is-small is-info" @click="showModal(transition.allowedFor, 'transition permissions')">Change transition permissions</button>
                 </td>
                 <td>
-                  <button class="button is-small is-danger" @click="eventTypes[selectedEventTypeIndex].defaultLifecycle.transitions.splice(index, 1)">Remove transition</button>
+                  <button
+                    class="button is-small is-danger"
+                    @click="eventTypes[selectedEventTypeIndex].defaultLifecycle.transitions.splice(index, 1)">
+                    Remove transition
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -532,6 +537,7 @@ export default {
             type: 'is-danger'
           })
         }
+
         this.$toast.open({
           duration: 3000,
           message: 'Could not delete event type: ' + err.message,
@@ -573,8 +579,8 @@ export default {
     },
     addNewTransition () {
       this.eventTypes[this.selectedEventTypeIndex].defaultLifecycle.transitions.push({
-        from: '',
-        to: '',
+        from: null,
+        to: null,
         allowedFor: JSON.parse(JSON.stringify(emptySchema))
       })
     },
