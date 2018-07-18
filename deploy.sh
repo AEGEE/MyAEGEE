@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # MANUAL INTERVENTION NEEDED:
-#   This file MUST be 1 level above the oms-docker installation!
+#   This file MUST be 1 level above the (folderName) installation!
 
-folderName="MyAEGEE" #could also be MyAEGEE or whatever e.g. /opt/MyAEGEE
+folderName="MyAEGEE" #could be oms-docker, but also be MyAEGEE or whatever e.g. /opt/MyAEGEE
 OMS_GITBRANCH="dev"
 
 #This script assumes that it is run on a production server. It is meant to be safe for cron updates
@@ -61,9 +61,9 @@ if [ "$fresh" == "true" ]; then
   bash $DIR/$folderName/oms.sh down -v 
   if [ $RUN_BY_CRON ]; then
     #ONLY FOR Test server
-    bash $DIR/oms-docker/oms.sh down -v --remove-orphans
+    bash $DIR/$folderName/oms.sh down -v --remove-orphans
   fi
-  cp $DIR/oms-docker/.env $DIR/.env 
+  cp $DIR/$folderName/.env $DIR/.env 
   if [ "$nuke" == "true" ]; then
     echo -e "\n[Deployment] Removing .env (nuking)\n"
     rm $DIR/.env
@@ -72,16 +72,16 @@ fi
 
 #BRINGING IT UP: if there is a .env file it's an update
 # otherwise it's a fresh setup
-if [ -f $DIR/oms-docker/.env ]; then
+if [ -f $DIR/$folderName/.env ]; then
   echo -e "\n[Deployment] Updating installation\n"
   
-  cd $DIR/oms-docker/
+  cd $DIR/$folderName/
   git pull
   git submodule init
   git submodule update
    
   echo -e "\n[Deployment] Update performed, restarting containers\n"
-  bash $DIR/oms-docker/oms.sh up -d
+  bash $DIR/$folderName/oms.sh up -d
 else
   echo -e "\n[Deployment] New installation\n"
   echo -e "\n[Deployment] Cloning repo (normal output suppressed)\n"
@@ -100,15 +100,15 @@ else
     echo "Do you wish to edit .env file? (write the number)"
     select yn in "Yes" "No"; do
       case $yn in
-          Yes ) $EDITOR oms-docker/.env; break;;
+          Yes ) $EDITOR $folderName/.env; break;;
           No ) break;;
       esac
     done
   fi
   echo -e "\n[Deployment] Setting passwords\n"
-  bash $DIR/oms-docker/password-setter.sh
+  bash $DIR/$folderName/password-setter.sh
   echo -e "\n[Deployment] Deploying (This could take a while)\n"
-  bash $DIR/oms-docker/oms.sh up -d
+  bash $DIR/$folderName/oms.sh up -d
   sleep 10
   if [ ! $RUN_BY_CRON ]; then
     echo -e "\n[Deployment] Showing logs, feel free to cancel with ctrl+c (server keeps running anyway)\n"
