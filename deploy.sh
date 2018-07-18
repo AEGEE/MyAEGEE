@@ -3,7 +3,8 @@
 # MANUAL INTERVENTION NEEDED:
 #   This file MUST be 1 level above the oms-docker installation!
 
-folderName="oms-docker" #could also be MyAEGEE or whatever e.g. /opt/MyAEGEE
+folderName="MyAEGEE" #could also be MyAEGEE or whatever e.g. /opt/MyAEGEE
+OMS_GITBRANCH="dev"
 
 #This script assumes that it is run on a production server. It is meant to be safe for cron updates
 # NOTE: to change passwords through the script, one must do a HARD reset (a new install or a nuke is what takes the password script to run). The script will error if passwords are not set properly
@@ -39,6 +40,10 @@ if [ "$error" == "true" ]; then
   exit 8
 fi
 
+if [ $RUN_BY_CRON ]; then
+    echo "run by cron on $(date)"
+fi
+
 export EDITOR=$(env | grep EDITOR | grep -oe '[^=]*$');
 if [ -z "$EDITOR" ]; then
   echo "[Deployment] no EDITOR variable, setting it to vim"
@@ -48,15 +53,13 @@ fi
 #what's this line for?! According to the commit message,
 #"Paths are now relative to script location instead of execution location"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-#DEBUG echo
-echo -e "\n the directory is ${DIR} and bash source is ${BASH_SOURCE[0]} and the wtf is $( dirname '${BASH_SOURCE[0]}' )"
 
 #FRESH/NUKE: nuke installation (bring it down and up again without volumes)
 # nuke is just removing .env and using the repo one (.env.example)
 if [ "$fresh" == "true" ]; then
   echo -e "\n[Deployment] Stopping installation (removing .env = $nuke )\n"
-  bash $DIR/oms-docker/oms.sh down -v 
-  if [ ! $RUN_BY_CRON ]; then
+  bash $DIR/$folderName/oms.sh down -v 
+  if [ $RUN_BY_CRON ]; then
     #ONLY FOR Test server
     bash $DIR/oms-docker/oms.sh down -v --remove-orphans
   fi
@@ -82,12 +85,14 @@ if [ -f $DIR/oms-docker/.env ]; then
 else
   echo -e "\n[Deployment] New installation\n"
   echo -e "\n[Deployment] Cloning repo (normal output suppressed)\n"
-  git clone --recursive --branch dev https://github.com/AEGEE/oms-docker.git 1>/dev/null
+  git clone --recursive --branch $OMS_GITBRANCH https://github.com/AEGEE/$folderName.git 1>/dev/null
 
-  #if there is a .env in /opt use that, otherwise oms.sh will copy
+  #if there is a .env in /opt use that, otherwise copy
   if [ -f $DIR/.env ]; then
     pwd
-    mv $DIR/.env $DIR/oms-docker/.env 
+    mv $DIR/.env $DIR/$folderName/.env 
+  else
+    cp $DIR/$folderName/.env.example $DIR/$folderName/.env
   fi 
 
   if [ ! $RUN_BY_CRON ]; then
@@ -105,6 +110,8 @@ else
   echo -e "\n[Deployment] Deploying (This could take a while)\n"
   bash $DIR/oms-docker/oms.sh up -d
   sleep 10
-  echo -e "\n[Deployment] Showing logs, feel free to cancel with ctrl+c (server keeps running anyway)\n"
-  bash $DIR/oms-docker/oms.sh logs -f
+  if [ ! $RUN_BY_CRON ]; then
+    echo -e "\n[Deployment] Showing logs, feel free to cancel with ctrl+c (server keeps running anyway)\n"
+    bash $DIR/$folderName/oms.sh logs -f
+  fi
 fi
