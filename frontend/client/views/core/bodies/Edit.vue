@@ -13,9 +13,13 @@
         <div class="field">
           <label class="label">Description</label>
           <div class="control">
-            <input class="input" type="text" v-model="body.description" />
+            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="body.description"></textarea>
           </div>
-          <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ')}}</p>
+          <label class="label">Preview</label>
+          <div class="content">
+            <span v-html="$options.filters.markdown(body.description)">
+          </div>
+          <p class="help is-danger" v-if="errors.description">{{ errors.description.message }}</p>
         </div>
 
         <div class="field">

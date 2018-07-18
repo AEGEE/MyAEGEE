@@ -38,7 +38,9 @@
                 <td>
                   <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id } }">{{ body.name}}</router-link>
                 </td>
-                <td>{{ body.description }}</td>
+                <td>
+                  <span v-html="$options.filters.markdown(body.description)"></span>
+                </td>
               </tr>
               <tr v-show="!bodies.length && !isLoading">
                 <td colspan="4" class="has-text-centered">Bodies list is empty</td>

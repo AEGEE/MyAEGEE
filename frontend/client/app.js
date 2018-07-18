@@ -8,7 +8,7 @@ import Buefy from 'buefy'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import * as filters from './filters'
+import filters from './filters'
 import Auth from './auth'
 
 Vue.router = router

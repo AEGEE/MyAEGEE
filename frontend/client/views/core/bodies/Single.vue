@@ -75,7 +75,9 @@
                 </tr>
                 <tr>
                   <th>Description</th>
-                  <td>{{ body.description }}</td>
+                  <td>
+                    <span v-html="$options.filters.markdown(body.description)"></span>
+                  </td>
                 </tr>
                 <tr>
                   <th>Code</th>

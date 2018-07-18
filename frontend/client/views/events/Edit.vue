@@ -44,7 +44,11 @@
         <div class="field">
           <label class="label">Description</label>
           <div class="control">
-            <input class="input" type="text" required v-model="event.description" />
+            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="event.description"></textarea>
+          </div>
+          <label class="label">Description preview</label>
+          <div class="content">
+            <span v-html="$options.filters.markdown(event.description)">
           </div>
           <p class="help is-danger" v-if="errors.description">{{ errors.description.message }}</p>
         </div>
@@ -277,6 +281,10 @@ export default {
       this.file = event.target.files[0]
     },
     updateImage () {
+      if (!this.file) {
+        return
+      }
+
       const data = new FormData()
       data.append('head_image', this.file)
 

@@ -47,10 +47,16 @@
             </div>
 
             <div class="content">
-              <span>{{ event.description }}</span>
-              <br/><br/>
-              <span>From {{ event.starts | date }} to {{ event.ends | date }}</span>
-              <br/><br/>
+              <span v-html="$options.filters.markdown(event.description)"></span>
+              <ul>
+                <li><strong>Type:</strong> {{ event.type }} </li>
+                <li><strong>From:</strong> {{ event.starts | date }} </li>
+                <li><strong>To:</strong> {{ event.ends | date }} </li>
+                <li><strong>Application deadline:</strong>
+                  <span v-if="event.application_deadline">{{ event.application_deadlinee | date }}</span>
+                  <span v-if="!event.application_deadline"><i>Not set.</i></span>
+                </li>
+              </ul>
 
               <div class="field is-grouped">
                 <p class="control">
@@ -96,7 +102,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import moment from 'moment'
 
 export default {
   name: 'EventsList',
@@ -111,11 +116,6 @@ export default {
       displayPast: false,
       canLoadMore: true,
       source: null
-    }
-  },
-  filters: {
-    date (value) {
-      return moment(value).format('YYYY-MM-DD HH:mm')
     }
   },
   computed: {

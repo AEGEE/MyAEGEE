@@ -71,7 +71,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import moment from 'moment'
 
 export default {
   name: 'ChangeEventsStatus',
@@ -132,11 +131,6 @@ export default {
   },
   mounted () {
     this.fetchData()
-  },
-  filters: {
-    date (val) {
-      return moment(val).format('YYYY-MM-DD')
-    }
   }
 }
 </script>
