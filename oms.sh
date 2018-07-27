@@ -14,7 +14,7 @@ docker network inspect OMS &>/dev/null || (echo -e "[OMS] Creating OMS docker ne
 
 # HUMAN INTERVENTION NEEDED: register in .env your services
 ## Export all environment variables from .env to this script in case we need them some time
-export $(cat .env | grep -v ^# | xargs)
+export $(cat $DIR/.env | grep -v ^# | xargs)
 
 ## Create secrets
 echo -e "[OMS] Creating random secrets if not existing"
@@ -47,8 +47,8 @@ command="docker-compose -f $DIR/base-docker-compose.yml"
 for s in "${services[@]}"; do
     if [[ -f "$DIR/${s}/docker/docker-compose.yml" ]]; then
         command="${command} -f $DIR/${s}/docker/docker-compose.yml"
-      else	
-        echo -e "[OMS] WARNING: No docker file found for ${s}"
+    else
+        echo -e "[OMS] WARNING: No docker file found for ${s} (full path $DIR/${s}/docker/docker-compose.yml)"
     fi
 done
 
