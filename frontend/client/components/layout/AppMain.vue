@@ -36,7 +36,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~bulma";
+@import "../../styles/main.scss";
 
 html {
   background-color: #fafafa;

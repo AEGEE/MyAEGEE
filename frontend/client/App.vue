@@ -61,13 +61,7 @@ export default {
   animation-duration: .377s;
 }
 
-@import '~bulma';
-@import '~buefy/lib/buefy.css';
-
-@import '~wysiwyg.css/wysiwyg.sass';
-
-$fa-font-path: '~font-awesome/fonts/';
-@import '~font-awesome/scss/font-awesome';
+@import './styles/main.scss';
 
 html, body, #app, .app-main {
   background-color: #fafafa;
