@@ -75,7 +75,7 @@ html, body, #app, .app-main {
   pointer-events: none;
 
   #nprogress {
-    $color: #48e79a;
+    $color: linear-gradient(to right, #c51c13 20%,#a0c514 20%, #a0c514 40%, #981991 40%, #981991 60%, #fbba00 60%, #fbba00 80%, #1468c5 80%);;
 
     .bar {
       background: $color;
