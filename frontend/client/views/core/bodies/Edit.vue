@@ -63,7 +63,7 @@
             <div class="field has-addons">
               <b-autocomplete
                 v-model="autocompleteBody"
-                :data="body.circles"
+                :data="filteredShadowCircles"
                 open-on-focus="true"
                 @select="circle => { body.shadow_circle_id = circle.id; body.shadow_circle = circle }">
                 <template slot-scope="props">
@@ -117,12 +117,18 @@ export default {
         shadow_circle: null,
         circles: []
       },
+      autocompleteBody: '',
       errors: {},
       isLoading: false,
       isSaving: false
     }
   },
-  computed: mapGetters(['services']),
+  computed: {
+    ...mapGetters(['services']),
+    filteredShadowCircles () {
+      return this.body.circles.filter(circle => circle.name.toLowerCase().includes(this.autocompleteBody.toLowerCase()))
+    }
+  },
   methods: {
     saveBody () {
       this.isSaving = true
