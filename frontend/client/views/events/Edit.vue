@@ -247,7 +247,7 @@ export default {
     return {
       event: {
         name: null,
-        description: null,
+        description: '', // so it won't be null and marked() would not error
         id: null,
         url: null,
         application_status: 'closed',
