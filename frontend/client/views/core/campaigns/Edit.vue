@@ -79,9 +79,13 @@
 
         <div class="field">
           <label class="label">Active?
-            <input type="checkbox" v-model="campaign.active" />
+            <input type="checkbox" v-model="campaign.active" :disabled="!$route.params.id"/>
           </label>
           <p class="help is-danger" v-if="errors.active">{{ errors.active.join(', ')}}</p>
+        </div>
+
+        <div class="notification is-info" v-if="!$route.params.id">
+          The newly created recruitment campaign should be active.
         </div>
 
         <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
@@ -110,7 +114,7 @@ export default {
         id: null,
         autojoin_body_id: null,
         autojoin_body: null,
-        active: null,
+        active: true,
         activate_user: null
       },
       bodies: [],
