@@ -115,7 +115,7 @@ export default {
         autojoin_body_id: null,
         autojoin_body: null,
         active: true,
-        activate_user: null
+        activate_user: false
       },
       bodies: [],
       errors: {},
