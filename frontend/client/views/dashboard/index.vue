@@ -47,7 +47,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import moment from 'moment'
 
 export default {
   name: 'Dashboard',
@@ -97,11 +96,6 @@ export default {
         type: 'is-danger'
       })
     })
-  },
-  filters: {
-    date (value) {
-      return moment(value).format('YYYY-MM-DD')
-    }
   },
   computed: {
     ...mapGetters({
