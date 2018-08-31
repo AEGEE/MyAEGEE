@@ -19,7 +19,54 @@
           </div>
         </div>
 
-        <div class="tile">
+        <div class="table-responsive">
+          <table class="table is-bordered is-striped is-narrow is-fullwidth">
+            <thead>
+              <tr>
+                <th>Name and surname</th>
+                <th>Comment</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr>
+                <th>Name and surname</th>
+                <th>Comment</th>
+                <th></th>
+              </tr>
+            </tfoot>
+            <tbody>
+              <tr v-show="members.length" v-for="member in members" v-bind:key="member.id">
+                <td>
+                  <router-link :to="{ name: 'oms.members.view', params: { id: member.seo_url || member.id } }">
+                    {{ member.member.first_name }} {{ member.member.last_name }}
+                  </router-link>
+                </td>
+                <td v-if="member.comment">{{ member.comment }}</td>
+                <td v-if="!member.comment"><i>No comment set.</i></td>
+                <td>
+                  <div class="field">
+                    <div class="control">
+                      <a class="button is-small is-warning" @click="askToChangeComment(member)" v-if="can.edit">
+                        <span class="icon"><i class="fa fa-edit"></i></span>
+                        <span>Edit</span>
+                      </a>
+                      <a class="button is-small is-danger" @click="askDeleteMember(member, false)"  v-if="can.delete">
+                        <span class="icon"><i class="fa fa-minus"></i></span>
+                        <span>Delete</span>
+                      </a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr v-show="!members.length && !isLoading">
+                <td colspan="4" class="has-text-centered">This body does not have any members.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!--<div class="tile">
           <div class="tile is-vertical is-2 box" v-for="member in members" v-bind:key="member.id">
 
             <div class="tile is-child">
@@ -56,7 +103,7 @@
           <div class="tile is-vertical is-12 is-child" v-if="members.length === 0 && !isLoading">
             <h1 class="subtitle has-text-centered">No members inside this body.</h1>
           </div>
-        </div>
+        </div>-->
 
         <div class="field">
           <button

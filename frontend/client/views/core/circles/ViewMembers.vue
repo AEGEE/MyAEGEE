@@ -61,6 +61,7 @@
               </tr>
             </tbody>
           </table>
+        </div>
 
         <!--<div class="tile">
           <div class="tile is-vertical is-2" v-for="(member, index) in members" v-bind:key="member.id">
