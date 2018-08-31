@@ -10,7 +10,59 @@
           </div>
         </div>
 
-        <div class="tile">
+        <div class="table-responsive">
+          <table class="table is-bordered is-striped is-narrow is-fullwidth">
+            <thead>
+              <tr>
+                <th>Name and surname</th>
+                <th>Position</th>
+                <th>Is circle admin?</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr>
+                <th>Name and surname</th>
+                <th>Position</th>
+                <th>Is circle admin?</th>
+                <th></th>
+              </tr>
+            </tfoot>
+            <tbody>
+              <tr v-show="members.length" v-for="(member, index) in members" v-bind:key="member.id">
+                <td>
+                  <router-link :to="{ name: 'oms.members.view', params: { id: member.seo_url || member.id } }">
+                    {{ member.member.first_name }} {{ member.member.last_name }}
+                  </router-link>
+                </td>
+                <td v-if="member.position">{{ member.position }}</td>
+                <td v-if="!member.position"><i>No position set.</i></td>
+                <td>
+                  <i v-if="!member.circle_admin">No</i>
+                  <strong v-if="member.circle_admin">Yes</strong>
+                </td>
+                <td>
+                  <div class="field">
+                    <div class="control">
+                      <a class="button is-small is-warning" @click="selectedUserIndex = index" v-if="can.edit">
+                        <span class="icon"><i class="fa fa-edit"></i></span>
+                        <span>Edit</span>
+                      </a>
+                      <a class="button is-small is-danger" @click="askDeleteMember(member, false)"  v-if="can.delete">
+                        <span class="icon"><i class="fa fa-minus"></i></span>
+                        <span>Delete</span>
+                      </a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr v-show="!members.length && !isLoading">
+                <td colspan="4" class="has-text-centered">This circle does not have any members.</td>
+              </tr>
+            </tbody>
+          </table>
+
+        <!--<div class="tile">
           <div class="tile is-vertical is-2" v-for="(member, index) in members" v-bind:key="member.id">
 
             <div class="tile is-child">
@@ -51,7 +103,7 @@
           <div class="tile is-vertical is-12 is-child" v-if="members.length === 0 && !isLoading">
             <h1 class="subtitle has-text-centered">No members inside this circle.</h1>
           </div>
-        </div>
+        </div>-->
 
         <div class="field">
           <button
