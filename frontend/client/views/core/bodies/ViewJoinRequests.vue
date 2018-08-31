@@ -5,8 +5,15 @@
         <h4 class="title">Join requests</h4>
         <div class="field">
           <label class="label">Search</label>
-          <div class="control">
-            <input class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
+          <div class="field has-addons">
+            <div class="control is-expanded">
+              <input class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
+            </div>
+            <div class="control">
+              <a class="button is-info" @click="displayAccepted = !displayAccepted">
+                {{ this.displayAccepted ? 'Display only pending join requests' : 'Display all join requests' }}
+              </a>
+            </div>
           </div>
         </div>
 
@@ -27,7 +34,7 @@
               </tr>
             </tfoot>
             <tbody>
-              <tr v-show="members.length" v-for="member in members" v-bind:key="member.id">
+              <tr v-show="filteredMembers.length" v-for="member in filteredMembers" v-bind:key="member.id" v-if="displayAccepted || !member.approved">
                 <td>
                   <router-link :to="{ name: 'oms.members.view', params: { id: member.seo_url || member.id } }">
                     {{ member.member.first_name }} {{ member.member.last_name }}
@@ -49,7 +56,7 @@
                   </div>
                 </td>
               </tr>
-              <tr v-show="!members.length && !isLoading">
+              <tr v-show="!filteredMembers.length && !isLoading">
                 <td colspan="4" class="has-text-centered">No join requests for this body.</td>
               </tr>
             </tbody>
@@ -118,6 +125,7 @@ export default {
     return {
       members: [],
       isLoading: false,
+      displayAccepted: true,
       query: '',
       limit: 30,
       offset: 0,
@@ -138,6 +146,9 @@ export default {
 
       if (this.query) queryObj.query = this.query
       return queryObj
+    },
+    filteredMembers () {
+      return this.displayAccepted ? this.members : this.members.filter(member => !member.approved)
     },
     ...mapGetters(['services'])
   },
