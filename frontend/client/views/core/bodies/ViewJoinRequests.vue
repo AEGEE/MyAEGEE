@@ -10,7 +10,53 @@
           </div>
         </div>
 
-        <div class="tile">
+        <div class="table-responsive">
+          <table class="table is-bordered is-striped is-narrow is-fullwidth">
+            <thead>
+              <tr>
+                <th>Name and surname</th>
+                <th>Motivation</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr>
+                <th>Name and surname</th>
+                <th>Motivation</th>
+                <th></th>
+              </tr>
+            </tfoot>
+            <tbody>
+              <tr v-show="members.length" v-for="member in members" v-bind:key="member.id">
+                <td>
+                  <router-link :to="{ name: 'oms.members.view', params: { id: member.seo_url || member.id } }">
+                    {{ member.member.first_name }} {{ member.member.last_name }}
+                  </router-link>
+                </td>
+                <td>{{ member.motivation }}</td>
+                <td>
+                  <div class="field" v-if="!member.approved">
+                    <div class="control">
+                      <a class="button is-small is-info" @click="askSetMemberApproved(member, true)">
+                        <span class="icon"><i class="fa fa-plus"></i></span>
+                        <span>Approve</span>
+                      </a>
+                      <a class="button is-small is-danger" @click="askSetMemberApproved(member, false)">
+                        <span class="icon"><i class="fa fa-minus"></i></span>
+                        <span>Reject</span>
+                      </a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr v-show="!members.length && !isLoading">
+                <td colspan="4" class="has-text-centered">No join requests for this body.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!--<div class="tile">
           <div class="tile is-vertical is-2 box" v-for="member in members" v-bind:key="member.id">
 
             <div class="tile is-child">
@@ -46,7 +92,7 @@
           <div class="tile is-vertical is-12 is-child" v-if="members.length === 0 && !isLoading">
             <h1 class="subtitle has-text-centered">No join requests for this body.</h1>
           </div>
-        </div>
+        </div>-->
 
         <div class="field">
           <button
