@@ -90,7 +90,8 @@
                 </tr>
                 <tr>
                   <th>Phone</th>
-                  <td>{{ body.phone }}</td>
+                  <td v-if="body.phone">{{ body.phone }}</td>
+                  <td v-if="!body.phone"><i>No phone specified.</i></td>
                 </tr>
                 <tr>
                   <th>Address</th>
