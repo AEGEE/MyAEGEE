@@ -57,7 +57,7 @@
                 </td>
               </tr>
               <tr v-show="!filteredMembers.length && !isLoading">
-                <td colspan="4" class="has-text-centered">No join requests for this body.</td>
+                <td colspan="3" class="has-text-centered">No join requests for this body.</td>
               </tr>
             </tbody>
           </table>
