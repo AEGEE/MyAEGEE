@@ -319,7 +319,13 @@ export default {
         this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:circle'))
         this.can.join = this.permissions.some(permission => permission.combined.endsWith('join:circle')) && this.circle.joinable
         this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view_members:circle'))
-        this.can.addMembers = this.permissions.some(permission => permission.combined.endsWith('add_member:circle'))
+
+        // A person has the right to add members in 2 cases: this person has add_member:circle permission and
+        // 1) the circle is bound to a body
+        // 2) the circle is unbound and the person has view:member permission (to search globall for users)
+        const hasPermissionToAdd = this.permissions.some(permission => permission.combined.endsWith('add_member:circle'))
+        const hasPermissionToViewMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
+        this.can.addMembers = hasPermissionToAdd && (this.circle.body_id || hasPermissionToViewMembers)
 
         return this.axios.get(this.services['oms-core-elixir'] + '/circles/' + id + '/permissions')
       }).then((response) => {
