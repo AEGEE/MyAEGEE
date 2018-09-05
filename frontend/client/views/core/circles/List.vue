@@ -6,7 +6,7 @@
         <div class="field">
           <label class="label">Search</label>
           <div class="control">
-            <input class="input" type="text" v-model="query" placeholder="Search" @click="refetch()">
+            <input class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
           </div>
         </div>
 
