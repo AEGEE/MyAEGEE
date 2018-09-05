@@ -147,11 +147,13 @@ export default {
       circle: {
         id: null,
         name: '',
-        descsription: '',
+        description: '',
         joinable: false,
         parent_circle: null,
         child_circles: [],
-        permissions: []
+        permissions: [],
+        body: null,
+        body_id: null
       },
       inheritedPermissions: [],
       isOwnProfile: false,
@@ -180,11 +182,20 @@ export default {
       if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['oms-core-elixir'] + '/members', {
+      // If circle is bound to a body, search for body members. If not, use global search.
+      const url = this.circle.body_id
+        ? this.services['oms-core-elixir'] + '/bodies/' + this.circle.body_id + '/members'
+        : this.services['oms-core-elixir'] + '/members'
+
+      this.axios.get(url, {
         cancelToken: this.token.token,
         params: { query: this.addedMemberName }
       }).then((response) => {
-        this.members = response.data.data
+        // Transform members if the circle is bound (there's another API response format)
+        this.members = this.circle.body_id
+          ? response.data.data.map(entry => entry.member)
+          : response.data.data
+
         this.isLoadingMembers = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
