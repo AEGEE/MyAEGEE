@@ -289,18 +289,10 @@ export default {
       data.append('head_image', this.file)
 
       this.axios.post(this.services['oms-events'] + '/single/' + this.$route.params.id + '/upload', data).then(() => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Event image is updated.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Event image is updated.')
         this.file = null
       }).catch((err) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not update image: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not update image: ' + err.message)
       })
     },
     addApplicationField () {
@@ -322,12 +314,7 @@ export default {
 
       promise.then((response) => {
         this.isSaving = false
-
-        this.$toast.open({
-          duration: 3000,
-          message: 'Event is saved.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Event is saved.')
 
         return this.$router.push({
           name: 'oms.events.view',
@@ -338,18 +325,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$toast.open({
-            duration: 3000,
-            message: 'Some of the event data is invalid.',
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('Some of the event data is invalid.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not save event: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not save event: ' + err.message)
       })
     }
   },
@@ -361,22 +340,14 @@ export default {
     this.axios.get(this.services['oms-events'] + '/eventroles').then((response) => {
       this.roles = response.data.data
     }).catch((err) => {
-      this.$toast.open({
-        duration: 3000,
-        message: 'Could not fetch event roles: ' + err.message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger('Could not fetch event roles: ' + err.message)
     })
 
     if (!this.$route.params.id) {
       this.axios.get(this.services['oms-events'] + '/lifecycle/names').then((response) => {
         this.eventTypes = response.data.data
       }).catch((err) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not fetch event types: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not fetch event types: ' + err.message)
       })
 
       return
@@ -395,11 +366,7 @@ export default {
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
-      this.$toast.open({
-        duration: 3000,
-        message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.events.list' })
     })
   }

@@ -141,11 +141,7 @@ export default {
       promise.then((response) => {
         this.isSaving = false
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Body is saved.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Body is saved.')
 
         return this.$router.push({
           name: 'oms.bodies.view',
@@ -156,18 +152,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$toast.open({
-            duration: 3000,
-            message: 'Some of the body data is invalid.',
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('Some of the body data is invalid.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not save body: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not save body: ' + err.message)
       })
     }
   },
@@ -183,11 +171,7 @@ export default {
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Body is not found' : 'Some error happened: ' + err.message
 
-      this.$toast.open({
-        duration: 3000,
-        message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.bodies.list' })
     })
   }

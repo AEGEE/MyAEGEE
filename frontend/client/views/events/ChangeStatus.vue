@@ -94,19 +94,12 @@ export default {
       this.axios.put(this.services['oms-events'] + '/single/' + event.id + '/status', {
         status: event.futureStatus.name
       }).then(() => {
-        this.$toast.open({
-          message: 'Event status is now "' + event.futureStatus.name + '".',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Event status is now "' + event.futureStatus.name + '".')
 
         this.events = []
         this.fetchData()
       }).catch((err) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not update event status: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not update event status: ' + err.message)
       })
     },
     fetchData () {
@@ -121,11 +114,7 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not fetch events list: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not fetch events list: ' + err.message)
       })
     }
   },

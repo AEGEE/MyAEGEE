@@ -43,26 +43,14 @@ export default {
       this.axios.post(this.services['oms-core-elixir'] + '/password_reset/', {
         email: this.email
       }).then((res) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Password reset triggered. Check your email.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Password reset triggered. Check your email.')
         this.$router.push({ name: 'oms.password_confirm' })
       }).catch((err) => {
         if (err.response.status === 404) {
-          return this.$toast.open({
-            duration: 3000,
-            message: 'Could not found this email.',
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('Could not finnd this email.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not reset password: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not reset password: ' + err.message)
       })
     }
   }

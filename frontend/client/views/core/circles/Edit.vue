@@ -203,11 +203,7 @@ export default {
 
         this.autoComplete[key].loading = false
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not fetch ' + context + 's: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not fetch ' + context + 's: ' + err.message)
       })
     },
     setParentCircle (circle) {
@@ -219,28 +215,16 @@ export default {
         this.circle.parent_circle = circle
         this.circle.parent_circle_id = circle ? circle.id : null
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Parent circle is ' + (circle ? 'set.' : 'unset.'),
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Parent circle is ' + (circle ? 'set.' : 'unset.'))
       }).catch((err) => {
         this.autoComplete.circles.loading = false
 
         if (err.response.status === 422) {
           const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-          return this.$toast.open({
-            duration: 3000,
-            message: 'Could not ' + (circle ? 'set' : 'unset') + ' parent circle: ' + errors,
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('Could not ' + (circle ? 'set' : 'unset') + ' parent circle: ' + errors)
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not ' + (circle ? 'set' : 'unset') + ' parent circle: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not ' + (circle ? 'set' : 'unset') + ' parent circle: ' + err.message)
       })
     },
     togglePermission (permission, add) {
@@ -260,29 +244,17 @@ export default {
       }).then((response) => {
         this.autoComplete.permissions.loading = false
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Permission is ' + (add ? 'added. ' : 'removed.'),
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Permission is ' + (add ? 'added. ' : 'removed.'))
       }).catch((err) => {
         this.autoComplete.permissions.loading = false
         this.circle.permissions = permissionsBefore // reverting permissions list
 
         if (err.response.status === 422) {
           const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-          return this.$toast.open({
-            duration: 3000,
-            message: 'Could not ' + (add ? 'add' : 'remove') + ' permission: ' + errors,
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('Could not ' + (add ? 'add' : 'remove') + ' permission: ' + errors)
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not ' + (add ? 'add' : 'remove') + ' permission: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not ' + (add ? 'add' : 'remove') + ' permission: ' + err.message)
       })
     },
     toggleChildCircle (circle, add) {
@@ -302,11 +274,7 @@ export default {
       }).then((response) => {
         this.autoComplete.childCircles.loading = false
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Child circle is ' + (add ? 'added. ' : 'removed.'),
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Child circle is ' + (add ? 'added. ' : 'removed.'))
       }).catch((err) => {
         this.autoComplete.childCircles.loading = false
         this.circle.child_circles = circlesBefore // reverting children list
@@ -316,18 +284,10 @@ export default {
             err.response.data.errors
               ? Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
               : err.response.data.message
-          return this.$toast.open({
-            duration: 3000,
-            message: 'Could not ' + (add ? 'add' : 'remove') + ' child circle: ' + errors,
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('Could not ' + (add ? 'add' : 'remove') + ' child circle: ' + errors)
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not ' + (add ? 'add' : 'remove') + ' child circle: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not ' + (add ? 'add' : 'remove') + ' child circle: ' + err.message)
       })
     },
     saveCircle () {
@@ -341,11 +301,7 @@ export default {
       promise.then((response) => {
         this.isSaving = false
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Circle is saved.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Circle is saved.')
 
         return this.$router.push({
           name: 'oms.circles.view',
@@ -356,18 +312,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$toast.open({
-            duration: 3000,
-            message: 'Some of the circle data is invalid.',
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('Some of the circle data is invalid.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not save circle: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not save circle: ' + err.message)
       })
     },
     capitalize (value) {
@@ -388,11 +336,7 @@ export default {
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Circle is not found' : 'Some error happened: ' + err.message
 
-      this.$toast.open({
-        duration: 3000,
-        message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.circles.list' })
     })
   }

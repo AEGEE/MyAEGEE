@@ -149,18 +149,9 @@ export default {
         application.status = newState
         this.selected = null
 
-        this.$toast.open({
-          message: 'Participant status is updated.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Participant status is updated.')
       }).catch((err) => {
-        let message = 'Could not update participant status: ' + err.message
-
-        this.$toast.open({
-          duration: 3000,
-          message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not update participant status: ' + err.message)
       })
     }
   },
@@ -197,11 +188,7 @@ export default {
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
-      this.$toast.open({
-        duration: 3000,
-        message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.events.list' })
     })
   }

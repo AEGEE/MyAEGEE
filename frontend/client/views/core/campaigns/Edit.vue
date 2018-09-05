@@ -135,11 +135,7 @@ export default {
       promise.then((response) => {
         this.isSaving = false
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Campaign is saved.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Campaign is saved.')
 
         return this.$router.push({
           name: 'oms.campaigns.view',
@@ -150,18 +146,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$toast.open({
-            duration: 3000,
-            message: 'Some of the campaign data is invalid.',
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('Some of the campaign data is invalid.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not save campaign: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not save campaign: ' + err.message)
       })
     }
   },
@@ -170,11 +158,7 @@ export default {
     this.axios.get(this.services['oms-core-elixir'] + '/bodies/', { params: { limit: 1000 } }).then((response) => { // TODO rethink
       this.bodies = response.data.data
     }).catch((err) => {
-      this.$toast.open({
-        duration: 3000,
-        message: 'Could not fetch bodies list: ' + err.message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger('Could not fetch bodies list: ' + err.message)
     })
 
     if (!this.$route.params.id) {
@@ -188,11 +172,7 @@ export default {
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Campaign is not found' : 'Some error happened: ' + err.message
 
-      this.$toast.open({
-        duration: 3000,
-        message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.campaigns.list' })
     })
   }

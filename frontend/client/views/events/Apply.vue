@@ -176,10 +176,7 @@ export default {
       }
 
       this.axios.put(this.services['oms-events'] + '/single/' + this.$route.params.id + '/participants/mine', toServer).then(() => {
-        this.$toast.open({
-          type: 'is-success',
-          message: 'Your application was saved, you can still edit it until the application period ends'
-        })
+        this.$root.showSuccess('Your application was saved, you can still edit it until the application period ends')
 
         return this.$router.push({
           name: 'oms.events.view',
@@ -190,18 +187,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$toast.open({
-            duration: 3000,
-            message: 'Some of the application data is invalid.',
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('Some of the application data is invalid.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not save application: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not save application: ' + err.message)
       })
     }
   },
@@ -246,11 +235,7 @@ export default {
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
-      this.$toast.open({
-        duration: 3000,
-        message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.events.list' })
     })
   }

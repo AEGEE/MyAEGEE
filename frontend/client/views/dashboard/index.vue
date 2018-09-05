@@ -74,13 +74,7 @@ export default {
       this.isLoading.user = false
     }).catch((err) => {
       this.isLoading.user = false
-      let message = 'Could not fetch user: ' + err.message
-
-      this.$toast.open({
-        duration: 3000,
-        message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger('Could not fetch user: ' + err.message)
     })
 
     this.axios.get(this.services['oms-events'] + '/mine/participating').then((response) => {
@@ -88,13 +82,7 @@ export default {
       this.isLoading.events = false
     }).catch((err) => {
       this.isLoading.events = false
-      let message = 'Could not fetch events list: ' + err.message
-
-      this.$toast.open({
-        duration: 3000,
-        message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger('Could not fetch events list: ' + err.message)
     })
   },
   computed: {

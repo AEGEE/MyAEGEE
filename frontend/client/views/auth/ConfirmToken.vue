@@ -41,27 +41,14 @@ export default {
       this.error = ''
 
       this.axios.post(this.services['oms-core-elixir'] + '/confirm_mail/' + this.token).then((res) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Your email is verified.',
-          type: 'is-success'
-        })
-
+        this.$root.showSuccess('Your email is verified.')
         return this.$router.push({ name: 'oms.login' })
       }).catch((err) => {
         if (err.response.status === 404) { // validation errors
-          return this.$toast.open({
-            duration: 3000,
-            message: 'The token is invalid.',
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('The token is invalid.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not confirm email: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not confirm email: ' + err.message)
       })
     }
   },

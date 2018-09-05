@@ -85,19 +85,10 @@ export default {
       this.axios.put(this.services['oms-events'] + '/single/' + application.url + '/participants/' + application.application_id + '/comment/', {
         board_comment: application.board_comment
       }).then(() => {
-        this.$toast.open({
-          message: 'Participant comment is updated.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Participant comment is updated.')
         application.clean = true
       }).catch((err) => {
-        let message = 'Could not update participant comment: ' + err.message
-
-        this.$toast.open({
-          duration: 3000,
-          message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not update participant comment: ' + err.message)
       })
     },
     fetchData () {
@@ -120,11 +111,7 @@ export default {
       }).catch((err) => {
         this.isLoading = false
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Error fetching board view data: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Error fetching board view data: ' + err.message)
       })
     }
   },

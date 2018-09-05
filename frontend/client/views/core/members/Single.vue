@@ -197,11 +197,7 @@ export default {
   },
   methods: {
     updatePicture () {
-      this.$toast.open({
-        duration: 3000,
-        message: 'This feature is not implemented yet, come join the OMS to help us implementing it ;)',
-        type: 'is-info'
-      })
+      this.$root.showInfo('This feature is not implemented yet, come join the OMS to help us implementing it ;)')
     },
     askDeleteUser () {
       this.$dialog.confirm({
@@ -215,13 +211,9 @@ export default {
     },
     deleteUser () {
       this.axios.delete(this.services['oms-core-elixir'] + '/user/' + this.user.user.id).then((response) => {
-        this.$toast.open('User is deleted.')
+        this.$root.showSuccess('User is deleted.')
         this.$router.push({ name: 'oms.members.list' })
-      }).catch((err) => this.$toast.open({
-        duration: 3000,
-        message: 'Could not delete user: ' + err.message,
-        type: 'is-danger'
-      }))
+      }).catch((err) => this.$root.showDanger('Could not delete user: ' + err.message))
     },
     askToggleActive () {
       const active = this.user.user.active
@@ -240,11 +232,7 @@ export default {
         this.user.user.active = response.data.data.active
         this.isSwitchingStatus = false
       }).catch((err) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Error changing user status: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Error changing user status: ' + err.message)
         this.isSwitchingStatus = false
       })
     }
@@ -266,11 +254,7 @@ export default {
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'User is not found' : 'Some error happened: ' + err.message
 
-      this.$toast.open({
-        duration: 3000,
-        message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.members.list' })
     })
   },

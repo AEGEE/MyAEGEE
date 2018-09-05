@@ -203,22 +203,14 @@ export default {
         }
 
         this.isLoadingMembers = false
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not fetch members: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not fetch members: ' + err.message)
       })
     },
     addMember (member) {
       this.axios.post(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/add_member', {
         member_id: member.id
       }).then(() => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Member is added.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Member is added.')
         this.isAddingMember = false
       }).catch((err) => {
         const message = 'Could not add member: ' +
@@ -226,11 +218,7 @@ export default {
             ? 'This person is already a member of this circle.'
             : err.message)
 
-        this.$toast.open({
-          duration: 3000,
-          message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger(message)
       })
     },
     askDeleteCircle () {
@@ -245,18 +233,14 @@ export default {
     },
     deleteCircle () {
       this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.circle.id).then((response) => {
-        this.$toast.open('Circle is deleted.')
+        this.$root.showInfo('Circle is deleted.')
         this.$router.push({ name: 'oms.circles.list' })
-      }).catch((err) => this.$toast.open({
-        duration: 3000,
-        message: 'Could not delete circle: ' + err.message,
-        type: 'is-danger'
-      }))
+      }).catch((err) => this.$root.showDanger('Could not delete circle: ' + err.message))
     },
     joinCircle () {
       this.isLoading = true
       this.axios.post(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members').then((response) => {
-        this.$toast.open('Successfully joined circle.')
+        this.$root.showSuccess('Successfully joined circle.')
         this.can.join = false
         this.isMember = true
         this.isLoading = false
@@ -268,11 +252,7 @@ export default {
             ? 'You are already a member of this circle.'
             : err.message)
 
-        this.$toast.open({
-          duration: 3000,
-          message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger(message)
       })
     },
     askLeaveCircle () {
@@ -288,20 +268,13 @@ export default {
     leaveCircle () {
       this.isLoading = true
       this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members').then((response) => {
-        this.$toast.open({ message: 'Successfully left circle.', type: 'is-success' })
+        this.$root.showSuccess('Successfully left circle.')
         this.can.join = true
         this.isMember = false
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
-
-        let message = 'Could not leave circle: ' + err.message
-
-        this.$toast.open({
-          duration: 3000,
-          message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not leave circle: ' + err.message)
       })
     },
     loadData (id) {
@@ -335,11 +308,7 @@ export default {
       }).catch((err) => {
         let message = (err.response.status === 404) ? 'Circle is not found' : 'Some error happened: ' + err.message
 
-        this.$toast.open({
-          duration: 3000,
-          message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger(message)
         this.$router.push({ name: 'oms.circles.list' })
       })
     }

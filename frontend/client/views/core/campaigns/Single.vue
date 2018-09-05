@@ -134,13 +134,9 @@ export default {
     },
     deleteCampaign () {
       this.axios.delete(this.services['oms-core-elixir'] + '/backend_campaigns/' + this.$route.params.id).then((response) => {
-        this.$toast.open('Campaign is deleted.')
+        this.$root.showSuccess('Campaign is deleted.')
         this.$router.push({ name: 'oms.campaigns.list' })
-      }).catch((err) => this.$toast.open({
-        duration: 3000,
-        message: 'Could not delete campaign: ' + err.message,
-        type: 'is-danger'
-      }))
+      }).catch((err) => this.$root.showDanger('Could not delete campaign: ' + err.message))
     }
   },
   mounted () {
@@ -159,11 +155,7 @@ export default {
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Campaign is not found' : 'Some error happened: ' + err.message
 
-      this.$toast.open({
-        duration: 3000,
-        message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.campaigns.list' })
     })
   },

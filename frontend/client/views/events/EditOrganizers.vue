@@ -198,12 +198,7 @@ export default {
         }
 
         this.autoComplete[key].loading = false
-
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not fetch ' + context + 's: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not fetch ' + context + 's: ' + err.message)
       })
     },
     addOrganizer (organizer) {
@@ -212,11 +207,7 @@ export default {
         roles: []
       }
       this.axios.post(this.services['oms-events'] + '/single/' + this.event.id + '/organizers', data).then((response) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Organizer is successfully added.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Organizer is successfully added.')
 
         this.event.organizers.push({
           user_id: organizer.id,
@@ -224,11 +215,7 @@ export default {
           roles: []
         })
       }).catch((err) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not add organizer: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not add organizer: ' + err.message)
       })
     },
     addPseudoRole (index, role) {
@@ -250,19 +237,11 @@ export default {
       }
 
       this.axios.put(this.services['oms-events'] + '/single/' + this.event.id + '/organizers/' + organizer.user_id, data).then((response) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Organizer is successfully updated.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Organizer is successfully updated.')
         organizer.changed = false
         this.$forceUpdate()
       }).catch((err) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not update organizer: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not update organizer: ' + err.message)
       })
     },
     askDeleteOrganizer (index) {
@@ -278,18 +257,10 @@ export default {
     deleteOrganizer (index) {
       const organizer = this.event.organizers[index]
       this.axios.delete(this.services['oms-events'] + '/single/' + this.event.id + '/organizers/' + organizer.user_id).then((response) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Organizer is successfully deleted.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Organizer is successfully deleted.')
         this.event.organizers.splice(index, 1)
       }).catch((err) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not delete organizer: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not delete organizer: ' + err.message)
       })
     },
     addOrganizingLocal (local) {
@@ -297,11 +268,7 @@ export default {
         body_id: local.id
       }
       this.axios.post(this.services['oms-events'] + '/single/' + this.event.id + '/locals', data).then((response) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Organizer is successfully added.',
-          type: 'is-success'
-        })
+        this.$root.showDanger('Organizing body is successfully added.')
 
         this.event.organizing_locals.push({
           body_id: local.id,
@@ -309,11 +276,7 @@ export default {
           roles: []
         })
       }).catch((err) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not add organizing local: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not add organizing body: ' + err.message)
       })
     },
     askDeleteOrganizingLocal (index) {
@@ -329,18 +292,10 @@ export default {
     deleteOrganizingLocal (index) {
       const local = this.event.organizing_locals[index]
       this.axios.delete(this.services['oms-events'] + '/single/' + this.event.id + '/locals/' + local.body_id).then((response) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Organizing body is successfully deleted.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Organizing body is successfully deleted.')
         this.event.organizing_locals.splice(index, 1)
       }).catch((err) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not delete organizing body: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not delete organizing body: ' + err.message)
       })
     }
   },
@@ -349,11 +304,7 @@ export default {
     this.axios.get(this.services['oms-events'] + '/eventroles').then((response) => {
       this.roles = response.data.data
     }).catch((err) => {
-      this.$toast.open({
-        duration: 3000,
-        message: 'Could not fetch event roles: ' + err.message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger('Could not fetch event roles: ' + err.message)
     })
 
     this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((response) => {
@@ -383,11 +334,7 @@ export default {
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
-      this.$toast.open({
-        duration: 3000,
-        message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.events.list' })
     })
   }

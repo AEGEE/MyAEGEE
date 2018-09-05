@@ -172,11 +172,7 @@ export default {
           return console.debug('Request cancelled.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not fetch events list: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not fetch events list: ' + err.message)
       })
     }
   },
@@ -195,11 +191,7 @@ export default {
       this.isLoading = false
       this.$forceUpdate()
     }).catch((err) => {
-      this.$toast.open({
-        duration: 3000,
-        message: 'Could not fetch events types: ' + err.message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger('Could not fetch events types: ' + err.message)
     })
   }
 }

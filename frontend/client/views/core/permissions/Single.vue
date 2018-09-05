@@ -96,13 +96,9 @@ export default {
     },
     deletePermission () {
       this.axios.delete(this.services['oms-core-elixir'] + '/permissions/' + this.permission.id).then((response) => {
-        this.$toast.open('Permission is deleted.')
+        this.$root.showSuccess('Permission is deleted.')
         this.$router.push({ name: 'oms.permissions.list' })
-      }).catch((err) => this.$toast.open({
-        duration: 3000,
-        message: 'Could not delete permission: ' + err.message,
-        type: 'is-danger'
-      }))
+      }).catch((err) => this.$root.showDanger('Could not delete permission: ' + err.message))
     }
   },
   mounted () {
@@ -120,11 +116,7 @@ export default {
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Permission is not found' : 'Some error happened: ' + err.message
 
-      this.$toast.open({
-        duration: 3000,
-        message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.permissions.list' })
     })
   },

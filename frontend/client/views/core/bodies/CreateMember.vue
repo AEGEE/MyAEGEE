@@ -155,34 +155,17 @@ export default {
         user: this.user.user
       }).then((response) => {
         this.isSaving = false
-
-        this.$toast.open({
-          duration: 3000,
-          message: 'User is created.',
-          type: 'is-success'
-        })
-
-        return this.$router.push({
-          name: 'oms.members.view',
-          params: { id: response.data.data.id }
-        })
+        this.$root.showSucccess('User is created.')
+        this.$router.push({ name: 'oms.members.view', params: { id: response.data.data.id } })
       }).catch((err) => {
         this.isSaving = false
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$toast.open({
-            duration: 3000,
-            message: 'Some of the user data is invalid.',
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('Some of the user data is invalid.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not create user: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not create user: ' + err.message)
       })
     }
   }

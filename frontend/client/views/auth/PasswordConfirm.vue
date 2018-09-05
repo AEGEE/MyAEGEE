@@ -73,35 +73,19 @@ export default {
       this.axios.post(this.services['oms-core-elixir'] + '/confirm_reset_password/' + this.token, {
         password: this.password
       }).then((res) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Password is changed.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Password is changed.')
         this.$router.push({ name: 'oms.login' })
       }).catch((err) => {
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$toast.open({
-            duration: 3000,
-            message: 'Some of the password data is invalid.',
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('Some of the password data is invalid.')
         }
 
         if (err.response.status === 404) {
-          return this.$toast.open({
-            duration: 3000,
-            message: 'Your token is invalid.',
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('Your token is invalid.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not change password: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not change password: ' + err.message)
       })
     }
   },

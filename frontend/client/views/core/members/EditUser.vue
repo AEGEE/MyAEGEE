@@ -105,11 +105,7 @@ export default {
       this.axios.put(this.services['oms-core-elixir'] + '/user/', obj).then((response) => {
         this.isSaving = false
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'User is saved.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('User is saved.')
 
         return this.$router.push({
           name: 'oms.members.view',
@@ -125,18 +121,10 @@ export default {
             this.errors = err.response.data.errors
           }
 
-          return this.$toast.open({
-            duration: 3000,
-            message: 'Some of the user data is invalid.',
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('Some of the user data is invalid.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not save user: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not save user: ' + err.message)
       })
     }
   },
@@ -147,11 +135,7 @@ export default {
       this.user.password = ''
       this.isLoading = false
     }).catch((err) => {
-      this.$toast.open({
-        duration: 3000,
-        message: 'Some error happened: ' + err.message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger('Some error happened: ' + err.message)
       this.$router.push({ name: 'oms.members.list' })
     })
   }

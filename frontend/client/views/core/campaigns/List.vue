@@ -125,12 +125,7 @@ export default {
           return console.debug('Request cancelled.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not fetch campaign list: ' + err.message,
-          type: 'is-danger'
-        })
-
+        this.$root.showDanger('Could not fetch campaign list: ')
         this.isLoading = false
       })
     }

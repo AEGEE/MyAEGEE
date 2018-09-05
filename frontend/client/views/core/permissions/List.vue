@@ -129,11 +129,7 @@ export default {
           return console.debug('Request cancelled.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not fetch permissions list: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not fetch permissions list: ' + err.message)
 
         this.isLoading = false
       })

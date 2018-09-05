@@ -172,15 +172,11 @@ export default {
     },
     deleteMember (member) {
       this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members/' + member.id).then((response) => {
-        this.$toast.open('Member is deleted.')
+        this.$root.showSuccess('Member is deleted.')
 
         const index = this.members.findIndex(m => m.id === member.id)
         this.members.splice(index, 1)
-      }).catch((err) => this.$toast.open({
-        duration: 3000,
-        message: 'Could not delete member: ' + err.message,
-        type: 'is-danger'
-      }))
+      }).catch((err) => this.$root.showDanger('Could not delete member: ' + err.message))
     },
     askToChangeComment (member) {
       this.$dialog.prompt({
@@ -196,20 +192,13 @@ export default {
       this.axios.put(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members/' + member.id, {
         body_membership: { comment }
       }).then((response) => {
-        this.$toast.open({
-          message: 'Comment is set.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Comment is set.')
         member.comment = comment
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Error updating user comment: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Error updating user comment: ' + err.message)
       })
     },
     refetch () {
@@ -245,11 +234,7 @@ export default {
           return console.debug('Request cancelled.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not fetch members: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not fetch members: ' + err.message)
       })
     }
   },

@@ -174,21 +174,14 @@ export default {
       this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/join_requests/' + member.id, {
         approved
       }).then((response) => {
-        this.$toast.open({
-          message: 'Join request is ' + (approved ? 'approved' : 'rejected') + '.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Join request is ' + (approved ? 'approved' : 'rejected') + '.')
         if (approved) {
           member.approved = true
         } else {
           const index = this.members.findIndex(m => m.id === member.id)
           this.members.splice(index, 1)
         }
-      }).catch((err) => this.$toast.open({
-        duration: 3000,
-        message: 'Could not process join request: ' + err.message,
-        type: 'is-danger'
-      }))
+      }).catch((err) => this.$root.showDanger('Could not process join request: ' + err.message))
     },
     refetch () {
       this.members = []
@@ -214,11 +207,7 @@ export default {
           return console.debug('Request cancelled.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not fetch join requests: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not fetch join requests: ' + err.message)
       })
     }
   },

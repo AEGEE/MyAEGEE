@@ -101,11 +101,7 @@ export default {
         member.status = 'success'
         this.$forceUpdate()
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'User is created.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('User is created.')
       }).catch((err) => {
         member.status = 'error'
         this.$forceUpdate()
@@ -113,18 +109,10 @@ export default {
         if (err.response.status === 422) { // validation errors
           member.errors = err.response.data.errors
           this.$forceUpdate()
-          return this.$toast.open({
-            duration: 3000,
-            message: 'Some of the user data is invalid.',
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('Some of the user data is invalid.')
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not create user: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not create user: ' + err.message)
       })
     },
     openFileDialog (event) {
@@ -138,11 +126,7 @@ export default {
         reader.readAsText(file, 'UTF-8')
         reader.onload = (evt) => this.processFileContent(evt.target.result)
         reader.onerror = (err) => {
-          this.$toast.open({
-            duration: 3000,
-            message: 'Could not open file: ' + err.message,
-            type: 'is-danger'
-          })
+          this.$root.showDanger('Could not open file: ' + err.message)
         }
       }
     },

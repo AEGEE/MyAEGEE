@@ -222,13 +222,9 @@ export default {
     },
     deleteBody () {
       this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
-        this.$toast.open('Body is deleted.')
+        this.$root.showSuccess('Body is deleted.')
         this.$router.push({ name: 'oms.bodies.list' })
-      }).catch((err) => this.$toast.open({
-        duration: 3000,
-        message: 'Could not delete body: ' + err.message,
-        type: 'is-danger'
-      }))
+      }).catch((err) => this.$root.showDanger('Could not delete body: ' + err.message))
     },
     askToJoinBody () {
       this.$dialog.prompt({
@@ -245,21 +241,14 @@ export default {
       this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members', {
         join_request: { motivation }
       }).then((response) => {
-        this.$toast.open({
-          message: 'Join request is sent.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Join request is sent.')
         this.isLoading = false
         this.isRequestingMembership = true
       }).catch((err) => {
         this.isLoading = false
         let message = err.response.status === 422 ? 'You\'ve already requested to join this body.' : err.message
 
-        this.$toast.open({
-          duration: 3000,
-          message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger(message)
       })
     },
     askLeaveBody () {
@@ -276,13 +265,9 @@ export default {
       this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members').then((response) => {
         this.isMember = false
         this.isRequestingMembership = false
-        this.$toast.open({ message: 'You are not the member anymore.', type: 'is-success' })
+        this.$root.showSuccess('You are not the member anymore.')
       }).catch((err) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not delete body: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not delete body: ' + err.message)
       })
     },
     saveBoundCircle () {
@@ -290,10 +275,7 @@ export default {
       this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/circles', {
         circle: this.tmpCircle
       }).then((response) => {
-        this.$toast.open({
-          message: 'Bound circle is created.',
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Bound circle is created.')
 
         this.tmpCircle = { name: '', description: '', joinable: false }
         this.body.circles.push(response.data.data)
@@ -305,11 +287,7 @@ export default {
         let message = err.response.status === 422 ? 'Some fields were not set: ' : err.message
         if (err.response.errors) this.circleErrors = err.response.errors
 
-        this.$toast.open({
-          duration: 3000,
-          message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger(message)
       })
     }
   },
@@ -334,11 +312,7 @@ export default {
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Body is not found' : 'Some error happened: ' + err.message
 
-      this.$toast.open({
-        duration: 3000,
-        message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.bodies.list' })
     })
   },

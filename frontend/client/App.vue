@@ -13,6 +13,7 @@
 import NprogressContainer from 'vue-nprogress/src/NprogressContainer'
 import { Navbar, Sidebar, AppMain, FooterBar } from 'components/layout/'
 import { mapGetters, mapActions } from 'vuex'
+import methods from './methods'
 
 export default {
   components: {
@@ -48,10 +49,13 @@ export default {
     sidebar: 'sidebar'
   }),
 
-  methods: mapActions([
-    'toggleDevice',
-    'toggleSidebar'
-  ])
+  methods: {
+    ...mapActions([
+      'toggleDevice',
+      'toggleSidebar'
+    ]),
+    ...methods
+  }
 }
 </script>
 

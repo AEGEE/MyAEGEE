@@ -467,16 +467,9 @@ export default {
         }
 
         this.axios.post(this.services['oms-events'], event).then((response) => {
-          this.$toast.open({
-            message: 'Event "' + event.name + '" is successfully added.',
-            type: 'is-success'
-          })
+          this.$root.showSuccess('Event "' + event.name + '" is successfully added.')
         }).catch((err) => {
-          this.$toast.open({
-            duration: 3000,
-            message: 'Could not save event: ' + err.message,
-            type: 'is-danger'
-          })
+          this.$root.showDanger('Could not save event: ' + err.message)
         })
       }
     },
@@ -499,15 +492,11 @@ export default {
     deleteEventType (index) {
       const eventType = this.eventTypes[index]
       this.axios.delete(this.services['oms-events'] + '/lifecycle/' + eventType.name).then((response) => {
-        this.$toast.open('Event type is deleted.')
+        this.$root.showSuccess('Event type is deleted.')
 
         this.eventTypes.splice(index, 1)
         this.selectedEventTypeIndex -= 1
-      }).catch((err) => this.$toast.open({
-        duration: 3000,
-        message: 'Could not delete event type: ' + err.message,
-        type: 'is-danger'
-      }))
+      }).catch((err) => this.$root.showDanger('Could not delete event type: ' + err.message))
     },
     saveEventType () {
       this.isLoading.eventType = true
@@ -523,26 +512,15 @@ export default {
       // ... aaaand sending it.
       this.axios.post(this.services['oms-events'] + '/lifecycle', newLifecycle).then(() => {
         this.isLoading.eventType = false
-        this.$toast.open({
-          message: `The default lifecycle for the event type '${eventType.name}' is successfully updated.`,
-          type: 'is-success'
-        })
+        this.$root.showSuccess(`The default lifecycle for the event type '${eventType.name}' is successfully updated.`)
       }).catch((err) => {
         this.isLoading.eventType = false
         if (err.response.status === 422) {
           this.errors = err.response.data.errors
-          return this.$toast.open({
-            duration: 3000,
-            message: 'Some of the lifecycle data is invalid: ' + err.response.data.message,
-            type: 'is-danger'
-          })
+          return this.$root.showDanger('Some of the lifecycle data is invalid: ' + err.response.data.message)
         }
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not delete event type: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not delete event type: ' + err.message)
       })
     },
     showModal (objectToBind) {
@@ -570,11 +548,7 @@ export default {
 
         this.autoComplete[key].loading = false
 
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not fetch ' + context + 's: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not fetch ' + context + 's: ' + err.message)
       })
     },
     addNewTransition () {
@@ -609,11 +583,7 @@ export default {
     },
     seedLifecycles () {
       this.axios.get(this.services['oms-events'] + '/lifecycle/seed').then((response) => {
-        this.$toast.open({
-          duration: 3000,
-          message: 'Lifecycles are seeded. Server response: ' + response.data.message,
-          type: 'is-success'
-        })
+        this.$root.showSuccess('Lifecycles are seeded. Server response: ' + response.data.message)
 
         this.isLoading.eventTypes = true
         return this.axios.get(this.services['oms-events'] + '/lifecycle')
@@ -622,11 +592,7 @@ export default {
         this.isLoading.eventTypes = false
       }).catch((err) => {
         this.isLoading.eventTypes = false
-        this.$toast.open({
-          duration: 3000,
-          message: 'Could not seed lifecycles: ' + err.message,
-          type: 'is-danger'
-        })
+        this.$root.showDanger('Could not seed lifecycles: ' + err.message)
       })
     }
   },
@@ -639,11 +605,7 @@ export default {
       this.isLoading.user = false
     }).catch((err) => {
       this.isLoading.user = false
-      this.$toast.open({
-        duration: 3000,
-        message: 'Could not fetch user: ' + err.message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger('Could not fetch user: ' + err.message)
     })
 
     const start2 = Date.now()
@@ -654,11 +616,7 @@ export default {
       this.isLoading.status = false
     }).catch((err) => {
       this.isLoading.status = false
-      this.$toast.open({
-        duration: 3000,
-        message: 'Could not fetch status: ' + err.message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger('Could not fetch status: ' + err.message)
     })
 
     this.isLoading.eventTypes = true
@@ -668,11 +626,7 @@ export default {
       this.isLoading.eventTypes = false
     }).catch((err) => {
       this.isLoading.eventTypes = false
-      this.$toast.open({
-        duration: 3000,
-        message: 'Could not fetch event types: ' + err.message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger('Could not fetch event types: ' + err.message)
     })
 
     this.isLoading.pseudo = true
@@ -681,11 +635,7 @@ export default {
       this.isLoading.pseudo = false
     }).catch((err) => {
       this.isLoading.pseudo = false
-      this.$toast.open({
-        duration: 3000,
-        message: 'Could not fetch pseudo roles: ' + err.message,
-        type: 'is-danger'
-      })
+      this.$root.showDanger('Could not fetch pseudo roles: ' + err.message)
     })
   }
 }
