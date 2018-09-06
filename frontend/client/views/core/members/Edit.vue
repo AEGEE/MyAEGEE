@@ -158,7 +158,7 @@ export default {
       return moment(date).format('YYYY-MM-DD')
     },
     transformBirthday () {
-      this.user.date_of_birth = moment(this.birthday, 'YYYY-MM-DD').toDate()
+      this.user.date_of_birth = moment(this.birthday).format('YYYY-MM-DD')
     },
     saveUser () {
       this.isSaving = true
