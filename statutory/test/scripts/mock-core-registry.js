@@ -73,7 +73,7 @@ exports.mockCore = (options) => {
         return nock('http://oms-core-elixir:4000')
             .persist()
             .get('/members/me')
-            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-chair-teamr.json'));
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-chair-team.json'));
     }
 
     return nock('http://oms-core-elixir:4000')

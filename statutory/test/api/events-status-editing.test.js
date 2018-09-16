@@ -40,6 +40,23 @@ describe('Events status editing', () => {
         expect(eventFromDb.status).not.toEqual('published');
     });
 
+    test('should return 404 if event is not found', async () => {
+        mock.mockAll({ core: { regularUser: true } });
+
+        const res = await request({
+            uri: '/event/nonexistant/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                status: 'published'
+            }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
     test('should disallow changing event status if status is undefined', async () => {
         const event = await generator.createEvent();
 

@@ -61,6 +61,21 @@ describe('Events editing', () => {
         expect(eventFromDb.name).toEqual('Not updated name.');
     });
 
+    test('should return 404 if event is not found', async () => {
+        const res = await request({
+            uri: '/event/notexistant',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                name: 'Not updated name.'
+            }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
     test('should not update event status', async () => {
         const event = await generator.createEvent();
 
