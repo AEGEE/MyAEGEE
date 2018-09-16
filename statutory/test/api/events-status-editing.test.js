@@ -24,7 +24,7 @@ describe('Events status editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/event/' + event.id + '/status',
+            uri: '/events/' + event.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -44,7 +44,7 @@ describe('Events status editing', () => {
         mock.mockAll({ core: { regularUser: true } });
 
         const res = await request({
-            uri: '/event/nonexistant/status',
+            uri: '/events/nonexistant/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -61,7 +61,7 @@ describe('Events status editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/event/' + event.id + '/status',
+            uri: '/events/' + event.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {}
@@ -76,7 +76,7 @@ describe('Events status editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/event/' + event.id + '/status',
+            uri: '/events/' + event.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'not-existant' }
@@ -95,7 +95,7 @@ describe('Events status editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/event/' + event.id + '/status',
+            uri: '/events/' + event.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'published' }

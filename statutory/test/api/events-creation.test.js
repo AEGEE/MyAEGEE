@@ -51,7 +51,7 @@ describe('Events creation', () => {
         expect(res.body.data.fee).toEqual(event.fee);
         expect(res.body.data.type).toEqual(event.type);
 
-        const eventFromDb = await Event.findOne({ where: { id: res.body.data.id }, include: [Question] });
+        const eventFromDb = await Event.findOne({ where: { id: res.body.data.id } });
 
         expect(eventFromDb.name).toEqual(res.body.data.name);
         expect(eventFromDb.description).toEqual(res.body.data.description);
@@ -227,9 +227,7 @@ describe('Events creation', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
-                questions: [{
-                    description: ''
-                }]
+                questions: ['']
             })
         });
 

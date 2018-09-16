@@ -1,13 +1,6 @@
 const faker = require('faker');
 
-const { Event, Question } = require('../../models');
-
-exports.generateQuestion = (options = {}) => {
-    if (!options.description) options.description = faker.lorem.paragraph();
-    if (!options.required) options.required = faker.random.boolean();
-
-    return options;
-}
+const { Event, Application } = require('../../models');
 
 exports.generateEvent = (options = {}) => {
     if (!options.name) options.name = faker.lorem.sentence();

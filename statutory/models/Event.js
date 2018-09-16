@@ -3,7 +3,6 @@ const moment = require('moment-timezone');
 moment.tz.setDefault('CET');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
-const Question = require('./Question');
 
 // A lot of workarounds here like this one:
 // allowNull: false,
@@ -132,6 +131,31 @@ const Event = sequelize.define('event', {
                 for (const elt of value) {
                     if (Number.isNaN(parseInt(elt, 10))) {
                         throw new Error('Event organizing bodies should be an array of numbers.');
+                    }
+                }
+            }
+        }
+    },
+    questions: {
+        type: Sequelize.ARRAY(Sequelize.TEXT),
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            isValid(value) {
+                if (typeof value === 'undefined' || value === '') {
+                    throw new Error('Event questions should be set.');
+                }
+                if (!Array.isArray(value)) {
+                    throw new Error('Event questions should be an array of strings.');
+                }
+
+                if (value.length < 1) {
+                    throw new Error('At least one question should be presented.');
+                }
+
+                for (const question of value) {
+                    if (question.trim().length === 0) {
+                        throw new Error('Questions should not be empty.');
                     }
                 }
             }

@@ -24,7 +24,7 @@ describe('Events editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/event/' + event.id,
+            uri: '/events/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -44,7 +44,7 @@ describe('Events editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/event/' + event.id,
+            uri: '/events/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -63,7 +63,7 @@ describe('Events editing', () => {
 
     test('should return 404 if event is not found', async () => {
         const res = await request({
-            uri: '/event/notexistant',
+            uri: '/events/notexistant',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -80,7 +80,7 @@ describe('Events editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/event/' + event.id,
+            uri: '/events/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
@@ -101,7 +101,7 @@ describe('Events editing', () => {
         const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/event/' + event.id,
+            uri: '/events/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {

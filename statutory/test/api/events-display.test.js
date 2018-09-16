@@ -20,7 +20,7 @@ describe('Events listing for single', () => {
 
     test('should return 404 if the event is not found', async () => {
         const res = await request({
-            uri: '/event/nonexistant',
+            uri: '/events/nonexistant',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -33,7 +33,7 @@ describe('Events listing for single', () => {
     test('should find event by url', async () => {
         const event = await generator.createEvent({ url: 'test-slug' });
         const res = await request({
-            uri: '/event/test-slug',
+            uri: '/events/test-slug',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -46,7 +46,7 @@ describe('Events listing for single', () => {
     test('should find event by ID', async () => {
         const event = await generator.createEvent();
         const res = await request({
-            uri: '/event/' + event.id,
+            uri: '/events/' + event.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

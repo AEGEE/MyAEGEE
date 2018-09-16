@@ -1,10 +1,11 @@
 const Event = require('./Event');
-const Question = require('./Question');
+const Application = require('./Application');
 
-Event.hasMany(Question);
-Question.belongsTo(Event);
+
+Event.hasMany(Application);
+Application.belongsTo(Event);
 
 module.exports = {
     Event,
-    Question
+    Application
 }
