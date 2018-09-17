@@ -223,6 +223,78 @@ describe('Applications creation', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
+    test('should return 422 if questions amount if the answers are not set', async () => {
+        mock.mockAll({ core: { regularUser: true } })
+
+        const event = await generator.createEvent({ questions: ['Test questions?'] });
+        const application = generator.generateApplication();
+        delete application.user_id;
+        delete application.answers;
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should return 422 if some of answers are empty', async () => {
+        mock.mockAll({ core: { regularUser: true } })
+
+        const event = await generator.createEvent({ questions: ['Test questions?'] });
+        const application = generator.generateApplication({ user_id: regularUser.id, answers: [''] });
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('answers');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should return 422 if answers is not an array', async () => {
+        mock.mockAll({ core: { regularUser: true } })
+
+        const event = await generator.createEvent({ questions: ['Test questions?'] });
+        const application = generator.generateApplication({ user_id: regularUser.id, answers: 'Totally not an array.' });
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
     test('should remove any additional fields', async () => {
         mock.mockAll({ core: { regularUser: true } })
 

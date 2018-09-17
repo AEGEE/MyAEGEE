@@ -16,7 +16,9 @@
     "collectCoverageFrom": [
       "lib/**/*.js",
       "models/**/*.js",
-      "!lib/run.js"
+      "!lib/run.js",
+      "!lib/sequelize.js",
+      "!lib/logger.js"
     ]
   },
   "keywords": [],

@@ -4,7 +4,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const { Event, Question } = require('../../models');
+const { Event } = require('../../models');
 
 describe('Events creation', () => {
     beforeEach(async () => {

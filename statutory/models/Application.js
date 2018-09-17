@@ -33,7 +33,10 @@ const Application = sequelize.define('application', {
         defaultValue: '',
         validate: {
             isValid(value) {
-                if (typeof value === 'undefined' || value === '') {
+                // For now, it's catched in endpoint handlers while checking if all questions are answered.
+                // TODO: fix when figure out how to check if all questions are answered within this validation.
+
+                /* if (typeof value === 'undefined' || value === '') {
                     throw new Error('Answers should be set.');
                 }
                 if (!Array.isArray(value)) {
@@ -42,7 +45,7 @@ const Application = sequelize.define('application', {
 
                 if (value.length < 1) {
                     throw new Error('At least one answer should be presented.');
-                }
+                } */
 
                 for (const answer of value) {
                     if (answer.trim().length === 0) {
@@ -54,6 +57,7 @@ const Application = sequelize.define('application', {
     },
     participant_type: {
         type: Sequelize.ENUM('delegate', 'observer', 'envoy', 'visitor'),
+        defaultValue: null,
         validate: {
             isIn: {
                 args: [['delegate', 'observer', 'envoy', 'visitor']],

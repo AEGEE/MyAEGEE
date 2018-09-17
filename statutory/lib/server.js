@@ -65,6 +65,7 @@ async function startServer() {
             await db.authenticate();
             return res();
         });
+        /* istanbul ignore next */
         localApp.on('error', err => rej(new Error('Error starting server: ' + err.stack)));
     });
 }
@@ -72,6 +73,7 @@ async function startServer() {
 async function stopServer() {
     log.info('Stopping server...');
     app.close();
+    /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') await db.close();
     app = null;
 }

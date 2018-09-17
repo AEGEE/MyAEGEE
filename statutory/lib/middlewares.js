@@ -97,10 +97,13 @@ exports.errorHandler = (err, req, res, next) => {
         return errors.makeValidationError(res, err);
     }
 
+    /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') {
         bugsnag.notify(err);
     }
 
+    /* istanbul ignore next */
     logger.error(err.stack);
+    /* istanbul ignore next */
     return errors.makeInternalError(res, err);
 };
