@@ -4,15 +4,19 @@ const Application = sequelize.define('application', {
     user_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
+        defaultValue: '',
         validate: {
-            notEmpty: { msg: 'User ID should be set.' }
+            notEmpty: { msg: 'User ID should be set.' },
+            isInt: { msg: 'User ID should be a number.' }
         },
     },
     body_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
+        defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Body ID should be set.' }
+            notEmpty: { msg: 'Body ID should be set.' },
+            isInt: { msg: 'Body ID should be a number.' }
         },
     },
     visa_required: {
@@ -49,10 +53,23 @@ const Application = sequelize.define('application', {
         }
     },
     participant_type: {
-        type: Sequelize.ENUM('delegate', 'observer', 'envoy', 'visitor')
+        type: Sequelize.ENUM('delegate', 'observer', 'envoy', 'visitor'),
+        validate: {
+            isIn: {
+                args: [['delegate', 'observer', 'envoy', 'visitor']],
+                msg: 'Participant type should be one of these: "delegate", "observer", "envoy", "visitor".'
+            }
+        }
     },
     status: {
-         type: Sequelize.ENUM('pending', 'requesting', 'accepted', 'rejected')
+         type: Sequelize.ENUM('pending', 'requesting', 'accepted', 'rejected'),
+         defaultValue: 'pending',
+         validate: {
+            isIn: {
+                args: [['pending', 'requesting', 'accepted', 'rejected']],
+                msg: 'Participant status should be one of these: "pending", "requesting", "accepted", "rejected".'
+            }
+        }
     },
     cancelled: {
         type: Sequelize.BOOLEAN,
@@ -64,7 +81,7 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: false
     },
-    attented: {
+    attended: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false

@@ -35,6 +35,8 @@ exports.getPermissions = (user) => {
     permissions.can.edit_bodies = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
     permissions.can.delete_event = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
     permissions.can.see_applications = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
+    permissions.can.create_applications = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
+    permissions.can.edit_applications = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
     permissions.can.set_participants_status = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
 
     if (permissions.is.superadmin) {

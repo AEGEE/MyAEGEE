@@ -45,6 +45,9 @@ EventsRouter.put('/status', events.changeEventStatus);
 ApplicationsRouter.use(middlewares.fetchEventWithApplications);
 ApplicationsRouter.get('/all', applications.listAllApplications);
 ApplicationsRouter.get('/accepted', applications.listAcceptedApplications);
+ApplicationsRouter.get('/:id', applications.getApplication);
+ApplicationsRouter.put('/:id', applications.updateApplication);
+ApplicationsRouter.post('/', applications.postApplication);
 
 server.use('/', GeneralRouter);
 server.use('/events/:event_id', EventsRouter);

@@ -35,7 +35,8 @@ module.exports = {
             type: Sequelize.ENUM('delegate', 'observer', 'envoy', 'visitor')
         },
         status: {
-             type: Sequelize.ENUM('pending', 'requesting', 'accepted', 'rejected')
+             type: Sequelize.ENUM('pending', 'requesting', 'accepted', 'rejected'),
+             defaultValue: 'pending'
         },
         cancelled: {
             type: Sequelize.BOOLEAN,
@@ -47,7 +48,7 @@ module.exports = {
             allowNull: false,
             defaultValue: false
         },
-        attented: {
+        attended: {
             type: Sequelize.BOOLEAN,
             allowNull: false,
             defaultValue: false
