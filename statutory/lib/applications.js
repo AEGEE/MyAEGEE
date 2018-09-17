@@ -102,6 +102,37 @@ exports.updateApplication = async (req, res) => {
     });
 };
 
+exports.setApplicationCancelled = async (req, res) => {
+    // ID is either 'me' or an integer (user ID)
+    if (req.params.id !== constants.CURRENT_USER_PREFIX && Number.isNaN(Number(req.params.id, 10))) {
+        return errors.makeBadRequestError(res, `User ID should be either a number or '${constants.CURRENT_USER_PREFIX}'`);
+    }
+
+    const idToSearchBy = req.params.id === constants.CURRENT_USER_PREFIX ? req.user.id : parseInt(req.params.id, 10);
+    const userPrefix = req.params.id === constants.CURRENT_USER_PREFIX ? 'You' : 'This user';
+
+    // Either the current user or this user who has permission to see it is allowed.
+    if (req.params.id !== constants.CURRENT_USER_PREFIX && !req.user.permissions.can.set_applications_cancelled[req.event.type]) {
+        return errors.makeForbiddenError(res, 'You don\'t have permissions to cancel this application.')
+    }
+
+    const application = req.event.applications.find(application => application.user_id === idToSearchBy);
+
+    if (!application) {
+        return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.')
+    }
+
+    const dbResult = await Application.update(
+        { cancelled: req.body.cancelled },
+        { where: { id: application.id }, returning: true }
+    );
+
+    return res.json({
+        success: true,
+        data: dbResult[1][0]
+    });
+};
+
 exports.postApplication = async (req, res) => {
     if (!req.event.can_apply) {
         return errors.makeForbiddenError(res, 'The deadline for applications has passed or the applications period hasn\'t started yet.')

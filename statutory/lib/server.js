@@ -45,6 +45,7 @@ EventsRouter.put('/status', events.changeEventStatus);
 ApplicationsRouter.use(middlewares.fetchEventWithApplications);
 ApplicationsRouter.get('/all', applications.listAllApplications);
 ApplicationsRouter.get('/accepted', applications.listAcceptedApplications);
+ApplicationsRouter.put('/:id/cancel', applications.setApplicationCancelled);
 ApplicationsRouter.get('/:id', applications.getApplication);
 ApplicationsRouter.put('/:id', applications.updateApplication);
 ApplicationsRouter.post('/', applications.postApplication);

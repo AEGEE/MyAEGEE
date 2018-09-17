@@ -78,7 +78,14 @@ const Application = sequelize.define('application', {
     cancelled: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: false
+        defaultValue: false,
+        validate: {
+            isBooleanOrEmpty (val) {
+                if (typeof val !== 'undefined' && val !== true && val !== false) {
+                    throw new Error('The value should be either true or false.');
+                }
+            }
+        }
     },
     paid_fee: {
         type: Sequelize.BOOLEAN,

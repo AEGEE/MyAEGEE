@@ -39,6 +39,17 @@ exports.getPermissions = (user) => {
     permissions.can.create_applications = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
     permissions.can.edit_applications = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
     permissions.can.set_applications_status = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
+    permissions.can.set_applications_cancelled = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
+    permissions.can.set_applications_paid_fee = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
+    permissions.can.set_applications_attended = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
+
+    permissions.can.set_board_comment_and_participant_type = {};
+    permissions.can.see_boardview_of = {};
+
+    for (const body in permissions.is.member_of) {
+        permissions.can.set_board_comment_and_participant_type[body] = permissions.is.board_member_of[body];
+        permissions.can.see_boardview_of[body] = permissions.is.board_member_of[body];
+    }
 
     if (permissions.is.superadmin) {
         setTrue(permissions.can);
