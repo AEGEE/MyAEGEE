@@ -9,9 +9,11 @@ const log = require('./logger');
 const middlewares = require('./middlewares');
 const db = require('./sequelize');
 const events = require('./events');
+const applications = require('./applications');
 
 const GeneralRouter = router({ mergeParams: true });
 const EventsRouter = router({ mergeParams: true });
+const ApplicationsRouter = router({ mergeParams: true });
 
 /* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {
@@ -32,18 +34,21 @@ process.on('unhandledRejection', (err) => {
 });
 
 GeneralRouter.use(middlewares.authenticateUser);
-
 GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', events.addEvent);
 
 EventsRouter.use(middlewares.fetchEvent);
-
 EventsRouter.get('/', events.displayEvent);
 EventsRouter.put('/', events.editEvent);
 EventsRouter.put('/status', events.changeEventStatus);
 
+ApplicationsRouter.use(middlewares.fetchEventWithApplications);
+ApplicationsRouter.get('/all', applications.listAllApplications);
+ApplicationsRouter.get('/accepted', applications.listAcceptedApplications);
+
 server.use('/', GeneralRouter);
-server.use('/event/:event_id', EventsRouter);
+server.use('/events/:event_id', EventsRouter);
+server.use('/events/:event_id/applications', ApplicationsRouter);
 
 server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);

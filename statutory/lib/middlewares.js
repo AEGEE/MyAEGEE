@@ -5,7 +5,7 @@ const { errors, communication } = require('oms-common-nodejs');
 const config = require('../config');
 const helpers = require('./helpers');
 const logger = require('./logger');
-const Event = require('../models/Event');
+const { Event, Application } = require('../models');
 const { Sequelize } = require('./sequelize');
 
 exports.authenticateUser = async (req, res, next) => {
@@ -49,30 +49,37 @@ exports.authenticateUser = async (req, res, next) => {
     }
 };
 
-exports.fetchEvent = async (req, res, next) => {
-    let query = {
-        where: {
-            id: req.params.event_id,
-        }
-    };
-
-    // If event_id is not an integer, assuming it's the event URL.
-    if (Number.isNaN(parseInt(req.params.event_id))) {
-        query = {
+function fetchEvent(includeApplications = false) {
+    return async (req, res, next) => {
+        let query = {
             where: {
-                url: { [Sequelize.Op.iLike]: req.params.event_id },
+                id: req.params.event_id,
+            }
+        };
+
+        // If event_id is not an integer, assuming it's the event URL.
+        if (Number.isNaN(parseInt(req.params.event_id))) {
+            query = {
+                where: {
+                    url: { [Sequelize.Op.iLike]: req.params.event_id },
+                }
             }
         }
-    }
-    const event = await Event.findOne(query);
 
-    if (!event) {
-        return errors.makeNotFoundError(res, 'Event with such url or ID is not found.');
-    }
+        if (includeApplications) query.include = [Application]
+        const event = await Event.findOne(query);
 
-    req.event = event;
-    return next();
+        if (!event) {
+            return errors.makeNotFoundError(res, 'Event with such url or ID is not found.');
+        }
+
+        req.event = event;
+        return next();
+    }
 }
+
+exports.fetchEvent = fetchEvent(false)
+exports.fetchEventWithApplications = fetchEvent(true)
 
 
 /* eslint-disable no-unused-vars */
