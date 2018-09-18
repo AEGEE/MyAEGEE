@@ -46,6 +46,8 @@ ApplicationsRouter.use(middlewares.fetchEventWithApplications);
 ApplicationsRouter.get('/all', applications.listAllApplications);
 ApplicationsRouter.get('/accepted', applications.listAcceptedApplications);
 ApplicationsRouter.put('/:id/cancel', applications.setApplicationCancelled);
+ApplicationsRouter.put('/:id/attended', applications.setApplicationAttended);
+ApplicationsRouter.put('/:id/paid_fee', applications.setApplicationPaidFee);
 ApplicationsRouter.get('/:id', applications.getApplication);
 ApplicationsRouter.put('/:id', applications.updateApplication);
 ApplicationsRouter.post('/', applications.postApplication);

@@ -102,36 +102,46 @@ exports.updateApplication = async (req, res) => {
     });
 };
 
-exports.setApplicationCancelled = async (req, res) => {
-    // ID is either 'me' or an integer (user ID)
-    if (req.params.id !== constants.CURRENT_USER_PREFIX && Number.isNaN(Number(req.params.id, 10))) {
-        return errors.makeBadRequestError(res, `User ID should be either a number or '${constants.CURRENT_USER_PREFIX}'`);
-    }
+function setApplicationBoolean (key) {
+    return async (req, res) => {
+        // ID is either 'me' or an integer (user ID)
+        if (req.params.id !== constants.CURRENT_USER_PREFIX && Number.isNaN(Number(req.params.id, 10))) {
+            return errors.makeBadRequestError(res, `User ID should be either a number or '${constants.CURRENT_USER_PREFIX}'`);
+        }
 
-    const idToSearchBy = req.params.id === constants.CURRENT_USER_PREFIX ? req.user.id : parseInt(req.params.id, 10);
-    const userPrefix = req.params.id === constants.CURRENT_USER_PREFIX ? 'You' : 'This user';
+        const idToSearchBy = req.params.id === constants.CURRENT_USER_PREFIX ? req.user.id : parseInt(req.params.id, 10);
+        const userPrefix = req.params.id === constants.CURRENT_USER_PREFIX ? 'You' : 'This user';
 
-    // Either the current user or this user who has permission to see it is allowed.
-    if (req.params.id !== constants.CURRENT_USER_PREFIX && !req.user.permissions.can.set_applications_cancelled[req.event.type]) {
-        return errors.makeForbiddenError(res, 'You don\'t have permissions to cancel this application.')
-    }
+        // Either the current user or this user who has permission to see it is allowed.
+        if (req.params.id !== constants.CURRENT_USER_PREFIX && !req.user.permissions.can['set_applications_' + key][req.event.type]) {
+            return errors.makeForbiddenError(
+                res,
+                `You don't have permissions to change the "${key} attribute of this application.`
+            );
+        }
 
-    const application = req.event.applications.find(application => application.user_id === idToSearchBy);
+        const application = req.event.applications.find(application => application.user_id === idToSearchBy);
 
-    if (!application) {
-        return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.')
-    }
+        if (!application) {
+            return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.')
+        }
 
-    const dbResult = await Application.update(
-        { cancelled: req.body.cancelled },
-        { where: { id: application.id }, returning: true }
-    );
+        const toUpdate = {};
+        toUpdate[key] = req.body[key];
 
-    return res.json({
-        success: true,
-        data: dbResult[1][0]
-    });
-};
+        const dbResult = await Application.update(toUpdate, { where: { id: application.id }, returning: true });
+
+        return res.json({
+            success: true,
+            data: dbResult[1][0]
+        });
+    };
+}
+
+exports.setApplicationCancelled = setApplicationBoolean('cancelled');
+exports.setApplicationAttended = setApplicationBoolean('attended');
+exports.setApplicationPaidFee = setApplicationBoolean('paid_fee');
+
 
 exports.postApplication = async (req, res) => {
     if (!req.event.can_apply) {

@@ -1,5 +1,11 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 
+function isBooleanOrEmpty (val) {
+    if (typeof val !== 'undefined' && val !== true && val !== false) {
+        throw new Error('The value should be either true or false.');
+    }
+}
+
 const Application = sequelize.define('application', {
     user_id: {
         allowNull: false,
@@ -80,22 +86,24 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBooleanOrEmpty (val) {
-                if (typeof val !== 'undefined' && val !== true && val !== false) {
-                    throw new Error('The value should be either true or false.');
-                }
-            }
+            isBooleanOrEmpty
         }
     },
     paid_fee: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: false
+        defaultValue: false,
+        validate: {
+            isBooleanOrEmpty
+        }
     },
     attended: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: false
+        defaultValue: false,
+        validate: {
+            isBooleanOrEmpty
+        }
     }
 }, { underscored: true });
 
