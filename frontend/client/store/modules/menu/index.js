@@ -19,6 +19,7 @@ import categories from '../../components'
 // -- meta.skipMenu: if set to true, this item won't be displayed in the sidebar (but will be available as a route)
 // -- meta.skipLazyLoad: if set to true, the item would be imported with 'require', not 'lazyLoading', loading it with all the bundle
 // -- meta.showSidebar: if set to false, the sidebar would be hidden when this route is active, defaults to true
+// -- meta.permissions: the array of permissions required for that menu entry to be displayed. If empty, the menu entry will always be displayed.
 //
 // Keep in mind that if the component has children it must contain the <router-view> tag to display it
 // within itself.
@@ -33,7 +34,8 @@ const mapComponent = (component, nested = false) => ({
     skipMenu: (component.meta && typeof component.meta.skipMenu !== 'undefined') ? component.meta.skipMenu : false,
     skipLazyLoad: (component.meta && typeof component.meta.skipLazyLoad !== 'undefined') ? component.meta.skipLazyLoad : false,
     expanded: (component.meta && typeof component.meta.expanded !== 'undefined') ? component.meta.expanded : false,
-    showSidebar: (component.meta && typeof component.meta.showSidebar !== 'undefined') ? component.meta.showSidebar : true
+    showSidebar: (component.meta && typeof component.meta.showSidebar !== 'undefined') ? component.meta.showSidebar : true,
+    permissions: (component.meta && Array.isArray(component.meta.permissions)) ? component.meta.permissions : null
   },
   component: component.meta && component.meta.skipLazyLoad ? require(`views/${component.component}.vue`) : lazyLoading(component.component),
   children: (component.children && !nested) ? component.children.map(mapComponent, true) : null

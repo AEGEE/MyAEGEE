@@ -5,7 +5,7 @@
         {{ category.categoryName }}
       </p>
       <ul class="menu-list">
-        <li v-for="(item, index) in category.components" v-bind:key="item.name" v-if="!item.meta.skipMenu">
+        <li v-for="(item, index) in category.components" v-bind:key="item.name" v-if="!item.meta.skipMenu && userHasPermissions(item)">
           <router-link :to="{ name: item.name }" exact="true" :aria-expanded="isExpanded(item) ? 'true' : 'false'" v-if="item.path" @click.native="toggle(index, categoryIndex, item)">
             <span class="icon is-small"><i :class="['fa', item.meta.icon]"></i></span>
             {{ item.meta.label || item.name }}
@@ -23,7 +23,7 @@
 
           <expanding v-if="item.children && item.children.length">
             <ul v-show="isExpanded(item)">
-              <li v-for="subItem in item.children" v-bind:key="subItem.name" v-if="subItem.path && !subItem.meta.skipMenu">
+              <li v-for="subItem in item.children" v-bind:key="subItem.name" v-if="subItem.path && !subItem.meta.skipMenu && userHasPermissions(subItem)">
                 <router-link :to="{ name: subItem.name }" exact="true">
                   {{ subItem.meta ? subItem.meta.label : subItem.name }}
                 </router-link>
@@ -54,7 +54,6 @@ export default {
       isReady: false
     }
   },
-
   mounted () {
     let route = this.$route
     if (route.name) {
@@ -64,13 +63,25 @@ export default {
   },
 
   computed: mapGetters({
-    menu: 'menuitems'
+    menu: 'menuitems',
+    permissions: 'permissions'
   }),
 
   methods: {
     ...mapActions([
       'expandMenu'
     ]),
+
+    userHasPermissions (item) {
+      // If item has no meta.permissions attribute, show it.
+      if (!item.meta.permissions) {
+        return true;
+      }
+
+      // Otherwise, check if user has such a permission.
+      return item.meta.permissions.some(itemPermission =>
+        this.permissions.find(userPermission => userPermission.combined.includes(itemPermission)));
+    },
 
     isExpanded (item) {
       return item.meta.expanded

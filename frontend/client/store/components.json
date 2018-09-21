@@ -80,7 +80,8 @@
       {
         "meta": {
           "label": "Members",
-          "icon": "fa-user"
+          "icon": "fa-user",
+          "permissions": ["view:member"]
         },
         "children": [
           {
@@ -123,7 +124,8 @@
       {
         "meta": {
           "label": "Bodies",
-          "icon": "fa-flag"
+          "icon": "fa-flag",
+          "permissions": ["view:body"]
         },
         "children": [
           {
@@ -202,7 +204,8 @@
       {
         "meta": {
           "label": "Permissions",
-          "icon": "fa-key"
+          "icon": "fa-key",
+          "permissions": ["view:permission"]
         },
         "children": [
           {
@@ -245,7 +248,8 @@
       {
         "meta": {
           "label": "Circles",
-          "icon": "fa-circle"
+          "icon": "fa-circle",
+          "permissions": ["view:circle"]
         },
         "children": [
           {
@@ -297,7 +301,8 @@
       {
         "meta": {
           "label": "Campaigns",
-          "icon": "fa-sign-in"
+          "icon": "fa-sign-in",
+          "permissions": ["view:campaign"]
         },
         "children": [
           {

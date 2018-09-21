@@ -25,9 +25,21 @@ export default {
       return result.data.data
     }
 
+    const fetchPermissions = async () => {
+      const result = await Vue.axios.get(services['oms-core-elixir'] + '/my_permissions')
+
+      if (!result.data.success) {
+        throw result.data
+      }
+
+      store.dispatch('setPermissions', result.data.data)
+      return result.data.data
+    }
+
     const fetchUserWithExistingData = async () => {
       try {
         await fetchUser() // The request will be re-done and access token will be renewed if expired.
+        await fetchPermissions()
         return
       } catch (err) {
         store.dispatch('logout')

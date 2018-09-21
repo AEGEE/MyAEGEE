@@ -35,7 +35,8 @@ export default {
     pkginfo: 'pkg',
     sidebar: 'sidebar',
     loggedIn: 'loggedIn',
-    user: 'user'
+    user: 'user',
+    permissions: 'permissions'
   }),
 
   methods: {

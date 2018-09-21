@@ -31,6 +31,12 @@ export const setUser = ({ commit }, user) => {
   }
 }
 
+export const setPermissions = ({ commit }, permissions) => {
+  if (permissions) {
+    commit(types.SET_PERMISSIONS, permissions)
+  }
+}
+
 export const logout = ({ commit }) => {
   commit(types.LOGOUT)
 }
