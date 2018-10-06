@@ -82,7 +82,7 @@
                     </router-link>
                   </td>
                   <td>{{ submission.motivation }}</td>
-                  <td>{{ submission.mail_confirmed }}</td>
+                  <td>{{ submission.mail_confirmed ? 'Yes' : 'No' }}</td>
                 </tr>
               </tbody>
             </table>
