@@ -57,7 +57,7 @@
           <div class="field">
             <label class="label">Motivation</label>
             <div class="control">
-              <input v-model="submission.motivation" required class="input" type="text" placeholder="Describe why you want to be a member.">
+              <input v-model="submission.motivation" required class="input" type="text" placeholder="Why you want to be a member.">
             </div>
              <p class="help is-danger" v-if="errors.motivation">{{ errors.motivation.join(', ')}}</p>
           </div>
