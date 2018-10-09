@@ -38,7 +38,7 @@
           <div class="tile is-6 is-parent">
             <article class="tile is-child box">
               <p class="title">Events you've applied to</p>
-              <div class="content">
+              <div class="content" v-show="events.length > 0">
                 <ul>
                   <li v-for="event in events" v-bind:key="event.id">
                     <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }">
@@ -46,6 +46,9 @@
                     </router-link>
                   </li>
                 </ul>
+              </div>
+              <div class="content" v-show="events.length === 0">
+                <p><i>You haven't appied to any event yet.</i></p>
               </div>
               <b-loading :is-full-page="false" :active.sync="isLoading.events"></b-loading>
             </article>
