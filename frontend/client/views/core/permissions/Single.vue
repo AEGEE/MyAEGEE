@@ -17,7 +17,7 @@
                 </tr>
                 <tr>
                   <th>Always assigned?</th>
-                  <td>{{ permission.always_assigned }}</td>
+                  <td>{{ permission.always_assigned ? 'Yes' : 'No' }}</td>
                 </tr>
                 <tr>
                   <th>Filters</th>

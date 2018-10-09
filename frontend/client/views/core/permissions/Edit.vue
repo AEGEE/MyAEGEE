@@ -5,7 +5,12 @@
         <div class="field">
           <label class="label">Scope</label>
           <div class="control">
-            <input class="input" type="text" required v-model="permission.scope" />
+            <div class="select">
+              <select v-model="permission.scope">
+                <option value="global">Global</option>
+                <option value="local">Local</option>
+              </select>
+            </div>
           </div>
           <p class="help is-danger" v-if="errors.scope">{{ errors.scope.join(', ')}}</p>
         </div>
