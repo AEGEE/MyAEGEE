@@ -3,10 +3,17 @@
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
         <h4 class="title">Circles list</h4>
+
         <div class="field">
-          <label class="label">Search</label>
-          <div class="control">
-            <input class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
+          <label class="label">Search by name or description</label>
+          <div class="field has-addons">
+            <div class="control is-expanded">
+              <input class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
+            </div>
+            <div class="control">
+              <a class="button is-info" v-if="includeBoundCircles"  @click="toggleBoundCircles()">Show only free circles</a>
+              <a class="button is-info" v-if="!includeBoundCircles" @click="toggleBoundCircles()">Show also bound circles</a>
+            </div>
           </div>
         </div>
 
@@ -14,9 +21,6 @@
           <div class="control" v-if="can.createFree">
             <router-link class="button is-primary" :to="{ name: 'oms.circles.create' }">Create circle</router-link>
           </div>
-
-          <a class="button" v-if="includeBoundCircles" @click="toggleBoundCircles()">Show only free circles</a>
-          <a class="button" v-if="!includeBoundCircles" @click="toggleBoundCircles()">Show also bound circles</a>
         </div>
 
         <div class="table-responsive">
