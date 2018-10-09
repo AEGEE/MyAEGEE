@@ -7,18 +7,29 @@
             <article class="tile is-child box">
               <p class="title">{{ user.first_name }} {{ user.last_name }}</p>
               <div class="content">
-                <p>You are member of these bodies:</p>
-                <ul>
-                  <li v-for="body in user.bodies" v-bind:key="body.id">
-                    <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id} }">{{ body.name }}</router-link>
-                  </li>
-                </ul>
-                <p>You are member of these circles:</p>
-                <ul>
-                  <li v-for="circle in user.circles" v-bind:key="circle.id">
-                    <router-link :to="{ name: 'oms.circles.view', params: { id: circle.id} }">{{ circle.name }}</router-link>
-                  </li>
-                </ul>
+                <div v-show="user.bodies.length > 0">
+                  <p>You are member of these bodies:</p>
+                  <ul>
+                    <li v-for="body in user.bodies" v-bind:key="body.id">
+                      <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id} }">{{ body.name }}</router-link>
+                    </li>
+                  </ul>
+                </div>
+                <div v-show="user.bodies.length === 0">
+                  <p><i>You are currently not a member of any body.</i></p>
+                </div>
+
+                <div v-show="user.circles.length > 0">
+                  <p>You are member of these circles:</p>
+                  <ul>
+                    <li v-for="circle in user.circles" v-bind:key="circle.id">
+                      <router-link :to="{ name: 'oms.circles.view', params: { id: circle.id} }">{{ circle.name }}</router-link>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div v-show="user.circles.length === 0">
+                <p><i>You are currently not a member of any circle.</i></p>
               </div>
 
               <b-loading :is-full-page="false" :active.sync="isLoading.user"></b-loading>
