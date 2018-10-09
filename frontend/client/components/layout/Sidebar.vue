@@ -75,12 +75,12 @@ export default {
     userHasPermissions (item) {
       // If item has no meta.permissions attribute, show it.
       if (!item.meta.permissions) {
-        return true;
+        return true
       }
 
       // Otherwise, check if user has such a permission.
       return item.meta.permissions.some(itemPermission =>
-        this.permissions.find(userPermission => userPermission.combined.includes(itemPermission)));
+        this.permissions.find(userPermission => userPermission.combined.includes(itemPermission)))
     },
 
     isExpanded (item) {
