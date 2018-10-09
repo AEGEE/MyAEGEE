@@ -44,10 +44,10 @@
                 </tr>
                 <tr>
                   <th>Attached permissions</th>
-                  <td v-if="circle.permissions.length === 0"><i> No permissions directly attached.</i></td>
-                  <td v-if="circle.permissions.length > 0">
+                  <td v-if="permissions.length === 0"><i> No permissions directly attached.</i></td>
+                  <td v-if="permissions.length > 0">
                     <ul>
-                      <li v-for="permission in circle.permissions" v-bind:key="permission.id">
+                      <li v-for="permission in permissions" v-bind:key="permission.id">
                         <router-link :to="{ name: 'oms.permissions.view', params: { id: permission.id } }">
                           {{ permission.combined }}
                         </router-link>
