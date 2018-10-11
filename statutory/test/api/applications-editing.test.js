@@ -5,7 +5,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const regularUser = require('../assets/oms-core-valid-regular-user').data;
+const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Applications editing', () => {
     beforeEach(async () => {
@@ -18,8 +18,8 @@ describe('Applications editing', () => {
         mock.cleanAll();
     });
 
-    test('should succeed for current user', async () => {
-        mock.mockAll({ core: { regularUser: true } })
+    test('should succeed for current user within the deadline', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
         const application = await generator.createApplication({ user_id: regularUser.id }, event);
@@ -43,74 +43,9 @@ describe('Applications editing', () => {
         expect(res.body.data.body_id).toEqual(555);
     });
 
-    test('should succeed for other user when the permissions are okay', async () => {
-        const event = await generator.createEvent();
-        const application = await generator.createApplication({}, event);
+    test('should return 403 for current user not within the deadline', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.user_id,
-            method: 'PUT',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { body_id: 555 }
-        });
-
-        tk.reset();
-
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        expect(res.body).not.toHaveProperty('errors');
-        expect(res.body).toHaveProperty('data');
-        expect(res.body.data.user_id).toEqual(application.user_id);
-        expect(res.body.data.body_id).toEqual(555);
-    });
-
-    test('should return 403 for other user when user does not have permissions', async () => {
-        mock.mockAll({ core: { regularUser: true } })
-
-        const event = await generator.createEvent();
-        const application = await generator.createApplication({}, event);
-
-        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.user_id,
-            method: 'PUT',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { body_id: 555 }
-        });
-
-        tk.reset();
-
-        expect(res.statusCode).toEqual(403);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
-    });
-
-    test('should return 403 when the application deadline has passed', async () => {
-        const event = await generator.createEvent();
-        const application = await generator.createApplication({}, event);
-
-        tk.travel(moment(event.application_period_ends).add(5, 'minutes').toDate());
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.user_id,
-            method: 'PUT',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { body_id: 555 }
-        });
-
-        tk.reset();
-
-        expect(res.statusCode).toEqual(403);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
-    });
-
-    test('should return 403 when the application period hasn\'t started yet', async () => {
         const event = await generator.createEvent();
         const application = await generator.createApplication({}, event);
 
@@ -129,6 +64,29 @@ describe('Applications editing', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+    });
+
+    test('should succeed for use who has permissions', async () => {
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({}, event);
+
+        tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.user_id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { body_id: 555 }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.user_id).toEqual(application.user_id);
+        expect(res.body.data.body_id).toEqual(555);
     });
 
     test('should return 422 on validation errors', async () => {
@@ -174,7 +132,7 @@ describe('Applications editing', () => {
     });
 
     test('should return 404 if the application is not found for current user', async () => {
-        mock.mockAll({ core: { regularUser: true } })
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ applications: [] });
 

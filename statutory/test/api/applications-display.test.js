@@ -4,7 +4,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const regularUser = require('../assets/oms-core-valid-regular-user').data;
+const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Applications displaying', () => {
     beforeEach(async () => {
@@ -18,7 +18,7 @@ describe('Applications displaying', () => {
     });
 
     test('should succeed for current user', async () => {
-        mock.mockAll({ core: { regularUser: true } })
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
         const application = generator.generateApplication({ user_id: regularUser.id });
         const event = await generator.createEvent({ applications: [application] });
 
@@ -54,7 +54,7 @@ describe('Applications displaying', () => {
     });
 
     test('should return the error for those who does not have permissions to see applications', async () => {
-        mock.mockAll({ core: { regularUser: true } })
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const userId = Math.floor(Math.random() * 100 * 50); // from 50 to 150
         const application = generator.generateApplication({ user_id: userId });

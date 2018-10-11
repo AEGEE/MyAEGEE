@@ -40,7 +40,7 @@ describe('Applications listing', () => {
     });
 
     test('should result in an error if user does not have permission on /all', async () => {
-        mock.mockAll({ core: { regularUser: true } });
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
         const event = await generator.createEvent();
 
         const res = await request({
@@ -56,7 +56,7 @@ describe('Applications listing', () => {
     });
 
     test('should display accepted application on /accepted', async () => {
-        mock.mockAll({ core: { regularUser: true } });
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
         const application = generator.generateApplication({ status: 'accepted' })
         const event = await generator.createEvent({ applications: [application] });
 
@@ -80,7 +80,7 @@ describe('Applications listing', () => {
     });
 
     test('should not display not accepted application on /accepted', async () => {
-        mock.mockAll({ core: { regularUser: true } });
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
         const application = generator.generateApplication({ status: 'pending' })
         const event = await generator.createEvent({ applications: [application] });
 

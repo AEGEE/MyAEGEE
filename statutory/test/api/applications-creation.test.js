@@ -5,7 +5,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const regularUser = require('../assets/oms-core-valid-regular-user').data;
+const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Applications creation', () => {
     beforeEach(async () => {
@@ -18,8 +18,8 @@ describe('Applications creation', () => {
         mock.cleanAll();
     });
 
-    test('should succeed for current user', async () => {
-        mock.mockAll({ core: { regularUser: true } })
+    test('should succeed if user can apply within deadline but without permissions', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
         const event = await generator.createEvent({ applications: [] });
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
@@ -28,7 +28,7 @@ describe('Applications creation', () => {
             uri: '/events/' + event.id + '/applications/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: generator.generateApplication({ user_id: null }, event)
+            body: generator.generateApplication({}, event)
         });
 
         tk.reset();
@@ -40,17 +40,16 @@ describe('Applications creation', () => {
         expect(res.body.data.user_id).toEqual(regularUser.id);
     });
 
-    test('should succeed for other user when the permissions are okay', async () => {
+    test('should succeed for a user with permissions but not within deadline', async () => {
         const event = await generator.createEvent({ applications: [] });
-        const application = generator.generateApplication({}, event);
 
-        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+        tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: application
+            body: generator.generateApplication({}, event)
         });
 
         tk.reset();
@@ -59,101 +58,11 @@ describe('Applications creation', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.user_id).toEqual(application.user_id);
+        expect(res.body.data.user_id).toEqual(regularUser.id);
     });
 
-    test('should return 403 for other user when user does not have permissions', async () => {
-        mock.mockAll({ core: { regularUser: true } })
-
-        const event = await generator.createEvent({ applications: [] });
-        const application = generator.generateApplication({}, event);
-
-        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: application
-        });
-
-        tk.reset();
-
-        expect(res.statusCode).toEqual(403);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
-    });
-
-    test('should return 400 when current user has already applied', async () => {
-        mock.mockAll({ core: { regularUser: true } })
-
-        const application = generator.generateApplication({ user_id: regularUser.id, answers: ['Test'] });
-        const event = await generator.createEvent({ applications: [application], questions: ['Test'] });
-
-        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: application
-        });
-
-        tk.reset();
-
-        expect(res.statusCode).toEqual(400);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
-    });
-
-    test('should return 400 when submitting an application for user who has already applied', async () => {
-        const application = generator.generateApplication({ user_id: regularUser.id, answers: ['Test'] });
-        const event = await generator.createEvent({ applications: [application], questions: ['Test'] });
-
-        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: application
-        });
-
-        tk.reset();
-
-        expect(res.statusCode).toEqual(400);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
-    });
-
-    test('should return 403 when the application deadline has passed', async () => {
-        mock.mockAll({ core: { regularUser: true } })
-
-        const event = await generator.createEvent({ applications: [] });
-        const application = generator.generateApplication({ user_id: null }, event);
-
-        tk.travel(moment(event.application_period_ends).add(5, 'minutes').toDate());
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: application
-        });
-
-        tk.reset();
-
-        expect(res.statusCode).toEqual(403);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
-    });
-
-    test('should return 403 when the application period hasn\'t started yet', async () => {
-        mock.mockAll({ core: { regularUser: true } })
+    test('should return 403 when user does not have permissions and not within deadline', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ applications: [] });
         const application = generator.generateApplication({}, event);
@@ -175,8 +84,31 @@ describe('Applications creation', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    test('should return 400 when user has already applied', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const application = generator.generateApplication({ user_id: regularUser.id, answers: ['Test'] });
+        const event = await generator.createEvent({ applications: [application], questions: ['Test'] });
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
     test('should return 422 on validation errors', async () => {
-        mock.mockAll({ core: { regularUser: true } })
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ applications: [] });
         const application = generator.generateApplication({}, event);
@@ -201,7 +133,7 @@ describe('Applications creation', () => {
     });
 
     test('should return 422 if questions amount is not the same as answers amount', async () => {
-        mock.mockAll({ core: { regularUser: true } })
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ questions: ['Test questions?'] });
         const application = generator.generateApplication({ answers: [], user_id: null });
@@ -224,7 +156,7 @@ describe('Applications creation', () => {
     });
 
     test('should return 422 if questions amount if the answers are not set', async () => {
-        mock.mockAll({ core: { regularUser: true } })
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ questions: ['Test questions?'] });
         const application = generator.generateApplication();
@@ -249,7 +181,7 @@ describe('Applications creation', () => {
     });
 
     test('should return 422 if some of answers are empty', async () => {
-        mock.mockAll({ core: { regularUser: true } })
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ questions: ['Test questions?'] });
         const application = generator.generateApplication({ user_id: regularUser.id, answers: [''] });
@@ -273,7 +205,7 @@ describe('Applications creation', () => {
     });
 
     test('should return 422 if answers is not an array', async () => {
-        mock.mockAll({ core: { regularUser: true } })
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ questions: ['Test questions?'] });
         const application = generator.generateApplication({ user_id: regularUser.id, answers: 'Totally not an array.' });
@@ -296,7 +228,7 @@ describe('Applications creation', () => {
     });
 
     test('should remove any additional fields', async () => {
-        mock.mockAll({ core: { regularUser: true } })
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ applications: [] });
         const application = generator.generateApplication({ user_id: regularUser.id }, event);

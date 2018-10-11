@@ -19,7 +19,7 @@ describe('Events status editing', () => {
     });
 
     test('should disallow changing event status if user has no rights', async () => {
-        mock.mockAll({ core: { regularUser: true } });
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
 
@@ -41,7 +41,7 @@ describe('Events status editing', () => {
     });
 
     test('should return 404 if event is not found', async () => {
-        mock.mockAll({ core: { regularUser: true } });
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
             uri: '/events/nonexistant/status',

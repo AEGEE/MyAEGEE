@@ -19,7 +19,7 @@ describe('Events editing', () => {
     });
 
     test('should disallow event editing if user has no rights', async () => {
-        mock.mockAll({ core: { regularUser: true } });
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
 

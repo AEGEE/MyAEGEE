@@ -62,30 +62,142 @@ exports.mockCore = (options) => {
             .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
     }
 
-    if (options.regularUser) {
+    return nock('http://oms-core-elixir:4000')
+        .persist()
+        .get('/members/me')
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
+};
+
+exports.mockCoreMainPermissions = (options) => {
+    if (options.netError) {
         return nock('http://oms-core-elixir:4000')
             .persist()
-            .get('/members/me')
-            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-regular-user.json'));
+            .get('/my_permissions')
+            .replyWithError('Some random error.');
     }
 
-    if (options.chairTeam) {
+    if (options.badResponse) {
         return nock('http://oms-core-elixir:4000')
             .persist()
-            .get('/members/me')
-            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-chair-team.json'));
+            .get('/my_permissions')
+            .reply(500, 'Some error happened.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock('http://oms-core-elixir:4000')
+            .persist()
+            .get('/my_permissions')
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
+    if (options.unauthorized) {
+        return nock('http://oms-core-elixir:4000')
+            .persist()
+            .get('/my_permissions')
+            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+    }
+
+    if (options.noPermissions) {
+        return nock('http://oms-core-elixir:4000')
+            .persist()
+            .get('/my_permissions')
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-empty.json'));
     }
 
     return nock('http://oms-core-elixir:4000')
         .persist()
-        .get('/members/me')
-        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-superadmin.json'));
+        .get('/my_permissions')
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-full.json'));
+};
+
+exports.mockCoreMainPermissions = (options) => {
+    if (options.netError) {
+        return nock('http://oms-core-elixir:4000')
+            .persist()
+            .get('/my_permissions')
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock('http://oms-core-elixir:4000')
+            .persist()
+            .get('/my_permissions')
+            .reply(500, 'Some error happened.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock('http://oms-core-elixir:4000')
+            .persist()
+            .get('/my_permissions')
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
+    if (options.unauthorized) {
+        return nock('http://oms-core-elixir:4000')
+            .persist()
+            .get('/my_permissions')
+            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+    }
+
+    if (options.noPermissions) {
+        return nock('http://oms-core-elixir:4000')
+            .persist()
+            .get('/my_permissions')
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-empty.json'));
+    }
+
+    return nock('http://oms-core-elixir:4000')
+        .persist()
+        .get('/my_permissions')
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-full.json'));
+};
+
+exports.mockCoreApprovePermissions = (options) => {
+    if (options.netError) {
+        return nock('http://oms-core-elixir:4000')
+            .persist()
+            .post('/my_permissions')
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock('http://oms-core-elixir:4000')
+            .persist()
+            .post('/my_permissions')
+            .reply(500, 'Some error happened.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock('http://oms-core-elixir:4000')
+            .persist()
+            .post('/my_permissions')
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
+    if (options.unauthorized) {
+        return nock('http://oms-core-elixir:4000')
+            .persist()
+            .post('/my_permissions')
+            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+    }
+
+    return nock('http://oms-core-elixir:4000')
+        .persist()
+        .post('/my_permissions')
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-empty.json'));
 };
 
 exports.mockAll = (options = {}) => {
     nock.cleanAll();
-    const omscoreStub = exports.mockCore(options.core || {});
-    const omsserviceregistryStub = exports.mockRegistry(options.registry || {});
+    const omsCoreStub = exports.mockCore(options.core || {});
+    const omsMainPermissionsStub = exports.mockCoreMainPermissions(options.mainPermissions || {});
+    const omsApprovePermissionsStub = exports.mockCoreApprovePermissions(options.approvePermissions || {});
+    const omsServiceRegistryStub = exports.mockRegistry(options.registry || {});
 
-    return { omscoreStub, omsserviceregistryStub };
+    return {
+        omsCoreStub,
+        omsServiceRegistryStub,
+        omsMainPermissionsStub,
+        omsApprovePermissionsStub
+    };
 };

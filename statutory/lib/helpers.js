@@ -1,59 +1,76 @@
-/* A helper for setting every property of object to 'true' recursively. */
-function setTrue(object) {
-    for (const key in object) {
-        if (typeof object[key] === 'object') {
-            setTrue(object[key]);
-        } else {
-            object[key] = true;
-        }
-    }
+const constants = require('./constants');
+
+// A helper to determine if the string is either 'me' or an integer.
+exports.isIDValid = id => id === constants.CURRENT_USER_PREFIX || !Number.isNaN(Number(id, 10));
+
+// A helper to say if the answer match questions.
+exports.isAnswersValid = (questions, answers) => Array.isArray(answers) && answers.length === questions.length;
+
+// A helper to determine if user has permission.
+function hasPermission(permissionsList, combinedPermission) {
+    return permissionsList.some(permission => permission.combined.endsWith(combinedPermission));
 }
 
-exports.getPermissions = (user) => {
-    const permissions = {
-        is: {},
-        can: {}
+// A helper to get bodies list where I have some permission
+// from POST /my_permissions
+function getBodiesListFromPermissions(result) {
+    return result.reduce((acc, val) => acc.concat(val), [])
+        .filter(elt => elt.body_id)
+        .map(elt => elt.body_id)
+        .filter((elt, index, array) => array.indexOf(elt) === index);
+}
+
+// TODO: Refactor with permissions in oms-core-elixir
+exports.getPermissions = (user, corePermissions) => {
+    return {
+        create_event: {
+            agora: hasPermission(corePermissions, 'manage_event:agora'),
+            epm:  hasPermission(corePermissions, 'manage_event:epm')
+        }
     };
+};
 
-    permissions.is.superadmin = user.user && user.user.superadmin;
-    permissions.is.chair_team = user.bodies.some(body => body.name.includes('Chair Team'));
-    permissions.is.jc = user.bodies.some(body => body.name.includes('Juridical Commission'));
-    permissions.is.cd = user.bodies.some(body => body.name.includes('Comite Directeur'));
+exports.getEventPermissions = ({ permissions, corePermissions, approvePermissions, event }) => {
+    // Event-related permissions
+    permissions.edit_event = hasPermission(corePermissions, 'manage_event:' + event.type);
+    permissions.change_event_status = hasPermission(corePermissions, 'manage_event:' + event.type);
+    permissions.edit_organizers = hasPermission(corePermissions, 'manage_event:' + event.type);
+    permissions.edit_bodies = hasPermission(corePermissions, 'manage_event:' + event.type);
+    permissions.delete_event = hasPermission(corePermissions, 'manage_event:' + event.type);
+    permissions.apply = event.can_apply || hasPermission(corePermissions, 'manage_applications:' + event.type);
 
-    permissions.is.member_of = {};
-    permissions.is.board_member_of = {};
+    permissions.see_applications = hasPermission(corePermissions, 'see_applications:' + event.type);
 
-    for (const body of user.bodies) {
-        permissions.is.member_of[body.id] = true;
-        permissions.is.board_member_of[body.id] = user.circles.some(c => c.body_id === body.id && c.name.toLowerCase().includes('board'));
-    }
+    permissions.set_board_comment_and_participant_type = {};
+    permissions.see_boardview_of = {};
 
-    permissions.can.create_event = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
-    permissions.can.edit_event = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
-    permissions.can.change_event_status = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
-    permissions.can.edit_organizers = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
-    permissions.can.edit_bodies = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
-    permissions.can.delete_event = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
-
-    permissions.can.see_applications = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
-    permissions.can.create_applications = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
-    permissions.can.edit_applications = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
-    permissions.can.set_applications_status = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
-    permissions.can.set_applications_cancelled = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
-    permissions.can.set_applications_paid_fee = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
-    permissions.can.set_applications_attended = { agora: permissions.is.chair_team, epm: permissions.is.chair_team };
-
-    permissions.can.set_board_comment_and_participant_type = {};
-    permissions.can.see_boardview_of = {};
-
-    for (const body in permissions.is.member_of) {
-        permissions.can.set_board_comment_and_participant_type[body] = permissions.is.board_member_of[body];
-        permissions.can.see_boardview_of[body] = permissions.is.board_member_of[body];
-    }
-
-    if (permissions.is.superadmin) {
-        setTrue(permissions.can);
+    const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
+    for (const body in approveBodiesList) {
+        permissions.set_board_comment_and_participant_type[body] = true;
+        permissions.see_boardview_of[body] = true;
     }
 
     return permissions;
-};
+}
+
+exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine }) => {
+    // If user can manage application (has rights in the system).
+    const canManage = hasPermission(corePermissions, 'manage_applications:' + event.type);
+
+    // If user can change applications' status (has rights in the system).
+    const canAccept = hasPermission(corePermissions, 'accept_applications:' + event.type);
+
+    // User can edit application if it's his application and it's within the deadline, or if he has the permission.
+    permissions.edit_application = (mine && event.can_apply) || canManage;
+
+    // For cancellation, the same.
+    permissions.set_application_cancelled = (mine && event.can_apply) || canManage;
+
+    // For paid fee and cancelled, only if has permissions.
+    permissions.set_application_paid_fee = canManage;
+    permissions.set_application_attended = canManage;
+
+    permissions.change_status = canAccept;
+
+    return permissions;
+}

@@ -39,6 +39,7 @@ GeneralRouter.post('/', events.addEvent);
 
 EventsRouter.use(middlewares.fetchEvent);
 EventsRouter.get('/', events.displayEvent);
+EventsRouter.get('/permissions', events.displayEventPermissions);
 EventsRouter.put('/', events.editEvent);
 EventsRouter.put('/status', events.changeEventStatus);
 

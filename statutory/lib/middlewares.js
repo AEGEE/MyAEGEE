@@ -21,26 +21,36 @@ exports.authenticateUser = async (req, res, next) => {
         // Get the request headers to send an auth token
         const headers = await communication.getRequestHeaders(req);
 
-        // Query the core
-        const body = await request({
-            url: `${service.backend_url}members/me`,
+        // Query the core for user and permissions.
+        const [ userBody, permissionsBody ] = await Promise.all(['members/me', 'my_permissions'].map(endpoint => request({
+            url: service.backend_url + endpoint,
             method: 'GET',
             headers,
             simple: false,
             json: true,
-        });
+        })));
 
-        if (typeof body !== 'object') {
-            return errors.makeInternalError(res, 'Malformed response from core: ' + body);
+        if (typeof userBody !== 'object') {
+            return errors.makeInternalError(res, 'Malformed response when fetching user: ' + userBody);
         }
 
-        if (!body.success) {
+        if (!userBody.success) {
             // We are not authenticated
-            return errors.makeForbiddenError(res, 'User is not authenticated.');
+            return errors.makeForbiddenError(res, 'Error fetching user: user is not authenticated.');
         }
 
-        req.user = body.data;
-        req.user.permissions = helpers.getPermissions(req.user);
+        if (typeof permissionsBody !== 'object') {
+            return errors.makeInternalError(res, 'Malformed response when fetching permissions: ' + body);
+        }
+
+        if (!permissionsBody.success) {
+            // We are not authenticated
+            return errors.makeForbiddenError(res, 'Error fetching permissions: user is not authenticated.');
+        }
+
+        req.user = userBody.data;
+        req.corePermissions = permissionsBody.data;
+        req.permissions = helpers.getPermissions(req.user, req.corePermissions);
         req.user.special = ['Public']; // Everybody is included in 'Public', right?
 
         return next();
@@ -73,7 +83,41 @@ function fetchEvent(includeApplications = false) {
             return errors.makeNotFoundError(res, 'Event with such url or ID is not found.');
         }
 
+        const service = await communication.getServiceByName(config.registry, 'oms-core-elixir');
+        const headers = await communication.getRequestHeaders(req);
+
+        // Fetching permissions for members approval, the list of bodies
+        // where do you have the 'approve_participants:<event_type>' permission for it.
+        const approveRequest = await request({
+            url: service.backend_url + 'my_permissions',
+            method: 'POST',
+            headers,
+            simple: false,
+            json: true,
+            body: {
+                action: 'approve_participants',
+                object: event.type
+            }
+        });
+
+        if (typeof approveRequest !== 'object') {
+            return errors.makeInternalError(res, 'Malformed response when fetching permissions for approve: ' + body);
+        }
+
+        if (!approveRequest.success) {
+            // We are not authenticated
+            return errors.makeForbiddenError(res, 'Error fetching permissions for approve: user is not authenticated.');
+        }
+
         req.event = event;
+        req.approvePermissions = approveRequest.data;
+        req.permissions = helpers.getEventPermissions({
+            permissions: req.permissions,
+            corePermissions: req.corePermissions,
+            approvePermissions: req.approvePermissions,
+            event
+        });
+
         return next();
     }
 }

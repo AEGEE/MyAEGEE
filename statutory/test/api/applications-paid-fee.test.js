@@ -2,7 +2,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const regularUser = require('../assets/oms-core-valid-regular-user').data;
+const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Applications paid fee', () => {
     beforeEach(async () => {
@@ -15,8 +15,8 @@ describe('Applications paid fee', () => {
         mock.cleanAll();
     });
 
-    test('should succeed for current user', async () => {
-        mock.mockAll({ core: { regularUser: true } })
+    test('should not succeed for current user', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
         const application = await generator.createApplication({ user_id: regularUser.id }, event);
@@ -28,12 +28,10 @@ describe('Applications paid fee', () => {
             body: { paid_fee: true }
         });
 
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        expect(res.body).not.toHaveProperty('errors');
-        expect(res.body).toHaveProperty('data');
-        expect(res.body.data.user_id).toEqual(regularUser.id);
-        expect(res.body.data.paid_fee).toEqual(true);
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
     });
 
     test('should succeed for other user when the permissions are okay', async () => {
@@ -55,8 +53,8 @@ describe('Applications paid fee', () => {
         expect(res.body.data.paid_fee).toEqual(true);
     });
 
-    test('should return 403 for other user when user does not have permissions', async () => {
-        mock.mockAll({ core: { regularUser: true } })
+    test('should return 403 when user does not have permissions', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
         const application = await generator.createApplication({}, event);
@@ -74,25 +72,7 @@ describe('Applications paid fee', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should return 404 if the application is not found for current user', async () => {
-        mock.mockAll({ core: { regularUser: true } })
-
-        const event = await generator.createEvent({ applications: [] });
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/me/paid_fee',
-            method: 'PUT',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { paid_fee: true }
-        });
-
-        expect(res.statusCode).toEqual(404);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-        expect(res.body).not.toHaveProperty('data');
-    });
-
-    test('should return 404 if the application is not found for other user', async () => {
+    test('should return 404 if the application is not found', async () => {
         const event = await generator.createEvent({ applications: [] });
 
         const res = await request({

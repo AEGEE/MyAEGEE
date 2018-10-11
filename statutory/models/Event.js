@@ -63,7 +63,7 @@ const Event = sequelize.define('event', {
         }
     },
     status: {
-        type: Sequelize.ENUM('draft', 'requesting', 'approved'),
+        type: Sequelize.ENUM('draft', 'published'),
         allowNull: false,
         defaultValue: 'draft',
         validate: {
@@ -191,11 +191,15 @@ const Event = sequelize.define('event', {
     },
     url: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
+        unique: {
+            args: true,
+            msg: 'URL is already taken'
+        }
     }
 }, { underscored: true });
 
-Event.beforeCreate((event, options) => {
+Event.beforeValidate((event, options) => {
     if (!event.url) event.setDataValue('url', event.name.toLowerCase().replace(/ /g, '-').replace(/[^a-zA-Z0-9-]/g, ''));
     options.fields.push('url');
 });
