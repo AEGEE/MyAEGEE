@@ -50,6 +50,7 @@ exports.editEvent = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to update events of this type.');
     }
 
+    delete req.body.type;
     delete req.body.status;
 
     const dbResult = await Event.update(req.body, { where: { id: req.event.id }, returning: true });

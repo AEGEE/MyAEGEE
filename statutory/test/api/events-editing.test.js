@@ -97,6 +97,27 @@ describe('Events editing', () => {
         expect(eventFromDb.status).not.toEqual('published');
     });
 
+    test('should not update event type', async () => {
+        const event = await generator.createEvent({ type: 'epm'});
+
+        const res = await request({
+            uri: '/events/' + event.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                type: 'agora'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.status).not.toEqual('agora');
+
+        const eventFromDb = await Event.findOne({ where: { id: event.id } });
+        expect(eventFromDb.status).not.toEqual('epm');
+    });
+
     test('should return validation error if something\'s wrong', async () => {
         const event = await generator.createEvent();
 
