@@ -195,7 +195,7 @@ describe('Applications editing', () => {
 
     test('should remove any additional fields', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication({ participant_type: 'delegate' }, event);
 
         application.status = 'accepted';
         application.participant_type = 'envoy';

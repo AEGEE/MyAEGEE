@@ -29,10 +29,12 @@ exports.listEvents = async (req, res) => {
 
 exports.displayEvent = async (req, res) => {
     req.event.permissions = req.permissions;
+    const event = req.event.toJSON();
+    event.permissions = req.permissions;
 
     return res.json({
         success: true,
-        data: req.event
+        data: event
     });
 };
 
