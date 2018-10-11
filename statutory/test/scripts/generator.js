@@ -10,7 +10,7 @@ exports.generateEvent = (options = {}) => {
     if (!options.starts) options.starts = faker.date.future(null, options.application_period_ends);
     if (!options.ends) options.ends = faker.date.future(null, options.starts);
     if (!options.fee) options.fee = faker.random.number({ min: 0, max: 100 });
-    if (!options.bodies) options.bodies = [faker.random.number(100)];
+    if (!options.body) options.body = faker.random.number(100);
     if (!options.type) options.type = faker.random.arrayElement(['agora', 'epm']);
 
     if (!options.questions) {

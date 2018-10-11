@@ -111,30 +111,14 @@ const Event = sequelize.define('event', {
             }
         }
     },
-    bodies: {
-        type: Sequelize.ARRAY(Sequelize.INTEGER),
+    body: {
+        type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: '',
         validate: {
-            isValid(value) {
-                if (typeof value === 'undefined' || value === '') {
-                    throw new Error('Event organizing bodies should be set.');
-                }
-                if (!Array.isArray(value)) {
-                    throw new Error('Event organizing bodies should be an array of numbers.');
-                }
-
-                if (value.length < 1) {
-                    throw new Error('At least one organizing body should be presented.');
-                }
-
-                for (const elt of value) {
-                    if (Number.isNaN(parseInt(elt, 10))) {
-                        throw new Error('Event organizing bodies should be an array of numbers.');
-                    }
-                }
-            }
-        }
+            notEmpty: { msg: 'Body ID should be set.' },
+            isInt: { msg: 'Body ID should be a number.' }
+        },
     },
     questions: {
         type: Sequelize.ARRAY(Sequelize.TEXT),
