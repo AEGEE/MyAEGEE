@@ -111,7 +111,7 @@ const Event = sequelize.define('event', {
             }
         }
     },
-    body: {
+    body_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: '',

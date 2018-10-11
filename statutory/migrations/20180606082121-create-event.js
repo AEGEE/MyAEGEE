@@ -12,7 +12,7 @@ module.exports = {
         status: { type: Sequelize.ENUM('draft', 'published'), defaultValue: 'draft', allowNull: false },
         application_period_starts: { type: Sequelize.DATE, allowNull: false },
         application_period_ends: { type: Sequelize.DATE, allowNull: false },
-        body: { type: Sequelize.INTEGER, allowNull: false },
+        body_id: { type: Sequelize.INTEGER, allowNull: false },
         questions: { type: Sequelize.ARRAY(Sequelize.TEXT), allowNull: false },
         fee: { type: Sequelize.DECIMAL, allowNull: false },
         type: { type: Sequelize.ENUM('agora', 'epm'), allowNull: false },
