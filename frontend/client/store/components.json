@@ -476,6 +476,53 @@
     ]
   },
   {
+    "categoryName": "Statutory events",
+    "components": [
+      {
+        "meta": {
+          "label": "Statutory listing",
+          "icon": "fa-calendar"
+        },
+        "children": [
+          {
+            "name": "oms.statutory.list.all",
+            "path": "/statutory",
+            "component": "statutory/List",
+            "meta": {
+              "label": "List all statutory events"
+            }
+          },
+          {
+            "name": "oms.statutory.edit",
+            "path": "/statutory/:id/edit",
+            "component": "statutory/Edit",
+            "meta": {
+              "skipMenu": true,
+              "label": "Edit single event"
+            }
+          },
+          {
+            "name": "oms.statutory.create",
+            "path": "/statutory/new",
+            "component": "statutory/Edit",
+            "meta": {
+              "label": "Create event"
+            }
+          },
+          {
+            "name": "oms.statutory.view",
+            "path": "/statutory/:id",
+            "component": "statutory/Single",
+            "meta": {
+              "skipMenu": true,
+              "label": "Display single event"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
     "categoryName": "Resources",
     "components": [
       {

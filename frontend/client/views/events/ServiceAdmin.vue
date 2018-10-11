@@ -543,7 +543,7 @@ export default {
         this.autoComplete[key].loading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
-          return console.log('Request canceled')
+          return
         }
 
         this.autoComplete[key].loading = false
