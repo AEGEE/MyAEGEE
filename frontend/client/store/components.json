@@ -493,6 +493,15 @@
             }
           },
           {
+            "name": "oms.statutory.apply",
+            "path": "/statutory/:id/apply",
+            "component": "statutory/Apply",
+            "meta": {
+              "skipMenu": true,
+              "label": "Apply to statutory event"
+            }
+          },
+          {
             "name": "oms.statutory.edit",
             "path": "/statutory/:id/edit",
             "component": "statutory/Edit",
