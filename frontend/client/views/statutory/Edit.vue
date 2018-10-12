@@ -311,10 +311,10 @@ export default {
   }),
   watch: {
     'event.name' (newName) {
-      if (!this.url) {
-        this.url = newName.toLowerCase().replace(/\ /g, '-')
+      if (!this.$route.params.id) {
+        this.event.url = newName.toLowerCase().replace(/\ /g, '-')
       }
-    }
+    },
   },
   mounted () {
     if (!this.$route.params.id) {
