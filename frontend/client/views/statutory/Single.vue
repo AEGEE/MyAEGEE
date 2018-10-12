@@ -11,31 +11,43 @@
       <div class="tile is-parent">
         <article class="tile is-child is-info">
           <div class="field is-grouped">
-            <router-link :to="{ name: 'oms.statutory.participants', params: { id: event.seo_url || event.id } }" class="button is-fullwidth">
+            <router-link :to="{ name: 'oms.statutory.participants', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>View applications</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.see_applications">
-            <router-link :to="{ name: 'oms.statutory.accepted', params: { id: event.seo_url || event.id } }" class="button is-fullwidth">
+            <router-link :to="{ name: 'oms.statutory.accepted', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Participants list</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.apply">
-            <router-link :to="{ name: 'oms.statutory.apply', params: { id: event.seo_url || event.id } }" class="button is-info is-fullwidth">
+            <router-link :to="{ name: 'oms.statutory.apply', params: { id: event.url || event.id } }" class="button is-info is-fullwidth">
               <span>Apply</span>
               <span class="icon"><i class="fa fa-plus"></i></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.edit_event">
-            <router-link :to="{ name: 'oms.statutory.edit', params: { id: event.seo_url || event.id } }" class="button is-fullwidth is-warning">
+            <router-link :to="{ name: 'oms.statutory.edit', params: { id: event.url || event.id } }" class="button is-fullwidth is-warning">
               <span>Edit event</span>
               <span class="icon"><i class="fa fa-edit"></i></span>
             </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="can.edit_event">
+            <a @click="askSwitchStatus('draft')" v-if="event.status === 'published'" class="button is-danger is-fullwidth">
+              <span>Unpublish</span>
+              <span class="icon"><i class="fa fa-pen"></i></span>
+            </a>
+
+            <a @click="askSwitchStatus('published')" v-if="event.status === 'draft'" class="button is-info is-fullwidth">
+              <span>Publish</span>
+              <span class="icon"><i class="fa fa-globe"></i></span>
+            </a>
           </div>
         </article>
       </div>
@@ -123,7 +135,8 @@ export default {
         id: null,
         url: null,
         body_id: null,
-        body: null
+        body: null,
+        status: null
       },
       isLoading: false,
       can: {
@@ -135,7 +148,22 @@ export default {
     }
   },
   methods: {
-
+    askSwitchStatus(newStatus) {
+      this.$dialog.confirm({
+        title: 'Switching status',
+        message: `Are you sure you want to <b>switch this event\'s status to "${newStatus}"</b>?`,
+        confirmText: 'Switch status',
+        type: 'is-info',
+        hasIcon: true,
+        onConfirm: () => this.switchStatus(newStatus)
+      })
+    },
+    switchStatus(newStatus) {
+      this.axios.put(this.services['oms-statutory'] + '/events/' + this.event.id + '/status', { status: newStatus }).then((response) => {
+        this.$root.showInfo('Status is updated.')
+        this.event.status = newStatus
+      }).catch((err) => this.$root.showDanger('Could not update status: ' + err.message))
+    },
   },
   mounted () {
     this.isLoading = true
@@ -150,7 +178,7 @@ export default {
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false
-      let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+      let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.response.data.message
 
       this.$root.showDanger(message)
       this.$router.push({ name: 'oms.statutory.list' })
