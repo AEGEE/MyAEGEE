@@ -10,8 +10,8 @@ module.exports = {
             type: Sequelize.INTEGER,
             allowNull: false,
             references : {
-                model : "events",
-                key   : "id"
+                model : 'events',
+                key   : 'id'
             }
         },
         user_id: {
@@ -35,7 +35,7 @@ module.exports = {
             type: Sequelize.ENUM('delegate', 'observer', 'envoy', 'visitor')
         },
         status: {
-             type: Sequelize.ENUM('pending', 'requesting', 'accepted', 'rejected'),
+             type: Sequelize.ENUM('pending', 'accepted', 'rejected'),
              defaultValue: 'pending'
         },
         cancelled: {
