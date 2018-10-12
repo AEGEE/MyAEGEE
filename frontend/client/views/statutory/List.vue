@@ -39,9 +39,9 @@
                 <li><strong>Type:</strong> {{ event.type }} </li>
                 <li><strong>From:</strong> {{ event.starts | date }} </li>
                 <li><strong>To:</strong> {{ event.ends | date }} </li>
-                <li><strong>Application deadline:</strong>
-                  <span v-if="event.application_deadline">{{ event.application_deadlinee | date }}</span>
-                  <span v-if="!event.application_deadline"><i>Not set.</i></span>
+                <li>
+                  <strong>Application period:</strong>
+                  from {{ event.application_period_starts | date }} to {{ event.application_period_ends | date }}
                 </li>
               </ul>
 
@@ -55,7 +55,7 @@
                   <router-link
                     :to="{ name: 'oms.statutory.apply', params: { id: event.url || event.id } }"
                     class="button is-warning">
-                    {{ scope === 'participating' ? 'Manage my application' : 'Apply' }}
+                    Apply
                   </router-link>
                 </p>
               </div>
