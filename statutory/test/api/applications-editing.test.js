@@ -52,7 +52,7 @@ describe('Applications editing', () => {
         tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.user_id,
+            uri: '/events/' + event.id + '/applications/' + application.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { body_id: 555 }
@@ -73,7 +73,7 @@ describe('Applications editing', () => {
         tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.user_id,
+            uri: '/events/' + event.id + '/applications/' + application.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { body_id: 555 }
@@ -85,7 +85,7 @@ describe('Applications editing', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.user_id).toEqual(application.user_id);
+        expect(res.body.data.id).toEqual(application.id);
         expect(res.body.data.body_id).toEqual(555);
     });
 
@@ -96,7 +96,7 @@ describe('Applications editing', () => {
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.user_id,
+            uri: '/events/' + event.id + '/applications/' + application.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { body_id: 'lalala' }
@@ -117,7 +117,7 @@ describe('Applications editing', () => {
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.user_id,
+            uri: '/events/' + event.id + '/applications/' + application.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { answers: [] }
@@ -208,7 +208,7 @@ describe('Applications editing', () => {
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.user_id,
+            uri: '/events/' + event.id + '/applications/' + application.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: application

@@ -67,7 +67,7 @@ describe('Applications cancellation', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.user_id + '/cancel',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/cancel',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { cancelled: true }
@@ -77,7 +77,7 @@ describe('Applications cancellation', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.user_id).toEqual(application.user_id);
+        expect(res.body.data.id).toEqual(application.id);
         expect(res.body.data.cancelled).toEqual(true);
     });
 
@@ -88,7 +88,7 @@ describe('Applications cancellation', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.user_id + '/cancel',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/cancel',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { cancelled: true }
@@ -157,7 +157,7 @@ describe('Applications cancellation', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.user_id + '/cancel',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/cancel',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { cancelled: 'lalala' }

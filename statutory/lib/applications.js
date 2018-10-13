@@ -35,55 +35,19 @@ exports.listAcceptedApplications = async (req, res) => {
 };
 
 exports.getApplication = async (req, res) => {
-    // ID is either 'me' or an integer (user ID)
-    if (!helpers.isIDValid(req.params.id)) {
-        return errors.makeBadRequestError(res, `User ID should be either a number or '${constants.CURRENT_USER_PREFIX}'`);
-    }
-
-    const idToSearchBy = req.params.id === constants.CURRENT_USER_PREFIX ? req.user.id : parseInt(req.params.id, 10);
-    const userPrefix = req.params.id === constants.CURRENT_USER_PREFIX ? 'You' : 'This user';
-
-    // Either the current user or this user who has permission to see it is allowed.
-    if (req.params.id !== constants.CURRENT_USER_PREFIX && !req.permissions.see_applications) {
-        return errors.makeForbiddenError(res, 'You don\'t have permissions to access this application.')
-    }
-
-    const application = req.event.applications.find(application => application.user_id === idToSearchBy);
-
-    if (!application) {
-        return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.')
+    if (!req.permissions.see_applications && req.application.user_id !== req.user.id) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see this application.');
     }
 
     return res.json({
         success: true,
-        data: application
+        data: req.application
     });
 };
 
 exports.updateApplication = async (req, res) => {
-    // ID is either 'me' or an integer (user ID)
-    if (!helpers.isIDValid(req.params.id)) {
-        return errors.makeBadRequestError(res, `User ID should be either a number or '${constants.CURRENT_USER_PREFIX}'`);
-    }
-
-    req.permissions = helpers.getApplicationPermissions({
-        permissions: req.permissions,
-        corePermissions: req.corePermissions,
-        user: req.user,
-        event: req.event,
-        mine: req.params.id === constants.CURRENT_USER_PREFIX
-    });
-
     if (!req.permissions.edit_application) {
         return errors.makeForbiddenError(res, 'The deadline for applications has passed.')
-    }
-
-    const idToSearchBy = req.params.id === constants.CURRENT_USER_PREFIX ? req.user.id : parseInt(req.params.id, 10);
-    const userPrefix = req.params.id === constants.CURRENT_USER_PREFIX ? 'You' : 'This user';
-    const application = req.event.applications.find(application => application.user_id === idToSearchBy);
-
-    if (!application) {
-        return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.')
     }
 
     if (req.body.answers != null && !helpers.isAnswersValid(req.event.questions, req.body.answers)) {
@@ -97,7 +61,7 @@ exports.updateApplication = async (req, res) => {
     delete req.body.cancelled;
     delete req.body.paid_fee;
 
-    const dbResult = await Application.update(req.body, { where: { id: application.id }, returning: true });
+    const dbResult = await Application.update(req.body, { where: { id: req.application.id }, returning: true });
 
     return res.json({
         success: true,
@@ -107,26 +71,10 @@ exports.updateApplication = async (req, res) => {
 
 function setApplicationBoolean (key) {
     return async (req, res) => {
-        // ID is either 'me' or an integer (user ID)
-        if (!helpers.isIDValid(req.params.id)) {
-            return errors.makeBadRequestError(res, `User ID should be either a number or '${constants.CURRENT_USER_PREFIX}'`);
-        }
-
-        // Only 'cancelled' can work with 'me' prefix.
-        if (key !== 'cancelled' && req.params.id === constants.CURRENT_USER_PREFIX) {
+        // Only 'cancelled' can work with '/me' postfix.
+        if (key !== 'cancelled' && req.params.application_id === constants.CURRENT_USER_PREFIX) {
             return errors.makeForbiddenError(res, `You cannot change the "${key}" attribute through this endpoint.`);
         }
-
-        req.permissions = helpers.getApplicationPermissions({
-            permissions: req.permissions,
-            corePermissions: req.corePermissions,
-            user: req.user,
-            event: req.event,
-            mine: req.params.id === constants.CURRENT_USER_PREFIX
-        });
-
-        const idToSearchBy = req.params.id === constants.CURRENT_USER_PREFIX ? req.user.id : parseInt(req.params.id, 10);
-        const userPrefix = req.params.id === constants.CURRENT_USER_PREFIX ? 'You' : 'This user';
 
         // Either the current user or this user who has permission to see it is allowed.
         if (!req.permissions['set_application_' + key]) {
@@ -136,16 +84,10 @@ function setApplicationBoolean (key) {
             );
         }
 
-        const application = req.event.applications.find(application => application.user_id === idToSearchBy);
-
-        if (!application) {
-            return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.')
-        }
-
         const toUpdate = {};
         toUpdate[key] = req.body[key];
 
-        const dbResult = await Application.update(toUpdate, { where: { id: application.id }, returning: true });
+        const dbResult = await Application.update(toUpdate, { where: { id: req.application.id }, returning: true });
 
         return res.json({
             success: true,
@@ -157,6 +99,31 @@ function setApplicationBoolean (key) {
 exports.setApplicationCancelled = setApplicationBoolean('cancelled');
 exports.setApplicationAttended = setApplicationBoolean('attended');
 exports.setApplicationPaidFee = setApplicationBoolean('paid_fee');
+
+exports.setApplicationStatus = async (req, res) => {
+    // ID is either 'me' or an integer (user ID)
+    if (Number.isNaN(Number(req.params.application_id, 10))) {
+        return errors.makeForbiddenError(res, 'You cannot edit status of yourself.');
+    }
+
+    // Either the current user or this user who has permission to see it is allowed.
+    if (!req.permissions.change_status) {
+        return errors.makeForbiddenError(
+            res,
+            'You don\'t have permissions to change the "status" attribute of this application.'
+        );
+    }
+
+    const dbResult = await Application.update(
+        { status: req.body.status },
+        { where: { id: req.application.id }, returning: true }
+    );
+
+    return res.json({
+        success: true,
+        data: dbResult[1][0]
+    });
+};
 
 exports.postApplication = async (req, res) => {
     if (!req.permissions.apply) {

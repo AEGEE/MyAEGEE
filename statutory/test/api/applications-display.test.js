@@ -19,8 +19,8 @@ describe('Applications displaying', () => {
 
     test('should succeed for current user', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
-        const application = generator.generateApplication({ user_id: regularUser.id });
-        const event = await generator.createEvent({ applications: [application] });
+        const event = await generator.createEvent({ applications: [] });
+        const application = await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/me',
@@ -37,11 +37,12 @@ describe('Applications displaying', () => {
 
     test('should succeed for those who has permissions to see applications', async () => {
         const userId = Math.floor(Math.random() * 100 * 50); // from 50 to 150
-        const application = generator.generateApplication({ user_id: userId });
-        const event = await generator.createEvent({ applications: [application] });
+        const event = await generator.createEvent({ applications: [] });
+        const application = await generator.createApplication({ user_id: userId }, event);
+
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + userId,
+            uri: '/events/' + event.id + '/applications/' + application.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -57,11 +58,12 @@ describe('Applications displaying', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const userId = Math.floor(Math.random() * 100 * 50); // from 50 to 150
-        const application = generator.generateApplication({ user_id: userId });
-        const event = await generator.createEvent({ applications: [application] });
+        const event = await generator.createEvent({ applications: [] });
+        const application = await generator.createApplication({ user_id: userId }, event);
+
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + userId,
+            uri: '/events/' + event.id + '/applications/' + application.id,
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });

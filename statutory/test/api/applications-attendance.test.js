@@ -39,7 +39,7 @@ describe('Applications attendance', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.user_id + '/attended',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/attended',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { attended: true }
@@ -49,7 +49,7 @@ describe('Applications attendance', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.user_id).toEqual(application.user_id);
+        expect(res.body.data.id).toEqual(application.id);
         expect(res.body.data.attended).toEqual(true);
     });
 
@@ -60,7 +60,7 @@ describe('Applications attendance', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.user_id + '/attended',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/attended',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { attended: true }
@@ -109,7 +109,7 @@ describe('Applications attendance', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.user_id + '/attended',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/attended',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { attended: 'lalala' }

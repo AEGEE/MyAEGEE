@@ -38,13 +38,6 @@ exports.displayEvent = async (req, res) => {
     });
 };
 
-exports.displayEventPermissions = async (req, res) => {
-    return res.json({
-        success: true,
-        data: req.permissions
-    });
-};
-
 exports.editEvent = async (req, res) => {
     if (!req.permissions.edit_event) {
         return errors.makeForbiddenError(res, 'You are not allowed to update events of this type.');

@@ -4,7 +4,7 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/oms-core-valid').data;
 
-describe('Applications paid fee', () => {
+describe('Applications status', () => {
     beforeEach(async () => {
         mock.mockAll();
         await startServer();
@@ -22,27 +22,27 @@ describe('Applications paid fee', () => {
         const application = await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/me/paid_fee',
+            uri: '/events/' + event.id + '/applications/me/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { paid_fee: true }
+            body: { status: 'accepted' }
         });
 
         expect(res.statusCode).toEqual(403);
         expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
         expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
     });
 
-    test('should succeed for other user when the permissions are okay', async () => {
+    test('should succeed when the permissions are okay', async () => {
         const event = await generator.createEvent();
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/paid_fee',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { paid_fee: true }
+            body: { status: 'accepted' }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -50,7 +50,7 @@ describe('Applications paid fee', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.id).toEqual(application.id);
-        expect(res.body.data.paid_fee).toEqual(true);
+        expect(res.body.data.status).toEqual('accepted');
     });
 
     test('should return 403 when user does not have permissions', async () => {
@@ -60,10 +60,10 @@ describe('Applications paid fee', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/paid_fee',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { paid_fee: true }
+            body: { status: 'accepted' }
         });
 
         expect(res.statusCode).toEqual(403);
@@ -76,10 +76,10 @@ describe('Applications paid fee', () => {
         const event = await generator.createEvent({ applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/333/paid_fee',
+            uri: '/events/' + event.id + '/applications/333/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { paid_fee: true }
+            body: { status: 'accepted' }
         });
 
         expect(res.statusCode).toEqual(404);
@@ -88,14 +88,14 @@ describe('Applications paid fee', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should return 400 on malformed user_id', async () => {
+    test('should return 400 on malformed application_id', async () => {
         const event = await generator.createEvent({ applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/lalala/paid_fee',
+            uri: '/events/' + event.id + '/applications/lalala/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { paid_fee: true }
+            body: { status: 'accepted' }
         });
 
         expect(res.statusCode).toEqual(400);
@@ -104,15 +104,15 @@ describe('Applications paid fee', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should return 422 if paid_fee is invalid', async () => {
+    test('should return 422 if status is invalid', async () => {
         const event = await generator.createEvent();
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/paid_fee',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { paid_fee: 'lalala' }
+            body: { status: 'lalala' }
         });
 
 

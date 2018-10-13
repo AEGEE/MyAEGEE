@@ -14,6 +14,7 @@ const applications = require('./applications');
 const GeneralRouter = router({ mergeParams: true });
 const EventsRouter = router({ mergeParams: true });
 const ApplicationsRouter = router({ mergeParams: true });
+const SingleApplicationRouter = router({ mergeParams: true });
 
 /* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {
@@ -46,25 +47,28 @@ GeneralRouter.use(middlewares.authenticateUser);
 GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', events.addEvent);
 
-EventsRouter.use(middlewares.fetchEvent);
+EventsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
 EventsRouter.get('/', events.displayEvent);
-EventsRouter.get('/permissions', events.displayEventPermissions);
 EventsRouter.put('/', events.editEvent);
 EventsRouter.put('/status', events.changeEventStatus);
 
-ApplicationsRouter.use(middlewares.fetchEventWithApplications);
+ApplicationsRouter.use(middlewares.authenticateUser, middlewares.fetchEventWithApplications);
+ApplicationsRouter.post('/', applications.postApplication);
 ApplicationsRouter.get('/all', applications.listAllApplications);
 ApplicationsRouter.get('/accepted', applications.listAcceptedApplications);
-ApplicationsRouter.put('/:id/cancel', applications.setApplicationCancelled);
-ApplicationsRouter.put('/:id/attended', applications.setApplicationAttended);
-ApplicationsRouter.put('/:id/paid_fee', applications.setApplicationPaidFee);
-ApplicationsRouter.get('/:id', applications.getApplication);
-ApplicationsRouter.put('/:id', applications.updateApplication);
-ApplicationsRouter.post('/', applications.postApplication);
 
-server.use('/', GeneralRouter);
-server.use('/events/:event_id', EventsRouter);
+SingleApplicationRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, middlewares.fetchSingleApplication);
+SingleApplicationRouter.put('/cancel', applications.setApplicationCancelled);
+SingleApplicationRouter.put('/attended', applications.setApplicationAttended);
+SingleApplicationRouter.put('/paid_fee', applications.setApplicationPaidFee);
+SingleApplicationRouter.put('/status', applications.setApplicationStatus);
+SingleApplicationRouter.get('/', applications.getApplication);
+SingleApplicationRouter.put('/', applications.updateApplication);
+
 server.use('/events/:event_id/applications', ApplicationsRouter);
+server.use('/events/:event_id/applications/:application_id', SingleApplicationRouter);
+server.use('/events/:event_id', EventsRouter);
+server.use('/', GeneralRouter);
 
 server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);

@@ -5,6 +5,7 @@ const { errors, communication } = require('oms-common-nodejs');
 const config = require('../config');
 const helpers = require('./helpers');
 const logger = require('./logger');
+const constants = require('./constants')
 const { Event, Application } = require('../models');
 const { Sequelize } = require('./sequelize');
 
@@ -122,9 +123,42 @@ function fetchEvent(includeApplications = false) {
     }
 }
 
-exports.fetchEvent = fetchEvent(false)
-exports.fetchEventWithApplications = fetchEvent(true)
+exports.fetchEvent = fetchEvent(false);
+exports.fetchEventWithApplications = fetchEvent(true);
 
+exports.fetchSingleApplication = async (req, res, next) => {
+    // ID is either 'me' or an integer (user ID)
+    if (!helpers.isIDValid(req.params.application_id)) {
+        return errors.makeBadRequestError(res, `Application ID should be either a number or '${constants.CURRENT_USER_PREFIX}'`);
+    }
+
+    const whereObj =  { event_id: req.event.id };
+
+    if (req.params.application_id === constants.CURRENT_USER_PREFIX) { // /me, find by user_id
+        whereObj.user_id = req.user.id;
+    } else { // Find by application ID
+        whereObj.id = parseInt(req.params.application_id, 10);
+    }
+
+    const userPrefix = req.params.application_id === constants.CURRENT_USER_PREFIX ? 'You' : 'This user';
+
+    const application = await Application.findOne({ where: whereObj });
+    if (!application) {
+        return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.')
+    }
+
+    req.application = application;
+
+    req.permissions = helpers.getApplicationPermissions({
+        permissions: req.permissions,
+        corePermissions: req.corePermissions,
+        user: req.user,
+        event: req.event,
+        mine: req.params.application_id === constants.CURRENT_USER_PREFIX
+    });
+
+    return next();
+};
 
 /* eslint-disable no-unused-vars */
 exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl);
