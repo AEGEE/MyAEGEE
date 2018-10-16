@@ -1,5 +1,6 @@
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
+const generator = require('../scripts/generator');
 const mock = require('../scripts/mock-core-registry');
 
 describe('API requests', () => {
@@ -103,6 +104,38 @@ describe('API requests', () => {
 
         const res = await request({
             uri: '/',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(401);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if oms-core returns garbage while fetching permissions', async () => {
+        mock.mockAll({ approvePermissions: { badResponse: true } });
+        const event = await generator.createEvent({});
+
+        const res = await request({
+            uri: '/events/' + event.id,
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if body oms-core returns unsuccessful response while fetching permissions', async () => {
+        mock.mockAll({ approvePermissions: { unauthorized: true } });
+        const event = await generator.createEvent({});
+
+        const res = await request({
+            uri: '/events/' + event.id,
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'

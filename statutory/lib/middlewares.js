@@ -102,12 +102,12 @@ function fetchEvent(includeApplications = false) {
         });
 
         if (typeof approveRequest !== 'object') {
-            return errors.makeInternalError(res, 'Malformed response when fetching permissions for approve: ' + body);
+            return errors.makeInternalError(res, 'Malformed response when fetching permissions for approve: ' + approveRequest);
         }
 
         if (!approveRequest.success) {
             // We are not authenticated
-            return errors.makeForbiddenError(res, 'Error fetching permissions for approve: user is not authenticated.');
+            return errors.makeError(res, 401, 'Error fetching permissions for approve: user is not authenticated.');
         }
 
         req.event = event;
