@@ -12,7 +12,7 @@ const { Sequelize } = require('./sequelize');
 exports.authenticateUser = async (req, res, next) => {
     const token = req.header('x-auth-token');
     if (!token) {
-        return errors.makeForbiddenError(res, 'No auth token provided');
+        return errors.makeError(res, 401, 'No auth token provided');
     }
 
     try {
@@ -37,7 +37,7 @@ exports.authenticateUser = async (req, res, next) => {
 
         if (!userBody.success) {
             // We are not authenticated
-            return errors.makeForbiddenError(res, 'Error fetching user: user is not authenticated.');
+            return errors.makeError(res, 401, 'Error fetching user: user is not authenticated.');
         }
 
         if (typeof permissionsBody !== 'object') {
@@ -46,7 +46,7 @@ exports.authenticateUser = async (req, res, next) => {
 
         if (!permissionsBody.success) {
             // We are not authenticated
-            return errors.makeForbiddenError(res, 'Error fetching permissions: user is not authenticated.');
+            return errors.makeError(res, 401, 'Error fetching permissions: user is not authenticated.');
         }
 
         req.user = userBody.data;

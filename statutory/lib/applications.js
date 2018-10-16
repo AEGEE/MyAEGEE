@@ -111,7 +111,6 @@ exports.setApplicationAttended = setApplicationBoolean('attended');
 exports.setApplicationPaidFee = setApplicationBoolean('paid_fee');
 
 exports.setApplicationStatus = async (req, res) => {
-    // ID is either 'me' or an integer (user ID)
     if (Number.isNaN(Number(req.params.application_id, 10))) {
         return errors.makeForbiddenError(res, 'You cannot edit status of yourself.');
     }

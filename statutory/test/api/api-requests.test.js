@@ -19,7 +19,7 @@ describe('API requests', () => {
             method: 'GET'
         });
 
-        expect(res.statusCode).toEqual(403);
+        expect(res.statusCode).toEqual(401);
         expect(res.body.success).toEqual(false);
     });
 
@@ -64,7 +64,7 @@ describe('API requests', () => {
             }
         });
 
-        expect(res.statusCode).toEqual(403);
+        expect(res.statusCode).toEqual(401);
         expect(res.body.success).toEqual(false);
     });
 
@@ -109,7 +109,7 @@ describe('API requests', () => {
             }
         });
 
-        expect(res.statusCode).toEqual(403);
+        expect(res.statusCode).toEqual(401);
         expect(res.body.success).toEqual(false);
     });
 
