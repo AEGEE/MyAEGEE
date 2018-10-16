@@ -62,6 +62,7 @@ SingleApplicationRouter.put('/cancel', applications.setApplicationCancelled);
 SingleApplicationRouter.put('/attended', applications.setApplicationAttended);
 SingleApplicationRouter.put('/paid_fee', applications.setApplicationPaidFee);
 SingleApplicationRouter.put('/status', applications.setApplicationStatus);
+SingleApplicationRouter.put('/board', applications.setApplicationBoard);
 SingleApplicationRouter.get('/', applications.getApplication);
 SingleApplicationRouter.put('/', applications.updateApplication);
 

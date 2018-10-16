@@ -134,6 +134,34 @@ exports.setApplicationStatus = async (req, res) => {
     });
 };
 
+exports.setApplicationBoard = async (req, res) => {
+    if (Number.isNaN(Number(req.params.application_id, 10))) {
+        return errors.makeForbiddenError(res, 'You cannot edit board comment or participant type of yourself.');
+    }
+
+    // Either the current user or this user who has permission to see it is allowed.
+    if (!req.permissions.set_board_comment_and_participant_type[req.application.body_id]) {
+        return errors.makeForbiddenError(
+            res,
+            'You don\'t have permissions to change the board comment or participant type of this application.'
+        );
+    }
+
+    const toUpdate = {};
+    if (req.body.participant_type) toUpdate.participant_type = req.body.participant_type;
+    if (req.body.board_comment) toUpdate.board_comment = req.body.board_comment;
+
+    const dbResult = await Application.update(
+        toUpdate,
+        { where: { id: req.application.id }, returning: true }
+    );
+
+    return res.json({
+        success: true,
+        data: dbResult[1][0]
+    });
+};
+
 exports.postApplication = async (req, res) => {
     if (!req.permissions.apply) {
         return errors.makeForbiddenError(res, 'The deadline for applications has passed or the applications period hasn\'t started yet.')
