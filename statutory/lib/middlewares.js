@@ -88,7 +88,7 @@ function fetchEvent(includeApplications = false) {
         const headers = await communication.getRequestHeaders(req);
 
         // Fetching permissions for members approval, the list of bodies
-        // where do you have the 'approve_participants:<event_type>' permission for it.
+        // where do you have the 'approve_members:<event_type>' permission for it.
         const approveRequest = await request({
             url: service.backend_url + 'my_permissions',
             method: 'POST',
@@ -96,7 +96,7 @@ function fetchEvent(includeApplications = false) {
             simple: false,
             json: true,
             body: {
-                action: 'approve_participants',
+                action: 'approve_members',
                 object: event.type
             }
         });
@@ -116,6 +116,7 @@ function fetchEvent(includeApplications = false) {
             permissions: req.permissions,
             corePermissions: req.corePermissions,
             approvePermissions: req.approvePermissions,
+            user: req.user,
             event
         });
 
@@ -154,7 +155,7 @@ exports.fetchSingleApplication = async (req, res, next) => {
         corePermissions: req.corePermissions,
         user: req.user,
         event: req.event,
-        mine: req.params.application_id === constants.CURRENT_USER_PREFIX
+        mine: req.user.id === req.application.user_id
     });
 
     return next();

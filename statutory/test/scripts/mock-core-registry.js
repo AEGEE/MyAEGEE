@@ -181,10 +181,17 @@ exports.mockCoreApprovePermissions = (options) => {
             .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
     }
 
+    if (options.noPermissions) {
+        return nock('http://oms-core-elixir:4000')
+            .persist()
+            .post('/my_permissions')
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-empty.json'));
+    }
+
     return nock('http://oms-core-elixir:4000')
         .persist()
         .post('/my_permissions')
-        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-empty.json'));
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-approve-permissions-full.json'));
 };
 
 exports.mockAll = (options = {}) => {

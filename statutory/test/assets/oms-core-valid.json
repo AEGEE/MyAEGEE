@@ -16,188 +16,84 @@
         "primary_body": null,
         "phone": "+123456789",
         "last_name": "Microservice",
-        "join_requests": [{
-            "motivation": "I'm IT",
-            "member_id": 1,
-            "member": null,
-            "id": 7,
-            "body_id": 9,
-            "body": {
-                "shadow_circle_id": null,
-                "shadow_circle": null,
-                "seo_url": 9,
-                "phone": null,
-                "name": "Chair Team of the Agora",
-                "legacy_key": "XCH",
+        "join_requests": [
+            {
+                "motivation": "I'm IT",
+                "member_id": 1,
+                "member": null,
+                "id": 7,
+                "body_id": 9,
+                "body": {
+                    "type": null,
+                    "shadow_circle_id": null,
+                    "shadow_circle": null,
+                    "seo_url": 9,
+                    "phone": null,
+                    "name": "Chair Team of the Agora",
+                    "legacy_key": "XCH",
+                    "id": 9,
+                    "email": "chair@aegee.org",
+                    "description": "The Chair team is responsible for preparing and moderating the Agorae. They preside over them, take the minutes and are responsible for the IT during the events.",
+                    "circles": null,
+                    "address": "Notelaarsstraat 55"
+                },
+                "approved": true
+            },
+            {
+                "motivation": "a",
+                "member_id": 1,
+                "member": null,
                 "id": 9,
-                "email": "chair@aegee.org",
-                "description": "The Chair team is responsible for preparing and moderating the Agorae. They preside over them, take the minutes and are responsible for the IT during the events.",
-                "circles": null,
-                "address": "Notelaarsstraat 55"
-            },
-            "approved": true
-        }, {
-            "motivation": "lll",
-            "member_id": 1,
-            "member": null,
-            "id": 9,
-            "body_id": 173,
-            "body": {
-                "shadow_circle_id": 257,
-                "shadow_circle": null,
-                "seo_url": 173,
-                "phone": "+7 9066742361",
-                "name": "AEGEE-Voronezh",
-                "legacy_key": "VOR",
-                "id": 173,
-                "email": "voronezh.aegee@gmail.com",
-                "description": "Local in Voronezh",
-                "circles": null,
-                "address": "Mariia LureRussian Federation  Voronezh  Suvorova Street, 94  394000 (Voronezh, Russia)"
-            },
-            "approved": true
-        }, {
-            "motivation": "aa",
-            "member_id": 1,
-            "member": null,
-            "id": 10,
-            "body_id": 1,
-            "body": {
-                "shadow_circle_id": 63,
-                "shadow_circle": null,
-                "seo_url": 1,
-                "phone": "don't call us",
-                "name": "AEGEE-Dresden",
-                "legacy_key": "DRE",
-                "id": 1,
-                "email": "info@aegee-dresden.org",
-                "description": "Very prehistoric antenna",
-                "circles": null,
-                "address": "Dresden"
-            },
-            "approved": true
-        }],
+                "body_id": 34,
+                "body": {
+                    "type": null,
+                    "shadow_circle_id": 133,
+                    "shadow_circle": null,
+                    "seo_url": 34,
+                    "phone": null,
+                    "name": "AEGEE-Alicante",
+                    "legacy_key": "ALC",
+                    "id": 34,
+                    "email": "junta@aegeealicante.org",
+                    "description": "Local in Alicante, see also http://www.aegeealicante.org/, https://www.facebook.com/AEGEEAlicante, https://twitter.com/AEGEEAlicante",
+                    "circles": null,
+                    "address": "Universidad de Alicante, Consejo de Alumnos, Aulario 1, Despacho 3 del Hotel de Asociaciones  Carretera de San Vicente, s/n 03690  San Vicente del Raspeig (Alicante) Spain (Alicante, Spain)"
+                },
+                "approved": true
+            }
+        ],
         "id": 1,
         "gender": "machine",
         "first_name": "Microservice",
         "date_of_birth": "2010-04-17",
-        "circles": [{
-            "seo_url": 63,
-            "permissions": null,
-            "parent_circle_id": 6,
-            "parent_circle": null,
-            "name": "Members AEGEE-Dresden",
-            "joinable": true,
-            "id": 63,
-            "description": "Members circle for members of AEGEE-Dresden",
-            "child_circles": null,
-            "body_id": 1,
-            "body": null
-        }, {
-            "seo_url": 258,
-            "permissions": null,
-            "parent_circle_id": 2,
-            "parent_circle": null,
-            "name": "Board AEGEE-Voronezh",
-            "joinable": true,
-            "id": 258,
-            "description": "Board circle of AEGEE-Voronezh",
-            "child_circles": null,
-            "body_id": 173,
-            "body": null
-        }, {
-            "seo_url": 257,
-            "permissions": null,
-            "parent_circle_id": 6,
-            "parent_circle": null,
-            "name": "Members AEGEE-Voronezh",
-            "joinable": true,
-            "id": 257,
-            "description": "Members circle for members of AEGEE-Voronezh",
-            "child_circles": null,
-            "body_id": 173,
-            "body": null
-        }, {
-            "seo_url": 4,
-            "permissions": null,
-            "parent_circle_id": null,
-            "parent_circle": null,
-            "name": "Superadmins",
-            "joinable": false,
-            "id": 4,
-            "description": "This circle holds all permissions in the system and thus effectively makes you superadmin",
-            "child_circles": null,
-            "body_id": null,
-            "body": null
-        }],
-        "circle_memberships": [{
-            "position": null,
-            "member_id": 1,
-            "member": null,
-            "id": 17,
-            "circle_id": 63,
-            "circle_admin": false,
-            "circle": {
-                "seo_url": 63,
-                "permissions": null,
-                "parent_circle_id": 6,
-                "parent_circle": null,
-                "name": "Members AEGEE-Dresden",
-                "joinable": true,
-                "id": 63,
-                "description": "Members circle for members of AEGEE-Dresden",
-                "child_circles": null,
-                "body_id": 1,
-                "body": null
-            }
-        }, {
-            "position": null,
-            "member_id": 1,
-            "member": null,
-            "id": 16,
-            "circle_id": 258,
-            "circle_admin": false,
-            "circle": {
-                "seo_url": 258,
+        "circles": [
+            {
+                "seo_url": 134,
                 "permissions": null,
                 "parent_circle_id": 2,
                 "parent_circle": null,
-                "name": "Board AEGEE-Voronezh",
-                "joinable": true,
-                "id": 258,
-                "description": "Board circle of AEGEE-Voronezh",
+                "name": "Board AEGEE-Alicante",
+                "joinable": false,
+                "id": 134,
+                "description": "Board circle of AEGEE-Alicante",
                 "child_circles": null,
-                "body_id": 173,
+                "body_id": 34,
                 "body": null
-            }
-        }, {
-            "position": null,
-            "member_id": 1,
-            "member": null,
-            "id": 15,
-            "circle_id": 257,
-            "circle_admin": false,
-            "circle": {
-                "seo_url": 257,
+            },
+            {
+                "seo_url": 133,
                 "permissions": null,
                 "parent_circle_id": 6,
                 "parent_circle": null,
-                "name": "Members AEGEE-Voronezh",
+                "name": "Members AEGEE-Alicante",
                 "joinable": true,
-                "id": 257,
-                "description": "Members circle for members of AEGEE-Voronezh",
+                "id": 133,
+                "description": "Members circle for members of AEGEE-Alicante",
                 "child_circles": null,
-                "body_id": 173,
+                "body_id": 34,
                 "body": null
-            }
-        }, {
-            "position": null,
-            "member_id": 1,
-            "member": null,
-            "id": 3,
-            "circle_id": 4,
-            "circle_admin": false,
-            "circle": {
+            },
+            {
                 "seo_url": 4,
                 "permissions": null,
                 "parent_circle_id": null,
@@ -210,14 +106,143 @@
                 "body_id": null,
                 "body": null
             }
-        }],
-        "body_memberships": [{
-            "member_id": 1,
-            "member": null,
-            "id": 6,
-            "comment": null,
-            "body_id": 9,
-            "body": {
+        ],
+        "circle_memberships": [
+            {
+                "position": null,
+                "member_id": 1,
+                "member": null,
+                "id": 16,
+                "circle_id": 134,
+                "circle_admin": false,
+                "circle": {
+                    "seo_url": 134,
+                    "permissions": null,
+                    "parent_circle_id": 2,
+                    "parent_circle": null,
+                    "name": "Board AEGEE-Alicante",
+                    "joinable": false,
+                    "id": 134,
+                    "description": "Board circle of AEGEE-Alicante",
+                    "child_circles": null,
+                    "body_id": 34,
+                    "body": null
+                }
+            },
+            {
+                "position": null,
+                "member_id": 1,
+                "member": null,
+                "id": 15,
+                "circle_id": 133,
+                "circle_admin": false,
+                "circle": {
+                    "seo_url": 133,
+                    "permissions": null,
+                    "parent_circle_id": 6,
+                    "parent_circle": null,
+                    "name": "Members AEGEE-Alicante",
+                    "joinable": true,
+                    "id": 133,
+                    "description": "Members circle for members of AEGEE-Alicante",
+                    "child_circles": null,
+                    "body_id": 34,
+                    "body": null
+                }
+            },
+            {
+                "position": null,
+                "member_id": 1,
+                "member": null,
+                "id": 3,
+                "circle_id": 4,
+                "circle_admin": false,
+                "circle": {
+                    "seo_url": 4,
+                    "permissions": null,
+                    "parent_circle_id": null,
+                    "parent_circle": null,
+                    "name": "Superadmins",
+                    "joinable": false,
+                    "id": 4,
+                    "description": "This circle holds all permissions in the system and thus effectively makes you superadmin",
+                    "child_circles": null,
+                    "body_id": null,
+                    "body": null
+                }
+            }
+        ],
+        "body_memberships": [
+            {
+                "member_id": 1,
+                "member": null,
+                "inserted_at": "2018-10-10T07:23:53.755912",
+                "id": 9,
+                "has_expired": false,
+                "fee_currency": "euro",
+                "fee": null,
+                "expiration": null,
+                "comment": null,
+                "body_id": 34,
+                "body": {
+                    "type": null,
+                    "shadow_circle_id": 133,
+                    "shadow_circle": null,
+                    "seo_url": 34,
+                    "phone": null,
+                    "name": "AEGEE-Alicante",
+                    "legacy_key": "ALC",
+                    "id": 34,
+                    "email": "junta@aegeealicante.org",
+                    "description": "Local in Alicante, see also http://www.aegeealicante.org/, https://www.facebook.com/AEGEEAlicante, https://twitter.com/AEGEEAlicante",
+                    "circles": null,
+                    "address": "Universidad de Alicante, Consejo de Alumnos, Aulario 1, Despacho 3 del Hotel de Asociaciones  Carretera de San Vicente, s/n 03690  San Vicente del Raspeig (Alicante) Spain (Alicante, Spain)"
+                }
+            },
+            {
+                "member_id": 1,
+                "member": null,
+                "inserted_at": "2018-05-13T16:17:06.728354",
+                "id": 6,
+                "has_expired": false,
+                "fee_currency": "euro",
+                "fee": null,
+                "expiration": null,
+                "comment": null,
+                "body_id": 9,
+                "body": {
+                    "type": null,
+                    "shadow_circle_id": null,
+                    "shadow_circle": null,
+                    "seo_url": 9,
+                    "phone": null,
+                    "name": "Chair Team of the Agora",
+                    "legacy_key": "XCH",
+                    "id": 9,
+                    "email": "chair@aegee.org",
+                    "description": "The Chair team is responsible for preparing and moderating the Agorae. They preside over them, take the minutes and are responsible for the IT during the events.",
+                    "circles": null,
+                    "address": "Notelaarsstraat 55"
+                }
+            }
+        ],
+        "bodies": [
+            {
+                "type": null,
+                "shadow_circle_id": 133,
+                "shadow_circle": null,
+                "seo_url": 34,
+                "phone": null,
+                "name": "AEGEE-Alicante",
+                "legacy_key": "ALC",
+                "id": 34,
+                "email": "junta@aegeealicante.org",
+                "description": "Local in Alicante, see also http://www.aegeealicante.org/, https://www.facebook.com/AEGEEAlicante, https://twitter.com/AEGEEAlicante",
+                "circles": null,
+                "address": "Universidad de Alicante, Consejo de Alumnos, Aulario 1, Despacho 3 del Hotel de Asociaciones  Carretera de San Vicente, s/n 03690  San Vicente del Raspeig (Alicante) Spain (Alicante, Spain)"
+            },
+            {
+                "type": null,
                 "shadow_circle_id": null,
                 "shadow_circle": null,
                 "seo_url": 9,
@@ -230,82 +255,7 @@
                 "circles": null,
                 "address": "Notelaarsstraat 55"
             }
-        }, {
-            "member_id": 1,
-            "member": null,
-            "id": 9,
-            "comment": null,
-            "body_id": 173,
-            "body": {
-                "shadow_circle_id": 257,
-                "shadow_circle": null,
-                "seo_url": 173,
-                "phone": "+7 9066742361",
-                "name": "AEGEE-Voronezh",
-                "legacy_key": "VOR",
-                "id": 173,
-                "email": "voronezh.aegee@gmail.com",
-                "description": "Local in Voronezh",
-                "circles": null,
-                "address": "Mariia LureRussian Federation  Voronezh  Suvorova Street, 94  394000 (Voronezh, Russia)"
-            }
-        }, {
-            "member_id": 1,
-            "member": null,
-            "id": 10,
-            "comment": null,
-            "body_id": 1,
-            "body": {
-                "shadow_circle_id": 63,
-                "shadow_circle": null,
-                "seo_url": 1,
-                "phone": "don't call us",
-                "name": "AEGEE-Dresden",
-                "legacy_key": "DRE",
-                "id": 1,
-                "email": "info@aegee-dresden.org",
-                "description": "Very prehistoric antenna",
-                "circles": null,
-                "address": "Dresden"
-            }
-        }],
-        "bodies": [{
-            "shadow_circle_id": null,
-            "shadow_circle": null,
-            "seo_url": 9,
-            "phone": null,
-            "name": "Chair Team of the Agora",
-            "legacy_key": "XCH",
-            "id": 9,
-            "email": "chair@aegee.org",
-            "description": "The Chair team is responsible for preparing and moderating the Agorae. They preside over them, take the minutes and are responsible for the IT during the events.",
-            "circles": null,
-            "address": "Notelaarsstraat 55"
-        }, {
-            "shadow_circle_id": 257,
-            "shadow_circle": null,
-            "seo_url": 173,
-            "phone": "+7 9066742361",
-            "name": "AEGEE-Voronezh",
-            "legacy_key": "VOR",
-            "id": 173,
-            "email": "voronezh.aegee@gmail.com",
-            "description": "Local in Voronezh",
-            "circles": null,
-            "address": "Mariia LureRussian Federation  Voronezh  Suvorova Street, 94  394000 (Voronezh, Russia)"
-        }, {
-            "shadow_circle_id": 63,
-            "shadow_circle": null,
-            "seo_url": 1,
-            "phone": "don't call us",
-            "name": "AEGEE-Dresden",
-            "legacy_key": "DRE",
-            "id": 1,
-            "email": "info@aegee-dresden.org",
-            "description": "Very prehistoric antenna",
-            "circles": null,
-            "address": "Dresden"
-        }],
+        ],
         "address": "Europe",
         "about_me": "I am a microservice. I have a user account so the system can access itself from within, don't delete me."
     }

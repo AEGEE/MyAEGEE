@@ -28,7 +28,9 @@ describe('Applications creation', () => {
             uri: '/events/' + event.id + '/applications/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: generator.generateApplication({}, event)
+            body: generator.generateApplication({
+                body_id: regularUser.bodies[0].id
+            }, event)
         });
 
         tk.reset();
@@ -42,6 +44,9 @@ describe('Applications creation', () => {
 
     test('should succeed for a user with permissions but not within deadline', async () => {
         const event = await generator.createEvent({ applications: [] });
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id
+        }, event);
 
         tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
 
@@ -49,8 +54,9 @@ describe('Applications creation', () => {
             uri: '/events/' + event.id + '/applications/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: generator.generateApplication({}, event)
+            body: application
         });
+
 
         tk.reset();
 
@@ -65,7 +71,9 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ applications: [] });
-        const application = generator.generateApplication({}, event);
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id
+        }, event);
 
         tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
 
@@ -107,36 +115,15 @@ describe('Applications creation', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should return 422 on validation errors', async () => {
-        mock.mockAll({ mainPermissions: { noPermissions: true } });
-
-        const event = await generator.createEvent({ applications: [] });
-        const application = generator.generateApplication({}, event);
-        delete application.body_id;
-        delete application.user_id;
-
-        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: application
-        });
-
-        tk.reset();
-
-        expect(res.statusCode).toEqual(422);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('body_id')
-    });
-
     test('should return 422 if questions amount is not the same as answers amount', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ questions: ['Test questions?'] });
-        const application = generator.generateApplication({ answers: [], user_id: null });
+        const application = generator.generateApplication({
+            answers: [],
+            body_id: regularUser.bodies[0].id,
+            user_id: null
+        });
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 
@@ -159,7 +146,9 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ questions: ['Test questions?'] });
-        const application = generator.generateApplication();
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id
+        });
         delete application.user_id;
         delete application.answers;
 
@@ -184,7 +173,11 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ questions: ['Test questions?'] });
-        const application = generator.generateApplication({ user_id: regularUser.id, answers: [''] });
+        const application = generator.generateApplication({
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id,
+            answers: ['']
+        });
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 
@@ -208,7 +201,11 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ questions: ['Test questions?'] });
-        const application = generator.generateApplication({ user_id: regularUser.id, answers: 'Totally not an array.' });
+        const application = generator.generateApplication({
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id,
+            answers: 'Totally not an array.'
+        });
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 
@@ -231,7 +228,9 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ applications: [] });
-        const application = generator.generateApplication({ user_id: regularUser.id }, event);
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id
+        }, event);
 
         application.status = 'accepted';
         application.participant_type = 'envoy';
@@ -266,5 +265,27 @@ describe('Applications creation', () => {
         expect(res.body.data.cancelled).not.toEqual(application.cancelled);
 
         expect(res.body.data).not.toHaveProperty('arbitrary_field');
+    });
+
+    test('should return 403 if user is not a member of a body', async () => {
+        const event = await generator.createEvent({ applications: [] });
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateApplication({
+                body_id: 1337
+            }, event)
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
     });
 });

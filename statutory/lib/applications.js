@@ -47,11 +47,15 @@ exports.getApplication = async (req, res) => {
 
 exports.updateApplication = async (req, res) => {
     if (!req.permissions.edit_application) {
-        return errors.makeForbiddenError(res, 'The deadline for applications has passed.')
+        return errors.makeForbiddenError(res, 'You cannot edit this application.')
     }
 
     if (req.body.answers != null && !helpers.isAnswersValid(req.event.questions, req.body.answers)) {
         return errors.makeValidationError(res, 'Some answers are invalid.');
+    }
+
+    if (req.application.user_id === req.user.id && req.body.body_id && !helpers.isMemberOf(req.user, req.body.body_id)) {
+        return errors.makeForbiddenError(res, 'You cannot apply on behalf of the body you are not a member of.');
     }
 
     delete req.body.status;
@@ -60,6 +64,12 @@ exports.updateApplication = async (req, res) => {
     delete req.body.attended;
     delete req.body.cancelled;
     delete req.body.paid_fee;
+
+    // If user changed his body (by himself), reset his board comment and participant type.
+    if (req.application.user_id === req.user.id && req.body.body_id && req.body.body_id !== req.application.body_id) {
+        req.body.participant_type = null;
+        req.body.board_comment = null;
+    }
 
     const dbResult = await Application.update(req.body, { where: { id: req.application.id }, returning: true });
 
@@ -140,6 +150,10 @@ If it\'s yours, please update it via PUT /events/:event_id/applications/${consta
 
     if (!helpers.isAnswersValid(req.event.questions, req.body.answers)) {
         return errors.makeValidationError(res, 'Some answers are invalid.');
+    }
+
+    if (!helpers.isMemberOf(req.user, req.body.body_id)) {
+        return errors.makeForbiddenError(res, 'You cannot apply on behalf of the body you are not a member of.');
     }
 
     delete req.body.status;

@@ -6,6 +6,9 @@ exports.isIDValid = id => id === constants.CURRENT_USER_PREFIX || !Number.isNaN(
 // A helper to say if the answer match questions.
 exports.isAnswersValid = (questions, answers) => Array.isArray(answers) && answers.length === questions.length;
 
+// A helpers to determine if the user is member of a body.
+exports.isMemberOf = (user, body_id) => user.bodies.map(body => body.id).includes(body_id);
+
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
     return permissionsList.some(permission => permission.combined.endsWith(combinedPermission));
@@ -30,12 +33,10 @@ exports.getPermissions = (user, corePermissions) => {
     };
 };
 
-exports.getEventPermissions = ({ permissions, corePermissions, approvePermissions, event }) => {
+exports.getEventPermissions = ({ permissions, corePermissions, approvePermissions, user, event }) => {
     // Event-related permissions
     permissions.edit_event = hasPermission(corePermissions, 'manage_event:' + event.type);
     permissions.change_event_status = hasPermission(corePermissions, 'manage_event:' + event.type);
-    permissions.edit_organizers = hasPermission(corePermissions, 'manage_event:' + event.type);
-    permissions.edit_bodies = hasPermission(corePermissions, 'manage_event:' + event.type);
     permissions.delete_event = hasPermission(corePermissions, 'manage_event:' + event.type);
     permissions.apply = event.can_apply || hasPermission(corePermissions, 'manage_applications:' + event.type);
 
@@ -45,9 +46,9 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     permissions.see_boardview_of = {};
 
     const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
-    for (const body in approveBodiesList) {
-        permissions.set_board_comment_and_participant_type[body] = true;
-        permissions.see_boardview_of[body] = true;
+    for (const body of user.bodies) {
+        permissions.set_board_comment_and_participant_type[body.id] = approveBodiesList.includes(body.id)
+        permissions.see_boardview_of[body.id] = approveBodiesList.includes(body.id)
     }
 
     return permissions;
