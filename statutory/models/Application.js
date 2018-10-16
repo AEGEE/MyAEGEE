@@ -28,7 +28,10 @@ const Application = sequelize.define('application', {
     visa_required: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: false
+        defaultValue: false,
+        validate: {
+            isBooleanOrEmpty
+        }
     },
     board_comment: {
         type: Sequelize.TEXT
