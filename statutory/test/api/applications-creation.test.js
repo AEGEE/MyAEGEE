@@ -145,7 +145,7 @@ describe('Applications creation', () => {
     test('should return 422 if questions amount if the answers are not set', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-        const event = await generator.createEvent({ questions: ['Test questions?'] });
+        const event = await generator.createEvent({ questions: ['Test questions?'], applications: [] });
         const application = generator.generateApplication({
             body_id: regularUser.bodies[0].id
         });
