@@ -39,9 +39,12 @@ exports.getApplication = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see this application.');
     }
 
+    const application = req.application;
+    application.permissions = req.permissions;
+
     return res.json({
         success: true,
-        data: req.application
+        data: application
     });
 };
 
