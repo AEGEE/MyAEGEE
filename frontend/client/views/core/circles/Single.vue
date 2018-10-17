@@ -199,7 +199,7 @@ export default {
         this.isLoadingMembers = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
-          return console.log('Request canceled')
+          return
         }
 
         this.isLoadingMembers = false
