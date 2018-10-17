@@ -229,10 +229,10 @@ export default {
         questions: [],
         fee: null,
         starts: null,
-        ends: null,
+        ends: null
       },
       autoComplete: {
-        bodies: { name: '', values: [], loading: false },
+        bodies: { name: '', values: [], loading: false }
       },
       can: {
         edit_application_status: false
@@ -312,9 +312,9 @@ export default {
   watch: {
     'event.name' (newName) {
       if (!this.$route.params.id) {
-        this.event.url = newName.toLowerCase().replace(/\ /g, '-')
+        this.event.url = newName.toLowerCase().replace(/ /g, '-')
       }
-    },
+    }
   },
   mounted () {
     if (!this.$route.params.id) {

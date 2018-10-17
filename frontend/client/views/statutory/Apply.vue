@@ -3,8 +3,8 @@
     <div class="tile is-parent">
       <div class="tile is-child">
         <div class="title" v-show="isNew">Apply to {{ event.name }}</div>
-        <div class="title" v-show="!isNew && can.apply">Edit your application on {{ event.name }}</div>
-        <div class="title" v-show="!isNew && !can.apply">See your application on {{ event.name }}</div>
+        <div class="title" v-show="!isNew && can.apply">Edit application on {{ event.name }}</div>
+        <div class="title" v-show="!isNew && !can.apply">See application on {{ event.name }}</div>
 
         <form @submit.prevent="saveApplication()">
           <div class="tile is-parent" v-show="isNew || can.apply">
@@ -15,7 +15,7 @@
                   <div class="field has-addons">
                     <b-autocomplete
                       v-model="autoComplete.bodies.name"
-                      :data="loginUser.bodies"
+                      :data="autoComplete.bodies.values"
                       open-on-focus="true"
                       @select="body => { application.body_id = body.id; application.body = body; saved = false }">
                       <template slot-scope="props">
@@ -103,16 +103,16 @@
             </div>
           </div>
 
-          <div class="tile is-parent" v-show="!isNew">
+          <div class="tile is-parent" v-if="!isNew && !isEditingOther">
             <div class="tile is-child">
-              <div class="notification is-warning" v-if="application.status === 'pending'">
+              <div class="notification is-warning" v-show="application.status === 'pending'">
                 Your application is being processed, please wait for the organizers to evaluate your application.
-                <span v-if="!can.apply">Unfortunately you can not edit it any more.</span>
+                <span v-show="!can.apply">Unfortunately you can not edit it any more.</span>
               </div>
-              <div class="notification is-success" v-if="application.status === 'accepted'">
+              <div class="notification is-success" v-show="application.status === 'accepted'">
                 Congratulations, you have been accepted to the event!
               </div>
-              <div class="notification is-success" v-if="application.status === 'rejected'">
+              <div class="notification is-danger" v-show="application.status === 'rejected'">
                 Sorry, but you were not accepted to the event.
               </div>
             </div>
@@ -120,6 +120,53 @@
 
           <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
         </form>
+
+        <hr />
+
+        <!-- Editing board stuff for Chair Team/CD -->
+        <div class="tile is-parent" v-if="isEditingOther">
+          <div class="tile is-child">
+            <div class="field is-fullwidth">
+              <div class="control">
+                <label class="has-text-weight-bold">Board comment</label>
+              </div>
+              <div class="control">
+                <textarea
+                  class="textarea"
+                  required
+                  v-model="application.board_comment"
+                  @input="savedBoard = false"
+                  />
+              </div>
+            </div>
+
+            <div class="field is-fullwidth">
+              <div class="control">
+                <label class="has-text-weight-bold">Application type</label>
+              </div>
+              <div class="control">
+                <div class="select">
+                  <select v-model="application.participant_type" @change="savedBoard = false">
+                    <option value="delegate">Delegate</option>
+                    <option value="visitor">Visitor</option>
+                    <option value="envoy">Envoy</option>
+                    <option value="observer">Observer</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <button type="submit" class="button is-info" v-show="!savedBoard" @click="saveBoard()">
+                Save application!
+              </button>
+              <button type="submit" class="button is-primary" disabled="disabled" v-show="savedBoard">
+                Application saved!
+              </button>
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -138,7 +185,7 @@ export default {
         name: null,
         questions: []
       },
-      autoComplete: { bodies: { name: '' } },
+      autoComplete: { bodies: { name: '', values: [] } },
       application: {
         body: null,
         body_id: null,
@@ -149,6 +196,7 @@ export default {
         apply: false
       },
       saved: true,
+      savedBoard: true,
       errors: {},
       isLoading: false,
       isSaving: false
@@ -166,15 +214,37 @@ export default {
 
       const promise = this.isNew
         ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications', toServer)
-        : this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/me', toServer)
+        : this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.prefix, toServer)
 
       promise.then(() => {
-        this.$root.showSuccess('Your application was saved, you can still edit it until the application period ends')
+        this.$root.showSuccess('Application is saved.')
 
         return this.$router.push({
           name: 'oms.statutory.view',
           params: { id: this.event.url || this.event.id }
         })
+      }).catch((err) => {
+        this.isSaving = false
+
+        if (err.response.status === 422) { // validation errors
+          this.errors = err.response.data.errors
+          return this.$root.showDanger('Some of the application data is invalid.')
+        }
+
+        this.$root.showDanger('Could not save application: ' + err.message)
+      })
+    },
+    saveBoard () {
+      // Copy data from the form into an object to submit it in the format the backend needs it
+      this.isSaving = true
+
+      const toServer = {
+        participant_type: this.application.participant_type,
+        board_comment: this.application.board_comment
+      }
+
+      this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.prefix + '/board', toServer).then(() => {
+        this.$root.showSuccess('Application is saved.')
       }).catch((err) => {
         this.isSaving = false
 
@@ -194,6 +264,12 @@ export default {
     }),
     isNew () {
       return !this.application.id
+    },
+    prefix () {
+      return this.$route.params.application_id ? this.$route.params.application_id : 'me'
+    },
+    isEditingOther () {
+      return !!this.$route.params.application_id
     }
   },
   mounted () {
@@ -203,8 +279,9 @@ export default {
       this.can = response.data.data.permissions
       this.application.answers = Array.from({ length: this.event.questions }, () => '')
 
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/me').then((application) => {
+      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.prefix).then((application) => {
         this.application = application.data.data
+        this.can = response.data.data.permissions
         this.application.body = this.loginUser.bodies.find(body => body.id === this.application.body_id)
         this.isLoading = false
       }).catch((err) => {
@@ -220,6 +297,16 @@ export default {
       this.$root.showDanger(message)
       this.$router.push({ name: 'oms.statutory.list' })
     })
+
+    if (this.isEditingOther) {
+      this.axios.get(this.services['oms-core-elixir'] + '/bodies/').then((response) => {
+        this.autoComplete.bodies.values = response.data.data
+      }).catch((err) => {
+        this.$root.showDanger('Could not fetch bodies list: ' + err.message)
+      })
+    } else {
+      this.autoComplete.bodies.values = this.loginUser.bodies
+    }
   }
 }
 </script>

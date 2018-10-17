@@ -502,6 +502,42 @@
             }
           },
           {
+            "name": "oms.statutory.manage_application",
+            "path": "/statutory/:id/manage-application/:application_id",
+            "component": "statutory/Apply",
+            "meta": {
+              "skipMenu": true,
+              "label": "Manage application for statutory event"
+            }
+          },
+          {
+            "name": "oms.statutory.accepted",
+            "path": "/statutory/:id/accepted",
+            "component": "statutory/Accepted",
+            "meta": {
+              "skipMenu": true,
+              "label": "List accepted participants for the statutory event"
+            }
+          },
+          {
+            "name": "oms.statutory.manage_participants",
+            "path": "/statutory/:id/manage-participants",
+            "component": "statutory/ManageParticipants",
+            "meta": {
+              "skipMenu": true,
+              "label": "Manage participants for the statutory event"
+            }
+          },
+          {
+            "name": "oms.statutory.boardview",
+            "path": "/statutory/:id/boardview",
+            "component": "statutory/BoardView",
+            "meta": {
+              "skipMenu": true,
+              "label": "Board view for applications for statutory events."
+            }
+          },
+          {
             "name": "oms.statutory.edit",
             "path": "/statutory/:id/edit",
             "component": "statutory/Edit",
@@ -515,7 +551,8 @@
             "path": "/statutory/new",
             "component": "statutory/Edit",
             "meta": {
-              "label": "Create event"
+              "label": "Create event",
+              "permissions": ["manage_event:agora", "manage_event:epm"]
             }
           },
           {

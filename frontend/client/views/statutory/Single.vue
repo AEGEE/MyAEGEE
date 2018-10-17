@@ -11,7 +11,7 @@
       <div class="tile is-parent">
         <article class="tile is-child is-info">
           <div class="field is-grouped">
-            <router-link :to="{ name: 'oms.statutory.participants', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link :to="{ name: 'oms.statutory.manage_participants', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>View applications</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
@@ -70,19 +70,19 @@
                 </tr>
                 <tr>
                   <th>Starts</th>
-                  <td>{{ event.starts }}</td>
+                  <td>{{ event.starts | datetime }}</td>
                 </tr>
                 <tr>
                   <th>Ends</th>
-                  <td>{{ event.ends }}</td>
+                  <td>{{ event.ends | datetime }}</td>
                 </tr>
                 <tr>
                   <th>Application period starts</th>
-                  <td>{{ event.application_period_starts }}</td>
+                  <td>{{ event.application_period_starts | datetime }}</td>
                 </tr>
                 <tr>
                   <th>Application period ends</th>
-                  <td>{{ event.application_period_ends }}</td>
+                  <td>{{ event.application_period_ends | datetime }}</td>
                 </tr>
                 <tr>
                   <th>Fee</th>
@@ -97,20 +97,6 @@
                     </router-link>
                   </td>
                 </tr>
-                <!--
-                <tr>
-                  <th>Starts</th>
-                  <td>{{ event.starts }}</td>
-                </tr>
-                <tr>
-                  <th>Ends</th>
-                  <td>{{ event.ends }}</td>
-                </tr>
-                <tr>
-                  <th>Type</th>
-                  <td>{{ event.type }}</td>
-                </tr>
-                <tr>-->
               </tbody>
             </table>
           </div>
@@ -148,22 +134,22 @@ export default {
     }
   },
   methods: {
-    askSwitchStatus(newStatus) {
+    askSwitchStatus (newStatus) {
       this.$dialog.confirm({
         title: 'Switching status',
-        message: `Are you sure you want to <b>switch this event\'s status to "${newStatus}"</b>?`,
+        message: `Are you sure you want to <b>switch this event's status to "${newStatus}"</b>?`,
         confirmText: 'Switch status',
         type: 'is-info',
         hasIcon: true,
         onConfirm: () => this.switchStatus(newStatus)
       })
     },
-    switchStatus(newStatus) {
+    switchStatus (newStatus) {
       this.axios.put(this.services['oms-statutory'] + '/events/' + this.event.id + '/status', { status: newStatus }).then((response) => {
         this.$root.showInfo('Status is updated.')
         this.event.status = newStatus
       }).catch((err) => this.$root.showDanger('Could not update status: ' + err.message))
-    },
+    }
   },
   mounted () {
     this.isLoading = true
