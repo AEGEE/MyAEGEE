@@ -35,12 +35,12 @@ exports.listAcceptedApplications = async (req, res) => {
 };
 
 exports.listBoardView = async (req, res) => {
-    if (!req.permissions.see_boardview_of[req.params.body_id] && !req.permissions.see_boardview_global) {
-        return errors.makeForbiddenError(res, 'You are not allowed to see the boardview of this body.');
-    }
-
     if (Number.isNaN(parseInt(req.params.body_id, 10))) {
         return errors.makeBadRequestError(res, 'Body ID should be a number.')
+    }
+
+    if (!req.permissions.see_boardview_of[req.params.body_id] && !req.permissions.see_boardview_global) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see the boardview of this body.');
     }
 
     const applications = req.event.applications
