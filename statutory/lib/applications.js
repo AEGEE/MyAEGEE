@@ -11,7 +11,7 @@ exports.listAllApplications = async (req, res) => {
 
     return res.json({
         success: true,
-        data: req.event.applications
+        data: req.event.applications.sort((a, b) => b.id - a.id)
     });
 };
 
@@ -27,6 +27,25 @@ exports.listAcceptedApplications = async (req, res) => {
 
             return application;
         });
+
+    return res.json({
+        success: true,
+        data: applications
+    });
+};
+
+exports.listBoardView = async (req, res) => {
+    if (!req.permissions.see_boardview_of[req.params.body_id] && !req.permissions.see_boardview_global) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see the boardview of this body.');
+    }
+
+    if (Number.isNaN(parseInt(req.params.body_id, 10))) {
+        return errors.makeBadRequestError(res, 'Body ID should be a number.')
+    }
+
+    const applications = req.event.applications
+        .map(application => application.toJSON())
+        .filter(application => application.body_id === parseInt(req.params.body_id, 10));
 
     return res.json({
         success: true,
@@ -143,7 +162,7 @@ exports.setApplicationBoard = async (req, res) => {
     }
 
     // Either the current user or this user who has permission to see it is allowed.
-    if (!req.permissions.set_board_comment_and_participant_type[req.application.body_id]) {
+    if (!req.permissions.set_board_comment_and_participant_type[req.application.body_id] && !req.permissions.set_board_comment_and_participant_type_global) {
         return errors.makeForbiddenError(
             res,
             'You don\'t have permissions to change the board comment or participant type of this application.'

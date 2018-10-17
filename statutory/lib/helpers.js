@@ -41,6 +41,8 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     permissions.apply = event.can_apply || hasPermission(corePermissions, 'manage_applications:' + event.type);
 
     permissions.see_applications = hasPermission(corePermissions, 'see_applications:' + event.type);
+    permissions.set_board_comment_and_participant_type_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
+    permissions.see_boardview_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
 
     permissions.set_board_comment_and_participant_type = {};
     permissions.see_boardview_of = {};

@@ -56,6 +56,7 @@ ApplicationsRouter.use(middlewares.authenticateUser, middlewares.fetchEventWithA
 ApplicationsRouter.post('/', applications.postApplication);
 ApplicationsRouter.get('/all', applications.listAllApplications);
 ApplicationsRouter.get('/accepted', applications.listAcceptedApplications);
+ApplicationsRouter.get('/boardview/:body_id', applications.listBoardView);
 
 SingleApplicationRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, middlewares.fetchSingleApplication);
 SingleApplicationRouter.put('/cancel', applications.setApplicationCancelled);
