@@ -24,6 +24,13 @@
             </router-link>
           </div>
 
+          <div class="field is-grouped" v-if="canAccessBoardview">
+            <router-link :to="{ name: 'oms.statutory.boardview', params: { id: event.url || event.id } }" class="button is-fullwidth">
+              <span>Board view</span>
+              <span class="icon"><i class="fa fa-users"></i></span>
+            </router-link>
+          </div>
+
           <div class="field is-grouped" v-if="can.apply">
             <router-link :to="{ name: 'oms.statutory.apply', params: { id: event.url || event.id } }" class="button is-info is-fullwidth">
               <span>Apply</span>
@@ -129,7 +136,8 @@ export default {
         edit_event: false,
         change_event_status: false,
         delete_event: false,
-        apply: false
+        apply: false,
+        set_board_comment_and_participant_type: {}
       }
     }
   },
@@ -170,9 +178,14 @@ export default {
       this.$router.push({ name: 'oms.statutory.list' })
     })
   },
-  computed: mapGetters({
-    loginUser: 'user',
-    services: 'services'
-  })
+  computed: {
+    ...mapGetters({
+      loginUser: 'user',
+      services: 'services'
+    }),
+    canAccessBoardview () {
+      return Object.keys(this.can.set_board_comment_and_participant_type).length > 0
+    }
+  }
 }
 </script>
