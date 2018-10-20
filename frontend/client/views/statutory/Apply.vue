@@ -103,7 +103,7 @@
             </div>
           </div>
 
-          <div class="tile is-parent" v-if="!isNew && !isEditingOther">
+          <div class="tile is-parent" v-if="!isNew && !isEditingOther && !application.cancelled">
             <div class="tile is-child">
               <div class="notification is-warning" v-show="application.status === 'pending'">
                 Your application is being processed, please wait for the organizers to evaluate your application.
@@ -118,10 +118,35 @@
             </div>
           </div>
 
+          <div class="tile is-parent" v-if="application.cancelled">
+            <div class="tile is-child">
+              <div class="notification is-danger">
+                Your application is cancelled.
+                <span v-if="can.apply">You can uncancel it till the application period ends.</span>
+              </div>
+            </div>
+          </div>
+
           <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
         </form>
 
-        <hr />
+        <hr v-if="!isNew && can.set_application_cancelled" />
+
+        <!-- Cancelling -->
+        <div class="tile is-parent" v-if="!isNew && can.set_application_cancelled">
+          <div class="tile is-child">
+            <div class="field">
+              <button type="submit" class="button is-danger" v-show="!application.cancelled" @click="askSetCancelled(true)">
+                Cancel application
+              </button>
+              <button type="submit" class="button is-info" v-show="application.cancelled" @click="setCancelled(false)">
+                Uncancel application
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <hr v-if="isEditingOther" />
 
         <!-- Editing board stuff for Chair Team/CD -->
         <div class="tile is-parent" v-if="isEditingOther">
@@ -255,6 +280,24 @@ export default {
 
         this.$root.showDanger('Could not save application: ' + err.message)
       })
+    },
+    askSetCancelled (value) {
+      this.$dialog.confirm({
+        title: 'Cancel application',
+        message: 'Are you sure you want to <b>cancel your application</b>? You can uncancel it only during application period.',
+        confirmText: 'Cancel application',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.setCancelled(value)
+      })
+    },
+    setCancelled (value) {
+      this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.application.id + '/cancel', {
+        cancelled: value
+      }).then((response) => {
+        this.application.cancelled = value
+        this.$root.showInfo(value ? 'Application is cancelled.' : 'Application is uncancelled.')
+      }).catch((err) => this.$root.showDanger('Could not cancel application: ' + err.message))
     }
   },
   computed: {
@@ -281,7 +324,7 @@ export default {
 
       return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.prefix).then((application) => {
         this.application = application.data.data
-        this.can = response.data.data.permissions
+        this.can = application.data.data.permissions
         this.application.body = this.loginUser.bodies.find(body => body.id === this.application.body_id)
         this.isLoading = false
       }).catch((err) => {
