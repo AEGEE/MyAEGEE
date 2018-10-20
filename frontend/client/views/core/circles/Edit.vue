@@ -207,17 +207,17 @@ export default {
       })
     },
     setParentCircle (circle) {
-      this.autoComplete.circles.loading = true
+      this.autoComplete.parentCircle.loading = true
       this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/parent', {
         parent_circle_id: circle ? circle.id : null
       }).then((response) => {
-        this.autoComplete.circles.loading = false
+        this.autoComplete.parentCircle.loading = false
         this.circle.parent_circle = circle
         this.circle.parent_circle_id = circle ? circle.id : null
 
         this.$root.showSuccess('Parent circle is ' + (circle ? 'set.' : 'unset.'))
       }).catch((err) => {
-        this.autoComplete.circles.loading = false
+        this.autoComplete.parentCircle.loading = false
 
         if (err.response.status === 422) {
           const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
