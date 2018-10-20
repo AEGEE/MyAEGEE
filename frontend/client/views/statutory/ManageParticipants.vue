@@ -13,7 +13,10 @@
               <th>Participant type</th>
               <th>Board comment</th>
               <th v-for="(question, index) in event.questions" v-bind:key="index">{{ question }}</th>
-              <th></th>
+              <th>Cancelled?</th>
+              <th>Paid fee?</th>
+              <th>Attended?</th>
+              <th>Edit</th>
               <th>Manage status</th>
             </tr>
           </thead>
@@ -35,6 +38,9 @@
               <td v-if="pax.board_comment">{{ pax.board_comment }}</td>
               <td v-if="!pax.board_comment"><i>Not set.</i></td>
               <td v-for="(answer, index) in pax.answers" v-bind:key="index">{{ answer }}</td>
+              <td>{{ pax.cancelled ? 'Yes' : 'No' }}</td>
+              <td>{{ pax.paid_fee ? 'Yes' : 'No' }}</td>
+              <td>{{ pax.attended ? 'Yes' : 'No' }}</td>
               <td>
                 <router-link :to="{ name: 'oms.statutory.manage_application', params: { application_id: pax.id } }">
                   Edit

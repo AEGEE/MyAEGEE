@@ -31,6 +31,9 @@
               <th v-for="(question, index) in event.questions" v-bind:key="index">{{ question }}</th>
               <th>Participant type</th>
               <th>Board comment</th>
+              <th>Cancelled?</th>
+              <th>Application status</th>
+              <th>Paid fee</th>
               <th></th>
             </tr>
           </thead>
@@ -56,15 +59,18 @@
               <td>
                 <textarea class="textarea" v-model="pax.board_comment" @change="pax.saved = false" />
               </td>
+              <td :class="{ 'has-background-danger': pax.cancelled }">{{ pax.cancelled ? 'Yes' : 'No' }}</td>
+              <td>{{ pax.status }}</td>
+              <td>{{ pax.paid_fee ? 'Yes' : 'No'  }}</td>
               <th>
                 <button class="button is-success" :disabled="!pax.saved" @click="updateParticipant(pax)">Save!</button>
               </th>
             </tr>
             <tr v-if="applications.length == 0 && !isLoading">
-              <td :colspan="4 + event.questions.length">No applications yet!</td>
+              <td :colspan="6 + event.questions.length">No applications yet!</td>
             </tr>
             <tr v-if="isLoading">
-              <td :colspan="4 + event.questions.length">Loading...</td>
+              <td :colspan="6 + event.questions.length">Loading...</td>
             </tr>
           </tbody>
         </table>
