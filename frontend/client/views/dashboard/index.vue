@@ -89,14 +89,6 @@ export default {
       this.isLoading.events = false
       this.$root.showDanger('Could not fetch events list: ' + err.message)
     })
-
-    this.axios.get('/services/oms-statutory/').then((response) => {
-      this.events = response.data.data
-      this.isLoading.events = false
-    }).catch((err) => {
-      this.isLoading.events = false
-      this.$root.showDanger('Could not fetch events list: ' + err.message)
-    })
   },
   computed: {
     ...mapGetters({
