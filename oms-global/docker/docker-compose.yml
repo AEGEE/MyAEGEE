@@ -21,13 +21,16 @@ services:
           - /var/run/docker.sock:/var/run/docker.sock:ro
 #        networks:
 #          - management
+        secrets:
+            - https_key
+            - https_cert
         labels:
           - traefik.enable=true
           - traefik.backend=traefik
           - traefik.port=8080
           - traefik.frontend.rule=HostRegexp:{domain:traefik.[a-z0-9.]+}
           - traefik.frontend.priority=20
-          
+
     portal:
         build:
           context: ./$PATH_OMS_GLOBAL/portal/
@@ -50,15 +53,18 @@ services:
     pgadmin:
         image: fenglc/pgadmin4:2.0
         restart: on-failure
-        expose:
-            - 5050
+        ports:
+            - 10100:5050
         labels:
           - traefik.enable=true
           - traefik.backend=pgadmin
-          - traefik.port=5050
+          #- traefik.port=5050
           - traefik.frontend.rule=HostRegexp:{domain:pgadmin.[a-z0-9.]+}
           - traefik.frontend.priority=20
-          
+        environment:
+          DEFAULT_USER: admin
+          DEFAULT_PASSWORD: admin
+
 ### mongoui Container #######################################
     # mongoui:
     #     build:
@@ -81,7 +87,7 @@ services:
 #             context: ./oms-util/docker/mediawiki
 #             dockerfile: ./Dockerfile.dev
 #         restart: always
-#         expose: 
+#         expose:
 #             - 80
 #         volumes:
 #           - /var/www/html/images
@@ -100,7 +106,7 @@ services:
 
 #     survey:
 #         image: crramirez/limesurvey:2.72.3
-#         expose: 
+#         expose:
 #             - 80
 #         #volumes:
 #          # - /var/www/html/images
@@ -118,7 +124,7 @@ services:
 #           - traefik.port=80
 #           - traefik.frontend.rule=HostRegexp:{domain:survey.[a-z0-9.]+}
 #           - traefik.frontend.priority=20
-# 
+#
 # volumes:
 #   upload:
 

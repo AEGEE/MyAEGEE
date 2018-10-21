@@ -1,3 +1,9 @@
 .vagrant
 .env
 *.log
+
+
+secrets/*
+
+# exception to the rule
+!secrets/.gitkeep 
