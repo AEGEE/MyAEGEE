@@ -52,6 +52,7 @@
     "vue-infinite-loading": "^2.3.1",
     "vue-nprogress": "0.1.5",
     "vue-router": "^2.3.0",
+    "vue2-google-maps": "^0.10.2",
     "vuex": "^2.2.1",
     "vuex-router-sync": "^4.1.2",
     "wysiwyg.css": "0.0.2"
