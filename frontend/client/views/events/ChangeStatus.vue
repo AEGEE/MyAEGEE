@@ -56,10 +56,10 @@
                 </td>
               </tr>
               <tr v-show="!events.length && !isLoading">
-                <td colspan="5" class="has-text-centered">There are no events for which you can change status.</td>
+                <td colspan="7" class="has-text-centered">There are no events for which you can change status.</td>
               </tr>
               <tr v-show="isLoading">
-                <td colspan="5" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
+                <td colspan="7" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
               </tr>
             </tbody>
           </table>
