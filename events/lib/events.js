@@ -1,356 +1,282 @@
-const restify = require('restify');
+const { errors } = require('oms-common-nodejs');
 
 const log = require('./config/logger.js');
-const eventRoles = require('./config/eventroles');
-const helpers = require('./helpers.js');
-const cron = require('./cron.js');
-const user = require('./user.js');
+const helpers = require('./helpers');
+const cron = require('./cron');
+const user = require('./user');
 const Event = require('./models/Event');
-const Lifecycle = require('./models/Lifecycle');
 const EventType = require('./models/EventType');
 
-
-// Helper function for determining if two arrays are intersecting or not.
-const intersects = (array1, array2) => array1.filter(elt => array2.includes(elt)).length > 0;
+const displayedFields = [
+  'name',
+  'starts',
+  'ends',
+  'description',
+  'type',
+  'status',
+  'max_participants',
+  'application_status',
+  'application_deadline',
+  'fee',
+]
 
 /** Requests for all events **/
 
-exports.listEvents = (req, res, next) => {
-  Event
-    .where('ends').gte(new Date()) // Only show events in the future
-    .select([
-      'name',
-      'starts',
-      'ends',
-      'description',
-      'type',
-      'status',
-      'max_participants',
-      'application_status',
-      'application_deadline',
-      'fee',
-      'organizing_locals.name',
-    ].join(' '))
-    .populate('status')
-    .exec((err, events) => {
-      if (err) {
-        log.error(err);
-        return next(new restify.InternalError());
-      }
+exports.listEvents = async (req, res, next) => {
+  const filter = {
+    deleted: false // Filter out deleted events
+  };
 
-      // Displaying only events user is allowed to see
-      const filteredEvents = events.filter((event) => {
-        // TODO: Include bodies
-        return event.status.visibility.users.includes(req.user.basic.id.toString())
-          || intersects(event.status.visibility.roles, req.user.roles)
-          || intersects(event.status.visibility.special, req.user.special);
-      });
+  if (req.query.type) {
+    filter.type = Array.isArray(req.query.type) ? { $in: req.query.type } : req.query.type;
+  }
 
-      res.json({
-        success: true,
-        data: filteredEvents,
-      });
-      return next();
-    });
-};
+  if (req.query.displayPast === false) {
+    filter.starts = { $gte: new Date() };
+  }
 
-// Returns all events the user is organizer on
-exports.listUserOrganizedEvents = (req, res, next) => {
-  Event
-    // .where('status').ne('deleted') // Hide deleted events
-    .where('ends').gte(new Date()) // Only show events in the future
-    .elemMatch('organizers', { foreign_id: req.user.basic.id })
-    .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals.name'].join(' '))
-    .exec((err, events) => {
-      if (err) {
-        log.info(err);
-        return next(new restify.InternalError());
-      }
+  if (req.query.search) {
+    filter.$or = [
+      { name: new RegExp(req.query.search, 'i') },
+      { description: new RegExp(req.query.search, 'i') }
+    ]
+  }
 
-      res.json(events);
-      return next();
-    });
-};
+  const events = await Event
+    .where(filter)
+    .select(displayedFields.join(' '));
 
-exports.listUserAppliedEvents = (req, res, next) => {
-  Event
-    // TODO: Fix this stuff.
-    // Either delete this line, or change it to load the 'deleted' field.
-    // See the 'deleteEvent' endpoint comment.
-    // .where('status').ne('deleted') // Hide deleted events
-    .where('ends').gte(new Date()) // Only show events in the future
-    .elemMatch('applications', { foreign_id: req.user.basic.id })
-    .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals'].join(' '))
-    .exec((err, events) => {
-      if (err) {
-        log.info(err);
-        return next(new restify.InternalError());
-      }
+  // Displaying only events user is allowed to see
+  const filteredEvents = events.filter(event => helpers.canUserAccess({ user: req.user, accessObject: event.status.visibility }));
 
-      res.json(events);
-      return next();
-    });
-};
+  let queryOffset = 0;
+  let queryLimit = filteredEvents.length;
 
-exports.listApprovableEvents = (req, res, next) => {
-  // Loading events and a lifecycle and its statuses for each event.
-  Event
-    .where('ends').gte(new Date())
-    .populate({ path: 'lifecycle', model: 'Lifecycle', populate: { path: 'status', model: 'Status' } })
-    .exec((err, events) => {
-      if (err) {
-        log.info(err);
-        return next(new restify.InternalError());
-      }
+  if (req.query.offset) {
+    const offset = parseInt(req.query.offset, 10);
+    if (!Number.isNaN(offset) && offset >= 0) {
+      queryOffset = offset;
+    }
+  }
 
-      // Checking if we have at least 1 transition
-      // from current status to any status
-      // which is allowed for this user/body/role/special
-      const retVal = events.filter((event) => {
-        var permissions = helpers.getEventPermissions(event, req.user);
+  if (req.query.limit) {
+    const limit = parseInt(req.query.limit, 10);
+    if (!Number.isNaN(limit) && limit > 0) {
+      queryLimit = limit;
+    }
+  }
 
-        return event.lifecycle.transitions.some((transition) => {
-          // Skipping all transitions without 'from' status,
-          // since each event has a status
-          if (!transition.from) {
-            return false;
-          }
+  const eventsWithOffsetAndLimit = filteredEvents.slice(queryOffset, queryOffset + queryLimit);
 
-          // TODO: Add bodies
-          return (transition.from.equals(event.status)
-            && (transition.allowedFor.users.includes(req.user.basic.id.toString())
-              || intersects(transition.allowedFor.roles, req.user.roles)
-              || intersects(transition.allowedFor.special, req.user.special)
-              || intersects(transition.allowedFor.special, permissions.special)));
-        });
-      });
-
-      // Return events and their lifecycles.
-      res.json(retVal);
-      return next();
-    });
+  return res.json({
+    success: true,
+    data: eventsWithOffsetAndLimit,
+    meta: {
+      offset: queryOffset,
+      limit: queryLimit,
+      moreAvailable: (queryOffset + queryLimit) < filteredEvents.length
+    }
+  });
 };
 
 // All event where a local has participated
-exports.listLocalInvolvedEvents = (req, res, next) => {
+exports.listLocalInvolvedEvents = async (req, res, next) => {
+  const bodyId = parseInt(req.params.body_id);
+  if (Number.isNaN(bodyId)) {
+    return errors.makeBadRequestError(res, 'bodyId is not a number.');
+  }
+
   // Only visible to board members
-  if (!req.user.permissions.can.view_local_involved_events) {
-    return next(new restify.ForbiddenError('You are not allowed to see this'));
+  if (!req.user.permissions.is.board_member_of[bodyId]) {
+    return errors.makeForbiddenError(res, 'You are not allowed to see this');
   }
 
   // The first query where mongodb actually has a job
-  return Event
+  const events = await Event
     .aggregate([
-      { $match: { 'applications.antenna_id': String(req.user.basic.antenna_id) } },
       { $unwind: '$applications' },
-      { $match: { 'applications.antenna_id': String(req.user.basic.antenna_id) } },
-      { $group: {
-        _id: '$_id',
-        id: { $first: '$_id' },
-        name: { $first: '$name' },
-        applications: { $push: '$applications' },
-      } },
-    ])
-    .exec((err, events) => {
-      if (err) {
-        log.info(err);
-        return next(new restify.InternalError());
-      }
+      { $match: { 'applications.body_id': bodyId } },
+      { $project: {
+        id: false,
+        name: true,
+        url: true,
+        'application_id': '$applications._id',
+        'id': '$_id',
+        'user_id': '$applications.user_id',
+        'body_id': '$applications.body_id',
+        'createdAt': '$applications.createdAt',
+        'updatedAt': '$applications.updatedAt',
+        'board_comment': '$applications.board_comment',
+        'application': '$applications.application',
+      }}
+    ]);
 
-      res.json({
-        success: true,
-        events,
-      });
-      return next();
-    });
+  return res.json({
+    success: true,
+    data: events,
+  });
 };
 
-exports.addEvent = (req, res, next) => {
+// Returns all events the user is organizer on
+exports.listUserOrganizedEvents = async (req, res, next) => {
+  const events = await Event
+    .where('deleted').equals(false) // Hide deleted events
+    .where('ends').gte(new Date())  // Only show events in the future
+    .elemMatch('organizers', { user_id: req.user.id })
+    .select(displayedFields.join(' '));
+
+  return res.json({
+    success: true,
+    data: events,
+  });
+};
+
+exports.listApprovableEvents = async (req, res, next) => {
+  // Loading events and a lifecycle and its statuses for each event.
+  const events = await Event
+    .where('starts').gte(new Date())
+    .where('deleted').equals(false);
+
+  // Checking if we have at least 1 transition
+  // from current status to any status
+  // which is allowed for this user/body/role/special
+
+  /* eslint-disable arrow-body-style */
+  const retVal = events.filter((event) => {
+    return event.lifecycle.transitions.some((transition) => {
+      // Skipping all transitions without 'from' status,
+      // since each event has a status
+      if (!transition.from) {
+        return false;
+      }
+
+      return (transition.from === event.status.name
+        && helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor, event }));
+    });
+  });
+
+  // Return events and their lifecycles.
+  return res.json({
+    success: true,
+    data: retVal,
+  });
+};
+
+exports.addEvent = async (req, res, next) => {
   // Make sure the user doesn't insert malicious stuff
   // Fields with other names will be ommitted automatically by mongoose
   const data = req.body;
   delete data._id;
   delete data.status;
-  delete data.applications;
   delete data.organizers;
+  delete data.applications;
   delete data.application_status;
-  // delete data.organizing_locals;
+  delete data.organizing_locals;
+  delete data.deleted;
+
+  if (!data.type) {
+    return errors.makeValidationError(res, 'No event type is specified.');
+  }
 
   const newEvent = new Event(data);
 
   // Get the default role to assign to the user
-  user.getDefaultEventRoles((defaultRoles) => {
-    // Creating user automatically becomes organizer
-    newEvent.organizers = [
-      {
-        foreign_id: req.user.basic.id,
-        roles: defaultRoles
-      },
-    ];
+  const defaultRoles = await user.getDefaultEventRoles();
+  // Creating user automatically becomes organizer
+  newEvent.organizers = [
+    {
+      user_id: req.user.id,
+      roles: defaultRoles,
+    },
+  ];
 
-    // Creating user's local automatically becomes organizing local
-    newEvent.organizing_locals = [
-      {
-        name: req.user.basic.antenna_name,
-        foreign_id: req.user.basic.antenna_id,
-      },
-    ];
+  // Checking if the user IS the member of the body.
+  if (!data.body_id || !req.user.permissions.is.member_of[data.body_id]) {
+    return errors.makeForbiddenError(res, 'You are not a member of this body and cannot create an event on behalf of it.');
+  }
+  newEvent.organizing_locals = [{ body_id: data.body_id }];
 
-    // Loading event type and its default lifecycle
-    EventType
-      .findOne({ name: newEvent.type })
-      .populate({
-        path: 'defaultLifecycle',
-        populate: { path: 'initialStatus' },
-      })
-      .then((eventType) => {
-        if (!eventType || !eventType.defaultLifecycle) { // no lifecycle exists for this type of event
-          return next(new restify.InvalidArgumentError({
-            body: {
-              success: false,
-              errors: [new Error(`No lifecycle is specified for this type of event: ${newEvent.type},\
-    cannot set initial status.`)],
-              message: `No lifecycle is specified for this type of event: ${newEvent.type},\
-    cannot set initial status.`,
-            },
-          }));
-        }
+  // Loading event type and its default lifecycle
+  const eventType = await EventType.findOne({ name: newEvent.type });
 
-        // Checking if the user is allowed to create an event.
-        // Trying to find a transition from 'null' to 'initialStatus'
-        const transition = eventType.defaultLifecycle.transitions.find(t =>
-          !t.from && t.to.equals(eventType.defaultLifecycle.initialStatus._id));
+  // if no lifecycle exists for this type of event
+  if (!eventType || !eventType.defaultLifecycle) {
+    return errors.makeValidationError(res, `No lifecycle is specified for this type of event: ${newEvent.type}, cannot set initial status.`);
+  }
 
-        if (!transition) {
-          return next(new restify.InvalidArgumentError({
-            body: {
-              success: false,
-              errors: [new Error('Nobody is allowed to create events of this type.')],
-              message: 'Nobody is allowed to create events of this type.',
-            },
-          }));
-        }
+  // Checking if the user is allowed to create an event.
+  // Trying to find a transition from 'null' to 'initialStatus'
+  const transition = eventType.defaultLifecycle.transitions.find(t => !t.from && t.to === eventType.defaultLifecycle.initialStatus);
 
-        // Checking if the user is allowed to create events of this type.
-        // TODO: Add bodies support.
-        if (!transition.allowedFor.users.includes(req.user.basic.id.toString())
-            && !intersects(transition.allowedFor.roles, req.user.roles)
-            && !intersects(transition.allowedFor.special, req.user.special)) {
-          return next(new restify.ForbiddenError({
-            body: {
-              success: false,
-              errors: [new Error('You are not allowed to create an event of this type.')],
-              message: 'You are not allowed to create an event of this type.',
-            },
-          }));
-        }
+  // Checking if the user is allowed to create events of this type.
+  if (!transition || !helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor })) {
+    return errors.makeForbiddenError(res, 'You are not allowed to create an event of this type.');
+  }
 
-        // Now we've got here, the user is allowed to create the event.
-        newEvent.status = eventType.defaultLifecycle.initialStatus._id;
-        newEvent.lifecycle = eventType.defaultLifecycle._id;
+  // Now we've got here, the user is allowed to create the event.
+  newEvent.status = eventType.defaultLifecycle.statuses.find(s => s.name === eventType.defaultLifecycle.initialStatus);
+  newEvent.lifecycle = eventType.defaultLifecycle;
 
-        return newEvent.save((err) => {
-          if (err) {
-            // Send validation-errors back to client
-            if (err.name === 'ValidationError') {
-              return next(new restify.InvalidArgumentError({
-                body: {
-                  success: false,
-                  errors: err.errors,
-                  message: err.message,
-                },
-              }));
-            }
+  await newEvent.save();
 
-            log.error('Could not add event', err);
-            return next(new restify.InternalError({
-              body: {
-                success: false,
-                errors: [err],
-                message: err.message,
-              },
-            }));
-          }
+  // Register cronjob for deadline
+  if (data.application_deadline) {
+    cron.registerDeadline(newEvent.id, newEvent.application_deadline);
+  }
 
-          // Setting event status as object, not ID.
-          newEvent.status = eventType.defaultLifecycle.initialStatus;
-
-          // Register cronjob for deadline
-          if (data.application_deadline) {
-            cron.registerDeadline(newEvent.id, newEvent.application_deadline);
-          }
-
-          res.status(201);
-          res.json({
-            success: true,
-            message: 'Event successfully created',
-            event: newEvent,
-          });
-          return next();
-        });
-      });
-
+  return res.status(201).json({
+    success: true,
+    message: 'Event successfully created',
+    data: newEvent,
   });
 };
 
 /** Single event **/
-exports.eventDetails = (req, res, next) => {
+exports.eventDetails = async (req, res, next) => {
   const event = req.event.toObject();
 
   delete event.applications;
-  // Populate organizers
-  var transformUserData = (user) => {
-    return {
-      'first_name': user.basic.first_name,
-      'last_name': user.basic.last_name,
-      'antenna_name': user.basic.antenna_name
-    };
-  };
+  delete event.lifecycle;
 
-  user.populateUsers(event.organizers, req.headers['x-auth-token'], (organizers) => {
-    event.organizers = organizers;
-
-    res.json({
-      success: true,
-      data: event,
-      permissions: req.user.permissions,
-      special: req.user.special
-    });
-    return next();
-  }, transformUserData);
+  return res.json({
+    success: true,
+    data: event,
+    permissions: req.user.permissions,
+    special: req.user.special,
+  });
 };
 
-exports.editEvent = (req, res, next) => {
+exports.editEvent = async (req, res, next) => {
   // If user can't edit anything, return error right away
-  if (!req.user.permissions.can.edit) {
-    return next(new restify.ForbiddenError('You cannot edit this event'));
+  if (!req.user.permissions.can.edit_details) {
+    return errors.makeForbiddenError(res, 'You cannot edit this event');
   }
 
   const data = req.body;
   const event = req.event;
   let registerDeadline = false;
+
   // Disallow changing applications and organizers, use seperate requests for that
   delete data.applications;
   delete data.organizing_locals;
+  delete data.organizers;
+  delete data.lifecycle;
   delete data.status;
 
   if (Object.keys(data).length === 0) {
-    return next(new restify.InvalidContentError({ message: 'No valid field changes requested' }));
+    return errors.makeValidationError(res, 'No valid field changes requested');
   }
 
-  // Copy fields if user can edit details
   if (req.user.permissions.can.edit_details) {
-    // Some properties will be ignored upon empty
     if (data.name) event.name = data.name;
     if (data.starts) event.starts = data.starts;
     if (data.ends) event.ends = data.ends;
     if (data.url) event.url = data.url;
     if (data.description) event.description = data.description;
     if (data.application_fields) event.application_fields = data.application_fields;
-
-    // Others are resettable
-    event.max_participants = data.max_participants;
+    if (data.max_participants) event.max_participants = data.max_participants;
     if (data.fee) event.fee = data.fee;
+
     event.application_deadline = data.application_deadline;
     const cmpDeadline = new Date(data.application_deadline);
 
@@ -364,463 +290,258 @@ exports.editEvent = (req, res, next) => {
 
   // Change application status
   if (req.user.permissions.can.edit_application_status) {
-    event.application_status = data.application_status;
-    event.application_deadline = data.application_deadline;
+    if (data.application_status) event.application_status = data.application_status;
+    if (data.application_deadline) event.application_deadline = data.application_deadline;
   }
 
-  if (req.user.permissions.can.edit_organizers && data.organizers) {
-    // Loop through organizers, copy data
-    data.organizers.forEach((organizer) => {
-      // Change the roles to only hold ids
-      if(organizer.roles) {
-        organizer.roles = organizer.roles.map((role) => {
-          if(role.id)
-            return role.id;
-          return role;
-        });
-      }
+  await event.save();
 
-      // Try to find organizer in list
-      let index = event.organizers.findIndex((item) => item.foreign_id === organizer.foreign_id);
+  const retval = event.toObject();
+  delete retval.applications;
+  delete retval.organizers;
+  delete retval.__v;
+  delete retval.headImg;
 
-      // If user already exists, copy only new stuff
-      if (index !== undefined && index !== -1) {
-        if (organizer.comment) {event.organizers[index].comment = organizer.comment;} // Comment not resettable
-        // Roles resettable, but only store ids
-        if (organizer.roles) {
-          event.organizers[index].roles = organizer.roles;
-        }
-
-        // Mark as touched
-        event.organizers[index].touched = true;
-      } else {
-        event.organizers.push({
-          foreign_id: organizer.foreign_id,
-          comment: organizer.comment,
-          roles: organizer.roles,
-          touched: true,
-        });
-      }
-    });
-
-    // Now check if we deleted an organizer (untouched)
-    for (let i = event.organizers.length - 1; i >= 0; i--) {
-      if (!event.organizers[i].touched) {
-        event.organizers.splice(i, 1);
-      }
-    }
+  // If deadline was registered, pass that to cron
+  if (registerDeadline) {
+    cron.registerDeadline(event.id, event.application_deadline);
   }
 
-
-  // Try to save
-  return event.save((err) => {
-    if (err) {
-      // Send validation-errors back to client
-      if (err.name === 'ValidationError') {
-        return next(new restify.InvalidArgumentError({ body: err }));
-      }
-
-      log.error('Could not edit event', err);
-      return next(new restify.InternalError());
-    }
-
-    const retval = event.toObject();
-    delete retval.applications;
-    delete retval.organizers;
-    delete retval.__v;
-    delete retval.headImg;
-
-    // If deadline was registered, pass that to cron
-    if (registerDeadline) {
-      cron.registerDeadline(event.id, event.application_deadline);
-    }
-
-    res.json(retval);
-    return next();
+  return res.json({
+    success: true,
+    data: retval
   });
 };
 
-
-// This endpoint won't work because of the events lifecycle.
-// Two ways to solve this:
-// 1) add a 'deleted' field to the Event schema to represent if the event was deleted or not;
-// 2) add a 'deleted' status to the lifecycle, if so, this endpoint will be useless.
-exports.deleteEvent = (req, res, next) => {
+exports.deleteEvent = async (req, res, next) => {
   if (!req.user.permissions.can.delete) {
-    return next(new restify.ForbiddenError('You are not permitted to delete events'));
+    return errors.makeForbiddenError(res, 'You are not permitted to delete this event.');
   }
 
   const event = req.event;
 
-  // Deletion is only changing status to deleted
-  event.status = 'deleted';
-  return event.save((err) => {
-    if (err) {
-      // Send validation-errors back to client
-      if (err.name === 'ValidationError') {
-        return next(new restify.InvalidArgumentError({ body: err }));
-      }
+  // Deletion is only setting the 'deleted' field to true.
+  event.deleted = true;
+  await event.save();
 
-      log.error('Could not delete event', err);
-      return next(new restify.InternalError());
-    }
-
-    res.json({
-      success: true,
-      message: 'Event successfully deleted',
-    });
-    return next();
+  return res.json({
+    success: true,
+    message: 'Event successfully deleted',
   });
 };
 
-exports.setApprovalStatus = (req, res, next) => {
-  // Loading event's lifecycle.
-  // Don't need the info about its' statuses,
-  // as we care only about transitions info
-  // and statuses' ids.
-  Lifecycle
-    .findById(req.event.lifecycle)
-    .then((lifecycle) => {
-      // If there is no lifecycle (which can't happen in usual
-      // circumstances), raise an error and do nothing.
-      if (!lifecycle) {
-        return next(restify.InvalidArgumentError({
-          body: {
-            success: false,
-            errors: [new Error(`No lifecycle is specified for this type of event: ${req.event.type}.`)],
-            message: `No lifecycle is specified for this type of event: ${req.event.type}.`,
-          },
-        }));
+exports.listPossibleStatuses = async (req, res, next) => {
+  // Returning only statuses to which this user can change this event.
+  const possibleStatuses = req.event.lifecycle.statuses.filter((status) => {
+    // Finding a transition from current status to this status that current user can perform.
+    return req.event.lifecycle.transitions.some((transition) => {
+      if (!transition.from) {
+        return false;
       }
 
-      // Trying to find a transition from event's current status
-      // to the required status.
-      const transition = lifecycle.transitions.find(t =>
-        t.from // This field is not necessary
-        && t.from.equals(req.event.status._id)
-        && t.to.equals(req.body.status));
-
-      // If there is no transition found, it's disallowed to everybody.
-      if (!transition) {
-        return next(new restify.ForbiddenError({
-          body: {
-            success: false,
-            errors: [new Error('You are not allowed to perform a transition.')],
-            message: 'You are not allowed to perform a transition.',
-          },
-        }));
+      if (transition.from !== req.event.status.name) {
+        return false;
       }
 
-      // Checking if this user/role/body/special has the rights to do the transition.
-      // TODO: Add bodies.
-      if (!transition.allowedFor.users.includes(req.user.basic.id.toString())
-          && !intersects(transition.allowedFor.roles, req.user.roles)
-          && !intersects(transition.allowedFor.special, req.user.special)) {
-        return next(new restify.ForbiddenError({
-          body: {
-            success: false,
-            errors: [new Error('You are not allowed to perform this transition.')],
-            message: 'You are not allowed to perform this transition.',
-          },
-        }));
+      if (transition.to !== status.name) {
+        return false;
       }
 
-      // We only get here if the user is allowed to do a status transition.
-      req.event.status = req.body.status;
-
-      return req.event.save((err) => {
-        if (err) {
-          // Send validation-errors back to client
-          if (err.name === 'ValidationError') {
-            return next(new restify.InvalidArgumentError({
-              body: {
-                success: false,
-                errors: err.errors,
-                message: err.message,
-              },
-            }));
-          }
-
-          log.error('Could not update event status', err);
-          return next(new restify.InternalError({
-            body: {
-              success: false,
-              errors: [err],
-              message: err.message,
-            },
-          }));
-        }
-
-        res.json({
-          success: true,
-          message: 'Successfully changed approval status',
-        });
-        return next();
-      });
+      return helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor, event: req.event });
     });
+  }).map(status => status.toObject());
+
+  return res.json({
+    success: true,
+    data: possibleStatuses,
+  });
+};
+
+exports.setApprovalStatus = async (req, res, next) => {
+  // Trying to find a transition from event's current status
+  // to the required status.
+  const transition = req.event.lifecycle.transitions.find(t =>
+    t.from // This field is not necessary, so we need to check if it exists.
+    && t.from === req.event.status.name
+    && t.to === req.body.status);
+
+  // If there is no transition found, it's disallowed to everybody.
+  if (!transition) {
+    return errors.makeForbiddenError(res, 'You are not allowed to perform a transition.');
+  }
+
+  // Checking if this user/role/body/special has the rights to do the transition.
+  if (!helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor, event: req.event })) {
+    return errors.makeForbiddenError(res, 'You are not allowed to perform this transition.');
+  }
+
+  // We only get here if the user is allowed to do a status transition.
+  req.event.status = req.event.lifecycle.statuses.find(status => status.name === req.body.status);
+
+  await req.event.save();
+
+  return res.json({
+    success: true,
+    message: 'Successfully changed approval status',
+  });
 };
 
 // Just forward the edit rights generated by checkUserRole
 exports.getEditRights = (req, res, next) => {
-  var retval = req.user.permissions;
+  const retval = req.user.permissions;
   retval.special = req.user.special;
-  res.json(retval);
-  return next();
-};
-
-/** Participants **/
-exports.listParticipants = (req, res, next) => {
-  const event = req.event;
-  let status = req.params.status;
-  const applications = event.applications.toObject();
-
-  // Only authorized persons can see all applications
-  // Others will only see accepted ones and will not see their application text
-  if (!req.user.permissions.can.view_applications) {
-    status = 'accepted';
-  }
-
-  for (let i = applications.length - 1; i >= 0; i--) {
-    applications[i].url = `${event.url}/participants/${applications[i].foreign_id}`;
-    if (!req.user.permissions.can.approve_participants) {
-      delete applications[i].board_comment;
-      delete applications[i].application;
-    }
-
-    if (status && applications[i].application_status !== status) {
-      applications.splice(i, 1);
-    }
-  }
-
-  res.json(applications);
-  return next();
-};
-
-exports.getApplication = (req, res, next) => {
-  const event = req.event;
-
-  // Search for the application
-  const application = event.applications.find(element => element.foreign_id === req.user.basic.id);
-
-  if (application === undefined) {
-    return next(new restify.ResourceNotFoundError(`User ${req.user.basic.id} not found`));
-  }
-
-  res.json(application);
-  return next();
-};
-
-exports.setApplication = (req, res, next) => {
-  const event = req.event;
-
-  // Check for permission
-  if (!req.user.permissions.can.apply) {
-    return next(new restify.ForbiddenError({ message: 'You cannot apply to this event' }));
-  }
-
-  // Find the corresponding application
-  let index;
-  const application = event.applications.find((element, idx) => {
-    if (element.foreign_id === req.user.basic.id) {
-      index = idx;
-      return true;
-    }
-
-    return false;
+  return res.json({
+    success: true,
+    data: retval
   });
+};
 
-  // If user hasn't applied yet, create an application
-  if (application === undefined) {
-    event.applications.push({
-      foreign_id: req.user.basic.id,
-      first_name: req.user.basic.first_name,
-      last_name: req.user.basic.last_name,
-      antenna: req.user.basic.antenna_name,
-      antenna_id: req.user.basic.antenna_id,
-      application: req.body.application,
-    });
-    index = event.applications.length - 1;
-  } else {
-    event.applications[index].application = req.body.application;
+// Currently not needed
+// TODO: either re-implement it or remove it.
+/* exports.addEventLink = async (req, res, next) => {
+  if (!req.body.controller || !req.body.displayName) {
+    return errors.makeValidationError(res, 'Malformed request.');
   }
 
+  // Adding link to event and saving it.
+  req.event.links.push(req.body);
+  try {
+    await req.event.save();
 
-  // Only check the current application for validity,
-  // as checking all of them would be too much overhead on big events
-  const tmp = helpers.checkApplicationValidity(
-    event.applications[index].application, event.application_fields);
-  if (!tmp.passed) {
-    return next(new restify.InvalidContentError(`Application malformed: ${tmp.msg}`));
-  }
-
-  return event.save((err) => {
-    if (err) {
-      // Send validation-errors back to client
-      if (err.name === 'ValidationError') {
-        return next(new restify.InvalidArgumentError({ body: err }));
-      }
-
-      log.error('Could not save application', err);
-      return next(new restify.InternalError());
-    }
-
-    res.json({
+    return res.json({
       success: true,
-      message: 'Application saved',
-      application: event.applications[index],
+      message: 'Link added.',
     });
-    return next();
-  });
-};
-
-exports.setApplicationStatus = (req, res, next) => {
-  // Check user permissions
-  if (!req.user.permissions.can.approve_participants) {
-    return next(new restify.ForbiddenError('You are not allowed to accept or reject participants'));
-  }
-
-  const event = req.event;
-
-  // Find the corresponding application
-  let index;
-  const application = event.applications.find((element, idx) => {
-    if (element.id === req.params.application_id) {
-      index = idx;
-      return true;
+  } catch (err) {
+    // Send validation-errors back to client
+    if (err.name === 'ValidationError') {
+      return errors.makeValidationError(res, err);
     }
 
-    return false;
-  });
-
-  if (application === undefined) {
-    return next(new restify.NotFoundError(`Could not find application id ${req.params.application_id}`));
+    throw err;
   }
-
-  // Save changes
-  event.applications[index].application_status = req.body.application_status;
-
-  return event.save((err) => {
-    if (err) {
-      // Send validation-errors back to client
-      if (err.name === 'ValidationError') {
-        return next(new restify.InvalidArgumentError({ body: err }));
-      }
-
-      log.error('Could not set application status', err);
-      return next(new restify.InternalError());
-    }
-
-    res.json({
-      success: true,
-      message: 'Application successfully updated',
-    });
-    return next();
-  });
-};
-
-exports.setApplicationComment = (req, res, next) => {
-  // Check user permissions
-  if (!req.user.permissions.can.view_local_involved_events) {
-    return next(new restify.ForbiddenError('You are not allowed to put board comments'));
-  }
-
-  const event = req.event;
-
-  // Find the corresponding application
-  let index;
-  const application = event.applications.find((element, idx) => {
-    if (element.id === req.params.application_id) {
-      index = idx;
-      return true;
-    }
-
-    return false;
-  });
-
-  if (application === undefined) {
-    return next(new restify.NotFoundError(`Could not find application id ${req.params.application_id}`));
-  }
-
-  // Save changes
-  event.applications[index].board_comment = req.body.board_comment;
-
-  return event.save((err) => {
-    if (err) {
-      // Send validation-errors back to client
-      if (err.name === 'ValidationError') {
-        return next(new restify.InvalidArgumentError({ body: err }));
-      }
-
-      log.error('Could not set board comment', err);
-      return next(new restify.InternalError());
-    }
-
-    res.json({
-      success: true,
-      message: 'Board comment stored',
-    });
-    return next();
-  });
-};
+}; */
 
 /** Organizers **/
-/* Not used
-exports.listOrganizers = function(req, res, next) {
-  var event = req.event;
+exports.addOrganizer = async (req, res, next) => {
+  if (!req.user.permissions.can.edit_organizers) {
+    return errors.makeForbiddenError(res, 'You are not allowed to edit organizers.');
+  }
 
-  var data = event.organizers.toObject();
-  data.forEach(function(x, idx) {
-   data[idx].url = event.url + '/organizers/' + x.foreign_id;
-  });
+  const organizer = req.event.organizers.find(org => org.user_id === req.body.user_id);
+  if (organizer) {
+    return errors.makeBadRequestError(res, 'User with id ' + req.body.user_id + ' is already an organizer.');
+  }
 
-  res.json(data);
-  return next();
-}
+  req.event.organizers.push({
+    user_id: req.body.user_id,
+    comment: req.body.comment,
+    roles: req.body.roles
+  })
 
-exports.setOrganizers = function(req, res, next) {
-  var event = req.event;
+  await req.event.save();
 
-  var data = req.body.organizers;
-  if(data.constructor !== Array)
-   return next(new restify.InvalidArgumentError('Organizers list must be an array'));
-  if(data.length == 0)
-   return next(new restify.InvalidArgumentError('Organizers list can not be empty'));
-
-
-  data.forEach(function(x, idx){
-   delete data[idx].cache_first_name;
-   delete data[idx].cache_last_name;
-   delete data[idx].cache_update;
-
-  });
-
-  event.organizers = data;
-
-  event.save(function(err) {
-   if (err) {
-     // Send validation-errors back to client
-     if(err.name == 'ValidationError') {
-      return next(new restify.InvalidArgumentError({body: err}));
-     }
-
-     log.error("Could not edit organizers", err);
-     return next(new restify.InternalError());
-   }
-
-   res.json({
-     success: true,
-     message: "Successfully saved organizers",
-     organizers: event.organizers
-   });
-   return next();
-  });
-}*/
-
-// TODO remove. Or maybe not? :D
-exports.debug = (req, res, next) => {
-  Event.remove({}, () => {
-    res.send('All events removed, can not be undone. Muhahaha. Wouldn\'t have guessed this is this serious, wouldn\'t you?');
-    return next();
+  return res.json({
+    success: true,
+    message: 'Organizer is added.'
   });
 };
 
+exports.editOrganizer = async (req, res, next) => {
+  if (!req.user.permissions.can.edit_organizers) {
+    return errors.makeForbiddenError(res, 'You are not allowed to edit organizers.');
+  }
+
+  const userId = parseInt(req.params.user_id, 10);
+  if (Number.isNaN(userId)) {
+    return errors.makeBadRequestError(res, 'userId is not a number.');
+  }
+
+  const organizer = req.event.organizers.find(org => org.user_id === userId);
+  if (!organizer) {
+    return errors.makeNotFoundError(res, 'Organizer with id ' + userId + ' is not found.');
+  }
+
+  if (req.body.comment) organizer.comment = req.body.comment;
+  if (req.body.roles) organizer.roles = req.body.roles;
+
+  await req.event.save();
+
+  return res.json({
+    success: true,
+    message: 'Organizer is updated.'
+  });
+};
+
+exports.deleteOrganizer = async (req, res, next) => {
+  if (!req.user.permissions.can.edit_organizers) {
+    return errors.makeForbiddenError(res, 'You are not allowed to edit organizers.');
+  }
+
+  const userId = parseInt(req.params.user_id, 10);
+  if (Number.isNaN(userId)) {
+    return errors.makeBadRequestError(res, 'userId is not a number.');
+  }
+
+  const organizerIndex = req.event.organizers.findIndex(org => org.user_id === userId);
+  if (organizerIndex === -1) {
+    return errors.makeNotFoundError(res, 'Organizer with id ' + userId + ' is not found.');
+  }
+
+  req.event.organizers.splice(organizerIndex, 1);
+
+  await req.event.save();
+
+  return res.json({
+    success: true,
+    message: 'Organizer is deleted.'
+  });
+};
+
+/** Locals **/
+exports.addLocal = async (req, res, next) => {
+  if (!req.user.permissions.can.edit_organizers) {
+    return errors.makeForbiddenError(res, 'You are not allowed to edit organizing locals.');
+  }
+
+  const organizer = req.event.organizing_locals.find(org => org.body_id === req.body.body_id);
+  if (organizer) {
+    return errors.makeBadRequestError(res, 'Body with id ' + req.body.body_id + ' is already an organizing local of this event.');
+  }
+
+  req.event.organizing_locals.push({
+    body_id: req.body.body_id,
+  })
+
+  await req.event.save();
+
+  return res.json({
+    success: true,
+    message: 'Organizing local is added.'
+  });
+};
+
+exports.deleteLocal = async (req, res, next) => {
+  if (!req.user.permissions.can.edit_organizers) {
+    return errors.makeForbiddenError(res, 'You are not allowed to edit organizing locals.');
+  }
+
+  const bodyId = parseInt(req.params.body_id, 10);
+  if (Number.isNaN(bodyId)) {
+    return errors.makeBadRequestError(res, 'bodyId is not a number.');
+  }
+
+  const localIndex = req.event.organizing_locals.findIndex(org => org.body_id === bodyId);
+  if (localIndex === -1) {
+    return errors.makeNotFoundError(res, 'Body with id ' + bodyId + ' is not an organizing local of this event.');
+  }
+
+  req.event.organizing_locals.splice(localIndex, 1);
+
+  await req.event.save();
+
+  return res.json({
+    success: true,
+    message: 'Organizer is deleted.'
+  });
+};

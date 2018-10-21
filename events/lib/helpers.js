@@ -1,117 +1,157 @@
-const httprequest = require('request');
-const config = require('./config/config.js');
+const log = require('./config/logger');
 
-exports.checkApplicationValidity = (application, applicationFields) => {
-  // Check if every field in the application array resembles to a field in event.applicationFields
-  if (application === undefined || Object.prototype.toString.call(application) !== '[object Array]') {
-    return { passed: false, msg: 'Not an array' };
-  }
-  if (application.length > applicationFields.length) {
-    return { passed: false, msg: 'Application too long' };
-  }
-
-  // O(N*N), let's hope applications don't get big
-  let error = false;
-  application.forEach((userField) => {
-    if (applicationFields
-        .find(applicationField => applicationField._id === userField.field_id) === undefined) {
-      error = true;
-    }
-  });
-
-  if (error) {
-    return { passed: false, msg: 'Invalid field_id' };
-  }
-
-  // TODO Check for duplicate fields
-
-  return { passed: true, msg: '' };
-};
-
-
-
-exports.getEventPermissions = (event, user) => {
-  permissions = {
+function getBasicPermissions(user) {
+  const permissions = {
     is: {},
     can: {},
     special: []
   };
 
-  if(!event || !user)
-    return permissions;
-
-  permissions.is.organizer = event.organizers.some(item => item.foreign_id == user.basic.id);
-
-  let applicationIndex;
-
-  // TODO remove
-  {
-    permissions.is.participant = event.applications.some((item, index) => {
-      if (item.foreign_id == user.basic.id) {
-        applicationIndex = index;
-        return true;
-      }
-
-      return false;
-    });
-
-    permissions.is.accepted_participant = permissions.is.participant &&
-      event.applications[applicationIndex].application_status === 'accepted';
+  permissions.is.superadmin = user.user && user.user.superadmin;
+  if (permissions.is.superadmin) {
+    permissions.special.push('Superadmin');
   }
 
-  permissions.is.own_antenna = event.organizing_locals.some(item =>
-    item.foreign_id == user.basic.antenna_id);
+  permissions.is.board_member_of = {};
+  permissions.is.member_of = {};
+  for (const body of user.bodies) {
+    // Dirty hack, TODO: rethink it.
+    permissions.is.board_member_of[body.id] = user.circles.some(circle => circle.name.toLowerCase().includes('board') && circle.body_id === body.id);
+    permissions.is.member_of[body.id] = true;
+  }
 
+  permissions.can.edit_lifecycles = permissions.is.superadmin;
+  permissions.can.delete_lifecycles = permissions.is.superadmin;
 
-  permissions.can.edit_organizers = permissions.is.organizer;
+  return permissions;
+}
 
-  permissions.can.edit_details =
-    (permissions.is.organizer &&
-     event.application_status === 'closed') // && event.status === 'draft')  TODO add lifecycle awareness
-    || permissions.is.superadmin;
+function getEventIs(event, user) {
+  const is = {};
+  is.organizer = event.organizers.some(item => item.user_id === user.id);
+  is.own_body = event.organizing_locals.some(organizer => user.bodies.some(body => organizer.body_id === body.id));
+
+  return is;
+}
+
+function getEventSpecial(event, user, is) {
+  const special = [];
+  if (is.own_body) {
+    special.push('Organizing Local Member');
+  }
+  if (is.organizer) {
+    special.push('Organizer');
+  }
+
+  // Also all eventroles become special roles
+  const myorg = event.organizers.find(item => item.user_id === user.id);
+  if (myorg && myorg.roles && myorg.roles.length > 0) {
+    myorg.roles.forEach((item) => {
+      special.push(item.name);
+    });
+  }
+
+  return special;
+}
+
+// Helper function for determining if two arrays are intersecting or not.
+const intersects = (array1, array2) => array1.filter(elt => array2.includes(elt)).length > 0;
+
+// Helper function for determining if the user has the right to do something
+// TODO: Add circle awareness.
+
+const canUserAccess = (options) => {
+  const { user, accessObject, event } = options;
+
+  // Checking users.
+  if (accessObject.users && accessObject.users.includes(user.id)) {
+    return true;
+  }
+
+  // Checking bodies.
+  if (accessObject.bodies && intersects(accessObject.bodies, user.bodies.map(body => body.id))) {
+    return true;
+  }
+
+  // Checking event-related special roles.
+  if (event) {
+    const permissionIs = getEventIs(event, user);
+    const permissionSpecial = getEventSpecial(event, user, permissionIs);
+    if (intersects(permissionSpecial, accessObject.special)) {
+      return true;
+    }
+  }
+
+  if (accessObject.special && intersects(accessObject.special, user.special)) {
+    return true;
+  }
+
+  return false;
+};
+
+function getEventPermissions(event, user) {
+  const permissions = getBasicPermissions(user);
+
+  if (!event || !user) {
+    log.warn('No event or user is provided, returning empty object as a response.');
+    return permissions;
+  }
+
+  const eventIs = getEventIs(event, user)
+  for (const key in eventIs) {
+    permissions.is[key] = eventIs[key];
+  }
+
+  permissions.special = [...permissions.special, ...getEventSpecial(event, user, permissions.is)];
+
+  permissions.can.edit_organizers = canUserAccess({ user, accessObject: event.status.edit_organizers, event });
+  permissions.can.edit_details = canUserAccess({ user, accessObject: event.status.edit_details, event });
 
   permissions.can.delete = permissions.can.edit_details;
 
-  permissions.can.edit_application_status =
-    (permissions.is.organizer) // && event.status === 'approved') TODO not valid with lifecycle anymore
-    || permissions.is.superadmin;
-
-  // TODO: probably remove this one, since we have the lifecycle workflow
-  permissions.can.approve =
-    event.application_status === 'closed' || permissions.is.superadmin;
-
+  permissions.can.edit_application_status = canUserAccess({ user, accessObject: event.status.edit_application_status, event });
   permissions.can.edit =
     permissions.can.edit_details
     || permissions.can.edit_organizers
     || permissions.can.delete
-    || permissions.can.edit_application_status
-    || permissions.can.approve;
+    || permissions.can.edit_application_status;
+
+  permissions.can.see = canUserAccess({ user, accessObject: event.status.visibility, event });
 
   permissions.can.apply =
-    (!permissions.is.organizer && event.application_status === 'open')
-    || permissions.is.superadmin;
+    permissions.can.see
+    && !permissions.is.organizer
+    && event.application_status === 'open';
 
-  permissions.can.approve_participants = permissions.is.organizer &&
-    event.application_status === 'closed';
+  permissions.can.approve_participants =
+    canUserAccess({ user, accessObject: event.status.approve_participants, event }) && event.application_status === 'closed';
 
-  permissions.can.view_applications =
-    permissions.is.organizer
-    || (permissions.is.boardmember && permissions.is.own_antenna)
-    || permissions.is.superadmin;
+  permissions.can.view_applications = canUserAccess({ user, accessObject: event.status.view_applications, event });
 
-  // Special roles
-  if (permissions.is.boardmember && permissions.is.own_antenna) // TODO that doesn't work that way, boardmember is generic for all boardmembers
-    permissions.special.push('Organizing Board Member');
-  if (permissions.is.own_antenna)
-    permissions.special.push('Organizing Local Member');
+  // Allowing members of bodies to put board comments.
+  // TODO: rethink that
+  permissions.can.put_board_comment_for_application = {};
+  for (const app of event.applications) {
+    permissions.can.put_board_comment_for_application[app.id] = Object.keys(permissions.is).some(key => permissions.is.board_member_of[key]);
+  }
 
-  // Also all eventroles become special roles
-  var myorg = event.organizers.find((item) => item.foreign_id == user.basic.id);
-  if(myorg && myorg.roles && myorg.roles.length > 0) {
-    myorg.roles.forEach((item) => {
-      permissions.special.push(item.name);
-    });
+  function setObjToTrue(obj) {
+    for (const key of Object.keys(obj)) {
+      if (typeof obj[key] === 'object'){
+        setObjToTrue(obj[key]);
+      } else {
+        obj[key] = true;
+      }
+    }
+  }
+
+  if (permissions.is.superadmin) {
+    setObjToTrue(permissions.can);
   }
 
   return permissions;
-};
+}
+
+exports.canUserAccess = canUserAccess;
+exports.getEventPermissions = getEventPermissions;
+exports.getBasicPermissions = getBasicPermissions;

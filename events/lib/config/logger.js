@@ -1,41 +1,28 @@
-const bunyan = require('bunyan');
+const winston = require('winston');
 
-let log;
+// Setting logLevel to warn in case of testing, to display only errors and warnings.
+const logLevel = process.env.NODE_ENV === 'test' ? 'warn' : 'debug';
 
-if (process.env.NODE_ENV === 'test') {
-  log = bunyan.createLogger({
-    name: 'oms-events',
-    streams: [],
-    serializers: {
-      err: bunyan.stdSerializers.err,
-      req: bunyan.stdSerializers.req,
-      res: bunyan.stdSerializers.res,
-    },
-    src: true,
-  });
-} else {
-  log = bunyan.createLogger({
-    name: 'oms-events',
-    streams: [/* {
-        //type: 'rotating-file',
-        level: 'trace',
-        path: './log/oms-events.log',
-        //period: '1d',
-        //count: 7
-    },*/
-    // Uncomment for console logging
-      {
-        stream: process.stdout,
-        level: 'debug',
-      },
-    ],
-    serializers: {
-      err: bunyan.stdSerializers.err,
-      req: bunyan.stdSerializers.req,
-      res: bunyan.stdSerializers.res,
-    },
-    src: true,
-  });
-}
+const logger = winston.createLogger({
+  level: logLevel,
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.timestamp(),
+        winston.format.align(),
+        winston.format.splat(),
+        winston.format.printf(info => `${info.timestamp} [${info.level}]: ${info.message}`),
+      )
+    })
+  ]
+});
 
-module.exports = log;
+logger.stream = {
+  write(message, encoding) {
+    logger.info(message.substring(0, message.lastIndexOf('\n')));
+  }
+};
+
+module.exports = logger;

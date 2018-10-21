@@ -1,0 +1,51 @@
+version: '3.2'
+### OMS EVENTS        #######################################
+### mongodb Container #######################################
+services:
+    mongodb:
+        image: mongo:latest
+        expose:
+            - "27017"
+        volumes:
+            - type: volume
+              source: mongodb
+              target: /data/db
+
+### Omsevents backend #######################################
+
+    oms-events:
+        build:
+            context: ./$PATH_OMS_EVENTS/oms-events
+            dockerfile: ./Dockerfile.dev
+        image: aegee/oms-events:dev
+        volumes:
+            - oms-events-media:/usr/app/media
+            - ./$PATH_OMS_EVENTS/../:/usr/app/src
+            - shared:/usr/app/shared:ro
+        links:
+            - mongodb
+        expose:
+            - "8082"
+        labels:
+            - "traefik.backend=oms-events"
+            - "traefik.port=8082"
+            - "traefik.frontend.rule=HostRegexp:{domain:[a-z0-9.]+};PathPrefix:/services/oms-events/api;PathPrefixStrip:/services/oms-events/api"
+            - "traefik.frontend.priority=110"
+            - "traefik.enable=true"
+            - "registry.categories=(events, 10);(notifications, 10)"
+            - "registry.servicename=oms-events"
+
+
+
+volumes:
+    mongodb:
+        driver: "local"
+    oms-events-media:
+        driver: "local"
+    shared:
+        driver: "local"
+
+networks:
+  default:
+    external:
+      name: OMS

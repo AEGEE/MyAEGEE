@@ -1,15 +1,20 @@
-const restify = require('restify');
 const fs = require('fs-extra');
 const path = require('path');
 const multer = require('multer');
 const readChunk = require('read-chunk');
 const fileType = require('file-type');
+const util = require('util');
 
+const { errors } = require('oms-common-nodejs');
 const log = require('./config/logger');
 const config = require('./config/config.js');
 
 const uploadFolderName = `${config.media_dir}/headimages`;
 const allowedExtensions = ['.png', '.jpg', '.jpeg'];
+
+const existsAsync = util.promisify(fs.exists);
+const mkdirAsync = util.promisify(fs.mkdirp);
+const renameAsync = util.promisify(fs.rename);
 
 const storage = multer.diskStorage({ // multers disk storage settings
   destination(req, file, cb) {
@@ -18,7 +23,11 @@ const storage = multer.diskStorage({ // multers disk storage settings
 
   // Filename is 4 character random string and the current datetime to avoid collisions
   filename(req, file, cb) {
-    cb(null, `${(Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 4))}-${(new Date()).getTime()}`);
+    const prefix = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 4);
+    const date = (new Date()).getTime();
+    const extension = path.extname(file.originalname);
+
+    cb(null, `${prefix}-${date}${extension}`);
   },
 });
 const upload = multer({
@@ -34,94 +43,64 @@ const upload = multer({
   },
 }).single('head_image');
 
-exports.uploadImage = (req, res, next) => {
+const uploadAsync = util.promisify(upload);
+
+exports.uploadImage = async (req, res, next) => {
+  const oldimg = JSON.parse(JSON.stringify(req.event.head_image));
+
   // If upload folder doesn't exists, create it.
-  if (!fs.existsSync(uploadFolderName)) {
-    fs.mkdirpSync(uploadFolderName);
+  if (!await existsAsync(uploadFolderName)) {
+    await mkdirAsync(uploadFolderName);
   }
 
-  upload(req, res, (uploadErr) => {
-    if (uploadErr) {
-      log.error('Could not store image', uploadErr);
-      return next(new restify.InternalError({
-        body: {
-          success: false,
-          errors: [uploadErr],
-          message: uploadErr.message,
-        },
-      }));
+  try {
+    await uploadAsync(req, res);
+  } catch (err) {
+    log.error('Could not store image', err);
+    return errors.makeValidationError(res, err);
+  }
+
+  // If the head_image field is missing, do nothing.
+  if (!req.file) {
+    return errors.makeValidationError(res, 'No head_image is specified.');
+  }
+
+  // If the file's content is malformed, don't save it.
+  const buffer = readChunk.sync(req.file.path, 0, 4100);
+  const type = fileType(buffer);
+
+  const originalExtension = path.extname(req.file.originalname);
+  const determinedExtension = (type && type.ext ? `.${type.ext}` : 'unknown');
+
+  if (originalExtension !== determinedExtension
+   || !allowedExtensions.includes(determinedExtension)) {
+    return errors.makeValidationError(res, 'Malformed file content.');
+  }
+
+  req.event.head_image = {
+    path: req.file.path,
+    filename: req.file.filename,
+  };
+
+  await req.event.save();
+
+  // Move old file away
+  if (oldimg && oldimg.path) {
+    const oldImageStorage = `${config.media_dir}/old/headimages`;
+    const oldPath = oldimg.path;
+    const newPath = `${oldImageStorage}/${oldimg.filename}`;
+
+    // If upload folder doesn't exists, create it.
+    if (!await existsAsync(oldImageStorage)) {
+      await mkdirAsync(oldImageStorage);
     }
 
-    // If the head_image field is missing, do nothing.
-    if (!req.file) {
-      return next(new restify.InternalError({
-        body: {
-          success: false,
-          errors: [new Error('No head_image is specified.')],
-          message: 'No head_image is specified.',
-        },
-      }));
-    }
+    await renameAsync(oldPath, newPath);
+  }
 
-    // If the file's content is malformed, don't save it.
-    const buffer = readChunk.sync(req.file.path, 0, 4100);
-    const type = fileType(buffer);
-
-    const originalExtension = path.extname(req.file.originalname);
-    const determinedExtension = (type && type.ext ? `.${type.ext}` : 'unknown');
-
-    if (originalExtension !== determinedExtension
-      || !allowedExtensions.includes(determinedExtension)) {
-      return next(new restify.InternalError({
-        body: {
-          success: false,
-          errors: [new Error('Malformed file content.')],
-          message: 'Malformed file content.',
-        },
-      }));
-    }
-
-
-    // If there was an old image, move that away later
-    const oldimg = req.event.head_image;
-
-    req.event.head_image = {
-      path: req.file.path,
-      filename: req.file.filename
-    };
-
-    return req.event.save((saveErr) => {
-      if (saveErr) {
-        log.error('Could not store image metadata to db', saveErr);
-        return next(new restify.InternalError({
-          body: {
-            success: false,
-            errors: [saveErr],
-            message: saveErr.message,
-          },
-        }));
-      }
-
-      res.json({
-        success: true,
-        message: 'File uploaded successfully',
-        head_image: req.event.head_image,
-      });
-
-      // Move old file away
-      if (oldimg && oldimg.path) {
-        const oldPath = oldimg.path.split('/');
-        fs.rename(oldimg.path, `${config.media_dir}/old/${oldPath[path.length - 1]}`, (err) => {
-          if (err) {
-            log.warn('Could not move unused image into media/old folder', err);
-          }
-        });
-      }
-
-      console.log(req.file);
-
-      // Send back the request
-      return next();
-    });
+  return res.json({
+    success: true,
+    message: 'File uploaded successfully',
+    data: req.event.head_image,
   });
 };

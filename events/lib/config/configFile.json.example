@@ -1,41 +1,28 @@
 {
-	"dev": {
+	"default": {
 		"port": 8082,
-		"mongourl": "mongodb://localhost:27017/events",
-
-		"frontend": {
-			"url": "http://localhost:8083",
-			"pages": [{
-				"name": "All events",
-				"code": "events",
-				"module_link": "frontend/all/eventsController.js",
-				"icon": "fa fa-ticket"
-			}, {
-				"name": "Event admin",
-				"code": "eventadmin",
-				"module_link": "frontend/admin/adminController.js",
-				"icon": "fa fa-wrench"
-			}]
+		"mongourl": "mongodb://mongodb:27017/events",
+		"registry": {
+			"url": "http://omsserviceregistry",
+			"port": 7000
 		},
-		"core": {
-			"url": "http://localhost",
-			"port": 80
-		},
-		"secret": "CHANGEME",
-		"enable_user_caching": true,
-		"media_dir": "./frontend/media",
-		"media_url": "/frontend/media"
+		"registry_api_key": "/usr/shared/new-api-key",
+		"media_dir": "/usr/app/media",
+		"media_url": "/frontend/media",
+		"bugsnagKey": "6f6a7c00507fceca0818c48405dbd2a6"
 	},
+	"development": {
 
+	},
 	"test": {
 		"port": 8084,
 		"mongourl": "mongodb://localhost:27017/test-events",
 
-		
-		"core": {
-			"url": "http://private-ff598-omsneocore.apiary-mock.com",
-			"port": 80
+		"registry": {
+			"url": "http://localhost",
+			"port": 7000
 		},
-		"enable_user_caching": false
+		"enable_user_caching": false,
+		"media_dir": "./tmp_upload"
 	}
 }

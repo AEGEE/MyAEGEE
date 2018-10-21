@@ -1,127 +1,108 @@
-const restify = require('restify');
-const events = require('./events.js'); // the real place where the API callbacks are
-const lifecycle = require('./lifecycle.js'); // API callbacks for lifecycle managing
-const imageserv = require('./imageserv.js');
-const log = require('./config/logger.js');
-const service = require('./service.js');
-const middlewares = require('./middlewares.js');
-const cron = require('./cron.js');
-const config = require('./config/config.js');
-const user = require('./user.js');
+const express = require('express');
+const bugsnag = require('bugsnag');
+const router = require('express-promise-router');
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const boolParser = require('express-query-boolean');
 
-const server = restify.createServer({
-  name: 'oms-events',
-  log,
-});
+const events = require('./events'); // API middlewares for events management
+const lifecycle = require('./lifecycle'); // API middlewares for lifecycle managing
+const applications = require('./applications'); // API middlewares for applications management
+const imageserv = require('./imageserv');
+const log = require('./config/logger');
+const service = require('./service');
+const middlewares = require('./middlewares');
+const cron = require('./cron');
+const config = require('./config/config');
+const user = require('./user');
 
-server.use(restify.queryParser());
-server.use(restify.jsonBodyParser());
-server.use(restify.CORS());
+const EventsRouter = router({ mergeParams: true });
+const GeneralRouter = router({ mergeParams: true });
+const ImagesRouter = router({ mergeParams: true });
 
-// Define your API here
+/* istanbul ignore next */
+if (process.env.NODE_ENV !== 'test') {
+  bugsnag.register(config.bugsnagKey);
+}
 
-// this endpoint is for public access
-// server.post({path: '/authenticate', version: '0.0.6'} , core.authenticate );
+const server = express();
+server.use(bodyParser.json());
+server.use(morgan(':method :url :status - :response-time ms', { stream: log.stream }));
+server.use(boolParser());
 
-// for endpoints declared from here onwards, apply the middleware "verifyToken"
-// server.use(core.verifyToken);
+/* istanbul ignore next */
+process.on('unhandledRejection', (err) => {
+  log.error('Unhandled rejection: ', err);
 
-// Enable request logging
-// server.pre((request, response, next) => {
-//   log.info(request.method + ' ' + request.url);
-//   return next();
-// });
-
-server.on('after', (req, res) => {
-  try {
-    log.info(`${req.method} ${req.url} - ${res._header.split('\n')[0]}`);
-  } catch (err) {
-    log.error('Error while logging: ', err);
+  if (process.env.NODE_ENV !== 'test') {
+    bugsnag.notify(err);
   }
 });
 
-server.on('uncaughtException', (req, res, route, err) => {
-  log.error(err);
-  res.send(err);
-});
+GeneralRouter.use(service.countRequests);
+GeneralRouter.get('/status', service.status);
 
-process.on('uncaughtException', (err) => {
-  log.error(err);
-  process.exit(1);
-});
+ImagesRouter.use(express.static(config.media_dir)); // Serving images.
 
-const curVersion = '0.0.1';
+GeneralRouter.use(middlewares.authenticateUser);
+GeneralRouter.use(middlewares.checkPermissions);
 
-server.use(service.countRequests);
-server.get({ path: '/registerMicroservice', version: curVersion }, service.registerMicroservice);
-server.get({ path: '/ping', version: curVersion }, (req, res, next) => {
-  res.send('pong');
-  return next();
-});
-
-server.use(middlewares.authenticateUser);
-server.use(middlewares.fetchUserDetails);
-
-server.get({ path: '/', version: curVersion }, events.listEvents);
-server.post({ path: '/', version: curVersion }, events.addEvent);
+GeneralRouter.get('/', events.listEvents);
+GeneralRouter.post('/', events.addEvent);
 
 // Debugging requests, remove at some point in time
-server.get({ path: '/status', version: curVersion }, service.status);
-server.get({ path: '/debug', version: curVersion }, events.debug);
-server.get({ path: '/getUser', version: curVersion }, [
-  middlewares.checkPermissions,
-  service.getUser,
-]);
+GeneralRouter.get('/getUser', service.getUser);
 
-server.get({ path: '/lifecycle/names', version: curVersion }, lifecycle.getLifecyclesNames);
-server.get({ path: '/lifecycle/pseudo', version: curVersion }, lifecycle.getPseudoRolesList);
-server.post({ path: '/lifecycle', version: curVersion }, lifecycle.createLifecycle);
-server.get({ path: '/lifecycle', version: curVersion }, lifecycle.getLifecycles);
-server.del({ path: '/lifecycle/:lifecycle_id', version: curVersion }, lifecycle.removeLifecycle);
+GeneralRouter.get('/lifecycle/names', lifecycle.getLifecyclesNames);
+GeneralRouter.get('/lifecycle/pseudo', lifecycle.getPseudoRolesList);
+GeneralRouter.get('/lifecycle', lifecycle.getLifecycles);
+GeneralRouter.post('/lifecycle', lifecycle.createLifecycle);
+GeneralRouter.get('/lifecycle/seed', lifecycle.seed);
+GeneralRouter.delete('/lifecycle/:lifecycle_id', lifecycle.removeLifecycle);
 
-server.get({ path: '/eventroles', version: curVersion }, user.getEventRoles);
+GeneralRouter.get('/eventroles', user.getEventRoles);
 
-server.get({ path: '/mine/byOrganizer', version: curVersion }, events.listUserOrganizedEvents);
-server.get({ path: '/mine/byApplication', version: curVersion }, events.listUserAppliedEvents);
-server.get({ path: '/mine/approvable', version: curVersion }, [
-  middlewares.checkPermissions,
-  events.listApprovableEvents,
-]);
-
-server.get({ path: '/boardview', version: curVersion }, [
-  middlewares.checkPermissions,
-  events.listLocalInvolvedEvents,
-]);
+GeneralRouter.get('/mine/organizing', events.listUserOrganizedEvents);
+GeneralRouter.get('/mine/participating', applications.listUserAppliedEvents);
+GeneralRouter.get('/mine/approvable', events.listApprovableEvents);
+GeneralRouter.get('/boardview/:body_id', events.listLocalInvolvedEvents);
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
-server.use(middlewares.fetchSingleEvent);
-server.use(middlewares.checkPermissions);
+EventsRouter.use(middlewares.fetchSingleEvent);
+EventsRouter.use(middlewares.checkEventPermissions);
 
-server.get({ path: '/single/:event_id', version: curVersion }, events.eventDetails);
-server.put({ path: '/single/:event_id', version: curVersion }, events.editEvent);
-server.del({ path: '/single/:event_id', version: curVersion }, events.deleteEvent);
-server.put({ path: '/single/:event_id/status', version: curVersion }, events.setApprovalStatus);
-server.get({ path: '/single/:event_id/rights', version: curVersion }, events.getEditRights);
-server.post({ path: '/single/:event_id/upload', version: curVersion }, imageserv.uploadImage);
+EventsRouter.get('/', events.eventDetails);
+EventsRouter.put('/', events.editEvent);
+EventsRouter.delete('/', events.deleteEvent);
+EventsRouter.get('/status', events.listPossibleStatuses);
+EventsRouter.put('/status', events.setApprovalStatus);
+EventsRouter.get('/rights', events.getEditRights);
+EventsRouter.post('/upload', imageserv.uploadImage);
 
-server.get({ path: '/single/:event_id/participants', version: curVersion },
-           events.listParticipants);
-server.put({ path: '/single/:event_id/participants/status/:application_id', version: curVersion },
-           events.setApplicationStatus);
-server.put({ path: '/single/:event_id/participants/comment/:application_id', version: curVersion },
-           events.setApplicationComment);
-server.get({ path: '/single/:event_id/participants/mine', version: curVersion },
-           events.getApplication);
-server.put({ path: '/single/:event_id/participants/mine', version: curVersion },
-           events.setApplication);
+EventsRouter.get('/participants', applications.listParticipants);
+EventsRouter.put('/participants/:application_id/status/', applications.setApplicationStatus);
+EventsRouter.put('/participants/:application_id/comment/', applications.setApplicationComment);
+EventsRouter.get('/participants/mine', applications.getApplication);
+EventsRouter.put('/participants/mine', applications.setApplication);
 
-server.listen(config.port, () => {
-  // try if there is a mongodb connection
-  require('./config/options.js').then(() => {
-    log.info('Up and running, %s listening on %s', server.name, server.url);
-    cron.scanDB();
-    user.updateEventRoles();
-  });
+EventsRouter.post('/organizers', events.addOrganizer);
+EventsRouter.put('/organizers/:user_id', events.editOrganizer);
+EventsRouter.delete('/organizers/:user_id', events.deleteOrganizer);
+
+EventsRouter.post('/locals', events.addLocal);
+EventsRouter.delete('/locals/:body_id', events.deleteLocal);
+
+server.use(config.media_url, ImagesRouter);
+server.use('/', GeneralRouter);
+server.use('/single/:event_id', EventsRouter);
+
+server.use(middlewares.notFound);
+server.use(middlewares.errorHandler);
+
+const app = server.listen(config.port, async () => {
+  log.info('Up and running, listening on http://localhost:%d', config.port);
+  await cron.scanDB();
+  await user.updateEventRoles();
 });
 
-module.exports = server;
+module.exports = app;

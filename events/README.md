@@ -1,60 +1,62 @@
 # Events module
-[![Build Status](https://travis-ci.org/AEGEE/oms-events.svg?branch=dev)](https://travis-ci.org/AEGEE/oms-events)
-[![Coverage Status](https://coveralls.io/repos/github/AEGEE/oms-events/badge.svg?branch=dev)](https://coveralls.io/github/AEGEE/oms-events?branch=dev)
+
+**master**: [![Build Status](https://travis-ci.org/AEGEE/oms-events.svg)](https://travis-ci.org/AEGEE/oms-events/)
+![Codecov branch for dev](https://img.shields.io/codecov/c/github/AEGEE/oms-events.svg)
+
+**dev**: [![Build Status](https://travis-ci.org/AEGEE/oms-events.svg?branch=dev)](https://travis-ci.org/AEGEE/oms-events/dev)
+![Codecov branch for dev](https://img.shields.io/codecov/c/github/AEGEE/oms-events/dev.svg)
 
 ## General
 
-The event module shall implement everything related to basic events, giving a common ground for non-statutory events, statutory events and SUs. Find the API documentation on [Apiary](http://docs.omsevents.apiary.io/#). 
+The event module shall implement everything related to basic events and their applications. Statutory events and SUs will be implemented in another microservices. Find the API documentation on [Apiary](http://docs.omsevents.apiary.io/#).
 
 Also, any help is appreciated! Just contact Nico (AEGEE-Dresden, blacksph3re) and/or check the instructions in the [wiki](https://oms-project.atlassian.net/wiki/).
 
-## Set up
+## Installation and running
 
-### Installing
+There are 3 ways to run this microservice:
 
-There are some things you have to do to get this service running.
-* This service depends on [oms-core](https://github.com/AEGEE/oms-neo-core), get it up and running. I advise to use [homestead](https://github.com/laravel/homestead) as a virtualisation
-* Further dependencies (included in homestead): 
-  * nodejs including npm
-  * mongodb
-* Git clone this repo and cd into it
-* `npm install` to install all necessary dependencies
-* Rename lib/config/configFile.json.example to lib/config/configFile.json, if you want edit it
-* Set up static serving with nginx (if you are using another web server, good luck.)
+1. Using the [OMS Docker image](https://github.com/AEGEE/oms-docker) - recommended
+2. Using the Docker container
+3. Running it inside the host system
+
+### Using the OMS Docker image
+
+This method will install the core, the events module and the databases for each service.
+You can read the installation instructions on the [OMS Docker readme](https://github.com/AEGEE/oms-docker).
+
+### Using the Docker container
+
+You will need to install and setup the core module, Docker and MongoDB database, modify the `lib/config/configFile.json`,then run the following command:
+
 ```shell
-mv nginx.conf.example nginx.conf
-sudo ln -s your/path/to/oms-events/nginx.conf /etc/nginx/sites-enabled/omsevents
-sudo systemctl reload nginx.service
+cd /path/to/oms-events # Replace it with your oms-events folder
+docker build . -t oms-events # Building a Docker image
+docker run -v /path/to/oms-events:/usr/app/oms-events --net=host oms-events # Replace the folder name with your path to oms-events folder
 ```
 
-Now you will need to connect the microservice to the core.
-* Edit lib/config/configFile.json and put the secret that you obtained from the core.
-* Start the server with `node lib/server.js`
-* Query the running server on `curl localhost:8083/api/registerMicroservice` to fire up registration. *(if you fucked up the nginx reverse-proxy you can also query `localhost:8082`)*
-* Enable it in the core backend and refresh the page.
+### Running it inside the host system
 
-### Get it running
+You will need to do the following steps:
 
-
-To get it running, just type 
-```
-node lib/server.js
-```
-and you should have a working instance. If you also want to be able to read the console output, run
-`sudo npm install bunyan -g` to install bunyan logger and start the server with
-```
-node lib/server.js | bunyan --color --output short
-```
-It's recommended to run with a supervisor-daemon to restart after crashes, you can use node-supervisor (install with `sudo npm install supervisor -g`) and run
-```
-supervisor lib/server.js | bunyan --color --output short
-```
+* [Installing and setting up core module](https://oms-project.atlassian.net/wiki/display/OMSCORE/Installing+the+core)
+* Installing and setting up Node.js and NPM (the Docker container uses the latest version)
+* `cd /path/to/oms-events` (replace the path with the path to oms-events on your system)
+* `npm install`
+* (optional) Install `supervisord` to auto-restart process after crashes and file changes (`npm i -g supervisor`)
+* Modify the `lib/config/configFile.json` (set up core URL, database URL etc.)
+* Run it
+  * Without supervisor: `node lib/server.js`
+  * With supervisor: `supervisor lib/server.js`
 
 
+### Configuring
+
+You can specify the microservice configuration by editing the `lib/config.json` file. Check out the example at `lib/configFile.json.example` and the comments in `lib/config.js` for more information.
 
 ## LICENSE
 
-Copyright 2015-2016 Fabrizio Bellicano (AEGEE-Europe) and contributors
+Copyright 2015-2018 Fabrizio Bellicano (AEGEE-Europe) and contributors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

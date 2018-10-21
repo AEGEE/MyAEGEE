@@ -3,9 +3,7 @@ HOST: http://polls.apiblueprint.org/
 
 # oms-events
 
-Everything related to events in the oms. You can create, list, edit, ... events.
-Please note this document is still a draft. The shown queries might not or not fully be implemented yet. 
-This is just to create a starting point for the development
+Everything related to events in the oms. You can manage events, organizers and lifecycles.
 
 # Group Event-related
 
@@ -13,13 +11,13 @@ This is just to create a starting point for the development
 
 ### List All Events [GET]
 
-This gives a full listing of all events in the database.
-You most likely won't use this one except you are programming another microservice needing the full monty of events
+Returns a listing of events in the database.
 
 + Response 200 (application/json)
 
-        [
-            {
+        {
+            "success": true,
+            "data":  [{
                 "_id": "57545087bc5d433f1656225c",
                 "name": "Develop Yourself ",
                 "starts": "2015-12-11T14:00:00.000Z",
@@ -38,8 +36,7 @@ You most likely won't use this one except you are programming another microservi
                 ],
                 "url": "/single/57545087bc5d433f1656225c",
                 "id": "57545087bc5d433f1656225c"
-            },
-            {
+            }, {
                 "_id": "5754557ddc1639f652285755",
                 "name": "EPM Zagreb",
                 "starts": "2017-02-23T00:00:00.000Z",
@@ -61,14 +58,14 @@ You most likely won't use this one except you are programming another microservi
                     }
                 ],
                 "url": "/single/5754557ddc1639f652285755",
-            }
-        ]
+            }]
+        }
 
 ### Create a new event [POST]
 
 Add a new event, data which is left out in the first request is optional.
 If organizing local is not specified, the local of the user will be assumed.
-The creating user is automatically assigned organizer status
+The creating user is automatically assigned organizer status.
 
 + Request (application/json)
 
@@ -78,6 +75,7 @@ The creating user is automatically assigned organizer status
             "ends": "2015-12-14 12:00",
             "description": "awesome training event",
             "application_deadline": "2015-11-30",
+            "type": "non-statutory",
             "organizing_locals": [
                 {
                     "foreign_id": "DDD"
@@ -90,49 +88,70 @@ The creating user is automatically assigned organizer status
 + Response 201 (application/json)
 
         {
-            "name": "Develop Yourself ",
-            "starts": "2015-12-11T15:00:00.000Z",
-            "ends": "2015-12-14T12:00:00.000Z",
-            "description": "awesome training event",
-            "max_participants": 22,
-            "_id": "57545087bc5d433f1656225c",
-            "organizers": [
-                {
-                    "first_name": "Cave",
-                    "last_name": "Johnson",
-                    "foreign_id": "cave.johnson",
-                }
-            ],
-            "application_fields": [
-                {
-                  "name": "motivation",
+            "success": true,
+            "message": "Event successfully created",
+            "data": [{
+                "name": "Develop Yourself ",
+                "starts": "2015-12-11T15:00:00.000Z",
+                "ends": "2015-12-14T12:00:00.000Z",
+                "description": "awesome training event",
+                "max_participants": 22,
+                "_id": "57545087bc5d433f1656225c",
+                "organizers": [
+                    {
+                        "first_name": "Cave",
+                        "last_name": "Johnson",
+                        "foreign_id": "cave.johnson",
+                    }
+                ],
+                "application_fields": [
+                    {
+                      "name": "motivation",
+                    },
+                    {
+                      "name": "allergies",
+                    },
+                    {
+                      "name": "disabilities",
+                    }
+                ],
+                "application_status": "closed",
+                "application_deadline": "2015-11-30T00:00:00.000Z",
+                "status": {
+                    "_id" : "5848461249ebb60012b410d3",
+                    "name" : "Pending",
+                    "visibility" : {
+                        "_id" : "5848461249ebb60012b410d5",
+                        "special" : [ "Public" ],
+                        "bodies" : [],
+                        "roles" : [],
+                        "users" : []
+                    },
+                    "applicable" : {
+                        "_id" : "5848461249ebb60012b410d4",
+                        "special" : [],
+                        "bodies" : [],
+                        "roles" : [],
+                        "users" : []
+                    }
                 },
-                {
-                  "name": "allergies",
-                },
-                {
-                  "name": "disabilities",
-                }
-            ],
-            "application_status": "closed",
-            "application_deadline": "2015-11-30T00:00:00.000Z",
-            "status": "draft",
-            "type": "non-statutory",
-            "organizing_locals": [
-                {
-                  "name": "AEGEE-Dresden",
-                  "foreign_id": "DRE",
-                }
-            ],
-            "url": "/single/57545087bc5d433f1656225c",
+                "type": "non-statutory",
+                "organizing_locals": [
+                    {
+                      "name": "AEGEE-Dresden",
+                      "foreign_id": "DRE",
+                    }
+                ],
+                "url": "/single/57545087bc5d433f1656225c"
+            }]
         }
-            
-## Events Details [/single/{event_id}]
+
+## Single event management [/single/{event_id}]
 
 Details actions should only be available to superusers or users linked with the event
 
 + Parameters
-    + event_id (string) - ID of the event to get details to
+    + event_id (string) - Either ID or URL of the event to get details to
 
 
 ### View event details [GET]
@@ -143,127 +162,289 @@ For organizers or participants list, use the specialized API-Calls
 + Response 200 (application/json)
 
         {
-            "id": "57545670dc1639f652285762",
-            "url": "/events/single/1",
-            "name": "Develop Yourself",
-            "starts": "2015-08-05T08:40:51.620Z",
-            "ends": "2015-08-05T08:40:51.620Z",
-            "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
-            "organizing_local": "AEGEE-Dresden",
-            "type": "non-statutory",
-            "max_participants": 22,
-            "application_deadline": "2017-01-01T00:00:00.000Z",
-            "application_fields": [
-                {
-                    "name": "Motivation",
-                    "_id": "57545670dc1639f652285762"
+            "success": true,
+            "data": [{
+                "id": "57545670dc1639f652285762",
+                "url": "/events/single/1",
+                "name": "Develop Yourself",
+                "starts": "2015-08-05T08:40:51.620Z",
+                "ends": "2015-08-05T08:40:51.620Z",
+                "description": "An intense weekend full of learning about yourself, communication, teamwork and other soft-skills",
+                "organizing_local": "AEGEE-Dresden",
+                "type": "non-statutory",
+                "status": {
+                    "_id" : "5848461249ebb60012b410d3",
+                    "name" : "Pending",
+                    "visibility" : {
+                        "_id" : "5848461249ebb60012b410d5",
+                        "special" : [ "Public" ],
+                        "bodies" : [],
+                        "roles" : [],
+                        "users" : []
+                    },
+                    "applicable" : {
+                        "_id" : "5848461249ebb60012b410d4",
+                        "special" : [],
+                        "bodies" : [],
+                        "roles" : [],
+                        "users" : []
+                    }
                 },
-                {
-                    "name": "Allergies",
-                    "_id": "57545670dc1639f652285761"
-                },
-                {
-                    "name": "Disabilities",
-                    "_id": "57545670dc1639f652285760"
-                },
-                {
-                    "name": "TShirt-Size",
-                    "_id": "57545670dc1639f65228575f"
-                },
-                {
-                    "name": "Meaning of Life",
-                    "_id": "57545670dc1639f65228575e"
-                }
-            ],
-            "participants_list" : [
-                {
-                    "foreign_id": "max.mustermann",
-                    "first_name": "Max",
-                    "last_name": "Mustermann",
-                    "status": "requesting",
-                    "application" : [
-                        {
-                            "field_id": "57545670dc1639f652285762",
-                            "value": "Unmotivated",
-                        }, {
-                            "field_id": "57545670dc1639f652285761",
-                            "value": "Gluten, Lactose, Germans",
-                        }, {
-                            "field_id": "57545670dc1639f652285760",
-                            "value": "No disabilities",
-                        }, {
-                            "field_id": "57545670dc1639f65228575f",
-                            "value": "XS",
-                        }, {
-                            "field_id": "57545670dc1639f65228575e",
-                            "value": "42",
-                        }
-                    ],
-                }, {
-                    "foreign_id": "heinz.hammer",
-                    "first_name": "Heinz",
-                    "last_name": "Hammer",
-                    "status": "pending",
-                    "application": [],
-                }, {
-                    "foreign_id": "frank.fortune",
-                    "first_name": "Frank",
-                    "last_name": "Fortune",
-                    "status": "accepted",
-                    "application": [],
-                }
-            ],
-            "organizers_list": [
-                {
-                    "foreign_id": "ingo.indiana",
-                    "first_name": "Ingo",
-                    "last_name": "Indiana",
-                    "role": "full"
-                }, {
-                    "foreign_id": "karl.kühne2",
-                    "first_name": "Karl",
-                    "last_name": "Kühne"
-                    "role": "readonly"
-                }
-            ],
+                "application_status": "closed",
+                "max_participants": 22,
+                "application_deadline": "2017-01-01T00:00:00.000Z",
+                "application_fields": [
+                    {
+                        "name": "Motivation",
+                        "_id": "57545670dc1639f652285762"
+                    },
+                    {
+                        "name": "Allergies",
+                        "_id": "57545670dc1639f652285761"
+                    },
+                    {
+                        "name": "Disabilities",
+                        "_id": "57545670dc1639f652285760"
+                    },
+                    {
+                        "name": "TShirt-Size",
+                        "_id": "57545670dc1639f65228575f"
+                    },
+                    {
+                        "name": "Meaning of Life",
+                        "_id": "57545670dc1639f65228575e"
+                    }
+                ],
+                "participants_list" : [
+                    {
+                        "foreign_id": "max.mustermann",
+                        "first_name": "Max",
+                        "last_name": "Mustermann",
+                        "status": "requesting",
+                        "application" : [
+                            {
+                                "field_id": "57545670dc1639f652285762",
+                                "value": "Unmotivated",
+                            }, {
+                                "field_id": "57545670dc1639f652285761",
+                                "value": "Gluten, Lactose, Germans",
+                            }, {
+                                "field_id": "57545670dc1639f652285760",
+                                "value": "No disabilities",
+                            }, {
+                                "field_id": "57545670dc1639f65228575f",
+                                "value": "XS",
+                            }, {
+                                "field_id": "57545670dc1639f65228575e",
+                                "value": "42",
+                            }
+                        ],
+                    }, {
+                        "foreign_id": "heinz.hammer",
+                        "first_name": "Heinz",
+                        "last_name": "Hammer",
+                        "status": "pending",
+                        "application": [],
+                    }, {
+                        "foreign_id": "frank.fortune",
+                        "first_name": "Frank",
+                        "last_name": "Fortune",
+                        "status": "accepted",
+                        "application": [],
+                    }
+                ],
+                "organizers_list": [
+                    {
+                        "foreign_id": "ingo.indiana",
+                        "first_name": "Ingo",
+                        "last_name": "Indiana",
+                        "role": "full"
+                    }, {
+                        "foreign_id": "karl.kühne2",
+                        "first_name": "Karl",
+                        "last_name": "Kühne"
+                        "role": "readonly"
+                    }
+                ],
+            }]
         }
-    
+        
 ### Update an event [PUT]
 
-Change details about one event. 
+Changes details about one event and returns the updates event.
 For changes in participants or organizers, use events/{id}/participants or /organizers.
-Can only be done by an organizer
+For status change, use single/{id}/status.
+Can only be done by an organizer.
 
 + Request (application/json)
 
             {
                 "description": "It's awesome",
             }
-            
+
 + Response 201 (application/json)
 
         {
-            "id": 1,
-            "url": "/events/single/1",
-            "name": "Develop Yourself",
-            "starts": "2015-08-05T08:40:51.620Z",
-            "ends": "2015-08-05T08:40:51.620Z",
-            "description": "It's awesome",
-            "organizing_local": "AEGEE-Dresden",
-            "type": "non-statutory",
-            "max_participants": 22,
-            "enrolled_participants": 3,
+            "success": true,
+            "data": [{
+                "id": 1,
+                "url": "/events/single/1",
+                "name": "Develop Yourself",
+                "starts": "2015-08-05T08:40:51.620Z",
+                "ends": "2015-08-05T08:40:51.620Z",
+                "description": "It's awesome",
+                "organizing_local": "AEGEE-Dresden",
+                "type": "non-statutory",
+                "max_participants": 22,
+                "enrolled_participants": 3,
+            }]
         }
-        
+
 ### Remove an event [DELETE]
 
-Removes the current event. Can only be done by an organizer. 
-Internally it won't be deleted but just set to deleted, but it won't appear in any listing. Details are however still available
+Removes the current event. Can only be done by an organizer.
+Internally it won't be deleted but just set to deleted, but it won't appear in any listing. Details are however still available.
+Probably will be replaced by the event lifecycle workflow.
 
-+ Response 200 (text/plain)
++ Response 200 (application/json)
+
+        {
+            "success": true,
+            "message": "Event successfully deleted"
+        }
+
+## Updating event's main image [/single/{event_id}/upload]
+
+### Update event's main image [POST]
+
+Uploads the image to a server and sets it as a main image for this event.
+The `Content-Type` header should be `multipart/form-data`.
+The image should be in the `head_image` field of a request.
+Image should be in one of these formats: PNG, JPEG.
+Passing in invalid images or other formats won't work and will result in an error.
+
+     
++ Response 200 (application/json) 
+
+        {
+            "success": true,
+            "message": "File uploaded successfully",
+            "data" : [{
+                "filename": "frontend/media/headimages/jvwz-1489429694297",
+                "path": "frontend/media/headimages/jvwz-1489429694297"
+            }]
+        }
+    
+    
+## Get the editing rights for the event [/single/{event_id}/rights]
+
+### Get the editing rights [GET]
+
+Returns the objects containing the editing rights for the event.
+
++ Response 200 (application/json)
+
+        {
+         "success": true,
+         "data": [
+          {
+           "is": {
+            "superadmin": true,
+            "boardmember": false,
+            "organizer": true,
+            "participant": false,
+            "accepted_participant": false,
+            "own_antenna": true
+           },
+           "can": {
+            "view_local_involved_events": true,
+            "edit_organizers": true,
+            "edit_details": true,
+            "delete": true,
+            "edit_application_status": true,
+            "approve": true,
+            "edit": true,
+            "apply": false,
+            "approve_participants": true,
+            "view_applications": true
+           },
+           "special": [
+            "Public",
+            "Superadmin",
+            "Organizing Local Member",
+            "Creator"
+           ]
+          }
+         ]
+        }
         
-        Event successfully deleted
-        
+## Managing event's status [/single/{event_id}/status]
+
+### Getting possible transitions [GET]
+
+Returns a list of transitions that the user can perform.
+You can use the IDs of the statuses to perform a transition, see below.
+
++ Response 200 (application/json)
+
+        {
+          "success": true,
+          "data": [
+            {
+              "from": {
+                "_id": "58c2f886bcc6be0201ea8f73",
+                "__v": 0,
+                "name": "Draft",
+                "visibility": {
+                  "special": [],
+                  "bodies": [],
+                  "roles": [],
+                  "users": []
+                }
+              },
+              "to": {
+                "_id": "58c2f886bcc6be0201ea8f74",
+                "__v": 0,
+                "name": "Requesting",
+                "visibility": {
+                  "special": [],
+                  "bodies": [],
+                  "roles": [],
+                  "users": []
+                }
+              },
+              "allowedFor": {
+                "special": [
+                  "Superadmin"
+                ],
+                "bodies": [],
+                "roles": [],
+                "users": []
+              },
+              "_id": "58bf1040caaa271add583fb4"
+            }
+          ]
+        }  adminController.js:352:9
+        {
+          "success": true,
+          "data": [
+            "non-statutory"
+          ]
+        }
+
+### Changing the event's status [PUT]
+
+Changes the event status to the specified one.
+If you are not allowed to perform a status transition, the error will be returned.
+The possible statuses can be loaded from either GET /single/{event_id}/status or GET /mine/approvable endpoints.
+
++ Response 200 (application/json)
+
+        {
+            "success": true,
+            "message": "Successfully changed approval status"
+        }
+
 
 ## Events Participants [/single/{event_id}/participants]
 
@@ -313,14 +494,15 @@ Returns all participants in this event and their enrolment status
                         "value": "I like AIESEC"
                     }],
             }
-        ],
-    
+        ]
+
+
 ### Apply to an event [POST]
 
 As long as subscription is open, any user can sign up for an event.
 All user data that can be taken from the user's account will be used
 (first_name, last_name, id). Status will be "requesting".
-The application is an array with the _id of the field and the value you want to put. 
+The application is an array with the `_id` of the field and the value you want to put.
 The field needs to exist, but not all fields need to be filled
 
 + Request (application/json)
@@ -339,23 +521,23 @@ The field needs to exist, but not all fields need to be filled
                 }
             ]
         }
-        
+
 + Response 201 (text/plain)
-    
+
     + Headers
-    
+
             Location: /single/57545670dc1639f652285762/participants/hanz.wurst
-    
+
     + Body
 
             Your application as participant has been recorded.
-        
-        
+
+
 ## Application management [/single/{event_id}/participants/{user_id}]
 
 ### Get one specfic application [GET]
 
-Returns the details for this specific application. 
+Returns the details for this specific application.
 Succeeds if either the user is the owner of the application, the user is organizer or participant and the application is closed, the user is board member of the same local
 
 + Response 200 (application/json)
@@ -378,17 +560,17 @@ Succeeds if either the user is the owner of the application, the user is organiz
           ],
           "application_status": "requesting"
         }
-        
+
 ### Edit an application [PUT]
 
 Can be used either by the owner of the application to change his application again (if the application is still open) or by an organizer to change the application_status to approved/etc
 
 + Request
-        
+
         {
             "application_status": "approved"
         }
-        
+
 + Response 200 (application/json)
 
         {
@@ -410,7 +592,6 @@ Can be used either by the owner of the application to change his application aga
           "application_status": "approved"
         }
 
-    
 ## Events Organizers [/single/{event_id}/organizers]
 
 ### List all contributing organizers [GET]
@@ -430,37 +611,39 @@ Organizers have full access to all event details
                 "last_name": "Kühne"
             }
         ]
-        
-### Add an organizer [POST]
+
+### Change organizers list [PUT]
 
 Adds a new organizer to the list of people with access. Can only be done if you are organizer yourself.
 
 + Request (application/json)
 
         {
-            "foreign_id": "cave.johnson",
-            "role": "full"
+            "organizers" = [
+                {
+                    "foreign_id": "cave.johnson",
+                    "role": "full"
+                }, {
+                    "foreign_id": "vincent.vega",
+                    "role": "readonly"
+                }
+            ]
         }
 
-+ Response 201 (text/plain)
-    
-    + Headers
-    
-            Location: /single/57545670dc1639f65228575d/organizers/cave.johnson2
-    
-    + Body
-    
-            User was successfully added to organizers
++ Response 200 (application/json)
 
-## Delete an Organizer [/single/{event_id}/organizers/{user_id}]
+        {
+            "organizers" = [
+                {
+                    "foreign_id": "cave.johnson",
+                    "role": "full"
+                }, {
+                    "foreign_id": "vincent.vega",
+                    "role": "readonly"
+                }
+            ]
+        }
 
-### Delete an Organizer [DELETE]
-
-Removes an organizer from the list. The user needs to be organizer himself to do that and there must be at least 1 more organizer left
-
-+ Response 200 (text/plain)
-
-        User was deleted as organizer
 
 # Group Other views
 
@@ -472,7 +655,7 @@ Removes an organizer from the list. The user needs to be organizer himself to do
 ### List user's participation [GET]
 
 + Response 200 (application/json)
-    
+
         [
             {
                 "id": 1,
@@ -496,7 +679,7 @@ Removes an organizer from the list. The user needs to be organizer himself to do
 ### List events per antenna [GET]
 
 + Response 200 (application/json)
-        
+
         [
             {
                 "id": 1,
@@ -512,15 +695,440 @@ Removes an organizer from the list. The user needs to be organizer himself to do
             }
         ]
 
-## Microservice status [/status/]
+# Group Lifecycle management
 
-Nerdporn and maybe also nice for resource monitoring. Uptime is in Seconds, requests only ocunts since last reboot.
+## Lifecycle management [/lifecycle]
 
-### Get current status [GET]
+### Get all lifecycles [GET]
+
+List all lifecycles, their statuses and transitions
 
 + Response 200 (application/json)
 
         {
-            "uptime": 23.5
-            "requests": 918293
+          "success": true,
+          "data": [
+            {
+              "_id": "585f03bb7b4bfe99e7ed6bfb",
+              "name": "non-statutory",
+              "__v": 0,
+              "defaultLifecycle": {
+                "_id": "587f8a2f7f8a1600a7f5f9fc",
+                "eventType": "non-statutory",
+                "initialStatus": {
+                  "_id": "587f8a2f7f8a1600a7f5f9f3",
+                  "__v": 0,
+                  "name": "Pending",
+                  "visibility": {
+                    "_id": "587f8a2f7f8a1600a7f5f9f5",
+                    "special": [
+                      "Public"
+                    ],
+                    "bodies": [],
+                    "roles": [],
+                    "users": []
+                  },
+                  "applicable": {
+                    "_id": "587f8a2f7f8a1600a7f5f9f4",
+                    "special": [],
+                    "bodies": [],
+                    "roles": [
+                      "2"
+                    ],
+                    "users": []
+                  }
+                },
+                "__v": 0,
+                "status": [
+                  {
+                    "_id": "587f8a2f7f8a1600a7f5f9f3",
+                    "__v": 0,
+                    "name": "Pending",
+                    "visibility": {
+                      "_id": "587f8a2f7f8a1600a7f5f9f5",
+                      "special": [
+                        "Public"
+                      ],
+                      "bodies": [],
+                      "roles": [],
+                      "users": []
+                    },
+                    "applicable": {
+                      "_id": "587f8a2f7f8a1600a7f5f9f4",
+                      "special": [],
+                      "bodies": [],
+                      "roles": [
+                        "2"
+                      ],
+                      "users": []
+                    }
+                  },
+                  {
+                    "_id": "587f8a2f7f8a1600a7f5f9f6",
+                    "__v": 0,
+                    "name": "Approved",
+                    "visibility": {
+                      "_id": "587f8a2f7f8a1600a7f5f9f8",
+                      "special": [],
+                      "bodies": [],
+                      "roles": [],
+                      "users": [
+                        "1"
+                      ]
+                    },
+                    "applicable": {
+                      "_id": "587f8a2f7f8a1600a7f5f9f7",
+                      "special": [],
+                      "bodies": [],
+                      "roles": [],
+                      "users": []
+                    }
+                  },
+                  {
+                    "_id": "587f8a2f7f8a1600a7f5f9f9",
+                    "__v": 0,
+                    "name": "Declined",
+                    "visibility": {
+                      "_id": "587f8a2f7f8a1600a7f5f9fb",
+                      "special": [],
+                      "bodies": [],
+                      "roles": [],
+                      "users": []
+                    },
+                    "applicable": {
+                      "_id": "587f8a2f7f8a1600a7f5f9fa",
+                      "special": [],
+                      "bodies": [],
+                      "roles": [],
+                      "users": []
+                    }
+                  }
+                ],
+                "transitions": [
+                  {
+                    "from": {
+                      "_id": "587f8a2f7f8a1600a7f5f9f3",
+                      "__v": 0,
+                      "name": "Pending",
+                      "visibility": {
+                        "_id": "587f8a2f7f8a1600a7f5f9f5",
+                        "special": [
+                          "Public"
+                        ],
+                        "bodies": [],
+                        "roles": [],
+                        "users": []
+                      },
+                      "applicable": {
+                        "_id": "587f8a2f7f8a1600a7f5f9f4",
+                        "special": [],
+                        "bodies": [],
+                        "roles": [
+                          "2"
+                        ],
+                        "users": []
+                      }
+                    },
+                    "to": {
+                      "_id": "587f8a2f7f8a1600a7f5f9f6",
+                      "__v": 0,
+                      "name": "Approved",
+                      "visibility": {
+                        "_id": "587f8a2f7f8a1600a7f5f9f8",
+                        "special": [],
+                        "bodies": [],
+                        "roles": [],
+                        "users": [
+                          "1"
+                        ]
+                      },
+                      "applicable": {
+                        "_id": "587f8a2f7f8a1600a7f5f9f7",
+                        "special": [],
+                        "bodies": [],
+                        "roles": [],
+                        "users": []
+                      }
+                    },
+                    "allowedFor": {
+                      "_id": "587f8a2f7f8a1600a7f5fa00",
+                      "special": [],
+                      "bodies": [],
+                      "roles": [],
+                      "users": []
+                    },
+                    "_id": "587f8a2f7f8a1600a7f5f9ff"
+                  },
+                  {
+                    "from": {
+                      "_id": "587f8a2f7f8a1600a7f5f9f6",
+                      "__v": 0,
+                      "name": "Approved",
+                      "visibility": {
+                        "_id": "587f8a2f7f8a1600a7f5f9f8",
+                        "special": [],
+                        "bodies": [],
+                        "roles": [],
+                        "users": [
+                          "1"
+                        ]
+                      },
+                      "applicable": {
+                        "_id": "587f8a2f7f8a1600a7f5f9f7",
+                        "special": [],
+                        "bodies": [],
+                        "roles": [],
+                        "users": []
+                      }
+                    },
+                    "to": {
+                      "_id": "587f8a2f7f8a1600a7f5f9f3",
+                      "__v": 0,
+                      "name": "Pending",
+                      "visibility": {
+                        "_id": "587f8a2f7f8a1600a7f5f9f5",
+                        "special": [
+                          "Public"
+                        ],
+                        "bodies": [],
+                        "roles": [],
+                        "users": []
+                      },
+                      "applicable": {
+                        "_id": "587f8a2f7f8a1600a7f5f9f4",
+                        "special": [],
+                        "bodies": [],
+                        "roles": [
+                          "2"
+                        ],
+                        "users": []
+                      }
+                    },
+                    "allowedFor": {
+                      "_id": "587f8a2f7f8a1600a7f5f9fe",
+                      "special": [],
+                      "bodies": [],
+                      "roles": [],
+                      "users": []
+                    },
+                    "_id": "587f8a2f7f8a1600a7f5f9fd"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+
+### Edit lifecycle [POST]
+
+Edit default lifecycle for some event type.
+
+This endpoint isn't modifying existing lifecycles, instead it does the following:
+
+1) creates new statuses (it doesn't link to already existing statuses)
+2) creates new lifecycle
+3) changes the default lifecycle for this eventType to the newly created lifecycle.
+
+Can only be performed by the superadmin.
+
++ Request (application/json)
+
+        {
+          "eventType": "non-statutory",
+          "transitions": [
+            {
+              "from": "Pending",
+              "to": "Approved",
+              "allowedFor": {
+                "users": [],
+                "roles": [],
+                "bodies": [],
+                "special": []
+              }
+            },
+            {
+              "from": "Approved",
+              "to": "Pending",
+              "allowedFor": {
+                "users": [],
+                "roles": [],
+                "bodies": [],
+                "special": []
+              }
+            }
+          ],
+            "status": [
+            {
+              "name": "Pending",
+              "visibility": {
+                "special": [
+                  "Public"
+                ],
+                "bodies": [],
+                "roles": [],
+                "users": []
+              },
+              "applicable": {
+                "special": [],
+                "bodies": [],
+                "roles": [
+                  "2"
+                ],
+                "users": []
+              }
+            },
+            {
+              "name": "Approved",
+              "visibility": {
+                "special": [],
+                "bodies": [],
+                "roles": [],
+                "users": [
+                  "1"
+                ]
+              },
+              "applicable": {
+                "special": [],
+                "bodies": [],
+                "roles": [],
+                "users": []
+              }
+            },
+            {
+              "name": "Declined",
+              "visibility": {
+                "special": [],
+                "bodies": [],
+                "roles": [],
+                "users": []
+              },
+              "applicable": {
+                "special": [],
+                "bodies": [],
+                "roles": [],
+                "users": []
+              }
+            }
+          ],
+          "initialStatus": "Pending"
+        }
+
+
++ Response 200 (application/json)
+
+        {
+          "success":true,
+          "message":"Lifecycle successfully updated."
+        }
+
+
+
+## Managing single lifecycle [/lifecycle/{name}]
+
+### Delete lifecycle [DELETE]
+
+Deletes a lifecycle with this name.
++ Parameters
+    + name (string) - The name (event type) of the lifecycle
+
++ Response 200 (application/json)
+
+        {
+          "success":true,
+          "message":"Lifecycle successfully deleted."
+        }
+        
+## Getting pseudo roles list [/lifecycle/pseudo]
+
+### Getting pseudo roles list [GET]
+
+Returns a list of a pseudo roles.
+
++ Response 200 (application/json) 
+
+        {
+          "success": true,
+          "data": [
+            {
+              "id": "0",
+              "name": "Public",
+              "description": "Every user is included into this group.",
+              "event_dependent": false
+            },
+            {
+              "id": "1",
+              "name": "Board Member",
+              "description": "Board members are included into this group.",
+              "event_dependent": false
+            },
+            {
+              "id": "2",
+              "name": "Superadmin",
+              "description": "Members with the is_superadmin flag set to true are included into this group",
+              "event_dependent": false
+            },
+            {
+              "id": "3",
+              "name": "Organizing Board Member",
+              "description": "Board members that are in the board of one of the organizing locals.",
+              "event_dependent": true
+            },
+            {
+              "id": "4",
+              "name": "Organizing Local Member",
+              "description": "Members of one of the organizing locals",
+              "event_dependent": true
+            }
+          ]
+        }
+        
+## List currently available event types [/lifecycle/names]
+
+### List currently available event types [GET]
+
+Returns an array of currently available event types.
+You probably want to use this before creating an event to know what types of events are available.
+
++ Response 200 (application/json)
+
+        {
+          "success": true,
+          "data": [
+            "non-statutory"
+          ]
+        }
+
+# Group Various requests/microservice utilities
+
+## Microservice status [/status/]
+
+### Get current status [GET]
+
+Nerdporn and maybe also nice for resource monitoring.
+Uptime is in Seconds and request count since last reboot.
+deadline_crons is a count of background tasks for closing the deadlines.
+
++ Response 200 (application/json)
+
+        {
+            "success": true,
+            "data": [{
+                "uptime": 23.5
+                "requests": 918293
+                "deadline_crons": 3
+            }]
+        }
+
+
+## Register with oms-core [/registerMicroservice]
+
+### Register with oms-core [GET]
+
+After you set up the secret from the core (inside lib/configFile.json), you can use this request to get the handshake token from the core for future requests and register the pages.
+
++ Response 200 (application/json)
+
+        {
+            "success": true,
+            "message": "Handshake-token saved"
         }
