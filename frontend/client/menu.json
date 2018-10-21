@@ -1,0 +1,123 @@
+[
+  {
+    "categoryName": "General",
+    "components": [
+      {
+        "name": "oms.dashboard",
+        "label": "Dashboard",
+        "icon": "fa-tachometer"
+      }
+    ]
+  },
+  {
+    "categoryName": "OMS Core",
+    "components": [
+      {
+        "name": "oms.members.list",
+        "label": "Members",
+        "icon": "fa-user",
+        "permissions": ["view:member"]
+      },
+      {
+        "name": "oms.bodies.list",
+        "label": "Bodies",
+        "icon": "fa-flag",
+        "permissions": ["view:body"]
+      },
+      {
+        "name": "oms.permissions.list",
+        "label": "Permissions",
+        "icon": "fa-key",
+        "permissions": ["view:permission"]
+      },
+      {
+        "name": "oms.circles.list",
+        "label": "View circles",
+        "icon": "fa-circle",
+        "permissions": ["view:circle"]
+      },
+      {
+        "name": "oms.campaigns.list",
+        "label": "Campaigns",
+        "icon": "fa-sign-in",
+        "permissions": ["view:campaign"]
+      }
+    ]
+  },
+  {
+    "categoryName": "OMS Events",
+    "components": [
+      {
+        "label": "Events admin",
+        "icon": "fa-wrench",
+        "children": [
+          {
+            "name": "oms.events.change_status",
+            "label": "Change events statuses"
+          },
+          {
+            "name": "oms.events.boardview",
+            "label": "Board view"
+          }
+        ]
+      },
+      {
+        "label": "Events listing",
+        "icon": "fa-calendar",
+        "children": [
+          {
+            "name": "oms.events.list.all",
+            "label": "List all events"
+          },
+          {
+            "name": "oms.events.list.participating",
+            "label": "List events I'm participating at"
+          },
+          {
+            "name": "oms.events.list.organizing",
+            "label": "List events I'm organizing"
+          },
+          {
+            "name": "oms.events.create",
+            "label": "Create event"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "categoryName": "Statutory events",
+    "components": [
+      {
+        "label": "Statutory listing",
+        "icon": "fa-calendar",
+        "children": [
+          {
+            "name": "oms.statutory.list.all",
+            "label": "List all statutory events"
+          },
+          {
+            "name": "oms.statutory.create",
+            "label": "Create event",
+            "permissions": ["manage_event:agora", "manage_event:epm"]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "categoryName": "Resources",
+    "components": [
+      {
+        "name": "oms.discounts",
+        "label": "Discounts",
+        "icon": "fa-percent"
+      },
+      {
+        "name": "oms.resources",
+        "label": "Resources",
+        "icon": "fa-external-link"
+      }
+    ]
+  }
+]
