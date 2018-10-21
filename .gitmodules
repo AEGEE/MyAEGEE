@@ -16,3 +16,6 @@
 [submodule "oms-frontend"]
 	path = oms-frontend
 	url = https://github.com/aegee/oms-frontend
+[submodule "oms-statutory"]
+	path = oms-statutory
+	url = https://github.com/AEGEE/oms-statutory
