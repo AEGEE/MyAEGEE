@@ -226,6 +226,50 @@
           </div>
         </div>
 
+        <hr/>
+
+        <div class="subtitle is-fullwidth has-text-centered">Locations</div>
+        <GmapMap
+          :class="is-fullwidth"
+          :zoom="7"
+          :center="center"
+          style="height: 400px" >
+            <GmapMarker
+              :key="index"
+              v-for="(marker, index) in event.locations"
+              :position="marker.position"
+              :draggable="true"
+              @dragend="setMarkerPosition($event.latLng, index)" />
+        </GmapMap>
+
+        <table class="table is-narrowed is-stripped is-fullwidth">
+          <thead>
+            <tr>
+              <th>Latitude</th>
+              <th>Longitude</th>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(marker, index) in event.locations" v-bind:key="index">
+              <td>{{ marker.position.lat }}</td>
+              <td>{{ marker.position.lng }}</td>
+              <td>
+                <input type="text" class="input" required v-model="marker.name" />
+              </td>
+            </tr>
+            <tr colspan="3" v-if="event.locations.length === 0">
+              <td>No locations added.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="field">
+          <div class="control">
+            <a class="button is-primary" @click="addLocation()">Add new location</a>
+          </div>
+        </div>
+
         <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
 
         <div class="field">
@@ -254,12 +298,17 @@ export default {
         application_deadline: null,
         application_fields: [],
         max_participants: null,
+        locations: [],
         fee: null,
         status: null,
         starts: null,
         ends: null,
         body_id: null,
         body: null
+      },
+      center: {
+        lat: 50.8503396,
+        lng: 4.3517103
       },
       file: null,
       eventTypes: [],
@@ -303,6 +352,19 @@ export default {
     },
     deleteApplicationField (index) {
       this.event.application_fields.splice(index, 1)
+    },
+    addLocation () {
+      this.event.locations.push({
+        name: '',
+        position: {
+          lat: 50.8503396,
+          lng: 4.3517103
+        },
+      })
+    },
+    setMarkerPosition (position, index) {
+      this.event.locations[index].position.lat = position.lat()
+      this.event.locations[index].position.lng = position.lng()
     },
     saveEvent () {
       this.isSaving = true

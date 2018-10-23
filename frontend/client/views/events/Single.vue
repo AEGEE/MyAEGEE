@@ -133,6 +133,28 @@
               </tbody>
             </table>
           </div>
+
+          <GmapMap
+            v-if="event.locations.length > 0"
+            :zoom="7"
+            :class="is-fullwidth"
+            :center="map.center"
+            style="height: 400px"
+            ref="mapRef" >
+            <gmap-info-window
+              v-if="map.selectedMarkerIndex != null"
+              :position="event.locations[map.selectedMarkerIndex].position"
+              :options="map.infoOptions"
+              @closeclick="map.selectedMarkerIndex = null">
+              {{ event.locations[map.selectedMarkerIndex].name }}
+            </gmap-info-window>
+            <GmapMarker
+              :key="index"
+              v-for="(marker, index) in event.locations"
+              :position="marker.position"
+              @click="map.selectedMarkerIndex = index"
+              :draggable="false" />
+          </GmapMap>
         </div>
       </article>
     </div>
@@ -143,6 +165,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { gmapApi } from 'vue2-google-maps'
 
 export default {
   name: 'SingleEvent',
@@ -155,6 +178,7 @@ export default {
         url: null,
         organizers: [],
         organizing_locals: [],
+        locations: [],
         circles: [],
         starts: null,
         ends: null,
@@ -162,6 +186,16 @@ export default {
         application_deadline: null,
         head_image: null,
         status: { name: 'Loading...' }
+      },
+      map: {
+        center: { lat: 50.8503396, lng: 4.3517103 },
+        selectedMarkerIndex: null,
+        infoOptions: {
+          pixelOffset: {
+            width: 0,
+            height: -35
+          }
+        }
       },
       isLoading: false,
       can: {
@@ -182,18 +216,31 @@ export default {
       this.isLoading = false
 
       for (const body of this.event.organizing_locals) {
-        this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + body.body_id).then((response) => {
-          body.body = response.data.data
+        this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + body.body_id).then((bodyResponse) => {
+          body.body = bodyResponse.data.data
           this.$forceUpdate()
         }).catch(console.error)
       }
 
       for (const member of this.event.organizers) {
-        this.axios.get(this.services['oms-core-elixir'] + '/members/' + member.user_id).then((response) => {
-          member.user = response.data.data
+        this.axios.get(this.services['oms-core-elixir'] + '/members/' + member.user_id).then((memberResponse) => {
+          member.user = memberResponse.data.data
           this.$forceUpdate()
         }).catch(console.error)
       }
+
+      // loading map
+      this.$refs.mapRef.$mapPromise.then((map) => {
+        const bounds = new google.maps.LatLngBounds()
+        console.log('bounds')
+        for (const marker of this.event.locations) {
+          bounds.extend(marker.position)
+          console.log('extend', marker)
+        }
+
+        this.$refs.mapRef.$mapObject.fitBounds(bounds);
+        console.log('extend borders')
+      });
     }).catch((err) => {
       this.isLoading = false
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
@@ -202,9 +249,12 @@ export default {
       this.$router.push({ name: 'oms.events.list' })
     })
   },
-  computed: mapGetters({
-    loginUser: 'user',
-    services: 'services'
-  })
+  computed: {
+    ...mapGetters({
+      loginUser: 'user',
+      services: 'services'
+    }),
+    google: gmapApi
+  }
 }
 </script>
