@@ -81,8 +81,12 @@ module.exports = {
   },
   plugins: [
     new CopyWebpackPlugin([
-      { from: path.resolve(__dirname, '../client/static/status.json'), to: path.resolve(__dirname, '../dist') },
-      { from: path.resolve(__dirname, '../client/static/getModules.json'), to: path.resolve(__dirname, '../dist') }
+      {
+        from: path.resolve(__dirname, '../client/static/'),
+        to: path.resolve(__dirname, '../dist'),
+        fromType: 'dir',
+        toType: 'dir'
+      }
     ])
   ],
   // See https://github.com/webpack/webpack/issues/3486

@@ -4,7 +4,7 @@
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
           <figure class="image is-1by1">
-            <img src="https://bulma.io/images/placeholders/480x480.png">
+            <img src="/images/logo.png">
           </figure>
         </article>
       </div>

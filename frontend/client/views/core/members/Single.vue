@@ -3,8 +3,8 @@
     <div class="tile is-vertical is-3">
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
-          <figure class="image is-4by3">
-            <img src="https://bulma.io/images/placeholders/640x480.png">
+          <figure class="image is-1by1">
+            <img src="/images/logo.png">
           </figure>
         </article>
       </div>
