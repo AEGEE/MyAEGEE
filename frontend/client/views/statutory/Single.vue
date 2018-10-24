@@ -73,7 +73,9 @@
                 </tr>
                 <tr>
                   <th>Description</th>
-                  <td>{{ event.description }}</td>
+                  <td>
+                    <div class="content" v-html="$options.filters.markdown(event.description)"></div>
+                  <td>
                 </tr>
                 <tr>
                   <th>Starts</th>
