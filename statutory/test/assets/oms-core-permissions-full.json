@@ -80,5 +80,25 @@
         "circles": null,
         "always_assigned": false,
         "action": "manage_event"
+    }, {
+      "scope": "global",
+      "object": "agora",
+      "id": 65,
+      "filters": [],
+      "description": "Approve every board.",
+      "combined": "global:approve_members:agora",
+      "circles": null,
+      "always_assigned": false,
+      "action": "approve_members"
+    }, {
+      "scope": "global",
+      "object": "epm",
+      "id": 66,
+      "filters": [],
+      "description": "Approve every board.",
+      "combined": "global:approve_members:epm",
+      "circles": null,
+      "always_assigned": false,
+      "action": "approve_members"
     }]
 }

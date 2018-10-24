@@ -63,28 +63,6 @@ describe('Events creation', () => {
         }
     });
 
-    test('should fail if the dates are in the past', async () => {
-        const res = await request({
-            uri: '/',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: generator.generateEvent({
-                application_period_starts: moment().subtract(4, 'months').toDate(),
-                application_period_ends: moment().subtract(3, 'months').toDate(),
-                starts: moment().subtract(2, 'months').toDate(),
-                ends: moment().subtract(1, 'months').toDate()
-            })
-        });
-
-        expect(res.statusCode).toEqual(422);
-        expect(res.body.success).toEqual(false);
-        expect(Object.keys(res.body.errors).length).toEqual(4); // only these errors
-        expect(res.body.errors).toHaveProperty('application_period_starts');
-        expect(res.body.errors).toHaveProperty('application_period_ends');
-        expect(res.body.errors).toHaveProperty('starts');
-        expect(res.body.errors).toHaveProperty('ends');
-    });
-
     test('should fail if event ends before it starts', async () => {
         const res = await request({
             uri: '/',

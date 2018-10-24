@@ -57,7 +57,7 @@ describe('Applications pax type/board comment', () => {
     });
 
     test('should return 403 when user does not have permissions', async () => {
-        mock.mockAll({ approvePermissions: { noPermissions: true } });
+        mock.mockAll({ approvePermissions: { noPermissions: true }, mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
         const application = await generator.createApplication({}, event);

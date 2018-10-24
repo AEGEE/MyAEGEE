@@ -10,11 +10,13 @@ const middlewares = require('./middlewares');
 const db = require('./sequelize');
 const events = require('./events');
 const applications = require('./applications');
+const memberslists = require('./memberslists');
 
 const GeneralRouter = router({ mergeParams: true });
 const EventsRouter = router({ mergeParams: true });
 const ApplicationsRouter = router({ mergeParams: true });
 const SingleApplicationRouter = router({ mergeParams: true });
+const MembersListsRouter = router({ mergeParams: true });
 
 /* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {
@@ -67,6 +69,12 @@ SingleApplicationRouter.put('/board', applications.setApplicationBoard);
 SingleApplicationRouter.get('/', applications.getApplication);
 SingleApplicationRouter.put('/', applications.updateApplication);
 
+MembersListsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
+MembersListsRouter.get('/', memberslists.getAllMemberslists);
+MembersListsRouter.get('/:body_id', memberslists.getMemberslist);
+MembersListsRouter.post('/:body_id', memberslists.uploadMembersList);
+
+server.use('/events/:event_id/memberslists', MembersListsRouter);
 server.use('/events/:event_id/applications', ApplicationsRouter);
 server.use('/events/:event_id/applications/:application_id', SingleApplicationRouter);
 server.use('/events/:event_id', EventsRouter);

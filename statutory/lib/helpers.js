@@ -42,15 +42,20 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
 
     permissions.see_applications = hasPermission(corePermissions, 'see_applications:' + event.type);
     permissions.set_board_comment_and_participant_type_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
+    permissions.upload_memberslist_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
     permissions.see_boardview_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
+
+    permissions.see_memberslists = hasPermission(corePermissions, 'global:see_memberslists:' + event.type);
 
     permissions.set_board_comment_and_participant_type = {};
     permissions.see_boardview_of = {};
+    permissions.upload_memberslist = {};
 
     const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
     for (const body of user.bodies) {
         permissions.set_board_comment_and_participant_type[body.id] = approveBodiesList.includes(body.id)
         permissions.see_boardview_of[body.id] = approveBodiesList.includes(body.id)
+        permissions.upload_memberslist[body.id] = approveBodiesList.includes(body.id)
     }
 
     return permissions;

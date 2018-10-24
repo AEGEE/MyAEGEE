@@ -1,6 +1,6 @@
 const faker = require('faker');
 
-const { Event, Application } = require('../../models');
+const { Event, Application, MembersList } = require('../../models');
 
 exports.generateEvent = (options = {}) => {
     if (!options.name) options.name = faker.lorem.sentence();
@@ -48,6 +48,25 @@ exports.generateApplication = (options = {}, event = null) => {
     return options;
 }
 
+exports.generateMembersList = (options = {}, event = null) => {
+    if (typeof options.currency === 'undefined') options.currency = faker.lorem.sentence();
+    if (typeof options.members === 'undefined') {
+        const membersCount = Math.round(Math.random() * 5) + 1; // from 1 to 6
+        options.members = Array.from({ length: membersCount }, () => ({
+            user_id: faker.random.number(100),
+            first_name: faker.name.firstName(),
+            last_name: faker.name.lastName(),
+            fee: faker.random.number(1000)
+        }));
+    }
+
+    if (event && event.id) {
+        options.event_id = event.id;
+    }
+
+  return options;
+}
+
 exports.createEvent = (options = {}) => {
     return Event.create(exports.generateEvent(options), { include: [ Application ] });
 };
@@ -56,7 +75,12 @@ exports.createApplication = (options = {}, event = null) => {
     return Application.create(exports.generateApplication(options, event));
 };
 
+exports.createMembersList = (options = {}, event = null) => {
+  return MembersList.create(exports.generateMembersList(options, event));
+};
+
 exports.clearAll = async () => {
+    await MembersList.destroy({ where: {}, truncate: { cascade: true } });
     await Application.destroy({ where: {}, truncate: { cascade: true } });
     await Event.destroy({ where: {}, truncate: { cascade: true } });
 };
