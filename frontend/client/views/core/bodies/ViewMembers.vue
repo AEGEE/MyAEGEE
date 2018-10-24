@@ -38,7 +38,7 @@
             <tbody>
               <tr v-show="members.length" v-for="member in members" v-bind:key="member.id">
                 <td>
-                  <router-link :to="{ name: 'oms.members.view', params: { id: member.seo_url || member.id } }">
+                  <router-link :to="{ name: 'oms.members.view', params: { id: member.member_id } }">
                     {{ member.member.first_name }} {{ member.member.last_name }}
                   </router-link>
                 </td>
