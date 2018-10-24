@@ -83,16 +83,16 @@
                 </tr>
                 <tr>
                   <th>Application deadline</th>
-                  <td v-if="event.application_deadline">{{ event.application_deadline }}</td>
+                  <td v-if="event.application_deadline">{{ event.application_deadline | datetime }}</td>
                   <td v-if="!event.application_deadline"><i>Not set.</i></td>
                 </tr>
                 <tr>
                   <th>Starts</th>
-                  <td>{{ event.starts | date }}</td>
+                  <td>{{ event.starts | datetime }}</td>
                 </tr>
                 <tr>
                   <th>Ends</th>
-                  <td>{{ event.ends | date }}</td>
+                  <td>{{ event.ends | datetime }}</td>
                 </tr>
                 <tr>
                   <th>Type</th>
