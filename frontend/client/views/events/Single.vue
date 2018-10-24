@@ -88,11 +88,11 @@
                 </tr>
                 <tr>
                   <th>Starts</th>
-                  <td>{{ event.starts }}</td>
+                  <td>{{ event.starts | date }}</td>
                 </tr>
                 <tr>
                   <th>Ends</th>
-                  <td>{{ event.ends }}</td>
+                  <td>{{ event.ends | date }}</td>
                 </tr>
                 <tr>
                   <th>Type</th>
