@@ -27,12 +27,7 @@ const Event = sequelize.define('event', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Event start date should be set.' },
-            isDate: { msg: 'Event start date should be valid.' },
-            isPresent(val) {
-                if (moment().isSameOrAfter(val)) {
-                    throw new Error('Event start date cannot be in the past.');
-                }
-            }
+            isDate: { msg: 'Event start date should be valid.' }
         }
     },
     ends: {
@@ -45,11 +40,6 @@ const Event = sequelize.define('event', {
             laterThanStart(val) {
                 if (moment(val).isSameOrBefore(this.starts)) {
                     throw new Error('Event cannot start after or at the same time it ends.');
-                }
-            },
-            isPresent(val) {
-                if (moment().isSameOrAfter(val)) {
-                    throw new Error('Event end date cannot be in the past.');
                 }
             }
         }
@@ -79,12 +69,7 @@ const Event = sequelize.define('event', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Event application starts date should be set.' },
-            isDate: { msg: 'Event application starts date should be set.' },
-            isPresent(val) {
-                if (moment().isSameOrAfter(val)) {
-                    throw new Error('Application period cannot start in the past.');
-                }
-            }
+            isDate: { msg: 'Event application starts date should be set.' }
         }
     },
     application_period_ends: {
@@ -102,11 +87,6 @@ const Event = sequelize.define('event', {
             beforeEventStart(val) {
                 if (moment(val).isSameOrAfter(this.starts)) {
                     throw new Error('Application period cannot end before or at the same time the event starts.');
-                }
-            },
-            isPresent(val) {
-                if (moment().isSameOrAfter(val)) {
-                    throw new Error('Application period cannot end in the past.');
                 }
             }
         }
