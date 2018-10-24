@@ -45,7 +45,7 @@
                   {{ pax.user ? pax.user.first_name + ' ' + pax.user.last_name: 'Loading...' }}
                 </router-link>
               </td>
-              <td v-for="(answer, index) in pax.answers" v-bind:key="index">{{ answer }}</td>
+              <td v-for="(answer, index) in event.questions" v-bind:key="index">{{ pax.answers[index] }}</td>
               <td>
                 <div class="select">
                   <select v-model="pax.participant_type" @change="pax.saved = false">
