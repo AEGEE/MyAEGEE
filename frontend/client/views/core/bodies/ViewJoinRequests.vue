@@ -36,7 +36,7 @@
             <tbody>
               <tr v-show="filteredMembers.length" v-for="member in filteredMembers" v-bind:key="member.id" v-if="displayAccepted || !member.approved">
                 <td>
-                  <router-link :to="{ name: 'oms.members.view', params: { id: member.seo_url || member.id } }">
+                  <router-link :to="{ name: 'oms.members.view', params: { id: member.member_id } }">
                     {{ member.member.first_name }} {{ member.member.last_name }}
                   </router-link>
                 </td>
