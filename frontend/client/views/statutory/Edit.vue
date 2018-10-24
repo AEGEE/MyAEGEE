@@ -100,7 +100,7 @@
           <p class="help is-danger" v-if="errors.ends">{{ errors.ends.message }}</p>
         </div>
 
-        <div class="tile is-child" v-if="!$route.params.id">
+        <div class="tile is-child">
           <div class="field">
             <label class="label">Organizing body</label>
             <div class="control">
@@ -134,7 +134,7 @@
           <p class="help is-danger" v-if="errors.body">{{ errors.body.join(', ')}}</p>
         </div>
 
-        <div class="field">
+        <div class="field" v-if="!$route.params.id">
           <label class="label">Event type</label>
           <div class="control">
             <div class="select">
@@ -174,21 +174,27 @@
 
         <div class="subtitle is-fullwidth has-text-centered">Questions</div>
 
-        <div v-for="(question, index) in event.questions" v-bind:key="index">
-
-          <div class="field">
-            <label class="label">Description</label>
-            <div class="control">
-              <input class="input" type="text" required v-model="event.questions[index]"/>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="control">
-              <a class="button is-danger" @click="deleteQuestion(index)">Delete question</a>
-            </div>
-          </div>
-        </div>
+        <table class="table is-fullwidth is-narrowed">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(question, index) in event.questions" v-bind:key="index">
+              <td>
+                <input class="input" type="text" required v-model="event.questions[index]"/>
+              </td>
+              <td>
+                <a class="button is-danger" @click="deleteQuestion(index)">Delete question</a>
+              </td>
+            </tr>
+            <tr colspan="2" v-if="event.questions.length === 0">
+              <td>No questions are set.</td>
+            </tr>
+          </tbody>
+        </table>
 
         <div class="field">
           <div class="control">
@@ -198,14 +204,14 @@
 
         <p class="help is-danger" v-if="errors.fee">{{ errors.questions.message }}</p>
 
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
-
         <div class="field">
           <div class="control">
             <input type="submit" value="Save event" :disabled="isSaving" class="button is-primary is-fullwidth"/>
           </div>
         </div>
       </form>
+
+      <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
     </div>
   </div>
 </template>
@@ -320,6 +326,8 @@ export default {
     if (!this.$route.params.id) {
       return
     }
+
+    this.isLoading = true
 
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
