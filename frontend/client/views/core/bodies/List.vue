@@ -4,9 +4,9 @@
       <article class="tile is-child">
         <h4 class="title">Bodies list</h4>
         <div class="field">
-          <label class="label">Search by name or description</label>
+          <label class="label">Search by name or body code</label>
           <div class="control">
-            <input class="input" type="text" v-model="query" placeholder="Search by name or description" @input="refetch()">
+            <input class="input" type="text" v-model="query" placeholder="Search by name or body code" @input="refetch()">
           </div>
         </div>
 
