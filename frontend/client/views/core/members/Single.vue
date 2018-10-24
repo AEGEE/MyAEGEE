@@ -26,7 +26,7 @@
 
           <div class="field is-grouped" v-if="isOwnProfile">
             <router-link :to="{ name: 'oms.members.edituser', params: { id: user.seo_url || user.id } }" class="button is-fullwidth is-warning">
-              <span>Edit user info</span>
+              <span>Change email or password</span>
               <span class="icon"><i class="fa fa-edit"></i></span>
             </router-link>
           </div>
