@@ -359,7 +359,7 @@ export default {
         position: {
           lat: 50.8503396,
           lng: 4.3517103
-        },
+        }
       })
     },
     setMarkerPosition (position, index) {

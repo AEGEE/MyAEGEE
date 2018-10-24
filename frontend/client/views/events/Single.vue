@@ -233,16 +233,13 @@ export default {
 
       // loading map
       this.$refs.mapRef.$mapPromise.then((map) => {
-        const bounds = new google.maps.LatLngBounds()
-        console.log('bounds')
+        const bounds = new this.google.maps.LatLngBounds()
         for (const marker of this.event.locations) {
           bounds.extend(marker.position)
-          console.log('extend', marker)
         }
 
-        this.$refs.mapRef.$mapObject.fitBounds(bounds);
-        console.log('extend borders')
-      });
+        this.$refs.mapRef.$mapObject.fitBounds(bounds)
+      })
     }).catch((err) => {
       this.isLoading = false
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
