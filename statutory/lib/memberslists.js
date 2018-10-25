@@ -7,7 +7,7 @@ exports.getAllMemberslists = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see memberslists.');
     }
 
-    const memberslists = await MembersList.find({ where: { event_id: req.event.id } });
+    const memberslists = await MembersList.findAll({ where: { event_id: req.event.id } });
     return res.json({
         success: true,
         data: memberslists
