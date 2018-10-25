@@ -24,6 +24,11 @@ services:
             - postgres-oms-statutory
         expose:
             - "8084"
+        environment:
+            BUGSNAG_KEY: a7dfed96a71033eca7f4469e8f88878b
+        secrets:
+            - mail_user
+            - mail_password
         labels:
             - "traefik.backend=oms-statutory"
             - "traefik.port=8084"

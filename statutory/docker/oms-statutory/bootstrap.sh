@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ ! -f config/config.json ]
+if [ ! -f config/index.js ]
 then
-  cp config/config.json.example config/config.json
+  cp config/index.js.example config/index.js
 fi
 
 echo "Installing packages..."

@@ -35,7 +35,7 @@ const config = {
     },
 		media_dir: '/usr/app/media',
 		media_url: '/frontend/media',
-		bugsnagKey: process.env.BUGSNAG_KEY || ''
+		bugsnagKey: process.env.BUGSNAG_KEY
 	},
 	development: {
 
