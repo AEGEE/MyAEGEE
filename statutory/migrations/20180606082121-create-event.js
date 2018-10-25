@@ -9,6 +9,7 @@ module.exports = {
         starts: { type: Sequelize.DATE, allowNull: false },
         ends: { type: Sequelize.DATE, allowNull: false },
         description: { type: Sequelize.TEXT, allowNull: false },
+        board_approve_deadline: { type: Sequelize.DATE, allowNull: false },
         status: { type: Sequelize.ENUM('draft', 'published'), defaultValue: 'draft', allowNull: false },
         application_period_starts: { type: Sequelize.DATE, allowNull: false },
         application_period_ends: { type: Sequelize.DATE, allowNull: false },

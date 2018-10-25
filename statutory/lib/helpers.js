@@ -53,7 +53,8 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
 
     const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
     for (const body of user.bodies) {
-        permissions.set_board_comment_and_participant_type[body.id] = approveBodiesList.includes(body.id)
+        permissions.set_board_comment_and_participant_type[body.id] =
+          event.can_approve_members && approveBodiesList.includes(body.id)
         permissions.see_boardview_of[body.id] = approveBodiesList.includes(body.id)
         permissions.upload_memberslist[body.id] = approveBodiesList.includes(body.id)
     }

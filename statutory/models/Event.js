@@ -91,6 +91,25 @@ const Event = sequelize.define('event', {
             }
         }
     },
+    board_approve_deadline: {
+      type: Sequelize.DATE,
+      allowNull: false,
+      defaultValue: '',
+      validate: {
+          notEmpty: { msg: 'Event board approve deadline should be set.' },
+          isDate: { msg: 'Event board approve deadline should be set.' },
+          laterThanApplicationEnd(val) {
+              if (moment(val).isSameOrBefore(this.application_period_ends)) {
+                  throw new Error('Board approve deadline cannot be after or at the same time the aplication period ends.');
+              }
+          },
+          beforeEventStart(val) {
+              if (moment(val).isSameOrAfter(this.starts)) {
+                  throw new Error('Board approve deadline cannot be before or at the same time the event starts.');
+              }
+          }
+      }
+  },
     body_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -152,6 +171,12 @@ const Event = sequelize.define('event', {
         get() {
             return moment().isBetween(this.application_period_starts, this.application_period_ends, null, '[]'); // inclusive
         }
+    },
+    can_approve_members: {
+      type: Sequelize.VIRTUAL,
+      get() {
+          return moment().isBetween(this.application_period_starts, this.board_aprove_deadline, null, '[]'); // inclusive
+      }
     },
     url: {
         type: Sequelize.STRING,

@@ -7,7 +7,8 @@ exports.generateEvent = (options = {}) => {
     if (!options.description) options.description = faker.lorem.paragraph();
     if (!options.application_period_starts) options.application_period_starts = faker.date.future();
     if (!options.application_period_ends) options.application_period_ends = faker.date.future(null, options.application_period_starts);
-    if (!options.starts) options.starts = faker.date.future(null, options.application_period_ends);
+    if (!options.board_approve_deadline) options.board_approve_deadline = faker.date.future(null, options.application_period_ends);
+    if (!options.starts) options.starts = faker.date.future(null, options.board_approve_deadline);
     if (!options.ends) options.ends = faker.date.future(null, options.starts);
     if (!options.fee) options.fee = faker.random.number({ min: 0, max: 100 });
     if (!options.body_id) options.body_id = faker.random.number(100);

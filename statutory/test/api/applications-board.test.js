@@ -1,3 +1,6 @@
+const tk = require('timekeeper');
+const moment = require('moment');
+
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -148,4 +151,25 @@ describe('Applications pax type/board comment', () => {
         expect(res.body.data.participant_type).toEqual(application.participant_type);
         expect(res.body.data.board_comment).toEqual(application.board_comment);
     });
+
+    test('should return 403 if the user is not within deadline and doesn\'t have global permission', async () => {
+      mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+      const event = await generator.createEvent();
+      const application = await generator.createApplication({}, event);
+
+      tk.travel(moment(event.board_approve_deadline).add(5, 'minutes').toDate());
+
+      const res = await request({
+          uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+          method: 'PUT',
+          headers: { 'X-Auth-Token': 'blablabla' },
+          body: { participant_type: 'delegate' }
+      });
+
+      expect(res.statusCode).toEqual(403);
+      expect(res.body.success).toEqual(false);
+      expect(res.body).not.toHaveProperty('data');
+      expect(res.body).toHaveProperty('message');
+  });
 });
