@@ -19,7 +19,7 @@ before_install:
   - npm install
 
 install:
-  - cp ./config/config.json.example ./config/config.json
+  - cp ./config/index.js.example ./config/index.js
 
 script:
   - npm test
