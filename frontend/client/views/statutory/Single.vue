@@ -11,13 +11,13 @@
       <div class="tile is-parent">
         <article class="tile is-child is-info">
           <div class="field is-grouped">
-            <router-link :to="{ name: 'oms.statutory.manage_participants', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link :to="{ name: 'oms.statutory.manage_participants', params: { id: event.url || event.id } }" class="button is-fullwidth" v-if="can.see_applications">
               <span>View applications</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.see_applications">
+          <div class="field is-grouped">
             <router-link :to="{ name: 'oms.statutory.accepted', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Participants list</span>
               <span class="icon"><i class="fa fa-users"></i></span>
@@ -205,7 +205,9 @@ export default {
       services: 'services'
     }),
     canAccessBoardview () {
-      return Object.keys(this.can.set_board_comment_and_participant_type).length > 0
+      return Object.keys(this.can.set_board_comment_and_participant_type)
+        .filter(key => this.can.set_board_comment_and_participant_type[key])
+        .length > 0
     }
   }
 }
