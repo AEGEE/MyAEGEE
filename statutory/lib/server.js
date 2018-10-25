@@ -11,12 +11,14 @@ const db = require('./sequelize');
 const events = require('./events');
 const applications = require('./applications');
 const memberslists = require('./memberslists');
+const massmailer = require('./massmailer');
 
 const GeneralRouter = router({ mergeParams: true });
 const EventsRouter = router({ mergeParams: true });
 const ApplicationsRouter = router({ mergeParams: true });
 const SingleApplicationRouter = router({ mergeParams: true });
 const MembersListsRouter = router({ mergeParams: true });
+const MassMailerRouter = router({ mergeParams: true });
 
 /* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {
@@ -74,6 +76,16 @@ MembersListsRouter.get('/', memberslists.getAllMemberslists);
 MembersListsRouter.get('/:body_id', memberslists.getMemberslist);
 MembersListsRouter.post('/:body_id', memberslists.uploadMembersList);
 
+MembersListsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
+MembersListsRouter.get('/', memberslists.getAllMemberslists);
+MembersListsRouter.get('/:body_id', memberslists.getMemberslist);
+MembersListsRouter.post('/:body_id', memberslists.uploadMembersList);
+
+MassMailerRouter.use(middlewares.authenticateUser, middlewares.fetchEventWithApplications);
+MassMailerRouter.post('/', massmailer.sendAll);
+MassMailerRouter.post('/:filter', massmailer.sendAll);
+
+server.use('/events/:event_id/massmailer', MassMailerRouter);
 server.use('/events/:event_id/memberslists', MembersListsRouter);
 server.use('/events/:event_id/applications', ApplicationsRouter);
 server.use('/events/:event_id/applications/:application_id', SingleApplicationRouter);
