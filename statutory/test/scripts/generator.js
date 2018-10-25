@@ -50,6 +50,8 @@ exports.generateApplication = (options = {}, event = null) => {
 
 exports.generateMembersList = (options = {}, event = null) => {
     if (typeof options.currency === 'undefined') options.currency = faker.lorem.sentence();
+    if (typeof options.user_id === 'undefined') options.user_id = faker.random.number(100);
+    if (typeof options.body_id === 'undefined') options.body_id = faker.random.number(100);
     if (typeof options.members === 'undefined') {
         const membersCount = Math.round(Math.random() * 5) + 1; // from 1 to 6
         options.members = Array.from({ length: membersCount }, () => ({
