@@ -3,7 +3,7 @@
     <div class="tile is-vertical is-3">
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
-          <figure class="image is-4by3">
+          <figure class="image is-1by1">
             <img src="/images/logo.png">
           </figure>
         </article>
@@ -27,6 +27,20 @@
           <div class="field is-grouped" v-if="canAccessBoardview">
             <router-link :to="{ name: 'oms.statutory.boardview', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Board view</span>
+              <span class="icon"><i class="fa fa-users"></i></span>
+            </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="canAccessBoardview">
+            <router-link :to="{ name: 'oms.statutory.memberslist.upload', params: { id: event.url || event.id } }" class="button is-fullwidth">
+              <span>Manage members list</span>
+              <span class="icon"><i class="fa fa-users"></i></span>
+            </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="can.see_memberslists">
+            <router-link :to="{ name: 'oms.statutory.memberslist.list', params: { id: event.url || event.id } }" class="button is-fullwidth">
+              <span>See members list</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
           </div>
@@ -139,7 +153,8 @@ export default {
         change_event_status: false,
         delete_event: false,
         apply: false,
-        set_board_comment_and_participant_type: {}
+        set_board_comment_and_participant_type: {},
+        see_memberslists: false
       }
     }
   },

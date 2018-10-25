@@ -431,7 +431,23 @@ module.exports = [
     path: '/statutory/:id/boardview',
     component: 'statutory/BoardView',
     meta: {
-      label: 'Board view for applications for statutory events.'
+      label: 'Board view for statutory events.'
+    }
+  },
+  {
+    name: 'oms.statutory.memberslist.upload',
+    path: '/statutory/:id/memberslist/upload',
+    component: 'statutory/UploadMembersList',
+    meta: {
+      label: 'Upload members list'
+    }
+  },
+  {
+    name: 'oms.statutory.memberslist.list',
+    path: '/statutory/:id/memberslist/list',
+    component: 'statutory/ListMembersLists',
+    meta: {
+      label: 'List members lists'
     }
   },
   {
