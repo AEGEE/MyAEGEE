@@ -92,20 +92,24 @@
                   <td>
                 </tr>
                 <tr>
-                  <th>Starts</th>
-                  <td>{{ event.starts | datetime }}</td>
-                </tr>
-                <tr>
-                  <th>Ends</th>
-                  <td>{{ event.ends | datetime }}</td>
-                </tr>
-                <tr>
                   <th>Application period starts</th>
                   <td>{{ event.application_period_starts | datetime }}</td>
                 </tr>
                 <tr>
                   <th>Application period ends</th>
                   <td>{{ event.application_period_ends | datetime }}</td>
+                </tr>
+                <tr>
+                  <th>Deadline for board approval</th>
+                  <td>{{ event.board_approve_deadline | datetime }}</td>
+                </tr>
+                <tr>
+                  <th>Starts</th>
+                  <td>{{ event.starts | datetime }}</td>
+                </tr>
+                <tr>
+                  <th>Ends</th>
+                  <td>{{ event.ends | datetime }}</td>
                 </tr>
                 <tr>
                   <th>Fee</th>

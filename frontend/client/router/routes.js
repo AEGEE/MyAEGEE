@@ -451,6 +451,14 @@ module.exports = [
     }
   },
   {
+    name: 'oms.statutory.massmailer',
+    path: '/statutory/:id/massmailer',
+    component: 'statutory/MassMailer',
+    meta: {
+      label: 'Massmailer for statutory events'
+    }
+  },
+  {
     name: 'oms.statutory.edit',
     path: '/statutory/:id/edit',
     component: 'statutory/Edit',

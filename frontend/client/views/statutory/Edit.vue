@@ -71,7 +71,7 @@
         <div class="field">
           <label class="label">Application period starts</label>
           <div class="control">
-            <b-datepicker :min-date="new Date()" v-model="event.application_period_starts" />
+            <b-datepicker v-model="event.application_period_starts" />
           </div>
           <p class="help is-danger" v-if="errors.application_period_starts">{{ errors.application_period_starts.message }}</p>
         </div>
@@ -79,15 +79,23 @@
         <div class="field">
           <label class="label">Application period ends</label>
           <div class="control">
-            <b-datepicker :min-date="new Date()" v-model="event.application_period_ends" />
+            <b-datepicker v-model="event.application_period_ends" />
           </div>
           <p class="help is-danger" v-if="errors.application_period_ends">{{ errors.application_period_ends.message }}</p>
         </div>
 
         <div class="field">
+          <label class="label">Board approve deadline</label>
+          <div class="control">
+            <b-datepicker v-model="event.board_approve_deadline" />
+          </div>
+          <p class="help is-danger" v-if="errors.board_approve_deadline">{{ errors.board_approve_deadline.message }}</p>
+        </div>
+
+        <div class="field">
           <label class="label">Start date</label>
           <div class="control">
-            <b-datepicker :min-date="new Date()" v-model="event.starts" />
+            <b-datepicker v-model="event.starts" />
           </div>
           <p class="help is-danger" v-if="errors.starts">{{ errors.starts.message }}</p>
         </div>
@@ -95,7 +103,7 @@
         <div class="field">
           <label class="label">End date</label>
           <div class="control">
-            <b-datepicker :min-date="new Date()" v-model="event.ends" />
+            <b-datepicker v-model="event.ends" />
           </div>
           <p class="help is-danger" v-if="errors.ends">{{ errors.ends.message }}</p>
         </div>
