@@ -4,6 +4,13 @@
       <div class="tile is-child">
         <div class="title">Manage applications</div>
 
+        <div class="field">
+          <div class="control">
+            <button class="button is-primary" v-if="!displayCancelled" @click="displayCancelled = true">Display all applications</button>
+            <button class="button is-primary" v-if="displayCancelled" @click="displayCancelled = false">Display only not cancelled applications</button>
+          </div>
+        </div>
+
         <table class="table is-narrow is-fullwidth">
           <thead>
             <tr>
@@ -13,7 +20,7 @@
               <th>Participant type</th>
               <th>Board comment</th>
               <th v-for="(question, index) in event.questions" v-bind:key="index">{{ question }}</th>
-              <th>Cancelled?</th>
+              <th v-if="displayCancelled">Cancelled?</th>
               <th>Paid fee?</th>
               <th>Attended?</th>
               <th>Edit</th>
@@ -21,7 +28,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="pax in applications" v-bind:key="pax.user_id" :class="calculateClassForApplication(pax)">
+            <tr v-for="pax in filteredApplications" v-bind:key="pax.user_id" :class="calculateClassForApplication(pax)">
               <td>{{ pax.id }}</td>
               <td>
                 <router-link :to="{ name: 'oms.members.view', params: { id: pax.user_id } }">
@@ -37,8 +44,8 @@
               <td v-if="!pax.participant_type"><i>Not set.</i></td>
               <td v-if="pax.board_comment">{{ pax.board_comment }}</td>
               <td v-if="!pax.board_comment"><i>Not set.</i></td>
-              <td v-for="(answer, index) in pax.answers" v-bind:key="index">{{ answer }}</td>
-              <td>{{ pax.cancelled ? 'Yes' : 'No' }}</td>
+              <td v-for="(question, index) in event.questions" v-bind:key="index">{{ pax.answers[index] }}</td>
+              <td v-if="displayCancelled">{{ pax.cancelled ? 'Yes' : 'No' }}</td>
               <td>{{ pax.paid_fee ? 'Yes' : 'No' }}</td>
               <td>{{ pax.attended ? 'Yes' : 'No' }}</td>
               <td>
@@ -56,7 +63,7 @@
                 </div>
               </th>
             </tr>
-            <tr v-if="applications.length == 0 && !isLoading">
+            <tr v-if="filteredApplications.length == 0 && !isLoading">
               <td :colspan="7 + event.questions.length">No applications yet!</td>
             </tr>
             <tr v-if="isLoading">
@@ -80,14 +87,22 @@ export default {
       event: {
         questions: []
       },
+      displayCancelled: false,
       isLoading: false,
       isSaving: false
     }
   },
-  computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
-  }),
+  computed: {
+    ...mapGetters({
+      services: 'services',
+      loginUser: 'user'
+    }),
+    filteredApplications () {
+      return this.displayCancelled
+        ? this.applications
+        : this.applications.filter(app => !app.cancelled)
+    }
+  },
   methods: {
     calculateClassForApplication (pax) {
       switch (pax.status) {
