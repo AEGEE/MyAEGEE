@@ -46,6 +46,7 @@ export default {
   }
 
   .footer-message {
+    display: none;
     border: 1px solid #ff3860;
   }
 
