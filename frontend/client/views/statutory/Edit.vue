@@ -346,6 +346,7 @@ export default {
       this.event.ends = new Date(this.event.ends)
       this.event.application_period_starts = new Date(this.event.application_period_starts)
       this.event.application_period_ends = new Date(this.event.application_period_ends)
+      this.event.board_approve_deadline = new Date(this.event.board_approve_deadline)
 
       this.isLoading = false
       this.$forceUpdate()
