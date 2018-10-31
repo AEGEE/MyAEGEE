@@ -240,6 +240,7 @@ export default {
         body_id: null,
         application_period_starts: null,
         application_period_endss: null,
+        board_approve_deadline: null,
         questions: [],
         fee: null,
         starts: null,
