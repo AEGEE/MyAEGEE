@@ -348,6 +348,11 @@ export default {
       this.event.application_period_ends = new Date(this.event.application_period_ends)
       this.event.board_approve_deadline = new Date(this.event.board_approve_deadline)
 
+      this.$forceUpdate()
+
+      return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.event.body_id)
+    }).then((response) => {
+      this.event.body = this.response.data.data
       this.isLoading = false
       this.$forceUpdate()
     }).catch((err) => {
