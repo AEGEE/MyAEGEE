@@ -5,6 +5,7 @@ import NProgress from 'vue-nprogress'
 import { sync } from 'vuex-router-sync'
 import Buefy from 'buefy'
 import * as VueGoogleMaps from 'vue2-google-maps'
+import flatPickr from 'vue-flatpickr-component'
 
 import App from './App.vue'
 import router from './router'
@@ -17,6 +18,7 @@ Vue.use(VueAxios, axios)
 Vue.use(Auth)
 Vue.use(NProgress)
 Vue.use(Buefy, { defaultNoticeQueue: false, defaultIconPack: 'fa' })
+Vue.use(flatPickr)
 Vue.use(VueGoogleMaps, {
   load: {
     key: 'AIzaSyBbo9L1-AW0DSuo0IolsyZweKU9hX6lKE0',

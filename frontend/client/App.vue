@@ -60,6 +60,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import '~flatpickr/dist/flatpickr.css';
 @import '~animate.css';
 .animated {
   animation-duration: .377s;
