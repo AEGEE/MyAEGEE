@@ -92,24 +92,17 @@
                   <td>
                 </tr>
                 <tr>
-                  <th>Application period starts</th>
-                  <td>{{ event.application_period_starts | datetime }}</td>
-                </tr>
-                <tr>
-                  <th>Application period ends</th>
-                  <td>{{ event.application_period_ends | datetime }}</td>
-                </tr>
-                <tr>
-                  <th>Deadline for board approval</th>
-                  <td>{{ event.board_approve_deadline | datetime }}</td>
+                  <th>Type</th>
+                  <td v-if="event.type === 'agora'">Agora</td>
+                  <td v-if="event.type === 'epm'">EPM</td>
                 </tr>
                 <tr>
                   <th>Starts</th>
-                  <td>{{ event.starts | datetime }}</td>
+                  <td>{{ event.starts | date }}</td>
                 </tr>
                 <tr>
                   <th>Ends</th>
-                  <td>{{ event.ends | datetime }}</td>
+                  <td>{{ event.ends | date }}</td>
                 </tr>
                 <tr>
                   <th>Fee</th>
@@ -123,6 +116,31 @@
                       {{ event.body ? event.body.name : 'Loading...' }}
                     </router-link>
                   </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+
+      <article class="tile is-child">
+        <div class="content">
+          <p class="subtitle">Deadlines</p>
+          <div class="content">
+            <p>Please keep in mind that the dates are in your localtime, which is not necessarily CET.</p>
+            <table class="table is-narrow">
+              <tbody>
+                <tr>
+                  <th>Application period starts</th>
+                  <td>{{ event.application_period_starts | datetime }}</td>
+                </tr>
+                <tr>
+                  <th>Application period ends</th>
+                  <td>{{ event.application_period_ends | datetime }}</td>
+                </tr>
+                <tr>
+                  <th>Deadline for board approval</th>
+                  <td>{{ event.board_approve_deadline | datetime }}</td>
                 </tr>
               </tbody>
             </table>
