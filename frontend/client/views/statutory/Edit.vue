@@ -68,10 +68,23 @@
           <p class="help is-danger" v-if="errors.url">{{ errors.url.message }}</p>
         </div>
 
+        <div class="tile is-parent">
+          <div class="tile is-child">
+            <div class="notification is-warning">
+              Please keep in mind that these dates are in your current timezone, <strong>which is not necessarily CET.</strong>
+              For example, if you are in Moscow and you set the date as 25th of November 2018 00:00, it'd be 24th of November 2018 22:00 CET.
+            </div>
+          </div>
+        </div>
+
         <div class="field">
           <label class="label">Application period starts</label>
           <div class="control">
-            <b-datepicker v-model="event.application_period_starts" />
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              :config="dateConfig"
+              v-model="dates.application_period_starts" />
           </div>
           <p class="help is-danger" v-if="errors.application_period_starts">{{ errors.application_period_starts.message }}</p>
         </div>
@@ -79,7 +92,11 @@
         <div class="field">
           <label class="label">Application period ends</label>
           <div class="control">
-            <b-datepicker v-model="event.application_period_ends" />
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              :config="dateConfig"
+              v-model="dates.application_period_ends" />
           </div>
           <p class="help is-danger" v-if="errors.application_period_ends">{{ errors.application_period_ends.message }}</p>
         </div>
@@ -87,7 +104,11 @@
         <div class="field">
           <label class="label">Board approve deadline</label>
           <div class="control">
-            <b-datepicker v-model="event.board_approve_deadline" />
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              :config="dateConfig"
+              v-model="dates.board_approve_deadline" />
           </div>
           <p class="help is-danger" v-if="errors.board_approve_deadline">{{ errors.board_approve_deadline.message }}</p>
         </div>
@@ -95,7 +116,11 @@
         <div class="field">
           <label class="label">Start date</label>
           <div class="control">
-            <b-datepicker v-model="event.starts" />
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              :config="dateConfig"
+              v-model="dates.starts" />
           </div>
           <p class="help is-danger" v-if="errors.starts">{{ errors.starts.message }}</p>
         </div>
@@ -103,7 +128,11 @@
         <div class="field">
           <label class="label">End date</label>
           <div class="control">
-            <b-datepicker v-model="event.ends" />
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              :config="dateConfig"
+              v-model="dates.ends" />
           </div>
           <p class="help is-danger" v-if="errors.ends">{{ errors.ends.message }}</p>
         </div>
@@ -239,15 +268,26 @@ export default {
         type: 'agora',
         body_id: null,
         application_period_starts: null,
-        application_period_endss: null,
+        application_period_ends: null,
         board_approve_deadline: null,
         questions: [],
         fee: null,
         starts: null,
         ends: null
       },
+      dates: {
+        application_period_starts: null,
+        application_period_ends: null,
+        board_approve_deadline: null,
+        starts: null,
+        ends: null
+      },
       autoComplete: {
         bodies: { name: '', values: [], loading: false }
+      },
+      dateConfig: {
+        enableTime: true,
+        time_24hr: true
       },
       can: {
         edit_application_status: false
@@ -329,6 +369,21 @@ export default {
       if (!this.$route.params.id) {
         this.event.url = newName.toLowerCase().replace(/ /g, '-')
       }
+    },
+    'dates.application_period_starts' (newDate) {
+      this.event.application_period_starts = new Date(newDate)
+    },
+    'dates.application_period_ends' (newDate) {
+      this.event.application_period_ends = new Date(newDate)
+    },
+    'dates.board_approve_deadline' (newDate) {
+      this.event.board_approve_deadline = new Date(newDate)
+    },
+    'dates.starts' (newDate) {
+      this.event.starts = new Date(newDate)
+    },
+    'dates.ends' (newDate) {
+      this.event.ends = new Date(newDate)
     }
   },
   mounted () {
@@ -340,22 +395,23 @@ export default {
 
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
-      this.can = response.data.permissions
+      this.can = response.data.data.permissions
 
-      this.event.starts = new Date(this.event.starts)
-      this.event.ends = new Date(this.event.ends)
-      this.event.application_period_starts = new Date(this.event.application_period_starts)
-      this.event.application_period_ends = new Date(this.event.application_period_ends)
-      this.event.board_approve_deadline = new Date(this.event.board_approve_deadline)
+      this.dates.starts = this.event.starts = new Date(this.event.starts)
+      this.dates.ends = this.event.starts = new Date(this.event.ends)
+      this.dates.application_period_starts = this.event.application_period_starts = new Date(this.event.application_period_starts)
+      this.dates.application_period_ends = this.event.application_period_ends = new Date(this.event.application_period_ends)
+      this.dates.board_approve_deadline = this.event.board_approve_deadline = new Date(this.event.board_approve_deadline)
 
       this.$forceUpdate()
 
       return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.event.body_id)
     }).then((response) => {
-      this.event.body = this.response.data.data
+      this.event.body = response.data.data
       this.isLoading = false
       this.$forceUpdate()
     }).catch((err) => {
+      this.isLoading = false
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
       this.$root.showDanger(message)
