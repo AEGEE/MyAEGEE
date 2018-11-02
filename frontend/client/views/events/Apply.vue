@@ -17,20 +17,18 @@
                       v-model="autoComplete.bodies.name"
                       :data="loginUser.bodies"
                       open-on-focus="true"
-                      @select="body => { application.body_id = body.id; application.body = body; saved = false }">
+                      @select="body => { application.body_id = body.id; application.body = body }">
                       <template slot-scope="props">
                         <div class="media">
                           <div class="media-content">
                             {{ props.option.name }}
-                            <br>
-                            <small> {{ props.option.description }} </small>
                           </div>
                         </div>
                       </template>
                     </b-autocomplete>
                     <p class="control">
                       <a class="button is-danger"
-                        @click="body => { application.body_id = null; application.body = null; saved = false }"
+                        @click="body => { application.body_id = null; application.body = null }"
                         v-if="application.body">{{ application.body.name }} (Click to unset)</a>
                       <a class="button is-static" v-if="!application.body">Not set.</a>
                     </p>
@@ -49,7 +47,6 @@
                     class="input"
                     :required="!field.optional"
                     v-model="field.answer"
-                    @input="saved=false"
                     />
                 </div>
               </div>
@@ -61,11 +58,8 @@
               </div>
 
               <div class="field">
-                <button type="submit" class="button is-info" v-show="!saved">
+                <button type="submit" class="button is-primary">
                   Save application!
-                </button>
-                <button type="submit" class="button is-primary" disabled="disabled" v-show="saved">
-                  Application saved!
                 </button>
               </div>
             </div>
@@ -150,7 +144,6 @@ export default {
         _id: null,
         application: []
       },
-      saved: true,
       errors: {},
       isLoading: false,
       isSaving: false
