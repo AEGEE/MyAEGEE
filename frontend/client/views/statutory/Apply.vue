@@ -17,7 +17,7 @@
                       v-model="autoComplete.bodies.name"
                       :data="autoComplete.bodies.values"
                       open-on-focus="true"
-                      @select="body => { application.body_id = body.id; application.body = body; saved = false }">
+                      @select="body => { application.body_id = body.id; application.body = body }">
                       <template slot-scope="props">
                         <div class="media">
                           <div class="media-content">
@@ -30,7 +30,7 @@
                     </b-autocomplete>
                     <p class="control">
                       <a class="button is-danger"
-                        @click="body => { application.body_id = null; application.body = null; saved = false }"
+                        @click="body => { application.body_id = null; application.body = null }"
                         v-if="application.body">{{ application.body.name }} (Click to unset)</a>
                       <a class="button is-static" v-if="!application.body">Not set.</a>
                     </p>
@@ -46,18 +46,13 @@
                   <textarea
                     class="textarea"
                     required
-                    v-model="application.answers[index]"
-                    @input="saved=false"
-                    />
+                    v-model="application.answers[index]" />
                 </div>
               </div>
 
               <div class="field">
-                <button type="submit" class="button is-info" v-show="!saved">
+                <button type="submit" class="button is-primary">
                   Save application!
-                </button>
-                <button type="submit" class="button is-primary" disabled="disabled" v-show="saved">
-                  Application saved!
                 </button>
               </div>
             </div>
@@ -159,9 +154,7 @@
                 <textarea
                   class="textarea"
                   required
-                  v-model="application.board_comment"
-                  @input="savedBoard = false"
-                  />
+                  v-model="application.board_comment" />
               </div>
             </div>
 
@@ -171,7 +164,7 @@
               </div>
               <div class="control">
                 <div class="select">
-                  <select v-model="application.participant_type" @change="savedBoard = false">
+                  <select v-model="application.participant_type">
                     <option value="delegate">Delegate</option>
                     <option value="visitor">Visitor</option>
                     <option value="envoy">Envoy</option>
@@ -182,11 +175,8 @@
             </div>
 
             <div class="field">
-              <button type="submit" class="button is-info" v-show="!savedBoard" @click="saveBoard()">
+              <button type="submit" class="button is-primary" @click="saveBoard()">
                 Save application!
-              </button>
-              <button type="submit" class="button is-primary" disabled="disabled" v-show="savedBoard">
-                Application saved!
               </button>
             </div>
 
@@ -220,8 +210,6 @@ export default {
       can: {
         apply: false
       },
-      saved: true,
-      savedBoard: true,
       errors: {},
       isLoading: false,
       isSaving: false
