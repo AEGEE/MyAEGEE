@@ -22,8 +22,6 @@
                         <div class="media">
                           <div class="media-content">
                             {{ props.option.name }}
-                            <br>
-                            <small> {{ props.option.description }} </small>
                           </div>
                         </div>
                       </template>
