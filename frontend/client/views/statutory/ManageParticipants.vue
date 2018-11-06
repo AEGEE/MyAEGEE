@@ -11,15 +11,35 @@
           </div>
         </div>
 
+        <div class="field">
+          <div class="control">
+            <multiselect
+              v-model="selectedFields"
+              :multiple="true"
+              :searchable="false"
+              :close-on-select="false"
+              :clear-on-select="false"
+              :preserve-search="true"
+              :options="fields"
+              placeholder="Select application fields"
+              track-by="name"
+              label="name" >
+              <template
+                slot="selection"
+                slot-scope="{ values, search, isOpen }">
+                <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} fields selected</span>
+              </template>
+            </multiselect>
+          </div>
+        </div>
+
         <table class="table is-narrow is-fullwidth">
           <thead>
             <tr>
               <th>#</th>
               <th>User ID</th>
               <th>Body</th>
-              <th>Participant type</th>
-              <th>Board comment</th>
-              <th v-for="(question, index) in event.questions" v-bind:key="index">{{ question }}</th>
+              <th class="has-background-white-bis" v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.name }}</th>
               <th v-if="displayCancelled">Cancelled?</th>
               <th>Paid fee?</th>
               <th>Attended?</th>
@@ -40,11 +60,7 @@
                   {{ pax.body ? pax.body.name : 'Loading...' }}
                 </router-link>
               </td>
-              <td v-if="pax.participant_type">{{ pax.participant_type }}</td>
-              <td v-if="!pax.participant_type"><i>Not set.</i></td>
-              <td v-if="pax.board_comment">{{ pax.board_comment }}</td>
-              <td v-if="!pax.board_comment"><i>Not set.</i></td>
-              <td v-for="(question, index) in event.questions" v-bind:key="index">{{ pax.answers[index] }}</td>
+              <td v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.get(pax) }}</td>
               <td v-if="displayCancelled">{{ pax.cancelled ? 'Yes' : 'No' }}</td>
               <td>{{ pax.paid_fee ? 'Yes' : 'No' }}</td>
               <td>{{ pax.attended ? 'Yes' : 'No' }}</td>
@@ -64,10 +80,10 @@
               </th>
             </tr>
             <tr v-if="filteredApplications.length == 0 && !isLoading">
-              <td :colspan="7 + event.questions.length">No applications yet!</td>
+              <td :colspan="selectedFields.length + event.questions.length">No applications yet!</td>
             </tr>
             <tr v-if="isLoading">
-              <td :colspan="7 + event.questions.length">Loading...</td>
+              <td :colspan="selectedFields.length + event.questions.length">Loading...</td>
             </tr>
           </tbody>
         </table>
@@ -87,6 +103,14 @@ export default {
       event: {
         questions: []
       },
+      selectedFields: [
+        { name: 'Participant type', get: (pax) => pax.participant_type },
+        { name: 'Board comment', get: (pax) => pax.board_comment }
+      ],
+      fields: [
+        { name: 'Participant type', get: (pax) => pax.participant_type },
+        { name: 'Board comment', get: (pax) => pax.board_comment }
+      ],
       displayCancelled: false,
       isLoading: false,
       isSaving: false
@@ -133,6 +157,13 @@ export default {
 
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
+
+      for (const index in this.event.questions) {
+        this.fields.push({
+          name: this.event.questions[index],
+          get: pax => pax.answers[index]
+        })
+      }
 
       return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/all')
     }).then((application) => {

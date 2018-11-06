@@ -6,6 +6,7 @@ import { sync } from 'vuex-router-sync'
 import Buefy from 'buefy'
 import * as VueGoogleMaps from 'vue2-google-maps'
 import flatPickr from 'vue-flatpickr-component'
+import Multiselect from 'vue-multiselect'
 
 import App from './App.vue'
 import router from './router'
@@ -25,6 +26,7 @@ Vue.use(VueGoogleMaps, {
     libraries: 'places,drawing,visualization,geometry'
   }
 })
+Vue.component('multiselect', Multiselect)
 
 // Enable devtools
 Vue.config.devtools = true
