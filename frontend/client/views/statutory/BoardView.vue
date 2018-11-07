@@ -61,7 +61,7 @@
                 <textarea class="textarea" v-model="pax.board_comment" />
               </td>
               <td :class="{ 'has-background-danger': pax.cancelled }">{{ pax.cancelled ? 'Yes' : 'No' }}</td>
-              <td>{{ pax.status }}</td>
+              <td>{{ pax.status | capitalize }}</td>
               <td>{{ pax.paid_fee ? 'Yes' : 'No'  }}</td>
               <th>
                 <button class="button is-primary" @click="updateParticipant(pax)">Save!</button>

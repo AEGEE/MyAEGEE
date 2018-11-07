@@ -10,5 +10,8 @@ export default {
   },
   markdown (value) {
     return marked(value, { sanitize: true })
+  },
+  capitalize (value) {
+    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
   }
 }
