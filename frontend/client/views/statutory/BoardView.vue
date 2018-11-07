@@ -58,13 +58,13 @@
                 </div>
               </td>
               <td>
-                <textarea class="textarea" v-model="pax.board_comment" @change="pax.saved = false" />
+                <textarea class="textarea" v-model="pax.board_comment" />
               </td>
               <td :class="{ 'has-background-danger': pax.cancelled }">{{ pax.cancelled ? 'Yes' : 'No' }}</td>
               <td>{{ pax.status }}</td>
               <td>{{ pax.paid_fee ? 'Yes' : 'No'  }}</td>
               <th>
-                <button class="button is-success" :disabled="!pax.saved" @click="updateParticipant(pax)">Save!</button>
+                <button class="button is-primary" @click="updateParticipant(pax)">Save!</button>
               </th>
             </tr>
             <tr v-if="applications.length == 0 && !isLoading">
@@ -110,7 +110,6 @@ export default {
       const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/board'
 
       this.axios.put(url, { participant_type: pax.participant_type, board_comment: pax.board_comment }).then(() => {
-        pax.saved = true
         this.$root.showSuccess('Participant is successfully updated.')
       }).catch((err) => {
         this.$root.showDanger('Could not update participant: ' + err.message)
@@ -124,8 +123,6 @@ export default {
 
         // Fetching users and bodies.
         for (const pax of this.applications) {
-          pax.saved = true
-
           this.axios.get(this.services['oms-core-elixir'] + '/members/' + pax.user_id).then((user) => {
             const member = user.data.data
             pax.user = member
