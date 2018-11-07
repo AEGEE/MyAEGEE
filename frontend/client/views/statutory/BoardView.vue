@@ -20,6 +20,28 @@
           </div>
         </div>
 
+        <div class="field">
+          <div class="control">
+            <multiselect
+              v-model="selectedFields"
+              :multiple="true"
+              :searchable="false"
+              :close-on-select="false"
+              :clear-on-select="false"
+              :preserve-search="true"
+              :options="fields"
+              placeholder="Select application fields"
+              track-by="name"
+              label="name" >
+              <template
+                slot="selection"
+                slot-scope="{ values, search, isOpen }">
+                <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} fields selected</span>
+              </template>
+            </multiselect>
+          </div>
+        </div>
+
         <div class="subtitle" v-if="boardBodies.length === 0">You are not a board member of any body.</div>
         <div class="subtitle" v-if="!selectedBody && boardBodies.length > 0">You haven't selected the antenna yet.</div>
 
@@ -28,7 +50,7 @@
             <tr>
               <th>#</th>
               <th>Name and surname</th>
-              <th v-for="(question, index) in event.questions" v-bind:key="index">{{ question }}</th>
+              <th class="has-background-white-bis" v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.name }}</th>
               <th>Participant type</th>
               <th>Board comment</th>
               <th>Cancelled?</th>
@@ -45,7 +67,7 @@
                   {{ pax.user ? pax.user.first_name + ' ' + pax.user.last_name: 'Loading...' }}
                 </router-link>
               </td>
-              <td v-for="(answer, index) in event.questions" v-bind:key="index">{{ pax.answers[index] }}</td>
+              <td v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.get(pax) }}</td>
               <td>
                 <div class="select">
                   <select v-model="pax.participant_type">
@@ -68,10 +90,10 @@
               </th>
             </tr>
             <tr v-if="applications.length == 0 && !isLoading">
-              <td :colspan="6 + event.questions.length">No applications yet!</td>
+              <td :colspan="7 + selectedFields.length">No applications yet!</td>
             </tr>
             <tr v-if="isLoading">
-              <td :colspan="6 + event.questions.length">Loading...</td>
+              <td :colspan="7 + selectedFields.length">Loading...</td>
             </tr>
           </tbody>
         </table>
@@ -97,6 +119,8 @@ export default {
       can: {
         see_boardview_of: {}
       },
+      selectedFields: [],
+      fields: [],
       isLoading: false,
       isSaving: false
     }
@@ -151,6 +175,13 @@ export default {
       this.can = event.data.data.permissions
       this.myBoards = Object.keys(this.can.see_boardview_of).filter(key => this.can.see_boardview_of[key])
       this.selectedBody = this.myBoards.length > 0 ? this.myBoards[0] : null
+
+      for (const index in this.event.questions) {
+        this.fields.push({
+          name: this.event.questions[index],
+          get: pax => pax.answers[index]
+        })
+      }
 
       for (const bodyId of this.myBoards) {
         this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + bodyId).then((body) => {
