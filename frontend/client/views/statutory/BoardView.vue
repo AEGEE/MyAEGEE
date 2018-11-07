@@ -48,7 +48,8 @@
               <td v-for="(answer, index) in event.questions" v-bind:key="index">{{ pax.answers[index] }}</td>
               <td>
                 <div class="select">
-                  <select v-model="pax.participant_type" @change="pax.saved = false">
+                  <select v-model="pax.participant_type">
+                    <option :value="null">Not set</option>
                     <option value="delegate">Delegate</option>
                     <option value="visitor">Visitor</option>
                     <option value="envoy">Envoy</option>
