@@ -47,7 +47,7 @@ export default {
         this.$router.push({ name: 'oms.password_confirm' })
       }).catch((err) => {
         if (err.response.status === 404) {
-          return this.$root.showDanger('Could not finnd this email.')
+          return this.$root.showDanger('Could not find this email.')
         }
 
         this.$root.showDanger('Could not reset password: ' + err.message)
