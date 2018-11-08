@@ -36,6 +36,18 @@
                 </div>
               </div>
 
+              <div class="notification is-danger" v-if="errors.answers || errors.body_id">
+                <div class="content">
+                Could not apply because of these reasons:
+                  <ul>
+                    <li v-for="(error, index) in errors.answers" v-bind:key="index">{{ error }}</li>
+                  </ul>
+                  <ul>
+                    <li v-for="(error, index) in errors.body_id" v-bind:key="index">{{ error }}</li>
+                  </ul>
+                </div>
+              </div>
+
               <div class="field is-fullwidth" v-for="(question, index) in event.questions" v-bind:key="index">
                 <div class="control">
                   <label class="has-text-weight-bold">{{ question }}</label>
@@ -215,11 +227,14 @@ export default {
   },
   methods: {
     saveApplication () {
+      if (!this.application.body_id) {
+        return this.$root.showDanger('Please select a body.')
+      }
       // Copy data from the form into an object to submit it in the format the backend needs it
       this.isSaving = true
 
       const toServer = {
-        body_id: this.application.body.id,
+        body_id: this.application.body_id,
         answers: this.application.answers
       }
 
@@ -306,7 +321,7 @@ export default {
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
       this.can = response.data.data.permissions
-      this.application.answers = Array.from({ length: this.event.questions }, () => '')
+      this.application.answers = Array.from({ length: this.event.questions.length }, () => '')
 
       return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.prefix).then((application) => {
         this.application = application.data.data
