@@ -30,11 +30,9 @@ const config = {
         mailer: {
             host: process.env.MAILER_HOST || 'mail.aegee.org',
             port: parseInt(process.env.MAILER_PORT) || 25,
-            username: mailerUsername,
-            password: mailerPassword,
             secure: false,
             auth: {
-                user: mailerUsernamee,
+                user: mailerUsername,
                 pass: mailerPassword
             }
         },
