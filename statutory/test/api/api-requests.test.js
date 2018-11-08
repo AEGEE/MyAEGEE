@@ -161,8 +161,6 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-
-
     test('should fail on accessing non-existant endpoint', async () => {
         const res = await request({
             uri: '/nonexistant',

@@ -14,18 +14,18 @@ try {
 }
 
 const config = {
-	default: {
-		port: 8084,
-		postgres: {
-			host: process.env.DB_HOST || 'postgres-oms-statutory',
-			port: parseInt(process.env.DB_PORT) || 5432,
-			username: parseInt(process.env.USERNAME) || 'postgres',
-			password: parseInt(process.env.PASSWORD) || 'postgres',
-			database: parseInt(process.env.DB_DATABASE) ||'statutory'
-		},
-		registry: {
-			url: 'http://omsserviceregistry',
-			port: 7000
+    default: {
+        port: 8084,
+        postgres: {
+            host: process.env.DB_HOST || 'postgres-oms-statutory',
+            port: parseInt(process.env.DB_PORT) || 5432,
+            username: parseInt(process.env.USERNAME) || 'postgres',
+            password: parseInt(process.env.PASSWORD) || 'postgres',
+            database: parseInt(process.env.DB_DATABASE) ||'statutory'
+        },
+        core: {
+            url: 'http://oms-core-elixir',
+            port: 80
     },
     mailer: {
       host: process.env.MAILER_HOST || 'mail.aegee.org',
@@ -33,27 +33,23 @@ const config = {
       username: mailerUsername,
       password: mailerPassword
     },
-		media_dir: '/usr/app/media',
-		media_url: '/frontend/media',
-		bugsnagKey: process.env.BUGSNAG_KEY || ''
-	},
-	development: {
+        bugsnagKey: process.env.BUGSNAG_KEY || ''
+    },
+    development: {
 
-	},
-	test: {
-		port: 8085,
-		postgres: {
-			host: 'localhost',
-			database: 'statutory-testing'
-		},
-		registry: {
-			url: 'http://localhost',
-			port: 7000
-		},
-		enable_user_caching: false,
-		media_dir: './tmp_upload',
-		bugsnagKey: 'CHANGEME'
-	}
+    },
+    test: {
+        port: 8085,
+        postgres: {
+            host: 'localhost',
+            database: 'statutory-testing'
+        },
+        core: {
+            url: 'http://oms-core-elixir',
+            port: 80
+        },
+        bugsnagKey: 'CHANGEME'
+    }
 }
 
 

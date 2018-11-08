@@ -34,6 +34,7 @@ describe('Applications editing', () => {
             body: { body_id: regularUser.bodies[0].id }
         });
 
+
         tk.reset();
 
         expect(res.statusCode).toEqual(200);

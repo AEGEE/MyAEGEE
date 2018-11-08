@@ -23,9 +23,9 @@ const config = {
 			password: parseInt(process.env.PASSWORD) || 'postgres',
 			database: parseInt(process.env.DB_DATABASE) ||'statutory'
 		},
-		registry: {
-			url: 'http://omsserviceregistry',
-			port: 7000
+		core: {
+			url: 'http://oms-core-elixir',
+			port: 4000
     },
     mailer: {
       host: process.env.MAILER_HOST || 'mail.aegee.org',
@@ -33,8 +33,6 @@ const config = {
       username: mailerUsername,
       password: mailerPassword
     },
-		media_dir: '/usr/app/media',
-		media_url: '/frontend/media',
 		bugsnagKey: process.env.BUGSNAG_KEY || ''
 	},
 	development: {
@@ -46,12 +44,10 @@ const config = {
 			host: 'localhost',
 			database: 'statutory-testing'
 		},
-		registry: {
-			url: 'http://localhost',
-			port: 7000
+		core: {
+			url: 'http://oms-core-elixir',
+			port: 80
 		},
-		enable_user_caching: false,
-		media_dir: './tmp_upload',
 		bugsnagKey: 'CHANGEME'
 	}
 }

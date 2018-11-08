@@ -16,15 +16,12 @@ exports.authenticateUser = async (req, res, next) => {
     }
 
     try {
-        // Find the core service
-        const service = await communication.getServiceByName(config.registry, 'oms-core-elixir');
-
         // Get the request headers to send an auth token
         const headers = await communication.getRequestHeaders(req);
 
         // Query the core for user and permissions.
         const [ userBody, permissionsBody ] = await Promise.all(['members/me', 'my_permissions'].map(endpoint => request({
-            url: service.backend_url + endpoint,
+            url: config.core.url + ':' + config.core.port + '/' + endpoint,
             method: 'GET',
             headers,
             simple: false,
@@ -84,13 +81,12 @@ function fetchEvent(includeApplications = false) {
             return errors.makeNotFoundError(res, 'Event with such url or ID is not found.');
         }
 
-        const service = await communication.getServiceByName(config.registry, 'oms-core-elixir');
         const headers = await communication.getRequestHeaders(req);
 
         // Fetching permissions for members approval, the list of bodies
         // where do you have the 'approve_members:<event_type>' permission for it.
         const approveRequest = await request({
-            url: service.backend_url + 'my_permissions',
+            url: config.core.url + ':' + config.core.port + '/my_permissions',
             method: 'POST',
             headers,
             simple: false,
