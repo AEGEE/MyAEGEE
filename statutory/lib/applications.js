@@ -89,11 +89,11 @@ exports.updateApplication = async (req, res) => {
         req.body.board_comment = null;
     }
 
-    const dbResult = await Application.update(req.body, { where: { id: req.application.id }, returning: true });
+    const dbResult = await req.application.update(req.body);
 
     return res.json({
         success: true,
-        data: dbResult[1][0]
+        data: dbResult
     });
 };
 
