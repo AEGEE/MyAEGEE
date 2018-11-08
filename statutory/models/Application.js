@@ -13,7 +13,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.INTEGER,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'User ID should be set.' },
+            notEmpty: { msg: 'User should be set.' },
             isInt: { msg: 'User ID should be a number.' }
         },
     },
@@ -22,7 +22,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.INTEGER,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Body ID should be set.' },
+            notEmpty: { msg: 'Body should be set.' },
             isInt: { msg: 'Body ID should be a number.' }
         },
     },
