@@ -1,4 +1,5 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const Event = require('./Event');
 
 function isBooleanOrEmpty (val) {
     if (typeof val !== 'undefined' && val !== true && val !== false) {
@@ -41,24 +42,26 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: '',
         validate: {
-            isValid(value) {
-                // For now, it's catched in endpoint handlers while checking if all questions are answered.
-                // TODO: fix when figure out how to check if all questions are answered within this validation.
-
-                /* if (typeof value === 'undefined' || value === '') {
+            async isValid(value) {
+                if (typeof value === 'undefined' || value === '') {
                     throw new Error('Answers should be set.');
                 }
                 if (!Array.isArray(value)) {
                     throw new Error('Answers should be an array of strings.');
                 }
 
-                if (value.length < 1) {
-                    throw new Error('At least one answer should be presented.');
-                } */
+                const event = await Event.find({ where: { id: this.event_id } });
+                if (!event) {
+                  throw new Error('Could not find event.');
+                }
 
-                for (const answer of value) {
-                    if (answer.trim().length === 0) {
-                        throw new Error('Answers should not be empty.');
+                if (event.questions.length !== value.length) {
+                    throw new Error(`Expected ${event.questions.length} answers, but got ${value.length}.`);
+                }
+
+                for (const index in value) {
+                    if (value[index].trim().length === 0) {
+                        throw new Error(`Answers should not be empty and answer number ${index + 1} is empty.`);
                     }
                 }
             }

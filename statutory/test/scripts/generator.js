@@ -24,7 +24,7 @@ exports.generateEvent = (options = {}) => {
         options.applications = [];
 
         for (let i = 0; i < applicationsCount; i++) {
-            options.applications.push(exports.generateApplication());
+            options.applications.push(exports.generateApplication({}, options));
         }
     }
 

@@ -24,7 +24,7 @@ exports.sendAll = async (req, res) => {
     let transporter = nodemailer.createTransport({
         host: config.mailer.host,
         port: config.mailer.port,
-		secure: false,
+        secure: false,
         auth: {
             user: config.mailer.username,
             pass: config.mailer.password
@@ -55,17 +55,17 @@ exports.sendAll = async (req, res) => {
                 text: req.body.text // plain text body
             };
 
-			logger.info('Sending mass mailer email to ' + email + '...');
-			await transporter.sendMail(mailOptions);
-			stats.sent++
-		} catch (err) {
-			stats.errors++
-			logger.error('Delivering mail failed: ' + err.message);
-		}
-	}
+            logger.info('Sending mass mailer email to ' + email + '...');
+            await transporter.sendMail(mailOptions);
+            stats.sent++
+        } catch (err) {
+            stats.errors++
+            logger.error('Delivering mail failed: ' + err.message);
+        }
+    }
 
-	return res.json({
-		success: true,
-		data: stats
-	})
+    return res.json({
+        success: true,
+        data: stats
+    })
 }

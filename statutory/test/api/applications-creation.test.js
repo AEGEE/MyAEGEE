@@ -138,8 +138,9 @@ describe('Applications creation', () => {
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
+        expect(res.body).toHaveProperty('errors');
         expect(res.body).not.toHaveProperty('data');
+        expect(res.body.errors).toHaveProperty('answers');
     });
 
     test('should return 422 if questions amount if the answers are not set', async () => {
@@ -165,8 +166,9 @@ describe('Applications creation', () => {
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
+        expect(res.body).toHaveProperty('errors');
         expect(res.body).not.toHaveProperty('data');
+        expect(res.body.errors).toHaveProperty('answers');
     });
 
     test('should return 422 if some of answers are empty', async () => {
@@ -193,8 +195,8 @@ describe('Applications creation', () => {
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('answers');
         expect(res.body).not.toHaveProperty('data');
+        expect(res.body.errors).toHaveProperty('answers');
     });
 
     test('should return 422 if answers is not an array', async () => {
@@ -220,8 +222,9 @@ describe('Applications creation', () => {
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
+        expect(res.body).toHaveProperty('errors');
         expect(res.body).not.toHaveProperty('data');
+        expect(res.body.errors).toHaveProperty('answers');
     });
 
     test('should remove any additional fields', async () => {

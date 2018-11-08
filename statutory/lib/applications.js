@@ -72,10 +72,6 @@ exports.updateApplication = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot edit this application.')
     }
 
-    if (req.body.answers != null && !helpers.isAnswersValid(req.event.questions, req.body.answers)) {
-        return errors.makeValidationError(res, 'Some answers are invalid.');
-    }
-
     if (req.application.user_id === req.user.id && req.body.body_id && !helpers.isMemberOf(req.user, req.body.body_id)) {
         return errors.makeForbiddenError(res, 'You cannot apply on behalf of the body you are not a member of.');
     }
@@ -195,10 +191,6 @@ exports.postApplication = async (req, res) => {
     if (application) {
         return errors.makeBadRequestError(res, `There's already application with this ID in the system. \
 If it\'s yours, please update it via PUT /events/:event_id/applications/${constants.CURRENT_USER_PREFIX}.`)
-    }
-
-    if (!helpers.isAnswersValid(req.event.questions, req.body.answers)) {
-        return errors.makeValidationError(res, 'Some answers are invalid.');
     }
 
     if (!helpers.isMemberOf(req.user, req.body.body_id)) {

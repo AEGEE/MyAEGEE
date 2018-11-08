@@ -129,8 +129,9 @@ describe('Applications editing', () => {
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
+        expect(res.body).toHaveProperty('errors');
         expect(res.body).not.toHaveProperty('data');
+        expect(res.body.errors).toHaveProperty('answers');
     });
 
     test('should return 404 if the application is not found for current user', async () => {

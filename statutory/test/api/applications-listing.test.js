@@ -57,8 +57,8 @@ describe('Applications listing', () => {
 
     test('should display accepted application on /accepted', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
-        const application = generator.generateApplication({ status: 'accepted' })
-        const event = await generator.createEvent({ applications: [application] });
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({ status: 'accepted' }, event)
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/accepted',
@@ -71,7 +71,7 @@ describe('Applications listing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.length).toEqual(1);
-        expect(res.body.data[0].id).toEqual(event.applications[0].id);
+        expect(res.body.data[0].id).toEqual(application.id);
 
         expect(res.body.data[0]).not.toHaveProperty('board_comment');
         expect(res.body.data[0]).not.toHaveProperty('answers');
@@ -81,8 +81,8 @@ describe('Applications listing', () => {
 
     test('should not display not accepted application on /accepted', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
-        const application = generator.generateApplication({ status: 'pending' })
-        const event = await generator.createEvent({ applications: [application] });
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({ status: 'pending' }, event)
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/accepted',

@@ -3,9 +3,6 @@ const constants = require('./constants');
 // A helper to determine if the string is either 'me' or an integer.
 exports.isIDValid = id => id === constants.CURRENT_USER_PREFIX || !Number.isNaN(Number(id, 10));
 
-// A helper to say if the answer match questions.
-exports.isAnswersValid = (questions, answers) => Array.isArray(answers) && answers.length === questions.length;
-
 // A helpers to determine if the user is member of a body.
 exports.isMemberOf = (user, body_id) => user.bodies.map(body => body.id).includes(body_id);
 
