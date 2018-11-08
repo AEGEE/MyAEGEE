@@ -134,6 +134,27 @@ describe('Applications editing', () => {
         expect(res.body.errors).toHaveProperty('answers');
     });
 
+    test('should work okay if some questions were changed', async () => {
+      const event = await generator.createEvent({ questions: ['Test questions?'] });
+      const application = await generator.createApplication({ answers: ['Test answer'] }, event);
+
+      tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+      const res = await request({
+          uri: '/events/' + event.id + '/applications/' + application.id,
+          method: 'PUT',
+          headers: { 'X-Auth-Token': 'blablabla' },
+          body: { answers: ['Another test answer'] }
+      });
+
+      tk.reset();
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.success).toEqual(true);
+      expect(res.body).toHaveProperty('data');
+      expect(res.body).not.toHaveProperty('errors');
+  });
+
     test('should return 404 if the application is not found for current user', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 

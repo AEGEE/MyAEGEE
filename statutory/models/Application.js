@@ -59,9 +59,9 @@ const Application = sequelize.define('application', {
                     throw new Error(`Expected ${event.questions.length} answers, but got ${value.length}.`);
                 }
 
-                for (const index in value) {
+                for (let index = 0; index < value.length; index++) {
                     if (value[index].trim().length === 0) {
-                        throw new Error(`Answers should not be empty and answer number ${index + 1} is empty.`);
+                        throw new Error(`Answer number ${index + 1} ("${event.questions[index]}") is empty.`);
                     }
                 }
             }
