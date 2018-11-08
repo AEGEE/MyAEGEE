@@ -129,17 +129,22 @@
           <div class="content">
             <p>Please keep in mind that the dates are in your localtime, which is not necessarily CET.</p>
             <table class="table is-narrow">
+              <thead>
+                <tr>
+                  <td></td>
+                  <td>From</td>
+                  <td>To</td>
+                </tr>
+              </thead>
               <tbody>
                 <tr>
-                  <th>Application period starts</th>
+                  <th>Application period</th>
                   <td>{{ event.application_period_starts | datetime }}</td>
-                </tr>
-                <tr>
-                  <th>Application period ends</th>
                   <td>{{ event.application_period_ends | datetime }}</td>
                 </tr>
                 <tr>
-                  <th>Deadline for board approval</th>
+                  <th>Board approval</th>
+                  <td>{{ event.application_period_starts | datetime }}</td>
                   <td>{{ event.board_approve_deadline | datetime }}</td>
                 </tr>
               </tbody>
