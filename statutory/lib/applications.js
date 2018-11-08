@@ -6,7 +6,7 @@ const helpers = require('./helpers');
 
 exports.listAllApplications = async (req, res) => {
     if (!req.permissions.see_applications) {
-        return errors.makeForbiddenError(res, 'You are not allowed to create events of this type.');
+        return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
     }
 
     return res.json({
