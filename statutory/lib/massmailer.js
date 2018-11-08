@@ -21,15 +21,7 @@ exports.sendAll = async (req, res) => {
         errors: 0
     }
 
-    let transporter = nodemailer.createTransport({
-        host: config.mailer.host,
-        port: config.mailer.port,
-        secure: false,
-        auth: {
-            user: config.mailer.username,
-            pass: config.mailer.password
-        }
-    });
+    let transporter = nodemailer.createTransport(config.mailer);
     logger.info(`Sending mass mailer to ${applications.length} users`)
     logger.info(`Filter = ${req.params.filter}`);
 

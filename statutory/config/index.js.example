@@ -25,14 +25,19 @@ const config = {
         },
         core: {
             url: 'http://oms-core-elixir',
-            port: 80
-    },
-    mailer: {
-      host: process.env.MAILER_HOST || 'mail.aegee.org',
-      port: parseInt(process.env.MAILER_PORT) || 25,
-      username: mailerUsername,
-      password: mailerPassword
-    },
+            port: 4000
+        },
+        mailer: {
+            host: process.env.MAILER_HOST || 'mail.aegee.org',
+            port: parseInt(process.env.MAILER_PORT) || 25,
+            username: mailerUsername,
+            password: mailerPassword,
+            secure: false,
+            auth: {
+                user: mailerUsernamee,
+                pass: mailerPassword
+            }
+        },
         bugsnagKey: process.env.BUGSNAG_KEY || ''
     },
     development: {

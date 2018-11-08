@@ -14,42 +14,47 @@ try {
 }
 
 const config = {
-	default: {
-		port: 8084,
-		postgres: {
-			host: process.env.DB_HOST || 'postgres-oms-statutory',
-			port: parseInt(process.env.DB_PORT) || 5432,
-			username: parseInt(process.env.USERNAME) || 'postgres',
-			password: parseInt(process.env.PASSWORD) || 'postgres',
-			database: parseInt(process.env.DB_DATABASE) ||'statutory'
-		},
-		core: {
-			url: 'http://oms-core-elixir',
-			port: 4000
+    default: {
+        port: 8084,
+        postgres: {
+            host: process.env.DB_HOST || 'postgres-oms-statutory',
+            port: parseInt(process.env.DB_PORT) || 5432,
+            username: parseInt(process.env.USERNAME) || 'postgres',
+            password: parseInt(process.env.PASSWORD) || 'postgres',
+            database: parseInt(process.env.DB_DATABASE) ||'statutory'
+        },
+        core: {
+            url: 'http://oms-core-elixir',
+            port: 4000
+        },
+        mailer: {
+            host: process.env.MAILER_HOST || 'mail.aegee.org',
+            port: parseInt(process.env.MAILER_PORT) || 25,
+            username: mailerUsername,
+            password: mailerPassword,
+            secure: false,
+            auth: {
+                user: mailerUsernamee,
+                pass: mailerPassword
+            }
+        },
+        bugsnagKey: process.env.BUGSNAG_KEY || ''
     },
-    mailer: {
-      host: process.env.MAILER_HOST || 'mail.aegee.org',
-      port: parseInt(process.env.MAILER_PORT) || 25,
-      username: mailerUsername,
-      password: mailerPassword
-    },
-		bugsnagKey: process.env.BUGSNAG_KEY || ''
-	},
-	development: {
+    development: {
 
-	},
-	test: {
-		port: 8085,
-		postgres: {
-			host: 'localhost',
-			database: 'statutory-testing'
-		},
-		core: {
-			url: 'http://oms-core-elixir',
-			port: 80
-		},
-		bugsnagKey: 'CHANGEME'
-	}
+    },
+    test: {
+        port: 8085,
+        postgres: {
+            host: 'localhost',
+            database: 'statutory-testing'
+        },
+        core: {
+            url: 'http://oms-core-elixir',
+            port: 80
+        },
+        bugsnagKey: 'CHANGEME'
+    }
 }
 
 
