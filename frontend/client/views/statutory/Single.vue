@@ -131,9 +131,9 @@
             <table class="table is-narrow">
               <thead>
                 <tr>
-                  <td></td>
-                  <td>From</td>
-                  <td>To</td>
+                  <th></th>
+                  <th>From</th>
+                  <th>To</th>
                 </tr>
               </thead>
               <tbody>
