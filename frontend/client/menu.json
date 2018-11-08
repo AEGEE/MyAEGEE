@@ -67,15 +67,15 @@
         "children": [
           {
             "name": "oms.events.list.all",
-            "label": "List all events"
+            "label": "All events"
           },
           {
             "name": "oms.events.list.participating",
-            "label": "List events I'm participating at"
+            "label": "Participating"
           },
           {
             "name": "oms.events.list.organizing",
-            "label": "List events I'm organizing"
+            "label": "Organizing"
           },
           {
             "name": "oms.events.create",
