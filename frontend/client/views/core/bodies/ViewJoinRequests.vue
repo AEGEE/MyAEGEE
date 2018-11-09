@@ -23,6 +23,7 @@
               <tr>
                 <th>Name and surname</th>
                 <th>Motivation</th>
+                <th>Date</th>
                 <th></th>
               </tr>
             </thead>
@@ -30,6 +31,7 @@
               <tr>
                 <th>Name and surname</th>
                 <th>Motivation</th>
+                <th>Date</th>
                 <th></th>
               </tr>
             </tfoot>
@@ -41,6 +43,7 @@
                   </router-link>
                 </td>
                 <td>{{ member.motivation }}</td>
+                <td>{{ member.inserted_at | datetime }}
                 <td>
                   <div class="field" v-if="!member.approved">
                     <div class="control">
@@ -57,7 +60,7 @@
                 </td>
               </tr>
               <tr v-show="!filteredMembers.length && !isLoading">
-                <td colspan="3" class="has-text-centered">No join requests for this body.</td>
+                <td colspan="4" class="has-text-centered">No join requests for this body.</td>
               </tr>
             </tbody>
           </table>
