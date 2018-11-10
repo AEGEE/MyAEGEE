@@ -133,7 +133,8 @@ const Event = sequelize.define('event', {
                     throw new Error('At least one question should be presented.');
                 }
 
-                for (const question of value) {
+                for (let index = 0; index < value.length; index++) {
+                    const question = value[index];
                     /* Question structure
                     {
                         type: 'string|text|number|checkbox|select',
@@ -144,19 +145,19 @@ const Event = sequelize.define('event', {
                     */
 
                     if (typeof question !== 'object') {
-                        throw new Error('Question should be an object.')
+                        throw new Error(`Question ${index + 1}: should be an object.`)
                     }
 
                     if (typeof question.description !== 'string' || question.description.trim().length === 0) {
-                        throw new Error('Question description should be set.');
+                        throw new Error(`Question ${index + 1}: description should be set.`);
                     }
 
                     if (typeof question.type !== 'string') {
-                        throw new Error('Question type should be set.');
+                        throw new Error(`Question ${index + 1}: type should be set.`);
                     }
 
                     if (typeof question.required !== 'boolean') {
-                        throw new Error('Question optional is not a boolean.');
+                        throw new Error(`Question ${index + 1}: required is not a boolean.`);
                     }
 
                     switch (question.type) {
@@ -167,17 +168,17 @@ const Event = sequelize.define('event', {
                             break;
                         case 'select':
                             if (!Array.isArray(question.values)) {
-                                throw new Error('Question values is not an array.');
+                                throw new Error(`Question ${index + 1}: values is not an array.`);
                             }
 
                             for (const value of question.values) {
                                 if (typeof value !== 'string' || value.trim().length === 0) {
-                                    throw new Error('Some of the values are empty.');
+                                    throw new Error(`Question ${index + 1}: some of the values are empty.`);
                                 }
                             }
                             break;
                         default:
-                            throw new Error(`Invalid question type: "${question.type}"`);
+                            throw new Error(`Question ${index + 1}: invalid question type: "${question.type}"`);
                     }
                 }
             }
