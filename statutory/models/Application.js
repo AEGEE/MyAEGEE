@@ -38,19 +38,17 @@ const Application = sequelize.define('application', {
         type: Sequelize.TEXT
     },
     answers: {
-        type: Sequelize.ARRAY(Sequelize.TEXT),
+        type: Sequelize.JSONB,
         allowNull: false,
         defaultValue: '',
         validate: {
             async isValid(value) {
-                if (typeof value === 'undefined' || value === '') {
-                    throw new Error('Answers should be set.');
-                }
                 if (!Array.isArray(value)) {
                     throw new Error('Answers should be an array of strings.');
                 }
 
                 const event = await Event.find({ where: { id: this.event_id } });
+                /* istanbul ignore next */
                 if (!event) {
                   throw new Error('Could not find event.');
                 }
@@ -60,8 +58,31 @@ const Application = sequelize.define('application', {
                 }
 
                 for (let index = 0; index < value.length; index++) {
-                    if (value[index].trim().length === 0) {
-                        throw new Error(`Answer number ${index + 1} ("${event.questions[index]}") is empty.`);
+                    switch (event.questions[index].type) {
+                        case 'string':
+                        case 'text':
+                            if (value[index].trim().length === 0 && event.questions[index].required) {
+                                throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") is empty.`);
+                            }
+                            break;
+                        case 'number':
+                            if (Number.isNaN(Number(value[index]))) {
+                                throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be a number, but got "${value[index]}".`)
+                            }
+                            break;
+                        case 'select':
+                            if (!event.questions[index].values.includes(value[index])) {
+                                throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be one of these: ${event.questions[index].values.join(", ")}, but got "${value[index]}".`)
+                            }
+                            break;
+                        case 'checkbox':
+                            if (typeof value[index] !== 'boolean') {
+                                throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be boolean, but got "${value[index]}".`)
+                            }
+                            break;
+                        /* istanbul ignore next */
+                        default:
+                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}"): unknown question type: ${event.questions[index].type}`)
                     }
                 }
             }

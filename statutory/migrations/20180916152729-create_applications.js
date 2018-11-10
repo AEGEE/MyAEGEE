@@ -30,7 +30,7 @@ module.exports = {
         board_comment: {
             type: Sequelize.TEXT
         },
-        answers: { type: Sequelize.ARRAY(Sequelize.TEXT), allowNull: false },
+        answers: { type: Sequelize.JSONB, allowNull: false },
         participant_type: {
             type: Sequelize.ENUM('delegate', 'observer', 'envoy', 'visitor')
         },

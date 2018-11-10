@@ -113,7 +113,7 @@ describe('Applications editing', () => {
     });
 
     test('should return 422 if questions amount is not the same as answers amount', async () => {
-        const event = await generator.createEvent({ questions: ['Test questions?'] });
+        const event = await generator.createEvent({ questions: [generator.generateQuestion()] });
         const application = await generator.createApplication({ answers: ['Test answer'] }, event);
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
@@ -135,24 +135,24 @@ describe('Applications editing', () => {
     });
 
     test('should work okay if some questions were changed', async () => {
-      const event = await generator.createEvent({ questions: ['Test questions?'] });
-      const application = await generator.createApplication({ answers: ['Test answer'] }, event);
+        const event = await generator.createEvent({ questions: [generator.generateQuestion()] });
+        const application = await generator.createApplication({ answers: ['Test answer'] }, event);
 
-      tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 
-      const res = await request({
-          uri: '/events/' + event.id + '/applications/' + application.id,
-          method: 'PUT',
-          headers: { 'X-Auth-Token': 'blablabla' },
-          body: { answers: ['Another test answer'] }
-      });
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { answers: ['Another test answer'] }
+        });
 
-      tk.reset();
+        tk.reset();
 
-      expect(res.statusCode).toEqual(200);
-      expect(res.body.success).toEqual(true);
-      expect(res.body).toHaveProperty('data');
-      expect(res.body).not.toHaveProperty('errors');
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
   });
 
     test('should return 404 if the application is not found for current user', async () => {

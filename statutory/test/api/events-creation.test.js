@@ -123,31 +123,46 @@ describe('Events creation', () => {
     });
 
     test('should fail if board approve_deadlinee is before application period ends', async () => {
-      const res = await request({
-          uri: '/',
-          method: 'POST',
-          headers: { 'X-Auth-Token': 'blablabla' },
-          body: generator.generateEvent({
-              application_period_starts: moment().add(1, 'months').toDate(),
-              application_period_ends: moment().add(3, 'months').toDate(),
-              board_approve_deadline: moment().add(2, 'months').toDate(),
-              starts: moment().add(4, 'months').toDate(),
-              ends: moment().add(5, 'months').toDate()
-          })
-      });
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(3, 'months').toDate(),
+                board_approve_deadline: moment().add(2, 'months').toDate(),
+                starts: moment().add(4, 'months').toDate(),
+                ends: moment().add(5, 'months').toDate()
+            })
+        });
 
-      expect(res.statusCode).toEqual(422);
-      expect(res.body.success).toEqual(false);
-      expect(res.body.errors).toHaveProperty('board_approve_deadline');
-  });
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('board_approve_deadline');
+    });
 
-    test('should fail if no questions are set', async () => {
+    test('should fail if questions is empty array', async () => {
         const res = await request({
             uri: '/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
                 questions: []
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if questions is not an array', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                questions: {},
+                applications: []
             })
         });
 
@@ -167,5 +182,145 @@ describe('Events creation', () => {
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if question.description is not set', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                questions: [generator.generateQuestion({ description: null })]
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if question.description is not string', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                questions: [generator.generateQuestion({ description: { test: 'test'} })]
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if question.required is not set', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                questions: [generator.generateQuestion({ required: null })]
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if question.required is not string', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                questions: [generator.generateQuestion({ required: { test: 'test'} })]
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if question.values is not an array when type is select', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                questions: [generator.generateQuestion({ values: null, type: 'select' })]
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if question.values.* is invalid when type is select', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                questions: [generator.generateQuestion({ values: [{ test: 'test' }], type: 'select' })]
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if question type is not set or invalid', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                questions: [generator.generateQuestion({ type: null })]
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if question type is unknown', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                questions: [generator.generateQuestion({ type: 'test' })]
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail if question value is empty', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                questions: [generator.generateQuestion({ values: [''], type: 'select' })]
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should succeed if type is select and everything is valid', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                questions: [generator.generateQuestion({ values: ['test'], type: 'select' })]
+            })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
     });
 });
