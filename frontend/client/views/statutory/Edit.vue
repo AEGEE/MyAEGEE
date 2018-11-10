@@ -215,19 +215,39 @@
           <thead>
             <tr>
               <th>Description</th>
+              <th>Type</th>
+              <th>Required (works for text and string)?</th>
+              <th>Values (for select)</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(question, index) in event.questions" v-bind:key="index">
               <td>
-                <input class="input" type="text" required v-model="event.questions[index]"/>
+                <input class="input" type="text" required v-model="event.questions[index].description"/>
+              </td>
+              <td>
+                <div class="select">
+                  <select v-model="event.questions[index].type" @change="if (event.questions[index].type === 'select') { event.questions[index].values = []; } else { delete event.questions[index].values; } $forceUpdate();">
+                    <option value="string">String</option>
+                    <option value="text">Text</option>
+                    <option value="number">Number</option>
+                    <option value="checkbox">Checkbox</option>
+                    <option value="select">Select</option>
+                  </select>
+                </div>
+              </td>
+              <td>
+                <input type="checkbox" v-model="event.questions[index].required" />
+              </td>
+              <td>
+                <input-tag v-if="event.questions[index].type === 'select'" v-model="event.questions[index].values"></input-tag>
               </td>
               <td>
                 <a class="button is-danger" @click="deleteQuestion(index)">Delete question</a>
               </td>
             </tr>
-            <tr colspan="2" v-if="event.questions.length === 0">
+            <tr colspan="5" v-if="event.questions.length === 0">
               <td>No questions are set.</td>
             </tr>
           </tbody>
@@ -275,6 +295,7 @@ export default {
         starts: null,
         ends: null
       },
+      options: [],
       dates: {
         application_period_starts: null,
         application_period_ends: null,
@@ -282,6 +303,7 @@ export default {
         starts: null,
         ends: null
       },
+      newValue: '',
       autoComplete: {
         bodies: { name: '', values: [], loading: false }
       },
@@ -323,7 +345,11 @@ export default {
       })
     },
     addQuestion () {
-      this.event.questions.push('')
+      this.event.questions.push({
+        description: '',
+        required: true,
+        type: 'string'
+      })
     },
     deleteQuestion (index) {
       this.event.questions.splice(index, 1)

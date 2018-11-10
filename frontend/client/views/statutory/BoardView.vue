@@ -178,7 +178,7 @@ export default {
 
       for (const index in this.event.questions) {
         this.fields.push({
-          name: this.event.questions[index],
+          name: this.event.questions[index].description,
           get: pax => pax.answers[index]
         })
       }

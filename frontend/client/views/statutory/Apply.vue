@@ -50,13 +50,39 @@
 
               <div class="field is-fullwidth" v-for="(question, index) in event.questions" v-bind:key="index">
                 <div class="control">
-                  <label class="has-text-weight-bold">{{ question }}</label>
+                  <label class="has-text-weight-bold">{{ question.description }}</label>
                 </div>
-                <div class="control">
+                <div class="control" v-if="question.type === 'text'">
                   <textarea
                     class="textarea"
-                    required
+                    :required="question.required"
                     v-model="application.answers[index]" />
+                </div>
+                <div class="control" v-if="question.type === 'string'">
+                  <input
+                    class="input"
+                    type="text"
+                    :required="question.required"
+                    v-model="application.answers[index]" />
+                </div>
+                <div class="control" v-if="question.type === 'number'">
+                  <input
+                    class="input"
+                    type="number"
+                    v-model.number="application.answers[index]" />
+                </div>
+                <div class="control" v-if="question.type === 'checkbox'">
+                  <input
+                    class="checkbox"
+                    type="checkbox"
+                    v-model="application.answers[index]" />
+                </div>
+                <div class="control" v-if="question.type === 'select'">
+                  <div class="select">
+                    <select v-model="application.answers[index]" required>
+                      <option v-for="(value, index) in question.values" v-bind:key="index">{{ value }}</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -321,7 +347,20 @@ export default {
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
       this.can = response.data.data.permissions
-      this.application.answers = Array.from({ length: this.event.questions.length }, () => '')
+
+      // Prefilling default values for application answers
+      this.application.answers = Array.from({ length: this.event.questions.length }, (value, index) => {
+        switch (this.event.questions[index].type) {
+          case 'number':
+            return 0
+          case 'checkbox':
+            return false
+          case 'select':
+            return this.event.questions[index].values[0]
+          default:
+            return ''
+        }
+      })
 
       return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.prefix).then((application) => {
         this.application = application.data.data
