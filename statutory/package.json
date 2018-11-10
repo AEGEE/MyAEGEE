@@ -8,7 +8,8 @@
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
-    "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit"
+    "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
+    "cli": "node --experimental-repl-await -r ./cli.js"
   },
   "jest": {
     "verbose": true,
