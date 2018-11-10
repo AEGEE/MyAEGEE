@@ -7,10 +7,7 @@ exports.addEvent = async (req, res) => {
     }
 
     delete req.body.status;
-
-    if (!req.body.questions || !req.body.questions.length) {
-        return errors.makeValidationError(res, 'At least one application question should be set.');
-    }
+    delete req.body.id;
 
     const newEvent = await Event.create(req.body);
     return res.json({
