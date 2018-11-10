@@ -7,6 +7,7 @@ import Buefy from 'buefy'
 import * as VueGoogleMaps from 'vue2-google-maps'
 import flatPickr from 'vue-flatpickr-component'
 import Multiselect from 'vue-multiselect'
+import InputTag from 'vue-input-tag'
 
 import App from './App.vue'
 import router from './router'
@@ -27,6 +28,7 @@ Vue.use(VueGoogleMaps, {
   }
 })
 Vue.component('multiselect', Multiselect)
+Vue.component('input-tag', InputTag)
 
 // Enable devtools
 Vue.config.devtools = true
