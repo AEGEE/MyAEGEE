@@ -19,13 +19,18 @@
 
             <tbody>
               <tr>
+                <td><a href="https://www.docker.com/">Docker</a> + <a href="https://docs.docker.com/compose/">Docker Compose</a></td>
+                <td>For running applications in containers and for development/production environment.</td>
+              </tr>
+
+              <tr>
                 <td><a href="https://nodejs.org/en/">Node.js</a> + <a href="http://expressjs.com/">Express</a></td>
-                <td>For running the backend of statutory and events module, and also for building assets for frontend.</td>
+                <td>Running the backend of statutory and events module, and also for building assets for frontend.</td>
               </tr>
 
               <tr>
                 <td><a href="https://elixir-lang.org/">Elixir</a> + <a href="http://phoenixframework.org/">Phoenix</a></td>
-                <td>For running the backend of core module.</td>
+                <td>Running the backend of core module.</td>
               </tr>
 
               <tr>
