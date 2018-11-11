@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/AEGEE/oms-mailer.svg?branch=master)](https://travis-ci.org/AEGEE/oms-mailer)
+
 # Omsmailer
 
 This is a simple elixir app which waits for requests on a json api and then delivers mails rendered into templates, including retries and tls to the aegee mail server.
