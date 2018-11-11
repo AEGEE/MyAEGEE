@@ -50,7 +50,9 @@
 
               <div class="field is-fullwidth" v-for="(question, index) in event.questions" v-bind:key="index">
                 <div class="control">
-                  <label class="has-text-weight-bold">{{ question.description }}</label>
+                  <label class="has-text-weight-bold">
+                    {{ question.description }} <span class="has-text-danger" v-if="question.required">*</span>
+                  </label>
                 </div>
                 <div class="control" v-if="question.type === 'text'">
                   <textarea
