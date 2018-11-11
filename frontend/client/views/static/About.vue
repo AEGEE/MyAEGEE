@@ -80,6 +80,34 @@
             </tbody>
           </table>
 
+          <h2>Microservices</h2>
+
+          <table class="table is-bordered is-striped is-narrow is-fullwidth">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Responsibilities</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td><a href="https://github.com/AEGEE/oms-core-elixir">oms-core-elixir<a></td>
+                <td>Bodies, memberships, permissions management, registration.</td>
+              </tr>
+
+              <tr>
+                <td><a href="https://github.com/AEGEE/oms-statutory">oms-statutory<a></td>
+                <td>Agora and EPM applications, candidatures, proposals, motions, votings.</td>
+              </tr>
+
+              <tr>
+                <td><a href="https://github.com/AEGEE/oms-events">oms-events<a></td>
+                <td>Events (not statutory and SU) and their application procedure.</td>
+              </tr>
+            </tbody>
+          </table>
+
           <h2>Developers</h2>
 
           <table class="table is-bordered is-striped is-narrow is-fullwidth">
