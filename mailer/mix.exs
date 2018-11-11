@@ -39,6 +39,7 @@ defmodule Omsmailer.Mixfile do
       {:gettext, "~> 0.11"},
       {:bamboo, "~> 1.0"},
       {:bamboo_smtp, "~> 1.5.0"},
+      {:plug_cowboy, "~> 1.0"},
       {:cowboy, "~> 1.0"}
     ]
   end

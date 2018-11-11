@@ -1,0 +1,16 @@
+version: '3.2'
+
+services:
+    oms-mailer:
+        build:
+            context: ./$PATH_OMS_MAILER/../
+            dockerfile: ./docker/oms-mailer/Dockerfile
+        expose:
+            - "4000"
+        environment:
+            MAIL_PASSWORD: /run/secrets/mail_password
+            MAIL_USER: /run/secrets/mail_user
+            MIX_ENV: prod
+        secrets:
+            - mail_password
+            - mail_user
