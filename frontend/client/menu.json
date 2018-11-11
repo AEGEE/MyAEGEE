@@ -16,31 +16,31 @@
         "name": "oms.members.list",
         "label": "Members",
         "icon": "fa-user",
-        "permissions": ["view:member"]
+        "permissions": ["global:view:member"]
       },
       {
         "name": "oms.bodies.list",
         "label": "Bodies",
         "icon": "fa-flag",
-        "permissions": ["view:body"]
+        "permissions": ["global:view:body"]
       },
       {
         "name": "oms.permissions.list",
         "label": "Permissions",
         "icon": "fa-key",
-        "permissions": ["view:permission"]
+        "permissions": ["global:view:permission"]
       },
       {
         "name": "oms.circles.list",
         "label": "View circles",
         "icon": "fa-circle",
-        "permissions": ["view:circle"]
+        "permissions": ["global:view:circle"]
       },
       {
         "name": "oms.campaigns.list",
         "label": "Campaigns",
         "icon": "fa-sign-in",
-        "permissions": ["view:campaign"]
+        "permissions": ["global:view:campaign"]
       }
     ]
   },
@@ -99,7 +99,7 @@
           {
             "name": "oms.statutory.create",
             "label": "Create event",
-            "permissions": ["manage_event:agora", "manage_event:epm"]
+            "permissions": ["global:manage_event:agora", "global:manage_event:epm"]
           }
         ]
       }
