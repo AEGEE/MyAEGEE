@@ -8,6 +8,7 @@ RUN mkdir -p /usr/src/myapp \
 
 ADD config /usr/src/myapp/config
 ADD lib /usr/src/myapp/lib
+ADD test /usr/src/myapp/test
 ADD mix.exs /usr/src/myapp/mix.exs
 
 WORKDIR /usr/src/myapp
