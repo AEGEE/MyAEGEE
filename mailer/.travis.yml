@@ -10,4 +10,4 @@ before_script:
     - sudo docker-compose -f docker-compose-secrets.yml -f docker-compose.yml build
 
 script:
-    - sudo docker-compose -f docker-compose-secrets.yml -f docker-compose.yml exec oms-mailer env MIX_ENV=test mix test
+    - sudo docker-compose -f docker-compose-secrets.yml -f docker-compose.yml run oms-mailer env MIX_ENV=test mix test
