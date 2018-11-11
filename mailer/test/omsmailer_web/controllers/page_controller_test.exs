@@ -28,4 +28,11 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert json_response(conn, 422)
     assert_no_emails_delivered()
   end
+
+  # Custom works
+  test "POST / custom", %{conn: conn} do
+    conn = post conn, "/", %{template: "custom.html", parameters: %{body: "<b>custom html code here</b>"}, to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(subject: "pirates")
+  end
 end
