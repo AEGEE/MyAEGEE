@@ -39,7 +39,7 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
 
     permissions.use_massmailer = hasPermission(corePermissions, 'global:use_massmailer:' + event.type);
 
-    permissions.see_applications = hasPermission(corePermissions, 'global:see_applications:' + event.type);
+    permissions.manage_applications = hasPermission(corePermissions, 'global:manage_applications:' + event.type);
     permissions.set_board_comment_and_participant_type_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
     permissions.upload_memberslist_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
     permissions.see_boardview_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
