@@ -11,7 +11,7 @@
       <div class="tile is-parent">
         <article class="tile is-child is-info">
           <div class="field is-grouped">
-            <router-link :to="{ name: 'oms.statutory.manage_participants', params: { id: event.url || event.id } }" class="button is-fullwidth" v-if="can.see_applications">
+            <router-link :to="{ name: 'oms.statutory.manage_participants', params: { id: event.url || event.id } }" class="button is-fullwidth" v-if="can.manage_applications">
               <span>View applications</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
