@@ -35,8 +35,8 @@ server.use(morgan((tokens, req, res) => {
         tokens.res(req, res, 'content-length'), '-',
         tokens['response-time'](req, res), 'ms,',
         req.user ? ('user ' + req.user.user.name + ' with id ' + req.user.id) : 'unauthorized'
-    ].join(' ')
-}, { stream: log.stream }))
+    ].join(' ');
+}, { stream: log.stream }));
 
 /* istanbul ignore next */
 process.on('unhandledRejection', (err) => {

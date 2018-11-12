@@ -92,24 +92,24 @@ const Event = sequelize.define('event', {
         }
     },
     board_approve_deadline: {
-      type: Sequelize.DATE,
-      allowNull: false,
-      defaultValue: '',
-      validate: {
-          notEmpty: { msg: 'Event board approve deadline should be set.' },
-          isDate: { msg: 'Event board approve deadline should be set.' },
-          laterThanApplicationEnd(val) {
-              if (moment(val).isSameOrBefore(this.application_period_ends)) {
-                  throw new Error('Board approve deadline cannot be after or at the same time the aplication period ends.');
-              }
-          },
-          beforeEventStart(val) {
-              if (moment(val).isSameOrAfter(this.starts)) {
-                  throw new Error('Board approve deadline cannot be before or at the same time the event starts.');
-              }
-          }
-      }
-  },
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Event board approve deadline should be set.' },
+            isDate: { msg: 'Event board approve deadline should be set.' },
+            laterThanApplicationEnd(val) {
+                if (moment(val).isSameOrBefore(this.application_period_ends)) {
+                    throw new Error('Board approve deadline cannot be after or at the same time the aplication period ends.');
+                }
+            },
+            beforeEventStart(val) {
+                if (moment(val).isSameOrAfter(this.starts)) {
+                    throw new Error('Board approve deadline cannot be before or at the same time the event starts.');
+                }
+            }
+        }
+    },
     body_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -145,7 +145,7 @@ const Event = sequelize.define('event', {
                     */
 
                     if (typeof question !== 'object') {
-                        throw new Error(`Question ${index + 1}: should be an object.`)
+                        throw new Error(`Question ${index + 1}: should be an object.`);
                     }
 
                     if (typeof question.description !== 'string' || question.description.trim().length === 0) {
@@ -161,24 +161,24 @@ const Event = sequelize.define('event', {
                     }
 
                     switch (question.type) {
-                        case 'string':
-                        case 'text':
-                        case 'checkbox':
-                        case 'number':
-                            break;
-                        case 'select':
-                            if (!Array.isArray(question.values)) {
-                                throw new Error(`Question ${index + 1}: values is not an array.`);
-                            }
+                    case 'string':
+                    case 'text':
+                    case 'checkbox':
+                    case 'number':
+                        break;
+                    case 'select':
+                        if (!Array.isArray(question.values)) {
+                            throw new Error(`Question ${index + 1}: values is not an array.`);
+                        }
 
-                            for (const value of question.values) {
-                                if (typeof value !== 'string' || value.trim().length === 0) {
-                                    throw new Error(`Question ${index + 1}: some of the values are empty.`);
-                                }
+                        for (const val of question.values) {
+                            if (typeof val !== 'string' || val.trim().length === 0) {
+                                throw new Error(`Question ${index + 1}: some of the values are empty.`);
                             }
-                            break;
-                        default:
-                            throw new Error(`Question ${index + 1}: invalid question type: "${question.type}"`);
+                        }
+                        break;
+                    default:
+                        throw new Error(`Question ${index + 1}: invalid question type: "${question.type}"`);
                     }
                 }
             }
@@ -213,10 +213,10 @@ const Event = sequelize.define('event', {
         }
     },
     can_approve_members: {
-      type: Sequelize.VIRTUAL,
-      get() {
-          return moment().isBetween(this.application_period_starts, this.board_aprove_deadline, null, '[]'); // inclusive
-      }
+        type: Sequelize.VIRTUAL,
+        get() {
+            return moment().isBetween(this.application_period_starts, this.board_aprove_deadline, null, '[]'); // inclusive
+        }
     },
     url: {
         type: Sequelize.STRING,

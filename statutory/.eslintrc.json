@@ -15,6 +15,9 @@
         "prefer-template": "off",
         "guard-for-in": "off",
         "indent": ["error", 4],
-        "prefer-destructuring": "off"
+        "prefer-destructuring": "off",
+        "arrow-body-style": "off",
+        "object-curly-newline": "off",
+        "no-await-in-loop": "off"
     }
 }

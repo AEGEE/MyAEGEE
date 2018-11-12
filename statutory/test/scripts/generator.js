@@ -31,7 +31,7 @@ exports.generateEvent = (options = {}) => {
     }
 
     return options;
-}
+};
 
 exports.generateQuestion = (options = {}) => {
     if (notSet(options.description)) options.description = faker.lorem.sentence();
@@ -40,7 +40,7 @@ exports.generateQuestion = (options = {}) => {
     if (notSet(options.values) && options.type === 'select') options.values = ['First', 'Second'];
 
     return options;
-}
+};
 
 exports.generateApplication = (options = {}, event = null) => {
     if (notSet(options.user_id)) options.user_id = faker.random.number(100);
@@ -58,7 +58,7 @@ exports.generateApplication = (options = {}, event = null) => {
     }
 
     return options;
-}
+};
 
 exports.generateMembersList = (options = {}, event = null) => {
     if (notSet(options.currency)) options.currency = faker.lorem.sentence();
@@ -78,11 +78,11 @@ exports.generateMembersList = (options = {}, event = null) => {
         options.event_id = event.id;
     }
 
-  return options;
-}
+    return options;
+};
 
 exports.createEvent = (options = {}) => {
-    return Event.create(exports.generateEvent(options), { include: [ Application ] });
+    return Event.create(exports.generateEvent(options), { include: [Application] });
 };
 
 exports.createApplication = (options = {}, event = null) => {
@@ -90,7 +90,7 @@ exports.createApplication = (options = {}, event = null) => {
 };
 
 exports.createMembersList = (options = {}, event = null) => {
-  return MembersList.create(exports.generateMembersList(options, event));
+    return MembersList.create(exports.generateMembersList(options, event));
 };
 
 exports.clearAll = async () => {

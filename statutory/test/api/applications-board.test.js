@@ -22,7 +22,7 @@ describe('Applications pax type/board comment', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ user_id: regularUser.id }, event);
+        await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/me/board',
@@ -153,23 +153,23 @@ describe('Applications pax type/board comment', () => {
     });
 
     test('should return 403 if the user is not within deadline and doesn\'t have global permission', async () => {
-      mock.mockAll({ mainPermissions: { noPermissions: true } });
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-      const event = await generator.createEvent();
-      const application = await generator.createApplication({}, event);
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({}, event);
 
-      tk.travel(moment(event.board_approve_deadline).add(5, 'minutes').toDate());
+        tk.travel(moment(event.board_approve_deadline).add(5, 'minutes').toDate());
 
-      const res = await request({
-          uri: '/events/' + event.id + '/applications/' + application.id + '/board',
-          method: 'PUT',
-          headers: { 'X-Auth-Token': 'blablabla' },
-          body: { participant_type: 'delegate' }
-      });
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { participant_type: 'delegate' }
+        });
 
-      expect(res.statusCode).toEqual(403);
-      expect(res.body.success).toEqual(false);
-      expect(res.body).not.toHaveProperty('data');
-      expect(res.body).toHaveProperty('message');
-  });
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
 });

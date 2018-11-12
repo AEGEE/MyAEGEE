@@ -1,7 +1,7 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const Event = require('./Event');
 
-function isBooleanOrEmpty (val) {
+function isBooleanOrEmpty(val) {
     if (typeof val !== 'undefined' && val !== true && val !== false) {
         throw new Error('The value should be either true or false.');
     }
@@ -50,7 +50,7 @@ const Application = sequelize.define('application', {
                 const event = await Event.find({ where: { id: this.event_id } });
                 /* istanbul ignore next */
                 if (!event) {
-                  throw new Error('Could not find event.');
+                    throw new Error('Could not find event.');
                 }
 
                 if (event.questions.length !== value.length) {
@@ -59,30 +59,34 @@ const Application = sequelize.define('application', {
 
                 for (let index = 0; index < value.length; index++) {
                     switch (event.questions[index].type) {
-                        case 'string':
-                        case 'text':
-                            if (value[index].trim().length === 0 && event.questions[index].required) {
-                                throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") is empty.`);
-                            }
-                            break;
-                        case 'number':
-                            if (Number.isNaN(Number(value[index]))) {
-                                throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be a number, but got "${value[index]}".`)
-                            }
-                            break;
-                        case 'select':
-                            if (!event.questions[index].values.includes(value[index])) {
-                                throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be one of these: ${event.questions[index].values.join(", ")}, but got "${value[index]}".`)
-                            }
-                            break;
-                        case 'checkbox':
-                            if (typeof value[index] !== 'boolean') {
-                                throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be boolean, but got "${value[index]}".`)
-                            }
-                            break;
-                        /* istanbul ignore next */
-                        default:
-                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}"): unknown question type: ${event.questions[index].type}`)
+                    case 'string':
+                    case 'text':
+                        if (typeof value[index] !== 'string') {
+                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}"): expected a string, got ${typeof value[index]}.`);
+                        }
+
+                        if (value[index].trim().length === 0 && event.questions[index].required) {
+                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") is empty.`);
+                        }
+                        break;
+                    case 'number':
+                        if (Number.isNaN(Number(value[index]))) {
+                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be a number, but got "${value[index]}".`);
+                        }
+                        break;
+                    case 'select':
+                        if (!event.questions[index].values.includes(value[index])) {
+                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be one of these: ${event.questions[index].values.join(', ')}, but got "${value[index]}".`);
+                        }
+                        break;
+                    case 'checkbox':
+                        if (typeof value[index] !== 'boolean') {
+                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be boolean, but got "${value[index]}".`);
+                        }
+                        break;
+                    /* istanbul ignore next */
+                    default:
+                        throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}"): unknown question type: ${event.questions[index].type}`);
                     }
                 }
             }
@@ -99,9 +103,9 @@ const Application = sequelize.define('application', {
         }
     },
     status: {
-         type: Sequelize.ENUM('pending', 'requesting', 'accepted', 'rejected'),
-         defaultValue: 'pending',
-         validate: {
+        type: Sequelize.ENUM('pending', 'requesting', 'accepted', 'rejected'),
+        defaultValue: 'pending',
+        validate: {
             isIn: {
                 args: [['pending', 'requesting', 'accepted', 'rejected']],
                 msg: 'Participant status should be one of these: "pending", "requesting", "accepted", "rejected".'

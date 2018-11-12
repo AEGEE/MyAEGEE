@@ -1,4 +1,4 @@
-const { errors } = require('oms-common-nodejs')
+const { errors } = require('oms-common-nodejs');
 
 const { MembersList } = require('../models');
 
@@ -11,8 +11,8 @@ exports.getAllMemberslists = async (req, res) => {
     return res.json({
         success: true,
         data: memberslists
-    })
-}
+    });
+};
 
 exports.getMemberslist = async (req, res) => {
     if (Number.isNaN(parseInt(req.params.body_id, 10))) {
@@ -35,8 +35,8 @@ exports.getMemberslist = async (req, res) => {
     return res.json({
         success: true,
         data: memberslist
-    })
-}
+    });
+};
 
 exports.uploadMembersList = async (req, res) => {
     if (Number.isNaN(parseInt(req.params.body_id, 10))) {
@@ -63,14 +63,14 @@ exports.uploadMembersList = async (req, res) => {
         );
 
         return res.json({
-          success: true,
-          data: result[1][0]
-      });
+            success: true,
+            data: result[1][0]
+        });
     }
 
     const newMembersList = await MembersList.create(req.body);
     return res.json({
         success: true,
         data: newMembersList
-    })
-}
+    });
+};

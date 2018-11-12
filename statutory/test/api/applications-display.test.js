@@ -1,5 +1,3 @@
-const moment = require('moment');
-
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -20,7 +18,7 @@ describe('Applications displaying', () => {
     test('should succeed for current user', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
         const event = await generator.createEvent({ applications: [] });
-        const application = await generator.createApplication({ user_id: regularUser.id }, event);
+        await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/me',

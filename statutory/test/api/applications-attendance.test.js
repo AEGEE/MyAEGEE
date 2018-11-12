@@ -19,7 +19,7 @@ describe('Applications attendance', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ user_id: regularUser.id }, event);
+        await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/me/attended',

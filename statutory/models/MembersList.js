@@ -1,4 +1,5 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
+
 const MembersList = sequelize.define('memberslist', {
     event_id: {
         allowNull: false,
@@ -19,13 +20,13 @@ const MembersList = sequelize.define('memberslist', {
         },
     },
     body_id: {
-      allowNull: false,
-      type: Sequelize.INTEGER,
-      defaultValue: '',
-      validate: {
-          notEmpty: { msg: 'Body ID should be set.' },
-          isInt: { msg: 'Body ID should be a number.' }
-      },
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Body ID should be set.' },
+            isInt: { msg: 'Body ID should be a number.' }
+        },
     },
     currency: {
         allowNull: false,
@@ -40,7 +41,7 @@ const MembersList = sequelize.define('memberslist', {
         allowNull: false,
         defaultValue: '',
         validate: {
-            isValid (value) {
+            isValid(value) {
                 if (typeof value === 'undefined' || value === '') {
                     throw new Error('Members should be set.');
                 }
@@ -61,11 +62,11 @@ const MembersList = sequelize.define('memberslist', {
                     }
 
                     if (Number.isNaN(Number(member.fee))) {
-                      throw new Error('The fee is invalid for the user.')
+                        throw new Error('The fee is invalid for the user.');
                     }
 
                     if (member.fee <= 0) {
-                      throw new Error('Member\'s fee should be positive number.');
+                        throw new Error('Member\'s fee should be positive number.');
                     }
                 }
             }

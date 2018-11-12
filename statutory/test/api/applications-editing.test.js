@@ -1,5 +1,5 @@
 const moment = require('moment');
-const tk = require('timekeeper')
+const tk = require('timekeeper');
 
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
@@ -23,7 +23,7 @@ describe('Applications editing', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ user_id: regularUser.id }, event);
+        await generator.createApplication({ user_id: regularUser.id }, event);
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 
@@ -109,7 +109,7 @@ describe('Applications editing', () => {
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('visa_required')
+        expect(res.body.errors).toHaveProperty('visa_required');
     });
 
     test('should return 422 if questions amount is not the same as answers amount', async () => {
@@ -153,7 +153,7 @@ describe('Applications editing', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
         expect(res.body).not.toHaveProperty('errors');
-  });
+    });
 
     test('should return 404 if the application is not found for current user', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
@@ -230,7 +230,7 @@ describe('Applications editing', () => {
         application.attended = true;
         application.paid_fee = true;
         application.cancelled = true;
-        application.arbitrary_field = 'some garbage'
+        application.arbitrary_field = 'some garbage';
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 

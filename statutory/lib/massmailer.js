@@ -2,7 +2,6 @@ const nodemailer = require('nodemailer');
 const { errors, communication } = require('oms-common-nodejs');
 const request = require('request-promise-native');
 
-const helpers = require('./helpers');
 const config = require('../config');
 const logger = require('./logger');
 
@@ -19,10 +18,10 @@ exports.sendAll = async (req, res) => {
         total: applications.length,
         sent: 0,
         errors: 0
-    }
+    };
 
-    let transporter = nodemailer.createTransport(config.mailer);
-    logger.info(`Sending mass mailer to ${applications.length} users`)
+    const transporter = nodemailer.createTransport(config.mailer);
+    logger.info(`Sending mass mailer to ${applications.length} users`);
     logger.info(`Filter = ${req.params.filter}`);
 
     const headers = await communication.getRequestHeaders(req);
@@ -40,7 +39,7 @@ exports.sendAll = async (req, res) => {
             const email = membersBody.data.user.email;
 
             // Sending mail
-            let mailOptions = {
+            const mailOptions = {
                 from: req.body.from, // sender address
                 to: email, // list of receivers
                 subject: req.body.subject, // Subject line
@@ -49,9 +48,9 @@ exports.sendAll = async (req, res) => {
 
             logger.info('Sending mass mailer email to ' + email + '...');
             await transporter.sendMail(mailOptions);
-            stats.sent++
+            stats.sent++;
         } catch (err) {
-            stats.errors++
+            stats.errors++;
             logger.error('Delivering mail failed: ' + err.message);
         }
     }
@@ -59,5 +58,5 @@ exports.sendAll = async (req, res) => {
     return res.json({
         success: true,
         data: stats
-    })
-}
+    });
+};

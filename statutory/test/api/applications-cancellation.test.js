@@ -22,7 +22,7 @@ describe('Applications cancellation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ user_id: regularUser.id }, event);
+        await generator.createApplication({ user_id: regularUser.id }, event);
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 
@@ -45,7 +45,7 @@ describe('Applications cancellation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ user_id: regularUser.id }, event);
+        await generator.createApplication({ user_id: regularUser.id }, event);
 
         tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
 

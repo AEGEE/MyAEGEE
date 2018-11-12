@@ -1,5 +1,5 @@
 const moment = require('moment');
-const tk = require('timekeeper')
+const tk = require('timekeeper');
 
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
@@ -241,7 +241,7 @@ describe('Applications creation', () => {
         application.attended = true;
         application.paid_fee = true;
         application.cancelled = true;
-        application.arbitrary_field = 'some garbage'
+        application.arbitrary_field = 'some garbage';
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 

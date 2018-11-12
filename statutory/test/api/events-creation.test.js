@@ -18,7 +18,7 @@ describe('Events creation', () => {
     });
 
     test('should fail if user does not have rights to create events', async () => {
-        mock.mockAll({ core: { regularUser: true } })
+        mock.mockAll({ core: { regularUser: true } });
         const res = await request({
             uri: '/',
             method: 'POST',
@@ -204,7 +204,7 @@ describe('Events creation', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
-                questions: [generator.generateQuestion({ description: { test: 'test'} })]
+                questions: [generator.generateQuestion({ description: { test: 'test' } })]
             })
         });
 
@@ -232,7 +232,7 @@ describe('Events creation', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
-                questions: [generator.generateQuestion({ required: { test: 'test'} })]
+                questions: [generator.generateQuestion({ required: { test: 'test' } })]
             })
         });
 

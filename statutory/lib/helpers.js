@@ -4,7 +4,7 @@ const constants = require('./constants');
 exports.isIDValid = id => id === constants.CURRENT_USER_PREFIX || !Number.isNaN(Number(id, 10));
 
 // A helpers to determine if the user is member of a body.
-exports.isMemberOf = (user, body_id) => user.bodies.map(body => body.id).includes(body_id);
+exports.isMemberOf = (user, bodyId) => user.bodies.map(body => body.id).includes(bodyId);
 
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
@@ -25,7 +25,7 @@ exports.getPermissions = (user, corePermissions) => {
     return {
         create_event: {
             agora: hasPermission(corePermissions, 'manage_event:agora'),
-            epm:  hasPermission(corePermissions, 'manage_event:epm')
+            epm: hasPermission(corePermissions, 'manage_event:epm')
         }
     };
 };
@@ -53,13 +53,13 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
     for (const body of user.bodies) {
         permissions.set_board_comment_and_participant_type[body.id] =
-          event.can_approve_members && approveBodiesList.includes(body.id)
-        permissions.see_boardview_of[body.id] = approveBodiesList.includes(body.id)
-        permissions.upload_memberslist[body.id] = approveBodiesList.includes(body.id)
+          event.can_approve_members && approveBodiesList.includes(body.id);
+        permissions.see_boardview_of[body.id] = approveBodiesList.includes(body.id);
+        permissions.upload_memberslist[body.id] = approveBodiesList.includes(body.id);
     }
 
     return permissions;
-}
+};
 
 exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine }) => {
     // If user can manage application (has rights in the system).
@@ -81,4 +81,4 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     permissions.change_status = canAccept;
 
     return permissions;
-}
+};

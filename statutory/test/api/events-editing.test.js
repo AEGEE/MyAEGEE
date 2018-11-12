@@ -1,5 +1,3 @@
-const moment = require('moment');
-
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -98,7 +96,7 @@ describe('Events editing', () => {
     });
 
     test('should not update event type', async () => {
-        const event = await generator.createEvent({ type: 'epm'});
+        const event = await generator.createEvent({ type: 'epm' });
 
         const res = await request({
             uri: '/events/' + event.id,

@@ -1,5 +1,3 @@
-const moment = require('moment');
-
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -97,21 +95,21 @@ describe('Memberslist uploading', () => {
     });
 
     test('should fail if members is not set', async () => {
-      const event = await generator.createEvent();
-      const membersList = generator.generateMembersList({ members: null }, event);
-      delete membersList.members;
+        const event = await generator.createEvent();
+        const membersList = generator.generateMembersList({ members: null }, event);
+        delete membersList.members;
 
-      const res = await request({
-          uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
-          method: 'POST',
-          headers: { 'X-Auth-Token': 'blablabla' },
-          body: membersList
-      });
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: membersList
+        });
 
-      expect(res.statusCode).toEqual(422);
-      expect(res.body.success).toEqual(false);
-      expect(res.body).toHaveProperty('errors');
-  });
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+    });
 
     test('should fail if members is not an array', async () => {
         const event = await generator.createEvent();
@@ -206,30 +204,30 @@ describe('Memberslist uploading', () => {
     });
 
     test('should update current members list if exists', async () => {
-      const event = await generator.createEvent();
-      await generator.createMembersList({
-        body_id: regularUser.bodies[0].id,
-        user_id: regularUser.id,
-        members: [ { first_name: 'test', last_name: 'test', fee: 3 } ]
-      }, event)
+        const event = await generator.createEvent();
+        await generator.createMembersList({
+            body_id: regularUser.bodies[0].id,
+            user_id: regularUser.id,
+            members: [{ first_name: 'test', last_name: 'test', fee: 3 }]
+        }, event);
 
-      const res = await request({
-          uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
-          method: 'POST',
-          headers: { 'X-Auth-Token': 'blablabla' },
-          body: generator.generateMembersList({ members: [
-              { first_name: 'not', last_name: 'not', fee: 5 }
-          ] }, event)
-      });
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({ members: [
+                { first_name: 'not', last_name: 'not', fee: 5 }
+            ] }, event)
+        });
 
-      expect(res.statusCode).toEqual(200);
-      expect(res.body.success).toEqual(true);
-      expect(res.body).toHaveProperty('data');
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
 
-      const membersListFromDB = await MembersList.findAll({ where: {} });
-      expect(membersListFromDB.length).toEqual(1);
-      expect(membersListFromDB[0].members[0].first_name).toEqual('not');
-      expect(membersListFromDB[0].members[0].last_name).toEqual('not');
-      expect(membersListFromDB[0].members[0].fee).toEqual(5);
-  });
+        const membersListFromDB = await MembersList.findAll({ where: {} });
+        expect(membersListFromDB.length).toEqual(1);
+        expect(membersListFromDB[0].members[0].first_name).toEqual('not');
+        expect(membersListFromDB[0].members[0].last_name).toEqual('not');
+        expect(membersListFromDB[0].members[0].fee).toEqual(5);
+    });
 });

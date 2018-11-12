@@ -1,6 +1,6 @@
 const { errors } = require('oms-common-nodejs');
 
-const { Event, Application } = require('../models');
+const { Application } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
 
@@ -19,7 +19,7 @@ exports.listAcceptedApplications = async (req, res) => {
     const applications = req.event.applications
         .filter(application => application.status === 'accepted')
         .map(application => application.toJSON())
-        .map(application => {
+        .map((application) => {
             delete application.answers;
             delete application.board_comment;
             delete application.visa_required;
@@ -36,7 +36,7 @@ exports.listAcceptedApplications = async (req, res) => {
 
 exports.listBoardView = async (req, res) => {
     if (Number.isNaN(parseInt(req.params.body_id, 10))) {
-        return errors.makeBadRequestError(res, 'Body ID should be a number.')
+        return errors.makeBadRequestError(res, 'Body ID should be a number.');
     }
 
     if (!req.permissions.see_boardview_of[req.params.body_id] && !req.permissions.see_boardview_global) {
@@ -69,7 +69,7 @@ exports.getApplication = async (req, res) => {
 
 exports.updateApplication = async (req, res) => {
     if (!req.permissions.edit_application) {
-        return errors.makeForbiddenError(res, 'You cannot edit this application.')
+        return errors.makeForbiddenError(res, 'You cannot edit this application.');
     }
 
     if (req.application.user_id === req.user.id && req.body.body_id && !helpers.isMemberOf(req.user, req.body.body_id)) {
@@ -97,7 +97,7 @@ exports.updateApplication = async (req, res) => {
     });
 };
 
-function setApplicationBoolean (key) {
+function setApplicationBoolean(key) {
     return async (req, res) => {
         // Only 'cancelled' can work with '/me' postfix.
         if (key !== 'cancelled' && req.params.application_id === constants.CURRENT_USER_PREFIX) {
@@ -182,15 +182,15 @@ exports.setApplicationBoard = async (req, res) => {
 
 exports.postApplication = async (req, res) => {
     if (!req.permissions.apply) {
-        return errors.makeForbiddenError(res, 'The deadline for applications has passed or the applications period hasn\'t started yet.')
+        return errors.makeForbiddenError(res, 'The deadline for applications has passed or the applications period hasn\'t started yet.');
     }
 
-    req.body.user_id = req.user.id
-    const application = req.event.applications.find(application => application.user_id === req.body.user_id);
+    req.body.user_id = req.user.id;
+    const application = req.event.applications.find(pax => pax.user_id === req.body.user_id);
 
     if (application) {
         return errors.makeBadRequestError(res, `There's already application with this ID in the system. \
-If it\'s yours, please update it via PUT /events/:event_id/applications/${constants.CURRENT_USER_PREFIX}.`)
+If it's yours, please update it via PUT /events/:event_id/applications/${constants.CURRENT_USER_PREFIX}.`);
     }
 
     if (!helpers.isMemberOf(req.user, req.body.body_id)) {

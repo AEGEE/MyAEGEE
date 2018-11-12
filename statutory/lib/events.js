@@ -60,7 +60,10 @@ exports.changeEventStatus = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to change status for events of this type.');
     }
 
-    const dbResult = await Event.update({ status: req.body.status }, { where: { id: req.event.id }, returning: true });
+    await Event.update(
+        { status: req.body.status },
+        { where: { id: req.event.id }, returning: true }
+    );
 
     return res.json({
         success: true,

@@ -5,7 +5,7 @@ const { errors, communication } = require('oms-common-nodejs');
 const config = require('../config');
 const helpers = require('./helpers');
 const logger = require('./logger');
-const constants = require('./constants')
+const constants = require('./constants');
 const { Event, Application } = require('../models');
 const { Sequelize } = require('./sequelize');
 
@@ -20,7 +20,7 @@ exports.authenticateUser = async (req, res, next) => {
         const headers = await communication.getRequestHeaders(req);
 
         // Query the core for user and permissions.
-        const [ userBody, permissionsBody ] = await Promise.all(['members/me', 'my_permissions'].map(endpoint => request({
+        const [userBody, permissionsBody] = await Promise.all(['members/me', 'my_permissions'].map(endpoint => request({
             url: config.core.url + ':' + config.core.port + '/' + endpoint,
             method: 'GET',
             headers,
@@ -38,7 +38,7 @@ exports.authenticateUser = async (req, res, next) => {
         }
 
         if (typeof permissionsBody !== 'object') {
-            return errors.makeInternalError(res, 'Malformed response when fetching permissions: ' + body);
+            return errors.makeInternalError(res, 'Malformed response when fetching permissions: ' + permissionsBody);
         }
 
         if (!permissionsBody.success) {
@@ -66,15 +66,15 @@ function fetchEvent(includeApplications = false) {
         };
 
         // If event_id is not an integer, assuming it's the event URL.
-        if (Number.isNaN(parseInt(req.params.event_id))) {
+        if (Number.isNaN(parseInt(req.params.event_id, 10))) {
             query = {
                 where: {
                     url: { [Sequelize.Op.iLike]: req.params.event_id },
                 }
-            }
+            };
         }
 
-        if (includeApplications) query.include = [Application]
+        if (includeApplications) query.include = [Application];
         const event = await Event.findOne(query);
 
         if (!event) {
@@ -117,7 +117,7 @@ function fetchEvent(includeApplications = false) {
         });
 
         return next();
-    }
+    };
 }
 
 exports.fetchEvent = fetchEvent(false);
@@ -129,7 +129,7 @@ exports.fetchSingleApplication = async (req, res, next) => {
         return errors.makeBadRequestError(res, `Application ID should be either a number or '${constants.CURRENT_USER_PREFIX}'`);
     }
 
-    const whereObj =  { event_id: req.event.id };
+    const whereObj = { event_id: req.event.id };
 
     if (req.params.application_id === constants.CURRENT_USER_PREFIX) { // /me, find by user_id
         whereObj.user_id = req.user.id;
@@ -141,7 +141,7 @@ exports.fetchSingleApplication = async (req, res, next) => {
 
     const application = await Application.findOne({ where: whereObj });
     if (!application) {
-        return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.')
+        return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.');
     }
 
     req.application = application;

@@ -1,5 +1,3 @@
-const moment = require('moment');
-
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -22,7 +20,7 @@ describe('Memberslist displaying', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        const memberslist = await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
+        await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'GET',
@@ -39,7 +37,7 @@ describe('Memberslist displaying', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        const memberslist = await generator.createMembersList({ body_id: 1337 }, event);
+        await generator.createMembersList({ body_id: 1337 }, event);
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/1337',
             method: 'GET',
@@ -56,7 +54,7 @@ describe('Memberslist displaying', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        const memberslist = await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
+        await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'GET',
@@ -72,7 +70,7 @@ describe('Memberslist displaying', () => {
         mock.mockAll({ approvePermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        const memberslist = await generator.createMembersList({ body_id: 1337 }, event);
+        await generator.createMembersList({ body_id: 1337 }, event);
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/1337',
             method: 'GET',

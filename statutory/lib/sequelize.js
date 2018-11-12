@@ -18,7 +18,7 @@ const getSequelize = () => new Sequelize(config.postgres.database, config.postgr
     port: config.postgres.port,
     dialect: 'postgres',
     operatorsAliases: false,
-    logging: (sql, sequelizeObject) => logger.debug(sql),
+    logging: sql => logger.debug(sql),
 });
 
 let sequelize = getSequelize();
@@ -42,7 +42,7 @@ exports.authenticate = async () => {
     } catch (err) {
         logger.error('Unable to connect to the database: %s', err);
         process.exit(1);
-    };
+    }
 };
 
 exports.close = async () => {

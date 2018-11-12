@@ -1,10 +1,7 @@
-const moment = require('moment');
-
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const Event = require('../../models/Event');
 
 describe('Applications listing', () => {
     beforeEach(async () => {
@@ -58,7 +55,7 @@ describe('Applications listing', () => {
     test('should display accepted application on /accepted', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ status: 'accepted' }, event)
+        const application = await generator.createApplication({ status: 'accepted' }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/accepted',
@@ -82,7 +79,7 @@ describe('Applications listing', () => {
     test('should not display not accepted application on /accepted', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ status: 'pending' }, event)
+        await generator.createApplication({ status: 'pending' }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/accepted',

@@ -10,6 +10,7 @@ for (const key in models) {
 }
 
 authenticate().catch((err) => {
+    /* eslint-disable-next-line no-console */
     console.error('Error connecting to DB:', err.message);
     process.quit(1);
 });
