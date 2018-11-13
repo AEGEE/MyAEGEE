@@ -8,12 +8,19 @@ import * as VueGoogleMaps from 'vue2-google-maps'
 import flatPickr from 'vue-flatpickr-component'
 import Multiselect from 'vue-multiselect'
 import InputTag from 'vue-input-tag'
+import qs from 'qs'
 
 import App from './App.vue'
 import router from './router'
 import store from './store'
 import filters from './filters'
 import Auth from './auth'
+
+axios.defaults.paramsSerializer = params => qs.stringify(params, {
+  arrayFormat: 'brackets',
+  encode: false,
+  encodeValuesOnly: true
+})
 
 Vue.router = router
 Vue.use(VueAxios, axios)

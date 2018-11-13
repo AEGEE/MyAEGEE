@@ -44,6 +44,7 @@
     "font-awesome": "4.7.0",
     "marked": "^0.4.0",
     "moment": "^2.22.2",
+    "qs": "^6.5.2",
     "vue": "^2.2.2",
     "vue-axios": "^2.0.1",
     "vue-bulma-breadcrumb": "^1.0.1",
