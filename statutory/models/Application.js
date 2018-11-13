@@ -81,7 +81,7 @@ const Application = sequelize.define('application', {
                         break;
                     case 'checkbox':
                         if (typeof value[index] !== 'boolean') {
-                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be boolean, but got "${value[index]}".`);
+                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}"): type should be boolean, but got "${typeof value[index]}".`);
                         }
                         break;
                     /* istanbul ignore next */
