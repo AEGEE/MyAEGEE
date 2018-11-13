@@ -253,6 +253,15 @@
           </tbody>
         </table>
 
+        <div class="notification is-danger" v-if="errors.questions">
+          <div class="content">
+          Could not create/edit event because of these reasons:
+            <ul>
+              <li v-for="(error, index) in errors.questions" v-bind:key="index">{{ error }}</li>
+            </ul>
+          </div>
+        </div>
+
         <div class="field">
           <div class="control">
             <a class="button is-primary" @click="addQuestion()">Add new question</a>
