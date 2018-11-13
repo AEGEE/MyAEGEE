@@ -28,8 +28,10 @@ email = "myaegee@aegee.eu"
 #
 # Required
 #
-storage = "acme.json"
+storage = "/etc/acme.json"
 # or `storage = "traefik/acme/account"` if using KV store.
+
+acmeLogging=true
 
 # Entrypoint to proxy acme apply certificates to.
 #
@@ -44,9 +46,18 @@ entryPoint = "https"
 #
 # onHostRule = true
 
-[[acme.domains]]
-  main = "aegee.eu"
-  sans = ["my.aegee.eu", "oms.aegee.eu"]
+onDemand=true
+onHostRule=true
+
+#Alternatively, if we want the domains known in advance
+#(note: aegee.eu's DNS MUST point to the same IP where the 
+#subdomains are pointing to)
+
+#[[acme.domains]]
+#  main = "aegee.eu"
+#  sans = ["my.aegee.eu", "traefik.aegee.eu", "portainer.aegee.eu"]
+
+
 
 [acme.httpChallenge]
 # EntryPoint to use for the HTTP-01 challenges.
