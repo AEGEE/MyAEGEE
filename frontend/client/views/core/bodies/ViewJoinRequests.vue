@@ -10,7 +10,7 @@
               <input class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
             </div>
             <div class="control">
-              <a class="button is-info" @click="displayAccepted = !displayAccepted">
+              <a class="button is-info" @click="displayAccepted = !displayAccepted; refetch()">
                 {{ this.displayAccepted ? 'Display only pending join requests' : 'Display all join requests' }}
               </a>
             </div>
