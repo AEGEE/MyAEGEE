@@ -19,3 +19,7 @@
 [submodule "oms-statutory"]
 	path = oms-statutory
 	url = https://github.com/AEGEE/oms-statutory
+[submodule "oms-dogwatch"]
+	path = oms-dogwatch
+	url = git@github.com:AEGEE/docker-elk.git
+	branch = aegee-dev
