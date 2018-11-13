@@ -364,6 +364,10 @@ export default {
       this.event.questions.splice(index, 1)
     },
     saveEvent () {
+      if (this.event.questions.length === 0) {
+        return this.$root.showDanger('Please set at least 1 application question.');
+      }
+
       this.isSaving = true
       this.errors = {}
 
