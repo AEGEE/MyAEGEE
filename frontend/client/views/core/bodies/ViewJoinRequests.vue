@@ -36,7 +36,7 @@
               </tr>
             </tfoot>
             <tbody>
-              <tr v-show="filteredMembers.length" v-for="member in filteredMembers" v-bind:key="member.id" v-if="displayAccepted || !member.approved">
+              <tr v-show="members.length" v-for="member in members" v-bind:key="member.id" v-if="displayAccepted || !member.approved">
                 <td>
                   <router-link :to="{ name: 'oms.members.view', params: { id: member.member_id } }">
                     {{ member.member.first_name }} {{ member.member.last_name }}
@@ -59,50 +59,12 @@
                   </div>
                 </td>
               </tr>
-              <tr v-show="!filteredMembers.length && !isLoading">
+              <tr v-show="!members.length && !isLoading">
                 <td colspan="4" class="has-text-centered">No join requests for this body.</td>
               </tr>
             </tbody>
           </table>
         </div>
-
-        <!--<div class="tile">
-          <div class="tile is-vertical is-2 box" v-for="member in members" v-bind:key="member.id">
-
-            <div class="tile is-child">
-              <div class="image is-1by1">
-                <img src="https://bulma.io/images/placeholders/480x480.png" alt="" />
-              </div>
-            </div>
-
-            <div class="tile">
-              <strong class="has-text-centered">{{ member.member.first_name }} {{ member.member.last_name }}</strong>
-            </div>
-
-            <div class="tile">
-              <p class="has-text-centered">{{ member.motivation }}</p>
-            </div>
-
-            <div class="tile">
-              <div class="field" v-if="!member.approved">
-                <div class="control">
-                  <a class="button is-info" @click="askSetMemberApproved(member, true)">
-                    <span class="icon"><i class="fa fa-plus"></i></span>
-                    <span>Approve</span>
-                  </a>
-                  <a class="button is-danger" @click="askSetMemberApproved(member, false)">
-                    <span class="icon"><i class="fa fa-minus"></i></span>
-                    <span>Reject</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="tile is-vertical is-12 is-child" v-if="members.length === 0 && !isLoading">
-            <h1 class="subtitle has-text-centered">No join requests for this body.</h1>
-          </div>
-        </div>-->
 
         <div class="field">
           <button
@@ -148,10 +110,8 @@ export default {
       }
 
       if (this.query) queryObj.query = this.query
+      if (!this.displayAccepted) queryObj.filter = { approved: false }
       return queryObj
-    },
-    filteredMembers () {
-      return this.displayAccepted ? this.members : this.members.filter(member => !member.approved)
     },
     ...mapGetters(['services'])
   },
