@@ -34,15 +34,6 @@
         </div>
 
         <div class="field">
-          <label class="label">Email</label>
-          <div class="control has-icons-left">
-            <span class="icon is-small is-left"><i class="fa fa-envelope"></i></span>
-            <input class="input" type="text" v-model="user.user.email" />
-          </div>
-          <p class="help is-danger" v-if="errors.email">{{ errors.email.join(', ')}}</p>
-        </div>
-
-        <div class="field">
           <label class="label">Phone</label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><i class="fa fa-phone"></i></span>
