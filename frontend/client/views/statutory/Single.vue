@@ -38,7 +38,7 @@
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="canAccessBoardview">
+          <div class="field is-grouped" v-if="canAccessBoardview && this.event.type === 'agora'">
             <router-link :to="{ name: 'oms.statutory.memberslist.upload', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Manage members list</span>
               <span class="icon"><i class="fa fa-users"></i></span>
