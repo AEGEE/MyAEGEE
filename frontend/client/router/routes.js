@@ -459,6 +459,14 @@ module.exports = [
     }
   },
   {
+    name: 'oms.statutory.incoming',
+    path: '/statutory/:id/incoming',
+    component: 'statutory/Incoming',
+    meta: {
+      label: 'Manage incoming info for the statutory event'
+    }
+  },
+  {
     name: 'oms.statutory.boardview',
     path: '/statutory/:id/boardview',
     component: 'statutory/BoardView',

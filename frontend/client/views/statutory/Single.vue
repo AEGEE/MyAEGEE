@@ -10,9 +10,16 @@
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info">
-          <div class="field is-grouped">
-            <router-link :to="{ name: 'oms.statutory.manage_participants', params: { id: event.url || event.id } }" class="button is-fullwidth" v-if="can.manage_applications">
+          <div class="field is-grouped" v-if="can.manage_applications">
+            <router-link :to="{ name: 'oms.statutory.manage_participants', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>View applications</span>
+              <span class="icon"><i class="fa fa-users"></i></span>
+            </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="can.manage_incoming || can.manage_applications">
+            <router-link :to="{ name: 'oms.statutory.incoming', params: { id: event.url || event.id } }" class="button is-fullwidth">
+              <span>Manage incoming info</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
           </div>
@@ -172,7 +179,8 @@ export default {
         url: null,
         body_id: null,
         body: null,
-        status: null
+        status: null,
+        type: ''
       },
       isLoading: false,
       can: {
