@@ -7,9 +7,9 @@
         <div class="title" v-show="!isNew && !can.apply">See application on {{ event.name }}</div>
 
         <form @submit.prevent="saveApplication()">
-          <div class="tile is-parent" v-show="autoComplete.bodies.values.length > 0 && (isNew || can.apply)">
+          <div class="tile is-parent" v-show="isNew || can.apply">
             <div class="tile is-child">
-              <div class="field">
+              <div class="field" v-show="autoComplete.bodies.values.length > 0">
                 <label class="label">Select body to apply from</label>
                 <div class="control">
                   <div class="field has-addons">
