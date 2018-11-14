@@ -7,7 +7,7 @@
         <div class="title" v-show="!isNew && !can.apply">See application on {{ event.name }}</div>
 
         <form @submit.prevent="saveApplication()">
-          <div class="tile is-parent" v-show="isNew || can.apply">
+          <div class="tile is-parent" v-show="autoComplete.bodies.values.length > 0 && (isNew || can.apply)">
             <div class="tile is-child">
               <div class="field">
                 <label class="label">Select body to apply from</label>
@@ -33,6 +33,12 @@
                       <a class="button is-static" v-if="!application.body">Not set.</a>
                     </p>
                   </div>
+                </div>
+              </div>
+
+              <div class="notification is-danger" v-show="autoComplete.bodies.values.length == 0">
+                <div class="content">
+                  You are not a member of any body, therefore you cannot apply. To apply to a statutory event, you need to be a member of at least one body.
                 </div>
               </div>
 
