@@ -5,7 +5,7 @@ const constants = require('./constants');
 const helpers = require('./helpers');
 
 exports.listAllApplications = async (req, res) => {
-    if (!req.permissions.manage_applications) {
+    if (!req.permissions.see_applications) {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
     }
 

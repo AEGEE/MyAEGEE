@@ -40,6 +40,9 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     permissions.use_massmailer = hasPermission(corePermissions, 'global:use_massmailer:' + event.type);
 
     permissions.manage_applications = hasPermission(corePermissions, 'global:manage_applications:' + event.type);
+    permissions.manage_incoming = hasPermission(corePermissions, 'global:manage_incoming:' + event.type);
+    permissions.see_applications = permissions.manage_applications || permissions.manage_incoming;
+
     permissions.set_board_comment_and_participant_type_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
     permissions.upload_memberslist_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
     permissions.see_boardview_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
@@ -62,11 +65,11 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
 };
 
 exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine }) => {
-    // If user can manage application (has rights in the system).
+    // Basically do everything with applications.
     const canManage = hasPermission(corePermissions, 'manage_applications:' + event.type);
 
-    // If user can change applications' status (has rights in the system).
-    const canAccept = hasPermission(corePermissions, 'accept_applications:' + event.type);
+    // See pax list and change 'paid_fee' and 'attended' attributes only.
+    const isIncoming = hasPermission(corePermissions, 'manage_incoming:' + event.type);
 
     // User can edit application if it's his application and it's within the deadline, or if he has the permission.
     permissions.edit_application = (mine && event.can_apply) || canManage;
@@ -75,10 +78,10 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     permissions.set_application_cancelled = (mine && event.can_apply) || canManage;
 
     // For paid fee and cancelled, only if has permissions.
-    permissions.set_application_paid_fee = canManage;
-    permissions.set_application_attended = canManage;
+    permissions.set_application_paid_fee = isIncoming || canManage;
+    permissions.set_application_attended = isIncoming || canManage;
 
-    permissions.change_status = canAccept;
+    permissions.change_status = canManage;
 
     return permissions;
 };
