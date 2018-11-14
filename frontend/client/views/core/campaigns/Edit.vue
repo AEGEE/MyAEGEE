@@ -48,6 +48,7 @@
               <b-autocomplete
                 v-model="autocompleteCampaign"
                 :data="bodies"
+                :disabled="$route.params.body_id"
                 open-on-focus="true"
                 @select="circle => { campaign.autojoin_body_id = circle.id; campaign.autojoin_body = circle }">
                 <template slot-scope="props">
@@ -63,7 +64,12 @@
               <p class="control">
                 <a class="button is-danger"
                   @click="campaign.autojoin_body_id = null; campaign.autojoin_body = null"
-                  v-if="campaign.autojoin_body">{{ campaign.autojoin_body.name }} (Click to unset)</a>
+                  v-if="campaign.autojoin_body && !$route.params.body_id">
+                  {{ campaign.autojoin_body.name }} (Click to unset)
+                </a>
+                <a class="button is-static" v-if="campaign.autojoin_body && $route.params.body_id">
+                  {{ campaign.autojoin_body.name }}
+                </a>
                 <a class="button is-static" v-if="!campaign.autojoin_body">Not set.</a>
               </p>
             </div>
@@ -138,8 +144,8 @@ export default {
         this.$root.showSuccess('Campaign is saved.')
 
         return this.$router.push({
-          name: 'oms.campaigns.view',
-          params: { id: response.data.data.id }
+          name: this.$route.params.body_id ? 'oms.bodies.campaigns.view' : 'oms.campaigns.view',
+          params: { id: response.data.data.id, body_id: response.data.data.autojoin_body_id }
         })
       }).catch((err) => {
         this.isSaving = false
@@ -157,6 +163,11 @@ export default {
   mounted () {
     this.axios.get(this.services['oms-core-elixir'] + '/bodies/', { params: { limit: 1000 } }).then((response) => { // TODO rethink
       this.bodies = response.data.data
+
+      if (this.$route.params.body_id) {
+        this.campaign.autojoin_body_id = parseInt(this.$route.params.body_id, 10)
+        this.campaign.autojoin_body = this.bodies.find(body => body.id === this.campaign.autojoin_body_id)
+      }
     }).catch((err) => {
       this.$root.showDanger('Could not fetch bodies list: ' + err.message)
     })

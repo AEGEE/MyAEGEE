@@ -50,7 +50,12 @@
         <div class="tile is-parent">
           <article class="tile is-child is-info">
             <div class="field is-grouped">
-              <router-link  v-if="can.edit" :to="{ name: 'oms.campaigns.edit', params: { id: campaign.id } }" class="button is-fullwidth is-warning">
+              <router-link  v-if="can.edit && !$route.params.body_id" :to="{ name: 'oms.campaigns.edit', params: { id: campaign.id } }" class="button is-fullwidth is-warning">
+                <span>Edit campaign details</span>
+                <span class="icon"><i class="fa fa-edit"></i></span>
+              </router-link>
+
+              <router-link  v-if="can.edit && $route.params.body_id" :to="{ name: 'oms.bodies.campaigns.edit', params: { body_id: campaign.autojoin_body_id, id: campaign.id } }" class="button is-fullwidth is-warning">
                 <span>Edit campaign details</span>
                 <span class="icon"><i class="fa fa-edit"></i></span>
               </router-link>

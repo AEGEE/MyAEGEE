@@ -24,6 +24,13 @@
             </router-link>
           </div>
 
+          <div class="field is-grouped" v-if="can.seeCampaigns">
+            <router-link :to="{ name: 'oms.bodies.campaigns', params: { id: body.id } }" class="button is-fullwidth">
+              <span>View recruitment campaings</span>
+              <span class="icon"><i class="fa fa-users"></i></span>
+            </router-link>
+          </div>
+
           <div class="field is-grouped" v-if="!isMember && !isRequestingMembership">
             <a @click="askToJoinBody()" class="button is-fullwidth is-info">
               <span>Request to join</span>
@@ -306,6 +313,7 @@ export default {
       this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:body'))
       this.can.seeMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
       this.can.seeJoinRequests = this.permissions.some(permission => permission.combined.endsWith('view:join_request'))
+      this.can.seeCampaigns = this.permissions.some(permission => permission.combined.endsWith('view:campaign'))
       this.can.createCircle = this.permissions.some(permission => permission.combined.endsWith('create:bound_circle'))
 
       this.isLoading = false

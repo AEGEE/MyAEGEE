@@ -126,6 +126,38 @@ module.exports = [
     }
   },
   {
+    name: 'oms.bodies.campaigns.new',
+    path: '/bodies/:body_id/campaigns/new',
+    component: 'core/campaigns/Edit',
+    meta: {
+      label: 'Create campaign for a body'
+    }
+  },
+  {
+    name: 'oms.bodies.campaigns.edit',
+    path: '/bodies/:body_id/campaigns/:id/edit',
+    component: 'core/campaigns/Edit',
+    meta: {
+      label: 'Edit campaign of a body'
+    }
+  },
+  {
+    name: 'oms.bodies.campaigns.view',
+    path: '/bodies/:body_id/campaigns/:id',
+    component: 'core/campaigns/Single',
+    meta: {
+      label: 'Display campaign of a body'
+    }
+  },
+  {
+    name: 'oms.bodies.campaigns',
+    path: '/bodies/:id/campaigns',
+    component: 'core/bodies/CampaignsList',
+    meta: {
+      label: 'View members of a body'
+    }
+  },
+  {
     name: 'oms.bodies.join_requests',
     path: '/bodies/:id/join_requests',
     component: 'core/bodies/ViewJoinRequests',
