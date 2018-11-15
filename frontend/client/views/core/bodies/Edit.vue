@@ -3,9 +3,28 @@
     <div class="tile is-child">
       <form @submit.prevent="saveBody()">
         <div class="field">
+          <label class="label">Type</label>
+          <div class="control">
+            <div class="select">
+              <select v-model="body.type" :disabled="!can.editType" >
+                <option value="antenna">Antenna</option>
+                <option value="contact antenna">Contact antenna</option>
+                <option value="contact ">Contact</option>
+                <option value="interest group">Interest group</option>
+                <option value="working group">Working group</option>
+                <option value="commission">Commission</option>
+                <option value="committee">Comittee</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <p class="help is-danger" v-if="errors.scope">{{ errors.scope.join(', ')}}</p>
+        </div>
+
+        <div class="field">
           <label class="label">Name</label>
           <div class="control">
-            <input class="input" type="text" required v-model="body.name" />
+            <input class="input" type="text" required :disabled="!can.editName" v-model="body.name" />
           </div>
           <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
         </div>
@@ -25,7 +44,7 @@
         <div class="field">
           <label class="label">Body code</label>
           <div class="control">
-            <input class="input" type="text" required v-model="body.legacy_key" />
+            <input class="input" type="text" required :disabled="!can.editCode" v-model="body.legacy_key" />
           </div>
           <p class="help is-danger" v-if="errors.legacy_key">{{ errors.legacy_key.join(', ')}}</p>
         </div>
@@ -57,13 +76,14 @@
           <p class="help is-danger" v-if="errors.address">{{ errors.address.join(', ')}}</p>
         </div>
 
-        <div class="field" v-if="$route.params.id">
+        <div class="field" v-if="$route.params.id && can.editShadowCircle">
           <label class="label">Shadow circle</label>
           <p class="control">
             <div class="field has-addons">
               <b-autocomplete
                 v-model="autocompleteBody"
                 :data="filteredShadowCircles"
+                :disabled="!can.editShadowCircle"
                 open-on-focus="true"
                 @select="circle => { body.shadow_circle_id = circle.id; body.shadow_circle = circle }">
                 <template slot-scope="props">
@@ -76,10 +96,14 @@
                   </div>
                 </template>
               </b-autocomplete>
-              <p class="control">
+              <p class="control" v-if="can.editShadowCircle">
                 <a class="button is-danger"
                   @click="body.shadow_circle_id = null; body.shadow_circle = null"
                   v-if="body.shadow_circle">{{ body.shadow_circle.name }} (Click to unset)</a>
+                <a class="button is-static" v-if="!body.shadow_circle">Not set.</a>
+              </p>
+              <p class="control" v-if="!can.editShadowCircle">
+                <a class="button is-static" v-if="body.shadow_circle">{{ body.shadow_circle.name }}</a>
                 <a class="button is-static" v-if="!body.shadow_circle">Not set.</a>
               </p>
             </div>
@@ -116,6 +140,13 @@ export default {
         shadow_circle_id: null,
         shadow_circle: null,
         circles: []
+      },
+      permissions: [],
+      can: {
+        editName: false,
+        editCode: false,
+        editShadowCircle: false,
+        editType: false
       },
       autocompleteBody: '',
       errors: {},
@@ -168,6 +199,16 @@ export default {
     this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
       this.body = response.data.data
       this.isLoading = false
+
+      return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
+    }).then((response) => {
+      this.permissions = response.data.data
+
+      const editGlobalPermission = this.permissions.find(permission => permission.combined.endsWith('global:update:body'))
+      this.can.editName = editGlobalPermission
+      this.can.editCode = editGlobalPermission
+      this.can.editShadowCircle = editGlobalPermission
+      this.can.editType = editGlobalPermission
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Body is not found' : 'Some error happened: ' + err.message
 

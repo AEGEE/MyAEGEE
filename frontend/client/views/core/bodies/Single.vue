@@ -87,6 +87,10 @@
                   </td>
                 </tr>
                 <tr>
+                  <th>Type</th>
+                  <td>{{ body.type | capitalize }}</td>
+                </tr>
+                <tr>
                   <th>Code</th>
                   <td>{{ body.legacy_key }}</td>
                 </tr>
@@ -188,6 +192,7 @@ export default {
       body: {
         name: '',
         description: '',
+        type: '',
         id: null,
         legacy_key: null,
         circles: [],
