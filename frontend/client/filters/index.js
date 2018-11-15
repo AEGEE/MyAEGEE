@@ -14,5 +14,9 @@ export default {
   capitalize (value) {
     if (typeof value !== 'string') return ''
     return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+  },
+  beautify (value) {
+    if (typeof value === 'boolean') return value ? 'Yes' : 'No'
+    return value
   }
 }
