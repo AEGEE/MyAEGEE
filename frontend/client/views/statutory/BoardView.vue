@@ -72,10 +72,10 @@
                 <div class="select">
                   <select v-model="pax.participant_type">
                     <option :value="null">Not set</option>
-                    <option value="delegate">Delegate</option>
-                    <option value="visitor">Visitor</option>
+                    <option value="delegate" v-show="event.type === 'agora'">Delegate</option>
+                    <option value="visitor" v-show="event.type === 'agora'">Visitor</option>
                     <option value="envoy">Envoy</option>
-                    <option value="observer">Observer</option>
+                    <option value="observer" v-show="event.type === 'agora'">Observer</option>
                   </select>
                 </div>
               </td>
@@ -114,7 +114,8 @@ export default {
       myBoards: [],
       selectedBody: null,
       event: {
-        questions: []
+        questions: [],
+        type: '',
       },
       can: {
         see_boardview_of: {}
