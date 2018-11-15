@@ -365,7 +365,7 @@ export default {
     },
     saveEvent () {
       if (this.event.questions.length === 0) {
-        return this.$root.showDanger('Please set at least 1 application question.');
+        return this.$root.showDanger('Please set at least 1 application question.')
       }
 
       this.isSaving = true

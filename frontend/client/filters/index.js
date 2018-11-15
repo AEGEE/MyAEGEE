@@ -12,7 +12,7 @@ export default {
     return marked(value, { sanitize: true })
   },
   capitalize (value) {
-    if (typeof value != 'string') return '';
+    if (typeof value !== 'string') return ''
     return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
   }
 }

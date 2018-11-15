@@ -161,7 +161,7 @@ export default {
         pax.isSavingPaidFee = false
         this.$root.showDanger('Could not update participant fee info: ' + err.message)
       })
-    },
+    }
   },
   mounted () {
     this.isLoading = true
