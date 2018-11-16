@@ -43,7 +43,7 @@
               <th v-if="displayCancelled">Cancelled?</th>
               <th>Paid fee?</th>
               <th>Attended?</th>
-              <th>Edit</th>
+              <th>View</th>
               <th>Manage status</th>
             </tr>
           </thead>
@@ -65,8 +65,8 @@
               <td>{{ pax.paid_fee ? 'Yes' : 'No' }}</td>
               <td>{{ pax.attended ? 'Yes' : 'No' }}</td>
               <td>
-                <router-link :to="{ name: 'oms.statutory.manage_application', params: { application_id: pax.id } }">
-                  Edit
+                <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: pax.id } }">
+                  View
                 </router-link>
               </td>
               <th>

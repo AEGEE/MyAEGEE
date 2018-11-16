@@ -427,19 +427,43 @@ module.exports = [
     }
   },
   {
-    name: 'oms.statutory.apply',
-    path: '/statutory/:id/apply',
-    component: 'statutory/Apply',
+    name: 'oms.statutory.applications',
+    path: '/statutory/:id/applications',
+    component: 'statutory/Applications',
     meta: {
-      label: 'Apply to statutory event'
+      label: 'Manage participants for the statutory event'
     }
   },
   {
-    name: 'oms.statutory.manage_application',
-    path: '/statutory/:id/manage-application/:application_id',
-    component: 'statutory/Apply',
+    name: 'oms.statutory.applications.stats',
+    path: '/statutory/:id/applications/stats',
+    component: 'statutory/Stats',
+    meta: {
+      label: 'Applications statistics for statutory event'
+    }
+  },
+  {
+    name: 'oms.statutory.applications.new',
+    path: '/statutory/:id/applications/new',
+    component: 'statutory/EditApplication',
+    meta: {
+      label: 'Apply for statutory event'
+    }
+  },
+  {
+    name: 'oms.statutory.applications.edit',
+    path: '/statutory/:id/applications/:application_id/edit',
+    component: 'statutory/EditApplication',
     meta: {
       label: 'Manage application for statutory event'
+    }
+  },
+  {
+    name: 'oms.statutory.applications.view',
+    path: '/statutory/:id/applications/:application_id',
+    component: 'statutory/ViewApplication',
+    meta: {
+      label: 'View application for statutory event'
     }
   },
   {
@@ -448,14 +472,6 @@ module.exports = [
     component: 'statutory/Accepted',
     meta: {
       label: 'List accepted participants for the statutory event'
-    }
-  },
-  {
-    name: 'oms.statutory.manage_participants',
-    path: '/statutory/:id/manage-participants',
-    component: 'statutory/ManageParticipants',
-    meta: {
-      label: 'Manage participants for the statutory event'
     }
   },
   {

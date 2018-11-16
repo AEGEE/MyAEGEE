@@ -115,7 +115,7 @@ export default {
       selectedBody: null,
       event: {
         questions: [],
-        type: '',
+        type: ''
       },
       can: {
         see_boardview_of: {}

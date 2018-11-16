@@ -53,7 +53,7 @@
                 </p>
                 <p class="control" v-if="event.can_apply">
                   <router-link
-                    :to="{ name: 'oms.statutory.apply', params: { id: event.url || event.id } }"
+                    :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: 'me' } }"
                     class="button is-warning">
                     Apply
                   </router-link>

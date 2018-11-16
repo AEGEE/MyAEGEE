@@ -11,7 +11,7 @@
       <div class="tile is-parent">
         <article class="tile is-child is-info">
           <div class="field is-grouped" v-if="can.manage_applications">
-            <router-link :to="{ name: 'oms.statutory.manage_participants', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link :to="{ name: 'oms.statutory.applications', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>View applications</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
@@ -52,9 +52,9 @@
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.apply">
-            <router-link :to="{ name: 'oms.statutory.apply', params: { id: event.url || event.id } }" class="button is-warning is-fullwidth">
-              <span>Apply</span>
+          <div class="field is-grouped">
+            <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: 'me' } }" class="button is-warning is-fullwidth">
+              <span>My application</span>
               <span class="icon"><i class="fa fa-plus"></i></span>
             </router-link>
           </div>

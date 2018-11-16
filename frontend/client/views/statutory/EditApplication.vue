@@ -3,11 +3,10 @@
     <div class="tile is-parent">
       <div class="tile is-child">
         <div class="title" v-show="isNew">Apply to {{ event.name }}</div>
-        <div class="title" v-show="!isNew && can.apply">Edit application on {{ event.name }}</div>
-        <div class="title" v-show="!isNew && !can.apply">See application on {{ event.name }}</div>
+        <div class="title" v-show="!isNew">Edit application on {{ event.name }}</div>
 
         <form @submit.prevent="saveApplication()">
-          <div class="tile is-parent" v-show="isNew || can.apply">
+          <div class="tile is-parent">
             <div class="tile is-child">
               <div class="field" v-show="autoComplete.bodies.values.length > 0">
                 <label class="label">Select body to apply from</label>
@@ -104,93 +103,13 @@
             </div>
           </div>
 
-          <div v-show="!isNew && !can.apply" class="tile is-parent">
-            <div class="tile is-child">
-              <p>
-                <b>You applied from this body:</b>
-                <router-link :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
-                  {{ application.body ? application.body.name : 'Loading...' }}
-                </router-link>
-              </p>
-              <table class="table is-narrow is-fullwidth">
-                <thead>
-                  <tr>
-                    <th>Question</th>
-                    <th>Your answer</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(question, index) in event.questions" v-bind:key="index">
-                    <th>{{ question }}</th>
-                    <td>{{ application.answers[index] }}</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <table class="table is-narrow is-fullwidth">
-                <tbody>
-                  <tr>
-                    <th>Participant type</th>
-                    <td v-if="application.participant_type">{{ application.participant_type }}</td>
-                    <td v-if="!application.participant_type"><i>Not set yet.</i></td>
-                  </tr>
-                  <tr>
-                    <th>Board comment</th>
-                    <td v-if="application.board_comment">{{ application.board_comment }}</td>
-                    <td v-if="!application.board_comment"><i>Not set yet.</i></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="tile is-parent" v-if="!isNew && !isEditingOther && !application.cancelled">
-            <div class="tile is-child">
-              <div class="notification is-warning" v-show="application.status === 'pending'">
-                Your application is being processed, please wait for the organizers to evaluate your application.
-                <span v-show="!can.apply">Unfortunately you can not edit it any more.</span>
-              </div>
-              <div class="notification is-success" v-show="application.status === 'accepted'">
-                Congratulations, you have been accepted to the event!
-              </div>
-              <div class="notification is-danger" v-show="application.status === 'rejected'">
-                Sorry, but you were not accepted to the event.
-              </div>
-            </div>
-          </div>
-
-          <div class="tile is-parent" v-if="application.cancelled">
-            <div class="tile is-child">
-              <div class="notification is-danger">
-                Your application is cancelled.
-                <span v-if="can.apply">You can uncancel it till the application period ends.</span>
-              </div>
-            </div>
-          </div>
-
           <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
         </form>
 
-        <hr v-if="!isNew && can.set_application_cancelled" />
-
-        <!-- Cancelling -->
-        <div class="tile is-parent" v-if="!isNew && can.set_application_cancelled">
-          <div class="tile is-child">
-            <div class="field">
-              <button type="submit" class="button is-danger" v-show="!application.cancelled" @click="askSetCancelled(true)">
-                Cancel application
-              </button>
-              <button type="submit" class="button is-info" v-show="application.cancelled" @click="setCancelled(false)">
-                Uncancel application
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <hr v-if="isEditingOther" />
+        <hr v-show="!isNew && can.set_board_comment_and_participant_type_global" />
 
         <!-- Editing board stuff for Chair Team/CD -->
-        <div class="tile is-parent" v-if="isEditingOther">
+        <div class="tile is-parent" v-show="!isNew && can.set_board_comment_and_participant_type_global">
           <div class="tile is-child">
             <div class="field is-fullwidth">
               <div class="control">
@@ -225,7 +144,6 @@
                 Save application!
               </button>
             </div>
-
           </div>
         </div>
       </div>
@@ -239,7 +157,7 @@
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'ApplyToStatutoryEvent',
+  name: 'EditApplication',
   data () {
     return {
       event: {
@@ -276,7 +194,7 @@ export default {
 
       const promise = this.isNew
         ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications', toServer)
-        : this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.prefix, toServer)
+        : this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id, toServer)
 
       promise.then(() => {
         this.$root.showSuccess('Application is saved.')
@@ -305,7 +223,7 @@ export default {
         board_comment: this.application.board_comment
       }
 
-      this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.prefix + '/board', toServer).then(() => {
+      this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id + '/board', toServer).then(() => {
         this.$root.showSuccess('Application is saved.')
       }).catch((err) => {
         this.isSaving = false
@@ -343,13 +261,7 @@ export default {
       loginUser: 'user'
     }),
     isNew () {
-      return !this.application.id
-    },
-    prefix () {
-      return this.$route.params.application_id ? this.$route.params.application_id : 'me'
-    },
-    isEditingOther () {
-      return !!this.$route.params.application_id
+      return !this.$route.params.application_id
     }
   },
   mounted () {
@@ -372,34 +284,42 @@ export default {
         }
       })
 
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.prefix).then((application) => {
+      // If this is a new application, then allowing selecting bodies which the current user is a member of
+      // and not fetching application.
+      if (this.isNew) {
+        this.autoComplete.bodies.values = this.loginUser.bodies
+        this.isLoading = false
+        return
+      }
+
+      // Fetching application
+      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id).then((application) => {
         this.application = application.data.data
         this.can = application.data.data.permissions
-        this.application.body = this.loginUser.bodies.find(body => body.id === this.application.body_id)
+
+        // Fetching user to get his/her bodies
+        return this.axios.get(this.services['oms-core-elixir'] + '/members/' + this.application.user_id)
+      }).then((user) => {
+        this.autoComplete.bodies.values = user.data.data.bodies
+        this.application.body = user.data.data.bodies.find(body => body.id === this.application.body_id)
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
+
         // if there's no application, just ignore, otherwise re-throw the error
-        if (err.response.status !== 404) {
+        if (!err.response || err.response.status !== 404) {
           throw err
         }
       })
+
     }).catch((err) => {
-      let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+      let message = (err.response && err.response.status === 404) ? 'Application is not found' : 'Some error happened: ' + err.message
 
       this.$root.showDanger(message)
-      this.$router.push({ name: 'oms.statutory.list' })
+      this.$router.push({ name: 'oms.statutory.applications.view', params: {
+        id: this.$route.params.id, application_id
+      } })
     })
-
-    if (this.isEditingOther) {
-      this.axios.get(this.services['oms-core-elixir'] + '/bodies/').then((response) => {
-        this.autoComplete.bodies.values = response.data.data
-      }).catch((err) => {
-        this.$root.showDanger('Could not fetch bodies list: ' + err.message)
-      })
-    } else {
-      this.autoComplete.bodies.values = this.loginUser.bodies
-    }
   }
 }
 </script>

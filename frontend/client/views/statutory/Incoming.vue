@@ -43,6 +43,7 @@
               <th v-if="displayCancelled">Cancelled?</th>
               <th>Paid fee?</th>
               <th>Attended?</th>
+              <th>View</th>
             </tr>
           </thead>
           <tbody>
@@ -75,6 +76,11 @@
                     <option :value="false">No</option>
                   </select>
                 </div>
+              </td>
+              <td>
+                <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: pax.id } }">
+                  View
+                </router-link>
               </td>
             </tr>
             <tr v-if="filteredApplications.length == 0 && !isLoading">
