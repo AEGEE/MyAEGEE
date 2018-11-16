@@ -30,6 +30,13 @@ if ! [[ -f "$DIR/secrets/sendgrid_key" ]]; then
   cat /dev/random | head -c 256 | base64 > $DIR/secrets/sendgrid_key
 fi
 
+## touch acme.json 
+if ! [[ -f "$DIR/secrets/acme.json" ]]; then
+  mkdir -p $DIR/secrets
+  touch $DIR/secrets/acme.json
+  chmod 600 $DIR/secrets/acme.json
+fi
+
 ## If no certificate is provided, use a self-signed one
 if ! [[ -f "$DIR/secrets/cert.pem" ]]; then
   mkdir -p $DIR/secrets

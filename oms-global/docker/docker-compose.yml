@@ -18,12 +18,9 @@ services:
           - 443:443
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock:ro
-          - ./$PATH_OMS_GLOBAL/traefik/acme.json:/etc/acme.json
+          - ./secrets/acme.json:/etc/acme.json #we have to mount it, so no secrets
 #        networks:
 #          - management
-# secrets:
-#           - https_key
-#           - https_cert
         labels:
           - traefik.enable=true
           - traefik.backend=traefik
