@@ -5,7 +5,7 @@ node_js:
 notifications:
     slack: myaegee:KGgB95OHcTnbUHKMUX4bcGcS
 
-before_install:
+install:
   - npm install
 
 script:
