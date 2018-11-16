@@ -1,4 +1,5 @@
 const { errors } = require('oms-common-nodejs');
+const moment = require('moment');
 
 const { Application } = require('../models');
 const constants = require('./constants');
@@ -31,6 +32,40 @@ exports.listAcceptedApplications = async (req, res) => {
     return res.json({
         success: true,
         data: applications
+    });
+};
+
+exports.getStats = async (req, res) => {
+    const statsObject = {};
+
+    // By date
+    statsObject.by_date = req.event.applications.reduce((acc, val) => {
+        const date = moment(val.created_at).format('YYYY-MM-DD');
+        acc[date] = acc[date] ? acc[date] + 1 : 1;
+        return acc;
+    }, {});
+
+    // By body
+    statsObject.by_body = req.event.applications.reduce((acc, val) => {
+        acc[val.body_id] = acc[val.body_id] ? acc[val.body_id] + 1 : 1;
+        return acc;
+    }, {});
+
+    // By pax type
+    statsObject.by_type = req.event.applications.reduce((acc, val) => {
+        acc[val.participant_type] = acc[val.participant_type] ? acc[val.participant_type] + 1 : 1;
+        return acc;
+    }, {});
+
+    // By pax type
+    statsObject.by_type = req.event.applications.reduce((acc, val) => {
+        acc[val.participant_type] = acc[val.participant_type] ? acc[val.participant_type] + 1 : 1;
+        return acc;
+    }, {});
+
+    return res.json({
+        success: true,
+        data: statsObject
     });
 };
 
