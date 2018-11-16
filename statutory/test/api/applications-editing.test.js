@@ -284,28 +284,6 @@ describe('Applications editing', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should not return 403 when applying not on behalf of the user body for other user', async () => {
-        mock.mockAll();
-
-        const event = await generator.createEvent();
-        const application = await generator.createApplication({ user_id: 333 }, event);
-
-        tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id,
-            method: 'PUT',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { body_id: 1337 }
-        });
-
-        tk.reset();
-
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        expect(res.body).toHaveProperty('data');
-    });
-
     test('should reset pax type and board comment when switching body', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
