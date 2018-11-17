@@ -71,6 +71,8 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     // See pax list and change 'paid_fee' and 'attended' attributes only.
     const isIncoming = hasPermission(corePermissions, 'manage_incoming:' + event.type);
 
+    permissions.see_application = mine || canManage || isIncoming;
+
     // User can edit application if it's his application and it's within the deadline, or if he has the permission.
     permissions.edit_application = (mine && event.can_apply) || canManage;
 
