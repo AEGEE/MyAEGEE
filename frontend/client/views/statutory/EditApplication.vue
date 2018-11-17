@@ -316,9 +316,10 @@ export default {
       let message = (err.response && err.response.status === 404) ? 'Application is not found' : 'Some error happened: ' + err.message
 
       this.$root.showDanger(message)
-      this.$router.push({ name: 'oms.statutory.applications.view', params: {
-        id: this.$route.params.id, application_id
-      } })
+      this.$router.push({
+        name: 'oms.statutory.applications.view',
+        params: { id: this.$route.params.id, application_id: this.$route.params.application_id }
+      })
     })
   }
 }
