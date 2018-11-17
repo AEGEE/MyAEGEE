@@ -36,32 +36,56 @@ exports.listAcceptedApplications = async (req, res) => {
 };
 
 exports.getStats = async (req, res) => {
-    const statsObject = {};
+    const statsObject = {
+        by_date: [],
+        by_date_cumulative: [],
+        by_body: [],
+        by_type: []
+    };
 
     // By date
-    statsObject.by_date = req.event.applications.reduce((acc, val) => {
-        const date = moment(val.created_at).format('YYYY-MM-DD');
-        acc[date] = acc[date] ? acc[date] + 1 : 1;
-        return acc;
-    }, {});
+    const dates = req.event.applications.map(app => moment(app.created_at).format('YYYY-MM-DD'))
+        .filter((elt, index, array) => array.indexOf(elt) === index)
+        .sort()
+    const startDate = dates[0];
+    const endDate = dates[dates.length - 1];
+    let cumulativeSum = 0;
+
+    // Iterating through dates from the first one to the last one incrementing by day.
+    for (let date = moment(startDate, 'YYYY-MM-DD'); date.isSameOrBefore(moment(endDate, 'YYYY-MM-DD')); date = date.add(1, 'day')) {
+        const dateFormatted = moment(date).format('YYYY-MM-DD')
+        const applicationsAmount = req.event.applications
+            .filter(elt => moment(elt.created_at).format('YYYY-MM-DD') === dateFormatted)
+            .length;
+
+        cumulativeSum += applicationsAmount
+        statsObject.by_date.push({ date: dateFormatted, value: applicationsAmount });
+        statsObject.by_date_cumulative.push({ date: dateFormatted, value: cumulativeSum });
+    }
 
     // By body
     statsObject.by_body = req.event.applications.reduce((acc, val) => {
-        acc[val.body_id] = acc[val.body_id] ? acc[val.body_id] + 1 : 1;
+        const existing = acc.find(obj => obj.body_id === val.body_id);
+        if (existing) {
+            existing.value += 1;
+        } else {
+            acc.push({ body_id: val.body_id, value: 1 });
+        }
         return acc;
-    }, {});
+    }, []).sort((a, b) => a.value - b.value);
 
     // By pax type
     statsObject.by_type = req.event.applications.reduce((acc, val) => {
-        acc[val.participant_type] = acc[val.participant_type] ? acc[val.participant_type] + 1 : 1;
+        const existing = acc.find(obj => obj.type === val.participant_type);
+        if (existing) {
+            existing.value += 1;
+        } else {
+            acc.push({ type: val.participant_type, value: 1 });
+        }
         return acc;
-    }, {});
+    }, []);
 
-    // By pax type
-    statsObject.by_type = req.event.applications.reduce((acc, val) => {
-        acc[val.participant_type] = acc[val.participant_type] ? acc[val.participant_type] + 1 : 1;
-        return acc;
-    }, {});
+    // Not sure of what to add here
 
     return res.json({
         success: true,
