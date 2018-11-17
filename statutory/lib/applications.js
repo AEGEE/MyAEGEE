@@ -72,7 +72,7 @@ exports.getStats = async (req, res) => {
             acc.push({ body_id: val.body_id, value: 1 });
         }
         return acc;
-    }, []).sort((a, b) => a.value - b.value);
+    }, []).sort((a, b) => b.value - a.value);
 
     // By pax type
     statsObject.by_type = req.event.applications.reduce((acc, val) => {
