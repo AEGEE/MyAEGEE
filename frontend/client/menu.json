@@ -28,11 +28,11 @@
         "name": "oms.permissions.list",
         "label": "Permissions",
         "icon": "fa-key",
-        "permissions": ["global:view:permission"]
+        "permissions": ["global:update:permission", "global:create:permission"]
       },
       {
         "name": "oms.circles.list",
-        "label": "View circles",
+        "label": "Circles",
         "icon": "fa-circle",
         "permissions": ["global:view:circle"]
       },
