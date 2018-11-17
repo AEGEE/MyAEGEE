@@ -15,6 +15,9 @@
 
         <div class="subtitle">By body</div>
         <pie-chart class="chart" :chart-data="byBodyData" :options="byBodyOptions"></pie-chart>
+
+        <div class="subtitle">Quorum</div>
+        <pie-chart class="chart" :chart-data="byQuorumData" :options="byQuorumOptions"></pie-chart>
       </div>
     </div>
   </div>
@@ -58,6 +61,7 @@ export default {
       event: {
         name: null
       },
+      bodies: [],
       stats: {
         by_date: [],
         by_date_cumulative: [],
@@ -155,6 +159,22 @@ export default {
           display: true,
           text: 'Applications by body'
         }
+      }
+    },
+    byQuorumData () {
+      return {
+        labels: ['Present', 'Not present'],
+        datasets: [{
+          label: 'Quorum',
+          backgroundColor: ['#3e95cd', '#8e5ea2'],
+          data: [this.stats.by_body.length, this.bodies.length - this.stats.by_body.length]
+        }]
+      }
+    },
+    byQuorumOptions () {
+      return {
+        responsive: true,
+        maintainAspectRatio: false
       }
     }
   },
