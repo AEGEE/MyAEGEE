@@ -84,8 +84,8 @@ export default {
     fetchData (state) {
       this.isLoading = true
 
-      this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
-        this.campaigns = response.data.data.campaigns
+      this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/campaigns').then((response) => {
+        this.campaigns = response.data.data
 
         return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
       }).then((response) => {

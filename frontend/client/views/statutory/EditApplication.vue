@@ -311,7 +311,6 @@ export default {
           throw err
         }
       })
-
     }).catch((err) => {
       let message = (err.response && err.response.status === 404) ? 'Application is not found' : 'Some error happened: ' + err.message
 
