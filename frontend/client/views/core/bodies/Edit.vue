@@ -14,6 +14,8 @@
                 <option value="working group">Working group</option>
                 <option value="commission">Commission</option>
                 <option value="committee">Comittee</option>
+                <option value="project">Project</option>
+                <option value="partner">Partner association</option>
                 <option value="other">Other</option>
               </select>
             </div>
