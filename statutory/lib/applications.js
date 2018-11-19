@@ -43,8 +43,11 @@ exports.getStats = async (req, res) => {
         by_type: []
     };
 
+    // Filtering out cancelled applications.
+    const applications = req.event.applications.filter(app => !app.cancelled);
+
     // By date
-    const dates = req.event.applications.map(app => moment(app.created_at).format('YYYY-MM-DD'))
+    const dates = applications.map(app => moment(app.created_at).format('YYYY-MM-DD'))
         .filter((elt, index, array) => array.indexOf(elt) === index)
         .sort()
     const startDate = dates[0];
@@ -54,7 +57,7 @@ exports.getStats = async (req, res) => {
     // Iterating through dates from the first one to the last one incrementing by day.
     for (let date = moment(startDate, 'YYYY-MM-DD'); date.isSameOrBefore(moment(endDate, 'YYYY-MM-DD')); date = date.add(1, 'day')) {
         const dateFormatted = moment(date).format('YYYY-MM-DD')
-        const applicationsAmount = req.event.applications
+        const applicationsAmount = applications
             .filter(elt => moment(elt.created_at).format('YYYY-MM-DD') === dateFormatted)
             .length;
 
@@ -64,7 +67,7 @@ exports.getStats = async (req, res) => {
     }
 
     // By body
-    statsObject.by_body = req.event.applications.reduce((acc, val) => {
+    statsObject.by_body = applications.reduce((acc, val) => {
         const existing = acc.find(obj => obj.body_id === val.body_id);
         if (existing) {
             existing.value += 1;
@@ -75,7 +78,7 @@ exports.getStats = async (req, res) => {
     }, []).sort((a, b) => b.value - a.value);
 
     // By pax type
-    statsObject.by_type = req.event.applications.reduce((acc, val) => {
+    statsObject.by_type = applications.reduce((acc, val) => {
         const existing = acc.find(obj => obj.type === val.participant_type);
         if (existing) {
             existing.value += 1;
