@@ -44,20 +44,22 @@ For using it, it becomes:
 
 ### Subdomains registered on traefik
 read "_subdomain_.appserver"; e.g. you put in your browser traefik.appserver
-| Subdomain | What | Container |
+
+|Subdomain|What|Container|
 |---|---|---|
-| traefik | Traefik's statuspage (under login)  | traefik |
-| kibana | Central logging (under login) | kibana |
-| portainer | Easier container mgmt | portainer |
-| status | MyAEGEE's statuspage | cachet |
-| my | MyAEGEE | oms-frontend |
-| www | Website | wordpress |
+|traefik|Traefik's statuspage (under login)|traefik|
+|kibana|Central logging (under login)|kibana|
+|portainer | Easier container mgmt|portainer|
+|status|MyAEGEE's statuspage|cachet|
+|my|MyAEGEE|oms-frontend|
+|www|Website|wordpress|
 
 [For more detailed usage guides see this usage tips page.](https://oms-project.atlassian.net/wiki/spaces/GENERAL/pages/23655986/Usage+tips)
 For container-specific usage guides see the container's repository.
 
 ## Easy script
 There is a file called Makefile that gives some easy shortcut to do stuff. Invoke it in the following way:
+
 | Command | What |
 |---|---|
 | make init | (Run only the first time by vagrant) | 
@@ -66,7 +68,7 @@ There is a file called Makefile that gives some easy shortcut to do stuff. Invok
 | make bootstrap | (init, build, start) in this order | 
 | make monitor | If you didn't install kibana, then you may want to have a look at the logs through this | 
 | make live-refresh | Updates the containers to the new version (if any) and restarts them | 
-| make stop/restart/hard-restart | Just don't use them on the server, EVER  | 
+| make stop/restart/hard-restart | Just don't use them on the server, EVER | 
 | make bump | Only for development, updates the submodules |
 
 For now, if one wants to follow some specific logs, they have to invoke helper.sh manually e.g. 
