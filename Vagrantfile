@@ -14,6 +14,8 @@ Vagrant.configure("2") do |config|
   config.vm.define "appserver"
 
   #Port forwarding
+  # NOTE: there could be a different script that sets the resolv.conf and then 
+  # calls vagrant up
   #SSH from anywhere on the network (sshd)
   config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
   #In case somebody does not use "appserver" but "localhost"
