@@ -2,30 +2,46 @@
 default:  
 	echo 'Options are bootstrap, start, monitor, stop, restart, nuke, clean (cleans untagged/unnamed images)'
 
+bump:
+	./helper.sh --bump
+
+init:
+	./helper.sh --init #check recursive & make secrets, change pw, change .env file
+
+build:
+	./helper.sh --build #docker-compose build
+
 start:  
-	sudo ./oms.sh up -d
+	./helper.sh --start #docker-compose up -d
   
-bootstrap: start monitor
+bootstrap: init build start
 
 monitor:
-	sudo ./oms.sh logs -f omscore && sudo ./oms.sh logs -f omsevents-bootstrap
+	./helper.sh --monitor #by default it logs everything, to log some containers only, use the script by hand
 
-refresh:  
-	sudo ./oms.sh build
+refresh:  build
   
 live-refresh:  
-	sudo ./oms.sh up --build
+	./helper.sh --refresh # docker-compose up -d --build
   
-stop:  
-	sudo ./oms.sh down
+stop:
+	./helper.sh --stop # docker-compose down
   
-restart: stop bootstrap
+restart: stop start
+
+hard-restart: nuke restart
 
 nuke:  
-	sudo ./oms.sh down -v
+	sudo ./oms.sh --nuke #docker-compose down -v #TODO make this nuke take into account the .env like in deploy
   
-#clean:
-#	sudo docker rmi $(docker images -qf "dangling=true")
+clean_docker_dangling_images:
+	docker rmi $(docker images -qf "dangling=true")
+
+clean_docker_images:
+	docker rmi $(docker images -q)
+
+clean: clean_docker_images clean_docker_dangling_images
+
 ###How to remove all containers:
 #  docker rm $(docker ps -aq)
 ###How to kill/stop and remove all containers:
@@ -34,3 +50,5 @@ nuke:
 #  docker rmi $(docker images -qf "dangling=true")
 ###How to remove all images:
 #  docker rmi $(docker images -q)
+
+# ARE ALL COMMANDS IDEMPOTENT???
