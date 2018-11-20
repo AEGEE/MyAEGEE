@@ -57,7 +57,7 @@ init_boot ()
 pw_changer()
 {
     echo -e "\n[Deployment] Setting passwords\n"
-    bash $DIR/$folderName/password-setter.sh
+    bash $DIR/password-setter.sh
 }
 
 # wrapper for the compose mess (ACCEPTS PARAMETERS)
@@ -77,7 +77,6 @@ compose-wrapper()
     if ( $verbose ); then
         echo -e "\n[OMS] Full command:\n${command}\n"
     fi
-    echo "QUITTING INSTEAD OF EXECUTING! DEBUG!"; exit 0;
     eval $command
 }
 
@@ -99,15 +98,15 @@ edit_env_file ()
 {
     export EDITOR=$(env | grep EDITOR | grep -oe '[^=]*$');
     if [ -z "$EDITOR" ]; then
-    echo "[Deployment] no EDITOR variable, setting it to vim"
-    export EDITOR="vim";
+      echo "[Deployment] no EDITOR variable, setting it to vim"
+      export EDITOR="vim";
     fi
-    if [ ! $RUN_BY_CRON ]; then
+    if ( ! $NON_INTERACTIVE ); then
         #Ask if one wants to tweak the .env before starting it up
         echo "Do you wish to edit .env file? (write the number)"
         select yn in "Yes" "No"; do
         case $yn in
-            Yes ) $EDITOR $folderName/.env; break;;
+            Yes ) $EDITOR $DIR/.env; break;;
             No ) break;;
         esac
         done
@@ -139,7 +138,7 @@ nuke=false;
 bump=false;
 command_num=0;
 declare -a containers_to_monitor # = EMPTY ARRAY
-if [[ "$#" -gt 1 ]]; then
+if [[ "$#" -ge 1 ]]; then
 
     while [ "$#" -gt 0 ]; do
         case "$1" in
@@ -170,7 +169,7 @@ if (( $command_num > 1 )); then
 fi
 
 if ( $init ); then
-    init_boot && edit_env_file && pw_changer
+    init_boot && NON_INTERACTIVE=true; edit_env_file && pw_changer
 fi
 
 if ( $build ); then
@@ -195,14 +194,18 @@ fi
 
 if ( $nuke ); then
     if [[ "$(hostname)" == *prod* ]]; then
-        echo "DUUUDE you can't kill production" && exit 1; fi
+        echo "DUUUDE you can't kill production" && exit 1; 
     else if [[ "$(hostname)" == *staging* ]]; then
-        echo "DUUUDE you better do this manually, no script" && exit 2; fi
-    else
-        compose-wrapper down -v
+           echo "DUUUDE you better do this manually, no script" && exit 2; 
+         else
+           compose-wrapper down -v
+         fi
     fi 
 fi
 
 if ( $bump ); then
     bump_repo
 fi
+
+#return 0;
+
