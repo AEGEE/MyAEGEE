@@ -14,7 +14,8 @@ bump_repo()
     git submodule foreach "git checkout master"
     git add $(git submodule status | grep '^+' |  awk '{ print $2 }')
     #if something is staged, do the following two lines
-    if [[ $(git diff --cached --quiet) ]]; then 
+    git diff --cached --quiet 
+    if (( "$?" )); then 
         git checkout -b "bump-submodules-$(date "+%d-%m")"
         git commit -m "Bump version of the submodules"
     fi
