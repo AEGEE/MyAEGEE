@@ -145,10 +145,10 @@ export default {
       },
       permissions: [],
       can: {
-        editName: false,
-        editCode: false,
-        editShadowCircle: false,
-        editType: false
+        editName: true,
+        editCode: true,
+        editShadowCircle: true,
+        editType: true
       },
       autocompleteBody: '',
       errors: {},
