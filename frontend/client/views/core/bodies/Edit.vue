@@ -9,7 +9,7 @@
               <select v-model="body.type" :disabled="!can.editType" >
                 <option value="antenna">Antenna</option>
                 <option value="contact antenna">Contact antenna</option>
-                <option value="contact ">Contact</option>
+                <option value="contact">Contact</option>
                 <option value="interest group">Interest group</option>
                 <option value="working group">Working group</option>
                 <option value="commission">Commission</option>
