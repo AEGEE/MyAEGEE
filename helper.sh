@@ -129,6 +129,9 @@ edit_env_file ()
 # HUMAN INTERVENTION NEEDED: register in .env your services
 ## Export all environment variables from .env to this script in case we need them some time
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [ ! -f $DIR/.env ]; then
+    cp $DIR/.env.example $DIR/.env
+fi
 export $(cat $DIR/.env | grep -v ^# | xargs)
 
 # Entry: check if the number of arguments is max 2 (one for the target one for the verbose)
