@@ -122,6 +122,9 @@ edit_env_file ()
 #compose-wrapper logs -f #and additional args: the names of the containers, after -f
 #FIXME: with the make target, it cannot follow specific logs
 
+# execute command
+#compose-wrapper exec #and additional args: the name of the container and the command
+#FIXME: with the make target, arguments cannot be specified 
 
 # HUMAN INTERVENTION NEEDED: register in .env your services
 ## Export all environment variables from .env to this script in case we need them some time
@@ -137,8 +140,9 @@ monitor=false;
 stop=false;
 nuke=false;
 bump=false;
+execute=false;
 command_num=0;
-declare -a containers_to_monitor # = EMPTY ARRAY
+declare -a arguments # = EMPTY ARRAY
 if [[ "$#" -ge 1 ]]; then
 
     while [ "$#" -gt 0 ]; do
@@ -151,22 +155,23 @@ if [[ "$#" -ge 1 ]]; then
             --stop) stop=true; ((command_num++)); shift ;;
             --nuke) nuke=true; ((command_num++)); shift ;;
             --bump) bump=true; ((command_num++)); shift ;;
+            --execute) execute=true; ((command_num++)); shift ;;
             
             -v) verbose=true; shift ;;
 
             -*) echo "unknown option: $1" >&2; 
-                echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--nuke|--bump} [-v]"; exit 1;;
-            *) containers_to_monitor+="$1 "; shift;;
+                echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--nuke|--execute|--bump} [-v]"; exit 1;;
+            *) arguments+="$1 "; shift;;
         esac
     done
 
 else
-    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--nuke|--bump} [-v]"; exit 1
+    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--nuke|--execute|--bump} [-v]"; exit 1
 fi
 
 if (( $command_num > 1 )); then
     echo "Too many commands! Only one command per time"
-    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--nuke|--bump} [-v]"; exit 1
+    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--nuke|--execute|--bump} [-v]"; exit 1
 fi
 
 if ( $init ); then
@@ -186,7 +191,11 @@ if ( $refresh ); then #THIS IS AN UPGRADING, i.e. CD pipeline target
 fi
 
 if ( $monitor ); then
-    compose-wrapper logs -f $containers_to_monitor
+    compose-wrapper logs -f $arguments
+fi
+
+if ( $execute ); then
+    compose-wrapper exec $arguments
 fi
 
 if ( $stop ); then
