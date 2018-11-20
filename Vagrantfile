@@ -26,14 +26,14 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: "apt-get install dos2unix -qq -y; cd /vagrant && dos2unix *.sh; dos2unix vagrant-post-script/*.sh"
 
   #nice-to-have prompt and completion
-  config.vm.provision "shell", inline: "echo vagrant-post-script/bashrc >> /home/vagrant/.bashrc"
+  config.vm.provision "shell", inline: "cat vagrant-post-script/bashrc > /home/vagrant/.bashrc"
     
   #install docker and docker-composer the easy way
   config.vm.provision "shell", path: "vagrant-post-script/install_docker.sh"
   config.vm.provision "shell", path: "vagrant-post-script/install_docker_composer.sh"
   
   config.vm.provision "docker" do |d|
-    d.pull_images "portainer/portainer:1.15.4"
+    d.pull_images "portainer/portainer:1.15.5"
     #d.pull_images "postgres:10.0"
     #d.build_image "/vagrant/app"
   end

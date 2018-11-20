@@ -5,34 +5,34 @@ default:
 bump:
 	./helper.sh --bump
 
-init:
-	./helper.sh -v --init #check recursive & make secrets, change pw, change .env file
+init: #check recursive & make secrets, change pw, change .env file
+	./helper.sh -v --init
 
-build:
-	./helper.sh -v --build #docker-compose build
+build: #docker-compose build
+	./helper.sh -v --build
 
-start:  
-	./helper.sh --start #docker-compose up -d
+start: #docker-compose up -d
+	./helper.sh --start
   
 bootstrap: init build start
 
-monitor:
-	./helper.sh --monitor #by default it logs everything, to log some containers only, use the script by hand
+monitor: #by default it logs everything, to log some containers only, use the script by hand
+	./helper.sh --monitor
 
 refresh:  build
   
-live-refresh:  
-	./helper.sh --refresh # docker-compose up -d --build
+live-refresh:  # docker-compose up -d --build 
+	./helper.sh --refresh
   
-stop:
-	./helper.sh --stop # docker-compose down
+stop: # docker-compose down
+	./helper.sh --stop
   
 restart: stop start
 
 hard-restart: nuke restart
 
-nuke:  
-	sudo ./oms.sh --nuke #docker-compose down -v #TODO make this nuke take into account the .env like in deploy
+nuke:   #docker-compose down -v #TODO if needed: make this nuke take into account the .env like in deploy
+	./helper.sh --nuke
   
 clean_docker_dangling_images:
 	docker rmi $(docker images -qf "dangling=true")
