@@ -31,25 +31,24 @@ init_boot ()
     docker network inspect OMS &>/dev/null || (echo -e "[OMS] Creating OMS docker network" && docker network create OMS)
 
     ## Create secrets
-    if ( $verbose ); then
-        echo -e "[OMS] Creating random secrets if not existing"
-    fi
+    echo -e "[OMS] Creating random secrets if not existing"
+
     ## Create a new random jwt key
     if ! [[ -f "$DIR/secrets/jwt_key" ]]; then
-    mkdir -p $DIR/secrets
-    cat /dev/random | head -c 256 | base64 > $DIR/secrets/jwt_key
+      mkdir -p $DIR/secrets
+      cat /dev/random | head -c 256 | base64 > $DIR/secrets/jwt_key
     fi
 
     ## Will not result in a valid sendgrid key but at least allows starting of the docker-compose stack
     if ! [[ -f "$DIR/secrets/sendgrid_key" ]]; then
-    mkdir -p $DIR/secrets
-    cat /dev/random | head -c 256 | base64 > $DIR/secrets/sendgrid_key
+      mkdir -p $DIR/secrets
+      cat /dev/random | head -c 256 | base64 > $DIR/secrets/sendgrid_key
     fi
 
     ## If no certificate is provided, use a self-signed one
     if ! [[ -f "$DIR/secrets/cert.pem" ]]; then
-    mkdir -p $DIR/secrets
-    openssl req -x509 -newkey rsa:4096 -keyout $DIR/secrets/key.pem -out $DIR/secrets/cert.pem -days 365 -nodes -batch
+      mkdir -p $DIR/secrets
+      openssl req -x509 -newkey rsa:4096 -keyout $DIR/secrets/key.pem -out $DIR/secrets/cert.pem -days 365 -nodes -batch
     fi
 }
 
