@@ -6,10 +6,10 @@ bump:
 	./helper.sh --bump
 
 init:
-	./helper.sh --init #check recursive & make secrets, change pw, change .env file
+	./helper.sh -v --init #check recursive & make secrets, change pw, change .env file
 
 build:
-	./helper.sh --build #docker-compose build
+	./helper.sh -v --build #docker-compose build
 
 start:  
 	./helper.sh --start #docker-compose up -d
