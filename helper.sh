@@ -16,8 +16,8 @@ bump_repo()
     #if something is staged, do the following two lines
     git diff --cached --quiet 
     if (( "$?" )); then 
-        git checkout -b "bump-submodules-$(date "+%d-%m")"
-        git commit -m "Bump version of the submodules"
+        git checkout -b "bump-submodules-$(date '+%d-%m')-$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 4)"
+        git commit -m "(bump) Bump version of the submodules via make bump"
     fi
 }
 
