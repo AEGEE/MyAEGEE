@@ -1,4 +1,4 @@
-const xlsx = require('node-xlsx')
+const xlsx = require('node-xlsx');
 
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
