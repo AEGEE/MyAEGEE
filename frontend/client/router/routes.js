@@ -443,6 +443,14 @@ module.exports = [
     }
   },
   {
+    name: 'oms.statutory.applications.export',
+    path: '/statutory/:id/applications/export',
+    component: 'statutory/Export',
+    meta: {
+      label: 'Export stats for statutory'
+    }
+  },
+  {
     name: 'oms.statutory.applications.new',
     path: '/statutory/:id/applications/new',
     component: 'statutory/EditApplication',

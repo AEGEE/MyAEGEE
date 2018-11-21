@@ -24,6 +24,13 @@
             </router-link>
           </div>
 
+          <div class="field is-grouped" v-if="can.export">
+            <router-link :to="{ name: 'oms.statutory.applications.export', params: { id: event.url || event.id } }" class="button is-fullwidth">
+              <span>Export participants info</span>
+              <span class="icon"><i class="fa fa-users"></i></span>
+            </router-link>
+          </div>
+
           <div class="field is-grouped">
             <router-link :to="{ name: 'oms.statutory.accepted', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Participants list</span>
@@ -47,7 +54,7 @@
 
           <div class="field is-grouped" v-if="can.see_memberslists">
             <router-link :to="{ name: 'oms.statutory.memberslist.list', params: { id: event.url || event.id } }" class="button is-fullwidth">
-              <span>See members list</span>
+              <span>See members lists</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
           </div>
@@ -189,7 +196,8 @@ export default {
         delete_event: false,
         apply: false,
         set_board_comment_and_participant_type: {},
-        see_memberslists: false
+        see_memberslists: false,
+        export: false
       }
     }
   },
