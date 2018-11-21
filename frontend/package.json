@@ -29,7 +29,7 @@
     "clean": "rm -rf dist",
     "dev:watch": "cross-env NODE_ENV=development webpack --progress --watch --colors",
     "dev": "cross-env NODE_ENV=development webpack",
-    "lint": "eslint --ext .js .vue client/*",
+    "lint": "eslint --ext .js --ext .vue client/",
     "lint:fix": "eslint --fix --ext .js .vue electron.js client/* build/* config/*"
   },
   "dependencies": {

@@ -45,33 +45,33 @@ export default {
       }
     }
   },
-  computed:  mapGetters({
+  computed: mapGetters({
     services: 'services',
     loginUser: 'user'
   }),
   methods: {
-    exportOpenSlides() {
+    exportOpenSlides () {
       this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/export/openslides', {
         responseType: 'blob'
       }).then(response => {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'openslides.csv');
-        document.body.appendChild(link);
-        link.click();
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', 'openslides.csv')
+        document.body.appendChild(link)
+        link.click()
       })
     },
-    exportAll() {
+    exportAll () {
       this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/export/all', {
         responseType: 'blob'
       }).then(response => {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'participants.xlsx');
-        document.body.appendChild(link);
-        link.click();
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', 'participants.xlsx')
+        document.body.appendChild(link)
+        link.click()
       })
     }
   },
