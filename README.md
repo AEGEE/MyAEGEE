@@ -29,17 +29,19 @@ vagrant up
 ```
 **It will take a while**, so grab a cup of some hot beverage.
 
+For windows users: since windows is retarded, you have to right-click "run_as_win_administrator.bat" and click "run as administrator". It will tell you the line to copy (on another terminal that will open) and open the file you need to edit in notepad. Paste the content (it is also written down in the next section) at the last line of the file, save, and exit. Then you can go make tea. 
+
 [**More information on the installation**](https://oms-project.atlassian.net/wiki/spaces/GENERAL/pages/17235970/Installation)
 
 ## Usage
-After running the system, you can navigate to it in your web browser. The URLs differ based on how you run it; however no matter how you decide to run it, _it is suggested_ to edit the `/etc/hosts` file to add the entry: `192.168.168.168 my.appserver traefik.appserver portainer.appserver`, to be able to use advanced features.
+After running the system, you can navigate to it in your web browser. The URLs differ based on how you run it; however no matter how you decide to run it, _it is suggested_ to edit the `/etc/hosts` file (on windows: `C:\Windows\system32\drivers\etc\hosts`) to add the entry: `192.168.168.168 my.appserver traefik.appserver portainer.appserver kibana.appserver`, to be able to use advanced features.
 
 For using it, it becomes:
 
-|Case|URL|
+| Case | URL |
 |---|---|
-|Pure docker| http://localhost |
-|Vagrant| http://localhost:8888 |
+| Pure docker | http://localhost |
+| Vagrant | http://localhost:8888 |
 | Vagrant, applying the advice above| http://appserver, with the possibility of going to http://portainer.appserver or http://traefik.appserver |
 
 ### Subdomains registered on traefik
@@ -47,12 +49,12 @@ read "_subdomain_.appserver"; e.g. you put in your browser traefik.appserver
 
 |Subdomain|What|Container|
 |---|---|---|
-|traefik|Traefik's statuspage (under login)|traefik|
-|kibana|Central logging (under login)|kibana|
-|portainer | Easier container mgmt|portainer|
-|status|MyAEGEE's statuspage|cachet|
-|my|MyAEGEE|oms-frontend|
-|www|Website|wordpress|
+| traefik | Traefik's statuspage (under login) | traefik |
+| kibana | Central logging (under login) | kibana |
+| portainer | Easier container mgmt | portainer |
+| status | MyAEGEE's statuspage | cachet |
+| my | MyAEGEE | oms-frontend |
+| www | Website | wordpress |
 
 [For more detailed usage guides see this usage tips page.](https://oms-project.atlassian.net/wiki/spaces/GENERAL/pages/23655986/Usage+tips)
 For container-specific usage guides see the container's repository.
@@ -95,5 +97,6 @@ Apache License 2.0, see LICENSE.txt for more information.
 
 ## Deployment script
 The types of deployment:
+
 -local (docker/vagrant), with default silly Passwords
 -local (docker/vagrant), with hardened passwords

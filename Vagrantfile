@@ -41,6 +41,6 @@ Vagrant.configure("2") do |config|
   #provision docker orchestration (set to always run)
   config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh", run: "always"
 
-  config.vm.post_up_message = "[FINALLY!] Setup is complete, open your browser to http://appserver (did you configure /etc/hosts?)"
+  config.vm.post_up_message = "[FINALLY!] Setup is complete, open your browser to http://my.appserver (did you configure /etc/hosts?)"
   
 end
