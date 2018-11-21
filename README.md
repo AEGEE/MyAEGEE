@@ -42,7 +42,7 @@ For using it, it becomes:
 |---|---|
 | Pure docker | http://localhost |
 | Vagrant | http://localhost:8888 |
-| Vagrant, applying the advice above| http://appserver, with the possibility of going to http://portainer.appserver or http://traefik.appserver |
+| Vagrant, applying the advice above| http://my.appserver, with the possibility of going to http://portainer.appserver or http://traefik.appserver |
 
 ### Subdomains registered on traefik
 read "_subdomain_.appserver"; e.g. you put in your browser traefik.appserver
@@ -99,4 +99,6 @@ Apache License 2.0, see LICENSE.txt for more information.
 The types of deployment:
 
 -local (docker/vagrant), with default silly Passwords
+
 -local (docker/vagrant), with hardened passwords
+
