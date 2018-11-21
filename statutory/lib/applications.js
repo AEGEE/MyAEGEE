@@ -1,6 +1,10 @@
 const { errors } = require('oms-common-nodejs');
 const moment = require('moment');
+const request = require('request-promise-native');
+const crypto = require('crypto')
 
+const logger = require('./logger');
+const config = require('../config')
 const { Application } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
@@ -275,3 +279,93 @@ If it's yours, please update it via PUT /events/:event_id/applications/${constan
         data: newApplication
     });
 };
+
+exports.exportOpenslides = async (req, res) => {
+    // Exporting users to mass-import into OpenSlides.
+    // The file structure is CSV file with this headers in the first row:
+    // Title, Given name, Surname, Structure level, Participant number, Groups, Comment, Is active, Is present, Is committee, Initial password Email
+    // This endpoint will generate passwords for each user. If you do it 2 times, there would
+    // be 2 different set of passwords, keep that in mind.
+    // For more reference on OpenSlides page, open your OpenSlides instance (or https://demo.openslides.org),
+    // then go to Participants -> Import and read the specification at the bottom of the page.
+
+    if (!req.permissions.export_stats) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see statistics.');
+    }
+
+    // Fetching users list
+    const usersBody = await request({
+        url: config.core.url + ':' + config.core.port + '/members',
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Auth-Token': req.headers['x-auth-token'],
+        },
+        simple: false,
+        json: true
+    });
+
+    if (typeof usersBody !== 'object') {
+        return errors.makeInternalError(res, 'Malformed response when fetching users: ' + usersBody);
+    }
+
+    if (!usersBody.success) {
+        return errors.makeInternalError(res, 'Error fetching users: ' + usersBody);
+    }
+
+    const users = usersBody.data;
+
+    const filtered = req.event.applications.filter(app => !app.cancelled);
+    const wrap = string => '"' + string + '"';
+
+    const headers = [
+        'Title',
+        'Given name',
+        'Surname',
+        'Structure level',
+        'Participant number',
+        'Groups',
+        'Comment',
+        'Is active',
+        'Is present',
+        'Is committee',
+        'Initial password',
+        'Email'
+    ];
+
+    const exportString = headers.map(wrap).join(',') + '\n' + filtered.map((application) => {
+        // Returns a CSV string
+        // Finding a user with corresponding ID
+        const user = users.find(u => u.id === application.user_id);
+
+        // If the user is not found (which should not happen ever), he/she is skipped and warning is raised.
+        if (!user) {
+            logger.error(`User for application ${application.id} (user_id ${application.user_id}) is not found.`);
+            return '';
+        }
+
+        // Generating random pw for a user.
+        const password = crypto.randomBytes(5).toString('hex');
+
+        return [
+            '', // Title
+            user.first_name,
+            user.last_name,
+            '', // Structure level
+            application.id, // Participant number
+            application.participant_type,
+            `Body ID: ${application.body_id}. User ID: ${application.user_id}`, // Comment
+            1, // Is active
+            1, // Is present
+            0, // Is committee
+            password,
+            '' // User email, currently not fetched from the system.
+        ].map(wrap).join(',');
+    }).filter(line => line.length > 0).join('\n');
+
+
+    res.setHeader('Content-type', 'text/csv');
+    res.setHeader('Content-disposition', 'attachment; filename=openslides.csv');
+
+    res.send(exportString);
+}

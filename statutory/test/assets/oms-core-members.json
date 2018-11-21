@@ -1,0 +1,16 @@
+{
+    "success": true,
+    "data": [{
+        "seo_url": "microservice",
+        "primary_body_id": null,
+        "primary_body": null,
+        "phone": "+123456789",
+        "last_name": "Microservice",
+        "id": 1,
+        "gender": "machine",
+        "first_name": "Microservice",
+        "date_of_birth": "2010-04-17",
+        "address": "Europe",
+        "about_me": "I am a microservice. I have a user account so the system can access itself from within, don't delete me."
+    }]
+}

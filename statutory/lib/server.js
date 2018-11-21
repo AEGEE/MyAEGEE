@@ -60,6 +60,7 @@ ApplicationsRouter.use(middlewares.authenticateUser, middlewares.fetchEventWithA
 ApplicationsRouter.post('/', applications.postApplication);
 ApplicationsRouter.get('/all', applications.listAllApplications);
 ApplicationsRouter.get('/stats', applications.getStats);
+ApplicationsRouter.get('/export/openslides', applications.exportOpenslides);
 ApplicationsRouter.get('/accepted', applications.listAcceptedApplications);
 ApplicationsRouter.get('/boardview/:body_id', applications.listBoardView);
 

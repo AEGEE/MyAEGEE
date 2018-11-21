@@ -202,7 +202,7 @@ describe('Applications creation', () => {
     test('should return 422 if answers is not an array', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-        const event = await generator.createEvent({ questions: [generator.generateQuestion()] });
+        const event = await generator.createEvent({ questions: [generator.generateQuestion()], applications: [] });
         const application = generator.generateApplication({
             user_id: regularUser.id,
             body_id: regularUser.bodies[0].id,

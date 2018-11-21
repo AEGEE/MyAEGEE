@@ -73,7 +73,7 @@ exports.mockCoreMainPermissions = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/my_permissions')
-            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-empty.json'));
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
@@ -115,7 +115,7 @@ exports.mockCoreMainPermissions = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/my_permissions')
-            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-empty.json'));
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
@@ -157,7 +157,7 @@ exports.mockCoreApprovePermissions = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .post('/my_permissions')
-            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-empty.json'));
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
@@ -166,15 +166,59 @@ exports.mockCoreApprovePermissions = (options) => {
         .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-approve-permissions-full.json'));
 };
 
+exports.mockCoreMembers = (options) => {
+    if (options.netError) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/members')
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/members')
+            .reply(500, 'Some error happened.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/members')
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
+    if (options.unauthorized) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/members')
+            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+    }
+
+    if (options.empty) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/members')
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
+    }
+
+    return nock(`${config.core.url}:${config.core.port}`)
+        .persist()
+        .get('/members')
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-members.json'));
+};
+
 exports.mockAll = (options = {}) => {
     nock.cleanAll();
     const omsCoreStub = exports.mockCore(options.core || {});
     const omsMainPermissionsStub = exports.mockCoreMainPermissions(options.mainPermissions || {});
     const omsApprovePermissionsStub = exports.mockCoreApprovePermissions(options.approvePermissions || {});
+    const omsCoreMembersStub = exports.mockCoreMembers(options.members || {});
 
     return {
         omsCoreStub,
         omsMainPermissionsStub,
-        omsApprovePermissionsStub
+        omsApprovePermissionsStub,
+        omsCoreMembersStub
     };
 };
