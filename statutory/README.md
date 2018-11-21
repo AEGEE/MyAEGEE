@@ -22,7 +22,7 @@ The main developer of this module is Sergey Peshkov (AEGEE-Voronezh, github.com/
 
 ## Configuring
 
-You can specify the microservice configuration by editing the `lib/config.json` file. Check out the example at `lib/configFile.json.example` and the comments in `lib/config.js` for more information.
+You can specify the microservice configuration by editing the `lib/index.js` file. Check out the example at `lib/index.js.example` and the comments in `lib/index.js` for more information.
 
 ## LICENSE
 

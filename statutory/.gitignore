@@ -7,5 +7,5 @@ npm-debug.log
 frontend/
 .nyc_output/
 test/oms-testing
-config/config.json
+config/index.js
 **/.DS_Store
