@@ -448,7 +448,14 @@ exports.exportAll = async (req, res) => {
             body.name,
             application.participant_type,
             application.board_comment,
-            ...application.answers
+            ...application.answers.map((answer) => {
+                // If it's boolean, display it as Yes/No instead of true/false
+                if (typeof answer === 'boolean') {
+                    return answer ? 'Yes' : 'No';
+                }
+
+                return answer;
+            })
         ];
     }).filter(pax => !!pax); // to filter out null values
 
