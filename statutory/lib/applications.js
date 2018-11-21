@@ -1,7 +1,8 @@
 const { errors } = require('oms-common-nodejs');
 const moment = require('moment');
 const request = require('request-promise-native');
-const crypto = require('crypto')
+const crypto = require('crypto');
+const xlsx = require('node-xlsx').default;
 
 const logger = require('./logger');
 const config = require('../config');
@@ -289,7 +290,7 @@ exports.exportOpenslides = async (req, res) => {
     // For more reference on OpenSlides page, open your OpenSlides instance (or https://demo.openslides.org),
     // then go to Participants -> Import and read the specification at the bottom of the page.
 
-    if (!req.permissions.export_stats) {
+    if (!req.permissions.export) {
         return errors.makeForbiddenError(res, 'You are not allowed to see statistics.');
     }
 
@@ -367,5 +368,103 @@ exports.exportOpenslides = async (req, res) => {
     res.setHeader('Content-type', 'text/csv');
     res.setHeader('Content-disposition', 'attachment; filename=openslides.csv');
 
-    res.send(exportString);
-}
+    return res.send(exportString);
+};
+
+exports.exportAll = async (req, res) => {
+    // Exporting users as XLSX for local organizers/Chair/CD/whoever.
+    if (!req.permissions.export) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see statistics.');
+    }
+
+    // Fetching users list
+    const [usersBody, bodiesBody] = await Promise.all(['/members', '/bodies'].map(key => request({
+        url: config.core.url + ':' + config.core.port + key,
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Auth-Token': req.headers['x-auth-token'],
+        },
+        simple: false,
+        json: true
+    })));
+
+    if (typeof usersBody !== 'object') {
+        return errors.makeInternalError(res, 'Malformed response when fetching users: ' + usersBody);
+    }
+
+    if (!usersBody.success) {
+        return errors.makeInternalError(res, 'Error fetching users: ' + usersBody);
+    }
+
+    if (typeof bodiesBody !== 'object') {
+        return errors.makeInternalError(res, 'Malformed response when fetching users: ' + bodiesBody);
+    }
+
+    if (!bodiesBody.success) {
+        return errors.makeInternalError(res, 'Error fetching users: ' + bodiesBody);
+    }
+
+    const users = usersBody.data;
+    const bodies = bodiesBody.data;
+
+    const filtered = req.event.applications.filter(app => !app.cancelled);
+
+    const headers = [
+        'Application ID',
+        'First name',
+        'Last name',
+        'Email',
+        'Body ID',
+        'Body name',
+        'Participant type',
+        'Board comment',
+        ...req.event.questions.map(q => q.description)
+    ];
+
+    const resultArray = filtered.map((application) => {
+        const user = users.find(u => u.id === application.user_id);
+
+        // If the user is not found (which should not happen ever), he/she is skipped and warning is raised.
+        if (!user) {
+            logger.error(`User for application ${application.id} (user_id ${application.user_id}) is not found.`);
+            return null;
+        }
+
+        const body = bodies.find(b => b.id === application.body_id);
+
+        // If the user is not found (which should not happen ever), he/she is skipped and warning is raised.
+        if (!body) {
+            logger.error(`Body for application ${application.id} (body_id ${application.body_id}) is not found.`);
+            return null;
+        }
+
+        return [
+            application.id,
+            user.first_name,
+            user.last_name,
+            '', // to pre-populate later
+            application.body_id,
+            body.name,
+            application.participant_type,
+            application.board_comment,
+            ...application.answers
+        ];
+    }).filter(pax => !!pax); // to filter out null values
+
+    const resultBuffer = xlsx.build([
+        {
+            name: 'Application stats',
+            data: [
+                headers,
+                ...resultArray
+            ]
+        }
+    ]);
+
+
+    res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-disposition', 'attachment; filename=stats.xlsx');
+
+    return res.send(resultBuffer);
+};

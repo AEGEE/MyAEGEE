@@ -1,0 +1,31 @@
+{
+    "success": true,
+    "data": [{
+        "type": null,
+        "shadow_circle_id": 133,
+        "shadow_circle": null,
+        "seo_url": 34,
+        "phone": null,
+        "name": "AEGEE-Alicante",
+        "legacy_key": "ALC",
+        "id": 34,
+        "email": "junta@aegeealicante.org",
+        "description": "Local in Alicante, see also http://www.aegeealicante.org/, https://www.facebook.com/AEGEEAlicante, https://twitter.com/AEGEEAlicante",
+        "circles": null,
+        "address": "Universidad de Alicante, Consejo de Alumnos, Aulario 1, Despacho 3 del Hotel de Asociaciones  Carretera de San Vicente, s/n 03690  San Vicente del Raspeig (Alicante) Spain (Alicante, Spain)"
+    },
+    {
+        "type": null,
+        "shadow_circle_id": null,
+        "shadow_circle": null,
+        "seo_url": 9,
+        "phone": null,
+        "name": "Chair Team of the Agora",
+        "legacy_key": "XCH",
+        "id": 9,
+        "email": "chair@aegee.org",
+        "description": "The Chair team is responsible for preparing and moderating the Agorae. They preside over them, take the minutes and are responsible for the IT during the events.",
+        "circles": null,
+        "address": "Notelaarsstraat 55"
+    }]
+}
