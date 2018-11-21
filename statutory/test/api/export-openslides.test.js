@@ -1,6 +1,3 @@
-const moment = require('moment');
-const tk = require('timekeeper');
-
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -65,7 +62,7 @@ describe('Export OpenSlides', () => {
     });
 
     test('should return error if core is not accessible', async () => {
-        mock.mockAll({ members: { netError: true} })
+        mock.mockAll({ members: { netError: true } });
         await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
@@ -79,7 +76,7 @@ describe('Export OpenSlides', () => {
     });
 
     test('should return error if core answer is malformed', async () => {
-        mock.mockAll({ members: { badResponse: true} })
+        mock.mockAll({ members: { badResponse: true } });
         await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
@@ -93,7 +90,7 @@ describe('Export OpenSlides', () => {
     });
 
     test('should return error if core answer is not successful', async () => {
-        mock.mockAll({ members: { unsuccessfulResponse: true} })
+        mock.mockAll({ members: { unsuccessfulResponse: true } });
         await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
@@ -107,7 +104,7 @@ describe('Export OpenSlides', () => {
     });
 
     test('should return 403 if no permissions', async () => {
-        mock.mockAll({ mainPermissions: { noPermissions: true} })
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
         await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
@@ -121,7 +118,7 @@ describe('Export OpenSlides', () => {
     });
 
     test('should not return a user if not found', async () => {
-        mock.mockAll({ members: { empty: true } })
+        mock.mockAll({ members: { empty: true } });
         await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({

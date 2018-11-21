@@ -4,7 +4,7 @@ const request = require('request-promise-native');
 const crypto = require('crypto')
 
 const logger = require('./logger');
-const config = require('../config')
+const config = require('../config');
 const { Application } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
@@ -53,19 +53,19 @@ exports.getStats = async (req, res) => {
     // By date
     const dates = applications.map(app => moment(app.created_at).format('YYYY-MM-DD'))
         .filter((elt, index, array) => array.indexOf(elt) === index)
-        .sort()
+        .sort();
     const startDate = dates[0];
     const endDate = dates[dates.length - 1];
     let cumulativeSum = 0;
 
     // Iterating through dates from the first one to the last one incrementing by day.
     for (let date = moment(startDate, 'YYYY-MM-DD'); date.isSameOrBefore(moment(endDate, 'YYYY-MM-DD')); date = date.add(1, 'day')) {
-        const dateFormatted = moment(date).format('YYYY-MM-DD')
+        const dateFormatted = moment(date).format('YYYY-MM-DD');
         const applicationsAmount = applications
             .filter(elt => moment(elt.created_at).format('YYYY-MM-DD') === dateFormatted)
             .length;
 
-        cumulativeSum += applicationsAmount
+        cumulativeSum += applicationsAmount;
         statsObject.by_date.push({ date: dateFormatted, value: applicationsAmount });
         statsObject.by_date_cumulative.push({ date: dateFormatted, value: cumulativeSum });
     }
