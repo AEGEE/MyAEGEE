@@ -276,6 +276,7 @@ exports.editEvent = async (req, res, next) => {
     if (data.application_fields) event.application_fields = data.application_fields;
     if (data.max_participants) event.max_participants = data.max_participants;
     if (data.fee) event.fee = data.fee;
+    if (data.locations) event.locations = data.locations;
 
     event.application_deadline = data.application_deadline;
     const cmpDeadline = new Date(data.application_deadline);
