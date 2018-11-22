@@ -14,7 +14,7 @@
         <pie-chart class="chart" :chart-data="byTypeData" :options="byTypeOptions"></pie-chart>
 
         <div class="subtitle">By body</div>
-        <pie-chart class="chart" :chart-data="byBodyData" :options="byBodyOptions"></pie-chart>
+        <pie-chart class="chart" :chart-data="byBodyData()" :options="byBodyOptions"></pie-chart>
 
         <div class="subtitle">Quorum</div>
         <pie-chart class="chart" :chart-data="byQuorumData" :options="byQuorumOptions"></pie-chart>
@@ -141,16 +141,6 @@ export default {
         }
       }
     },
-    byBodyData () {
-      return {
-        labels: this.stats.by_body.map(s => s.body ? s.body.name : s.body_id),
-        datasets: [{
-          label: 'Applications by body',
-          backgroundColor: ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'],
-          data: this.stats.by_body.map(s => s.value)
-        }]
-      }
-    },
     byBodyOptions () {
       return {
         responsive: true,
@@ -158,12 +148,16 @@ export default {
         title: {
           display: true,
           text: 'Applications by body'
+        },
+        legend: {
+          position: 'right'
         }
       }
     },
     byQuorumData () {
+      const present = this.stats.by_body.length * 100 / this.bodies.length
       return {
-        labels: ['Present', 'Not present'],
+        labels: [`Present ${present.toFixed(2)}%`, `Not present (${(100 - present).toFixed(2)}%)`],
         datasets: [{
           label: 'Quorum',
           backgroundColor: ['#3e95cd', '#8e5ea2'],
@@ -178,6 +172,18 @@ export default {
       }
     }
   },
+  methods: {
+    byBodyData () {
+      return {
+        labels: this.stats.by_body.map(s => s.body ? s.body.name : s.body_id),
+        datasets: [{
+          label: 'Applications by body',
+          backgroundColor: ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'],
+          data: this.stats.by_body.map(s => s.value)
+        }]
+      }
+    },
+  },
   mounted () {
     this.isLoading = true
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((response) => {
@@ -189,9 +195,11 @@ export default {
       return this.axios.get(this.services['oms-core-elixir'] + '/bodies/')
     }).then((bodies) => {
       this.bodies = bodies.data.data
-      for (const body of this.bodies) {
-        const stat = this.stats.by_body.find(b => b.body_id === body.id)
-        if (stat) stat.body = body
+      for (const stat of this.stats.by_body) {
+        const body = this.bodies.find(body => stat.body_id === body.id)
+        if (body) {
+          stat.body = body
+        }
       }
       this.$forceUpdate()
       this.isLoading = false
