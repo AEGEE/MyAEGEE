@@ -182,7 +182,7 @@ export default {
           data: this.stats.by_body.map(s => s.value)
         }]
       }
-    },
+    }
   },
   mounted () {
     this.isLoading = true
