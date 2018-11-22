@@ -420,7 +420,7 @@ exports.exportAll = async (req, res) => {
         'Participant type',
         'Board comment',
         'Paid fee?',
-        'Approved?',
+        'Attended?',
         ...req.event.questions.map(q => q.description)
     ];
 
