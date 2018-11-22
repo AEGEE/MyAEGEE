@@ -419,6 +419,8 @@ exports.exportAll = async (req, res) => {
         'Body name',
         'Participant type',
         'Board comment',
+        'Paid fee?',
+        'Approved?',
         ...req.event.questions.map(q => q.description)
     ];
 
@@ -448,6 +450,8 @@ exports.exportAll = async (req, res) => {
             body.name,
             application.participant_type,
             application.board_comment,
+            application.paid_fee ? 'Yes' : 'No',
+            application.attended ? 'Yes' : 'No',
             ...application.answers.map((answer) => {
                 // If it's boolean, display it as Yes/No instead of true/false
                 if (typeof answer === 'boolean') {
