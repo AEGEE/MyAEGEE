@@ -215,7 +215,7 @@ const Event = sequelize.define('event', {
     can_approve_members: {
         type: Sequelize.VIRTUAL,
         get() {
-            return moment().isBetween(this.application_period_starts, this.board_aprove_deadline, null, '[]'); // inclusive
+            return moment().isBetween(this.application_period_starts, this.board_approve_deadline, null, '[]'); // inclusive
         }
     },
     url: {
