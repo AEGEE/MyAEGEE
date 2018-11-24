@@ -106,8 +106,8 @@ export default {
       }
     },
     byDateOptions () {
-      const applications = Math.max(...this.stats.by_date.map(s => s.value), 1);
-      const tickSize = Math.log10(applications + 1);
+      const applications = Math.max(...this.stats.by_date.map(s => s.value), 1)
+      const tickSize = Math.log10(applications + 1)
 
       return {
         responsive: true,
@@ -128,8 +128,8 @@ export default {
       // Custom ticks based on mow much applications there are.
       const applications = this.stats.by_date_cumulative.length > 0
         ? this.stats.by_date_cumulative[this.stats.by_date_cumulative.length - 1].value
-        : 1;
-      const tickSize = Math.log10(applications + 1);
+        : 1
+      const tickSize = Math.log10(applications + 1)
 
       return {
         responsive: true,

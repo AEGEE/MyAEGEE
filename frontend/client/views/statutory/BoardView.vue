@@ -172,7 +172,7 @@ export default {
   },
   methods: {
     updateParticipant (pax) {
-      this.errors = {};
+      this.errors = {}
       const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/board'
 
       this.axios.put(url, {
@@ -207,7 +207,7 @@ export default {
           }).catch(console.error)
         }
 
-        return this.axios.get(this.services['oms-statutory'] + '/limits/' + this.event.type+  '/' + this.selectedBody)
+        return this.axios.get(this.services['oms-statutory'] + '/limits/' + this.event.type + '/' + this.selectedBody)
       }).then((limit) => {
         this.limits = limit.data.data
         this.isLoading = false
