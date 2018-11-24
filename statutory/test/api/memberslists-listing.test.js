@@ -39,6 +39,7 @@ describe('Memberslist listing', () => {
 
         const event = await generator.createEvent();
         await generator.createMembersList({ body_id: 1337 }, event);
+
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/',
             method: 'GET',

@@ -139,6 +139,38 @@ describe('Memberslist uploading', () => {
         expect(res.body).toHaveProperty('errors');
     });
 
+    test('should fail if member is not an object', async () => {
+        const event = await generator.createEvent();
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({ members: [
+                false
+            ] }, event)
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+    });
+
+    test('should fail if member is null', async () => {
+        const event = await generator.createEvent();
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({ members: [
+                null
+            ] }, event)
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+    });
+
     test('should fail if fee is negative', async () => {
         const event = await generator.createEvent();
         const res = await request({
@@ -146,7 +178,7 @@ describe('Memberslist uploading', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
-                { first_name: 'test', last_name: 'test', fee: -1 }
+                { first_name: 'test', last_name: 'test', fee: -1, user_id: 1 }
             ] }, event)
         });
 
@@ -162,7 +194,7 @@ describe('Memberslist uploading', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
-                { first_name: 'test', last_name: 'test', fee: 'test' }
+                { first_name: 'test', last_name: 'test', fee: 'test', user_id: 1 }
             ] }, event)
         });
 
@@ -178,7 +210,39 @@ describe('Memberslist uploading', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
-                { first_name: '', last_name: 'test', fee: 3 }
+                { last_name: 'test', fee: 3, user_id: 1 }
+            ] }, event)
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+    });
+
+    test('should fail if first name is empty string', async () => {
+        const event = await generator.createEvent();
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({ members: [
+                { first_name: '', last_name: 'test', fee: 3, user_id: 1 }
+            ] }, event)
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+    });
+
+    test('should fail if first name is not a string', async () => {
+        const event = await generator.createEvent();
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({ members: [
+                { first_name: false, last_name: 'test', fee: 3, user_id: 1 }
             ] }, event)
         });
 
@@ -194,7 +258,55 @@ describe('Memberslist uploading', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
-                { first_name: 'tst', last_name: '', fee: 3 }
+                { first_name: 'test', fee: 3, user_id: 1 }
+            ] }, event)
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+    });
+
+    test('should fail if last name is empty string', async () => {
+        const event = await generator.createEvent();
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({ members: [
+                { first_name: 'test', last_name: '', fee: 3, user_id: 1 }
+            ] }, event)
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+    });
+
+    test('should fail if last name is not a string', async () => {
+        const event = await generator.createEvent();
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({ members: [
+                { first_name: 'test', last_name: false, fee: 3, user_id: 1 }
+            ] }, event)
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+    });
+
+    test('should fail if user_id is not set', async () => {
+        const event = await generator.createEvent();
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({ members: [
+                { first_name: 'test', last_name: 'test', fee: 3, user_id: null }
             ] }, event)
         });
 
@@ -208,7 +320,7 @@ describe('Memberslist uploading', () => {
         await generator.createMembersList({
             body_id: regularUser.bodies[0].id,
             user_id: regularUser.id,
-            members: [{ first_name: 'test', last_name: 'test', fee: 3 }]
+            members: [{ first_name: 'test', last_name: 'test', fee: 3, user_id: 1 }]
         }, event);
 
         const res = await request({
@@ -216,7 +328,7 @@ describe('Memberslist uploading', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
-                { first_name: 'not', last_name: 'not', fee: 5 }
+                { first_name: 'not', last_name: 'not', fee: 5, user_id: 2 }
             ] }, event)
         });
 
@@ -229,5 +341,6 @@ describe('Memberslist uploading', () => {
         expect(membersListFromDB[0].members[0].first_name).toEqual('not');
         expect(membersListFromDB[0].members[0].last_name).toEqual('not');
         expect(membersListFromDB[0].members[0].fee).toEqual(5);
+        expect(membersListFromDB[0].members[0].user_id).toEqual(2);
     });
 });
