@@ -100,6 +100,11 @@
             "name": "oms.statutory.create",
             "label": "Create event",
             "permissions": ["global:manage_event:agora", "global:manage_event:epm"]
+          },
+          {
+            "name": "oms.statutory.limits",
+            "label": "Participants types amount",
+            "permissions": ["global:manage_event:agora", "global:manage_event:epm"]
           }
         ]
       }
