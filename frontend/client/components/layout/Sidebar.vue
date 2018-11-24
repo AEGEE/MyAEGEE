@@ -165,10 +165,11 @@ export default {
 
   @include mobile() {
     transform: translate3d(-180px, 0, 0);
+    padding-top: 120px;
   }
 
   @include tablet-only() {
-    padding-top: 100px
+    padding-top: 80px
   }
 
   .icon {
