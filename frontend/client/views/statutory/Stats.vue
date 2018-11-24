@@ -8,7 +8,7 @@
         <line-chart class="chart" :chart-data="byDateData" :options="byDateOptions"></line-chart>
 
         <div class="subtitle">By date (cumulative)</div>
-        <line-chart class="chart" :chart-data="byDateCumulativeData" :options="byDateOptions"></line-chart>
+        <line-chart class="chart" :chart-data="byDateCumulativeData" :options="byDateCumulativeOptions"></line-chart>
 
         <div class="subtitle">By participant type</div>
         <pie-chart class="chart" :chart-data="byTypeData" :options="byTypeOptions"></pie-chart>
@@ -106,6 +106,9 @@ export default {
       }
     },
     byDateOptions () {
+      const applications = Math.max(...this.stats.by_date.map(s => s.value), 1);
+      const tickSize = Math.log10(applications + 1);
+
       return {
         responsive: true,
         maintainAspectRatio: false,
@@ -115,7 +118,29 @@ export default {
             ticks: {
               beginAtZero: true,
               stepValue: 1,
-              stepSize: 1
+              stepSize: tickSize
+            }
+          }]
+        }
+      }
+    },
+    byDateCumulativeOptions () {
+      // Custom ticks based on mow much applications there are.
+      const applications = this.stats.by_date_cumulative.length > 0
+        ? this.stats.by_date_cumulative[this.stats.by_date_cumulative.length - 1].value
+        : 1;
+      const tickSize = Math.log10(applications + 1);
+
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: { display: false },
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+              stepValue: 1,
+              stepSize: tickSize
             }
           }]
         }
