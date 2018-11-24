@@ -228,7 +228,7 @@
         ],
         "bodies": [
             {
-                "type": null,
+                "type": "antenna",
                 "shadow_circle_id": 133,
                 "shadow_circle": null,
                 "seo_url": 34,

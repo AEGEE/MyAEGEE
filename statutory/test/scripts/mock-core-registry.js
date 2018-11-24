@@ -2,6 +2,7 @@ const nock = require('nock');
 const path = require('path');
 
 const config = require('../../config');
+const regularUser = require('../assets/oms-core-valid').data;
 
 exports.cleanAll = () => nock.cleanAll();
 
@@ -250,6 +251,34 @@ exports.mockCoreBodies = (options) => {
         .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-bodies.json'));
 };
 
+exports.mockCoreBody = (options) => {
+    if (options.netError) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/bodies/' + regularUser.bodies[0].id)
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/bodies/' + regularUser.bodies[0].id)
+            .reply(500, 'Some error happened.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get('/bodies/' + regularUser.bodies[0].id)
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
+    return nock(`${config.core.url}:${config.core.port}`)
+        .persist()
+        .get('/bodies/' + regularUser.bodies[0].id)
+        .reply(200, { success: true, data: regularUser.bodies[0] });
+};
+
 exports.mockAll = (options = {}) => {
     nock.cleanAll();
     const omsCoreStub = exports.mockCore(options.core || {});
@@ -257,12 +286,14 @@ exports.mockAll = (options = {}) => {
     const omsApprovePermissionsStub = exports.mockCoreApprovePermissions(options.approvePermissions || {});
     const omsCoreMembersStub = exports.mockCoreMembers(options.members || {});
     const omsCoreBodiesStub = exports.mockCoreBodies(options.bodies || {});
+    const omsCoreBodyStub = exports.mockCoreBody(options.body || {});
 
     return {
         omsCoreStub,
         omsMainPermissionsStub,
         omsApprovePermissionsStub,
         omsCoreMembersStub,
-        omsCoreBodiesStub
+        omsCoreBodiesStub,
+        omsCoreBodyStub
     };
 };

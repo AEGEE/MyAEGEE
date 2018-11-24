@@ -1,7 +1,7 @@
 {
     "success": true,
     "data": [{
-        "type": null,
+        "type": "antenna",
         "shadow_circle_id": 133,
         "shadow_circle": null,
         "seo_url": 34,
@@ -15,7 +15,7 @@
         "address": "Universidad de Alicante, Consejo de Alumnos, Aulario 1, Despacho 3 del Hotel de Asociaciones  Carretera de San Vicente, s/n 03690  San Vicente del Raspeig (Alicante) Spain (Alicante, Spain)"
     },
     {
-        "type": null,
+        "type": "committee",
         "shadow_circle_id": null,
         "shadow_circle": null,
         "seo_url": 9,
