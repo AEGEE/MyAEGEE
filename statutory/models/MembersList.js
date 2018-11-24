@@ -55,14 +55,30 @@ const MembersList = sequelize.define('memberslist', {
                 }
 
                 for (const member of value) {
-                    for (const key of ['first_name', 'last_name', 'fee']) {
-                        if (!member[key]) {
+                    if (typeof member !== 'object' || member === null) {
+                        throw new Error('Member should be an object.');
+                    }
+
+                    for (const key of ['first_name', 'last_name', 'fee', 'user_id']) {
+                        if (typeof member[key] === 'undefined') {
                             throw new Error('The "' + key + '" attribute is not set for a member.');
                         }
                     }
 
-                    if (Number.isNaN(Number(member.fee))) {
-                        throw new Error('The fee is invalid for the user.');
+                    for (const key of ['first_name', 'last_name']) {
+                        if (typeof member[key] !== 'string') {
+                            throw new Error(`${key} should be a string.`);
+                        }
+
+                        if (member[key].trim() === '') {
+                            throw new Error(`${key} should not be empty.`);
+                        }
+                    }
+
+                    for (const key of ['fee', 'user_id']) {
+                        if (typeof member[key] !== 'number') {
+                            throw new Error(`${key} is not a number.`);
+                        }
                     }
 
                     if (member.fee <= 0) {
