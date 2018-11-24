@@ -139,6 +139,18 @@
               </div>
             </div>
 
+            <div class="field is-fullwidth">
+              <div class="control">
+                <label class="has-text-weight-bold">Participant order</label>
+              </div>
+              <div class="control">
+                <input
+                  class="number"
+                  min="0"
+                  v-model.number="application.participant_order" />
+              </div>
+            </div>
+
             <div class="field">
               <button type="submit" class="button is-primary" @click="saveBoard()">
                 Save application!
@@ -220,6 +232,7 @@ export default {
 
       const toServer = {
         participant_type: this.application.participant_type,
+        participant_order: this.application.participant_order,
         board_comment: this.application.board_comment
       }
 
