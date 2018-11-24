@@ -60,6 +60,13 @@
           </div>
 
           <div class="field is-grouped">
+            <router-link :to="{ name: 'oms.statutory.applications.stats', params: { id: event.url || event.id} }" class="button is-fullwidth">
+              <span>Applications stats</span>
+              <span class="icon"><i class="fa fa-table"></i></span>
+            </router-link>
+          </div>
+
+          <div class="field is-grouped">
             <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: 'me' } }" class="button is-warning is-fullwidth">
               <span>My application</span>
               <span class="icon"><i class="fa fa-plus"></i></span>
