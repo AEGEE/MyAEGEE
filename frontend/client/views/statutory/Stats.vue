@@ -123,7 +123,7 @@ export default {
     },
     byTypeData () {
       return {
-        labels: this.stats.by_type.map(s => s.type === null ? 'Not set' : s.type),
+        labels: this.stats.by_type.map(s => `${s.type === null ? 'Not set' : s.type} (${s.value})`),
         datasets: [{
           label: 'Applications by participant type',
           backgroundColor: ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'],
@@ -138,6 +138,10 @@ export default {
         title: {
           display: true,
           text: 'Applications by participant type'
+        },
+        legend: {
+          position: 'right',
+          onClick: (e) => e.stopPropagation()
         }
       }
     },
@@ -157,7 +161,7 @@ export default {
     byQuorumData () {
       const present = this.stats.by_body.length * 100 / this.bodies.length
       return {
-        labels: [`Present ${present.toFixed(2)}%`, `Not present (${(100 - present).toFixed(2)}%)`],
+        labels: [`Present (${present.toFixed(2)}%)`, `Not present (${(100 - present).toFixed(2)}%)`],
         datasets: [{
           label: 'Quorum',
           backgroundColor: ['#3e95cd', '#8e5ea2'],
@@ -168,14 +172,20 @@ export default {
     byQuorumOptions () {
       return {
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        legend: {
+          position: 'right',
+          onClick: (e) => e.stopPropagation()
+        }
       }
     }
   },
   methods: {
     byBodyData () {
       return {
-        labels: this.stats.by_body.map(s => s.body ? s.body.name : s.body_id),
+        labels: this.stats.by_body.map(s => {
+          return `${s.body ? s.body.name : s.body_id} (${s.value})`
+        }),
         datasets: [{
           label: 'Applications by body',
           backgroundColor: ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'],
