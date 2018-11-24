@@ -6,9 +6,10 @@ const xlsx = require('node-xlsx').default;
 
 const logger = require('./logger');
 const config = require('../config');
-const { Application } = require('../models');
+const { Application, PaxLimit } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
+const { sequelize } = require('./sequelize');
 
 exports.listAllApplications = async (req, res) => {
     if (!req.permissions.see_applications) {
@@ -208,14 +209,14 @@ exports.setApplicationStatus = async (req, res) => {
         );
     }
 
-    const dbResult = await Application.update(
+    const dbResult = await req.application.update(
         { status: req.body.status },
-        { where: { id: req.application.id }, returning: true }
+        { returning: true }
     );
 
     return res.json({
         success: true,
-        data: dbResult[1][0]
+        data: dbResult
     });
 };
 
@@ -225,26 +226,110 @@ exports.setApplicationBoard = async (req, res) => {
     }
 
     // Either the current user or this user who has permission to see it is allowed.
-    if (!req.permissions.set_board_comment_and_participant_type[req.application.body_id] && !req.permissions.set_board_comment_and_participant_type_global) {
+    if (
+        !req.permissions.set_board_comment_and_participant_type[req.application.body_id] && !req.permissions.set_board_comment_and_participant_type_global
+    ) {
         return errors.makeForbiddenError(
             res,
             'You don\'t have permissions to change the board comment or participant type of this application.'
         );
     }
 
-    const toUpdate = {};
-    if (req.body.participant_type) toUpdate.participant_type = req.body.participant_type;
-    if (req.body.board_comment) toUpdate.board_comment = req.body.board_comment;
-
-    const dbResult = await Application.update(
-        toUpdate,
-        { where: { id: req.application.id }, returning: true }
-    );
-
-    return res.json({
-        success: true,
-        data: dbResult[1][0]
+    // need to fetch body to get its body type
+    const body = await request({
+        url: config.core.url + ':' + config.core.port + '/bodies/' + req.application.body_id,
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Auth-Token': req.headers['x-auth-token'],
+        },
+        simple: false,
+        json: true
     });
+
+    if (typeof body !== 'object') {
+        return errors.makeInternalError(res, 'Malformed response when fetching bodies: ' + body);
+    }
+
+    if (!body.success) {
+        return errors.makeInternalError(res, 'Error fetching body: ' + body);
+    }
+
+    const limit = await PaxLimit.fetchOrUseDefaultForBody(body.data, req.event.type);
+
+    const toUpdate = {};
+    if (typeof req.body.participant_type !== 'undefined') toUpdate.participant_type = req.body.participant_type;
+    if (typeof req.body.participant_order !== 'undefined') toUpdate.participant_order = req.body.participant_order;
+    if (typeof req.body.board_comment !== 'undefined') toUpdate.board_comment = req.body.board_comment;
+
+    // Well, this is tricky.
+    // Simplest way possible: executing it, then checking how much people
+    // from this body with this pax type we have and matching it
+    // against the limit for this body. IF something goes wrong or there's a
+    // calculation error, rollback everything. Advantages: don't need to worry
+    // about validations, they'll fail the transaction.
+    try {
+        await sequelize.transaction(async (t) => {
+            // First, saving the application.
+            // If we've passed after this one, there's no duplicated, validations
+            // and constraint take care about it.
+            const dbResult = await req.application.update(toUpdate, { returning: true, transaction: t });
+
+            // If the pax type is null (it wasn't updated or was unset)
+            // that means also that pax order is null (look in validations).
+            // Therefore, no need to check, the number couldn't increase because of that.
+            // Also, to avoid querying on participant_type === null below.
+            if (!dbResult.participant_type) {
+                return res.json({
+                    success: true,
+                    data: dbResult
+                });
+            }
+
+            // Second, get from database how much people we have for this event
+            // from this body with this pax type.
+            // If we got the validation error, it'll fail the transaction.
+            // Therefore, all the data here is valid.
+            const applicationsCount = await Application.count({ where: {
+                event_id: dbResult.event_id,
+                body_id: dbResult.body_id,
+                participant_type: dbResult.participant_type
+            }, transaction: t });
+
+            if (limit[dbResult.participant_type] !== null) {
+                // If the limit's value is not null and is less than
+                // the applications amount (meaning, it increased by one within this transaction),
+                // that means setting the pax order for this user was a mistake and
+                // this needs to be rolled back.
+                if (limit[dbResult.participant_type] < applicationsCount) {
+                    throw new Error(`Too much applications \
+for body #${dbResult.body_id} for type "${dbResult.participant_type}": \
+expected ${limit[dbResult.participant_type]}, got ${applicationsCount}.`);
+                }
+
+                // If the participant_order is bigger than the limit (e.g. envoy (4) when only 3 envoys are eligible)
+                // then rolling back as well.
+                if (dbResult.participant_order > limit[dbResult.participant_type]) {
+                    throw new Error(`Expected participant number from 1 to ${applicationsCount}, \
+got participant type ${dbResult.participant_order}`);
+                }
+            }
+
+            return res.json({
+                success: true,
+                data: dbResult
+            });
+        })
+    } catch (err) {
+        // Here we go only when the transaction has failed and rolled back.
+
+        // If validation error, throw it further so general error handler can handle it.
+        if (err.name && err.name === 'SequelizeValidationError') {
+            throw err;
+        }
+
+        return errors.makeForbiddenError(res, err.message);
+    }
 };
 
 exports.postApplication = async (req, res) => {
@@ -253,13 +338,6 @@ exports.postApplication = async (req, res) => {
     }
 
     req.body.user_id = req.user.id;
-    const application = req.event.applications.find(pax => pax.user_id === req.body.user_id);
-
-    if (application) {
-        return errors.makeBadRequestError(res, `There's already application with this ID in the system. \
-If it's yours, please update it via PUT /events/:event_id/applications/${constants.CURRENT_USER_PREFIX}.`);
-    }
-
     if (!helpers.isMemberOf(req.user, req.body.body_id)) {
         return errors.makeForbiddenError(res, 'You cannot apply on behalf of the body you are not a member of.');
     }
@@ -267,6 +345,7 @@ If it's yours, please update it via PUT /events/:event_id/applications/${constan
     delete req.body.status;
     delete req.body.board_comment;
     delete req.body.participant_type;
+    delete req.body.participant_order;
     delete req.body.attended;
     delete req.body.cancelled;
     delete req.body.paid_fee;

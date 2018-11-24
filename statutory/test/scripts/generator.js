@@ -1,6 +1,6 @@
 const faker = require('faker');
 
-const { Event, Application, MembersList } = require('../../models');
+const { Event, Application, MembersList, PaxLimit } = require('../../models');
 
 const notSet = field => typeof field === 'undefined';
 
@@ -22,12 +22,7 @@ exports.generateEvent = (options = {}) => {
     }
 
     if (notSet(options.applications)) {
-        const applicationsCount = Math.round(Math.random() * 5) + 1; // from 1 to 6
         options.applications = [];
-
-        for (let i = 0; i < applicationsCount; i++) {
-            options.applications.push(exports.generateApplication({}, options));
-        }
     }
 
     return options;
@@ -47,6 +42,7 @@ exports.generateApplication = (options = {}, event = null) => {
     if (notSet(options.body_id)) options.body_id = faker.random.number(100);
     if (notSet(options.board_comment)) options.board_comment = faker.lorem.paragraph();
     if (notSet(options.participant_type)) options.participant_type = faker.random.arrayElement(['delegate', 'visitor', 'observer', 'envoy']);
+    if (notSet(options.participant_order)) options.participant_order = faker.random.number({ min: 1, max: 100 });
 
     if (notSet(options.answers)) {
         const answersCount = event ? event.questions.length : Math.round(Math.random() * 5) + 1; // from 1 to 6
@@ -81,6 +77,18 @@ exports.generateMembersList = (options = {}, event = null) => {
     return options;
 };
 
+exports.generatePaxLimit = (options = {}) => {
+    if (notSet(options.body_id)) options.body_id = faker.random.number(100);
+    if (notSet(options.delegate)) options.delegate = faker.random.number(100);
+    if (notSet(options.visitor)) options.visitor = faker.random.number(100);
+    if (notSet(options.observer)) options.observer = faker.random.number(100);
+    if (notSet(options.envoy)) options.envoy = faker.random.number(100);
+    if (notSet(options.event_type)) options.event_type = faker.random.arrayElement(['agora', 'epm']);
+
+
+    return options;
+};
+
 exports.createEvent = (options = {}) => {
     return Event.create(exports.generateEvent(options), { include: [Application] });
 };
@@ -93,8 +101,13 @@ exports.createMembersList = (options = {}, event = null) => {
     return MembersList.create(exports.generateMembersList(options, event));
 };
 
+exports.createPaxLimit = (options = {}) => {
+    return PaxLimit.create(exports.generatePaxLimit(options));
+};
+
 exports.clearAll = async () => {
     await MembersList.destroy({ where: {}, truncate: { cascade: true } });
     await Application.destroy({ where: {}, truncate: { cascade: true } });
     await Event.destroy({ where: {}, truncate: { cascade: true } });
+    await PaxLimit.destroy({ where: {}, truncate: { cascade: true } });
 };

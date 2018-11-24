@@ -108,9 +108,54 @@ const Application = sequelize.define('application', {
         type: Sequelize.ENUM('delegate', 'observer', 'envoy', 'visitor'),
         defaultValue: null,
         validate: {
-            isIn: {
-                args: [['delegate', 'observer', 'envoy', 'visitor']],
-                msg: 'Participant type should be one of these: "delegate", "observer", "envoy", "visitor".'
+            isValid (value) {
+                const possibleValies = ['delegate', 'observer', 'envoy', 'visitor'];
+
+                // pax type is either null or one of the possible values.
+                if (value !== null && !possibleValies.includes(value)) {
+                    return new Error('Participant type should be either null or one of these: "delegate", "observer", "envoy", "visitor".');
+                }
+
+                // also, pax type should be set up together with pax order.
+                if (value !== null && this.participant_order === null) {
+                    throw new Error('Participant type is set, but participant order is not.');
+                }
+            }
+        }
+    },
+    participant_order: {
+        type: Sequelize.INTEGER,
+        defaultValue: null,
+        validate: {
+            async isValid (value) {
+                // Should be either string or null.
+                if (value !== null && typeof value !== 'number') {
+                    throw new Error('Participant order should be either null or string.');
+                }
+
+                // This number should be positive.
+                if (typeof value === 'number' && value <= 0) {
+                    throw new Error('Participant order should be positive.');
+                }
+
+                // Also, pax order should be set up together with pax (either both of them or none).
+                if (value !== null && this.participant_type === null) {
+                    throw new Error('Participant order is set, but participant type is not.');
+                }
+
+                // Check if there's already the application with the same event_id, body_id, type and order.
+                if (value !== null) {
+                    const application = await Application.findOne({ where: {
+                        event_id: this.event_id,
+                        body_id: this.body_id,
+                        participant_type: this.participant_type,
+                        participant_order: value
+                    } });
+
+                    if (application) {
+                        throw new Error('The application for this event from this body with this participant type and order already exists.');
+                    }
+                }
             }
         }
     },

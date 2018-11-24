@@ -20,13 +20,13 @@ function getBodiesListFromPermissions(result) {
         .filter((elt, index, array) => array.indexOf(elt) === index);
 }
 
-// TODO: Refactor with permissions in oms-core-elixir
 exports.getPermissions = (user, corePermissions) => {
     return {
         create_event: {
             agora: hasPermission(corePermissions, 'manage_event:agora'),
             epm: hasPermission(corePermissions, 'manage_event:epm')
-        }
+        },
+        edit_pax_limits: hasPermission(corePermissions, 'manage_event:agora')
     };
 };
 

@@ -92,11 +92,18 @@ describe('Applications creation', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should return 400 when user has already applied', async () => {
+    test('should return 422 when user has already applied', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-        const application = generator.generateApplication({ user_id: regularUser.id, answers: ['Test'] });
-        const event = await generator.createEvent({ applications: [application], questions: [generator.generateQuestion()] });
+        const application = generator.generateApplication({
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id,
+            answers: ['Test']
+        });
+        const event = await generator.createEvent({
+            applications: [application],
+            questions: [generator.generateQuestion({ type: 'string' })]
+        });
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 
@@ -109,10 +116,10 @@ describe('Applications creation', () => {
 
         tk.reset();
 
-        expect(res.statusCode).toEqual(400);
+        expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
+        expect(res.body).toHaveProperty('errors');
     });
 
     test('should return 422 if questions amount is not the same as answers amount', async () => {

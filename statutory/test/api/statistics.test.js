@@ -11,7 +11,7 @@ describe('Statistics testing', () => {
     beforeEach(async () => {
         mock.mockAll();
         await startServer();
-        event = await generator.createEvent({ applications: [] });
+        event = await generator.createEvent();
     });
 
     afterEach(async () => {
@@ -56,10 +56,10 @@ describe('Statistics testing', () => {
 
     test('should work in a proper way by date', async () => {
         tk.travel(moment(event.application_period_starts).add(1, 'day').toDate());
-        const firstPax = await generator.createApplication({}, event);
+        const firstPax = await generator.createApplication({ user_id: 1, participant_order: 1 }, event);
 
         tk.travel(moment(event.application_period_starts).add(2, 'days').toDate());
-        const secondPax = await generator.createApplication({}, event);
+        const secondPax = await generator.createApplication({ user_id: 2, participant_order: 2 }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/stats',
@@ -78,10 +78,10 @@ describe('Statistics testing', () => {
 
     test('should work in a proper way by date cumulative', async () => {
         tk.travel(moment(event.application_period_starts).add(1, 'day').toDate());
-        const firstPax = await generator.createApplication({}, event);
+        const firstPax = await generator.createApplication({ user_id: 1, participant_order: 1 }, event);
 
         tk.travel(moment(event.application_period_starts).add(2, 'days').toDate());
-        const secondPax = await generator.createApplication({}, event);
+        const secondPax = await generator.createApplication({ user_id: 2, participant_order: 2 }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/stats',
@@ -99,9 +99,9 @@ describe('Statistics testing', () => {
     });
 
     test('should work in a proper way by body', async () => {
-        await generator.createApplication({ body_id: 1 }, event);
-        await generator.createApplication({ body_id: 2 }, event);
-        await generator.createApplication({ body_id: 2 }, event);
+        await generator.createApplication({ user_id: 1, body_id: 1 }, event);
+        await generator.createApplication({ user_id: 2, body_id: 2, participant_order: 1 }, event);
+        await generator.createApplication({ user_id: 3, body_id: 2, participant_order: 2 }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/stats',
@@ -119,9 +119,9 @@ describe('Statistics testing', () => {
     });
 
     test('should work in a proper way by type', async () => {
-        await generator.createApplication({ participant_type: null }, event);
-        await generator.createApplication({ participant_type: 'visitor' }, event);
-        await generator.createApplication({ participant_type: 'visitor' }, event);
+        await generator.createApplication({ user_id: 1, participant_type: null, participant_order: null }, event);
+        await generator.createApplication({ user_id: 2, participant_type: 'visitor', participant_order: 1 }, event);
+        await generator.createApplication({ user_id: 3, participant_type: 'visitor', participant_order: 2 }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/stats',

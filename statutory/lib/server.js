@@ -12,8 +12,10 @@ const events = require('./events');
 const applications = require('./applications');
 const memberslists = require('./memberslists');
 const massmailer = require('./massmailer');
+const paxLimits = require('./pax_limits');
 
 const GeneralRouter = router({ mergeParams: true });
+const PaxLimitsRouter = router({ mergeParams: true });
 const EventsRouter = router({ mergeParams: true });
 const ApplicationsRouter = router({ mergeParams: true });
 const SingleApplicationRouter = router({ mergeParams: true });
@@ -50,6 +52,12 @@ process.on('unhandledRejection', (err) => {
 GeneralRouter.use(middlewares.authenticateUser);
 GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', events.addEvent);
+
+PaxLimitsRouter.use(middlewares.authenticateUser, paxLimits.checkEventType);
+PaxLimitsRouter.get('/:body_id', paxLimits.getSingleLimit);
+PaxLimitsRouter.delete('/:body_id', paxLimits.deleteSingleLimit);
+PaxLimitsRouter.post('/', paxLimits.updateLimit);
+PaxLimitsRouter.get('/', paxLimits.listAllLimits);
 
 EventsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
 EventsRouter.get('/', events.displayEvent);
@@ -93,6 +101,7 @@ server.use('/events/:event_id/memberslists', MembersListsRouter);
 server.use('/events/:event_id/applications', ApplicationsRouter);
 server.use('/events/:event_id/applications/:application_id', SingleApplicationRouter);
 server.use('/events/:event_id', EventsRouter);
+server.use('/limits/:event_type', PaxLimitsRouter);
 server.use('/', GeneralRouter);
 
 server.use(middlewares.notFound);
