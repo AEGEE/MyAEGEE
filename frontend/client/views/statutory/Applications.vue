@@ -104,11 +104,11 @@ export default {
         questions: []
       },
       selectedFields: [
-        { name: 'Participant type', get: (pax) => pax.participant_type },
+        { name: 'Participant type', get: (pax) => `pax.participant_type (${pax.participant_order})` },
         { name: 'Board comment', get: (pax) => pax.board_comment }
       ],
       fields: [
-        { name: 'Participant type', get: (pax) => pax.participant_type },
+        { name: 'Participant type', get: (pax) => `pax.participant_type (${pax.participant_order})` },
         { name: 'Board comment', get: (pax) => pax.board_comment }
       ],
       displayCancelled: false,
