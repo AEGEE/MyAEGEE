@@ -59,7 +59,7 @@ const Application = sequelize.define('application', {
                     throw new Error('Answers should be an array of strings.');
                 }
 
-                const event = await Event.find({ where: { id: this.event_id } });
+                const event = await Event.findOne({ where: { id: this.event_id } });
                 /* istanbul ignore next */
                 if (!event) {
                     throw new Error('Could not find event.');
