@@ -34,7 +34,14 @@ Vagrant.configure("2") do |config|
   
   config.vm.provision "docker" do |d|
     d.pull_images "portainer/portainer:1.15.5"
-    #d.pull_images "postgres:10.0"
+    d.pull_images "traefik:v1.7.4-alpine"
+    d.pull_images "nginx:1.15.6-alpine"
+    d.pull_images "elixir:1.7.4-alpine"
+    d.pull_images "node:8"
+    d.pull_images "node:10"
+    d.pull_images "mongo:4.0.4-xenial"
+    d.pull_images "postgres:10.6"
+    d.pull_images "fenglc/pgadmin4:2.0"
     #d.build_image "/vagrant/app"
   end
  
