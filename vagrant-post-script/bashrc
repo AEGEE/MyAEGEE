@@ -54,3 +54,6 @@ export PS1="\[\e[41m\]\`nonzero_return\`\[\e[m\] \[\e[32m\]\h\[\e[m\][\[\e[36m\]
 
 bind 'set show-all-if-ambiguous on'
 bind 'TAB:menu-complete'
+
+#start session on the right folder for the job
+cd /vagrant

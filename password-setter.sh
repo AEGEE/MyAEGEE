@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "[pw set] not yet implemented"
+exit 0
+
 #quit silently if no file to change
 if [ ! -f oms-docker/.env ]; then
   #echo "[Password setter] no .env file, quitting"
