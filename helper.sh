@@ -51,6 +51,13 @@ init_boot ()
       mkdir -p $DIR/secrets
       openssl req -x509 -newkey rsa:4096 -keyout $DIR/secrets/key.pem -out $DIR/secrets/cert.pem -days 365 -nodes -batch
     fi
+
+    ## If no acme.json is there, make it
+    if ! [[ -f "$DIR/secrets/acme.json" ]]; then
+      mkdir -p $DIR/secrets
+      touch $DIR/secrets/acme.json
+      chmod 600 $DIR/secrets/acme.json
+    fi
 }
 
 # change passwords (currently deploy.sh [calls an external script])
