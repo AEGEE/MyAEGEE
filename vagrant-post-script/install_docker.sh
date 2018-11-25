@@ -4,7 +4,7 @@ sudo dpkg -l | grep docker && { echo "[Vagrant] ###################     Docker a
 
 echo "[Vagrant] ###################     Installing docker"
 
-sudo apt-get update
+sudo apt-get update > /dev/null
 
 sudo apt-get install -qq -y \
     apt-transport-https \
@@ -21,7 +21,7 @@ sudo add-apt-repository \
    $(lsb_release -cs) \
    stable"
 
-sudo apt-get update
+sudo apt-get update > /dev/null
 sudo apt-get install -qq -y docker-ce=17.06.0~ce-0~ubuntu || { echo "[Vagrant] ###################     Installation error, exiting"; exit; }
 
 echo "[Vagrant] ###################     Installation complete"
