@@ -75,7 +75,7 @@
         </div>
 
         <!-- Cancellation status (if cancelled) -->
-        <div class="notification is-danger" v-if="application && application.cancelled">
+        <div class="notification is-danger" v-show="application && application.cancelled">
           Your application is cancelled.
           <span v-if="can.set_application_cancelled">You can uncancel it till the application period ends.</span>
         </div>
@@ -89,7 +89,7 @@
           You cannot apply to this event: application period is over.
         </div>
 
-        <div class="notification is-danger" v-show="application && !can.edit_application && new Date() > event.application_period_ends">
+        <div class="notification is-danger" v-show="application && !application.cancelled && !can.edit_application && new Date() > event.application_period_ends">
           You cannot edit your application anymore: application period is over.
         </div>
 
