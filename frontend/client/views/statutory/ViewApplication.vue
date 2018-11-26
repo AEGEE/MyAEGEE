@@ -90,11 +90,11 @@
           You cannot apply to this event: application period hasn't started yet.
         </div>
 
-        <div class="notification is-danger" v-show="!application && !can.apply && new Date() < event.application_period_starts">
+        <div class="notification is-danger" v-show="!application && !can.apply && new Date() > event.application_period_ends">
           You cannot apply to this event: application period is over.
         </div>
 
-        <div class="notification is-danger" v-show="application && !can.edit_application && new Date() < event.application_period_starts">
+        <div class="notification is-danger" v-show="application && !can.edit_application && new Date() > event.application_period_ends">
           You cannot edit your application anymore: application period is over.
         </div>
 
