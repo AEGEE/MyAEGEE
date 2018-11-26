@@ -7,7 +7,7 @@
         <form v-on:submit.prevent="login">
           <label class="label">Email</label>
           <p class="control">
-            <input v-model="data.username" required class="input" type="text" placeholder="email@example.org">
+            <input v-model="data.username" required class="input" type="email" placeholder="email@example.org">
           </p>
           <label class="label">Password</label>
           <p class="control">

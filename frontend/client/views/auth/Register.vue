@@ -15,7 +15,7 @@
           <div class="field">
             <label class="label">Email</label>
             <div class="control">
-              <input v-model="submission.email" required class="input" type="text" placeholder="Email address the system will send letters to.">
+              <input v-model="submission.email" required class="input" type="email" placeholder="Email address the system will send letters to.">
             </div>
              <p class="help is-danger" v-if="errors.email">{{ errors.email.join(', ')}}</p>
           </div>
