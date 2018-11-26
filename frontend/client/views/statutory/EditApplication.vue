@@ -147,7 +147,7 @@
                 <input
                   class="input"
                   type="number"
-                  min="0"
+                  min="1"
                   v-model.number="application.participant_order" />
               </div>
             </div>
