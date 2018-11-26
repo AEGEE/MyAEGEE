@@ -32,7 +32,7 @@
           <label class="label">Old password</label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><i class="fa fa-envelope"></i></span>
-            <input class="input" type="password" v-model="old_password" />
+            <input class="input" type="password" minlength="8" v-model="old_password" />
           </div>
           <p class="help is-danger" v-if="errors.old_password">{{ errors.old_password.join(', ')}}</p>
         </div>
@@ -41,7 +41,7 @@
           <label class="label">New password</label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><i class="fa fa-envelope"></i></span>
-            <input class="input" type="password" v-model="user.password" />
+            <input class="input" type="password" minlength="8" v-model="user.password" />
           </div>
           <p class="help is-danger" v-if="errors.password">{{ errors.password.join(', ')}}</p>
         </div>
@@ -50,7 +50,7 @@
           <label class="label">Password confirmation</label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><i class="fa fa-envelope"></i></span>
-            <input class="input" type="password" v-model="password_confirmation" />
+            <input class="input" type="password" minlength="8" v-model="password_confirmation" />
           </div>
           <p class="help is-danger" v-if="errors.password_confirmation">{{ errors.password_confirmation.join(', ')}}</p>
         </div>

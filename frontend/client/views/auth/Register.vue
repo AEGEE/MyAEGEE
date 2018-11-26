@@ -30,7 +30,7 @@
           <div class="field">
             <label class="label">Password</label>
             <div class="control">
-              <input v-model="submission.password" required class="input" type="password" placeholder="Type a secure password.">
+              <input v-model="submission.password" required class="input" type="password" minlength="8" placeholder="Type a secure password.">
             </div>
              <p class="help is-danger" v-if="errors.password">{{ errors.password.join(', ')}}</p>
           </div>
@@ -38,7 +38,7 @@
           <div class="field">
             <label class="label">Password confirmation</label>
             <div class="control">
-              <input v-model="submission.password_copy" required class="input" type="password" placeholder="Repeat your password.">
+              <input v-model="submission.password_copy" required class="input" type="password" minlength="8" placeholder="Repeat your password.">
             </div>
              <p class="help is-danger" v-if="errors.password_copy">{{ errors.password_copy.join(', ')}}</p>
           </div>
