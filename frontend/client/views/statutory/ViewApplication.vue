@@ -86,6 +86,18 @@
           </div>
         </div>
 
+        <div class="notification is-danger" v-show="!application && !can.apply && new Date() < event.application_period_starts">
+          You cannot apply to this event: application period hasn't started yet.
+        </div>
+
+        <div class="notification is-danger" v-show="!application && !can.apply && new Date() < event.application_period_starts">
+          You cannot apply to this event: application period is over.
+        </div>
+
+        <div class="notification is-danger" v-show="application && !can.edit_application && new Date() < event.application_period_starts">
+          You cannot edit your application anymore: application period is over.
+        </div>
+
         <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
 
         <hr v-if="can.set_application_cancelled || can.edit || can.apply" />
@@ -174,6 +186,9 @@ export default {
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
       this.can = response.data.data.permissions
+
+      this.event.application_period_starts = new Date(this.event.application_period_starts)
+      this.event.application_period_ends = new Date(this.event.application_period_ends)
 
       return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id).then((application) => {
         this.$set(this, 'application', application.data.data)
