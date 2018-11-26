@@ -32,8 +32,8 @@ services:
         restart: always
         expose:
           - 25
-    #   volumes:
-    #      - ./$PATH_OMS_GLOBAL/postfix/main.cf:/etc/postfix/main.cf
+        volumes:
+          - ./$PATH_OMS_GLOBAL/postfix/main.cf:/etc/postfix/main.cf
 
     portal:
         build:
