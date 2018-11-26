@@ -7,7 +7,14 @@
           <div class="field">
             <label class="label">Username</label>
             <div class="control">
-              <input v-model="submission.name" required class="input" type="text" placeholder="You will be able to login with it.">
+              <input
+                v-model="submission.name"
+                required
+                class="input"
+                type="text"
+                pattern="^[a-zA-Z0-9\.\-].*$"
+                title="Username can only contain English letters, numbers, dots and dashes."
+                placeholder="You will be able to login with it." />
             </div>
              <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
           </div>
