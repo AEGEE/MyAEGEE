@@ -52,7 +52,7 @@
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.see_memberslists">
+          <div class="field is-grouped" v-if="can.see_memberslists && this.event.type === 'agora'">
             <router-link :to="{ name: 'oms.statutory.memberslist.list', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>See members lists</span>
               <span class="icon"><i class="fa fa-users"></i></span>

@@ -62,30 +62,25 @@
           </div>
         </div>
 
-        <div class="tile is-parent" v-if="application && !application.cancelled">
-          <div class="tile is-child">
-            <div class="notification is-warning" v-show="application.status === 'pending'">
-              Your application is recorded, please wait for the organizers to evaluate your application.
-              <span v-show="can.edit_application">You can still edit it till the application period ends.</span>
-            </div>
-            <div class="notification is-success" v-show="application.status === 'accepted'">
-              Congratulations, you have been accepted to the event!
-            </div>
-            <div class="notification is-danger" v-show="application.status === 'rejected'">
-              Sorry, but you were not accepted to the event.
-            </div>
-          </div>
+        <!-- Application status -->
+        <div class="notification is-warning" v-show="application && !application.cancelled && application.status === 'pending'">
+          Your application is recorded, please wait for the organizers to evaluate your application.
+          <span v-show="can.edit_application">You can still edit it till the application period ends.</span>
+        </div>
+        <div class="notification is-success" v-show="application && !application.cancelled && application.status === 'accepted'">
+          Congratulations, you have been accepted to the event!
+        </div>
+        <div class="notification is-danger" v-show="application && !application.cancelled && application.status === 'rejected'">
+          Sorry, but you were not accepted to the event.
         </div>
 
-        <div class="tile is-parent" v-if="application && application.cancelled">
-          <div class="tile is-child">
-            <div class="notification is-danger">
-              Your application is cancelled.
-              <span v-if="can.set_application_cancelled">You can uncancel it till the application period ends.</span>
-            </div>
-          </div>
+        <!-- Cancellation status (if cancelled) -->
+        <div class="notification is-danger" v-if="application && application.cancelled">
+          Your application is cancelled.
+          <span v-if="can.set_application_cancelled">You can uncancel it till the application period ends.</span>
         </div>
 
+        <!-- Explanation why you cannot apply -->
         <div class="notification is-danger" v-show="!application && !can.apply && new Date() < event.application_period_starts">
           You cannot apply to this event: application period hasn't started yet.
         </div>
