@@ -31,12 +31,12 @@
             </router-link>
           </div>
 
-          <div class="field is-grouped">
+          <!--<div class="field is-grouped">
             <router-link :to="{ name: 'oms.statutory.accepted', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Participants list</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
-          </div>
+          </div>-->
 
           <div class="field is-grouped" v-if="canAccessBoardview">
             <router-link :to="{ name: 'oms.statutory.boardview', params: { id: event.url || event.id } }" class="button is-fullwidth">
