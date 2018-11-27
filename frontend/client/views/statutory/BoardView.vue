@@ -85,7 +85,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="pax in applications" v-bind:key="pax.user_id">
+            <tr v-for="pax in filteredApplications" v-bind:key="pax.user_id">
               <td>{{ pax.id }}</td>
               <td>
                 <router-link :to="{ name: 'oms.members.view', params: { id: pax.user_id } }">
@@ -125,6 +125,14 @@
             </tr>
           </tbody>
         </table>
+
+        <nav class="pagination" v-show="applications.length > 0">
+          <ul class="pagination-list">
+            <li v-for="(value, index) in Math.ceil(applications.length / limit)" :key="index">
+              <a class="pagination-link" :class="{ 'is-current': index === page }" @click="page = index">{{ (index + 1) }} </a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
@@ -147,6 +155,8 @@ export default {
         visitor: 0,
         envoy: null
       },
+      page: 0,
+      limit: 50,
       event: {
         questions: [],
         type: ''
@@ -168,6 +178,11 @@ export default {
     }),
     allowedToSendAnyPax () {
       return this.limits.delegate !== 0 || this.limits.visitor !== 0 || this.limits.envoy !== 0 || this.limits.observer !== 0
+    },
+    filteredApplications () {
+      const filtered = this.applications
+
+      return filtered.slice(this.page * this.limit, (this.page + 1) * this.limit - 1)
     }
   },
   methods: {
@@ -196,16 +211,7 @@ export default {
       this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + this.selectedBody).then((application) => {
         this.applications = application.data.data
 
-        // Fetching users and bodies.
-        for (const pax of this.applications) {
-          this.axios.get(this.services['oms-core-elixir'] + '/members/' + pax.user_id).then((user) => {
-            const member = user.data.data
-            pax.user = member
-            pax.body = member.bodies.find(body => body.id === pax.body_id)
-
-            this.$forceUpdate()
-          }).catch(console.error)
-        }
+        this.fetchDisplayedUsers()
 
         return this.axios.get(this.services['oms-statutory'] + '/limits/' + this.event.type + '/' + this.selectedBody)
       }).then((limit) => {
@@ -216,6 +222,20 @@ export default {
 
         this.$root.showDanger('Could not fetch boardview: ' + err.message)
       })
+    },
+    fetchDisplayedUsers () {
+      for (const pax of this.filteredApplications) {
+        if (pax.user && pax.body) {
+          continue
+        }
+
+        this.axios.get(this.services['oms-core-elixir'] + '/members/' + pax.user_id).then((user) => {
+          const member = user.data.data
+
+          this.$set(pax, 'user', member)
+          this.$set(pax, 'body', member.bodies.find(body => body.id === pax.body_id))
+        }).catch(console.error)
+      }
     }
   },
   filters: {
@@ -226,6 +246,9 @@ export default {
   watch: {
     'selectedBody' () {
       this.fetchBoardview()
+    },
+    page () {
+      this.fetchDisplayedUsers()
     }
   },
   mounted () {
