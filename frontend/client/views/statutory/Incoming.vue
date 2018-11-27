@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Manage applications</div>
+        <div class="title">Incoming</div>
 
         <div class="field">
           <div class="control">
@@ -91,6 +91,14 @@
             </tr>
           </tbody>
         </table>
+
+        <nav class="pagination" v-show="applications.length > 0">
+          <ul class="pagination-list">
+            <li v-for="(value, index) in Math.ceil(applications.length / limit)" :key="index">
+              <a class="pagination-link" :class="{ 'is-current': index === page }" @click="page = index">{{ (index + 1) }} </a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
@@ -107,6 +115,8 @@ export default {
       event: {
         questions: []
       },
+      page: 0,
+      limit: 50,
       selectedFields: [
         { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
         { name: 'Board comment', get: (pax) => pax.board_comment }
@@ -126,9 +136,11 @@ export default {
       loginUser: 'user'
     }),
     filteredApplications () {
-      return this.displayCancelled
+      const filtered = this.displayCancelled
         ? this.applications
         : this.applications.filter(app => !app.cancelled)
+
+      return filtered.slice(this.page * this.limit, (this.page + 1) * this.limit - 1)
     }
   },
   methods: {
@@ -167,6 +179,28 @@ export default {
         pax.isSavingPaidFee = false
         this.$root.showDanger('Could not update participant fee info: ' + err.message)
       })
+    },
+    fetchDisplayedUsers () {
+      for (const pax of this.filteredApplications) {
+        if (pax.user && pax.body) {
+          continue
+        }
+
+        this.axios.get(this.services['oms-core-elixir'] + '/members/' + pax.user_id).then((user) => {
+          const member = user.data.data
+
+          this.$set(pax, 'user', member)
+          this.$set(pax, 'body', member.bodies.find(body => body.id === pax.body_id))
+        }).catch(console.error)
+      }
+    }
+  },
+  watch: {
+    page () {
+      this.fetchDisplayedUsers()
+    },
+    displayCancelled () {
+      this.fetchDisplayedUsers()
     }
   },
   mounted () {
@@ -189,21 +223,13 @@ export default {
 
       // Fetching users and bodies.
       for (const pax of this.applications) {
-        pax.newPaidFee = pax.paid_fee
-        pax.newAttended = pax.attended
-        pax.isSavingPaidFee = false
-        pax.isSavingAttended = false
-
-        this.$forceUpdate()
-
-        this.axios.get(this.services['oms-core-elixir'] + '/members/' + pax.user_id).then((user) => {
-          const member = user.data.data
-          pax.user = member
-          pax.body = member.bodies.find(body => body.id === pax.body_id)
-
-          this.$forceUpdate()
-        }).catch(console.error)
+        this.$set(pax, 'newPaidFee', pax.paid_fee)
+        this.$set(pax, 'newAttended', pax.attended)
+        this.$set(pax, 'isSavingPaidFee', false)
+        this.$set(pax, 'isSavingAttended', false)
       }
+
+      this.fetchDisplayedUsers()
     }).catch((err) => {
       this.isLoading = false
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
