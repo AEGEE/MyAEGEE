@@ -181,6 +181,9 @@ export default {
   watch: {
     page () {
       this.fetchDisplayedUsers()
+    },
+    displayCancelled () {
+      this.fetchDisplayedUsers()
     }
   },
   mounted () {
