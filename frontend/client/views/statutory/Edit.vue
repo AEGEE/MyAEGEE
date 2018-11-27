@@ -36,7 +36,7 @@
         <div class="field">
           <label class="label">Title</label>
           <div class="control">
-            <input class="input" type="text" v-model="event.name" />
+            <input class="input" type="text" required v-model="event.name" />
           </div>
           <p class="help is-danger" v-if="errors.name">{{ errors.name.message}}</p>
         </div>
@@ -83,6 +83,7 @@
             <flat-pickr
               placeholder="Select date"
               class="input"
+              required
               :config="dateConfig"
               v-model="dates.application_period_starts" />
           </div>
@@ -95,6 +96,7 @@
             <flat-pickr
               placeholder="Select date"
               class="input"
+              required
               :config="dateConfig"
               v-model="dates.application_period_ends" />
           </div>
@@ -107,6 +109,7 @@
             <flat-pickr
               placeholder="Select date"
               class="input"
+              required
               :config="dateConfig"
               v-model="dates.board_approve_deadline" />
           </div>
@@ -119,6 +122,7 @@
             <flat-pickr
               placeholder="Select date"
               class="input"
+              required
               :config="dateConfig"
               v-model="dates.starts" />
           </div>
@@ -200,7 +204,7 @@
                 <a class="button is-static">€</a>
               </div>
               <div class="control">
-                <input class="input" type="number" v-model="event.fee" min="0"/>
+                <input class="input" type="number" v-model.number="event.fee" required min="0"/>
               </div>
             </div>
           </div>
@@ -257,7 +261,7 @@
           <div class="content">
           Could not create/edit event because of these reasons:
             <ul>
-              <li v-for="(error, index) in errors.questions" v-bind:key="index">{{ error }}</li>
+              <li v-if="errors.questions" v-for="(error, index) in errors.questions" v-bind:key="index">{{ error }}</li>
             </ul>
           </div>
         </div>
@@ -366,6 +370,26 @@ export default {
     saveEvent () {
       if (this.event.questions.length === 0) {
         return this.$root.showDanger('Please set at least 1 application question.')
+      }
+
+      if (!this.event.application_period_starts) {
+        return this.$root.showDanger('Please set the date when applications period will start.')
+      }
+
+      if (!this.event.application_period_ends) {
+        return this.$root.showDanger('Please set the date when applications period will end.')
+      }
+
+      if (!this.event.starts) {
+        return this.$root.showDanger('Please set the date when the event will start.')
+      }
+
+      if (!this.event.ends) {
+        return this.$root.showDanger('Please set the date when the event will end.')
+      }
+
+      if (!this.event.body_id) {
+        return this.$root.showDanger('Please select a body.')
       }
 
       this.isSaving = true
