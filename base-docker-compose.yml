@@ -4,14 +4,14 @@ version: "3.2"
 
 #TODO: maybe add also the swagger-editor and swaggerapi visualiser
 #TODO: logging containers, consul...
-#FIXME: --logo in portainer is deprecated, should be removed
 
 services:
   #to get the password (hashed): (also remember to escape $ with anotehr $)
-  # docker run --rm httpd:2.4-alpine htpasswd -nbB admin pass123 | cut -d ":" -f 2
+  # docker run --rm httpd:2.4-alpine htpasswd -nbB admin 5ecr3t | cut -d ":" -f 2
   portainer:
     image: portainer/portainer:1.15.5
-    command: -H unix:///var/run/docker.sock --logo "http://www.aegee.org/wp-content/uploads/logo_rgb_blue_transparent_small.png" --admin-password "$$2y$$05$$xyGGmUIFoXSDXjBQ10gc7uIjinlWrIZxCmjZ6OGDwoqWk605lCPxi"
+      #image: portainer/portainer:1.19.2
+    command: -H unix:///var/run/docker.sock --logo $AEGEE_LOGO_B64  --admin-password $PW_PORTAINER
     restart: on-failure
     expose:
       - 9000
