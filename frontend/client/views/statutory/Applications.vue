@@ -87,6 +87,14 @@
             </tr>
           </tbody>
         </table>
+
+        <nav class="pagination" v-show="applications.length > 0">
+          <ul class="pagination-list">
+            <li v-for="(value, index) in Math.ceil(applications.length / limit)" :key="index">
+              <a class="pagination-link" :class="{ 'is-current': index === page }" @click="page = index">{{ (index + 1) }} </a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
@@ -103,6 +111,8 @@ export default {
       event: {
         questions: []
       },
+      page: 0,
+      limit: 50,
       selectedFields: [
         { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
         { name: 'Board comment', get: (pax) => pax.board_comment }
@@ -122,9 +132,11 @@ export default {
       loginUser: 'user'
     }),
     filteredApplications () {
-      return this.displayCancelled
+      const filtered = this.displayCancelled
         ? this.applications
         : this.applications.filter(app => !app.cancelled)
+
+      return this.applications.slice(this.page * this.limit, (this.page + 1) * this.limit - 1)
     }
   },
   methods: {
@@ -150,6 +162,25 @@ export default {
         pax.isSaving = false
         this.$root.showDanger('Could not update participant status: ' + err.message)
       })
+    },
+    fetchDisplayedUsers () {
+      for (const pax of this.filteredApplications) {
+        if (pax.user && pax.body) {
+          continue
+        }
+
+        this.axios.get(this.services['oms-core-elixir'] + '/members/' + pax.user_id).then((user) => {
+          const member = user.data.data
+
+          this.$set(pax, 'user', member)
+          this.$set(pax, 'body', member.bodies.find(body => body.id === pax.body_id))
+        }).catch(console.error)
+      }
+    }
+  },
+  watch: {
+    page () {
+      this.fetchDisplayedUsers()
     }
   },
   mounted () {
@@ -174,14 +205,9 @@ export default {
       for (const pax of this.applications) {
         pax.newStatus = pax.status
         pax.isSaving = false
-
-        this.axios.get(this.services['oms-core-elixir'] + '/members/' + pax.user_id).then((user) => {
-          const member = user.data.data
-
-          this.$set(pax, 'user', member)
-          this.$set(pax, 'body', member.bodies.find(body => body.id === pax.body_id))
-        }).catch(console.error)
       }
+
+      this.fetchDisplayedUsers()
     }).catch((err) => {
       this.isLoading = false
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
