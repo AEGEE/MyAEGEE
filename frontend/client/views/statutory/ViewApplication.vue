@@ -89,7 +89,7 @@
         </div>
 
         <!-- Explanation why you cannot apply -->
-        <div class="tile is-parent" v-if="application && !can.apply ">
+        <div class="tile is-parent" v-if="!application && !can.apply ">
           <div class="tile is-child">
             <div class="notification is-danger" v-show="new Date() < event.application_period_starts">
               You cannot apply to this event: application period hasn't started yet.
@@ -101,9 +101,9 @@
           </div>
         </div>
 
-        <div class="tile is-parent" v-if="application && !can.apply ">
+        <div class="tile is-parent" v-if="application && !application.cancelled && !can.edit_application && new Date() > event.application_period_ends">
           <div class="tile is-child">
-            <div class="notification is-danger" v-show="application && !application.cancelled && !can.edit_application && new Date() > event.application_period_ends">
+            <div class="notification is-danger">
               You cannot edit your application anymore: application period is over.
             </div>
           </div>
