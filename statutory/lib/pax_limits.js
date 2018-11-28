@@ -94,7 +94,7 @@ exports.updateLimit = async (req, res) => {
 };
 
 exports.deleteSingleLimit = async (req, res) => {
-    if (!req.permissions.edit_pax_limits) {
+    if (!req.permissions.edit_pax_limits[req.params.event_type]) {
         return errors.makeForbiddenError(res, 'You are not allowed to change limits.');
     }
 
