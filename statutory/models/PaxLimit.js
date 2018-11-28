@@ -98,8 +98,15 @@ function defaultLimitForAgora(type) {
 // Default ones for EPM:
 // unlimited envoys and no others.
 /* istanbul ignore next */
-function defaultLimitForEPM() {
-    return new PaxLimit({ delegate: 0, envoy: null, visitor: 0, observer: 0 });
+function defaultLimitForEPM(type) {
+    switch(type) {
+    case 'antenna':
+    case 'contact antenna':
+    case 'contact':
+        return new PaxLimit({ delegate: 0, envoy: null, visitor: 0, observer: 0 });
+    default:
+        return new PaxLimit({ delegate: 0, envoy: 0, visitor: 0, observer: 0 });
+    }
 }
 
 PaxLimit.getDefaultForBody = function getDefaultForBody(body, eventType) {
