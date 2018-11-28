@@ -28,7 +28,7 @@ exports.getPermissions = (user, corePermissions) => {
         },
         edit_pax_limits: {
             agora: hasPermission(corePermissions, 'manage_event:agora'),
-            epm: hasPermission(corePermissions, 'manage_event:agora')
+            epm: hasPermission(corePermissions, 'manage_event:epm')
         }
     };
 };
