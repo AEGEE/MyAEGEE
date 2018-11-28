@@ -39,7 +39,7 @@
                 </ul>
               </div>
               <div class="content" v-show="events.length === 0">
-                <p><i>You haven't appied to any event yet.</i></p>
+                <p><i>You haven't applied to any event yet.</i></p>
               </div>
               <b-loading :is-full-page="false" :active.sync="isLoading.events"></b-loading>
             </article>
