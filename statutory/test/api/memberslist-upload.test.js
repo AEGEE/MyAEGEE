@@ -34,6 +34,23 @@ describe('Memberslist uploading', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
+    test('should fail if the body is not a local', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent();
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[1].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({}, event)
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
     test('should succeed if user has global permission for random body', async () => {
         mock.mockAll({ approvePermissions: { noPermissions: true } });
 

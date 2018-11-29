@@ -6,6 +6,9 @@ exports.isIDValid = id => id === constants.CURRENT_USER_PREFIX || !Number.isNaN(
 // A helpers to determine if the user is member of a body.
 exports.isMemberOf = (user, bodyId) => user.bodies.map(body => body.id).includes(bodyId);
 
+// A helpers to determine if body is a local.
+exports.isLocal = (body) => ['antenna', 'contact antenna', 'contact'].includes(body.type);
+
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
     return permissionsList.some(permission => permission.combined.endsWith(combinedPermission));
@@ -62,7 +65,7 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
         permissions.set_board_comment_and_participant_type[body.id] =
           event.can_approve_members && approveBodiesList.includes(body.id);
         permissions.see_boardview_of[body.id] = approveBodiesList.includes(body.id);
-        permissions.upload_memberslist[body.id] = approveBodiesList.includes(body.id);
+        permissions.upload_memberslist[body.id] = approveBodiesList.includes(body.id) && exports.isLocal(body);
     }
 
     return permissions;
