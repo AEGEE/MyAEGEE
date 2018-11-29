@@ -7,8 +7,6 @@ services:
             dockerfile: ./docker/oms-mailer/Dockerfile
         expose:
             - "4000"
-        ports:
-            - 4000:4000
         environment:
             MAIL_PASSWORD: /run/secrets/mail_password
             MAIL_USER: /run/secrets/mail_user
