@@ -1,5 +1,5 @@
 <template>
-  <aside class="menu app-sidebar animated" :class="{ slideInLeft: show, slideOutLeft: !show }">
+  <aside class="menu app-sidebar animated" :class="{ slideInLeft: show, slideOutLeft: !show, 'is-menu-opened': navbar.menuOpened }">
     <div v-for="(category, categoryIndex) in menu" v-bind:key="category.categoryName">
       <p class="menu-label">
         {{ category.categoryName }}
@@ -64,7 +64,8 @@ export default {
 
   computed: mapGetters({
     menu: 'menuitems',
-    permissions: 'permissions'
+    permissions: 'permissions',
+    navbar: 'navbar'
   }),
 
   methods: {
@@ -163,13 +164,15 @@ export default {
   overflow-y: auto;
   overflow-x: hidden;
 
-  @include mobile() {
-    transform: translate3d(-180px, 0, 0);
-    padding-top: 120px;
-  }
+  &.is-menu-opened {
+    @include mobile() {
+      transform: translate3d(-180px, 0, 0);
+      padding-top: 160px;
+    }
 
-  @include tablet-only() {
-    padding-top: 80px
+    @include tablet-only() {
+      padding-top: 160px
+    }
   }
 
   .icon {

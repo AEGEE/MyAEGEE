@@ -2,6 +2,7 @@ const pkg = state => state.pkg
 const app = state => state.app
 const device = state => state.app.device
 const sidebar = state => state.app.sidebar
+const navbar = state => state.app.navbar
 const effect = state => state.app.effect
 const menuitems = state => state.menu.items
 const loggedIn = state => state.login.isLoggedIn
@@ -17,6 +18,7 @@ export {
   app,
   device,
   sidebar,
+  navbar,
   effect,
   menuitems,
   componententry,

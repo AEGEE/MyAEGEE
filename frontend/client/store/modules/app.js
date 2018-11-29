@@ -11,6 +11,9 @@ const state = {
   },
   effect: {
     translate3d: true
+  },
+  navbar: {
+    menuOpened: false
   }
 }
 
@@ -20,6 +23,15 @@ const mutations = {
     state.device.isTablet = device === 'tablet'
   },
 
+  [types.TOGGLE_NAVBAR_MENU] (state, config) {
+    console.log('commit menu', config)
+    if (config.hasOwnProperty('opened')) {
+      console.log('set menu to', config.opened)
+      state.navbar.menuOpened = config.opened
+    } else {
+      state.navbar.menuOpened = false
+    }
+  },
   [types.TOGGLE_SIDEBAR] (state, config) {
     if (config.hasOwnProperty('opened')) {
       state.sidebar.opened = config.opened

@@ -6,6 +6,12 @@ export const toggleSidebar = ({ commit }, config) => {
   }
 }
 
+export const toggleNavbarMenu = ({ commit }, config) => {
+  if (config instanceof Object) {
+    commit(types.TOGGLE_NAVBAR_MENU, config)
+  }
+}
+
 export const toggleDevice = ({ commit }, device) => commit(types.TOGGLE_DEVICE, device)
 
 export const expandMenu = ({ commit }, menuItem) => {

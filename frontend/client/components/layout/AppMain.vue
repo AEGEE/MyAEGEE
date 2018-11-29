@@ -1,5 +1,5 @@
 <template>
-  <section class="app-main" :style="[hiddenSidebarStyle]">
+  <section class="app-main" :style="[hiddenSidebarStyle]" :class="{ 'is-menu-opened': navbar.menuOpened }">
     <div class="container is-fluid is-marginless app-content">
       <levelbar></levelbar>
       <transition
@@ -22,13 +22,13 @@ import { mapGetters } from 'vuex'
 export default {
   computed: {
     ...mapGetters({
-      sidebar: 'sidebar'
+      sidebar: 'sidebar',
+      navbar: 'navbar'
     }),
     hiddenSidebarStyle () {
       return (this.sidebar.hidden || !this.$route.meta.showSidebar) ? { 'margin-left': 0 } : null
     }
   },
-
   components: {
     Levelbar
   }
@@ -49,13 +49,17 @@ html {
 
   @include mobile() {
     margin-left: 0;
-    padding-top: 170px
   }
 
-  @include tablet-only() {
-    padding-top: 130px
-  }
+  &.is-menu-opened {
+    @include mobile() {
+      padding-top: 200px
+    }
 
+    @include tablet-only() {
+      padding-top: 200px
+    }
+  }
 }
 
 .app-content {

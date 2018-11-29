@@ -1,24 +1,32 @@
 <template>
   <nav class="navbar is-fixed-top" :class="{ slideInDown: show, slideOutDown: !show }">
-    <div class="navbar-start">
+    <div class="navbar-brand">
       <a class="navbar-item is-hidden-tablet" @click="toggleSidebar({opened: !sidebar.opened})">
         <i class="fa fa-bars" aria-hidden="true" v-show="!sidebar.hidden"></i>
       </a>
+      <!-- AEGEE logo would be here -->
+      <a role="button" class="navbar-burger burger" @click="toggleNavbarMenu({opened: !navbar.menuOpened})">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
     </div>
-    <div class="navbar-end is-flex">
-      <div class="navbar-item has-dropdown is-hoverable" v-if="loggedIn && user && user.first_name">
-        <a class="navbar-link">
-          {{ user.first_name + ' ' + user.last_name }}
-        </a>
+    <div class="navbar-menu" :class="{ 'is-active': navbar.menuOpened }">
+      <div class="navbar-end">
+        <div class="navbar-item has-dropdown is-hoverable" v-if="loggedIn && user && user.first_name">
+          <a class="navbar-link">
+            {{ user.first_name + ' ' + user.last_name }}
+          </a>
 
-        <div class="navbar-dropdown is-right">
-          <router-link to="/members/me" class="navbar-item">See my account</router-link>
-          <hr class="navbar-divider" />
-          <a class="navbar-item" @click="logout">Logout</a>
+          <div class="navbar-dropdown is-right">
+            <router-link to="/members/me" class="navbar-item">See my account</router-link>
+            <hr class="navbar-divider" />
+            <a class="navbar-item" @click="logout">Logout</a>
+          </div>
         </div>
-      </div>
 
-      <router-link v-if="!loggedIn" to="/login" class="navbar-item">Login</router-link>
+        <router-link v-if="!loggedIn" to="/login" class="navbar-item">Login</router-link>
+      </div>
     </div>
   </nav>
 </template>
@@ -30,18 +38,18 @@ export default {
   props: {
     show: Boolean
   },
-
   computed: mapGetters({
     pkginfo: 'pkg',
     sidebar: 'sidebar',
+    navbar: 'navbar',
     loggedIn: 'loggedIn',
     user: 'user',
     permissions: 'permissions'
   }),
-
   methods: {
     ...mapActions([
-      'toggleSidebar'
+      'toggleSidebar',
+      'toggleNavbarMenu'
     ]),
     logout () {
       this.$auth.logout().then(() => this.$router.push('/login'))
