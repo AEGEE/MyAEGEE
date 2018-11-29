@@ -96,7 +96,8 @@ function defaultLimitForAgora(type) {
 }
 
 // Default ones for EPM:
-// unlimited envoys and no others.
+// unlimited envoys and no others for locals, no one for other (customized in the system
+// for CD, ACT and Working groups).
 /* istanbul ignore next */
 function defaultLimitForEPM(type) {
     switch(type) {
