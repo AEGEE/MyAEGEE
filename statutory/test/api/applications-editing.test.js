@@ -292,6 +292,7 @@ describe('Applications editing', () => {
             user_id: regularUser.id,
             body_id: regularUser.bodies[0].id,
             participant_type: 'envoy',
+            participant_order: 1,
             board_comment: 'Awesome guy, accept'
         }, event);
 
@@ -310,10 +311,12 @@ describe('Applications editing', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.participant_type).toEqual(null);
+        expect(res.body.data.participant_order).toEqual(null);
         expect(res.body.data.board_comment).toEqual(null);
 
         const newApplication = await Application.findOne({ where: { id: application.id } });
         expect(newApplication.participant_type).toEqual(null);
+        expect(newApplication.participant_order).toEqual(null);
         expect(newApplication.board_comment).toEqual(null);
     });
 
@@ -325,6 +328,7 @@ describe('Applications editing', () => {
             user_id: 1337,
             body_id: regularUser.bodies[0].id,
             participant_type: 'envoy',
+            participant_order: 1,
             board_comment: 'Awesome guy, accept'
         }, event);
 
@@ -347,6 +351,7 @@ describe('Applications editing', () => {
 
         const newApplication = await Application.findOne({ where: { id: application.id } });
         expect(newApplication.participant_type).toEqual('envoy');
+        expect(newApplication.participant_order).toEqual(1);
         expect(newApplication.board_comment).toEqual('Awesome guy, accept');
     });
 });

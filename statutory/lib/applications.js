@@ -147,13 +147,15 @@ exports.updateApplication = async (req, res) => {
     delete req.body.status;
     delete req.body.board_comment;
     delete req.body.participant_type;
+    delete req.body.participant_order;
     delete req.body.attended;
     delete req.body.cancelled;
     delete req.body.paid_fee;
 
-    // If user changed his body (by himself), reset his board comment and participant type.
+    // If user changed his body (by himself), reset his board comment and participant type/order.
     if (req.application.user_id === req.user.id && req.body.body_id && req.body.body_id !== req.application.body_id) {
         req.body.participant_type = null;
+        req.body.participant_order = null;
         req.body.board_comment = null;
     }
 
@@ -227,7 +229,8 @@ exports.setApplicationBoard = async (req, res) => {
 
     // Either the current user or this user who has permission to see it is allowed.
     if (
-        !req.permissions.set_board_comment_and_participant_type[req.application.body_id] && !req.permissions.set_board_comment_and_participant_type_global
+        !req.permissions.set_board_comment_and_participant_type[req.application.body_id]
+        && !req.permissions.set_board_comment_and_participant_type_global
     ) {
         return errors.makeForbiddenError(
             res,
