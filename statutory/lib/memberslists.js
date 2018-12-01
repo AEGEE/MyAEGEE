@@ -1,6 +1,8 @@
+const request = require('request-promise-native');
 const { errors } = require('oms-common-nodejs');
 
-const { MembersList } = require('../models');
+const { MembersList, VotesPerAntenna } = require('../models');
+const config = require('../config')
 
 exports.getAllMemberslists = async (req, res) => {
     if (!req.permissions.see_memberslists) {
@@ -47,6 +49,27 @@ exports.uploadMembersList = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to upload memberslist.');
     }
 
+    // Fetching body. We'll need that for calculating votes per antenna.
+    const body = await request({
+        url: config.core.url + ':' + config.core.port + '/bodies/' + req.params.body_id,
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Auth-Token': req.headers['x-auth-token'],
+        },
+        simple: false,
+        json: true
+    });
+
+    if (typeof body !== 'object') {
+        return errors.makeInternalError(res, 'Malformed response when fetching body: ' + body);
+    }
+
+    if (!body.success) {
+        // We are not authenticated
+        return errors.makeInternalError(res, 'Error fetching body: ' + body);
+    }
+
     req.body.body_id = req.params.body_id;
     req.body.user_id = req.user.id;
     req.body.event_id = req.event.id;
@@ -61,6 +84,8 @@ exports.uploadMembersList = async (req, res) => {
             req.body,
             { where: { event_id: req.event.id, body_id: req.params.body_id }, returning: true }
         );
+        // Recalculating votes per antenna.
+        await VotesPerAntenna.recalculateVotesForAntenna(body.data, req.event);
 
         return res.json({
             success: true,
@@ -69,6 +94,10 @@ exports.uploadMembersList = async (req, res) => {
     }
 
     const newMembersList = await MembersList.create(req.body);
+
+    // Calculating votes per antenna.
+    await VotesPerAntenna.recalculateVotesForAntenna(body.data, req.event);
+
     return res.json({
         success: true,
         data: newMembersList
