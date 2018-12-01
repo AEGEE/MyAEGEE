@@ -82,7 +82,7 @@ SingleApplicationRouter.put('/board', applications.setApplicationBoard);
 SingleApplicationRouter.get('/', applications.getApplication);
 SingleApplicationRouter.put('/', applications.updateApplication);
 
-MembersListsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
+MembersListsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora);
 MembersListsRouter.get('/', memberslists.getAllMemberslists);
 MembersListsRouter.get('/:body_id', memberslists.getMemberslist);
 MembersListsRouter.post('/:body_id', memberslists.uploadMembersList);

@@ -2,7 +2,15 @@ const request = require('request-promise-native');
 const { errors } = require('oms-common-nodejs');
 
 const { MembersList, VotesPerAntenna } = require('../models');
-const config = require('../config')
+const config = require('../config');
+
+exports.checkIfAgora = async (req, res, next) => {
+    if (req.event.type !== 'agora') {
+        return errors.makeBadRequestError(res, 'You can only access memberslust for Agora.');
+    }
+
+    return next();
+}
 
 exports.getAllMemberslists = async (req, res) => {
     if (!req.permissions.see_memberslists) {

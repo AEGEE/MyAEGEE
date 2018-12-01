@@ -19,7 +19,7 @@ describe('Memberslist displaying', () => {
     test('should fail if user has no permissions at all', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true }, approvePermissions: { noPermissions: true } });
 
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ type: 'agora' });
         await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
@@ -36,7 +36,7 @@ describe('Memberslist displaying', () => {
     test('should fail if user has local permission for random body', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ type: 'agora' });
         await generator.createMembersList({ body_id: 1337 }, event);
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/1337',
@@ -53,7 +53,7 @@ describe('Memberslist displaying', () => {
     test('should succeed if user has local permission for his body', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ type: 'agora' });
         await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
@@ -69,7 +69,7 @@ describe('Memberslist displaying', () => {
     test('should succeed if user has global permission for random body', async () => {
         mock.mockAll({ approvePermissions: { noPermissions: true } });
 
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ type: 'agora' });
         await generator.createMembersList({ body_id: 1337 }, event);
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/1337',
@@ -82,8 +82,24 @@ describe('Memberslist displaying', () => {
         expect(res.body).toHaveProperty('data');
     });
 
+    test('should fail if the event is not Agora', async () => {
+        mock.mockAll({ approvePermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'epm' });
+        await generator.createMembersList({ body_id: 1337 }, event);
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/1337',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
     test('should fail if members list is not uploaded', async () => {
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ type: 'agora' });
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/1337',
             method: 'GET',
@@ -97,7 +113,7 @@ describe('Memberslist displaying', () => {
     });
 
     test('should fail if body_id is invalid', async () => {
-        const event = await generator.createEvent();
+        const event = await generator.createEvent({ type: 'agora' });
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/invalid',
             method: 'GET',
