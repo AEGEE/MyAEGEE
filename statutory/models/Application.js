@@ -1,9 +1,9 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const Event = require('./Event');
 
-function isBooleanOrEmpty(val) {
-    if (typeof val !== 'undefined' && val !== true && val !== false) {
-        throw new Error('The value should be either true or false.');
+function isBoolean(val) {
+    if (typeof val !== 'boolean') {
+        throw new Error('The value should be true or false.');
     }
 }
 
@@ -43,7 +43,7 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBooleanOrEmpty
+            isBoolean
         }
     },
     board_comment: {
@@ -174,7 +174,7 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBooleanOrEmpty
+            isBoolean
         }
     },
     paid_fee: {
@@ -182,7 +182,7 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBooleanOrEmpty
+            isBoolean
         }
     },
     attended: {
@@ -190,7 +190,25 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBooleanOrEmpty
+            isBoolean,
+            notAllowIfNotPaidFee(value) {
+                if (!this.paid_fee && value) {
+                    throw new Error('You should set user as paid fee first.');
+                }
+            }
+        }
+    },
+    departed: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        validate: {
+            isBoolean,
+            notAllowIfNotAttended(value) {
+                if (!this.attended && value) {
+                    throw new Error('You should set user as attended first.');
+                }
+            }
         }
     }
 }, { underscored: true });
