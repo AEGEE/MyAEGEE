@@ -78,7 +78,7 @@ exports.generateMembersListMember = (options = {}) => {
     if (notSet(options.user_id)) options.user_id = faker.random.number(100);
     if (notSet(options.first_name)) options.first_name = faker.name.firstName();
     if (notSet(options.last_name)) options.last_name = faker.name.lastName();
-    if (notSet(options.fee)) options.fee = faker.random.number(1000);
+    if (notSet(options.fee)) options.fee = faker.random.number({ min: 1, max: 1000 });
 
     return options;
 }
