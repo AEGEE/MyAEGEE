@@ -273,6 +273,16 @@ exports.mockCoreBody = (options) => {
             .reply(500, { success: false, message: 'Some error' });
     }
 
+    if (options.type) {
+        const body = regularUser.bodies[0];
+        body.type = options.type;
+
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/^\/bodies\/[0-9].*$/)
+            .reply(500, { success: true, data: body });
+    }
+
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get(/^\/bodies\/[0-9].*$/)
