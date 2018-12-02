@@ -99,6 +99,54 @@ describe('Memberslist uploading', () => {
         expect(res.body).toHaveProperty('data');
     });
 
+    test('should fail if the body response is net error', async () => {
+        mock.mockAll({ body: { netError: true } });
+
+        const event = await generator.createEvent({ type: 'agora' });
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({}, event)
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should fail if the body response is not JSON', async () => {
+        mock.mockAll({ body: { badResponse: true } });
+
+        const event = await generator.createEvent({ type: 'agora' });
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({}, event)
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should fail if the body response is not JSON', async () => {
+        mock.mockAll({ body: { unsuccessfulResponse: true } });
+
+        const event = await generator.createEvent({ type: 'agora' });
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({}, event)
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
     test('should fail on malformed body_id', async () => {
         const event = await generator.createEvent({ type: 'agora' });
         const res = await request({
