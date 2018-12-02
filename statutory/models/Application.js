@@ -182,7 +182,12 @@ const Application = sequelize.define('application', {
         allowNull: false,
         defaultValue: false,
         validate: {
-            isBoolean
+            isBoolean,
+            notAllowIfCancelled(value) {
+                if (this.cancelled && value) {
+                    throw new Error('This application is cancelled, you cannot mark it as paid fee.');
+                }
+            }
         }
     },
     attended: {

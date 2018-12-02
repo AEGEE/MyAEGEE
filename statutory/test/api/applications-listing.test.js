@@ -101,7 +101,7 @@ describe('Applications listing', () => {
         const applications = [];
 
         for (let i = 0; i < 5; i++) {
-            applications.push(await generator.createApplication({ status: 'accepted' }, event));
+            applications.push(await generator.createApplication({ user_id: i, status: 'accepted' }, event));
         }
 
         const res = await request({
@@ -127,7 +127,7 @@ describe('Applications listing', () => {
         const applications = [];
 
         for (let i = 0; i < 5; i++) {
-            applications.push(await generator.createApplication({}, event));
+            applications.push(await generator.createApplication({ user_id: i }, event));
         }
 
         const res = await request({

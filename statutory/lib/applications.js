@@ -149,6 +149,7 @@ exports.updateApplication = async (req, res) => {
     delete req.body.participant_type;
     delete req.body.participant_order;
     delete req.body.attended;
+    delete req.body.departed;
     delete req.body.cancelled;
     delete req.body.paid_fee;
 
@@ -185,11 +186,14 @@ function setApplicationBoolean(key) {
         const toUpdate = {};
         toUpdate[key] = req.body[key];
 
-        const dbResult = await Application.update(toUpdate, { where: { id: req.application.id }, returning: true });
+        const dbResult = await req.application.update(
+            toUpdate,
+            { returning: true }
+        );
 
         return res.json({
             success: true,
-            data: dbResult[1][0]
+            data: dbResult
         });
     };
 }
@@ -197,6 +201,8 @@ function setApplicationBoolean(key) {
 exports.setApplicationCancelled = setApplicationBoolean('cancelled');
 exports.setApplicationAttended = setApplicationBoolean('attended');
 exports.setApplicationPaidFee = setApplicationBoolean('paid_fee');
+exports.setApplicationDeparted = setApplicationBoolean('departed');
+
 
 exports.setApplicationStatus = async (req, res) => {
     if (Number.isNaN(Number(req.params.application_id, 10))) {
@@ -350,6 +356,7 @@ exports.postApplication = async (req, res) => {
     delete req.body.participant_type;
     delete req.body.participant_order;
     delete req.body.attended;
+    delete req.body.departed;
     delete req.body.cancelled;
     delete req.body.paid_fee;
 

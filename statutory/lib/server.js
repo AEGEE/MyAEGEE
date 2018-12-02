@@ -76,6 +76,7 @@ ApplicationsRouter.get('/boardview/:body_id', applications.listBoardView);
 SingleApplicationRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, middlewares.fetchSingleApplication);
 SingleApplicationRouter.put('/cancel', applications.setApplicationCancelled);
 SingleApplicationRouter.put('/attended', applications.setApplicationAttended);
+SingleApplicationRouter.put('/departed', applications.setApplicationDeparted);
 SingleApplicationRouter.put('/paid_fee', applications.setApplicationPaidFee);
 SingleApplicationRouter.put('/status', applications.setApplicationStatus);
 SingleApplicationRouter.put('/board', applications.setApplicationBoard);

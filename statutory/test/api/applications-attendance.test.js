@@ -36,7 +36,7 @@ describe('Applications attendance', () => {
 
     test('should succeed for other user when the permissions are okay', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication({ paid_fee: true }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/attended',
@@ -53,11 +53,29 @@ describe('Applications attendance', () => {
         expect(res.body.data.attended).toEqual(true);
     });
 
+    test('should fail if the application is not marked as paid fee', async () => {
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({ paid_fee: false }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id + '/attended',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { attended: true }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('attended');
+    });
+
     test('should return 403 for other user when user does not have permissions', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication({ paid_fee: true }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/attended',
@@ -106,7 +124,7 @@ describe('Applications attendance', () => {
 
     test('should return 422 if attended is invalid', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication({ paid_fee: true }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/attended',
