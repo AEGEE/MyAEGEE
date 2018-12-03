@@ -100,6 +100,10 @@ export default {
 
     shouldExpandMatchItem (route) {
       let matched = route.matched
+      if (matched.length === 0) {
+        return
+      }
+
       let lastMatched = matched[matched.length - 1]
       let parent = lastMatched.parent || lastMatched
       const isParent = parent === lastMatched
