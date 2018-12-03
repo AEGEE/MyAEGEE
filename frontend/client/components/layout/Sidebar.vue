@@ -65,7 +65,8 @@ export default {
   computed: mapGetters({
     menu: 'menuitems',
     permissions: 'permissions',
-    navbar: 'navbar'
+    navbar: 'navbar',
+    device: 'device'
   }),
 
   methods: {
@@ -143,8 +144,10 @@ export default {
     $route (route) {
       this.isReady = true
       this.shouldExpandMatchItem(route)
-      this.toggleSidebar({ opened: false })
-      this.toggleNavbarMenu({ opened: false })
+      if (this.device.isMobile) {
+        this.toggleSidebar({ opened: false })
+        this.toggleNavbarMenu({ opened: false })
+      }
     }
   }
 
