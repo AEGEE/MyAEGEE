@@ -66,7 +66,32 @@ function fetchEvent(includeApplications = false) {
         };
 
         // If event_id is not an integer, assuming it's the event URL.
-        if (Number.isNaN(parseInt(req.params.event_id, 10))) {
+        // If it's latest, fetch latest published.
+        // If it's latest-agora or latest-epm, fetch latest Agora or EPM published.
+        if (req.params.event_id === 'latest-agora') {
+            query = {
+                where: {
+                    type: 'agora',
+                    status: 'published'
+                },
+                order: [['starts', 'DESC']]
+            };
+        } else if (req.params.event_id === 'latest-epm') {
+            query = {
+                where: {
+                    type: 'epm',
+                    status: 'published'
+                },
+                order: [['starts', 'DESC']]
+            };
+        } else if (req.params.event_id === 'latest') {
+            query = {
+                where: {
+                    status: 'published'
+                },
+                order: [['starts', 'DESC']]
+            };
+        } else if (Number.isNaN(parseInt(req.params.event_id, 10))) {
             query = {
                 where: {
                     url: { [Sequelize.Op.iLike]: req.params.event_id },
