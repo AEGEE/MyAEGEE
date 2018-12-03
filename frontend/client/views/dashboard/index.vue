@@ -3,7 +3,7 @@
     <div class="tile is-ancestor">
       <div class="tile is-vertical is-12">
         <div class="tile">
-          <div class="tile is-6 is-parent">
+          <div class="tile is-4 is-parent">
             <article class="tile is-child box">
               <p class="title">{{ user.first_name }} {{ user.last_name }}</p>
               <div class="content">
@@ -26,7 +26,8 @@
               <b-loading :is-full-page="false" :active.sync="isLoading.user"></b-loading>
             </article>
           </div>
-          <div class="tile is-6 is-parent">
+
+          <div class="tile is-4 is-parent">
             <article class="tile is-child box">
               <p class="title">Events you've applied to</p>
               <div class="content" v-show="events.length > 0">
@@ -42,6 +43,43 @@
                 <p><i>You haven't applied to any event yet.</i></p>
               </div>
               <b-loading :is-full-page="false" :active.sync="isLoading.events"></b-loading>
+            </article>
+          </div>
+
+          <div class="tile is-4 is-parent">
+            <article class="tile is-child box">
+              <p class="title">Statutory events</p>
+              <div class="content">
+                <strong>Latest statutory event</strong>
+                <ul v-if="!statutory">
+                  <li>No statutory events published</li>
+                </ul>
+                <ul v-if="statutory">
+                  <li>
+                    <strong>
+                      <router-link :to="{ name: 'oms.statutory.view', params: { id: statutory.url || statutory.id } }">
+                        {{ statutory.name }}
+                      </router-link>
+                    </strong>
+                  </li>
+                  <li>
+                    <strong>Dates: </strong>
+                    {{ statutory.starts | date }} - {{ statutory.ends | date }}
+                  </li>
+                  <li>
+                    <strong>Application period: </strong>
+                    {{ statutory.application_period_starts | date }} - {{ statutory.application_period_ends | date }}
+                  </li>
+                  <li v-show="statutory.can_apply && new Date() > new Date(statutory.application_period_starts)">
+                    <strong>
+                      <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: statutory.url || statutory.id, application_id: 'me' } }">
+                        {{ statutory.can_apply ? 'Manage my application' : 'Update my application' }}
+                      </router-link>
+                    </strong>
+                  </li>
+                </ul>
+              </div>
+              <b-loading :is-full-page="false" :active.sync="isLoading.statutory"></b-loading>
             </article>
           </div>
         </div>
@@ -64,15 +102,18 @@ export default {
         circles: []
       },
       events: [],
+      statutory: null,
       isLoading: {
         user: false,
-        events: false
+        events: false,
+        statutory: false
       }
     }
   },
   mounted () {
     this.isLoading.user = true
     this.isLoading.events = true
+    this.isLoading.statutory = true
 
     this.axios.get(this.services['oms-core-elixir'] + '/members/me').then((response) => {
       this.user = response.data.data
@@ -88,6 +129,16 @@ export default {
     }).catch((err) => {
       this.isLoading.events = false
       this.$root.showDanger('Could not fetch events list: ' + err.message)
+    })
+
+    this.axios.get(this.services['oms-statutory'] + '/events/latest').then((response) => {
+      this.$set(this, 'statutory', response.data.data)
+      this.isLoading.statutory = false
+    }).catch((err) => {
+      this.isLoading.statutory = false
+      if (err.response && err.response.status && err.response.status !== 404) {
+        this.$root.showDanger('Could not fetch latest statutory event: ' + err.message)
+      }
     })
   },
   computed: {
