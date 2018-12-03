@@ -70,7 +70,9 @@ export default {
 
   methods: {
     ...mapActions([
-      'expandMenu'
+      'expandMenu',
+      'toggleSidebar',
+      'toggleNavbarMenu'
     ]),
 
     userHasPermissions (item) {
@@ -137,6 +139,8 @@ export default {
     $route (route) {
       this.isReady = true
       this.shouldExpandMatchItem(route)
+      this.toggleSidebar({ opened: false })
+      this.toggleNavbarMenu({ opened: false })
     }
   }
 
