@@ -29,7 +29,7 @@ defmodule OmsmailerWeb.PageController do
         subject: subject,
         html_body: content
       )
-      |> Omsmailer.Mailer.deliver_later
+      |> Omsmailer.Mailer.deliver_now
 
       render conn, "success.json"
     end

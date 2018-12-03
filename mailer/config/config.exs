@@ -18,7 +18,7 @@ end
 # General application configuration
 config :omsmailer,
   ecto_repos: [Omsmailer.Repo],
-  from_address: "oms@aegee.org"
+  from_address: "oms-mailer@aegee.org"
 
 
 # Configures the endpoint
@@ -36,17 +36,17 @@ config :logger, :console,
 
 config :omsmailer, Omsmailer.Mailer,
   adapter: Bamboo.SMTPAdapter,
-  server: "mail.aegee.org",
-  hostname: "aegee.org",
-  port: 587,
-  username: Helper.read_secret_from_file(System.get_env("MAIL_USER"), "oms"), # or {:system, "SMTP_USERNAME"}
-  password: Helper.read_secret_from_file(System.get_env("MAIL_PASSWORD"), "oms"), # or {:system, "SMTP_PASSWORD"}
+  server: "oms-mail-transfer-agent",
+  hostname: "my.aegee.eu",
+  port: 25,
+  #username: Helper.read_secret_from_file(System.get_env("MAIL_USER"), "oms"), # or {:system, "SMTP_USERNAME"}
+  #password: Helper.read_secret_from_file(System.get_env("MAIL_PASSWORD"), "oms"), # or {:system, "SMTP_PASSWORD"}
   tls: :if_available, # can be `:always` or `:never`
   allowed_tls_versions: [:tlsv1, :"tlsv1.1", :"tlsv1.2"], # or {":system", ALLOWED_TLS_VERSIONS"} w/ comma seprated values (e.g. "tlsv1.1,tlsv1.2")
   ssl: false, # can be `true`
   retries: 5,
-  no_mx_lookups: false, # can be `true`
-  auth: :always # can be `always`. If your smtp relay requires authentication set it to `always`.
+  no_mx_lookups: false # can be `true`
+  #auth: :always # can be `always`. If your smtp relay requires authentication set it to `always`.
 
 
 # Import environment specific config. This must remain at the bottom
