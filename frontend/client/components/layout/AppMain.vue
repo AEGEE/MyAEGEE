@@ -7,7 +7,7 @@
         enter-active-class="fadeIn"
         leave-active-class="fadeOut"
         appear>
-        <div class="tile box">
+        <div class="box">
           <router-view class="animated"></router-view>
         </div>
       </transition>
