@@ -84,31 +84,29 @@ export default {
   },
   computed: mapGetters(['services']),
   methods: {
-    createMembers () {
+    async createMembers () {
       for (const member of this.members) {
-        this.createUser(member)
+        if (member.status !== 'success') {
+          await this.createUser(member)
+        }
       }
     },
     createUser (member) {
-      member.status = 'saving'
-      member.errors = {}
-      this.$forceUpdate()
+      this.$set(member, 'status', 'saving')
+      this.$set(member, 'errors', {})
 
-      this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/new_member', {
+      return this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/new_member', {
         member: member.member,
         user: member.user
       }).then((response) => {
-        member.status = 'success'
-        this.$forceUpdate()
+        this.$set(member, 'status', 'success')
 
         this.$root.showSuccess('User is created.')
       }).catch((err) => {
-        member.status = 'error'
-        this.$forceUpdate()
+        this.$set(member, 'status', 'error')
 
         if (err.response.status === 422) { // validation errors
-          member.errors = err.response.data.errors
-          this.$forceUpdate()
+          this.$set(member, 'errors', err.response.data.errors)
           return this.$root.showDanger('Some of the user data is invalid.')
         }
 
