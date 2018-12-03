@@ -70,6 +70,20 @@
             </div>
           </div>
 
+          <hr v-if="isEditing" />
+
+          <div class="field" v-if="isEditing">
+            <label class="label">Set fee for everyone</label>
+            <div class="field has-addons">
+              <div class="control is-expanded">
+                <input class="input" type="number" v-model.number="tempFee">
+              </div>
+              <div class="control">
+                <a class="button is-info" @click="setFee()">Set</a>
+              </div>
+            </div>
+          </div>
+
           <table class="table is-narrow is-fullwidth">
             <thead>
               <tr>
@@ -155,6 +169,7 @@ export default {
       can: {
         upload_members_list: {}
       },
+      tempFee: 0,
       isLoading: false,
       isEditing: false,
       isSaving: false,
@@ -181,6 +196,11 @@ export default {
           this.$root.showDanger('Could not fetch memberslist: ' + err.message)
         }
       })
+    },
+    setFee () {
+      for (const member of this.memberslist.members) {
+        member.fee = this.tempFee
+      }
     },
     fetchFromBody () {
       this.isLoading = true
