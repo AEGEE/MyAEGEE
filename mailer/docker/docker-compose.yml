@@ -3,7 +3,7 @@ version: '3.2'
 services:
     oms-mailer:
         build:
-            context: ./$PATH_OMS_MAILER/../
+            context: ./$PATH_OMS_MAILER/
             dockerfile: ./docker/oms-mailer/Dockerfile
         expose:
             - "4000"
@@ -11,6 +11,15 @@ services:
             MAIL_PASSWORD: /run/secrets/mail_password
             MAIL_USER: /run/secrets/mail_user
             MIX_ENV: prod
+        depends_on:
+            - oms-mail-transfer-agent
+
+    oms-mail-transfer-agent:
+        build:
+            context: ./$PATH_OMS_MAILER/docker/mail_transfer_agent
+            dockerfile: Dockerfile
+        expose:
+            - "25"
         secrets:
             - mail_password
             - mail_user
