@@ -5,10 +5,4 @@ defmodule OmsmailerWeb.PageView do
       %{success: true}
     end
 
-    def render("missing_key.json", %{key: key}) do
-      %{success: false,
-        error: "Missing key " <> Kernel.inspect(key)
-      }
-    end
-
 end

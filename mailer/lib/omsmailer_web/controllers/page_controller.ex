@@ -3,15 +3,26 @@ defmodule OmsmailerWeb.PageController do
 
   import Bamboo.Email
 
+  action_fallback OmsmailerWeb.FallbackController
+
 
   def index(conn, _params) do
     render conn, "success.json"
   end
 
-  def send_mail(conn, %{"template" => template, "parameters" => parameters, "to" => to, "subject" => subject}) do
+  defp render_template(template, parameters) do
     try do
       content = Phoenix.View.render_to_string(OmsmailerWeb.PageView, template, parameters: parameters)
+      {:ok, content}
+    rescue
+      e in KeyError -> {:error, :unprocessable_entity, "Missing key " <> Kernel.inspect(e.key)}  # Missing key in template, caused by Map.fetch!
+      e in Phoenix.Template.UndefinedError -> {:error, :not_found, "Template " <> template <> " not found, available are: " <> Kernel.inspect(e.available)}
+      e -> throw e 
+    end
+  end
 
+  def send_mail(conn, %{"template" => template, "parameters" => parameters, "to" => to, "subject" => subject}) when is_binary(template) and is_map(parameters) and is_binary(to) and is_binary(subject) do
+    with {:ok, content} <- render_template(template, parameters) do
       new_email(
         to: to,
         from: Application.get_env(:omsmailer, :from_address),
@@ -21,9 +32,42 @@ defmodule OmsmailerWeb.PageController do
       |> Omsmailer.Mailer.deliver_later
 
       render conn, "success.json"
-    rescue
-      e in KeyError -> conn |> put_status(:unprocessable_entity) |> render("missing_key.json", key: e.key)  # Missing key in template, caused by Map.fetch!
-      e -> throw e 
+    end
+  end
+
+  def send_mail(conn, %{"template" => template, "parameters" => parameters, "to" => to, "subject" => subject}) when is_binary(template) and is_map(parameters) and is_list(to) and is_binary(subject) do
+    with {:ok, content} <- render_template(template, parameters) do
+
+      Enum.map(to, fn(to) -> 
+        new_email(
+          to: to,
+          from: Application.get_env(:omsmailer, :from_address),
+          subject: subject,
+          html_body: content
+        )
+        |> Omsmailer.Mailer.deliver_later
+      end)
+
+      render conn, "success.json"
+    end
+  end
+
+  def send_mail(conn, %{"template" => template, "parameters" => parameters, "to" => to, "subject" => subject}) when is_binary(template) and is_list(parameters) and is_list(to) and is_binary(subject) do
+    contents = Enum.map(parameters, fn(x) -> render_template(template, x) end)
+
+    with nil <- Enum.find(contents, fn(x) -> elem(x, 0) != :ok end) do
+      Enum.zip(to, contents)
+      |> Enum.map(fn({to, content}) ->
+        new_email(
+          to: to,
+          from: Application.get_env(:omsmailer, :from_address),
+          subject: subject,
+          html_body: content
+        )
+        |> Omsmailer.Mailer.deliver_later
+      end)
+
+      render conn, "success.json"
     end
   end
 end
