@@ -25,4 +25,4 @@ export SMTP_LOGIN=$user
 export SMTP_PASSWORD=$password
 export RELAY_HOST_NAME=my.aegee.eu
 
-sh /run.sh
+sh /root/run.sh
