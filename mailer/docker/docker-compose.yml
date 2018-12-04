@@ -3,7 +3,7 @@ version: '3.2'
 services:
     oms-mailer:
         build:
-            context: ./$PATH_OMS_MAILER/
+            context: ./$PATH_OMS_MAILER/../
             dockerfile: ./docker/oms-mailer/Dockerfile
         expose:
             - "4000"
@@ -16,7 +16,7 @@ services:
 
     oms-mail-transfer-agent:
         build:
-            context: ./$PATH_OMS_MAILER/docker/mail_transfer_agent
+            context: ./$PATH_OMS_MAILER/mail_transfer_agent
             dockerfile: Dockerfile
         expose:
             - "25"
