@@ -10,7 +10,16 @@ defmodule OmsmailerWeb.PageController do
     render conn, "success.json"
   end
 
+  defp autocomplete_template(template) do
+    if String.ends_with?(template, ".html") do
+      template
+    else
+      template <> ".html"
+    end
+  end
+
   defp render_template(template, parameters) do
+    template = autocomplete_template(template)
     try do
       content = Phoenix.View.render_to_string(OmsmailerWeb.PageView, template, parameters: parameters)
       {:ok, content}
