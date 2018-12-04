@@ -8,8 +8,6 @@ services:
         expose:
             - "4000"
         environment:
-            MAIL_PASSWORD: /run/secrets/mail_password
-            MAIL_USER: /run/secrets/mail_user
             MIX_ENV: prod
         depends_on:
             - oms-mail-transfer-agent

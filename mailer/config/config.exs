@@ -41,7 +41,7 @@ config :omsmailer, Omsmailer.Mailer,
   port: 25,
   #username: Helper.read_secret_from_file(System.get_env("MAIL_USER"), "oms"), # or {:system, "SMTP_USERNAME"}
   #password: Helper.read_secret_from_file(System.get_env("MAIL_PASSWORD"), "oms"), # or {:system, "SMTP_PASSWORD"}
-  tls: :if_available, # can be `:always` or `:never`
+  tls: :never, # can be `:always` or `:never`
   allowed_tls_versions: [:tlsv1, :"tlsv1.1", :"tlsv1.2"], # or {":system", ALLOWED_TLS_VERSIONS"} w/ comma seprated values (e.g. "tlsv1.1,tlsv1.2")
   ssl: false, # can be `true`
   retries: 5,
