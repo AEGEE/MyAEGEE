@@ -19,10 +19,10 @@ fi
 
 #postmap /etc/postfix/sasl_passwd
 
-export SMTP_SERVER=mail.aegee.org
-export SMTP_PORT=587
-export SMTP_USERNAME=$user
+export EXT_RELAY_HOST=mail.aegee.org
+export EXT_RELAY_PORT=587
+export SMTP_LOGIN=$user
 export SMTP_PASSWORD=$password
-export SERVER_HOSTNAME=my.aegee.eu
+export RELAY_HOST_NAME=my.aegee.eu
 
 sh /run.sh
