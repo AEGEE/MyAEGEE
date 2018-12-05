@@ -112,14 +112,18 @@ export default {
     filledTemplate () {
       const typeAndOrder = this.stabApplication.participant_type
         ? this.stabApplication.participant_type + ' (' + this.stabApplication.participant_order + ')'
-        : 'not set';
+        : 'not set'
 
       return this.markdownText
         .replace(/\{first_name\}/ig, this.stabUser.first_name)
         .replace(/\{last_name\}/ig, this.stabUser.last_name)
         .replace(/\{participant_type_order\}/ig, typeAndOrder)
-        .replace(/\{body_name\}/ig, this.stabBody.name);
-    }
+        .replace(/\{body_name\}/ig, this.stabBody.name)
+    },
+    ...mapGetters({
+      services: 'services',
+      loginUser: 'user'
+    })
   },
   methods: {
     sendMassMailer () {
@@ -137,10 +141,6 @@ export default {
       })
     }
   },
-  computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
-  }),
   mounted () {
 
   }
