@@ -20,12 +20,26 @@
                 </div>
               </div>
 
-              <div class="field is-fullwidth">
+              <div class="tile is-parent">
+                <div class="tile is-child">
+                  <div class="notification is-warning">
+                    You can type in the following phrases to be replaced with the actual application data:
+                    <ul>
+                      <li>{first_name} - user's first name</li>
+                      <li>{last_name} - user's last name</li>
+                      <li>{participant_type_order} - applicant's type order, in this format: <strong>type (order)</strong>, or <strong>not set</strong> if it's not set by the board.</li>
+                      <li>{body_name} - name of the body</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!--<div class="field is-fullwidth">
                 <label class="label">Address to send from</label>
                 <div class="control">
                   <input class="input" type="text" required v-model="from" />
                 </div>
-              </div>
+              </div>-->
 
               <div class="field is-fullwidth">
                 <label class="label">Email subject</label>
@@ -36,6 +50,13 @@
 
               <div class="field is-fullwidth">
                 <label class="label">Type the email text here</label>
+                <div class="control">
+                  <textarea class="textarea" required v-model="text" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth">
+                <label class="label">Preview:</label>
                 <div class="control">
                   <textarea class="textarea" required v-model="text" />
                 </div>
@@ -72,11 +93,31 @@ export default {
   name: 'MassMailerStatutory',
   data () {
     return {
-      from: 'chair@aegee.org',
       text: '',
       filter: '',
       subject: '',
-      isSending: false
+      isSending: false,
+      stabUser: {
+        first_name: 'Name',
+        last_name: 'Surname'
+      },
+      stabBody: { name: 'AEGEE-Europe' },
+      stabApplication: { participant_type: 'delegate', participant_order: 1 }
+    }
+  },
+  computed: {
+    filledTemplate () {
+      const typeAndOrder = this.stabApplication.participant_type
+        ? this.stabApplication.participant_type + ' (' + this.stabApplication.participant_order + ')'
+        : 'not set';
+
+      const text = this.text
+        .replace(/\{first_name\}/ig, this.stabUser.first_name)
+        .replace(/\{last_name\}/ig, this.stabUser.last_name)
+        .replace(/\{participant_type_order\}/ig, typeAndOrder)
+        .replace(/\{body_name\}/ig, this.stabBody.name);
+
+      return this.$options.filters.markdown(text)
     }
   },
   methods: {
@@ -84,7 +125,6 @@ export default {
       this.isSending = true
 
       this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/massmailer/' + this.filter, {
-        from: this.from,
         subject: this.subject,
         text: this.text
       }).then((response) => {
