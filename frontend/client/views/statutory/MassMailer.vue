@@ -23,7 +23,7 @@
               <div class="tile is-parent">
                 <div class="tile is-child">
                   <div class="notification is-warning">
-                    <div class="content mailer-content">
+                    <div class="content">
                       <span>You can type in the following phrases to be replaced with the actual application data:</span>
                       <ul>
                         <li><i>{first_name}</i> - user's first name</li>
@@ -65,7 +65,7 @@
 
               <div class="field is-fullwidth">
                 <label class="label">Preview:</label>
-                <div class="control">
+                <div class="mailer-content">
                   <div v-html="filledTemplate"></div>
                 </div>
               </div>
@@ -156,7 +156,7 @@ export default {
 </script>
 
 <style>
-.margin-content p {
+.mailer-content p {
   padding-bottom: 10px;
 }
 </style>
