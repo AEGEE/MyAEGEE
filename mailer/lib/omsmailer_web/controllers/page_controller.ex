@@ -66,7 +66,7 @@ defmodule OmsmailerWeb.PageController do
 
     with nil <- Enum.find(contents, fn(x) -> elem(x, 0) != :ok end) do
       Enum.zip(to, contents)
-      |> Enum.map(fn({to, content}) ->
+      |> Enum.map(fn({to, {:ok, content}}) ->
         new_email(
           to: to,
           from: Application.get_env(:omsmailer, :from_address),
