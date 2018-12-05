@@ -58,7 +58,7 @@
               <div class="field is-fullwidth">
                 <label class="label">Preview:</label>
                 <div class="control">
-                  <textarea class="textarea" required v-model="text" />
+                  <div v-html="filledTemplate"></div>
                 </div>
               </div>
 
@@ -106,18 +106,19 @@ export default {
     }
   },
   computed: {
+    markdownText () {
+      return this.$options.filters.markdown(this.text)
+    },
     filledTemplate () {
       const typeAndOrder = this.stabApplication.participant_type
         ? this.stabApplication.participant_type + ' (' + this.stabApplication.participant_order + ')'
         : 'not set';
 
-      const text = this.text
+      return this.markdownText
         .replace(/\{first_name\}/ig, this.stabUser.first_name)
         .replace(/\{last_name\}/ig, this.stabUser.last_name)
         .replace(/\{participant_type_order\}/ig, typeAndOrder)
         .replace(/\{body_name\}/ig, this.stabBody.name);
-
-      return this.$options.filters.markdown(text)
     }
   },
   methods: {
