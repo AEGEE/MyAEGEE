@@ -131,7 +131,7 @@ export default {
 
       this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/massmailer/' + this.filter, {
         subject: this.subject,
-        text: this.text
+        text: this.markdownText
       }).then((response) => {
         this.isSending = false
         this.$root.showSuccess('Mass mailer is sent successfully.')
