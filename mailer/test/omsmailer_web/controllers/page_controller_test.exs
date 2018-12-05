@@ -63,9 +63,9 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert json_response(conn, 200)
     # I have no clue why the nil: thing is necessary...
     # I also have no clue why the :ok thing is necessary
-    assert_email_delivered_with(to: [nil: "test1@aegee.org"], html_body: {:ok, Phoenix.View.render_to_string(OmsmailerWeb.PageView, "custom.html", parameters: %{"body" => "huhu1"})})
-    assert_email_delivered_with(to: [nil: "test2@aegee.org"], html_body: {:ok, Phoenix.View.render_to_string(OmsmailerWeb.PageView, "custom.html", parameters: %{"body" => "huhu2"})})
-    assert_email_delivered_with(to: [nil: "test3@aegee.org"], html_body: {:ok, Phoenix.View.render_to_string(OmsmailerWeb.PageView, "custom.html", parameters: %{"body" => "huhu3"})})
+    assert_email_delivered_with(to: [nil: "test1@aegee.org"], html_body: Phoenix.View.render_to_string(OmsmailerWeb.PageView, "custom.html", parameters: %{"body" => "huhu1"}))
+    assert_email_delivered_with(to: [nil: "test2@aegee.org"], html_body: Phoenix.View.render_to_string(OmsmailerWeb.PageView, "custom.html", parameters: %{"body" => "huhu2"}))
+    assert_email_delivered_with(to: [nil: "test3@aegee.org"], html_body: Phoenix.View.render_to_string(OmsmailerWeb.PageView, "custom.html", parameters: %{"body" => "huhu3"}))
   end
     # Welcome works
   test "POST / welcome", %{conn: conn} do
