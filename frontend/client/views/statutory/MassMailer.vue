@@ -23,13 +23,21 @@
               <div class="tile is-parent">
                 <div class="tile is-child">
                   <div class="notification is-warning">
-                    You can type in the following phrases to be replaced with the actual application data:
-                    <ul>
-                      <li>{first_name} - user's first name</li>
-                      <li>{last_name} - user's last name</li>
-                      <li>{participant_type_order} - applicant's type order, in this format: <strong>type (order)</strong>, or <strong>not set</strong> if it's not set by the board.</li>
-                      <li>{body_name} - name of the body</li>
-                    </ul>
+                    <div class="content mailer-content">
+                      <span>You can type in the following phrases to be replaced with the actual application data:</span>
+                      <ul>
+                        <li><i>{first_name}</i> - user's first name</li>
+                        <li><i>{last_name}</i> - user's last name</li>
+                        <li><i>{participant_type_order}</i> - applicant's type order, in this format: <strong>type (order)</strong>, or <strong>not set</strong> if it's not set by the board.</li>
+                        <li><i>{body_name}</i> - name of the body</li>
+                      </ul>
+                      <span>Also you can use Markdown for text markup. For example, you can:</span>
+                      <ul>
+                        <li>wrap text in *asterisks* to make it <i>italic</i></li>
+                        <li>wrap text in **double asterisks** to make it <strong>bold</strong></li>
+                      </ul>
+                      <span>Keep in mind, that by default, if you put one line break, the line won't be broken and the next text line would be displayed at the same line as the previous. For making a piece of text a separate paragraph, use 2 line breaks. That way, the text would be displayed with an offset from the previous and the next line. For just breaking the line, add 2 spaces at the end of it.</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -111,7 +119,7 @@ export default {
     },
     filledTemplate () {
       const typeAndOrder = this.stabApplication.participant_type
-        ? this.stabApplication.participant_type + ' (' + this.stabApplication.participant_order + ')'
+        ? (this.stabApplication.participant_type + ' (' + this.stabApplication.participant_order + ')')
         : 'not set'
 
       return this.markdownText
@@ -146,3 +154,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.margin-content p {
+  padding-bottom: 10px;
+}
+</style>
