@@ -59,6 +59,13 @@
             </router-link>
           </div>
 
+          <div class="field is-grouped" v-if="can.use_massmailer">
+            <router-link :to="{ name: 'oms.statutory.massmailer', params: { id: event.url || event.id } }" class="button is-fullwidth">
+              <span>Mass mailer</span>
+              <span class="icon"><i class="fa fa-envelope"></i></span>
+            </router-link>
+          </div>
+
           <div class="field is-grouped">
             <router-link :to="{ name: 'oms.statutory.applications.stats', params: { id: event.url || event.id} }" class="button is-fullwidth">
               <span>Applications stats</span>
