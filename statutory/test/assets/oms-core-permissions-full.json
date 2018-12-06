@@ -120,5 +120,25 @@
       "circles": null,
       "always_assigned": false,
       "action": "see_memberslists"
-    }]
+    }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 69,
+        "filters": [],
+        "description": "Use massmailer.",
+        "combined": "global:use_massmailer:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "use_massmailer"
+      }, {
+        "scope": "global",
+        "object": "epm",
+        "id": 70,
+        "filters": [],
+        "description": "Use massmailer.",
+        "combined": "global:use_massmailer:epm",
+        "circles": null,
+        "always_assigned": false,
+        "action": "use_massmailer"
+      }]
 }
