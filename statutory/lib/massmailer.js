@@ -13,6 +13,14 @@ exports.sendAll = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot access massmailer.');
     }
 
+    if (typeof req.body.text !== 'string' || req.body.text.trim().length === 0) {
+        return errors.makeBadRequestError(res, 'Please provide an email body.');
+    }
+
+    if (typeof req.body.subject !== 'string' || req.body.subject.trim().length === 0) {
+        return errors.makeBadRequestError(res, 'Please provide an email subject.');
+    }
+
     let applications = req.params.filter
         ? req.event.applications.filter(application => application.status === req.params.filter)
         : req.event.applications;
@@ -44,7 +52,7 @@ exports.sendAll = async (req, res) => {
             }
 
             if (!membersBody.success) {
-                throw new Error('Error fetching user: ' + membersBody);
+                throw new Error('Error fetching user: ' + JSON.stringify(membersBody));
             }
 
             const body = membersBody.data.bodies.find(body => body.id === application.body_id);
@@ -58,7 +66,7 @@ exports.sendAll = async (req, res) => {
             // won't be something required.
             const email = membersBody.data.user.email;
             const typeAndOrder = application.participant_type
-                ? application.participant_type + ' (' + application.participant_order + ')'
+                ? (application.participant_type + ' (' + application.participant_order + ')')
                 : 'not set';
             const text = req.body.text
                 .replace(/\{first_name\}/ig, membersBody.data.first_name)
@@ -73,8 +81,8 @@ exports.sendAll = async (req, res) => {
 
             logger.info('Prepared email to ' + email + '...');
         } catch (err) {
-            logger.error('Preparing mail failed for ' + email + ':' + err.message);
-            return errors.makeInternalError(res, 'Sending mail failed for ' + email + ' :' + err.message);
+            logger.error('Preparing mail failed: ' + err);
+            return errors.makeInternalError(res, 'Sending mail failed:' + err.message);
         }
     }
 
