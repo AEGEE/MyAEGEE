@@ -65,7 +65,7 @@
 
               <div class="field is-fullwidth">
                 <label class="label">Preview:</label>
-                <div class="mailer-content">
+                <div class="content box">
                   <div v-html="filledTemplate"></div>
                 </div>
               </div>
@@ -154,9 +154,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.mailer-content p {
-  padding-bottom: 10px;
-}
-</style>
