@@ -45,7 +45,7 @@ export default {
         name: '',
         description: '',
         joinable: false
-      },
+      }
     }
   },
   methods: {

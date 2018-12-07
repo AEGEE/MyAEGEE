@@ -51,7 +51,7 @@ export default {
 
         this.showDanger('Error updating user membership: ' + err.message)
       })
-    },
+    }
   }
 }
 </script>
