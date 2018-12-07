@@ -279,6 +279,62 @@ exports.mockCoreBody = (options) => {
         .reply(200, { success: true, data: regularUser.bodies[0] });
 };
 
+exports.mockCoreMember = (options) => {
+    if (options.netError) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/members\/[0-9].*/)
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/members\/[0-9].*/)
+            .reply(500, 'Some error happened.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/members\/[0-9].*/)
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
+    return nock(`${config.core.url}:${config.core.port}`)
+        .persist()
+        .get(/\/members\/[0-9].*/)
+        .reply(200, { success: true, data: regularUser });
+};
+
+exports.mockCoreMailer = (options) => {
+    if (options.netError) {
+        return nock(`${config.mailer.url}:${config.mailer.port}`)
+            .persist()
+            .post('/')
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock(`${config.mailer.url}:${config.mailer.port}`)
+            .persist()
+            .post('/')
+            .reply(500, 'Some error happened.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock(`${config.mailer.url}:${config.mailer.port}`)
+            .persist()
+            .post('/')
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
+    return nock(`${config.mailer.url}:${config.mailer.port}`)
+        .persist()
+        .post('/')
+        .reply(200, { success: true });
+};
+
 exports.mockAll = (options = {}) => {
     nock.cleanAll();
     const omsCoreStub = exports.mockCore(options.core || {});
@@ -287,6 +343,8 @@ exports.mockAll = (options = {}) => {
     const omsCoreMembersStub = exports.mockCoreMembers(options.members || {});
     const omsCoreBodiesStub = exports.mockCoreBodies(options.bodies || {});
     const omsCoreBodyStub = exports.mockCoreBody(options.body || {});
+    const omsCoreMemberStub = exports.mockCoreMember(options.member || {});
+    const omsMailerStub = exports.mockCoreMailer(options.mailer || {});
 
     return {
         omsCoreStub,
@@ -294,6 +352,8 @@ exports.mockAll = (options = {}) => {
         omsApprovePermissionsStub,
         omsCoreMembersStub,
         omsCoreBodiesStub,
-        omsCoreBodyStub
+        omsCoreBodyStub,
+        omsCoreMemberStub,
+        omsMailerStub
     };
 };

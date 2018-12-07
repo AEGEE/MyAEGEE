@@ -30,13 +30,8 @@ const config = {
             port: 4000
         },
         mailer: {
-            host: process.env.MAILER_HOST || 'mail.aegee.org',
-            port: parseInt(process.env.MAILER_PORT, 10) || 25,
-            secure: false,
-            auth: {
-                user: mailerUsername,
-                pass: mailerPassword
-            }
+            url: 'http://oms-mailer',
+            port: 4000
         },
         bugsnagKey: process.env.BUGSNAG_KEY || ''
     },
@@ -48,10 +43,6 @@ const config = {
         postgres: {
             host: 'localhost',
             database: 'statutory-testing'
-        },
-        core: {
-            url: 'http://oms-core-elixir',
-            port: 80
         },
         bugsnagKey: 'CHANGEME'
     }

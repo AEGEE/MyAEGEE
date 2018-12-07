@@ -44,7 +44,6 @@
     "moment-timezone": "^0.5.17",
     "morgan": "^1.9.0",
     "node-xlsx": "^0.12.1",
-    "nodemailer": "^4.6.8",
     "oms-common-nodejs": "git+https://git@github.com/AEGEE/oms-common-nodejs.git",
     "pg": "^7.4.3",
     "request": "^2.87.0",
