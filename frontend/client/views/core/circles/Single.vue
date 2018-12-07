@@ -83,7 +83,7 @@
           Edit circle
         </router-link>
 
-        <a class="button is-info" @click="isAddingMember = true" v-if="can.addMembers">
+        <a class="button is-info" @click="addMemberModal()" v-if="can.addMembers">
           Add member
         </a>
 
@@ -101,44 +101,13 @@
       </article>
     </div>
 
-    <div class="modal is-active" v-show="isAddingMember">
-      <div class="modal-background"></div>
-      <div class="modal-card">
-        <header class="modal-card-head">
-          <p class="modal-card-title">Add member</p>
-          <button class="delete" aria-label="close" @click="isAddingMember = false; addedMember = null"></button>
-        </header>
-        <section class="modal-card-body" style="height:200px;">
-          <div class="field has-addons">
-            <b-autocomplete
-              v-model="addedMemberName"
-              :data="members"
-              field="title"
-              :loading="isLoadingMembers"
-              @input="fetchMembers"
-              expanded="true"
-              @select="option => addMember(option)">
-
-              <template slot-scope="props">
-                <div class="media">
-                  <div class="media-content">{{ props.option.first_name }} {{ props.option.last_name }}</div>
-                </div>
-              </template>
-              </b-autocomplete>
-          </div>
-        </section>
-        <footer class="modal-card-foot">
-          <button class="button" @click="isAddingMember = false; addedMember = null">Cancel</button>
-        </footer>
-      </div>
-    </div>
-
     <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import AddMemberModal from './AddMemberModal'
 
 export default {
   name: 'SingleCircle',
@@ -160,9 +129,7 @@ export default {
       isLoading: false,
       permissions: [],
       isMember: false,
-      isAddingMember: false,
       isLoadingMembers: false,
-      addedMemberName: '',
       cancelToken: null,
       members: [],
       can: {
@@ -175,50 +142,20 @@ export default {
     }
   },
   methods: {
-    fetchMembers () {
-      this.isLoadingMembers = true
-      this.members = []
-
-      if (this.token) this.token.cancel()
-      this.token = this.axios.CancelToken.source()
-
-      // If circle is bound to a body, search for body members. If not, use global search.
-      const url = this.circle.body_id
-        ? this.services['oms-core-elixir'] + '/bodies/' + this.circle.body_id + '/members'
-        : this.services['oms-core-elixir'] + '/members'
-
-      this.axios.get(url, {
-        cancelToken: this.token.token,
-        params: { query: this.addedMemberName }
-      }).then((response) => {
-        // Transform members if the circle is bound (there's another API response format)
-        this.members = this.circle.body_id
-          ? response.data.data.map(entry => entry.member)
-          : response.data.data
-
-        this.isLoadingMembers = false
-      }).catch((err) => {
-        if (this.axios.isCancel(err)) {
-          return
+    addMemberModal () {
+      this.$modal.open({
+        component: AddMemberModal,
+        hasModalCard: true,
+        props: {
+          // When programmatically opening a modal, it doesn't have access to Vue instance
+          // and therefore store, services and notifications functions. That's why
+          // I'm passing them as props.
+          // More info: https://github.com/buefy/buefy/issues/55
+          circle: this.circle,
+          services: this.services,
+          showDanger: this.$root.showDanger,
+          showSuccess: this.$root.showSuccess
         }
-
-        this.isLoadingMembers = false
-        this.$root.showDanger('Could not fetch members: ' + err.message)
-      })
-    },
-    addMember (member) {
-      this.axios.post(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/add_member', {
-        member_id: member.id
-      }).then(() => {
-        this.$root.showSuccess('Member is added.')
-        this.isAddingMember = false
-      }).catch((err) => {
-        const message = 'Could not add member: ' +
-          (err.response.status === 422 && 'circle_membership_unique' in err.response.data.errors
-            ? 'This person is already a member of this circle.'
-            : err.message)
-
-        this.$root.showDanger(message)
       })
     },
     askDeleteCircle () {
