@@ -29,7 +29,7 @@
               </tr>
             </tfoot>
             <tbody>
-              <tr v-show="members.length" v-for="(member, index) in members" v-bind:key="member.id">
+              <tr v-show="members.length" v-for="member in members" v-bind:key="member.id">
                 <td>
                   <router-link :to="{ name: 'oms.members.view', params: { id: member.member.seo_url || member.member.id } }">
                     {{ member.member.first_name }} {{ member.member.last_name }}
@@ -44,7 +44,7 @@
                 <td>
                   <div class="field">
                     <div class="control">
-                      <a class="button is-small is-warning" @click="selectedUserIndex = index" v-if="can.edit">
+                      <a class="button is-small is-warning" @click="editMemberModal(member)" v-if="can.edit">
                         <span class="icon"><i class="fa fa-edit"></i></span>
                         <span>Edit</span>
                       </a>
@@ -63,49 +63,6 @@
           </table>
         </div>
 
-        <!--<div class="tile">
-          <div class="tile is-vertical is-2" v-for="(member, index) in members" v-bind:key="member.id">
-
-            <div class="tile is-child">
-              <div class="image is-1by1">
-                <img src="https://bulma.io/images/placeholders/480x480.png" alt="" />
-              </div>
-            </div>
-
-            <div class="tile">
-              <strong class="has-text-centered">{{ member.member.first_name }} {{ member.member.last_name }}</strong>
-            </div>
-
-            <div class="tile">
-              <p class="has-text-centered" v-if="member.position">{{ member.position }}</p>
-              <p class="has-text-centered" v-if="!member.position"><i>No position set.</i></p>
-            </div>
-
-            <div class="tile" v-if="member.circle_admin">
-              <p class="has-text-centered"><i>Circle admin.</i></p>
-            </div>
-
-            <div class="tile">
-              <div class="field">
-                <div class="control">
-                  <a class="button is-warning" @click="selectedUserIndex = index" v-if="can.edit">
-                    <span class="icon"><i class="fa fa-edit"></i></span>
-                    <span>Edit</span>
-                  </a>
-                  <a class="button is-danger" @click="askDeleteMember(member, false)"  v-if="can.delete">
-                    <span class="icon"><i class="fa fa-minus"></i></span>
-                    <span>Delete</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="tile is-vertical is-12 is-child" v-if="members.length === 0 && !isLoading">
-            <h1 class="subtitle has-text-centered">No members inside this circle.</h1>
-          </div>
-        </div>-->
-
         <div class="field">
           <button
             class="button is-primary is-fullwidth"
@@ -118,41 +75,12 @@
         <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
       </article>
     </div>
-
-    <div class="modal is-active" v-if="selectedUserIndex !== null">
-      <div class="modal-background"></div>
-      <div class="modal-card">
-        <header class="modal-card-head">
-          <p class="modal-card-title">Edit user membership</p>
-          <button class="delete" aria-label="close" @click="selectedUserIndex = null"></button>
-        </header>
-        <section class="modal-card-body">
-          <div class="field" v-if="members[selectedUserIndex]">
-            <label class="label">Position</label>
-            <div class="control">
-              <input class="input" type="text" v-model="members[selectedUserIndex].position" />
-            </div>
-            <p class="help is-danger" v-if="userErrors.position">{{ userErrors.position.join(', ')}}</p>
-          </div>
-
-          <div class="field" v-if="members[selectedUserIndex]">
-            <label class="label">Circle admin?
-              <input class="checkbox" type="checkbox" v-model="members[selectedUserIndex].circle_admin" />
-            </label>
-            <p class="help is-danger" v-if="userErrors.circle_admin">{{ userErrors.circle_admin.join(', ')}}</p>
-          </div>
-        </section>
-        <footer class="modal-card-foot">
-          <button class="button is-success" @click="updateMembership()">Save changes</button>
-          <button class="button" @click="selectedUserIndex = null">Cancel</button>
-        </footer>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import EditMemberPositionModal from './EditMemberPositionModal.vue'
 
 export default {
   name: 'CircleMembersList',
@@ -166,14 +94,11 @@ export default {
       canLoadMore: true,
       source: null,
       permissions: [],
-      userErrors: {},
       can: {
         edit: false,
         delete: false,
         create: false
-      },
-      isEditing: false,
-      selectedUserIndex: null
+      }
     }
   },
   computed: {
@@ -189,6 +114,23 @@ export default {
     ...mapGetters(['services'])
   },
   methods: {
+    editMemberModal (member) {
+      this.$modal.open({
+        component: EditMemberPositionModal,
+        hasModalCard: true,
+        props: {
+          // When programmatically opening a modal, it doesn't have access to Vue instance
+          // and therefore store, services and notifications functions. That's why
+          // I'm passing them as props.
+          // More info: https://github.com/buefy/buefy/issues/55
+          circle: { id: this.$route.params.id },
+          member,
+          services: this.services,
+          showDanger: this.$root.showDanger,
+          showSuccess: this.$root.showSuccess
+        }
+      })
+    },
     askDeleteMember (member) {
       const message =
         'Are you sure you want to <b>delete</b> ' +
@@ -211,23 +153,6 @@ export default {
         const index = this.members.findIndex(m => m.id === member.id)
         this.members.splice(index, 1)
       }).catch((err) => this.$root.showDanger('Could not delete member: ' + err.message))
-    },
-    updateMembership () {
-      this.isLoading = true
-
-      const member = this.members[this.selectedUserIndex]
-
-      this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/members/' + member.id, {
-        circle_membership: member
-      }).then((response) => {
-        this.$root.showSuccess('Membership is updated')
-        this.isLoading = false
-        this.selectedUserIndex = null
-      }).catch((err) => {
-        this.isLoading = false
-
-        this.$root.showDanger('Error updating user membership: ' + err.message)
-      })
     },
     refetch () {
       this.members = []
