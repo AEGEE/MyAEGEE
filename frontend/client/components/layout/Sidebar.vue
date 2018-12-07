@@ -21,15 +21,13 @@
             </span>
           </a>
 
-          <expanding v-if="item.children && item.children.length">
-            <ul v-show="isExpanded(item)">
-              <li v-for="subItem in item.children" v-bind:key="subItem.name" v-if="userHasPermissions(subItem)">
-                <router-link :to="{ name: subItem.name }" exact="true">
-                  {{ subItem.label }}
-                </router-link>
-              </li>
-            </ul>
-          </expanding>
+          <ul v-show="isExpanded(item)">
+            <li v-for="subItem in item.children" v-bind:key="subItem.name" v-if="userHasPermissions(subItem)">
+              <router-link :to="{ name: subItem.name }" exact="true">
+                {{ subItem.label }}
+              </router-link>
+            </li>
+          </ul>
         </li>
       </ul>
     </div>
@@ -37,18 +35,12 @@
 </template>
 
 <script>
-import Expanding from 'vue-bulma-expanding'
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
-  components: {
-    Expanding
-  },
-
   props: {
     show: Boolean
   },
-
   data () {
     return {
       isReady: false
@@ -61,21 +53,18 @@ export default {
       this.shouldExpandMatchItem(route)
     }
   },
-
   computed: mapGetters({
     menu: 'menuitems',
     permissions: 'permissions',
     navbar: 'navbar',
     device: 'device'
   }),
-
   methods: {
     ...mapActions([
       'expandMenu',
       'toggleSidebar',
       'toggleNavbarMenu'
     ]),
-
     userHasPermissions (item) {
       // If item has no permissions attribute, show it.
       if (!item.permissions) {
@@ -86,11 +75,9 @@ export default {
       return item.permissions.some(itemPermission =>
         this.permissions.find(userPermission => userPermission.combined.includes(itemPermission)))
     },
-
     isExpanded (item) {
       return item.expanded
     },
-
     toggle (index, categoryIndex, item) {
       this.expandMenu({
         index: index,
@@ -98,7 +85,6 @@ export default {
         expanded: !item.expanded
       })
     },
-
     shouldExpandMatchItem (route) {
       let matched = route.matched
       if (matched.length === 0) {
@@ -123,7 +109,6 @@ export default {
         })
       }
     },
-
     findParentFromMenu (route) {
       const menu = this.menu
       for (let i = 0, l = menu.length; i < l; i++) {
@@ -139,7 +124,6 @@ export default {
       }
     }
   },
-
   watch: {
     $route (route) {
       this.isReady = true
