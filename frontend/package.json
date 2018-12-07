@@ -50,7 +50,6 @@
     "vue-axios": "^2.0.1",
     "vue-bulma-breadcrumb": "^1.0.1",
     "vue-bulma-collapse": "1.0.3",
-    "vue-bulma-expanding": "^0.0.1",
     "vue-chartjs": "^3.4.0",
     "vue-flatpickr-component": "^8.0.0",
     "vue-infinite-loading": "^2.3.1",
