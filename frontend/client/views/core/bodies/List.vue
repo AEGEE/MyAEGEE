@@ -10,6 +10,27 @@
           </div>
         </div>
 
+        <div class="field">
+          <label class="label">Filter on body type</label>
+          <div class="control">
+            <div class="select">
+              <select v-model="type" @change="refetch()">
+                <option :value="null">Don't filter on body type</option>
+                <option value="antenna">Antenna</option>
+                <option value="contact antenna">Contact antenna</option>
+                <option value="contact">Contact</option>
+                <option value="interest group">Interest group</option>
+                <option value="working group">Working group</option>
+                <option value="commission">Commission</option>
+                <option value="committee">Comittee</option>
+                <option value="project">Project</option>
+                <option value="partner">Partner association</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <div class="field" v-if="can.create">
           <div class="control">
             <router-link class="button is-primary" :to="{ name: 'oms.bodies.create' }">Create body</router-link>
@@ -22,6 +43,7 @@
               <tr>
                 <th>Body code</th>
                 <th>Name</th>
+                <th>Type</th>
                 <th>Description</th>
               </tr>
             </thead>
@@ -29,6 +51,7 @@
               <tr>
                 <th>Body code</th>
                 <th>Name</th>
+                <th>Type</th>
                 <th>Description</th>
               </tr>
             </tfoot>
@@ -38,6 +61,7 @@
                 <td>
                   <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id } }">{{ body.name}}</router-link>
                 </td>
+                <td>{{ body.type | capitalize }}</td>
                 <td>
                   <span v-html="$options.filters.markdown(body.description)"></span>
                 </td>
@@ -77,6 +101,7 @@ export default {
       query: '',
       limit: 30,
       offset: 0,
+      type: null,
       canLoadMore: true,
       source: null,
       permissions: [],
@@ -93,6 +118,7 @@ export default {
       }
 
       if (this.query) queryObj.query = this.query
+      if (this.type) queryObj.filter = { type: this.type }
       return queryObj
     },
     ...mapGetters(['services'])
