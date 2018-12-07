@@ -36,7 +36,7 @@
     "animate.css": "3.5.2",
     "animejs": "^2.0.1",
     "axios": "^0.15.3",
-    "buefy": "^0.6.6",
+    "buefy": "^0.7.1",
     "bugsnag-js": "^4.7.2",
     "bugsnag-vue": "^1.0.1",
     "bulma": "^0.7.1",

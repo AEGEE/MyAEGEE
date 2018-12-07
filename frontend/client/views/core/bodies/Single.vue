@@ -39,7 +39,7 @@
           </div>
 
           <div class="field is-grouped" v-if="can.createCircle">
-            <a @click="isAddingCircle = true" class="button is-fullwidth is-warning">
+            <a @click="openAddCircleModal()" class="button is-fullwidth is-warning">
               <span>Add bound circle</span>
               <span class="icon"><i class="fa fa-edit"></i></span>
             </a>
@@ -141,49 +141,12 @@
     </div>
 
     <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
-
-    <div class="modal is-active" v-show="isAddingCircle">
-      <div class="modal-background"></div>
-      <div class="modal-card">
-        <header class="modal-card-head">
-          <p class="modal-card-title">Add circle</p>
-          <button class="delete" aria-label="close" @click="isAddingCircle = false"></button>
-        </header>
-        <section class="modal-card-body">
-          <div class="field">
-            <label class="label">Name</label>
-            <div class="control">
-              <input class="input" type="text" required v-model="tmpCircle.name" />
-            </div>
-            <p class="help is-danger" v-if="circleErrors.name">{{ circleErrors.name.join(', ')}}</p>
-          </div>
-
-          <div class="field">
-            <label class="label">Description</label>
-            <div class="control">
-              <input class="input" type="text" required v-model="tmpCircle.description" />
-            </div>
-            <p class="help is-danger" v-if="circleErrors.description">{{ circleErrors.description.join(', ')}}</p>
-          </div>
-
-          <div class="field">
-            <label class="label">Joinable?
-              <input class="checkbox" type="checkbox" v-model="tmpCircle.joinable" />
-            </label>
-            <p class="help is-danger" v-if="circleErrors.description">{{ circleErrors.description.join(', ')}}</p>
-          </div>
-        </section>
-        <footer class="modal-card-foot">
-          <button class="button is-success" @click="saveBoundCircle()">Save changes</button>
-          <button class="button" @click="isAddingCircle = false">Cancel</button>
-        </footer>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import AddBoundCircleModal from './AddBoundCircleModal'
 
 export default {
   name: 'SingleBody',
@@ -206,14 +169,7 @@ export default {
       isLoading: false,
       isMember: false,
       isRequestingMembership: false,
-      isAddingCircle: false,
       permissions: [],
-      tmpCircle: {
-        name: '',
-        description: '',
-        joinable: false
-      },
-      circleErrors: {},
       can: {
         edit: false,
         delete: false,
@@ -222,6 +178,22 @@ export default {
     }
   },
   methods: {
+    openAddCircleModal () {
+      this.$modal.open({
+        component: AddBoundCircleModal,
+        hasModalCard: true,
+        props: {
+          // When programmatically opening a modal, it doesn't have access to Vue instance
+          // and therefore store, services and notifications functions. That's why
+          // I'm passing them as props.
+          // More info: https://github.com/buefy/buefy/issues/55
+          body: this.body,
+          services: this.services,
+          showDanger: this.$root.showDanger,
+          showSuccess: this.$root.showSuccess
+        }
+      })
+    },
     askDeleteBody () {
       this.$dialog.confirm({
         title: 'Deleting a body',
@@ -280,26 +252,6 @@ export default {
         this.$root.showSuccess('You are not the member anymore.')
       }).catch((err) => {
         this.$root.showDanger('Could not delete body: ' + err.message)
-      })
-    },
-    saveBoundCircle () {
-      this.isLoading = true
-      this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/circles', {
-        circle: this.tmpCircle
-      }).then((response) => {
-        this.$root.showSuccess('Bound circle is created.')
-
-        this.tmpCircle = { name: '', description: '', joinable: false }
-        this.body.circles.push(response.data.data)
-
-        this.isLoading = false
-        this.isAddingCircle = false
-      }).catch((err) => {
-        this.isLoading = false
-        let message = err.response.status === 422 ? 'Some fields were not set: ' : err.message
-        if (err.response.errors) this.circleErrors = err.response.errors
-
-        this.$root.showDanger(message)
       })
     }
   },
