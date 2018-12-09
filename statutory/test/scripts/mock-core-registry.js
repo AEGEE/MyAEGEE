@@ -255,27 +255,37 @@ exports.mockCoreBody = (options) => {
     if (options.netError) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
-            .get('/bodies/' + regularUser.bodies[0].id)
+            .get(/^\/bodies\/[0-9].*$/)
             .replyWithError('Some random error.');
     }
 
     if (options.badResponse) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
-            .get('/bodies/' + regularUser.bodies[0].id)
+            .get(/^\/bodies\/[0-9].*$/)
             .reply(500, 'Some error happened.');
     }
 
     if (options.unsuccessfulResponse) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
-            .get('/bodies/' + regularUser.bodies[0].id)
+            .get(/^\/bodies\/[0-9].*$/)
             .reply(500, { success: false, message: 'Some error' });
+    }
+
+    if (options.type) {
+        const body = regularUser.bodies[0];
+        body.type = options.type;
+
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/^\/bodies\/[0-9].*$/)
+            .reply(500, { success: true, data: body });
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
-        .get('/bodies/' + regularUser.bodies[0].id)
+        .get(/^\/bodies\/[0-9].*$/)
         .reply(200, { success: true, data: regularUser.bodies[0] });
 };
 

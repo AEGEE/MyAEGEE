@@ -1,6 +1,13 @@
 const faker = require('faker');
 
-const { Event, Application, MembersList, PaxLimit } = require('../../models');
+const {
+    Event,
+    Application,
+    MembersList,
+    PaxLimit,
+    VotesPerAntenna,
+    VotesPerDelegate
+} = require('../../models');
 
 const notSet = field => typeof field === 'undefined';
 
@@ -62,11 +69,8 @@ exports.generateMembersList = (options = {}, event = null) => {
     if (notSet(options.body_id)) options.body_id = faker.random.number(100);
     if (notSet(options.members)) {
         const membersCount = Math.round(Math.random() * 5) + 1; // from 1 to 6
-        options.members = Array.from({ length: membersCount }, () => ({
-            user_id: faker.random.number(100),
-            first_name: faker.name.firstName(),
-            last_name: faker.name.lastName(),
-            fee: faker.random.number(1000)
+        options.members = Array.from({ length: membersCount }, (value, index) => exports.generateMembersListMember({
+            user_id: index + 1
         }));
     }
 
@@ -76,6 +80,17 @@ exports.generateMembersList = (options = {}, event = null) => {
 
     return options;
 };
+
+exports.generateMembersListMember = (options = {}) => {
+    if (notSet(options.user_id)) options.user_id = faker.random.number(100);
+    if (notSet(options.first_name)) options.first_name = faker.name.firstName();
+    if (notSet(options.last_name)) options.last_name = faker.name.lastName();
+    if (notSet(options.fee)) options.fee = faker.random.number({ min: 1, max: 1000 });
+
+    return options;
+}
+
+
 
 exports.generatePaxLimit = (options = {}) => {
     if (notSet(options.body_id)) options.body_id = faker.random.number(100);
@@ -106,6 +121,8 @@ exports.createPaxLimit = (options = {}) => {
 };
 
 exports.clearAll = async () => {
+    await VotesPerDelegate.destroy({ where: {}, truncate: { cascade: true } });
+    await VotesPerAntenna.destroy({ where: {}, truncate: { cascade: true } });
     await MembersList.destroy({ where: {}, truncate: { cascade: true } });
     await Application.destroy({ where: {}, truncate: { cascade: true } });
     await Event.destroy({ where: {}, truncate: { cascade: true } });

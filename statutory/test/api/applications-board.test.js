@@ -333,4 +333,67 @@ describe('Applications pax type/board comment', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
     });
+
+    test('should return an error if body query returns net error', async () => {
+        mock.mockAll({ body: { netError: true } });
+
+        application = await application.update({
+            participant_order: 1,
+            participant_type: 'delegate'
+        }, { returning: true });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { participant_type: null, participant_order: null }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should return an error if body query returns bad response', async () => {
+        mock.mockAll({ body: { badResponse: true } });
+
+        application = await application.update({
+            participant_order: 1,
+            participant_type: 'delegate'
+        }, { returning: true });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { participant_type: null, participant_order: null }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should return an error if body query returns unsuccessful response', async () => {
+        mock.mockAll({ body: { unsuccessfulResponse: true } });
+
+        application = await application.update({
+            participant_order: 1,
+            participant_type: 'delegate'
+        }, { returning: true });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { participant_type: null, participant_order: null }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
 });

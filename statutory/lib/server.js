@@ -13,6 +13,7 @@ const applications = require('./applications');
 const memberslists = require('./memberslists');
 const massmailer = require('./massmailer');
 const paxLimits = require('./pax_limits');
+const votesAmounts = require('./votes_amounts');
 
 const GeneralRouter = router({ mergeParams: true });
 const PaxLimitsRouter = router({ mergeParams: true });
@@ -21,6 +22,7 @@ const ApplicationsRouter = router({ mergeParams: true });
 const SingleApplicationRouter = router({ mergeParams: true });
 const MembersListsRouter = router({ mergeParams: true });
 const MassMailerRouter = router({ mergeParams: true });
+const VotesAmountRouter = router({ mergeParams: true });
 
 /* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {
@@ -76,13 +78,14 @@ ApplicationsRouter.get('/boardview/:body_id', applications.listBoardView);
 SingleApplicationRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, middlewares.fetchSingleApplication);
 SingleApplicationRouter.put('/cancel', applications.setApplicationCancelled);
 SingleApplicationRouter.put('/attended', applications.setApplicationAttended);
+SingleApplicationRouter.put('/departed', applications.setApplicationDeparted);
 SingleApplicationRouter.put('/paid_fee', applications.setApplicationPaidFee);
 SingleApplicationRouter.put('/status', applications.setApplicationStatus);
 SingleApplicationRouter.put('/board', applications.setApplicationBoard);
 SingleApplicationRouter.get('/', applications.getApplication);
 SingleApplicationRouter.put('/', applications.updateApplication);
 
-MembersListsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
+MembersListsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora);
 MembersListsRouter.get('/', memberslists.getAllMemberslists);
 MembersListsRouter.get('/:body_id', memberslists.getMemberslist);
 MembersListsRouter.post('/:body_id', memberslists.uploadMembersList);
@@ -96,11 +99,17 @@ MassMailerRouter.use(middlewares.authenticateUser, middlewares.fetchEventWithApp
 MassMailerRouter.post('/', massmailer.sendAll);
 MassMailerRouter.post('/:filter', massmailer.sendAll);
 
+VotesAmountRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora);
+VotesAmountRouter.get('/antenna', votesAmounts.getAllVotesPerAntenna);
+VotesAmountRouter.get('/delegate', votesAmounts.getAllVotesPerDelegate);
+VotesAmountRouter.get('/:body_id', votesAmounts.getVotesPerAntenna);
+
 server.use('/events/:event_id/massmailer', MassMailerRouter);
 server.use('/events/:event_id/memberslists', MembersListsRouter);
 server.use('/events/:event_id/applications', ApplicationsRouter);
 server.use('/events/:event_id/applications/:application_id', SingleApplicationRouter);
 server.use('/events/:event_id', EventsRouter);
+server.use('/events/:event_id/votes-amounts', VotesAmountRouter);
 server.use('/limits/:event_type', PaxLimitsRouter);
 server.use('/', GeneralRouter);
 

@@ -11,6 +11,7 @@ describe('Applications listing', () => {
 
     afterEach(async () => {
         await stopServer();
+        await generator.clearAll()
         mock.cleanAll();
     });
 
@@ -92,5 +93,58 @@ describe('Applications listing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.length).toEqual(0);
+    });
+
+    test('should sort accepted application on /accepted', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+        const event = await generator.createEvent();
+        const applications = [];
+
+        for (let i = 0; i < 5; i++) {
+            applications.push(await generator.createApplication({ user_id: i, status: 'accepted' }, event));
+        }
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/accepted',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(applications.length);
+
+        const sortedIds = applications.map(a => a.id).sort((a, b) => b - a);
+        for (let index = 0; index < applications.length; index++) {
+            expect(res.body.data[index].id).toEqual(sortedIds[index]);
+        }
+    });
+
+    test('should sort accepted application on /all', async () => {
+        const event = await generator.createEvent();
+        const applications = [];
+
+        for (let i = 0; i < 5; i++) {
+            applications.push(await generator.createApplication({ user_id: i }, event));
+        }
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/all',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(applications.length);
+
+        const sortedIds = applications.map(a => a.id).sort((a, b) => b - a);
+        for (let index = 0; index < applications.length; index++) {
+            expect(res.body.data[index].id).toEqual(sortedIds[index]);
+        }
     });
 });

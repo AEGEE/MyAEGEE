@@ -89,6 +89,7 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     // For paid fee and cancelled, only if has permissions.
     permissions.set_application_paid_fee = isIncoming || canManage;
     permissions.set_application_attended = isIncoming || canManage;
+    permissions.set_application_departed = isIncoming || canManage;
 
     permissions.change_status = canManage;
 
