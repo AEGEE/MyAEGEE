@@ -1,6 +1,13 @@
 const faker = require('faker');
 
-const { Event, Application, MembersList, PaxLimit, VotesPerAntenna } = require('../../models');
+const {
+    Event,
+    Application,
+    MembersList,
+    PaxLimit,
+    VotesPerAntenna,
+    VotesPerDelegate
+} = require('../../models');
 
 const notSet = field => typeof field === 'undefined';
 
@@ -114,6 +121,7 @@ exports.createPaxLimit = (options = {}) => {
 };
 
 exports.clearAll = async () => {
+    await VotesPerDelegate.destroy({ where: {}, truncate: { cascade: true } });
     await VotesPerAntenna.destroy({ where: {}, truncate: { cascade: true } });
     await MembersList.destroy({ where: {}, truncate: { cascade: true } });
     await Application.destroy({ where: {}, truncate: { cascade: true } });

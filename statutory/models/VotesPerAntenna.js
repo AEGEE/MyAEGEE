@@ -1,5 +1,8 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const MembersList = require('./MembersList');
+const VotesPerDelegate = require('./VotesPerDelegate');
+const Application = require('./Application');
+
 
 const VotesPerAntenna = sequelize.define('VotesPerAntenna', {
     event_id: {
@@ -38,11 +41,6 @@ VotesPerAntenna.recalculateVotesForAntenna = async function recalculateVotesForA
         return;
     }
 
-    // Also, only antenna can vote.
-    if (body.type !== 'antenna') {
-        return;
-    }
-
     let votesAmount = 0;
 
     // Finding memberslist for this Agora for this body.
@@ -76,14 +74,14 @@ VotesPerAntenna.recalculateVotesForAntenna = async function recalculateVotesForA
     // 751- 850 members 12 votes;
     // 851- 950 members 13 votes;
     // from 951 members 14 votes plus one additional vote for every 250 additional members.
-    if (memberslist) {
+    if (memberslist && body.type === 'antenna') {
         const members = memberslist.members.length;
 
         if (members >= 10 && members <= 20) votesAmount = 1;
         else if (members >= 21 && members <= 50) votesAmount = 2;
         else if (members >= 51 && members <= 100) votesAmount = 3;
         else if (members >= 101 && members <= 150) votesAmount = 4;
-        else if (members >= 151 && members <= 120) votesAmount = 5;
+        else if (members >= 151 && members <= 200) votesAmount = 5;
         else if (members >= 201 && members <= 250) votesAmount = 6;
         else if (members >= 251 && members <= 350) votesAmount = 7;
         else if (members >= 351 && members <= 450) votesAmount = 8;
@@ -95,11 +93,136 @@ VotesPerAntenna.recalculateVotesForAntenna = async function recalculateVotesForA
         else if (members >= 951) votesAmount = 14 + Math.floor((members - 950) / 250);
     }
 
-    return this.upsert({
-        event_id: event.id,
-        body_id: body.id,
-        votes: votesAmount
+    // Upsert somehow doesn't work, so we're doing it with 2 requests.
+    const existingVotes = await this.findOne({
+        where: {
+            event_id: event.id,
+            body_id: body.id
+        }
     });
+
+    if (existingVotes) {
+        await existingVotes.update({ votes: votesAmount });
+    } else {
+        await this.create({
+            event_id: event.id,
+            body_id: body.id,
+            votes: votesAmount
+        });
+    }
+
+    // Also recalculating votes per delegate for this antenna.
+    await this.recalculateVotesForDelegates(event, body.id);
+}
+
+// Recalculates how many votes each delegate has for this event based on
+// how much votes this antenna has.
+// Should be called in any place where the pax type/order or amount of votes has changed, so:
+// - updating/setting/unsetting pax type/order
+// - updating application's body (need to recalculate for both old and new body)
+// - memberslist uploading/updating.
+// - probably more places, TODO: investigate.
+//
+// We don't need the whole body there, just the body ID.
+VotesPerAntenna.recalculateVotesForDelegates = async function recalculateVotesForDelegates(event, bodyId, transaction = null) {
+    if (!transaction) {
+        await sequelize.transaction(async (t) => {
+            await this.recalculateVotesForDelegates(event, bodyId, t);
+        });
+        return;
+    }
+
+    const votesAmountPerAntenna = await this.findOne({
+        where: {
+            event_id: event.id,
+            body_id: bodyId
+        },
+        transaction
+    });
+
+    if (!votesAmountPerAntenna) {
+        return;
+    }
+
+    // 2 distributions of votes:
+    // 1) off-event, where only confirmation is required
+    // 2) on-event, where the votes are distributed between those who are on spot but did not leave yet
+    const distributions = [
+        { type: 'off-event', filter: { paid_fee: true } },
+        { type: 'on-event', filter: { paid_fee: true, attended: true, departed: false } }
+    ];
+
+    // Removing all VotesPerDelegate for this body for this event,
+    // we'll need to re-create them later anyway.
+    await VotesPerDelegate.destroy({
+        where: {
+            event_id: event.id,
+            body_id: bodyId
+        },
+        transaction
+    });
+
+    // Iterating through all vote distributions.
+    for (const distribution of distributions) {
+        // Default filter for all distribution is: select all delegates
+        // for this body for this event who are not cancelled.
+        const defaultFilter = {
+            event_id: event.id,
+            body_id: bodyId,
+            participant_type: 'delegate',
+            cancelled: false
+        }
+
+        // Then applying our custom filter for each distribution.
+        const customFilter = Object.assign(defaultFilter, distribution.filter);
+
+        // Then selecting all people who match this filter (as these are those people
+        // between which votes would be distributed).
+        const delegates = await Application.findAll({
+            where: customFilter,
+            order: [['participant_order', 'ASC']], // We'll need it sorted by pax order increasing.
+            transaction
+        });
+
+        // If no delegates, we don't need to distribute votes (they are destroyed
+        // anyway already, whatever).
+        if (delegates.length === 0) {
+            continue;
+        }
+
+        // Okay, so here's some hard math going on.
+        // First, we calculate how much votes should go for a delegate.
+        // But there can be cases when you cannot divide votes without a remainder.
+        // For example, the antenna has 10 votes and 3 delegates.
+        // In this approach, the delegate (1) will receive 4 votes
+        // and delegate (2) and (3) will receive 3 votes each.
+        // Here is the algorithm I've used:
+        // https://stackoverflow.com/questions/21713631/distribute-items-in-buckets-equally-best-effort
+        const delegatesAmount = delegates.length;
+        const votesPerDelegate = Math.floor(votesAmountPerAntenna.votes / delegatesAmount);
+        const votesLeft = votesAmountPerAntenna.votes % delegatesAmount;
+
+        // Aaaand creating them again.
+        for (let index = 0; index < delegates.length; index++) {
+            // Starting with the first delegate, assigning votes.
+            // Depending on the position, this delegate will get
+            // either the amount of votes + 1, if there's enough votes,
+            // or amount of votes, if there's not enough of them.
+            // Also notice the 'type' property, it's taken from the
+            // distribution type.
+            const delegate = delegates[index];
+            const votesForThisDelegate = (index < votesLeft) ? (votesPerDelegate + 1) : votesPerDelegate;
+
+            await VotesPerDelegate.create({
+                event_id: event.id,
+                body_id: bodyId,
+                user_id: delegate.user_id,
+                type: distribution.type,
+                application_id: delegate.id,
+                votes: votesForThisDelegate
+            }, { transaction });
+        }
+    }
 }
 
 module.exports = VotesPerAntenna;
