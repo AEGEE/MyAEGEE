@@ -6,7 +6,7 @@ const xlsx = require('node-xlsx').default;
 
 const logger = require('./logger');
 const config = require('../config');
-const { Application, PaxLimit } = require('../models');
+const { Application, PaxLimit, VotesPerAntenna } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const { sequelize } = require('./sequelize');
@@ -160,7 +160,17 @@ exports.updateApplication = async (req, res) => {
         req.body.board_comment = null;
     }
 
+    // Keeping old body, as apparently next line is changing req.application as well.
+    const oldBody = req.application.body_id;
     const dbResult = await req.application.update(req.body);
+
+    // Recalculating votes per delegate for this antenna, if user changed the body.
+    // Both for new and old body.
+    if (req.body.body_id && req.body.body_id !== oldBody) {
+        await VotesPerAntenna.recalculateVotesForDelegates(req.event, oldBody);
+        await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.body.body_id);
+
+    }
 
     return res.json({
         success: true,
@@ -190,6 +200,9 @@ function setApplicationBoolean(key) {
             toUpdate,
             { returning: true }
         );
+
+        // Recalculating votes per delegate for this antenna.
+        await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.application.body_id);
 
         return res.json({
             success: true,
@@ -221,6 +234,9 @@ exports.setApplicationStatus = async (req, res) => {
         { status: req.body.status },
         { returning: true }
     );
+
+    // Recalculating votes per delegate for this antenna.
+    await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.application.body_id);
 
     return res.json({
         success: true,
@@ -274,7 +290,7 @@ exports.setApplicationBoard = async (req, res) => {
     // Well, this is tricky.
     // Simplest way possible: executing it, then checking how much people
     // from this body with this pax type we have and matching it
-    // against the limit for this body. IF something goes wrong or there's a
+    // against the limit for this body. If something goes wrong or there's a
     // calculation error, rollback everything. Advantages: don't need to worry
     // about validations, they'll fail the transaction.
     try {
@@ -283,6 +299,9 @@ exports.setApplicationBoard = async (req, res) => {
             // If we've passed after this one, there's no duplicated, validations
             // and constraint take care about it.
             const dbResult = await req.application.update(toUpdate, { returning: true, transaction: t });
+
+            // Recalculating votes per delegate for this antenna.
+            await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.application.body_id, t);
 
             // If the pax type is null (it wasn't updated or was unset)
             // that means also that pax order is null (look in validations).
@@ -322,12 +341,12 @@ expected ${limit[dbResult.participant_type]}, got ${applicationsCount}.`);
                     throw new Error(`Expected participant number from 1 to ${applicationsCount}, \
 got participant type ${dbResult.participant_order}`);
                 }
-            }
 
-            return res.json({
-                success: true,
-                data: dbResult
-            });
+                return res.json({
+                    success: true,
+                    data: dbResult
+                });
+            }
         })
     } catch (err) {
         // Here we go only when the transaction has failed and rolled back.
@@ -363,6 +382,8 @@ exports.postApplication = async (req, res) => {
     req.body.event_id = req.event.id;
 
     const newApplication = await Application.create(req.body);
+
+    // We don't need to recalculate the votes amount, as the pax type is not set here.
 
     return res.json({
         success: true,
