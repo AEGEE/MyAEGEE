@@ -1,5 +1,5 @@
 const express = require('express');
-const bugsnag = require('bugsnag');
+const bugsnag = require('@bugsnag/js');
 const router = require('express-promise-router');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');

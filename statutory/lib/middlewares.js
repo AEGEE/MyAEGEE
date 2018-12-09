@@ -1,4 +1,4 @@
-const bugsnag = require('bugsnag');
+const bugsnag = require('@bugsnag/js');
 const request = require('request-promise-native');
 const { errors, communication } = require('oms-common-nodejs');
 
