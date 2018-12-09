@@ -1,5 +1,4 @@
 const express = require('express');
-const bugsnag = require('@bugsnag/js');
 const router = require('express-promise-router');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
@@ -14,6 +13,7 @@ const memberslists = require('./memberslists');
 const massmailer = require('./massmailer');
 const paxLimits = require('./pax_limits');
 const votesAmounts = require('./votes_amounts');
+const bugsnag = require('./bugsnag');
 
 const GeneralRouter = router({ mergeParams: true });
 const PaxLimitsRouter = router({ mergeParams: true });
@@ -23,11 +23,6 @@ const SingleApplicationRouter = router({ mergeParams: true });
 const MembersListsRouter = router({ mergeParams: true });
 const MassMailerRouter = router({ mergeParams: true });
 const VotesAmountRouter = router({ mergeParams: true });
-
-/* istanbul ignore next */
-if (process.env.NODE_ENV !== 'test') {
-    bugsnag.register(config.bugsnagKey);
-}
 
 const server = express();
 server.use(bodyParser.json());

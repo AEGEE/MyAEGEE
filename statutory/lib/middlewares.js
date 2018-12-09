@@ -1,4 +1,3 @@
-const bugsnag = require('@bugsnag/js');
 const request = require('request-promise-native');
 const { errors, communication } = require('oms-common-nodejs');
 
@@ -8,6 +7,7 @@ const logger = require('./logger');
 const constants = require('./constants');
 const { Event, Application } = require('../models');
 const { Sequelize } = require('./sequelize');
+const bugsnag = require('./bugsnag');
 
 exports.authenticateUser = async (req, res, next) => {
     const token = req.header('x-auth-token');
