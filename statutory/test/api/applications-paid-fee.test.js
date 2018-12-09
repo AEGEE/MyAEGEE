@@ -139,4 +139,21 @@ describe('Applications paid fee', () => {
         expect(res.body).toHaveProperty('errors');
         expect(res.body).not.toHaveProperty('data');
     });
+
+    test('should return 422 on unsetting paid_fee if attended is true', async () => {
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({ paid_fee: true, attended: true  }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id + '/paid_fee',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { paid_fee: false }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body).not.toHaveProperty('data');
+    });
 });
