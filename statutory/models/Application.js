@@ -187,6 +187,11 @@ const Application = sequelize.define('application', {
                 if (this.cancelled && value) {
                     throw new Error('This application is cancelled, you cannot mark it as paid fee.');
                 }
+            },
+            notAllowIfAttended(value) {
+                if (!value && this.attended) {
+                    throw new Error('This application is markedd as attended, you cannot mark it as not paid fee.');
+                }
             }
         }
     },
@@ -199,6 +204,11 @@ const Application = sequelize.define('application', {
             notAllowIfNotPaidFee(value) {
                 if (!this.paid_fee && value) {
                     throw new Error('You should set user as paid fee first.');
+                }
+            },
+            notAllowIfDeparted(value) {
+                if (!value && this.departed) {
+                    throw new Error('This application is marked as departed, you cannot mark it as not arrived.');
                 }
             }
         }
