@@ -233,7 +233,7 @@ export default {
       }
 
       for (let index = 0; index < this.memberslist.members.length; index++) {
-        const member = this.memberslist.members[index];
+        const member = this.memberslist.members[index]
         if (member.fee <= 0) {
           return this.$root.showDanger(`Fee for member number ${index + 1} cannot be negative.`)
         }
