@@ -105,7 +105,7 @@
                 </div>
               </td>
               <td>
-                <input class="input" type="number" v-model.number="pax.participant_order" min="0" />
+                <input class="input" type="number" v-model.number="pax.participant_order" min="1" />
               </td>
               <td>
                 <textarea class="textarea" v-model="pax.board_comment" />

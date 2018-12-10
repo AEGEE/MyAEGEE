@@ -554,6 +554,14 @@ module.exports = [
       label: 'Display single event'
     }
   },
+  {
+    name: 'oms.statutory.votes',
+    path: '/statutory/:id/votes',
+    component: 'statutory/VotesAmounts',
+    meta: {
+      label: 'Votes amount per antenna/delegates'
+    }
+  },
   /* Static resources. */
   {
     name: 'oms.legal.simple',

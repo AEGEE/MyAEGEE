@@ -87,6 +87,7 @@
           <table class="table is-narrow is-fullwidth">
             <thead>
               <tr>
+                <th>Index</th>
                 <th>User ID</th>
                 <th>First name</th>
                 <th>Last name</th>
@@ -96,6 +97,7 @@
             </thead>
             <tbody>
               <tr v-for="(member, index) in memberslist.members" v-bind:key="index">
+                <td>{{ index + 1 }}</td>
                 <td>
                   <router-link :to="{ name: 'oms.members.view', params: { id: member.user_id } }">
                     {{ member.user_id }}
@@ -223,6 +225,28 @@ export default {
       })
     },
     saveMembersList () {
+      if (!this.memberslist.currency) {
+        return this.$root.showDanger('Please select a currency.')
+      }
+      if (!this.memberslist.members.length === 0) {
+        return this.$root.showDanger('Memberslist should contain at least 1 member.')
+      }
+
+      for (let index = 0; index < this.memberslist.members.length; index++) {
+        const member = this.memberslist.members[index]
+        if (member.fee <= 0) {
+          return this.$root.showDanger(`Fee for member number ${index + 1} cannot be negative.`)
+        }
+
+        if (member.first_name.trim().length === 0) {
+          return this.$root.showDanger(`First name for member number ${index + 1} is not set.`)
+        }
+
+        if (member.last_name.trim().length === 0) {
+          return this.$root.showDanger(`Last name for member number ${index + 1} is not set.`)
+        }
+      }
+
       this.isLoading = true
       this.isEditing = false
       this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + this.selectedBody, this.memberslist).then((response) => {

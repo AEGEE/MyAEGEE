@@ -41,8 +41,9 @@
               <th>Body</th>
               <th class="has-background-white-bis" v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.name }}</th>
               <th v-if="displayCancelled">Cancelled?</th>
-              <th>Paid fee?</th>
+              <th>Confirmed?</th>
               <th>Attended?</th>
+              <th>Departed?</th>
               <th>View</th>
             </tr>
           </thead>
@@ -63,7 +64,7 @@
               <td v-if="displayCancelled">{{ pax.cancelled ? 'Yes' : 'No' }}</td>
               <td>
                 <div class="select" :class="{ 'is-loading': pax.isSavingPaidFee }">
-                  <select v-model="pax.newPaidFee" @change="switchPaxPaidFee(pax)">
+                  <select v-model="pax.newPaidFee" @change="switchPaxPaidFee(pax)" :disabled="pax.attended">
                     <option :value="true">Yes</option>
                     <option :value="false">No</option>
                   </select>
@@ -71,7 +72,15 @@
               </td>
               <td>
                 <div class="select" :class="{ 'is-loading': pax.isSavingAttended }">
-                  <select v-model="pax.newAttended" @change="switchPaxAttended(pax)">
+                  <select v-model="pax.newAttended" @change="switchPaxAttended(pax)" :disabled="!pax.paid_fee || pax.departed">
+                    <option :value="true">Yes</option>
+                    <option :value="false">No</option>
+                  </select>
+                </div>
+              </td>
+              <td>
+                <div class="select" :class="{ 'is-loading': pax.isSavingDeparted }">
+                  <select v-model="pax.newDeparted" @change="switchPaxDeparted(pax)" :disabled="!pax.attended">
                     <option :value="true">Yes</option>
                     <option :value="false">No</option>
                   </select>
@@ -159,7 +168,7 @@ export default {
       const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/attended'
 
       this.axios.put(url, { attended: pax.newAttended }).then(() => {
-        pax.status = pax.newAttended
+        pax.attended = pax.newAttended
         pax.isSavingAttended = false
         this.$root.showSuccess(`Successfully updated attendance info of application for user #${pax.user_id}`)
       }).catch((err) => {
@@ -172,12 +181,25 @@ export default {
       const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/paid_fee'
 
       this.axios.put(url, { paid_fee: pax.newPaidFee }).then(() => {
-        pax.status = pax.newPaidFee
+        pax.paid_fee = pax.newPaidFee
         pax.isSavingPaidFee = false
         this.$root.showSuccess(`Successfully updated fee info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingPaidFee = false
         this.$root.showDanger('Could not update participant fee info: ' + err.message)
+      })
+    },
+    switchPaxDeparted (pax) {
+      pax.isSavingDeparted = true
+      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/departed'
+
+      this.axios.put(url, { departed: pax.newDeparted }).then(() => {
+        pax.departed = pax.newDeparted
+        pax.isSavingDeparted = false
+        this.$root.showSuccess(`Successfully marked user #${pax.user_id} as departed`)
+      }).catch((err) => {
+        pax.isSavingDeparted = false
+        this.$root.showDanger('Could not mark user as departed: ' + err.message)
       })
     },
     fetchDisplayedUsers () {
@@ -225,8 +247,10 @@ export default {
       for (const pax of this.applications) {
         this.$set(pax, 'newPaidFee', pax.paid_fee)
         this.$set(pax, 'newAttended', pax.attended)
+        this.$set(pax, 'newDeparted', pax.departed)
         this.$set(pax, 'isSavingPaidFee', false)
         this.$set(pax, 'isSavingAttended', false)
+        this.$set(pax, 'isSavingDeparted', false)
       }
 
       this.fetchDisplayedUsers()
