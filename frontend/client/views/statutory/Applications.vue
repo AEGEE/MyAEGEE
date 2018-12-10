@@ -136,7 +136,7 @@ export default {
         ? this.applications
         : this.applications.filter(app => !app.cancelled)
 
-      return filtered.slice(this.page * this.limit, (this.page + 1) * this.limit - 1)
+      return filtered.slice(this.page * this.limit, (this.page + 1) * this.limit)
     }
   },
   methods: {
