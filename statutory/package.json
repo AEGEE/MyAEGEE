@@ -12,6 +12,7 @@
     "cli": "node --experimental-repl-await -r ./cli.js"
   },
   "jest": {
+    "testEnvironment": "node",
     "verbose": true,
     "collectCoverage": true,
     "collectCoverageFrom": [
