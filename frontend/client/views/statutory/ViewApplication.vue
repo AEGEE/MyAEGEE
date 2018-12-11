@@ -16,13 +16,13 @@
               <b v-show="this.application.user_id === this.loginUser.id">You applied from this body:</b>
               <b v-show="this.application.user_id !== this.loginUser.id">Application from the body:</b>
               <router-link :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
-                {{ application.body ? application.body.name : 'Loading...' }}
+                {{ application.body_name }}
               </router-link>
             </p>
             <p v-show="this.application.user_id !== this.loginUser.id">
               <b>Member name:</b>
               <router-link :to="{ name: 'oms.members.view', params: { id: application.user_id } }">
-                {{ application.user ? application.user.first_name + ' ' + application.user.last_name : 'Loading...' }}
+                {{ application.first_name }} {{ application.last_name }}
               </router-link>
             </p>
             <table class="table is-narrow is-fullwidth">
@@ -33,6 +33,30 @@
                 </tr>
               </thead>
               <tbody>
+                <tr>
+                  <th>Applied on</th>
+                  <td>{{ application.created_at | datetime }}</td>
+                </tr>
+                <tr>
+                  <th>Updated on</th>
+                  <td>{{ application.updated_at | datetime }}</td>
+                </tr>
+                <tr>
+                  <th>First name</th>
+                  <td>{{ application.first_name }}</td>
+                </tr>
+                <tr>
+                  <th>Last name</th>
+                  <td>{{ application.last_name }}</td>
+                </tr>
+                <tr>
+                  <th>Gender</th>
+                  <td>{{ application.gender }}</td>
+                </tr>
+                <tr>
+                  <th>Email</th>
+                  <td>{{ application.email }}</td>
+                </tr>
                 <tr v-for="(question, index) in event.questions" v-bind:key="index">
                   <th>{{ question.description }}</th>
                   <td>{{ application.answers[index] | beautify }}</td>
@@ -65,14 +89,14 @@
         <!-- Application status -->
          <div class="tile is-parent" v-if="application && !application.cancelled">
           <div class="tile is-child">
-            <div class="notification is-warning" v-show="application.status === 'pending'">
+            <div class="notification is-warning" v-if="application.status === 'pending'">
               Your application is recorded, please wait for the organizers to evaluate your application.
               <span v-show="can.edit_application">You can still edit it till the application period ends.</span>
             </div>
-            <div class="notification is-success" v-show="application.status === 'accepted'">
+            <div class="notification is-success" v-if="application.status === 'accepted'">
               Congratulations, you have been accepted to the event!
             </div>
-            <div class="notification is-danger" v-show="application.status === 'rejected'">
+            <div class="notification is-danger" v-if="application.status === 'rejected'">
               Sorry, but you were not accepted to the event.
             </div>
           </div>
@@ -204,11 +228,6 @@ export default {
       return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id).then((application) => {
         this.$set(this, 'application', application.data.data)
         this.can = application.data.data.permissions
-
-        return this.axios.get(this.services['oms-core-elixir'] + '/members/' + this.application.user_id)
-      }).then((user) => {
-        this.application.user = user.data.data
-        this.application.body = user.data.data.bodies.find(body => body.id === this.application.body_id)
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false

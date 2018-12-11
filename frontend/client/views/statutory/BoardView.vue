@@ -44,7 +44,7 @@
           </div>
         </div>
 
-        <div class="field" v-if="allowedToSendAnyPax">
+        <div class="field" v-if="allowedToSendAnyPax && selectedBody">
           <div class="control">
             <multiselect
               v-model="selectedFields"
@@ -89,10 +89,10 @@
               <td>{{ pax.id }}</td>
               <td>
                 <router-link :to="{ name: 'oms.members.view', params: { id: pax.user_id } }">
-                  {{ pax.user ? pax.user.first_name + ' ' + pax.user.last_name: 'Loading...' }}
+                  {{ pax.first_name }} {{ pax.last_name }}
                 </router-link>
               </td>
-              <td v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.get(pax) }}</td>
+              <td v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.get(pax) | beautify }}</td>
               <td>
                 <div class="select">
                   <select v-model="pax.participant_type">
@@ -110,9 +110,9 @@
               <td>
                 <textarea class="textarea" v-model="pax.board_comment" />
               </td>
-              <td :class="{ 'has-background-danger': pax.cancelled }">{{ pax.cancelled ? 'Yes' : 'No' }}</td>
+              <td :class="{ 'has-background-danger': pax.cancelled }">{{ pax.cancelled | beautify }}</td>
               <td>{{ pax.status | capitalize }}</td>
-              <td>{{ pax.paid_fee ? 'Yes' : 'No'  }}</td>
+              <td>{{ pax.paid_fee | beautify  }}</td>
               <th>
                 <button class="button is-primary" @click="updateParticipant(pax)">Save!</button>
               </th>
@@ -153,7 +153,7 @@ export default {
         delegate: 0,
         observer: 0,
         visitor: 0,
-        envoy: null
+        envoy: 0
       },
       page: 0,
       limit: 50,
@@ -162,11 +162,21 @@ export default {
         type: ''
       },
       can: {
-        see_boardview_of: {}
+        see_boardview_of: {},
+        see_boardview_global: false
       },
       errors: {},
       selectedFields: [],
-      fields: [],
+      fields: [
+        { name: 'First name', get: (pax) => pax.first_name },
+        { name: 'Last name', get: (pax) => pax.last_name },
+        { name: 'Gender', get: (pax) => pax.gender },
+        { name: 'Email', get: (pax) => pax.email },
+        { name: 'Created at', get: (pax) => pax.created_at },
+        { name: 'Updated at', get: (pax) => pax.updated_at },
+        { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
+        { name: 'Board comment', get: (pax) => pax.board_comment }
+      ],
       isLoading: false,
       isSaving: false
     }
@@ -211,8 +221,6 @@ export default {
       this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + this.selectedBody).then((application) => {
         this.applications = application.data.data
 
-        this.fetchDisplayedUsers()
-
         return this.axios.get(this.services['oms-statutory'] + '/limits/' + this.event.type + '/' + this.selectedBody)
       }).then((limit) => {
         this.limits = limit.data.data
@@ -222,20 +230,6 @@ export default {
 
         this.$root.showDanger('Could not fetch boardview: ' + err.message)
       })
-    },
-    fetchDisplayedUsers () {
-      for (const pax of this.filteredApplications) {
-        if (pax.user && pax.body) {
-          continue
-        }
-
-        this.axios.get(this.services['oms-core-elixir'] + '/members/' + pax.user_id).then((user) => {
-          const member = user.data.data
-
-          this.$set(pax, 'user', member)
-          this.$set(pax, 'body', member.bodies.find(body => body.id === pax.body_id))
-        }).catch(console.error)
-      }
     }
   },
   filters: {
@@ -246,9 +240,6 @@ export default {
   watch: {
     'selectedBody' () {
       this.fetchBoardview()
-    },
-    page () {
-      this.fetchDisplayedUsers()
     }
   },
   mounted () {
@@ -257,7 +248,9 @@ export default {
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
-      this.myBoards = Object.keys(this.can.see_boardview_of).filter(key => this.can.see_boardview_of[key])
+      this.myBoards = Object.keys(this.can.see_boardview_of)
+        .filter(key => this.can.see_boardview_of[key])
+        .map(id => Number(id))
       this.selectedBody = this.myBoards.length > 0 ? this.myBoards[0] : null
 
       for (const index in this.event.questions) {
@@ -267,10 +260,14 @@ export default {
         })
       }
 
-      for (const bodyId of this.myBoards) {
-        this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + bodyId).then((body) => {
-          this.boardBodies.push(body.data.data)
+      if (this.can.see_boardview_global) {
+        // Fetching all bodies
+        this.axios.get(this.services['oms-core-elixir'] + '/bodies/').then((body) => {
+          this.boardBodies = body.data.data
         })
+      } else {
+        // Using login user's bodies.
+        this.boardBodies = this.myBoards.map(id => this.loginUser.bodies.find(body => body.id === id))
       }
     }).catch((err) => {
       this.isLoading = false
