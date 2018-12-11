@@ -225,7 +225,39 @@ const Application = sequelize.define('application', {
                 }
             }
         }
-    }
+    },
+    first_name: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'First name should be set.' }
+        }
+    },
+    last_name: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Last name should be set.' }
+        }
+    },
+    gender: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Gender should be set.' }
+        }
+    },
+    body_name: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Body name should be set.' }
+        }
+    },
 }, { underscored: true });
 
 module.exports = Application;
