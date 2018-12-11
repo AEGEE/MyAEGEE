@@ -14,6 +14,7 @@ describe('Export OpenSlides', () => {
 
     afterEach(async () => {
         await stopServer();
+        await generator.clearAll();
         mock.cleanAll();
     });
 
