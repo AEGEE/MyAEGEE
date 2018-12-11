@@ -89,10 +89,10 @@
               <td>{{ pax.id }}</td>
               <td>
                 <router-link :to="{ name: 'oms.members.view', params: { id: pax.user_id } }">
-                  {{ pax.user ? pax.user.first_name + ' ' + pax.user.last_name: 'Loading...' }}
+                  {{ pax.first_name }} {{ pax.last_name }}
                 </router-link>
               </td>
-              <td v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.get(pax) }}</td>
+              <td v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.get(pax) | beautify }}</td>
               <td>
                 <div class="select">
                   <select v-model="pax.participant_type">
@@ -110,9 +110,9 @@
               <td>
                 <textarea class="textarea" v-model="pax.board_comment" />
               </td>
-              <td :class="{ 'has-background-danger': pax.cancelled }">{{ pax.cancelled ? 'Yes' : 'No' }}</td>
+              <td :class="{ 'has-background-danger': pax.cancelled }">{{ pax.cancelled | beautify }}</td>
               <td>{{ pax.status | capitalize }}</td>
-              <td>{{ pax.paid_fee ? 'Yes' : 'No'  }}</td>
+              <td>{{ pax.paid_fee | beautify  }}</td>
               <th>
                 <button class="button is-primary" @click="updateParticipant(pax)">Save!</button>
               </th>
@@ -166,7 +166,16 @@ export default {
       },
       errors: {},
       selectedFields: [],
-      fields: [],
+      fields: [
+        { name: 'First name', get: (pax) => pax.first_name },
+        { name: 'Last name', get: (pax) => pax.last_name },
+        { name: 'Gender', get: (pax) => pax.gender },
+        { name: 'Email', get: (pax) => pax.email },
+        { name: 'Created at', get: (pax) => pax.created_at },
+        { name: 'Updated at', get: (pax) => pax.updated_at },
+        { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
+        { name: 'Board comment', get: (pax) => pax.board_comment }
+      ],
       isLoading: false,
       isSaving: false
     }
@@ -222,20 +231,6 @@ export default {
 
         this.$root.showDanger('Could not fetch boardview: ' + err.message)
       })
-    },
-    fetchDisplayedUsers () {
-      for (const pax of this.filteredApplications) {
-        if (pax.user && pax.body) {
-          continue
-        }
-
-        this.axios.get(this.services['oms-core-elixir'] + '/members/' + pax.user_id).then((user) => {
-          const member = user.data.data
-
-          this.$set(pax, 'user', member)
-          this.$set(pax, 'body', member.bodies.find(body => body.id === pax.body_id))
-        }).catch(console.error)
-      }
     }
   },
   filters: {
@@ -246,9 +241,6 @@ export default {
   watch: {
     'selectedBody' () {
       this.fetchBoardview()
-    },
-    page () {
-      this.fetchDisplayedUsers()
     }
   },
   mounted () {
