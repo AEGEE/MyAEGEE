@@ -57,13 +57,13 @@
               </td>
               <td>
                 <router-link :to="{ name: 'oms.bodies.view', params: { id: pax.body_id } }">
-                  {{ pax.body ? pax.body.name : 'Loading...' }}
+                  {{ pax.body_name }}
                 </router-link>
               </td>
-              <td v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.get(pax) }}</td>
-              <td v-if="displayCancelled">{{ pax.cancelled ? 'Yes' : 'No' }}</td>
-              <td>{{ pax.paid_fee ? 'Yes' : 'No' }}</td>
-              <td>{{ pax.attended ? 'Yes' : 'No' }}</td>
+              <td v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.get(pax) | beautify }}</td>
+              <td v-if="displayCancelled">{{ pax.cancelled | beautify }}</td>
+              <td>{{ pax.paid_fee | beautify }}</td>
+              <td>{{ pax.attended | beautify }}</td>
               <td>
                 <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: pax.id } }">
                   View
@@ -115,11 +115,19 @@ export default {
       limit: 50,
       selectedFields: [
         { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
-        { name: 'Board comment', get: (pax) => pax.board_comment }
+        { name: 'Board comment', get: (pax) => pax.board_comment },
+        { name: 'First name', get: (pax) => pax.first_name },
+        { name: 'Last name', get: (pax) => pax.last_name },
       ],
       fields: [
+        { name: 'First name', get: (pax) => pax.first_name },
+        { name: 'Last name', get: (pax) => pax.last_name },
+        { name: 'Gender', get: (pax) => pax.gender },
+        { name: 'Email', get: (pax) => pax.email },
+        { name: 'Created at', get: (pax) => pax.created_at },
+        { name: 'Updated at', get: (pax) => pax.updated_at },
         { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
-        { name: 'Board comment', get: (pax) => pax.board_comment }
+        { name: 'Board comment', get: (pax) => pax.board_comment },
       ],
       displayCancelled: false,
       isLoading: false,
@@ -163,28 +171,6 @@ export default {
         this.$root.showDanger('Could not update participant status: ' + err.message)
       })
     },
-    fetchDisplayedUsers () {
-      for (const pax of this.filteredApplications) {
-        if (pax.user && pax.body) {
-          continue
-        }
-
-        this.axios.get(this.services['oms-core-elixir'] + '/members/' + pax.user_id).then((user) => {
-          const member = user.data.data
-
-          this.$set(pax, 'user', member)
-          this.$set(pax, 'body', member.bodies.find(body => body.id === pax.body_id))
-        }).catch(console.error)
-      }
-    }
-  },
-  watch: {
-    page () {
-      this.fetchDisplayedUsers()
-    },
-    displayCancelled () {
-      this.fetchDisplayedUsers()
-    }
   },
   mounted () {
     this.isLoading = true
@@ -204,13 +190,10 @@ export default {
       this.applications = application.data.data
       this.isLoading = false
 
-      // Fetching users and bodies.
       for (const pax of this.applications) {
-        pax.newStatus = pax.status
-        pax.isSaving = false
+        this.$set(pax, 'newStatus', pax.status)
+        this.$set(pax, 'isSaving', false)
       }
-
-      this.fetchDisplayedUsers()
     }).catch((err) => {
       this.isLoading = false
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
