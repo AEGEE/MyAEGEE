@@ -44,7 +44,7 @@
           </div>
         </div>
 
-        <div class="field" v-if="allowedToSendAnyPax">
+        <div class="field" v-if="allowedToSendAnyPax && selectedBody">
           <div class="control">
             <multiselect
               v-model="selectedFields"
@@ -153,7 +153,7 @@ export default {
         delegate: 0,
         observer: 0,
         visitor: 0,
-        envoy: null
+        envoy: 0
       },
       page: 0,
       limit: 50,
@@ -162,7 +162,8 @@ export default {
         type: ''
       },
       can: {
-        see_boardview_of: {}
+        see_boardview_of: {},
+        see_boardview_global: false
       },
       errors: {},
       selectedFields: [],
@@ -220,8 +221,6 @@ export default {
       this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + this.selectedBody).then((application) => {
         this.applications = application.data.data
 
-        this.fetchDisplayedUsers()
-
         return this.axios.get(this.services['oms-statutory'] + '/limits/' + this.event.type + '/' + this.selectedBody)
       }).then((limit) => {
         this.limits = limit.data.data
@@ -249,7 +248,9 @@ export default {
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
-      this.myBoards = Object.keys(this.can.see_boardview_of).filter(key => this.can.see_boardview_of[key])
+      this.myBoards = Object.keys(this.can.see_boardview_of)
+        .filter(key => this.can.see_boardview_of[key])
+        .map(id => Number(id))
       this.selectedBody = this.myBoards.length > 0 ? this.myBoards[0] : null
 
       for (const index in this.event.questions) {
@@ -259,10 +260,14 @@ export default {
         })
       }
 
-      for (const bodyId of this.myBoards) {
-        this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + bodyId).then((body) => {
-          this.boardBodies.push(body.data.data)
+      if (this.can.see_boardview_global) {
+        // Fetching all bodies
+        this.axios.get(this.services['oms-core-elixir'] + '/bodies/').then((body) => {
+          this.boardBodies = body.data.data
         })
+      } else {
+        // Using login user's bodies.
+        this.boardBodies = this.myBoards.map(id => this.loginUser.bodies.find(body => body.id === id))
       }
     }).catch((err) => {
       this.isLoading = false
