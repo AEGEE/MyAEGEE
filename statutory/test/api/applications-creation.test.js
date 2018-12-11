@@ -565,4 +565,19 @@ describe('Applications creation', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
     });
+
+    test('should fail if user_id is not a number', async () => {
+        const event = await generator.createEvent({
+            questions: [generator.generateQuestion({ type: 'checkbox' })],
+            applications: []
+        });
+        const applicationPromise = generator.createApplication({
+            body_id: regularUser.bodies[0].id,
+            answers: [true],
+            user_id: 'invalid'
+        }, event);
+
+        expect.assertions(1);
+        await expect(applicationPromise).rejects.toThrowError('Validation error: User ID must be a number.')
+    });
 });
