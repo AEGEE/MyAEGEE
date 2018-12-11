@@ -153,60 +153,6 @@ describe('Events editing', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should fail if members/:id returns net error', async () => {
-        mock.mockAll({ member: { netError: true } })
-        const res = await request({
-            uri: '/events/' + event.id + '/massmailer',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: {
-                to: ['test1@example.com'],
-                subject: 'Testing',
-                text: 'Testing mail sending.'
-            }
-        });
-
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-    });
-
-    test('should fail if members/:id returns bad response', async () => {
-        mock.mockAll({ member: { badResponse: true } })
-        const res = await request({
-            uri: '/events/' + event.id + '/massmailer',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: {
-                to: ['test1@example.com'],
-                subject: 'Testing',
-                text: 'Testing mail sending.'
-            }
-        });
-
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-    });
-
-    test('should fail if members/:id returns unsuccessful response', async () => {
-        mock.mockAll({ member: { unsuccessfulResponse: true } })
-        const res = await request({
-            uri: '/events/' + event.id + '/massmailer',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: {
-                to: ['test1@example.com'],
-                subject: 'Testing',
-                text: 'Testing mail sending.'
-            }
-        });
-
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-    });
-
     test('should fail if oms-mailer returns net error', async () => {
         mock.mockAll({ mailer: { netError: true } })
         const res = await request({
@@ -258,48 +204,6 @@ describe('Events editing', () => {
 
         expect(res.statusCode).toEqual(500);
         expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-    });
-
-    test('should fail if the body is not on the user bodies list', async () => {
-        await generator.createApplication({
-            user_id: 6,
-            body_id: 1337,
-            participant_type: 'envoy',
-            participant_order: 1,
-            status: 'accepted'
-        }, event);
-
-        const res = await request({
-            uri: '/events/' + event.id + '/massmailer',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: {
-                to: ['test1@example.com'],
-                subject: 'Testing',
-                text: 'Testing mail sending.'
-            }
-        });
-
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-    });
-
-    test('should work with filtering', async () => {
-        const res = await request({
-            uri: '/events/' + event.id + '/massmailer/accepted',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: {
-                to: ['test1@example.com'],
-                subject: 'Testing',
-                text: 'Testing mail sending.'
-            }
-        });
-
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('message');
     });
 
