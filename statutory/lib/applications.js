@@ -152,6 +152,17 @@ exports.updateApplication = async (req, res) => {
     delete req.body.departed;
     delete req.body.cancelled;
     delete req.body.paid_fee;
+    delete req.body.user_id;
+
+    // Some fields are filled in from the user/body automatically.
+    req.body.first_name = userBody.data.first_name;
+    req.body.last_name = userBody.data.last_name;
+    req.body.gender = userBody.data.gender;
+    if (req.body.body_id) {
+        // Shouldn't crash, if the person is not a member of a body,
+        // it will be caught by helpers.isMemberOf() above.
+        req.body.body_name = userBody.data.bodies.find(b => req.body.body_id === b.id).name;
+    }
 
     // If user changed his body (by himself), reset his board comment and participant type/order.
     if (req.application.user_id === req.user.id && req.body.body_id && req.body.body_id !== req.application.body_id) {
@@ -380,6 +391,12 @@ exports.postApplication = async (req, res) => {
     delete req.body.paid_fee;
 
     req.body.event_id = req.event.id;
+
+    // Some fields are filled in from the user/body automatically.
+    req.body.first_name = req.user.first_name;
+    req.body.last_name = req.user.last_name;
+    req.body.gender = req.user.gender;
+    req.body.body_name = req.user.bodies.find(b => req.body.body_id === b.id).name;
 
     const newApplication = await Application.create(req.body);
 
