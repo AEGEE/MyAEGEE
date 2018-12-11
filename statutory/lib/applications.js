@@ -443,28 +443,6 @@ exports.exportOpenslides = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see statistics.');
     }
 
-    // Fetching users list
-    const usersBody = await request({
-        url: config.core.url + ':' + config.core.port + '/members',
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
-        },
-        simple: false,
-        json: true
-    });
-
-    if (typeof usersBody !== 'object') {
-        throw new Error('Malformed response when fetching users: ' + usersBody);
-    }
-
-    if (!usersBody.success) {
-        throw new Error('Error fetching users: ' + usersBody);
-    }
-
-    const users = usersBody.data;
-
     const filtered = req.event.applications.filter(app => !app.cancelled);
     const wrap = string => '"' + string + '"';
 
@@ -483,36 +461,26 @@ exports.exportOpenslides = async (req, res) => {
         'Email'
     ];
 
+    // Returns a CSV string
     const exportString = headers.map(wrap).join(',') + '\n' + filtered.map((application) => {
-        // Returns a CSV string
-        // Finding a user with corresponding ID
-        const user = users.find(u => u.id === application.user_id);
-
-        // If the user is not found (which should not happen ever), he/she is skipped and warning is raised.
-        if (!user) {
-            logger.error(`User for application ${application.id} (user_id ${application.user_id}) is not found.`);
-            return '';
-        }
-
         // Generating random pw for a user.
         const password = crypto.randomBytes(5).toString('hex');
 
         return [
             '', // Title
-            user.first_name,
-            user.last_name,
+            application.first_name,
+            application.last_name,
             '', // Structure level
             application.id, // Participant number
             application.participant_type,
-            `Body ID: ${application.body_id}. User ID: ${application.user_id}`, // Comment
+            `Body ID: ${application.body_id} (${application.body_name}). User ID: ${application.user_id}`, // Comment
             1, // Is active
             1, // Is present
             0, // Is committee
             password,
-            '' // User email, currently not fetched from the system.
+            application.email // User email, currently not fetched from the system.
         ].map(wrap).join(',');
     }).filter(line => line.length > 0).join('\n');
-
 
     res.setHeader('Content-type', 'text/csv');
     res.setHeader('Content-disposition', 'attachment; filename=openslides.csv');
@@ -526,89 +494,58 @@ exports.exportAll = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see statistics.');
     }
 
-    // Fetching users list
-    const [usersBody, bodiesBody] = await Promise.all(['/members', '/bodies'].map(key => request({
-        url: config.core.url + ':' + config.core.port + key,
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
-        },
-        simple: false,
-        json: true
-    })));
-
-    if (typeof usersBody !== 'object') {
-        throw new Error('Malformed response when fetching users: ' + usersBody);
-    }
-
-    if (!usersBody.success) {
-        throw new Error('Error fetching users: ' + JSON.stringify(usersBody));
-    }
-
-    if (typeof bodiesBody !== 'object') {
-        throw new Error('Malformed response when fetching users: ' + bodiesBody);
-    }
-
-    if (!bodiesBody.success) {
-        throw new Error('Error fetching bodies: ' + JSON.stringify(bodiesBody));
-    }
-
-    const users = usersBody.data;
-    const bodies = bodiesBody.data;
-
     const filtered = req.event.applications.filter(app => !app.cancelled);
 
     const headers = [
         'Application ID',
+        'Created at',
+        'Updated at',
         'First name',
         'Last name',
         'Email',
+        'Gender',
         'Body ID',
         'Body name',
         'Participant type',
         'Board comment',
-        'Paid fee?',
+        'Confirmed?',
         'Attended?',
+        'Departed?',
         ...req.event.questions.map(q => q.description)
     ];
 
+    // A helper uset to pretty-format values.
+    const beautify = value => {
+        // If it's boolean, display it as Yes/No instead of true/false
+        if (typeof value === 'boolean') {
+            return value ? 'Yes' : 'No';
+        }
+
+        // If it's date, return date formatted.
+        if (Object.prototype.toString.call(value) === '[object Date]') {
+            return moment(value).format('YYYY-MM-DD HH:mm:SS')
+        }
+
+        // Else, present it as it is.
+        return value;
+    }
+
     const resultArray = filtered.map((application) => {
-        const user = users.find(u => u.id === application.user_id);
-
-        // If the user is not found (which should not happen ever), he/she is skipped and warning is raised.
-        if (!user) {
-            logger.error(`User for application ${application.id} (user_id ${application.user_id}) is not found.`);
-            return null;
-        }
-
-        const body = bodies.find(b => b.id === application.body_id);
-
-        // If the user is not found (which should not happen ever), he/she is skipped and warning is raised.
-        if (!body) {
-            logger.error(`Body for application ${application.id} (body_id ${application.body_id}) is not found.`);
-            return null;
-        }
-
         return [
             application.id,
-            user.first_name,
-            user.last_name,
-            '', // to pre-populate later
+            beautify(application.created_at),
+            beautify(application.updated_at),
+            application.first_name,
+            application.last_name,
+            application.email,
             application.body_id,
-            body.name,
+            application.body_name,
             application.participant_type,
             application.board_comment,
-            application.paid_fee ? 'Yes' : 'No',
-            application.attended ? 'Yes' : 'No',
-            ...application.answers.map((answer) => {
-                // If it's boolean, display it as Yes/No instead of true/false
-                if (typeof answer === 'boolean') {
-                    return answer ? 'Yes' : 'No';
-                }
-
-                return answer;
-            })
+            beautify(application.paid_fee),
+            beautify(application.attended),
+            beautify(application.departed),
+            ...application.answers.map(beautify)
         ];
     }).filter(pax => !!pax); // to filter out null values
 
