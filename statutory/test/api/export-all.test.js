@@ -5,6 +5,8 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/oms-core-valid').data;
+const users = require('../assets/oms-core-members').data;
+
 
 describe('Export OpenSlides', () => {
     let event;
@@ -57,7 +59,22 @@ describe('Export OpenSlides', () => {
     });
 
     test('should return something if there are not cancelled applications', async () => {
-        await generator.createApplication({ user_id: regularUser.id, body_id: regularUser.bodies[0].id }, event);
+        await generator.createApplication({
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id
+        }, event);
+
+        await generator.createApplication({
+            user_id: users[1].id,
+            body_id: regularUser.bodies[0].id,
+            participant_type: 'delegate',
+            participant_order: 1,
+            attended: true,
+            paid_fee: true,
+            departed: true,
+            cancelled: false
+        }, event);
+
         const res = await request({
             uri: '/events/' + event.id + '/applications/export/all',
             method: 'GET',
@@ -72,7 +89,7 @@ describe('Export OpenSlides', () => {
         expect(data.length).toEqual(1);
 
         const sheet = data[0].data;
-        expect(sheet.length).toEqual(2);
+        expect(sheet.length).toEqual(3);
     });
 
     test('should return 403 if you have no permissions to access', async () => {
