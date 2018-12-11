@@ -284,6 +284,28 @@ describe('Applications pax type/board comment', () => {
         expect(res.body).not.toHaveProperty('errors');
     });
 
+    test('should succeed if the limit is unlimited', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        await generator.createPaxLimit({
+            body_id: regularUser.bodies[0].id,
+            event_type: event.type,
+            delegate: null
+        });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id + '/board',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { participant_type: 'delegate', participant_order: 1 }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+    });
+
     test('should return 403 when using default limits and too much applications', async () => {
         // The body type is antenna, it cannot send observers.
         const res = await request({
