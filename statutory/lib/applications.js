@@ -538,6 +538,7 @@ exports.exportAll = async (req, res) => {
             application.first_name,
             application.last_name,
             application.email,
+            application.gender,
             application.body_id,
             application.body_name,
             application.participant_type,
