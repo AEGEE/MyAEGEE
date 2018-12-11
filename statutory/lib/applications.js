@@ -178,6 +178,7 @@ exports.updateApplication = async (req, res) => {
     req.body.first_name = userBody.data.first_name;
     req.body.last_name = userBody.data.last_name;
     req.body.gender = userBody.data.gender;
+    req.body.email = userBody.data.user.email;
     if (req.body.body_id) {
         // Shouldn't crash, if the person is not a member of a body,
         // it will be caught by helpers.isMemberOf() above.
@@ -416,6 +417,7 @@ exports.postApplication = async (req, res) => {
     req.body.first_name = req.user.first_name;
     req.body.last_name = req.user.last_name;
     req.body.gender = req.user.gender;
+    req.body.email = req.user.user.email;
     req.body.body_name = req.user.bodies.find(b => req.body.body_id === b.id).name;
 
     const newApplication = await Application.create(req.body);

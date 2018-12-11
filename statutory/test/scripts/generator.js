@@ -56,6 +56,7 @@ exports.generateApplication = (options = {}, event = null) => {
     if (notSet(options.last_name)) options.last_name = faker.lorem.sentence();
     if (notSet(options.gender)) options.gender = faker.lorem.sentence();
     if (notSet(options.body_name)) options.body_name = faker.lorem.sentence();
+    if (notSet(options.email)) options.email = faker.internet.email();
 
     if (notSet(options.answers)) {
         const answersCount = event ? event.questions.length : Math.round(Math.random() * 5) + 1; // from 1 to 6

@@ -242,6 +242,15 @@ const Application = sequelize.define('application', {
             notEmpty: { msg: 'Last name should be set.' }
         }
     },
+    email: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Email should be set.' },
+            isEmail: { msg: 'Email should be valid.' }
+        }
+    },
     gender: {
         allowNull: false,
         type: Sequelize.STRING,
