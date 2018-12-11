@@ -372,12 +372,12 @@ expected ${limit[dbResult.participant_type]}, got ${applicationsCount}.`);
                     throw new Error(`Expected participant number from 1 to ${applicationsCount}, \
 got participant type ${dbResult.participant_order}`);
                 }
-
-                return res.json({
-                    success: true,
-                    data: dbResult
-                });
             }
+
+            return res.json({
+                success: true,
+                data: dbResult
+            });
         })
     } catch (err) {
         // Here we go only when the transaction has failed and rolled back.
