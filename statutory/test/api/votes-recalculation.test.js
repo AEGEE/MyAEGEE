@@ -6,6 +6,32 @@ const { VotesPerAntenna, VotesPerDelegate } = require('../../models');
 const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Votes per antenna/delegate recalculation', () => {
+    test('should not recalculate the votes for EPM', async () => {
+        await generator.clearAll();
+
+        const event = await generator.createEvent({ type: 'epm', applications: [] });
+        await generator.createMembersList({
+            body_id: regularUser.bodies[0].id,
+            members: Array.from(
+                { length: 175 }, // in theory, 5 votes
+                (value, index) => generator.generateMembersListMember({ user_id: index + 1 })
+            )
+        }, event);
+
+        await VotesPerAntenna.recalculateVotesForAntenna(regularUser.bodies[0].id, event);
+
+        // There should be votes distributed to this delegate
+        const votesInDb = await VotesPerAntenna.findAll({
+            where: {
+                event_id: event.id
+            }
+        });
+
+        expect(votesInDb.length).toEqual(0);
+
+        await generator.clearAll();
+    });
+
     describe('should update if something would be updated', () => {
         let event;
         let memberslist;

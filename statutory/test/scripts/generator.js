@@ -51,6 +51,13 @@ exports.generateApplication = (options = {}, event = null) => {
     if (notSet(options.participant_type)) options.participant_type = faker.random.arrayElement(['delegate', 'visitor', 'observer', 'envoy']);
     if (notSet(options.participant_order)) options.participant_order = faker.random.number({ min: 1, max: 100 });
 
+    // fields taken from application
+    if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
+    if (notSet(options.last_name)) options.last_name = faker.lorem.sentence();
+    if (notSet(options.gender)) options.gender = faker.lorem.sentence();
+    if (notSet(options.body_name)) options.body_name = faker.lorem.sentence();
+    if (notSet(options.email)) options.email = faker.internet.email();
+
     if (notSet(options.answers)) {
         const answersCount = event ? event.questions.length : Math.round(Math.random() * 5) + 1; // from 1 to 6
         options.answers = Array.from({ length: answersCount }, () => faker.lorem.sentence());

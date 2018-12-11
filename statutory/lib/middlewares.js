@@ -29,7 +29,7 @@ exports.authenticateUser = async (req, res, next) => {
         })));
 
         if (typeof userBody !== 'object') {
-            return errors.makeInternalError(res, 'Malformed response when fetching user: ' + userBody);
+            throw new Error('Malformed response when fetching user: ' + userBody);
         }
 
         if (!userBody.success) {
@@ -38,7 +38,7 @@ exports.authenticateUser = async (req, res, next) => {
         }
 
         if (typeof permissionsBody !== 'object') {
-            return errors.makeInternalError(res, 'Malformed response when fetching permissions: ' + permissionsBody);
+            throw new Error('Malformed response when fetching permissions: ' + JSON.stringify(permissionsBody));
         }
 
         if (!permissionsBody.success) {
@@ -123,12 +123,12 @@ function fetchEvent(includeApplications = false) {
         });
 
         if (typeof approveRequest !== 'object') {
-            return errors.makeInternalError(res, 'Malformed response when fetching permissions for approve: ' + approveRequest);
+            throw new Error('Malformed response when fetching permissions for approve: ' + approveRequest);
         }
 
         if (!approveRequest.success) {
             // We are not authenticated
-            return errors.makeError(res, 401, 'Error fetching permissions for approve: user is not authenticated.');
+            throw new Error('Error fetching permissions for approve: user is not authenticated.');
         }
 
         req.event = event;

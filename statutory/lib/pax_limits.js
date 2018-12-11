@@ -26,12 +26,11 @@ exports.listAllLimits = async (req, res) => {
     });
 
     if (typeof bodies !== 'object') {
-        return errors.makeInternalError(res, 'Malformed response when fetching bodies: ' + bodies);
+        throw new Error('Malformed response when fetching bodies: ' + bodies);
     }
 
     if (!bodies.success) {
-        // We are not authenticated
-        return errors.makeError(res, 500, 'Error fetching bodies: ' + bodies);
+        throw new Error('Error fetching bodies: ' + JSON.stringify(bodies));
     }
 
     const limits = await PaxLimit.findAll({ where: { event_type: req.params.event_type } });
@@ -62,12 +61,12 @@ exports.getSingleLimit = async (req, res) => {
     });
 
     if (typeof body !== 'object') {
-        return errors.makeInternalError(res, 'Malformed response when fetching body: ' + body);
+        throw new Error('Malformed response when fetching body: ' + body);
     }
 
     if (!body.success) {
         // We are not authenticated
-        return errors.makeInternalError(res, 'Error fetching body: ' + body);
+        throw new Error('Error fetching body: ' + JSON.stringify(body));
     }
 
     const limit = await PaxLimit.fetchOrUseDefaultForBody(body.data, req.params.event_type);
