@@ -108,11 +108,11 @@ exports.sendAll = async (req, res) => {
     });
 
     if (typeof mailerBody !== 'object') {
-        return errors.makeInternalError(res, 'Malformed response from mailer: ' + mailerBody);
+        throw new Error('Malformed response from mailer: ' + mailerBody);
     }
 
     if (!mailerBody.success) {
-        return errors.makeInternalError(res, 'Unsuccessful response from mailer: ' + mailerBody);
+        throw new Error('Unsuccessful response from mailer: ' + JSON.stringify(mailerBody));
     }
 
     return res.json({

@@ -304,11 +304,11 @@ exports.setApplicationBoard = async (req, res) => {
     });
 
     if (typeof body !== 'object') {
-        return errors.makeInternalError(res, 'Malformed response when fetching bodies: ' + body);
+        throw new Error('Malformed response when fetching bodies: ' + body);
     }
 
     if (!body.success) {
-        return errors.makeInternalError(res, 'Error fetching body: ' + body);
+        throw new Error('Error fetching body: ' + JSON.stringify(body));
     }
 
     const limit = await PaxLimit.fetchOrUseDefaultForBody(body.data, req.event.type);
@@ -454,11 +454,11 @@ exports.exportOpenslides = async (req, res) => {
     });
 
     if (typeof usersBody !== 'object') {
-        return errors.makeInternalError(res, 'Malformed response when fetching users: ' + usersBody);
+        throw new Error('Malformed response when fetching users: ' + usersBody);
     }
 
     if (!usersBody.success) {
-        return errors.makeInternalError(res, 'Error fetching users: ' + usersBody);
+        throw new Error('Error fetching users: ' + usersBody);
     }
 
     const users = usersBody.data;
@@ -537,19 +537,19 @@ exports.exportAll = async (req, res) => {
     })));
 
     if (typeof usersBody !== 'object') {
-        return errors.makeInternalError(res, 'Malformed response when fetching users: ' + usersBody);
+        throw new Error('Malformed response when fetching users: ' + usersBody);
     }
 
     if (!usersBody.success) {
-        return errors.makeInternalError(res, 'Error fetching users: ' + usersBody);
+        throw new Error('Error fetching users: ' + JSON.stringify(usersBody));
     }
 
     if (typeof bodiesBody !== 'object') {
-        return errors.makeInternalError(res, 'Malformed response when fetching users: ' + bodiesBody);
+        throw new Error('Malformed response when fetching users: ' + bodiesBody);
     }
 
     if (!bodiesBody.success) {
-        return errors.makeInternalError(res, 'Error fetching users: ' + bodiesBody);
+        throw new Error('Error fetching bodies: ' + JSON.stringify(bodiesBody));
     }
 
     const users = usersBody.data;

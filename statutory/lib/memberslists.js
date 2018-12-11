@@ -70,12 +70,12 @@ exports.uploadMembersList = async (req, res) => {
     });
 
     if (typeof body !== 'object') {
-        return errors.makeInternalError(res, 'Malformed response when fetching body: ' + body);
+        throw new Error('Malformed response when fetching body: ' + body);
     }
 
     if (!body.success) {
         // We are not authenticated
-        return errors.makeInternalError(res, 'Error fetching body: ' + body);
+        throw new Error('Error fetching body: ' + JSON.stringify(body));
     }
 
     req.body.body_id = req.params.body_id;
