@@ -130,7 +130,7 @@ export default {
         { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
         { name: 'Board comment', get: (pax) => pax.board_comment },
         { name: 'First name', get: (pax) => pax.first_name },
-        { name: 'Last name', get: (pax) => pax.last_name },
+        { name: 'Last name', get: (pax) => pax.last_name }
       ],
       fields: [
         { name: 'First name', get: (pax) => pax.first_name },
@@ -140,7 +140,7 @@ export default {
         { name: 'Created at', get: (pax) => pax.created_at },
         { name: 'Updated at', get: (pax) => pax.updated_at },
         { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
-        { name: 'Board comment', get: (pax) => pax.board_comment },
+        { name: 'Board comment', get: (pax) => pax.board_comment }
       ],
       displayCancelled: false,
       isLoading: false,
