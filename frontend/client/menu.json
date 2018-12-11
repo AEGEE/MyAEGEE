@@ -45,47 +45,6 @@
     ]
   },
   {
-    "categoryName": "OMS Events",
-    "components": [
-      {
-        "label": "Events admin",
-        "icon": "fa-wrench",
-        "children": [
-          {
-            "name": "oms.events.change_status",
-            "label": "Change events statuses"
-          },
-          {
-            "name": "oms.events.boardview",
-            "label": "Board view"
-          }
-        ]
-      },
-      {
-        "label": "Events listing",
-        "icon": "fa-calendar",
-        "children": [
-          {
-            "name": "oms.events.list.all",
-            "label": "All events"
-          },
-          {
-            "name": "oms.events.list.participating",
-            "label": "Participating"
-          },
-          {
-            "name": "oms.events.list.organizing",
-            "label": "Organizing"
-          },
-          {
-            "name": "oms.events.create",
-            "label": "Create event"
-          }
-        ]
-      }
-    ]
-  },
-  {
     "categoryName": "Statutory events",
     "components": [
       {
