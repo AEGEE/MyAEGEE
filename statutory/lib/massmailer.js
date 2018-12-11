@@ -35,55 +35,26 @@ exports.sendAll = async (req, res) => {
     const bodies = [];
 
     for (const application of applications) {
-        // Fetching user
-        try {
-            const membersBody = await request({
-                url: config.core.url + ':' + config.core.port + '/members/' + application.user_id,
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-Auth-Token': req.headers['x-auth-token'],
-                },
-                simple: false,
-                json: true,
-            });
-            if (typeof membersBody !== 'object') {
-                throw new Error('Malformed response when fetching user: ' + membersBody);
-            }
+        // We can customize the letter a little bit by replacing {something} with corresponding field.
+        // TODO: Think, maybe use Pug or EJS for that?
+        // TODO: Think what else will we need? Probably remove after Agora Bucuresti if there
+        // won't be something required.
+        const email = application.email;
+        const typeAndOrder = application.participant_type
+            ? (application.participant_type + ' (' + application.participant_order + ')')
+            : 'not set';
+        const text = req.body.text
+            .replace(/\{first_name\}/ig, application.first_name)
+            .replace(/\{last_name\}/ig, application.last_name)
+            .replace(/\{participant_type_order\}/ig, typeAndOrder)
+            .replace(/\{body_name\}/ig, application.body_name);
 
-            if (!membersBody.success) {
-                throw new Error('Error fetching user: ' + JSON.stringify(membersBody));
-            }
+        // Using the custom oms-mailer template, it accepts only body as a parameter
+        // and sends the body as it was passed.
+        to.push(email);
+        bodies.push({ body: text });
 
-            const body = membersBody.data.bodies.find(body => body.id === application.body_id);
-            if (!body) {
-                throw new Error('The body of the application is not on the user\'s bodies.')
-            }
-
-            // We can customize the letter a little bit by replacing {something} with corresponding field.
-            // TODO: Think, maybe use Pug or EJS for that?
-            // TODO: Think what else will we need? Probably remove after Agora Bucuresti if there
-            // won't be something required.
-            const email = membersBody.data.user.email;
-            const typeAndOrder = application.participant_type
-                ? (application.participant_type + ' (' + application.participant_order + ')')
-                : 'not set';
-            const text = req.body.text
-                .replace(/\{first_name\}/ig, membersBody.data.first_name)
-                .replace(/\{last_name\}/ig, membersBody.data.last_name)
-                .replace(/\{participant_type_order\}/ig, typeAndOrder)
-                .replace(/\{body_name\}/ig, body.name);
-
-            // Using the custom oms-mailer template, it accepts only body as a parameter
-            // and sends the body as it was passed.
-            to.push(email);
-            bodies.push({ body: text });
-
-            logger.info('Prepared email to ' + email + '...');
-        } catch (err) {
-            logger.error('Preparing mail failed: ' + err);
-            return errors.makeInternalError(res, 'Sending mail failed:' + err.message);
-        }
+        logger.info('Prepared email to ' + email + '...');
     }
 
     logger.info('Prepared letters: ' + bodies.length);
