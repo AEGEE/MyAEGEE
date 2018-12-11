@@ -140,7 +140,27 @@ exports.updateApplication = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot edit this application.');
     }
 
-    if (req.body.body_id && !helpers.isMemberOf(req.user, req.body.body_id)) {
+    // Fetching users list
+    const userBody = await request({
+        url: config.core.url + ':' + config.core.port + '/members/' + req.application.user_id,
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Auth-Token': req.headers['x-auth-token'],
+        },
+        simple: false,
+        json: true
+    });
+
+    if (typeof userBody !== 'object') {
+        throw new Error('Malformed response when fetching users: ' + userBody);
+    }
+
+    if (!userBody.success) {
+        throw new Error('Error fetching users: ' + JSON.stringify(userBody));
+    }
+
+    if (req.body.body_id && !helpers.isMemberOf(userBody.data, req.body.body_id)) {
         return errors.makeForbiddenError(res, 'You cannot apply on behalf of the body you are not a member of.');
     }
 
