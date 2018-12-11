@@ -354,4 +354,73 @@ describe('Applications editing', () => {
         expect(newApplication.participant_order).toEqual(1);
         expect(newApplication.board_comment).toEqual('Awesome guy, accept');
     });
+
+    test('should returrn 500 if members query returns net error', async () => {
+        mock.mockAll({ member: { netError: true } })
+
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({}, event);
+
+        tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { body_id: regularUser.bodies[0].id }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should returrn 500 if members query returns bad response', async () => {
+        mock.mockAll({ member: { badResponse: true } })
+
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({}, event);
+
+        tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { body_id: regularUser.bodies[0].id }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should returrn 500 if members query returns unsuccessful response', async () => {
+        mock.mockAll({ member: { unsuccessfulResponse: true } })
+
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({}, event);
+
+        tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { body_id: regularUser.bodies[0].id }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
 });
