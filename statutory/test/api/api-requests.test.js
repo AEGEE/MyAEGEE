@@ -24,7 +24,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    test('should fail if body oms-core returns net error while fetching user', async () => {
+    test('should fail if oms-core returns net error while fetching user', async () => {
         mock.mockAll({ core: { netError: true } });
 
         const res = await request({
@@ -54,7 +54,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    test('should fail if body oms-core returns unsuccessful response while fetching user', async () => {
+    test('should fail if oms-core returns unsuccessful response while fetching user', async () => {
         mock.mockAll({ core: { unauthorized: true } });
 
         const res = await request({
@@ -69,7 +69,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    test('should fail if body oms-core returns net error while fetching permissions', async () => {
+    test('should fail if oms-core returns net error while fetching permissions', async () => {
         mock.mockAll({ mainPermissions: { netError: true } });
 
         const res = await request({
@@ -99,7 +99,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    test('should fail if body oms-core returns unsuccessful response while fetching permissions', async () => {
+    test('should fail if oms-core returns unsuccessful response while fetching permissions', async () => {
         mock.mockAll({ mainPermissions: { unauthorized: true } });
 
         const res = await request({
@@ -114,7 +114,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    test('should fail if oms-core returns garbage while fetching permissions', async () => {
+    test('should fail if oms-core returns garbage while fetching approve permissions', async () => {
         mock.mockAll({ approvePermissions: { badResponse: true } });
         const event = await generator.createEvent({});
 
@@ -130,7 +130,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    test('should fail if body oms-core returns unsuccessful response while fetching permissions', async () => {
+    test('should fail if oms-core returns unsuccessful response while fetching approve permissions', async () => {
         mock.mockAll({ approvePermissions: { unauthorized: true } });
         const event = await generator.createEvent({});
 
@@ -142,7 +142,7 @@ describe('API requests', () => {
             }
         });
 
-        expect(res.statusCode).toEqual(401);
+        expect(res.statusCode).toEqual(500);
         expect(res.body.success).toEqual(false);
     });
 
