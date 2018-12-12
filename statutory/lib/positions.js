@@ -39,16 +39,30 @@ exports.editPosition = async (req, res) => {
     });
 };
 
+exports.deletePosition = async (req, res) => {
+    if (Number.isNaN(Number(req.params.position_id))) {
+        return errors.makeBadRequestError(res, 'The position ID is invalid.');
+    }
+
+    const affectedRows = await Position.destroy({ where: { id: Number(req.params.position_id) } });
+    if (affectedRows > 0) {
+        return res.json({ success: true, message: `The position was deleted` });
+    }
+
+    return errors.makeNotFoundError(res, 'Position is not found.');
+
+};
+
 exports.openDeadline = async (req, res) => {
     if (Number.isNaN(Number(req.params.position_id))) {
         return errors.makeBadRequestError(res, 'The position ID is invalid.');
     }
 
     const position = await Position.findOne({ where: { id: Number(req.params.position_id) } });
-    await position.openDeadline(req.body.deadline);
+    const result = await position.openDeadline(req.body.deadline);
 
     return res.json({
         success: true,
-        data: dbResult[1][0]
+        data: result
     });
 };

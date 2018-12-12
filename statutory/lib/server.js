@@ -13,6 +13,7 @@ const memberslists = require('./memberslists');
 const massmailer = require('./massmailer');
 const paxLimits = require('./pax_limits');
 const votesAmounts = require('./votes_amounts');
+const positions = require('./positions');
 const bugsnag = require('./bugsnag');
 
 const GeneralRouter = router({ mergeParams: true });
@@ -23,6 +24,7 @@ const SingleApplicationRouter = router({ mergeParams: true });
 const MembersListsRouter = router({ mergeParams: true });
 const MassMailerRouter = router({ mergeParams: true });
 const VotesAmountRouter = router({ mergeParams: true });
+const CandidatesRouter = router({ mergeParams: true });
 
 const server = express();
 server.use(bodyParser.json());
@@ -98,6 +100,12 @@ VotesAmountRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memb
 VotesAmountRouter.get('/antenna', votesAmounts.getAllVotesPerAntenna);
 VotesAmountRouter.get('/delegate', votesAmounts.getAllVotesPerDelegate);
 VotesAmountRouter.get('/:body_id', votesAmounts.getVotesPerAntenna);
+
+CandidatesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora);
+CandidatesRouter.get('/', positions.listAllPositions);
+CandidatesRouter.post('/', positions.createPosition);
+CandidatesRouter.put('/:position_id', positions.editPosition);
+CandidatesRouter.delete('/:position_id', positions.deletePosition);
 
 server.use('/events/:event_id/massmailer', MassMailerRouter);
 server.use('/events/:event_id/memberslists', MembersListsRouter);
