@@ -65,17 +65,20 @@ const Position = sequelize.define('Position', {
     },
 }, { underscored: true, tableName: 'positions' });
 
-Position.beforeSave((position) => {
-    // If the position.starts (application period starts) is not set and is later
-    // than the current time, then it's planned for the future. If so, we set
-    // the status to closed and then planning a cron task to open it on the deadline.
-    // Else, if it's not set, that means we want to open the application
-    // period right now. So, position.starts should be the current time.
-    // TODO: Implement the cron task to do it.
-    if (position.starts && moment(position.starts).isSameOrBefore(moment())) {
-        position.status = 'closed';
-    } else if (!position.starts) {
+Position.beforeValidate((position) => {
+    if (position.starts) {
+        // If it's set we set the status either to "open" or "closed"
+        // based on starts and ends params.
+        // Also if it should start in the future, we set the cron task for it.
+        // TODO: add cron task for it.
+        position.status = moment().isBetween(position.starts, position.ends, null, '[]')
+            ? 'open'
+            : 'closed';
+    } else {
+        // Else, if it's not set, that means we want to open the application
+        // period right now. So, position.starts should be the current time.
         position.starts = new Date();
+        position.status = 'open';
     }
 });
 
