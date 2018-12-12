@@ -46,8 +46,3 @@ module.exports = {
     }),
   down: queryInterface => queryInterface.dropTable('positions')
 };
-
-// Instance methods
-Position.prototype.openApplications = async function openApplications(deadline) {
-    return await this.update({ status: 'open', deadline });
-}

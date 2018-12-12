@@ -79,5 +79,9 @@ Position.beforeSave((position) => {
     }
 });
 
+Position.prototype.openDeadline = async function openDeadline(deadline) {
+    return await this.update({ status: 'open', ends: deadline });
+};
+
 module.exports = Position;
 
