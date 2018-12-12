@@ -22,7 +22,11 @@ module.exports = {
             type: Sequelize.STRING,
             allowNull: false,
         },
-        deadline: {
+        starts: {
+            type: Sequelize.DATE,
+            allowNull: false,
+        },
+        ends: {
             type: Sequelize.DATE,
             allowNull: false,
         },
