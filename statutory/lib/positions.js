@@ -11,6 +11,10 @@ exports.listAllPositions = async (req, res) => {
 };
 
 exports.createPosition = async (req, res) => {
+    if (!req.permissions.manage_candidates) {
+        return errors.makeForbiddenError(res, 'You cannot manage positions.');
+    }
+
     delete req.body.status;
     req.body.event_id = req.event.id;
 
@@ -22,6 +26,10 @@ exports.createPosition = async (req, res) => {
 };
 
 exports.editPosition = async (req, res) => {
+    if (!req.permissions.manage_candidates) {
+        return errors.makeForbiddenError(res, 'You cannot manage positions.');
+    }
+
     if (Number.isNaN(Number(req.params.position_id))) {
         return errors.makeBadRequestError(res, 'The position ID is invalid.');
     }

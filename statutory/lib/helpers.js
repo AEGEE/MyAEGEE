@@ -60,6 +60,8 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     permissions.see_boardview_of = {};
     permissions.upload_memberslist = {};
 
+    permissions.manage_candidates = hasPermission(corePermissions, 'global:manage_candidates:agora');
+
     const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
     for (const body of user.bodies) {
         permissions.set_board_comment_and_participant_type[body.id] =
