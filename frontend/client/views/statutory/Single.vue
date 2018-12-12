@@ -209,6 +209,8 @@ export default {
         change_event_status: false,
         delete_event: false,
         apply: false,
+        see_boardview_of: {},
+        see_boardview_global: false,
         set_board_comment_and_participant_type: {},
         see_memberslists: false,
         export: false
@@ -262,8 +264,8 @@ export default {
         return true
       }
 
-      return Object.keys(this.can.see_boardview)
-        .filter(key => this.can.see_boardview[key])
+      return Object.keys(this.can.see_boardview_of)
+        .filter(key => this.can.see_boardview_of[key])
         .length > 0
     }
   }
