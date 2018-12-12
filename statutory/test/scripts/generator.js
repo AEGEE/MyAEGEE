@@ -6,7 +6,8 @@ const {
     MembersList,
     PaxLimit,
     VotesPerAntenna,
-    VotesPerDelegate
+    VotesPerDelegate,
+    Position
 } = require('../../models');
 
 const notSet = field => typeof field === 'undefined';
@@ -97,8 +98,6 @@ exports.generateMembersListMember = (options = {}) => {
     return options;
 }
 
-
-
 exports.generatePaxLimit = (options = {}) => {
     if (notSet(options.body_id)) options.body_id = faker.random.number(100);
     if (notSet(options.delegate)) options.delegate = faker.random.number(100);
@@ -107,6 +106,19 @@ exports.generatePaxLimit = (options = {}) => {
     if (notSet(options.envoy)) options.envoy = faker.random.number(100);
     if (notSet(options.event_type)) options.event_type = faker.random.arrayElement(['agora', 'epm']);
 
+
+    return options;
+};
+
+exports.generatePosition = (options = {}, event = null) => {
+    if (notSet(options.name)) options.name = faker.lorem.sentence();
+    if (notSet(options.description)) options.description = faker.lorem.sentence();
+    if (notSet(options.places)) options.places = faker.random.number({ min: 1, max: 10 });
+    if (notSet(options.ends)) options.ends = faker.date.future();
+
+    if (event && event.id) {
+        options.event_id = event.id;
+    }
 
     return options;
 };
@@ -127,7 +139,12 @@ exports.createPaxLimit = (options = {}) => {
     return PaxLimit.create(exports.generatePaxLimit(options));
 };
 
+exports.createPosition = (options = {}, event = null) => {
+    return Position.create(exports.generatePosition(options, event));
+};
+
 exports.clearAll = async () => {
+    await Position.destroy({ where: {}, truncate: { cascade: true } });
     await VotesPerDelegate.destroy({ where: {}, truncate: { cascade: true } });
     await VotesPerAntenna.destroy({ where: {}, truncate: { cascade: true } });
     await MembersList.destroy({ where: {}, truncate: { cascade: true } });
