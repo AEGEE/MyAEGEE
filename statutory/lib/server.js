@@ -105,7 +105,6 @@ PositionsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, member
 PositionsRouter.get('/', positions.listAllPositions);
 PositionsRouter.post('/', positions.createPosition);
 PositionsRouter.put('/:position_id', positions.editPosition);
-PositionsRouter.delete('/:position_id', positions.deletePosition);
 
 server.use('/events/:event_id/massmailer', MassMailerRouter);
 server.use('/events/:event_id/memberslists', MembersListsRouter);
