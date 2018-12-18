@@ -89,24 +89,6 @@ describe('Positions creation', () => {
         expect(res.body.errors).toHaveProperty('name');
     });
 
-    test('should fail if description is not set', async () => {
-        const event = await generator.createEvent({ type: 'agora', applications: [] });
-        const position = generator.generatePosition({ description: null });
-
-        const res = await request({
-            uri: '/events/' + event.id + '/positions/',
-            method: 'POST',
-            body: position,
-            headers: { 'X-Auth-Token': 'blablabla' }
-        });
-
-        expect(res.statusCode).toEqual(422);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('errors');
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body.errors).toHaveProperty('description');
-    });
-
     test('should fail if start is earlier than ends', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const position = generator.generatePosition({

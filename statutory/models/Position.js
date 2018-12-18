@@ -11,14 +11,6 @@ const Position = sequelize.define('Position', {
             notEmpty: { msg: 'Position name should be set.' },
         }
     },
-    description: {
-        type: Sequelize.TEXT,
-        allowNull: false,
-        defaultValue: '',
-        validate: {
-            notEmpty: { msg: 'Position decription should be set.' },
-        }
-    },
     starts: {
         type: Sequelize.DATE,
         allowNull: false,

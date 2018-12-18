@@ -112,7 +112,6 @@ exports.generatePaxLimit = (options = {}) => {
 
 exports.generatePosition = (options = {}, event = null) => {
     if (notSet(options.name)) options.name = faker.lorem.sentence();
-    if (notSet(options.description)) options.description = faker.lorem.sentence();
     if (notSet(options.places)) options.places = faker.random.number({ min: 1, max: 10 });
     if (notSet(options.ends)) options.ends = faker.date.future();
 

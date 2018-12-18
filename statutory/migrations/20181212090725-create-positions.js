@@ -18,10 +18,6 @@ module.exports = {
             type: Sequelize.STRING,
             allowNull: false,
         },
-        description: {
-            type: Sequelize.STRING,
-            allowNull: false,
-        },
         starts: {
             type: Sequelize.DATE,
             allowNull: false,
