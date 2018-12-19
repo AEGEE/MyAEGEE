@@ -264,4 +264,196 @@ describe('Candidates submission', () => {
             expect(res.body.errors).toHaveProperty(field);
         });
     }
+
+    const datesRequired = [
+        'date_of_birth',
+        'member_since'
+    ];
+
+    for (const field of datesRequired) {
+        test(`should fail if ${field} is not a string`, async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const position = await generator.createPosition({
+                starts: moment().subtract(1, 'week').toDate(),
+                ends: moment().add(1, 'week').toDate()
+            }, event);
+            const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
+            candidate[field] = false;
+
+            const res = await request({
+                uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+                method: 'POST',
+                body: candidate,
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).not.toHaveProperty('data');
+            expect(res.body).toHaveProperty('errors');
+            expect(res.body.errors).toHaveProperty(field);
+        });
+
+        test(`should fail if ${field} is not a valid date`, async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const position = await generator.createPosition({
+                starts: moment().subtract(1, 'week').toDate(),
+                ends: moment().add(1, 'week').toDate()
+            }, event);
+            const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
+            candidate[field] = 'test string';
+
+            const res = await request({
+                uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+                method: 'POST',
+                body: candidate,
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).not.toHaveProperty('data');
+            expect(res.body).toHaveProperty('errors');
+            expect(res.body.errors).toHaveProperty(field);
+        });
+    }
+
+    test(`should fail if languages is not an array`, async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate()
+        }, event);
+        const candidate = generator.generateCandidate({
+            body_id: regularUser.bodies[0].id,
+            languages: false
+        });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            method: 'POST',
+            body: candidate,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('languages');
+    });
+
+    test(`should fail if languages is empty array`, async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate()
+        }, event);
+        const candidate = generator.generateCandidate({
+            body_id: regularUser.bodies[0].id,
+            languages: []
+        });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            method: 'POST',
+            body: candidate,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('languages');
+    });
+
+    test(`should fail if one of the languages is not a string`, async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate()
+        }, event);
+        const candidate = generator.generateCandidate({
+            body_id: regularUser.bodies[0].id,
+            languages: [false]
+        });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            method: 'POST',
+            body: candidate,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('languages');
+    });
+
+    test(`should fail if one of the languages is empty string`, async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate()
+        }, event);
+        const candidate = generator.generateCandidate({
+            body_id: regularUser.bodies[0].id,
+            languages: ['']
+        });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            method: 'POST',
+            body: candidate,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('languages');
+    });
+
+    test(`should fail if one of the languages is string of spaces and tabs`, async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate()
+        }, event);
+        const candidate = generator.generateCandidate({
+            body_id: regularUser.bodies[0].id,
+            languages: ['        ']
+        });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            method: 'POST',
+            body: candidate,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('languages');
+    });
 });

@@ -1,4 +1,5 @@
 const faker = require('faker');
+const moment = require('moment');
 
 const {
     Event,
@@ -128,7 +129,7 @@ exports.generateCandidate = (options = {}) => {
     if (notSet(options.body_id)) options.body_id = faker.random.number({ min: 1, max: 100 });
     if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
     if (notSet(options.last_name)) options.last_name = faker.lorem.sentence();
-    if (notSet(options.date_of_birth)) options.date_of_birth = faker.date.past();
+    if (notSet(options.date_of_birth)) options.date_of_birth = moment(faker.date.past()).format('YYYY-MM-DD');
     if (notSet(options.gender)) options.gender = faker.lorem.sentence();
     if (notSet(options.nationality)) options.nationality = faker.lorem.sentence();
     if (notSet(options.studies)) options.studies = faker.lorem.sentence();
@@ -137,7 +138,7 @@ exports.generateCandidate = (options = {}) => {
         { length: faker.random.number({ min: 1, max: 5 }) },
         () => faker.lorem.sentence()
     );
-    if (notSet(options.member_since)) options.member_since = faker.date.past();
+    if (notSet(options.member_since)) options.member_since = moment(faker.date.past()).format('YYYY-MM-DD');
     if (notSet(options.european_experience)) options.european_experience = faker.lorem.paragraph();
     if (notSet(options.local_experience)) options.local_experience = faker.lorem.paragraph();
     if (notSet(options.attended_agorae)) options.attended_agorae = faker.lorem.paragraph();

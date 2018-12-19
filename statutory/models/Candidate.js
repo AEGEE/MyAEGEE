@@ -1,4 +1,16 @@
+const moment = require('moment');
+
 const { Sequelize, sequelize } = require('../lib/sequelize');
+
+function isValidDate(value) {
+    if (typeof value !== 'string') {
+        throw new Error('The value should be a string.')
+    }
+
+    if (!moment(value, 'YYYY-MM-DD').isValid()) {
+        throw new Error('The value should be a date with a YYYY-MM-DD format.')
+    }
+}
 
 const Candidate = sequelize.define('candidate', {
     user_id: {
@@ -36,12 +48,11 @@ const Candidate = sequelize.define('candidate', {
         }
     },
     date_of_birth: {
-        type: Sequelize.DATE,
+        type: Sequelize.STRING,
         allowNull: false,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Date of birth should be set.' },
-            isDate: { msg: 'Date of birth should be valid.' }
+            isValidDate
         }
     },
     gender: {
@@ -112,12 +123,11 @@ const Candidate = sequelize.define('candidate', {
         }
     },
     member_since: {
-        type: Sequelize.DATE,
+        type: Sequelize.STRING,
         allowNull: false,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Please fill in since when you are a member.' },
-            isDate: { msg: 'Date of since when you are a member should be valid.' }
+            isValidDate
         }
     },
     european_experience: {

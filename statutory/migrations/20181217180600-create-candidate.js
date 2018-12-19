@@ -24,7 +24,7 @@ module.exports = {
             allowNull: false,
         },
         date_of_birth: {
-            type: Sequelize.DATE,
+            type: Sequelize.STRING,
             allowNull: false
         },
         gender: {
@@ -56,7 +56,7 @@ module.exports = {
             allowNull: false
         },
         member_since: {
-            type: Sequelize.DATE,
+            type: Sequelize.STRING,
             allowNull: false
         },
         european_experience: {
