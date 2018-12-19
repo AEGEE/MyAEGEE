@@ -7,7 +7,8 @@ const {
     PaxLimit,
     VotesPerAntenna,
     VotesPerDelegate,
-    Position
+    Position,
+    Candidate
 } = require('../../models');
 
 const notSet = field => typeof field === 'undefined';
@@ -122,6 +123,32 @@ exports.generatePosition = (options = {}, event = null) => {
     return options;
 };
 
+exports.generateCandidate = (options = {}) => {
+    if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
+    if (notSet(options.last_name)) options.last_name = faker.lorem.sentence();
+    if (notSet(options.date_of_birth)) options.date_of_birth = faker.date.past();
+    if (notSet(options.gender)) options.gender = faker.lorem.sentence();
+    if (notSet(options.nationality)) options.nationality = faker.lorem.sentence();
+    if (notSet(options.studies)) options.studies = faker.lorem.sentence();
+    if (notSet(options.body_name)) options.body_name = faker.lorem.sentence();
+    if (notSet(options.languages)) options.languages = Array.from(
+        { length: faker.random.number({ min: 1, max: 5 }) },
+        () => faker.lorem.sentence()
+    );
+    if (notSet(options.member_since)) options.member_since = faker.date.past();
+    if (notSet(options.european_experience)) options.european_experience = faker.lorem.paragraph();
+    if (notSet(options.local_experience)) options.local_experience = faker.lorem.paragraph();
+    if (notSet(options.attended_agorae)) options.attended_agorae = faker.lorem.paragraph();
+    if (notSet(options.attended_epm)) options.attended_epm = faker.lorem.paragraph();
+    if (notSet(options.attended_conferences)) options.attended_conferences = faker.lorem.paragraph();
+    if (notSet(options.related_experience)) options.related_experience = faker.lorem.paragraph();
+    if (notSet(options.external_experience)) options.external_experience = faker.lorem.paragraph();
+    if (notSet(options.motivation)) options.motivation = faker.lorem.paragraph();
+    if (notSet(options.program)) options.program = faker.lorem.paragraph();
+
+    return options;
+};
+
 exports.createEvent = (options = {}) => {
     return Event.create(exports.generateEvent(options), { include: [Application] });
 };
@@ -139,10 +166,11 @@ exports.createPaxLimit = (options = {}) => {
 };
 
 exports.createPosition = (options = {}, event = null) => {
-    return Position.create(exports.generatePosition(options, event));
+    return Position.create(exports.generatePosition(options, event), { include: [Candidate] });
 };
 
 exports.clearAll = async () => {
+    await Candidate.destroy({ where: {}, truncate: { cascade: true } });
     await Position.destroy({ where: {}, truncate: { cascade: true } });
     await VotesPerDelegate.destroy({ where: {}, truncate: { cascade: true } });
     await VotesPerAntenna.destroy({ where: {}, truncate: { cascade: true } });
