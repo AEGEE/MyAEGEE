@@ -1,12 +1,12 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 
-const Candidate = sequelize.define('Candidate', {
+const Candidate = sequelize.define('candidate', {
     first_name: {
         type: Sequelize.STRING,
         allowNull: false,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'First name should be set.' },
+            notEmpty: { msg: 'First name should be set.' }
         }
     },
     last_name: {
@@ -14,16 +14,24 @@ const Candidate = sequelize.define('Candidate', {
         allowNull: false,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Last name should be set.' },
+            notEmpty: { msg: 'Last name should be set.' }
         }
     },
-    date_of_birth: Sequelize.DATE,
+    date_of_birth: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Date of birth should be set.' },
+            isDate: { msg: 'Date of birth should be valid.' }
+        }
+    },
     gender: {
         type: Sequelize.STRING,
         allowNull: false,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Gender should be set.' },
+            notEmpty: { msg: 'Gender should be set.' }
         }
     },
     nationality: {
@@ -31,7 +39,7 @@ const Candidate = sequelize.define('Candidate', {
         allowNull: false,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Nationality should be set.' },
+            notEmpty: { msg: 'Nationality should be set.' }
         }
     },
     position_id: Sequelize.INTEGER,
@@ -40,7 +48,7 @@ const Candidate = sequelize.define('Candidate', {
         allowNull: false,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Body name should be set.' },
+            notEmpty: { msg: 'Body name should be set.' }
         }
     },
     languages: Sequelize.ARRAY(Sequelize.STRING),
@@ -49,7 +57,7 @@ const Candidate = sequelize.define('Candidate', {
         allowNull: false,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Studies should be set.' },
+            notEmpty: { msg: 'Studies should be set.' }
         }
     },
     member_since: {
@@ -58,6 +66,7 @@ const Candidate = sequelize.define('Candidate', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Please fill in since when you are a member.' },
+            isDate: { msg: 'Date of since when you are a member should be valid.' }
         }
     },
     european_experience: {
@@ -92,7 +101,7 @@ const Candidate = sequelize.define('Candidate', {
             notEmpty: { msg: 'Please fill in your attended EPM/EBM.' },
         }
     },
-    related_experience: {
+    attended_conferences: {
         type: Sequelize.TEXT,
         allowNull: false,
         defaultValue: '',
@@ -100,7 +109,7 @@ const Candidate = sequelize.define('Candidate', {
             notEmpty: { msg: 'Please fill in your attended AEGEE conferences.' },
         }
     },
-    related_experience: {
+    external_experience: {
         type: Sequelize.TEXT,
         allowNull: false,
         defaultValue: '',
