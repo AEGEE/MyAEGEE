@@ -36,6 +36,24 @@ describe('Positions edition', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
+    test('should return 404 if position is not found', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/1337',
+            method: 'PUT',
+            body: { places: 3 },
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
     test('should fail if positions ID is NaN', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const position = await generator.createPosition({}, event);

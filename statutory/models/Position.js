@@ -61,7 +61,8 @@ Position.beforeValidate((position) => {
     if (position.starts) {
         // If it's set we set the status either to "open" or "closed"
         // based on starts and ends params.
-        // Also if it should start in the future, we set the cron task for it.
+        // Also if it should start in the future, we set the cron task for it
+        // to open applications.
         // TODO: add cron task for it.
         position.status = moment().isBetween(position.starts, position.ends, null, '[]')
             ? 'open'
@@ -74,9 +75,24 @@ Position.beforeValidate((position) => {
     }
 });
 
-Position.prototype.openDeadline = async function openDeadline(deadline) {
-    return await this.update({ status: 'open', ends: deadline });
-};
+Position.afterUpdate((position) => {
+    // Yeah, nasty, but prevents us from circular dependencies issues. Been there, done that.
+    const cron = require('../lib/cron');
+
+    // Clearing the deadlines and setting them again on afterSave() (just in case).
+    // Only needed on update.
+    cron.clearDeadlinesForPosition(position.id);
+});
+
+Position.afterSave((position) => {
+    // Yeah, nasty, but prevents us from circular dependencies issues. Been there, done that.
+    const cron = require('../lib/cron');
+
+    // Schedule 2 deadlines, one for opening and one for closing.
+    // If there should be no deadline, cron will catch it.
+    // Should be run on create and update.
+    cron.registerOpenApplicationDeadline(position.starts, position.id);
+    cron.registerCloseApplicationDeadline(position.ends, position.id);
+});
 
 module.exports = Position;
-

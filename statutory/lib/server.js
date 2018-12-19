@@ -103,8 +103,10 @@ VotesAmountRouter.get('/:body_id', votesAmounts.getVotesPerAntenna);
 
 PositionsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora);
 PositionsRouter.get('/', positions.listAllPositions);
+PositionsRouter.get('/all', positions.listPositionsWithAllCandidates);
+PositionsRouter.get('/approved', positions.listPositionsWithApprovedCandidates);
 PositionsRouter.post('/', positions.createPosition);
-PositionsRouter.put('/:position_id', positions.editPosition);
+PositionsRouter.put('/:position_id', positions.findPosition, positions.editPosition);
 
 server.use('/events/:event_id/massmailer', MassMailerRouter);
 server.use('/events/:event_id/memberslists', MembersListsRouter);

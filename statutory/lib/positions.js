@@ -1,9 +1,69 @@
 const { errors } = require('oms-common-nodejs');
 
-const { Position } = require('../models');
+const { Position, Candidate } = require('../models');
+
+exports.findPosition = async (req, res, next) => {
+    if (Number.isNaN(Number(req.params.position_id))) {
+        return errors.makeBadRequestError(res, 'The position ID is invalid.');
+    }
+
+    const position = await Position.findByPk(Number(req.params.position_id));
+    if (!position) {
+        return errors.makeNotFoundError(res, 'Position is not found.');
+    }
+
+    req.position = position;
+    return next();
+};
+
 
 exports.listAllPositions = async (req, res) => {
     const positions = await Position.findAll({ where: { event_id: req.event.id } });
+    return res.json({
+        success: true,
+        data: positions
+    });
+};
+
+exports.listPositionsWithAllCandidates = async (req, res) => {
+    if (!req.permissions.manage_candidates) {
+        return errors.makeForbiddenError(res, 'You cannot manage positions.');
+    }
+
+    const positions = await Position.findAll({
+        where: { event_id: req.event.id },
+        include: { model: Candidate }
+    });
+
+    return res.json({
+        success: true,
+        data: positions
+    });
+};
+
+exports.listPositionsWithApprovedCandidates = async (req, res) => {
+    const positions = await Position.findAll({
+        where: { event_id: req.event.id },
+        include: {
+            model: Candidate,
+            where: {
+                status: { [Op.ne]: 'rejected' }
+            }
+        }
+    });
+
+    // Only returning 
+    const filtered = positions.map(position => {
+        const jsonPosition = position.toJSON();
+        jsonPosition.candidates = position.candidates.map(candidate => {
+            if (candidate.status === 'approved') {
+                return candidate.toJSON();
+            }
+
+            return { id: candidate.id, status: candidate.status }
+        })
+    })
+
     return res.json({
         success: true,
         data: positions
@@ -18,10 +78,11 @@ exports.createPosition = async (req, res) => {
     delete req.body.status;
     req.body.event_id = req.event.id;
 
-    const newEvent = await Position.create(req.body);
+    const newPosition = await Position.create(req.body);
+
     return res.json({
         success: true,
-        data: newEvent
+        data: newPosition
     });
 };
 
@@ -30,33 +91,10 @@ exports.editPosition = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage positions.');
     }
 
-    if (Number.isNaN(Number(req.params.position_id))) {
-        return errors.makeBadRequestError(res, 'The position ID is invalid.');
-    }
-
-    delete req.body.status;
-
-    const dbResult = await Position.update(req.body, {
-        where: { id: Number(req.params.position_id) },
-        returning: true
-    });
+    await req.position.update(req.body);
 
     return res.json({
         success: true,
-        data: dbResult[1][0]
-    });
-};
-
-exports.openDeadline = async (req, res) => {
-    if (Number.isNaN(Number(req.params.position_id))) {
-        return errors.makeBadRequestError(res, 'The position ID is invalid.');
-    }
-
-    const position = await Position.findOne({ where: { id: Number(req.params.position_id) } });
-    const result = await position.openDeadline(req.body.deadline);
-
-    return res.json({
-        success: true,
-        data: result
+        data: req.position
     });
 };
