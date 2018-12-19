@@ -134,6 +134,34 @@ describe('Candidates submission', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
+    test('should fail if user applied already', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate(),
+            places: 2,
+            candidates: [
+                generator.generateCandidate({ user_id: regularUser.id })
+            ]
+        }, event);
+        const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            method: 'POST',
+            body: candidate,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('user_id');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
     test('should succeed if everything is okay', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 

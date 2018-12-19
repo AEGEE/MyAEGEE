@@ -19,7 +19,18 @@ const Candidate = sequelize.define('candidate', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'User should be set.' },
-            isInt: { msg: 'User ID should be a number.' }
+            isInt: { msg: 'User ID should be a number.' },
+            async isNotDuplicate (value) {
+                const existing = await Candidate.findOne({
+                    where: {
+                        position_id: this.position_id,
+                        user_id: value,
+                        id: { [Sequelize.Op.ne]: this.id}
+                    } });
+                if (existing) {
+                    throw new Error('Such application already exists.');
+                }
+            }
         },
     },
     body_id: {
