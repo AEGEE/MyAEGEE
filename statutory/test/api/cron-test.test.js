@@ -279,7 +279,8 @@ describe('Cron testing', () => {
 
     describe('executing open deadlines', () => {
         test('should not open the deadline for non-existant position', async () => {
-            expect(cron.getJobs().length).toEqual(0);
+            await cron.registerOpenApplicationDeadline(moment().add(1, 'week').toDate(), 1337);
+            expect(cron.getJobs().length).toEqual(1);
 
             await cron.openApplications(1337);
             expect(cron.getJobs().length).toEqual(0);
@@ -292,6 +293,9 @@ describe('Cron testing', () => {
                 ends: moment().add(1, 'week').toDate(),
             }, event);
             expect(cron.getJobs().length).toEqual(1); // closing deadline
+
+            await cron.registerOpenApplicationDeadline(moment().add(1, 'week').toDate(), position.id);
+            expect(cron.getJobs().length).toEqual(2);
 
             await cron.openApplications(position.id);
             expect(cron.getJobs().length).toEqual(1); // closing deadline
@@ -312,7 +316,8 @@ describe('Cron testing', () => {
 
     describe('executing close deadlines', () => {
         test('should not close the deadline for non-existant position', async () => {
-            expect(cron.getJobs().length).toEqual(0);
+            await cron.registerCloseApplicationDeadline(moment().add(1, 'week').toDate(), 1337);
+            expect(cron.getJobs().length).toEqual(1);
 
             await cron.closeApplications(1337);
             expect(cron.getJobs().length).toEqual(0);
@@ -325,6 +330,9 @@ describe('Cron testing', () => {
                 ends: moment().subtract(1, 'week').toDate(),
             }, event);
             expect(cron.getJobs().length).toEqual(0);
+
+            await cron.registerCloseApplicationDeadline(moment().add(1, 'week').toDate(), position.id);
+            expect(cron.getJobs().length).toEqual(1);
 
             await cron.closeApplications(position.id);
             expect(cron.getJobs().length).toEqual(0);
