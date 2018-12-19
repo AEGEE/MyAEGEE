@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Positions listing', () => {
     beforeEach(async () => {
@@ -166,5 +167,27 @@ describe('Positions listing', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+    });
+
+    test('should return my positions on /mine', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        await generator.createPosition({
+            candidates: [
+                generator.generateCandidate({ status: 'rejected', user_id: regularUser.bodies[0].id }),
+            ]
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/candidates/mine',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errorss');
     });
 });

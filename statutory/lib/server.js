@@ -109,10 +109,10 @@ PositionsRouter.get('/all', positions.listPositionsWithAllCandidates);
 PositionsRouter.get('/approved', positions.listPositionsWithApprovedCandidates);
 PositionsRouter.post('/', positions.createPosition);
 PositionsRouter.put('/:position_id', positions.findPosition, positions.editPosition);
+PositionsRouter.get('/candidates/mine', candidates.getMyCandidatures);
 
 CandidatesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora, positions.findPosition);
 CandidatesRouter.post('/', candidates.submitYourCandidature);
-CandidatesRouter.get('/mine', candidates.getMyCandidatures);
 CandidatesRouter.put('/:candidate_id', candidates.findCandidate, candidates.editCandidature);
 CandidatesRouter.put('/:candidate_id/status', candidates.findCandidate, candidates.setCandidatureStatus);
 
