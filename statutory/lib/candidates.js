@@ -48,6 +48,13 @@ exports.submitYourCandidature = async (req, res) => {
 
     const newCandidate = await Candidate.create(req.body);
 
+    // Checking if we have enough candidates and if the deadline has passed.
+    // If so, closing the deadline (can reopen manually later).
+    const candidatesCount = await Candidate.count({ where: { position_id: req.position.id } });
+    if (candidatesCount > req.position.places && moment().isAfter(req.position.ends)) {
+        await req.position.update({ status: 'closed' });
+    }
+
     return res.json({
         success: true,
         data: newCandidate
