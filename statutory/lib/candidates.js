@@ -1,6 +1,6 @@
 const { errors } = require('oms-common-nodejs');
 
-const { Candidate } = require('../models');
+const { Candidate, Position } = require('../models');
 const helpers = require('./helpers');
 
 exports.findCandidate = async (req, res, next) => {
@@ -22,6 +22,18 @@ exports.findCandidate = async (req, res, next) => {
 
     req.candidate = candidate;
     return next();
+};
+
+exports.getMyCandidatures = async (req, res) => {
+    const candidatures = await Candidate.findAll({
+        where: { user_id: req.user.id },
+        include: [Position]
+    });
+
+    return res.json({
+        success: true,
+        data: candidatures
+    });
 };
 
 exports.submitYourCandidature = async (req, res) => {
