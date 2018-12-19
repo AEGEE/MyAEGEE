@@ -124,6 +124,8 @@ exports.generatePosition = (options = {}, event = null) => {
 };
 
 exports.generateCandidate = (options = {}) => {
+    if (notSet(options.user_id)) options.user_id = faker.random.number({ min: 1, max: 100 });
+    if (notSet(options.body_id)) options.body_id = faker.random.number({ min: 1, max: 100 });
     if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
     if (notSet(options.last_name)) options.last_name = faker.lorem.sentence();
     if (notSet(options.date_of_birth)) options.date_of_birth = faker.date.past();

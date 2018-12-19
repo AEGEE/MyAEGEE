@@ -1,6 +1,24 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 
 const Candidate = sequelize.define('candidate', {
+    user_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'User should be set.' },
+            isInt: { msg: 'User ID should be a number.' }
+        },
+    },
+    body_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Body should be set.' },
+            isInt: { msg: 'Body ID should be a number.' }
+        },
+    },
     first_name: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -42,7 +60,15 @@ const Candidate = sequelize.define('candidate', {
             notEmpty: { msg: 'Nationality should be set.' }
         }
     },
-    position_id: Sequelize.INTEGER,
+    position_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Position should be set.' },
+            isInt: { msg: 'Position ID should be a number.' }
+        },
+    },
     body_name: {
         type: Sequelize.STRING,
         allowNull: false,
