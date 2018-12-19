@@ -122,7 +122,7 @@ server.use('/events/:event_id/applications', ApplicationsRouter);
 server.use('/events/:event_id/applications/:application_id', SingleApplicationRouter);
 server.use('/events/:event_id', EventsRouter);
 server.use('/events/:event_id/votes-amounts', VotesAmountRouter);
-server.use('/events/:event_id/positions/:position_id/candidate', CandidatesRouter);
+server.use('/events/:event_id/positions/:position_id/candidates', CandidatesRouter);
 server.use('/events/:event_id/positions', PositionsRouter);
 server.use('/limits/:event_type', PaxLimitsRouter);
 server.use('/', GeneralRouter);

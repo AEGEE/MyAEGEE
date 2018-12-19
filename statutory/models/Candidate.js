@@ -77,7 +77,32 @@ const Candidate = sequelize.define('candidate', {
             notEmpty: { msg: 'Body name should be set.' }
         }
     },
-    languages: Sequelize.ARRAY(Sequelize.STRING),
+    languages: {
+        type: Sequelize.ARRAY(Sequelize.STRING),
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            isValid(value) {
+                if (!Array.isArray(value)) {
+                    throw new Error('Languages should be an array.');
+                }
+
+                if (value.length === 0) {
+                    throw new Error('Please specify at least 1 language.');
+                }
+
+                for (const lang of value) {
+                    if (typeof lang !== 'string') {
+                        throw new Error('Language should be a string.');
+                    }
+
+                    if (lang.trim().length === 0) {
+                        throw new Error('Language should not be empty.');
+                    }
+                }
+            }
+        }
+    },
     studies: {
         type: Sequelize.STRING,
         allowNull: false,

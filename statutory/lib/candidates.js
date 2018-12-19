@@ -1,4 +1,5 @@
 const { errors } = require('oms-common-nodejs');
+const moment = require('moment');
 
 const { Candidate, Position } = require('../models');
 const helpers = require('./helpers');
@@ -41,9 +42,14 @@ exports.submitYourCandidature = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot submit candidature.');
     }
 
-    delete req.body.status;
-    delete req.body.user_id;
+    if (!req.body.body_id || !helpers.isMemberOf(req.user, req.body.body_id)) {
+        return errors.makeForbiddenError(res, 'You cannot apply on behalf of the body you are not a member of.');
+    }
 
+    delete req.body.status;
+
+    req.body.body_name = req.user.bodies.find(body => body.id === req.body.body_id).name;
+    req.body.user_id = req.user.id;
     req.body.position_id = req.position.id;
 
     const newCandidate = await Candidate.create(req.body);
@@ -52,7 +58,7 @@ exports.submitYourCandidature = async (req, res) => {
     // If so, closing the deadline (can reopen manually later).
     const candidatesCount = await Candidate.count({ where: { position_id: req.position.id } });
     if (candidatesCount > req.position.places && moment().isAfter(req.position.ends)) {
-        await req.position.update({ status: 'closed' });
+        await req.position.update({ status: 'closed' }, { hooks: false });
     }
 
     return res.json({
