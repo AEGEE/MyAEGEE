@@ -38,8 +38,6 @@ describe('Candidates editing', () => {
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
-        console.log(res.body)
-
         expect(res.statusCode).toEqual(403);
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('message');
