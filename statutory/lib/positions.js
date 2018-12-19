@@ -52,7 +52,11 @@ exports.listPositionsWithApprovedCandidates = async (req, res) => {
         }
     });
 
-    // Only returning 
+    // Only returning these candidatures which are approved.
+    // For those pending (rejected won't even be selected),
+    // only the id and the status would be returned.
+    // Status is for every position, so we can filter on that
+    // on the frontend.
     const filtered = positions.map(position => {
         const jsonPosition = position.toJSON();
         jsonPosition.candidates = position.candidates.map(candidate => {
@@ -66,7 +70,7 @@ exports.listPositionsWithApprovedCandidates = async (req, res) => {
 
     return res.json({
         success: true,
-        data: positions
+        data: filtered
     });
 };
 
