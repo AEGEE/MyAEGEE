@@ -1,6 +1,8 @@
 const { errors } = require('oms-common-nodejs');
 
 const { Position, Candidate } = require('../models');
+const { Sequelize } = require('./sequelize');
+
 
 exports.findPosition = async (req, res, next) => {
     if (Number.isNaN(Number(req.params.position_id))) {
@@ -32,7 +34,7 @@ exports.listPositionsWithAllCandidates = async (req, res) => {
 
     const positions = await Position.findAll({
         where: { event_id: req.event.id },
-        include: { model: Candidate }
+        include: [Candidate]
     });
 
     return res.json({
@@ -43,29 +45,31 @@ exports.listPositionsWithAllCandidates = async (req, res) => {
 
 exports.listPositionsWithApprovedCandidates = async (req, res) => {
     const positions = await Position.findAll({
-        where: { event_id: req.event.id },
-        include: {
-            model: Candidate,
-            where: {
-                status: { [Op.ne]: 'rejected' }
-            }
-        }
+        where: {
+            event_id: req.event.id
+        },
+        include: [Candidate]
     });
 
     // Only returning these candidatures which are approved.
-    // For those pending (rejected won't even be selected),
+    // For those pending (rejected would be filtered out),
     // only the id and the status would be returned.
     // Status is for every position, so we can filter on that
     // on the frontend.
     const filtered = positions.map(position => {
         const jsonPosition = position.toJSON();
-        jsonPosition.candidates = position.candidates.map(candidate => {
-            if (candidate.status === 'approved') {
-                return candidate.toJSON();
-            }
 
-            return { id: candidate.id, status: candidate.status }
-        })
+        jsonPosition.candidates = position.candidates
+            .filter(candidate => candidate.status !== 'rejected')
+            .map(candidate => {
+                if (candidate.status === 'approved') {
+                    return candidate.toJSON();
+                }
+
+                return { id: candidate.id, status: candidate.status }
+            })
+
+        return jsonPosition;
     })
 
     return res.json({
