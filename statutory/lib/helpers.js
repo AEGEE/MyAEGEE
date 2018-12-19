@@ -97,3 +97,18 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
 
     return permissions;
 };
+
+exports.getPositionPermissions = ({ permissions, position }) => {
+    permissions.submit_candidature = position.can_apply || permissions.manage_candidates;
+
+    return permissions;
+};
+
+exports.getCandidatePermissions = ({ permissions, position, candidature, user }) => {
+    const mine = candidature.user_id === req.user.id;
+
+    permissions.edit_candidature = (mine && position.can_apply) || permissions.manage_candidates;
+    permissions.set_candidature_status = (mine && position.can_apply) || permissions.manage_candidates;
+
+    return permissions;
+};

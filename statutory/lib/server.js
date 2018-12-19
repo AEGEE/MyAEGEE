@@ -14,6 +14,7 @@ const massmailer = require('./massmailer');
 const paxLimits = require('./pax_limits');
 const votesAmounts = require('./votes_amounts');
 const positions = require('./positions');
+const candidates = require('./candidates');
 const bugsnag = require('./bugsnag');
 
 const GeneralRouter = router({ mergeParams: true });
@@ -25,6 +26,7 @@ const MembersListsRouter = router({ mergeParams: true });
 const MassMailerRouter = router({ mergeParams: true });
 const VotesAmountRouter = router({ mergeParams: true });
 const PositionsRouter = router({ mergeParams: true });
+const CandidatesRouter = router({ mergeParams: true });
 
 const server = express();
 server.use(bodyParser.json());
@@ -108,12 +110,18 @@ PositionsRouter.get('/approved', positions.listPositionsWithApprovedCandidates);
 PositionsRouter.post('/', positions.createPosition);
 PositionsRouter.put('/:position_id', positions.findPosition, positions.editPosition);
 
+CandidatesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora, positions.findPosition);
+CandidatesRouter.post('/', candidates.submitYourCandidature);
+CandidatesRouter.put('/:candidate_id', candidates.findCandidate, candidates.editCandidature);
+CandidatesRouter.put('/:candidate_id/status', candidates.findCandidate, candidates.setCandidatureStatus);
+
 server.use('/events/:event_id/massmailer', MassMailerRouter);
 server.use('/events/:event_id/memberslists', MembersListsRouter);
 server.use('/events/:event_id/applications', ApplicationsRouter);
 server.use('/events/:event_id/applications/:application_id', SingleApplicationRouter);
 server.use('/events/:event_id', EventsRouter);
 server.use('/events/:event_id/votes-amounts', VotesAmountRouter);
+server.use('/events/:event_id/positions/:position_id/candidate', CandidatesRouter);
 server.use('/events/:event_id/positions', PositionsRouter);
 server.use('/limits/:event_type', PaxLimitsRouter);
 server.use('/', GeneralRouter);

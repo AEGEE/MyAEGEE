@@ -1,6 +1,28 @@
 const { errors } = require('oms-common-nodejs');
 
 const { Candidate } = require('../models');
+const helpers = require('./helpers');
+
+exports.findCandidate = async (req, res, next) => {
+    if (Number.isNaN(Number(req.params.candidate_id))) {
+        return errors.makeBadRequestError(res, 'The candidate ID is invalid.');
+    }
+
+    const candidate = await Candidate.findByPk(Number(req.params.candidate_id));
+    if (!candidate) {
+        return errors.makeNotFoundError(res, 'Candidate is not found.');
+    }
+
+    req.permissions = helpers.getCandidatePermissions({
+        permissions: req.permissions,
+        position: req.position,
+        candidate,
+        user: req.user,
+    })
+
+    req.candidate = candidate;
+    return next();
+};
 
 exports.submitYourCandidature = async (req, res) => {
     if (!req.permissions.submit_candidature) {
@@ -28,12 +50,11 @@ exports.editCandidature = async (req, res) => {
     delete req.body.status;
     delete req.body.user_id;
 
-    const candidate = await Candidate.findById(Number(req.params.position_id));
-    await candidate.update(req.body);
+    await req.candidate.update(req.body);
 
     return res.json({
         success: true,
-        data: candidate
+        data: req.candidate
     });
 };
 
@@ -42,11 +63,10 @@ exports.setCandidatureStatus = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot update this candidature\'s status.');
     }
 
-    const candidate = await Candidate.findById(Number(req.params.position_id));
-    await candidate.update({ status: req.body.status });
+    await req.candidate.update({ status: req.body.status });
 
     return res.json({
         success: true,
-        data: candidate
+        data: req.candidate
     });
 };

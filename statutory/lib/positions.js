@@ -1,8 +1,7 @@
 const { errors } = require('oms-common-nodejs');
 
 const { Position, Candidate } = require('../models');
-const { Sequelize } = require('./sequelize');
-
+const helpers = require('./helpers');
 
 exports.findPosition = async (req, res, next) => {
     if (Number.isNaN(Number(req.params.position_id))) {
@@ -13,6 +12,11 @@ exports.findPosition = async (req, res, next) => {
     if (!position) {
         return errors.makeNotFoundError(res, 'Position is not found.');
     }
+
+    req.permissions = helpers.getPositionPermissions({
+        permissions: req.permissions,
+        position
+    })
 
     req.position = position;
     return next();
