@@ -55,6 +55,12 @@ const Position = sequelize.define('Position', {
             }
         }
     },
+    can_apply: {
+        type: Sequelize.VIRTUAL,
+        get() {
+            return moment().isBetween(this.starts, this.ends, null, '[]'); // inclusive
+        }
+    }
 }, { underscored: true, tableName: 'positions' });
 
 Position.beforeValidate((position) => {
