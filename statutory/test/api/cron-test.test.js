@@ -174,7 +174,7 @@ describe('Cron testing', () => {
             await sleep(4000);
 
             const positionFromDb = await Position.findByPk(res.body.data.id);
-            expect(positionFromDb.status).toEqual('closed');
+            expect(positionFromDb.status).toEqual('open'); // because no one applied
             expect(cron.getJobs().length).toEqual(0);
         });
     });
@@ -338,16 +338,41 @@ describe('Cron testing', () => {
             expect(cron.getJobs().length).toEqual(0);
         });
 
+        test('should not close the deadline if not enough candidates', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const position = await generator.createPosition({
+                starts: moment().subtract(1, 'week').toDate(),
+                ends: moment().add(2, 'week').toDate(),
+                places: 1,
+                candidates: []
+            }, event);
+            expect(cron.getJobs().length).toEqual(1); // closing deadline
+
+            await cron.closeApplications(position.id); // won't close it, too few people
+            expect(cron.getJobs().length).toEqual(0);
+
+            const positionFromDb = await Position.findByPk(position.id);
+            expect(positionFromDb.status).toEqual('open');
+        });
+
         test('should close the deadline if everything\'s okay', async () => {
             const event = await generator.createEvent({ type: 'agora', applications: [] });
             const position = await generator.createPosition({
                 starts: moment().subtract(1, 'week').toDate(),
                 ends: moment().add(2, 'week').toDate(),
+                places: 1,
+                candidates: [
+                    generator.generateCandidate({ status: 'approved' }),
+                    generator.generateCandidate({ status: 'approved' }), // so it would properly close
+                ]
             }, event);
             expect(cron.getJobs().length).toEqual(1); // closing deadline
 
             await cron.closeApplications(position.id);
-            expect(cron.getJobs().length).toEqual(0); // closing deadline
+            expect(cron.getJobs().length).toEqual(0);
+
+            const positionFromDb = await Position.findByPk(position.id);
+            expect(positionFromDb.status).toEqual('closed');
         });
     });
 });

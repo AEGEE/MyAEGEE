@@ -2,7 +2,7 @@ const scheduler = require('node-schedule');
 const moment = require('moment');
 
 const logger = require('./logger');
-const { Position } = require('../models');
+const { Position, Candidate } = require('../models');
 
 let jobs = [];
 
@@ -62,44 +62,53 @@ exports.registerCloseApplicationDeadline = (time, id) => {
 exports.openApplications = async (id) => {
     const position = await Position.findByPk(id);
     if (!position) {
-        logger.warn('Position is not found.');
+        logger.warn(`Opening applications for position ${id}: Position is not found.`);
         jobs = jobs.filter(job => !(job.type === 'position' && job.action === 'open' && job.objectId === id));
         return;
     }
 
     if (position.status !== 'closed') {
-        logger.warn('Position status is not closed.');
+        logger.warn(`Opening applications for position ${id}: Position status is not closed.`);
         jobs = jobs.filter(job => !(job.type === 'position' && job.action === 'open' && job.objectId === id));
         return;
     }
 
     await position.update({ status: 'open' });
-    logger.info(`Successfully opened deadline for position #${id} (${position.name})`);
+    logger.info(`Opening applications for position ${id}: Successfully opened deadline for position #${id} (${position.name})`);
 
     jobs = jobs.filter(job => !(job.type === 'position' && job.action === 'open' && job.objectId === id));
 }
 
 exports.closeApplications = async (id) => {
     const position = await Position.findByPk(id, {
-        // to include candidates here
+        include: [Candidate]
     });
 
     if (!position) {
-        logger.warn('Position is not found.');
+        logger.warn(`Closing applications for position ${id}: Position is not found.`);
         jobs = jobs.filter(job => !(job.type === 'position' && job.action === 'close' && job.objectId === id));
         return;
     }
 
     if (position.status === 'closed') {
-        logger.warn('Position status is not open.');
+        logger.warn(`Closing applications for position ${id}: Position status is not open.`);
         jobs = jobs.filter(job => !(job.type === 'position' && job.action === 'close' && job.objectId === id));
         return;
     }
 
-    // TODO: check if enough candidates, not update otherwise.
+    // Checking if there's enough candides, otherwise not closing the deadline.
+    const candidates = position.candidates
+        .filter(candidate => candidate.status !== 'rejected')
+        .length;
 
-    await position.update({ status: 'closed' });
-    logger.info(`Successfully closed deadline for position #${id} (${position.name})`);
+    if (candidates <= position.places) {
+        logger.warn(`Closing applications for position ${id}: not filled all the places (required ${position.places}, applied ${candidates})`);
+        jobs = jobs.filter(job => !(job.type === 'position' && job.action === 'close' && job.objectId === id));
+        return;
+    }
+
+    await position.update({ status: 'closed' }, { hooks: false });
+    logger.info(`Closing applications for position ${id}: Successfully closed deadline for position #${id} (${position.name})`);
 
     jobs = jobs.filter(job => !(job.type === 'position' && job.action === 'close' && job.objectId === id));
 }
