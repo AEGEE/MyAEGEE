@@ -7,30 +7,28 @@
         <table class="table is-narrow is-fullwidth">
           <thead>
             <tr>
-              <th>User ID</th>
+              <th>ID</th>
               <th>Name</th>
               <th>Body</th>
+              <th>Type and order</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="pax in applications" v-bind:key="pax.user_id">
-              <td>{{ pax.user_id }}</td>
-              <td>
-                <router-link :to="{ name: 'oms.members.view', params: { id: pax.user_id } }">
-                  {{ pax.user ? pax.user.first_name + ' ' + pax.user.last_name: 'Loading...' }}
-                </router-link>
-              </td>
+            <tr v-for="pax in applications" v-bind:key="pax.id">
+              <td>{{ pax.id }}</td>
+              <td>{{ pax.first_name }} {{ pax.last_name }}</td>
               <td>
                 <router-link :to="{ name: 'oms.bodies.view', params: { id: pax.body_id } }">
-                  {{ pax.body ? pax.body.name : 'Loading...' }}
+                  {{ pax.body_name }}
                 </router-link>
               </td>
+              <td>{{ pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' }}</td>
             </tr>
             <tr v-if="applications.length == 0 && !isLoading">
-              <td colspan="3">No applications yet!</td>
+              <td colspan="4">No applications yet!</td>
             </tr>
             <tr v-if="isLoading">
-              <td colspan="3">Loading...</td>
+              <td colspan="4">Loading...</td>
             </tr>
           </tbody>
         </table>
@@ -60,22 +58,11 @@ export default {
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/accepted').then((application) => {
       this.applications = application.data.data
       this.isLoading = false
-
-      // Fetching users and bodies.
-      for (const application of this.applications) {
-        this.axios.get(this.services['oms-core-elixir'] + '/members/' + application.user_id).then((user) => {
-          const member = user.data.data
-          application.user = member
-          application.body = member.bodies.find(body => body.id === application.body_id)
-
-          this.$forceUpdate()
-        }).catch(console.error)
-      }
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
       this.$root.showDanger(message)
-      this.$router.push({ name: 'oms.statutory.list' })
+      this.$router.push({ name: 'oms.statutory.list.all' })
     })
   }
 }
