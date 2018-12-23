@@ -575,12 +575,12 @@ module.exports = [
     path: '/statutory/:id/positions/:position_id/apply',
     component: 'statutory/EditCandidate',
     meta: {
-      label: 'Apply as a candidature'
+      label: 'Apply as a candidate'
     }
   },
   {
     name: 'oms.statutory.candidates.edit',
-    path: '/statutory/:id/positions/:position_id/candidates/:id/edit',
+    path: '/statutory/:id/positions/:position_id/candidates/:candidate_id/edit',
     component: 'statutory/EditCandidate',
     meta: {
       label: 'Edit your application'

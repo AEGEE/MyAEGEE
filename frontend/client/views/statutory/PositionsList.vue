@@ -45,7 +45,18 @@
             </b-table-column>
 
             <b-table-column label="Apply" centered>
-              <router-link :to="{ name: 'oms.statutory.candidates.new', params: { id: $route.params.id, position_id: props.row.id } }" class="button is-small" v-if="props.row.status === 'open'">Apply!</router-link>
+              <router-link
+                :to="{ name: 'oms.statutory.candidates.new', params: { id: $route.params.id, position_id: props.row.id } }"
+                class="button is-small"
+                v-if="props.row.status === 'open' && !props.row.myCandidate">
+                Apply!
+              </router-link>
+              <router-link
+                :to="{ name: 'oms.statutory.candidates.edit', params: { id: $route.params.id, position_id: props.row.id, candidate_id: props.row.myCandidate.id } }"
+                class="button is-small is-warning"
+                v-if="props.row.status === 'open' && props.row.myCandidate">
+                Edit my application!
+              </router-link>
               <span v-if="props.row.status !== 'open'">You cannot apply.</span>
             </b-table-column>
           </template>
@@ -104,6 +115,7 @@ export default {
   data () {
     return {
       positions: [],
+      myCandidates: [],
       selected: null,
       event: {},
       selectedPosition: null,
@@ -209,10 +221,21 @@ export default {
         }
       }
 
+      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/candidates/mine')
+    }).then((myCandidates) => {
+      this.myCandidates = myCandidates.data.data
+
+      for (const candidate of this.myCandidates) {
+        const position = this.positions.find(pos => pos.id === candidate.position_id)
+        if (position) {
+          this.$set(position, 'myCandidate', candidate)
+        }
+      }
+
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false
-      let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+      let message = (err.response && err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
       this.$root.showDanger(message)
       this.$router.push({ name: 'oms.statutory.list' })

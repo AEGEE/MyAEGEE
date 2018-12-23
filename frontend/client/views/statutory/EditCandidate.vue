@@ -102,7 +102,7 @@
         <div class="field">
           <label class="label">Languages</label>
           <div class="control">
-            <input-tag v-model="candidate.languages"></input-tag>
+            <input-tag v-if="!isLoading" v-model="candidate.languages"></input-tag>
           </div>
           <p class="help is-danger" v-if="errors.languages">{{ errors.languages.join(', ') }}</p>
         </div>
@@ -226,9 +226,6 @@ export default {
       autoComplete: {
         bodies: { name: '', values: [], loading: false }
       },
-      can: {
-        edit_application_status: false
-      },
       errors: {},
       isLoading: false,
       isSaving: false
@@ -253,7 +250,7 @@ export default {
 
         return this.$router.push({
           name: 'oms.statutory.positions',
-          params: { id: this.$route.params.id }
+          params: { id: this.$route.params.id, prefix: 'approved' }
         })
       }).catch((err) => {
         this.isSaving = false
@@ -300,8 +297,8 @@ export default {
     this.axios.get(
       this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/' + this.$route.params.position_id + '/candidates/' + this.$route.params.candidate_id
     ).then((response) => {
-      this.event = response.data.data
-      this.can = response.data.data.permissions
+      this.$set(this, 'candidate', response.data.data)
+      this.$set(this.candidate, 'body', this.loginUser.bodies.find(body => body.id === this.candidate.body_id))
 
       this.isLoading = false
     }).catch((err) => {
