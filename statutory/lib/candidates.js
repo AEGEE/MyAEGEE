@@ -2,6 +2,8 @@ const { errors } = require('oms-common-nodejs');
 const moment = require('moment');
 
 const { Candidate, Position } = require('../models');
+const { Sequelize } = require('./sequelize');
+
 const helpers = require('./helpers');
 
 exports.findCandidate = async (req, res, next) => {
@@ -56,7 +58,13 @@ exports.submitYourCandidature = async (req, res) => {
 
     // Checking if we have enough candidates and if the deadline has passed.
     // If so, closing the deadline (can reopen manually later).
-    const candidatesCount = await Candidate.count({ where: { position_id: req.position.id } });
+    const candidatesCount = await Candidate.count({
+        where: {
+            position_id: req.position.id,
+            status: { [Sequelize.Op.ne]: 'rejected' }
+        }
+    });
+
     if (candidatesCount > req.position.places && moment().isAfter(req.position.ends)) {
         await req.position.update({ status: 'closed' }, { hooks: false });
     }
