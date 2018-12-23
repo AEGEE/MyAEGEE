@@ -66,6 +66,20 @@
             </router-link>
           </div>
 
+          <div class="field is-grouped" v-if="can.manage_candidates && this.event.type === 'agora'">
+            <router-link :to="{ name: 'oms.statutory.positions', params: { id: event.url || event.id, prefix: 'all' } }" class="button is-fullwidth">
+              <span>Manage candidates</span>
+              <span class="icon"><i class="fa fa-vote-yea"></i></span>
+            </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="this.event.type === 'agora'">
+            <router-link :to="{ name: 'oms.statutory.positions', params: { id: event.url || event.id, prefix: 'approved' } }" class="button is-fullwidth">
+              <span>View candidates</span>
+              <span class="icon"><i class="fa fa-vote-yea"></i></span>
+            </router-link>
+          </div>
+
           <div class="field is-grouped">
             <router-link :to="{ name: 'oms.statutory.applications.stats', params: { id: event.url || event.id} }" class="button is-fullwidth">
               <span>Applications stats</span>
