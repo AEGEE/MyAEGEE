@@ -562,6 +562,30 @@ module.exports = [
       label: 'Votes amount per antenna/delegates'
     }
   },
+  {
+    name: 'oms.statutory.positions',
+    path: '/statutory/:id/positions/:prefix',
+    component: 'statutory/PositionsList',
+    meta: {
+      label: 'Positions list for Agora'
+    }
+  },
+  {
+    name: 'oms.statutory.candidates.new',
+    path: '/statutory/:id/positions/:position_id/apply',
+    component: 'statutory/EditCandidate',
+    meta: {
+      label: 'Apply as a candidature'
+    }
+  },
+  {
+    name: 'oms.statutory.candidates.edit',
+    path: '/statutory/:id/positions/:position_id/candidates/:id/edit',
+    component: 'statutory/EditCandidate',
+    meta: {
+      label: 'Edit your application'
+    }
+  },
   /* Static resources. */
   {
     name: 'oms.legal.simple',
