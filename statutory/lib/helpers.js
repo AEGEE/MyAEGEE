@@ -107,7 +107,7 @@ exports.getPositionPermissions = ({ permissions, position }) => {
 exports.getCandidatePermissions = ({ permissions, position, candidate, user }) => {
     const mine = candidate.user_id === user.id
 
-    permissions.edit_candidature = (mine && position.can_apply) || permissions.manage_candidates;
+    permissions.edit_candidature = (mine && position.status === 'open') || permissions.manage_candidates;
     permissions.set_candidature_status = permissions.manage_candidates;
 
     return permissions;
