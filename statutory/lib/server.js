@@ -113,6 +113,7 @@ PositionsRouter.get('/candidates/mine', candidates.getMyCandidatures);
 
 CandidatesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora, positions.findPosition);
 CandidatesRouter.post('/', candidates.submitYourCandidature);
+CandidatesRouter.get('/:candidate_id', candidates.findCandidate, candidates.getCandidature);
 CandidatesRouter.put('/:candidate_id', candidates.findCandidate, candidates.editCandidature);
 CandidatesRouter.put('/:candidate_id/status', candidates.findCandidate, candidates.setCandidatureStatus);
 

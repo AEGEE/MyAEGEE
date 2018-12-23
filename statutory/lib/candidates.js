@@ -75,6 +75,17 @@ exports.submitYourCandidature = async (req, res) => {
     });
 };
 
+exports.getCandidature = async (req, res) => {
+    if (req.candidate.user_id !== req.user.id && !req.permissions.edit_candidature) {
+        return errors.makeForbiddenError(res, 'You cannot see this candidature.');
+    }
+
+    return res.json({
+        success: true,
+        data: req.candidate
+    });
+};
+
 exports.editCandidature = async (req, res) => {
     if (!req.permissions.edit_candidature) {
         return errors.makeForbiddenError(res, 'You cannot edit this candidature.');
