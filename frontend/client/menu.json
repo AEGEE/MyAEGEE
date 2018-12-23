@@ -5,7 +5,7 @@
       {
         "name": "oms.dashboard",
         "label": "Dashboard",
-        "icon": "fa-tachometer"
+        "icon": "fa-tachometer-alt"
       }
     ]
   },
@@ -39,7 +39,7 @@
       {
         "name": "oms.campaigns.list",
         "label": "Campaigns",
-        "icon": "fa-sign-in",
+        "icon": "fa-sign-in-alt",
         "permissions": ["global:view:campaign"]
       }
     ]
@@ -80,7 +80,7 @@
       {
         "name": "oms.resources",
         "label": "Resources",
-        "icon": "fa-external-link"
+        "icon": "fa-external-link-alt"
       }
     ]
   }

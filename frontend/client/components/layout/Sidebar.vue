@@ -7,14 +7,14 @@
       <ul class="menu-list">
         <li v-for="(item, index) in category.components" exact="true" v-bind:key="item.name" v-if="userHasPermissions(item)">
           <router-link :to="{ name: item.name }" v-if="item.name" :aria-expanded="isExpanded(item) ? 'true' : 'false'" @click.native="toggle(index, categoryIndex, item)">
-            <span class="icon is-small"><i :class="['fa', item.icon]"></i></span>
+            <span><i :class="['fas', item.icon]"></i></span>
             {{ item.label }}
             <span class="icon is-small is-angle" v-if="item.children && item.children.length">
               <i class="fa fa-angle-down"></i>
             </span>
           </router-link>
           <a :aria-expanded="isExpanded(item)" v-else @click="toggle(index, categoryIndex, item)">
-            <span class="icon is-small"><i :class="['fa', item.icon]"></i></span>
+            <span><i :class="['fas', item.icon]"></i></span>
             {{ item.label }}
             <span class="icon is-small is-angle" v-if="item.children && item.children.length">
               <i class="fa fa-angle-down"></i>

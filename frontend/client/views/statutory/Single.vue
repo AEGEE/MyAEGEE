@@ -13,7 +13,7 @@
           <div class="field is-grouped" v-if="can.manage_applications">
             <router-link :to="{ name: 'oms.statutory.applications', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>View applications</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
+              <span class="icon"><i class="fas fa-users"></i></span>
             </router-link>
           </div>
 
