@@ -9,6 +9,7 @@ import flatPickr from 'vue-flatpickr-component'
 import Multiselect from 'vue-multiselect'
 import InputTag from 'vue-input-tag'
 import qs from 'qs'
+import '@fortawesome/fontawesome-free/js/all.js'
 
 import App from './App.vue'
 import router from './router'

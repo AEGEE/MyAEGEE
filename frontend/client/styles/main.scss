@@ -43,8 +43,10 @@ $background: $grey-light;
 $link: $blue;
 $family-primary: $family-sans-serif;
 
-$fa-font-path: '~font-awesome/fonts/';
-@import '~font-awesome/scss/font-awesome';
+$fa-font-path: "../fonts" !default;
+@import '~@fortawesome/fontawesome-free/scss/fontawesome.scss';
+
+// @import '~@fortawesome/fontawesome-free/css/v4-shims.css';
 
 
 /* * {
