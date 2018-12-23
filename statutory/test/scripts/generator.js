@@ -124,7 +124,7 @@ exports.generatePosition = (options = {}, event = null) => {
     return options;
 };
 
-exports.generateCandidate = (options = {}) => {
+exports.generateCandidate = (options = {}, position) => {
     if (notSet(options.user_id)) options.user_id = faker.random.number({ min: 1, max: 100 });
     if (notSet(options.body_id)) options.body_id = faker.random.number({ min: 1, max: 100 });
     if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
@@ -149,6 +149,10 @@ exports.generateCandidate = (options = {}) => {
     if (notSet(options.motivation)) options.motivation = faker.lorem.paragraph();
     if (notSet(options.program)) options.program = faker.lorem.paragraph();
 
+    if (position && position.id) {
+        options.position_id = position.id;
+    }
+
     return options;
 };
 
@@ -170,6 +174,10 @@ exports.createPaxLimit = (options = {}) => {
 
 exports.createPosition = (options = {}, event = null) => {
     return Position.create(exports.generatePosition(options, event), { include: [Candidate] });
+};
+
+exports.createCandidate = (options = {}, position = null) => {
+    return Candidate.create(exports.generateCandidate(options, position));
 };
 
 exports.clearAll = async () => {
