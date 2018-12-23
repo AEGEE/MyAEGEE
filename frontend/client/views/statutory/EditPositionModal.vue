@@ -43,7 +43,7 @@
         <div class="control">
         <input type="number" class="input" v-model.number="position.places" min="1">
         </div>
-        <p class="help is-danger" v-if="errors.ends">{{ errors.ends.join(', ') }}</p>
+        <p class="help is-danger" v-if="errors.places">{{ errors.places.join(', ') }}</p>
       </div>
 
       <!-- <div class="field">
@@ -113,7 +113,7 @@ export default {
   },
   mounted () {
     this.dates.starts = this.position.starts = new Date(this.position.starts)
-    this.dates.ends = this.position.starts = new Date(this.event.ends)
+    this.dates.ends = this.position.ends = new Date(this.position.ends)
   }
 }
 </script>
