@@ -62,7 +62,7 @@
 <script>
 export default {
   name: 'EditPositionModal',
-  props: ['event', 'position', 'services', 'showSuccess', 'showDanger'],
+  props: ['event', 'position', 'services', 'showSuccess', 'showDanger', 'router'],
   data () {
     return {
       errors: {},
@@ -101,7 +101,7 @@ export default {
         this.showSuccess('Position is created.')
 
         this.isLoading = false
-        this.$parent.close()
+        this.router.go(0) // Reloading the page.
       }).catch((err) => {
         this.isLoading = false
         let message = err.response && err.response.status === 422 ? 'Some fields were not set: ' : err.message
