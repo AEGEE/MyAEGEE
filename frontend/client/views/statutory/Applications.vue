@@ -64,6 +64,10 @@
               {{ field.get(props.row) | beautify }}
             </b-table-column>
 
+            <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled">
+              {{ props.row.cancelled | beautify }}
+            </b-table-column>
+
             <b-table-column field="paid_fee" label="Confirmed?" centered sortable>
               {{ props.row.paid_fee | beautify }}
             </b-table-column>
