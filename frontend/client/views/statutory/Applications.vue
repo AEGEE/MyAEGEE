@@ -120,6 +120,7 @@ export default {
       event: {
         questions: []
       },
+      query: '',
       limit: 50,
       selectedFields: [
         { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
@@ -148,9 +149,14 @@ export default {
       loginUser: 'user'
     }),
     filteredApplications () {
-      return this.displayCancelled
+      const filterCancelled = this.displayCancelled
         ? this.applications
         : this.applications.filter(app => !app.cancelled)
+
+      const lowercaseQuery = this.query.toLowerCase()
+
+      return filterCancelled.filter(app =>
+        ['first_name', 'last_name', 'email'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
     }
   },
   methods: {
