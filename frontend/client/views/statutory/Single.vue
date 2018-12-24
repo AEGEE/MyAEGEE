@@ -13,7 +13,7 @@
           <div class="field is-grouped" v-if="can.manage_applications">
             <router-link :to="{ name: 'oms.statutory.applications', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>View applications</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
+              <span class="icon"><i class="fas fa-users"></i></span>
             </router-link>
           </div>
 
@@ -63,6 +63,20 @@
             <router-link :to="{ name: 'oms.statutory.massmailer', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Mass mailer</span>
               <span class="icon"><i class="fa fa-envelope"></i></span>
+            </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="can.manage_candidates && this.event.type === 'agora'">
+            <router-link :to="{ name: 'oms.statutory.positions', params: { id: event.url || event.id, prefix: 'all' } }" class="button is-fullwidth">
+              <span>Manage candidates</span>
+              <span class="icon"><i class="fa fa-vote-yea"></i></span>
+            </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="this.event.type === 'agora'">
+            <router-link :to="{ name: 'oms.statutory.positions', params: { id: event.url || event.id, prefix: 'approved' } }" class="button is-fullwidth">
+              <span>View candidates</span>
+              <span class="icon"><i class="fa fa-vote-yea"></i></span>
             </router-link>
           </div>
 

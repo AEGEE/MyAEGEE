@@ -33,6 +33,7 @@
     "lint:fix": "eslint --fix --ext .js .vue electron.js client/* build/* config/*"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.6.3",
     "animate.css": "3.5.2",
     "animejs": "^2.0.1",
     "axios": "^0.15.3",
@@ -42,7 +43,6 @@
     "bulma": "^0.7.1",
     "chart.js": "^2.7.3",
     "copy-webpack-plugin": "^4.5.2",
-    "font-awesome": "4.7.0",
     "marked": "^0.4.0",
     "moment": "^2.22.2",
     "qs": "^6.5.2",
