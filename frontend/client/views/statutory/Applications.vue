@@ -6,13 +6,6 @@
 
         <div class="field">
           <div class="control">
-            <button class="button is-primary" v-if="!displayCancelled" @click="displayCancelled = true">Display all applications</button>
-            <button class="button is-primary" v-if="displayCancelled" @click="displayCancelled = false">Display only not cancelled applications</button>
-          </div>
-        </div>
-
-        <div class="field">
-          <div class="control">
             <multiselect
               v-model="selectedFields"
               :multiple="true"
@@ -30,6 +23,19 @@
                 <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} fields selected</span>
               </template>
             </multiselect>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Search by name or description</label>
+          <div class="field has-addons">
+            <div class="control is-expanded">
+              <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
+            </div>
+            <div class="control">
+              <button class="button is-primary" v-if="!displayCancelled" @click="displayCancelled = true">Display all applications</button>
+              <button class="button is-primary" v-if="displayCancelled" @click="displayCancelled = false">Display only not cancelled applications</button>
+            </div>
           </div>
         </div>
 
