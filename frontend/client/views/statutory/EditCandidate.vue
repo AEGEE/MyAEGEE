@@ -188,6 +188,17 @@
         </div>
 
         <div class="field">
+          <label class="checkbox">
+            I agree to the storing and processing of my personal data provided
+            in the above form by AEGEE-Europe for evaluation purposes.
+            Additionally, AEGEE-Europe can publish the application
+            if requested, but ensuring the protection of personal data.
+            <input type="checkbox" required v-model="candidate.agreed_to_privacy_policy" />
+          </label>
+          <p class="help is-danger" v-if="errors.agreed_to_privacy_policy">{{ errors.agreed_to_privacy_policy.join(', ') }}</p>
+        </div>
+
+        <div class="field">
           <div class="control">
             <input type="submit" value="Save candidature" :disabled="isSaving" class="button is-primary is-fullwidth"/>
           </div>
@@ -217,7 +228,8 @@ export default {
         member_since: '',
         body_id: null,
         body: null,
-        languages: []
+        languages: [],
+        agreed_to_privacy_policy: false
       },
       countries,
       dateConfig: {},
