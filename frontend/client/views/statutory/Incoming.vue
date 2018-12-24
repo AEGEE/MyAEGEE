@@ -6,13 +6,6 @@
 
         <div class="field">
           <div class="control">
-            <button class="button is-primary" v-if="!displayCancelled" @click="displayCancelled = true">Display all applications</button>
-            <button class="button is-primary" v-if="displayCancelled" @click="displayCancelled = false">Display only not cancelled applications</button>
-          </div>
-        </div>
-
-        <div class="field">
-          <div class="control">
             <multiselect
               v-model="selectedFields"
               :multiple="true"
@@ -33,81 +26,93 @@
           </div>
         </div>
 
-        <table class="table is-narrow is-fullwidth">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>User ID</th>
-              <th>Body</th>
-              <th class="has-background-white-bis" v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.name }}</th>
-              <th v-if="displayCancelled">Cancelled?</th>
-              <th>Confirmed?</th>
-              <th>Attended?</th>
-              <th>Departed?</th>
-              <th>View</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="pax in filteredApplications" v-bind:key="pax.user_id" :class="calculateClassForApplication(pax)">
-              <td>{{ pax.id }}</td>
-              <td>
-                <router-link :to="{ name: 'oms.members.view', params: { id: pax.user_id } }">
-                  {{ pax.user_id }}
-                </router-link>
-              </td>
-              <td>
-                <router-link :to="{ name: 'oms.bodies.view', params: { id: pax.body_id } }">
-                  {{ pax.body_name }}
-                </router-link>
-              </td>
-              <td v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.get(pax) | beautify }}</td>
-              <td v-if="displayCancelled">{{ pax.cancelled ? 'Yes' : 'No' }}</td>
-              <td>
-                <div class="select" :class="{ 'is-loading': pax.isSavingPaidFee }">
-                  <select v-model="pax.newPaidFee" @change="switchPaxPaidFee(pax)" :disabled="pax.attended">
-                    <option :value="true">Yes</option>
-                    <option :value="false">No</option>
-                  </select>
-                </div>
-              </td>
-              <td>
-                <div class="select" :class="{ 'is-loading': pax.isSavingAttended }">
-                  <select v-model="pax.newAttended" @change="switchPaxAttended(pax)" :disabled="!pax.paid_fee || pax.departed">
-                    <option :value="true">Yes</option>
-                    <option :value="false">No</option>
-                  </select>
-                </div>
-              </td>
-              <td>
-                <div class="select" :class="{ 'is-loading': pax.isSavingDeparted }">
-                  <select v-model="pax.newDeparted" @change="switchPaxDeparted(pax)" :disabled="!pax.attended">
-                    <option :value="true">Yes</option>
-                    <option :value="false">No</option>
-                  </select>
-                </div>
-              </td>
-              <td>
-                <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: pax.id } }">
-                  View
-                </router-link>
-              </td>
-            </tr>
-            <tr v-if="filteredApplications.length == 0 && !isLoading">
-              <td :colspan="selectedFields.length + event.questions.length">No applications yet!</td>
-            </tr>
-            <tr v-if="isLoading">
-              <td :colspan="selectedFields.length + event.questions.length">Loading...</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="field">
+          <label class="label">Search by name or description</label>
+          <div class="field has-addons">
+            <div class="control is-expanded">
+              <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
+            </div>
+            <div class="control">
+              <button class="button is-primary" v-if="!displayCancelled" @click="displayCancelled = true">Display all applications</button>
+              <button class="button is-primary" v-if="displayCancelled" @click="displayCancelled = false">Display only not cancelled applications</button>
+            </div>
+          </div>
+        </div>
 
-        <nav class="pagination" v-show="applications.length > 0">
-          <ul class="pagination-list">
-            <li v-for="(value, index) in Math.ceil(applications.length / limit)" :key="index">
-              <a class="pagination-link" :class="{ 'is-current': index === page }" @click="page = index">{{ (index + 1) }} </a>
-            </li>
-          </ul>
-        </nav>
+        <b-table
+          :data="filteredApplications"
+          :loading="isLoading"
+          :row-class="row => calculateClassForApplication(row)"
+          paginated
+          :per-page="limit"
+          default-sort="id"
+          default-sort-direction="desc">
+          <template slot-scope="props">
+            <b-table-column field="id" label="#" numeric sortable>
+              {{ props.row.id }}
+            </b-table-column>
+
+            <b-table-column field="name" label="User ID" sortable>
+              {{ props.row.user_id }}
+            </b-table-column>
+
+            <b-table-column field="body_name" label="Body" centered sortable>
+              {{ props.row.body_name }}
+            </b-table-column>
+
+            <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name" sortable>
+              {{ field.get(props.row) | beautify }}
+            </b-table-column>
+
+            <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled">
+              {{ props.row.cancelled | beautify }}
+            </b-table-column>
+
+            <b-table-column field="paid_fee" label="Confirmed?" centered sortable>
+              <div class="select" :class="{ 'is-loading': props.row.isSavingPaidFee }">
+                <select v-model="props.row.newPaidFee" @change="switchPaxPaidFee(props.row)" :disabled="props.row.attended">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+            </b-table-column>
+
+            <b-table-column field="attended" label="Attended?" centered sortable>
+              <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
+                <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.paid_fee || props.row.departed">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+            </b-table-column>
+
+            <b-table-column field="paid_fee" label="Departed?" centered sortable>
+              <div class="select" :class="{ 'is-loading': props.row.isSavingDeparted }">
+                <select v-model="props.row.newDeparted" @change="switchPaxDeparted(props.row)" :disabled="!props.row.attended">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+            </b-table-column>
+
+            <b-table-column label="View" centered>
+              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.id } }">
+                View
+              </router-link>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
       </div>
     </div>
   </div>
@@ -124,7 +129,7 @@ export default {
       event: {
         questions: []
       },
-      page: 0,
+      query: '',
       limit: 50,
       selectedFields: [
         { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
@@ -153,11 +158,14 @@ export default {
       loginUser: 'user'
     }),
     filteredApplications () {
-      const filtered = this.displayCancelled
+      const filterCancelled = this.displayCancelled
         ? this.applications
         : this.applications.filter(app => !app.cancelled)
 
-      return filtered.slice(this.page * this.limit, (this.page + 1) * this.limit)
+      const lowercaseQuery = this.query.toLowerCase()
+
+      return filterCancelled.filter(app =>
+        ['first_name', 'last_name', 'email'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
     }
   },
   methods: {
