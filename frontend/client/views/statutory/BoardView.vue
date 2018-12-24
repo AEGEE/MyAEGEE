@@ -20,6 +20,15 @@
           </div>
         </div>
 
+        <div class="field">
+          <label class="label">Search by name or description</label>
+          <div class="field has-addons">
+            <div class="control is-expanded">
+              <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
+            </div>
+          </div>
+        </div>
+
         <div class="content" v-if="selectedBody">
           <p>Your body can send:</p>
           <ul>
@@ -69,70 +78,72 @@
         <div class="subtitle" v-if="boardBodies.length === 0">You are not a board member of any body.</div>
         <div class="subtitle" v-if="!selectedBody && boardBodies.length > 0">You haven't selected the antenna yet.</div>
 
-        <table class="table is-narrow is-fullwidth" v-if="selectedBody && allowedToSendAnyPax">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Name and surname</th>
-              <th class="has-background-white-bis" v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.name }}</th>
-              <th>Participant type</th>
-              <th>Participant order</th>
-              <th>Board comment</th>
-              <th>Cancelled?</th>
-              <th>Application status</th>
-              <th>Paid fee</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="pax in filteredApplications" v-bind:key="pax.user_id">
-              <td>{{ pax.id }}</td>
-              <td>
-                <router-link :to="{ name: 'oms.members.view', params: { id: pax.user_id } }">
-                  {{ pax.first_name }} {{ pax.last_name }}
-                </router-link>
-              </td>
-              <td v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.get(pax) | beautify }}</td>
-              <td>
-                <div class="select">
-                  <select v-model="pax.participant_type">
-                    <option :value="null">Not set</option>
-                    <option value="delegate" v-show="limits.delegate !== 0">Delegate</option>
-                    <option value="visitor" v-show="limits.visitor !== 0">Visitor</option>
-                    <option value="envoy" v-show="limits.envoy !== 0">Envoy</option>
-                    <option value="observer" v-show="limits.observer !== 0">Observer</option>
-                  </select>
-                </div>
-              </td>
-              <td>
-                <input class="input" type="number" v-model.number="pax.participant_order" min="1" />
-              </td>
-              <td>
-                <textarea class="textarea" v-model="pax.board_comment" />
-              </td>
-              <td :class="{ 'has-background-danger': pax.cancelled }">{{ pax.cancelled | beautify }}</td>
-              <td>{{ pax.status | capitalize }}</td>
-              <td>{{ pax.paid_fee | beautify  }}</td>
-              <th>
-                <button class="button is-primary" @click="updateParticipant(pax)">Save!</button>
-              </th>
-            </tr>
-            <tr v-if="applications.length == 0 && !isLoading">
-              <td :colspan="7 + selectedFields.length">No applications yet!</td>
-            </tr>
-            <tr v-if="isLoading">
-              <td :colspan="7 + selectedFields.length">Loading...</td>
-            </tr>
-          </tbody>
-        </table>
+        <b-table
+          :data="filteredApplications"
+          :loading="isLoading"
+          paginated
+          :per-page="limit"
+          default-sort="id"
+          default-sort-direction="desc">
+          <template slot-scope="props">
+            <b-table-column field="id" label="#" numeric sortable>
+              {{ props.row.id }}
+            </b-table-column>
 
-        <nav class="pagination" v-show="applications.length > 0">
-          <ul class="pagination-list">
-            <li v-for="(value, index) in Math.ceil(applications.length / limit)" :key="index">
-              <a class="pagination-link" :class="{ 'is-current': index === page }" @click="page = index">{{ (index + 1) }} </a>
-            </li>
-          </ul>
-        </nav>
+            <b-table-column field="last_name" label="First and last name" sortable>
+              {{ props.row.first_name }} {{ props.row.last_name }}
+            </b-table-column>
+
+            <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name" sortable>
+              {{ field.get(props.row) | beautify }}
+            </b-table-column>
+
+            <b-table-column field="participant_type" label="Participant type" sortable>
+              <div class="select">
+                <select v-model="props.row.participant_type">
+                  <option :value="null">Not set</option>
+                  <option value="delegate" v-show="limits.delegate !== 0">Delegate</option>
+                  <option value="visitor" v-show="limits.visitor !== 0">Visitor</option>
+                  <option value="envoy" v-show="limits.envoy !== 0">Envoy</option>
+                  <option value="observer" v-show="limits.observer !== 0">Observer</option>
+                </select>
+              </div>
+            </b-table-column>
+
+            <b-table-column field="participant_type" label="Participant order" sortable>
+              <input class="input" type="number" v-model.number="props.row.participant_order" min="1" />
+            </b-table-column>
+
+            <b-table-column field="board_comment" label="Board comment" sortable>
+              <textarea class="textarea" v-model="props.row.board_comment" />
+            </b-table-column>
+
+            <b-table-column field="cancelled" label="Cancelled?" centered sortable>
+              <span class="tag" :class="{ 'is-danger': props.row.cancelled }">
+                {{ props.row.cancelled | beautify }}
+              </span>
+            </b-table-column>
+
+            <b-table-column field="status" label="Status" centered sortable>
+              {{ props.row.status | beautify }}
+            </b-table-column>
+
+            <b-table-column centered>
+              <button class="button is-primary is-small" @click="updateParticipant(props.row)">Save!</button>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
       </div>
     </div>
   </div>
@@ -155,8 +166,8 @@ export default {
         visitor: 0,
         envoy: 0
       },
-      page: 0,
       limit: 50,
+      query: '',
       event: {
         questions: [],
         type: ''
@@ -192,7 +203,10 @@ export default {
     filteredApplications () {
       const filtered = this.applications
 
-      return filtered.slice(this.page * this.limit, (this.page + 1) * this.limit - 1)
+      const lowercaseQuery = this.query.toLowerCase()
+
+      return filtered.filter(app =>
+        ['first_name', 'last_name', 'email'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
     }
   },
   methods: {
