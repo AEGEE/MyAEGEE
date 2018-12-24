@@ -40,7 +40,7 @@
         </div>
 
         <b-table
-          :data="applications"
+          :data="filteredApplications"
           :loading="isLoading"
           :row-class="row => calculateClassForApplication(row)"
           paginated
