@@ -213,6 +213,18 @@ const Candidate = sequelize.define('candidate', {
             notEmpty: { msg: 'Please fill in your experience related to position.' },
         }
     },
+    agreed_to_privacy_policy: {
+        allowNull: false,
+        type: Sequelize.BOOLEAN,
+        defaultValue: '',
+        validate: {
+            isValid (value) {
+                if (value !== true) {
+                    throw new Error('You should agree to Privacy Policy.')
+                }
+            }
+        }
+    },
     status: {
         type: Sequelize.ENUM('approved', 'rejected', 'pending'),
         allowNull: false,

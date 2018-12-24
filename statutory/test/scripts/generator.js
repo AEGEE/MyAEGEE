@@ -148,6 +148,7 @@ exports.generateCandidate = (options = {}, position) => {
     if (notSet(options.external_experience)) options.external_experience = faker.lorem.paragraph();
     if (notSet(options.motivation)) options.motivation = faker.lorem.paragraph();
     if (notSet(options.program)) options.program = faker.lorem.paragraph();
+    if (notSet(options.agreed_to_privacy_policy)) options.agreed_to_privacy_policy = true;
 
     if (position && position.id) {
         options.position_id = position.id;

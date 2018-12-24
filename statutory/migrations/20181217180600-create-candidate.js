@@ -100,6 +100,10 @@ module.exports = {
             allowNull: false,
             defaultValue: 'pending'
         },
+        agreed_to_privacy_policy: {
+            allowNull: false,
+            type: Sequelize.BOOLEAN
+        },
         created_at: {
             allowNull: false,
             type: Sequelize.DATE

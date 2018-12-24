@@ -263,7 +263,8 @@ describe('Candidates submission', () => {
         'external_experience',
         'motivation',
         'program',
-        'related_experience'
+        'related_experience',
+        'agreed_to_privacy_policy'
     ];
 
     for (const field of fieldsRequired) {
@@ -483,5 +484,32 @@ describe('Candidates submission', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('languages');
+    });
+
+    test(`should fail if not agreed to privacy policy`, async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate()
+        }, event);
+        const candidate = generator.generateCandidate({
+            body_id: regularUser.bodies[0].id,
+            agreed_to_privacy_policy: false
+        });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            method: 'POST',
+            body: candidate,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('agreed_to_privacy_policy');
     });
 });
