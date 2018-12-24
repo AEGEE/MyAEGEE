@@ -153,7 +153,8 @@ export default {
           event: this.event,
           services: this.services,
           showDanger: this.$root.showDanger,
-          showSuccess: this.$root.showSuccess
+          showSuccess: this.$root.showSuccess,
+          router: this.$router
         }
       })
     },
@@ -170,7 +171,8 @@ export default {
           event: this.event,
           services: this.services,
           showDanger: this.$root.showDanger,
-          showSuccess: this.$root.showSuccess
+          showSuccess: this.$root.showSuccess,
+          router: this.$router
         }
       })
     },
