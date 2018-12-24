@@ -33,68 +33,67 @@
           </div>
         </div>
 
-        <table class="table is-narrow is-fullwidth">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>User ID</th>
-              <th>Body</th>
-              <th class="has-background-white-bis" v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.name }}</th>
-              <th v-if="displayCancelled">Cancelled?</th>
-              <th>Paid fee?</th>
-              <th>Attended?</th>
-              <th>View</th>
-              <th>Manage status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="pax in filteredApplications" v-bind:key="pax.user_id" :class="calculateClassForApplication(pax)">
-              <td>{{ pax.id }}</td>
-              <td>
-                <router-link :to="{ name: 'oms.members.view', params: { id: pax.user_id } }">
-                  {{ pax.user_id }}
-                </router-link>
-              </td>
-              <td>
-                <router-link :to="{ name: 'oms.bodies.view', params: { id: pax.body_id } }">
-                  {{ pax.body_name }}
-                </router-link>
-              </td>
-              <td v-for="(field, index) in selectedFields" v-bind:key="index">{{ field.get(pax) | beautify }}</td>
-              <td v-if="displayCancelled">{{ pax.cancelled | beautify }}</td>
-              <td>{{ pax.paid_fee | beautify }}</td>
-              <td>{{ pax.attended | beautify }}</td>
-              <td>
-                <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: pax.id } }">
-                  View
-                </router-link>
-              </td>
-              <th>
-                <div class="select" :class="{ 'is-loading': pax.isSaving }">
-                  <select v-model="pax.newStatus" @change="switchPaxStatus(pax)">
-                    <option value="pending">Pending</option>
-                    <option value="accepted">Accepted</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </div>
-              </th>
-            </tr>
-            <tr v-if="filteredApplications.length == 0 && !isLoading">
-              <td :colspan="selectedFields.length + event.questions.length">No applications yet!</td>
-            </tr>
-            <tr v-if="isLoading">
-              <td :colspan="selectedFields.length + event.questions.length">Loading...</td>
-            </tr>
-          </tbody>
-        </table>
+        <b-table
+          :data="applications"
+          :loading="isLoading"
+          :row-class="row => calculateClassForApplication(row)"
+          paginated
+          :per-page="limit"
+          default-sort="id"
+          default-sort-direction="desc">
+          <template slot-scope="props">
+            <b-table-column field="id" label="#" numeric sortable>
+              {{ props.row.id }}
+            </b-table-column>
 
-        <nav class="pagination" v-show="applications.length > 0">
-          <ul class="pagination-list">
-            <li v-for="(value, index) in Math.ceil(applications.length / limit)" :key="index">
-              <a class="pagination-link" :class="{ 'is-current': index === page }" @click="page = index">{{ (index + 1) }} </a>
-            </li>
-          </ul>
-        </nav>
+            <b-table-column field="name" label="User ID" sortable>
+              {{ props.row.user_id }}
+            </b-table-column>
+
+            <b-table-column field="body_name" label="Body" centered sortable>
+              {{ props.row.body_name }}
+            </b-table-column>
+
+            <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name" sortable>
+              {{ field.get(props.row) | beautify }}
+            </b-table-column>
+
+            <b-table-column field="paid_fee" label="Confirmed?" centered sortable>
+              {{ props.row.paid_fee | beautify }}
+            </b-table-column>
+
+            <b-table-column field="attended" label="Attended?" centered sortable>
+              {{ props.row.attended | beautify }}
+            </b-table-column>
+
+            <b-table-column label="View" centered>
+              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.id } }">
+                View
+              </router-link>
+            </b-table-column>
+
+            <b-table-column label="Manage status" field="status" centered sortable>
+              <div class="select" :class="{ 'is-loading': props.row.isSaving }">
+                <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)">
+                  <option value="pending">Pending</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
       </div>
     </div>
   </div>
@@ -111,7 +110,6 @@ export default {
       event: {
         questions: []
       },
-      page: 0,
       limit: 50,
       selectedFields: [
         { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
@@ -140,11 +138,9 @@ export default {
       loginUser: 'user'
     }),
     filteredApplications () {
-      const filtered = this.displayCancelled
+      return this.displayCancelled
         ? this.applications
         : this.applications.filter(app => !app.cancelled)
-
-      return filtered.slice(this.page * this.limit, (this.page + 1) * this.limit)
     }
   },
   methods: {
