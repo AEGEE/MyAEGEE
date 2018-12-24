@@ -140,5 +140,15 @@
         "circles": null,
         "always_assigned": false,
         "action": "use_massmailer"
+      }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 71,
+        "filters": [],
+        "description": "Manage candidates",
+        "combined": "global:manage_candidates:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_candidates"
       }]
 }

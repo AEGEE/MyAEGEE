@@ -1,4 +1,5 @@
 const faker = require('faker');
+const moment = require('moment');
 
 const {
     Event,
@@ -6,7 +7,9 @@ const {
     MembersList,
     PaxLimit,
     VotesPerAntenna,
-    VotesPerDelegate
+    VotesPerDelegate,
+    Position,
+    Candidate
 } = require('../../models');
 
 const notSet = field => typeof field === 'undefined';
@@ -97,8 +100,6 @@ exports.generateMembersListMember = (options = {}) => {
     return options;
 }
 
-
-
 exports.generatePaxLimit = (options = {}) => {
     if (notSet(options.body_id)) options.body_id = faker.random.number(100);
     if (notSet(options.delegate)) options.delegate = faker.random.number(100);
@@ -107,6 +108,51 @@ exports.generatePaxLimit = (options = {}) => {
     if (notSet(options.envoy)) options.envoy = faker.random.number(100);
     if (notSet(options.event_type)) options.event_type = faker.random.arrayElement(['agora', 'epm']);
 
+
+    return options;
+};
+
+exports.generatePosition = (options = {}, event = null) => {
+    if (notSet(options.name)) options.name = faker.lorem.sentence();
+    if (notSet(options.places)) options.places = faker.random.number({ min: 1, max: 10 });
+    if (notSet(options.ends)) options.ends = faker.date.future();
+
+    if (event && event.id) {
+        options.event_id = event.id;
+    }
+
+    return options;
+};
+
+exports.generateCandidate = (options = {}, position) => {
+    if (notSet(options.user_id)) options.user_id = faker.random.number({ min: 1, max: 100 });
+    if (notSet(options.body_id)) options.body_id = faker.random.number({ min: 1, max: 100 });
+    if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
+    if (notSet(options.last_name)) options.last_name = faker.lorem.sentence();
+    if (notSet(options.date_of_birth)) options.date_of_birth = moment(faker.date.past()).format('YYYY-MM-DD');
+    if (notSet(options.gender)) options.gender = faker.lorem.sentence();
+    if (notSet(options.nationality)) options.nationality = faker.lorem.sentence();
+    if (notSet(options.studies)) options.studies = faker.lorem.sentence();
+    if (notSet(options.body_name)) options.body_name = faker.lorem.sentence();
+    if (notSet(options.languages)) options.languages = Array.from(
+        { length: faker.random.number({ min: 1, max: 5 }) },
+        () => faker.lorem.sentence()
+    );
+    if (notSet(options.member_since)) options.member_since = moment(faker.date.past()).format('YYYY-MM-DD');
+    if (notSet(options.european_experience)) options.european_experience = faker.lorem.paragraph();
+    if (notSet(options.local_experience)) options.local_experience = faker.lorem.paragraph();
+    if (notSet(options.attended_agorae)) options.attended_agorae = faker.lorem.paragraph();
+    if (notSet(options.attended_epm)) options.attended_epm = faker.lorem.paragraph();
+    if (notSet(options.attended_conferences)) options.attended_conferences = faker.lorem.paragraph();
+    if (notSet(options.related_experience)) options.related_experience = faker.lorem.paragraph();
+    if (notSet(options.external_experience)) options.external_experience = faker.lorem.paragraph();
+    if (notSet(options.motivation)) options.motivation = faker.lorem.paragraph();
+    if (notSet(options.program)) options.program = faker.lorem.paragraph();
+    if (notSet(options.agreed_to_privacy_policy)) options.agreed_to_privacy_policy = true;
+
+    if (position && position.id) {
+        options.position_id = position.id;
+    }
 
     return options;
 };
@@ -127,7 +173,17 @@ exports.createPaxLimit = (options = {}) => {
     return PaxLimit.create(exports.generatePaxLimit(options));
 };
 
+exports.createPosition = (options = {}, event = null) => {
+    return Position.create(exports.generatePosition(options, event), { include: [Candidate] });
+};
+
+exports.createCandidate = (options = {}, position = null) => {
+    return Candidate.create(exports.generateCandidate(options, position));
+};
+
 exports.clearAll = async () => {
+    await Candidate.destroy({ where: {}, truncate: { cascade: true } });
+    await Position.destroy({ where: {}, truncate: { cascade: true } });
     await VotesPerDelegate.destroy({ where: {}, truncate: { cascade: true } });
     await VotesPerAntenna.destroy({ where: {}, truncate: { cascade: true } });
     await MembersList.destroy({ where: {}, truncate: { cascade: true } });

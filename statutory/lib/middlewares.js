@@ -57,7 +57,7 @@ exports.authenticateUser = async (req, res, next) => {
     }
 };
 
-function fetchEvent(includeApplications = false) {
+function fetchEvent(includeApplications) {
     return async (req, res, next) => {
         let query = {
             where: {

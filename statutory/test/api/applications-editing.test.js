@@ -401,7 +401,7 @@ describe('Applications editing', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should returrn 500 if members query returns unsuccessful response', async () => {
+    test('should return 500 if members query returns unsuccessful response', async () => {
         mock.mockAll({ member: { unsuccessfulResponse: true } })
 
         const event = await generator.createEvent();
