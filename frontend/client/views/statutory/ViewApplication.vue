@@ -76,11 +76,11 @@
                   <td v-if="application.participant_order">{{ application.participant_order }}</td>
                   <td v-if="!application.participant_order"><i>Not set yet.</i></td>
                 </tr>
-                <tr>
+                <!--<tr>
                   <th>Board comment</th>
                   <td v-if="application.board_comment">{{ application.board_comment }}</td>
                   <td v-if="!application.board_comment"><i>Not set yet.</i></td>
-                </tr>
+                </tr>-->
               </tbody>
             </table>
           </div>
