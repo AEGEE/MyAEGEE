@@ -40,6 +40,7 @@
               <strong>Your body cannot send any participants to Agora.</strong>
             </li>
           </ul>
+          <p v-if="allowedToSendAnyPax">The deadline for board approval is: <strong>{{ event.board_approve_deadline | datetime }}</strong> (local time).</p>
         </div>
 
         <div class="notification is-danger" v-if="Object.keys(this.errors).length > 0">
