@@ -117,7 +117,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Start date</label>
+          <label class="label">Event start date</label>
           <div class="control">
             <flat-pickr
               placeholder="Select date"
@@ -130,7 +130,7 @@
         </div>
 
         <div class="field">
-          <label class="label">End date</label>
+          <label class="label">Event end date</label>
           <div class="control">
             <flat-pickr
               placeholder="Select date"
