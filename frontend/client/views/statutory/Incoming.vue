@@ -5,28 +5,6 @@
         <div class="title">Incoming</div>
 
         <div class="field">
-          <div class="control">
-            <multiselect
-              v-model="selectedFields"
-              :multiple="true"
-              :searchable="false"
-              :close-on-select="false"
-              :clear-on-select="false"
-              :preserve-search="true"
-              :options="fields"
-              placeholder="Select application fields"
-              track-by="name"
-              label="name" >
-              <template
-                slot="selection"
-                slot-scope="{ values, search, isOpen }">
-                <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} fields selected</span>
-              </template>
-            </multiselect>
-          </div>
-        </div>
-
-        <div class="field">
           <label class="label">Search by name or description</label>
           <div class="field has-addons">
             <div class="control is-expanded">
@@ -34,7 +12,7 @@
             </div>
             <div class="control">
               <button class="button is-primary" v-if="!displayCancelled" @click="displayCancelled = true">Display all applications</button>
-              <button class="button is-primary" v-if="displayCancelled" @click="displayCancelled = false">Display only not cancelled applications</button>
+              <button class="button is-primary" v-if="displayCancelled" @click="displayCancelled = false">Display only not cancelled and accepted applications</button>
             </div>
           </div>
         </div>
@@ -52,16 +30,20 @@
               {{ props.row.id }}
             </b-table-column>
 
-            <b-table-column field="name" label="User ID" sortable>
+            <b-table-column field="user_id" label="User ID" sortable>
               {{ props.row.user_id }}
+            </b-table-column>
+
+            <b-table-column field="first_name" label="First name" centered sortable>
+              {{ props.row.first_name | beautify }}
+            </b-table-column>
+
+            <b-table-column field="last_name" label="Last name" centered sortable>
+              {{ props.row.last_name | beautify }}
             </b-table-column>
 
             <b-table-column field="body_name" label="Body" centered sortable>
               {{ props.row.body_name }}
-            </b-table-column>
-
-            <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name" sortable>
-              {{ field.get(props.row) | beautify }}
             </b-table-column>
 
             <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled">
@@ -86,7 +68,7 @@
               </div>
             </b-table-column>
 
-            <b-table-column field="paid_fee" label="Departed?" centered sortable>
+            <b-table-column field="departed" label="Departed?" centered sortable>
               <div class="select" :class="{ 'is-loading': props.row.isSavingDeparted }">
                 <select v-model="props.row.newDeparted" @change="switchPaxDeparted(props.row)" :disabled="!props.row.attended">
                   <option :value="true">Yes</option>
@@ -131,22 +113,6 @@ export default {
       },
       query: '',
       limit: 50,
-      selectedFields: [
-        { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
-        { name: 'Board comment', get: (pax) => pax.board_comment },
-        { name: 'First name', get: (pax) => pax.first_name },
-        { name: 'Last name', get: (pax) => pax.last_name }
-      ],
-      fields: [
-        { name: 'First name', get: (pax) => pax.first_name },
-        { name: 'Last name', get: (pax) => pax.last_name },
-        { name: 'Gender', get: (pax) => pax.gender },
-        { name: 'Email', get: (pax) => pax.email },
-        { name: 'Created at', get: (pax) => pax.created_at },
-        { name: 'Updated at', get: (pax) => pax.updated_at },
-        { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
-        { name: 'Board comment', get: (pax) => pax.board_comment }
-      ],
       displayCancelled: false,
       isLoading: false,
       isSaving: false
@@ -160,7 +126,7 @@ export default {
     filteredApplications () {
       const filterCancelled = this.displayCancelled
         ? this.applications
-        : this.applications.filter(app => !app.cancelled)
+        : this.applications.filter(app => !app.cancelled && app.status === 'accepted')
 
       const lowercaseQuery = this.query.toLowerCase()
 
@@ -224,13 +190,6 @@ export default {
 
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
-
-      for (const index in this.event.questions) {
-        this.fields.push({
-          name: this.event.questions[index].description,
-          get: pax => pax.answers[index]
-        })
-      }
 
       return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/all')
     }).then((application) => {
