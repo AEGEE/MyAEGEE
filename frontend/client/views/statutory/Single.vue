@@ -223,8 +223,7 @@ export default {
         change_event_status: false,
         delete_event: false,
         apply: false,
-        see_boardview_of: {},
-        see_boardview_global: false,
+        set_board_comment_and_participant_type_global: false,
         set_board_comment_and_participant_type: {},
         see_memberslists: false,
         export: false
@@ -274,12 +273,12 @@ export default {
       services: 'services'
     }),
     canAccessBoardview () {
-      if (this.can.see_boardview_global) {
+      if (this.can.set_board_comment_and_participant_type_global) {
         return true
       }
 
-      return Object.keys(this.can.see_boardview_of)
-        .filter(key => this.can.see_boardview_of[key])
+      return Object.keys(this.can.set_board_comment_and_participant_type)
+        .filter(key => this.can.set_board_comment_and_participant_type[key])
         .length > 0
     }
   }
