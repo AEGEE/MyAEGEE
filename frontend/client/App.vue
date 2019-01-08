@@ -10,9 +10,9 @@
 </template>
 
 <script>
-import NprogressContainer from 'vue-nprogress/src/NprogressContainer'
 import { Navbar, Sidebar, AppMain, FooterBar } from 'components/layout/'
 import { mapGetters, mapActions } from 'vuex'
+import NprogressContainer from './components/NProgress.vue'
 import methods from './methods'
 
 export default {
