@@ -20,7 +20,8 @@ exports.generateEvent = (options = {}) => {
     if (notSet(options.application_period_starts)) options.application_period_starts = faker.date.future();
     if (notSet(options.application_period_ends)) options.application_period_ends = faker.date.future(null, options.application_period_starts);
     if (notSet(options.board_approve_deadline)) options.board_approve_deadline = faker.date.future(null, options.application_period_ends);
-    if (notSet(options.starts)) options.starts = faker.date.future(null, options.board_approve_deadline);
+    if (notSet(options.participants_list_publish_deadline)) options.participants_list_publish_deadline = faker.date.future(null, options.board_approve_deadline);
+    if (notSet(options.starts)) options.starts = faker.date.future(null, options.participants_list_publish_deadline);
     if (notSet(options.ends)) options.ends = faker.date.future(null, options.starts);
     if (notSet(options.fee)) options.fee = faker.random.number({ min: 0, max: 100 });
     if (notSet(options.body_id)) options.body_id = faker.random.number(100);

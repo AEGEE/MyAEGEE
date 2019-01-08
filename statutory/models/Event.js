@@ -110,6 +110,25 @@ const Event = sequelize.define('event', {
             }
         }
     },
+    participants_list_publish_deadline: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Participants list publish deadline should be set.' },
+            isDate: { msg: 'Participants list publish deadline should be set.' },
+            laterThanBoardApproveDeadline(val) {
+                if (moment(val).isSameOrBefore(this.board_approve_deadline)) {
+                    throw new Error('Participants list publish deadline cannot be after or at the same time the board approve deadline ends.');
+                }
+            },
+            beforeEventStart(val) {
+                if (moment(val).isSameOrAfter(this.starts)) {
+                    throw new Error('Participants list publish deadline cannot be before or at the same time the event starts.');
+                }
+            }
+        }
+    },
     body_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
