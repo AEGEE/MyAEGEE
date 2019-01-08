@@ -38,7 +38,7 @@
           <div class="control">
             <input class="input" type="text" required v-model="event.name" />
           </div>
-          <p class="help is-danger" v-if="errors.name">{{ errors.name.message}}</p>
+          <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
         </div>
 
         <div class="field">
@@ -50,7 +50,7 @@
           <div class="content">
             <span v-html="$options.filters.markdown(event.description)">
           </div>
-          <p class="help is-danger" v-if="errors.description">{{ errors.description.message }}</p>
+          <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -65,7 +65,7 @@
               </div>
             </div>
           </div>
-          <p class="help is-danger" v-if="errors.url">{{ errors.url.message }}</p>
+          <p class="help is-danger" v-if="errors.url">{{ errors.url.join(', ') }}</p>
         </div>
 
         <div class="tile is-parent">
@@ -87,7 +87,7 @@
               :config="dateConfig"
               v-model="dates.application_period_starts" />
           </div>
-          <p class="help is-danger" v-if="errors.application_period_starts">{{ errors.application_period_starts.message }}</p>
+          <p class="help is-danger" v-if="errors.application_period_starts">{{ errors.application_period_starts.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -100,7 +100,7 @@
               :config="dateConfig"
               v-model="dates.application_period_ends" />
           </div>
-          <p class="help is-danger" v-if="errors.application_period_ends">{{ errors.application_period_ends.message }}</p>
+          <p class="help is-danger" v-if="errors.application_period_ends">{{ errors.application_period_ends.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -126,7 +126,7 @@
               :config="dateConfig"
               v-model="dates.starts" />
           </div>
-          <p class="help is-danger" v-if="errors.starts">{{ errors.starts.message }}</p>
+          <p class="help is-danger" v-if="errors.starts">{{ errors.starts.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -138,7 +138,7 @@
               :config="dateConfig"
               v-model="dates.ends" />
           </div>
-          <p class="help is-danger" v-if="errors.ends">{{ errors.ends.message }}</p>
+          <p class="help is-danger" v-if="errors.ends">{{ errors.ends.join(', ') }}</p>
         </div>
 
         <div class="tile is-child">
@@ -260,8 +260,8 @@
         <div class="notification is-danger" v-if="errors.questions">
           <div class="content">
           Could not create/edit event because of these reasons:
-            <ul>
-              <li v-if="errors.questions" v-for="(error, index) in errors.questions" v-bind:key="index">{{ error }}</li>
+            <ul v-if="errors.questions">
+              <li v-for="(error, index) in errors.questions" v-bind:key="index">{{ error }}</li>
             </ul>
           </div>
         </div>
