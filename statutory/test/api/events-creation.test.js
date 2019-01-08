@@ -72,8 +72,9 @@ describe('Events creation', () => {
                 application_period_starts: moment().add(1, 'months').toDate(),
                 application_period_ends: moment().add(2, 'months').toDate(),
                 board_approve_deadline: moment().add(3, 'months').toDate(),
-                starts: moment().add(5, 'months').toDate(),
-                ends: moment().add(4, 'months').toDate()
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(5, 'months').toDate()
             })
         });
 
@@ -92,8 +93,9 @@ describe('Events creation', () => {
                 application_period_starts: moment().add(2, 'months').toDate(),
                 application_period_ends: moment().add(1, 'months').toDate(),
                 board_approve_deadline: moment().add(3, 'months').toDate(),
-                starts: moment().add(4, 'months').toDate(),
-                ends: moment().add(5, 'months').toDate()
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                starts: moment().add(5, 'months').toDate(),
+                ends: moment().add(6, 'months').toDate()
             })
         });
 
@@ -113,7 +115,8 @@ describe('Events creation', () => {
                 application_period_ends: moment().add(3, 'months').toDate(),
                 starts: moment().add(2, 'months').toDate(),
                 board_approve_deadline: moment().add(4, 'months').toDate(),
-                ends: moment().add(5, 'months').toDate()
+                participants_list_publish_deadline: moment().add(5, 'months').toDate(),
+                ends: moment().add(6, 'months').toDate()
             })
         });
 
@@ -131,14 +134,55 @@ describe('Events creation', () => {
                 application_period_starts: moment().add(1, 'months').toDate(),
                 application_period_ends: moment().add(3, 'months').toDate(),
                 board_approve_deadline: moment().add(2, 'months').toDate(),
-                starts: moment().add(4, 'months').toDate(),
-                ends: moment().add(5, 'months').toDate()
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                starts: moment().add(5, 'months').toDate(),
+                ends: moment().add(6, 'months').toDate()
             })
         });
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body.errors).toHaveProperty('board_approve_deadline');
+    });
+
+    test('should fail if pax list publish deadline is after board approve deadline', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(4, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(3, 'months').toDate(),
+                starts: moment().add(5, 'months').toDate(),
+                ends: moment().add(6, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('participants_list_publish_deadline');
+    });
+
+    test('should fail if pax list publish deadline is before event starts', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(5, 'months').toDate(),
+                starts: moment().add(4, 'months').toDate(),
+                ends: moment().add(6, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('participants_list_publish_deadline');
     });
 
     test('should fail if questions is empty array', async () => {
