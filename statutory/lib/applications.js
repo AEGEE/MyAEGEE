@@ -23,6 +23,10 @@ exports.listAllApplications = async (req, res) => {
 };
 
 exports.listAcceptedApplications = async (req, res) => {
+    if (!req.permissions.see_participants_list) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
+    }
+
     const applications = req.event.applications
         .filter(application => application.status === 'accepted')
         .map(application => application.toJSON())
