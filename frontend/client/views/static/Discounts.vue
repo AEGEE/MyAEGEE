@@ -9,10 +9,11 @@
           <div class="discounts-item" v-for="discount in block.children" v-bind:key="discount.title">
             <div class="card collapse-item" :class="{ 'is-active' : discount.expanded }">
               <header role="tab" aria-expanded="fase" class="card-header touchable" @click="discount.expanded = !discount.expanded">
-                <div class="card-header-title">
+                <div class="card-header-icon">
                   <i class="fa" :class="discount.icon" />
-                  <span> {{ discount.title }}</span>
-                  <span class="not-bold">: {{ discount.shortDescription }}</span>
+                </div>
+                <div class="card-header-title">
+                  <span> {{ discount.title }}: <span class="not-bold">{{ discount.shortDescription }}</span></span>
                 </div>
                 <span class="card-header-icon">
                   <i class="fa fa-angle-down" v-show="discount.expanded"></i>
