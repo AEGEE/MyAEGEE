@@ -38,7 +38,7 @@
           <div class="control">
             <input class="input" type="text" required v-model="event.name" />
           </div>
-          <p class="help is-danger" v-if="errors.name">{{ errors.name.message}}</p>
+          <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
         </div>
 
         <div class="field">
@@ -50,7 +50,7 @@
           <div class="content">
             <span v-html="$options.filters.markdown(event.description)">
           </div>
-          <p class="help is-danger" v-if="errors.description">{{ errors.description.message }}</p>
+          <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -65,7 +65,7 @@
               </div>
             </div>
           </div>
-          <p class="help is-danger" v-if="errors.url">{{ errors.url.message }}</p>
+          <p class="help is-danger" v-if="errors.url">{{ errors.url.join(', ') }}</p>
         </div>
 
         <div class="tile is-parent">
@@ -87,7 +87,7 @@
               :config="dateConfig"
               v-model="dates.application_period_starts" />
           </div>
-          <p class="help is-danger" v-if="errors.application_period_starts">{{ errors.application_period_starts.message }}</p>
+          <p class="help is-danger" v-if="errors.application_period_starts">{{ errors.application_period_starts.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -100,7 +100,7 @@
               :config="dateConfig"
               v-model="dates.application_period_ends" />
           </div>
-          <p class="help is-danger" v-if="errors.application_period_ends">{{ errors.application_period_ends.message }}</p>
+          <p class="help is-danger" v-if="errors.application_period_ends">{{ errors.application_period_ends.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -113,7 +113,20 @@
               :config="dateConfig"
               v-model="dates.board_approve_deadline" />
           </div>
-          <p class="help is-danger" v-if="errors.board_approve_deadline">{{ errors.board_approve_deadline.message }}</p>
+          <p class="help is-danger" v-if="errors.board_approve_deadline">{{ errors.board_approve_deadline.join(', ') }}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Participants list publish deadline</label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.participants_list_publish_deadline" />
+          </div>
+          <p class="help is-danger" v-if="errors.participants_list_publish_deadline">{{ errors.participants_list_publish_deadline.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -126,7 +139,7 @@
               :config="dateConfig"
               v-model="dates.starts" />
           </div>
-          <p class="help is-danger" v-if="errors.starts">{{ errors.starts.message }}</p>
+          <p class="help is-danger" v-if="errors.starts">{{ errors.starts.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -138,7 +151,7 @@
               :config="dateConfig"
               v-model="dates.ends" />
           </div>
-          <p class="help is-danger" v-if="errors.ends">{{ errors.ends.message }}</p>
+          <p class="help is-danger" v-if="errors.ends">{{ errors.ends.join(', ') }}</p>
         </div>
 
         <div class="tile is-child">
@@ -260,8 +273,8 @@
         <div class="notification is-danger" v-if="errors.questions">
           <div class="content">
           Could not create/edit event because of these reasons:
-            <ul>
-              <li v-if="errors.questions" v-for="(error, index) in errors.questions" v-bind:key="index">{{ error }}</li>
+            <ul v-if="errors.questions">
+              <li v-for="(error, index) in errors.questions" v-bind:key="index">{{ error }}</li>
             </ul>
           </div>
         </div>
@@ -380,6 +393,14 @@ export default {
         return this.$root.showDanger('Please set the date when applications period will end.')
       }
 
+      if (!this.event.board_approve_deadline) {
+        return this.$root.showDanger('Please set the board approve deadline.')
+      }
+
+      if (!this.event.participants_list_publish_deadline) {
+        return this.$root.showDanger('Please set the participants list publish deadline.')
+      }
+
       if (!this.event.starts) {
         return this.$root.showDanger('Please set the date when the event will start.')
       }
@@ -442,6 +463,9 @@ export default {
     'dates.board_approve_deadline' (newDate) {
       this.event.board_approve_deadline = new Date(newDate)
     },
+    'dates.participants_list_publish_deadline' (newDate) {
+      this.event.participants_list_publish_deadline = new Date(newDate)
+    },
     'dates.starts' (newDate) {
       this.event.starts = new Date(newDate)
     },
@@ -465,6 +489,7 @@ export default {
       this.dates.application_period_starts = this.event.application_period_starts = new Date(this.event.application_period_starts)
       this.dates.application_period_ends = this.event.application_period_ends = new Date(this.event.application_period_ends)
       this.dates.board_approve_deadline = this.event.board_approve_deadline = new Date(this.event.board_approve_deadline)
+      this.dates.participants_list_publish_deadline = this.event.participants_list_publish_deadline = new Date(this.event.participants_list_publish_deadline)
 
       this.$forceUpdate()
 
