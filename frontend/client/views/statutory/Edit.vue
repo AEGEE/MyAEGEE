@@ -316,6 +316,7 @@ export default {
         application_period_starts: null,
         application_period_ends: null,
         board_approve_deadline: null,
+        participants_list_publish_deadline: null,
         questions: [],
         fee: null,
         starts: null,
@@ -326,6 +327,7 @@ export default {
         application_period_starts: null,
         application_period_ends: null,
         board_approve_deadline: null,
+        participants_list_publish_deadline: null,
         starts: null,
         ends: null
       },
