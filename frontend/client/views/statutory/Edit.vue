@@ -113,7 +113,20 @@
               :config="dateConfig"
               v-model="dates.board_approve_deadline" />
           </div>
-          <p class="help is-danger" v-if="errors.board_approve_deadline">{{ errors.board_approve_deadline.message }}</p>
+          <p class="help is-danger" v-if="errors.board_approve_deadline">{{ errors.board_approve_deadline.join(', ') }}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Participants list publish deadline</label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.participants_list_publish_deadline" />
+          </div>
+          <p class="help is-danger" v-if="errors.participants_list_publish_deadline">{{ errors.participants_list_publish_deadline.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -380,6 +393,14 @@ export default {
         return this.$root.showDanger('Please set the date when applications period will end.')
       }
 
+      if (!this.event.board_approve_deadline) {
+        return this.$root.showDanger('Please set the board approve deadline.')
+      }
+
+      if (!this.event.participants_list_publish_deadline) {
+        return this.$root.showDanger('Please set the participants list publish deadline.')
+      }
+
       if (!this.event.starts) {
         return this.$root.showDanger('Please set the date when the event will start.')
       }
@@ -442,6 +463,9 @@ export default {
     'dates.board_approve_deadline' (newDate) {
       this.event.board_approve_deadline = new Date(newDate)
     },
+    'dates.participants_list_publish_deadline' (newDate) {
+      this.event.participants_list_publish_deadline = new Date(newDate)
+    },
     'dates.starts' (newDate) {
       this.event.starts = new Date(newDate)
     },
@@ -465,6 +489,7 @@ export default {
       this.dates.application_period_starts = this.event.application_period_starts = new Date(this.event.application_period_starts)
       this.dates.application_period_ends = this.event.application_period_ends = new Date(this.event.application_period_ends)
       this.dates.board_approve_deadline = this.event.board_approve_deadline = new Date(this.event.board_approve_deadline)
+      this.dates.participants_list_publish_deadline = this.event.participants_list_publish_deadline = new Date(this.event.participants_list_publish_deadline)
 
       this.$forceUpdate()
 
