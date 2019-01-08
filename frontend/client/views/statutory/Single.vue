@@ -31,12 +31,12 @@
             </router-link>
           </div>
 
-          <!--<div class="field is-grouped">
+          <div class="field is-grouped" v-if="can.see_participants_list">
             <router-link :to="{ name: 'oms.statutory.accepted', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Participants list</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
-          </div>-->
+          </div>
 
           <div class="field is-grouped" v-if="canAccessBoardview">
             <router-link :to="{ name: 'oms.statutory.boardview', params: { id: event.url || event.id } }" class="button is-fullwidth">
@@ -189,6 +189,10 @@
                   <td>{{ event.application_period_starts | datetime }}</td>
                   <td>{{ event.board_approve_deadline | datetime }}</td>
                 </tr>
+                <tr>
+                  <th>Participants list publishing</th>
+                  <td colspan="2">{{ event.participants_list_publish_deadline | datetime }}</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -225,6 +229,7 @@ export default {
         apply: false,
         set_board_comment_and_participant_type_global: false,
         set_board_comment_and_participant_type: {},
+        see_participants_list: false,
         see_memberslists: false,
         export: false
       }

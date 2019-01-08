@@ -77,6 +77,13 @@
                       </router-link>
                     </strong>
                   </li>
+                  <li v-show="statutory && statutory.permissions && statutory.permissions.see_participants_list">
+                    <strong>
+                      <router-link :to="{ name: 'oms.statutory.accepted', params: { id: statutory.url || statutory.id } }">
+                        See participants
+                      </router-link>
+                    </strong>
+                  </li>
                 </ul>
               </div>
               <b-loading :is-full-page="false" :active.sync="isLoading.statutory"></b-loading>
