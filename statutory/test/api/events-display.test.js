@@ -57,18 +57,20 @@ describe('Events listing for single', () => {
 
     test('should find latest event', async () => {
         await generator.createEvent({
-            application_period_starts: moment().subtract(10, 'days'),
-            application_period_ends: moment().subtract(9, 'days'),
-            board_approve_deadline: moment().subtract(8, 'days'),
-            starts: moment().subtract(7, 'days'),
-            ends: moment().subtract(6, 'days'),
+            application_period_starts: moment().subtract(12, 'days'),
+            application_period_ends: moment().subtract(11, 'days'),
+            board_approve_deadline: moment().subtract(10, 'days'),
+            participants_list_publish_deadline: moment().subtract(9, 'days'),
+            starts: moment().subtract(8, 'days'),
+            ends: moment().subtract(7, 'days'),
             status: 'published'
         });
 
         const secondEvent = await generator.createEvent({
-            application_period_starts: moment().subtract(5, 'days'),
-            application_period_ends: moment().subtract(4, 'days'),
-            board_approve_deadline: moment().subtract(3, 'days'),
+            application_period_starts: moment().subtract(6, 'days'),
+            application_period_ends: moment().subtract(5, 'days'),
+            board_approve_deadline: moment().subtract(4, 'days'),
+            participants_list_publish_deadline: moment().subtract(3, 'days'),
             starts: moment().subtract(2, 'days'),
             ends: moment().subtract(1, 'days'),
             status: 'published'
@@ -89,19 +91,21 @@ describe('Events listing for single', () => {
     test('should find latest Agora', async () => {
         await generator.createEvent({
             type: 'agora',
-            application_period_starts: moment().subtract(10, 'days'),
-            application_period_ends: moment().subtract(9, 'days'),
-            board_approve_deadline: moment().subtract(8, 'days'),
-            starts: moment().subtract(7, 'days'),
-            ends: moment().subtract(6, 'days'),
+            application_period_starts: moment().subtract(12, 'days'),
+            application_period_ends: moment().subtract(11, 'days'),
+            board_approve_deadline: moment().subtract(10, 'days'),
+            participants_list_publish_deadline: moment().subtract(9, 'days'),
+            starts: moment().subtract(8, 'days'),
+            ends: moment().subtract(7, 'days'),
             status: 'published'
         });
 
         const secondEvent = await generator.createEvent({
             type: 'agora',
-            application_period_starts: moment().subtract(5, 'days'),
-            application_period_ends: moment().subtract(4, 'days'),
-            board_approve_deadline: moment().subtract(3, 'days'),
+            application_period_starts: moment().subtract(6, 'days'),
+            application_period_ends: moment().subtract(5, 'days'),
+            board_approve_deadline: moment().subtract(4, 'days'),
+            participants_list_publish_deadline: moment().subtract(3, 'days'),
             starts: moment().subtract(2, 'days'),
             ends: moment().subtract(1, 'days'),
             status: 'published'
@@ -122,19 +126,21 @@ describe('Events listing for single', () => {
     test('should find latest EPM', async () => {
         await generator.createEvent({
             type: 'epm',
-            application_period_starts: moment().subtract(10, 'days'),
-            application_period_ends: moment().subtract(9, 'days'),
-            board_approve_deadline: moment().subtract(8, 'days'),
-            starts: moment().subtract(7, 'days'),
-            ends: moment().subtract(6, 'days'),
+            application_period_starts: moment().subtract(12, 'days'),
+            application_period_ends: moment().subtract(11, 'days'),
+            board_approve_deadline: moment().subtract(10, 'days'),
+            participants_list_publish_deadline: moment().subtract(9, 'days'),
+            starts: moment().subtract(8, 'days'),
+            ends: moment().subtract(7, 'days'),
             status: 'published'
         });
 
         const secondEvent = await generator.createEvent({
             type: 'epm',
-            application_period_starts: moment().subtract(5, 'days'),
-            application_period_ends: moment().subtract(4, 'days'),
-            board_approve_deadline: moment().subtract(3, 'days'),
+            application_period_starts: moment().subtract(6, 'days'),
+            application_period_ends: moment().subtract(5, 'days'),
+            board_approve_deadline: moment().subtract(4, 'days'),
+            participants_list_publish_deadline: moment().subtract(3, 'days'),
             starts: moment().subtract(2, 'days'),
             ends: moment().subtract(1, 'days'),
             status: 'published'
@@ -154,11 +160,12 @@ describe('Events listing for single', () => {
 
     test('should not return not published event on /events/latest', async () => {
         await generator.createEvent({
-            application_period_starts: moment().subtract(10, 'days'),
-            application_period_ends: moment().subtract(9, 'days'),
-            board_approve_deadline: moment().subtract(8, 'days'),
-            starts: moment().subtract(7, 'days'),
-            ends: moment().subtract(6, 'days'),
+            application_period_starts: moment().subtract(6, 'days'),
+            application_period_ends: moment().subtract(5, 'days'),
+            board_approve_deadline: moment().subtract(4, 'days'),
+            participants_list_publish_deadline: moment().subtract(3, 'days'),
+            starts: moment().subtract(2, 'days'),
+            ends: moment().subtract(1, 'days'),
             status: 'draft'
         });
 
@@ -175,11 +182,12 @@ describe('Events listing for single', () => {
     test('should not return not published event on /events/latest-agora', async () => {
         await generator.createEvent({
             type: 'agora',
-            application_period_starts: moment().subtract(10, 'days'),
-            application_period_ends: moment().subtract(9, 'days'),
-            board_approve_deadline: moment().subtract(8, 'days'),
-            starts: moment().subtract(7, 'days'),
-            ends: moment().subtract(6, 'days'),
+            application_period_starts: moment().subtract(6, 'days'),
+            application_period_ends: moment().subtract(5, 'days'),
+            board_approve_deadline: moment().subtract(4, 'days'),
+            participants_list_publish_deadline: moment().subtract(3, 'days'),
+            starts: moment().subtract(2, 'days'),
+            ends: moment().subtract(1, 'days'),
             status: 'draft'
         });
 
@@ -196,11 +204,12 @@ describe('Events listing for single', () => {
     test('should not return not published event on /events/latest-epm', async () => {
         await generator.createEvent({
             type: 'epm',
-            application_period_starts: moment().subtract(10, 'days'),
-            application_period_ends: moment().subtract(9, 'days'),
-            board_approve_deadline: moment().subtract(8, 'days'),
-            starts: moment().subtract(7, 'days'),
-            ends: moment().subtract(6, 'days'),
+            application_period_starts: moment().subtract(6, 'days'),
+            application_period_ends: moment().subtract(5, 'days'),
+            board_approve_deadline: moment().subtract(4, 'days'),
+            participants_list_publish_deadline: moment().subtract(3, 'days'),
+            starts: moment().subtract(2, 'days'),
+            ends: moment().subtract(1, 'days'),
             status: 'draft'
         });
 

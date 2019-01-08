@@ -1,3 +1,6 @@
+const moment = require('moment');
+const tk = require('timekeeper');
+
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -53,16 +56,37 @@ describe('Applications listing', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should display accepted application on /accepted', async () => {
+    test('should return 403 if no rights and before the deadline on /accepted', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ status: 'accepted' }, event);
+        await generator.createApplication({ status: 'pending' }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/accepted',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should display accepted application on /accepted', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({ status: 'accepted' }, event);
+
+        tk.travel(moment(event.participants_list_publish_deadline).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/accepted',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        tk.reset();
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
@@ -82,11 +106,15 @@ describe('Applications listing', () => {
         const event = await generator.createEvent();
         await generator.createApplication({ status: 'pending' }, event);
 
+        tk.travel(moment(event.participants_list_publish_deadline).add(5, 'minutes').toDate());
+
         const res = await request({
             uri: '/events/' + event.id + '/applications/accepted',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
+
+        tk.reset();
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
@@ -104,11 +132,15 @@ describe('Applications listing', () => {
             applications.push(await generator.createApplication({ user_id: i, status: 'accepted' }, event));
         }
 
+        tk.travel(moment(event.participants_list_publish_deadline).add(5, 'minutes').toDate());
+
         const res = await request({
             uri: '/events/' + event.id + '/applications/accepted',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
+
+        tk.reset();
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
