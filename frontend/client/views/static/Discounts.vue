@@ -93,7 +93,7 @@ export default {
           },
           {
             expanded: false,
-            icon: 'fa-usd',
+            icon: 'fa-dollar-sign',
             title: 'N26',
             shortDescription: 'Online banking with no fees and free Mastercard | 5€ for free for new accounts',
             fullDescription: 'Get your <a href="https://www.zeus.aegee.org/discount/N26/"><b>5€ for free</b></a> for opening a new bank account in 15 minutes from home - with no hidden fees and no fees for exchanging currency, a Mastercard and a very cool app! You can get only 1 code, and you have to use it while creating the new account. <br>You will get the 5€ extra credit once you deposit at least 0,01€ in your new account.<br><em>With every new account created through <a href="https://n26.go2cloud.org/aff_c?offer_id=16&aff_id=1702"><b>this link</b></a>, you support AEGEE-Europe.</em>'
@@ -107,7 +107,7 @@ export default {
           },
           {
             expanded: false,
-            icon: 'fa-pencil',
+            icon: 'fa-pencil-alt',
             title: 'Neuland',
             shortDescription: 'Markers and materials for workshops | 10% Discount',
             fullDescription: 'Get your <b>10% Discount</b> on all products of <a href="https://www.neuland.com"><b>Neuland</b></a>. In order to apply the codes, you must <a href="https://drive.google.com/file/d/14yCTbuW8ro4bQNnQTdfQzoSIHehR8A2w/view?usp=sharing"><b>follow these instructions</b></a>. <br> Discount code for European Union: 85f2e7980e2<br> Discount code for outside European Union: e2fd6e6d552 '
@@ -120,7 +120,7 @@ export default {
         [
           {
             expanded: false,
-            icon: 'fa-commenting',
+            icon: 'fa-comment-alt',
             title: 'Slido',
             shortDescription: 'Interact with your audience | PRO account',
             fullDescription: '<a href="https://www.slido.com">Slido.com</a> is an original, organized and impressive way to interact with your audience.<br>You create an event, and then people can easily join that live with their phones. While you\'re screening with a beamer, people see questions on their phone and can answer openly, choose from multiple choice and even ask questions to the speakers themselves. Everything is updated live on the screen immediately, and there are many possibilities to increase the participation of your audience as you can see in this <a href="https://www.sli.do/assets/videos/polls.webm?v=571a832">short animation</a>.<br> Slido has a <a href="https://www.sli.do/pricing">free version</a>, but we have access to 5 accounts at once for the PRO version. If the basic free version is enough for your event because you want to moderate or ask more than 3 questions, then you can make your own account and start using it to interact with your participants. If you would like to use more features, then you can <a href="http://bit.ly/aegeeslido"><b>fill in this form</b></a> requesting a PRO account for the limited time of your event (and some extra days to prepare). Once your request is approved, you will get an email.<br> We encourage you to use Slido in events such as conferences or big workshops where it\'s hard to interact with large audiences in a more personalized way.'
