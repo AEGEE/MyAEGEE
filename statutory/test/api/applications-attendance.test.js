@@ -139,21 +139,4 @@ describe('Applications attendance', () => {
         expect(res.body).toHaveProperty('errors');
         expect(res.body).not.toHaveProperty('data');
     });
-
-    test('should return 422 on unsetting attended if departed is true', async () => {
-        const event = await generator.createEvent();
-        const application = await generator.createApplication({ paid_fee: true, attended: true, registered: true, departed: true  }, event);
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/attended',
-            method: 'PUT',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { attended: false }
-        });
-
-        expect(res.statusCode).toEqual(422);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('errors');
-        expect(res.body).not.toHaveProperty('data');
-    });
 });

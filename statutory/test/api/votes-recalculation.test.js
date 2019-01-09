@@ -67,7 +67,7 @@ describe('Votes per antenna/delegate recalculation', () => {
             mock.cleanAll();
         });
 
-        test('should recalculate the votes when a person is marked as attended', async () => {
+        test('should recalculate the votes when a person is marked as registered', async () => {
             const application = await generator.createApplication({
                 user_id: regularUser.id,
                 participant_type: 'delegate',
@@ -91,10 +91,10 @@ describe('Votes per antenna/delegate recalculation', () => {
             expect(votesInDb[0].votes).toEqual(5);
 
             const res = await request({
-                uri: '/events/' + event.id + '/applications/' + application.id + '/attended',
+                uri: '/events/' + event.id + '/applications/' + application.id + '/registered',
                 method: 'PUT',
                 headers: { 'X-Auth-Token': 'blablabla' },
-                body: { attended: true }
+                body: { registered: true }
             });
 
             expect(res.statusCode).toEqual(200);
@@ -121,7 +121,7 @@ describe('Votes per antenna/delegate recalculation', () => {
                 body_id: regularUser.bodies[0].id,
                 cancelled: false,
                 paid_fee: true,
-                attended: true
+                registered: true
             }, event);
             await VotesPerAntenna.recalculateVotesForDelegates(event, regularUser.bodies[0].id);
 
@@ -266,7 +266,7 @@ describe('Votes per antenna/delegate recalculation', () => {
                         body_id: regularUser.bodies[0].id,
                         participant_type: 'delegate',
                         participant_order: index + 1,
-                        attended: true,
+                        registered: true,
                         paid_fee: true,
                         departed: false
                     }, event);
