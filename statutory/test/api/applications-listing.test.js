@@ -99,6 +99,7 @@ describe('Applications listing', () => {
         expect(res.body.data[0]).not.toHaveProperty('answers');
         expect(res.body.data[0]).not.toHaveProperty('visa_required');
         expect(res.body.data[0]).not.toHaveProperty('status');
+        expect(res.body.data[0]).not.toHaveProperty('email');
     });
 
     test('should not display not accepted application on /accepted', async () => {
@@ -123,47 +124,30 @@ describe('Applications listing', () => {
         expect(res.body.data.length).toEqual(0);
     });
 
-    test('should sort accepted application on /accepted', async () => {
+    test('should result in an error if user does not have permission on /juridical', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
         const event = await generator.createEvent();
-        const applications = [];
-
-        for (let i = 0; i < 5; i++) {
-            applications.push(await generator.createApplication({ user_id: i, status: 'accepted' }, event));
-        }
-
-        tk.travel(moment(event.participants_list_publish_deadline).add(5, 'minutes').toDate());
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/accepted',
+            uri: '/events/' + event.id + '/applications/juridical',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
-        tk.reset();
-
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        expect(res.body).not.toHaveProperty('errors');
-        expect(res.body).toHaveProperty('data');
-        expect(res.body.data.length).toEqual(applications.length);
-
-        const sortedIds = applications.map(a => a.id).sort((a, b) => b - a);
-        for (let index = 0; index < applications.length; index++) {
-            expect(res.body.data[index].id).toEqual(sortedIds[index]);
-        }
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should sort accepted application on /all', async () => {
+    test('should return only required data on /juridical', async () => {
         const event = await generator.createEvent();
-        const applications = [];
 
-        for (let i = 0; i < 5; i++) {
-            applications.push(await generator.createApplication({ user_id: i }, event));
-        }
+        const application = await generator.createApplication({ status: 'accepted', user_id: 1 }, event);
+        await generator.createApplication({ cancelled: true, user_id: 2 }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/all',
+            uri: '/events/' + event.id + '/applications/juridical',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -172,11 +156,12 @@ describe('Applications listing', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.length).toEqual(applications.length);
+        expect(res.body.data.length).toEqual(1);
 
-        const sortedIds = applications.map(a => a.id).sort((a, b) => b - a);
-        for (let index = 0; index < applications.length; index++) {
-            expect(res.body.data[index].id).toEqual(sortedIds[index]);
-        }
+        expect(res.body.data[0]).not.toHaveProperty('board_comment');
+        expect(res.body.data[0]).not.toHaveProperty('answers');
+        expect(res.body.data[0]).not.toHaveProperty('visa_required');
+        expect(res.body.data[0]).not.toHaveProperty('email');
+        expect(res.body.data[0]).not.toHaveProperty('gender');
     });
 });
