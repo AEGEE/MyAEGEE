@@ -250,6 +250,7 @@ function setApplicationBoolean(key) {
 exports.setApplicationCancelled = setApplicationBoolean('cancelled');
 exports.setApplicationAttended = setApplicationBoolean('attended');
 exports.setApplicationPaidFee = setApplicationBoolean('paid_fee');
+exports.setApplicationRegistered = setApplicationBoolean('registered');
 exports.setApplicationDeparted = setApplicationBoolean('departed');
 
 
