@@ -213,6 +213,24 @@ const Application = sequelize.define('application', {
             }
         }
     },
+    registered: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        validate: {
+            isBoolean,
+            notAllowIfNotPaidFee(value) {
+                if (!this.paid_fee && value) {
+                    throw new Error('You should set user as paid fee first.');
+                }
+            },
+            notAllowIfDeparted(value) {
+                if (!value && this.departed) {
+                    throw new Error('This application is marked as departed, you cannot mark it as not registered.');
+                }
+            }
+        }
+    },
     departed: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
