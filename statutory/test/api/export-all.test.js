@@ -8,7 +8,7 @@ const regularUser = require('../assets/oms-core-valid').data;
 const users = require('../assets/oms-core-members').data;
 
 
-describe('Export OpenSlides', () => {
+describe('Export all', () => {
     let event;
     beforeEach(async () => {
         mock.mockAll();
@@ -85,6 +85,7 @@ describe('Export OpenSlides', () => {
             attended: true,
             paid_fee: true,
             departed: true,
+            registered: true,
             cancelled: false,
             answers: [false, 'string']
         }, event);
