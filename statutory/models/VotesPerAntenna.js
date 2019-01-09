@@ -149,7 +149,7 @@ VotesPerAntenna.recalculateVotesForDelegates = async function recalculateVotesFo
     // 2) on-event, where the votes are distributed between those who are on spot but did not leave yet
     const distributions = [
         { type: 'off-event', filter: { paid_fee: true } },
-        { type: 'on-event', filter: { paid_fee: true, attended: true, departed: false } }
+        { type: 'on-event', filter: { paid_fee: true, registered: true, departed: false } }
     ];
 
     // Removing all VotesPerDelegate for this body for this event,
