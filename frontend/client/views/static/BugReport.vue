@@ -148,7 +148,7 @@ export default {
         return this.$root.showDanger('There was an error reporting your issue.')
       }).catch((err) => {
         this.isSaving = false
-        return this.$root.showDanger('There was an error reporting your issue.')
+        return this.$root.showDanger('There was an error reporting your issue:' + err.message)
       })
     }
   },
