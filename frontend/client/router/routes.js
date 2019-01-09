@@ -68,6 +68,16 @@ module.exports = [
     }
   },
   {
+    name: 'oms.bug_report',
+    path: '/bug_report/',
+    component: 'static/BugReport',
+    meta: {
+      label: 'Report a bug in OMS',
+      auth: false,
+      showSidebar: false
+    }
+  },
+  {
     name: 'oms.dashboard',
     path: '/dashboard',
     meta: {
