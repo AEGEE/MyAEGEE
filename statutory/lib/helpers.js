@@ -49,6 +49,7 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     permissions.manage_incoming = hasPermission(corePermissions, 'global:manage_incoming:' + event.type);
     permissions.manage_juridical = hasPermission(corePermissions, 'global:manage_juridical:' + event.type);
     permissions.see_applications = permissions.manage_applications || permissions.manage_incoming;
+    permissions.see_applications_juridical = permissions.manage_applications || permissions.manage_juridical;
     permissions.see_participants_list = event.can_see_participants_list || permissions.manage_applications;
     permissions.export = permissions.manage_applications || permissions.manage_incoming;
 
