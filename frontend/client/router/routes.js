@@ -509,6 +509,14 @@ module.exports = [
     }
   },
   {
+    name: 'oms.statutory.juridical',
+    path: '/statutory/:id/juridical',
+    component: 'statutory/Juridical',
+    meta: {
+      label: 'Manage juridical info for the statutory event'
+    }
+  },
+  {
     name: 'oms.statutory.boardview',
     path: '/statutory/:id/boardview',
     component: 'statutory/BoardView',
