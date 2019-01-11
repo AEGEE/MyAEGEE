@@ -61,16 +61,7 @@
 
             <b-table-column field="attended" label="Attended?" centered sortable>
               <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
-                <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.paid_fee || props.row.departed">
-                  <option :value="true">Yes</option>
-                  <option :value="false">No</option>
-                </select>
-              </div>
-            </b-table-column>
-
-            <b-table-column field="departed" label="Departed?" centered sortable>
-              <div class="select" :class="{ 'is-loading': props.row.isSavingDeparted }">
-                <select v-model="props.row.newDeparted" @change="switchPaxDeparted(props.row)" :disabled="!props.row.attended">
+                <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.paid_fee">
                   <option :value="true">Yes</option>
                   <option :value="false">No</option>
                 </select>
@@ -170,19 +161,6 @@ export default {
         pax.isSavingPaidFee = false
         this.$root.showDanger('Could not update participant fee info: ' + err.message)
       })
-    },
-    switchPaxDeparted (pax) {
-      pax.isSavingDeparted = true
-      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/departed'
-
-      this.axios.put(url, { departed: pax.newDeparted }).then(() => {
-        pax.departed = pax.newDeparted
-        pax.isSavingDeparted = false
-        this.$root.showSuccess(`Successfully marked user #${pax.user_id} as departed`)
-      }).catch((err) => {
-        pax.isSavingDeparted = false
-        this.$root.showDanger('Could not mark user as departed: ' + err.message)
-      })
     }
   },
   mounted () {
@@ -200,10 +178,8 @@ export default {
       for (const pax of this.applications) {
         this.$set(pax, 'newPaidFee', pax.paid_fee)
         this.$set(pax, 'newAttended', pax.attended)
-        this.$set(pax, 'newDeparted', pax.departed)
         this.$set(pax, 'isSavingPaidFee', false)
         this.$set(pax, 'isSavingAttended', false)
-        this.$set(pax, 'isSavingDeparted', false)
       }
     }).catch((err) => {
       this.isLoading = false
