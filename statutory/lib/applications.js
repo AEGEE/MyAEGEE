@@ -52,7 +52,7 @@ exports.listJCApplications = async (req, res) => {
     }
 
     const applications = req.event.applications
-        .filter(application => application.status === 'accepted' && !application.cancelled)
+        .filter(application => application.status === 'accepted' && application.paid_fee)
         .map(application => application.toJSON())
         .map((application) => {
             delete application.answers;
