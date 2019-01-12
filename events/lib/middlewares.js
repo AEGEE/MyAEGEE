@@ -2,10 +2,10 @@ const request = require('request-promise-native');
 const bugsnag = require('bugsnag');
 const { errors, communication } = require('oms-common-nodejs');
 
-const log = require('./config/logger');
-const Event = require('./models/Event');
+const log = require('./logger');
+const { Event } = require('../models');
 const helpers = require('./helpers');
-const config = require('./config/config');
+const config = require('../config');
 
 exports.authenticateUser = async (req, res, next) => {
   const token = req.header('x-auth-token');

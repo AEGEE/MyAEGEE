@@ -1,5 +1,6 @@
 const { errors } = require('oms-common-nodejs');
-const Event = require('./models/Event');
+
+const { Event } = require('../models');
 
 exports.listUserAppliedEvents = async (req, res, next) => {
   const events = await Event

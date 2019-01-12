@@ -6,8 +6,8 @@ const fileType = require('file-type');
 const util = require('util');
 
 const { errors } = require('oms-common-nodejs');
-const log = require('./config/logger');
-const config = require('./config/config.js');
+const log = require('./logger');
+const config = require('../config');
 
 const uploadFolderName = `${config.media_dir}/headimages`;
 const allowedExtensions = ['.png', '.jpg', '.jpeg'];

@@ -5,13 +5,14 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const boolParser = require('express-query-boolean');
 
+const db = require('./sequelize');
 const events = require('./events'); // API middlewares for events management
 const applications = require('./applications'); // API middlewares for applications management
 const imageserv = require('./imageserv');
-const log = require('./config/logger');
+const log = require('./logger');
 const service = require('./service');
 const middlewares = require('./middlewares');
-const config = require('./config/config');
+const config = require('../config');
 
 const EventsRouter = router({ mergeParams: true });
 const GeneralRouter = router({ mergeParams: true });
@@ -24,7 +25,16 @@ if (process.env.NODE_ENV !== 'test') {
 
 const server = express();
 server.use(bodyParser.json());
-server.use(morgan(':method :url :status - :response-time ms', { stream: log.stream }));
+server.use(morgan((tokens, req, res) => {
+  return [
+      tokens.method(req, res),
+      tokens.url(req, res),
+      tokens.status(req, res),
+      tokens.res(req, res, 'content-length'), '-',
+      tokens['response-time'](req, res), 'ms,',
+      req.user ? ('user ' + req.user.user.name + ' with id ' + req.user.id) : 'unauthorized'
+  ].join(' ');
+}, { stream: log.stream }));
 server.use(boolParser());
 
 /* istanbul ignore next */
@@ -84,8 +94,31 @@ server.use('/single/:event_id', EventsRouter);
 server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);
 
-const app = server.listen(config.port, async () => {
-  log.info('Up and running, listening on http://localhost:%d', config.port);
-});
+let app;
+async function startServer() {
+  return new Promise((res, rej) => {
+    const localApp = server.listen(config.port, async () => {
+      app = localApp;
+      log.info('Up and running, listening on http://localhost:%d', config.port);
+      await db.authenticate();
+      return res();
+    });
+    /* istanbul ignore next */
+    localApp.on('error', err => rej(new Error('Error starting server: ' + err.stack)));
+  });
+}
 
-module.exports = app;
+async function stopServer() {
+    log.info('Stopping server...');
+    app.close();
+    /* istanbul ignore next */
+    if (process.env.NODE_ENV !== 'test') await db.close();
+    app = null;
+}
+
+module.exports = {
+    app,
+    server,
+    stopServer,
+    startServer
+};

@@ -1,7 +1,7 @@
 const { errors } = require('oms-common-nodejs');
 
 const helpers = require('./helpers');
-const Event = require('./models/Event');
+const { Event } = require('../models');
 
 const displayedFields = [
   'name',

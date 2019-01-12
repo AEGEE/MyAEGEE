@@ -1,8 +1,13 @@
 #!/bin/bash
 
-if [ ! -f lib/config/configFile.json ]
+if [ ! -f config/index.js ]
 then
-  cp lib/config/configFile.json.example lib/config/configFile.json
+  cp config/index.js.example config/index.js
 fi
 
+echo "Installing packages..."
 npm install --loglevel warn
+echo "Creating database..."
+npm run db:create
+echo "Migrating database..."
+npm run db:migrate
