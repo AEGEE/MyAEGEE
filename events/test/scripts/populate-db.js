@@ -1,7 +1,6 @@
 const mongoose = require('../../lib/config/mongo');
 
 const Event = require('../../lib/models/Event');
-const EventType = require('../../lib/models/EventType');
 const firstUser = require('../assets/oms-core-valid').data;
 const secondUser = require('../assets/oms-core-valid-not-superadmin').data;
 

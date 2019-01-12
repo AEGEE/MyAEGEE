@@ -2,8 +2,6 @@ const mongoose = require('../config/mongo');
 const config = require('../config/config.js');
 
 const Organizer = require('../schemas/Organizer');
-const Status = require('../schemas/Status');
-const Lifecycle = require('../schemas/Lifecycle');
 const Participant = require('../schemas/Participant');
 const Local = require('../schemas/Local');
 const Location = require('../schemas/Location');
@@ -27,9 +25,16 @@ const eventSchema = mongoose.Schema({
   organizing_locals: [Local],
   links: [Link],
   locations: [Location],
-  type: { type: String, required: true },
-  status: { type: Status, required: true },
-  lifecycle: { type: Lifecycle, required: true },
+  type: {
+    type: String,
+    enum: ['wu', 'es', 'nwm', 'ltc', 'rtc', 'local', 'other'],
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['draft', 'requesting', 'approved'],
+    required: true
+  },
   max_participants: {
     type: Number,
     default: 0,

@@ -6,7 +6,6 @@ const morgan = require('morgan');
 const boolParser = require('express-query-boolean');
 
 const events = require('./events'); // API middlewares for events management
-const lifecycle = require('./lifecycle'); // API middlewares for lifecycle managing
 const applications = require('./applications'); // API middlewares for applications management
 const imageserv = require('./imageserv');
 const log = require('./config/logger');
@@ -50,13 +49,6 @@ GeneralRouter.post('/', events.addEvent);
 
 // Debugging requests, remove at some point in time
 GeneralRouter.get('/getUser', service.getUser);
-
-GeneralRouter.get('/lifecycle/names', lifecycle.getLifecyclesNames);
-GeneralRouter.get('/lifecycle/pseudo', lifecycle.getPseudoRolesList);
-GeneralRouter.get('/lifecycle', lifecycle.getLifecycles);
-GeneralRouter.post('/lifecycle', lifecycle.createLifecycle);
-GeneralRouter.get('/lifecycle/seed', lifecycle.seed);
-GeneralRouter.delete('/lifecycle/:lifecycle_id', lifecycle.removeLifecycle);
 
 GeneralRouter.get('/mine/organizing', events.listUserOrganizedEvents);
 GeneralRouter.get('/mine/participating', applications.listUserAppliedEvents);

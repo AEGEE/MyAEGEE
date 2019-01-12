@@ -3,7 +3,6 @@ const { errors } = require('oms-common-nodejs');
 const log = require('./config/logger.js');
 const helpers = require('./helpers');
 const Event = require('./models/Event');
-const EventType = require('./models/EventType');
 
 const displayedFields = [
   'name',
@@ -191,27 +190,6 @@ exports.addEvent = async (req, res, next) => {
     return errors.makeForbiddenError(res, 'You are not a member of this body and cannot create an event on behalf of it.');
   }
   newEvent.organizing_locals = [{ body_id: data.body_id }];
-
-  // Loading event type and its default lifecycle
-  const eventType = await EventType.findOne({ name: newEvent.type });
-
-  // if no lifecycle exists for this type of event
-  if (!eventType || !eventType.defaultLifecycle) {
-    return errors.makeValidationError(res, `No lifecycle is specified for this type of event: ${newEvent.type}, cannot set initial status.`);
-  }
-
-  // Checking if the user is allowed to create an event.
-  // Trying to find a transition from 'null' to 'initialStatus'
-  const transition = eventType.defaultLifecycle.transitions.find(t => !t.from && t.to === eventType.defaultLifecycle.initialStatus);
-
-  // Checking if the user is allowed to create events of this type.
-  if (!transition || !helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor })) {
-    return errors.makeForbiddenError(res, 'You are not allowed to create an event of this type.');
-  }
-
-  // Now we've got here, the user is allowed to create the event.
-  newEvent.status = eventType.defaultLifecycle.statuses.find(s => s.name === eventType.defaultLifecycle.initialStatus);
-  newEvent.lifecycle = eventType.defaultLifecycle;
 
   await newEvent.save();
 
