@@ -12,23 +12,17 @@ const should = chai.should();
 chai.use(chaiHttp);
 
 describe('Events details', () => {
-  let events;
-  let omscoreStub;
-  let omsserviceregistryStub;
-
+  let event;
   beforeEach(async () => {
     await db.clear();
-    const res = await db.populateEvents();
-    events = res.events;
+    event = await db.createEvent();
 
-    const mocked = mock.mockAll();
-    omscoreStub = mocked.omscoreStub;
-    omsserviceregistryStub = mocked.omsserviceregistryStub;
+    mock.mockAll();
   });
 
   it('should return a single event on /single/<eventid> GET', (done) => {
     chai.request(server)
-      .get(`/single/${events[0].id}`)
+      .get(`/single/${event.id}`)
       .set('X-Auth-Token', 'foobar')
       .end((err, res) => {
         res.should.have.status(200);
@@ -49,7 +43,7 @@ describe('Events details', () => {
         res.body.data.should.have.property('organizers');
         res.body.data.should.not.have.property('applications');
 
-        res.body.data._id.should.equal(events[0].id);
+        res.body.data._id.should.equal(event._id.toString());
 
         done();
       });

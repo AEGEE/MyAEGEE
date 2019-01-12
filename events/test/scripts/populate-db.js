@@ -10,14 +10,17 @@ const notSet = field => typeof field === 'undefined';
 exports.generateEvent = (options = {}) => {
   if (notSet(options.name)) options.name = faker.lorem.sentence();
   if (notSet(options.description)) options.description = faker.lorem.paragraph();
-  if (notSet(options.applications_starts)) options.applications_starts = faker.date.future();
-  if (notSet(options.applications_ends)) options.applications_ends = faker.date.future(null, options.applications_starts);
-  if (notSet(options.starts)) options.starts = faker.date.future(null, options.applications_ends);
+  if (notSet(options.application_starts)) options.application_starts = faker.date.future();
+  if (notSet(options.application_ends)) options.application_ends = faker.date.future(null, options.application_starts);
+  if (notSet(options.starts)) options.starts = faker.date.future(null, options.application_ends);
   if (notSet(options.ends)) options.ends = faker.date.future(null, options.starts);
   if (notSet(options.type)) options.type = faker.random.arrayElement(['wu', 'es', 'nwm', 'ltc', 'rtc', 'local', 'other']);
   if (notSet(options.fee)) options.fee = faker.random.number({ min: 0, max: 100 });
   if (notSet(options.organizing_locals)) options.organizing_locals = [{
     body_id: faker.random.number({ min: 0, max: 100 })
+  }];
+  if (notSet(options.organizers)) options.organizers = [{
+    user_id: firstUser.id
   }];
   if (notSet(options.max_participants)) options.max_participants = faker.random.number({ min: 5, max: 100 });
 

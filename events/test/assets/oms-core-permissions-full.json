@@ -1,0 +1,154 @@
+{
+    "success": true,
+    "data": [{
+        "scope": "global",
+        "object": "epm",
+        "id": 62,
+        "filters": [],
+        "description": "Set paid, cancelled or attended status for EPM statutory events. Would be useful for incoming organizers.",
+        "combined": "global:manage_applications:epm",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_applications"
+    }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 55,
+        "filters": [],
+        "description": "Create, edit and delete Agora statutory events.",
+        "combined": "global:manage_event:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_event"
+    }, {
+        "scope": "global",
+        "object": "epm",
+        "id": 58,
+        "filters": [],
+        "description": "See all applications for EPM statutory events.",
+        "combined": "global:see_applications:epm",
+        "circles": null,
+        "always_assigned": false,
+        "action": "see_applications"
+    }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 59,
+        "filters": [],
+        "description": "Accept or reject applications for Agora statutory events. Would be useful for Chair Team.",
+        "combined": "global:accept_applications:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "accept_applications"
+    }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 57,
+        "filters": [],
+        "description": "See all applications for Agora statutory events.",
+        "combined": "global:see_applications:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "see_applications"
+    }, {
+        "scope": "global",
+        "object": "epm",
+        "id": 60,
+        "filters": [],
+        "description": "Accept or reject applications for EPM statutory events. Would be useful for CD.",
+        "combined": "global:accept_applications:epm",
+        "circles": null,
+        "always_assigned": false,
+        "action": "accept_applications"
+    }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 61,
+        "filters": [],
+        "description": "Set paid, cancelled or attended status for Agora statutory events. Would be useful for incoming organizers.",
+        "combined": "global:manage_applications:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_applications"
+    }, {
+        "scope": "global",
+        "object": "epm",
+        "id": 56,
+        "filters": [],
+        "description": "Create, edit and delete EPM statutory events.",
+        "combined": "global:manage_event:epm",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_event"
+    }, {
+      "scope": "global",
+      "object": "agora",
+      "id": 65,
+      "filters": [],
+      "description": "Approve every board.",
+      "combined": "global:approve_members:agora",
+      "circles": null,
+      "always_assigned": false,
+      "action": "approve_members"
+    }, {
+      "scope": "global",
+      "object": "epm",
+      "id": 66,
+      "filters": [],
+      "description": "Approve every board.",
+      "combined": "global:approve_members:epm",
+      "circles": null,
+      "always_assigned": false,
+      "action": "approve_members"
+    }, {
+      "scope": "global",
+      "object": "agora",
+      "id": 6,
+      "filters": [],
+      "description": "See memberslists.",
+      "combined": "global:see_memberslists:agora",
+      "circles": null,
+      "always_assigned": false,
+      "action": "see_memberslists"
+    }, {
+      "scope": "global",
+      "object": "epm",
+      "id": 68,
+      "filters": [],
+      "description": "See memberslists.",
+      "combined": "global:see_memberslists:epm",
+      "circles": null,
+      "always_assigned": false,
+      "action": "see_memberslists"
+    }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 69,
+        "filters": [],
+        "description": "Use massmailer.",
+        "combined": "global:use_massmailer:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "use_massmailer"
+      }, {
+        "scope": "global",
+        "object": "epm",
+        "id": 70,
+        "filters": [],
+        "description": "Use massmailer.",
+        "combined": "global:use_massmailer:epm",
+        "circles": null,
+        "always_assigned": false,
+        "action": "use_massmailer"
+      }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 71,
+        "filters": [],
+        "description": "Manage candidates",
+        "combined": "global:manage_candidates:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_candidates"
+      }]
+}
