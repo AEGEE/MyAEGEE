@@ -2,11 +2,10 @@
 	"default": {
 		"port": 8082,
 		"mongourl": "mongodb://mongodb:27017/events",
-		"registry": {
-			"url": "http://omsserviceregistry",
-			"port": 7000
+		"core": {
+			"url": "http://oms-core-elixir",
+			"port": 4000
 		},
-		"registry_api_key": "/usr/shared/new-api-key",
 		"media_dir": "/usr/app/media",
 		"media_url": "/frontend/media",
 		"bugsnagKey": "6f6a7c00507fceca0818c48405dbd2a6"
