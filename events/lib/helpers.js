@@ -24,9 +24,14 @@ function isOrganizer(event, user) {
 
 function getPermissions(user, corePermissions) {
   const permissions = {
-    approve_event: eventTypes.map(type => hasPermission(corePermissions, 'approve_event:' + type)),
-    manage_event: eventTypes.map(type => hasPermission(corePermissions, 'manage_event:' + type))
+    approve_event: {},
+    manage_event: {}
   };
+
+  for (const type of eventTypes) {
+    permissions.approve_event[type] = hasPermission(corePermissions, 'approve_event:' + type);
+    permissions.manage_event[type] = hasPermission(corePermissions, 'manage_event:' + type);
+  }
 
   return permissions;
 }

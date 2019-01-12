@@ -150,5 +150,75 @@
         "circles": null,
         "always_assigned": false,
         "action": "manage_candidates"
+      }, {
+        "scope": "global",
+        "object": "nwm",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:nwm",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "ltc",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:ltc",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "rtc",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:rtc",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "wu",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:wu",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "local",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:local",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "ees",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:es",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "other",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:other",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_event"
       }]
 }
