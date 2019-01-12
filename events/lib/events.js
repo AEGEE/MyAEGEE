@@ -20,7 +20,8 @@ const displayedFields = [
 
 exports.listEvents = async (req, res, next) => {
   const filter = {
-    deleted: false // Filter out deleted events
+    deleted: false, // Filter out deleted events,
+    status: 'published'
   };
 
   if (req.query.type) {
@@ -42,11 +43,8 @@ exports.listEvents = async (req, res, next) => {
     .where(filter)
     .select(displayedFields.join(' '));
 
-  // Displaying only events user is allowed to see
-  const filteredEvents = events.filter(event => helpers.canUserAccess({ user: req.user, accessObject: event.status.visibility }));
-
   let queryOffset = 0;
-  let queryLimit = filteredEvents.length;
+  let queryLimit = events.length;
 
   if (req.query.offset) {
     const offset = parseInt(req.query.offset, 10);
@@ -62,7 +60,7 @@ exports.listEvents = async (req, res, next) => {
     }
   }
 
-  const eventsWithOffsetAndLimit = filteredEvents.slice(queryOffset, queryOffset + queryLimit);
+  const eventsWithOffsetAndLimit = events.slice(queryOffset, queryOffset + queryLimit);
 
   return res.json({
     success: true,
@@ -70,7 +68,7 @@ exports.listEvents = async (req, res, next) => {
     meta: {
       offset: queryOffset,
       limit: queryLimit,
-      moreAvailable: (queryOffset + queryLimit) < filteredEvents.length
+      moreAvailable: (queryOffset + queryLimit) < events.length
     }
   });
 };

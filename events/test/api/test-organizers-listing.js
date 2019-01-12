@@ -10,62 +10,46 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 describe('Events organizer listing', () => {
-  let events;
-  let omscoreStub;
-  let omsserviceregistryStub;
+  let mineEvent;
+  let notMineEvent;
 
   beforeEach(async () => {
     await db.clear();
 
-    // Populate db
-    const res = await db.populateEvents();
-    events = res.events;
+    mineEvent = await db.createEvent({ organizers: [{ user_id: user.id }] });
+    notMineEvent = await db.createEvent({ organizers: [{ user_id: 1337 }]});
 
     const mocked = mock.mockAll();
     omscoreStub = mocked.omscoreStub;
     omsserviceregistryStub = mocked.omsserviceregistryStub;
   });
 
-  it('should list events where the user is organizer on /mine/organizing GET', (done) => {
-    const mineEvents = events.filter(event => event.organizers.some(org => org.user_id === user.id));
-
-    chai.request(server)
+  it('should list events where the user is organizer on /mine/organizing GET', async () => {
+    const res = await chai.request(server)
       .get('/mine/organizing')
-      .set('X-Auth-Token', 'foobar')
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
+      .set('X-Auth-Token', 'foobar');
 
-        expect(res.body.success).to.be.true;
-        expect(res.body.data.length).to.be.equal(mineEvents.length);
+    expect(res).to.have.status(200);
+    expect(res).to.be.json;
 
-        const ids = res.body.data.map(e => e.id);
-        for (const event of mineEvents) {
-          expect(ids.includes(event.id)).to.be.true;
-        }
+    expect(res.body.success).to.be.true;
+    expect(res.body.data.length).to.be.equal(1);
 
-        done();
-      });
+    const ids = res.body.data.map(e => e.id);
+    expect(ids.includes(mineEvent.id)).to.be.true;
   });
 
-  it('should not include events where the user is not organizer on /mine/organizing GET', (done) => {
-    const notMineEvents = events.filter(event => event.organizers.every(org => org.user_id !== user.id));
-
-    chai.request(server)
+  it('should not include events where the user is not organizer on /mine/organizing GET', async () => {
+    const res = await chai.request(server)
       .get('/mine/organizing')
-      .set('X-Auth-Token', 'foobar')
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
+      .set('X-Auth-Token', 'foobar');
 
-        expect(res.body.success).to.be.true;
+    expect(res).to.have.status(200);
+    expect(res).to.be.json;
 
-        const ids = res.body.data.map(e => e.id);
-        for (const event of notMineEvents) {
-          expect(ids.includes(event.id)).to.be.false;
-        }
+    expect(res.body.success).to.be.true;
 
-        done();
-      });
+    const ids = res.body.data.map(e => e.id);
+    expect(ids.includes(notMineEvent.id)).to.be.false;
   });
 });

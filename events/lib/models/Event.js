@@ -34,7 +34,7 @@ const eventSchema = mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['draft', 'requesting', 'approved'],
+    enum: ['draft', 'requesting', 'published'],
     required: true,
     default: 'draft'
   },

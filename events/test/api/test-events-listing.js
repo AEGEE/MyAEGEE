@@ -1,6 +1,7 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const tk = require('timekeeper');
+const moment = require('moment');
 
 const server = require('../../lib/server.js');
 const db = require('../scripts/populate-db.js');
@@ -10,85 +11,39 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 describe('Events listing', () => {
-  let events;
-  let omscoreStub;
-  let omsserviceregistryStub;
-
   beforeEach(async () => {
     await db.clear();
 
-    // Populate db
-    const res = await db.populateEvents();
-    events = res.events;
-
-    const mocked = mock.mockAll();
-    omscoreStub = mocked.omscoreStub;
-    omsserviceregistryStub = mocked.omsserviceregistryStub;
+    mock.mockAll();
   });
 
-  it('should list all events on / GET', (done) => {
-    chai.request(server)
+  it('should list all published on / GET', async () => {
+    const event = await db.createEvent({ status: 'published' });
+    await db.createEvent({ status: 'draft' });
+
+    const res = await chai.request(server)
       .get('/')
-      .set('X-Auth-Token', 'foobar')
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
+      .set('X-Auth-Token', 'foobar');
 
-        expect(res.body.success).to.be.true;
-        expect(res.body).to.have.property('data');
-        expect(res.body.data).to.be.a('array');
+    expect(res).to.have.status(200);
+    expect(res).to.be.json;
 
-        expect(res.body.data[0]).to.have.property('_id');
-        expect(res.body.data[0]).to.have.property('name');
-        expect(res.body.data[0]).to.have.property('starts');
-        expect(res.body.data[0]).to.have.property('ends');
-        expect(res.body.data[0]).to.have.property('application_status');
-        expect(res.body.data[0]).to.have.property('status');
-        expect(res.body.data[0]).to.have.property('type');
-        expect(res.body.data[0]).to.have.property('description');
+    expect(res.body.success).to.be.true;
+    expect(res.body).to.have.property('data');
+    expect(res.body.data).to.be.a('array');
 
-        done();
-      });
-  });
+    expect(res.body.data.length).to.equal(1);
 
-  it('should include the event that is visible to the user', (done) => {
-    chai.request(server)
-      .get('/')
-      .set('X-Auth-Token', 'foobar')
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
+    expect(res.body.data[0]).to.have.property('_id');
+    expect(res.body.data[0]).to.have.property('name');
+    expect(res.body.data[0]).to.have.property('starts');
+    expect(res.body.data[0]).to.have.property('ends');
+    expect(res.body.data[0]).to.have.property('application_status');
+    expect(res.body.data[0]).to.have.property('status');
+    expect(res.body.data[0]).to.have.property('type');
+    expect(res.body.data[0]).to.have.property('description');
 
-        expect(res.body.success).to.be.true;
-        expect(res.body).to.have.property('data');
-        expect(res.body.data).to.be.a('array');
-
-        // The second event should be visible to user
-        // and it should be included into events listing.
-        expect(res.body.data.filter(e => e._id === events[1].id).length).to.equal(1);
-
-        done();
-      });
-  });
-
-  it('should not include the event that is not visible to the user', (done) => {
-    chai.request(server)
-      .get('/')
-      .set('X-Auth-Token', 'foobar')
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
-
-        expect(res.body.success).to.be.true;
-        expect(res.body).to.have.property('data');
-        expect(res.body.data).to.be.a('array');
-
-        // The first event shouldn't be visible to user
-        // and it shouldn't be included into events listing.
-        expect(res.body.data.filter(e => e._id === events[0].id).length).to.equal(0);
-
-        done();
-      });
+    expect(res.body.data[0]._id).to.equal(event._id.toString());
   });
 
   it('should use the default limit if limit is NaN', (done) => {
@@ -111,64 +66,60 @@ describe('Events listing', () => {
       });
   });
 
-  it('should use the default limit if limit is < 0', (done) => {
-    chai.request(server)
+  it('should use the default limit if limit is < 0', async () => {
+    await db.createEvent({ status: 'published' });
+
+    const res = await chai.request(server)
       .get('/?limit=-1')
-      .set('X-Auth-Token', 'foobar')
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
+      .set('X-Auth-Token', 'foobar');
 
-        expect(res.body.success).to.be.true;
-        expect(res.body).to.have.property('data');
-        expect(res.body.data).to.be.a('array');
+    expect(res).to.have.status(200);
+    expect(res).to.be.json;
 
-        expect(res.body.data.length).not.to.equal(1);
-        expect(res.body.meta.limit).not.to.equal(-1);
-        expect(res.body.meta.moreAvailable).to.be.false;
+    expect(res.body.success).to.be.true;
+    expect(res.body).to.have.property('data');
+    expect(res.body.data).to.be.a('array');
 
-        done();
-      });
+    expect(res.body.data.length).not.to.equal(-1);
+    expect(res.body.meta.limit).not.to.equal(-1);
+    expect(res.body.meta.moreAvailable).to.be.false;
   });
 
-  it('should work with limit if limit is > 0', (done) => {
-    chai.request(server)
+  it('should work with limit if limit is > 0', async  () => {
+    await db.createEvent({ status: 'published' });
+    await db.createEvent({ status: 'published' });
+
+    const res = await chai.request(server)
       .get('/?limit=1')
-      .set('X-Auth-Token', 'foobar')
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
+      .set('X-Auth-Token', 'foobar');
 
-        expect(res.body.success).to.be.true;
-        expect(res.body).to.have.property('data');
-        expect(res.body.data).to.be.a('array');
+    expect(res).to.have.status(200);
+    expect(res).to.be.json;
 
-        expect(res.body.data.length).to.equal(1);
-        expect(res.body.meta.limit).to.equal(1);
-        expect(res.body.meta.moreAvailable).to.be.true;
+    expect(res.body.success).to.be.true;
+    expect(res.body).to.have.property('data');
+    expect(res.body.data).to.be.a('array');
 
-        done();
-      });
+    expect(res.body.data.length).to.equal(1);
+    expect(res.body.meta.limit).to.equal(1);
+    expect(res.body.meta.moreAvailable).to.be.true;
   });
 
-  it('should use the default offset if offset is NaN', (done) => {
-    chai.request(server)
+  it('should use the default offset if offset is NaN', async () => {
+    const res = await chai.request(server)
       .get('/?offset=nan')
-      .set('X-Auth-Token', 'foobar')
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
+      .set('X-Auth-Token', 'foobar');
 
-        expect(res.body.success).to.be.true;
-        expect(res.body).to.have.property('data');
-        expect(res.body.data).to.be.a('array');
+    expect(res).to.have.status(200);
+    expect(res).to.be.json;
 
-        expect(res.body.data.length).not.to.equal(1);
-        expect(res.body.meta.offset).not.to.equal('nan');
-        expect(res.body.meta.moreAvailable).to.be.false;
+    expect(res.body.success).to.be.true;
+    expect(res.body).to.have.property('data');
+    expect(res.body.data).to.be.a('array');
 
-        done();
-      });
+    expect(res.body.data.length).not.to.equal(1);
+    expect(res.body.meta.offset).not.to.equal('nan');
+    expect(res.body.meta.moreAvailable).to.be.false;
   });
 
   it('should use the default offset if offset is < 0', (done) => {
@@ -277,27 +228,27 @@ describe('Events listing', () => {
       });
   });
 
-  it('should display past events if displayPast=true', (done) => {
-    const newDate = new Date((new Date()).setFullYear((new Date()).getFullYear() + 1));
-    tk.travel(newDate);
+  it('should display past events if displayPast=true', async () => {
+    await db.createEvent({
+      application_starts: moment().subtract(5, 'week').toDate(),
+      application_ends: moment().subtract(4, 'week').toDate(),
+      starts: moment().subtract(3, 'week').toDate(),
+      ends: moment().subtract(2, 'week').toDate(),
+      status: 'published'
+    })
 
-    chai.request(server)
+    const res = await chai.request(server)
       .get('/?displayPast=true')
-      .set('X-Auth-Token', 'foobar')
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
+      .set('X-Auth-Token', 'foobar');
 
-        expect(res.body.success).to.be.true;
-        expect(res.body).to.have.property('data');
-        expect(res.body.data).to.be.a('array');
+    expect(res).to.have.status(200);
+    expect(res).to.be.json;
 
-        expect(res.body.data.length).to.be.greaterThan(0);
+    expect(res.body.success).to.be.true;
+    expect(res.body).to.have.property('data');
+    expect(res.body.data).to.be.a('array');
 
-        tk.reset();
-
-        done();
-      });
+    expect(res.body.data.length).to.be.greaterThan(0);
   });
 
   it('should filter by name case-insensitive', (done) => {
