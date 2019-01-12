@@ -2,7 +2,6 @@ const { errors } = require('oms-common-nodejs');
 
 const log = require('./config/logger.js');
 const helpers = require('./helpers');
-const cron = require('./cron');
 const user = require('./user');
 const Event = require('./models/Event');
 const EventType = require('./models/EventType');
@@ -218,11 +217,6 @@ exports.addEvent = async (req, res, next) => {
   newEvent.lifecycle = eventType.defaultLifecycle;
 
   await newEvent.save();
-
-  // Register cronjob for deadline
-  if (data.application_deadline) {
-    cron.registerDeadline(newEvent.id, newEvent.application_deadline);
-  }
 
   return res.status(201).json({
     success: true,

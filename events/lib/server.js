@@ -12,7 +12,6 @@ const imageserv = require('./imageserv');
 const log = require('./config/logger');
 const service = require('./service');
 const middlewares = require('./middlewares');
-const cron = require('./cron');
 const config = require('./config/config');
 const user = require('./user');
 
@@ -101,7 +100,6 @@ server.use(middlewares.errorHandler);
 
 const app = server.listen(config.port, async () => {
   log.info('Up and running, listening on http://localhost:%d', config.port);
-  await cron.scanDB();
   await user.updateEventRoles();
 });
 
