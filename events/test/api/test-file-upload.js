@@ -12,105 +12,84 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 describe('File upload', () => {
-  let events;
-  let omscoreStub;
-  let omsserviceregistryStub;
+  let event;
 
   beforeEach(async () => {
     await db.clear();
 
-    // Populate db
-    const res = await db.populateEvents();
-    events = res.events;
-
-    const mocked = mock.mockAll();
-    omscoreStub = mocked.omscoreStub;
-    omsserviceregistryStub = mocked.omsserviceregistryStub;
+    event = await db.createEvent();
+    mock.mockAll();
   });
 
   after(() => {
     fs.removeSync(config.media_dir);
   });
 
-  it('should create an upload folder if it doesn\'t exist', (done) => {
+  it('should create an upload folder if it doesn\'t exist', async () => {
     fs.removeSync(config.media_dir);
 
-    chai.request(server)
-      .post(`/single/${events[0]._id}/upload`)
+    await chai.request(server)
+      .post(`/single/${event._id}/upload`)
       .set('X-Auth-Token', 'foobar')
-      .attach('head_image', fs.readFileSync('./test/assets/valid_image.png'), 'image.png')
-      .end((err) => {
-        expect(fs.existsSync(config.media_dir)).to.be.true;
-        done();
-      });
+      .attach('head_image', fs.readFileSync('./test/assets/valid_image.png'), 'image.png');
+
+    expect(fs.existsSync(config.media_dir)).to.be.true;
   });
 
-  it('should fail if the uploaded file is not an image (by extension)', (done) => {
-    chai.request(server)
-      .post(`/single/${events[0]._id}/upload`)
+  it('should fail if the uploaded file is not an image (by extension)', async () => {
+    const res = await chai.request(server)
+      .post(`/single/${event._id}/upload`)
       .set('X-Auth-Token', 'foobar')
-      .attach('head_image', fs.readFileSync('./test/assets/invalid_image.txt'), 'image.txt')
-      .end((err, res) => {
-        expect(res).to.have.status(422);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
+      .attach('head_image', fs.readFileSync('./test/assets/invalid_image.txt'), 'image.txt');
 
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
+    expect(res).to.have.status(422);
+    expect(res).to.be.json;
+    expect(res).to.be.a('object');
 
-        done();
-      });
+    expect(res.body.success).to.be.false;
+    expect(res.body).to.have.property('message');
   });
 
-  it('should fail if the uploaded file is not an image (by content)', (done) => {
-    chai.request(server)
-      .post(`/single/${events[0]._id}/upload`)
+  it('should fail if the uploaded file is not an image (by content)', async () => {
+    const res = await chai.request(server)
+      .post(`/single/${event._id}/upload`)
       .set('X-Auth-Token', 'foobar')
-      .attach('head_image', fs.readFileSync('./test/assets/invalid_image.jpg'), 'image.jpg')
-      .end((err, res) => {
-        expect(res).to.have.status(422);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
+      .attach('head_image', fs.readFileSync('./test/assets/invalid_image.jpg'), 'image.jpg');
 
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
+    expect(res).to.have.status(422);
+    expect(res).to.be.json;
+    expect(res).to.be.a('object');
 
-        done();
-      });
+    expect(res.body.success).to.be.false;
+    expect(res.body).to.have.property('message');
   });
 
-  it('should fail the \'head_image\' field is not specified', (done) => {
-    chai.request(server)
-      .post(`/single/${events[0]._id}/upload`)
-      .set('X-Auth-Token', 'foobar')
-      .end((err, res) => {
-        expect(res).to.have.status(422);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
+  it('should fail the \'head_image\' field is not specified', async () => {
+    const res = await chai.request(server)
+      .post(`/single/${event._id}/upload`)
+      .set('X-Auth-Token', 'foobar');
 
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
+    expect(res).to.have.status(422);
+    expect(res).to.be.json;
+    expect(res).to.be.a('object');
 
-        done();
-      });
+    expect(res.body.success).to.be.false;
+    expect(res.body).to.have.property('message');
   });
 
-  it('should upload a file if it\'s valid', (done) => {
-    chai.request(server)
-      .post(`/single/${events[0]._id}/upload`)
+  it('should upload a file if it\'s valid', async () => {
+    const res = await chai.request(server)
+      .post(`/single/${event._id}/upload`)
       .set('X-Auth-Token', 'foobar')
-      .attach('head_image', fs.readFileSync('./test/assets/valid_image.png'), 'image.png')
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
+      .attach('head_image', fs.readFileSync('./test/assets/valid_image.png'), 'image.png');
 
-        expect(res.body.success).to.be.true;
-        expect(res.body).to.have.property('data');
+    expect(res).to.have.status(200);
+    expect(res).to.be.json;
+    expect(res).to.be.a('object');
 
-        expect(fs.existsSync(path.join(__dirname, '..', '..', res.body.data.path))).to.be.true;
+    expect(res.body.success).to.be.true;
+    expect(res.body).to.have.property('data');
 
-        done();
-      });
+    expect(fs.existsSync(path.join(__dirname, '..', '..', res.body.data.path))).to.be.true;
   });
 });
