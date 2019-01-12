@@ -69,19 +69,54 @@
         </div>
 
         <div class="field">
-          <label class="label">Start date</label>
+          <label class="label">Application period starts</label>
           <div class="control">
-            <b-datepicker v-model="event.starts" />
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.application_starts" />
           </div>
-          <p class="help is-danger" v-if="errors.starts">{{ errors.starts.message }}</p>
+          <p class="help is-danger" v-if="errors.application_starts">{{ errors.application_starts.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">End date</label>
+          <label class="label">Application period ends</label>
           <div class="control">
-            <b-datepicker v-model="event.ends" />
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.application_ends" />
           </div>
-          <p class="help is-danger" v-if="errors.ends">{{ errors.ends.message }}</p>
+          <p class="help is-danger" v-if="errors.application_ends">{{ errors.application_ends.join(', ') }}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Event start date</label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.starts" />
+          </div>
+          <p class="help is-danger" v-if="errors.starts">{{ errors.starts.join(', ') }}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Event end date</label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              :config="dateConfig"
+              v-model="dates.ends" />
+          </div>
+          <p class="help is-danger" v-if="errors.ends">{{ errors.ends.join(', ') }}</p>
         </div>
 
         <div class="tile is-child" v-if="!$route.params.id">
@@ -115,39 +150,26 @@
           </div>
         </div>
 
-        <div class="tile is-child" v-if="!$route.params.id">
-          <div class="field">
-            <label class="label">Event type</label>
-            <div class="control">
-              <div class="field has-addons">
-                <b-autocomplete
-                  v-model="autoComplete.eventTypes.name"
-                  :data="eventTypes"
-                  open-on-focus="true"
-                  @select="type => { event.type = type }">
-                  <template slot-scope="props">
-                    <div class="media">
-                      <div class="media-content">
-                        {{ props.option }}
-                      </div>
-                    </div>
-                  </template>
-                </b-autocomplete>
-                <p class="control">
-                  <a class="button is-danger"
-                    @click="event.type = null"
-                    v-if="event.type">{{ event.type }} (Click to unset)</a>
-                  <a class="button is-static" v-if="!event.type">Not set.</a>
-                </p>
-              </div>
-            </div>
+        <div class="field">
+          <label class="label">Event type</label>
+          <div class="select">
+            <select v-model="event.type">
+              <option value="wu">NYE</option>
+              <option value="es">European School</option>
+              <option value="nwm">NWM</option>
+              <option value="rtc">RTC</option>
+              <option value="ltc">LTC</option>
+              <option value="local">Local event</option>
+              <option value="other">Other</option>
+            </select>
           </div>
+          <p class="help is-danger" v-if="errors.type">{{ errors.type.message }}</p>
         </div>
 
         <div class="tile is-parent" v-if="!$route.params.id">
           <div class="tile is-child">
             <div class="notification is-info">
-              Please select the event type wisely, as it will influence the event's workflow. <strong>It can't be changed later.</strong>
+              Please select the event type wisely. <strong>It can't be changed later.</strong>
             </div>
           </div>
         </div>
@@ -166,26 +188,6 @@
           </div>
           <p class="help is-danger" v-if="errors.fee">{{ errors.fee.message }}</p>
         </div>
-
-        <div class="field">
-          <label class="label">Application status</label>
-          <div class="select">
-            <select v-model="event.application_status">
-              <option>open</option>
-              <option>closed</option>
-            </select>
-          </div>
-          <p class="help is-danger" v-if="errors.application_status">{{ errors.application_status.message }}</p>
-        </div>
-
-        <div class="field">
-          <label class="label">Application deadline</label>
-          <div class="control">
-            <b-datepicker v-model="event.application_deadline" />
-          </div>
-          <p class="help is-danger" v-if="errors.application_deadline">{{ errors.application_deadline.message }}</p>
-        </div>
-
         <div class="field">
           <label class="label">Max. participants</label>
           <div class="control">
@@ -294,17 +296,22 @@ export default {
         description: '', // so it won't be null and marked() would not error
         id: null,
         url: null,
-        application_status: 'closed',
-        application_deadline: null,
         application_fields: [],
         max_participants: null,
         locations: [],
         fee: null,
-        status: null,
+        application_starts: null,
+        application_ends: null,
         starts: null,
         ends: null,
         body_id: null,
         body: null
+      },
+      dates: {
+        application_starts: null,
+        application_ends: null,
+        starts: null,
+        ends: null
       },
       center: {
         lat: 50.8503396,
@@ -367,6 +374,22 @@ export default {
       this.event.locations[index].position.lng = position.lng()
     },
     saveEvent () {
+      if (!this.event.application_starts) {
+        return this.$root.showDanger('Please set the date when applications period will start.')
+      }
+
+      if (!this.event.application_ends) {
+        return this.$root.showDanger('Please set the date when applications period will end.')
+      }
+
+      if (!this.event.starts) {
+        return this.$root.showDanger('Please set the date when the event will start.')
+      }
+
+      if (!this.event.ends) {
+        return this.$root.showDanger('Please set the date when the event will end.')
+      }
+
       this.isSaving = true
       this.errors = {}
 
@@ -398,20 +421,22 @@ export default {
     services: 'services',
     loginUser: 'user'
   }),
+  watch: {
+    'dates.application_starts' (newDate) {
+      this.event.application_starts = new Date(newDate)
+    },
+    'dates.application_ends' (newDate) {
+      this.event.application_ends = new Date(newDate)
+    },
+    'dates.starts' (newDate) {
+      this.event.starts = new Date(newDate)
+    },
+    'dates.ends' (newDate) {
+      this.event.ends = new Date(newDate)
+    }
+  },
   mounted () {
-    this.axios.get(this.services['oms-events'] + '/eventroles').then((response) => {
-      this.roles = response.data.data
-    }).catch((err) => {
-      this.$root.showDanger('Could not fetch event roles: ' + err.message)
-    })
-
     if (!this.$route.params.id) {
-      this.axios.get(this.services['oms-events'] + '/lifecycle/names').then((response) => {
-        this.eventTypes = response.data.data
-      }).catch((err) => {
-        this.$root.showDanger('Could not fetch event types: ' + err.message)
-      })
-
       return
     }
 
@@ -419,9 +444,10 @@ export default {
       this.event = response.data.data
       this.can = response.data.permissions.can
 
-      this.event.starts = new Date(this.event.starts)
-      this.event.ends = new Date(this.event.ends)
-      if (this.event.application_deadline) this.event.application_deadline = new Date(this.event.application_deadline)
+      this.dates.starts = this.event.starts = new Date(this.event.starts)
+      this.dates.ends = this.event.starts = new Date(this.event.ends)
+      this.dates.application_starts = this.event.application_starts = new Date(this.event.application_starts)
+      this.dates.application_ends = this.event.application_ends = new Date(this.event.application_ends)
 
       this.isLoading = false
       this.$forceUpdate()
