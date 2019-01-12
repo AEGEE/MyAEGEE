@@ -2,7 +2,6 @@ const { errors } = require('oms-common-nodejs');
 
 const log = require('./config/logger.js');
 const helpers = require('./helpers');
-const user = require('./user');
 const Event = require('./models/Event');
 const EventType = require('./models/EventType');
 
@@ -179,13 +178,11 @@ exports.addEvent = async (req, res, next) => {
 
   const newEvent = new Event(data);
 
-  // Get the default role to assign to the user
-  const defaultRoles = await user.getDefaultEventRoles();
   // Creating user automatically becomes organizer
   newEvent.organizers = [
     {
       user_id: req.user.id,
-      roles: defaultRoles,
+      roles: ['Creator'],
     },
   ];
 

@@ -13,7 +13,6 @@ const log = require('./config/logger');
 const service = require('./service');
 const middlewares = require('./middlewares');
 const config = require('./config/config');
-const user = require('./user');
 
 const EventsRouter = router({ mergeParams: true });
 const GeneralRouter = router({ mergeParams: true });
@@ -59,8 +58,6 @@ GeneralRouter.post('/lifecycle', lifecycle.createLifecycle);
 GeneralRouter.get('/lifecycle/seed', lifecycle.seed);
 GeneralRouter.delete('/lifecycle/:lifecycle_id', lifecycle.removeLifecycle);
 
-GeneralRouter.get('/eventroles', user.getEventRoles);
-
 GeneralRouter.get('/mine/organizing', events.listUserOrganizedEvents);
 GeneralRouter.get('/mine/participating', applications.listUserAppliedEvents);
 GeneralRouter.get('/mine/approvable', events.listApprovableEvents);
@@ -100,7 +97,6 @@ server.use(middlewares.errorHandler);
 
 const app = server.listen(config.port, async () => {
   log.info('Up and running, listening on http://localhost:%d', config.port);
-  await user.updateEventRoles();
 });
 
 module.exports = app;
