@@ -60,7 +60,6 @@ EventsRouter.use(middlewares.fetchSingleEvent);
 EventsRouter.get('/', events.eventDetails);
 EventsRouter.put('/', events.editEvent);
 EventsRouter.delete('/', events.deleteEvent);
-EventsRouter.get('/status', events.listPossibleStatuses);
 EventsRouter.put('/status', events.setApprovalStatus);
 EventsRouter.get('/rights', events.getEditRights);
 EventsRouter.post('/upload', imageserv.uploadImage);

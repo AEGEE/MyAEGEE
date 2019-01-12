@@ -300,33 +300,6 @@ exports.deleteEvent = async (req, res, next) => {
   });
 };
 
-exports.listPossibleStatuses = async (req, res, next) => {
-  // Returning only statuses to which this user can change this event.
-  const possibleStatuses = req.event.lifecycle.statuses.filter((status) => {
-    // Finding a transition from current status to this status that current user can perform.
-    return req.event.lifecycle.transitions.some((transition) => {
-      if (!transition.from) {
-        return false;
-      }
-
-      if (transition.from !== req.event.status.name) {
-        return false;
-      }
-
-      if (transition.to !== status.name) {
-        return false;
-      }
-
-      return helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor, event: req.event });
-    });
-  }).map(status => status.toObject());
-
-  return res.json({
-    success: true,
-    data: possibleStatuses,
-  });
-};
-
 exports.setApprovalStatus = async (req, res, next) => {
   // Trying to find a transition from event's current status
   // to the required status.
