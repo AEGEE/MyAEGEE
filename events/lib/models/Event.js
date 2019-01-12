@@ -5,7 +5,6 @@ const Organizer = require('../schemas/Organizer');
 const Participant = require('../schemas/Participant');
 const Local = require('../schemas/Local');
 const Location = require('../schemas/Location');
-const Link = require('../schemas/Link');
 const Field = require('../schemas/Field');
 
 const eventSchema = mongoose.Schema({
@@ -17,13 +16,14 @@ const eventSchema = mongoose.Schema({
   name: { type: String, required: true },
   starts: { type: Date, required: true },
   ends: { type: Date, required: true },
-  description: { type: String, default: '' },
+  description: { type: String, required: true },
   fee: {
     type: Number,
     get: v => Math.round(v * 100) / 100,
+    required: true,
+    default: 0
   },
   organizing_locals: [Local],
-  links: [Link],
   locations: [Location],
   type: {
     type: String,
