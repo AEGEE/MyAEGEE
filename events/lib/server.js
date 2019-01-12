@@ -42,7 +42,6 @@ GeneralRouter.get('/status', service.status);
 ImagesRouter.use(express.static(config.media_dir)); // Serving images.
 
 GeneralRouter.use(middlewares.authenticateUser);
-GeneralRouter.use(middlewares.checkPermissions);
 
 GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', events.addEvent);
@@ -57,7 +56,6 @@ GeneralRouter.get('/boardview/:body_id', events.listLocalInvolvedEvents);
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
 EventsRouter.use(middlewares.fetchSingleEvent);
-EventsRouter.use(middlewares.checkEventPermissions);
 
 EventsRouter.get('/', events.eventDetails);
 EventsRouter.put('/', events.editEvent);
