@@ -1,5 +1,6 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+const moment = require('moment');
 
 const server = require('../../lib/server.js');
 const db = require('../scripts/populate-db.js');
@@ -10,62 +11,26 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 describe('Events creation', () => {
-  let events;
-  let omscoreStub;
-  let omsserviceregistryStub;
-
   beforeEach(async () => {
     await db.clear();
-
-    // Populate db
-    const res = await db.populateEvents();
-    events = res.events;
-
-    const mocked = mock.mockAll();
-    omscoreStub = mocked.omscoreStub;
-    omsserviceregistryStub = mocked.omsserviceregistryStub;
+    mock.mockAll();
   });
 
-  it('should not create a new event if the user doesn\'t have rights / POST', (done) => {
-    const mocked = mock.mockAll({ core: { notSuperadmin: true } });
-    omscoreStub = mocked.omscoreStub;
-    omsserviceregistryStub = mocked.omsserviceregistryStub;
-
-    chai.request(server)
-      .post('/')
-      .set('X-Auth-Token', 'foobar')
-      .send({
-        name: 'Develop Yourself 4',
-        starts: '2017-12-11 15:00',
-        ends: '2017-12-14 12:00',
-        type: 'non-statutory',
-        body_id: user.bodies[0].id
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(403);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
-
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
-
-        done();
-      });
-  });
 
   it('should not create a new event if the is not a member of the body', (done) => {
-    const mocked = mock.mockAll({ core: { notSuperadmin: true } });
-    omscoreStub = mocked.omscoreStub;
-    omsserviceregistryStub = mocked.omsserviceregistryStub;
+    mock.mockAll({ core: { notSuperadmin: true } });
 
     chai.request(server)
       .post('/')
       .set('X-Auth-Token', 'foobar')
       .send({
         name: 'Develop Yourself 4',
+        description: 'Test',
+        application_starts: '2017-12-05 15:00',
+        application_ends: '2017-12-05 15:00',
         starts: '2017-12-11 15:00',
         ends: '2017-12-14 12:00',
-        type: 'non-statutory',
+        type: 'es',
         body_id: 1337
       })
       .end((err, res) => {
@@ -90,9 +55,12 @@ describe('Events creation', () => {
       .set('X-Auth-Token', 'foobar')
       .send({
         name: 'Develop Yourself 4',
+        description: 'Test',
+        application_starts: '2017-12-05 15:00',
+        application_ends: '2017-12-05 15:00',
         starts: '2017-12-11 15:00',
         ends: '2017-12-14 12:00',
-        type: 'non-statutory'
+        type: 'es'
       })
       .end((err, res) => {
         expect(res).to.have.status(403);
@@ -112,9 +80,12 @@ describe('Events creation', () => {
       .set('X-Auth-Token', 'foobar')
       .send({
         name: 'Develop Yourself 4',
+        description: 'Test',
+        application_starts: '2017-12-05 15:00',
+        application_ends: '2017-12-05 15:00',
         starts: '2017-12-11 15:00',
         ends: '2017-12-14 12:00',
-        type: 'non-statutory',
+        type: 'es',
         body_id: user.bodies[0].id
       })
       .end((err, res) => {
@@ -125,6 +96,8 @@ describe('Events creation', () => {
         expect(res.body.success).to.be.true;
         expect(res.body.data).to.have.property('_id');
         expect(res.body.data).to.have.property('name');
+        expect(res.body.data).to.have.property('application_starts');
+        expect(res.body.data).to.have.property('application_ends');
         expect(res.body.data).to.have.property('starts');
         expect(res.body.data).to.have.property('ends');
         expect(res.body.data).to.have.property('application_status');
@@ -137,8 +110,7 @@ describe('Events creation', () => {
         expect(res.body.data).to.have.property('organizers');
 
         // Check auto-filled fields
-        expect(res.body.data.status.name).to.equal('Draft');
-        expect(res.body.data.type).to.equal('non-statutory');
+        expect(res.body.data.status).to.equal('draft');
         expect(res.body.data.application_status).to.equal('closed');
         expect(res.body.data.application_fields).to.have.lengthOf(0);
         expect(res.body.data.max_participants).to.equal(0);
@@ -153,9 +125,11 @@ describe('Events creation', () => {
       .set('X-Auth-Token', 'foobar')
       .send({
         name: 'Develop Yourself 4',
+        application_starts: '2017-12-05 15:00',
+        application_ends: '2017-12-05 15:00',
         starts: '2017-12-11 15:00',
         ends: '2017-12-14 12:00',
-        type: 'non-statutory',
+        type: 'es',
         description: 'A training event to boost your self-confidence and teamworking skills',
         organizing_locals: [{ foreign_id: 'AEGEE-Dresden' }],
         max_participants: 22,
@@ -183,7 +157,6 @@ describe('Events creation', () => {
         expect(res.body.data).to.have.property('name');
         expect(res.body.data).to.have.property('starts');
         expect(res.body.data).to.have.property('ends');
-        expect(res.body.data).to.have.property('application_deadline');
         expect(res.body.data).to.have.property('application_status');
         expect(res.body.data).to.have.property('max_participants');
         expect(res.body.data).to.have.property('status');
@@ -209,9 +182,12 @@ describe('Events creation', () => {
       .set('X-Auth-Token', 'foobar')
       .send({
         name: 'Develop Yourself 4',
+        description: 'A training event to boost your self-confidence and teamworking skills',
+        application_starts: '2017-12-05 15:00',
+        application_ends: '2017-12-05 15:00',
         starts: '2017-12-11 15:00',
         ends: '2017-12-14 12:00',
-        type: 'non-statutory',
+        type: 'es',
         organizers: [
           {
             user_id: 3,
@@ -229,6 +205,10 @@ describe('Events creation', () => {
         body_id: user.bodies[0].id
       })
       .end((err, res) => {
+        expect(res).to.have.status(201);
+        expect(res).to.be.json;
+        expect(res).to.be.a('object');
+
         expect(res.body.data.applications).to.have.lengthOf(0);
 
         // Not implemented yet
@@ -257,50 +237,6 @@ describe('Events creation', () => {
         expect(res.body.errors).to.have.property('name');
         expect(res.body.errors).to.have.property('fee');
 
-        done();
-      });
-  });
-
-  it('should fail if there\'s no event type specified', (done) => {
-    chai.request(server)
-      .post('/')
-      .set('X-Auth-Token', 'foobar')
-      .send({
-        name: 'Develop Yourself 4',
-        starts: '2017-12-11 15:00',
-        ends: '2017-12-14 12:00',
-        body_id: user.bodies[0].id
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(422);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
-
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
-
-        done();
-      });
-  });
-
-  it('should fail if there\'s no such event type', (done) => {
-    chai.request(server)
-      .post('/')
-      .set('X-Auth-Token', 'foobar')
-      .send({
-        name: 'Develop Yourself 4',
-        starts: '2017-12-11 15:00',
-        ends: '2017-12-14 12:00',
-        type: 'random-event-type',
-        body_id: user.bodies[0].id
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(422);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
-
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
         done();
       });
   });

@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const mongoose = require('../config/mongo');
 const config = require('../config/config.js');
 
@@ -33,15 +35,22 @@ const eventSchema = mongoose.Schema({
   status: {
     type: String,
     enum: ['draft', 'requesting', 'approved'],
-    required: true
+    required: true,
+    default: 'draft'
   },
   max_participants: {
     type: Number,
     default: 0,
     get: v => Math.round(v),
   },
-  application_deadline: Date,
-  application_status: { type: String, enum: ['closed', 'open'], default: 'closed' },
+  application_starts: {
+    type: Date,
+    required: true
+  },
+  application_ends: {
+    type: Date,
+    required: true
+  },
   application_fields: [Field],
   applications: [Participant],
   organizers: [Organizer],
@@ -56,19 +65,18 @@ eventSchema.virtual('head_image.url').get(function imageUrl() {
   return '';
 });
 
+eventSchema.virtual('application_status').get(function getStatus() {
+  return moment().isBetween(this.application_starts, this.application_ends, null, '[]')
+    ? 'open'
+    : 'closed';
+})
+
 // Allow virtuals
 eventSchema.set('toJSON', { virtuals: true });
 eventSchema.set('toObject', { virtuals: true });
 
 // If application is closed, set all current applications to pending
 eventSchema.pre('save', function save(next) {
-  if (this.application_status === 'closed' && this.applications && this.applications.length > 0) {
-    this.applications.forEach((item, index) => {
-      if (this.applications[index].status === 'requesting') {
-        this.applications[index].status = 'pending';
-      }
-    });
-  }
   // If no url is given, default to the id
   if (!this.url) {
     this.url = this.get('_id');
@@ -82,14 +90,14 @@ eventSchema.path('max_participants').validate(value => value >= 0, 'Participants
 eventSchema.path('fee').validate(value => value >= 0, 'Fee can\'t be negative');
 
 eventSchema.pre('validate', function validate(next) {
-  if (this.application_status === 'open' && !this.application_deadline) {
-    this.invalidate('application_deadline', 'Cannot open the application without a deadline', this.application_deadline);
+  if (this.applications_ends <= this.applications_starts) {
+    this.invalidate('ends', 'Event applications cannot end before it started', this.applications_ends);
+  }
+  if (this.starts <= this.applications_ends) {
+    this.invalidate('ends', 'Event applications cannot end after the event has started', this.starts);
   }
   if (this.ends <= this.starts) {
     this.invalidate('ends', 'Event cannot end before it started', this.ends);
-  }
-  if (this.application_deadline && this.starts <= this.application_deadline) {
-    this.invalidate('application_deadline', 'Application must end before the event starts', this.application_deadline);
   }
   if (this.organizers == null || this.organizers.length === 0) {
     this.invalidate('organizers', 'Organizers list can not be empty', this.organizers);

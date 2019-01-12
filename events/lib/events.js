@@ -186,7 +186,7 @@ exports.addEvent = async (req, res, next) => {
   ];
 
   // Checking if the user IS the member of the body.
-  if (!data.body_id || !req.user.permissions.is.member_of[data.body_id]) {
+  if (!data.body_id || !helpers.isMemberOf(req.user, data.body_id)) {
     return errors.makeForbiddenError(res, 'You are not a member of this body and cannot create an event on behalf of it.');
   }
   newEvent.organizing_locals = [{ body_id: data.body_id }];
