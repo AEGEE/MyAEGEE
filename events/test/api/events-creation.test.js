@@ -16,6 +16,8 @@ describe('Events creation', () => {
   afterEach(async () => {
     await stopServer();
     mock.cleanAll();
+
+    await generator.clearAll();
   });
 
   it('should not create a new event if the is not a member of the body', async () => {

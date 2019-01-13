@@ -16,6 +16,8 @@ describe('Events details', () => {
   afterEach(async () => {
     await stopServer();
     mock.cleanAll();
+
+    await generator.clearAll();
   });
 
   it('should return a single event on /single/<eventid> GET', async () => {
