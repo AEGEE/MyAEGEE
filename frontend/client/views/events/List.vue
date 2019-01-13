@@ -17,11 +17,11 @@
           </div>
         </div>
 
-        <div class="field" v-if="Object.keys(eventTypesEnabled).length > 0">
+        <div class="field">
           <label class="label">Event types</label>
-          <label v-for="(value, name) in eventTypesEnabled" v-bind:key="name">
-            <input class="checkbox" type="checkbox" v-model="eventTypesEnabled[name]" @change="refetch()" />
-            {{ name }}
+          <label v-for="(value, index) in eventTypes" v-bind:key="index">
+            <input class="checkbox" type="checkbox" v-model="value.enabled" @change="refetch()" />
+            {{ value.name }}
           </label>
         </div>
 
@@ -108,7 +108,15 @@ export default {
   data () {
     return {
       events: [],
-      eventTypesEnabled: {},
+      eventTypes: [
+        { value: 'wu', name: 'New Year Event', enabled: false },
+        { value: 'es', name: 'ES', enabled: false },
+        { value: 'nwm', name: 'NWM', enabled: false },
+        { value: 'ltc', name: 'LTC', enabled: false },
+        { value: 'rtc', name: 'RTC', enabled: false },
+        { value: 'local', name: 'Local event', enabled: false },
+        { value: 'other', name: 'Other', enabled: false }
+      ],
       isLoading: false,
       query: '',
       limit: 30,
@@ -123,7 +131,7 @@ export default {
       const queryObj = {
         limit: this.limit,
         offset: this.offset,
-        type: Object.keys(this.eventTypesEnabled).filter(key => this.eventTypesEnabled[key]),
+        type: this.eventTypes.filter(type => type.enabled).map(type => type.value),
         displayPast: this.displayPast
       }
 
@@ -183,16 +191,6 @@ export default {
   },
   mounted () {
     this.fetchData()
-
-    this.axios.get(this.services['oms-events'] + '/lifecycle/names').then((response) => {
-      for (const type of response.data.data) {
-        this.eventTypesEnabled[type] = true
-      }
-      this.isLoading = false
-      this.$forceUpdate()
-    }).catch((err) => {
-      this.$root.showDanger('Could not fetch events types: ' + err.message)
-    })
   }
 }
 </script>
