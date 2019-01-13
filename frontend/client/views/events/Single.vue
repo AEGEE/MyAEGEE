@@ -114,7 +114,7 @@
                   <th>Organizing bodies</th>
                   <td>
                     <ul>
-                      <li v-for="body in event.organizing_locals" v-bind:key="body._id">
+                      <li v-for="body in event.organizing_bodies" v-bind:key="body._id">
                         <router-link class="tag" :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }">
                           {{ body.body ? body.body.name : 'Loading...' }}
                         </router-link>
@@ -169,7 +169,7 @@ export default {
         id: null,
         url: null,
         organizers: [],
-        organizing_locals: [],
+        organizing_bodies: [],
         locations: [],
         circles: [],
         application_starts: null,
@@ -208,7 +208,7 @@ export default {
       this.can = response.data.permissions
       this.isLoading = false
 
-      for (const body of this.event.organizing_locals) {
+      for (const body of this.event.organizing_bodies) {
         this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + body.body_id).then((bodyResponse) => {
           this.$set(body, 'body', bodyResponse.data.data)
         }).catch(console.error)
