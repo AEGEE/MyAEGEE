@@ -103,8 +103,12 @@ const Event = sequelize.define('event', {
             throw new Error('Body is malformed.');
           }
 
-          if (!body.body_id) {
+          if (typeof body.body_id === 'undefined') {
             throw new Error('body_id should be presented.');
+          }
+
+          if (typeof body.body_id !== 'number') {
+            throw new Error('body_id should be a number.');
           }
         }
       }

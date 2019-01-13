@@ -6,7 +6,7 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const user = require('../assets/oms-core-valid').data;
 
-describe('API requests', () => {
+describe('Events listing', () => {
   beforeEach(async () => {
     mock.mockAll();
     await startServer();

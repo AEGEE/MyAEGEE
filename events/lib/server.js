@@ -84,8 +84,8 @@ EventsRouter.post('/organizers', events.addOrganizer);
 EventsRouter.put('/organizers/:user_id', events.editOrganizer);
 EventsRouter.delete('/organizers/:user_id', events.deleteOrganizer);
 
-EventsRouter.post('/locals', events.addLocal);
-EventsRouter.delete('/locals/:body_id', events.deleteLocal);
+EventsRouter.post('/bodies', events.addLocal);
+EventsRouter.delete('/bodies/:body_id', events.deleteLocal);
 
 server.use(config.media_url, ImagesRouter);
 server.use('/', GeneralRouter);
