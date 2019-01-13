@@ -11,6 +11,10 @@ const Event = sequelize.define('event', {
       notEmpty: { msg: 'Event name should be set.' },
     }
   },
+  url: {
+    type: Sequelize.STRING,
+    allowNull: true
+  },
   description: {
     type: Sequelize.TEXT,
     allowNull: false,
@@ -73,7 +77,7 @@ const Event = sequelize.define('event', {
   fee: {
     type: Sequelize.DECIMAL,
     allowNull: false,
-    defaultValue: '',
+    defaultValue: 0,
     validate: {
       notEmpty: { msg: 'Event fee should be set.' },
       isNumeric: { msg: 'Event fee should be valid.' },
@@ -195,11 +199,11 @@ const Event = sequelize.define('event', {
             throw new Error('first_name is malformed.');
           }
 
-          if (!organizer.comment || typeof organizer.last_name !== 'string') {
-            throw new Error('first_name is malformed.');
+          if (!organizer.last_name || typeof organizer.last_name !== 'string') {
+            throw new Error('last_name is malformed.');
           }
 
-          if (!organizer.comment || typeof organizer.comment !== 'string') {
+          if (typeof organizer.comment !== 'undefined' && typeof organizer.comment !== 'string') {
             throw new Error('comment is malformed.');
           }
         }
@@ -209,7 +213,7 @@ const Event = sequelize.define('event', {
   questions: {
     type: Sequelize.JSONB,
     allowNull: false,
-    defaultValue: '',
+    defaultValue: [],
     validate: {
       isValid(value) {
         if (!Array.isArray(value)) {
@@ -267,6 +271,23 @@ const Event = sequelize.define('event', {
       }
     }
   },
+  max_participants: {
+    type: Sequelize.INTEGER,
+    allowNull: true,
+    defaultValue: null,
+    validate: {
+      isNumeric: { msg: 'Event fee should be valid.' },
+      min: { args: [0], msg: 'Event fee cannot be negative' }
+    }
+  },
+  application_status: {
+    type: Sequelize.VIRTUAL,
+    get() {
+        return moment().isBetween(this.application_starts, this.application_ends, null, '[]')
+          ? 'open'
+          : 'closed'; // inclusive
+    }
+},
 }, { underscored: true, tableName: 'events' });
 
 module.exports = Event;

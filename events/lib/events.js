@@ -2,6 +2,7 @@ const { errors } = require('oms-common-nodejs');
 
 const helpers = require('./helpers');
 const { Event } = require('../models');
+const { Sequelize } = require('./sequelize');
 
 const displayedFields = [
   'name',
@@ -178,7 +179,8 @@ exports.addEvent = async (req, res, next) => {
   newEvent.organizers = [
     {
       user_id: req.user.id,
-      roles: ['Creator'],
+      first_name: req.user.first_name,
+      last_name: req.user.last_name
     },
   ];
 
@@ -186,7 +188,7 @@ exports.addEvent = async (req, res, next) => {
   if (!data.body_id || !helpers.isMemberOf(req.user, data.body_id)) {
     return errors.makeForbiddenError(res, 'You are not a member of this body and cannot create an event on behalf of it.');
   }
-  newEvent.organizing_locals = [{ body_id: data.body_id }];
+  newEvent.organizing_bodies = [{ body_id: data.body_id }];
 
   await newEvent.save();
 

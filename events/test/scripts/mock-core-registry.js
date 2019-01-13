@@ -1,7 +1,7 @@
 const nock = require('nock');
 const path = require('path');
 
-const config = require('../../lib/config/config.js');
+const config = require('../../config');
 
 exports.cleanAll = () => nock.cleanAll();
 

@@ -7,6 +7,10 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      url: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       name: {
         type: Sequelize.STRING,
         allowNull: false
@@ -64,6 +68,11 @@ module.exports = {
       questions: {
         type: Sequelize.JSONB,
         allowNull: false
+      },
+      max_participants: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        defaultValue: null
       },
       created_at: {
         allowNull: false,

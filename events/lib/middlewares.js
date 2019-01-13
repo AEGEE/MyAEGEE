@@ -2,7 +2,7 @@ const request = require('request-promise-native');
 const bugsnag = require('bugsnag');
 const { errors, communication } = require('oms-common-nodejs');
 
-const log = require('./logger');
+const logger = require('./logger');
 const { Event } = require('../models');
 const helpers = require('./helpers');
 const config = require('../config');
@@ -56,7 +56,7 @@ exports.authenticateUser = async (req, res, next) => {
 
 exports.fetchSingleEvent = async (req, res, next) => {
   if (!req.params.event_id) {
-    log.info(req.params);
+    logger.info(req.params);
     return errors.makeNotFoundError(res, 'No Event-id provided');
   }
 
@@ -113,7 +113,7 @@ exports.fetchSingleEvent = async (req, res, next) => {
     });
     return next();
   } catch (err) {
-    log.error('Error getting single event: ', err);
+    logger.error('Error getting single event: ', err);
     throw err;
   }
 };
@@ -129,13 +129,17 @@ exports.errorHandler = (err, req, res, next) => {
   }
 
   // Handling validation errors
-  if (err.name && err.name === 'ValidationError') {
+  if (err.name && err.name === 'SequelizeValidationError') {
     return errors.makeValidationError(res, err);
   }
 
-  log.error(err.stack);
+  /* istanbul ignore next */
   if (process.env.NODE_ENV !== 'test') {
     bugsnag.notify(err);
   }
+
+  /* istanbul ignore next */
+  logger.error(err.stack);
+  /* istanbul ignore next */
   return errors.makeInternalError(res, err);
 };
