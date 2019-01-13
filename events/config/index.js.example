@@ -38,7 +38,7 @@ const config = {
     media_url: '/frontend/media',
   },
   development: {
-
+    
   },
   test: {
     port: 8085,
@@ -46,7 +46,8 @@ const config = {
       host: 'localhost',
       database: 'statutory-testing'
     },
-    bugsnagKey: 'CHANGEME'
+    bugsnagKey: 'CHANGEME',
+    media_dir: './tmp_upload'
   }
 };
 
