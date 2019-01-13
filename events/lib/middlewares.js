@@ -64,16 +64,16 @@ exports.fetchSingleEvent = async (req, res, next) => {
   // We don't use ObjectID.isValid method, since it's not always
   // working properly, see http://stackoverflow.com/a/29231016/1206421
   let findObject;
-  if (req.params.event_id.match(/^[0-9a-fA-F]{24}$/)) { // if it's indeed an ObjectID
-    findObject = { _id: req.params.event_id };
+  if (!Number.isNaN(Number(req.params.event_id))) { // if it's indeed an ObjectID
+    findObject = { id: Number(req.params.event_id) };
   } else {
     findObject = { url: req.params.event_id };
   }
 
   try {
-    const event = await Event.findOne(findObject);
+    const event = await Event.findOne({ where: findObject });
 
-    if (event === null) {
+    if (!event) {
       return errors.makeNotFoundError(res, `Event with id ${req.params.event_id} not found`);
     }
 

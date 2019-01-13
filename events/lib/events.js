@@ -201,9 +201,7 @@ exports.addEvent = async (req, res, next) => {
 
 /** Single event **/
 exports.eventDetails = async (req, res, next) => {
-  const event = req.event.toObject();
-
-  delete event.applications;
+  const event = req.event.toJSON();
 
   return res.json({
     success: true,
@@ -231,14 +229,11 @@ exports.editEvent = async (req, res, next) => {
     return errors.makeValidationError(res, 'No valid field changes requested');
   }
 
-  event.set(data);
-  await event.save();
+  await event.update(data);
 
-  const retval = event.toObject();
+  const retval = event.toJSON();
   delete retval.applications;
   delete retval.organizers;
-  delete retval.__v;
-  delete retval.headImg;
 
   return res.json({
     success: true,
