@@ -15,6 +15,10 @@ const Event = sequelize.define('event', {
     type: Sequelize.STRING,
     allowNull: true
   },
+  image: {
+    type: Sequelize.STRING,
+    allowNull: true
+  },
   description: {
     type: Sequelize.TEXT,
     allowNull: false,

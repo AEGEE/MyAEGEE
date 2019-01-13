@@ -149,8 +149,6 @@ describe('Event bodies editing', () => {
       method: 'DELETE'
     });
 
-    console.log(res.body)
-
     expect(res.statusCode).toEqual(200);
 
     expect(res.body.success).toEqual(true);
