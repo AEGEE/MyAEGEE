@@ -1,0 +1,335 @@
+---
+swagger: "2.0"
+info:
+  description: "This is a server to generate Gsuite/O365 accounts. For this sample,\
+    \ you can use the api key `special-key` to test the authorization filters."
+  version: "0.7.0"
+  title: "Account Manager"
+  termsOfService: "https://my.aegee.eu/legal/simple"
+  contact:
+    email: "myaegee@aegee.eu"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "my.aegee.eu"
+basePath: "/"
+tags:
+- name: "Account"
+  description: "Accounts operations: add/remove user; modify user details; add/remove aliases for user email"
+  externalDocs:
+    description: "The user will have to accept Gsuite&O365 terms"
+    url: "https://my.aegee.eu"
+- name: "Groups"
+  description: "Groups operations: add/remove a google group; add/remove a user membership to a group"
+  externalDocs:
+    description: "The user will be subscribed and unsubscribed automatically most of the times"
+    url: "https://groups.aegee.eu"
+schemes:
+- "https"
+paths:
+  /map:
+    put:
+      tags:
+      - "Groups"
+      summary: "Modify map MyAEGEE-Gsuite"
+      description: "NOT IMPLEMENTED"
+      operationId: "modifyMap"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: ""
+        required: true
+        schema:
+          $ref: "#/definitions/Group"
+      responses:
+        200:
+          description: "successful operation"
+        405:
+          description: "Invalid input"
+      security:
+      - api_key: []
+      x-swagger-router-controller: "Groups"
+  /groups:
+    post:
+      tags:
+      - "Groups"
+      summary: "Create Gsuite group"
+      description: "This endpoint is to create a Gsuite group"
+      operationId: "addGroup"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Created group object"
+        required: true
+        schema:
+          $ref: '#/definitions/Group'
+      responses:
+        200:
+          description: "successful operation"
+        405:
+          description: "Invalid input"
+      security:
+      - api_key: []
+      x-swagger-router-controller: "Groups"
+    put:
+      tags:
+      - "Groups"
+      summary: "Modify group properties"
+      description: "NOT IMPLEMENTED - This endpoint is used to modify a group, e.g. description"
+      operationId: "modifyGroupProperties"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Group info"
+        required: true
+        schema:
+          $ref: "#/definitions/Group"
+      responses:
+        200:
+          description: "successful operation"
+        405:
+          description: "Invalid input"
+      security:
+      - api_key: []
+      x-swagger-router-controller: "Groups"
+  /groups/{name}:
+    delete:
+      tags:
+      - "Groups"
+      summary: "Delete google group"
+      description: "This endpoint is to delete the google group. 'Name' refers to the full qualified name, i.e. the email address." 
+      operationId: "deleteGroup"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "The name of the group that needs to be deleted"
+        required: true
+        type: "string"
+      responses:
+        400:
+          description: "Invalid username supplied"
+        404:
+          description: "User not found"
+      security:
+      - api_key: []
+      x-swagger-router-controller: "Groups"
+  /account:
+    post:
+      tags:
+      - "Account"
+      summary: "Create user account (both G/O)"
+      description: "NOT IMPLEMENTED. This endpoint is to create a Gsuite account"
+      operationId: "createUserAccount"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Created user account object"
+        required: true
+        schema:
+          $ref: "#/definitions/Account"
+      responses:
+        200:
+          description: "successful operation"
+        405:
+          description: "Invalid input"
+      security:
+      - api_key: []
+      x-swagger-router-controller: "Account"
+    put:
+      tags:
+      - "Account"
+      summary: "Change (e.g. suspend) an existing user account (both G/O)"
+      description: "NOT IMPLEMENTED. This endpoint is to modify an user account, e.g. suspending it\
+        \ or changing antenna"
+      operationId: "updateUserAccount"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Account object that needs to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/Account"
+      responses:
+        400:
+          description: "Invalid username supplied"
+        404:
+          description: "Pet not found"
+        405:
+          description: "Validation exception"
+      security:
+      - api_key: []
+      x-swagger-router-controller: "Account"
+  /account/{username}:
+    put:
+      tags:
+      - "Account"
+      summary: "Suspend single user account (pick G/O. For both, use /account)"
+      description: "NOT IMPLEMENTED. This endpoint is to suspend an user's account, picking between\
+        \ G&O"
+      operationId: "suspendSingleUserAccount"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "name that need to be updated"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Updated user object"
+        required: true
+        schema:
+          $ref: "#/definitions/Account"
+      responses:
+        400:
+          description: "Invalid user supplied"
+        404:
+          description: "User not found"
+      security:
+      - api_key: []
+      x-swagger-router-controller: "Account"
+    delete:
+      tags:
+      - "Account"
+      summary: "Delete user account (both G/O)"
+      description: "NOT IMPLEMENTED. This endpoint is to delete the user account from G&O"
+      operationId: "deleteUserAccount"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "The username that needs to be deleted"
+        required: true
+        type: "string"
+      responses:
+        400:
+          description: "Invalid username supplied"
+        404:
+          description: "User not found"
+      security:
+      - api_key: []
+      x-swagger-router-controller: "Account"
+  /account/{username}/group:
+    put:
+      tags:
+      - "Groups"
+      summary: "Add/remove account to group"
+      description: "This endpoint is used to modify an account's membership to a group,\
+        \ NOT a group"
+      operationId: "modifyAccountsGroupMembership"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "name that need to be updated"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "User & group info"
+        required: true
+        schema:
+          $ref: "#/definitions/body"
+      responses:
+        200:
+          description: "successful operation"
+        405:
+          description: "Invalid input"
+      security:
+      - api_key: []
+      x-swagger-router-controller: "Groups"
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "x-auth-token"
+    in: "header"
+definitions:
+  Group:
+    type: "object"
+    properties:
+      primaryEmail:
+        type: "string"
+        description: "The username of the account that is added (required)"
+        format: "email"
+      groupName:
+        type: "string"
+        description: "The name of the Google group (required)"
+        format: "string"
+    example:
+      groupName: "The Straight Banana Committee"
+      primaryEmail: "sbc@aegee.eu"
+  Account:
+    type: "object"
+    properties:
+      primaryEmail:
+        type: "string"
+        description: "The username @aegee.eu for the account (required)"
+      password:
+        type: "string"
+        description: "(required)"
+      secondaryEmail:
+        type: "string"
+        description: "(required)"
+      name:
+        $ref: "#/definitions/Account_name"
+      antenna:
+        type: "string"
+        description: "(required)"
+      suspended:
+        type: "boolean"
+        description: "NOTE: To change on change of the MyAEGEE account status"
+    example:
+      antenna: "antenna"
+      password: "password"
+      secondaryEmail: "secondaryEmail"
+      name:
+        givenName: "givenName"
+        familyName: "familyName"
+      primaryEmail: "primaryEmail"
+      suspended: true
+  body:
+    type: "object"
+    properties:
+      primaryEmail:
+        type: "string"
+        description: "The username of the account that is added (required)"
+      groupName:
+        type: "string"
+        description: "The name of the Google group (required)"
+  Account_name:
+    properties:
+      givenName:
+        type: "string"
+      familyName:
+        type: "string"
+    description: "(required)"
+    example:
+      givenName: "Cave"
+      familyName: "Johnson"
+externalDocs:
+  description: "Find out more about MyAEGEE"
+  url: "https://oms-project.atlassian.net/wiki/spaces/GENERAL/overview"
+
