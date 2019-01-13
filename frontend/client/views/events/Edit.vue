@@ -198,35 +198,66 @@
 
         <hr/>
 
-        <div class="subtitle is-fullwidth has-text-centered">Application fields</div>
+        <div class="subtitle is-fullwidth has-text-centered">Questions</div>
 
-        <div v-for="(field, index) in event.application_fields" v-bind:key="index">
-          <div class="field">
-            <label class="label">Name</label>
-            <div class="control">
-              <input class="input" type="text" required v-model="field.name"/>
-            </div>
-          </div>
+        <table class="table is-fullwidth is-narrowed">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Type</th>
+              <th>Required (works for text and string)?</th>
+              <th>Values (for select)</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(question, index) in event.questions" v-bind:key="index">
+              <td>
+                <input class="input" type="text" required v-model="event.questions[index].description"/>
+              </td>
+              <td>
+                <div class="select">
+                  <select v-model="event.questions[index].type" @change="if (event.questions[index].type === 'select') { event.questions[index].values = []; } else { delete event.questions[index].values; } $forceUpdate();">
+                    <option value="string">String</option>
+                    <option value="text">Text</option>
+                    <option value="number">Number</option>
+                    <option value="checkbox">Checkbox</option>
+                    <option value="select">Select</option>
+                  </select>
+                </div>
+              </td>
+              <td>
+                <input type="checkbox" v-model="event.questions[index].required" />
+              </td>
+              <td>
+                <input-tag v-if="event.questions[index].type === 'select'" v-model="event.questions[index].values"></input-tag>
+              </td>
+              <td>
+                <a class="button is-danger" @click="deleteQuestion(index)">Delete question</a>
+              </td>
+            </tr>
+            <tr colspan="5" v-if="event.questions.length === 0">
+              <td>No questions are set.</td>
+            </tr>
+          </tbody>
+        </table>
 
-          <div class="field">
-            <label class="label">Description</label>
-            <div class="control">
-              <input class="input" type="text" required v-model="field.description"/>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="control">
-              <a class="button is-danger" @click="deleteApplicationField(index)">Delete application field</a>
-            </div>
+        <div class="notification is-danger" v-if="errors.questions">
+          <div class="content">
+          Could not create/edit event because of these reasons:
+            <ul v-if="errors.questions">
+              <li v-for="(error, index) in errors.questions" v-bind:key="index">{{ error }}</li>
+            </ul>
           </div>
         </div>
 
         <div class="field">
           <div class="control">
-            <a class="button is-primary" @click="addApplicationField()">Add new application field</a>
+            <a class="button is-primary" @click="addQuestion()">Add new question</a>
           </div>
         </div>
+
+        <p class="help is-danger" v-if="errors.fee">{{ errors.questions.message }}</p>
 
         <hr/>
 
@@ -296,7 +327,7 @@ export default {
         description: '', // so it won't be null and marked() would not error
         id: null,
         url: null,
-        application_fields: [],
+        questions: [],
         max_participants: null,
         locations: [],
         fee: null,
@@ -351,14 +382,15 @@ export default {
         this.$root.showDanger('Could not update image: ' + err.message)
       })
     },
-    addApplicationField () {
-      this.event.application_fields.push({
+    addQuestion () {
+      this.event.questions.push({
         name: '',
-        description: ''
+        description: '',
+        required: false
       })
     },
     deleteApplicationField (index) {
-      this.event.application_fields.splice(index, 1)
+      this.event.questions.splice(index, 1)
     },
     addLocation () {
       this.event.locations.push({
