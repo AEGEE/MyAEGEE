@@ -26,23 +26,21 @@ exports.listEvents = async (req, res, next) => {
   };
 
   if (req.query.type) {
-    filter.type = Array.isArray(req.query.type) ? { $in: req.query.type } : req.query.type;
+    filter.type = Array.isArray(req.query.type) ? { [Sequelize.Op.in]: req.query.type } : req.query.type;
   }
 
   if (req.query.displayPast === false) {
-    filter.starts = { $gte: new Date() };
+    filter.starts = { [Sequelize.Op.gte]: new Date() };
   }
 
   if (req.query.search) {
-    filter.$or = [
-      { name: new RegExp(req.query.search, 'i') },
-      { description: new RegExp(req.query.search, 'i') }
+    filter[Sequelize.Op.or] = [
+      { name: { [Sequelize.Op.iLike]: '%' + req.query.search + '%' } },
+      { description: { [Sequelize.Op.iLike]: '%' + req.query.search + '%' } }
     ]
   }
 
-  const events = await Event
-    .where(filter)
-    .select(displayedFields.join(' '));
+  const events = await Event.findAll({ where: filter })
 
   let queryOffset = 0;
   let queryLimit = events.length;
@@ -114,15 +112,13 @@ exports.listLocalInvolvedEvents = async (req, res, next) => {
 
 // Returns all events the user is organizer on
 exports.listUserOrganizedEvents = async (req, res, next) => {
-  const events = await Event
-    .where('deleted').equals(false) // Hide deleted events
-    .where('ends').gte(new Date())  // Only show events in the future
-    .elemMatch('organizers', { user_id: req.user.id })
-    .select(displayedFields.join(' '));
+  const events = await Event.findAll({ where: { deleted: false } });
+
+  const filteredEvents = events.filter(event => event.organizers.some(org => org.user_id === req.user.id))
 
   return res.json({
     success: true,
-    data: events,
+    data: filteredEvents,
   });
 };
 
