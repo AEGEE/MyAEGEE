@@ -4,8 +4,8 @@
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
           <figure class="image is-1by1">
-            <img v-if="!event.head_image || !event.head_image.url" src="/images/logo.png">
-            <img v-if="event.head_image && event.head_image.url" :src="services['oms-events'] + event.head_image.url">
+            <img v-if="!event.image" src="/images/logo.png">
+            <img v-if="event.image" :src="services['oms-events'] + '/frontend/media/headimages/' + event.image">
           </figure>
         </article>
       </div>
