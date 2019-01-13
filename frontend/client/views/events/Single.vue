@@ -216,14 +216,16 @@ export default {
 
       // loading map
       if (this.event.locations.length > 0) {
-        this.$refs.mapRef.$mapPromise.then((map) => {
-          const bounds = new this.google.maps.LatLngBounds()
-          for (const marker of this.event.locations) {
-            bounds.extend(marker.position)
-          }
+        this.$nextTick()
+          .then(() => this.$refs.mapRef.$mapPromise)
+          .then((map) => {
+            const bounds = new this.google.maps.LatLngBounds()
+            for (const marker of this.event.locations) {
+              bounds.extend(marker.position)
+            }
 
-          this.$refs.mapRef.$mapObject.fitBounds(bounds)
-        })
+            this.$refs.mapRef.$mapObject.fitBounds(bounds)
+          })
       }
     }).catch((err) => {
       this.isLoading = false
