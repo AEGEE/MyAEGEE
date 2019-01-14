@@ -48,7 +48,7 @@ paths:
       responses:
         200:
           description: "successful operation"
-        405:
+        400:
           description: "Invalid input"
       security:
       - api_key: []
@@ -72,7 +72,7 @@ paths:
       responses:
         200:
           description: "successful operation"
-        405:
+        400:
           description: "Invalid input"
       security:
       - api_key: []
@@ -97,7 +97,7 @@ paths:
       responses:
         200:
           description: "successful operation"
-        405:
+        400:
           description: "Invalid input"
       security:
       - api_key: []
@@ -142,9 +142,9 @@ paths:
         schema:
           $ref: "#/definitions/Account"
       responses:
-        200:
-          description: "successful operation"
-        405:
+        201:
+          description: "Successful operation"
+        400:
           description: "Invalid input"
       security:
       - api_key: []
@@ -256,7 +256,7 @@ paths:
       responses:
         200:
           description: "successful operation"
-        405:
+        400:
           description: "Invalid input"
       security:
       - api_key: []

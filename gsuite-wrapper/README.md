@@ -1,4 +1,4 @@
-#AEGEE-Europe's Online Membership System
+# AEGEE-Europe's Online Membership System
 
 This module offers an API which talks to the Gsuite of AEGEE-Europe in order to automatically create accounts after user registers to MyAEGEE.
 

@@ -1,5 +1,5 @@
 /node_modules/
 /coverage/
-commitmsg
 .nyc_output/
 *.swp
+commitmsg

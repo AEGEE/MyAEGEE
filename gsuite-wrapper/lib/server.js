@@ -7,8 +7,7 @@ const GsuiteRouter = router({ mergeParams: true });
 const wrapper = require('./gsuite-wrapper.js'); 
 const log = require('./config/logger');
 
-//const config = require('./config/default.json');//////
-const config = require('./config/configFile.js');//////
+const config = require('./config/configFile.js');
 
 //GsuiteRouter.use(middlewares.authenticateUser);
 

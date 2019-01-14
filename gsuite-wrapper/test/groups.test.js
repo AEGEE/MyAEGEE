@@ -3,13 +3,6 @@ const should = chai.should();
 const server = require('../lib/server.js').server;
 const request = require('supertest');
 
-//db cross-check
-// const admin = require('../config/sdkadmin');
-// const db = admin.database();
-
-const TEST_TOKEN = 'belzebu_test';
-const TOKEN = TEST_TOKEN;
-
 function delay(interval){
     return it('should delay', done => 
             {setTimeout(() => done(), interval)}
@@ -106,8 +99,7 @@ describe('Groups', function(){
       
     });
 
-    // useless test?
-    xit('Should add a group if without title', function(done){
+    it('Should add a group if without title', function(done){
       
       const data = {
         "primaryEmail": primaryEmail
@@ -127,7 +119,7 @@ describe('Groups', function(){
         should.not.exist(resterr);
         response.should.not.equal(666);
         response.should.not.equal(200);
-        response.should.equal(666);
+        response.should.equal(400);
         done();
         
       }); 
@@ -200,7 +192,7 @@ describe('Groups', function(){
     
     it('Should remove group', function(done){
       
-      this.timeout(3000);
+      //this.timeout(3000);
 
       request(server)
       .delete('/groups/'+primaryEmail)
@@ -222,7 +214,7 @@ describe('Groups', function(){
 
     it('Should not remove group if no string', function(done){
       
-      this.timeout(3000);
+      //this.timeout(3000);
 
       request(server)
       .delete('/groups')
@@ -244,10 +236,76 @@ describe('Groups', function(){
 
     it('Should not remove group if empty string', function(done){
       
-      this.timeout(3000);
+      //this.timeout(3000);
 
       request(server)
       .delete('/groups/'+"")
+      //.set('x-auth-token', TOKEN )
+      .set('test-title', "delete group" )
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.body;
+
+        should.not.exist(resterr);
+        resp.statusCode.should.not.equal(666);
+        resp.statusCode.should.equal(404);
+        done();
+        
+      });
+            
+    });
+
+    it('Should ???? remove group if gibberish string', function(done){
+      
+      //this.timeout(3000);
+
+      request(server)
+      .delete('/groups/giovanniumut')
+      //.set('x-auth-token', TOKEN )
+      .set('test-title', "delete group" )
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.body;
+
+        should.not.exist(resterr);
+        resp.statusCode.should.not.equal(666);
+        resp.statusCode.should.equal(404);
+        done();
+        
+      });
+            
+    });
+
+    it('Should ???? remove group if name is correct but no @aegee.eu', function(done){
+      
+      //this.timeout(3000);
+
+      request(server)
+      .delete('/groups/automated_test_group')
+      //.set('x-auth-token', TOKEN )
+      .set('test-title', "delete group" )
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.body;
+
+        should.not.exist(resterr);
+        resp.statusCode.should.not.equal(666);
+        resp.statusCode.should.equal(404);
+        done();
+        
+      });
+            
+    });
+
+    it('Should ???? remove group if name has spaces not correct and no @aegee.eu', function(done){
+      
+      //this.timeout(3000);
+
+      request(server)
+      .delete('/groups/automated test group')
       //.set('x-auth-token', TOKEN )
       .set('test-title', "delete group" )
       .end(function(resterr, resp) {
