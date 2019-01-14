@@ -12,8 +12,8 @@ var log = require('./config/logger');
 
 exports.createGroup = async function(req, res , next) { 
     //req.log.debug({req: req}, 'findAllUsers request');
-    //res.setHeader('Access-Control-Allow-Origin', '*');
     const data = req.body;
+
     let result = "Undefined error";
     let response = {success: false, message: result};
     let statusCode = '500';
@@ -29,16 +29,14 @@ exports.createGroup = async function(req, res , next) {
         response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
         statusCode = GsuiteError.code;
     }
-console.log("response "+statusCode);
-console.log(response);
+
     return res.status(statusCode).json(response);
 };
 
 exports.deleteGroup = async function(req, res , next) { 
     //req.log.debug({req: req}, 'findAllUsers request');
-    //res.setHeader('Access-Control-Allow-Origin', '*');
     const data = {groupName: req.params.name};
-    console.log(data);
+
     let result = "Undefined error";
     let response = {success: false, message: result};
     let statusCode = '500';
@@ -54,8 +52,30 @@ exports.deleteGroup = async function(req, res , next) {
         response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
         statusCode = GsuiteError.code;
     }
-console.log("response "+statusCode);
-console.log(response);
+
+    return res.status(statusCode).json(response);
+};
+
+exports.createAccount = async function(req, res , next) { 
+    //req.log.debug({req: req}, 'findAllUsers request');
+    const data = req.body; 
+
+    let result = "Undefined error";
+    let response = {success: false, message: result};
+    let statusCode = '500';
+    
+    try{
+        result = await runGsuiteOperation(gsuiteOperations.addAccount, data);
+        response = {success: true, message: result.data.primaryEmail+" account has been created", data: result.data };
+        statusCode = result.code;
+    }catch(GsuiteError){
+        //log.debug(JSON.toString(GsuiteError));
+        //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};
+        log.warn("GsuiteError");
+        response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
+        statusCode = GsuiteError.code;
+    }
+
     return res.status(statusCode).json(response);
 };
 

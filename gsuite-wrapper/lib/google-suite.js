@@ -32,7 +32,6 @@ const jwt = new google.auth.JWT(
 
 async function runGsuiteOperation(operation, payload) {
 
-  let operationResult;
   try{
     const authRes = await jwt.authorize();
     //console.log("auth: " + JSON.stringify(authRes));
@@ -42,7 +41,7 @@ async function runGsuiteOperation(operation, payload) {
   }
 
     const res = await operation(jwt, payload);
-    operationResult = {success: true, code: res.status, data: res.data};
+    const operationResult = {success: true, code: res.status, data: res.data};
     if( operation.name.indexOf("add") > -1 && operationResult.code === 200) { operationResult.code = "201" };
   
   return operationResult;
@@ -70,45 +69,38 @@ const gsuiteOperations = {
     const result = await admin.groups.delete({
         groupKey: data.groupName,
         auth: jwt
-      })
-      return result;
+      });
+    return result;
   },
 
-  // // Insert user in the system
-  // addUser: function addUser(jwt, data){ 
-  //   const admin = google.admin('directory_v1');
-  //   admin.user.insert({
-  //     requestBody: {
-  //       "primaryEmail": "testapi@aegee.eu",
-  //       "name": {
-  //       "givenName": "Test", //EXT
-  //       "familyName": "API" //EXT
-  //       },
-  //       "password": "pinolo89", //EXT
-  //       //"hashFunction": "bcrypt",
-  //       "emails": [
-  //       {
-  //         "address": "fabrifaa@gmail.com", //EXT
-  //         "type": "home",
-  //         "customType": "",
-  //         "primary": true
-  //       }
-  //       ],
-  //       "orgUnitPath": "/individuals",
-  //       "includeInGlobalAddressList": true
-  //     },
-  //     auth: jwt
-  //   },
-  //   (err, data) => {
-  //     if (err){
-  //       console.log("OHNO: error code " + err.code + " on subject " +err.config.data +"; what went wrong: "+ err.errors[0].message);
-  //       return err.config.data;
-  //     }else {
-  //       console.log("Status: " + data.status + "; Response: " + JSON.stringify(data.data) );
-  //       return data.data
-  //     }
-  //   })
-  // },
+   // Insert user account in the system
+  addAccount: async function addAccount(jwt, data){ 
+    const admin = google.admin('directory_v1');
+    const result = await admin.users.insert({
+      requestBody: {
+        "primaryEmail": data.generatedUsername,//"testapi@aegee.eu",
+        "name": {
+          "givenName": data.name, //"Test",
+          "familyName": data.surname //"API" //EXT
+        },
+        "password": data.SHA1Password,//"pinolo89", //EXT
+        "hashFunction": "SHA-1",
+        "emails": [
+        {
+          "address": data.email,//"fabrifaa@gmail.com", //EXT
+          "type": "home",
+          "customType": "",
+          "primary": true
+        }
+        ],
+        "orgUnitPath": "/individuals",
+        "includeInGlobalAddressList": true
+      },
+      auth: jwt
+    });
+
+    return result;
+  },
 
   // // Insert group in the system
   // addGroup: function addGroup(jwt, data){ 

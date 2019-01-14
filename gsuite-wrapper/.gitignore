@@ -2,3 +2,4 @@
 /coverage/
 commitmsg
 .nyc_output/
+*.swp
