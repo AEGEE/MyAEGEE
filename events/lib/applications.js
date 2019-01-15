@@ -83,7 +83,7 @@ exports.setApplicationStatus = async (req, res, next) => {
 
   return res.json({
     success: true,
-    data: application
+    data: req.application
   });
 };
 
