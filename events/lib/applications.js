@@ -1,12 +1,11 @@
 const { errors } = require('oms-common-nodejs');
 
-const { Event } = require('../models');
+const { Event, Application } = require('../models');
+const helpers = require('./helpers');
 
 exports.listUserAppliedEvents = async (req, res, next) => {
-  const events = await Event
-    .where('ends').gte(new Date()) // Only show events in the future
-    .elemMatch('applications', { user_id: req.user.id })
-    .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals'].join(' '));
+  const applications = await Application.findAll({ where: { user_id: req.user.id }, include: [Event] });
+  const events = applications.map(a => a.event);
 
   return res.json({
     success: true,
@@ -14,30 +13,12 @@ exports.listUserAppliedEvents = async (req, res, next) => {
   });
 };
 
-/** Participants **/
-exports.listParticipants = async (req, res, next) => {
-  const event = req.event;
-  let status = req.params.status;
-  let applications = event.applications.toObject();
-
-  // Only authorized persons can see all applications
-  // Others will only see accepted ones and will not see their application text
-  if (!req.user.permissions.can.view_applications) {
-    status = 'accepted';
+exports.listAllApplications = async (req, res, next) => {
+  if (!req.permissions.list_applications) {
+    return errors.makeForbiddenError(res, 'You cannot see applications for this event.');
   }
 
-  // Filtering applications
-  if (status) {
-    applications = applications.filter(application => application.status === status);
-  }
-
-  for (const application of applications) {
-    application.url = `${event.url}/participants/${applications.id}`;
-    if (!req.user.permissions.can.approve_participants) {
-      delete application.board_comment;
-      delete application.application;
-    }
-  }
+  const applications = await Application.findAll({ where: { event_id: req.event.id } });
 
   return res.json({
     success: true,
