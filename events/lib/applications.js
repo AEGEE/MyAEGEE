@@ -88,7 +88,7 @@ exports.setApplicationStatus = async (req, res, next) => {
 
 exports.setApplicationComment = async (req, res, next) => {
   // Check user permissions
-  if (!req.permissions.set_board_comment[application.body_id]) {
+  if (!req.permissions.set_board_comment[req.application.body_id]) {
     return errors.makeForbiddenError(res, 'You are not allowed to put board comments');
   }
 
@@ -97,6 +97,6 @@ exports.setApplicationComment = async (req, res, next) => {
 
   return res.json({
     success: true,
-    data: application
+    data: req.application
   });
 };

@@ -59,7 +59,7 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
 exports.getApplicationPermissions = ({ permissions, user, application }) => {
   const isMine = application.user_id === user.id;
 
-  permissions.view_application = isMine || permission.list_applications;
+  permissions.view_application = isMine || permissions.list_applications;
 
   return permissions;
 }

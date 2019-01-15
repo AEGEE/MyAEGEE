@@ -3,7 +3,7 @@ const bugsnag = require('bugsnag');
 const { errors, communication } = require('oms-common-nodejs');
 
 const logger = require('./logger');
-const { Event } = require('../models');
+const { Event, Application } = require('../models');
 const helpers = require('./helpers');
 const config = require('../config');
 
@@ -134,7 +134,7 @@ exports.fetchSingleApplication = async (req, res, next) => {
     corePermissions: req.corePermissions,
     approvePermissions: req.approvePermissions,
     user: req.user,
-    event
+    event: req.event
   });
   return next();
 };
