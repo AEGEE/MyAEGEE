@@ -27,8 +27,9 @@ exports.listAllApplications = async (req, res, next) => {
 };
 
 exports.getApplication = async (req, res, next) => {
-  if (!req.permissions.view_application) {
-    return errors.makeForbiddenError(res, 'You cannot apply to this event or change your application');
+  const application = await Application.findOne({ where: { event_id: req.event.id, user_id: req.user.id } });
+  if (!application) {
+    return errors.makeNotFoundError(res, 'Application is not found.');
   }
 
   return res.json({

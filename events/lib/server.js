@@ -77,7 +77,7 @@ EventsRouter.post('/upload', imageserv.uploadImage);
 EventsRouter.get('/applications', applications.listAllApplications);
 EventsRouter.put('/applications/:application_id/status/', middlewares.fetchSingleApplication, applications.setApplicationStatus);
 EventsRouter.put('/applications/:application_id/comment/', middlewares.fetchSingleApplication, applications.setApplicationComment);
-EventsRouter.get('/applications/mine', middlewares.fetchSingleApplication, applications.getApplication);
+EventsRouter.get('/applications/mine', applications.getApplication);
 EventsRouter.put('/applications/mine', applications.setApplication);
 
 EventsRouter.post('/organizers', events.addOrganizer);

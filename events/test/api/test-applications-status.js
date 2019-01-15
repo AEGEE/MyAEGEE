@@ -51,51 +51,6 @@ describe('Events application status', () => {
       });
   });
 
-  it('should disallow changing status if the applications are opened', (done) => {
-    const event = events.find(e => e.status.name === 'Approved' && e.application_status === 'open' && e.applications.length > 0);
-    const application = event.applications.find(e => e.status === 'requesting');
-
-    chai.request(server)
-      .put(`/single/${event.id}/participants/${application.id}/status`)
-      .set('X-Auth-Token', 'foobar')
-      .send({ status: 'accepted' })
-      .end((err, res) => {
-        expect(res).to.have.status(403);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
-
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
-
-        done();
-      });
-  });
-
-  it('should disallow changing status if the status is nonexistant', (done) => {
-    const event = events.find(e =>
-      e.status.name === 'Approved'
-      && e.application_status === 'closed'
-      && e.organizers.map(o => o.user_id).includes(user.id)
-      && e.applications.length > 0);
-    const application = event.applications.find(e => e.status === 'requesting');
-
-    chai.request(server)
-      .put(`/single/${event.id}/participants/${application.id}/status`)
-      .set('X-Auth-Token', 'foobar')
-      .send({ status: 'not-accepted' })
-      .end((err, res) => {
-        expect(res).to.have.status(422);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
-
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
-        expect(res.body).to.have.property('errors');
-
-        done();
-      });
-  });
-
   it('should disallow changing status if applications is not found', (done) => {
     const event = events.find(e =>
       e.status.name === 'Approved'
