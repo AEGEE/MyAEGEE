@@ -52,6 +52,8 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
   permissions.approve_participants = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
   permissions.list_applications = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
 
+  permissions.set_status = permissions.approve_event[event.type];
+
   return permissions;
 }
 

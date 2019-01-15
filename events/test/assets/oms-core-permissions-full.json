@@ -220,5 +220,75 @@
         "circles": null,
         "always_assigned": false,
         "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "nwm",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:nwm",
+        "circles": null,
+        "always_assigned": false,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "ltc",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:ltc",
+        "circles": null,
+        "always_assigned": false,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "rtc",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:rtc",
+        "circles": null,
+        "always_assigned": false,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "wu",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:wu",
+        "circles": null,
+        "always_assigned": false,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "local",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:local",
+        "circles": null,
+        "always_assigned": false,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "ees",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:es",
+        "circles": null,
+        "always_assigned": false,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "other",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:other",
+        "circles": null,
+        "always_assigned": false,
+        "action": "approve_event"
       }]
 }

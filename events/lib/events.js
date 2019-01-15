@@ -95,33 +95,20 @@ exports.listUserOrganizedEvents = async (req, res, next) => {
 };
 
 exports.listApprovableEvents = async (req, res, next) => {
-  // Loading events and a lifecycle and its statuses for each event.
-  const events = await Event
-    .where('starts').gte(new Date())
-    .where('deleted').equals(false);
+  const allowedEventTypes = Object.keys(req.permissions.approve_event)
+    .filter(key => req.permissions.approve_event[key]);
 
-  // Checking if we have at least 1 transition
-  // from current status to any status
-  // which is allowed for this user/body/role/special
-
-  /* eslint-disable arrow-body-style */
-  const retVal = events.filter((event) => {
-    return event.lifecycle.transitions.some((transition) => {
-      // Skipping all transitions without 'from' status,
-      // since each event has a status
-      if (!transition.from) {
-        return false;
-      }
-
-      return (transition.from === event.status.name
-        && helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor, event }));
-    });
+  const events = await Event.findAll({
+    where: {
+      deleted: false,
+      status: 'draft',
+      type: { [Sequelize.Op.in]: allowedEventTypes }
+    }
   });
 
-  // Return events and their lifecycles.
   return res.json({
     success: true,
-    data: retVal,
+    data: events,
   });
 };
 
@@ -227,27 +214,12 @@ exports.deleteEvent = async (req, res, next) => {
 };
 
 exports.setApprovalStatus = async (req, res, next) => {
-  // Trying to find a transition from event's current status
-  // to the required status.
-  const transition = req.event.lifecycle.transitions.find(t =>
-    t.from // This field is not necessary, so we need to check if it exists.
-    && t.from === req.event.status.name
-    && t.to === req.body.status);
-
   // If there is no transition found, it's disallowed to everybody.
-  if (!transition) {
-    return errors.makeForbiddenError(res, 'You are not allowed to perform a transition.');
+  if (!req.permissions.set_status) {
+    return errors.makeForbiddenError(res, 'You are not allowed to change status.');
   }
 
-  // Checking if this user/role/body/special has the rights to do the transition.
-  if (!helpers.canUserAccess({ user: req.user, accessObject: transition.allowedFor, event: req.event })) {
-    return errors.makeForbiddenError(res, 'You are not allowed to perform this transition.');
-  }
-
-  // We only get here if the user is allowed to do a status transition.
-  req.event.status = req.event.lifecycle.statuses.find(status => status.name === req.body.status);
-
-  await req.event.save();
+  await req.event.update({ status: req.body.status });
 
   return res.json({
     success: true,
