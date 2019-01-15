@@ -77,25 +77,7 @@ const gsuiteOperations = {
   addAccount: async function addAccount(jwt, data){ 
     const admin = google.admin('directory_v1');
     const result = await admin.users.insert({
-      requestBody: {
-        "primaryEmail": data.generatedUsername,//"testapi@aegee.eu",
-        "name": {
-          "givenName": data.name, //"Test",
-          "familyName": data.surname //"API" //EXT
-        },
-        "password": data.SHA1Password,//"pinolo89", //EXT
-        "hashFunction": "SHA-1",
-        "emails": [
-        {
-          "address": data.email,//"fabrifaa@gmail.com", //EXT
-          "type": "home",
-          "customType": "",
-          "primary": true
-        }
-        ],
-        "orgUnitPath": "/individuals",
-        "includeInGlobalAddressList": true
-      },
+      requestBody: data,
       auth: jwt
     });
 

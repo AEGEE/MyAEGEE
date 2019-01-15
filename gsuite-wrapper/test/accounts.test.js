@@ -17,23 +17,28 @@ describe('Accounts', function(){
   
   const name = "Automated";
   const surname = "APITest";
-  const generatedUsername = name.toLowerCase()+"."+surname.toLowerCase()+"@aegee.eu";//THIS SHOULD BE DONE ON API CONTROLLER
+  const generatedUsername = name.toLowerCase()+"."+surname.toLowerCase()+"@aegee.eu";
   const email = "alternatemail817263@mailinator.com";
-  const password = "AEGEE-Europe"
+  const antenna = "AEGEE-Tallahassee";
+  const password = "AEGEE-Europe";
   const SHA1Password = crypto.createHash('sha1').update(JSON.stringify(password)).digest('hex');
 
+  const payload = {
+    "primaryEmail": generatedUsername,
+    "name": {
+      "givenName": name,
+      "familyName": surname
+    },
+    "secondaryEmail": email,
+    "password": SHA1Password,
+    "antenna": antenna
+  };
 
   describe('POST /accounts', function(){  
     
     it('Should add an account if valid', function(done){
-      
-      const data = {
-        "name": name,
-        "surname": surname,
-        "email": email,
-        "generatedUsername": generatedUsername,
-        "SHA1Password": SHA1Password 
-      };
+
+      const data = payload;
 
       request(server)
       .post('/accounts')
@@ -53,15 +58,9 @@ describe('Accounts', function(){
       
     });
     
-    it('Should not add a group if already existing', function(done){
+    it('Should not add an account if already existing', function(done){
       
-      const data = {
-        "name": name,
-        "surname": surname,
-        "email": email,
-        "generatedUsername": generatedUsername,
-        "SHA1Password": SHA1Password 
-      };
+      const data = payload;
 
       request(server)
       .post('/accounts')
@@ -82,20 +81,15 @@ describe('Accounts', function(){
       
     });
   
-    it('Should not add a group if without primaryEmail', function(done){
+    it('Should not add an account if without primaryEmail', function(done){
       
-
-      const data = {
-        "name": name,
-        "surname": surname,
-        "email": email,
-        "SHA1Password": SHA1Password 
-      };
+      const data = payload;
+      delete data.primaryEmail;
 
       request(server)
       .post('/accounts')
       .set('test-title', "fail create account" )
-      .send(data)
+      .send(payload)
       .end(function(resterr, resp) {
         
         let response = 666;
@@ -111,47 +105,15 @@ describe('Accounts', function(){
       
     });
 
-    // useless test?
-    xit('Should add a group if without title', function(done){
+    it('Should not add an account if primaryEmail is empty', function(done){
       
-      const data = {
-        "primaryEmail": primaryEmail
-      };
-        
+      const data = payload;
+      data.primaryEmail = "";
 
       request(server)
       .post('/accounts')
-      //.set('x-auth-token', TOKEN )
-      .set('test-title', "fail create group 2" )
-      .send(data)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.statusCode;
-        
-        should.not.exist(resterr);
-        response.should.not.equal(666);
-        response.should.not.equal(200);
-        response.should.equal(666);
-        done();
-        
-      }); 
-      
-    });
-
-    xit('Should not add a group if not valid (groupName is empty property)', function(done){
-      
-      const data = {
-        "primaryEmail": primaryEmail,
-        "groupName": "" 
-      };
-        
-
-      request(server)
-      .post('/groups')
-      //.set('x-auth-token', TOKEN )
-      .set('test-title', "fail create group 3" )
-      .send(data)
+      .set('test-title', "fail create account" )
+      .send(payload)
       .end(function(resterr, resp) {
         
         let response = 666;
@@ -167,19 +129,135 @@ describe('Accounts', function(){
       
     });
 
-    xit('Should not add a group if not valid (primaryEmail is empty property)', function(done){
+    it('Should not add an account if without secondaryEmail', function(done){
       
-      const data = {
-        "primaryEmail": "",
-        "groupName": groupName
-      };
-        
+      const data = payload;
+      delete data.secondaryEmail;
 
       request(server)
-      .post('/groups')
-      //.set('x-auth-token', TOKEN )
-      .set('test-title', "fail create group 4" )
-      .send(data)
+      .post('/accounts')
+      .set('test-title', "fail create account" )
+      .send(payload)
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.statusCode;
+        
+        should.not.exist(resterr);
+        response.should.not.equal(666);
+        response.should.not.equal(200);
+        response.should.equal(400);
+        done();
+        
+      }); 
+      
+    });
+
+    it('Should not add an account if secondaryEmail is empty', function(done){
+      
+      const data = payload;
+      data.secondaryEmail = "";
+
+      request(server)
+      .post('/accounts')
+      .set('test-title', "fail create account" )
+      .send(payload)
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.statusCode;
+        
+        should.not.exist(resterr);
+        response.should.not.equal(666);
+        response.should.not.equal(200);
+        response.should.equal(400);
+        done();
+        
+      }); 
+      
+    });
+
+    it('Should not add an account if without password', function(done){
+      
+      const data = payload;
+      delete data.password;
+
+      request(server)
+      .post('/accounts')
+      .set('test-title', "fail create account" )
+      .send(payload)
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.statusCode;
+        
+        should.not.exist(resterr);
+        response.should.not.equal(666);
+        response.should.not.equal(200);
+        response.should.equal(400);
+        done();
+        
+      }); 
+      
+    });
+
+    it('Should not add an account if password is empty', function(done){
+      
+      const data = payload;
+      data.password = "";
+
+      request(server)
+      .post('/accounts')
+      .set('test-title', "fail create account" )
+      .send(payload)
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.statusCode;
+        
+        should.not.exist(resterr);
+        response.should.not.equal(666);
+        response.should.not.equal(200);
+        response.should.equal(400);
+        done();
+        
+      }); 
+      
+    });
+
+    it('Should not add an account if without antenna', function(done){
+      
+      const data = payload;
+      delete data.antenna;
+
+      request(server)
+      .post('/accounts')
+      .set('test-title', "fail create account" )
+      .send(payload)
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.statusCode;
+        
+        should.not.exist(resterr);
+        response.should.not.equal(666);
+        response.should.not.equal(200);
+        response.should.equal(400);
+        done();
+        
+      }); 
+      
+    });
+
+    it('Should not add an account if antenna is empty', function(done){
+      
+      const data = payload;
+      data.antenna = "";
+
+      request(server)
+      .post('/accounts')
+      .set('test-title', "fail create account" )
+      .send(payload)
       .end(function(resterr, resp) {
         
         let response = 666;
@@ -195,79 +273,103 @@ describe('Accounts', function(){
       
     });
     
+    it('Should not add an account if without name', function(done){
+      
+      const data = payload;
+      delete data.name.givenName;
+
+      request(server)
+      .post('/accounts')
+      .set('test-title', "fail create account" )
+      .send(payload)
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.statusCode;
+        
+        should.not.exist(resterr);
+        response.should.not.equal(666);
+        response.should.not.equal(200);
+        response.should.equal(400);
+        done();
+        
+      }); 
+      
+    });
+
+    it('Should not add an account if name is empty', function(done){
+      
+      const data = payload;
+      data.name.givenName = "";
+
+      request(server)
+      .post('/accounts')
+      .set('test-title', "fail create account" )
+      .send(payload)
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.statusCode;
+        
+        should.not.exist(resterr);
+        response.should.not.equal(666);
+        response.should.not.equal(200);
+        response.should.equal(400);
+        done();
+        
+      }); 
+      
+    });
+
+    it('Should not add an account if without surname', function(done){
+      
+      const data = payload;
+      delete data.name.familyName;
+
+      request(server)
+      .post('/accounts')
+      .set('test-title', "fail create account" )
+      .send(payload)
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.statusCode;
+        
+        should.not.exist(resterr);
+        response.should.not.equal(666);
+        response.should.not.equal(200);
+        response.should.equal(400);
+        done();
+        
+      }); 
+      
+    });
+
+    it('Should not add an account if surname is empty', function(done){
+      
+      const data = payload;
+      data.name.familyName = "";
+
+      request(server)
+      .post('/accounts')
+      .set('test-title', "fail create account" )
+      .send(payload)
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.statusCode;
+        
+        should.not.exist(resterr);
+        response.should.not.equal(666);
+        response.should.not.equal(200);
+        response.should.equal(400);
+        done();
+        
+      }); 
+      
+    });
     
   });
 
   
-  describe.skip('DELETE /groups/:name', function(){
-
-   // delay(1000); 
-    
-    it('Should remove group', function(done){
-      
-      this.timeout(3000);
-
-      request(server)
-      .delete('/groups/'+primaryEmail)
-      //.set('x-auth-token', TOKEN )
-      .set('test-title', "delete group" )
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.body;
-
-        should.not.exist(resterr);
-        resp.statusCode.should.not.equal(666);
-        resp.statusCode.should.equal(204);
-        done();
-        
-      });
-            
-    });
-
-    it('Should not remove group if no string', function(done){
-      
-      this.timeout(3000);
-
-      request(server)
-      .delete('/groups')
-      //.set('x-auth-token', TOKEN )
-      .set('test-title', "delete group" )
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.body;
-
-        should.not.exist(resterr);
-        resp.statusCode.should.not.equal(666);
-        resp.statusCode.should.equal(404);
-        done();
-        
-      });
-            
-    });
-
-    it('Should not remove group if empty string', function(done){
-      
-      this.timeout(3000);
-
-      request(server)
-      .delete('/groups/'+"")
-      //.set('x-auth-token', TOKEN )
-      .set('test-title', "delete group" )
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.body;
-
-        should.not.exist(resterr);
-        resp.statusCode.should.not.equal(666);
-        resp.statusCode.should.equal(404);
-        done();
-        
-      });
-            
-    });
-
-  });
 });
