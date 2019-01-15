@@ -116,6 +116,29 @@ exports.fetchSingleEvent = async (req, res, next) => {
   }
 };
 
+exports.fetchSingleApplication = async (req, res, next) => {
+  if (Number.isNaN(Number(req.params.application_id))) {
+    return errors.makeBadRequestError(res, 'application_id should be a number.')
+  }
+
+  const application = await Application.findOne({ where: { id: Number(req.params.application_id) } });
+
+  if (!application) {
+    return errors.makeNotFoundError(res, `Application with id ${req.params.application_id} not found`);
+  }
+
+  req.application = application;
+  req.permissions = helpers.getApplicationPermissions({
+    permissions: req.permissions,
+    application: req.application,
+    corePermissions: req.corePermissions,
+    approvePermissions: req.approvePermissions,
+    user: req.user,
+    event
+  });
+  return next();
+};
+
 /* eslint-disable no-unused-vars */
 exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl);
 

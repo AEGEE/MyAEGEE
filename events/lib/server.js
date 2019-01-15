@@ -74,11 +74,11 @@ EventsRouter.put('/status', events.setApprovalStatus);
 EventsRouter.get('/rights', events.getEditRights);
 EventsRouter.post('/upload', imageserv.uploadImage);
 
-EventsRouter.get('/participants', applications.listParticipants);
-EventsRouter.put('/participants/:application_id/status/', applications.setApplicationStatus);
-EventsRouter.put('/participants/:application_id/comment/', applications.setApplicationComment);
-EventsRouter.get('/participants/mine', applications.getApplication);
-EventsRouter.put('/participants/mine', applications.setApplication);
+EventsRouter.get('/applications/all', middlewares.fetchSingleApplication, applications.listAllApplications);
+EventsRouter.put('/applications/:application_id/status/', middlewares.fetchSingleApplication, applications.setApplicationStatus);
+EventsRouter.put('/applications/:application_id/comment/', middlewares.fetchSingleApplication, applications.setApplicationComment);
+EventsRouter.get('/applications/mine', middlewares.fetchSingleApplication, applications.getApplication);
+EventsRouter.put('/applications/mine', applications.setApplication);
 
 EventsRouter.post('/organizers', events.addOrganizer);
 EventsRouter.put('/organizers/:user_id', events.editOrganizer);
