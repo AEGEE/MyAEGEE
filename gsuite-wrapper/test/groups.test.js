@@ -190,28 +190,6 @@ describe('Groups', function(){
 
    // delay(1000); 
     
-    it('Should remove group', function(done){
-      
-      //this.timeout(3000);
-
-      request(server)
-      .delete('/groups/'+primaryEmail)
-      //.set('x-auth-token', TOKEN )
-      .set('test-title', "delete group" )
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.body;
-
-        should.not.exist(resterr);
-        resp.statusCode.should.not.equal(666);
-        resp.statusCode.should.equal(204);
-        done();
-        
-      });
-            
-    });
-
     it('Should not remove group if no string', function(done){
       
       //this.timeout(3000);
@@ -316,6 +294,28 @@ describe('Groups', function(){
         should.not.exist(resterr);
         resp.statusCode.should.not.equal(666);
         resp.statusCode.should.equal(404);
+        done();
+        
+      });
+            
+    });
+
+    it('Should remove group', function(done){
+      
+      //this.timeout(3000);
+
+      request(server)
+      .delete('/groups/'+primaryEmail)
+      //.set('x-auth-token', TOKEN )
+      .set('test-title', "delete group" )
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.body;
+
+        should.not.exist(resterr);
+        resp.statusCode.should.not.equal(666);
+        resp.statusCode.should.equal(204);
         done();
         
       });

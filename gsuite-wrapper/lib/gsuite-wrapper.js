@@ -82,7 +82,7 @@ exports.createAccount = async function(req, res , next) {
         const payload = {
             "primaryEmail": data.primaryEmail,
             "name": data.name,
-            "password": data.SHA1Password,
+            "password": data.password,
             "hashFunction": "SHA-1",
             "emails": [
             {
