@@ -62,7 +62,7 @@ GeneralRouter.get('/getUser', service.getUser);
 GeneralRouter.get('/mine/organizing', events.listUserOrganizedEvents);
 GeneralRouter.get('/mine/participating', applications.listUserAppliedEvents);
 GeneralRouter.get('/mine/approvable', events.listApprovableEvents);
-GeneralRouter.get('/boardview/:body_id', events.listLocalInvolvedEvents);
+GeneralRouter.get('/boardview/:body_id', events.listBodyApplications);
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
 EventsRouter.use(middlewares.fetchSingleEvent);

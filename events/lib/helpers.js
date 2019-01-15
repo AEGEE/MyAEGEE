@@ -18,11 +18,9 @@ function getBodiesListFromPermissions(result) {
 }
 
 // A helper to determine if user is an organizer.
-function isOrganizer(event, user) {
-  return event.organizers.some(organizer => organizer.user_id === user.id);
-}
+exports.isOrganizer = (event, user) => event.organizers.some(organizer => organizer.user_id === user.id);
 
-function getPermissions(user, corePermissions) {
+exports.getPermissions = (user, corePermissions, approvePermissions) => {
   const permissions = {
     approve_event: {},
     manage_event: {}
@@ -33,29 +31,34 @@ function getPermissions(user, corePermissions) {
     permissions.manage_event[type] = hasPermission(corePermissions, 'manage_event:' + type);
   }
 
-  return permissions;
-}
-
-function getEventPermissions({ permissions, event, user, approvePermissions }) {
-  permissions.edit_event = isOrganizer(event, user) || permissions.manage_event[event.type];
-  permissions.delete_event = permissions.manage_event[event.type];
-
-  permissions.apply = event.application_status === 'open';
-
-  permissions.approve_participants = isOrganizer(event, user);
-  permissions.view_applications = isOrganizer(event, user) || permissions.manage_event[event.type];
-
   permissions.set_board_comment = {};
-  permissions.see_boardview_of = {};
+  permissions.see_boardview = {};
 
   const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
   for (const body of user.bodies) {
     permissions.set_board_comment[body.id] = approveBodiesList.includes(body.id);
-    permissions.see_boardview_of[body.id] = approveBodiesList.includes(body.id);
+    permissions.see_boardview[body.id] = approveBodiesList.includes(body.id);
   }
 
   return permissions;
 }
 
-exports.getPermissions = getPermissions;
-exports.getEventPermissions = getEventPermissions;
+exports.getEventPermissions = ({ permissions, event, user }) => {
+  permissions.edit_event = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
+  permissions.delete_event = permissions.manage_event[event.type];
+
+  permissions.apply = event.application_status === 'open' && event.status === 'published';
+
+  permissions.approve_participants = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
+  permissions.list_applications = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
+
+  return permissions;
+}
+
+exports.getApplicationPermissions = ({ permissions, user, application }) => {
+  const isMine = application.user_id === user.id;
+
+  permissions.view_application = isMine || permission.list_applications;
+
+  return permissions;
+}

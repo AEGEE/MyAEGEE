@@ -1,6 +1,6 @@
 const faker = require('faker');
 
-const { Event } = require('../../models');
+const { Event, Application } = require('../../models');
 const firstUser = require('../assets/oms-core-valid').data;
 const secondUser = require('../assets/oms-core-valid-not-superadmin').data;
 
@@ -32,7 +32,30 @@ exports.createEvent = (options = {}) => {
   return Event.create(exports.generateEvent(options));
 }
 
+exports.generateApplication = (options = {}, event) => {
+  if (notSet(options.user_id)) options.user_id = faker.random.number(100);
+  if (notSet(options.body_id)) options.body_id = faker.random.number(100);
+  if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
+  if (notSet(options.last_name)) options.last_name = faker.lorem.sentence();
+  if (notSet(options.body_name)) options.body_name = faker.lorem.sentence();
+
+  if (notSet(options.answers)) {
+    const answersCount = event ? event.questions.length : Math.round(Math.random() * 5) + 1; // from 1 to 6
+    options.answers = Array.from({ length: answersCount }, () => faker.lorem.sentence());
+  }
+
+  if (event && event.id) {
+      options.event_id = event.id;
+  }
+
+  return options;
+}
+
+exports.createApplication = (options = {}, event) => {
+  return Application.create(exports.generateApplication(options, event));
+}
+
 exports.clearAll = async () => {
-  // await Application.destroy({ where: {}, truncate: { cascade: true } });
+  await Application.destroy({ where: {}, truncate: { cascade: true } });
   await Event.destroy({ where: {}, truncate: { cascade: true } });
 };

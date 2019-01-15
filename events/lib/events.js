@@ -1,21 +1,8 @@
 const { errors } = require('oms-common-nodejs');
 
 const helpers = require('./helpers');
-const { Event } = require('../models');
+const { Event, Application } = require('../models');
 const { Sequelize } = require('./sequelize');
-
-const displayedFields = [
-  'name',
-  'starts',
-  'ends',
-  'description',
-  'type',
-  'status',
-  'max_participants',
-  'application_status',
-  'application_deadline',
-  'fee',
-]
 
 /** Requests for all events **/
 
@@ -72,41 +59,26 @@ exports.listEvents = async (req, res, next) => {
   });
 };
 
-// All event where a local has participated
-exports.listLocalInvolvedEvents = async (req, res, next) => {
+// All applications for bodies, including events.
+exports.listBodyApplications = async (req, res, next) => {
   const bodyId = parseInt(req.params.body_id);
   if (Number.isNaN(bodyId)) {
     return errors.makeBadRequestError(res, 'bodyId is not a number.');
   }
 
   // Only visible to board members
-  if (!req.user.permissions.is.board_member_of[bodyId]) {
+  if (!req.permissions.see_boardview[bodyId]) {
     return errors.makeForbiddenError(res, 'You are not allowed to see this');
   }
 
-  // The first query where mongodb actually has a job
-  const events = await Event
-    .aggregate([
-      { $unwind: '$applications' },
-      { $match: { 'applications.body_id': bodyId } },
-      { $project: {
-        id: false,
-        name: true,
-        url: true,
-        'application_id': '$applications._id',
-        'id': '$_id',
-        'user_id': '$applications.user_id',
-        'body_id': '$applications.body_id',
-        'createdAt': '$applications.createdAt',
-        'updatedAt': '$applications.updatedAt',
-        'board_comment': '$applications.board_comment',
-        'application': '$applications.application',
-      }}
-    ]);
+  const applications = await Application.findAll({
+    where: { body_id: bodyId },
+    include: [Event]
+  })
 
   return res.json({
     success: true,
-    data: events,
+    data: applications,
   });
 };
 
@@ -114,7 +86,7 @@ exports.listLocalInvolvedEvents = async (req, res, next) => {
 exports.listUserOrganizedEvents = async (req, res, next) => {
   const events = await Event.findAll({ where: { deleted: false } });
 
-  const filteredEvents = events.filter(event => event.organizers.some(org => org.user_id === req.user.id))
+  const filteredEvents = events.filter(event => event.organizers.some(org => org.user_id === req.user.id));
 
   return res.json({
     success: true,
@@ -305,8 +277,7 @@ exports.addOrganizer = async (req, res, next) => {
 
   req.event.organizers.push({
     user_id: req.body.user_id,
-    comment: req.body.comment,
-    roles: req.body.roles
+    comment: req.body.comment
   })
 
   await req.event.save();

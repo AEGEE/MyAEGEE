@@ -44,9 +44,33 @@ exports.authenticateUser = async (req, res, next) => {
       return errors.makeError(res, 401, 'Error fetching permissions: user is not authenticated.');
     }
 
+    // Fetching permissions for members approval, the list of bodies
+    // where do you have the 'approve_members:events' permission for it.
+    const approveRequest = await request({
+      url: config.core.url + ':' + config.core.port + '/my_permissions',
+      method: 'POST',
+      headers,
+      simple: false,
+      json: true,
+      body: {
+        action: 'approve_members',
+        object: 'events'
+      }
+    });
+
+    if (typeof approveRequest !== 'object') {
+      throw new Error('Malformed response when fetching permissions for approve: ' + approveRequest);
+    }
+
+    if (!approveRequest.success) {
+        // We are not authenticated
+      throw new Error('Error fetching permissions for approve: user is not authenticated.');
+    }
+
     req.user = userBody.data;
     req.corePermissions = permissionsBody.data;
-    req.permissions = helpers.getPermissions(req.user, req.corePermissions);
+    req.approvePermissions = approveRequest.data;
+    req.permissions = helpers.getPermissions(req.user, req.corePermissions, req.approvePermissions);
 
     return next();
   } catch (err) {
@@ -77,37 +101,11 @@ exports.fetchSingleEvent = async (req, res, next) => {
       return errors.makeNotFoundError(res, `Event with id ${req.params.event_id} not found`);
     }
 
-    const headers = await communication.getRequestHeaders(req);
-
-    // Fetching permissions for members approval, the list of bodies
-    // where do you have the 'approve_members:<event_type>' permission for it.
-    const approveRequest = await request({
-      url: config.core.url + ':' + config.core.port + '/my_permissions',
-      method: 'POST',
-      headers,
-      simple: false,
-      json: true,
-      body: {
-        action: 'approve_members',
-        object: event.type
-      }
-    });
-
-    if (typeof approveRequest !== 'object') {
-      throw new Error('Malformed response when fetching permissions for approve: ' + approveRequest);
-    }
-
-    if (!approveRequest.success) {
-        // We are not authenticated
-      throw new Error('Error fetching permissions for approve: user is not authenticated.');
-    }
 
     req.event = event;
-    req.approvePermissions = approveRequest.data;
     req.permissions = helpers.getEventPermissions({
       permissions: req.permissions,
       corePermissions: req.corePermissions,
-      approvePermissions: req.approvePermissions,
       user: req.user,
       event
     });
