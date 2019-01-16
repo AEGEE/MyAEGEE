@@ -1,7 +1,0 @@
-[
-  { "id": "0", "name": "Public", "description": "Every user is included into this group.", "event_dependent": false },
-  { "id": "1", "name": "Board Member", "description": "Board members are included into this group.", "event_dependent": false },
-  { "id": "2", "name": "Superadmin", "description": "Members with the is_superadmin flag set to true are included into this group", "event_dependent": false },
-  { "id": "3", "name": "Organizing Board Member", "description": "Board members that are in the board of one of the organizing locals.", "event_dependent": true },
-  { "id": "4", "name": "Organizing Local Member", "description": "Members of one of the organizing locals", "event_dependent": true }
-]

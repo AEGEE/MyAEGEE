@@ -1,18 +1,16 @@
 version: '3.2'
-### OMS EVENTS        #######################################
+### OMS STATUTORY     #######################################
 ### mongodb Container #######################################
 services:
-    mongodb:
-        image: mongo:latest
-        expose:
-            - "27017"
+    postgres-oms-events:
+        image: postgres:latest
         volumes:
-            - type: volume
-              source: mongodb
-              target: /data/db
-
-### Omsevents backend #######################################
-
+            - postgres-events:/var/lib/postgresql/data
+        expose:
+            - "5432"
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
     oms-events:
         build:
             context: ./$PATH_OMS_EVENTS/oms-events
@@ -23,12 +21,17 @@ services:
             - ./$PATH_OMS_EVENTS/../:/usr/app/src
             - shared:/usr/app/shared:ro
         links:
-            - mongodb
+            - postgres-oms-events
         expose:
-            - "8082"
+            - "8084"
+        environment:
+            BUGSNAG_KEY: 6f6a7c00507fceca0818c48405dbd2a6
+        secrets:
+            - mail_user
+            - mail_password
         labels:
             - "traefik.backend=oms-events"
-            - "traefik.port=8082"
+            - "traefik.port=8084"
             - "traefik.frontend.rule=HostRegexp:{domain:[a-z0-9.]+};PathPrefix:/services/oms-events/api;PathPrefixStrip:/services/oms-events/api"
             - "traefik.frontend.priority=110"
             - "traefik.enable=true"
@@ -38,7 +41,7 @@ services:
 
 
 volumes:
-    mongodb:
+    postgres-events:
         driver: "local"
     oms-events-media:
         driver: "local"

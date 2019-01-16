@@ -13,284 +13,222 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 describe('Events organization management', () => {
-  let events;
-
-  let omscoreStub;
-  let omsserviceregistryStub;
+  let event;
 
   beforeEach(async () => {
     await db.clear();
 
     // Populate db
-    const res = await db.populateEvents();
-    events = res.events;
+    event = await db.createEvent({ organizers: [{ user_id: 331 }] });
 
-    const mocked = mock.mockAll({ core: { notSuperadmin: true } });
-    omscoreStub = mocked.omscoreStub;
-    omsserviceregistryStub = mocked.omsserviceregistryStub;
+    mock.mockAll();
   });
 
-  it('should disallow adding organizer for event you cannot edit', (done) => {
-    const notEditableEvent = events.find(e => e.organizers.every(org => org.user_id !== user.id));
+  it('should disallow adding organizer for event you cannot edit', async () => {
+    const notMineEvent = await db.createEvent({ organizers: [{ user_id: 1337 }] });
+    mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-    chai.request(server)
-      .post(`/single/${notEditableEvent.id}/organizers/`)
+    const res = await chai.request(server)
+      .post(`/single/${notMineEvent.id}/organizers/`)
       .set('X-Auth-Token', 'foobar')
       .send({
         user_id: admin.id,
         comment: 'Good guy'
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(403);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
-
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
-
-        done();
       });
+
+    expect(res).to.have.status(403);
+    expect(res).to.be.json;
+    expect(res).to.be.a('object');
+
+    expect(res.body.success).to.be.false;
+    expect(res.body).to.have.property('message');
   });
 
-  it('should disallow adding organizer if the user is already an organizer', (done) => {
-    const notEditableEvent = events.find(e =>
-      e.organizers.some(org => org.user_id === user.id) && e.organizers.some(org => org.user_id === admin.id));
+  it('should disallow adding organizer if the user is already an organizer', async () => {
+    const eventImOrganizing = await db.createEvent({ organizers: [{ user_id: admin.id }] });
 
-    chai.request(server)
-      .post(`/single/${notEditableEvent.id}/organizers/`)
+    const res = await chai.request(server)
+      .post(`/single/${eventImOrganizing.id}/organizers/`)
       .set('X-Auth-Token', 'foobar')
       .send({
         user_id: admin.id,
         comment: 'Not that good guy'
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(400);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
-
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
-
-        done();
       });
+
+    expect(res).to.have.status(400);
+    expect(res).to.be.json;
+    expect(res).to.be.a('object');
+
+    expect(res.body.success).to.be.false;
+    expect(res.body).to.have.property('message');
   });
 
-  it('should allow adding organizer for event you can edit', (done) => {
-    const editableEvent = events.find(e => e.organizers.some(org => org.user_id === user.id));
-
-    chai.request(server)
-      .post(`/single/${editableEvent.id}/organizers/`)
+  it('should allow adding organizer for event you can edit', async () => {
+    const res = await chai.request(server)
+      .post(`/single/${event.id}/organizers/`)
       .set('X-Auth-Token', 'foobar')
       .send({
         user_id: admin.id,
         comment: 'Good guy'
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
-
-        expect(res.body.success).to.be.true;
-        expect(res.body).to.have.property('message');
-
-        Event.findById(editableEvent.id).then((newEvent) => {
-          expect(newEvent.organizers.map(org => org.user_id)).to.contain(admin.id);
-          expect(newEvent.organizers.map(org => org.comment)).to.contain('Good guy');
-
-          done();
-        })
       });
+
+    expect(res).to.have.status(200);
+    expect(res).to.be.json;
+    expect(res).to.be.a('object');
+
+    expect(res.body.success).to.be.true;
+    expect(res.body).to.have.property('message');
+
+    const newEvent = await Event.findById(event.id);
+    expect(newEvent.organizers.map(org => org.user_id)).to.contain(admin.id);
+    expect(newEvent.organizers.map(org => org.comment)).to.contain('Good guy');
   });
 
-  it('should disallow editing organizer for event you cannot edit', (done) => {
-    const notEditableEvent = events.find(e =>
-      e.organizers.every(org => org.user_id !== user.id) && e.organizers.some(org => org.user_id === admin.id));
+  it('should disallow editing organizer for event you cannot edit', async () => {
+    const notMineEvent = await db.createEvent({ organizers: [{ user_id: 1337 }] });
+    mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-    chai.request(server)
-      .put(`/single/${notEditableEvent.id}/organizers/${admin.id}`)
+    const res = await chai.request(server)
+      .put(`/single/${notMineEvent.id}/organizers/${admin.id}`)
       .set('X-Auth-Token', 'foobar')
       .send({
         comment: 'Not that good guy'
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(403);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
-
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
-
-        done();
       });
+
+    expect(res).to.have.status(403);
+    expect(res).to.be.json;
+    expect(res).to.be.a('object');
+
+    expect(res.body.success).to.be.false;
+    expect(res.body).to.have.property('message');
   });
 
-  it('should disallow editing organizer if userId is not a number', (done) => {
-    const editableEvent = events.find(e =>
-      e.organizers.some(org => org.user_id === user.id) && e.organizers.some(org => org.user_id === admin.id));
-
-    chai.request(server)
-      .put(`/single/${editableEvent.id}/organizers/lalala`)
+  it('should disallow editing organizer if userId is not a number', async () => {
+    const res = await chai.request(server)
+      .put(`/single/${event.id}/organizers/lalala`)
       .set('X-Auth-Token', 'foobar')
       .send({
         comment: 'Not that good guy'
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(400);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
-
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
-
-        done();
       });
+
+      expect(res).to.have.status(400);
+      expect(res).to.be.json;
+      expect(res).to.be.a('object');
+
+      expect(res.body.success).to.be.false;
+      expect(res.body).to.have.property('message');
   });
 
-  it('should disallow editing organizer if the user is not an organizer', (done) => {
-    const notEditableEvent = events.find(e =>
-      e.organizers.some(org => org.user_id === user.id) && e.organizers.every(org => org.user_id !== admin.id));
-
-    chai.request(server)
-      .put(`/single/${notEditableEvent.id}/organizers/${admin.id}`)
+  it('should disallow editing organizer if the user is not an organizer', async () => {
+    const res = await chai.request(server)
+      .put(`/single/${event.id}/organizers/${admin.id}`)
       .set('X-Auth-Token', 'foobar')
       .send({
         comment: 'Not that good guy'
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(404);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
-
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
-
-        done();
       });
+
+      expect(res).to.have.status(404);
+      expect(res).to.be.json;
+      expect(res).to.be.a('object');
+
+      expect(res.body.success).to.be.false;
+      expect(res.body).to.have.property('message');
   });
 
-  it('should allow adding organizer for event you can edit', (done) => {
-    const editableEvent = events.find(e =>
-      e.organizers.some(org => org.user_id === user.id) && e.organizers.some(org => org.user_id === admin.id));
+  it('should allow editing organizer for event you can edit', async () => {
+    const myEvent = await db.createEvent({ organizers: [{ user_id: admin.id }] });
 
-    chai.request(server)
-      .put(`/single/${editableEvent.id}/organizers/${admin.id}`)
+    const res = await chai.request(server)
+      .put(`/single/${myEvent.id}/organizers/${admin.id}`)
       .set('X-Auth-Token', 'foobar')
       .send({
         comment: 'Not that good guy'
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
-
-        expect(res.body.success).to.be.true;
-        expect(res.body).to.have.property('message');
-
-        Event.findById(editableEvent.id).then((newEvent) => {
-          expect(newEvent.organizers.map(org => org.user_id)).to.contain(admin.id);
-          expect(newEvent.organizers.map(org => org.comment)).to.contain('Not that good guy');
-
-          done();
-        })
       });
+
+    expect(res).to.have.status(200);
+    expect(res).to.be.json;
+    expect(res).to.be.a('object');
+
+    expect(res.body.success).to.be.true;
+    expect(res.body).to.have.property('message');
+
+    const newEvent = await Event.findById(myEvent.id);
+    expect(newEvent.organizers.map(org => org.user_id)).to.contain(admin.id);
+    expect(newEvent.organizers.map(org => org.comment)).to.contain('Not that good guy');
   });
 
-  it('should disallow deleting organizer for event you cannot edit', (done) => {
-    const notEditableEvent = events.find(e =>
-      e.organizers.every(org => org.user_id !== user.id) && e.organizers.some(org => org.user_id === admin.id));
+  it('should disallow deleting organizer for event you cannot edit', async () => {
+    const notMineEvent = await db.createEvent({ organizers: [{ user_id: 1337 }] });
+    mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-    chai.request(server)
-      .del(`/single/${notEditableEvent.id}/organizers/${admin.id}`)
-      .set('X-Auth-Token', 'foobar')
-      .end((err, res) => {
-        expect(res).to.have.status(403);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
+    const res = await chai.request(server)
+      .del(`/single/${notMineEvent.id}/organizers/${admin.id}`)
+      .set('X-Auth-Token', 'foobar');
 
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
+    expect(res).to.have.status(403);
+    expect(res).to.be.json;
+    expect(res).to.be.a('object');
 
-        done();
-      });
+    expect(res.body.success).to.be.false;
+    expect(res.body).to.have.property('message');
   });
 
-  it('should disallow deleting organizer if userId is not a number', (done) => {
-    const editableEvent = events.find(e =>
-      e.organizers.some(org => org.user_id === user.id) && e.organizers.some(org => org.user_id === admin.id));
+  it('should disallow deleting organizer if userId is not a number', async () => {
+    const res = await chai.request(server)
+      .del(`/single/${event.id}/organizers/lalala`)
+      .set('X-Auth-Token', 'foobar');
 
-    chai.request(server)
-      .del(`/single/${editableEvent.id}/organizers/lalala`)
-      .set('X-Auth-Token', 'foobar')
-      .end((err, res) => {
-        expect(res).to.have.status(400);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
+    expect(res).to.have.status(400);
+    expect(res).to.be.json;
+    expect(res).to.be.a('object');
 
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
-
-        done();
-      });
+    expect(res.body.success).to.be.false;
+    expect(res.body).to.have.property('message');
   });
 
-  it('should disallow deleting organizer if the user is not an organizer', (done) => {
-    const notEditableEvent = events.find(e =>
-      e.organizers.some(org => org.user_id === user.id) && e.organizers.every(org => org.user_id !== admin.id));
+  it('should disallow deleting organizer if the user is not an organizer', async () => {
+    const res = await chai.request(server)
+      .del(`/single/${event.id}/organizers/${admin.id}`)
+      .set('X-Auth-Token', 'foobar');
 
-    chai.request(server)
-      .del(`/single/${notEditableEvent.id}/organizers/${admin.id}`)
-      .set('X-Auth-Token', 'foobar')
-      .end((err, res) => {
-        expect(res).to.have.status(404);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
+    expect(res).to.have.status(404);
+    expect(res).to.be.json;
+    expect(res).to.be.a('object');
 
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
-
-        done();
-      });
+    expect(res.body.success).to.be.false;
+    expect(res.body).to.have.property('message');
   });
 
-  it('should disallow deleting organizer if the user is only organizer', (done) => {
-    const editableEvent = events.find(e =>
-      e.organizers.length === 1 && e.organizers[0].user_id === user.id);
+  it('should disallow deleting organizer if the user is only organizer', async () => {
+    const myEvent = await db.createEvent({ organizers: [{ user_id: admin.id }] });
 
-    chai.request(server)
-      .del(`/single/${editableEvent.id}/organizers/${user.id}`)
-      .set('X-Auth-Token', 'foobar')
-      .end((err, res) => {
-        expect(res).to.have.status(422);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
+    const res = await chai.request(server)
+      .del(`/single/${myEvent.id}/organizers/${admin.id}`)
+      .set('X-Auth-Token', 'foobar');
 
-        expect(res.body.success).to.be.false;
-        expect(res.body).to.have.property('message');
+    expect(res).to.have.status(422);
+    expect(res).to.be.json;
+    expect(res).to.be.a('object');
 
-        done();
-      });
+    expect(res.body.success).to.be.false;
+    expect(res.body).to.have.property('message');
   });
 
-  it('should allow deleting organizer for event you can edit', (done) => {
-    const editableEvent = events.find(e =>
-      e.organizers.some(org => org.user_id === user.id) && e.organizers.some(org => org.user_id === admin.id));
+  it('should allow deleting organizer for event you can edit', async () => {
+    const myEvent = await db.createEvent({ organizers: [{ user_id: admin.id }, { user_id: 1337 }] });
 
-    chai.request(server)
-      .del(`/single/${editableEvent.id}/organizers/${admin.id}`)
-      .set('X-Auth-Token', 'foobar')
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
-        expect(res).to.be.a('object');
+    const res = await chai.request(server)
+      .del(`/single/${myEvent.id}/organizers/${admin.id}`)
+      .set('X-Auth-Token', 'foobar');
 
-        expect(res.body.success).to.be.true;
-        expect(res.body).to.have.property('message');
+    expect(res).to.have.status(200);
+    expect(res).to.be.json;
+    expect(res).to.be.a('object');
 
-        Event.findById(editableEvent.id).then((newEvent) => {
-          expect(newEvent.organizers.map(org => org.user_id)).not.to.contain(admin.id);
+    expect(res.body.success).to.be.true;
+    expect(res.body).to.have.property('message');
 
-          done();
-        })
-      });
+    const newEvent = await Event.findById(myEvent.id);
+    expect(newEvent.organizers.map(org => org.user_id)).not.to.contain(admin.id);
   });
 });

@@ -1,5 +1,3 @@
-const cron = require('./cron');
-
 /* Stat thing... remove!*/
 const stats = {
   requests: 0,
@@ -10,7 +8,6 @@ exports.status = (req, res) => {
   const ret = {
     requests: stats.requests,
     uptime: ((new Date()).getTime() - stats.started) / 1000,
-    deadline_crons: cron.countJobs()
   };
 
   return res.json({

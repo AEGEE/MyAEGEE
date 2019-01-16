@@ -1,51 +1,77 @@
 const request = require('request-promise-native');
 const bugsnag = require('bugsnag');
-const { errors, communication } = require('oms-common-nodejs');
+const { communication } = require('oms-common-nodejs');
+const errors = require('./errors');
 
-const log = require('./config/logger.js');
-const Event = require('./models/Event');
-const helpers = require('./helpers.js');
-const config = require('./config/config.js');
+const logger = require('./logger');
+const { Event, Application } = require('../models');
+const helpers = require('./helpers');
+const config = require('../config');
 
 exports.authenticateUser = async (req, res, next) => {
   const token = req.header('x-auth-token');
   if (!token) {
-    return errors.makeUnauthorizedError(res, 'No auth token provided');
+    return errors.makeError(res, 401, 'No auth token provided');
   }
 
-
   try {
-    // Find the core service
-    const service = await communication.getServiceByName(config.registry, 'oms-core-elixir');
-
     // Get the request headers to send an auth token
     const headers = await communication.getRequestHeaders(req);
 
-    // Query the core
-    const body = await request({
-      url: `${service.backend_url}members/me`,
+    // Query the core for user and permissions.
+    const [userBody, permissionsBody] = await Promise.all(['members/me', 'my_permissions'].map(endpoint => request({
+      url: config.core.url + ':' + config.core.port + '/' + endpoint,
       method: 'GET',
       headers,
       simple: false,
       json: true,
+    })));
+
+    if (typeof userBody !== 'object') {
+      throw new Error('Malformed response when fetching user: ' + userBody);
+    }
+
+    if (!userBody.success) {
+      // We are not authenticated
+      return errors.makeError(res, 401, 'Error fetching user: user is not authenticated.');
+    }
+
+    if (typeof permissionsBody !== 'object') {
+      throw new Error('Malformed response when fetching permissions: ' + JSON.stringify(permissionsBody));
+    }
+
+    if (!permissionsBody.success) {
+      // We are not authenticated
+      return errors.makeError(res, 401, 'Error fetching permissions: user is not authenticated.');
+    }
+
+    // Fetching permissions for members approval, the list of bodies
+    // where do you have the 'approve_members:events' permission for it.
+    const approveRequest = await request({
+      url: config.core.url + ':' + config.core.port + '/my_permissions',
+      method: 'POST',
+      headers,
+      simple: false,
+      json: true,
+      body: {
+        action: 'approve_members',
+        object: 'events'
+      }
     });
 
-    if (typeof body !== 'object') {
-      return errors.makeInternalError(res, 'Malformed response from core: ' + body);
+    if (typeof approveRequest !== 'object') {
+      throw new Error('Malformed response when fetching permissions for approve: ' + approveRequest);
     }
 
-    if (!body.success) {
-      // We are not authenticated
-      return errors.makeUnauthorizedError(res, 'User is not authenticated.');
+    if (!approveRequest.success) {
+        // We are not authenticated
+      throw new Error('Error fetching permissions for approve: user is not authenticated.');
     }
 
-    if (!req.user) {
-      req.user = body.data;
-    }
-
-    if (!req.user.special) {
-      req.user.special = ['Public']; // Everybody is included in 'Public', right?
-    }
+    req.user = userBody.data;
+    req.corePermissions = permissionsBody.data;
+    req.approvePermissions = approveRequest.data;
+    req.permissions = helpers.getPermissions(req.user, req.corePermissions, req.approvePermissions);
 
     return next();
   } catch (err) {
@@ -55,7 +81,7 @@ exports.authenticateUser = async (req, res, next) => {
 
 exports.fetchSingleEvent = async (req, res, next) => {
   if (!req.params.event_id) {
-    log.info(req.params);
+    logger.info(req.params);
     return errors.makeNotFoundError(res, 'No Event-id provided');
   }
 
@@ -63,65 +89,55 @@ exports.fetchSingleEvent = async (req, res, next) => {
   // We don't use ObjectID.isValid method, since it's not always
   // working properly, see http://stackoverflow.com/a/29231016/1206421
   let findObject;
-  if (req.params.event_id.match(/^[0-9a-fA-F]{24}$/)) { // if it's indeed an ObjectID
-    findObject = { _id: req.params.event_id };
+  if (!Number.isNaN(Number(req.params.event_id))) { // if it's indeed an ObjectID
+    findObject = { id: Number(req.params.event_id) };
   } else {
     findObject = { url: req.params.event_id };
   }
 
   try {
-    const event = await Event.findOne(findObject);
+    const event = await Event.findOne({ where: findObject });
 
-    if (event === null) {
+    if (!event) {
       return errors.makeNotFoundError(res, `Event with id ${req.params.event_id} not found`);
     }
 
+
     req.event = event;
+    req.permissions = helpers.getEventPermissions({
+      permissions: req.permissions,
+      corePermissions: req.corePermissions,
+      user: req.user,
+      event
+    });
     return next();
   } catch (err) {
-    log.error('Error getting single event: ', err);
+    logger.error('Error getting single event: ', err);
     throw err;
   }
 };
 
-// Middleware to check which permissions the user has, in regart to the current
-// event if there is one. Requires the fetchSingleEvent and fetchUserDetails
-// middleware to be executed beforehand.
-exports.checkPermissions = async (req, res, next) => {
-  const permissions = helpers.getBasicPermissions(req.user);
-
-  // Convert all to boolean and assign
-  req.user.permissions = { is: {}, can: {} };
-  for (const attr in permissions.is) {
-    req.user.permissions.is[attr] = permissions.is[attr];
+exports.fetchSingleApplication = async (req, res, next) => {
+  if (Number.isNaN(Number(req.params.application_id))) {
+    return errors.makeBadRequestError(res, 'application_id should be a number.')
   }
-  for (const attr in permissions.can) {
-    req.user.permissions.can[attr] = permissions.can[attr];
-  }
-  req.user.special = [...req.user.special, ...permissions.special];
 
+  const application = await Application.findOne({ where: { id: Number(req.params.application_id) } });
+
+  if (!application) {
+    return errors.makeNotFoundError(res, `Application with id ${req.params.application_id} not found`);
+  }
+
+  req.application = application;
+  req.permissions = helpers.getApplicationPermissions({
+    permissions: req.permissions,
+    application: req.application,
+    corePermissions: req.corePermissions,
+    approvePermissions: req.approvePermissions,
+    user: req.user,
+    event: req.event
+  });
   return next();
-};
-
-// This should be executed after .fetchSingleEvent call
-exports.checkEventPermissions = async (req, res, next) => {
-  const eventPermissions = helpers.getEventPermissions(req.event, req.user);
-
-  for (const attr in eventPermissions.is) {
-    req.user.permissions.is[attr] = eventPermissions.is[attr];
-  }
-  for (const attr in eventPermissions.can) {
-    req.user.permissions.can[attr] = eventPermissions.can[attr];
-  }
-  if (eventPermissions.special) {
-    Array.prototype.push.apply(req.user.special, eventPermissions.special);
-  }
-
-  // Filter out links
-  req.event.links = req.event.links.filter(link =>
-    helpers.canUserAccess(req.user, link.visibility));
-
-  next();
 };
 
 /* eslint-disable no-unused-vars */
@@ -135,13 +151,17 @@ exports.errorHandler = (err, req, res, next) => {
   }
 
   // Handling validation errors
-  if (err.name && err.name === 'ValidationError') {
+  if (err.name && (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError')) {
     return errors.makeValidationError(res, err);
   }
 
-  log.error(err.stack);
+  /* istanbul ignore next */
   if (process.env.NODE_ENV !== 'test') {
     bugsnag.notify(err);
   }
+
+  /* istanbul ignore next */
+  logger.error(err.stack);
+  /* istanbul ignore next */
   return errors.makeInternalError(res, err);
 };

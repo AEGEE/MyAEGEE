@@ -6,15 +6,15 @@ const fileType = require('file-type');
 const util = require('util');
 
 const { errors } = require('oms-common-nodejs');
-const log = require('./config/logger');
-const config = require('./config/config.js');
+const log = require('./logger');
+const config = require('../config');
 
 const uploadFolderName = `${config.media_dir}/headimages`;
 const allowedExtensions = ['.png', '.jpg', '.jpeg'];
 
 const existsAsync = util.promisify(fs.exists);
 const mkdirAsync = util.promisify(fs.mkdirp);
-const renameAsync = util.promisify(fs.rename);
+const removeAsync = util.promisify(fs.unlink);
 
 const storage = multer.diskStorage({ // multers disk storage settings
   destination(req, file, cb) {
@@ -46,7 +46,7 @@ const upload = multer({
 const uploadAsync = util.promisify(upload);
 
 exports.uploadImage = async (req, res, next) => {
-  const oldimg = JSON.parse(JSON.stringify(req.event.head_image));
+  const oldimg = req.event.image;
 
   // If upload folder doesn't exists, create it.
   if (!await existsAsync(uploadFolderName)) {
@@ -72,30 +72,17 @@ exports.uploadImage = async (req, res, next) => {
   const originalExtension = path.extname(req.file.originalname);
   const determinedExtension = (type && type.ext ? `.${type.ext}` : 'unknown');
 
-  if (originalExtension !== determinedExtension
-   || !allowedExtensions.includes(determinedExtension)) {
+  if (originalExtension !== determinedExtension || !allowedExtensions.includes(determinedExtension)) {
     return errors.makeValidationError(res, 'Malformed file content.');
   }
 
-  req.event.head_image = {
-    path: req.file.path,
-    filename: req.file.filename,
-  };
+  await req.event.update({
+    image: req.file.filename
+  });
 
-  await req.event.save();
-
-  // Move old file away
-  if (oldimg && oldimg.path) {
-    const oldImageStorage = `${config.media_dir}/old/headimages`;
-    const oldPath = oldimg.path;
-    const newPath = `${oldImageStorage}/${oldimg.filename}`;
-
-    // If upload folder doesn't exists, create it.
-    if (!await existsAsync(oldImageStorage)) {
-      await mkdirAsync(oldImageStorage);
-    }
-
-    await renameAsync(oldPath, newPath);
+  // Remove old file
+  if (oldimg) {
+    await removeAsync(path.join(uploadFolderName, oldimg));
   }
 
   return res.json({

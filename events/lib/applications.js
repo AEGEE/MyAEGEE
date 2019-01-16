@@ -1,11 +1,11 @@
 const { errors } = require('oms-common-nodejs');
-const Event = require('./models/Event');
+
+const { Event, Application } = require('../models');
+const helpers = require('./helpers');
 
 exports.listUserAppliedEvents = async (req, res, next) => {
-  const events = await Event
-    .where('ends').gte(new Date()) // Only show events in the future
-    .elemMatch('applications', { user_id: req.user.id })
-    .select(['name', 'starts', 'ends', 'description', 'type', 'status', 'max_participants', 'application_status', 'organizing_locals'].join(' '));
+  const applications = await Application.findAll({ where: { user_id: req.user.id }, include: [Event] });
+  const events = applications.map(a => a.event);
 
   return res.json({
     success: true,
@@ -13,30 +13,12 @@ exports.listUserAppliedEvents = async (req, res, next) => {
   });
 };
 
-/** Participants **/
-exports.listParticipants = async (req, res, next) => {
-  const event = req.event;
-  let status = req.params.status;
-  let applications = event.applications.toObject();
-
-  // Only authorized persons can see all applications
-  // Others will only see accepted ones and will not see their application text
-  if (!req.user.permissions.can.view_applications) {
-    status = 'accepted';
+exports.listAllApplications = async (req, res, next) => {
+  if (!req.permissions.list_applications) {
+    return errors.makeForbiddenError(res, 'You cannot see applications for this event.');
   }
 
-  // Filtering applications
-  if (status) {
-    applications = applications.filter(application => application.status === status);
-  }
-
-  for (const application of applications) {
-    application.url = `${event.url}/participants/${applications.id}`;
-    if (!req.user.permissions.can.approve_participants) {
-      delete application.board_comment;
-      delete application.application;
-    }
-  }
+  const applications = await Application.findAll({ where: { event_id: req.event.id } });
 
   return res.json({
     success: true,
@@ -45,13 +27,9 @@ exports.listParticipants = async (req, res, next) => {
 };
 
 exports.getApplication = async (req, res, next) => {
-  const event = req.event;
-
-  // Search for the application
-  const application = event.applications.find(app => app.user_id === req.user.id);
-
+  const application = await Application.findOne({ where: { event_id: req.event.id, user_id: req.user.id } });
   if (!application) {
-    return errors.makeNotFoundError(res, `Application for user ${req.user.id} not found`);
+    return errors.makeNotFoundError(res, 'Application is not found.');
   }
 
   return res.json({
@@ -61,36 +39,32 @@ exports.getApplication = async (req, res, next) => {
 };
 
 exports.setApplication = async (req, res, next) => {
-  const event = req.event;
-
   // Check for permission
-  if (!req.user.permissions.can.apply) {
+  if (!req.permissions.apply) {
     return errors.makeForbiddenError(res, 'You cannot apply to this event or change your application');
   }
 
-  // Find the corresponding application
-  const application = event.applications.find(app => app.user_id === req.user.id);
-
-  // If user hasn't applied yet, create an application
-  if (!application && !req.user.permissions.is.member_of[req.body.body_id]) {
+  if (typeof req.body.body_id !== 'undefined' && !helpers.isMemberOf(req.user, req.body.body_id)) {
     return errors.makeBadRequestError(res, 'You are not a member of this body.');
-  } else if (!application) {
-    event.applications.push({
-      user_id: req.user.id,
-      body_id: req.body.body_id,
-      application: req.body.application,
-    });
-  } else if (application.status !== 'requesting') {
-    // TODO: move this to validation when .isModified() for arrays of subdocuments
-    // would be fixed in Mongoose.
-    // more details here: https://github.com/Automattic/mongoose/issues/4224
-    // and here: https://github.com/Automattic/mongoose/issues/4487
-    return errors.makeForbiddenError(res, 'You cannot change this application anymore.');
-  } else {
-    application.application = req.body.application;
   }
 
-  await event.save();
+  delete req.body.board_comment;
+  delete req.body.status;
+
+
+  let application = await Application.findOne({ where: { event_id: req.event.id, user_id: req.user.id } });
+  if (application) {
+    await application.update(req.body);
+  } else {
+    req.body.first_name = req.user.first_name;
+    req.body.last_name = req.user.last_name;
+    req.body.body_name = req.user.bodies.find(b => b.id === req.body.body_id).name;
+    req.body.user_id = req.user.id;
+    req.body.event_id = req.event.id;
+
+    application = await Application.create(req.body);
+  }
+
 
   return res.json({
     success: true,
@@ -101,52 +75,29 @@ exports.setApplication = async (req, res, next) => {
 
 exports.setApplicationStatus = async (req, res, next) => {
   // Check user permissions
-  if (!req.user.permissions.can.approve_participants) {
+  if (!req.permissions.approve_participants) {
     return errors.makeForbiddenError(res, 'You are not allowed to accept or reject participants');
   }
 
-  const event = req.event;
-
-  // Find the corresponding application
-  const index = event.applications.findIndex(app => app.id === req.params.application_id);
-
-  if (index === -1) {
-    return errors.makeNotFoundError(res, `Could not find application id ${req.params.application_id}`);
-  }
-
-  // Save changes
-  event.applications[index].status = req.body.status;
-
-  await event.save();
+  await req.application.update({ status: req.body.status });
 
   return res.json({
     success: true,
-    message: 'Application successfully updated',
+    data: req.application
   });
 };
 
 exports.setApplicationComment = async (req, res, next) => {
-  const event = req.event;
-
-  // Find the corresponding application
-  const application = event.applications.find(element => element.id === req.params.application_id);
-
-  if (!application) {
-    return errors.makeNotFoundError(res, `Could not find application id ${req.params.application_id}`);
-  }
-
   // Check user permissions
-  if (!req.user.permissions.can.put_board_comment_for_application[application.id]) {
+  if (!req.permissions.set_board_comment[req.application.body_id]) {
     return errors.makeForbiddenError(res, 'You are not allowed to put board comments');
   }
 
   // Save changes
-  application.board_comment = req.body.board_comment;
-
-  await event.save();
+  await req.application.update({ board_comment: req.body.board_comment });
 
   return res.json({
     success: true,
-    message: 'Board comment stored',
+    data: req.application
   });
 };
