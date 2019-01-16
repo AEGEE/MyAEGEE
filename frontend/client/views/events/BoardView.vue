@@ -35,15 +35,15 @@
           </thead>
           <tbody>
             <tr v-for="(application, index) in applications" v-bind:key="index">
-              <td>{{ application.updatedAt }}</td>
+              <td>{{ application.updated_at | datetime }}</td>
               <td>
-                <router-link :to="{ name: 'oms.events.view', params: { id: application.url } }">
-                  {{ application.name }}
+                <router-link :to="{ name: 'oms.events.view', params: { id: application.event.url } }">
+                  {{ application.event.name }}
                 </router-link>
               </td>
               <td>
                 <router-link :to="{ name: 'oms.members.view', params: { id: application.user_id } }">
-                  {{ application.user ? application.user.first_name + ' ' + application.user.last_name : 'Loading...' }}
+                  {{ application.first_name }} {{ application.last_name  }}
                 </router-link>
               </td>
               <td class="field">
@@ -53,7 +53,7 @@
               </td>
               <td>
                 <button type="button" class="button is-primary" @click="submitComment(application)">
-                  <span class="icon"><i class="fa fa-floppy-o"></i></span>
+                  <span class="icon"><i class="fa fa-save"></i></span>
                   <span>Save</span>
                 </button>
               </td>
@@ -82,7 +82,7 @@ export default {
   },
   methods: {
     submitComment (application) {
-      this.axios.put(this.services['oms-events'] + '/single/' + application.url + '/participants/' + application.application_id + '/comment/', {
+      this.axios.put(this.services['oms-events'] + '/single/' + application.event.id + '/applications/' + application.id + '/comment/', {
         board_comment: application.board_comment
       }).then(() => {
         this.$root.showSuccess('Participant comment is updated.')
@@ -99,14 +99,6 @@ export default {
       this.isLoading = true
       this.axios.get(this.services['oms-events'] + '/boardview/' + this.selectedBody).then((response) => {
         this.applications = response.data.data
-
-        for (const pax of this.applications) {
-          this.axios.get(this.services['oms-core-elixir'] + '/members/' + pax.user_id).then((response) => {
-            pax.user = response.data.data
-            this.$forceUpdate()
-          }).catch(console.error)
-        }
-
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
@@ -125,8 +117,18 @@ export default {
     }
   },
   mounted () {
-    this.boardBodies = this.loginUser.bodies.filter((body) =>
-      this.loginUser.circles.some(circle => circle.body_id === body.id && circle.name.toLowerCase().includes('board')))
+    this.axios.post(this.services['oms-core-elixir'] + '/my_permissions/', {
+      action: 'approve_members',
+      object: 'events'
+    }).then((bodies) => {
+      // Getting bodies IDs list from POST /my_permissions. Copied from oms-statutory backend
+      const boardIds = bodies.data.data.reduce((acc, val) => acc.concat(val), [])
+        .filter(elt => elt.body_id)
+        .map(elt => elt.body_id)
+        .filter((elt, index, array) => array.indexOf(elt) === index)
+
+      this.boardBodies = this.loginUser.bodies.filter((body) => boardIds.includes(body.id))
+    })
   }
 }
 </script>
