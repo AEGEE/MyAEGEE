@@ -16,10 +16,6 @@
                   <td>{{ status.requests }}</td>
                 </tr>
                 <tr>
-                  <th>Deadline crons</th>
-                  <td>{{ status.deadline_crons }}ms.</td>
-                </tr>
-                <tr>
                   <th>Roundtrip</th>
                   <td>{{ roundtrip.status }}ms.</td>
                 </tr>
@@ -47,7 +43,6 @@
                 </tr>
 
                 <tr v-show="(user.user && user.user.superadmin)">
-                  <td><a @click="seedLifecycles()" class="button is-small is-info is-fullwidth">Seed lifecycles</a></td>
                   <td><a @click="seedEvents()" class="button is-small is-info is-fullwidth">Seed events</a></td>
                 </tr>
               </tbody>
@@ -55,316 +50,6 @@
           </div>
         </div>
       </article>
-
-      <article class="tile is-child" v-show="(!user.user || !user.user.superadmin)">
-        <div class="title has-text-centered is-fullwidth">Lifecycles management</div>
-        <div class="subtitle has-text-centered is-fullwidth">You are not allowed to see this.</div>
-      </article>
-
-      <article class="tile is-child" v-show="(user.user && user.user.superadmin)">
-        <div class="title has-text-centered is-fullwidth">Lifecycles management</div>
-
-        <div class="tabs is-centered is-boxed">
-          <ul>
-            <li
-              v-for="(eventType, index) in eventTypes" v-bind:key="eventType.name"
-              :class="{ 'is-active' : selectedEventTypeIndex === index }"
-              @click="selectedEventTypeIndex = index">
-              <a>
-                <span>{{ eventType.name }}</span>
-              </a>
-            </li>
-            <li v-if="!eventTypes.length"><a><i>No event types are set.</i></a></li>
-            <li @click="addNewEventType()">
-              <a>
-                <span class="icon is-small"><i class="fa fa-plus"></i></span>
-              </a>
-            </li>
-          </ul>
-        </div>
-
-        <div v-if="eventTypes[selectedEventTypeIndex]">
-          <div class="field">
-            <label class="label">Name</label>
-            <div class="control">
-              <input class="input" type="text" required v-model="eventTypes[selectedEventTypeIndex].name" />
-            </div>
-            <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
-          </div>
-
-          <div class="field">
-            <label class="label">Initial status</label>
-            <div class="select">
-              <select v-model="eventTypes[selectedEventTypeIndex].defaultLifecycle.initialStatus">
-                <option v-for="status in eventTypes[selectedEventTypeIndex].defaultLifecycle.statuses" v-bind:key="status.name" v-bind:value="status.name">
-                  {{ status.name }}
-                </option>
-              </select>
-            </div>
-            <p class="help is-danger" v-if="errors['defaultLifecycle.initialStatus']">
-              {{ errors['defaultLifecycle.initialStatus'].message }}
-            </p>
-          </div>
-
-          <div class="subtitle">Statuses</div>
-          <table class="table is-narrow is-fullwidth">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Access rights</th>
-                <th>Remove</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(status, index) in eventTypes[selectedEventTypeIndex].defaultLifecycle.statuses" v-bind:key="status.value">
-                <td>
-                  <input class="input" v-model="status.name" /></td>
-                <td>
-                  <span>Change who can edit:</span>
-                  <button class="button is-small is-info" @click="showModal(status.visibility, 'edit visibility');">visibility</button>
-                  <button class="button is-small is-info" @click="showModal(status.applicable, 'edit applicable')">applicable</button>
-                  <button class="button is-small is-info" @click="showModal(status.edit_details, 'edit details')">event details</button>
-                  <button class="button is-small is-info" @click="showModal(status.edit_organizers, 'edit organizers')">organizers</button>
-                  <button class="button is-small is-info" @click="showModal(status.edit_application_status, 'edit application status')">application status</button>
-                  <button class="button is-small is-info" @click="showModal(status.view_applications, 'view applications')">view applications</button>
-                </td>
-                <td>
-                  <button class="button is-small is-danger" @click="eventTypes[selectedEventTypeIndex].defaultLifecycle.statuses.splice(index, 1)">Remove status</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <button class="button is-primary" @click="addNewStatus()">Add status</button>
-
-          <div class="subtitle">Transitions</div>
-          <table class="table is-narrow is-fullwidth">
-            <thead>
-              <tr>
-                <td>From</td>
-                <td>To</td>
-                <td>Allowed for</td>
-                <td>Remove</td>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(transition, index) in eventTypes[selectedEventTypeIndex].defaultLifecycle.transitions" v-bind:key="transition">
-                <td>
-                  <div class="select">
-                    <select v-model="transition.from">
-                      <option v-bind:value="null"></option>
-                      <option v-for="status in eventTypes[selectedEventTypeIndex].defaultLifecycle.statuses" v-bind:key="status.name" v-bind:value="status.name">
-                        {{ status.name }}
-                      </option>
-                    </select>
-                  </div>
-                </td>
-                <td>
-                  <div class="select">
-                    <select v-model="transition.to">
-                      <option v-for="status in eventTypes[selectedEventTypeIndex].defaultLifecycle.statuses" v-bind:key="status.name" v-bind:value="status.name">
-                        {{ status.name }}
-                      </option>
-                    </select>
-                  </div>
-                </td>
-                <td>
-                  <button class="button is-small is-info" @click="showModal(transition.allowedFor, 'transition permissions')">Change transition permissions</button>
-                </td>
-                <td>
-                  <button
-                    class="button is-small is-danger"
-                    @click="eventTypes[selectedEventTypeIndex].defaultLifecycle.transitions.splice(index, 1)">
-                    Remove transition
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="field is-grouped">
-            <div class="control"><button class="button is-info" @click="addNewTransition()">Add transition</button></div>
-            <div class="control"><button class="button is-primary" @click="saveEventType()">Save</button></div>
-            <div class="control"><button class="button is-danger" @click="askDeleteEventType(selectedEventTypeIndex)">Delete</button></div>
-          </div>
-
-          <div class="field">
-            <div class="help is-danger" v-if="Object.keys(errors).length > 0">
-              <pre>{{ JSON.stringify(errors, null, '  ') }}</pre>
-            </div>
-          </div>
-        </div>
-      </article>
-    </div>
-
-    <b-loading is-full-page="false" :active.sync="isLoadingSomething"></b-loading>
-
-    <div class="modal is-active" v-if="editingSchema">
-      <div class="modal-background" @click="editingSchema = null"></div>
-      <div class="modal-card">
-        <div class="modal-card-head">
-          <p class="modal-card-title">Edit something</p>
-          <button class="delete" aria-label="close" @click="editingSchema = null"></button>
-        </div>
-        <div class="modal-card-body">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Entry</th>
-                <th>List of objects</th>
-                <th>Add a new object</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Users</td>
-                <td>
-                  <ul>
-                    <li v-for="(user, index) in editingSchema.users" v-bind:key="user">
-                      <a class="tag is-danger">
-                        {{ user }}
-                        <button class="delete is-small" @click="editingSchema.users.splice(index, 1)"></button>
-                      </a>
-                    </li>
-                  </ul>
-                  <i v-if="!editingSchema.users.length">No users set.</i>
-                </td>
-                <td>
-                  <div class="field has-addons">
-                    <b-autocomplete
-                      :expanded="true"
-                      v-model="autoComplete.members.name"
-                      :data="autoComplete.members.values"
-                      open-on-focus="true"
-                      :loading="autoComplete.members.loading"
-                      @input="query => fetchSomething(query, 'members', 'members')"
-                      @select="user => editingSchema.users.push(user.id)">
-                      <template slot-scope="props">
-                        <div class="media">
-                          <div class="media-content">
-                            {{ props.option.first_name }} {{ props.option.last_name }}
-                          </div>
-                        </div>
-                      </template>
-                    </b-autocomplete>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>Circles</td>
-                <td>
-                  <ul>
-                    <li v-for="(circle, index) in editingSchema.circles" v-bind:key="circle">
-                      <a class="tag is-danger">
-                        {{ circle }}
-                        <button class="delete is-small" @click="editingSchema.circles.splice(index, 1)"></button>
-                      </a>
-                    </li>
-                  </ul>
-                  <i v-if="!editingSchema.users.length">No users set.</i>
-                </td>
-                <td>
-                  <div class="field has-addons">
-                    <b-autocomplete
-                      :expanded="true"
-                      v-model="autoComplete.circles.name"
-                      :data="autoComplete.circles.values"
-                      open-on-focus="true"
-                      :loading="autoComplete.circles.loading"
-                      @input="query => fetchSomething(query, 'circles', 'circles')"
-                      @select="circle => editingSchema.circles.push(circle.id)">
-                      <template slot-scope="props">
-                        <div class="media">
-                          <div class="media-content">
-                            {{ props.option.name }}
-                            <br />
-                            <small>{{ props.option.description }}</small>
-                          </div>
-                        </div>
-                      </template>
-                    </b-autocomplete>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>Bodies</td>
-                <td>
-                  <ul>
-                    <li v-for="(body, index) in editingSchema.bodies" v-bind:key="body">
-                      <a class="tag is-danger">
-                        {{ body }}
-                        <button class="delete is-small" @click="editingSchema.bodies.splice(index, 1)"></button>
-                      </a>
-                    </li>
-                  </ul>
-                  <i v-if="!editingSchema.bodies.length">No users set.</i>
-                </td>
-                <td>
-                  <div class="field has-addons">
-                    <b-autocomplete
-                      :expanded="true"
-                      v-model="autoComplete.bodies.name"
-                      :data="autoComplete.bodies.values"
-                      open-on-focus="true"
-                      :loading="autoComplete.bodies.loading"
-                      @input="query => fetchSomething(query, 'bodies', 'bodies')"
-                      @select="body => editingSchema.bodies.push(body.id)">
-                      <template slot-scope="props">
-                        <div class="media">
-                          <div class="media-content">
-                            {{ props.option.name }}
-                            <br />
-                            <small>{{ props.option.description }}</small>
-                          </div>
-                        </div>
-                      </template>
-                    </b-autocomplete>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>Special</td>
-                <td>
-                  <ul>
-                    <li v-for="(special, index) in editingSchema.special" v-bind:key="special">
-                      <a class="tag is-danger">
-                        {{ special }}
-                        <button class="delete is-small" @click="editingSchema.special.splice(index, 1)"></button>
-                      </a>
-                    </li>
-                  </ul>
-                  <i v-if="!editingSchema.special.length">No special roles set.</i>
-                </td>
-                <td>
-                  <div class="field has-addons">
-                    <b-autocomplete
-                      :expanded="true"
-                      v-model="autoComplete.pseudo.name"
-                      :data="pseudo"
-                      open-on-focus="true"
-                      @select="pseudo => editingSchema.special.push(pseudo.name)">
-                      <template slot-scope="props">
-                        <div class="media">
-                          <div class="media-content">
-                            {{ props.option.name }}
-                            <br />
-                            <small>{{ props.option.description }}</small>
-                          </div>
-                        </div>
-                      </template>
-                    </b-autocomplete>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="modal-card-foot">
-          <button class="button is-success" @click="editingSchema = null">
-            <span class="icon"><i class="fa fa-plus-circle"></i></span>
-            <span>Accept</span>
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -380,35 +65,19 @@
 import { mapGetters } from 'vuex'
 import moment from 'moment'
 
-const emptySchema = { users: [], bodies: [], circles: [], special: [] }
-
 export default {
   name: 'EventsServiceAdmin',
   data () {
     return {
       user: {},
-      eventTypes: [],
-      pseudo: [],
       status: {
         uptime: 0,
         requests: 0,
         deadline_crons: 0
       },
-      selectedEventTypeIndex: -1,
       isLoading: {
-        eventTypes: false,
-        user: false,
-        status: false,
-        pseudo: false
+        user: false
       },
-      autoComplete: {
-        members: { name: '', values: [], loading: false },
-        bodies: { name: '', values: [], loading: false },
-        circles: { name: '', values: [], loading: false },
-        pseudo: { name: '' }
-      },
-      errors: {},
-      editingSchema: null,
       roundtrip: {
         user: 0,
         status: 0
@@ -472,128 +141,6 @@ export default {
           this.$root.showDanger('Could not save event: ' + err.message)
         })
       }
-    },
-    askDeleteEventType (index) {
-      const eventType = this.eventTypes[index]
-      const message =
-        'Are you sure you want to <b>delete</b> ' +
-        eventType.name +
-        ' from the system? This action cannot be undone.'
-
-      this.$dialog.confirm({
-        title: 'Deleting the event type',
-        message,
-        confirmText: 'Delete event type',
-        type: 'is-danger',
-        hasIcon: true,
-        onConfirm: () => this.deleteEventType(index)
-      })
-    },
-    deleteEventType (index) {
-      const eventType = this.eventTypes[index]
-      this.axios.delete(this.services['oms-events'] + '/lifecycle/' + eventType.name).then((response) => {
-        this.$root.showSuccess('Event type is deleted.')
-
-        this.eventTypes.splice(index, 1)
-        this.selectedEventTypeIndex -= 1
-      }).catch((err) => this.$root.showDanger('Could not delete event type: ' + err.message))
-    },
-    saveEventType () {
-      this.isLoading.eventType = true
-      const eventType = this.eventTypes[this.selectedEventTypeIndex]
-      // Create an object for sending to server...
-      const newLifecycle = {
-        eventType: eventType.name,
-        statuses: JSON.parse(JSON.stringify(eventType.defaultLifecycle.statuses)),
-        transitions: JSON.parse(JSON.stringify(eventType.defaultLifecycle.transitions)),
-        initialStatus: eventType.defaultLifecycle.initialStatus
-      }
-
-      // ... aaaand sending it.
-      this.axios.post(this.services['oms-events'] + '/lifecycle', newLifecycle).then(() => {
-        this.isLoading.eventType = false
-        this.$root.showSuccess(`The default lifecycle for the event type '${eventType.name}' is successfully updated.`)
-      }).catch((err) => {
-        this.isLoading.eventType = false
-        if (err.response.status === 422) {
-          this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the lifecycle data is invalid: ' + err.response.data.message)
-        }
-
-        this.$root.showDanger('Could not delete event type: ' + err.message)
-      })
-    },
-    showModal (objectToBind) {
-      this.editingSchema = objectToBind
-    },
-    fetchSomething (query, key, context) {
-      if (!query) return
-
-      this.autoComplete[key].values = []
-      this.autoComplete[key].loading = true
-
-      if (this.token) this.token.cancel()
-      this.token = this.axios.CancelToken.source()
-
-      this.axios.get(this.services['oms-core-elixir'] + '/' + context, {
-        cancelToken: this.token.token,
-        params: { query }
-      }).then((response) => {
-        this.autoComplete[key].values = response.data.data
-        this.autoComplete[key].loading = false
-      }).catch((err) => {
-        if (this.axios.isCancel(err)) {
-          return
-        }
-
-        this.autoComplete[key].loading = false
-
-        this.$root.showDanger('Could not fetch ' + context + 's: ' + err.message)
-      })
-    },
-    addNewTransition () {
-      this.eventTypes[this.selectedEventTypeIndex].defaultLifecycle.transitions.push({
-        from: null,
-        to: null,
-        allowedFor: JSON.parse(JSON.stringify(emptySchema))
-      })
-    },
-    addNewEventType () {
-      this.eventTypes.push({
-        name: 'Default event type',
-        defaultLifecycle: {
-          statuses: [],
-          transitions: [],
-          initialStatus: null
-        }
-      })
-      this.selectedEventTypeIndex = this.eventTypes.length - 1 // selecting it
-    },
-    addNewStatus () {
-      this.eventTypes[this.selectedEventTypeIndex].defaultLifecycle.statuses.push({
-        name: '',
-        visibility: JSON.parse(JSON.stringify(emptySchema)),
-        applicable: JSON.parse(JSON.stringify(emptySchema)),
-        approve_participants: JSON.parse(JSON.stringify(emptySchema)),
-        edit_application_status: JSON.parse(JSON.stringify(emptySchema)),
-        edit_details: JSON.parse(JSON.stringify(emptySchema)),
-        edit_organizers: JSON.parse(JSON.stringify(emptySchema)),
-        view_applications: JSON.parse(JSON.stringify(emptySchema))
-      })
-    },
-    seedLifecycles () {
-      this.axios.get(this.services['oms-events'] + '/lifecycle/seed').then((response) => {
-        this.$root.showSuccess('Lifecycles are seeded. Server response: ' + response.data.message)
-
-        this.isLoading.eventTypes = true
-        return this.axios.get(this.services['oms-events'] + '/lifecycle')
-      }).then((response) => {
-        this.eventTypes = response.data.data
-        this.isLoading.eventTypes = false
-      }).catch((err) => {
-        this.isLoading.eventTypes = false
-        this.$root.showDanger('Could not seed lifecycles: ' + err.message)
-      })
     }
   },
   mounted () {
@@ -617,25 +164,6 @@ export default {
     }).catch((err) => {
       this.isLoading.status = false
       this.$root.showDanger('Could not fetch status: ' + err.message)
-    })
-
-    this.isLoading.eventTypes = true
-    this.axios.get(this.services['oms-events'] + '/lifecycle').then((response) => {
-      this.eventTypes = response.data.data
-      if (this.eventTypes.length) this.selectedEventTypeIndex = 0 // going to 1st event type selected
-      this.isLoading.eventTypes = false
-    }).catch((err) => {
-      this.isLoading.eventTypes = false
-      this.$root.showDanger('Could not fetch event types: ' + err.message)
-    })
-
-    this.isLoading.pseudo = true
-    this.axios.get(this.services['oms-events'] + '/lifecycle/pseudo').then((response) => {
-      this.pseudo = response.data.data
-      this.isLoading.pseudo = false
-    }).catch((err) => {
-      this.isLoading.pseudo = false
-      this.$root.showDanger('Could not fetch pseudo roles: ' + err.message)
     })
   }
 }
