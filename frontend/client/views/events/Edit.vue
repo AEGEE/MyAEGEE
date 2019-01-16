@@ -38,7 +38,7 @@
           <div class="control">
             <input class="input" type="text" v-model="event.name" />
           </div>
-          <p class="help is-danger" v-if="errors.name">{{ errors.name.message}}</p>
+          <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -50,7 +50,7 @@
           <div class="content">
             <span v-html="$options.filters.markdown(event.description)">
           </div>
-          <p class="help is-danger" v-if="errors.description">{{ errors.description.message }}</p>
+          <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -65,23 +65,58 @@
               </div>
             </div>
           </div>
-          <p class="help is-danger" v-if="errors.url">{{ errors.url.message }}</p>
+          <p class="help is-danger" v-if="errors.url">{{ errors.url.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">Start date</label>
+          <label class="label">Application period starts</label>
           <div class="control">
-            <b-datepicker v-model="event.starts" />
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.application_starts" />
           </div>
-          <p class="help is-danger" v-if="errors.starts">{{ errors.starts.message }}</p>
+          <p class="help is-danger" v-if="errors.application_starts">{{ errors.application_starts.join(', ') }}</p>
         </div>
 
         <div class="field">
-          <label class="label">End date</label>
+          <label class="label">Application period ends</label>
           <div class="control">
-            <b-datepicker v-model="event.ends" />
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.application_ends" />
           </div>
-          <p class="help is-danger" v-if="errors.ends">{{ errors.ends.message }}</p>
+          <p class="help is-danger" v-if="errors.application_ends">{{ errors.application_ends.join(', ') }}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Event start date</label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.starts" />
+          </div>
+          <p class="help is-danger" v-if="errors.starts">{{ errors.starts.join(', ') }}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Event end date</label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              :config="dateConfig"
+              v-model="dates.ends" />
+          </div>
+          <p class="help is-danger" v-if="errors.ends">{{ errors.ends.join(', ') }}</p>
         </div>
 
         <div class="tile is-child" v-if="!$route.params.id">
@@ -115,39 +150,26 @@
           </div>
         </div>
 
-        <div class="tile is-child" v-if="!$route.params.id">
-          <div class="field">
-            <label class="label">Event type</label>
-            <div class="control">
-              <div class="field has-addons">
-                <b-autocomplete
-                  v-model="autoComplete.eventTypes.name"
-                  :data="eventTypes"
-                  open-on-focus="true"
-                  @select="type => { event.type = type }">
-                  <template slot-scope="props">
-                    <div class="media">
-                      <div class="media-content">
-                        {{ props.option }}
-                      </div>
-                    </div>
-                  </template>
-                </b-autocomplete>
-                <p class="control">
-                  <a class="button is-danger"
-                    @click="event.type = null"
-                    v-if="event.type">{{ event.type }} (Click to unset)</a>
-                  <a class="button is-static" v-if="!event.type">Not set.</a>
-                </p>
-              </div>
-            </div>
+        <div class="field">
+          <label class="label">Event type</label>
+          <div class="select">
+            <select v-model="event.type">
+              <option value="wu">NYE</option>
+              <option value="es">European School</option>
+              <option value="nwm">NWM</option>
+              <option value="rtc">RTC</option>
+              <option value="ltc">LTC</option>
+              <option value="local">Local event</option>
+              <option value="other">Other</option>
+            </select>
           </div>
+          <p class="help is-danger" v-if="errors.type">{{ errors.type.join(', ') }}</p>
         </div>
 
         <div class="tile is-parent" v-if="!$route.params.id">
           <div class="tile is-child">
             <div class="notification is-info">
-              Please select the event type wisely, as it will influence the event's workflow. <strong>It can't be changed later.</strong>
+              Please select the event type wisely. <strong>It can't be changed later.</strong>
             </div>
           </div>
         </div>
@@ -160,71 +182,82 @@
                 <a class="button is-static">€</a>
               </div>
               <div class="control">
-                <input class="input" type="number" v-model="event.fee" min="0"/>
+                <input class="input" type="number" v-model="event.fee" min="0" required />
               </div>
             </div>
           </div>
-          <p class="help is-danger" v-if="errors.fee">{{ errors.fee.message }}</p>
+          <p class="help is-danger" v-if="errors.fee">{{ errors.fee.join(', ') }}</p>
         </div>
-
-        <div class="field">
-          <label class="label">Application status</label>
-          <div class="select">
-            <select v-model="event.application_status">
-              <option>open</option>
-              <option>closed</option>
-            </select>
-          </div>
-          <p class="help is-danger" v-if="errors.application_status">{{ errors.application_status.message }}</p>
-        </div>
-
-        <div class="field">
-          <label class="label">Application deadline</label>
-          <div class="control">
-            <b-datepicker v-model="event.application_deadline" />
-          </div>
-          <p class="help is-danger" v-if="errors.application_deadline">{{ errors.application_deadline.message }}</p>
-        </div>
-
         <div class="field">
           <label class="label">Max. participants</label>
           <div class="control">
-            <input class="input" type="number" v-model="event.max_participants" min="0"/>
+            <input class="input" type="number" v-model="event.max_participants" min="0" required />
           </div>
-          <p class="help is-danger" v-if="errors.max_participants">{{ errors.max_participants.message }}</p>
+          <p class="help is-danger" v-if="errors.max_participants">{{ errors.max_participants.join(', ') }}</p>
         </div>
 
         <hr/>
 
-        <div class="subtitle is-fullwidth has-text-centered">Application fields</div>
+        <div class="subtitle is-fullwidth has-text-centered">Questions</div>
 
-        <div v-for="(field, index) in event.application_fields" v-bind:key="index">
-          <div class="field">
-            <label class="label">Name</label>
-            <div class="control">
-              <input class="input" type="text" required v-model="field.name"/>
-            </div>
-          </div>
+        <table class="table is-fullwidth is-narrowed">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Type</th>
+              <th>Required (works for text and string)?</th>
+              <th>Values (for select)</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(question, index) in event.questions" v-bind:key="index">
+              <td>
+                <input class="input" type="text" required v-model="event.questions[index].description"/>
+              </td>
+              <td>
+                <div class="select">
+                  <select v-model="event.questions[index].type" @change="if (event.questions[index].type === 'select') { event.questions[index].values = []; } else { delete event.questions[index].values; } $forceUpdate();">
+                    <option value="string">String</option>
+                    <option value="text">Text</option>
+                    <option value="number">Number</option>
+                    <option value="checkbox">Checkbox</option>
+                    <option value="select">Select</option>
+                  </select>
+                </div>
+              </td>
+              <td>
+                <input type="checkbox" v-model="event.questions[index].required" />
+              </td>
+              <td>
+                <input-tag v-if="event.questions[index].type === 'select'" v-model="event.questions[index].values"></input-tag>
+              </td>
+              <td>
+                <a class="button is-danger" @click="deleteQuestion(index)">Delete question</a>
+              </td>
+            </tr>
+            <tr colspan="5" v-if="event.questions.length === 0">
+              <td>No questions are set.</td>
+            </tr>
+          </tbody>
+        </table>
 
-          <div class="field">
-            <label class="label">Description</label>
-            <div class="control">
-              <input class="input" type="text" required v-model="field.description"/>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="control">
-              <a class="button is-danger" @click="deleteApplicationField(index)">Delete application field</a>
-            </div>
+        <div class="notification is-danger" v-if="errors.questions">
+          <div class="content">
+          Could not create/edit event because of these reasons:
+            <ul v-if="errors.questions">
+              <li v-for="(error, index) in errors.questions" v-bind:key="index">{{ error }}</li>
+            </ul>
           </div>
         </div>
 
         <div class="field">
           <div class="control">
-            <a class="button is-primary" @click="addApplicationField()">Add new application field</a>
+            <a class="button is-primary" @click="addQuestion()">Add new question</a>
           </div>
         </div>
+
+        <p class="help is-danger" v-if="errors.fee">{{ errors.questions.message }}</p>
 
         <hr/>
 
@@ -294,17 +327,22 @@ export default {
         description: '', // so it won't be null and marked() would not error
         id: null,
         url: null,
-        application_status: 'closed',
-        application_deadline: null,
-        application_fields: [],
+        questions: [],
         max_participants: null,
         locations: [],
         fee: null,
-        status: null,
+        application_starts: null,
+        application_ends: null,
         starts: null,
         ends: null,
         body_id: null,
         body: null
+      },
+      dates: {
+        application_starts: null,
+        application_ends: null,
+        starts: null,
+        ends: null
       },
       center: {
         lat: 50.8503396,
@@ -344,14 +382,15 @@ export default {
         this.$root.showDanger('Could not update image: ' + err.message)
       })
     },
-    addApplicationField () {
-      this.event.application_fields.push({
+    addQuestion () {
+      this.event.questions.push({
         name: '',
-        description: ''
+        description: '',
+        required: false
       })
     },
     deleteApplicationField (index) {
-      this.event.application_fields.splice(index, 1)
+      this.event.questions.splice(index, 1)
     },
     addLocation () {
       this.event.locations.push({
@@ -367,6 +406,26 @@ export default {
       this.event.locations[index].position.lng = position.lng()
     },
     saveEvent () {
+      if (!this.event.application_starts) {
+        return this.$root.showDanger('Please set the date when applications period will start.')
+      }
+
+      if (!this.event.application_ends) {
+        return this.$root.showDanger('Please set the date when applications period will end.')
+      }
+
+      if (!this.event.starts) {
+        return this.$root.showDanger('Please set the date when the event will start.')
+      }
+
+      if (!this.event.ends) {
+        return this.$root.showDanger('Please set the date when the event will end.')
+      }
+
+      if (!this.event.body_id) {
+        return this.$root.showDanger('Please select a body.')
+      }
+
       this.isSaving = true
       this.errors = {}
 
@@ -398,20 +457,22 @@ export default {
     services: 'services',
     loginUser: 'user'
   }),
+  watch: {
+    'dates.application_starts' (newDate) {
+      this.event.application_starts = new Date(newDate)
+    },
+    'dates.application_ends' (newDate) {
+      this.event.application_ends = new Date(newDate)
+    },
+    'dates.starts' (newDate) {
+      this.event.starts = new Date(newDate)
+    },
+    'dates.ends' (newDate) {
+      this.event.ends = new Date(newDate)
+    }
+  },
   mounted () {
-    this.axios.get(this.services['oms-events'] + '/eventroles').then((response) => {
-      this.roles = response.data.data
-    }).catch((err) => {
-      this.$root.showDanger('Could not fetch event roles: ' + err.message)
-    })
-
     if (!this.$route.params.id) {
-      this.axios.get(this.services['oms-events'] + '/lifecycle/names').then((response) => {
-        this.eventTypes = response.data.data
-      }).catch((err) => {
-        this.$root.showDanger('Could not fetch event types: ' + err.message)
-      })
-
       return
     }
 
@@ -419,9 +480,10 @@ export default {
       this.event = response.data.data
       this.can = response.data.permissions.can
 
-      this.event.starts = new Date(this.event.starts)
-      this.event.ends = new Date(this.event.ends)
-      if (this.event.application_deadline) this.event.application_deadline = new Date(this.event.application_deadline)
+      this.dates.starts = this.event.starts = new Date(this.event.starts)
+      this.dates.ends = this.event.starts = new Date(this.event.ends)
+      this.dates.application_starts = this.event.application_starts = new Date(this.event.application_starts)
+      this.dates.application_ends = this.event.application_ends = new Date(this.event.application_ends)
 
       this.isLoading = false
       this.$forceUpdate()

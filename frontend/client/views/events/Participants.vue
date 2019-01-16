@@ -11,6 +11,7 @@
               <th>Name</th>
               <th>Body</th>
               <th v-if="can.approve_participants">Status</th>
+              <th v-if="can.approve_participants"></th>
             </tr>
           </thead>
           <tbody>
@@ -18,18 +19,20 @@
               <td>{{ pax.user_id }}</td>
               <td>
                 <router-link :to="{ name: 'oms.members.view', params: { id: pax.user_id } }">
-                  {{ pax.user ? pax.user.first_name + ' ' + pax.user.last_name: 'Loading...' }}
+                  {{ pax.first_name }} {{ pax.last_name }}
                 </router-link>
               </td>
               <td>
                 <router-link :to="{ name: 'oms.bodies.view', params: { id: pax.body_id } }">
-                  {{ pax.body ? pax.body.name : 'Loading...' }}
+                  {{ pax.body_name }}
                 </router-link>
               </td>
               <td v-if="can.approve_participants">
                 <span>{{ pax.status | capitalize }}</span>
+              </td>
+              <td>
                 <button class="button is-small is-primary" @click="showModal(pax)">
-                  <i class="fa fa-pencil"></i>
+                  <i class="fa fa-pencil-alt"></i>
                 </button>
               </td>
             </tr>
@@ -48,17 +51,17 @@
             <table class="table is-narrow is-fullwidth">
               <tr>
                 <td><b>First Name</b></td>
-                <td>{{ selected.user.first_name }}</td>
+                <td>{{ selected.first_name }}</td>
               </tr>
 
               <tr>
                 <td><b>Last Name</b></td>
-                <td>{{ selected.user.last_name }}</td>
+                <td>{{ selected.last_name }}</td>
               </tr>
 
               <tr>
                 <td><b>Body</b></td>
-                <td>{{ selected.body.name }}</td>
+                <td>{{ selected.body_name }}</td>
               </tr>
 
               <tr>
@@ -66,9 +69,9 @@
                 <td>{{ selected.createdAt | date }}</td>
               </tr>
 
-              <tr v-for="field in event.application_fields" v-bind:key="field._id">
-                <td><b>{{ field.name }}</b></td>
-                <td>{{ field.answer }}</td>
+              <tr v-for="(field, index) in event.questions" v-bind:key="index">
+                <td><b>{{ field.description }}</b></td>
+                <td>{{ selected.answers[index] | beautify }}</td>
               </tr>
 
               <tr>
@@ -93,7 +96,7 @@
               </button>
               <button class="button" @click="changeState(selected, 'pending')">
                 <span class="icon">
-                  <i class="fa fa-circle-o"></i>
+                  <i class="fa fa-circle-notch"></i>
                 </span>
                 <span>Postpone</span>
               </button>
@@ -114,7 +117,7 @@ export default {
     return {
       event: {
         name: null,
-        application_fields: []
+        questions: []
       },
       can: {
         approve_participants: false
@@ -127,23 +130,11 @@ export default {
   },
   methods: {
     showModal (application) {
-      // Loop through application fields and assign them to our model
-      application.application.forEach((field) => {
-        // Find the matching application_field to our users application field
-        this.event.application_fields.some((item, index) => {
-          if (field.field_id === item._id) {
-            this.event.application_fields[index].answer = field.value
-            return true
-          }
-          return false
-        })
-      })
-
       this.selected = application
     },
     changeState (application, newState) {
       // Store the change
-      this.axios.put(this.services['oms-events'] + '/single/' + this.$route.params.id + '/participants/' + application.id + '/status/', {
+      this.axios.put(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/' + application.id + '/status/', {
         status: newState
       }).then(() => {
         application.status = newState
@@ -168,24 +159,14 @@ export default {
     this.isLoading = true
     this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
-      this.can = response.data.permissions.can
+      this.can = response.data.permissions
 
-      return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id + '/participants')
-    }).then((application) => {
-      this.applications = application.data.data
+      return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications')
+    }).then((applications) => {
+      this.applications = applications.data.data
       this.isLoading = false
-
-      // Fetching users and bodies.
-      for (const application of this.applications) {
-        this.axios.get(this.services['oms-core-elixir'] + '/members/' + application.user_id).then((user) => {
-          const member = user.data.data
-          application.user = member
-          application.body = member.bodies.find(body => body.id === application.body_id)
-
-          this.$forceUpdate()
-        }).catch(console.error)
-      }
     }).catch((err) => {
+      this.isLoading = false
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
       this.$root.showDanger(message)

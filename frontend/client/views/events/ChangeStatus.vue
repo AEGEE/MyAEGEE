@@ -13,7 +13,6 @@
                 <th>Description</th>
                 <th>Dates</th>
                 <th>Current status</th>
-                <th>Status to change</th>
                 <th></th>
               </tr>
             </thead>
@@ -24,7 +23,6 @@
                 <th>Description</th>
                 <th>Dates</th>
                 <th>Current status</th>
-                <th>Status to change</th>
                 <th></th>
               </tr>
             </tfoot>
@@ -38,28 +36,16 @@
                 </td>
                 <td>{{ event.description }}</td>
                 <td>{{ event.starts | date }} - {{ event.ends | date }}</td>
-                <td>{{ event.status.name }}</td>
+                <td>{{ event.status }}</td>
                 <td>
-                  <div class="select">
-                    <select v-model="event.futureStatus">
-                      <option
-                        v-for="newStatus in event.futureStatuses"
-                        v-bind:key="newStatus.name"
-                        v-bind:value="newStatus">
-                        {{ newStatus.name }}
-                      </option>
-                    </select>
-                  </div>
-                </td>
-                <td>
-                  <a class="button is-primary" :disabled="!event.futureStatus" @click="changeStatus(event)">Change status</a>
+                  <button class="button is-small is-primary" @click="publishEvent(event)">Publish</button>
                 </td>
               </tr>
               <tr v-show="!events.length && !isLoading">
-                <td colspan="7" class="has-text-centered">There are no events for which you can change status.</td>
+                <td colspan="6" class="has-text-centered">There are no events for which you can change status.</td>
               </tr>
               <tr v-show="isLoading">
-                <td colspan="7" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
+                <td colspan="6" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
               </tr>
             </tbody>
           </table>
@@ -83,21 +69,13 @@ export default {
   },
   computed: mapGetters(['services']),
   methods: {
-    calculateFutureStatuses (event) {
-      event.futureStatuses = event.lifecycle.statuses.filter((status) => {
-        return event.lifecycle.transitions.some((transition) => {
-          return transition.from && transition.from === event.status.name && transition.to === status.name
-        })
-      })
-    },
-    changeStatus (event) {
+    publishEvent (event) {
       this.axios.put(this.services['oms-events'] + '/single/' + event.id + '/status', {
-        status: event.futureStatus.name
+        status: 'published'
       }).then(() => {
-        this.$root.showSuccess('Event status is now "' + event.futureStatus.name + '".')
+        this.$root.showSuccess('Event status is now "published".')
 
-        this.events = []
-        this.fetchData()
+        this.events.splice(this.events.indexOf(event), 1)
       }).catch((err) => {
         this.$root.showDanger('Could not update event status: ' + err.message)
       })
@@ -107,10 +85,6 @@ export default {
 
       this.axios.get(this.services['oms-events'] + '/mine/approvable').then((response) => {
         this.events = response.data.data
-
-        for (const event of this.events) {
-          this.calculateFutureStatuses(event)
-        }
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false

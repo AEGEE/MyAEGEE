@@ -3,7 +3,7 @@
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
         <h4 class="title">Events list</h4>
-        <div class="field">
+        <div class="field" v-show="scope === 'all'">
           <label class="label">Search by name or description</label>
           <div class="field has-addons">
             <div class="control is-expanded">
@@ -17,11 +17,11 @@
           </div>
         </div>
 
-        <div class="field" v-if="Object.keys(eventTypesEnabled).length > 0">
+        <div class="field" v-if="scope === 'all'">
           <label class="label">Event types</label>
-          <label v-for="(value, name) in eventTypesEnabled" v-bind:key="name">
-            <input class="checkbox" type="checkbox" v-model="eventTypesEnabled[name]" @change="refetch()" />
-            {{ name }}
+          <label v-for="(value, index) in eventTypes" v-bind:key="index">
+            <input class="checkbox" type="checkbox" v-model="value.enabled" @change="refetch()" />
+            {{ value.name }}
           </label>
         </div>
 
@@ -53,8 +53,7 @@
                 <li><strong>From:</strong> {{ event.starts | date }} </li>
                 <li><strong>To:</strong> {{ event.ends | date }} </li>
                 <li><strong>Application deadline:</strong>
-                  <span v-if="event.application_deadline">{{ event.application_deadlinee | date }}</span>
-                  <span v-if="!event.application_deadline"><i>Not set.</i></span>
+                  <span>{{ event.application_ends | date }}</span>
                 </li>
               </ul>
 
@@ -108,7 +107,15 @@ export default {
   data () {
     return {
       events: [],
-      eventTypesEnabled: {},
+      eventTypes: [
+        { value: 'wu', name: 'New Year Event', enabled: false },
+        { value: 'es', name: 'ES', enabled: false },
+        { value: 'nwm', name: 'NWM', enabled: false },
+        { value: 'ltc', name: 'LTC', enabled: false },
+        { value: 'rtc', name: 'RTC', enabled: false },
+        { value: 'local', name: 'Local event', enabled: false },
+        { value: 'other', name: 'Other', enabled: false }
+      ],
       isLoading: false,
       query: '',
       limit: 30,
@@ -123,7 +130,7 @@ export default {
       const queryObj = {
         limit: this.limit,
         offset: this.offset,
-        type: Object.keys(this.eventTypesEnabled).filter(key => this.eventTypesEnabled[key]),
+        type: this.eventTypes.filter(type => type.enabled).map(type => type.value),
         displayPast: this.displayPast
       }
 
@@ -164,7 +171,7 @@ export default {
       this.axios.get(urls[this.scope], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
         this.events = this.events.concat(response.data.data)
         this.offset += this.limit
-        this.canLoadMore = response.data.data.length === this.limit
+        this.canLoadMore = this.scope === 'all' && response.data.data.length === this.limit
 
         this.isLoading = false
       }).catch((err) => {
@@ -183,16 +190,6 @@ export default {
   },
   mounted () {
     this.fetchData()
-
-    this.axios.get(this.services['oms-events'] + '/lifecycle/names').then((response) => {
-      for (const type of response.data.data) {
-        this.eventTypesEnabled[type] = true
-      }
-      this.isLoading = false
-      this.$forceUpdate()
-    }).catch((err) => {
-      this.$root.showDanger('Could not fetch events types: ' + err.message)
-    })
   }
 }
 </script>

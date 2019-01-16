@@ -4,49 +4,49 @@
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
           <figure class="image is-1by1">
-            <img v-if="!event.head_image || !event.head_image.url" src="/images/logo.png">
-            <img v-if="event.head_image && event.head_image.url" :src="services['oms-events'] + event.head_image.url">
+            <img v-if="!event.image" src="/images/logo.png">
+            <img v-if="event.image" :src="services['oms-events'] + '/frontend/media/headimages/' + event.image">
           </figure>
         </article>
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info">
-          <div class="field is-grouped" v-if="can.view_applications">
-            <router-link :to="{ name: 'oms.events.participants', params: { id: event.seo_url || event.id } }" class="button is-fullwidth">
+          <div class="field is-grouped" v-if="can.list_applications">
+            <router-link :to="{ name: 'oms.events.participants', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>View applications</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.view_applications">
-            <router-link :to="{ name: 'oms.events.accepted', params: { id: event.seo_url || event.id } }" class="button is-fullwidth">
+          <!--<div class="field is-grouped" v-if="can.view_applications">
+            <router-link :to="{ name: 'oms.events.accepted', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>View participants</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
-          </div>
+          </div>-->
 
           <div class="field is-grouped" v-if="can.apply">
-            <router-link :to="{ name: 'oms.events.apply', params: { id: event.seo_url || event.id } }" class="button is-warning is-fullwidth">
+            <router-link :to="{ name: 'oms.events.apply', params: { id: event.url || event.id } }" class="button is-warning is-fullwidth">
               <span>Apply</span>
               <span class="icon"><i class="fa fa-plus"></i></span>
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.edit">
-            <router-link :to="{ name: 'oms.events.edit', params: { id: event.seo_url || event.id } }" class="button is-fullwidth is-warning">
+          <div class="field is-grouped" v-if="can.edit_event">
+            <router-link :to="{ name: 'oms.events.edit', params: { id: event.url || event.id } }" class="button is-fullwidth is-warning">
               <span>Edit event</span>
               <span class="icon"><i class="fa fa-edit"></i></span>
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.edit_organizers">
-            <router-link :to="{ name: 'oms.events.edit_organizers', params: { id: event.seo_url || event.id } }" class="button is-fullwidth is-warning">
+          <div class="field is-grouped" v-if="can.edit_event">
+            <router-link :to="{ name: 'oms.events.edit_organizers', params: { id: event.url || event.id } }" class="button is-fullwidth is-warning">
               <span>Edit organizers</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.delete">
+          <div class="field is-grouped" v-if="can.delete_event">
             <a class="button is-fullwidth is-danger" @click="askDeleteEvent()">
               <span>Delete event</span>
               <span class="icon"><i class="fa fa-times"></i></span>
@@ -79,12 +79,15 @@
                 </tr>
                 <tr>
                   <th>Application status</th>
-                  <td>{{ event.application_status }}</td>
+                  <td>{{ event.application_status | capitalize }}</td>
                 </tr>
                 <tr>
-                  <th>Application deadline</th>
-                  <td v-if="event.application_deadline">{{ event.application_deadline | datetime }}</td>
-                  <td v-if="!event.application_deadline"><i>Not set.</i></td>
+                  <th>Application period starts</th>
+                  <td>{{ event.application_starts | datetime }}</td>
+                </tr>
+                <tr>
+                  <th>Application period ends</th>
+                  <td>{{ event.application_ends | datetime }}</td>
                 </tr>
                 <tr>
                   <th>Starts</th>
@@ -105,26 +108,13 @@
                 </tr>
                 <tr>
                   <th>Status</th>
-                  <td>{{ event.status.name }}</td>
-                </tr>
-                <tr>
-                  <th>Organizers</th>
-                  <td>
-                    <ul>
-                      <li v-for="organizer in event.organizers" v-bind:key="organizer._id">
-                        <router-link class="tag" :to="{ name: 'oms.members.view', params: { id: organizer.user_id } }">
-                          <span v-if="organizer.user">{{ organizer.user.first_name }} {{ organizer.user.last_name }}</span>
-                          <span v-if="!organizer.user">Loading...</span>
-                        </router-link>
-                      </li>
-                    </ul>
-                  </td>
+                  <td>{{ event.status | capitalize }}</td>
                 </tr>
                 <tr>
                   <th>Organizing bodies</th>
                   <td>
                     <ul>
-                      <li v-for="body in event.organizing_locals" v-bind:key="body._id">
+                      <li v-for="body in event.organizing_bodies" v-bind:key="body._id">
                         <router-link class="tag" :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }">
                           {{ body.body ? body.body.name : 'Loading...' }}
                         </router-link>
@@ -179,13 +169,14 @@ export default {
         id: null,
         url: null,
         organizers: [],
-        organizing_locals: [],
+        organizing_bodies: [],
         locations: [],
         circles: [],
+        application_starts: null,
+        application_ends: null,
         starts: null,
         ends: null,
         application_status: 'closed',
-        application_deadline: null,
         head_image: null,
         status: { name: 'Loading...' }
       },
@@ -201,7 +192,7 @@ export default {
       },
       isLoading: false,
       can: {
-        edit: false,
+        edit_event: false,
         view_applications: false,
         apply: false
       }
@@ -214,38 +205,34 @@ export default {
     this.isLoading = true
     this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
-      this.can = response.data.permissions.can
+      this.can = response.data.permissions
       this.isLoading = false
 
-      for (const body of this.event.organizing_locals) {
+      for (const body of this.event.organizing_bodies) {
         this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + body.body_id).then((bodyResponse) => {
-          body.body = bodyResponse.data.data
-          this.$forceUpdate()
-        }).catch(console.error)
-      }
-
-      for (const member of this.event.organizers) {
-        this.axios.get(this.services['oms-core-elixir'] + '/members/' + member.user_id).then((memberResponse) => {
-          member.user = memberResponse.data.data
-          this.$forceUpdate()
+          this.$set(body, 'body', bodyResponse.data.data)
         }).catch(console.error)
       }
 
       // loading map
-      this.$refs.mapRef.$mapPromise.then((map) => {
-        const bounds = new this.google.maps.LatLngBounds()
-        for (const marker of this.event.locations) {
-          bounds.extend(marker.position)
-        }
+      if (this.event.locations.length > 0) {
+        this.$nextTick()
+          .then(() => this.$refs.mapRef.$mapPromise)
+          .then((map) => {
+            const bounds = new this.google.maps.LatLngBounds()
+            for (const marker of this.event.locations) {
+              bounds.extend(marker.position)
+            }
 
-        this.$refs.mapRef.$mapObject.fitBounds(bounds)
-      })
+            this.$refs.mapRef.$mapObject.fitBounds(bounds)
+          })
+      }
     }).catch((err) => {
       this.isLoading = false
-      let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+      let message = (err.response && err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
       this.$root.showDanger(message)
-      this.$router.push({ name: 'oms.events.list' })
+      this.$router.push({ name: 'oms.events.list.all' })
     })
   },
   computed: {

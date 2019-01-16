@@ -3,11 +3,11 @@
     <div class="tile is-parent">
       <div class="tile is-child">
         <div class="title" v-show="isNew">Apply to {{ event.name }}</div>
-        <div class="title" v-show="!isNew && application.status === 'requesting'">Edit your application on {{ event.name }}</div>
-        <div class="title" v-show="!isNew && application.status !== 'requesting'">See your application on {{ event.name }}</div>
+        <div class="title" v-show="!isNew && event.application_status === 'open'">Edit your application on {{ event.name }}</div>
+        <div class="title" v-show="!isNew && event.application_status === 'closed'">See your application on {{ event.name }}</div>
 
         <form @submit.prevent="saveApplication()">
-          <div class="tile is-parent" v-show="isNew || (application.status === 'requesting')">
+          <div class="tile is-parent" v-show="isNew || (event.application_status === 'open')">
             <div class="tile is-child">
               <div class="field">
                 <label class="label">Select body to apply from</label>
@@ -36,22 +36,47 @@
                 </div>
               </div>
 
-              <div class="field is-fullwidth" v-for="field in event.application_fields" v-bind:key="field._id">
+              <div class="field is-fullwidth" v-for="(question, index) in event.questions" v-bind:key="index">
                 <div class="control">
-                  <label class="has-text-weight-bold">{{ field.name }}<span class="has-text-danger" v-show="!field.optional">*</span></label>
-                  <small>{{ field.description }}</small>
+                  <label class="has-text-weight-bold">
+                    {{ question.description }} <span class="has-text-danger" v-if="question.required">*</span>
+                  </label>
                 </div>
-                <div class="control">
+                <div class="control" v-if="question.type === 'text'">
+                  <textarea
+                    class="textarea"
+                    :required="question.required"
+                    v-model="application.answers[index]" />
+                </div>
+                <div class="control" v-if="question.type === 'string'">
                   <input
-                    type="text"
                     class="input"
-                    :required="!field.optional"
-                    v-model="field.answer"
-                    />
+                    type="text"
+                    :required="question.required"
+                    v-model="application.answers[index]" />
+                </div>
+                <div class="control" v-if="question.type === 'number'">
+                  <input
+                    class="input"
+                    type="number"
+                    v-model.number="application.answers[index]" />
+                </div>
+                <div class="control" v-if="question.type === 'checkbox'">
+                  <input
+                    class="checkbox"
+                    type="checkbox"
+                    v-model="application.answers[index]" />
+                </div>
+                <div class="control" v-if="question.type === 'select'">
+                  <div class="select">
+                    <select v-model="application.answers[index]" required>
+                      <option v-for="(value, index) in question.values" v-bind:key="index">{{ value }}</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
-              <div class="field" v-show="event.application_fields.length == 0">
+              <div class="field" v-show="event.questions.length == 0">
                 <p class="notification is-info">
                   You do not need to fill in any application fields to apply for this event! Just press the button.
                 </p>
@@ -65,7 +90,7 @@
             </div>
           </div>
 
-          <div v-show="!isNew && application.status !== 'requesting'" class="tile is-parent">
+          <div v-show="!isNew && event.application_status === 'closed'" class="tile is-parent">
             <div class="tile is-child">
               <p>
                 <b>You applied from this body:</b>
@@ -76,21 +101,19 @@
               <table class="table is-narrow is-fullwidth">
                 <thead>
                   <tr>
-                    <th>Question</th>
                     <th>Description</th>
                     <th>Your answer</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="field in event.application_fields" v-bind:key="field._id">
-                    <td><b>{{ field.name }}</b><span class="is-danger" ng-show="!field.optional">*</span></td>
-                    <td>{{ field.description }}</td>
-                    <td>{{ field.answer }}</td>
+                  <tr v-for="(field, index) in event.questions" v-bind:key="index">
+                    <td><b>{{ field.description }}</b><span class="is-danger" ng-show="field.required">*</span></td>
+                    <td>{{ field.answer | beautify }}</td>
                   </tr>
                 </tbody>
               </table>
 
-              <div class="field" v-show="event.application_fields.length == 0">
+              <div class="field" v-show="event.questions.length === 0">
                 <div class="notification is-info">
                   You didn't need to fill in the application fields.
                 </div>
@@ -98,13 +121,10 @@
             </div>
           </div>
 
-          <div class="tile is-parent" v-show="!isNew">
+          <div class="tile is-parent" v-show="!isNew && event.application_status === 'closed'">
             <div class="tile is-child">
-              <div class="notification is-info" v-if="application.status === 'requesting'">
-                Your application was saved, please wait for the organizers to close the application process and start evaluating.
-              </div>
-              <div class="notification is-warning" v-else-if="application.status === 'pending'">
-                Your application is being processed, please wait for the organizers to evaluate your application. Unfortunately you can not edit it any more.
+              <div class="notification is-warning" v-if="application.status === 'pending'">
+                Your application is being processed, please wait for the organizers to evaluate your application. Unfortunately you can not edit it anymore.
               </div>
               <div class="notification is-success" v-else-if="application.status === 'accepted'">
                 Congratulations, you have been accepted to the event!
@@ -133,7 +153,7 @@ export default {
     return {
       event: {
         name: null,
-        application_fields: []
+        questions: []
       },
       autoComplete: { bodies: { name: '' } },
       application: {
@@ -141,8 +161,8 @@ export default {
         body_id: null,
         user: null,
         user_id: null,
-        _id: null,
-        application: []
+        id: null,
+        answers: []
       },
       errors: {},
       isLoading: false,
@@ -156,19 +176,10 @@ export default {
 
       const toServer = {
         body_id: this.application.body.id,
-        application: []
+        answers: this.application.answers
       }
 
-      for (const field of this.event.application_fields) {
-        if (field.answer) {
-          toServer.application.push({
-            field_id: field._id,
-            value: field.answer
-          })
-        }
-      }
-
-      this.axios.put(this.services['oms-events'] + '/single/' + this.$route.params.id + '/participants/mine', toServer).then(() => {
+      this.axios.put(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/mine', toServer).then(() => {
         this.$root.showSuccess('Your application was saved, you can still edit it until the application period ends')
 
         return this.$router.push({
@@ -193,7 +204,7 @@ export default {
       loginUser: 'user'
     }),
     isNew () {
-      return !this.application._id
+      return !this.application.id
     }
   },
   mounted () {
@@ -201,21 +212,23 @@ export default {
     this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
 
-      return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id + '/participants/mine').then((application) => {
+      // Prefilling default values for application answers
+      this.application.answers = Array.from({ length: this.event.questions.length }, (value, index) => {
+        switch (this.event.questions[index].type) {
+          case 'number':
+            return 0
+          case 'checkbox':
+            return false
+          case 'select':
+            return this.event.questions[index].values[0]
+          default:
+            return ''
+        }
+      })
+
+      return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/mine').then((application) => {
         this.application = application.data.data
         this.application.body = this.loginUser.bodies.find(body => body.id === this.application.body_id)
-
-        // Loop through application fields and assign them to our model
-        for (const field of this.application.application) {
-          // Find the matching application_field to our users application field
-          this.event.application_fields.some((item, index) => {
-            if (field.field_id === item._id) {
-              this.event.application_fields[index].answer = field.value
-              return true
-            }
-            return false
-          })
-        }
 
         this.isLoading = false
       }).catch((err) => {
