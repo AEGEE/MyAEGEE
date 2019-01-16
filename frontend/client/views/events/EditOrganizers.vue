@@ -12,7 +12,7 @@
           <li :class="{'is-active': scope === 'locals' }" @click="scope = 'locals'">
             <a>
               <span class="icon is-small"><i class="fa fa-flag" aria-hidden="true"></i></span>
-              <span>Organizing locals</span>
+              <span>Organizing bodies</span>
             </a>
           </li>
         </ul>
@@ -25,8 +25,6 @@
               <th>User ID</th>
               <th>User name</th>
               <th>Comment</th>
-              <th>Roles</th>
-              <th>Add role</th>
               <th></th>
               <th></th>
             </tr>
@@ -34,44 +32,14 @@
           <tbody>
             <tr v-for="(organizer, index) in event.organizers" v-bind:key="organizer.user_id">
               <td>{{ organizer.user_id }}</td>
-              <td v-if="organizer.user">
+              <td>
                 <router-link :to="{ name: 'oms.members.view', params: { id: organizer.user_id } }">
-                  {{ organizer.user.first_name }} {{ organizer.user.last_name }}
+                  {{ organizer.first_name }} {{ organizer.last_name }}
                 </router-link>
               </td>
-              <td v-if="!organizer.user"><i>Loading...</td>
               <td>
                 <div class="control">
                   <input class="input" type="text" v-model="organizer.comment" @input="organizer.changed = true"/>
-                </div>
-              </td>
-              <td>
-                <ul>
-                  <li v-for="(role, roleIndex) in organizer.roles" v-bind:key="role._id">
-                    <a class="tag is-danger is-medium">
-                      {{ role.name }}
-                      <button class="delete is-small" @click="deletePseudoRole(index, roleIndex)" />
-                    </a>
-                  </li>
-                </ul>
-              </td>
-              <td>
-                <div class="field has-addons">
-                  <b-autocomplete
-                    v-model="autoComplete.roles.name"
-                    :data="roles"
-                    open-on-focus="true"
-                    @select="role => addPseudoRole(index, role)">
-                    <template slot-scope="props">
-                      <div class="media">
-                        <div class="media-content">
-                          {{ props.option.name }}
-                          <br>
-                          <small> {{ props.option.description }} </small>
-                        </div>
-                      </div>
-                    </template>
-                  </b-autocomplete>
                 </div>
               </td>
               <td>
@@ -114,10 +82,10 @@
 
       <div v-show="scope === 'locals'">
         <ul>
-          <li v-for="(local, index) in event.organizing_locals" v-bind:key="local.body_id">
+          <li v-for="(local, index) in event.organizing_bodies" v-bind:key="local.body_id">
             <a class="tag is-danger is-medium" v-if="local.body">
               {{ local.body.name }}
-              <button class="delete is-small" v-if="event.organizing_locals.length > 1" @click="askDeleteOrganizingLocal(index)" />
+              <button class="delete is-small" v-if="event.organizing_bodies.length > 1" @click="askDeleteOrganizingLocal(index)" />
             </a>
             <a v-if="!local.body" class="tag is-medium">Loading...</a>
           </li>
@@ -162,7 +130,7 @@ export default {
     return {
       event: {
         organizers: [],
-        organizing_locals: []
+        organizing_bodies: []
       },
       autoComplete: {
         members: { name: '', values: [], loading: false },
@@ -218,28 +186,16 @@ export default {
         this.$root.showDanger('Could not add organizer: ' + err.message)
       })
     },
-    addPseudoRole (index, role) {
-      const organizer = this.event.organizers[index]
-      organizer.roles.push(role)
-
-      organizer.changed = true
-    },
-    deletePseudoRole (index, roleIndex) {
-      this.event.organizers[index].roles.splice(roleIndex, 1)
-      this.event.organizers[index].changed = true
-    },
     saveOrganizer (index) {
       const organizer = this.event.organizers[index]
 
       const data = {
-        roles: organizer.roles,
         comment: organizer.comment
       }
 
       this.axios.put(this.services['oms-events'] + '/single/' + this.event.id + '/organizers/' + organizer.user_id, data).then((response) => {
         this.$root.showSuccess('Organizer is successfully updated.')
-        organizer.changed = false
-        this.$forceUpdate()
+        this.$set(organizer, 'changed', false)
       }).catch((err) => {
         this.$root.showDanger('Could not update organizer: ' + err.message)
       })
@@ -267,13 +223,12 @@ export default {
       const data = {
         body_id: local.id
       }
-      this.axios.post(this.services['oms-events'] + '/single/' + this.event.id + '/locals', data).then((response) => {
-        this.$root.showDanger('Organizing body is successfully added.')
+      this.axios.post(this.services['oms-events'] + '/single/' + this.event.id + '/bodies', data).then((response) => {
+        this.$root.showSuccess('Organizing body is successfully added.')
 
-        this.event.organizing_locals.push({
+        this.event.organizing_bodies.push({
           body_id: local.id,
-          body: local,
-          roles: []
+          body: local
         })
       }).catch((err) => {
         this.$root.showDanger('Could not add organizing body: ' + err.message)
@@ -290,10 +245,10 @@ export default {
       })
     },
     deleteOrganizingLocal (index) {
-      const local = this.event.organizing_locals[index]
-      this.axios.delete(this.services['oms-events'] + '/single/' + this.event.id + '/locals/' + local.body_id).then((response) => {
+      const local = this.event.organizing_bodies[index]
+      this.axios.delete(this.services['oms-events'] + '/single/' + this.event.id + '/bodies/' + local.body_id).then((response) => {
         this.$root.showSuccess('Organizing body is successfully deleted.')
-        this.event.organizing_locals.splice(index, 1)
+        this.event.organizing_bodies.splice(index, 1)
       }).catch((err) => {
         this.$root.showDanger('Could not delete organizing body: ' + err.message)
       })
@@ -301,12 +256,6 @@ export default {
   },
   computed: mapGetters(['services']),
   mounted () {
-    this.axios.get(this.services['oms-events'] + '/eventroles').then((response) => {
-      this.roles = response.data.data
-    }).catch((err) => {
-      this.$root.showDanger('Could not fetch event roles: ' + err.message)
-    })
-
     this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
       this.can = response.data.permissions.can
@@ -316,19 +265,10 @@ export default {
       if (this.event.application_deadline) this.event.application_deadline = new Date(this.event.application_deadline)
 
       this.isLoading = false
-      this.$forceUpdate()
 
-      for (const body of this.event.organizing_locals) {
+      for (const body of this.event.organizing_bodies) {
         this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + body.body_id).then((response) => {
-          body.body = response.data.data
-          this.$forceUpdate()
-        }).catch(console.error)
-      }
-
-      for (const member of this.event.organizers) {
-        this.axios.get(this.services['oms-core-elixir'] + '/members/' + member.user_id).then((response) => {
-          member.user = response.data.data
-          this.$forceUpdate()
+          this.$set(body, 'body', response.data.data)
         }).catch(console.error)
       }
     }).catch((err) => {

@@ -38,7 +38,7 @@
           <div class="control">
             <input class="input" type="text" v-model="event.name" />
           </div>
-          <p class="help is-danger" v-if="errors.name">{{ errors.name.message}}</p>
+          <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -50,7 +50,7 @@
           <div class="content">
             <span v-html="$options.filters.markdown(event.description)">
           </div>
-          <p class="help is-danger" v-if="errors.description">{{ errors.description.message }}</p>
+          <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -65,7 +65,7 @@
               </div>
             </div>
           </div>
-          <p class="help is-danger" v-if="errors.url">{{ errors.url.message }}</p>
+          <p class="help is-danger" v-if="errors.url">{{ errors.url.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -163,7 +163,7 @@
               <option value="other">Other</option>
             </select>
           </div>
-          <p class="help is-danger" v-if="errors.type">{{ errors.type.message }}</p>
+          <p class="help is-danger" v-if="errors.type">{{ errors.type.join(', ') }}</p>
         </div>
 
         <div class="tile is-parent" v-if="!$route.params.id">
@@ -182,18 +182,18 @@
                 <a class="button is-static">€</a>
               </div>
               <div class="control">
-                <input class="input" type="number" v-model="event.fee" min="0"/>
+                <input class="input" type="number" v-model="event.fee" min="0" required />
               </div>
             </div>
           </div>
-          <p class="help is-danger" v-if="errors.fee">{{ errors.fee.message }}</p>
+          <p class="help is-danger" v-if="errors.fee">{{ errors.fee.join(', ') }}</p>
         </div>
         <div class="field">
           <label class="label">Max. participants</label>
           <div class="control">
-            <input class="input" type="number" v-model="event.max_participants" min="0"/>
+            <input class="input" type="number" v-model="event.max_participants" min="0" required />
           </div>
-          <p class="help is-danger" v-if="errors.max_participants">{{ errors.max_participants.message }}</p>
+          <p class="help is-danger" v-if="errors.max_participants">{{ errors.max_participants.join(', ') }}</p>
         </div>
 
         <hr/>
@@ -420,6 +420,10 @@ export default {
 
       if (!this.event.ends) {
         return this.$root.showDanger('Please set the date when the event will end.')
+      }
+
+      if (!this.event.body_id) {
+        return this.$root.showDanger('Please select a body.')
       }
 
       this.isSaving = true
