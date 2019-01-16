@@ -1,6 +1,7 @@
 const request = require('request-promise-native');
 const bugsnag = require('bugsnag');
-const { errors, communication } = require('oms-common-nodejs');
+const { communication } = require('oms-common-nodejs');
+const errors = require('./errors');
 
 const logger = require('./logger');
 const { Event, Application } = require('../models');
@@ -150,7 +151,7 @@ exports.errorHandler = (err, req, res, next) => {
   }
 
   // Handling validation errors
-  if (err.name && err.name === 'SequelizeValidationError') {
+  if (err.name && (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError')) {
     return errors.makeValidationError(res, err);
   }
 

@@ -13,7 +13,8 @@ const Event = sequelize.define('event', {
   },
   url: {
     type: Sequelize.STRING,
-    allowNull: true
+    allowNull: true,
+    unique: true
   },
   image: {
     type: Sequelize.STRING,

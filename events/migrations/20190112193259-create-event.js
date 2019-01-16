@@ -9,7 +9,8 @@ module.exports = {
       },
       url: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
+        unique: true
       },
       image: {
         type: Sequelize.STRING,
