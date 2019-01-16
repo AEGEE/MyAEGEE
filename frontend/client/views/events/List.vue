@@ -3,7 +3,7 @@
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
         <h4 class="title">Events list</h4>
-        <div class="field">
+        <div class="field" v-show="scope === 'all'">
           <label class="label">Search by name or description</label>
           <div class="field has-addons">
             <div class="control is-expanded">
@@ -17,7 +17,7 @@
           </div>
         </div>
 
-        <div class="field">
+        <div class="field" v-if="scope === 'all'">
           <label class="label">Event types</label>
           <label v-for="(value, index) in eventTypes" v-bind:key="index">
             <input class="checkbox" type="checkbox" v-model="value.enabled" @change="refetch()" />
@@ -53,8 +53,7 @@
                 <li><strong>From:</strong> {{ event.starts | date }} </li>
                 <li><strong>To:</strong> {{ event.ends | date }} </li>
                 <li><strong>Application deadline:</strong>
-                  <span v-if="event.application_deadline">{{ event.application_deadlinee | date }}</span>
-                  <span v-if="!event.application_deadline"><i>Not set.</i></span>
+                  <span>{{ event.application_ends | date }}</span>
                 </li>
               </ul>
 
@@ -172,7 +171,7 @@ export default {
       this.axios.get(urls[this.scope], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
         this.events = this.events.concat(response.data.data)
         this.offset += this.limit
-        this.canLoadMore = response.data.data.length === this.limit
+        this.canLoadMore = this.scope === 'all' && response.data.data.length === this.limit
 
         this.isLoading = false
       }).catch((err) => {
