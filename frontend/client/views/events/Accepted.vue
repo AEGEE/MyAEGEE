@@ -70,10 +70,8 @@ export default {
       for (const application of this.applications) {
         this.axios.get(this.services['oms-core-elixir'] + '/members/' + application.user_id).then((user) => {
           const member = user.data.data
-          application.user = member
-          application.body = member.bodies.find(body => body.id === application.body_id)
-
-          this.$forceUpdate()
+          this.$set(application, 'user', member)
+          this.$set(application, 'body', member.bodies.find(body => body.id === application.body_id))
         }).catch(console.error)
       }
     }).catch((err) => {

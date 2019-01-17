@@ -217,7 +217,7 @@
               </td>
               <td>
                 <div class="select">
-                  <select v-model="event.questions[index].type" @change="if (event.questions[index].type === 'select') { event.questions[index].values = []; } else { delete event.questions[index].values; } $forceUpdate();">
+                  <select v-model="event.questions[index].type" @change="if (event.questions[index].type === 'select') { $set(event.questions[index], 'values', []) } else { $delete(event.questions[index], 'values'); }">
                     <option value="string">String</option>
                     <option value="text">Text</option>
                     <option value="number">Number</option>
@@ -486,7 +486,6 @@ export default {
       this.dates.application_ends = this.event.application_ends = new Date(this.event.application_ends)
 
       this.isLoading = false
-      this.$forceUpdate()
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 

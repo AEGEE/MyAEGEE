@@ -165,7 +165,7 @@
                 open-on-focus="true"
                 :loading="autoComplete.bodies.loading"
                 @input="query => fetchBodies(query)"
-                @select="body => { event.body_id = body.id; event.body = body; }">
+                @select="body => { event.body_id = body.id; $set(event, 'body', body); }">
                 <template slot-scope="props">
                   <div class="media">
                     <div class="media-content">
@@ -178,7 +178,7 @@
               </b-autocomplete>
                 <p class="control">
                   <a class="button is-danger"
-                    @click="body => { event.body_id = null; event.body = null }"
+                    @click="body => { $set(event, 'body_id', null); $delete(event, 'body') }"
                     v-if="event.body">{{ event.body.name }} (Click to unset)</a>
                   <a class="button is-static" v-if="!event.body">Not set.</a>
                 </p>
@@ -245,7 +245,7 @@
               </td>
               <td>
                 <div class="select">
-                  <select v-model="event.questions[index].type" @change="if (event.questions[index].type === 'select') { event.questions[index].values = []; } else { delete event.questions[index].values; } $forceUpdate();">
+                  <select v-model="event.questions[index].type" @change="if (event.questions[index].type === 'select') { $set(event.questions[index], 'values', []); } else { $delete(event.questions[index], 'values'); }">
                     <option value="string">String</option>
                     <option value="text">Text</option>
                     <option value="number">Number</option>
@@ -493,13 +493,10 @@ export default {
       this.dates.board_approve_deadline = this.event.board_approve_deadline = new Date(this.event.board_approve_deadline)
       this.dates.participants_list_publish_deadline = this.event.participants_list_publish_deadline = new Date(this.event.participants_list_publish_deadline)
 
-      this.$forceUpdate()
-
       return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.event.body_id)
     }).then((response) => {
-      this.event.body = response.data.data
+      this.$set(this.event, 'body', response.data.data)
       this.isLoading = false
-      this.$forceUpdate()
     }).catch((err) => {
       this.isLoading = false
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
