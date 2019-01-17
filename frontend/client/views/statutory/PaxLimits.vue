@@ -75,7 +75,7 @@
                     <input type="number" min="0" v-model.number="limit.visitor" @input="if (limit.visitor === '') limit.visitor = null">
                 </td>
                 <td>
-                    <button class="button is-small is-warning" v-if="!limit.isEditing" @click="limit.isEditing = true; $forceUpdate()">Edit</button>
+                    <button class="button is-small is-warning" v-if="!limit.isEditing" @click="$set(limit, 'isEditing', true)">Edit</button>
                     <button class="button is-small is-primary" v-if="limit.isEditing" @click="saveLimit(limit)">Save</button>
                 </td>
                 <td>
@@ -112,9 +112,8 @@ export default {
     saveLimit (limit) {
       this.axios.post(this.services['oms-statutory'] + '/limits/' + this.eventType, limit).then((response) => {
         this.$root.showSuccess('Limit is saved.')
-        limit.isEditing = false
-        limit.default = false
-        this.$forceUpdate()
+        this.$set(limit, 'isEditing', false)
+        this.$set(limit, 'default', false)
       }).catch((err) => {
         this.$root.showDanger('Error saving limit:' + err.message)
       })
@@ -137,11 +136,10 @@ export default {
         this.bodies = response.data.data
 
         for (const limit of this.limits) {
-          limit.body = this.bodies.find(body => body.id === limit.body_id)
-          limit.isEditing = false
+          this.$set(limit, 'body', this.bodies.find(body => body.id === limit.body_id))
+          this.$set(limit, 'isEditing', false)
         }
         this.isLoading = false
-        this.$forceUpdate()
       }).catch((err) => {
         this.isLoading = false
         this.$root.showDanger('Could not fetch participants limits: ' + err.message)
