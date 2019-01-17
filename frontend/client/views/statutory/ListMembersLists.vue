@@ -90,8 +90,7 @@ export default {
       for (const memberslist of this.memberslists) {
         memberslist.expanded = false
         this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + memberslist.body_id).then((response) => {
-          memberslist.body = response.data.data
-          this.$forceUpdate()
+          this.$set(memberslist, 'body', response.data.data)
         }).catch(console.error)
       }
       this.isLoading = false
