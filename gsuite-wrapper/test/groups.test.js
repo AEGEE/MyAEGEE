@@ -14,23 +14,25 @@ describe('Groups', function(){
   
   const primaryEmail = "automated_test_group@aegee.eu";
   const groupName = "The automated test group";
+  const subjectID = "totallyuuid-group";
+
+  const data = {
+    "primaryEmail": primaryEmail,
+    "groupName": groupName,
+    "subjectID": subjectID
+  };
 
   describe('POST /groups', function(){  
     
     it('Should add a group if valid', function(done){
       
-      
-      const data = {
-        "primaryEmail": primaryEmail,
-        "groupName": groupName
-      };
-       
+      const payload = data;
 
       request(server)
       .post('/groups')
       //.set('x-auth-token', TOKEN )
       .set('test-title', "create group" )
-      .send(data)
+      .send(payload)
       .end(function(resterr, resp) {
         
         let response = 666;
@@ -47,16 +49,13 @@ describe('Groups', function(){
     
     it('Should not add a group if already existing', function(done){
       
-      const data = {
-        "primaryEmail": primaryEmail,
-        "groupName": groupName
-      };  
+      const payload = data;  
 
       request(server)
       .post('/groups')
       //.set('x-auth-token', TOKEN )
       .set('test-title', "fail create group" )
-      .send(data)
+      .send(payload)
       .end(function(resterr, resp) {
         
         let response = 666;
@@ -74,16 +73,14 @@ describe('Groups', function(){
   
     it('Should not add a group if without primaryEmail', function(done){
       
-      const data = {
-        "groupName": groupName
-      };
+      const payload = data;
+      delete payload.primaryEmail;
         
-
       request(server)
       .post('/groups')
       //.set('x-auth-token', TOKEN )
       .set('test-title', "fail create group" )
-      .send(data)
+      .send(payload)
       .end(function(resterr, resp) {
         
         let response = 666;
@@ -99,18 +96,66 @@ describe('Groups', function(){
       
     });
 
-    it('Should add a group if without title', function(done){
+    it('Should not add a group if without name', function(done){
       
-      const data = {
-        "primaryEmail": primaryEmail
-      };
-        
+      const payload = data;
+      delete payload.groupName;
 
       request(server)
       .post('/groups')
       //.set('x-auth-token', TOKEN )
       .set('test-title', "fail create group 2" )
-      .send(data)
+      .send(payload)
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.statusCode;
+        
+        should.not.exist(resterr);
+        response.should.not.equal(666);
+        response.should.not.equal(200);
+        response.should.equal(400);
+        done();
+        
+      }); 
+      
+    });
+
+    it('Should not add a group if without subjectID', function(done){
+      
+      const payload = data;
+      delete payload.subjectID;
+
+      request(server)
+      .post('/groups')
+      //.set('x-auth-token', TOKEN )
+      .set('test-title', "fail create group 2" )
+      .send(payload)
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.statusCode;
+        
+        should.not.exist(resterr);
+        response.should.not.equal(666);
+        response.should.not.equal(200);
+        response.should.equal(400);
+        done();
+        
+      }); 
+      
+    });
+
+    it('Should not add a group if not valid (subjectID is empty property)', function(done){
+      
+      const payload = data;
+      payload.subjectID = "";
+
+      request(server)
+      .post('/groups')
+      //.set('x-auth-token', TOKEN )
+      .set('test-title', "fail create group 3" )
+      .send(payload)
       .end(function(resterr, resp) {
         
         let response = 666;
@@ -128,17 +173,14 @@ describe('Groups', function(){
 
     it('Should not add a group if not valid (groupName is empty property)', function(done){
       
-      const data = {
-        "primaryEmail": primaryEmail,
-        "groupName": "" 
-      };
-        
+      const payload = data;
+      payload.groupName = "";
 
       request(server)
       .post('/groups')
       //.set('x-auth-token', TOKEN )
       .set('test-title', "fail create group 3" )
-      .send(data)
+      .send(payload)
       .end(function(resterr, resp) {
         
         let response = 666;
@@ -156,17 +198,15 @@ describe('Groups', function(){
 
     it('Should not add a group if not valid (primaryEmail is empty property)', function(done){
       
-      const data = {
-        "primaryEmail": "",
-        "groupName": groupName
-      };
+      const payload = data;
+      payload.primaryEmail = "";
         
 
       request(server)
       .post('/groups')
       //.set('x-auth-token', TOKEN )
       .set('test-title', "fail create group 4" )
-      .send(data)
+      .send(payload)
       .end(function(resterr, resp) {
         
         let response = 666;
@@ -196,7 +236,6 @@ describe('Groups', function(){
 
       request(server)
       .delete('/groups')
-      //.set('x-auth-token', TOKEN )
       .set('test-title', "delete group" )
       .end(function(resterr, resp) {
         
@@ -234,7 +273,7 @@ describe('Groups', function(){
             
     });
 
-    it('Should ???? remove group if gibberish string', function(done){
+    it('Should not remove anything if gibberish string', function(done){
       
       //this.timeout(3000);
 
@@ -256,34 +295,12 @@ describe('Groups', function(){
             
     });
 
-    it('Should ???? remove group if name is correct but no @aegee.eu', function(done){
+    it('Should not remove anything if gibberish string with spaces', function(done){
       
       //this.timeout(3000);
 
       request(server)
-      .delete('/groups/automated_test_group')
-      //.set('x-auth-token', TOKEN )
-      .set('test-title', "delete group" )
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.body;
-
-        should.not.exist(resterr);
-        resp.statusCode.should.not.equal(666);
-        resp.statusCode.should.equal(404);
-        done();
-        
-      });
-            
-    });
-
-    it('Should ???? remove group if name has spaces not correct and no @aegee.eu', function(done){
-      
-      //this.timeout(3000);
-
-      request(server)
-      .delete('/groups/automated test group')
+      .delete('/groups/giova nniumut')
       //.set('x-auth-token', TOKEN )
       .set('test-title', "delete group" )
       .end(function(resterr, resp) {
@@ -305,7 +322,7 @@ describe('Groups', function(){
       //this.timeout(3000);
 
       request(server)
-      .delete('/groups/'+primaryEmail)
+      .delete('/groups/'+subjectID)
       //.set('x-auth-token', TOKEN )
       .set('test-title', "delete group" )
       .end(function(resterr, resp) {

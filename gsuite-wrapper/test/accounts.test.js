@@ -22,6 +22,7 @@ describe('Accounts', function(){
   const antenna = "AEGEE-Tallahassee";
   const password = "AEGEE-Europe";
   const SHA1Password = crypto.createHash('sha1').update(JSON.stringify(password)).digest('hex');
+  const subjectID = "totallyuuid-account"
 
   const payload = {
     "primaryEmail": generatedUsername,
@@ -31,7 +32,8 @@ describe('Accounts', function(){
     },
     "secondaryEmail": email,
     "password": SHA1Password,
-    "antenna": antenna
+    "antenna": antenna,
+    "subjectID": subjectID
   };
 
   describe('POST /accounts', function(){  
@@ -349,6 +351,54 @@ describe('Accounts', function(){
       
       const data = payload;
       data.name.familyName = "";
+
+      request(server)
+      .post('/accounts')
+      .set('test-title', "fail create account" )
+      .send(payload)
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.statusCode;
+        
+        should.not.exist(resterr);
+        response.should.not.equal(666);
+        response.should.not.equal(200);
+        response.should.equal(400);
+        done();
+        
+      }); 
+      
+    });
+
+    it('Should not add an account if without subjectID', function(done){
+      
+      const data = payload;
+      delete data.name.subjectID;
+
+      request(server)
+      .post('/accounts')
+      .set('test-title', "fail create account" )
+      .send(payload)
+      .end(function(resterr, resp) {
+        
+        let response = 666;
+        response = resp.statusCode;
+        
+        should.not.exist(resterr);
+        response.should.not.equal(666);
+        response.should.not.equal(200);
+        response.should.equal(400);
+        done();
+        
+      }); 
+      
+    });
+
+    it('Should not add an account if subjectID is empty', function(done){
+      
+      const data = payload;
+      data.name.subjectID = "";
 
       request(server)
       .post('/accounts')

@@ -1,9 +1,11 @@
 const {runGsuiteOperation, gsuiteOperations} = require('./google-suite.js');
 
-var log = require('./config/logger');
+const log = require('./config/logger');
 
-//redis config
-//var config = require('./config/config.json');
+const config = require('./config/configFile.js');
+
+const Redis = require('ioredis');
+const redis = new Redis(config.redis);
 
 //API DEFINITION
 
@@ -14,9 +16,9 @@ exports.createGroup = async function(req, res , next) {
     let response = {success: false, message: "Undefined error"};
     let statusCode = 500;
     
-    if( !data.groupName || !data.primaryEmail ){
+    if( !data.groupName || !data.primaryEmail || !data.subjectID){
 
-        response.message = "Validation error: primaryEmail or groupName is absent or empty";
+        response.message = "Validation error: primaryEmail, groupName, or subjectID is absent or empty";
         statusCode = 400;
 
     }else{
@@ -25,6 +27,11 @@ exports.createGroup = async function(req, res , next) {
             let result = await runGsuiteOperation(gsuiteOperations.addGroup, data);
             response = {success: true, message: result.data.email+" group has been created", data: result.data };
             statusCode = result.code;
+
+            redis.hset("group:"+data.subjectID, "GsuiteAccount", data.primaryEmail);
+            redis.set("primary:"+data.subjectID, data.primaryEmail);
+            redis.set("id:"+data.primaryEmail, data.subjectID);
+
         }catch(GsuiteError){
             //console.log(GsuiteError);
             //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};
@@ -40,21 +47,37 @@ exports.createGroup = async function(req, res , next) {
 
 exports.deleteGroup = async function(req, res , next) { 
     //req.log.debug({req: req}, 'findAllUsers request');
-    const data = {groupName: req.params.name};
 
-    let response = {success: false, message: "Undefined error"};
-    let statusCode = '500';
+    const subjectID = req.params.name;
     
-    try{
-        let result = await runGsuiteOperation(gsuiteOperations.deleteGroup, data);
-        response = {success: true, message: data.groupName+" group has been deleted", data: result.data };
-        statusCode = result.code;
-    }catch(GsuiteError){
-        //log.debug(JSON.toString(GsuiteError));
-        //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};
-        log.warn("GsuiteError");
-        response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
-        statusCode = GsuiteError.code;
+    let response = {success: false, message: "Undefined error"};
+    let statusCode = 500;
+    
+    const groupID = await redis.get("primary:"+subjectID);
+    
+    if(!groupID){
+
+        response.message = "Error: no group matching subjectID "+ subjectID;
+        statusCode = 404;
+
+    }else{
+
+        const data = {groupName: groupID};
+    
+        try{
+            let result = await runGsuiteOperation(gsuiteOperations.deleteGroup, data);
+            response = {success: true, message: data.groupName+" group has been deleted", data: result.data };
+            statusCode = result.code;
+            
+            redis.del("group:"+subjectID, "primary:"+subjectID, "id:"+groupID).catch(err => console.log("redis error: "+err));
+
+        }catch(GsuiteError){
+            //log.debug(JSON.toString(GsuiteError));
+            //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};
+            log.warn("GsuiteError");
+            response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
+            statusCode = GsuiteError.code;
+        }
     }
 
     return res.status(statusCode).json(response);
@@ -65,9 +88,10 @@ exports.createAccount = async function(req, res , next) {
     const data = req.body; 
 
     let response = {success: false, message: "Undefined error"};
-    let statusCode = '500';
+    let statusCode = 500;
     
-    if( !data.primaryEmail || 
+    if( !data.subjectID || 
+        !data.primaryEmail || 
         !data.secondaryEmail || 
         !data.password || 
         !data.antenna || 
@@ -105,6 +129,13 @@ exports.createAccount = async function(req, res , next) {
             let result = await runGsuiteOperation(gsuiteOperations.addAccount, payload);
             response = {success: true, message: result.data.primaryEmail+" account has been created", data: result.data };
             statusCode = result.code;
+
+            redis.hset("user:"+data.subjectID, "GsuiteAccount", data.primaryEmail, "SecondaryEmail", data.secondaryEmail );
+            redis.set("primary:"+data.subjectID, data.primaryEmail);
+            redis.set("primary:"+data.secondaryEmail, data.primaryEmail);
+            redis.set("id:"+data.primaryEmail, data.subjectID);
+            redis.set("secondary:"+data.primaryEmail, data.secondaryEmail);
+
         }catch(GsuiteError){
             //log.debug(JSON.toString(GsuiteError));
             //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};

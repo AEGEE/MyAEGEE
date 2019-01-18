@@ -1,6 +1,8 @@
 {
   "port": 8899,
-  "mongo": {
-    "url": "mongodb://localhost:27017"
-  }
+  "redis": {
+    "host": "redis",
+    "port": "6379"
+    }
+
 }
