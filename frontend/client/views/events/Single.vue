@@ -210,7 +210,7 @@ export default {
       })
     },
     deleteEvent () {
-      this.axios.put(this.services['oms-statutory'] + '/events/' + this.event.id).then((response) => {
+      this.axios.delete(this.services['oms-events'] + '/single/' + this.event.id).then((response) => {
         this.$root.showInfo('Event is deleted.')
         this.$router.push({ name: 'oms.events.list.all' })
       }).catch((err) => this.$root.showDanger('Could not delete event: ' + err.message))
