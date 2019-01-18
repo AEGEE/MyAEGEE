@@ -233,7 +233,7 @@ export default {
       for (const stat of this.stats.by_body) {
         const body = this.bodies.find(body => stat.body_id === body.id)
         if (body) {
-         this.$set(stat, 'body', body)
+          this.$set(stat, 'body', body)
         }
       }
 
