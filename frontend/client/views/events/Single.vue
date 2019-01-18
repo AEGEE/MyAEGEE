@@ -178,7 +178,7 @@ export default {
         ends: null,
         application_status: 'closed',
         head_image: null,
-        status: { name: 'Loading...' }
+        status: 'Draft'
       },
       map: {
         center: { lat: 50.8503396, lng: 4.3517103 },
@@ -199,7 +199,22 @@ export default {
     }
   },
   methods: {
-
+    askDeleteEvent () {
+      this.$dialog.confirm({
+        title: 'Deleting an event',
+        message: `Are you sure you want to <b>delete this event</b>?`,
+        confirmText: 'Delete event',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.deleteEvent()
+      })
+    },
+    deleteEvent () {
+      this.axios.put(this.services['oms-statutory'] + '/events/' + this.event.id).then((response) => {
+        this.$root.showInfo('Event is deleted.')
+        this.$router.push({ name: 'oms.events.list.all' })
+      }).catch((err) => this.$root.showDanger('Could not delete event: ' + err.message))
+    }
   },
   mounted () {
     this.isLoading = true
