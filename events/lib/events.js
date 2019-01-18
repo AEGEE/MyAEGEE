@@ -201,11 +201,8 @@ exports.deleteEvent = async (req, res, next) => {
     return errors.makeForbiddenError(res, 'You are not permitted to delete this event.');
   }
 
-  const event = req.event;
-
   // Deletion is only setting the 'deleted' field to true.
-  event.deleted = true;
-  await event.save();
+  await req.event.update({ deleted: true });
 
   return res.json({
     success: true,
