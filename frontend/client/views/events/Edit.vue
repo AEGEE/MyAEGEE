@@ -150,7 +150,7 @@
           </div>
         </div>
 
-        <div class="field">
+        <div class="field" v-if="!$route.params.id">
           <label class="label">Event type</label>
           <div class="select">
             <select v-model="event.type">
@@ -349,15 +349,17 @@ export default {
         lng: 4.3517103
       },
       file: null,
-      eventTypes: [],
       autoComplete: {
         bodies: { name: '' },
         eventTypes: { name: '' }
       },
+      dateConfig: {
+        enableTime: true,
+        time_24hr: true
+      },
       can: {
         edit_application_status: false
       },
-      roles: [],
       errors: {},
       isLoading: false,
       isSaving: false
