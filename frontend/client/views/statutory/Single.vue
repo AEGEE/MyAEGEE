@@ -24,6 +24,13 @@
             </router-link>
           </div>
 
+          <div class="field is-grouped" v-if="can.manage_juridical || can.manage_applications">
+            <router-link :to="{ name: 'oms.statutory.juridical', params: { id: event.url || event.id } }" class="button is-fullwidth">
+              <span>Manage juridical info</span>
+              <span class="icon"><i class="fa fa-users"></i></span>
+            </router-link>
+          </div>
+
           <div class="field is-grouped" v-if="can.export">
             <router-link :to="{ name: 'oms.statutory.applications.export', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Export participants info</span>

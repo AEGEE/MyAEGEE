@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Incoming</div>
+        <div class="title">JC listing form</div>
 
         <div class="field">
           <label class="label">Search by name or description</label>
@@ -20,7 +20,6 @@
         <b-table
           :data="filteredApplications"
           :loading="isLoading"
-          :row-class="row => calculateClassForApplication(row)"
           paginated
           :per-page="limit"
           default-sort="id"
@@ -46,32 +45,30 @@
               {{ props.row.body_name }}
             </b-table-column>
 
-            <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled">
-              {{ props.row.cancelled | beautify }}
+            <b-table-column field="participant_type" label="Participant type and order" centered>
+              {{ props.row.participant_type && `${props.row.participant_type} (${props.row.participant_order})` }}
             </b-table-column>
 
-            <b-table-column field="paid_fee" label="Confirmed?" centered sortable>
-              <div class="select" :class="{ 'is-loading': props.row.isSavingPaidFee }">
-                <select v-model="props.row.newPaidFee" @change="switchPaxPaidFee(props.row)" :disabled="props.row.attended">
+            <b-table-column field="paid_fee" label="Confirmed" centered>
+              {{ props.row.paid_fee | beautify }}
+            </b-table-column>
+
+            <b-table-column field="registered" label="JC registered?" centered sortable>
+              <div class="select" :class="{ 'is-loading': props.row.isSavingRegistered }">
+                <select v-model="props.row.newRegistered" @change="switchPaxRegistered(props.row)" :disabled="props.row.departed || !props.row.paid_fee">
                   <option :value="true">Yes</option>
                   <option :value="false">No</option>
                 </select>
               </div>
             </b-table-column>
 
-            <b-table-column field="attended" label="Attended?" centered sortable>
-              <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
-                <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.paid_fee">
+            <b-table-column field="departed" label="Departed?" centered sortable>
+              <div class="select" :class="{ 'is-loading': props.row.isSavingDeparted }">
+                <select v-model="props.row.newDeparted" @change="switchPaxDeparted(props.row)" :disabled="!props.row.registered">
                   <option :value="true">Yes</option>
                   <option :value="false">No</option>
                 </select>
               </div>
-            </b-table-column>
-
-            <b-table-column label="View" centered>
-              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.id } }">
-                View
-              </router-link>
             </b-table-column>
           </template>
 
@@ -95,7 +92,7 @@
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'StatutoryIncoming',
+  name: 'JuridicalView',
   data () {
     return {
       applications: [],
@@ -126,40 +123,30 @@ export default {
     }
   },
   methods: {
-    calculateClassForApplication (pax) {
-      switch (pax.status) {
-        case 'accepted':
-          return 'has-background-success'
-        case 'rejected':
-          return 'has-background-danger'
-        default:
-          return ''
-      }
-    },
-    switchPaxAttended (pax) {
-      pax.isSavingAttended = true
-      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/attended'
+    switchPaxRegistered (pax) {
+      pax.isSavingRegistered = true
+      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/registered'
 
-      this.axios.put(url, { attended: pax.newAttended }).then(() => {
-        pax.attended = pax.newAttended
-        pax.isSavingAttended = false
-        this.$root.showSuccess(`Successfully updated attendance info of application for user #${pax.user_id}`)
+      this.axios.put(url, { registered: pax.newRegistered }).then(() => {
+        pax.registered = pax.newRegistered
+        pax.isSavingRegistered = false
+        this.$root.showSuccess(`Successfully updated registration info of application for user #${pax.user_id}`)
       }).catch((err) => {
-        pax.isSavingAttended = false
-        this.$root.showDanger('Could not update participant attendance info: ' + err.message)
+        pax.isSavingRegistered = false
+        this.$root.showDanger('Could not update participant registration info: ' + err.message)
       })
     },
-    switchPaxPaidFee (pax) {
-      pax.isSavingPaidFee = true
-      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/paid_fee'
+    switchPaxDeparted (pax) {
+      pax.isSavingDeparted = true
+      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/departed'
 
-      this.axios.put(url, { paid_fee: pax.newPaidFee }).then(() => {
-        pax.paid_fee = pax.newPaidFee
-        pax.isSavingPaidFee = false
-        this.$root.showSuccess(`Successfully updated fee info of application for user #${pax.user_id}`)
+      this.axios.put(url, { departed: pax.newDeparted }).then(() => {
+        pax.departed = pax.newDeparted
+        pax.isSavingDeparted = false
+        this.$root.showSuccess(`Successfully updated departion info of application for user #${pax.user_id}`)
       }).catch((err) => {
-        pax.isSavingPaidFee = false
-        this.$root.showDanger('Could not update participant fee info: ' + err.message)
+        pax.isSavingDeparted = false
+        this.$root.showDanger('Could not update participant departion info: ' + err.message)
       })
     }
   },
@@ -169,17 +156,17 @@ export default {
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
 
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/all')
+      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/juridical')
     }).then((application) => {
       this.applications = application.data.data
       this.isLoading = false
 
       // Fetching users and bodies.
       for (const pax of this.applications) {
-        this.$set(pax, 'newPaidFee', pax.paid_fee)
-        this.$set(pax, 'newAttended', pax.attended)
-        this.$set(pax, 'isSavingPaidFee', false)
-        this.$set(pax, 'isSavingAttended', false)
+        this.$set(pax, 'newRegistered', pax.registered)
+        this.$set(pax, 'newDeparted', pax.departed)
+        this.$set(pax, 'isSavingRegistered', false)
+        this.$set(pax, 'isSavingDeparted', false)
       }
     }).catch((err) => {
       this.isLoading = false
