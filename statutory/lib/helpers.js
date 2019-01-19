@@ -47,7 +47,9 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
 
     permissions.manage_applications = hasPermission(corePermissions, 'global:manage_applications:' + event.type);
     permissions.manage_incoming = hasPermission(corePermissions, 'global:manage_incoming:' + event.type);
+    permissions.manage_juridical = hasPermission(corePermissions, 'global:manage_juridical:' + event.type);
     permissions.see_applications = permissions.manage_applications || permissions.manage_incoming;
+    permissions.see_applications_juridical = permissions.manage_applications || permissions.manage_juridical;
     permissions.see_participants_list = event.can_see_participants_list || permissions.manage_applications;
     permissions.export = permissions.manage_applications || permissions.manage_incoming;
 
@@ -78,8 +80,11 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     // Basically do everything with applications.
     const canManage = hasPermission(corePermissions, 'manage_applications:' + event.type);
 
-    // See pax list and change 'paid_fee' and 'attended' attributes only.
+    // See pax list and change 'paid_fee' and 'attended' attribute only.
     const isIncoming = hasPermission(corePermissions, 'manage_incoming:' + event.type);
+
+    // See JC list and change 'registered' and 'departed' attributes only.
+    const isJuridical = hasPermission(corePermissions, 'manage_juridical:' + event.type);
 
     permissions.see_application = mine || canManage || isIncoming;
 
@@ -92,7 +97,8 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     // For paid fee and cancelled, only if has permissions.
     permissions.set_application_paid_fee = isIncoming || canManage;
     permissions.set_application_attended = isIncoming || canManage;
-    permissions.set_application_departed = isIncoming || canManage;
+    permissions.set_application_registered = isJuridical || canManage;
+    permissions.set_application_departed = isJuridical || canManage;
 
     permissions.change_status = canManage;
 

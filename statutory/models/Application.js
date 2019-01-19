@@ -205,10 +205,23 @@ const Application = sequelize.define('application', {
                 if (!this.paid_fee && value) {
                     throw new Error('You should set user as paid fee first.');
                 }
+            }
+        }
+    },
+    registered: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        validate: {
+            isBoolean,
+            notAllowIfNotPaidFee(value) {
+                if (!this.paid_fee && value) {
+                    throw new Error('You should set user as paid fee first.');
+                }
             },
             notAllowIfDeparted(value) {
                 if (!value && this.departed) {
-                    throw new Error('This application is marked as departed, you cannot mark it as not arrived.');
+                    throw new Error('This application is marked as departed, you cannot mark it as not registered.');
                 }
             }
         }
@@ -219,8 +232,8 @@ const Application = sequelize.define('application', {
         defaultValue: false,
         validate: {
             isBoolean,
-            notAllowIfNotAttended(value) {
-                if (!this.attended && value) {
+            notAllowIfNotRegistered(value) {
+                if (!this.registered && value) {
                     throw new Error('You should set user as attended first.');
                 }
             }

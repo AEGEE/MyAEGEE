@@ -68,15 +68,17 @@ EventsRouter.put('/status', events.changeEventStatus);
 ApplicationsRouter.use(middlewares.authenticateUser, middlewares.fetchEventWithApplications);
 ApplicationsRouter.post('/', applications.postApplication);
 ApplicationsRouter.get('/all', applications.listAllApplications);
+ApplicationsRouter.get('/accepted', applications.listAcceptedApplications);
+ApplicationsRouter.get('/juridical', applications.listJCApplications);
 ApplicationsRouter.get('/stats', applications.getStats);
 ApplicationsRouter.get('/export/openslides', applications.exportOpenslides);
 ApplicationsRouter.get('/export/all', applications.exportAll);
-ApplicationsRouter.get('/accepted', applications.listAcceptedApplications);
 ApplicationsRouter.get('/boardview/:body_id', applications.listBoardView);
 
 SingleApplicationRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, middlewares.fetchSingleApplication);
 SingleApplicationRouter.put('/cancel', applications.setApplicationCancelled);
 SingleApplicationRouter.put('/attended', applications.setApplicationAttended);
+SingleApplicationRouter.put('/registered', applications.setApplicationRegistered);
 SingleApplicationRouter.put('/departed', applications.setApplicationDeparted);
 SingleApplicationRouter.put('/paid_fee', applications.setApplicationPaidFee);
 SingleApplicationRouter.put('/status', applications.setApplicationStatus);

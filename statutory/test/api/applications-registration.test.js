@@ -4,7 +4,7 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/oms-core-valid').data;
 
-describe('Applications departion', () => {
+describe('Applications registration', () => {
     beforeEach(async () => {
         mock.mockAll();
         await startServer();
@@ -22,10 +22,10 @@ describe('Applications departion', () => {
         await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/me/departed',
+            uri: '/events/' + event.id + '/applications/me/registered',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { departed: true }
+            body: { registered: true }
         });
 
         expect(res.statusCode).toEqual(403);
@@ -36,13 +36,13 @@ describe('Applications departion', () => {
 
     test('should succeed for other user when the permissions are okay', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ paid_fee: true, registered: true }, event);
+        const application = await generator.createApplication({ paid_fee: true }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/departed',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/registered',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { departed: true }
+            body: { registered: true }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -53,21 +53,21 @@ describe('Applications departion', () => {
         expect(res.body.data.paid_fee).toEqual(true);
     });
 
-    test('should fail if application is not marked as registered', async () => {
+    test('should fail if application is marked as departed', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ paid_fee: true, registered: false }, event);
+        const application = await generator.createApplication({ paid_fee: true, registered: true, departed: true }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/departed',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/registered',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { departed: true }
+            body: { registered: false }
         });
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('departed');
+        expect(res.body.errors).toHaveProperty('registered');
         expect(res.body).not.toHaveProperty('data');
     });
 
@@ -78,10 +78,10 @@ describe('Applications departion', () => {
         const application = await generator.createApplication({ paid_fee: true, attended: true }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/departed',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/registered',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { departed: true }
+            body: { registered: true }
         });
 
         expect(res.statusCode).toEqual(403);
@@ -94,10 +94,10 @@ describe('Applications departion', () => {
         const event = await generator.createEvent({ applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/333/departed',
+            uri: '/events/' + event.id + '/applications/333/registered',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { departed: true }
+            body: { registered: true }
         });
 
         expect(res.statusCode).toEqual(404);
@@ -110,10 +110,10 @@ describe('Applications departion', () => {
         const event = await generator.createEvent({ applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/lalala/departed',
+            uri: '/events/' + event.id + '/applications/lalala/registered',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { departed: true }
+            body: { registered: true }
         });
 
         expect(res.statusCode).toEqual(400);
@@ -122,20 +122,38 @@ describe('Applications departion', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should return 422 if departed is invalid', async () => {
+    test('should return 422 if registered is invalid', async () => {
         const event = await generator.createEvent();
         const application = await generator.createApplication({ paid_fee: true, attended: true }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/departed',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/registered',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { departed: 'lalala' }
+            body: { registered: 'lalala' }
         });
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('errors');
         expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should fail if the application is not marked as paid fee', async () => {
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({ paid_fee: false }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id + '/registered',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { registered: true }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('registered');
     });
 });

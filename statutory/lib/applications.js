@@ -18,7 +18,7 @@ exports.listAllApplications = async (req, res) => {
 
     return res.json({
         success: true,
-        data: req.event.applications.sort((a, b) => b.id - a.id)
+        data: req.event.applications
     });
 };
 
@@ -35,13 +35,39 @@ exports.listAcceptedApplications = async (req, res) => {
             delete application.board_comment;
             delete application.visa_required;
             delete application.status;
+            delete application.email;
 
             return application;
         });
 
     return res.json({
         success: true,
-        data: applications.sort((a, b) => b.id - a.id)
+        data: applications
+    });
+};
+
+exports.listJCApplications = async (req, res) => {
+    if (!req.permissions.see_applications_juridical) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
+    }
+
+    const applications = req.event.applications
+        .filter(application => application.status === 'accepted' && application.paid_fee)
+        .map(application => application.toJSON())
+        .map((application) => {
+            delete application.answers;
+            delete application.board_comment;
+            delete application.visa_required;
+            delete application.email;
+            delete application.gender;
+
+            return application;
+        });
+
+
+    return res.json({
+        success: true,
+        data: applications
     });
 };
 
@@ -250,6 +276,7 @@ function setApplicationBoolean(key) {
 exports.setApplicationCancelled = setApplicationBoolean('cancelled');
 exports.setApplicationAttended = setApplicationBoolean('attended');
 exports.setApplicationPaidFee = setApplicationBoolean('paid_fee');
+exports.setApplicationRegistered = setApplicationBoolean('registered');
 exports.setApplicationDeparted = setApplicationBoolean('departed');
 
 

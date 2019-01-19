@@ -47,7 +47,7 @@ describe('Export OpenSlides', () => {
         expect(body.length).toEqual(1);
     });
 
-    test('should return the application on no cancelled application', async () => {
+    test('should return the application if no cancelled application', async () => {
         await generator.createApplication({ user_id: regularUser.id }, event);
         const res = await request({
             uri: '/events/' + event.id + '/applications/export/openslides',
