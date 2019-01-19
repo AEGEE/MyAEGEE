@@ -150,7 +150,7 @@
           </div>
         </div>
 
-        <div class="field">
+        <div class="field" v-if="!$route.params.id">
           <label class="label">Event type</label>
           <div class="select">
             <select v-model="event.type">
