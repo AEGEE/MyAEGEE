@@ -349,15 +349,17 @@ export default {
         lng: 4.3517103
       },
       file: null,
-      eventTypes: [],
       autoComplete: {
         bodies: { name: '' },
         eventTypes: { name: '' }
       },
+      dateConfig: {
+        enableTime: true,
+        time_24hr: true
+      },
       can: {
         edit_application_status: false
       },
-      roles: [],
       errors: {},
       isLoading: false,
       isSaving: false
