@@ -16,6 +16,7 @@ import router from './router'
 import store from './store'
 import filters from './filters'
 import Auth from './auth'
+import SelectOrCustom from './components/SelectOrCustom'
 
 axios.defaults.paramsSerializer = params => qs.stringify(params, {
   arrayFormat: 'brackets',
@@ -37,6 +38,7 @@ Vue.use(VueGoogleMaps, {
 })
 Vue.component('multiselect', Multiselect)
 Vue.component('input-tag', InputTag)
+Vue.component('select-or-custom', SelectOrCustom)
 
 // Enable devtools
 Vue.config.devtools = true

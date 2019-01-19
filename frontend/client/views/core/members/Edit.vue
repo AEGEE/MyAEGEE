@@ -77,13 +77,11 @@
           <p class="help is-danger" v-if="errors.primary_body_id">{{ errors.primary_body_id.join(', ')}}</p>
         </div>
 
-        <div class="field">
-          <label class="label">Gender</label>
-          <div class="control">
-            <input class="input" type="text" v-model="user.gender" />
-          </div>
-          <p class="help is-danger" v-if="errors.gender">{{ errors.gender.join(', ')}}</p>
-        </div>
+        <select-or-custom v-model="user.gender" :values="['Male', 'Female']" label="Gender">
+          <template slot="errors-slot">
+            <p class="help is-danger" v-if="errors.gender">{{ errors.gender.join(', ')}}</p>
+          </template>
+        </select-or-custom>
 
         <div class="field">
           <label class="label">Address</label>
