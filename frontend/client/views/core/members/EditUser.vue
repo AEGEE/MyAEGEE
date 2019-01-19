@@ -10,7 +10,7 @@
               type="text"
               required
               v-model="user.name"
-              pattern="^[a-zA-Z0-9\.\-].$"
+              pattern="^[a-zA-Z0-9\.\-]*$"
               title="Username can only contain English letters, numbers, dots and dashes."
               placeholder="You will be able to login with it." />
           </div>
