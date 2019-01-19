@@ -424,7 +424,7 @@ export default {
         return this.$root.showDanger('Please set the date when the event will end.')
       }
 
-      if (!this.event.body_id) {
+      if (!this.$route.params.id && !this.event.body_id) {
         return this.$root.showDanger('Please select a body.')
       }
 
@@ -480,7 +480,7 @@ export default {
 
     this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
-      this.can = response.data.permissions.can
+      this.can = response.data.permissions
 
       this.dates.starts = this.event.starts = new Date(this.event.starts)
       this.dates.ends = this.event.starts = new Date(this.event.ends)
