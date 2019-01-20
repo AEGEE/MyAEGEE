@@ -2,4 +2,6 @@
 /coverage/
 .nyc_output/
 *.swp
+lib/config/secrets.json
+lib/config/myaegee-service.keys.json
 commitmsg

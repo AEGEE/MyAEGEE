@@ -1,7 +1,6 @@
 const chai = require('chai');
 const should = chai.should();
-const server = require('../lib/server.js').server;
-const request = require('supertest');
+const { request } = require('./test-helper.js');
 const crypto = require('crypto');
 
 const TEST_TOKEN = 'belzebu_test';
@@ -22,8 +21,9 @@ describe('Accounts', function(){
   const antenna = "AEGEE-Tallahassee";
   const password = "AEGEE-Europe";
   const SHA1Password = crypto.createHash('sha1').update(JSON.stringify(password)).digest('hex');
+  const subjectID = "totallyuuid-account"
 
-  const payload = {
+  const data = {
     "primaryEmail": generatedUsername,
     "name": {
       "givenName": name,
@@ -31,341 +31,295 @@ describe('Accounts', function(){
     },
     "secondaryEmail": email,
     "password": SHA1Password,
-    "antenna": antenna
+    "antenna": antenna,
+    "subjectID": subjectID
   };
 
   describe('POST /accounts', function(){  
     
-    it('Should add an account if valid', function(done){
+    it('Should add an account if valid',  async () => {
+      this.timeout(3000);
+      const payload = data;
 
-      const data = payload;
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'create account' },
+          body: payload
+      });
 
-      request(server)
-      .post('/accounts')
-      .set('test-title', "create account" )
-      .send(data)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.body;
-
-        should.not.exist(resterr);
-        resp.statusCode.should.not.equal(666);
-        resp.statusCode.should.equal(201);
-        done();
-        
-      }); 
+      const body = res.body;
+      res.statusCode.should.equal(201);
+      body.success.should.equal(true);
       
     });
     
-    it('Should not add an account if already existing', function(done){
+    it('Should not add an account if already existing',  async () => {
       
-      const data = payload;
+      const payload = data;
 
-      request(server)
-      .post('/accounts')
-      .set('test-title', "fail create account" )
-      .send(data)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.statusCode;
-        
-        should.not.exist(resterr);
-        response.should.not.equal(666);
-        response.should.not.equal(200);
-        response.should.equal(409);
-        done();
-        
-      }); 
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'fail create account' },
+          body: payload
+      });
+
+      const body = res.body;
+      res.statusCode.should.equal(409);
+      body.success.should.equal(false);
       
     });
   
-    it('Should not add an account if without primaryEmail', function(done){
+    it('Should not add an account if without primaryEmail',  async () => {
       
-      const data = payload;
-      delete data.primaryEmail;
+      const payload = data;
+      delete payload.primaryEmail;
 
-      request(server)
-      .post('/accounts')
-      .set('test-title', "fail create account" )
-      .send(payload)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.statusCode;
-        
-        should.not.exist(resterr);
-        response.should.not.equal(666);
-        response.should.not.equal(200);
-        response.should.equal(400);
-        done();
-        
-      }); 
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'fail create account' },
+          body: payload
+      });
+
+      const body = res.body;
+      res.statusCode.should.equal(400);
+      body.success.should.equal(false);
       
     });
 
-    it('Should not add an account if primaryEmail is empty', function(done){
+    it('Should not add an account if primaryEmail is empty',  async () => {
       
-      const data = payload;
-      data.primaryEmail = "";
+      const payload = data;
+      payload.primaryEmail = "";
 
-      request(server)
-      .post('/accounts')
-      .set('test-title', "fail create account" )
-      .send(payload)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.statusCode;
-        
-        should.not.exist(resterr);
-        response.should.not.equal(666);
-        response.should.not.equal(200);
-        response.should.equal(400);
-        done();
-        
-      }); 
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'fail create account' },
+          body: payload
+      });
+
+      const body = res.body;
+      res.statusCode.should.equal(400);
+      body.success.should.equal(false);
       
     });
 
-    it('Should not add an account if without secondaryEmail', function(done){
+    it('Should not add an account if without secondaryEmail',  async () => {
       
-      const data = payload;
-      delete data.secondaryEmail;
+      const payload = data;
+      delete payload.secondaryEmail;
 
-      request(server)
-      .post('/accounts')
-      .set('test-title', "fail create account" )
-      .send(payload)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.statusCode;
-        
-        should.not.exist(resterr);
-        response.should.not.equal(666);
-        response.should.not.equal(200);
-        response.should.equal(400);
-        done();
-        
-      }); 
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'fail create account' },
+          body: payload
+      });
+
+      const body = res.body;
+      res.statusCode.should.equal(400);
+      body.success.should.equal(false);
       
     });
 
-    it('Should not add an account if secondaryEmail is empty', function(done){
+    it('Should not add an account if secondaryEmail is empty',  async () => {
       
-      const data = payload;
-      data.secondaryEmail = "";
+      const payload = data;
+      payload.secondaryEmail = "";
 
-      request(server)
-      .post('/accounts')
-      .set('test-title', "fail create account" )
-      .send(payload)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.statusCode;
-        
-        should.not.exist(resterr);
-        response.should.not.equal(666);
-        response.should.not.equal(200);
-        response.should.equal(400);
-        done();
-        
-      }); 
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'fail create account' },
+          body: payload
+      });
+
+      const body = res.body;
+      res.statusCode.should.equal(400);
+      body.success.should.equal(false);
       
     });
 
-    it('Should not add an account if without password', function(done){
+    it('Should not add an account if without password',  async () => {
       
-      const data = payload;
-      delete data.password;
+      const payload = data;
+      delete payload.password;
 
-      request(server)
-      .post('/accounts')
-      .set('test-title', "fail create account" )
-      .send(payload)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.statusCode;
-        
-        should.not.exist(resterr);
-        response.should.not.equal(666);
-        response.should.not.equal(200);
-        response.should.equal(400);
-        done();
-        
-      }); 
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'fail create account' },
+          body: payload
+      });
+
+      const body = res.body;
+      res.statusCode.should.equal(400);
+      body.success.should.equal(false);
       
     });
 
-    it('Should not add an account if password is empty', function(done){
+    it('Should not add an account if password is empty',  async () => {
       
-      const data = payload;
-      data.password = "";
+      const payload = data;
+      payload.password = "";
 
-      request(server)
-      .post('/accounts')
-      .set('test-title', "fail create account" )
-      .send(payload)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.statusCode;
-        
-        should.not.exist(resterr);
-        response.should.not.equal(666);
-        response.should.not.equal(200);
-        response.should.equal(400);
-        done();
-        
-      }); 
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'fail create account' },
+          body: payload
+      });
+
+      const body = res.body;
+      res.statusCode.should.equal(400);
+      body.success.should.equal(false);
       
     });
 
-    it('Should not add an account if without antenna', function(done){
+    it('Should not add an account if without antenna',  async () => {
       
-      const data = payload;
-      delete data.antenna;
+      const payload = data;
+      delete payload.antenna;
 
-      request(server)
-      .post('/accounts')
-      .set('test-title', "fail create account" )
-      .send(payload)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.statusCode;
-        
-        should.not.exist(resterr);
-        response.should.not.equal(666);
-        response.should.not.equal(200);
-        response.should.equal(400);
-        done();
-        
-      }); 
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'fail create account' },
+          body: payload
+      });
+
+      const body = res.body;
+      res.statusCode.should.equal(400);
+      body.success.should.equal(false);
       
     });
 
-    it('Should not add an account if antenna is empty', function(done){
+    it('Should not add an account if antenna is empty',  async () => {
       
-      const data = payload;
-      data.antenna = "";
+      const payload = data;
+      payload.antenna = "";
 
-      request(server)
-      .post('/accounts')
-      .set('test-title', "fail create account" )
-      .send(payload)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.statusCode;
-        
-        should.not.exist(resterr);
-        response.should.not.equal(666);
-        response.should.not.equal(200);
-        response.should.equal(400);
-        done();
-        
-      }); 
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'fail create account' },
+          body: payload
+      });
+
+      const body = res.body;
+      res.statusCode.should.equal(400);
+      body.success.should.equal(false);
       
     });
     
-    it('Should not add an account if without name', function(done){
+    it('Should not add an account if without name',  async () => {
       
-      const data = payload;
-      delete data.name.givenName;
+      const payload = data;
+      delete payload.name.givenName;
 
-      request(server)
-      .post('/accounts')
-      .set('test-title', "fail create account" )
-      .send(payload)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.statusCode;
-        
-        should.not.exist(resterr);
-        response.should.not.equal(666);
-        response.should.not.equal(200);
-        response.should.equal(400);
-        done();
-        
-      }); 
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'fail create account' },
+          body: payload
+      });
+
+      const body = res.body;
+      res.statusCode.should.equal(400);
+      body.success.should.equal(false);
       
     });
 
-    it('Should not add an account if name is empty', function(done){
+    it('Should not add an account if name is empty',  async () => {
       
-      const data = payload;
-      data.name.givenName = "";
+      const payload = data;
+      payload.name.givenName = "";
 
-      request(server)
-      .post('/accounts')
-      .set('test-title', "fail create account" )
-      .send(payload)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.statusCode;
-        
-        should.not.exist(resterr);
-        response.should.not.equal(666);
-        response.should.not.equal(200);
-        response.should.equal(400);
-        done();
-        
-      }); 
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'fail create account' },
+          body: payload
+      });
+
+      const body = res.body;
+      res.statusCode.should.equal(400);
+      body.success.should.equal(false);
       
     });
 
-    it('Should not add an account if without surname', function(done){
+    it('Should not add an account if without surname',  async () => {
       
-      const data = payload;
-      delete data.name.familyName;
+      const payload = data;
+      delete payload.name.familyName;
 
-      request(server)
-      .post('/accounts')
-      .set('test-title', "fail create account" )
-      .send(payload)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.statusCode;
-        
-        should.not.exist(resterr);
-        response.should.not.equal(666);
-        response.should.not.equal(200);
-        response.should.equal(400);
-        done();
-        
-      }); 
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'fail create account' },
+          body: payload
+      });
+
+      const body = res.body;
+      res.statusCode.should.equal(400);
+      body.success.should.equal(false);
       
     });
 
-    it('Should not add an account if surname is empty', function(done){
+    it('Should not add an account if surname is empty',  async () => {
       
-      const data = payload;
-      data.name.familyName = "";
+      const payload = data;
+      payload.name.familyName = "";
 
-      request(server)
-      .post('/accounts')
-      .set('test-title', "fail create account" )
-      .send(payload)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.statusCode;
-        
-        should.not.exist(resterr);
-        response.should.not.equal(666);
-        response.should.not.equal(200);
-        response.should.equal(400);
-        done();
-        
-      }); 
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'fail create account' },
+          body: payload
+      });
+
+      const body = res.body;
+      res.statusCode.should.equal(400);
+      body.success.should.equal(false);
+      
+    });
+
+    it('Should not add an account if without subjectID',  async () => {
+      
+      const payload = data;
+      delete payload.name.subjectID;
+
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'fail create account' },
+          body: payload
+      });
+
+      const body = res.body;
+      res.statusCode.should.equal(400);
+      body.success.should.equal(false);
+      
+    });
+
+    it('Should not add an account if subjectID is empty',  async () => {
+      
+      const payload = data;
+      payload.name.subjectID = "";
+
+      const res = await request({
+          uri: '/accounts',
+          method: 'POST',
+          headers: { 'test-title': 'fail create account' },
+          body: payload
+      });
+
+      const body = res.body;
+      res.statusCode.should.equal(400);
+      body.success.should.equal(false);
       
     });
     

@@ -8,6 +8,7 @@ const wrapper = require('./gsuite-wrapper.js');
 const log = require('./config/logger');
 
 const config = require('./config/configFile.js');
+const redis = require('./redis.js');
 
 //GsuiteRouter.use(middlewares.authenticateUser);
 
@@ -81,7 +82,7 @@ async function startServer() {
         const localApp = server.listen(config.port, async () => {
             app = localApp;
             log.info('Up and running: %s listening on %s:%d', server.name, server.url, config.port);
-            //await db.authenticate();
+            await redis.start();
             return res();
         });
         /* istanbul ignore next */
@@ -94,7 +95,9 @@ async function stopServer() {
     app.close();
     /* istanbul ignore next */
     //if (process.env.NODE_ENV !== 'test') await db.close();
+    const result = await redis.stop();
     app = null;
+    return result;
 }
 
 module.exports = {
