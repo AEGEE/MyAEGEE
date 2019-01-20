@@ -1,14 +1,13 @@
 const chai = require('chai');
 const should = chai.should();
 const server = require('../lib/server.js').server;
-const request = require('supertest');
+const { request } = require('./test-helper.js');
 
 function delay(interval){
     return it('should delay', done => 
             {setTimeout(() => done(), interval)}
             ).timeout(interval + 100) // The extra 100ms should guarantee the test will not fail due to exceeded timeout
 }
-
 
 describe('Groups', function(){
   
@@ -28,22 +27,16 @@ describe('Groups', function(){
       
       const payload = data;
 
-      request(server)
-      .post('/groups')
-      //.set('x-auth-token', TOKEN )
-      .set('test-title', "create group" )
-      .send(payload)
-      .end(function(resterr, resp) {
-        
-        let response = 666;
-        response = resp.body;
+      const res = await request({
+          uri: '/groups',
+          method: 'POST',
+          headers: { 'test-title': 'create group' },
+          body: payload
+      });
 
-        should.not.exist(resterr);
-        resp.statusCode.should.not.equal(666);
-        resp.statusCode.should.equal(201);
-        done();
-        
-      }); 
+      resp.statusCode.should.equal(201);
+      resp.statusCode.should.equal(true);
+      done();
       
     });
     

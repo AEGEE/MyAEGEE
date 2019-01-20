@@ -95,8 +95,9 @@ async function stopServer() {
     app.close();
     /* istanbul ignore next */
     //if (process.env.NODE_ENV !== 'test') await db.close();
-    await redis.stop();
+    const result = await redis.stop();
     app = null;
+    return result;
 }
 
 module.exports = {

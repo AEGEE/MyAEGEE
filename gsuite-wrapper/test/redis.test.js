@@ -2,6 +2,7 @@ const chai = require('chai');
 const should = chai.should();
 const server = require('../lib/server.js').server;
 const request = require('supertest');
+const { startServer, stopServer } = require('../lib/server.js');
 
 const redis = require('../lib/redis.js');
 
@@ -11,16 +12,15 @@ function delay(interval){
             ).timeout(interval + 100) // The extra 100ms should guarantee the test will not fail due to exceeded timeout
 }
 
+before("start server", async function(){
+    const result = await startServer();
+    console.log(result);
+});
 
-//    before("start redis?!", async function(){
-//      const result = await redis.start();
-//      console.log(result);
-//    });
-
-    after("close redis?", async function(){
-      const result = await redis.stop();
-      console.log(result);
-    });
+after("stop server", async function(){
+    const result = await stopServer();
+    console.log(result);
+});
 
 describe('Redis', function(){
 
