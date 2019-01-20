@@ -8,8 +8,11 @@
     path = oms-core-elixir
     url = https://github.com/AEGEE/oms-core-elixir.git
 [submodule "oms-frontend"]
-	path = oms-frontend
-	url = https://github.com/aegee/oms-frontend
+    path = oms-frontend
+    url = https://github.com/aegee/oms-frontend
 [submodule "oms-statutory"]
-	path = oms-statutory
-	url = https://github.com/AEGEE/oms-statutory
+    path = oms-statutory
+    url = https://github.com/AEGEE/oms-statutory
+[submodule "oms-mailer"]
+	path = oms-mailer
+	url = https://github.com/AEGEE/oms-mailer.git
