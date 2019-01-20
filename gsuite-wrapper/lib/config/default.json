@@ -1,4 +1,5 @@
 {
+  "url": "http://localhost",
   "port": 8899,
   "redis": {
     "host": "redis-wrapper",

@@ -69,7 +69,7 @@ exports.deleteGroup = async function(req, res , next) {
         try{
             let result = await runGsuiteOperation(gsuiteOperations.deleteGroup, data);
             response = {success: result.success, message: data.groupName+" group has been deleted", data: result.data };
-            statusCode = (result.code === 204 ? 200 : result.code );
+            statusCode = result.code;
             log.debug(result); 
             if(result.success) {
               await redis.del("group:"+subjectID, "primary:"+subjectID, "id:"+groupID).catch(err => console.log("redis error: "+err));

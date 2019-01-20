@@ -81,7 +81,7 @@ async function startServer() {
     return new Promise((res, rej) => {
         const localApp = server.listen(config.port, async () => {
             app = localApp;
-            log.info('Up and running: %s listening on %s:%d', server.name, server.url, config.port);
+            log.info('Up and running: %s listening on %s:%d', server.name, config.url, config.port);
             await redis.start();
             return res();
         });

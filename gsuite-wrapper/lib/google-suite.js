@@ -42,7 +42,8 @@ async function runGsuiteOperation(operation, payload) {
 
     const res = await operation(jwt, payload);
     const operationResult = {success: true, code: res.status, data: res.data};
-    if( operation.name.indexOf("add") > -1 && operationResult.code === 200) { operationResult.code = "201" };
+    if( operation.name.indexOf("add") > -1 && operationResult.code === 200) { operationResult.code = 201 };
+    if( operationResult.code === 204) { operationResult.code = 200 };
   
   return operationResult;
 };
@@ -119,44 +120,6 @@ const gsuiteOperations = {
   //       }
   //     })
   // },
-
-  // // Insert member in Google group
-  // addUserInGroup: function addUserInGroup(jwt, data){ 
-  //   const admin = google.admin('directory_v1');
-  //   admin.members.insert({
-  //       groupKey: data.groupName,
-  //       requestBody: {
-  //         email: data.userName,
-  //       },
-  //       auth: jwt
-  //     },
-  //     (err, data) => {
-  //       if (err){
-  //         console.log("OHNO: error code " + err.code + " on subject " +err.config.data +"; what went wrong: "+ err.errors[0].message);
-  //       }else {
-  //         console.log("Status: " + data.status + "; Response: " + JSON.stringify(data.data) );
-  //         return data.data
-  //       }
-  //     })
-  // },
-
-  // // Delete member from Google group
-  // deleteUserFromGroup: function deleteUserFromGroup(jwt, data){ 
-  //   const admin = google.admin('directory_v1');
-  //   admin.members.delete({
-  //       groupKey: data.groupName,
-  //       memberKey: data.userName,
-  //       auth: jwt
-  //     },
-  //     (err, data) => {
-  //       if (err){
-  //         console.log("OHNO: error code " + err.code + " on subject " +err.config.data +"; what went wrong: "+ err.errors[0].message);
-  //       }else {
-  //         console.log("Status: " + data.status + "; Response: " + JSON.stringify(data.data) );
-  //         return data.data
-  //       }
-  //     })
-  // }
 
 }
 
