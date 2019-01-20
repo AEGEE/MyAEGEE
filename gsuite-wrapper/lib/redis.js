@@ -12,7 +12,7 @@ async function startRedis(){
   redis.connect().then( () => {
     console.log("Redis has started");
     log.info("Redis has started");
-    return res;
+    return "YEAH";
   })
 }
 

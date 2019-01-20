@@ -1,6 +1,6 @@
 const requestPromise = require('request-promise-native');
 
-const config = require('../lib/config');
+const config = require('../lib/config/configFile.js');
 
 const request = requestPromise.defaults({
     json: true,

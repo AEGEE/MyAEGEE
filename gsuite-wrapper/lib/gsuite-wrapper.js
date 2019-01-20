@@ -46,12 +46,16 @@ exports.deleteGroup = async function(req, res , next) {
     //req.log.debug({req: req}, 'findAllUsers request');
 
     const subjectID = req.params.name;
-    
+    log.debug(subjectID); 
+
     let response = {success: false, message: "Undefined error"};
     let statusCode = 500;
-    
-    const groupID = await redis.get("primary:"+subjectID);
-    console.log(groupID); 
+    let groupID = ""; 
+
+    if(subjectID){ 
+        groupID = await redis.get("primary:"+subjectID);
+        log.debug(groupID);
+    } 
     if(!groupID){
 
         response.message = "Error: no group matching subjectID "+ subjectID;
@@ -60,18 +64,22 @@ exports.deleteGroup = async function(req, res , next) {
     }else{
 
         const data = {groupName: groupID};
+        log.debug(data.groupName);
     
         try{
             let result = await runGsuiteOperation(gsuiteOperations.deleteGroup, data);
-            response = {success: true, message: data.groupName+" group has been deleted", data: result.data };
-            statusCode = result.code;
-            
-            redis.del("group:"+subjectID, "primary:"+subjectID, "id:"+groupID).catch(err => console.log("redis error: "+err));
+            response = {success: result.success, message: data.groupName+" group has been deleted", data: result.data };
+            statusCode = (result.code === 204 ? 200 : result.code );
+            log.debug(result); 
+            if(result.success) {
+              await redis.del("group:"+subjectID, "primary:"+subjectID, "id:"+groupID).catch(err => console.log("redis error: "+err));
+            }
 
         }catch(GsuiteError){
             //log.debug(JSON.toString(GsuiteError));
             //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};
             log.warn("GsuiteError");
+            console.log(GsuiteError);
             response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
             statusCode = GsuiteError.code;
         }

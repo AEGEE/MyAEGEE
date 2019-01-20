@@ -26,17 +26,23 @@ describe('Redis', function(){
 
     const Redis = redis.db;
 
-    it('should just do fuckign something', function(done){
-      Redis.set("ciao","bambina");
-      done();
-    }); 
+//    it('should just do fuckign something', function(done){
+//      Redis.set("ciao","bambina");
+//      done();
+//    }); 
   
-    it('should just do another something', function(done){
+    it('should list keyspace', function(done){
         //redis.get("ciao").then(res => {console.log(res); done();}) ;
         Redis.keys("*").then(res => {console.log(res); done()});
     }); 
-    it('should just do another something', function(done){
+
+//    it('should just do another something', function(done){
+//        //redis.get("ciao").then(res => {console.log(res); done();}) ;
+//        Redis.get("ciao").then(res => {console.log(res); done()});
+//    }); 
+
+    it.skip('should FLUSH DB OMH', function(done){
         //redis.get("ciao").then(res => {console.log(res); done();}) ;
-        Redis.get("ciao").then(res => {console.log(res); done()});
+        Redis.flushdb().then(res => {console.log(res); done()});
     }); 
 }); 
