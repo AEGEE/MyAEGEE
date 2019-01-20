@@ -1,11 +1,8 @@
 const {runGsuiteOperation, gsuiteOperations} = require('./google-suite.js');
 
-const log = require('./config/logger');
+const log = require('./config/logger.js');
 
-const config = require('./config/configFile.js');
-
-const Redis = require('ioredis');
-const redis = new Redis(config.redis);
+const redis = require('./redis.js').db;
 
 //API DEFINITION
 
@@ -54,7 +51,7 @@ exports.deleteGroup = async function(req, res , next) {
     let statusCode = 500;
     
     const groupID = await redis.get("primary:"+subjectID);
-    
+    console.log(groupID); 
     if(!groupID){
 
         response.message = "Error: no group matching subjectID "+ subjectID;

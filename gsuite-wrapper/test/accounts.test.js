@@ -39,7 +39,7 @@ describe('Accounts', function(){
   describe('POST /accounts', function(){  
     
     it('Should add an account if valid', function(done){
-
+      this.timeout(3000);
       const data = payload;
 
       request(server)

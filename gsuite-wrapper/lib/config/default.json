@@ -1,8 +1,9 @@
 {
   "port": 8899,
   "redis": {
-    "host": "redis",
-    "port": "6379"
+    "host": "redis-wrapper",
+    "port": "6379",
+    "lazyConnect": "false"
     }
 
 }

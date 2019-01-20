@@ -228,7 +228,7 @@ describe('Groups', function(){
   
   describe('DELETE /groups/:name', function(){
 
-   // delay(1000); 
+    delay(1500); 
     
     it('Should not remove group if no string', function(done){
       
@@ -320,7 +320,7 @@ describe('Groups', function(){
     it('Should remove group', function(done){
       
       //this.timeout(3000);
-
+//TODO Add redis here such that I can also check the keys
       request(server)
       .delete('/groups/'+subjectID)
       //.set('x-auth-token', TOKEN )
