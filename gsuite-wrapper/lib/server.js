@@ -14,7 +14,7 @@ const redis = require('./redis.js');
 
 GsuiteRouter.post('/groups', wrapper.createGroup); //circle is created -> create a group
 //GsuiteRouter.put('/groups', wrapper.modifyGroup); //circle is modified -> group is modified
-//GsuiteRouter.put('/account/:username/group', wrapper.editMembershipToGroup); //user is into a circle -> user is added to a group
+GsuiteRouter.put('/account/:username/group', wrapper.editMembershipToGroup); //user is into a circle -> user is added to a group
 GsuiteRouter.delete('/groups/:name', wrapper.deleteGroup); //body is deleted -> group is deleted
 
 GsuiteRouter.post('/accounts', wrapper.createAccount); //member is created -> create an account 

@@ -85,24 +85,31 @@ const gsuiteOperations = {
     return result;
   },
 
-  // // Insert group in the system
-  // addGroup: function addGroup(jwt, data){ 
-  //   const admin = google.admin('directory_v1');
-  //   admin.groups.insert({
-  //       requestBody: {
-  //         email: data.groupName,
-  //       },
-  //       auth: jwt
-  //     },
-  //     (err, data) => {
-  //       if (err){
-  //         console.log("OHNO: error code " + err.code + " on subject " +err.config.data +"; what went wrong: "+ err.errors[0].message);
-  //       }else {
-  //         console.log("Status: " + data.status + "; Response: " + JSON.stringify(data.data) );
-  //         return data.data
-  //       }
-  //     })
-  // },
+  // Insert member in Google group
+  addUserInGroup: async function addUserInGroup(jwt, data){ 
+    const admin = google.admin('directory_v1');
+    const result = await admin.members.insert({
+        groupKey: data.groupName,
+        requestBody: {
+          email: data.userName,
+        },
+        auth: jwt
+      });
+      return result;
+  },
+
+  // Delete member from Google group
+  removeUserFromGroup: async function removeUserFromGroup(jwt, data){ 
+    const admin = google.admin('directory_v1');
+    const result = await admin.members.delete({
+        groupKey: data.groupName,
+        memberKey: data.userName,
+        auth: jwt
+      });
+
+      return result;
+  },
+
 
   // // delete the group key
   // deleteGroup: function deleteGroup(jwt, data){ 
