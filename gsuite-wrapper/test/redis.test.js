@@ -1,7 +1,5 @@
 const chai = require('chai');
 const should = chai.should();
-const server = require('../lib/server.js').server;
-const request = require('supertest');
 const { startServer, stopServer } = require('../lib/server.js');
 
 const redis = require('../lib/redis.js');
