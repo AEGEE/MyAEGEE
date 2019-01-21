@@ -219,6 +219,64 @@ exports.editMembershipToGroup = async function(req, res , next) {
     return res.status(statusCode).json(response);
 };
 
+exports.createCalEvent = async function(req, res , next) { 
+    //req.log.debug({req: req}, 'findAllUsers request');
+    const data = req.body; 
 
+    let response = {success: false, message: "Undefined error"};
+    let statusCode = 500;
+    
+    if( !data.name || 
+        !data.startDate || 
+        !data.endDate || 
+        !data.description || 
+        !data.location || 
+        !data.eventID){
+
+        response.message = "Validation error: a required property is absent or empty";
+        statusCode = 400;
+
+    }else{
+
+        const payload = {
+            'id': data.eventID,
+            'summary': data.name,
+            'location': data.location,
+            'description': data.description,
+            'start': {
+              //'dateTime': '2015-05-28T09:00:00-07:00',
+              'dateTime': data.startDate,
+              'timeZone': 'Europe/Brussels',
+            },
+            'end': {
+              'dateTime': data.endDate,
+              'timeZone': 'Europe/Brussels',
+            },
+            'reminders': {
+              'useDefault': false,
+              'overrides': [
+                {'method': 'email', 'minutes': 24 * 60},
+                {'method': 'popup', 'minutes': 10},
+              ],
+            },
+          };
+
+        try{
+            let result = await runGsuiteOperation(gsuiteOperations.addEvent, payload);
+            response = {success: true, message: result.data+"Event has been created", data: result.data };
+            statusCode = result.code;
+            console.log(result.data);
+        }catch(GsuiteError){
+            //log.debug(JSON.toString(GsuiteError));
+            //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};
+            log.warn("GsuiteError");
+            response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
+            statusCode = GsuiteError.code;
+        }
+
+    }
+
+    return res.status(statusCode).json(response);
+};
 
 //HELPER or INTERNAL METHODS/VARS

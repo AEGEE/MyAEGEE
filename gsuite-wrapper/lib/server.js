@@ -19,6 +19,9 @@ GsuiteRouter.delete('/groups/:name', wrapper.deleteGroup); //body is deleted -> 
 
 GsuiteRouter.post('/accounts', wrapper.createAccount); //member is created -> create an account 
 
+GsuiteRouter.post('/calendar', wrapper.createCalEvent); //event is accepted by EQAC -> put in calendar of events
+
+
 const server = express();
 server.use(bodyParser.json());
 server.use(morgan((tokens, req, res) => {

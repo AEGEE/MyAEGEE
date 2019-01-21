@@ -26,6 +26,7 @@ const jwt = new google.auth.JWT(
     'https://www.googleapis.com/auth/admin.directory.group',
     'https://www.googleapis.com/auth/admin.directory.group.member',
     'https://www.googleapis.com/auth/admin.directory.user',
+    'https://www.googleapis.com/auth/calendar.events',
   ],
   config.GsuiteKeys.delegatedUser,
 );
@@ -120,23 +121,17 @@ const gsuiteOperations = {
       return result;
   },
 
+  // Insert event in the system
+  addEvent: async function addEvent(jwt, data){ 
+    const calendar = google.calendar();
+    const result = await calendar.events.insert({
+      auth: jwt,
+      calendarId: 'primary', //FIXME?
+      resource: data,
+    });
 
-  // // delete the group key
-  // deleteGroup: function deleteGroup(jwt, data){ 
-  //   const admin = google.admin('directory_v1');
-  //   admin.groups.delete({
-  //       groupKey: data.groupName,
-  //       auth: jwt
-  //     },
-  //     (err, data) => {
-  //       if (err){
-  //         console.log("OHNO: error code " + err.code + " on subject " +err.config.data +"; what went wrong: "+ err.errors[0].message);
-  //       }else {
-  //         console.log("Status: " + data.status + "; Response: " + JSON.stringify(data.data) );
-  //         return data.data
-  //       }
-  //     })
-  // },
+    return result;
+  },
 
 }
 
