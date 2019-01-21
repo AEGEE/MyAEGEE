@@ -7,7 +7,8 @@ const redis = require('./redis.js').db;
 //API DEFINITION
 
 exports.createGroup = async function(req, res , next) { 
-    //req.log.debug({req: req}, 'findAllUsers request');
+    log.debug(req.headers['test-title']);
+
     const data = req.body;
 
     let response = {success: false, message: "Undefined error"};
@@ -43,7 +44,7 @@ exports.createGroup = async function(req, res , next) {
 };
 
 exports.deleteGroup = async function(req, res , next) { 
-    //req.log.debug({req: req}, 'findAllUsers request');
+    log.debug(req.headers['test-title']);
 
     const subjectID = req.params.name;
     log.debug(subjectID); 
@@ -63,12 +64,12 @@ exports.deleteGroup = async function(req, res , next) {
 
     }else{
 
-        const data = {groupName: groupID};
-        log.debug(data.groupName);
+        const data = {primaryEmail: groupID};
+        log.debug(data.primaryEmail);
     
         try{
             let result = await runGsuiteOperation(gsuiteOperations.deleteGroup, data);
-            response = {success: result.success, message: data.groupName+" group has been deleted", data: result.data };
+            response = {success: result.success, message: data.primaryEmail+" group has been deleted", data: result.data };
             statusCode = result.code;
             log.debug(result); 
             if(result.success) {
@@ -89,12 +90,13 @@ exports.deleteGroup = async function(req, res , next) {
 };
 
 exports.createAccount = async function(req, res , next) { 
-    //req.log.debug({req: req}, 'findAllUsers request');
+    log.debug(req.headers['test-title']);
+
     const data = req.body; 
 
     let response = {success: false, message: "Undefined error"};
     let statusCode = 500;
-    
+
     if( !data.subjectID || 
         !data.primaryEmail || 
         !data.secondaryEmail || 
@@ -102,9 +104,10 @@ exports.createAccount = async function(req, res , next) {
         !data.antenna || 
         !data.name.givenName ||
         !data.name.familyName ){
-
+     
         response.message = "Validation error: a required property is absent or empty";
         statusCode = 400;
+
 
     }else{
 
@@ -156,7 +159,8 @@ exports.createAccount = async function(req, res , next) {
 
 //Possible values for data.operation: add|remove|upgrade|downgrade
 exports.editMembershipToGroup = async function(req, res , next) {
-    //req.log.debug({req: req}, 'findAllUsers request');
+    log.debug(req.headers['test-title']);
+
     const personPK = req.params.username;    
     const data = req.body;
 
@@ -170,7 +174,7 @@ exports.editMembershipToGroup = async function(req, res , next) {
         (data.operation !== "add" && 
         data.operation !== "remove") ){
 
-        response.message = "Validation error: operation empty or not valid; or groupName is absent or empty";
+        response.message = "Validation error: operation empty or not valid; or primaryKey is absent or empty";
         statusCode = 400;
 
     }else{
@@ -179,7 +183,7 @@ exports.editMembershipToGroup = async function(req, res , next) {
         const groupID = await redis.get("primary:"+data.groupPK);
         log.debug(userID);
         log.debug(groupID);
-        data.groupName = groupID;
+        data.primaryEmail = groupID;
         data.userName = userID;
 
         try{
@@ -206,7 +210,6 @@ exports.editMembershipToGroup = async function(req, res , next) {
             //console.log(GsuiteError);
             //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};
             log.warn("GsuiteError");
-            console.log(GsuiteError);
             response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
             statusCode = GsuiteError.code;
         }

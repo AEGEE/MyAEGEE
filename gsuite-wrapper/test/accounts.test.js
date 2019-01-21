@@ -290,7 +290,7 @@ describe('Accounts', function(){
     it('Should not add an account if without subjectID',  async () => {
       
       const payload = JSON.parse(JSON.stringify(data));
-      delete payload.name.subjectID;
+      delete payload.subjectID;
 
       const res = await request({
           uri: '/accounts',
@@ -308,7 +308,7 @@ describe('Accounts', function(){
     it('Should not add an account if subjectID is empty',  async () => {
       
       const payload = JSON.parse(JSON.stringify(data));
-      payload.name.subjectID = "";
+      payload.subjectID = "";
 
       const res = await request({
           uri: '/accounts',

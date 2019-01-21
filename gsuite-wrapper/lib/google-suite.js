@@ -68,7 +68,7 @@ const gsuiteOperations = {
   deleteGroup: async function deleteGroup(jwt, data){ 
     const admin = google.admin('directory_v1');
     const result = await admin.groups.delete({
-        groupKey: data.groupName,
+        groupKey: data.primaryEmail,
         auth: jwt
       });
     return result;
@@ -89,7 +89,7 @@ const gsuiteOperations = {
   addUserInGroup: async function addUserInGroup(jwt, data){ 
     const admin = google.admin('directory_v1');
     const result = await admin.members.insert({
-        groupKey: data.groupName,
+        groupKey: data.primaryEmail,
         requestBody: {
           email: data.userName,
         },
@@ -102,7 +102,7 @@ const gsuiteOperations = {
   removeUserFromGroup: async function removeUserFromGroup(jwt, data){ 
     const admin = google.admin('directory_v1');
     const result = await admin.members.delete({
-        groupKey: data.groupName,
+        groupKey: data.primaryEmail,
         memberKey: data.userName,
         auth: jwt
       });
