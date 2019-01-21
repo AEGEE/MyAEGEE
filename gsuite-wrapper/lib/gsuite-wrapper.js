@@ -34,6 +34,7 @@ exports.createGroup = async function(req, res , next) {
             //console.log(GsuiteError);
             //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};
             log.warn("GsuiteError");
+            console.log(GsuiteError);
             response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
             statusCode = GsuiteError.code;
         }
@@ -148,6 +149,7 @@ exports.createAccount = async function(req, res , next) {
             //log.debug(JSON.toString(GsuiteError));
             //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};
             log.warn("GsuiteError");
+            console.log(GsuiteError);
             response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
             statusCode = GsuiteError.code;
         }
@@ -210,6 +212,7 @@ exports.editMembershipToGroup = async function(req, res , next) {
             //console.log(GsuiteError);
             //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};
             log.warn("GsuiteError");
+            console.log(GsuiteError);
             response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
             statusCode = GsuiteError.code;
         }
@@ -220,7 +223,8 @@ exports.editMembershipToGroup = async function(req, res , next) {
 };
 
 exports.createCalEvent = async function(req, res , next) { 
-    //req.log.debug({req: req}, 'findAllUsers request');
+    log.debug(req.headers['test-title']);
+
     const data = req.body; 
 
     let response = {success: false, message: "Undefined error"};
@@ -270,6 +274,7 @@ exports.createCalEvent = async function(req, res , next) {
             //log.debug(JSON.toString(GsuiteError));
             //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};
             log.warn("GsuiteError");
+            console.log(GsuiteError);
             response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
             statusCode = GsuiteError.code;
         }

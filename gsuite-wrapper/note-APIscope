@@ -1,0 +1,6 @@
+when one wants to add API:
+
+1) look for the specs on developers.google.com
+2) look for the js wrapper in github
+3) enable from google cloud console the api
+4) assign the clientID the scope from https://admin.google.com/aegee.eu/AdminHome?chromeless=1#OGX:ManageOauthClients

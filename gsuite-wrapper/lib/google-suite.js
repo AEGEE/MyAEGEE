@@ -123,10 +123,10 @@ const gsuiteOperations = {
 
   // Insert event in the system
   addEvent: async function addEvent(jwt, data){ 
-    const calendar = google.calendar();
+    const calendar = google.calendar('v3');
     const result = await calendar.events.insert({
       auth: jwt,
-      calendarId: 'primary', //FIXME?
+      calendarId: 'member.aegee.org_pmfkss8cqipbjlg3qf3306bmjo@group.calendar.google.com', 
       resource: data,
     });
 
