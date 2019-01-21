@@ -14,7 +14,7 @@ const redis = require('./redis.js');
 
 GsuiteRouter.post('/groups', wrapper.createGroup); //circle is created -> create a group
 //GsuiteRouter.put('/groups', wrapper.modifyGroup); //circle is modified -> group is modified
-//GsuiteRouter.put('/account/:username/group', wrapper.editMembershipToGroup); //user is into a circle -> user is added to a group
+GsuiteRouter.put('/account/:username/group', wrapper.editMembershipToGroup); //user is into a circle -> user is added to a group
 GsuiteRouter.delete('/groups/:name', wrapper.deleteGroup); //body is deleted -> group is deleted
 
 GsuiteRouter.post('/accounts', wrapper.createAccount); //member is created -> create an account 
@@ -81,7 +81,7 @@ async function startServer() {
     return new Promise((res, rej) => {
         const localApp = server.listen(config.port, async () => {
             app = localApp;
-            log.info('Up and running: %s listening on %s:%d', server.name, server.url, config.port);
+            log.info('Up and running: %s listening on %s:%d', server.name, config.url, config.port);
             await redis.start();
             return res();
         });

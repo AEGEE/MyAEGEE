@@ -39,7 +39,7 @@ describe('Accounts', function(){
     
     it('Should add an account if valid',  async () => {
       this.timeout(3000);
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
 
       const res = await request({
           uri: '/accounts',
@@ -56,7 +56,7 @@ describe('Accounts', function(){
     
     it('Should not add an account if already existing',  async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
 
       const res = await request({
           uri: '/accounts',
@@ -73,7 +73,7 @@ describe('Accounts', function(){
   
     it('Should not add an account if without primaryEmail',  async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       delete payload.primaryEmail;
 
       const res = await request({
@@ -91,7 +91,7 @@ describe('Accounts', function(){
 
     it('Should not add an account if primaryEmail is empty',  async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       payload.primaryEmail = "";
 
       const res = await request({
@@ -109,7 +109,7 @@ describe('Accounts', function(){
 
     it('Should not add an account if without secondaryEmail',  async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       delete payload.secondaryEmail;
 
       const res = await request({
@@ -127,7 +127,7 @@ describe('Accounts', function(){
 
     it('Should not add an account if secondaryEmail is empty',  async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       payload.secondaryEmail = "";
 
       const res = await request({
@@ -145,7 +145,7 @@ describe('Accounts', function(){
 
     it('Should not add an account if without password',  async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       delete payload.password;
 
       const res = await request({
@@ -163,7 +163,7 @@ describe('Accounts', function(){
 
     it('Should not add an account if password is empty',  async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       payload.password = "";
 
       const res = await request({
@@ -181,7 +181,7 @@ describe('Accounts', function(){
 
     it('Should not add an account if without antenna',  async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       delete payload.antenna;
 
       const res = await request({
@@ -199,7 +199,7 @@ describe('Accounts', function(){
 
     it('Should not add an account if antenna is empty',  async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       payload.antenna = "";
 
       const res = await request({
@@ -217,7 +217,7 @@ describe('Accounts', function(){
     
     it('Should not add an account if without name',  async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       delete payload.name.givenName;
 
       const res = await request({
@@ -235,7 +235,7 @@ describe('Accounts', function(){
 
     it('Should not add an account if name is empty',  async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       payload.name.givenName = "";
 
       const res = await request({
@@ -253,7 +253,7 @@ describe('Accounts', function(){
 
     it('Should not add an account if without surname',  async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       delete payload.name.familyName;
 
       const res = await request({
@@ -271,7 +271,7 @@ describe('Accounts', function(){
 
     it('Should not add an account if surname is empty',  async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       payload.name.familyName = "";
 
       const res = await request({
@@ -289,8 +289,8 @@ describe('Accounts', function(){
 
     it('Should not add an account if without subjectID',  async () => {
       
-      const payload = data;
-      delete payload.name.subjectID;
+      const payload = JSON.parse(JSON.stringify(data));
+      delete payload.subjectID;
 
       const res = await request({
           uri: '/accounts',
@@ -307,8 +307,8 @@ describe('Accounts', function(){
 
     it('Should not add an account if subjectID is empty',  async () => {
       
-      const payload = data;
-      payload.name.subjectID = "";
+      const payload = JSON.parse(JSON.stringify(data));
+      payload.subjectID = "";
 
       const res = await request({
           uri: '/accounts',

@@ -7,7 +7,8 @@ const redis = require('./redis.js').db;
 //API DEFINITION
 
 exports.createGroup = async function(req, res , next) { 
-    //req.log.debug({req: req}, 'findAllUsers request');
+    log.debug(req.headers['test-title']);
+
     const data = req.body;
 
     let response = {success: false, message: "Undefined error"};
@@ -43,7 +44,7 @@ exports.createGroup = async function(req, res , next) {
 };
 
 exports.deleteGroup = async function(req, res , next) { 
-    //req.log.debug({req: req}, 'findAllUsers request');
+    log.debug(req.headers['test-title']);
 
     const subjectID = req.params.name;
     log.debug(subjectID); 
@@ -63,13 +64,13 @@ exports.deleteGroup = async function(req, res , next) {
 
     }else{
 
-        const data = {groupName: groupID};
-        log.debug(data.groupName);
+        const data = {primaryEmail: groupID};
+        log.debug(data.primaryEmail);
     
         try{
             let result = await runGsuiteOperation(gsuiteOperations.deleteGroup, data);
-            response = {success: result.success, message: data.groupName+" group has been deleted", data: result.data };
-            statusCode = (result.code === 204 ? 200 : result.code );
+            response = {success: result.success, message: data.primaryEmail+" group has been deleted", data: result.data };
+            statusCode = result.code;
             log.debug(result); 
             if(result.success) {
               await redis.del("group:"+subjectID, "primary:"+subjectID, "id:"+groupID).catch(err => console.log("redis error: "+err));
@@ -89,12 +90,13 @@ exports.deleteGroup = async function(req, res , next) {
 };
 
 exports.createAccount = async function(req, res , next) { 
-    //req.log.debug({req: req}, 'findAllUsers request');
+    log.debug(req.headers['test-title']);
+
     const data = req.body; 
 
     let response = {success: false, message: "Undefined error"};
     let statusCode = 500;
-    
+
     if( !data.subjectID || 
         !data.primaryEmail || 
         !data.secondaryEmail || 
@@ -102,9 +104,10 @@ exports.createAccount = async function(req, res , next) {
         !data.antenna || 
         !data.name.givenName ||
         !data.name.familyName ){
-
+     
         response.message = "Validation error: a required property is absent or empty";
         statusCode = 400;
+
 
     }else{
 
@@ -153,5 +156,69 @@ exports.createAccount = async function(req, res , next) {
 
     return res.status(statusCode).json(response);
 };
+
+//Possible values for data.operation: add|remove|upgrade|downgrade
+exports.editMembershipToGroup = async function(req, res , next) {
+    log.debug(req.headers['test-title']);
+
+    const personPK = req.params.username;    
+    const data = req.body;
+
+    let response = {success: false, message: "Undefined error"};
+    let statusCode = 500;
+
+    if( !data.groupPK ||
+        !data.operation ||
+        data.operation === "upgrade" || //NOT IMPLEMENTED YET
+        data.operation === "downgrade" ||  //NOT IMPLEMENTED YET       
+        (data.operation !== "add" && 
+        data.operation !== "remove") ){
+
+        response.message = "Validation error: operation empty or not valid; or primaryKey is absent or empty";
+        statusCode = 400;
+
+    }else{
+
+        const userID = await redis.get("primary:"+personPK);
+        const groupID = await redis.get("primary:"+data.groupPK);
+        log.debug(userID);
+        log.debug(groupID);
+        data.primaryEmail = groupID;
+        data.userName = userID;
+
+        try{
+            let operation = null;
+            data.operation === "add" 
+                    ? operation = gsuiteOperations.addUserInGroup
+                    : data.operation === "remove" ? operation = gsuiteOperations.removeUserFromGroup
+                    : operation = gsuiteOperations.changeUserGroupPrivilege ; ;
+
+            let result = await runGsuiteOperation(operation, data);
+            response = {success: result.success, message: result.data.email+" membership has been created", data: result.data };
+            statusCode = result.code;
+
+            if (data.operation === 'add' ){
+                redis.sadd("membership:"+userID, groupID);
+                redis.sadd("members:"+groupID, userID);
+            }
+            if (data.operation === 'remove' ){
+                await redis.srem("membership:"+userID, groupID);
+                await redis.srem("members:"+groupID, userID);
+            }
+
+        }catch(GsuiteError){
+            //console.log(GsuiteError);
+            //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};
+            log.warn("GsuiteError");
+            response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
+            statusCode = GsuiteError.code;
+        }
+
+    }
+
+    return res.status(statusCode).json(response);
+};
+
+
 
 //HELPER or INTERNAL METHODS/VARS
