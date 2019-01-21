@@ -24,7 +24,7 @@ describe('Groups', function(){
     
     it('Should add a group if valid', async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
 
       const res = await request({
           uri: '/groups',
@@ -41,7 +41,7 @@ describe('Groups', function(){
     
     it('Should not add a group if already existing', async () => {
       
-      const payload = data;  
+      const payload = JSON.parse(JSON.stringify(data));  
 
       const res = await request({
           uri: '/groups',
@@ -58,7 +58,7 @@ describe('Groups', function(){
   
     it('Should not add a group if without primaryEmail', async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       delete payload.primaryEmail;
         
       const res = await request({
@@ -76,7 +76,7 @@ describe('Groups', function(){
 
     it('Should not add a group if without name', async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       delete payload.groupName;
 
       const res = await request({
@@ -94,7 +94,7 @@ describe('Groups', function(){
 
     it('Should not add a group if without subjectID', async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       delete payload.subjectID;
 
       const res = await request({
@@ -112,7 +112,7 @@ describe('Groups', function(){
 
     it('Should not add a group if not valid (subjectID is empty property)', async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       payload.subjectID = "";
 
       const res = await request({
@@ -130,7 +130,7 @@ describe('Groups', function(){
 
     it('Should not add a group if not valid (groupName is empty property)', async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       payload.groupName = "";
 
       const res = await request({
@@ -148,7 +148,7 @@ describe('Groups', function(){
 
     it('Should not add a group if not valid (primaryEmail is empty property)',async () => {
       
-      const payload = data;
+      const payload = JSON.parse(JSON.stringify(data));
       payload.primaryEmail = "";
         
       const res = await request({

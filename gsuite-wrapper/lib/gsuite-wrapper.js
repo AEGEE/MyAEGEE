@@ -190,7 +190,7 @@ exports.editMembershipToGroup = async function(req, res , next) {
                     : operation = gsuiteOperations.changeUserGroupPrivilege ; ;
 
             let result = await runGsuiteOperation(operation, data);
-            response = {success: result.success, message: result.data.email+" group has been created", data: result.data };
+            response = {success: result.success, message: result.data.email+" membership has been created", data: result.data };
             statusCode = result.code;
 
             if (data.operation === 'add' ){
@@ -214,6 +214,8 @@ exports.editMembershipToGroup = async function(req, res , next) {
     }
 
     return res.status(statusCode).json(response);
-}
+};
+
+
 
 //HELPER or INTERNAL METHODS/VARS

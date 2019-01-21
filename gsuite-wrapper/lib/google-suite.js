@@ -64,7 +64,7 @@ const gsuiteOperations = {
     return result;
   },
 
-  // Delete the group key
+  // Delete the group
   deleteGroup: async function deleteGroup(jwt, data){ 
     const admin = google.admin('directory_v1');
     const result = await admin.groups.delete({
@@ -98,7 +98,7 @@ const gsuiteOperations = {
       return result;
   },
 
-  // Delete member from Google group
+  // Remove member from Google group
   removeUserFromGroup: async function removeUserFromGroup(jwt, data){ 
     const admin = google.admin('directory_v1');
     const result = await admin.members.delete({
