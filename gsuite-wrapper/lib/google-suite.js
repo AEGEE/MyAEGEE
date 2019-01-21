@@ -85,6 +85,16 @@ const gsuiteOperations = {
     return result;
   },
 
+  // Delete the account
+  deleteAccount: async function deleteaccount(jwt, data){ 
+    const admin = google.admin('directory_v1');
+    const result = await admin.users.delete({
+        userKey: data.primaryEmail,
+        auth: jwt
+      });
+    return result;
+  },
+
   // Insert member in Google group
   addUserInGroup: async function addUserInGroup(jwt, data){ 
     const admin = google.admin('directory_v1');

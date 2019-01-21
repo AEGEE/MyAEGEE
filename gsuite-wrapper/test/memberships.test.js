@@ -63,35 +63,60 @@ describe.only('Memberships', function(){
     "groupPK": group_subjectID
   }
 
-//  before("add group and user", async function(){
-//    this.timeout(8000);
-//    let result = await runGsuiteOperation(gsuiteOperations.addGroup, groupData);
-//    console.log(result);
-//    result = await runGsuiteOperation(gsuiteOperations.addAccount, accountData);
-//    console.log(result);
-//
-//    const group_primaryEmail = primaryEmail;
-//    const user_primaryEmail = generatedUsername;
-//    const user_secondaryEmail = email;
-//    //group
-//    redis.hset("group:"+group_subjectID, "GsuiteAccount", group_primaryEmail);
-//    redis.set("primary:"+group_subjectID, group_primaryEmail);
-//    redis.set("id:"+group_primaryEmail, group_subjectID);
-//    //user    
-//    redis.hset("user:"+user_subjectID, "GsuiteAccount", user_primaryEmail, "SecondaryEmail", user_secondaryEmail );
-//    redis.set("primary:"+user_subjectID, user_primaryEmail);
-//    redis.set("primary:"+user_secondaryEmail, user_primaryEmail);
-//    redis.set("id:"+user_primaryEmail, user_subjectID);
-//    redis.set("secondary:"+user_primaryEmail, user_secondaryEmail);
-//  });
+  before("add group and user", async function(){
+    this.timeout(8000);
+    let result = await runGsuiteOperation(gsuiteOperations.addGroup, groupData);
+    console.log(result);
+    result = await runGsuiteOperation(gsuiteOperations.addAccount, accountData);
+    console.log(result);
 
-  after("check redis keyspace", async () => {
-     const keys = await redis.keys('*');
+    const group_primaryEmail = primaryEmail;
+    const user_primaryEmail = generatedUsername;
+    const user_secondaryEmail = email;
+    //group
+    redis.hset("group:"+group_subjectID, "GsuiteAccount", group_primaryEmail);
+    redis.set("primary:"+group_subjectID, group_primaryEmail);
+    redis.set("id:"+group_primaryEmail, group_subjectID);
+    //user    
+    redis.hset("user:"+user_subjectID, "GsuiteAccount", user_primaryEmail, "SecondaryEmail", user_secondaryEmail );
+    redis.set("primary:"+user_subjectID, user_primaryEmail);
+    redis.set("primary:"+user_secondaryEmail, user_primaryEmail);
+    redis.set("id:"+user_primaryEmail, user_subjectID);
+    redis.set("secondary:"+user_primaryEmail, user_secondaryEmail);
+  });
+
+  after("Remove users", async function(){
+     this.timeout(8000);
+
+     let keys = await redis.keys('*');
+     console.log(keys);
+
+     let result = await runGsuiteOperation(gsuiteOperations.deleteGroup, groupData);
+     console.log(result);
+     result = await runGsuiteOperation(gsuiteOperations.deleteAccount, accountData);
+     console.log(result);
+
+     const group_primaryEmail = primaryEmail;
+     const user_primaryEmail = generatedUsername;
+     const user_secondaryEmail = email;
+     //group
+     pip = redis.pipeline();
+     pip.hdel("group:"+group_subjectID, "GsuiteAccount");
+     pip.del("primary:"+group_subjectID, "id:"+group_primaryEmail);
+     //user    
+     pip.hdel("user:"+user_subjectID, "GsuiteAccount");
+     pip.hdel("user:"+user_subjectID, "SecondaryEmail");
+     pip.del("primary:"+user_subjectID, "primary:"+user_secondaryEmail, "id:"+user_primaryEmail, "secondary:"+user_primaryEmail);
+     pip.exec( (err, res) => {  console.log(err); console.log(res); } );
+
+     keys = await redis.keys('*');
      console.log(keys);
   });
 
   describe('PUT /account/:username/group', function(){  
-    
+   
+    delay(2000); //because they've just been created by the before
+
     it('Should make a membership if valid', async () => {
       
       const payload = JSON.parse(JSON.stringify(data));
@@ -235,8 +260,6 @@ describe.only('Memberships', function(){
       
     });
 
-    delay(1500);
-
     it('Should not remove a membership if invalid payload (swap user&group)', async () => {
       
       const payload = JSON.parse(JSON.stringify(data));
@@ -255,6 +278,8 @@ describe.only('Memberships', function(){
       body.success.should.equal(false);
       
     });
+
+    delay(1500);
 
     it('Should remove a membership if valid', async () => {
       
@@ -292,6 +317,7 @@ describe.only('Memberships', function(){
       
     });
     
-    
+    delay(2000); //for the final removal called in the "after"
+
   });
 });
