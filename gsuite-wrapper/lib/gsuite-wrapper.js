@@ -165,10 +165,10 @@ exports.editMembershipToGroup = async function(req, res , next) {
 
     if( !data.groupPK ||
         !data.operation ||
-        data.operation !== "add" || 
-        data.operation !== "remove" || 
         data.operation === "upgrade" || //NOT IMPLEMENTED YET
-        data.operation === "downgrade" ){ //NOT IMPLEMENTED YET
+        data.operation === "downgrade" ||  //NOT IMPLEMENTED YET       
+        (data.operation !== "add" && 
+        data.operation !== "remove") ){
 
         response.message = "Validation error: operation empty or not valid; or groupName is absent or empty";
         statusCode = 400;
@@ -180,17 +180,16 @@ exports.editMembershipToGroup = async function(req, res , next) {
         log.debug(userID);
         log.debug(groupID);
         data.groupName = groupID;
-        data.username = userID;
+        data.userName = userID;
 
         try{
             let operation = null;
             data.operation === "add" 
                     ? operation = gsuiteOperations.addUserInGroup
-                    : data.operation === "remove" ? operation = removeUserFromGroup
+                    : data.operation === "remove" ? operation = gsuiteOperations.removeUserFromGroup
                     : operation = gsuiteOperations.changeUserGroupPrivilege ; ;
-            
+
             let result = await runGsuiteOperation(operation, data);
-            console.log(result);
             response = {success: result.success, message: result.data.email+" group has been created", data: result.data };
             statusCode = result.code;
 
@@ -207,6 +206,7 @@ exports.editMembershipToGroup = async function(req, res , next) {
             //console.log(GsuiteError);
             //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};
             log.warn("GsuiteError");
+            console.log(GsuiteError);
             response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
             statusCode = GsuiteError.code;
         }
