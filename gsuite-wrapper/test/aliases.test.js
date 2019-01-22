@@ -23,6 +23,7 @@ describe.only('Aliases', function(){
   const SHA1Password = crypto.createHash('sha1').update(JSON.stringify(password)).digest('hex');
   const user_subjectID = "totallyuuid-account";
   const userAlias = "alias_for_user_test@aegee.eu";
+  const otherAlias = "other_alias_for_test@aegee.eu";
 
   const accountData = {
     "primaryEmail": generatedUsername,
@@ -54,7 +55,7 @@ describe.only('Aliases', function(){
     "aliasName": userAlias
   }
 
-  before("add and user", async function(){
+  before("add the user", async function(){
     this.timeout(8000);
     let result = await runGsuiteOperation(gsuiteOperations.addAccount, accountData);
     console.log(result);
@@ -88,6 +89,7 @@ describe.only('Aliases', function(){
      pip.hdel("user:"+user_subjectID, "GsuiteAccount");
      pip.hdel("user:"+user_subjectID, "SecondaryEmail");
      pip.del("primary:"+user_subjectID, "primary:"+user_secondaryEmail, "id:"+user_primaryEmail, "secondary:"+user_primaryEmail);
+     pip.srem("alias:"+user_subjectID, otherAlias); //this to remove *from redis* the alias that comes from the deletion of the user
      pip.exec( (err, res) => {  console.log(err); console.log(res); } );
 
      keys = await redis.keys('*');
@@ -237,12 +239,13 @@ describe.only('Aliases', function(){
           });
 
           const body = res.body;
-          res.statusCode.should.equal(404);
+          res.statusCode.should.equal(400);
           body.success.should.equal(false);
-          
+
+         console.log(body); 
         });
 
-        it('Should not remove an alias if mistaken payload (swap user&group)', async () => {
+        it('Should not remove an alias if mistaken payload (swap user&alias)', async () => {
           
           const payload = JSON.parse(JSON.stringify(data));
           payload.operation = "remove";
@@ -256,9 +259,10 @@ describe.only('Aliases', function(){
           });
 
           const body = res.body;
-          res.statusCode.should.equal(404);
+          res.statusCode.should.equal(400);
           body.success.should.equal(false);
           
+         console.log(body); 
         });
 
     });
@@ -267,21 +271,15 @@ describe.only('Aliases', function(){
 
         it('#GET: Should correctly retrieve single alias', async () => {
           
-          const payload = JSON.parse(JSON.stringify(data));
-          payload.operation = "remove";
-
           const res = await request({
               uri: '/account/'+user_subjectID+'/alias',
               method: 'GET',
               headers: { 'test-title': 'get alias' },
-              body: payload
           });
 
           body = res.body;
-          console.log(body);
           res.statusCode.should.equal(200);
           body.success.should.equal(true);
-          //body.data.should.be('array');
           
         });
 
@@ -289,8 +287,7 @@ describe.only('Aliases', function(){
           
           //First add a second alias
           const payload = JSON.parse(JSON.stringify(data));
-          payload.operation = "remove";
-          payload.aliasName = "alias_2_for_test@aegee.eu"
+          payload.aliasName = otherAlias; 
 
           let res = await request({
               uri: '/account/'+user_subjectID+'/alias',
@@ -300,21 +297,18 @@ describe.only('Aliases', function(){
           });
 
           let body = res.body;
-          res.statusCode.should.equal(200);
+          res.statusCode.should.equal(201);
           body.success.should.equal(true);
 
           res = await request({
               uri: '/account/'+user_subjectID+'/alias',
               method: 'GET',
               headers: { 'test-title': 'get alias' },
-              body: payload
           });
 
           body = res.body;
-          console.log(body);
           res.statusCode.should.equal(200);
           body.success.should.equal(true);
-          //body.data.should.be('array');
           
         });
         
@@ -355,7 +349,7 @@ describe.only('Aliases', function(){
           });
 
           const body = res.body;
-          res.statusCode.should.equal(404);
+          res.statusCode.should.equal(400);
           body.success.should.equal(false);
           
         });

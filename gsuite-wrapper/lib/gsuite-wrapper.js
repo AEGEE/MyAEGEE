@@ -233,7 +233,7 @@ exports.updateAlias = async function(req, res , next) {
         (data.operation !== "add" && 
         data.operation !== "remove") ){
 
-        response.message = "Validation error: operation empty or not valid; or primaryKey is absent or empty";
+        response.message = "Validation error: operation empty or not valid; or aliasName is absent or empty";
         statusCode = 400;
 
     }else{
@@ -259,23 +259,22 @@ exports.updateAlias = async function(req, res , next) {
                 redis.pipeline()
                     .hset("user:"+personPK, "GsuiteAlias", data.aliasName )
                     .set("alias:"+personPK, data.aliasName)
-                    .set("alias:"+userID, data.aliasName)// will overwrite in case of multiple aliases
                     .set("primary:"+data.aliasName, userID)
-                    .sset("alias:"+userID, data.aliasName)
+                    .sadd("alias:"+userID, data.aliasName)
                     .exec();
             }
             if (data.operation === 'remove' ){
                 await redis.pipeline()
                     .srem("alias:"+userID, data.aliasName)
-                    .del("alias:"+personPK, "alias:"+userID, "primary:"+data.aliasName)
+                    .del("alias:"+personPK, "primary:"+data.aliasName)
                     .hdel("user:"+personPK, "GsuiteAlias")
                     .exec();
             }
 
         }catch(GsuiteError){
-            //console.log(GsuiteError);
-            //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};
-            log.warn("GsuiteError");
+            log.warn(GsuiteError.errors);
+            log.warn(req.headers['test-title']);
+            //console.log(GsuiteError.errors);
             response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
             statusCode = GsuiteError.code;
         }
@@ -292,13 +291,18 @@ exports.getAliasFromRedis = async function(req, res , next) {
 
     const userID = await redis.get("primary:"+personPK);
     log.debug(userID);
-    data.primaryEmail = userID;
-
-    const aliases = await redis.sget("alias:"+userID);
 
     const response = {success: true, 
                 message: "Aliases as follow", 
-                data: aliases };
+                data: "" };
+
+    const aliases = await redis.smembers("alias:"+userID)
+                   .catch(err => {
+                       response.success = false; 
+                       response.message = "Something with redis"; 
+                       response.data = err; });
+
+    response.data = aliases;
 
     return res.status(200).json(response);
 };
