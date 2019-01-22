@@ -5,12 +5,15 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const GsuiteRouter = router({ mergeParams: true });
 const wrapper = require('./gsuite-wrapper.js'); 
-const log = require('./config/logger');
+const log = require('./config/logger.js');
+
+const middlewares = require('./middlewares.js');
 
 const config = require('./config/configFile.js');
 const redis = require('./redis.js');
 
-//GsuiteRouter.use(middlewares.authenticateUser);
+const serverInfo = require('./info.js');
+
 
 GsuiteRouter.post('/groups', wrapper.createGroup); //circle is created -> create a group
 //GsuiteRouter.put('/groups', wrapper.modifyGroup); //circle is modified -> group is modified
@@ -43,7 +46,8 @@ process.on('unhandledRejection', (err) => {
 
 server.use('/', GsuiteRouter);
 
-//server.use( (req, res, next) => errors.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl));
+server.use( middlewares.notFound );
+server.use( middlewares.errorHandler );
 // error handler
 // app.use(function(err, req, res, next) {
 //     // set locals, only providing error message in development
@@ -54,27 +58,7 @@ server.use('/', GsuiteRouter);
   
 //     return res.status(err.status || 500).send({"error": err.message});
 //   });
-//server.use( (err, req, res, next) => {
-//    // Handling invalid JSON
-//    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-//        return errors.makeBadRequestError(res, 'Invalid JSON.');
-//    }
-//
-//    // Handling validation errors
-//    if (err.name && err.name === 'SequelizeValidationError') {
-//        return errors.makeValidationError(res, err);
-//    }
-//
-//    /* istanbul ignore next */
-////    if (process.env.NODE_ENV !== 'test') {
-////        bugsnag.notify(err);
-////    }
-//
-//    /* istanbul ignore next */
-//    log.error(err.stack);
-//    /* istanbul ignore next */
-//    return errors.makeInternalError(res, err);
-//});
+
 
 let app;
 async function startServer() {
@@ -82,6 +66,10 @@ async function startServer() {
         const localApp = server.listen(config.port, async () => {
             app = localApp;
             log.info('Up and running: %s listening on %s:%d', server.name, config.url, config.port);
+            log.info(serverInfo.host());
+            log.info(serverInfo.name());
+            log.info(serverInfo.version());
+            log.info(serverInfo.env());
             await redis.start();
             return res();
         });
