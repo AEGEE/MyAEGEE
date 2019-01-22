@@ -219,6 +219,89 @@ exports.editMembershipToGroup = async function(req, res , next) {
     return res.status(statusCode).json(response);
 };
 
+exports.updateAlias = async function(req, res , next) {
+    log.debug(req.headers['test-title']);
+
+    const personPK = req.params.username;    
+    const data = req.body;
+
+    let response = {success: false, message: "Undefined error"};
+    let statusCode = 500;
+
+    if( !data.aliasName ||
+        !data.operation ||
+        (data.operation !== "add" && 
+        data.operation !== "remove") ){
+
+        response.message = "Validation error: operation empty or not valid; or primaryKey is absent or empty";
+        statusCode = 400;
+
+    }else{
+
+        const operation = (data.operation === "add" ? gsuiteOperations.addEmailAlias : gsuiteOperations.removeEmailAlias); 
+
+        const userID = await redis.get("primary:"+personPK);
+        log.debug(userID);
+        data.primaryEmail = userID;
+
+        const payload = {
+            "primaryEmail": userID,
+            "aliasName": data.aliasName
+        };
+
+        try{
+            
+            let result = await runGsuiteOperation(operation, payload);
+            response = {success: result.success, message: result.data.email+" membership has been created", data: result.data };
+            statusCode = result.code;
+
+            if (data.operation === 'add' ){
+                redis.pipeline()
+                    .hset("user:"+personPK, "GsuiteAlias", data.aliasName )
+                    .set("alias:"+personPK, data.aliasName)
+                    .set("alias:"+userID, data.aliasName)// will overwrite in case of multiple aliases
+                    .set("primary:"+data.aliasName, userID)
+                    .sset("alias:"+userID, data.aliasName)
+                    .exec();
+            }
+            if (data.operation === 'remove' ){
+                await redis.pipeline()
+                    .srem("alias:"+userID, data.aliasName)
+                    .del("alias:"+personPK, "alias:"+userID, "primary:"+data.aliasName)
+                    .hdel("user:"+personPK, "GsuiteAlias")
+                    .exec();
+            }
+
+        }catch(GsuiteError){
+            //console.log(GsuiteError);
+            //response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message, code: GsuiteError.response.status};
+            log.warn("GsuiteError");
+            response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
+            statusCode = GsuiteError.code;
+        }
+
+    }
+
+    return res.status(statusCode).json(response);
+};
+
+exports.getAliasFromRedis = async function(req, res , next) {
+    log.debug(req.headers['test-title']);
+
+    const personPK = req.params.username;    
+
+    const userID = await redis.get("primary:"+personPK);
+    log.debug(userID);
+    data.primaryEmail = userID;
+
+    const aliases = await redis.sget("alias:"+userID);
+
+    const response = {success: true, 
+                message: "Aliases as follow", 
+                data: aliases };
+
+    return res.status(200).json(response);
+};
 
 
 //HELPER or INTERNAL METHODS/VARS
