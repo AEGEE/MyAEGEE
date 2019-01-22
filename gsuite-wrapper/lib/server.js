@@ -66,10 +66,7 @@ async function startServer() {
         const localApp = server.listen(config.port, async () => {
             app = localApp;
             log.info('Up and running: %s listening on %s:%d', server.name, config.url, config.port);
-            log.info(serverInfo.host());
-            log.info(serverInfo.name());
-            log.info(serverInfo.version());
-            log.info(serverInfo.env());
+            log.info('Version %s of %s in %s mode, deployed on %s', serverInfo.version(), serverInfo.name(), serverInfo.env, serverInfo.host());
             await redis.start();
             return res();
         });

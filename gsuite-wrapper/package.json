@@ -7,8 +7,11 @@
   "repository": "AEGEE/oms-gsuite-wrapper",
   "main": "lib/server.js",
   "scripts": {
-    "update-dep": "david update",
-    "test": "NODE_ENV=test; nyc --cache --reporter=none mocha"
+    "start": "echo 'idk'",
+    "test": "export NODE_ENV=test; nyc --cache --reporter=none mocha",
+    "posttest": "nyc report --reporter=html --reporter=text; echo 'time to get scared.. run <npm run lint>'",
+    "lint": "jshint **/*.js",
+    "update-dep": "david update"
   },
   "dependencies": {
     "config": "^3.0.1",
