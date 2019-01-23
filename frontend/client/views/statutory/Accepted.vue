@@ -4,34 +4,42 @@
       <div class="tile is-child">
         <div class="title">Accepted applications</div>
 
-        <table class="table is-narrow is-fullwidth">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Body</th>
-              <th>Type and order</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="pax in applications" v-bind:key="pax.id">
-              <td>{{ pax.id }}</td>
-              <td>{{ pax.first_name }} {{ pax.last_name }}</td>
-              <td>
-                <router-link :to="{ name: 'oms.bodies.view', params: { id: pax.body_id } }">
-                  {{ pax.body_name }}
+        <b-table
+          :data="applications"
+          :loading="isLoading"
+          default-sort="id"
+          default-sort-direction="desc">
+          <template slot-scope="props">
+            <b-table-column field="id" label="#" numeric sortable>
+              {{ props.row.id }}
+            </b-table-column>
+
+            <b-table-column field="first_name" label="Name" sortable>
+              {{ props.row.first_name }} {{ props.row.last_name }}
+            </b-table-column>
+
+            <b-table-column field="body_name" label="Body" sortable>
+              <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
+                  {{ props.row.body_name }}
                 </router-link>
-              </td>
-              <td>{{ pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' }}</td>
-            </tr>
-            <tr v-if="applications.length == 0 && !isLoading">
-              <td colspan="4">No applications yet!</td>
-            </tr>
-            <tr v-if="isLoading">
-              <td colspan="4">Loading...</td>
-            </tr>
-          </tbody>
-        </table>
+            </b-table-column>
+
+            <b-table-column field="participant_type" label="Participant type and order" centered sortable>
+              {{ props.row.participant_type ? `${props.row.participant_type} (${props.row.participant_order})` : '' }}
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
       </div>
     </div>
   </div>
@@ -45,8 +53,7 @@ export default {
   data () {
     return {
       applications: [],
-      isLoading: false,
-      isSaving: false
+      isLoading: false
     }
   },
   computed: mapGetters({
@@ -59,7 +66,7 @@ export default {
       this.applications = application.data.data
       this.isLoading = false
     }).catch((err) => {
-      let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+      let message = (err.response && err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
       this.$root.showDanger(message)
       this.$router.push({ name: 'oms.statutory.list.all' })
