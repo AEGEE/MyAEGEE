@@ -12,22 +12,22 @@ describe('Groups', function(){
   
   const primaryEmail = "automated_test_group@aegee.eu";
   const groupName = "The automated test group";
-  const subjectID = "totallyuuid-group";
+  const bodyPK = "totallyuuid-group";
 
   const data = {
     "primaryEmail": primaryEmail,
     "groupName": groupName,
-    "subjectID": subjectID
+    "bodyPK": bodyPK
   };
 
-  describe('POST /groups', function(){  
+  describe('POST /group', function(){  
     
     it('Should add a group if valid', async () => {
       
       const payload = JSON.parse(JSON.stringify(data));
 
       const res = await request({
-          uri: '/groups',
+          uri: '/group',
           method: 'POST',
           headers: { 'test-title': 'create group' },
           body: payload
@@ -44,7 +44,7 @@ describe('Groups', function(){
       const payload = JSON.parse(JSON.stringify(data));  
 
       const res = await request({
-          uri: '/groups',
+          uri: '/group',
           method: 'POST',
           headers: { 'test-title': 'fail create group' },
           body: payload
@@ -62,7 +62,7 @@ describe('Groups', function(){
       delete payload.primaryEmail;
         
       const res = await request({
-          uri: '/groups',
+          uri: '/group',
           method: 'POST',
           headers: { 'test-title': 'fail create group 2' },
           body: payload
@@ -80,7 +80,7 @@ describe('Groups', function(){
       delete payload.groupName;
 
       const res = await request({
-          uri: '/groups',
+          uri: '/group',
           method: 'POST',
           headers: { 'test-title': 'fail create group 3' },
           body: payload
@@ -92,13 +92,13 @@ describe('Groups', function(){
       
     });
 
-    it('Should not add a group if without subjectID', async () => {
+    it('Should not add a group if without bodyPK', async () => {
       
       const payload = JSON.parse(JSON.stringify(data));
-      delete payload.subjectID;
+      delete payload.bodyPK;
 
       const res = await request({
-          uri: '/groups',
+          uri: '/group',
           method: 'POST',
           headers: { 'test-title': 'fail create group' },
           body: payload
@@ -110,13 +110,13 @@ describe('Groups', function(){
       
     });
 
-    it('Should not add a group if not valid (subjectID is empty property)', async () => {
+    it('Should not add a group if not valid (bodyPK is empty property)', async () => {
       
       const payload = JSON.parse(JSON.stringify(data));
-      payload.subjectID = "";
+      payload.bodyPK = "";
 
       const res = await request({
-          uri: '/groups',
+          uri: '/group',
           method: 'POST',
           headers: { 'test-title': 'fail create group' },
           body: payload
@@ -134,7 +134,7 @@ describe('Groups', function(){
       payload.groupName = "";
 
       const res = await request({
-          uri: '/groups',
+          uri: '/group',
           method: 'POST',
           headers: { 'test-title': 'fail create group' },
           body: payload
@@ -152,7 +152,7 @@ describe('Groups', function(){
       payload.primaryEmail = "";
         
       const res = await request({
-          uri: '/groups',
+          uri: '/group',
           method: 'POST',
           headers: { 'test-title': 'fail create group' },
           body: payload
@@ -168,7 +168,7 @@ describe('Groups', function(){
   });
 
   
-  describe('DELETE /groups/:name', function(){
+  describe('DELETE /group/:name', function(){
 
     
     it.skip('Should not remove group if no string', async () => {
@@ -176,7 +176,7 @@ describe('Groups', function(){
       //this.timeout(3000);
 
       const res = await request({
-          uri: '/groups',
+          uri: '/group',
           method: 'DELETE',
           headers: { 'test-title': 'fail del group' }
       }).catch(err => {console.log('gesu')});
@@ -192,7 +192,7 @@ describe('Groups', function(){
       //this.timeout(3000);
 
       const res = await request({
-          uri: '/groups/'+"",
+          uri: '/group/'+"",
           method: 'DELETE',
           headers: { 'test-title': 'fail del group' }
       }).catch(err => {console.log('gesu')});
@@ -208,7 +208,7 @@ console.log(res);
       //this.timeout(3000);
      
       const res = await request({
-          uri: '/groups/giovanniumut',
+          uri: '/group/giovanniumut',
           method: 'DELETE',
           headers: { 'test-title': 'fail del group' }
       });
@@ -224,7 +224,7 @@ console.log(res);
       //this.timeout(3000);
 
       const res = await request({
-          uri: '/groups/giova nniumut',
+          uri: '/group/giova nniumut',
           method: 'DELETE',
           headers: { 'test-title': 'fail del group' }
       });
@@ -242,7 +242,7 @@ console.log(res);
       //this.timeout(3000);
 //TODO Add redis here such that I can also check the keys
       const res = await request({
-        uri: '/groups/'+subjectID,
+        uri: '/group/'+bodyPK,
         method: 'DELETE',
         headers: { 'test-title': 'delete group' }
       });
@@ -254,4 +254,7 @@ console.log(res);
     });
 
   });
+
+  delay(2000);
+
 });

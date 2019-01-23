@@ -10,17 +10,19 @@ function delay(interval){
             ).timeout(interval + 100) // The extra 100ms should guarantee the test will not fail due to exceeded timeout
 }
 
+//GLOBAL!
 before("start server", async function(){
     const result = await startServer();
     console.log(result);
 });
 
+//GLOBAL!
 after("stop server", async function(){
     const result = await stopServer();
     console.log(result);
 });
 
-describe('Redis', function(){
+describe.skip('Redis', function(){
 
     const Redis = redis.db;
 

@@ -21,7 +21,7 @@ describe('Aliases', function(){
   const antenna = "AEGEE-Tallahassee";
   const password = "AEGEE-Europe";
   const SHA1Password = crypto.createHash('sha1').update(JSON.stringify(password)).digest('hex');
-  const user_subjectID = "totallyuuid-account";
+  const userPK = "totallyuuid-account";
   const userAlias = "alias_for_user_test@aegee.eu";
   const otherAlias = "other_alias_for_test@aegee.eu";
 
@@ -64,10 +64,10 @@ describe('Aliases', function(){
     const user_secondaryEmail = email;
 
     //user    
-    redis.hset("user:"+user_subjectID, "GsuiteAccount", user_primaryEmail, "SecondaryEmail", user_secondaryEmail );
-    redis.set("primary:"+user_subjectID, user_primaryEmail);
+    redis.hset("user:"+userPK, "GsuiteAccount", user_primaryEmail, "SecondaryEmail", user_secondaryEmail );
+    redis.set("primary:"+userPK, user_primaryEmail);
     redis.set("primary:"+user_secondaryEmail, user_primaryEmail);
-    redis.set("id:"+user_primaryEmail, user_subjectID);
+    redis.set("id:"+user_primaryEmail, userPK);
     redis.set("secondary:"+user_primaryEmail, user_secondaryEmail);
   });
 
@@ -86,10 +86,10 @@ describe('Aliases', function(){
      pip = redis.pipeline();
 
      //user    
-     pip.hdel("user:"+user_subjectID, "GsuiteAccount");
-     pip.hdel("user:"+user_subjectID, "SecondaryEmail");
-     pip.del("primary:"+user_subjectID, "primary:"+user_secondaryEmail, "id:"+user_primaryEmail, "secondary:"+user_primaryEmail);
-     pip.srem("alias:"+user_subjectID, otherAlias); //this to remove *from redis* the alias that comes from the deletion of the user
+     pip.hdel("user:"+userPK, "GsuiteAccount");
+     pip.hdel("user:"+userPK, "SecondaryEmail");
+     pip.del("primary:"+userPK, "primary:"+user_secondaryEmail, "id:"+user_primaryEmail, "secondary:"+user_primaryEmail);
+     pip.srem("alias:"+userPK, otherAlias); //this to remove *from redis* the alias that comes from the deletion of the user
      pip.exec( (err, res) => {  console.log(err); console.log(res); } );
 
      keys = await redis.keys('*');
@@ -106,7 +106,7 @@ describe('Aliases', function(){
           const payload = JSON.parse(JSON.stringify(data));
 
           const res = await request({
-              uri: '/account/'+user_subjectID+'/alias',
+              uri: '/account/'+userPK+'/alias',
               method: 'PUT',
               headers: { 'test-title': 'create alias' },
               body: payload
@@ -123,7 +123,7 @@ describe('Aliases', function(){
           const payload = JSON.parse(JSON.stringify(data));
 
           const res = await request({
-              uri: '/account/'+user_subjectID+'/alias',
+              uri: '/account/'+userPK+'/alias',
               method: 'PUT',
               headers: { 'test-title': 'fail create alias' },
               body: payload
@@ -160,7 +160,7 @@ describe('Aliases', function(){
           payload.operation = "";
 
           const res = await request({
-              uri: '/account/'+user_subjectID+'/alias',
+              uri: '/account/'+userPK+'/alias',
               method: 'PUT',
               headers: { 'test-title': 'fail create alias' },
               body: payload
@@ -178,7 +178,7 @@ describe('Aliases', function(){
           delete payload.operation;
 
           const res = await request({
-              uri: '/account/'+user_subjectID+'/alias',
+              uri: '/account/'+userPK+'/alias',
               method: 'PUT',
               headers: { 'test-title': 'fail create alias' },
               body: payload
@@ -196,7 +196,7 @@ describe('Aliases', function(){
           payload.aliasName = "";
 
           const res = await request({
-              uri: '/account/'+user_subjectID+'/alias',
+              uri: '/account/'+userPK+'/alias',
               method: 'PUT',
               headers: { 'test-title': 'fail create alias' },
               body: payload
@@ -214,7 +214,7 @@ describe('Aliases', function(){
           delete payload.aliasName;
 
           const res = await request({
-              uri: '/account/'+user_subjectID+'/alias',
+              uri: '/account/'+userPK+'/alias',
               method: 'PUT',
               headers: { 'test-title': 'fail create alias' },
               body: payload
@@ -229,7 +229,7 @@ describe('Aliases', function(){
         it('Should not add an alias if mistaken payload (swap user&alias)', async () => {
           
           const payload = JSON.parse(JSON.stringify(data));
-          payload.aliasName = user_subjectID;
+          payload.aliasName = userPK;
 
           const res = await request({
               uri: '/account/'+userAlias+'/group',
@@ -249,7 +249,7 @@ describe('Aliases', function(){
           
           const payload = JSON.parse(JSON.stringify(data));
           payload.operation = "remove";
-          payload.aliasName = user_subjectID;
+          payload.aliasName = userPK;
 
           const res = await request({
               uri: '/account/'+userAlias+'/group',
@@ -272,7 +272,7 @@ describe('Aliases', function(){
         it('#GET: Should correctly retrieve single alias', async () => {
           
           const res = await request({
-              uri: '/account/'+user_subjectID+'/alias',
+              uri: '/account/'+userPK+'/alias',
               method: 'GET',
               headers: { 'test-title': 'get alias' },
           });
@@ -290,7 +290,7 @@ describe('Aliases', function(){
           payload.aliasName = otherAlias; 
 
           let res = await request({
-              uri: '/account/'+user_subjectID+'/alias',
+              uri: '/account/'+userPK+'/alias',
               method: 'PUT',
               headers: { 'test-title': 'get alias (add 2nd alias)' },
               body: payload
@@ -301,7 +301,7 @@ describe('Aliases', function(){
           body.success.should.equal(true);
 
           res = await request({
-              uri: '/account/'+user_subjectID+'/alias',
+              uri: '/account/'+userPK+'/alias',
               method: 'GET',
               headers: { 'test-title': 'get alias' },
           });
@@ -324,7 +324,7 @@ describe('Aliases', function(){
           payload.operation = "remove";
 
           const res = await request({
-              uri: '/account/'+user_subjectID+'/alias',
+              uri: '/account/'+userPK+'/alias',
               method: 'PUT',
               headers: { 'test-title': 'remove alias' },
               body: payload
@@ -342,7 +342,7 @@ describe('Aliases', function(){
           payload.operation = "remove";
 
           const res = await request({
-              uri: '/account/'+user_subjectID+'/alias',
+              uri: '/account/'+userPK+'/alias',
               method: 'PUT',
               headers: { 'test-title': 'fail remove alias' },
               body: payload
@@ -359,4 +359,7 @@ describe('Aliases', function(){
     });
 
   });
+  
+  delay(2000);
+
 });

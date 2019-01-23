@@ -320,4 +320,7 @@ describe('Memberships', function(){
     delay(2000); //for the final removal called in the "after"
 
   });
+
+  delay(2000);
+
 });

@@ -9,7 +9,7 @@ function delay(interval){
             ).timeout(interval + 100) // The extra 100ms should guarantee the test will not fail due to exceeded timeout
 }
 
-describe.only('Events', function(){
+describe('Events', function(){
   
   const eventID = "nettallahassee19"+time().format("MMDoYYhhmmss");//IDs are unique and if an event is cancelled, the ID is still taken, wtf idk
   const eventName = "NWM Tallahassee";
@@ -27,7 +27,7 @@ describe.only('Events', function(){
     "endDate": endDate
   };
 
-  describe.only('POST /calendar', function(){  
+  describe('POST /calendar', function(){  
     
     it('Should add an event if valid', async () => {
       
@@ -280,4 +280,7 @@ describe.only('Events', function(){
     });
 
   });
+
+  delay(2000);
+
 });

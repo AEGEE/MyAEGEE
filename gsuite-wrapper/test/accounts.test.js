@@ -1,11 +1,10 @@
 const chai = require('chai');
 const should = chai.should();
 const { request } = require('./test-helper.js');
+const {runGsuiteOperation, gsuiteOperations} = require('../lib/google-suite.js');
 const crypto = require('crypto');
 
-const TEST_TOKEN = 'belzebu_test';
-const TOKEN = TEST_TOKEN;
-
+const redis = require('../lib/redis.js').db;
 function delay(interval){
     return it('should delay', done => 
             {setTimeout(() => done(), interval)}
@@ -21,7 +20,7 @@ describe('Accounts', function(){
   const antenna = "AEGEE-Tallahassee";
   const password = "AEGEE-Europe";
   const SHA1Password = crypto.createHash('sha1').update(JSON.stringify(password)).digest('hex');
-  const subjectID = "totallyuuid-account"
+  const userPK = "totallyuuid-account"
 
   const data = {
     "primaryEmail": generatedUsername,
@@ -32,17 +31,41 @@ describe('Accounts', function(){
     "secondaryEmail": email,
     "password": SHA1Password,
     "antenna": antenna,
-    "subjectID": subjectID
+    "userPK": userPK
   };
 
-  describe('POST /accounts', function(){  
+  after("Remove user", async function(){
+    this.timeout(8000);
+
+    let keys = await redis.keys('*');
+    console.log(keys);
+
+    let result = await runGsuiteOperation(gsuiteOperations.deleteAccount, data);
+    console.log(result);
+
+    const user_primaryEmail = generatedUsername;
+    const user_secondaryEmail = email;
+
+    pip = redis.pipeline();
+
+    //user    
+    pip.hdel("user:"+userPK, "GsuiteAccount");
+    pip.hdel("user:"+userPK, "SecondaryEmail");
+    pip.del("primary:"+userPK, "primary:"+user_secondaryEmail, "id:"+user_primaryEmail, "secondary:"+user_primaryEmail);
+    pip.exec( (err, res) => {  console.log(err); console.log(res); } );
+
+    keys = await redis.keys('*');
+    console.log(keys);
+ });
+
+  describe('POST /account', function(){  
     
     it('Should add an account if valid',  async () => {
       this.timeout(3000);
       const payload = JSON.parse(JSON.stringify(data));
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'create account' },
           body: payload
@@ -59,7 +82,7 @@ describe('Accounts', function(){
       const payload = JSON.parse(JSON.stringify(data));
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'fail create account' },
           body: payload
@@ -77,7 +100,7 @@ describe('Accounts', function(){
       delete payload.primaryEmail;
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'fail create account' },
           body: payload
@@ -95,7 +118,7 @@ describe('Accounts', function(){
       payload.primaryEmail = "";
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'fail create account' },
           body: payload
@@ -113,7 +136,7 @@ describe('Accounts', function(){
       delete payload.secondaryEmail;
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'fail create account' },
           body: payload
@@ -131,7 +154,7 @@ describe('Accounts', function(){
       payload.secondaryEmail = "";
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'fail create account' },
           body: payload
@@ -149,7 +172,7 @@ describe('Accounts', function(){
       delete payload.password;
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'fail create account' },
           body: payload
@@ -167,7 +190,7 @@ describe('Accounts', function(){
       payload.password = "";
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'fail create account' },
           body: payload
@@ -185,7 +208,7 @@ describe('Accounts', function(){
       delete payload.antenna;
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'fail create account' },
           body: payload
@@ -203,7 +226,7 @@ describe('Accounts', function(){
       payload.antenna = "";
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'fail create account' },
           body: payload
@@ -221,7 +244,7 @@ describe('Accounts', function(){
       delete payload.name.givenName;
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'fail create account' },
           body: payload
@@ -239,7 +262,7 @@ describe('Accounts', function(){
       payload.name.givenName = "";
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'fail create account' },
           body: payload
@@ -257,7 +280,7 @@ describe('Accounts', function(){
       delete payload.name.familyName;
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'fail create account' },
           body: payload
@@ -275,7 +298,7 @@ describe('Accounts', function(){
       payload.name.familyName = "";
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'fail create account' },
           body: payload
@@ -287,13 +310,13 @@ describe('Accounts', function(){
       
     });
 
-    it('Should not add an account if without subjectID',  async () => {
+    it('Should not add an account if without userPK',  async () => {
       
       const payload = JSON.parse(JSON.stringify(data));
-      delete payload.subjectID;
+      delete payload.userPK;
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'fail create account' },
           body: payload
@@ -305,13 +328,13 @@ describe('Accounts', function(){
       
     });
 
-    it('Should not add an account if subjectID is empty',  async () => {
+    it('Should not add an account if userPK is empty',  async () => {
       
       const payload = JSON.parse(JSON.stringify(data));
-      payload.subjectID = "";
+      payload.userPK = "";
 
       const res = await request({
-          uri: '/accounts',
+          uri: '/account',
           method: 'POST',
           headers: { 'test-title': 'fail create account' },
           body: payload
@@ -325,5 +348,6 @@ describe('Accounts', function(){
     
   });
 
-  
+  delay(2000);
+
 });
