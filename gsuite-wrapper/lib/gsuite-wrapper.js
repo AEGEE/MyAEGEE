@@ -222,6 +222,8 @@ exports.editMembershipToGroup = async function(req, res , next) {
     return res.status(statusCode).json(response);
 };
 
+//HELPER or INTERNAL METHODS/VARS
+
 exports.createCalEvent = async function(req, res , next) { 
     log.debug(req.headers['test-title']);
 
@@ -284,4 +286,3 @@ exports.createCalEvent = async function(req, res , next) {
     return res.status(statusCode).json(response);
 };
 
-//HELPER or INTERNAL METHODS/VARS
