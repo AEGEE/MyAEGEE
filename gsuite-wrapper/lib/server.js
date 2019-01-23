@@ -15,14 +15,14 @@ const redis = require('./redis.js');
 const serverInfo = require('./info.js');
 
 
-GsuiteRouter.post('/groups', wrapper.createGroup); //circle is created -> create a group
-//GsuiteRouter.put('/groups', wrapper.modifyGroup); //circle is modified -> group is modified
-GsuiteRouter.put('/account/:username/group', wrapper.editMembershipToGroup); //user is into a circle -> user is added to a group
-GsuiteRouter.delete('/groups/:name', wrapper.deleteGroup); //body is deleted -> group is deleted
+GsuiteRouter.post('/group', wrapper.createGroup); //circle is created -> create a group
+//GsuiteRouter.put('/group', wrapper.modifyGroup); //circle is modified -> group is modified
+GsuiteRouter.put('/account/:userPK/group', wrapper.editMembershipToGroup); //user is into a circle -> user is added to a group
+GsuiteRouter.delete('/group/:bodyPK', wrapper.deleteGroup); //body is deleted -> group is deleted
 
-GsuiteRouter.post('/accounts', wrapper.createAccount); //member is created -> create an account 
-GsuiteRouter.put('/account/:username/alias', wrapper.updateAlias); //user may need an alias (netcom-xxx@aegee.eu)
-GsuiteRouter.get('/account/:username/alias', wrapper.getAliasFromRedis); //user can read their alias (netcom-xxx@aegee.eu)
+GsuiteRouter.post('/account', wrapper.createAccount); //member is created -> create an account 
+GsuiteRouter.put('/account/:userPK/alias', wrapper.updateAlias); //user may need an alias (netcom-xxx@aegee.eu)
+GsuiteRouter.get('/account/:userPK/alias', wrapper.getAliasFromRedis); //user can read their alias (netcom-xxx@aegee.eu)
 
 GsuiteRouter.post('/calendar', wrapper.createCalEvent); //event is accepted by EQAC -> put in calendar of events
 

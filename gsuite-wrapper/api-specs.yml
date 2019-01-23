@@ -1,8 +1,7 @@
 ---
 swagger: "2.0"
 info:
-  description: "This is a server to generate Gsuite/O365 accounts. For this sample,\
-    \ you can use the api key `special-key` to test the authorization filters."
+  description: "This is a server to generate Gsuite accounts."
   version: "0.7.0"
   title: "Account Manager"
   termsOfService: "https://my.aegee.eu/legal/simple"
@@ -17,72 +16,28 @@ tags:
 - name: "Account"
   description: "Accounts operations: add/remove user; modify user details; add/remove aliases for user email"
   externalDocs:
-    description: "The user will have to accept Gsuite&O365 terms"
+    description: "The user will have to accept Gsuite terms"
     url: "https://my.aegee.eu"
 - name: "Groups"
   description: "Groups operations: add/remove a google group; add/remove a user membership to a group"
   externalDocs:
     description: "The user will be subscribed and unsubscribed automatically most of the times"
-    url: "https://groups.aegee.eu"
+    url: "http://groups.aegee.eu"
+- name: "Calendar"
+  description: "Calendar operations: add an event to the Gsuite calendar of events"
+  externalDocs:
+    description: "The user will be subscribed and unsubscribed automatically most of the times"
+    url: "http://calendar.aegee.eu"
 schemes:
 - "https"
 paths:
-  /map:
-    put:
-      tags:
-      - "Groups"
-      summary: "Modify map MyAEGEE-Gsuite"
-      description: "NOT IMPLEMENTED"
-      operationId: "modifyMap"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: ""
-        required: true
-        schema:
-          $ref: "#/definitions/Group"
-      responses:
-        200:
-          description: "successful operation"
-        400:
-          description: "Invalid input"
-      security:
-      - api_key: []
-      x-swagger-router-controller: "Groups"
-  /groups:
+  /group:
     post:
       tags:
       - "Groups"
       summary: "Create Gsuite group"
       description: "This endpoint is to create a Gsuite group"
-      operationId: "addGroup"
-      produces:
-      - "application/json"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Created group object"
-        required: true
-        schema:
-          $ref: '#/definitions/Group'
-      responses:
-        200:
-          description: "successful operation"
-        400:
-          description: "Invalid input"
-      security:
-      - api_key: []
-      x-swagger-router-controller: "Groups"
-    put:
-      tags:
-      - "Groups"
-      summary: "Modify group properties"
-      description: "NOT IMPLEMENTED - This endpoint is used to modify a group, e.g. description"
-      operationId: "modifyGroupProperties"
+      operationId: "createGroup"
       consumes:
       - "application/json"
       produces:
@@ -90,54 +45,52 @@ paths:
       parameters:
       - in: "body"
         name: "body"
-        description: "Group info"
+        description: "This ain't shown anywhere"
         required: true
         schema:
-          $ref: "#/definitions/Group"
+          $ref: '#/definitions/Group'
       responses:
-        200:
-          description: "successful operation"
+        201:
+          description: "Successful operation"
         400:
           description: "Invalid input"
-      security:
-      - api_key: []
-      x-swagger-router-controller: "Groups"
-  /groups/{name}:
+        409:
+          description: "Duplicate entity"
+  /group/{bodyPK}:
     delete:
       tags:
       - "Groups"
-      summary: "Delete google group"
-      description: "This endpoint is to delete the google group. 'Name' refers to the full qualified name, i.e. the email address." 
+      summary: "Delete Gsuite group"
+      description: "This endpoint is to delete the Gsuite group. 'bodyPK' refers to the primary key of the body/circle in the system." 
       operationId: "deleteGroup"
       produces:
       - "application/json"
       parameters:
-      - name: "name"
+      - name: "bodyPK"
         in: "path"
-        description: "The name of the group that needs to be deleted"
+        description: "The MyAEGEE key of the group that needs to be deleted"
         required: true
         type: "string"
       responses:
-        400:
-          description: "Invalid username supplied"
+        200:
+          description: "Successful operation"
         404:
-          description: "User not found"
-      security:
-      - api_key: []
-      x-swagger-router-controller: "Groups"
+          description: "Group not found"
   /account:
     post:
       tags:
       - "Account"
-      summary: "Create user account (both G/O)"
-      description: "NOT IMPLEMENTED. This endpoint is to create a Gsuite account"
-      operationId: "createUserAccount"
+      summary: "Create user account"
+      description: "This endpoint is to create a Gsuite account"
+      operationId: "createAccount"
+      consumes:
+      - "application/json"
       produces:
       - "application/json"
       parameters:
       - in: "body"
         name: "body"
-        description: "Created user account object"
+        description: "User account object"
         required: true
         schema:
           $ref: "#/definitions/Account"
@@ -146,189 +99,248 @@ paths:
           description: "Successful operation"
         400:
           description: "Invalid input"
-      security:
-      - api_key: []
-      x-swagger-router-controller: "Account"
+        409:
+          description: "Duplicate entity"
+  /account/{userPK}/alias:
     put:
       tags:
       - "Account"
-      summary: "Change (e.g. suspend) an existing user account (both G/O)"
-      description: "NOT IMPLEMENTED. This endpoint is to modify an user account, e.g. suspending it\
-        \ or changing antenna"
-      operationId: "updateUserAccount"
+      summary: "Gives/remove alias to the user"
+      description: "Gives/remove alias to the user. For remotion, one has \
+                      to be precise on which user alias wants to delete, in case \
+                      of multiple aliases"
+      operationId: "updateAlias"
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Account object that needs to be updated"
-        required: true
-        schema:
-          $ref: "#/definitions/Account"
-      responses:
-        400:
-          description: "Invalid username supplied"
-        404:
-          description: "Pet not found"
-        405:
-          description: "Validation exception"
-      security:
-      - api_key: []
-      x-swagger-router-controller: "Account"
-  /account/{username}:
-    put:
-      tags:
-      - "Account"
-      summary: "Suspend single user account (pick G/O. For both, use /account)"
-      description: "NOT IMPLEMENTED. This endpoint is to suspend an user's account, picking between\
-        \ G&O"
-      operationId: "suspendSingleUserAccount"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "username"
+      - name: "userPK"
         in: "path"
-        description: "name that need to be updated"
+        description: "User whose alias needs to be updated (PK of MyAEGEE)"
         required: true
         type: "string"
       - in: "body"
         name: "body"
-        description: "Updated user object"
+        description: "Operation to perform, and what the fuck this is not shown"
         required: true
         schema:
-          $ref: "#/definitions/Account"
+          $ref: "#/definitions/aliasOperation"
       responses:
+        200:
+          description: "Removal: Successful operation"
+        201:
+          description: "Creation: Successful operation"
         400:
-          description: "Invalid user supplied"
+          description: "Invalid payload"
         404:
-          description: "User not found"
-      security:
-      - api_key: []
-      x-swagger-router-controller: "Account"
-    delete:
-      tags:
-      - "Account"
-      summary: "Delete user account (both G/O)"
-      description: "NOT IMPLEMENTED. This endpoint is to delete the user account from G&O"
-      operationId: "deleteUserAccount"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "username"
-        in: "path"
-        description: "The username that needs to be deleted"
-        required: true
-        type: "string"
-      responses:
-        400:
-          description: "Invalid username supplied"
-        404:
-          description: "User not found"
-      security:
-      - api_key: []
-      x-swagger-router-controller: "Account"
-  /account/{username}/group:
+          description: "Alias not found"
+        409:
+          description: "Alias already existing"
+  /account/{userPK}/group:
     put:
       tags:
       - "Groups"
-      summary: "Add/remove account to group"
-      description: "This endpoint is used to modify an account's membership to a group,\
-        \ NOT a group"
-      operationId: "modifyAccountsGroupMembership"
+      summary: "Add/remove account membership to group"
+      description: "This endpoint is used to modify an account's membership to a group, \
+                    NOT a group"
+      operationId: "editMembershipToGroup"
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
-      - name: "username"
+      - name: "userPK"
         in: "path"
-        description: "name that need to be updated"
+        description: "User that needs to be inserted/removed"
         required: true
         type: "string"
       - in: "body"
         name: "body"
-        description: "User & group info"
+        description: "Operation & group info"
         required: true
         schema:
-          $ref: "#/definitions/body"
+          $ref: "#/definitions/Membership"
       responses:
         200:
-          description: "successful operation"
+          description: "Removal: Successful operation"
+        201:
+          description: "Creation: Successful operation"
         400:
           description: "Invalid input"
-      security:
-      - api_key: []
-      x-swagger-router-controller: "Groups"
-securityDefinitions:
-  api_key:
-    type: "apiKey"
-    name: "x-auth-token"
-    in: "header"
+        404:
+          description: "Member not found"
+        409:
+          description: "Member duplicate"
+  /calendar:
+    post:
+      tags:
+      - "Calendar"
+      summary: "Create Gsuite event on Calendar of Event"
+      description: "This endpoint is to create an event on \
+                    the Gsuite calendar of events, an organisation-wide \
+                    shared calendar."
+      operationId: "createCalEvent"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Created event object"
+        required: true
+        schema:
+          $ref: '#/definitions/Event'
+      responses:
+        201:
+          description: "Successful operation"
+        400:
+          description: "Invalid input"
+        409:
+          description: "Duplicate event"
 definitions:
   Group:
     type: "object"
     properties:
       primaryEmail:
         type: "string"
-        description: "The username of the account that is added (required)"
+        description: "The google ID (xxx@aegee.eu) of the group that is added"
         format: "email"
       groupName:
         type: "string"
-        description: "The name of the Google group (required)"
+        description: "The name of the Google group"
         format: "string"
+      bodyPK:
+        type: "string"
+        description: "The primary key that identifies the body/circle in MyAEGEE"
+        format: "string"
+    required:
+      - groupName
+      - primaryEmail
+      - bodyPK
     example:
       groupName: "The Straight Banana Committee"
       primaryEmail: "sbc@aegee.eu"
+      bodyPK: "(idk how it's represented)"
   Account:
     type: "object"
     properties:
       primaryEmail:
         type: "string"
-        description: "The username @aegee.eu for the account (required)"
-      password:
-        type: "string"
-        description: "(required)"
-      secondaryEmail:
-        type: "string"
-        description: "(required)"
+        description: "The username @aegee.eu for the account"
+        format: "string"
       name:
         $ref: "#/definitions/Account_name"
+      secondaryEmail:
+        type: "string"
+        description: "The email of the user. For password reset and first-time sign up"
+        format: "email"
+      password:
+        type: "string"
+        description: "MUST be a SHA-1 password"
+        format: "password"
       antenna:
         type: "string"
-        description: "(required)"
-      suspended:
-        type: "boolean"
-        description: "NOTE: To change on change of the MyAEGEE account status"
+        description: "The (primary) antenna the user belongs to"
+        format: "string"
+      userPK:
+        type: "string"
+        description: "The primary key of the user in MyAEGEE"
+    required:
+     - primaryEmail
+     - name
+     - secondaryEmail
+     - password
+     - antenna
+     - userPK
     example:
-      antenna: "antenna"
-      password: "password"
-      secondaryEmail: "secondaryEmail"
+      primaryEmail: "cave.johnson@aegee.eu"
       name:
-        givenName: "givenName"
-        familyName: "familyName"
-      primaryEmail: "primaryEmail"
-      suspended: true
-  body:
-    type: "object"
-    properties:
-      primaryEmail:
-        type: "string"
-        description: "The username of the account that is added (required)"
-      groupName:
-        type: "string"
-        description: "The name of the Google group (required)"
+        givenName: "Cave"
+        familyName: "Johnson"
+      secondaryEmail: "cave.aegee@example.com"
+      password: "[SOME-SHA1-HASH]"
+      antenna: "AEGEE-Tallahassee"
+      userPK: "(idk how it's represented)"
   Account_name:
     properties:
       givenName:
         type: "string"
       familyName:
         type: "string"
-    description: "(required)"
+    required: 
+     - givenName
+     - familyName
     example:
       givenName: "Cave"
       familyName: "Johnson"
+  Membership:
+    type: "object"
+    properties:
+      groupPK:
+        type: "string"
+        description: "(required) The group in which the user \
+                      is added. MyAEGEE's PK of the body/circle"
+      operation:
+        type: "string"
+        description: "(required) 'add'/'remove' member"
+    required:
+     - groupPK
+     - operation
+    example:
+      groupPK: "(idk how it's represented)"
+      operation: "add"
+  aliasOperation:
+    type: "object"
+    properties:
+      aliasName:
+        type: "string"
+        description: "The alias that is added"
+      operation:
+        type: "string"
+        description: "'add'/'remove' alias"
+    required:
+     - aliasName
+     - operation
+    example:
+      aliasName: "example@aegee.eu"
+      operation: "add"
+  Event:
+    properties:
+      name:
+        type: "string"
+        description: "The name of the event"
+      startDate:
+        type: "string"
+        description: "Format MUST be YYYY-MM-DD"
+      endDate:
+        type: "string"
+        description: "Format MUST be YYYY-MM-DD"
+      description:
+        type: "string"
+        description: "The description of the event"
+      location:
+        type: "string"
+        description: "The city where the event is happening. Can be any string"
+      eventID:
+        type: "string"
+        description: "Format MUST be a-v 0-9"
+    description: "(required)"
+    required:
+     - name
+     - startDate
+     - endDate
+     - description
+     - location
+     - eventID
+    example:
+      name: "RTC Tallahassee"
+      startDate: "2019-04-25"
+      endDate: "2019-04-25"
+      description: "An RTC in a far away place"
+      location: "Tallahassee, Florida"
+      eventID: "rtctallahassee19"
 externalDocs:
   description: "Find out more about MyAEGEE"
   url: "https://oms-project.atlassian.net/wiki/spaces/GENERAL/overview"
