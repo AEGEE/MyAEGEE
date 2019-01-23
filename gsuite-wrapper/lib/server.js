@@ -21,6 +21,8 @@ GsuiteRouter.put('/account/:username/group', wrapper.editMembershipToGroup); //u
 GsuiteRouter.delete('/groups/:name', wrapper.deleteGroup); //body is deleted -> group is deleted
 
 GsuiteRouter.post('/accounts', wrapper.createAccount); //member is created -> create an account 
+GsuiteRouter.put('/account/:username/alias', wrapper.updateAlias); //user may need an alias (netcom-xxx@aegee.eu)
+GsuiteRouter.get('/account/:username/alias', wrapper.getAliasFromRedis); //user can read their alias (netcom-xxx@aegee.eu)
 
 const server = express();
 server.use(bodyParser.json());

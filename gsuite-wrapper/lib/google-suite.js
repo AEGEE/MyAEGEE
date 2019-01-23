@@ -120,6 +120,34 @@ const gsuiteOperations = {
       return result;
   },
 
+  // Add gsuite alias (e.g. netcom-xxx@aegeee.eu)
+  addEmailAlias: async function addEmailAlias(jwt, data){ 
+    const admin = google.admin('directory_v1');
+    const result = await admin.users.aliases.insert({
+        userKey: data.primaryEmail,        
+        requestBody: {
+          alias: data.aliasName,
+        },
+        auth: jwt
+      });
+
+      return result;
+  },
+
+  // Remove gsuite alias (e.g. netcom-xxx@aegeee.eu)
+  removeEmailAlias: async function removeEmailAlias(jwt, data){ 
+    const admin = google.admin('directory_v1');
+    const result = await admin.users.aliases.delete({
+        userKey: data.primaryEmail,
+        alias: data.aliasName,
+        auth: jwt
+      });
+
+      return result;
+  },
+
+
+
 
   // // delete the group key
   // deleteGroup: function deleteGroup(jwt, data){ 

@@ -85,7 +85,7 @@ describe('Memberships', function(){
     redis.set("secondary:"+user_primaryEmail, user_secondaryEmail);
   });
 
-  after("Remove users", async function(){
+  after("Remove group and user", async function(){
      this.timeout(8000);
 
      let keys = await redis.keys('*');
@@ -242,7 +242,7 @@ describe('Memberships', function(){
       
     });
 
-    it('Should not add a membership if invalid payload (swap user&group)', async () => {
+    it('Should not add a membership if mistaken payload (swap user&group)', async () => {
       
       const payload = JSON.parse(JSON.stringify(data));
       payload.groupPK = user_subjectID;
@@ -250,7 +250,7 @@ describe('Memberships', function(){
       const res = await request({
           uri: '/account/'+group_subjectID+'/group',
           method: 'PUT',
-          headers: { 'test-title': 'revoke membership' },
+          headers: { 'test-title': 'fail make membership' },
           body: payload
       });
 
@@ -260,7 +260,7 @@ describe('Memberships', function(){
       
     });
 
-    it('Should not remove a membership if invalid payload (swap user&group)', async () => {
+    it('Should not remove a membership if mistaken payload (swap user&group)', async () => {
       
       const payload = JSON.parse(JSON.stringify(data));
       payload.operation = "remove";
@@ -269,7 +269,7 @@ describe('Memberships', function(){
       const res = await request({
           uri: '/account/'+group_subjectID+'/group',
           method: 'PUT',
-          headers: { 'test-title': 'revoke membership' },
+          headers: { 'test-title': 'fail revoke membership' },
           body: payload
       });
 
