@@ -337,11 +337,12 @@ exports.createCalEvent = async function(req, res , next) {
             'description': data.description,
             'start': {
               //'dateTime': '2015-05-28T09:00:00-07:00',
-              'dateTime': data.startDate,
+              //'date': '2015-05-28',
+              'date': data.startDate,
               'timeZone': 'Europe/Brussels',
             },
             'end': {
-              'dateTime': data.endDate,
+              'date': data.endDate,
               'timeZone': 'Europe/Brussels',
             },
             'reminders': {

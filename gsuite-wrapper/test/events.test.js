@@ -11,12 +11,12 @@ function delay(interval){
 
 describe.only('Events', function(){
   
-  const eventID = "nettallahassee19";
+  const eventID = "nettallahassee19"+time().format("MMDoYYhhmmss");//IDs are unique and if an event is cancelled, the ID is still taken, wtf idk
   const eventName = "NWM Tallahassee";
   const location = "Tallahassee, Florida";
-  const description = "This NWM is a test by automated API. \n Apply to my.aegee.eu/events"+eventID;
-  const startDate = time().add(2, 'days').format(); //"2015-05-28T09:00:00-07:00";
-  const endDate = time().add(5, 'days').format();;
+  const description = "This NWM is a test by automated API. \n Apply to my.aegee.eu/events/"+eventID;
+  const startDate = time().add(2, 'days').format('YYYY-MM-DD'); //format() gives "2015-05-28T09:00:00-07:00";
+  const endDate = time().add(5, 'days').format('YYYY-MM-DD'); //use this format to give "all day" events
 
   const data = {
     "eventID": eventID,
