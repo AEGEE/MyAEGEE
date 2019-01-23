@@ -24,6 +24,9 @@ GsuiteRouter.post('/accounts', wrapper.createAccount); //member is created -> cr
 GsuiteRouter.put('/account/:username/alias', wrapper.updateAlias); //user may need an alias (netcom-xxx@aegee.eu)
 GsuiteRouter.get('/account/:username/alias', wrapper.getAliasFromRedis); //user can read their alias (netcom-xxx@aegee.eu)
 
+GsuiteRouter.post('/calendar', wrapper.createCalEvent); //event is accepted by EQAC -> put in calendar of events
+
+
 const server = express();
 server.use(bodyParser.json());
 server.use(morgan((tokens, req, res) => {

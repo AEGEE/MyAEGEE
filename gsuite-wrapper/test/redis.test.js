@@ -20,7 +20,7 @@ after("stop server", async function(){
     console.log(result);
 });
 
-describe.only('Redis', function(){
+describe('Redis', function(){
 
     const Redis = redis.db;
 

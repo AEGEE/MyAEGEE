@@ -12,7 +12,7 @@ function delay(interval){
             ).timeout(interval + 100) // The extra 100ms should guarantee the test will not fail due to exceeded timeout
 }
 
-describe.only('Aliases', function(){
+describe('Aliases', function(){
 
   const name = "Automated";
   const surname = "APITest";
