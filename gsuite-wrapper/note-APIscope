@@ -1,6 +1,19 @@
-when one wants to add API:
+When one wants to add API:
 
-1) look for the specs on developers.google.com
+1) look for the specs on developers.google.com 
+    
+    https://developers.google.com/admin-sdk/directory/v1/reference/users)
+
 2) look for the js wrapper in github
+
+    https://github.com/googleapis/google-api-nodejs-client/blob/master/src/apis/admin/directory_v1.ts
+
+    https://github.com/googleapis/google-api-nodejs-client/blob/master/src/apis/calendar/v3.ts
+
 3) enable from google cloud console the api
-4) assign the clientID the scope from https://admin.google.com/aegee.eu/AdminHome?chromeless=1#OGX:ManageOauthClients
+
+    https://console.developers.google.com/apis/dashboard
+
+4) assign the clientID the scope needed
+    
+    https://admin.google.com/aegee.eu/AdminHome?chromeless=1#OGX:ManageOauthClients
