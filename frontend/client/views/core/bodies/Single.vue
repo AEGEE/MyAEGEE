@@ -215,7 +215,7 @@ export default {
         message: 'Join body',
         inputAttrs: {
           placeholder: 'Motivation',
-          required: true
+          required: false
         },
         onConfirm: (motivation) => this.joinBody(motivation)
       })
