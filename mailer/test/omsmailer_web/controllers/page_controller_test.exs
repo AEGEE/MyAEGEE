@@ -2,6 +2,8 @@ defmodule OmsmailerWeb.PageControllerTest do
   use OmsmailerWeb.ConnCase
   use Bamboo.Test
 
+  @confirm_email_params %{name: "test", surname: "user", token: "abcdef123456789"}
+
 
   # A get just returns success:true, kind of a status check
   test "GET /", %{conn: conn} do
@@ -18,23 +20,24 @@ defmodule OmsmailerWeb.PageControllerTest do
 
   # Signup link works
   test "POST / confirm_email", %{conn: conn} do
-    conn = post conn, "/", %{template: "confirm_email.html", parameters: %{name: "test", surname: "user", token: "abcdef123456789"}, to: "test@aegee.org", subject: "pirates"}
+    conn = post conn, "/", %{template: "confirm_email.html", parameters: @confirm_email_params, to: "test@aegee.org", subject: "pirates"}
     assert json_response(conn, 200)
     assert_email_delivered_with(subject: "pirates")
   end
-
+  
+  # Test headers
   test "POST / confirm_email requires parameters", %{conn: conn} do
     conn = post conn, "/", %{template: "confirm_email.html", parameters: %{}, to: "test@aegee.org", subject: "pirates"}
     assert json_response(conn, 422)
     assert_no_emails_delivered()
   end 
   test "POST / confirm_email requires to address", %{conn: conn} do
-    conn = post conn, "/", %{template: "confirm_email.html", parameters: %{name: "test", surname: "user", token: "abcdef123456789"}, to: "", subject: "pirates"}
+    conn = post conn, "/", %{template: "confirm_email.html", parameters: @confirm_email_params, to: "", subject: "pirates"}
     assert json_response(conn, 422)
     assert_no_emails_delivered()
   end 
   test "POST / confirm_email requires subject", %{conn: conn} do
-    conn = post conn, "/", %{template: "confirm_email.html", parameters: %{name: "test", surname: "user", token: "abcdef123456789"}, to: "test@aegee.org", subject: ""}
+    conn = post conn, "/", %{template: "confirm_email.html", parameters: @confirm_email_params, to: "test@aegee.org", subject: ""}
     assert json_response(conn, 422)
     assert_no_emails_delivered()
   end
@@ -43,6 +46,36 @@ defmodule OmsmailerWeb.PageControllerTest do
     conn = post conn, "/", %{template: "really_long_nonexistent_template.html", parameters: %{}, to: "test@aegee.org", subject: "pirates"}
     assert json_response(conn, 404)
     assert_no_emails_delivered()
+  end
+
+  test "POST / conferm_email per default puts the from address", %{conn: conn} do
+    conn = post conn, "/", %{template: "confirm_email.html", parameters: @confirm_email_params, to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(from: {nil, Application.get_env(:omsmailer, :from_address)})
+  end
+
+  test "POST / confirm_email allows for custom from address", %{conn: conn} do
+    conn = post conn, "/", %{template: "confirm_email.html", parameters: @confirm_email_params, to: "test@aegee.org", subject: "pirates", from: "someweird@aegee.org"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(from: {nil, "someweird@aegee.org"})
+  end
+
+  test "POST / confirm_email allows for cc address", %{conn: conn} do
+    conn = post conn, "/", %{template: "confirm_email.html", parameters: @confirm_email_params, to: "test@aegee.org", subject: "pirates", cc: "someweird@aegee.org"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(cc: [nil: "someweird@aegee.org"])
+  end
+
+  test "POST / confirm_email allows for bcc address", %{conn: conn} do
+    conn = post conn, "/", %{template: "confirm_email.html", parameters: @confirm_email_params, to: "test@aegee.org", subject: "pirates", bcc: "someweird@aegee.org"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(bcc: [nil: "someweird@aegee.org"])
+  end
+
+  test "POST / confirm_email allows for reply_to address", %{conn: conn} do
+    conn = post conn, "/", %{template: "confirm_email.html", parameters: @confirm_email_params, to: "test@aegee.org", subject: "pirates", reply_to: "someweird@aegee.org"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(headers: %{"Reply-To" => "someweird@aegee.org"})
   end
 
   # Custom works
