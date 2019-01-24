@@ -67,7 +67,14 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert_email_delivered_with(to: [nil: "test2@aegee.org"], html_body: Phoenix.View.render_to_string(OmsmailerWeb.PageView, "custom.html", parameters: %{"body" => "huhu2"}))
     assert_email_delivered_with(to: [nil: "test3@aegee.org"], html_body: Phoenix.View.render_to_string(OmsmailerWeb.PageView, "custom.html", parameters: %{"body" => "huhu3"}))
   end
-    # Welcome works
+
+  test "POST / autocompletes template file", %{conn: conn} do
+    conn = post conn, "/", %{template: "custom", parameters: %{body: "huhu"}, to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(subject: "pirates")
+  end
+
+  # Welcome works
   test "POST / welcome", %{conn: conn} do
     conn = post conn, "/", %{template: "welcome.html", parameters: %{name: "Franz", surname: "Ferdinant"}, to: "test@aegee.org", subject: "pirates"}
     assert json_response(conn, 200)
@@ -80,5 +87,4 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert json_response(conn, 200)
     assert_email_delivered_with(subject: "pirates")
   end
-
 end

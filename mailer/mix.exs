@@ -10,7 +10,9 @@ defmodule Omsmailer.Mixfile do
       compilers: [:phoenix] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
       #aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test]
     ]
   end
 
@@ -37,10 +39,11 @@ defmodule Omsmailer.Mixfile do
       {:phoenix_pubsub, "~> 1.0"},
       {:phoenix_html, "~> 2.10"},
       {:gettext, "~> 0.11"},
-      {:bamboo, "~> 1.0"},
-      {:bamboo_smtp, "~> 1.5.0"},
+      {:bamboo, "~> 1.1"},
+      {:bamboo_smtp, "~> 1.6.0"},
       {:plug_cowboy, "~> 1.0"},
-      {:cowboy, "~> 1.0"}
+      {:cowboy, "~> 1.0"},
+      {:excoveralls, "~> 0.10", only: :test}
     ]
   end
 
