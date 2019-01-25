@@ -62,18 +62,16 @@
               </div>
 
               <div class="field is-fullwidth">
-                <label class="has-text-weight-bold">
+                <label class="has-text-weight-bold checkbox">
                   Visa required? <span class="has-text-danger">*</span>
-                </label>
-                <div class="control">
                   <input
                     class="checkbox"
                     type="checkbox"
                     v-model="application.visa_required" />
-                </div>
+                </label>
               </div>
 
-              <div class="field is-fullwidth" v-show="application.visa_required">
+              <div class="field is-fullwidth" v-if="application.visa_required">
                 <label class="has-text-weight-bold">
                   Passport number <span class="has-text-danger">*</span>
                 </label>
@@ -86,7 +84,7 @@
                 </div>
               </div>
 
-              <div class="field is-fullwidth" v-show="application.visa_required">
+              <div class="field is-fullwidth" v-if="application.visa_required">
                 <label class="has-text-weight-bold">
                   Passport issue date <span class="has-text-danger">*</span>
                 </label>
@@ -99,7 +97,7 @@
                 </div>
               </div>
 
-              <div class="field is-fullwidth" v-show="application.visa_required">
+              <div class="field is-fullwidth" v-if="application.visa_required">
                 <label class="has-text-weight-bold">
                   Passport expiration date <span class="has-text-danger">*</span>
                 </label>
@@ -112,7 +110,7 @@
                 </div>
               </div>
 
-              <div class="field is-fullwidth" v-show="application.visa_required">
+              <div class="field is-fullwidth" v-if="application.visa_required">
                 <label class="has-text-weight-bold">
                   Passport issue authority <span class="has-text-danger">*</span>
                 </label>
@@ -125,7 +123,7 @@
                 </div>
               </div>
 
-              <div class="field is-fullwidth" v-show="application.visa_required">
+              <div class="field is-fullwidth" v-if="application.visa_required">
                 <label class="has-text-weight-bold">
                   Nationality <span class="has-text-danger">*</span>
                 </label>
@@ -138,7 +136,7 @@
                 </div>
               </div>
 
-              <div class="field is-fullwidth" v-show="application.visa_required">
+              <div class="field is-fullwidth" v-if="application.visa_required">
                 <label class="has-text-weight-bold">
                   Place of birth <span class="has-text-danger">*</span>
                 </label>
@@ -151,7 +149,7 @@
                 </div>
               </div>
 
-              <div class="field is-fullwidth" v-show="application.visa_required">
+              <div class="field is-fullwidth" v-if="application.visa_required">
                 <label class="has-text-weight-bold">
                   Embassy <span class="has-text-danger">*</span>
                 </label>
@@ -161,6 +159,45 @@
                     type="text"
                     required
                     v-model="application.visa_embassy" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-if="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Postal code <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_postal_code" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-if="application.visa_required">
+                <label class="has-text-weight-bold">
+                  City <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_city" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-if="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Country <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_country" />
                 </div>
               </div>
 
@@ -291,6 +328,7 @@ export default {
         body: null,
         body_id: null,
         id: null,
+        visa_required: false,
         answers: []
       },
       can: {
