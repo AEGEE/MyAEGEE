@@ -235,28 +235,36 @@ export default {
         this.$root.showDanger('Error changing user status: ' + err.message)
         this.isSwitchingStatus = false
       })
+    },
+    fetchUser () {
+      this.isLoading = true
+      this.axios.get(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id).then((response) => {
+        this.user = response.data.data
+        this.isOwnProfile = this.user.id === this.loginUser.id
+
+        return this.axios.get(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id + '/my_permissions')
+      }).then((response) => {
+        this.permissions = response.data.data
+
+        this.can.setActive = this.permissions.some(permission => permission.combined.endsWith('update_active:user'))
+        this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:member'))
+        this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:user'))
+        this.isLoading = false
+      }).catch((err) => {
+        let message = (err.response.status === 404) ? 'User is not found' : 'Some error happened: ' + err.message
+
+        this.$root.showDanger(message)
+        this.$router.push({ name: 'oms.members.list' })
+      })
+    }
+  },
+  watch: {
+    '$route.params.id' () {
+      this.fetchUser()
     }
   },
   mounted () {
-    this.isLoading = true
-    this.axios.get(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id).then((response) => {
-      this.user = response.data.data
-      this.isOwnProfile = this.user.id === this.loginUser.id
-
-      return this.axios.get(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id + '/my_permissions')
-    }).then((response) => {
-      this.permissions = response.data.data
-
-      this.can.setActive = this.permissions.some(permission => permission.combined.endsWith('update_active:user'))
-      this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:member'))
-      this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:user'))
-      this.isLoading = false
-    }).catch((err) => {
-      let message = (err.response.status === 404) ? 'User is not found' : 'Some error happened: ' + err.message
-
-      this.$root.showDanger(message)
-      this.$router.push({ name: 'oms.members.list' })
-    })
+    this.fetchUser()
   },
   computed: mapGetters({
     loginUser: 'user',
