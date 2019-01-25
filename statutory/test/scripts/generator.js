@@ -62,6 +62,12 @@ exports.generateApplication = (options = {}, event = null) => {
     if (notSet(options.body_name)) options.body_name = faker.lorem.sentence();
     if (notSet(options.email)) options.email = faker.internet.email();
 
+    // visa fields
+    if (notSet(options.visa_required)) options.visa_required = true;
+    for (const visaField of [ 'visa_place_of_birth', 'visa_passport_number', 'visa_passport_issue_date', 'visa_passport_expiration_date', 'visa_passport_issue_authority', 'visa_nationality', 'visa_embassy']) {
+        if (notSet(options[visaField])) options[visaField] = faker.lorem.sentence();
+    }
+
     if (notSet(options.answers)) {
         const answersCount = event ? event.questions.length : Math.round(Math.random() * 5) + 1; // from 1 to 6
         options.answers = Array.from({ length: answersCount }, () => faker.lorem.sentence());
