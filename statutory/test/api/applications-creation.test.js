@@ -588,8 +588,12 @@ describe('Applications creation', () => {
         'visa_passport_expiration_date',
         'visa_passport_issue_authority',
         'visa_nationality',
-        'visa_embassy'
-      ]
+        'visa_embassy',
+        'visa_street_and_house',
+        'visa_postal_code',
+        'visa_city',
+        'visa_country'
+    ];
 
     for (const visaField of visaFields) {
         test(`should return 422 if visa is required, but ${visaField} is not set`, async () => {
