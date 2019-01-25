@@ -289,7 +289,7 @@ const Application = sequelize.define('application', {
     visa_place_of_birth: {
         allowNull: false,
         type: Sequelize.STRING,
-        defaultValue: null,
+        defaultValue: '',
         validate: {
             shouldBeSetIfVisaRequired
         }
@@ -297,7 +297,7 @@ const Application = sequelize.define('application', {
     visa_passport_number: {
         allowNull: false,
         type: Sequelize.STRING,
-        defaultValue: null,
+        defaultValue: '',
         validate: {
             shouldBeSetIfVisaRequired
         }
@@ -305,7 +305,7 @@ const Application = sequelize.define('application', {
     visa_passport_issue_date: {
         allowNull: false,
         type: Sequelize.STRING,
-        defaultValue: null,
+        defaultValue: '',
         validate: {
             shouldBeSetIfVisaRequired
         }
@@ -313,7 +313,7 @@ const Application = sequelize.define('application', {
     visa_passport_expiration_date: {
         allowNull: false,
         type: Sequelize.STRING,
-        defaultValue: null,
+        defaultValue: '',
         validate: {
             shouldBeSetIfVisaRequired
         }
@@ -321,7 +321,7 @@ const Application = sequelize.define('application', {
     visa_passport_issue_authority: {
         allowNull: false,
         type: Sequelize.STRING,
-        defaultValue: null,
+        defaultValue: '',
         validate: {
             shouldBeSetIfVisaRequired
         }
@@ -329,7 +329,7 @@ const Application = sequelize.define('application', {
     visa_nationality: {
         allowNull: false,
         type: Sequelize.STRING,
-        defaultValue: null,
+        defaultValue: '',
         validate: {
             shouldBeSetIfVisaRequired
         }
