@@ -43,7 +43,7 @@
                 </div>
               </div>
 
-              <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender">
+              <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender|| errors.date_of_birth">
                 <div class="content">
                 Could not apply because of these reasons:
                   <ul>
@@ -54,6 +54,9 @@
                   </ul>
                   <ul v-if="errors.gender">
                     <li>Please set the gender in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank'>your profile.</router-link></li>
+                  </ul>
+                  <ul v-if="errors.date_of_birth">
+                    <li>Please set the date of birth in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank'>your profile.</router-link></li>
                   </ul>
                 </div>
               </div>
