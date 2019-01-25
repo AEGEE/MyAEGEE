@@ -14,6 +14,21 @@ const {
 
 const notSet = field => typeof field === 'undefined';
 
+const visaFields = [
+    'visa_place_of_birth',
+    'visa_passport_number',
+    'visa_passport_issue_date',
+    'visa_passport_expiration_date',
+    'visa_passport_issue_authority',
+    'visa_nationality',
+    'visa_embassy',
+    'date_of_birth',
+    'visa_street_and_house',
+    'visa_postal_code',
+    'visa_city',
+    'visa_country'
+];
+
 exports.generateEvent = (options = {}) => {
     if (notSet(options.name)) options.name = faker.lorem.sentence();
     if (notSet(options.description)) options.description = faker.lorem.paragraph();
@@ -64,7 +79,7 @@ exports.generateApplication = (options = {}, event = null) => {
 
     // visa fields
     if (notSet(options.visa_required)) options.visa_required = true;
-    for (const visaField of [ 'visa_place_of_birth', 'visa_passport_number', 'visa_passport_issue_date', 'visa_passport_expiration_date', 'visa_passport_issue_authority', 'visa_nationality', 'visa_embassy']) {
+    for (const visaField of visaFields) {
         if (notSet(options[visaField])) options[visaField] = faker.lorem.sentence();
     }
 
