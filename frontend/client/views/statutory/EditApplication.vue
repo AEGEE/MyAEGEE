@@ -58,6 +58,109 @@
                 </div>
               </div>
 
+              <div class="field is-fullwidth">
+                <label class="has-text-weight-bold">
+                  Visa required? <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="checkbox"
+                    type="checkbox"
+                    v-model="application.visa_required" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-show="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Passport number <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_passport_number" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-show="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Passport issue date <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_passport_issue_date" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-show="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Passport expiration date <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_passport_expiration_date" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-show="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Passport issue authority <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_passport_issue_authority" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-show="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Nationality <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_nationality" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-show="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Place of birth <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_place_of_birth" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-show="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Embassy <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_embassy" />
+                </div>
+              </div>
+
               <div class="field is-fullwidth" v-for="(question, index) in event.questions" v-bind:key="index">
                 <div class="control">
                   <label class="has-text-weight-bold">
@@ -200,17 +303,10 @@ export default {
       if (!this.application.body_id) {
         return this.$root.showDanger('Please select a body.')
       }
-      // Copy data from the form into an object to submit it in the format the backend needs it
-      this.isSaving = true
-
-      const toServer = {
-        body_id: this.application.body_id,
-        answers: this.application.answers
-      }
 
       const promise = this.isNew
-        ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications', toServer)
-        : this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id, toServer)
+        ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications', this.application)
+        : this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id, this.application)
 
       promise.then(() => {
         this.$root.showSuccess('Application is saved.')
