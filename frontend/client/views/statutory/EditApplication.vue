@@ -16,7 +16,7 @@
                       v-model="autoComplete.bodies.name"
                       :data="autoComplete.bodies.values"
                       open-on-focus="true"
-                      @select="body => { application.body_id = body.id; application.body = body }">
+                      @select="body => { $set(application, 'body_id', body.id); $set(application, 'body', body) }">
                       <template slot-scope="props">
                         <div class="media">
                           <div class="media-content">
@@ -27,7 +27,7 @@
                     </b-autocomplete>
                     <p class="control">
                       <a class="button is-danger"
-                        @click="body => { application.body_id = null; application.body = null }"
+                        @click="body => { $set(application, 'body_id', null); $delete(application, 'body') }"
                         v-if="application.body">{{ application.body.name }} (Click to unset)</a>
                       <a class="button is-static" v-if="!application.body">Not set.</a>
                     </p>
