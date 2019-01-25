@@ -5,7 +5,12 @@ const visaFields = [
   'visa_passport_expiration_date',
   'visa_passport_issue_authority',
   'visa_nationality',
-  'visa_embassy'
+  'visa_embassy',
+  'date_of_birth',
+  'visa_street_and_house',
+  'visa_postal_code',
+  'visa_city',
+  'visa_country'
 ]
 
 module.exports = {
