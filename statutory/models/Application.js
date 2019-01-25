@@ -337,9 +337,49 @@ const Application = sequelize.define('application', {
     visa_embassy: {
         allowNull: false,
         type: Sequelize.STRING,
-        defaultValue: null,
+        defaultValue: '',
         validate: {
             shouldBeSetIfVisaRequired
+        }
+    },
+    visa_street_and_house: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            shouldBeSetIfVisaRequired
+        }
+    },
+    visa_postal_code: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            shouldBeSetIfVisaRequired
+        }
+    },
+    visa_city: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            shouldBeSetIfVisaRequired
+        }
+    },
+    visa_country: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            shouldBeSetIfVisaRequired
+        }
+    },
+    date_of_birth: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Date of birth should be set.' }
         }
     },
 }, { underscored: true });
