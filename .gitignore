@@ -1,7 +1,7 @@
 .vagrant
 .env
 *.log
-
+*.swp
 
 secrets/*
 
