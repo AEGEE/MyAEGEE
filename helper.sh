@@ -58,6 +58,7 @@ compose_wrapper ()
         echo -e "\n[OMS] Full command:\n${command}\n"
     fi
     eval $command
+    return $?
 }
 
 # build it for the first time (currently Makefile that calls oms.sh [build])
@@ -162,26 +163,32 @@ fi
 
 if ( $build ); then
     compose_wrapper build
+    exit $?
 fi
 
 if ( $start ); then
     compose_wrapper up -d
+    exit $?
 fi
 
 if ( $refresh ); then #THIS IS AN UPGRADING, i.e. CD pipeline target
     compose_wrapper up -d --build
+    exit $?
 fi
 
 if ( $monitor ); then
     compose_wrapper logs -f $arguments
+    exit $?
 fi
 
 if ( $execute ); then
     compose_wrapper exec $arguments
+    exit $?
 fi
 
 if ( $stop ); then
     compose_wrapper stop
+    exit $?
 fi
 
 if ( $nuke ); then
@@ -191,6 +198,7 @@ if ( $nuke ); then
            echo "DUUUDE you better do this manually, no script" && exit 2; 
          else
            compose_wrapper down -v
+           exit $?
          fi
     fi 
 fi
