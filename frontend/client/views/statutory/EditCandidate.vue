@@ -92,7 +92,7 @@
           <div class="control">
             <div class="select">
               <select v-model="candidate.nationality">
-                <option v-for="(country, index) in countries" v-bind:key="index" value="global">{{ country }}</option>
+                <option v-for="(country, index) in countries" v-bind:key="index">{{ country }}</option>
               </select>
             </div>
           </div>

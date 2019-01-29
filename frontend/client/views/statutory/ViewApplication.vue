@@ -54,8 +54,68 @@
                   <td>{{ application.gender }}</td>
                 </tr>
                 <tr>
+                  <th>Date of birth</th>
+                  <td>{{ application.date_of_birth }}</td>
+                </tr>
+                <tr>
                   <th>Email</th>
                   <td>{{ application.email }}</td>
+                </tr>
+                <tr>
+                  <th>Nationality</th>
+                  <td>{{ application.nationality }}</td>
+                </tr>
+                <tr>
+                  <th>Meals</th>
+                  <td>{{ application.meals }}</td>
+                </tr>
+                <tr>
+                  <th>Allergies</th>
+                  <td>{{ application.allergies }}</td>
+                </tr>
+                <tr>
+                  <th>Visa required?</th>
+                  <td>{{ application.visa_required | beautify }}</td>
+                </tr>
+                <tr>
+                  <th>Visa passport number</th>
+                  <td>{{ application.visa_passport_number }}</td>
+                </tr>
+                <tr>
+                  <th>Visa passport issue date</th>
+                  <td>{{ application.visa_passport_issue_date }}</td>
+                </tr>
+                <tr>
+                  <th>Visa passport expiration date</th>
+                  <td>{{ application.visa_passport_expiration_date }}</td>
+                </tr>
+                <tr>
+                  <th>Visa passport issue authority</th>
+                  <td>{{ application.visa_passport_issue_authority }}</td>
+                </tr>
+                <tr>
+                  <th>Place of birth</th>
+                  <td>{{ application.visa_place_of_birth }}</td>
+                </tr>
+                <tr>
+                  <th>Street and house number</th>
+                  <td>{{ application.visa_street_and_house }}</td>
+                </tr>
+                <tr>
+                  <th>Postal code</th>
+                  <td>{{ application.visa_postal_code }}</td>
+                </tr>
+                <tr>
+                  <th>City</th>
+                  <td>{{ application.visa_city }}</td>
+                </tr>
+                <tr>
+                  <th>Country</th>
+                  <td>{{ application.visa_country }}</td>
+                </tr>
+                <tr>
+                  <th>Embassy</th>
+                  <td>{{ application.visa_embassy }}</td>
                 </tr>
                 <tr v-for="(question, index) in event.questions" v-bind:key="index">
                   <th>{{ question.description }}</th>

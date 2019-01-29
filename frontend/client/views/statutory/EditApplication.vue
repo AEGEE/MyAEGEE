@@ -16,7 +16,7 @@
                       v-model="autoComplete.bodies.name"
                       :data="autoComplete.bodies.values"
                       open-on-focus="true"
-                      @select="body => { application.body_id = body.id; application.body = body }">
+                      @select="body => { $set(application, 'body_id', body.id); $set(application, 'body', body) }">
                       <template slot-scope="props">
                         <div class="media">
                           <div class="media-content">
@@ -27,7 +27,7 @@
                     </b-autocomplete>
                     <p class="control">
                       <a class="button is-danger"
-                        @click="body => { application.body_id = null; application.body = null }"
+                        @click="body => { $set(application, 'body_id', null); $delete(application, 'body') }"
                         v-if="application.body">{{ application.body.name }} (Click to unset)</a>
                       <a class="button is-static" v-if="!application.body">Not set.</a>
                     </p>
@@ -43,7 +43,7 @@
                 </div>
               </div>
 
-              <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender">
+              <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender|| errors.date_of_birth">
                 <div class="content">
                 Could not apply because of these reasons:
                   <ul>
@@ -55,6 +55,195 @@
                   <ul v-if="errors.gender">
                     <li>Please set the gender in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank'>your profile.</router-link></li>
                   </ul>
+                  <ul v-if="errors.date_of_birth">
+                    <li>Please set the date of birth in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank'>your profile.</router-link></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label">Nationality<span class="has-text-danger">*</span></label>
+                <div class="control">
+                  <div class="select">
+                    <select v-model="application.nationality">
+                      <option v-for="(country, index) in countries" v-bind:key="index">{{ country }}</option>
+                    </select>
+                  </div>
+                </div>
+                <p class="help is-danger" v-if="errors.nationality">{{ errors.nationality.join(', ') }}</p>
+              </div>
+
+              <div class="field">
+                <label class="label">Meals type<span class="has-text-danger">*</span></label>
+                <div class="control">
+                  <div class="select">
+                    <select v-model="application.meals">
+                      <option>Meat-eater</option>
+                      <option>Vegetarian</option>
+                    </select>
+                  </div>
+                </div>
+                <p class="help is-danger" v-if="errors.meals">{{ errors.meals.join(', ') }}</p>
+              </div>
+
+              <div class="field is-fullwidth">
+                <label class="label">Allergies</label>
+                <div class="control">
+                  <textarea
+                    class="textarea"
+                    v-model="application.allergies" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth">
+                <label class="label">Number of {{ event.type === 'agora' ? 'Agorae' : 'EPM' }} visited</label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="number"
+                    required
+                    min="0"
+                    v-model="application.number_of_events_visited" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth">
+                <label class="has-text-weight-bold checkbox">
+                  Visa required? <span class="has-text-danger">*</span>
+                  <input
+                    class="checkbox"
+                    type="checkbox"
+                    v-model="application.visa_required" />
+                </label>
+              </div>
+
+              <div class="field is-fullwidth" v-if="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Passport number <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_passport_number" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-if="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Passport issue date <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_passport_issue_date" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-if="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Passport expiration date <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_passport_expiration_date" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-if="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Passport issue authority <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_passport_issue_authority" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-if="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Place of birth <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_place_of_birth" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-if="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Embassy <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_embassy" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-if="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Street and house number <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_street_and_house" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-if="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Postal code <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_postal_code" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-if="application.visa_required">
+                <label class="has-text-weight-bold">
+                  City <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_city" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-if="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Country <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_country" />
                 </div>
               </div>
 
@@ -171,6 +360,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import countries from '../../countries'
 
 export default {
   name: 'EditApplication',
@@ -185,8 +375,13 @@ export default {
         body: null,
         body_id: null,
         id: null,
-        answers: []
+        visa_required: false,
+        answers: [],
+        meals: '',
+        allergies: '',
+        number_of_events_visited: 0
       },
+      countries,
       can: {
         apply: false
       },
@@ -200,24 +395,17 @@ export default {
       if (!this.application.body_id) {
         return this.$root.showDanger('Please select a body.')
       }
-      // Copy data from the form into an object to submit it in the format the backend needs it
-      this.isSaving = true
-
-      const toServer = {
-        body_id: this.application.body_id,
-        answers: this.application.answers
-      }
 
       const promise = this.isNew
-        ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications', toServer)
-        : this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id, toServer)
+        ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications', this.application)
+        : this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id, this.application)
 
       promise.then(() => {
         this.$root.showSuccess('Application is saved.')
 
         return this.$router.push({
-          name: 'oms.statutory.view',
-          params: { id: this.event.url || this.event.id }
+          name: 'oms.statutory.applications.view',
+          params: { id: this.$route.params.id, application_id: this.$route.params.application_id }
         })
       }).catch((err) => {
         this.isSaving = false
@@ -279,6 +467,23 @@ export default {
     }),
     isNew () {
       return !this.$route.params.application_id
+    }
+  },
+  watch: {
+    'application.visa_required' (val) {
+      if (!val) {
+        this.application.visa_passport_number = ''
+        this.application.visa_place_of_birth = ''
+        this.application.visa_passport_number = ''
+        this.application.visa_passport_issue_date = ''
+        this.application.visa_passport_expiration_date = ''
+        this.application.visa_passport_issue_authority = ''
+        this.application.visa_embassy = ''
+        this.application.visa_street_and_house = ''
+        this.application.visa_postal_code = ''
+        this.application.visa_city = ''
+        this.application.visa_country = ''
+      }
     }
   },
   mounted () {
