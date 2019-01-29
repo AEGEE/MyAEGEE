@@ -36,6 +36,25 @@ exports.listAcceptedApplications = async (req, res) => {
             delete application.visa_required;
             delete application.status;
             delete application.email;
+            delete application.gender;
+            delete application.nationality;
+            delete application.date_of_birth;
+            delete application.meals;
+            delete application.allergies;
+            delete application.number_of_events_visited;
+
+            delete application.visa_place_of_birth;
+            delete application.visa_passport_number;
+            delete application.visa_passport_issue_date;
+            delete application.visa_passport_expiration_date;
+            delete application.visa_passport_issue_authority;
+            delete application.nationality;
+            delete application.visa_embassy;
+            delete application.date_of_birth;
+            delete application.visa_street_and_house;
+            delete application.visa_postal_code;
+            delete application.visa_city;
+            delete application.visa_country;
 
             return application;
         });
@@ -60,6 +79,24 @@ exports.listJCApplications = async (req, res) => {
             delete application.visa_required;
             delete application.email;
             delete application.gender;
+            delete application.nationality;
+            delete application.date_of_birth;
+            delete application.meals;
+            delete application.allergies;
+            delete application.number_of_events_visited;
+
+            delete application.visa_place_of_birth;
+            delete application.visa_passport_number;
+            delete application.visa_passport_issue_date;
+            delete application.visa_passport_expiration_date;
+            delete application.visa_passport_issue_authority;
+            delete application.nationality;
+            delete application.visa_embassy;
+            delete application.date_of_birth;
+            delete application.visa_street_and_house;
+            delete application.visa_postal_code;
+            delete application.visa_city;
+            delete application.visa_country;
 
             return application;
         });
@@ -209,6 +246,7 @@ exports.updateApplication = async (req, res) => {
     req.body.last_name = userBody.data.last_name;
     req.body.gender = userBody.data.gender;
     req.body.email = userBody.data.user.email;
+    req.body.date_of_birth = userBody.data.date_of_birth;
     if (req.body.body_id) {
         // Shouldn't crash, if the person is not a member of a body,
         // it will be caught by helpers.isMemberOf() above.
@@ -450,6 +488,7 @@ exports.postApplication = async (req, res) => {
     req.body.gender = req.user.gender;
     req.body.email = req.user.user.email;
     req.body.body_name = req.user.bodies.find(b => req.body.body_id === b.id).name;
+    req.body.date_of_birth = req.user.date_of_birth;
 
     const newApplication = await Application.create(req.body);
 

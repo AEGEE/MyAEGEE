@@ -7,6 +7,12 @@ function isBoolean(val) {
     }
 }
 
+function shouldBeSetIfVisaRequired(val) {
+    if (this.visa_required && (typeof val !== 'string' || val.trim().length === 0)) {
+        throw new Error('Please fill in this field.');
+    }
+}
+
 const Application = sequelize.define('application', {
     user_id: {
         allowNull: false,
@@ -280,6 +286,124 @@ const Application = sequelize.define('application', {
             notEmpty: { msg: 'Body name should be set.' }
         }
     },
+    nationality: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Nationality should be set.' }
+        }
+    },
+    visa_place_of_birth: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            shouldBeSetIfVisaRequired
+        }
+    },
+    visa_passport_number: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            shouldBeSetIfVisaRequired
+        }
+    },
+    visa_passport_issue_date: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            shouldBeSetIfVisaRequired
+        }
+    },
+    visa_passport_expiration_date: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            shouldBeSetIfVisaRequired
+        }
+    },
+    visa_passport_issue_authority: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            shouldBeSetIfVisaRequired
+        }
+    },
+    visa_embassy: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            shouldBeSetIfVisaRequired
+        }
+    },
+    visa_street_and_house: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            shouldBeSetIfVisaRequired
+        }
+    },
+    visa_postal_code: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            shouldBeSetIfVisaRequired
+        }
+    },
+    visa_city: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            shouldBeSetIfVisaRequired
+        }
+    },
+    visa_country: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            shouldBeSetIfVisaRequired
+        }
+    },
+    date_of_birth: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Date of birth should be set.' }
+        }
+    },
+    number_of_events_visited: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Number of events visited should be set.' },
+            isNumeric: { msg: 'Number of events visited should be valid.' },
+            min: { args: [0], msg: 'Number of events visited cannot be negative' }
+        }
+    },
+    meals: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Meals should be set.' }
+        }
+    },
+    allergies: {
+        allowNull: true,
+        type: Sequelize.TEXT
+    }
 }, { underscored: true });
 
 module.exports = Application;

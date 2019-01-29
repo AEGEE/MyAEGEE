@@ -580,4 +580,213 @@ describe('Applications creation', () => {
         expect.assertions(1);
         await expect(applicationPromise).rejects.toThrowError('Validation error: User ID must be a number.')
     });
+
+    const requiredFields = [
+        'nationality',
+        'number_of_events_visited',
+        'meals'
+    ];
+
+    for (const field of requiredFields) {
+        test(`should return 422 if ${field} is not set`, async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({
+                questions: [generator.generateQuestion({ type: 'checkbox' })],
+                applications: []
+            });
+            const application = generator.generateApplication({
+                body_id: regularUser.bodies[0].id,
+                answers: [true]
+            });
+            delete application[field];
+
+            tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: application
+            });
+
+            tk.reset();
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('errors');
+            expect(res.body).not.toHaveProperty('data');
+            expect(res.body.errors).toHaveProperty(field);
+        });
+
+        test(`should return 422 if ${field} is empty`, async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({
+                questions: [generator.generateQuestion({ type: 'checkbox' })],
+                applications: []
+            });
+            const application = generator.generateApplication({
+                body_id: regularUser.bodies[0].id,
+                answers: [true]
+            });
+            application[field] = '';
+
+            tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: application
+            });
+
+            tk.reset();
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('errors');
+            expect(res.body).not.toHaveProperty('data');
+            expect(res.body.errors).toHaveProperty(field);
+        });
+    }
+
+    test(`should return 422 if number_of_events_visited is not a number`, async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            questions: [generator.generateQuestion({ type: 'checkbox' })],
+            applications: []
+        });
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id,
+            answers: [true]
+        });
+        application.number_of_events_visited = false;
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body.errors).toHaveProperty('number_of_events_visited');
+    });
+
+    test(`should return 422 if number_of_events_visited is negative`, async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            questions: [generator.generateQuestion({ type: 'checkbox' })],
+            applications: []
+        });
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id,
+            answers: [true]
+        });
+        application.number_of_events_visited = -1;
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body.errors).toHaveProperty('number_of_events_visited');
+    });
+
+    const visaFields = [
+        'visa_place_of_birth',
+        'visa_passport_number',
+        'visa_passport_issue_date',
+        'visa_passport_expiration_date',
+        'visa_passport_issue_authority',
+        'visa_embassy',
+        'visa_street_and_house',
+        'visa_postal_code',
+        'visa_city',
+        'visa_country'
+    ];
+
+    for (const visaField of visaFields) {
+        test(`should return 422 if visa is required, but ${visaField} is not set`, async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({
+                questions: [generator.generateQuestion({ type: 'checkbox' })],
+                applications: []
+            });
+            const application = generator.generateApplication({
+                body_id: regularUser.bodies[0].id,
+                answers: [true]
+            });
+            delete application[visaField];
+
+            tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: application
+            });
+
+            tk.reset();
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('errors');
+            expect(res.body).not.toHaveProperty('data');
+            expect(res.body.errors).toHaveProperty(visaField);
+        });
+
+        test(`should return 422 if visa is required, but ${visaField} is empty`, async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({
+                questions: [generator.generateQuestion({ type: 'checkbox' })],
+                applications: []
+            });
+            const application = generator.generateApplication({
+                body_id: regularUser.bodies[0].id,
+                answers: [true]
+            });
+            application[visaField] = '';
+
+            tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: application
+            });
+
+            tk.reset();
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('errors');
+            expect(res.body).not.toHaveProperty('data');
+            expect(res.body.errors).toHaveProperty(visaField);
+        });
+    }
 });
