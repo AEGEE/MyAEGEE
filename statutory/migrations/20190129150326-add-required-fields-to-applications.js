@@ -9,7 +9,7 @@ module.exports = {
     await queryInterface.addColumn(
       'applications',
       'meals',
-      { type: Sequelize.STRING, allowNull: false }
+      { type: Sequelize.STRING, allowNull: false, defaultValue: '<Not set.>' }
     );
 
     await queryInterface.addColumn(
