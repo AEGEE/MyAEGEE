@@ -472,17 +472,17 @@ export default {
   watch: {
     'application.visa_required' (val) {
       if (!val) {
-        this.application.visa_passport_number = null
-        this.application.visa_place_of_birth = null
-        this.application.visa_passport_number = null
-        this.application.visa_passport_issue_date = null
-        this.application.visa_passport_expiration_date = null
-        this.application.visa_passport_issue_authority = null
-        this.application.visa_embassy = null
-        this.application.visa_street_and_house = null
-        this.application.visa_postal_code = null
-        this.application.visa_city = null
-        this.application.visa_country = null
+        this.application.visa_passport_number = ''
+        this.application.visa_place_of_birth = ''
+        this.application.visa_passport_number = ''
+        this.application.visa_passport_issue_date = ''
+        this.application.visa_passport_expiration_date = ''
+        this.application.visa_passport_issue_authority = ''
+        this.application.visa_embassy = ''
+        this.application.visa_street_and_house = ''
+        this.application.visa_postal_code = ''
+        this.application.visa_city = ''
+        this.application.visa_country = ''
       }
     }
   },
