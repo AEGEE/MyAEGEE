@@ -404,8 +404,8 @@ export default {
         this.$root.showSuccess('Application is saved.')
 
         return this.$router.push({
-          name: 'oms.statutory.view',
-          params: { id: this.event.url || this.event.id }
+          name: 'oms.statutory.applications.view',
+          params: { id: this.$route.params.id, application_id: this.$route.params.application_id }
         })
       }).catch((err) => {
         this.isSaving = false
