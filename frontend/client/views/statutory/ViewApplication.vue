@@ -74,6 +74,10 @@
                   <td>{{ application.allergies }}</td>
                 </tr>
                 <tr>
+                  <th>Number of {{ event.type === 'agora' ? 'Agorae' : 'EPM' }} visited</th>
+                  <td>{{ application.number_of_events_visited | beautify }}</td>
+                </tr>
+                <tr>
                   <th>Visa required?</th>
                   <td>{{ application.visa_required | beautify }}</td>
                 </tr>

@@ -62,7 +62,7 @@
               </div>
 
               <div class="field">
-                <label class="label">Nationality<span class="has-text-danger">*</span></label>
+                <label class="label">Nationality <span class="has-text-danger">*</span></label>
                 <div class="control">
                   <div class="select">
                     <select v-model="application.nationality">
@@ -74,7 +74,7 @@
               </div>
 
               <div class="field">
-                <label class="label">Meals type<span class="has-text-danger">*</span></label>
+                <label class="label">Meals type <span class="has-text-danger">*</span></label>
                 <div class="control">
                   <div class="select">
                     <select v-model="application.meals">
@@ -96,7 +96,7 @@
               </div>
 
               <div class="field is-fullwidth">
-                <label class="label">Number of {{ event.type === 'agora' ? 'Agorae' : 'EPM' }} visited</label>
+                <label class="label">Number of {{ event.type === 'agora' ? 'Agorae' : 'EPM' }} visited <span class="has-text-danger">*</span></label>
                 <div class="control">
                   <input
                     class="input"
