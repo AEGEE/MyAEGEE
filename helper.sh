@@ -9,7 +9,7 @@
 
 #CATEGORY: DEV
 # bump the version of the oms submodules and commit (currently not there)
-bump_repo()
+bump_repo ()
 {
     git submodule foreach "git checkout master"
     git add $(git submodule status | grep '^+' |  awk '{ print $2 }')
@@ -34,14 +34,14 @@ init_boot ()
 
 # change passwords (currently deploy.sh [calls an external script])
 # FIRST DEPLOYMENT
-pw_changer()
+pw_changer ()
 {
     echo -e "\n[Deployment] Setting passwords\n"
     bash $DIR/password-setter.sh
 }
 
 # wrapper for the compose mess (ACCEPTS PARAMETERS)
-compose-wrapper()
+compose_wrapper ()
 { #TO DO: put hostname check and do not accept the nuke and stop in production
     service_string=$(printenv ENABLED_SERVICES)
     services=(${service_string//:/ })
@@ -62,15 +62,15 @@ compose-wrapper()
 
 # build it for the first time (currently Makefile that calls oms.sh [build])
 # FIRST DEPLOYMENT
-#compose-wrapper build
+#compose_wrapper build
 
 # launch it (currently Makefile that calls oms.sh [start])
 # FIRST DEPLOYMENT
-#compose-wrapper up -d
+#compose_wrapper up -d
 
 # update the running instance (build only - does not bump submodules) and relaunch (currently Makefile that calls oms.sh [live-refresh])
 # THIS IS THE TARGET FOR AUTO DEPLOYMENTS
-#compose-wrapper up -d --build
+#compose_wrapper up -d --build
 
 # edit the env file before launching (currently deploy.sh)
 # FIRST DEPLOYMENT
@@ -95,14 +95,14 @@ edit_env_file ()
 
 # nuke the installation (currently both deploy AND makefile launching both oms.sh [nuke])
 # (has a security check, near the end)
-# compose-wrapper down -v
+# compose_wrapper down -v
 
 # show logs (even if NOW they go to logstash)
-#compose-wrapper logs -f #and additional args: the names of the containers, after -f
+#compose_wrapper logs -f #and additional args: the names of the containers, after -f
 #FIXME: with the make target, it cannot follow specific logs
 
 # execute command
-#compose-wrapper exec #and additional args: the name of the container and the command
+#compose_wrapper exec #and additional args: the name of the container and the command
 #FIXME: with the make target, arguments cannot be specified 
 
 # HUMAN INTERVENTION NEEDED: register in .env your services
@@ -161,27 +161,27 @@ if ( $init ); then
 fi
 
 if ( $build ); then
-    compose-wrapper build
+    compose_wrapper build
 fi
 
 if ( $start ); then
-    compose-wrapper up -d
+    compose_wrapper up -d
 fi
 
 if ( $refresh ); then #THIS IS AN UPGRADING, i.e. CD pipeline target
-    compose-wrapper up -d --build
+    compose_wrapper up -d --build
 fi
 
 if ( $monitor ); then
-    compose-wrapper logs -f $arguments
+    compose_wrapper logs -f $arguments
 fi
 
 if ( $execute ); then
-    compose-wrapper exec $arguments
+    compose_wrapper exec $arguments
 fi
 
 if ( $stop ); then
-    compose-wrapper stop
+    compose_wrapper stop
 fi
 
 if ( $nuke ); then
@@ -190,7 +190,7 @@ if ( $nuke ); then
     else if [[ "$(hostname)" == *staging* ]]; then
            echo "DUUUDE you better do this manually, no script" && exit 2; 
          else
-           compose-wrapper down -v
+           compose_wrapper down -v
          fi
     fi 
 fi
