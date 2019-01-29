@@ -60,7 +60,7 @@
               {{ props.row.body_name }}
             </b-table-column>
 
-            <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name" sortable>
+            <b-table-column v-for="(field, index) in fields" :visible="selectedFields.some(sField => sField.name === field.name)" v-bind:key="index" field="answers[index]" :label="field.name">
               {{ field.get(props.row) | beautify }}
             </b-table-column>
 
