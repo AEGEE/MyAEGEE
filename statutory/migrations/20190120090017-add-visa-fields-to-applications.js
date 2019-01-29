@@ -27,8 +27,7 @@ module.exports = {
     for (const field of visaFields) {
       await queryInterface.removeColumn(
         'applications',
-        field,
-        { type: Sequelize.STRING, allowNull: true }
+        field
       );
     }
   }
