@@ -286,6 +286,14 @@ const Application = sequelize.define('application', {
             notEmpty: { msg: 'Body name should be set.' }
         }
     },
+    nationality: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Nationality should be set.' }
+        }
+    },
     visa_place_of_birth: {
         allowNull: false,
         type: Sequelize.STRING,
@@ -319,14 +327,6 @@ const Application = sequelize.define('application', {
         }
     },
     visa_passport_issue_authority: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
-    },
-    visa_nationality: {
         allowNull: false,
         type: Sequelize.STRING,
         defaultValue: '',

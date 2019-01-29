@@ -4,7 +4,7 @@ const visaFields = [
   'visa_passport_issue_date',
   'visa_passport_expiration_date',
   'visa_passport_issue_authority',
-  'visa_nationality',
+  'nationality',
   'visa_embassy',
   'date_of_birth',
   'visa_street_and_house',
