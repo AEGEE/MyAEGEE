@@ -1,6 +1,6 @@
   
 default:  
-	echo 'Options are bootstrap, start, monitor, stop, restart, nuke, clean (cleans untagged/unnamed images)'
+	echo 'Most common options are bootstrap, start, monitor, live_refresh, restart, nuke_dev, clean (cleans untagged/unnamed images)'
 
 bump:
 	./helper.sh --bump
@@ -21,17 +21,21 @@ monitor: #by default it logs everything, to log some containers only, use the sc
 
 refresh:  build
   
-live-refresh:  # docker-compose up -d --build 
+live_refresh:  # docker-compose up -d --build (CD TARGET)
 	./helper.sh --refresh
   
-stop: # docker-compose down
-	./helper.sh --stop
+# stop: # docker-compose stop
+# 	./helper.sh --stop
   
-restart: stop start
+# down: # docker-compose down
+# 	./helper.sh --down
 
-hard-restart: nuke restart
+restart: 
+ 	./helper.sh --down
 
-nuke:   #docker-compose down -v #TODO if needed: make this nuke take into account the .env like in deploy
+hard_restart: nuke_dev restart
+
+nuke_dev:   #docker-compose down -v #TODO if needed: make this nuke take into account the .env like in deploy
 	./helper.sh --nuke
   
 clean_docker_dangling_images:

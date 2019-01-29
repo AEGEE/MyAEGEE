@@ -22,7 +22,7 @@ bump_repo ()
 }
 
 #CATEGORY: DEPLOY
-# create first secrets (currently oms.sh)
+# create first secrets is in start.sh
 # FIRST DEPLOYMENT
 init_boot ()
 {
@@ -73,7 +73,7 @@ compose_wrapper ()
 # THIS IS THE TARGET FOR AUTO DEPLOYMENTS
 #compose_wrapper up -d --build
 
-# edit the env file before launching (currently deploy.sh)
+# edit the env file before launching
 # FIRST DEPLOYMENT
 edit_env_file ()
 {
@@ -121,6 +121,8 @@ start=false;
 refresh=false;
 monitor=false;
 stop=false;
+down=false;
+restart=false;
 nuke=false;
 bump=false;
 execute=false;
@@ -136,25 +138,28 @@ if [[ "$#" -ge 1 ]]; then
             --refresh) refresh=true; ((command_num++)); shift ;;
             --monitor) monitor=true; ((command_num++)); shift ;;
             --stop) stop=true; ((command_num++)); shift ;;
+            --down) down=true; ((command_num++)); shift ;;
+            --restart) restart=true; ((command_num++)); shift ;;
             --nuke) nuke=true; ((command_num++)); shift ;;
             --bump) bump=true; ((command_num++)); shift ;;
             --execute) execute=true; ((command_num++)); shift ;;
             
             -v) verbose=true; shift ;;
 
-            -*) echo "unknown option: $1" >&2; 
-                echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--nuke|--execute|--bump} [-v]"; exit 1;;
+            -*) echo "unknown option: $1" 2>&1; 
+                echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump} [-v]"; exit 1;;
             *) arguments+="$1 "; shift;;
         esac
     done
 
 else
-    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--nuke|--execute|--bump} [-v]"; exit 1
+    echo "Too few parameters"; exit 1
+    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump} [-v]"; exit 1
 fi
 
 if (( $command_num > 1 )); then
     echo "Too many commands! Only one command per time"
-    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--nuke|--execute|--bump} [-v]"; exit 1
+    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump} [-v]"; exit 1
 fi
 
 if ( $init ); then
@@ -177,7 +182,7 @@ if ( $refresh ); then #THIS IS AN UPGRADING, i.e. CD pipeline target
 fi
 
 if ( $monitor ); then
-    compose_wrapper logs -f $arguments
+    compose_wrapper logs -f --tail=100 $arguments
     exit $?
 fi
 
@@ -187,8 +192,30 @@ if ( $execute ); then
 fi
 
 if ( $stop ); then
-    compose_wrapper stop
-    exit $?
+    if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
+       compose_wrapper stop $arguments
+       exit $?
+    fi
+    echo "'Stop' must only be used with a container name"
+    exit 0
+fi
+
+if ( $down ); then 
+    if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
+        compose_wrapper down $arguments
+        exit $?
+    fi
+    echo "'Down' must only be used with a container name"
+    exit 0
+fi
+
+if ( $restart ); then 
+    if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
+        compose_wrapper restart $arguments
+        exit $?
+    fi
+    echo "'Restart' must only be used with a container name"
+    exit 0
 fi
 
 if ( $nuke ); then
