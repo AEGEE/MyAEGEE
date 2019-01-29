@@ -171,19 +171,6 @@
 
               <div class="field is-fullwidth" v-if="application.visa_required">
                 <label class="has-text-weight-bold">
-                  Nationality <span class="has-text-danger">*</span>
-                </label>
-                <div class="control">
-                  <input
-                    class="input"
-                    type="text"
-                    required
-                    v-model="application.visa_nationality" />
-                </div>
-              </div>
-
-              <div class="field is-fullwidth" v-if="application.visa_required">
-                <label class="has-text-weight-bold">
                   Place of birth <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
@@ -205,6 +192,19 @@
                     type="text"
                     required
                     v-model="application.visa_embassy" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth" v-if="application.visa_required">
+                <label class="has-text-weight-bold">
+                  Street and house number <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    required
+                    v-model="application.visa_street_and_house" />
                 </div>
               </div>
 
