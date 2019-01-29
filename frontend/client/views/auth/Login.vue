@@ -15,7 +15,7 @@
           </p>
 
           <hr>
-          <p class="control">
+          <p class="control has-text-centered">
             <button type="submit" class="button is-primary">Login</button>
             <router-link :to="{ name: 'oms.register', params: { id: 'default' } }" class="button">Register</router-link>
             <router-link :to="{ name: 'oms.password_reset' }" class="button">Forgot your password?</router-link>
