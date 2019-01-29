@@ -30,34 +30,6 @@ init_boot ()
     git submodule update --init
 
     docker network inspect OMS &>/dev/null || (echo -e "[OMS] Creating OMS docker network" && docker network create OMS)
-
-    ## Create secrets
-    echo -e "[OMS] Creating random secrets if not existing"
-
-    ## Create a new random jwt key
-    if ! [[ -f "$DIR/secrets/jwt_key" ]]; then
-      mkdir -p $DIR/secrets
-      cat /dev/random | head -c 256 | base64 > $DIR/secrets/jwt_key
-    fi
-
-    ## Will not result in a valid sendgrid key but at least allows starting of the docker-compose stack
-    if ! [[ -f "$DIR/secrets/sendgrid_key" ]]; then
-      mkdir -p $DIR/secrets
-      cat /dev/random | head -c 256 | base64 > $DIR/secrets/sendgrid_key
-    fi
-
-    ## If no certificate is provided, use a self-signed one
-    if ! [[ -f "$DIR/secrets/cert.pem" ]]; then
-      mkdir -p $DIR/secrets
-      openssl req -x509 -newkey rsa:4096 -keyout $DIR/secrets/key.pem -out $DIR/secrets/cert.pem -days 365 -nodes -batch
-    fi
-
-    ## If no acme.json is there, make it
-    if ! [[ -f "$DIR/secrets/acme.json" ]]; then
-      mkdir -p $DIR/secrets
-      touch $DIR/secrets/acme.json
-      chmod 600 $DIR/secrets/acme.json
-    fi
 }
 
 # change passwords (currently deploy.sh [calls an external script])
