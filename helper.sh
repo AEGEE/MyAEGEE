@@ -9,7 +9,7 @@
 
 #CATEGORY: DEV
 # bump the version of the oms submodules and commit (currently not there)
-bump_repo()
+bump_repo ()
 {
     git submodule foreach "git checkout master"
     git add $(git submodule status | grep '^+' |  awk '{ print $2 }')
@@ -22,7 +22,7 @@ bump_repo()
 }
 
 #CATEGORY: DEPLOY
-# create first secrets (currently oms.sh)
+# create first secrets is in start.sh
 # FIRST DEPLOYMENT
 init_boot ()
 {
@@ -34,14 +34,14 @@ init_boot ()
 
 # change passwords (currently deploy.sh [calls an external script])
 # FIRST DEPLOYMENT
-pw_changer()
+pw_changer ()
 {
     echo -e "\n[Deployment] Setting passwords\n"
     bash $DIR/password-setter.sh
 }
 
 # wrapper for the compose mess (ACCEPTS PARAMETERS)
-compose-wrapper()
+compose_wrapper ()
 { #TO DO: put hostname check and do not accept the nuke and stop in production
     service_string=$(printenv ENABLED_SERVICES)
     services=(${service_string//:/ })
@@ -58,21 +58,22 @@ compose-wrapper()
         echo -e "\n[OMS] Full command:\n${command}\n"
     fi
     eval $command
+    return $?
 }
 
 # build it for the first time (currently Makefile that calls oms.sh [build])
 # FIRST DEPLOYMENT
-#compose-wrapper build
+#compose_wrapper build
 
 # launch it (currently Makefile that calls oms.sh [start])
 # FIRST DEPLOYMENT
-#compose-wrapper up -d
+#compose_wrapper up -d
 
 # update the running instance (build only - does not bump submodules) and relaunch (currently Makefile that calls oms.sh [live-refresh])
 # THIS IS THE TARGET FOR AUTO DEPLOYMENTS
-#compose-wrapper up -d --build
+#compose_wrapper up -d --build
 
-# edit the env file before launching (currently deploy.sh)
+# edit the env file before launching
 # FIRST DEPLOYMENT
 edit_env_file ()
 {
@@ -95,14 +96,14 @@ edit_env_file ()
 
 # nuke the installation (currently both deploy AND makefile launching both oms.sh [nuke])
 # (has a security check, near the end)
-# compose-wrapper down -v
+# compose_wrapper down -v
 
 # show logs (even if NOW they go to logstash)
-#compose-wrapper logs -f #and additional args: the names of the containers, after -f
+#compose_wrapper logs -f #and additional args: the names of the containers, after -f
 #FIXME: with the make target, it cannot follow specific logs
 
 # execute command
-#compose-wrapper exec #and additional args: the name of the container and the command
+#compose_wrapper exec #and additional args: the name of the container and the command
 #FIXME: with the make target, arguments cannot be specified 
 
 # HUMAN INTERVENTION NEEDED: register in .env your services
@@ -120,6 +121,8 @@ start=false;
 refresh=false;
 monitor=false;
 stop=false;
+down=false;
+restart=false;
 nuke=false;
 bump=false;
 execute=false;
@@ -135,25 +138,28 @@ if [[ "$#" -ge 1 ]]; then
             --refresh) refresh=true; ((command_num++)); shift ;;
             --monitor) monitor=true; ((command_num++)); shift ;;
             --stop) stop=true; ((command_num++)); shift ;;
+            --down) down=true; ((command_num++)); shift ;;
+            --restart) restart=true; ((command_num++)); shift ;;
             --nuke) nuke=true; ((command_num++)); shift ;;
             --bump) bump=true; ((command_num++)); shift ;;
             --execute) execute=true; ((command_num++)); shift ;;
             
             -v) verbose=true; shift ;;
 
-            -*) echo "unknown option: $1" >&2; 
-                echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--nuke|--execute|--bump} [-v]"; exit 1;;
+            -*) echo "unknown option: $1" 2>&1; 
+                echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump} [-v]"; exit 1;;
             *) arguments+="$1 "; shift;;
         esac
     done
 
 else
-    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--nuke|--execute|--bump} [-v]"; exit 1
+    echo "Too few parameters"; exit 1
+    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump} [-v]"; exit 1
 fi
 
 if (( $command_num > 1 )); then
     echo "Too many commands! Only one command per time"
-    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--nuke|--execute|--bump} [-v]"; exit 1
+    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump} [-v]"; exit 1
 fi
 
 if ( $init ); then
@@ -161,27 +167,55 @@ if ( $init ); then
 fi
 
 if ( $build ); then
-    compose-wrapper build
+    compose_wrapper build
+    exit $?
 fi
 
 if ( $start ); then
-    compose-wrapper up -d
+    compose_wrapper up -d
+    exit $?
 fi
 
 if ( $refresh ); then #THIS IS AN UPGRADING, i.e. CD pipeline target
-    compose-wrapper up -d --build
+    compose_wrapper up -d --build
+    exit $?
 fi
 
 if ( $monitor ); then
-    compose-wrapper logs -f $arguments
+    compose_wrapper logs -f --tail=100 $arguments
+    exit $?
 fi
 
 if ( $execute ); then
-    compose-wrapper exec $arguments
+    compose_wrapper exec $arguments
+    exit $?
 fi
 
 if ( $stop ); then
-    compose-wrapper stop
+    if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
+       compose_wrapper stop $arguments
+       exit $?
+    fi
+    echo "'Stop' must only be used with a container name"
+    exit 0
+fi
+
+if ( $down ); then 
+    if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
+        compose_wrapper down $arguments
+        exit $?
+    fi
+    echo "'Down' must only be used with a container name"
+    exit 0
+fi
+
+if ( $restart ); then 
+    if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
+        compose_wrapper restart $arguments
+        exit $?
+    fi
+    echo "'Restart' must only be used with a container name"
+    exit 0
 fi
 
 if ( $nuke ); then
@@ -190,7 +224,8 @@ if ( $nuke ); then
     else if [[ "$(hostname)" == *staging* ]]; then
            echo "DUUUDE you better do this manually, no script" && exit 2; 
          else
-           compose-wrapper down -v
+           compose_wrapper down -v
+           exit $?
          fi
     fi 
 fi
