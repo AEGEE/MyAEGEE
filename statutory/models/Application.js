@@ -382,6 +382,28 @@ const Application = sequelize.define('application', {
             notEmpty: { msg: 'Date of birth should be set.' }
         }
     },
+    number_of_events_visited: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Number of events visited should be set.' },
+            isNumeric: { msg: 'Number of events visited should be valid.' },
+            min: { args: [0], msg: 'Number of events visited cannot be negative' }
+        }
+    },
+    meals: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Meals should be set.' }
+        }
+    },
+    allergies: {
+        allowNull: true,
+        type: Sequelize.TEXT
+    }
 }, { underscored: true });
 
 module.exports = Application;

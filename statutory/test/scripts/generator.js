@@ -83,6 +83,9 @@ exports.generateApplication = (options = {}, event = null) => {
         if (notSet(options[visaField])) options[visaField] = faker.lorem.sentence();
     }
 
+    if (notSet(options.meals)) options.meals = faker.lorem.sentence();
+    if (notSet(options.number_of_events_visited)) options.number_of_events_visited = faker.random.number({ min: 0, max: 100 });
+
     if (notSet(options.answers)) {
         const answersCount = event ? event.questions.length : Math.round(Math.random() * 5) + 1; // from 1 to 6
         options.answers = Array.from({ length: answersCount }, () => faker.lorem.sentence());
