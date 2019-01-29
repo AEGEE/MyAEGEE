@@ -61,6 +61,52 @@
                 </div>
               </div>
 
+              <div class="field">
+                <label class="label">Nationality<span class="has-text-danger">*</span></label>
+                <div class="control">
+                  <div class="select">
+                    <select v-model="application.nationality">
+                      <option v-for="(country, index) in countries" v-bind:key="index">{{ country }}</option>
+                    </select>
+                  </div>
+                </div>
+                <p class="help is-danger" v-if="errors.nationality">{{ errors.nationality.join(', ') }}</p>
+              </div>
+
+              <div class="field">
+                <label class="label">Meals type<span class="has-text-danger">*</span></label>
+                <div class="control">
+                  <div class="select">
+                    <select v-model="application.meals">
+                      <option>Meat-eater</option>
+                      <option>Vegetarian</option>
+                    </select>
+                  </div>
+                </div>
+                <p class="help is-danger" v-if="errors.meals">{{ errors.meals.join(', ') }}</p>
+              </div>
+
+              <div class="field is-fullwidth">
+                <label class="label">Allergies</label>
+                <div class="control">
+                  <textarea
+                    class="textarea"
+                    v-model="application.allergies" />
+                </div>
+              </div>
+
+              <div class="field is-fullwidth">
+                <label class="label">Number of {{ event.type === 'agora' ? 'Agorae' : 'EPM' }} visited</label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="number"
+                    required
+                    min="0"
+                    v-model="application.number_of_events_visited" />
+                </div>
+              </div>
+
               <div class="field is-fullwidth">
                 <label class="has-text-weight-bold checkbox">
                   Visa required? <span class="has-text-danger">*</span>
@@ -314,6 +360,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import countries from '../../countries'
 
 export default {
   name: 'EditApplication',
@@ -329,8 +376,12 @@ export default {
         body_id: null,
         id: null,
         visa_required: false,
-        answers: []
+        answers: [],
+        meals: '',
+        allergies: '',
+        number_of_events_visited: 0
       },
+      countries,
       can: {
         apply: false
       },
@@ -427,7 +478,6 @@ export default {
         this.application.visa_passport_issue_date = null
         this.application.visa_passport_expiration_date = null
         this.application.visa_passport_issue_authority = null
-        this.application.visa_nationality = null
         this.application.visa_embassy = null
         this.application.visa_street_and_house = null
         this.application.visa_postal_code = null
