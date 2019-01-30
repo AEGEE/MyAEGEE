@@ -18,5 +18,5 @@
 	url = https://github.com/AEGEE/oms-mailer.git
 [submodule "oms-dogwatch"]
 	path = oms-dogwatch
-	url = git@github.com:AEGEE/docker-elk.git
+	url = https://github.com/AEGEE/docker-elk.git
 	branch = aegee-dev
