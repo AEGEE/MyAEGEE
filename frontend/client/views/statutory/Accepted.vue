@@ -4,6 +4,8 @@
       <div class="tile is-child">
         <div class="title">Accepted applications</div>
 
+        <div>Total participants accepted: {{ applications.length }}</div>
+
         <b-table
           :data="applications"
           :loading="isLoading"
