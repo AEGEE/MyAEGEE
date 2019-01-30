@@ -11,7 +11,7 @@
 # bump the version of the oms submodules and commit (currently not there)
 bump_repo ()
 {
-    git submodule foreach "git checkout master"
+    git submodule foreach "git checkout master && git pull"
     git add $(git submodule status | grep '^+' |  awk '{ print $2 }')
     #if something is staged, do the following two lines
     git diff --cached --quiet 
