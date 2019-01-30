@@ -1,4 +1,4 @@
-FROM elixir:alpine
+FROM elixir:1.8-alpine
 
 RUN mkdir -p /usr/src/myapp \
 	&& mkdir -p /usr/src/scripts \
