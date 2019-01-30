@@ -45,7 +45,7 @@
                 <tr>
                   <th>Attached permissions</th>
                   <td v-if="circle.permissions.length === 0"><i> No permissions directly attached.</i></td>
-                  <td v-if="circle.permissions.length > 0">
+                  <td v-if="circle.permissions.length > 0" class="circle-permissions-list">
                     <ul>
                       <li v-for="permission in circle.permissions" v-bind:key="permission.id">
                         <router-link :to="{ name: 'oms.permissions.view', params: { id: permission.id } }">
@@ -58,7 +58,7 @@
                 <tr>
                   <th>Inherited permissions</th>
                   <td v-if="inheritedPermissions.length === 0"><i> No permissions inherited.</i></td>
-                  <td v-if="inheritedPermissions.length > 0">
+                  <td v-if="inheritedPermissions.length > 0" class="circle-permissions-list">
                     <ul>
                       <li v-for="permission in inheritedPermissions" v-bind:key="permission.id">
                         <router-link :to="{ name: 'oms.permissions.view', params: { id: permission.id } }">
@@ -264,3 +264,9 @@ export default {
   })
 }
 </script>
+
+<style>
+.circle-permissions-list {
+  word-break: break-all;
+}
+</style>
