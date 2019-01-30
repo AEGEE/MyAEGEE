@@ -12,7 +12,7 @@ script:
     - bash ./helper.sh -v --init
     - bash ./helper.sh -v --build
     - bash ./helper.sh --start
-    - sleep 60
+    - sleep 190
     - bash ./helper.sh --execute -- -T -d traefik help 2>/dev/null 
     - bash ./helper.sh --execute -- -T -d oms-frontend true 2>/dev/null 
     - bash ./helper.sh --execute -- -T -d oms-core-elixir true 2>/dev/null 
