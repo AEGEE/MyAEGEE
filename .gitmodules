@@ -1,12 +1,6 @@
 [submodule "oms-events"]
     path = oms-events
     url = https://github.com/AEGEE/oms-events.git
-[submodule "oms-serviceregistry"]
-    path = oms-serviceregistry
-    url = https://github.com/AEGEE/oms-serviceregistry.git
-[submodule "oms-logo-print"]
-    path = oms-logo-print
-    url = https://github.com/AEGEE/oms-logo-print.git
 [submodule "oms-global/docker/portal/files"]
     path = oms-global/docker/portal/files
     url = https://github.com/AEGEE/AEGEEPortal
@@ -14,8 +8,11 @@
     path = oms-core-elixir
     url = https://github.com/AEGEE/oms-core-elixir.git
 [submodule "oms-frontend"]
-	path = oms-frontend
-	url = https://github.com/aegee/oms-frontend
+    path = oms-frontend
+    url = https://github.com/aegee/oms-frontend
 [submodule "oms-statutory"]
-	path = oms-statutory
-	url = https://github.com/AEGEE/oms-statutory
+    path = oms-statutory
+    url = https://github.com/AEGEE/oms-statutory
+[submodule "oms-mailer"]
+	path = oms-mailer
+	url = https://github.com/AEGEE/oms-mailer.git

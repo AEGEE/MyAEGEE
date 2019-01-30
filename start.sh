@@ -16,9 +16,13 @@ check_etc_hosts () {
   cat /etc/hosts | grep 'portainer' > /dev/null
   if (( $? )); then
     #modify the hosts file
+    echo 'modifying the hosts file'
     sudo bash -c 'echo "$1" "$2" "portainer.$2" "my.$2" "traefik.$2" >> /etc/hosts' -- $1 $2
   fi
 }
+
+#make secrets on host anyway
+bash ./vagrant-post-script/generate_secrets.sh
 
 #run accordingly
 if ( $novagrant ); then
