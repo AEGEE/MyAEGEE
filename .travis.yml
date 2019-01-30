@@ -1,5 +1,5 @@
 language: shell
-dist: trusty
+dist: xenial
 sudo: required
 git:
   depth: 3
@@ -8,17 +8,13 @@ services:
   - docker
 
 script:
-    - bash ./oms.sh build --no-cache
-    - bash ./oms.sh up -d
+    - bash ./vagrant-post-script/generate_secrets.sh
+    - bash ./helper.sh -v --init
+    - bash ./helper.sh -v --build
+    - bash ./helper.sh --start
     - sleep 60
-    - bash ./oms.sh logs
-    - bash ./oms.sh ps
-    - bash ./oms.sh exec -T -d traefik help 2>/dev/null 
-    - bash ./oms.sh exec -T -d postgres-oms-core-elixir true 2>/dev/null 
-    - bash ./oms.sh exec -T -d pgadmin true 2>/dev/null 
-    - bash ./oms.sh exec -T -d oms-core-elixir true 2>/dev/null 
-    - bash ./oms.sh exec -T -d oms-events true 2>/dev/null 
-    - bash ./oms.sh exec -T -d oms-frontend true 2>/dev/null 
-    - bash ./oms.sh exec -T -d mongodb true 2>/dev/null
-    - bash ./oms.sh exec -T -d omsserviceregistry true 2>/dev/null 
-    - bash ./tests/LocalLoopbackTest/LocalLoopbackTest.sh
+    - bash ./helper.sh --execute -- -T -d traefik help 2>/dev/null 
+    - bash ./helper.sh --execute -- -T -d oms-frontend true 2>/dev/null 
+    - bash ./helper.sh --execute -- -T -d oms-core-elixir true 2>/dev/null 
+      #    - bash ./helper.sh --execute -- -T -d oms-events true 2>/dev/null 
+      #    - bash ./helper.sh --execute -- -T -d oms-statutory true 2>/dev/null 
