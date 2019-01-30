@@ -16,5 +16,5 @@ script:
     - bash ./helper.sh --execute -- -T -d traefik help 2>/dev/null 
     - bash ./helper.sh --execute -- -T -d oms-frontend true 2>/dev/null 
     - bash ./helper.sh --execute -- -T -d oms-core-elixir true 2>/dev/null 
-    - bash ./helper.sh --execute -- -T -d oms-events true 2>/dev/null 
-    - bash ./helper.sh --execute -- -T -d oms-statutory true 2>/dev/null 
+      #    - bash ./helper.sh --execute -- -T -d oms-events true 2>/dev/null 
+      #    - bash ./helper.sh --execute -- -T -d oms-statutory true 2>/dev/null 

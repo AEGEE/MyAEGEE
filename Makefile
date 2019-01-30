@@ -31,7 +31,7 @@ live_refresh:  # docker-compose up -d --build (CD TARGET)
 # 	./helper.sh --down
 
 restart: 
- 	./helper.sh --down
+	./helper.sh --down
 
 hard_restart: nuke_dev restart
 
