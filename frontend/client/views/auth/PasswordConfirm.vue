@@ -12,20 +12,13 @@
              <p class="help is-danger" v-if="errors.token">{{ errors.token.join(', ') }}</p>
           </div>
 
-          <div class="field">
-            <label class="label">Password</label>
-            <div class="control">
-              <input v-model="password" required class="input" type="password" placeholder="Type your new password.">
-            </div>
-             <p class="help is-danger" v-if="errors.password">{{ errors.password.join(', ') }}</p>
-          </div>
+          <password-toggle v-model="password" requiired placeholder="Type your new password." label="Password">
+            <template slot="errors-slot">
+              <p class="help is-danger" v-if="errors.password">{{ errors.password.join(', ')}}</p>
+            </template>
+          </password-toggle>
 
-          <div class="field">
-            <label class="label">Password confirmation</label>
-            <div class="control">
-              <input v-model="password_confirmation" required class="input" type="password" placeholder="Confirm your password.">
-            </div>
-          </div>
+          <password-toggle v-model="password_confirmation" requiired placeholder="Confirm your password." label="Password confirmation" />
 
           <hr />
           <p class="control">
