@@ -27,21 +27,6 @@
           <div class="control">
             <button class="button is-primary" @click="fetchFromBody()">Fetch members list from a body</button>
           </div>
-          <div class="control">
-            <div class="file">
-              <label class="file-label">
-                <input class="file-input" type="file" name="resume" @change="openFileDialog($event)">
-                <span class="file-cta">
-                  <span class="file-icon">
-                    <i class="fa fa-upload"></i>
-                  </span>
-                  <span class="file-label">
-                    Fetch members list from CSV
-                  </span>
-                </span>
-              </label>
-            </div>
-          </div>
 
           <div class="control">
             <button class="button" v-show="isEditing" @click="isEditing = false">Stop editing</button>
