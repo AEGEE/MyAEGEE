@@ -9,10 +9,8 @@
           <p class="control">
             <input v-model="data.username" required class="input" type="email" placeholder="email@example.org">
           </p>
-          <label class="label">Password</label>
-          <p class="control">
-            <input v-model="data.password" required class="input" type="password" placeholder="password">
-          </p>
+
+          <password-toggle required v-model="data.password" placeholder="password" label="Password"/>
 
           <hr>
           <p class="control has-text-centered">

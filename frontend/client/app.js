@@ -17,6 +17,7 @@ import store from './store'
 import filters from './filters'
 import Auth from './auth'
 import SelectOrCustom from './components/SelectOrCustom'
+import PasswordToggle from './components/PasswordToggle'
 
 axios.defaults.paramsSerializer = params => qs.stringify(params, {
   arrayFormat: 'brackets',
@@ -39,6 +40,7 @@ Vue.use(VueGoogleMaps, {
 Vue.component('multiselect', Multiselect)
 Vue.component('input-tag', InputTag)
 Vue.component('select-or-custom', SelectOrCustom)
+Vue.component('password-toggle', PasswordToggle)
 
 // Enable devtools
 Vue.config.devtools = true

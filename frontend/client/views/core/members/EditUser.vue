@@ -28,32 +28,23 @@
 
         <hr />
 
-        <div class="field">
-          <label class="label">Old password</label>
-          <div class="control has-icons-left">
-            <span class="icon is-small is-left"><i class="fa fa-envelope"></i></span>
-            <input class="input" type="password" minlength="8" v-model="old_password" />
-          </div>
-          <p class="help is-danger" v-if="errors.old_password">{{ errors.old_password.join(', ')}}</p>
-        </div>
+        <password-toggle v-model="old_password" :required="false" placeholder="Your old password." label="Old password">
+          <template slot="errors-slot">
+            <p class="help is-danger" v-if="errors.old_password">{{ errors.old_password.join(', ')}}</p>
+          </template>
+        </password-toggle>
 
-        <div class="field">
-          <label class="label">New password</label>
-          <div class="control has-icons-left">
-            <span class="icon is-small is-left"><i class="fa fa-envelope"></i></span>
-            <input class="input" type="password" minlength="8" v-model="user.password" />
-          </div>
-          <p class="help is-danger" v-if="errors.password">{{ errors.password.join(', ')}}</p>
-        </div>
+        <password-toggle v-model="user.password" :required="false" placeholder="Type in your password." label="New password">
+          <template slot="errors-slot">
+            <p class="help is-danger" v-if="errors.password">{{ errors.password.join(', ')}}</p>
+          </template>
+        </password-toggle>
 
-        <div class="field">
-          <label class="label">Password confirmation</label>
-          <div class="control has-icons-left">
-            <span class="icon is-small is-left"><i class="fa fa-envelope"></i></span>
-            <input class="input" type="password" minlength="8" v-model="password_confirmation" />
-          </div>
-          <p class="help is-danger" v-if="errors.password_confirmation">{{ errors.password_confirmation.join(', ')}}</p>
-        </div>
+        <password-toggle v-model="password_confirmation" :required="false" placeholder="Confirm your password." label="Confirm your password">
+          <template slot="errors-slot">
+            <p class="help is-danger" v-if="errors.password_confirmation">{{ errors.password_confirmation.join(', ')}}</p>
+          </template>
+        </password-toggle>
 
         <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
 
