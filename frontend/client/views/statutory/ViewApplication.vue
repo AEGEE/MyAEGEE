@@ -34,6 +34,10 @@
               </thead>
               <tbody>
                 <tr>
+                  <th>ID</th>
+                  <td>{{ application.id }}</td>
+                </tr>
+                <tr>
                   <th>Applied on</th>
                   <td>{{ application.created_at | datetime }}</td>
                 </tr>
