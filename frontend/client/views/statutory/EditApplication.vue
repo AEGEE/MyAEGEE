@@ -396,6 +396,8 @@ export default {
         return this.$root.showDanger('Please select a body.')
       }
 
+      this.errors = {}
+
       const promise = this.isNew
         ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications', this.application)
         : this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id, this.application)
