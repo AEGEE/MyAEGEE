@@ -263,19 +263,34 @@ exports.updateApplication = async (req, res) => {
 
     // Keeping old body, as apparently next line is changing req.application as well.
     const oldBody = req.application.body_id;
-    const dbResult = await req.application.update(req.body);
+
+    await sequelize.transaction(async (t) => {
+        // Updating application in a transaction, so if mail sending fails, the update would be reverted.
+        await req.application.update(req.body, { transaction: t });
+
+        // Sending the mail to a user.
+        await mailer.sendMail({
+            from: 'oms-mailer@aegee.org',
+            to: req.application.email,
+            subject: `Your application for ${req.event.name} was updated`,
+            template: 'statutory_edited.html',
+            parameters: {
+                application: req.application,
+                event: req.event
+            }
+        });
+    });
 
     // Recalculating votes per delegate for this antenna, if user changed the body.
     // Both for new and old body.
     if (req.body.body_id && req.body.body_id !== oldBody) {
         await VotesPerAntenna.recalculateVotesForDelegates(req.event, oldBody);
         await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.body.body_id);
-
     }
 
     return res.json({
         success: true,
-        data: dbResult
+        data: req.application
     });
 };
 
