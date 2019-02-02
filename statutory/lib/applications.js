@@ -5,8 +5,9 @@ const crypto = require('crypto');
 const xlsx = require('node-xlsx').default;
 
 const logger = require('./logger');
+const mailer = require('./mailer');
 const config = require('../config');
-const { Application, PaxLimit, VotesPerAntenna } = require('../models');
+const { Event, Application, PaxLimit, VotesPerAntenna } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const { sequelize } = require('./sequelize');
@@ -493,6 +494,18 @@ exports.postApplication = async (req, res) => {
     const newApplication = await Application.create(req.body);
 
     // We don't need to recalculate the votes amount, as the pax type is not set here.
+
+    // Sending the mail to a user.
+    await mailer.sendMail({
+        from: 'oms-mailer@aegee.org',
+        to: newApplication.email,
+        subject: `You've successfully applied for ${req.event.name}`,
+        template: 'statutory_applied.html',
+        parameters: {
+            application: newApplication,
+            event: req.event
+        }
+    });
 
     return res.json({
         success: true,
