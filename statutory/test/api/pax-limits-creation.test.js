@@ -15,7 +15,7 @@ describe('Pax limits creation/editing', () => {
         await generator.clearAll();
     });
 
-    test('should update the limit if not exists', async () => {
+    test('should update the limit if exists', async () => {
         const limit = generator.generatePaxLimit();
         const res = await request({
             uri: '/limits/agora',
