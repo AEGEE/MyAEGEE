@@ -84,11 +84,18 @@ exports.updateLimit = async (req, res) => {
     }
 
     req.body.event_type = req.params.event_type;
+    delete req.body.id;
 
-    const limit = await PaxLimit.upsert(req.body, { returning: true });
+    let limit = await PaxLimit.findOne({ where: { body_id: req.body.body_id, event_type: req.params.event_type } });
+    if (!limit) {
+        limit = await PaxLimit.create(req.body);
+    } else {
+        await limit.update(req.body);
+    }
+
     return res.json({
         success: true,
-        data: limit[0]
+        data: limit
     })
 };
 
