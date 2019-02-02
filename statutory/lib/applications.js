@@ -491,26 +491,29 @@ exports.postApplication = async (req, res) => {
     req.body.body_name = req.user.bodies.find(b => req.body.body_id === b.id).name;
     req.body.date_of_birth = req.user.date_of_birth;
 
-    const newApplication = await Application.create(req.body);
+    // Doing it inside of a transaction, so it'd fail and revert if mail was not sent.
+    await sequelize.transaction(async (t) => {
+        const newApplication = await Application.create(req.body, { transaction: t });
 
-    // We don't need to recalculate the votes amount, as the pax type is not set here.
+        // We don't need to recalculate the votes amount, as the pax type is not set here.
 
-    // Sending the mail to a user.
-    await mailer.sendMail({
-        from: 'oms-mailer@aegee.org',
-        to: newApplication.email,
-        subject: `You've successfully applied for ${req.event.name}`,
-        template: 'statutory_applied.html',
-        parameters: {
-            application: newApplication,
-            event: req.event
-        }
-    });
+        // Sending the mail to a user.
+        await mailer.sendMail({
+            from: 'oms-mailer@aegee.org',
+            to: newApplication.email,
+            subject: `You've successfully applied for ${req.event.name}`,
+            template: 'statutory_applied.html',
+            parameters: {
+                application: newApplication,
+                event: req.event
+            }
+        });
 
-    return res.json({
-        success: true,
-        data: newApplication
-    });
+        return res.json({
+            success: true,
+            data: newApplication
+        });
+    })
 };
 
 exports.exportOpenslides = async (req, res) => {
