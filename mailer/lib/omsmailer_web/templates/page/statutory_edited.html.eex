@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<%= render(OmsmailerWeb.SnippetsView, "head.html", title: "Your application for " <> @parameters["event"]["name"]) %>
+
+
+<body style="width:100% !important;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;padding-top:0;padding-bottom:0;padding-right:0;padding-left:0;">
+  <table cellpadding="0" cellspacing="0" border="0" id="backgroundTable" style="margin:0; padding:0; width:100% !important; line-height: 100% !important; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;background-color: #F9FAFB;"
+    width="100%">
+    <tbody>
+      <tr>
+        <td width="10" valign="top">&nbsp;</td>
+        <td valign="top" align="center">
+          <table cellpadding="0" cellspacing="0" border="0" align="center" style="width: 100%; max-width: 600px; background-color: #FFF; border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;"
+            id="contentTable">
+            <tbody>
+              <tr>
+                <td width="600" valign="top" align="center" style="border-collapse:collapse;">
+                  <table align="center" border="0" cellpadding="0" cellspacing="0" style="background: #F9FAFB;" width="100%">
+                    <tbody>
+                      <tr>
+                        <td align="center" valign="top">
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;">&nbsp;</div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <table align="center" border="0" cellpadding="0" cellspacing="0" style="border: 1px solid #E0E4E8;"
+                    width="100%">
+                    <tbody>
+                      <tr>
+                        <td align="center" style="padding: 56px 56px 28px 56px;" valign="top">
+                          <a style="color: #3498DB; text-decoration: none;" href="my.aegee.eu"
+                            target="_blank"><img style="width: 56px; height: 56px; border: 0;" alt="Weekly newsletter of CyanVariable360 Studios"
+                              src="https://my.aegee.eu/images/logo.png">
+                          </a></td>
+                      </tr>
+                      <tr>
+                        <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>Your application for <%= @parameters["event"]["name"] %> was successfully updated.</strong></div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 56px 28px 56px;" valign="top">
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">
+                            Here are your application details:
+                            <ul>
+                                <li><strong>Body name: </strong><%= @parameters["application"]["body_name"] %></li>
+                                <li><strong>Applied on: </strong><%= @parameters["application"]["created_at"] %></li>
+                                <li><strong>Updated on: </strong><%= @parameters["application"]["updated_at"] %></li>
+                                <li><strong>First name: </strong><%= @parameters["application"]["first_name"] %></li>
+                                <li><strong>Last name: </strong><%= @parameters["application"]["last_name"] %></li>
+                                <li><strong>Gender: </strong><%= @parameters["application"]["gender"] %></li>
+                                <li><strong>Date of birth: </strong><%= @parameters["application"]["date_of_birth"] %></li>
+                                <li><strong>Email: </strong><%= @parameters["application"]["email"] %></li>
+                                <li><strong>Nationality: </strong><%= @parameters["application"]["nationality"] %></li>
+                                <li><strong>Meals: </strong><%= @parameters["application"]["meals"] %></li>
+                                <li><strong>Allergies: </strong><%= @parameters["application"]["allergies"] %></li>
+                                <li><strong>Number of events visited: </strong><%= @parameters["application"]["number_of_events_visited"] %></li>
+                                <li><strong>Visa required?: </strong><%= @parameters["application"]["visa_required"] %></li>
+                                <li><strong>Visa passport number: </strong><%= @parameters["application"]["visa_passport_number"] %></li>
+                                <li><strong>Visa passport issue date: </strong><%= @parameters["application"]["visa_passport_issue_date"] %></li>
+                                <li><strong>Visa passport expiration date: </strong><%= @parameters["application"]["visa_passport_expiration_date"] %></li>
+                                <li><strong>Visa passport issue authority: </strong><%= @parameters["application"]["visa_passport_issue_authority"] %></li>
+                                <li><strong>Place of birth: </strong><%= @parameters["application"]["visa_place_of_birth"] %></li>
+                                <li><strong>Street and house number: </strong><%= @parameters["application"]["visa_street_and_house"] %></li>
+                                <li><strong>Postal code: </strong><%= @parameters["application"]["visa_postal_code"] %></li>
+                                <li><strong>City: </strong><%= @parameters["application"]["visa_city"] %></li>
+                                <li><strong>Country: </strong><%= @parameters["application"]["visa_country"] %></li>
+                                <li><strong>Embassy: </strong><%= @parameters["application"]["visa_embassy"] %></li>
+                                <%= for {question, index} <- @parameters["event"]["questions"] |> Enum.with_index(1) do %>
+                                  <li><strong><%= question["description"] %>: </strong> <%= (@parameters["event"]["questions"] || []) |> Enum.with_index(1) %></li>
+                                <% end %>
+                            </ul>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <table align="center" border="0" cellpadding="0" cellspacing="0" style="background: #F9FAFB;" width="100%">
+                    <tbody>
+                      <tr>
+                        <td align="center" style="padding: 28px 56px;" valign="top">
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; line-height: 24px; color: #A7ADB5;">This email was autogenerated by OMS mailer.</div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+
+
+</body>
+
+</html>
