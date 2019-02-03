@@ -133,14 +133,14 @@ defmodule OmsmailerWeb.PageControllerTest do
 
   # Statutory applied
   test "POST / statutory applied", %{conn: conn} do
-    conn = post conn, "/", %{template: "statutory_applied.html", parameters: %{event: %{name: "test" }, application: %{}}, to: "test@aegee.org", subject: "pirates"}
+    conn = post conn, "/", %{template: "statutory_applied.html", parameters: %{event: %{name: "test", "questions": []}, application: %{}}, to: "test@aegee.org", subject: "pirates"}
     assert json_response(conn, 200)
     assert_email_delivered_with(subject: "pirates")
   end
 
   # Statutory edited
   test "POST / statutory edited", %{conn: conn} do
-    conn = post conn, "/", %{template: "statutory_edited.html", parameters: %{event: %{name: "test" }, application: %{}}, to: "test@aegee.org", subject: "pirates"}
+    conn = post conn, "/", %{template: "statutory_edited.html", parameters: %{event: %{name: "test", "questions": []}, application: %{}}, to: "test@aegee.org", subject: "pirates"}
     assert json_response(conn, 200)
     assert_email_delivered_with(subject: "pirates")
   end
