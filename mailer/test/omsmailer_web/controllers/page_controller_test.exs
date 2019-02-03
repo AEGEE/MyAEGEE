@@ -138,9 +138,23 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert_email_delivered_with(subject: "pirates")
   end
 
+  test "POST / statutory applied should work with questions", %{conn: conn} do
+    question = %{"description" => "Phone number:", "required" => false, "type" => "string"}
+    conn = post conn, "/", %{template: "statutory_applied.html", parameters: %{event: %{name: "test", "questions": [question]}, application: %{}}, to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(subject: "pirates")
+  end
+
   # Statutory edited
   test "POST / statutory edited", %{conn: conn} do
     conn = post conn, "/", %{template: "statutory_edited.html", parameters: %{event: %{name: "test", "questions": []}, application: %{}}, to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(subject: "pirates")
+  end
+
+  test "POST / statutory edited should work with questions", %{conn: conn} do
+    question = %{"description" => "Phone number:", "required" => false, "type" => "string"}
+    conn = post conn, "/", %{template: "statutory_edited.html", parameters: %{event: %{name: "test", "questions": [question]}, application: %{}}, to: "test@aegee.org", subject: "pirates"}
     assert json_response(conn, 200)
     assert_email_delivered_with(subject: "pirates")
   end
