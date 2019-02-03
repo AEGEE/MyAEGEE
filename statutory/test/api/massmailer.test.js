@@ -4,7 +4,7 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/oms-core-valid').data;
 
-describe('Events editing', () => {
+describe('Massmailer', () => {
     let event;
     let acceptedApplication;
     let rejectedApplication;

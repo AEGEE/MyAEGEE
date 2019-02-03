@@ -1,7 +1,6 @@
 const { errors } = require('oms-common-nodejs');
-const request = require('request-promise-native');
 
-const config = require('../config');
+const mailer = require('./mailer');
 const logger = require('./logger');
 
 // TODO: Take the email, first and last name from the application
@@ -59,32 +58,13 @@ exports.sendAll = async (req, res) => {
 
     logger.info('Prepared letters: ' + bodies.length);
 
-    // Mails won't be sent if there's failure for at least 1 user for whatever reason.
-    const mailerBody = await request({
-        url: config.mailer.url + ':' + config.mailer.port + '/',
-        method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
-        },
-        simple: false,
-        json: true,
-        body: {
-            from: req.body.from,
-            to,
-            subject: req.body.subject,
-            template: 'custom.html',
-            parameters: bodies
-        }
+    await mailer.sendMail({
+        from: req.body.from,
+        to,
+        subject: req.body.subject,
+        template: 'custom.html',
+        parameters: bodies
     });
-
-    if (typeof mailerBody !== 'object') {
-        throw new Error('Malformed response from mailer: ' + mailerBody);
-    }
-
-    if (!mailerBody.success) {
-        throw new Error('Unsuccessful response from mailer: ' + JSON.stringify(mailerBody));
-    }
 
     return res.json({
         success: true,

@@ -5,8 +5,9 @@ const crypto = require('crypto');
 const xlsx = require('node-xlsx').default;
 
 const logger = require('./logger');
+const mailer = require('./mailer');
 const config = require('../config');
-const { Application, PaxLimit, VotesPerAntenna } = require('../models');
+const { Event, Application, PaxLimit, VotesPerAntenna } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const { sequelize } = require('./sequelize');
@@ -262,19 +263,34 @@ exports.updateApplication = async (req, res) => {
 
     // Keeping old body, as apparently next line is changing req.application as well.
     const oldBody = req.application.body_id;
-    const dbResult = await req.application.update(req.body);
+
+    await sequelize.transaction(async (t) => {
+        // Updating application in a transaction, so if mail sending fails, the update would be reverted.
+        await req.application.update(req.body, { transaction: t });
+
+        // Sending the mail to a user.
+        await mailer.sendMail({
+            from: 'oms-mailer@aegee.org',
+            to: req.application.email,
+            subject: `Your application for ${req.event.name} was updated`,
+            template: 'statutory_edited.html',
+            parameters: {
+                application: req.application,
+                event: req.event
+            }
+        });
+    });
 
     // Recalculating votes per delegate for this antenna, if user changed the body.
     // Both for new and old body.
     if (req.body.body_id && req.body.body_id !== oldBody) {
         await VotesPerAntenna.recalculateVotesForDelegates(req.event, oldBody);
         await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.body.body_id);
-
     }
 
     return res.json({
         success: true,
-        data: dbResult
+        data: req.application
     });
 };
 
@@ -490,14 +506,29 @@ exports.postApplication = async (req, res) => {
     req.body.body_name = req.user.bodies.find(b => req.body.body_id === b.id).name;
     req.body.date_of_birth = req.user.date_of_birth;
 
-    const newApplication = await Application.create(req.body);
+    // Doing it inside of a transaction, so it'd fail and revert if mail was not sent.
+    await sequelize.transaction(async (t) => {
+        const newApplication = await Application.create(req.body, { transaction: t });
 
-    // We don't need to recalculate the votes amount, as the pax type is not set here.
+        // We don't need to recalculate the votes amount, as the pax type is not set here.
 
-    return res.json({
-        success: true,
-        data: newApplication
-    });
+        // Sending the mail to a user.
+        await mailer.sendMail({
+            from: 'oms-mailer@aegee.org',
+            to: newApplication.email,
+            subject: `You've successfully applied for ${req.event.name}`,
+            template: 'statutory_applied.html',
+            parameters: {
+                application: newApplication,
+                event: req.event
+            }
+        });
+
+        return res.json({
+            success: true,
+            data: newApplication
+        });
+    })
 };
 
 exports.exportOpenslides = async (req, res) => {

@@ -423,4 +423,82 @@ describe('Applications editing', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
     });
+
+    test('should return 500 and not save application if mailer returns net error', async () => {
+        mock.mockAll({ mailer: { netError: true } })
+
+        const event = await generator.createEvent({ applications: []});
+        const application = await generator.createApplication({ visa_required: true }, event);
+
+        tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { visa_required: false }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+
+        const applicationFromDb = await Application.findByPk(application.id);
+        expect(applicationFromDb.visa_required).not.toEqual(false);
+    });
+
+    test('should return 500 and not save application if mailer returns bad response', async () => {
+        mock.mockAll({ mailer: { badResponse: true } })
+
+        const event = await generator.createEvent({ applications: []});
+        const application = await generator.createApplication({ visa_required: true }, event);
+
+        tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { visa_required: false }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+
+        const applicationFromDb = await Application.findByPk(application.id);
+        expect(applicationFromDb.visa_required).not.toEqual(false);
+    });
+
+    test('should return 500 and not save application if mailer returns unsuccessful response', async () => {
+        mock.mockAll({ mailer: { unsuccessfulResponse: true } })
+
+        const event = await generator.createEvent({ applications: []});
+        const application = await generator.createApplication({ visa_required: true }, event);
+
+        tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { visa_required: false }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+
+        const applicationFromDb = await Application.findByPk(application.id);
+        expect(applicationFromDb.visa_required).not.toEqual(false);
+    });
 });
