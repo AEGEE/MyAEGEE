@@ -55,7 +55,7 @@
           <div class="field is-grouped" v-if="isMember">
             <a @click="askLeaveBody()" class="button is-fullwidth is-danger">
               <span>Leave body</span>
-              <span class="icon"><i class="fa fa-sign-out"></i></span>
+              <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
             </a>
           </div>
 
