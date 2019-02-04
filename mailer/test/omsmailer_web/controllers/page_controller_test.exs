@@ -133,7 +133,7 @@ defmodule OmsmailerWeb.PageControllerTest do
 
   # Statutory applied
   test "POST / statutory applied", %{conn: conn} do
-    conn = post conn, "/", %{template: "statutory_applied.html", parameters: %{event: %{}, application: %{}}, to: "test@aegee.org", subject: "pirates"}
+    conn = post conn, "/", %{template: "statutory_applied.html", parameters: %{event: %{questions: []}, application: %{}}, to: "test@aegee.org", subject: "pirates"}
     assert json_response(conn, 200)
     assert_email_delivered_with(subject: "pirates")
   end
@@ -147,7 +147,7 @@ defmodule OmsmailerWeb.PageControllerTest do
 
   # Statutory edited
   test "POST / statutory edited", %{conn: conn} do
-    conn = post conn, "/", %{template: "statutory_edited.html", parameters: %{event: %{}, application: %{}}, to: "test@aegee.org", subject: "pirates"}
+    conn = post conn, "/", %{template: "statutory_edited.html", parameters: %{event: %{questions: []}, application: %{}}, to: "test@aegee.org", subject: "pirates"}
     assert json_response(conn, 200)
     assert_email_delivered_with(subject: "pirates")
   end
