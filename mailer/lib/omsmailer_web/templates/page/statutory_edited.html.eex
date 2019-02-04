@@ -70,7 +70,7 @@
                                 <li><strong>Country: </strong><%= @parameters["application"]["visa_country"] %></li>
                                 <li><strong>Embassy: </strong><%= @parameters["application"]["visa_embassy"] %></li>
                                 <%= for {question, index} <- (@parameters["event"]["questions"] || []) |> Enum.with_index(1) do %>
-                                  <li><strong><%= question["description"] %>: </strong> <%= @parameters["application"]["answers"][index] %></li>
+                                  <li><strong><%= question["description"] %>: </strong> <%= @parameters["application"]["answers"] |> Enum.at(index) %></li>
                                 <% end %>
                             </ul>
                           </div>
