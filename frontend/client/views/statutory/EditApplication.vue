@@ -109,7 +109,7 @@
 
               <div class="field is-fullwidth">
                 <label class="has-text-weight-bold checkbox">
-                  Visa required? <span class="has-text-danger">*</span>
+                  Visa required?
                   <input
                     class="checkbox"
                     type="checkbox"
