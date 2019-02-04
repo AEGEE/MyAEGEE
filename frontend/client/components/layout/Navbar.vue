@@ -6,9 +6,9 @@
       </a>
       <!-- AEGEE logo would be here -->
       <a role="button" class="navbar-burger burger" @click="toggleNavbarMenu({opened: !navbar.menuOpened})">
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
+        <span aria-hidden="true">
+          <i class="fas fa-user"></i>
+        </span>
       </a>
     </div>
     <div class="navbar-menu" :class="{ 'is-active': navbar.menuOpened }">
@@ -71,6 +71,16 @@ export default {
 
   .container {
     margin: auto 10px;
+  }
+
+  .navbar-burger {
+    span {
+      height: 0;
+
+      &:first-child {
+        top: calc(50% - 12px);
+      }
+    }
   }
 }
 
