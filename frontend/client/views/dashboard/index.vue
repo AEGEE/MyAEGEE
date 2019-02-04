@@ -29,7 +29,7 @@
 
           <div class="tile is-4 is-parent">
             <article class="tile is-child box">
-              <p class="title">Events you've applied to</p>
+              <p class="title">Events you’ve applied to</p>
               <div class="content" v-show="events.length > 0">
                 <ul>
                   <li v-for="event in events" v-bind:key="event.id">
