@@ -59,7 +59,7 @@ const MembersList = sequelize.define('memberslist', {
                         throw new Error('Member should be an object.');
                     }
 
-                    for (const key of ['first_name', 'last_name', 'fee', 'user_id']) {
+                    for (const key of ['first_name', 'last_name', 'fee']) {
                         if (typeof member[key] === 'undefined') {
                             throw new Error('The "' + key + '" attribute is not set for a member.');
                         }
@@ -75,14 +75,18 @@ const MembersList = sequelize.define('memberslist', {
                         }
                     }
 
-                    for (const key of ['fee', 'user_id']) {
+                    for (const key of ['fee']) {
                         if (typeof member[key] !== 'number') {
                             throw new Error(`${key} is not a number.`);
                         }
                     }
 
-                    if (member.fee <= 0) {
-                        throw new Error('Member\'s fee should be positive number.');
+                    if (typeof member.user_id !== 'undefined' && typeof member.user_id !== 'number') {
+                        throw new Error(`user_id is set, but is not a number.`);
+                    }
+
+                    if (member.fee < 0) {
+                        throw new Error('Member\'s fee should be not negative number.');
                     }
                 }
             }
