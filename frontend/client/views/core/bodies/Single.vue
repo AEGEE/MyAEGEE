@@ -306,6 +306,7 @@ export default {
 </script>
 
 <style lang="scss">
+/*
   .field {
     width: 80%;
     margin: 0 auto 0.75rem auto;
@@ -324,4 +325,5 @@ export default {
       width: 15%;
     }
   }
+*/
 </style>
