@@ -27,6 +27,21 @@
           <div class="control">
             <button class="button is-primary" @click="fetchFromBody()">Fetch members list from a body</button>
           </div>
+          <div class="control">
+            <div class="file">
+              <label class="file-label">
+                <input class="file-input" type="file" name="resume" @change="openFileDialog($event)">
+                <span class="file-cta">
+                  <span class="file-icon">
+                    <i class="fa fa-upload"></i>
+                  </span>
+                  <span class="file-label">
+                    Fetch members list from CSV
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
 
           <div class="control">
             <button class="button" v-show="isEditing" @click="isEditing = false">Stop editing</button>
@@ -85,7 +100,7 @@
                 <td>{{ index + 1 }}</td>
                 <td>
                   <router-link :to="{ name: 'oms.members.view', params: { id: member.user_id } }">
-                    {{ member.user_id }}
+                    {{ member.user_id || '-' }}
                   </router-link>
                 </td>
                 <td v-if="!isEditing">{{ member.first_name }}</td>
@@ -177,7 +192,6 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
-        console.log(err)
 
         if (err.response.status !== 404) {
           this.$root.showDanger('Could not fetch memberslist: ' + err.message)
@@ -219,7 +233,7 @@ export default {
 
       for (let index = 0; index < this.memberslist.members.length; index++) {
         const member = this.memberslist.members[index]
-        if (member.fee <= 0) {
+        if (member.fee < 0) {
           return this.$root.showDanger(`Fee for member number ${index + 1} cannot be negative.`)
         }
 
