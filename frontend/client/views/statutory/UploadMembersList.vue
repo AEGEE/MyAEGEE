@@ -111,7 +111,7 @@
 
                 <td v-if="isEditing"><input type="text" class="input" v-model="member.first_name"/></td>
                 <td v-if="isEditing"><input type="text" class="input" v-model="member.last_name"/></td>
-                <td v-if="isEditing"><input type="number" class="input" v-model="member.fee"/></td>
+                <td v-if="isEditing"><input type="number" class="input" v-model.number="member.fee"/></td>
                 <td v-if="isEditing"></td>
               </tr>
             </tbody>
@@ -234,6 +234,10 @@ export default {
 
       for (let index = 0; index < this.memberslist.members.length; index++) {
         const member = this.memberslist.members[index]
+        if (typeof member.fee !== 'number') {
+          return this.$root.showDanger(`Please set the fee for member number ${index + 1}.`)
+        }
+
         if (member.fee < 0) {
           return this.$root.showDanger(`Fee for member number ${index + 1} cannot be negative.`)
         }
