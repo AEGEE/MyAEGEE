@@ -10,62 +10,12 @@
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info">
-          <div class="field is-grouped" v-if="can.seeMembers">
-            <router-link :to="{ name: 'oms.bodies.members', params: { id: body.id } }" class="button is-fullwidth">
-              <span>View members</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
-            </router-link>
-          </div>
-
-          <div class="field is-grouped" v-if="can.seeJoinRequests">
-            <router-link :to="{ name: 'oms.bodies.join_requests', params: { id: body.id } }" class="button is-fullwidth">
-              <span>View join requests</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
-            </router-link>
-          </div>
-
-          <div class="field is-grouped" v-if="can.seeCampaigns">
-            <router-link :to="{ name: 'oms.bodies.campaigns', params: { id: body.id } }" class="button is-fullwidth">
-              <span>View recruitment campaings</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
-            </router-link>
-          </div>
-
-          <div class="field is-grouped" v-if="!isMember && !isRequestingMembership">
-            <a @click="askToJoinBody()" class="button is-fullwidth is-info">
-              <span>Request to join</span>
-              <span class="icon"><i class="fa fa-user-plus"></i></span>
+          <div v-for="item in actions" class="field is-grouped" v-if="checkPermissions(item.permission)">
+            <a @click="item.action(item.name)" :class="['button is-fullwidth ' +  item.class]">
+              <span class="field-icon icon"><i :class="['fas fa-' + item.icon]"></i></span>
+              <span class="field-label">{{ item.label }}</span>
             </a>
           </div>
-
-          <div class="field is-grouped" v-if="can.createCircle">
-            <a @click="openAddCircleModal()" class="button is-fullwidth is-warning">
-              <span>Add bound circle</span>
-              <span class="icon"><i class="fa fa-edit"></i></span>
-            </a>
-          </div>
-
-          <div class="field is-grouped" v-if="can.edit">
-            <router-link :to="{ name: 'oms.bodies.edit', params: { id: body.id } }" class="button is-fullwidth is-warning">
-              <span>Edit body details</span>
-              <span class="icon"><i class="fa fa-edit"></i></span>
-            </router-link>
-          </div>
-
-          <div class="field is-grouped" v-if="isMember">
-            <a @click="askLeaveBody()" class="button is-fullwidth is-danger">
-              <span>Leave body</span>
-              <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
-            </a>
-          </div>
-
-          <div class="field is-grouped" v-if="can.delete">
-            <a class="button is-fullwidth is-danger" @click="askDeleteBody()">
-              <span>Delete body</span>
-              <span class="icon"><i class="fa fa-times"></i></span>
-            </a>
-          </div>
-
         </article>
       </div>
     </div>
@@ -170,14 +120,89 @@ export default {
       isMember: false,
       isRequestingMembership: false,
       permissions: [],
-      can: {
-        edit: false,
-        delete: false,
-        createCircle: false
-      }
+      actions: [
+        {
+          name: 'oms.bodies.members',
+          label: 'Members',
+          action: this.navigateTo,
+          class: '',
+          icon: 'users',
+          permission: 'view:member'
+        },
+        {
+          name: 'oms.bodies.join_requests',
+          label: 'Join requests',
+          action: this.navigateTo,
+          class: '',
+          icon: 'users',
+          permission: 'view:join_request'
+        },
+        {
+          name: 'oms.bodies.campaigns',
+          label: 'Recruitment campaigns',
+          action: this.navigateTo,
+          class: '',
+          icon: 'users',
+          permission: 'view:campaign'
+        },
+        {
+          name: 'requestToJoin',
+          label: 'Request to join',
+          action: this.askToJoinBody,
+          class: 'is-info',
+          icon: 'user-plus',
+          permission: 'join'
+        },
+        {
+          name: 'createBoundCircle',
+          label: 'Add bound circle',
+          action: this.openAddCircleModal,
+          class: 'is-warning',
+          icon: 'edit',
+          permission: 'create:bound_circle'
+        },
+        {
+          name: 'oms:bodies:edit',
+          label: 'Edit body details',
+          action: this.navigateTo,
+          class: 'is-warning',
+          icon: 'edit',
+          permission: 'update:body'
+        },
+        {
+          name: 'leaveBody',
+          label: 'Leave body',
+          action: this.askLeaveBody,
+          class: 'is-danger',
+          icon: 'sign-out-alt',
+          permission: 'leave'
+        },
+        {
+          name: 'deleteBody',
+          label: 'Delete body',
+          action: this.deleteBody,
+          class: 'is-danger',
+          icon: 'times',
+          permission: 'delete:body'
+        }
+      ]
     }
   },
   methods: {
+    checkPermissions (name) {
+      if (name === 'join') {
+        return !this.isMember && !this.isRequestingMembership
+      }
+
+      if (name === 'leave') {
+        return this.isMember
+      }
+
+      return this.permissions.some(permission => permission.combined.endsWith(name))
+    },
+    navigateTo (name) {
+      this.$router.push({ name, params: { id: this.body.id } })
+    },
     openAddCircleModal () {
       this.$modal.open({
         component: AddBoundCircleModal,
@@ -265,14 +290,6 @@ export default {
       return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
     }).then((response) => {
       this.permissions = response.data.data
-
-      this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:body'))
-      this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:body'))
-      this.can.seeMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
-      this.can.seeJoinRequests = this.permissions.some(permission => permission.combined.endsWith('view:join_request'))
-      this.can.seeCampaigns = this.permissions.some(permission => permission.combined.endsWith('view:campaign'))
-      this.can.createCircle = this.permissions.some(permission => permission.combined.endsWith('create:bound_circle'))
-
       this.isLoading = false
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Body is not found' : 'Some error happened: ' + err.message
@@ -287,3 +304,24 @@ export default {
   })
 }
 </script>
+
+<style lang="scss">
+  .field {
+    width: 80%;
+    margin: 0 auto 0.75rem auto;
+
+    .button {
+      padding: 1.5rem 1rem;
+    }
+
+    .field-label {
+      width: 85%;
+      text-align: left;
+      margin-right: 0;
+    }
+
+    .field-icon {
+      width: 15%;
+    }
+  }
+</style>
