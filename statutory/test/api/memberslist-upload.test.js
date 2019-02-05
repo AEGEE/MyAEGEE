@@ -252,7 +252,7 @@ describe('Memberslist uploading', () => {
         expect(res.body).toHaveProperty('errors');
     });
 
-    test('should fail if fee is negative', async () => {
+    test('should fail if fee is not positive', async () => {
         const event = await generator.createEvent({ type: 'agora' });
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
@@ -380,14 +380,14 @@ describe('Memberslist uploading', () => {
         expect(res.body).toHaveProperty('errors');
     });
 
-    test('should fail if user_id is not set', async () => {
+    test('should fail if user_id is set, but is not a number', async () => {
         const event = await generator.createEvent({ type: 'agora' });
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateMembersList({ members: [
-                generator.generateMembersListMember({ user_id: null })
+                generator.generateMembersListMember({ user_id: false })
             ] }, event)
         });
 
