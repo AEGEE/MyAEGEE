@@ -59,7 +59,6 @@ describe('Massmailer', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
-                to: ['test1@example.com'],
                 subject: 'Testing',
                 text: 'Testing mail sending.'
             }
@@ -76,7 +75,6 @@ describe('Massmailer', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
-                to: ['test1@example.com'],
                 subject: 'Testing',
                 text: 'Testing mail sending.'
             }
@@ -85,6 +83,7 @@ describe('Massmailer', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('message');
+        expect(res.body.meta.sent).toEqual(3);
     });
 
     test('should fail if body is not set', async () => {
@@ -93,7 +92,6 @@ describe('Massmailer', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
-                to: ['test1@example.com'],
                 subject: 'Testing'
             }
         });
@@ -109,7 +107,6 @@ describe('Massmailer', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
-                to: ['test1@example.com'],
                 text: '',
                 subject: 'Testing'
             }
@@ -126,7 +123,6 @@ describe('Massmailer', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
-                to: ['test1@example.com'],
                 text: 'Testing'
             }
         });
@@ -142,7 +138,6 @@ describe('Massmailer', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
-                to: ['test1@example.com'],
                 text: 'Text',
                 subject: ''
             }
@@ -160,7 +155,6 @@ describe('Massmailer', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
-                to: ['test1@example.com'],
                 subject: 'Testing',
                 text: 'Testing mail sending.'
             }
@@ -178,7 +172,6 @@ describe('Massmailer', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
-                to: ['test1@example.com'],
                 subject: 'Testing',
                 text: 'Testing mail sending.'
             }
@@ -196,7 +189,6 @@ describe('Massmailer', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
-                to: ['test1@example.com'],
                 subject: 'Testing',
                 text: 'Testing mail sending.'
             }
@@ -209,18 +201,36 @@ describe('Massmailer', () => {
 
     test('should work with filtering', async () => {
         const res = await request({
-            uri: '/events/' + event.id + '/massmailer/accepted',
+            uri: '/events/' + event.id + '/massmailer/',
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
-                to: ['test1@example.com'],
                 subject: 'Testing',
-                text: 'Testing mail sending.'
+                text: 'Testing mail sending.',
+                filter: { status: 'accepted' }
             }
         });
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body.meta.sent).toEqual(1);
+    });
+
+    test('should fail if no users match the filter', async () => {
+        const res = await request({
+            uri: '/events/' + event.id + '/massmailer/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                subject: 'Testing',
+                text: 'Testing mail sending.',
+                filter: { status: 'accepted', paid_fee: true }
+            }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('message');
     });
 });

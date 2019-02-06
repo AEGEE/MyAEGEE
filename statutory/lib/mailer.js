@@ -3,7 +3,6 @@ const request = require('request-promise-native');
 const config = require('../config');
 
 module.exports.sendMail = async (options) => {
-    // Mails won't be sent if there's failure for at least 1 user for whatever reason.
     const mailerBody = await request({
         url: config.mailer.url + ':' + config.mailer.port + '/',
         method: 'POST',
@@ -14,7 +13,8 @@ module.exports.sendMail = async (options) => {
             to: options.to,
             subject: options.subject,
             template: options.template,
-            parameters: options.parameters
+            parameters: options.parameters,
+            reply_to: options.reply_to
         }
     });
 

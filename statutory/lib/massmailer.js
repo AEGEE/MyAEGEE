@@ -1,12 +1,9 @@
 const { errors } = require('oms-common-nodejs');
 
 const mailer = require('./mailer');
+const helpers = require('./helpers');
 const logger = require('./logger');
 
-// TODO: Take the email, first and last name from the application
-// once it would be there. For now, if there would be 800 emails and
-// 799 of them would be sent successfully and the last one would fail, everything won't be sent.
-// Also so it wouldn't do 800 requests at once to core fetching the email.
 exports.sendAll = async (req, res) => {
     if (!req.permissions.use_massmailer) {
         return errors.makeForbiddenError(res, 'You cannot access massmailer.');
@@ -20,15 +17,24 @@ exports.sendAll = async (req, res) => {
         return errors.makeBadRequestError(res, 'Please provide an email subject.');
     }
 
-    let applications = req.params.filter
-        ? req.event.applications.filter(application => application.status === req.params.filter)
-        : req.event.applications;
+    // If the user haven't provide the filter, use the default one.
+    if (typeof req.body.filter !== 'object' || req.body.filter === null) {
+        req.body.filter = {};
+    }
 
+    // Filter object, the default one is filtering out cancelled applications.
+    const baseObject = { cancelled: false };
+
+    // Then applying the filter the user has passed
+    const filterObject = Object.assign(baseObject, req.body.filter);
+
+    // Then filter application based on that filter.
+    const applications = req.event.applications.filter(application => helpers.filterObject(application, filterObject));
     logger.info(`Sending mass mailer to ${applications.length} users`);
-    logger.info(`Filter = ${req.params.filter || 'not set'}`);
 
-    applications = applications.filter(application => !application.cancelled);
-    logger.info(`Filtered cancelled applications, total amount of letters: ${applications.length}`);
+    if (applications.length === 0) {
+        return errors.makeBadRequestError(res, 'No users match this filter.');
+    }
 
     const to = [];
     const bodies = [];
@@ -60,6 +66,7 @@ exports.sendAll = async (req, res) => {
 
     await mailer.sendMail({
         from: req.body.from,
+        reply_to: req.body.reply_to,
         to,
         subject: req.body.subject,
         template: 'custom.html',
@@ -68,6 +75,7 @@ exports.sendAll = async (req, res) => {
 
     return res.json({
         success: true,
-        message: 'Mail was sent successfully.'
+        message: 'Mail was sent successfully.',
+        meta: { sent: applications.length }
     });
 };

@@ -89,7 +89,6 @@ MembersListsRouter.post('/:body_id', memberslists.uploadMembersList);
 
 MassMailerRouter.use(middlewares.authenticateUser, middlewares.fetchEventWithApplications);
 MassMailerRouter.post('/', massmailer.sendAll);
-MassMailerRouter.post('/:filter', massmailer.sendAll);
 
 VotesAmountRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora);
 VotesAmountRouter.get('/antenna', votesAmounts.getAllVotesPerAntenna);
