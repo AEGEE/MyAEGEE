@@ -11,11 +11,22 @@
               <div class="field is-fullwidth">
                 <label class="label">Filter on participant status</label>
                 <div class="select">
-                  <select v-model="filter">
-                    <option value="">Everybody</option>
+                  <select v-model="status">
+                    <option :value="null">Everybody</option>
                     <option value="accepted">Accepted participants</option>
                     <option value="rejected">Rejected participants</option>
                     <option value="pending">Pending participants</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field is-fullwidth">
+                <label class="label">Filter on confirmation</label>
+                <div class="select">
+                  <select v-model="paid_fee">
+                    <option :value="null">Everybody</option>
+                    <option :value="true">Confirmed participants</option>
+                    <option :value="false">Not confirmed participants</option>
                   </select>
                 </div>
               </div>
@@ -42,12 +53,12 @@
                 </div>
               </div>
 
-              <!--<div class="field is-fullwidth">
-                <label class="label">Address to send from</label>
+              <div class="field is-fullwidth">
+                <label class="label">Address to reply to</label>
                 <div class="control">
-                  <input class="input" type="text" required v-model="from" />
+                  <input class="input" type="email" required v-model="reply_to" />
                 </div>
-              </div>-->
+              </div>
 
               <div class="field is-fullwidth">
                 <label class="label">Email subject</label>
@@ -102,8 +113,10 @@ export default {
   data () {
     return {
       text: '',
-      filter: '',
+      status: null,
+      paid_fee: null,
       subject: '',
+      reply_to: 'chair@aegee.org',
       isSending: false,
       stabUser: {
         first_name: 'Name',
@@ -128,6 +141,14 @@ export default {
         .replace(/\{participant_type_order\}/ig, typeAndOrder)
         .replace(/\{body_name\}/ig, this.stabBody.name)
     },
+    filter () {
+      let filterObj = {}
+
+      if (this.status !== null) filterObj.status = this.status
+      if (this.paid_fee !== null) filterObj.paid_fee = this.paid_fee
+
+      return filterObj
+    },
     ...mapGetters({
       services: 'services',
       loginUser: 'user'
@@ -137,15 +158,21 @@ export default {
     sendMassMailer () {
       this.isSending = true
 
-      this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/massmailer/' + this.filter, {
+      this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/massmailer/', {
         subject: this.subject,
-        text: this.markdownText
+        text: this.markdownText,
+        reply_to: this.reply_to,
+        filter: this.filter
       }).then((response) => {
         this.isSending = false
-        this.$root.showSuccess('Mass mailer is sent successfully.')
+        this.$root.showSuccess(`Mass mailer is sent successfully to ${response.data.meta.sent} participants.`)
       }).catch((err) => {
         this.isSending = false
-        this.$root.showDanger('Error using massmailer: ' + err.message)
+
+        const message = (err.response && err.response.data && err.response.data.message)
+          ? err.response.data.message
+          : err.message
+        this.$root.showDanger('Error using massmailer: ' + message)
       })
     }
   },
