@@ -119,8 +119,8 @@ describe('Positions edition', () => {
 
         expect(position.status).toEqual('open');
 
-        await generator.createCandidate({ status: 'approved' }, position);
-        await generator.createCandidate({ status: 'approved' }, position);
+        await generator.createCandidate({ status: 'approved', user_id: 1 }, position);
+        await generator.createCandidate({ status: 'approved', user_id: 2 }, position);
 
         tk.travel(moment(event.application_period_starts).add(2, 'week').toDate());
 
