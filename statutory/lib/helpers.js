@@ -1,5 +1,15 @@
 const constants = require('./constants');
 
+// A helper to whilelist object's properties.
+exports.whitelistObject = (object, allowedFields) => {
+    let newObject = {};
+    for (const field of allowedFields) {
+        newObject[field] = object[field];
+    }
+
+    return newObject;
+}
+
 // A helper to determine if the string is either 'me' or an integer.
 exports.isIDValid = id => id === constants.CURRENT_USER_PREFIX || !Number.isNaN(Number(id, 10));
 

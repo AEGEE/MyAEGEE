@@ -2,6 +2,8 @@ const moment = require('moment');
 const tk = require('timekeeper');
 
 const { startServer, stopServer } = require('../../lib/server.js');
+const constants = require('../../lib/constants');
+
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
@@ -95,11 +97,10 @@ describe('Applications listing', () => {
         expect(res.body.data.length).toEqual(1);
         expect(res.body.data[0].id).toEqual(application.id);
 
-        expect(res.body.data[0]).not.toHaveProperty('board_comment');
-        expect(res.body.data[0]).not.toHaveProperty('answers');
-        expect(res.body.data[0]).not.toHaveProperty('visa_required');
-        expect(res.body.data[0]).not.toHaveProperty('status');
-        expect(res.body.data[0]).not.toHaveProperty('email');
+        expect(Object.keys(res.body.data[0]).length).toEqual(constants.ALLOWED_PARTICIPANTS_LIST_FIELDS.length);
+        for (const field of constants.ALLOWED_PARTICIPANTS_LIST_FIELDS) {
+            expect(res.body.data[0]).toHaveProperty(field);
+        }
     });
 
     test('should not display not accepted application on /accepted', async () => {
@@ -158,10 +159,9 @@ describe('Applications listing', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.length).toEqual(1);
 
-        expect(res.body.data[0]).not.toHaveProperty('board_comment');
-        expect(res.body.data[0]).not.toHaveProperty('answers');
-        expect(res.body.data[0]).not.toHaveProperty('visa_required');
-        expect(res.body.data[0]).not.toHaveProperty('email');
-        expect(res.body.data[0]).not.toHaveProperty('gender');
+        expect(Object.keys(res.body.data[0]).length).toEqual(constants.ALLOWED_JURIDICAL_LIST_FIELDS.length);
+        for (const field of constants.ALLOWED_JURIDICAL_LIST_FIELDS) {
+            expect(res.body.data[0]).toHaveProperty(field);
+        }
     });
 });

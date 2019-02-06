@@ -31,34 +31,7 @@ exports.listAcceptedApplications = async (req, res) => {
     const applications = req.event.applications
         .filter(application => application.status === 'accepted')
         .map(application => application.toJSON())
-        .map((application) => {
-            delete application.answers;
-            delete application.board_comment;
-            delete application.visa_required;
-            delete application.status;
-            delete application.email;
-            delete application.gender;
-            delete application.nationality;
-            delete application.date_of_birth;
-            delete application.meals;
-            delete application.allergies;
-            delete application.number_of_events_visited;
-
-            delete application.visa_place_of_birth;
-            delete application.visa_passport_number;
-            delete application.visa_passport_issue_date;
-            delete application.visa_passport_expiration_date;
-            delete application.visa_passport_issue_authority;
-            delete application.nationality;
-            delete application.visa_embassy;
-            delete application.date_of_birth;
-            delete application.visa_street_and_house;
-            delete application.visa_postal_code;
-            delete application.visa_city;
-            delete application.visa_country;
-
-            return application;
-        });
+        .map(application => helpers.whitelistObject(application, constants.ALLOWED_PARTICIPANTS_LIST_FIELDS));
 
     return res.json({
         success: true,
@@ -74,33 +47,7 @@ exports.listJCApplications = async (req, res) => {
     const applications = req.event.applications
         .filter(application => application.status === 'accepted' && application.paid_fee)
         .map(application => application.toJSON())
-        .map((application) => {
-            delete application.answers;
-            delete application.board_comment;
-            delete application.visa_required;
-            delete application.email;
-            delete application.gender;
-            delete application.nationality;
-            delete application.date_of_birth;
-            delete application.meals;
-            delete application.allergies;
-            delete application.number_of_events_visited;
-
-            delete application.visa_place_of_birth;
-            delete application.visa_passport_number;
-            delete application.visa_passport_issue_date;
-            delete application.visa_passport_expiration_date;
-            delete application.visa_passport_issue_authority;
-            delete application.nationality;
-            delete application.visa_embassy;
-            delete application.date_of_birth;
-            delete application.visa_street_and_house;
-            delete application.visa_postal_code;
-            delete application.visa_city;
-            delete application.visa_country;
-
-            return application;
-        });
+        .map(application => helpers.whitelistObject(application, constants.ALLOWED_JURIDICAL_LIST_FIELDS));
 
 
     return res.json({
