@@ -42,8 +42,7 @@ const PaxLimit = sequelize.define('PaxLimit', {
         validate: {
             notEmpty: { msg: 'Body ID should be set.' },
             isInt: { msg: 'Body ID should be a number.' }
-        },
-        unique: { args: true, msg: 'There\'s already a limit in the system with this body ID' }
+        }
     },
     event_type: {
         type: Sequelize.ENUM('agora', 'epm'),
