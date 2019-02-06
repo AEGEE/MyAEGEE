@@ -48,6 +48,23 @@ describe('Pax limits creation/editing', () => {
         expect(res.body).toHaveProperty('data');
     });
 
+    test('should allow creating the limit if the limit exists for different event type', async () => {
+        await generator.createPaxLimit({ body_id: 1, event_type: 'epm' });
+        const limit = generator.generatePaxLimit({ body_id: 1, event_type: 'agora' });
+
+        const res = await request({
+            uri: '/limits/agora/',
+            method: 'POST',
+            body: limit,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+    });
+
     test('should return 400 if the event type is invalid', async () => {
         const limit = generator.generatePaxLimit();
 
