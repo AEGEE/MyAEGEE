@@ -10,6 +10,17 @@ exports.whitelistObject = (object, allowedFields) => {
     return newObject;
 }
 
+// A helper to filter object by another object fields.
+exports.filterObject = (object, targetObject) => {
+    for (const field in targetObject) {
+        if (object[field] !== targetObject[field]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 // A helper to determine if the string is either 'me' or an integer.
 exports.isIDValid = id => id === constants.CURRENT_USER_PREFIX || !Number.isNaN(Number(id, 10));
 
