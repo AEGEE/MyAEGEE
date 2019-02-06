@@ -32,6 +32,10 @@ exports.sendAll = async (req, res) => {
     const applications = req.event.applications.filter(application => helpers.filterObject(application, filterObject));
     logger.info(`Sending mass mailer to ${applications.length} users`);
 
+    if (applications.length === 0) {
+        return errors.makeBadRequestError(res, 'No users match this filter.');
+    }
+
     const to = [];
     const bodies = [];
 
