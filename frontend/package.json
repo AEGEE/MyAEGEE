@@ -1,9 +1,9 @@
 {
   "name": "oms-frontend",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "OMS Frontend",
   "repository": "AEGEE/oms-frontend",
-  "homepage": "https://oms.aegee.org",
+  "homepage": "https://my.aegee.eu",
   "license": "MIT",
   "author": {
     "name": "Sergey Peshkov",
