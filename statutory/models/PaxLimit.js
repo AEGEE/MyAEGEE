@@ -79,10 +79,11 @@ const PaxLimit = sequelize.define('PaxLimit', {
 function defaultLimitForAgora(type) {
     switch (type) {
     case 'partner':
+        return new PaxLimit({ delegate: 0, envoy: 3, visitor: 0, observer: 0 });
     case 'antenna':
         return new PaxLimit({ delegate: 3, envoy: 0, visitor: 30, observer: 0 });
     case 'contact antenna':
-        return new PaxLimit({ delegate: 0, envoy: null, visitor: 0, observer: 0 });
+        return new PaxLimit({ delegate: 0, envoy: 3, visitor: 30, observer: 0 });
     case 'contact':
         return new PaxLimit({ delegate: 0, envoy: 0, visitor: 0, observer: null });
     case 'working group':
