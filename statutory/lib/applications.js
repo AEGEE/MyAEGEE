@@ -544,61 +544,21 @@ exports.exportAll = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see statistics.');
     }
 
+    if (!Array.isArray(req.query.select)) {
+        return errors.makeBadRequestError(res, 'Filters are not provided or are invalid.');
+    }
+
     const filtered = req.event.applications.filter(app => !app.cancelled);
 
-    const headers = [
-        'Application ID',
-        'Created at',
-        'Updated at',
-        'First name',
-        'Last name',
-        'Email',
-        'Gender',
-        'Body ID',
-        'Body name',
-        'Participant type',
-        'Board comment',
-        'Confirmed?',
-        'Attended?',
-        'Departed?',
-        ...req.event.questions.map(q => q.description)
-    ];
+    const headersNames = helpers.getApplicationFields(req.event);
+    const headers = req.query.select.map(field => headersNames[field]);
 
-    // A helper uset to pretty-format values.
-    const beautify = (value) => {
-        // If it's boolean, display it as Yes/No instead of true/false
-        if (typeof value === 'boolean') {
-            return value ? 'Yes' : 'No';
-        }
-
-        // If it's date, return date formatted.
-        if (Object.prototype.toString.call(value) === '[object Date]') {
-            return moment(value).format('YYYY-MM-DD HH:mm:SS');
-        }
-
-        // Else, present it as it is.
-        return value;
-    };
-
-    const resultArray = filtered.map((application) => {
-        return [
-            application.id,
-            beautify(application.created_at),
-            beautify(application.updated_at),
-            application.first_name,
-            application.last_name,
-            application.email,
-            application.gender,
-            application.body_id,
-            application.body_name,
-            application.participant_type,
-            application.board_comment,
-            beautify(application.paid_fee),
-            beautify(application.attended),
-            beautify(application.departed),
-            ...application.answers.map(beautify)
-        ];
-    }).filter(pax => !!pax); // to filter out null values
+    const resultArray = filtered
+        .map(application => application.toJSON())
+        .map(application => helpers.flattenObject(application))
+        .map((application) => {
+            return req.query.select.map(field => helpers.beautify(application[field]));
+        });
 
     const resultBuffer = xlsx.build([
         {

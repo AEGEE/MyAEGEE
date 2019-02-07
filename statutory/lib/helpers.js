@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const constants = require('./constants');
 
 // A helper to whilelist object's properties.
@@ -21,6 +23,36 @@ exports.filterObject = (object, targetObject) => {
     return true;
 };
 
+// A helper to flatten the nested object. Copypasted from Google.
+exports.flattenObject = (obj, prefix = '') => {
+    return Object.keys(obj).reduce((acc, k) => {
+        const pre = prefix.length ? prefix + '.' : '';
+        if (typeof obj[k] === 'object' && obj[k] !== null && Object.prototype.toString.call(obj[k]) !== '[object Date]') {
+            Object.assign(acc, exports.flattenObject(obj[k], pre + k));
+        } else {
+            acc[pre + k] = obj[k];
+        }
+
+        return acc;
+    }, {});
+};
+
+// A helper uset to pretty-format values.
+exports.beautify = (value) => {
+    // If it's boolean, display it as Yes/No instead of true/false
+    if (typeof value === 'boolean') {
+        return value ? 'Yes' : 'No';
+    }
+
+    // If it's date, return date formatted.
+    if (Object.prototype.toString.call(value) === '[object Date]') {
+        return moment(value).format('YYYY-MM-DD HH:mm:SS');
+    }
+
+    // Else, present it as it is.
+    return value;
+};
+
 // A helper to determine if the string is either 'me' or an integer.
 exports.isIDValid = id => id === constants.CURRENT_USER_PREFIX || !Number.isNaN(Number(id, 10));
 
@@ -29,6 +61,16 @@ exports.isMemberOf = (user, bodyId) => user.bodies.map(body => body.id).includes
 
 // A helpers to determine if body is a local.
 exports.isLocal = body => ['antenna', 'contact antenna', 'contact'].includes(body.type);
+
+// A helper to get the names for application fields. Useful for exporting for getting columns headers.
+exports.getApplicationFields = (event) => {
+    const fields = Object.assign({}, constants.APPLICATION_FIELD_NAMES);
+    for (let index = 0; index < event.questions.length; index++) {
+        fields['answers.' + index] = `Answer ${index + 1}: ${event.questions[index].description}`;
+    }
+
+    return fields;
+};
 
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
