@@ -489,11 +489,11 @@ exports.exportOpenslides = async (req, res) => {
     // For more reference on OpenSlides page, open your OpenSlides instance (or https://demo.openslides.org),
     // then go to Participants -> Import and read the specification at the bottom of the page.
 
-    if (!req.permissions.export) {
+    if (!req.permissions.export_openslides) {
         return errors.makeForbiddenError(res, 'You are not allowed to see statistics.');
     }
 
-    const filtered = req.event.applications.filter(app => !app.cancelled);
+    const filtered = req.event.applications.filter(app => !app.cancelled && app.status == 'accepted');
     const wrap = string => '"' + string + '"';
 
     const headers = [
@@ -539,8 +539,8 @@ exports.exportOpenslides = async (req, res) => {
 };
 
 exports.exportAll = async (req, res) => {
-    // Exporting users as XLSX for local organizers/Chair/CD/whoever.
-    if (!req.permissions.export) {
+    // Exporting users as XLSX for Chair/CD/whoever.
+    if (!req.permissions.export_all) {
         return errors.makeForbiddenError(res, 'You are not allowed to see statistics.');
     }
 
