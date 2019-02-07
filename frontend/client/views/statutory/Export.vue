@@ -3,35 +3,57 @@
     <div class="tile is-parent">
       <div class="tile is-child">
         <div class="title">Export data</div>
-
-        <div class="field">
-          <div class="control">
-            <button @click="exportOpenSlides()" class="button is-primary">
-              Export OpenSlides data
-            </button>
+        <div v-if="can.export.openslides">
+          <div class="field">
+            <div class="control">
+              <button @click="exportOpenSlides()" class="button is-primary">
+                Export OpenSlides data
+              </button>
+            </div>
           </div>
+
+          <div class="notification is-info">
+              Keep in mind that the passwords for OpenSlides are generated at the runtime.
+              If you'll export this data 2 times, you'll get 2 different set of passwords.
+              Therefore it's more reasonable to do it only when you'll have the participants list finalized.
+          </div>
+
+          <hr />
         </div>
 
-        <div class="notification is-info">
-            Keep in mind that the passwords for OpenSlides are generated at the runtime.
-            If you'll export this data 2 times, you'll get 2 different set of passwords.
-            Therefore it's more reasonable to do it only when you'll have the participants list finalized.
+        <div v-if="can.export.incoming && !can.export.all">
+          <div class="field" v-for="(field, key) in selectedIncomingFields" v-bind:key="key">
+            <label class="checkbox">
+              <input type="checkbox" v-model="selectedIncomingFields[key]">
+              {{ incomingFields[key] }}
+            </label>
+          </div>
+
+          <div class="field">
+            <div class="control">
+              <button @click="exportAll()" class="button is-primary">
+                Export incoming info
+              </button>
+            </div>
+          </div>
+
+          <hr />
         </div>
 
-        <hr />
+        <div v-if="can.export.all">
+          <div class="field" v-for="(field, key) in selectedFields" v-bind:key="key">
+            <label class="checkbox">
+              <input type="checkbox" v-model="selectedFields[key]">
+              {{ fields[key] }}
+            </label>
+          </div>
 
-        <div class="field" v-for="(field, key) in selectedFields" v-bind:key="key">
-          <label class="checkbox">
-            <input type="checkbox" v-model="selectedFields[key]">
-            {{ fields[key] }}
-          </label>
-        </div>
-
-        <div class="field">
-          <div class="control">
-            <button @click="exportAll()" class="button is-primary">
-              Export participants data
-            </button>
+          <div class="field">
+            <div class="control">
+              <button @click="exportAll()" class="button is-primary">
+                Export participants data
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -84,9 +106,51 @@ export default {
         meals: 'Meals',
         allergies: 'Allergies'
       },
+      selectedIncomingFields: {},
+      incomingFields: {
+        id: 'ID',
+        user_id: 'User ID',
+        body_id: 'Body ID',
+        created_at: 'Applied on',
+        updated_at: 'Updated at',
+        visa_required: 'Visa required?',
+        participant_type: 'Participant type',
+        participant_order: 'Participant order',
+        board_comment: 'Board comment',
+        status: 'Status',
+        cancelled: 'Cancelled?',
+        paid_fee: 'Confirmed?',
+        attended: 'Attended?',
+        registered: 'JC registered?',
+        departed: 'Departed?',
+        first_name: 'First name',
+        last_name: 'Last name',
+        email: 'Email',
+        gender: 'Gender',
+        body_name: 'Body name',
+        nationality: 'Nationality',
+        visa_place_of_birth: 'Visa: place of birth',
+        visa_passport_number: 'Visa: passport number',
+        visa_passport_issue_date: 'Visa: passport issue date',
+        visa_passport_expiration_date: 'Visa: passport expiration date',
+        visa_passport_issue_authority: 'Visa: passport issue authority',
+        visa_embassy: 'Visa: embassy',
+        visa_street_and_house: 'Visa: street and house number',
+        visa_postal_code: 'Visa: postal code',
+        visa_city: 'Visa: city',
+        visa_country: 'Visa: country',
+        date_of_birth: 'Date of birth',
+        number_of_events_visited: 'Number of Agora/EPM visited',
+        meals: 'Meals',
+        allergies: 'Allergies'
+      },
       selectedFields: {},
       event: {
         name: ''
+      },
+      can: {
+        export_all: false,
+        export_openslides: false
       }
     }
   },
@@ -123,8 +187,27 @@ export default {
         link.click()
       })
     },
+    exportIncoming () {
+      const keys = this.filterIncomingKeys()
+      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/export/incoming', {
+        responseType: 'blob',
+        params: {
+          select: keys
+        }
+      }).then(response => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', 'participants.xlsx')
+        document.body.appendChild(link)
+        link.click()
+      })
+    },
     filterKeys () {
       return Object.keys(this.selectedFields).filter(key => this.selectedFields[key])
+    },
+    filterIncomingKeys () {
+      return Object.keys(this.selectedIncomingFields).filter(key => this.selectedIncomingFields[key])
     }
   },
   mounted () {
@@ -133,11 +216,16 @@ export default {
     for (const field in this.fields) {
       this.$set(this.selectedFields, field, true)
     }
+    for (const field in this.incomingFields) {
+      this.$set(this.selectedIncomingFields, field, true)
+    }
 
     this.isLoading = true
 
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
+      this.can = event.data.data.permissions
+
       this.isLoading = false
 
       for (let index = 0; index < this.event.questions.length; index++) {
