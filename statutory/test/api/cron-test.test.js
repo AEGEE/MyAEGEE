@@ -1,4 +1,4 @@
-const moment = require('moment')
+const moment = require('moment');
 
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
@@ -7,7 +7,7 @@ const generator = require('../scripts/generator');
 const { Position } = require('../../models');
 const cron = require('../../lib/cron');
 
-const sleep = (delay) => new Promise(res => setTimeout(res, delay));
+const sleep = delay => new Promise(res => setTimeout(res, delay));
 
 describe('Cron testing', () => {
     beforeEach(async () => {

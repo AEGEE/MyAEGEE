@@ -18,6 +18,8 @@
         "prefer-destructuring": "off",
         "arrow-body-style": "off",
         "object-curly-newline": "off",
-        "no-await-in-loop": "off"
+        "no-await-in-loop": "off",
+        "no-continue": "off",
+        "consistent-return": "off"
     }
 }

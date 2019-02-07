@@ -1,12 +1,12 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 
-function isPositiveIntOrNull (value) {
+function isPositiveIntOrNull(value) {
     if (typeof value !== 'number' && value !== null) {
         throw new Error('Can be either a number or null.');
     }
 
     if (typeof value === 'number' && value < 0) {
-        throw new Error('Should be positive or 0.')
+        throw new Error('Should be positive or 0.');
     }
 }
 
@@ -58,10 +58,10 @@ const PaxLimit = sequelize.define('PaxLimit', {
     },
     default: {
         type: Sequelize.VIRTUAL,
-        get () {
+        get() {
             // Returning if this record is in the database.
             // The ones returned by defaultLimitForAgora and defaultLimitForEPM are not.
-            return this.isNewRecord
+            return this.isNewRecord;
         }
     }
 }, { underscored: true, tableName: 'pax_limits' });
@@ -99,7 +99,7 @@ function defaultLimitForAgora(type) {
 // for CD, ACT and Working groups).
 /* istanbul ignore next */
 function defaultLimitForEPM(type) {
-    switch(type) {
+    switch (type) {
     case 'antenna':
     case 'contact antenna':
     case 'contact':
@@ -116,9 +116,9 @@ PaxLimit.getDefaultForBody = function getDefaultForBody(body, eventType) {
         : defaultLimitForEPM(body.type);
 
     paxLimit.body_id = body.id;
-    paxLimit.event_type = eventType
+    paxLimit.event_type = eventType;
     return paxLimit;
-}
+};
 
 PaxLimit.fetchOrUseDefaultForBody = async function fetchOrUseDefaultForBody(body, eventType) {
     const limit = await this.findOne({ where: { body_id: body.id, event_type: eventType } });
@@ -127,6 +127,6 @@ PaxLimit.fetchOrUseDefaultForBody = async function fetchOrUseDefaultForBody(body
     }
 
     return this.getDefaultForBody(body, eventType);
-}
+};
 
 module.exports = PaxLimit;

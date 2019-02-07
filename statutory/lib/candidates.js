@@ -21,7 +21,7 @@ exports.findCandidate = async (req, res, next) => {
         position: req.position,
         candidate,
         user: req.user,
-    })
+    });
 
     req.candidate = candidate;
     return next();

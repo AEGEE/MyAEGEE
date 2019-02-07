@@ -1,4 +1,4 @@
-const moment = require('moment')
+const moment = require('moment');
 
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
@@ -50,7 +50,7 @@ describe('Candidates submission', () => {
             starts: moment().add(1, 'week').toDate(),
             ends: moment().add(2, 'week').toDate()
         }, event);
-        const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id })
+        const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
 
         const res = await request({
             uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
@@ -69,11 +69,11 @@ describe('Candidates submission', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
-        const position = await generator.createPosition({
+        await generator.createPosition({
             starts: moment().add(1, 'week').toDate(),
             ends: moment().add(2, 'week').toDate()
         }, event);
-        const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id })
+        const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
 
         const res = await request({
             uri: '/events/' + event.id + '/positions/1337/candidates',
@@ -92,11 +92,11 @@ describe('Candidates submission', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
-        const position = await generator.createPosition({
+        await generator.createPosition({
             starts: moment().add(1, 'week').toDate(),
             ends: moment().add(2, 'week').toDate()
         }, event);
-        const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id })
+        const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
 
         const res = await request({
             uri: '/events/' + event.id + '/positions/false/candidates',
@@ -351,7 +351,7 @@ describe('Candidates submission', () => {
         });
     }
 
-    test(`should fail if languages is not an array`, async () => {
+    test('should fail if languages is not an array', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
@@ -378,7 +378,7 @@ describe('Candidates submission', () => {
         expect(res.body.errors).toHaveProperty('languages');
     });
 
-    test(`should fail if languages is empty array`, async () => {
+    test('should fail if languages is empty array', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
@@ -405,7 +405,7 @@ describe('Candidates submission', () => {
         expect(res.body.errors).toHaveProperty('languages');
     });
 
-    test(`should fail if one of the languages is not a string`, async () => {
+    test('should fail if one of the languages is not a string', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
@@ -432,7 +432,7 @@ describe('Candidates submission', () => {
         expect(res.body.errors).toHaveProperty('languages');
     });
 
-    test(`should fail if one of the languages is empty string`, async () => {
+    test('should fail if one of the languages is empty string', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
@@ -459,7 +459,7 @@ describe('Candidates submission', () => {
         expect(res.body.errors).toHaveProperty('languages');
     });
 
-    test(`should fail if one of the languages is string of spaces and tabs`, async () => {
+    test('should fail if one of the languages is string of spaces and tabs', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
@@ -486,7 +486,7 @@ describe('Candidates submission', () => {
         expect(res.body.errors).toHaveProperty('languages');
     });
 
-    test(`should fail if not agreed to privacy policy`, async () => {
+    test('should fail if not agreed to privacy policy', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });

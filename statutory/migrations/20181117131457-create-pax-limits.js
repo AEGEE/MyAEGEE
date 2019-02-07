@@ -36,5 +36,5 @@ module.exports = {
             allowNull: false
         },
     }),
-    down: (queryInterface) => queryInterface.dropTable('pax_limits')
+    down: queryInterface => queryInterface.dropTable('pax_limits')
 };

@@ -2,7 +2,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const { VotesPerAntenna, VotesPerDelegate } = require('../../models');
+const { VotesPerAntenna } = require('../../models');
 const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Votes amounts listing', () => {
@@ -74,11 +74,11 @@ describe('Votes amounts listing', () => {
         expect(res.body.data.length).toEqual(2); // off-event. on-event
         expect(res.body.data[0].body_id).toEqual(regularUser.bodies[0].id);
         expect(res.body.data[0].application_id).toEqual(application.id);
-        expect(res.body.data[0].user_id).toEqual(regularUser.id)
+        expect(res.body.data[0].user_id).toEqual(regularUser.id);
         expect(res.body.data[0].votes).toEqual(5);
         expect(res.body.data[1].body_id).toEqual(regularUser.bodies[0].id);
         expect(res.body.data[1].application_id).toEqual(application.id);
-        expect(res.body.data[1].user_id).toEqual(regularUser.id)
+        expect(res.body.data[1].user_id).toEqual(regularUser.id);
         expect(res.body.data[1].votes).toEqual(5);
     });
 
@@ -91,7 +91,7 @@ describe('Votes amounts listing', () => {
                 (value, index) => generator.generateMembersListMember({ user_id: index + 1 })
             )
         }, event);
-        const application = await generator.createApplication({
+        await generator.createApplication({
             user_id: regularUser.id,
             participant_type: 'delegate',
             participant_order: 1,
@@ -152,11 +152,11 @@ describe('Votes amounts listing', () => {
         expect(res.body.data.delegate.length).toEqual(2); // off-event. on-event
         expect(res.body.data.delegate[0].body_id).toEqual(regularUser.bodies[0].id);
         expect(res.body.data.delegate[0].application_id).toEqual(application.id);
-        expect(res.body.data.delegate[0].user_id).toEqual(regularUser.id)
+        expect(res.body.data.delegate[0].user_id).toEqual(regularUser.id);
         expect(res.body.data.delegate[0].votes).toEqual(5);
         expect(res.body.data.delegate[1].body_id).toEqual(regularUser.bodies[0].id);
         expect(res.body.data.delegate[1].application_id).toEqual(application.id);
-        expect(res.body.data.delegate[1].user_id).toEqual(regularUser.id)
+        expect(res.body.data.delegate[1].user_id).toEqual(regularUser.id);
         expect(res.body.data.delegate[1].votes).toEqual(5);
     });
 });

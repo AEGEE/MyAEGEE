@@ -4,10 +4,9 @@ const request = require('request-promise-native');
 const crypto = require('crypto');
 const xlsx = require('node-xlsx').default;
 
-const logger = require('./logger');
 const mailer = require('./mailer');
 const config = require('../config');
-const { Event, Application, PaxLimit, VotesPerAntenna } = require('../models');
+const { Application, PaxLimit, VotesPerAntenna } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const { sequelize } = require('./sequelize');
@@ -382,11 +381,14 @@ exports.setApplicationBoard = async (req, res) => {
             // from this body with this pax type.
             // If we got the validation error, it'll fail the transaction.
             // Therefore, all the data here is valid.
-            const applicationsCount = await Application.count({ where: {
-                event_id: dbResult.event_id,
-                body_id: dbResult.body_id,
-                participant_type: dbResult.participant_type
-            }, transaction: t });
+            const applicationsCount = await Application.count({
+                where: {
+                    event_id: dbResult.event_id,
+                    body_id: dbResult.body_id,
+                    participant_type: dbResult.participant_type
+                },
+                transaction: t
+            });
 
             if (limit[dbResult.participant_type] !== null) {
                 // If the limit's value is not null and is less than
@@ -411,7 +413,7 @@ got participant type ${dbResult.participant_order}`);
                 success: true,
                 data: dbResult
             });
-        })
+        });
     } catch (err) {
         // Here we go only when the transaction has failed and rolled back.
 
@@ -475,7 +477,7 @@ exports.postApplication = async (req, res) => {
             success: true,
             data: newApplication
         });
-    })
+    });
 };
 
 exports.exportOpenslides = async (req, res) => {
@@ -563,7 +565,7 @@ exports.exportAll = async (req, res) => {
     ];
 
     // A helper uset to pretty-format values.
-    const beautify = value => {
+    const beautify = (value) => {
         // If it's boolean, display it as Yes/No instead of true/false
         if (typeof value === 'boolean') {
             return value ? 'Yes' : 'No';
@@ -571,12 +573,12 @@ exports.exportAll = async (req, res) => {
 
         // If it's date, return date formatted.
         if (Object.prototype.toString.call(value) === '[object Date]') {
-            return moment(value).format('YYYY-MM-DD HH:mm:SS')
+            return moment(value).format('YYYY-MM-DD HH:mm:SS');
         }
 
         // Else, present it as it is.
         return value;
-    }
+    };
 
     const resultArray = filtered.map((application) => {
         return [

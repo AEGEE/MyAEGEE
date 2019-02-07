@@ -6,11 +6,11 @@ const config = require('../config');
 
 exports.checkEventType = async (req, res, next) => {
     if (!['agora', 'epm'].includes(req.params.event_type)) {
-        return errors.makeBadRequestError(res, 'The event type should be one of these: agora, epm.')
+        return errors.makeBadRequestError(res, 'The event type should be one of these: agora, epm.');
     }
 
     return next();
-}
+};
 
 exports.listAllLimits = async (req, res) => {
     // Fetching bodies list
@@ -38,7 +38,7 @@ exports.listAllLimits = async (req, res) => {
         const limitPerBody = limits.find(limit => limit.body_id === body.id);
 
         // Either return a custom limit for a body, or a default one if it's not found.
-        return limitPerBody ? limitPerBody : PaxLimit.getDefaultForBody(body, req.params.event_type);
+        return limitPerBody || PaxLimit.getDefaultForBody(body, req.params.event_type);
     });
 
     return res.json({
@@ -96,7 +96,7 @@ exports.updateLimit = async (req, res) => {
     return res.json({
         success: true,
         data: limit
-    })
+    });
 };
 
 exports.deleteSingleLimit = async (req, res) => {

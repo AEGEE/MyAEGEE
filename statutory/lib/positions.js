@@ -16,7 +16,7 @@ exports.findPosition = async (req, res, next) => {
     req.permissions = helpers.getPositionPermissions({
         permissions: req.permissions,
         position
-    })
+    });
 
     req.position = position;
     return next();
@@ -60,21 +60,21 @@ exports.listPositionsWithApprovedCandidates = async (req, res) => {
     // only the id and the status would be returned.
     // Status is for every position, so we can filter on that
     // on the frontend.
-    const filtered = positions.map(position => {
+    const filtered = positions.map((position) => {
         const jsonPosition = position.toJSON();
 
         jsonPosition.candidates = position.candidates
             .filter(candidate => candidate.status !== 'rejected')
-            .map(candidate => {
+            .map((candidate) => {
                 if (candidate.status === 'approved') {
                     return candidate.toJSON();
                 }
 
-                return { id: candidate.id, status: candidate.status }
-            })
+                return { id: candidate.id, status: candidate.status };
+            });
 
         return jsonPosition;
-    })
+    });
 
     return res.json({
         success: true,

@@ -82,7 +82,7 @@ const MembersList = sequelize.define('memberslist', {
                     }
 
                     if (typeof member.user_id !== 'undefined' && typeof member.user_id !== 'number') {
-                        throw new Error(`user_id is set, but is not a number.`);
+                        throw new Error('user_id is set, but is not a number.');
                     }
 
                     if (member.fee < 0) {

@@ -356,7 +356,7 @@ describe('Applications editing', () => {
     });
 
     test('should returrn 500 if members query returns net error', async () => {
-        mock.mockAll({ member: { netError: true } })
+        mock.mockAll({ member: { netError: true } });
 
         const event = await generator.createEvent();
         const application = await generator.createApplication({}, event);
@@ -379,7 +379,7 @@ describe('Applications editing', () => {
     });
 
     test('should returrn 500 if members query returns bad response', async () => {
-        mock.mockAll({ member: { badResponse: true } })
+        mock.mockAll({ member: { badResponse: true } });
 
         const event = await generator.createEvent();
         const application = await generator.createApplication({}, event);
@@ -402,7 +402,7 @@ describe('Applications editing', () => {
     });
 
     test('should return 500 if members query returns unsuccessful response', async () => {
-        mock.mockAll({ member: { unsuccessfulResponse: true } })
+        mock.mockAll({ member: { unsuccessfulResponse: true } });
 
         const event = await generator.createEvent();
         const application = await generator.createApplication({}, event);
@@ -425,9 +425,9 @@ describe('Applications editing', () => {
     });
 
     test('should return 500 and not save application if mailer returns net error', async () => {
-        mock.mockAll({ mailer: { netError: true } })
+        mock.mockAll({ mailer: { netError: true } });
 
-        const event = await generator.createEvent({ applications: []});
+        const event = await generator.createEvent({ applications: [] });
         const application = await generator.createApplication({ visa_required: true }, event);
 
         tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
@@ -451,9 +451,9 @@ describe('Applications editing', () => {
     });
 
     test('should return 500 and not save application if mailer returns bad response', async () => {
-        mock.mockAll({ mailer: { badResponse: true } })
+        mock.mockAll({ mailer: { badResponse: true } });
 
-        const event = await generator.createEvent({ applications: []});
+        const event = await generator.createEvent({ applications: [] });
         const application = await generator.createApplication({ visa_required: true }, event);
 
         tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
@@ -477,9 +477,9 @@ describe('Applications editing', () => {
     });
 
     test('should return 500 and not save application if mailer returns unsuccessful response', async () => {
-        mock.mockAll({ mailer: { unsuccessfulResponse: true } })
+        mock.mockAll({ mailer: { unsuccessfulResponse: true } });
 
-        const event = await generator.createEvent({ applications: []});
+        const event = await generator.createEvent({ applications: [] });
         const application = await generator.createApplication({ visa_required: true }, event);
 
         tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());

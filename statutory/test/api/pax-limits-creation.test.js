@@ -28,7 +28,6 @@ describe('Pax limits creation/editing', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
-
     });
 
     test('should update the limit if not exists', async () => {

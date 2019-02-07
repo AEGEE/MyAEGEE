@@ -87,7 +87,7 @@ VotesPerAntenna.recalculateVotesForAntenna = async function recalculateVotesForA
         else if (members >= 351 && members <= 450) votesAmount = 8;
         else if (members >= 451 && members <= 550) votesAmount = 9;
         else if (members >= 551 && members <= 650) votesAmount = 10;
-        else if (members >= 651 && members <= 750) votesAmount = 11
+        else if (members >= 651 && members <= 750) votesAmount = 11;
         else if (members >= 751 && members <= 850) votesAmount = 12;
         else if (members >= 851 && members <= 950) votesAmount = 13;
         else if (members >= 951) votesAmount = 14 + Math.floor((members - 950) / 250);
@@ -113,7 +113,7 @@ VotesPerAntenna.recalculateVotesForAntenna = async function recalculateVotesForA
 
     // Also recalculating votes per delegate for this antenna.
     await this.recalculateVotesForDelegates(event, body.id);
-}
+};
 
 // Recalculates how many votes each delegate has for this event based on
 // how much votes this antenna has.
@@ -171,7 +171,7 @@ VotesPerAntenna.recalculateVotesForDelegates = async function recalculateVotesFo
             body_id: bodyId,
             participant_type: 'delegate',
             cancelled: false
-        }
+        };
 
         // Then applying our custom filter for each distribution.
         const customFilter = Object.assign(defaultFilter, distribution.filter);
@@ -223,6 +223,6 @@ VotesPerAntenna.recalculateVotesForDelegates = async function recalculateVotesFo
             }, { transaction });
         }
     }
-}
+};
 
 module.exports = VotesPerAntenna;

@@ -58,7 +58,7 @@ describe('Positions edition', () => {
 
     test('should fail if positions ID is NaN', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
-        const position = await generator.createPosition({}, event);
+        await generator.createPosition({}, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/positions/NaN',

@@ -1,6 +1,6 @@
 module.exports = {
-  up: (queryInterface, Sequelize) => {
-      return queryInterface.createTable('votes_per_delegate', {
+    up: (queryInterface, Sequelize) => {
+        return queryInterface.createTable('votes_per_delegate', {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -52,5 +52,5 @@ module.exports = {
             }
         });
     },
-    down: (queryInterface) => queryInterface.dropTable('votes_per_delegate')
+    down: queryInterface => queryInterface.dropTable('votes_per_delegate')
 };

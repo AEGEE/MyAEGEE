@@ -71,8 +71,8 @@ Position.beforeValidate(async (position, options) => {
         // Also if it should start in the future, we set the cron task for it
         // to open applications.
         // TODO: add cron task for it.
-        let canApply = moment().isBetween(position.starts, position.ends, null, '[]');
-        let applicationsClosed = moment().isAfter(position.ends);
+        const canApply = moment().isBetween(position.starts, position.ends, null, '[]');
+        const applicationsClosed = moment().isAfter(position.ends);
 
         if (!position.isNewRecord) {
             const candidates = await Candidate.findAll({
@@ -99,6 +99,7 @@ Position.beforeValidate(async (position, options) => {
 
 Position.afterUpdate((position) => {
     // Yeah, nasty, but prevents us from circular dependencies issues. Been there, done that.
+    // eslint-disable-next-line global-require
     const cron = require('../lib/cron');
 
     // Clearing the deadlines and setting them again on afterSave() (just in case).
@@ -108,6 +109,7 @@ Position.afterUpdate((position) => {
 
 Position.afterSave((position) => {
     // Yeah, nasty, but prevents us from circular dependencies issues. Been there, done that.
+    // eslint-disable-next-line global-require
     const cron = require('../lib/cron');
 
     // Schedule 2 deadlines, one for opening and one for closing.

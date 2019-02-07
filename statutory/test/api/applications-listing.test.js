@@ -16,7 +16,7 @@ describe('Applications listing', () => {
 
     afterEach(async () => {
         await stopServer();
-        await generator.clearAll()
+        await generator.clearAll();
         mock.cleanAll();
     });
 
@@ -144,7 +144,7 @@ describe('Applications listing', () => {
     test('should return only required data on /juridical', async () => {
         const event = await generator.createEvent();
 
-        const application = await generator.createApplication({ status: 'accepted', paid_fee: true, user_id: 1 }, event);
+        await generator.createApplication({ status: 'accepted', paid_fee: true, user_id: 1 }, event);
         await generator.createApplication({ user_id: 2 }, event);
 
         const res = await request({

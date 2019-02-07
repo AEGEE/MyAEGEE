@@ -2,13 +2,13 @@ const constants = require('./constants');
 
 // A helper to whilelist object's properties.
 exports.whitelistObject = (object, allowedFields) => {
-    let newObject = {};
+    const newObject = {};
     for (const field of allowedFields) {
         newObject[field] = object[field];
     }
 
     return newObject;
-}
+};
 
 // A helper to filter object by another object fields.
 exports.filterObject = (object, targetObject) => {
@@ -19,7 +19,7 @@ exports.filterObject = (object, targetObject) => {
     }
 
     return true;
-}
+};
 
 // A helper to determine if the string is either 'me' or an integer.
 exports.isIDValid = id => id === constants.CURRENT_USER_PREFIX || !Number.isNaN(Number(id, 10));
@@ -28,7 +28,7 @@ exports.isIDValid = id => id === constants.CURRENT_USER_PREFIX || !Number.isNaN(
 exports.isMemberOf = (user, bodyId) => user.bodies.map(body => body.id).includes(bodyId);
 
 // A helpers to determine if body is a local.
-exports.isLocal = (body) => ['antenna', 'contact antenna', 'contact'].includes(body.type);
+exports.isLocal = body => ['antenna', 'contact antenna', 'contact'].includes(body.type);
 
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
@@ -88,8 +88,7 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
 
     const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
     for (const body of user.bodies) {
-        permissions.set_board_comment_and_participant_type[body.id] =
-          event.can_approve_members && approveBodiesList.includes(body.id);
+        permissions.set_board_comment_and_participant_type[body.id] = event.can_approve_members && approveBodiesList.includes(body.id);
         permissions.see_boardview_of[body.id] = approveBodiesList.includes(body.id);
         permissions.upload_memberslist[body.id] = approveBodiesList.includes(body.id) && exports.isLocal(body);
     }
@@ -133,7 +132,7 @@ exports.getPositionPermissions = ({ permissions, position }) => {
 };
 
 exports.getCandidatePermissions = ({ permissions, position, candidate, user }) => {
-    const mine = candidate.user_id === user.id
+    const mine = candidate.user_id === user.id;
 
     permissions.edit_candidature = (mine && position.status === 'open') || permissions.manage_candidates;
     permissions.set_candidature_status = permissions.manage_candidates;
