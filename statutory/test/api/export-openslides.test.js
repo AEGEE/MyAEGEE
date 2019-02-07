@@ -33,8 +33,8 @@ describe('Export OpenSlides', () => {
     });
 
     test('should return nothing if only cancelled or not accepted applications', async () => {
-        await generator.createApplication({ cancelled: true, status: 'accepted' }, event);
-        await generator.createApplication({ cancelled: false, status: 'rejected' }, event);
+        await generator.createApplication({ cancelled: true, status: 'accepted', user_id: 1 }, event);
+        await generator.createApplication({ cancelled: false, status: 'rejected', user_id: 2 }, event);
         const res = await request({
             uri: '/events/' + event.id + '/applications/export/openslides',
             method: 'GET',

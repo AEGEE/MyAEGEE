@@ -14,7 +14,9 @@ module.exports = {
         'departed',
         'first_name',
         'last_name',
-        'status'
+        'status',
+        'created_at',
+        'updated_at'
     ],
     ALLOWED_INCOMING_FIELDS: [
         'id',
@@ -23,14 +25,30 @@ module.exports = {
         'body_name',
         'participant_type',
         'participant_order',
-        'cancelled',
         'paid_fee',
         'attended',
         'registered',
         'departed',
         'first_name',
         'last_name',
-        'status'
+        'meals',
+        'allergies',
+        'email',
+        'gender',
+        'nationality',
+        'visa_place_of_birth',
+        'visa_passport_number',
+        'visa_passport_issue_date',
+        'visa_passport_expiration_date',
+        'visa_passport_issue_authority',
+        'visa_embassy',
+        'visa_street_and_house',
+        'visa_postal_code',
+        'visa_city',
+        'visa_country',
+        'date_of_birth',
+        'created_at',
+        'updated_at'
     ],
     ALLOWED_PARTICIPANTS_LIST_FIELDS: [
         'id',
@@ -45,7 +63,9 @@ module.exports = {
         'registered',
         'departed',
         'first_name',
-        'last_name'
+        'last_name',
+        'created_at',
+        'updated_at'
     ],
     APPLICATION_FIELD_NAMES: {
         id: 'ID',

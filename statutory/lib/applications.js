@@ -505,11 +505,11 @@ exports.exportOpenslides = async (req, res) => {
     // For more reference on OpenSlides page, open your OpenSlides instance (or https://demo.openslides.org),
     // then go to Participants -> Import and read the specification at the bottom of the page.
 
-    if (!req.permissions.export_openslides) {
+    if (!req.permissions.export.openslides) {
         return errors.makeForbiddenError(res, 'You are not allowed to see statistics.');
     }
 
-    const filtered = req.event.applications.filter(app => !app.cancelled && app.status == 'accepted');
+    const filtered = req.event.applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'accepted' }));
     const wrap = string => '"' + string + '"';
 
     const headers = [
@@ -555,13 +555,23 @@ exports.exportOpenslides = async (req, res) => {
 };
 
 exports.exportAll = async (req, res) => {
-    // Exporting users as XLSX for Chair/CD/whoever.
-    if (!req.permissions.export_all) {
+    // Exporting users as XLSX for LOs/Chair/CD/whoever.
+    if (!['all', 'incoming'].includes(req.params.prefix)) {
+        return errors.makeBadRequestError(res, `Prefix should be one of these: "all", "incoming", but received ${req.params.prefix}`);
+    }
+
+    if (!req.permissions.export[req.params.prefix]) {
         return errors.makeForbiddenError(res, 'You are not allowed to see statistics.');
     }
 
     if (!Array.isArray(req.query.select)) {
         return errors.makeBadRequestError(res, 'Filters are not provided or are invalid.');
+    }
+
+    // If prefix is /incoming, only specific fields are allowed.
+    // If prefix is /all, all fields are available.
+    if (req.params.prefix !== 'all') {
+        req.query.select = req.query.select.filter(field => constants.ALLOWED_INCOMING_FIELDS.includes(field));
     }
 
     const filtered = req.event.applications.filter(app => !app.cancelled);
