@@ -10,28 +10,28 @@
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info">
-          <div class="field is-grouped" v-if="can.manage_applications">
+          <div class="field is-grouped" v-if="can.see_applications">
             <router-link :to="{ name: 'oms.statutory.applications', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>View applications</span>
               <span class="icon"><i class="fas fa-users"></i></span>
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.manage_incoming || can.manage_applications">
+          <div class="field is-grouped" v-if="can.see_applications_incoming">
             <router-link :to="{ name: 'oms.statutory.incoming', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Manage incoming info</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.manage_juridical || can.manage_applications">
+          <div class="field is-grouped" v-if="can.see_applications_juridical">
             <router-link :to="{ name: 'oms.statutory.juridical', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Manage juridical info</span>
               <span class="icon"><i class="fa fa-users"></i></span>
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.export">
+          <div class="field is-grouped" v-if="can.export.all || can.export.incoming || can.export.openslides">
             <router-link :to="{ name: 'oms.statutory.applications.export', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Export participants info</span>
               <span class="icon"><i class="fa fa-users"></i></span>
