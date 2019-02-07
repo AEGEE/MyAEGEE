@@ -19,7 +19,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.INTEGER,
         defaultValue: '',
         validate: {
-            async isValid (value) {
+            async isValid(value) {
                 if (typeof value !== 'number') {
                     throw new Error('User ID must be a number.');
                 }
@@ -114,7 +114,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.ENUM('delegate', 'observer', 'envoy', 'visitor'),
         defaultValue: null,
         validate: {
-            isValid (value) {
+            isValid(value) {
                 const possibleValies = ['delegate', 'observer', 'envoy', 'visitor'];
 
                 // pax type is either null or one of the possible values.
@@ -133,7 +133,7 @@ const Application = sequelize.define('application', {
         type: Sequelize.INTEGER,
         defaultValue: null,
         validate: {
-            async isValid (value) {
+            async isValid(value) {
                 // Should be either string or null.
                 if (value !== null && typeof value !== 'number') {
                     throw new Error('Participant order should be either null or string.');

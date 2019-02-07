@@ -16,14 +16,14 @@ exports.clearDeadlinesForPosition = (id) => {
     }
 
     jobs = jobs.filter(job => job.objectId !== id);
-}
+};
 
-exports.clearAll = (id) => {
+exports.clearAll = () => {
     for (const job of jobs) {
         scheduler.cancelJob(job.jobId);
     }
     jobs = [];
-}
+};
 
 exports.registerOpenApplicationDeadline = (time, id) => {
     if (moment().isAfter(time)) {
@@ -40,7 +40,7 @@ exports.registerOpenApplicationDeadline = (time, id) => {
         time
     });
     logger.info(`Successfully registered opening deadline for position #${id} as ${time}`);
-}
+};
 
 exports.registerCloseApplicationDeadline = (time, id) => {
     if (moment().isAfter(time)) {
@@ -57,7 +57,7 @@ exports.registerCloseApplicationDeadline = (time, id) => {
         time
     });
     logger.info(`Successfully registered closing deadline for position #${id} as ${time}`);
-}
+};
 
 exports.openApplications = async (id) => {
     const position = await Position.findByPk(id);
@@ -77,7 +77,7 @@ exports.openApplications = async (id) => {
     logger.info(`Opening applications for position ${id}: Successfully opened deadline for position #${id} (${position.name})`);
 
     jobs = jobs.filter(job => !(job.type === 'position' && job.action === 'open' && job.objectId === id));
-}
+};
 
 exports.closeApplications = async (id) => {
     const position = await Position.findByPk(id, {
@@ -111,4 +111,4 @@ exports.closeApplications = async (id) => {
     logger.info(`Closing applications for position ${id}: Successfully closed deadline for position #${id} (${position.name})`);
 
     jobs = jobs.filter(job => !(job.type === 'position' && job.action === 'close' && job.objectId === id));
-}
+};

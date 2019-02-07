@@ -25,7 +25,7 @@ describe('Votes per antenna calculation', () => {
         { members: 1100, votes: 14 },
         { members: 1200, votes: 15 },
         { members: 1450, votes: 16 }
-    ]
+    ];
 
     beforeEach(async () => {
         mock.mockAll();

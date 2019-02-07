@@ -579,7 +579,7 @@ describe('Applications creation', () => {
         }, event);
 
         expect.assertions(1);
-        await expect(applicationPromise).rejects.toThrowError('Validation error: User ID must be a number.')
+        await expect(applicationPromise).rejects.toThrowError('Validation error: User ID must be a number.');
     });
 
     const requiredFields = [
@@ -652,7 +652,7 @@ describe('Applications creation', () => {
         });
     }
 
-    test(`should return 422 if number_of_events_visited is not a number`, async () => {
+    test('should return 422 if number_of_events_visited is not a number', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
@@ -683,7 +683,7 @@ describe('Applications creation', () => {
         expect(res.body.errors).toHaveProperty('number_of_events_visited');
     });
 
-    test(`should return 422 if number_of_events_visited is negative`, async () => {
+    test('should return 422 if number_of_events_visited is negative', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({

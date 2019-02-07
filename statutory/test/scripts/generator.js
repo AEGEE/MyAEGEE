@@ -123,7 +123,7 @@ exports.generateMembersListMember = (options = {}) => {
     if (notSet(options.fee)) options.fee = faker.random.number({ min: 1, max: 1000 });
 
     return options;
-}
+};
 
 exports.generatePaxLimit = (options = {}) => {
     if (notSet(options.body_id)) options.body_id = faker.random.number(100);
@@ -159,10 +159,12 @@ exports.generateCandidate = (options = {}, position) => {
     if (notSet(options.nationality)) options.nationality = faker.lorem.sentence();
     if (notSet(options.studies)) options.studies = faker.lorem.sentence();
     if (notSet(options.body_name)) options.body_name = faker.lorem.sentence();
-    if (notSet(options.languages)) options.languages = Array.from(
-        { length: faker.random.number({ min: 1, max: 5 }) },
-        () => faker.lorem.sentence()
-    );
+    if (notSet(options.languages)) {
+        options.languages = Array.from(
+            { length: faker.random.number({ min: 1, max: 5 }) },
+            () => faker.lorem.sentence()
+        );
+    }
     if (notSet(options.member_since)) options.member_since = moment(faker.date.past()).format('YYYY-MM-DD');
     if (notSet(options.european_experience)) options.european_experience = faker.lorem.paragraph();
     if (notSet(options.local_experience)) options.local_experience = faker.lorem.paragraph();

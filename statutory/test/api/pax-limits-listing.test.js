@@ -29,7 +29,7 @@ describe('Pax limits listing', () => {
         expect(res.body).toHaveProperty('data');
 
         for (const limit of res.body.data) {
-            expect(limit.default).toEqual(true)
+            expect(limit.default).toEqual(true);
         }
     });
 
@@ -50,7 +50,7 @@ describe('Pax limits listing', () => {
         expect(res.body).toHaveProperty('data');
 
         for (const limit of res.body.data) {
-            expect(limit.default).toEqual(false)
+            expect(limit.default).toEqual(false);
         }
     });
 

@@ -10,7 +10,7 @@ exports.checkIfAgora = async (req, res, next) => {
     }
 
     return next();
-}
+};
 
 exports.getAllMemberslists = async (req, res) => {
     if (!req.permissions.see_memberslists) {

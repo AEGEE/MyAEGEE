@@ -4,11 +4,11 @@ const { Sequelize, sequelize } = require('../lib/sequelize');
 
 function isValidDate(value) {
     if (typeof value !== 'string') {
-        throw new Error('The value should be a string.')
+        throw new Error('The value should be a string.');
     }
 
     if (!moment(value, 'YYYY-MM-DD').isValid()) {
-        throw new Error('The value should be a date with a YYYY-MM-DD format.')
+        throw new Error('The value should be a date with a YYYY-MM-DD format.');
     }
 }
 
@@ -20,12 +20,12 @@ const Candidate = sequelize.define('candidate', {
         validate: {
             notEmpty: { msg: 'User should be set.' },
             isInt: { msg: 'User ID should be a number.' },
-            async isNotDuplicate (value) {
+            async isNotDuplicate(value) {
                 const existing = await Candidate.findOne({
                     where: {
                         position_id: this.position_id,
                         user_id: value,
-                        id: { [Sequelize.Op.ne]: this.id}
+                        id: { [Sequelize.Op.ne]: this.id }
                     } });
                 if (existing) {
                     throw new Error('Such application already exists.');
@@ -218,9 +218,9 @@ const Candidate = sequelize.define('candidate', {
         type: Sequelize.BOOLEAN,
         defaultValue: '',
         validate: {
-            isValid (value) {
+            isValid(value) {
                 if (value !== true) {
-                    throw new Error('You should agree to Privacy Policy.')
+                    throw new Error('You should agree to Privacy Policy.');
                 }
             }
         }

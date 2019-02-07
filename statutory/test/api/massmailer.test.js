@@ -6,37 +6,33 @@ const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Massmailer', () => {
     let event;
-    let acceptedApplication;
-    let rejectedApplication;
-    let pendingApplication;
-    let cancelledApplication;
 
     beforeEach(async () => {
         mock.mockAll();
         await startServer();
 
         event = await generator.createEvent();
-        acceptedApplication = await generator.createApplication({
+        await generator.createApplication({
             user_id: 1,
             body_id: regularUser.bodies[0].id,
             participant_type: 'envoy',
             participant_order: 1,
             status: 'accepted'
         }, event);
-        rejectedApplication = await generator.createApplication({
+        await generator.createApplication({
             user_id: 2,
             body_id: regularUser.bodies[0].id,
             participant_type: 'envoy',
             participant_order: 2,
             status: 'rejected'
         }, event);
-        pendingApplication = await generator.createApplication({
+        await generator.createApplication({
             user_id: 3,
             body_id: regularUser.bodies[0].id,
             participant_type: 'envoy',
             participant_order: 3
         }, event);
-        cancelled = await generator.createApplication({
+        await generator.createApplication({
             user_id: 4,
             body_id: regularUser.bodies[0].id,
             participant_type: 'envoy',
@@ -149,7 +145,7 @@ describe('Massmailer', () => {
     });
 
     test('should fail if oms-mailer returns net error', async () => {
-        mock.mockAll({ mailer: { netError: true } })
+        mock.mockAll({ mailer: { netError: true } });
         const res = await request({
             uri: '/events/' + event.id + '/massmailer',
             method: 'POST',
@@ -166,7 +162,7 @@ describe('Massmailer', () => {
     });
 
     test('should fail if oms-mailer returns bad response', async () => {
-        mock.mockAll({ mailer: { badResponse: true } })
+        mock.mockAll({ mailer: { badResponse: true } });
         const res = await request({
             uri: '/events/' + event.id + '/massmailer',
             method: 'POST',
@@ -183,7 +179,7 @@ describe('Massmailer', () => {
     });
 
     test('should fail if oms-mailer returns unsuccessful response', async () => {
-        mock.mockAll({ mailer: { unsuccessfulResponse: true } })
+        mock.mockAll({ mailer: { unsuccessfulResponse: true } });
         const res = await request({
             uri: '/events/' + event.id + '/massmailer',
             method: 'POST',

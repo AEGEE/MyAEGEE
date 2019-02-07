@@ -160,7 +160,7 @@ describe('Votes per antenna/delegate recalculation', () => {
         });
 
         test('should recalculate the votes on memberslists upload', async () => {
-            const application = await generator.createApplication({
+            await generator.createApplication({
                 user_id: regularUser.id,
                 participant_type: 'delegate',
                 participant_order: 1,
@@ -199,7 +199,7 @@ describe('Votes per antenna/delegate recalculation', () => {
             });
 
             if (res.statusCode !== 200) {
-                throw new Error('Error uploading memberslist')
+                throw new Error('Error uploading memberslist');
             }
 
             expect(res.statusCode).toEqual(200);

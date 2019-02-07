@@ -1,11 +1,10 @@
-const moment = require('moment')
+const moment = require('moment');
 
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/oms-core-valid').data;
-const { Position } = require('../../models');
 
 describe('Candidates editing', () => {
     beforeEach(async () => {
@@ -34,7 +33,7 @@ describe('Candidates editing', () => {
         const res = await request({
             uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
             method: 'PUT',
-            body: { first_name: 'Different'},
+            body: { first_name: 'Different' },
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -59,7 +58,7 @@ describe('Candidates editing', () => {
         const res = await request({
             uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
             method: 'PUT',
-            body: { first_name: 'Different'},
+            body: { first_name: 'Different' },
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -81,7 +80,7 @@ describe('Candidates editing', () => {
         const res = await request({
             uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/1337',
             method: 'PUT',
-            body: { first_name: 'Different'},
+            body: { first_name: 'Different' },
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -103,7 +102,7 @@ describe('Candidates editing', () => {
         const res = await request({
             uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/false',
             method: 'PUT',
-            body: { first_name: 'Different'},
+            body: { first_name: 'Different' },
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -128,7 +127,7 @@ describe('Candidates editing', () => {
         const res = await request({
             uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
             method: 'PUT',
-            body: { first_name: 'Different'},
+            body: { first_name: 'Different' },
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 

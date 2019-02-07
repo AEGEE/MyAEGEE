@@ -1,4 +1,4 @@
-const moment = require('moment')
+const moment = require('moment');
 
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
