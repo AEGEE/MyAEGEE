@@ -11,7 +11,7 @@
 # bump the version of the oms submodules and commit (currently not there)
 bump_repo ()
 {
-    git submodule foreach "git checkout master"
+    git submodule foreach "git checkout master && git pull"
     git add $(git submodule status | grep '^+' |  awk '{ print $2 }')
     #if something is staged, do the following two lines
     git diff --cached --quiet 
@@ -146,6 +146,8 @@ if [[ "$#" -ge 1 ]]; then
             
             -v) verbose=true; shift ;;
 
+            --) shift ; arguments+=$@; break ;;
+
             -*) echo "unknown option: $1" 2>&1; 
                 echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump} [-v]"; exit 1;;
             *) arguments+="$1 "; shift;;
@@ -191,9 +193,9 @@ if ( $execute ); then
     exit $?
 fi
 
-if ( $stop ); then
+if ( $stop ); then 
     if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
-       compose_wrapper stop $arguments
+       compose_wrapper stop $arguments #TODO: improve robustness. if there is rubbish it is still not empty
        exit $?
     fi
     echo "'Stop' must only be used with a container name"
@@ -202,7 +204,7 @@ fi
 
 if ( $down ); then 
     if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
-        compose_wrapper down $arguments
+        compose_wrapper down $arguments #TODO: improve robustness. if there is rubbish it is still not empty
         exit $?
     fi
     echo "'Down' must only be used with a container name"
@@ -211,7 +213,7 @@ fi
 
 if ( $restart ); then 
     if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
-        compose_wrapper restart $arguments
+        compose_wrapper restart $arguments #TODO: improve robustness. if there is rubbish it is still not empty
         exit $?
     fi
     echo "'Restart' must only be used with a container name"
