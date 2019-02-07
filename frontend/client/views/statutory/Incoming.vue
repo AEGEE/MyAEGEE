@@ -5,22 +5,15 @@
         <div class="title">Incoming</div>
 
         <div class="field">
-          <label class="label">Search by name or description</label>
-          <div class="field has-addons">
-            <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
-            </div>
-            <div class="control">
-              <button class="button is-primary" v-if="!displayCancelled" @click="displayCancelled = true">Display all applications</button>
-              <button class="button is-primary" v-if="displayCancelled" @click="displayCancelled = false">Display only not cancelled and accepted applications</button>
-            </div>
+          <label class="label">Search by name or email</label>
+          <div class="control is-expanded">
+            <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
           </div>
         </div>
 
         <b-table
           :data="filteredApplications"
           :loading="isLoading"
-          :row-class="row => calculateClassForApplication(row)"
           paginated
           :per-page="limit"
           default-sort="id"
@@ -42,12 +35,20 @@
               {{ props.row.last_name | beautify }}
             </b-table-column>
 
+            <b-table-column field="email" label="Email" centered sortable>
+              {{ props.row.email }}
+            </b-table-column>
+
             <b-table-column field="body_name" label="Body" centered sortable>
               {{ props.row.body_name }}
             </b-table-column>
 
-            <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled">
-              {{ props.row.cancelled | beautify }}
+            <b-table-column field="meals" label="Meals" centered>
+              {{ props.row.meals }}
+            </b-table-column>
+
+            <b-table-column field="allergies" label="Allergies" centered>
+              {{ props.row.allergies }}
             </b-table-column>
 
             <b-table-column field="paid_fee" label="Confirmed?" centered sortable>
@@ -104,7 +105,6 @@ export default {
       },
       query: '',
       limit: 50,
-      displayCancelled: false,
       isLoading: false,
       isSaving: false
     }
@@ -115,27 +115,13 @@ export default {
       loginUser: 'user'
     }),
     filteredApplications () {
-      const filterCancelled = this.displayCancelled
-        ? this.applications
-        : this.applications.filter(app => !app.cancelled && app.status === 'accepted')
-
       const lowercaseQuery = this.query.toLowerCase()
 
-      return filterCancelled.filter(app =>
+      return this.applications.filter(app =>
         ['first_name', 'last_name', 'email'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
     }
   },
   methods: {
-    calculateClassForApplication (pax) {
-      switch (pax.status) {
-        case 'accepted':
-          return 'has-background-success'
-        case 'rejected':
-          return 'has-background-danger'
-        default:
-          return ''
-      }
-    },
     switchPaxAttended (pax) {
       pax.isSavingAttended = true
       const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/attended'
@@ -169,7 +155,7 @@ export default {
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
 
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/all')
+      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/incoming')
     }).then((application) => {
       this.applications = application.data.data
       this.isLoading = false
