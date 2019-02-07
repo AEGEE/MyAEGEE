@@ -56,13 +56,11 @@ export default {
     ]),
     ...methods,
     swipeLeft () {
-      console.log('swipe.left')
       if (this.sidebar.opened) {
         this.toggleSidebar({ opened: false })
       }
     },
     swipeRight () {
-      console.log('swipe.right')
       if (!this.sidebar.opened) {
         this.toggleSidebar({ opened: true })
       }
