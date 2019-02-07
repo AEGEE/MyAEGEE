@@ -8,6 +8,7 @@ import flatPickr from 'vue-flatpickr-component'
 import Multiselect from 'vue-multiselect'
 import InputTag from 'vue-input-tag'
 import qs from 'qs'
+import Vue2TouchEvents from 'vue2-touch-events'
 import '@fortawesome/fontawesome-free/js/all.js'
 
 import App from './App.vue'
@@ -37,6 +38,7 @@ Vue.use(VueGoogleMaps, {
     libraries: 'places,drawing,visualization,geometry'
   }
 })
+Vue.use(Vue2TouchEvents)
 Vue.component('multiselect', Multiselect)
 Vue.component('input-tag', InputTag)
 Vue.component('select-or-custom', SelectOrCustom)

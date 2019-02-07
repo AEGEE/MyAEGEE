@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" v-touch:swipe.left="swipeLeft" v-touch:swipe.right="swipeRight">
     <nprogress-container></nprogress-container>
     <navbar :show="true"></navbar>
     <sidebar :show="sidebar.opened && !sidebar.hidden && $route.meta.showSidebar"></sidebar>
@@ -54,7 +54,19 @@ export default {
       'toggleDevice',
       'toggleSidebar'
     ]),
-    ...methods
+    ...methods,
+    swipeLeft () {
+      console.log('swipe.left')
+      if (this.sidebar.opened) {
+        this.toggleSidebar({ opened: false })
+      }
+    },
+    swipeRight () {
+      console.log('swipe.right')
+      if (!this.sidebar.opened) {
+        this.toggleSidebar({ opened: true })
+      }
+    }
   }
 }
 </script>
