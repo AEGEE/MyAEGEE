@@ -61,9 +61,10 @@ ApplicationsRouter.post('/', applications.postApplication);
 ApplicationsRouter.get('/all', applications.listAllApplications);
 ApplicationsRouter.get('/accepted', applications.listAcceptedApplications);
 ApplicationsRouter.get('/juridical', applications.listJCApplications);
+ApplicationsRouter.get('/incoming', applications.listIncomingApplications);
 ApplicationsRouter.get('/stats', applications.getStats);
 ApplicationsRouter.get('/export/openslides', applications.exportOpenslides);
-ApplicationsRouter.get('/export/all', applications.exportAll);
+ApplicationsRouter.get('/export/:prefix', applications.exportAll);
 ApplicationsRouter.get('/boardview/:body_id', applications.listBoardView);
 
 SingleApplicationRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, middlewares.fetchSingleApplication);

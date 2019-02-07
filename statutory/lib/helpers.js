@@ -111,10 +111,15 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     permissions.manage_applications = hasPermission(corePermissions, 'global:manage_applications:' + event.type);
     permissions.manage_incoming = hasPermission(corePermissions, 'global:manage_incoming:' + event.type);
     permissions.manage_juridical = hasPermission(corePermissions, 'global:manage_juridical:' + event.type);
-    permissions.see_applications = permissions.manage_applications || permissions.manage_incoming;
+    permissions.see_applications = permissions.manage_applications;
     permissions.see_applications_juridical = permissions.manage_applications || permissions.manage_juridical;
+    permissions.see_applications_incoming = permissions.manage_applications || permissions.manage_incoming;
     permissions.see_participants_list = event.can_see_participants_list || permissions.manage_applications;
-    permissions.export = permissions.manage_applications || permissions.manage_incoming;
+    permissions.export = {
+        openslides: permissions.manage_applications || permissions.manage_incoming,
+        all: permissions.manage_applications,
+        incoming: permissions.manage_applications || permissions.manage_incoming
+    };
 
     permissions.set_board_comment_and_participant_type_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
     permissions.upload_memberslist_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
