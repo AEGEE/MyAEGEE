@@ -31,7 +31,7 @@
 
           <div class="field">
             <div class="control">
-              <button @click="exportAll()" class="button is-primary">
+              <button @click="exportIncoming()" class="button is-primary">
                 Export incoming info
               </button>
             </div>
@@ -149,8 +149,11 @@ export default {
         name: ''
       },
       can: {
-        export_all: false,
-        export_openslides: false
+        export: {
+          all: false,
+          openslides: false,
+          incoming: false
+        }
       }
     }
   },
