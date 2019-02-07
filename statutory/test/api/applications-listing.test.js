@@ -103,10 +103,11 @@ describe('Applications listing', () => {
         }
     });
 
-    test('should not display not accepted application on /accepted', async () => {
+    test('should not display not accepted or cancelled application on /accepted', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
         const event = await generator.createEvent();
         await generator.createApplication({ status: 'pending' }, event);
+        await generator.createApplication({ status: 'accepted', cancelled: true }, event);
 
         tk.travel(moment(event.participants_list_publish_deadline).add(5, 'minutes').toDate());
 
@@ -163,5 +164,85 @@ describe('Applications listing', () => {
         for (const field of constants.ALLOWED_JURIDICAL_LIST_FIELDS) {
             expect(res.body.data[0]).toHaveProperty(field);
         }
+    });
+
+
+    test('should not return not accepted, cancelled or not confirmed applications on /juridical', async () => {
+        const event = await generator.createEvent();
+
+        await generator.createApplication({ status: 'rejected', paid_fee: true, cancelled: false, user_id: 1 }, event);
+        await generator.createApplication({ status: 'accepted', paid_fee: false, cancelled: false, user_id: 2 }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/juridical',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(0);
+    });
+
+    test('should result in an error if user does not have permission on /juridical', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+        const event = await generator.createEvent();
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/incoming',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should return only required data on /incoming', async () => {
+        const event = await generator.createEvent();
+
+        await generator.createApplication({ status: 'accepted', paid_fee: true, user_id: 1 }, event);
+        await generator.createApplication({ user_id: 2 }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/incoming',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(1);
+
+        expect(Object.keys(res.body.data[0]).length).toEqual(constants.ALLOWED_INCOMING_FIELDS.length);
+        for (const field of constants.ALLOWED_INCOMING_FIELDS) {
+            expect(res.body.data[0]).toHaveProperty(field);
+        }
+    });
+
+
+    test('should not return not accepted or cancelled applications on /incoming', async () => {
+        const event = await generator.createEvent();
+
+        await generator.createApplication({ status: 'rejected', cancelled: false, user_id: 1 }, event);
+        await generator.createApplication({ status: 'accepted', cancelled: true, user_id: 2 }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/incoming',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(0);
     });
 });

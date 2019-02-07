@@ -22,13 +22,29 @@ exports.listAllApplications = async (req, res) => {
     });
 };
 
+exports.listIncomingApplications = async (req, res) => {
+    if (!req.permissions.see_applications_incoming) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
+    }
+
+    const applications = req.event.applications
+        .filter(application => helpers.filterObject(application, { cancelled: false, status: 'accepted' }))
+        .map(application => application.toJSON())
+        .map(application => helpers.whitelistObject(application, constants.ALLOWED_INCOMING_FIELDS));
+
+    return res.json({
+        success: true,
+        data: applications
+    });
+};
+
 exports.listAcceptedApplications = async (req, res) => {
     if (!req.permissions.see_participants_list) {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
     }
 
     const applications = req.event.applications
-        .filter(application => application.status === 'accepted')
+        .filter(application => helpers.filterObject(application, { cancelled: false, status: 'accepted' }))
         .map(application => application.toJSON())
         .map(application => helpers.whitelistObject(application, constants.ALLOWED_PARTICIPANTS_LIST_FIELDS));
 
@@ -44,7 +60,7 @@ exports.listJCApplications = async (req, res) => {
     }
 
     const applications = req.event.applications
-        .filter(application => application.status === 'accepted' && application.paid_fee)
+        .filter(application => helpers.filterObject(application, { cancelled: false, status: 'accepted', paid_fee: true }))
         .map(application => application.toJSON())
         .map(application => helpers.whitelistObject(application, constants.ALLOWED_JURIDICAL_LIST_FIELDS));
 

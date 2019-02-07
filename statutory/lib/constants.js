@@ -16,6 +16,22 @@ module.exports = {
         'last_name',
         'status'
     ],
+    ALLOWED_INCOMING_FIELDS: [
+        'id',
+        'user_id',
+        'body_id',
+        'body_name',
+        'participant_type',
+        'participant_order',
+        'cancelled',
+        'paid_fee',
+        'attended',
+        'registered',
+        'departed',
+        'first_name',
+        'last_name',
+        'status'
+    ],
     ALLOWED_PARTICIPANTS_LIST_FIELDS: [
         'id',
         'user_id',
