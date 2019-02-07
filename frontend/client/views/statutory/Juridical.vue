@@ -10,15 +10,11 @@
             <div class="control is-expanded">
               <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
             </div>
-            <div class="control">
-              <button class="button is-primary" v-if="!displayCancelled" @click="displayCancelled = true">Display all applications</button>
-              <button class="button is-primary" v-if="displayCancelled" @click="displayCancelled = false">Display only not cancelled and accepted applications</button>
-            </div>
           </div>
         </div>
 
         <b-table
-          :data="filteredApplications"
+          :data="applications"
           :loading="isLoading"
           paginated
           :per-page="limit"
@@ -101,7 +97,6 @@ export default {
       },
       query: '',
       limit: 50,
-      displayCancelled: false,
       isLoading: false,
       isSaving: false
     }
@@ -112,13 +107,9 @@ export default {
       loginUser: 'user'
     }),
     filteredApplications () {
-      const filterCancelled = this.displayCancelled
-        ? this.applications
-        : this.applications.filter(app => !app.cancelled && app.status === 'accepted')
-
       const lowercaseQuery = this.query.toLowerCase()
 
-      return filterCancelled.filter(app =>
+      return this.applications.filter(app =>
         ['first_name', 'last_name', 'email'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
     }
   },
