@@ -6,7 +6,7 @@
         <p>Powered by <a href="//oms-project.atlassian.net/wiki/spaces/GENERAL">Online membership system</a></p>
         <p>
           <router-link :to="{ name: 'oms.legal.simple' }">Legal info (simple)</router-link> &bull;
-          <router-link :to="{ name: 'oms.legal.full' }">(complex)</router-link> &bull;
+          <!--<router-link :to="{ name: 'oms.legal.full' }">(complex)</router-link> &bull;-->
           <router-link :to="{ name: 'oms.about' }">About OMS</router-link> &bull;
           <router-link :to="{ name: 'oms.bug_report' }">Report a bug!</router-link>
         </p>

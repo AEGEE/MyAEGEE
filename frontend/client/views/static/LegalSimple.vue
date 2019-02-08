@@ -38,7 +38,7 @@
             <li><a href="https://www.microsoft.com/">Microsoft</a></li>
           </ul>
 
-          <p>To get full info, please visit <router-link :to="{ name: 'oms.legal.full' }">this page</router-link>.</p>
+          <!--<p>To get full info, please visit <router-link :to="{ name: 'oms.legal.full' }">this page</router-link>.</p>-->
         </div>
       </div>
     </div>
