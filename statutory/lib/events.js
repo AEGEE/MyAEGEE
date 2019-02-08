@@ -17,7 +17,10 @@ exports.addEvent = async (req, res) => {
 };
 
 exports.listEvents = async (req, res) => {
-    const events = await Event.findAll({ where: { status: 'published' } });
+    const events = await Event.findAll({
+        where: { status: 'published' },
+        order: [['starts', 'DESC']],
+    });
     return res.json({
         success: true,
         data: events
