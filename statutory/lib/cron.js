@@ -25,6 +25,19 @@ exports.clearAll = () => {
     jobs = [];
 };
 
+exports.registerAllDeadlines = async () => {
+    const positions = await Position.findAll({});
+    logger.info(`Registering deadline for ${positions.length} positions...`);
+    for (const position of positions) {
+        // Re-saving the application to update status.
+        await position.update({ id: position.id }); // so there'd be at least 1 field
+
+        // Registering deadlines.
+        exports.registerOpenApplicationDeadline(position.starts, position.id);
+        exports.registerCloseApplicationDeadline(position.ends, position.id);
+    }
+}
+
 exports.registerOpenApplicationDeadline = (time, id) => {
     if (moment().isAfter(time)) {
         logger.warn(`Trying to set open deadline to ${time}, which is in the past. Skipping...`);
