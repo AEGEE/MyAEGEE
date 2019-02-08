@@ -4,6 +4,43 @@
       <div class="tile is-child">
         <div class="title">Application statistics for {{ event.name }}</div>
 
+        <table class="table is-narrow is-fullwidth">
+          <tbody>
+            <tr>
+              <th>Total applications:</th>
+              <td>{{ stats.numbers.total }}</td>
+            </tr>
+            <tr>
+              <th>Pending applications:</th>
+              <td>{{ stats.numbers.pending }}</td>
+            </tr>
+            <tr>
+              <th>Rejected applications:</th>
+              <td>{{ stats.numbers.rejected }}</td>
+            </tr>
+            <tr>
+              <th>Accepted applications:</th>
+              <td>{{ stats.numbers.accepted }}</td>
+            </tr>
+            <tr>
+              <th>Confirmed:</th>
+              <td>{{ stats.numbers.paid_fee }}</td>
+            </tr>
+            <tr>
+              <th>Arrived:</th>
+              <td>{{ stats.numbers.attended }}</td>
+            </tr>
+            <tr>
+              <th>JC registered:</th>
+              <td>{{ stats.numbers.registered }}</td>
+            </tr>
+            <tr>
+              <th>Departed:</th>
+              <td>{{ stats.numbers.departed }}</td>
+            </tr>
+          </tbody>
+        </table>
+
         <div class="subtitle">By date</div>
         <line-chart class="chart" :chart-data="byDateData" :options="byDateOptions"></line-chart>
 
@@ -15,6 +52,12 @@
 
         <div class="subtitle">By body</div>
         <pie-chart class="chart" :chart-data="byBodyData()" :options="byBodyOptions"></pie-chart>
+
+        <div class="subtitle">By gender</div>
+        <pie-chart class="chart" :chart-data="byGenderData()" :options="byGenderOptions"></pie-chart>
+
+        <div class="subtitle">By number of events visited</div>
+        <pie-chart class="chart" :chart-data="byNumOfEventsData()" :options="byNumOfEventsOptions"></pie-chart>
 
         <div class="subtitle">Quorum</div>
         <pie-chart class="chart" :chart-data="byQuorumData" :options="byQuorumOptions"></pie-chart>
@@ -66,8 +109,21 @@ export default {
         by_date: [],
         by_date_cumulative: [],
         by_body: [],
-        by_type: []
+        by_type: [],
+        by_gender: [],
+        by_number_of_events_visited: [],
+        numbers: {
+          total: 0,
+          accepted: 0,
+          rejected: 0,
+          pending: 0,
+          paid_fee: 0,
+          attended: 0,
+          registered: 0,
+          departed: 0
+        }
       },
+      colors: ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'],
       can: {
         apply: false
       },
@@ -151,7 +207,7 @@ export default {
         labels: this.stats.by_type.map(s => `${s.type === null ? 'Not set' : s.type} (${s.value})`),
         datasets: [{
           label: 'Applications by participant type',
-          backgroundColor: ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'],
+          backgroundColor: this.colors,
           data: this.stats.by_type.map(s => s.value)
         }]
       }
@@ -177,6 +233,32 @@ export default {
         title: {
           display: true,
           text: 'Applications by body'
+        },
+        legend: {
+          position: 'right'
+        }
+      }
+    },
+    byGenderOptions () {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        title: {
+          display: true,
+          text: 'Applications by gender'
+        },
+        legend: {
+          position: 'right'
+        }
+      }
+    },
+    byNumOfEventsOptions () {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        title: {
+          display: true,
+          text: 'Applications by number of events visited'
         },
         legend: {
           position: 'right'
@@ -217,6 +299,26 @@ export default {
           data: this.stats.by_body.map(s => s.value)
         }]
       }
+    },
+    byGenderData () {
+      return {
+        labels: this.stats.by_gender.map(s => `${s.type} (${s.value})`),
+        datasets: [{
+          label: 'Applications by gender',
+          backgroundColor: this.colors,
+          data: this.stats.by_gender.map(s => s.value)
+        }]
+      }
+    },
+    byNumOfEventsData () {
+      return {
+        labels: this.stats.by_number_of_events_visited.map(s => `${s.type} (${s.value})`),
+        datasets: [{
+          label: 'Applications by number of events visited',
+          backgroundColor: this.colors,
+          data: this.stats.by_number_of_events_visited.map(s => s.value)
+        }]
+      }
     }
   },
   mounted () {
@@ -231,7 +333,7 @@ export default {
     }).then((bodies) => {
       this.bodies = bodies.data.data
       for (const stat of this.stats.by_body) {
-        const body = this.bodies.find(body => stat.body_id === body.id)
+        const body = this.bodies.find(body => stat.type === body.id)
         if (body) {
           this.$set(stat, 'body', body)
         }
