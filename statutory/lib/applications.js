@@ -79,6 +79,17 @@ exports.getStats = async (req, res) => {
         by_type: []
     };
 
+    statsObject.numbers = {
+        total: req.event.applications.length,
+        accepted: req.event.applications.filter(app => helpers.filterObject(app, { status: 'accepted' })).length,
+        rejected: req.event.applications.filter(app => helpers.filterObject(app, { status: 'rejected' })).length,
+        pending: req.event.applications.filter(app => helpers.filterObject(app, { status: 'pending' })).length,
+        paid_fee: req.event.applications.filter(app => helpers.filterObject(app, { paid_fee: true })).length,
+        registered: req.event.applications.filter(app => helpers.filterObject(app, { registered: true })).length,
+        attended: req.event.applications.filter(app => helpers.filterObject(app, { attended: true })).length,
+        departed: req.event.applications.filter(app => helpers.filterObject(app, { departed: true })).length
+    };
+
     // Filtering out cancelled applications.
     const applications = req.event.applications.filter(app => !app.cancelled);
 
@@ -102,27 +113,10 @@ exports.getStats = async (req, res) => {
         statsObject.by_date_cumulative.push({ date: dateFormatted, value: cumulativeSum });
     }
 
-    // By body
-    statsObject.by_body = applications.reduce((acc, val) => {
-        const existing = acc.find(obj => obj.body_id === val.body_id);
-        if (existing) {
-            existing.value += 1;
-        } else {
-            acc.push({ body_id: val.body_id, value: 1 });
-        }
-        return acc;
-    }, []).sort((a, b) => b.value - a.value);
-
-    // By pax type
-    statsObject.by_type = applications.reduce((acc, val) => {
-        const existing = acc.find(obj => obj.type === val.participant_type);
-        if (existing) {
-            existing.value += 1;
-        } else {
-            acc.push({ type: val.participant_type, value: 1 });
-        }
-        return acc;
-    }, []);
+    statsObject.by_body = helpers.countByField(applications, 'body_id');
+    statsObject.by_gender = helpers.countByField(applications, 'gender');
+    statsObject.by_type = helpers.countByField(applications, 'participant_type');
+    statsObject.by_number_of_events_visited = helpers.countByField(applications, 'number_of_events_visited');
 
     // Not sure of what to add here
 

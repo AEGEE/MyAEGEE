@@ -23,6 +23,19 @@ exports.filterObject = (object, targetObject) => {
     return true;
 };
 
+// A helper to count objects in array by field.
+exports.countByField = (array, key) => {
+    return array.reduce((acc, val) => {
+        const existing = acc.find(obj => obj.type === val[key]);
+        if (existing) {
+            existing.value += 1;
+        } else {
+            acc.push({ type: val[key], value: 1 });
+        }
+        return acc;
+    }, [])
+}
+
 // A helper to flatten the nested object. Copypasted from Google.
 exports.flattenObject = (obj, prefix = '') => {
     return Object.keys(obj).reduce((acc, k) => {
