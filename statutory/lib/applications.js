@@ -113,12 +113,18 @@ exports.getStats = async (req, res) => {
         statsObject.by_date_cumulative.push({ date: dateFormatted, value: cumulativeSum });
     }
 
-    statsObject.by_body = helpers.countByField(applications, 'body_id');
-    statsObject.by_gender = helpers.countByField(applications, 'gender');
-    statsObject.by_type = helpers.countByField(applications, 'participant_type');
-    statsObject.by_number_of_events_visited = helpers.countByField(applications, 'number_of_events_visited');
-
-    // Not sure of what to add here
+    statsObject.by_gender = helpers
+        .countByField(applications, 'gender')
+        .sort((a, b) => b.value - a.value); // sort descending by gender
+    statsObject.by_type = helpers
+        .countByField(applications, 'participant_type')
+        .sort((a, b) => b.value - a.value); // sort descending by participant type
+    statsObject.by_body = helpers
+        .countByField(applications, 'body_id')
+        .sort((a, b) => b.value - a.value); // sort descending by pax amount
+    statsObject.by_number_of_events_visited = helpers
+        .countByField(applications, 'number_of_events_visited')
+        .sort((a, b) => a.type - b.type); // sort ascending by number of Agora/EPM visited
 
     return res.json({
         success: true,
