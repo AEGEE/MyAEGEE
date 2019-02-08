@@ -114,8 +114,8 @@ describe('Statistics testing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(Object.keys(res.body.data.by_body).length).toEqual(2);
-        expect(res.body.data.by_body.find(t => t.body_id === 1).value).toEqual(1);
-        expect(res.body.data.by_body.find(t => t.body_id === 2).value).toEqual(2);
+        expect(res.body.data.by_body.find(t => t.type === 1).value).toEqual(1);
+        expect(res.body.data.by_body.find(t => t.type === 2).value).toEqual(2);
     });
 
     test('should work in a proper way by type', async () => {
@@ -136,5 +136,75 @@ describe('Statistics testing', () => {
         expect(Object.keys(res.body.data.by_type).length).toEqual(2);
         expect(res.body.data.by_type.find(t => t.type === null).value).toEqual(1);
         expect(res.body.data.by_type.find(t => t.type === 'visitor').value).toEqual(2);
+    });
+
+    test('should work in a proper way by gender', async () => {
+        await generator.createApplication({ user_id: 1, gender: 'male' }, event);
+        await generator.createApplication({ user_id: 2, gender: 'male' }, event);
+        await generator.createApplication({ user_id: 3, gender: 'female' }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/stats',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(Object.keys(res.body.data.by_gender).length).toEqual(2);
+        expect(res.body.data.by_gender.find(t => t.type === 'male').value).toEqual(2);
+        expect(res.body.data.by_gender.find(t => t.type === 'female').value).toEqual(1);
+    });
+
+    test('should work in a proper way by number of events visited', async () => {
+        await generator.createApplication({ user_id: 1, number_of_events_visited: 0 }, event);
+        await generator.createApplication({ user_id: 2, number_of_events_visited: 0 }, event);
+        await generator.createApplication({ user_id: 3, number_of_events_visited: 1 }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/stats',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(Object.keys(res.body.data.by_number_of_events_visited).length).toEqual(2);
+        expect(res.body.data.by_number_of_events_visited.find(t => t.type === 0).value).toEqual(2);
+        expect(res.body.data.by_number_of_events_visited.find(t => t.type === 1).value).toEqual(1);
+    });
+
+    test('should calculate numbers properly', async () => {
+        await generator.createApplication({ user_id: 1, status: 'pending' }, event);
+        await generator.createApplication({ user_id: 2, status: 'rejected' }, event);
+        await generator.createApplication({ user_id: 3, status: 'accepted' }, event);
+        await generator.createApplication({ user_id: 4, status: 'accepted', paid_fee: true }, event);
+        await generator.createApplication({ user_id: 5, status: 'accepted', paid_fee: true, attended: true }, event);
+        await generator.createApplication({ user_id: 6, status: 'accepted', paid_fee: true, attended: true, registered: true }, event);
+        await generator.createApplication({ user_id: 7, status: 'accepted', paid_fee: true, attended: true, registered: true, departed: true }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/stats',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+
+        expect(res.body.data.numbers.total).toEqual(7);
+        expect(res.body.data.numbers.rejected).toEqual(1);
+        expect(res.body.data.numbers.pending).toEqual(1);
+        expect(res.body.data.numbers.accepted).toEqual(5);
+        expect(res.body.data.numbers.paid_fee).toEqual(4);
+        expect(res.body.data.numbers.attended).toEqual(3);
+        expect(res.body.data.numbers.registered).toEqual(2);
+        expect(res.body.data.numbers.departed).toEqual(1);
     });
 });
