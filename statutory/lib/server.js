@@ -16,6 +16,7 @@ const votesAmounts = require('./votes_amounts');
 const positions = require('./positions');
 const candidates = require('./candidates');
 const bugsnag = require('./bugsnag');
+const cron = require('./cron');
 
 const GeneralRouter = router({ mergeParams: true });
 const PaxLimitsRouter = router({ mergeParams: true });
@@ -131,6 +132,7 @@ async function startServer() {
             app = localApp;
             log.info('Up and running, listening on http://localhost:%d', config.port);
             await db.authenticate();
+            await cron.registerAllDeadlines();
             return res();
         });
         /* istanbul ignore next */

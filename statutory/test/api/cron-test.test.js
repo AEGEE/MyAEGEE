@@ -22,6 +22,25 @@ describe('Cron testing', () => {
         cron.clearAll();
     });
 
+    describe('on system start', () => {
+        test('should set the open and close deadline on cron.registerAll()', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const position = await generator.createPosition({
+                starts: moment().add(1, 'week').toDate(),
+                ends: moment().add(2, 'week').toDate(),
+            }, event);
+
+            cron.clearAll(); // to clear all of them
+            await cron.registerAllDeadlines();
+
+            expect(cron.getJobs().length).toEqual(2);
+            expect(cron.getJobs()[0].objectId).toEqual(position.id);
+            expect(cron.getJobs()[1].objectId).toEqual(position.id);
+            expect(cron.getJobs().map(job => job.action)).toContain('open');
+            expect(cron.getJobs().map(job => job.action)).toContain('close');
+        });
+    });
+
     describe('for positions creation', () => {
         test('should set the open and close deadline if start and end are in the future', async () => {
             const event = await generator.createEvent({ type: 'agora', applications: [] });
