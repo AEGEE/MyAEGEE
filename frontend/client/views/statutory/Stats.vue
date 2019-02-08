@@ -30,14 +30,14 @@
               <th>Arrived:</th>
               <td>{{ stats.numbers.attended }}</td>
             </tr>
-            <tr>
+            <!--<tr>
               <th>JC registered:</th>
               <td>{{ stats.numbers.registered }}</td>
             </tr>
             <tr>
               <th>Departed:</th>
               <td>{{ stats.numbers.departed }}</td>
-            </tr>
+            </tr>-->
           </tbody>
         </table>
 
