@@ -1,6 +1,6 @@
 const request = require('request-promise-native');
-const { errors } = require('oms-common-nodejs');
 
+const errors = require('./errors');
 const { MembersList, VotesPerAntenna } = require('../models');
 const config = require('../config');
 

@@ -1,9 +1,9 @@
-const { errors } = require('oms-common-nodejs');
 const moment = require('moment');
 const request = require('request-promise-native');
 const crypto = require('crypto');
 const xlsx = require('node-xlsx').default;
 
+const errors = require('./errors');
 const mailer = require('./mailer');
 const config = require('../config');
 const { Application, PaxLimit, VotesPerAntenna, MembersList } = require('../models');

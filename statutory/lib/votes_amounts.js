@@ -1,5 +1,4 @@
-const { errors } = require('oms-common-nodejs');
-
+const errors = require('./errors');
 const { VotesPerAntenna, VotesPerDelegate, Application } = require('../models');
 
 exports.getAllVotesPerAntenna = async (req, res) => {

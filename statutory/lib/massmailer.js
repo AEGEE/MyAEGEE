@@ -1,5 +1,4 @@
-const { errors } = require('oms-common-nodejs');
-
+const errors = require('./errors');
 const mailer = require('./mailer');
 const helpers = require('./helpers');
 const logger = require('./logger');

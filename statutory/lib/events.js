@@ -1,4 +1,4 @@
-const { errors } = require('oms-common-nodejs');
+const errors = require('./errors');
 const { Event } = require('../models');
 
 exports.addEvent = async (req, res) => {
