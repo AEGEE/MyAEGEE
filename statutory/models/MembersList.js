@@ -94,4 +94,17 @@ const MembersList = sequelize.define('memberslist', {
     }
 }, { underscored: true });
 
+MembersList.prototype.hasMember = function hasMember(application) {
+    return this.members.some((member) => {
+        // First, checking if user_id match.
+        if (member.user_id === application.user_id) {
+            return true;
+        }
+
+        // If this fails, check if the first_name and last_name match.
+        return member.first_name.toLowerCase() === application.first_name.toLowerCase()
+            && member.last_name.toLowerCase() === application.last_name.toLowerCase();
+    });
+}
+
 module.exports = MembersList;
