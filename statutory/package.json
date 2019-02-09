@@ -9,7 +9,8 @@
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
     "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
-    "cli": "node --experimental-repl-await -r ./cli.js"
+    "cli": "node --experimental-repl-await -r ./cli.js",
+    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
   },
   "jest": {
     "testEnvironment": "node",
@@ -22,6 +23,11 @@
       "!lib/sequelize.js",
       "!lib/logger.js"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
   },
   "keywords": [],
   "author": "Sergey Peshkov <github.com/serge1peshcoff>",
@@ -55,6 +61,8 @@
     "winston": "^3.1.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^7.5.0",
+    "@commitlint/config-conventional": "^7.5.0",
     "codecov": "^3.1.0",
     "eslint": "^5.10.0",
     "eslint-config-airbnb": "^17.1.0",
@@ -62,6 +70,7 @@
     "eslint-plugin-jsx-a11y": "^6.1.2",
     "eslint-plugin-react": "^7.11.1",
     "faker": "^4.1.0",
+    "husky": "^1.3.1",
     "jest": "^23.6.0",
     "nock": "^10.0.4",
     "nyc": "^13.1.0",
