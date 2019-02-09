@@ -24,8 +24,8 @@ describe('Candidates submission', () => {
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const position = await generator.createPosition({
-            starts: moment().subtract(2, 'week').toDate(),
-            ends: moment().subtract(1, 'week').toDate()
+            starts: moment().add(1, 'week').toDate(),
+            ends: moment().add(2, 'week').toDate()
         }, event);
         const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
 
@@ -42,7 +42,7 @@ describe('Candidates submission', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should return 403 if the applications deadline has passedd', async () => {
+    test('should return 403 if the applications deadline has passed', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
@@ -162,13 +162,40 @@ describe('Candidates submission', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should succeed if everything is okay', async () => {
+    test('should succeed if the application is within the deadline', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const position = await generator.createPosition({
             starts: moment().subtract(1, 'week').toDate(),
             ends: moment().add(1, 'week').toDate()
+        }, event);
+        const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            method: 'POST',
+            body: candidate,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        const positionFromDb = await Position.findByPk(position.id);
+        expect(positionFromDb.status).toEqual('open');
+    });
+
+    test('should succeed if the deadline has passed, but the position does not have enough places', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(2, 'week').toDate(),
+            ends: moment().subtract(1, 'week').toDate(),
+            places: 5
         }, event);
         const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
 

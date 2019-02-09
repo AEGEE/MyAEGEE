@@ -23,8 +23,8 @@ describe('Candidates editing', () => {
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const position = await generator.createPosition({
-            starts: moment().subtract(2, 'week').toDate(),
-            ends: moment().subtract(1, 'week').toDate(),
+            starts: moment().add(1, 'week').toDate(),
+            ends: moment().add(2, 'week').toDate(),
             candidates: [
                 generator.generateCandidate({ user_id: regularUser.id })
             ]

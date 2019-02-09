@@ -186,7 +186,7 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
 };
 
 exports.getPositionPermissions = ({ permissions, position }) => {
-    permissions.submit_candidature = position.can_apply || permissions.manage_candidates;
+    permissions.submit_candidature = position.status === 'open' || permissions.manage_candidates;
 
     return permissions;
 };
