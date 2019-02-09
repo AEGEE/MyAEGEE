@@ -74,17 +74,18 @@ Position.beforeValidate(async (position, options) => {
         const canApply = moment().isBetween(position.starts, position.ends, null, '[]');
         const applicationsClosed = moment().isAfter(position.ends);
 
+        let candidatesCount = 0;
+
         if (!position.isNewRecord) {
-            const candidates = await Candidate.findAll({
+            candidatesCount = await Candidate.count({
                 where: {
                     position_id: position.id,
                     status: { [Sequelize.Op.ne]: 'rejected' }
                 }
             });
-            position.setDataValue('status', (canApply || (applicationsClosed && candidates.length <= position.places)) ? 'open' : 'closed');
-        } else {
-            position.setDataValue('status', canApply ? 'open' : 'closed');
         }
+
+        position.setDataValue('status', (canApply || (applicationsClosed && candidatesCount <= position.places)) ? 'open' : 'closed');
         options.fields.push('status');
     } else {
         // Else, if it's not set, that means we want to open the application

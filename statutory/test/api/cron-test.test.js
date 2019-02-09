@@ -345,9 +345,12 @@ describe('Cron testing', () => {
         test('should not close the deadline if it\'s closed already', async () => {
             const event = await generator.createEvent({ type: 'agora', applications: [] });
             const position = await generator.createPosition({
-                starts: moment().subtract(2, 'week').toDate(),
-                ends: moment().subtract(1, 'week').toDate(),
+                starts: moment().add(1, 'week').toDate(),
+                ends: moment().add(2, 'week').toDate(),
+                places: 1
             }, event);
+            cron.clearAll();
+
             expect(cron.getJobs().length).toEqual(0);
 
             await cron.registerCloseApplicationDeadline(moment().add(1, 'week').toDate(), position.id);
