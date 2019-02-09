@@ -245,4 +245,126 @@ describe('Applications listing', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.length).toEqual(0);
     });
+
+    describe('displaying if the user is on memberslist', () => {
+        test('should return no if no memberslist', async () => {
+            const event = await generator.createEvent({ applications: [] });
+            const application = await generator.createApplication({}, event);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/all',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+            expect(res.body).toHaveProperty('data');
+
+            expect(res.body.data.length).toEqual(1);
+            expect(res.body.data[0].id).toEqual(application.id);
+            expect(res.body.data[0].is_on_memberslist).toEqual(false);
+        });
+
+        test('should return no if there is memberslist, but it doesnt have user', async () => {
+            const event = await generator.createEvent({ applications: [] });
+            const application = await generator.createApplication({ user_id: 1, first_name: 'first', last_name: 'last' }, event);
+            await generator.createMembersList({
+                members: [
+                    generator.generateMembersListMember({ user_id: 2, first_name: 'other', last_name: 'other' })
+                ]
+            }, event);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/all',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+            expect(res.body).toHaveProperty('data');
+
+            expect(res.body.data.length).toEqual(1);
+            expect(res.body.data[0].id).toEqual(application.id);
+            expect(res.body.data[0].is_on_memberslist).toEqual(false);
+        });
+
+        test('should return yes if there is memberslist and user_id matches', async () => {
+            const event = await generator.createEvent({ applications: [] });
+            const application = await generator.createApplication({ user_id: 1, first_name: 'first', last_name: 'last' }, event);
+            await generator.createMembersList({
+                members: [
+                    generator.generateMembersListMember({ user_id: 1, first_name: 'other', last_name: 'other' })
+                ]
+            }, event);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/all',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+            expect(res.body).toHaveProperty('data');
+
+            expect(res.body.data.length).toEqual(1);
+            expect(res.body.data[0].id).toEqual(application.id);
+            expect(res.body.data[0].is_on_memberslist).toEqual(true);
+        });
+
+        test('should return yes if there is memberslist and first_name and last_name match case-sensitive', async () => {
+            const event = await generator.createEvent({ applications: [] });
+            const application = await generator.createApplication({ user_id: 1, first_name: 'first', last_name: 'last' }, event);
+            await generator.createMembersList({
+                members: [
+                    generator.generateMembersListMember({ user_id: 2, first_name: 'first', last_name: 'last' })
+                ]
+            }, event);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/all',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+            expect(res.body).toHaveProperty('data');
+
+            expect(res.body.data.length).toEqual(1);
+            expect(res.body.data[0].id).toEqual(application.id);
+            expect(res.body.data[0].is_on_memberslist).toEqual(true);
+        });
+
+        test('should return yes if there is memberslist and first_name and last_name match case-insensitive', async () => {
+            const event = await generator.createEvent({ applications: [] });
+            const application = await generator.createApplication({ user_id: 1, first_name: 'first', last_name: 'last' }, event);
+            await generator.createMembersList({
+                members: [
+                    generator.generateMembersListMember({ user_id: 2, first_name: 'FIRST', last_name: 'LAST' })
+                ]
+            }, event);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/all',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+            expect(res.body).toHaveProperty('data');
+
+            expect(res.body.data.length).toEqual(1);
+            expect(res.body.data[0].id).toEqual(application.id);
+            expect(res.body.data[0].is_on_memberslist).toEqual(true);
+        });
+    })
 });
