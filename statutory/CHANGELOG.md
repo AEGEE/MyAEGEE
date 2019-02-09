@@ -1,4 +1,13 @@
-## 0.4.3 (2019-02-09)
+# [0.5.0](https://github.com/AEGEE/oms-statutory/compare/0.4.3...0.5.0) (2019-02-09)
+
+
+### Features
+
+* **memberslists:** display if the user is on memberslist ([0e6805b](https://github.com/AEGEE/oms-statutory/commit/0e6805b))
+
+
+
+## [0.4.3](https://github.com/AEGEE/oms-statutory/compare/be680b8...0.4.3) (2019-02-09)
 
 
 ### Bug Fixes
