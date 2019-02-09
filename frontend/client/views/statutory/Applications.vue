@@ -60,6 +60,12 @@
               {{ props.row.body_name }}
             </b-table-column>
 
+            <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable>
+              <span :class="calculateClassForMemberslist(props.row)">
+                {{ props.row.is_on_memberslist | beautify }}
+              </span>
+            </b-table-column>
+
             <b-table-column v-for="(field, index) in fields" :visible="selectedFields.some(sField => sField.name === field.name)" v-bind:key="index" field="answers[index]" :label="field.name">
               {{ field.get(props.row) | beautify }}
             </b-table-column>
@@ -185,6 +191,9 @@ export default {
         default:
           return ''
       }
+    },
+    calculateClassForMemberslist (pax) {
+      return ['tag', 'is-small', pax.is_on_memberslist ? 'is-primary' : 'is-danger']
     },
     switchPaxStatus (pax) {
       pax.isSaving = true
