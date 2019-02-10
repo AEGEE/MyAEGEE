@@ -88,6 +88,6 @@ describe('Events listing', () => {
 
         expect(res.body.data.length).toEqual(2);
         expect(res.body.data[0].id).toEqual(second.id);
-        expect(res.body.data[1].id).toEqual(first.id)
+        expect(res.body.data[1].id).toEqual(first.id);
     });
 });

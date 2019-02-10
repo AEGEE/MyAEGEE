@@ -366,5 +366,5 @@ describe('Applications listing', () => {
             expect(res.body.data[0].id).toEqual(application.id);
             expect(res.body.data[0].is_on_memberslist).toEqual(true);
         });
-    })
+    });
 });

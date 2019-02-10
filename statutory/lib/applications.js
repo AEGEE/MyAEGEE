@@ -20,11 +20,11 @@ exports.listAllApplications = async (req, res) => {
 
     const applications = req.event.applications
         .map(application => application.toJSON())
-        .map(application => {
+        .map((application) => {
             application.is_on_memberslist = memberslists.some(memberslist => memberslist.hasMember(application));
 
             return application;
-        })
+        });
 
     return res.json({
         success: true,

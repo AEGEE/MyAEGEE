@@ -36,7 +36,7 @@ exports.registerAllDeadlines = async () => {
         exports.registerOpenApplicationDeadline(position.starts, position.id);
         exports.registerCloseApplicationDeadline(position.ends, position.id);
     }
-}
+};
 
 exports.registerOpenApplicationDeadline = (time, id) => {
     if (moment().isAfter(time)) {
