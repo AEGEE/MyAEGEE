@@ -1,3 +1,17 @@
+## [0.5.3](https://github.com/AEGEE/oms-statutory/compare/0.5.2...0.5.3) (2019-02-10)
+
+
+### Bug Fixes
+
+* **application:** display proper message on unique error for board ([d6e5296](https://github.com/AEGEE/oms-statutory/commit/d6e5296))
+* **application:** row validation for visa fields. Required for MEMB-454 ([11a1f52](https://github.com/AEGEE/oms-statutory/commit/11a1f52))
+* **board:** removed validation for uniqueness of userid ([38a7085](https://github.com/AEGEE/oms-statutory/commit/38a7085))
+* **board:** row validations for pax type/order ([2def47a](https://github.com/AEGEE/oms-statutory/commit/2def47a))
+* **candidates:** removed uniqueness validation ([b3f152d](https://github.com/AEGEE/oms-statutory/commit/b3f152d))
+* **errors:** refactor errors to get more code coverage ([a1b3f5f](https://github.com/AEGEE/oms-statutory/commit/a1b3f5f))
+
+
+
 ## [0.5.2](https://github.com/AEGEE/oms-statutory/compare/0.5.1...0.5.2) (2019-02-10)
 
 
