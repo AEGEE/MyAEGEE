@@ -7,12 +7,6 @@ function isBoolean(val) {
     }
 }
 
-function shouldBeSetIfVisaRequired(val) {
-    if (this.visa_required && (typeof val !== 'string' || val.trim().length === 0)) {
-        throw new Error('Please fill in this field.');
-    }
-}
-
 const Application = sequelize.define('application', {
     user_id: {
         allowNull: false,
@@ -295,84 +289,44 @@ const Application = sequelize.define('application', {
         }
     },
     visa_place_of_birth: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_passport_number: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_passport_issue_date: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_passport_expiration_date: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_passport_issue_authority: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_embassy: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_street_and_house: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_postal_code: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_city: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_country: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     date_of_birth: {
         allowNull: false,
@@ -404,6 +358,41 @@ const Application = sequelize.define('application', {
         allowNull: true,
         type: Sequelize.TEXT
     }
-}, { underscored: true });
+}, {
+    underscored: true,
+    validate: {
+        visaFieldsFilledIn() {
+            if (!this.visa_required) {
+                return;
+            }
+            const visaFields = [
+                'visa_place_of_birth',
+                'visa_passport_number',
+                'visa_passport_issue_date',
+                'visa_passport_expiration_date',
+                'visa_passport_issue_authority',
+                'visa_embassy',
+                'visa_street_and_house',
+                'visa_postal_code',
+                'visa_city',
+                'visa_country'
+            ];
+
+            for (const field of visaFields) {
+                if (this[field] === null || typeof this[field] === 'undefined') {
+                    throw new Error(`Visa is required, but ${field} is not set.`);
+                }
+
+                if (typeof this[field] !== 'string') {
+                    throw new Error(`Visa is required, but ${field} is not a string.`);
+                }
+
+                if (this[field].trim().length === 0) {
+                    throw new Error(`Visa is required, but ${field} is empty.`);
+                }
+            }
+        }
+    }
+});
 
 module.exports = Application;
