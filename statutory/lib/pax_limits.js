@@ -1,6 +1,6 @@
-const { errors } = require('oms-common-nodejs');
 const request = require('request-promise-native');
 
+const errors = require('./errors');
 const { PaxLimit } = require('../models');
 const config = require('../config');
 

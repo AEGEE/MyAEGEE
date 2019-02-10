@@ -1,9 +1,9 @@
-const { errors } = require('oms-common-nodejs');
 const moment = require('moment');
 const request = require('request-promise-native');
 const crypto = require('crypto');
 const xlsx = require('node-xlsx').default;
 
+const errors = require('./errors');
 const mailer = require('./mailer');
 const config = require('../config');
 const { Application, PaxLimit, VotesPerAntenna, MembersList } = require('../models');
@@ -20,11 +20,11 @@ exports.listAllApplications = async (req, res) => {
 
     const applications = req.event.applications
         .map(application => application.toJSON())
-        .map(application => {
+        .map((application) => {
             application.is_on_memberslist = memberslists.some(memberslist => memberslist.hasMember(application));
 
             return application;
-        })
+        });
 
     return res.json({
         success: true,

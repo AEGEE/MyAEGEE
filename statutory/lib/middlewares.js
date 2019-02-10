@@ -1,6 +1,6 @@
 const request = require('request-promise-native');
-const { errors, communication } = require('oms-common-nodejs');
 
+const errors = require('./errors');
 const config = require('../config');
 const helpers = require('./helpers');
 const logger = require('./logger');
@@ -16,14 +16,14 @@ exports.authenticateUser = async (req, res, next) => {
     }
 
     try {
-        // Get the request headers to send an auth token
-        const headers = await communication.getRequestHeaders(req);
-
         // Query the core for user and permissions.
         const [userBody, permissionsBody] = await Promise.all(['members/me', 'my_permissions'].map(endpoint => request({
             url: config.core.url + ':' + config.core.port + '/' + endpoint,
             method: 'GET',
-            headers,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-Auth-Token': req.headers['x-auth-token'],
+            },
             simple: false,
             json: true,
         })));
@@ -106,14 +106,15 @@ function fetchEvent(includeApplications) {
             return errors.makeNotFoundError(res, 'Event with such url or ID is not found.');
         }
 
-        const headers = await communication.getRequestHeaders(req);
-
         // Fetching permissions for members approval, the list of bodies
         // where do you have the 'approve_members:<event_type>' permission for it.
         const approveRequest = await request({
             url: config.core.url + ':' + config.core.port + '/my_permissions',
             method: 'POST',
-            headers,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-Auth-Token': req.headers['x-auth-token'],
+            },
             simple: false,
             json: true,
             body: {

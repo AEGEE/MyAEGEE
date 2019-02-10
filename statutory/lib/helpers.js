@@ -33,8 +33,8 @@ exports.countByField = (array, key) => {
             acc.push({ type: val[key], value: 1 });
         }
         return acc;
-    }, [])
-}
+    }, []);
+};
 
 // A helper to flatten the nested object. Copypasted from Google.
 exports.flattenObject = (obj, prefix = '') => {

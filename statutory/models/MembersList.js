@@ -105,6 +105,6 @@ MembersList.prototype.hasMember = function hasMember(application) {
         return member.first_name.toLowerCase() === application.first_name.toLowerCase()
             && member.last_name.toLowerCase() === application.last_name.toLowerCase();
     });
-}
+};
 
 module.exports = MembersList;
