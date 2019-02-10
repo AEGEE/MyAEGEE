@@ -208,7 +208,6 @@ describe('Applications pax type/board comment', () => {
             body: { participant_type: 'delegate', participant_order: 1 }
         });
 
-
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('errors');
