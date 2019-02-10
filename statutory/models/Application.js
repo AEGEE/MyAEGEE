@@ -13,21 +13,8 @@ const Application = sequelize.define('application', {
         type: Sequelize.INTEGER,
         defaultValue: '',
         validate: {
-            async isValid(value) {
-                if (typeof value !== 'number') {
-                    throw new Error('User ID must be a number.');
-                }
-
-                const application = await Application.findOne({ where: {
-                    event_id: this.event_id,
-                    user_id: this.user_id
-                } });
-
-                if (application) {
-                    throw new Error('The application for this event from this user already exists.');
-                }
-            }
-        },
+            isInt: { msg: 'User ID should be a number.' }
+        }
     },
     body_id: {
         allowNull: false,

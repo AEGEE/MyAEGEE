@@ -579,7 +579,7 @@ describe('Applications creation', () => {
         }, event);
 
         expect.assertions(1);
-        await expect(applicationPromise).rejects.toThrowError('Validation error: User ID must be a number.');
+        await expect(applicationPromise).rejects.toThrowError();
     });
 
     const requiredFields = [
