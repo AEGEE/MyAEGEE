@@ -1,4 +1,4 @@
-exports.makeError = (res, statusCode, err, message) => {
+exports.makeError = (res, statusCode, err) => {
     // 4 cases:
     // 1) 'err' is a string
     // 2) 'err' is a SequelizeValidationError
@@ -12,8 +12,6 @@ exports.makeError = (res, statusCode, err, message) => {
             message: err
         });
     }
-
-    const msgText = message ? message + ' ' + err.message : err.message;
 
     // If the error is SequelizeValidationError or SequelizeUniqueConstraintError, pass the errors details to the user.
     if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
@@ -34,13 +32,13 @@ exports.makeError = (res, statusCode, err, message) => {
     // Otherwise, just pass the error message.
     return res.status(statusCode).json({
         success: false,
-        message: msgText
+        message: err.message
     });
 };
 
-exports.makeUnauthorizedError = (res, err, message) => exports.makeError(res, 401, err, message);
-exports.makeValidationError = (res, err, message) => exports.makeError(res, 422, err, message);
-exports.makeForbiddenError = (res, err, message) => exports.makeError(res, 403, err, message);
-exports.makeNotFoundError = (res, err, message) => exports.makeError(res, 404, err, message);
-exports.makeInternalError = (res, err, message) => exports.makeError(res, 500, err, message);
-exports.makeBadRequestError = (res, err, message) => exports.makeError(res, 400, err, message);
+exports.makeUnauthorizedError = (res, err) => exports.makeError(res, 401, err);
+exports.makeValidationError = (res, err) => exports.makeError(res, 422, err);
+exports.makeForbiddenError = (res, err) => exports.makeError(res, 403, err);
+exports.makeNotFoundError = (res, err) => exports.makeError(res, 404, err);
+exports.makeInternalError = (res, err) => exports.makeError(res, 500, err);
+exports.makeBadRequestError = (res, err) => exports.makeError(res, 400, err);
