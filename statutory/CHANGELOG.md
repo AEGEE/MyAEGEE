@@ -1,3 +1,7 @@
+## [0.5.1](https://github.com/AEGEE/oms-statutory/compare/0.5.0...0.5.1) (2019-02-10)
+
+
+
 # [0.5.0](https://github.com/AEGEE/oms-statutory/compare/0.4.3...0.5.0) (2019-02-09)
 
 
