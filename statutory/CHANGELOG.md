@@ -1,3 +1,12 @@
+## [0.5.2](https://github.com/AEGEE/oms-statutory/compare/0.5.1...0.5.2) (2019-02-10)
+
+
+### Bug Fixes
+
+* **general:** forgot to put the errors file into staging ([e86d287](https://github.com/AEGEE/oms-statutory/commit/e86d287))
+
+
+
 ## [0.5.1](https://github.com/AEGEE/oms-statutory/compare/0.5.0...0.5.1) (2019-02-10)
 
 
