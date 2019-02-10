@@ -14,7 +14,8 @@ const Application = sequelize.define('application', {
         defaultValue: '',
         validate: {
             isInt: { msg: 'User ID should be a number.' }
-        }
+        },
+        unique: { args: true, msg: 'There\'s already an application with such user ID for this event.' }
     },
     body_id: {
         allowNull: false,
@@ -99,6 +100,10 @@ const Application = sequelize.define('application', {
                 args: [['delegate', 'observer', 'envoy', 'visitor']],
                 msg: 'Participant type should be one of these: "delegate", "observer", "envoy", "visitor".'
             }
+        },
+        unique: {
+            args: true,
+            msg: 'There\'s already an application with such participant type and order for this event.'
         }
     },
     participant_order: {
@@ -107,6 +112,10 @@ const Application = sequelize.define('application', {
         validate: {
             isInt: { msg: 'Participant order should be valid.' },
             min: { args: [1], msg: 'Participant order cannot be negative' }
+        },
+        unique: {
+            args: true,
+            msg: 'There\'s already an application with such participant type and order for this event.'
         }
     },
     status: {
