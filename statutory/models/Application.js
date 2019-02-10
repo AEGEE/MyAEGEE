@@ -7,33 +7,15 @@ function isBoolean(val) {
     }
 }
 
-function shouldBeSetIfVisaRequired(val) {
-    if (this.visa_required && (typeof val !== 'string' || val.trim().length === 0)) {
-        throw new Error('Please fill in this field.');
-    }
-}
-
 const Application = sequelize.define('application', {
     user_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
         defaultValue: '',
         validate: {
-            async isValid(value) {
-                if (typeof value !== 'number') {
-                    throw new Error('User ID must be a number.');
-                }
-
-                const application = await Application.findOne({ where: {
-                    event_id: this.event_id,
-                    user_id: this.user_id
-                } });
-
-                if (application) {
-                    throw new Error('The application for this event from this user already exists.');
-                }
-            }
+            isInt: { msg: 'User ID should be a number.' }
         },
+        unique: { args: true, msg: 'There\'s already an application with such user ID for this event.' }
     },
     body_id: {
         allowNull: false,
@@ -111,58 +93,29 @@ const Application = sequelize.define('application', {
         }
     },
     participant_type: {
+        allowNull: true,
         type: Sequelize.ENUM('delegate', 'observer', 'envoy', 'visitor'),
-        defaultValue: null,
         validate: {
-            isValid(value) {
-                const possibleValies = ['delegate', 'observer', 'envoy', 'visitor'];
-
-                // pax type is either null or one of the possible values.
-                if (value !== null && !possibleValies.includes(value)) {
-                    return new Error('Participant type should be either null or one of these: "delegate", "observer", "envoy", "visitor".');
-                }
-
-                // also, pax type should be set up together with pax order.
-                if (value !== null && this.participant_order === null) {
-                    throw new Error('Participant type is set, but participant order is not.');
-                }
+            isIn: {
+                args: [['delegate', 'observer', 'envoy', 'visitor']],
+                msg: 'Participant type should be one of these: "delegate", "observer", "envoy", "visitor".'
             }
+        },
+        unique: {
+            args: true,
+            msg: 'There\'s already an application with such participant type and order for this event.'
         }
     },
     participant_order: {
+        allowNull: true,
         type: Sequelize.INTEGER,
-        defaultValue: null,
         validate: {
-            async isValid(value) {
-                // Should be either string or null.
-                if (value !== null && typeof value !== 'number') {
-                    throw new Error('Participant order should be either null or string.');
-                }
-
-                // This number should be positive.
-                if (typeof value === 'number' && value <= 0) {
-                    throw new Error('Participant order should be positive.');
-                }
-
-                // Also, pax order should be set up together with pax (either both of them or none).
-                if (value !== null && this.participant_type === null) {
-                    throw new Error('Participant order is set, but participant type is not.');
-                }
-
-                // Check if there's already the application with the same event_id, body_id, type and order.
-                if (value !== null) {
-                    const application = await Application.findOne({ where: {
-                        event_id: this.event_id,
-                        body_id: this.body_id,
-                        participant_type: this.participant_type,
-                        participant_order: value
-                    } });
-
-                    if (application) {
-                        throw new Error('The application for this event from this body with this participant type and order already exists.');
-                    }
-                }
-            }
+            isInt: { msg: 'Participant order should be valid.' },
+            min: { args: [1], msg: 'Participant order cannot be negative' }
+        },
+        unique: {
+            args: true,
+            msg: 'There\'s already an application with such participant type and order for this event.'
         }
     },
     status: {
@@ -295,84 +248,44 @@ const Application = sequelize.define('application', {
         }
     },
     visa_place_of_birth: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_passport_number: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_passport_issue_date: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_passport_expiration_date: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_passport_issue_authority: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_embassy: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_street_and_house: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_postal_code: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_city: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     visa_country: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            shouldBeSetIfVisaRequired
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     date_of_birth: {
         allowNull: false,
@@ -404,6 +317,50 @@ const Application = sequelize.define('application', {
         allowNull: true,
         type: Sequelize.TEXT
     }
-}, { underscored: true });
+}, {
+    underscored: true,
+    validate: {
+        visaFieldsFilledIn() {
+            if (!this.visa_required) {
+                return;
+            }
+            const visaFields = [
+                'visa_place_of_birth',
+                'visa_passport_number',
+                'visa_passport_issue_date',
+                'visa_passport_expiration_date',
+                'visa_passport_issue_authority',
+                'visa_embassy',
+                'visa_street_and_house',
+                'visa_postal_code',
+                'visa_city',
+                'visa_country'
+            ];
+
+            for (const field of visaFields) {
+                if (this[field] === null || typeof this[field] === 'undefined') {
+                    throw new Error(`Visa is required, but ${field} is not set.`);
+                }
+
+                if (typeof this[field] !== 'string') {
+                    throw new Error(`Visa is required, but ${field} is not a string.`);
+                }
+
+                if (this[field].trim().length === 0) {
+                    throw new Error(`Visa is required, but ${field} is empty.`);
+                }
+            }
+        },
+        async participantTypeShouldBeSetWithOrder() {
+            if (this.participant_type !== null && this.participant_order === null) {
+                throw new Error('Participant type is set, but participant order is not.');
+            }
+
+            if (this.participant_order !== null && this.participant_type === null) {
+                throw new Error('Participant order is set, but participant type is not.');
+            }
+        }
+    }
+});
 
 module.exports = Application;

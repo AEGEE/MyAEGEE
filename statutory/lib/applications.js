@@ -444,7 +444,7 @@ got participant type ${dbResult.participant_order}`);
         // Here we go only when the transaction has failed and rolled back.
 
         // If validation error, throw it further so general error handler can handle it.
-        if (err.name && err.name === 'SequelizeValidationError') {
+        if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
             throw err;
         }
 

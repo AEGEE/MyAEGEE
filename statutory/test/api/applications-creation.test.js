@@ -579,7 +579,7 @@ describe('Applications creation', () => {
         }, event);
 
         expect.assertions(1);
-        await expect(applicationPromise).rejects.toThrowError('Validation error: User ID must be a number.');
+        await expect(applicationPromise).rejects.toThrowError();
     });
 
     const requiredFields = [
@@ -756,7 +756,69 @@ describe('Applications creation', () => {
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('errors');
             expect(res.body).not.toHaveProperty('data');
-            expect(res.body.errors).toHaveProperty(visaField);
+            expect(res.body.errors).toHaveProperty('visaFieldsFilledIn');
+        });
+
+        test(`should return 422 if visa is required, but ${visaField} is null`, async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({
+                questions: [generator.generateQuestion({ type: 'checkbox' })],
+                applications: []
+            });
+            const application = generator.generateApplication({
+                body_id: regularUser.bodies[0].id,
+                answers: [true]
+            });
+            application[visaField] = null;
+
+            tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: application
+            });
+
+            tk.reset();
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('errors');
+            expect(res.body).not.toHaveProperty('data');
+            expect(res.body.errors).toHaveProperty('visaFieldsFilledIn');
+        });
+
+        test(`should return 422 if visa is required, but ${visaField} is not a string`, async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({
+                questions: [generator.generateQuestion({ type: 'checkbox' })],
+                applications: []
+            });
+            const application = generator.generateApplication({
+                body_id: regularUser.bodies[0].id,
+                answers: [true]
+            });
+            application[visaField] = false;
+
+            tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: application
+            });
+
+            tk.reset();
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('errors');
+            expect(res.body).not.toHaveProperty('data');
+            expect(res.body.errors).toHaveProperty('visaFieldsFilledIn');
         });
 
         test(`should return 422 if visa is required, but ${visaField} is empty`, async () => {
@@ -787,7 +849,7 @@ describe('Applications creation', () => {
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('errors');
             expect(res.body).not.toHaveProperty('data');
-            expect(res.body.errors).toHaveProperty(visaField);
+            expect(res.body.errors).toHaveProperty('visaFieldsFilledIn');
         });
     }
 
