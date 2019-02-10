@@ -538,6 +538,36 @@ describe('Applications creation', () => {
         expect(res.body).toHaveProperty('data');
     });
 
+    test('should return 422 if the checkbox answer is false', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            questions: [generator.generateQuestion({ type: 'checkbox' })],
+            applications: []
+        });
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id,
+            answers: [false]
+        });
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body.errors).toHaveProperty('answers');
+    });
+
     test('should return 200 if the select answer is in values', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
