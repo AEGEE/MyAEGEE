@@ -91,7 +91,7 @@ describe('Export all', () => {
             departed: true,
             registered: true,
             cancelled: false,
-            answers: [false, 'string']
+            answers: [true, 'string']
         }, event);
 
         const res = await request({

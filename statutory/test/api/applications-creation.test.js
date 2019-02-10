@@ -542,7 +542,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'checkbox' })],
+            questions: [generator.generateQuestion({ type: 'checkbox', required: true })],
             applications: []
         });
         const application = generator.generateApplication({
@@ -568,11 +568,11 @@ describe('Applications creation', () => {
         expect(res.body.errors).toHaveProperty('answers');
     });
 
-    test('should return 200 if the select answer is in values', async () => {
+    test('should return 200 if the answer is valid boolean', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'checkbox' })],
+            questions: [generator.generateQuestion({ type: 'checkbox', required: false })],
             applications: []
         });
         const application = generator.generateApplication({
