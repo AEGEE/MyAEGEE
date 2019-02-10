@@ -34,7 +34,7 @@ exports.authenticateUser = async (req, res, next) => {
 
         if (!userBody.success) {
             // We are not authenticated
-            return errors.makeError(res, 401, 'Error fetching user: user is not authenticated.');
+            return errors.makeUnauthorizedError(res, 'Error fetching user: user is not authenticated.');
         }
 
         if (typeof permissionsBody !== 'object') {
@@ -43,7 +43,7 @@ exports.authenticateUser = async (req, res, next) => {
 
         if (!permissionsBody.success) {
             // We are not authenticated
-            return errors.makeError(res, 401, 'Error fetching permissions: user is not authenticated.');
+            return errors.makeUnauthorizedError(res, 'Error fetching permissions: user is not authenticated.');
         }
 
         req.user = userBody.data;
@@ -194,7 +194,7 @@ exports.errorHandler = (err, req, res, next) => {
     }
 
     // Handling validation errors
-    if (err.name && err.name === 'SequelizeValidationError') {
+    if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
         return errors.makeValidationError(res, err);
     }
 
