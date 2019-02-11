@@ -224,7 +224,12 @@ export default {
       return Object.keys(this.selectedFields).filter(key => this.selectedFields[key])
     },
     filterApplications () {
-      return Object.keys(this.filter).filter(key => this.filter[key] !== null)
+      const filter = {}
+
+      if (this.filter.status !== null) filter.status = this.filter.status
+      if (this.filter.paid_fee !== null) filter.paid_fee = this.filter.paid_fee
+
+      return filter
     }
   },
   mounted () {
