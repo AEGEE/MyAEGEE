@@ -11,7 +11,13 @@
     "lint": "node_modules/.bin/eslint .",
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
-    "db:migrate": "sequelize db:migrate"
+    "db:migrate": "sequelize db:migrate",
+    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
   },
   "jest": {
     "testEnvironment": "node",
@@ -59,15 +65,18 @@
     "winston": "^3.0.0-rc5"
   },
   "devDependencies": {
+    "@commitlint/config-conventional": "^7.5.0",
     "chai": "^3.5.0",
     "chai-http": "^4.0.0",
     "codecov": "^3.0.0",
+    "commitlint": "^7.5.1",
     "eslint": "^3.17.0",
     "eslint-config-airbnb": "^13.0.0",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "2.2.3",
     "eslint-plugin-mocha": "^5.2.1",
     "eslint-plugin-react": "^6.10.0",
+    "husky": "^1.3.1",
     "mocha-lcov-reporter": "^1.3.0",
     "nock": "^9.1.0",
     "nyc": "^11.8.0",
