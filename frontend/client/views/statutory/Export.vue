@@ -21,38 +21,39 @@
           <hr />
         </div>
 
-        <div v-if="can.export.incoming && !can.export.all">
-          <div class="field" v-for="(field, key) in selectedIncomingFields" v-bind:key="key">
-            <label class="checkbox">
-              <input type="checkbox" v-model="selectedIncomingFields[key]">
-              {{ incomingFields[key] }}
-            </label>
-          </div>
+        <div>
+          <div v-if="!can.export.all">
+            <div class="field" v-for="(field, key) in incomingFields" v-bind:key="key">
+              <label class="checkbox">
+                <input type="checkbox" v-model="selectedFields[key]">
+                {{ incomingFields[key] }}
+              </label>
+            </div>
 
-          <div class="field">
-            <div class="control">
-              <button @click="exportIncoming()" class="button is-primary">
-                Export incoming info
-              </button>
+            <div class="field">
+              <div class="control">
+                <button @click="exportAll('incoming')" class="button is-primary">
+                  Export incoming info
+                </button>
+              </div>
             </div>
           </div>
 
-          <hr />
-        </div>
+          <div v-if="can.export.all">
+            <div class="field" v-for="(field, key) in fields" v-bind:key="key">
+              <label class="checkbox">
+                <input type="checkbox" v-model="selectedFields[key]">
+                {{ fields[key] }}
+              </label>
+            </div>
 
-        <div v-if="can.export.all">
-          <div class="field" v-for="(field, key) in selectedFields" v-bind:key="key">
-            <label class="checkbox">
-              <input type="checkbox" v-model="selectedFields[key]">
-              {{ fields[key] }}
-            </label>
-          </div>
 
-          <div class="field">
-            <div class="control">
-              <button @click="exportAll()" class="button is-primary">
-                Export participants data
-              </button>
+            <div class="field">
+              <div class="control">
+                <button @click="exportAll('all')" class="button is-primary">
+                  Export participants data
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -106,7 +107,6 @@ export default {
         meals: 'Meals',
         allergies: 'Allergies'
       },
-      selectedIncomingFields: {},
       incomingFields: {
         id: 'ID',
         user_id: 'User ID',
@@ -174,25 +174,9 @@ export default {
         link.click()
       })
     },
-    exportAll () {
+    exportAll (prefix) {
       const keys = this.filterKeys()
-      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/export/all', {
-        responseType: 'blob',
-        params: {
-          select: keys
-        }
-      }).then(response => {
-        const url = window.URL.createObjectURL(new Blob([response.data]))
-        const link = document.createElement('a')
-        link.href = url
-        link.setAttribute('download', 'participants.xlsx')
-        document.body.appendChild(link)
-        link.click()
-      })
-    },
-    exportIncoming () {
-      const keys = this.filterIncomingKeys()
-      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/export/incoming', {
+      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/export/' + prefix, {
         responseType: 'blob',
         params: {
           select: keys
@@ -208,21 +192,9 @@ export default {
     },
     filterKeys () {
       return Object.keys(this.selectedFields).filter(key => this.selectedFields[key])
-    },
-    filterIncomingKeys () {
-      return Object.keys(this.selectedIncomingFields).filter(key => this.selectedIncomingFields[key])
     }
   },
   mounted () {
-    // To not copypaste stuff.
-    // Selecting all answers by default.
-    for (const field in this.fields) {
-      this.$set(this.selectedFields, field, true)
-    }
-    for (const field in this.incomingFields) {
-      this.$set(this.selectedIncomingFields, field, true)
-    }
-
     this.isLoading = true
 
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
@@ -231,9 +203,16 @@ export default {
 
       this.isLoading = false
 
+      // To not copypaste stuff.
+      // Selecting all answers by default.
+      for (const field in this.fields) {
+        const isIncomingField = (field in this.incomingFields)
+        this.$set(this.selectedFields, field, this.can.export.all || isIncomingField)
+      }
+
       for (let index = 0; index < this.event.questions.length; index++) {
         this.$set(this.fields, 'answers.' + index, `Answer ${index + 1}: ${this.event.questions[index].description}`)
-        this.$set(this.selectedFields, 'answers.' + index, true)
+        this.$set(this.selectedFields, 'answers.' + index, this.can.export.all) // answers are only available to export.all
       }
     }).catch((err) => {
       this.isLoading = false
