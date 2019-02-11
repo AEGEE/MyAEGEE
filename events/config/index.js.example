@@ -1,54 +1,39 @@
 const deepAssign = require('deep-assign');
-const fs = require('fs');
-
-let mailerUsername;
-let mailerPassword;
-
-try {
-    mailerUsername = fs.readFileSync('/run/secrets/mail_user', 'utf-8');
-} catch (err) {
-    mailerUsername = '';
-}
-try {
-    mailerPassword = fs.readFileSync('/run/secrets/mail_password', 'utf-8');
-} catch (err) {
-    mailerPassword = '';
-}
 
 const config = {
-  default: {
-    port: 8084,
-    postgres: {
-      host: process.env.DB_HOST || 'postgres-oms-events',
-      port: parseInt(process.env.DB_PORT, 10) || 5432,
-      username: process.env.USERNAME || 'postgres',
-      password: process.env.PASSWORD || 'postgres',
-      database: process.env.DB_DATABASE || 'events'
+    default: {
+        port: 8084,
+        postgres: {
+            host: process.env.DB_HOST || 'postgres-oms-events',
+            port: parseInt(process.env.DB_PORT, 10) || 5432,
+            username: process.env.USERNAME || 'postgres',
+            password: process.env.PASSWORD || 'postgres',
+            database: process.env.DB_DATABASE || 'events'
+        },
+        core: {
+            url: 'http://oms-core-elixir',
+            port: 4000
+        },
+        mailer: {
+            url: 'http://oms-mailer',
+            port: 4000
+        },
+        bugsnagKey: process.env.BUGSNAG_KEY || '',
+        media_dir: '/usr/app/media',
+        media_url: '/frontend/media',
     },
-    core: {
-        url: 'http://oms-core-elixir',
-        port: 4000
+    development: {
+
     },
-    mailer: {
-        url: 'http://oms-mailer',
-        port: 4000
-    },
-    bugsnagKey: process.env.BUGSNAG_KEY || '',
-    media_dir: '/usr/app/media',
-    media_url: '/frontend/media',
-  },
-  development: {
-    
-  },
-  test: {
-    port: 8085,
-    postgres: {
-      host: 'localhost',
-      database: 'statutory-testing'
-    },
-    bugsnagKey: 'CHANGEME',
-    media_dir: './tmp_upload'
-  }
+    test: {
+        port: 8085,
+        postgres: {
+            host: 'localhost',
+            database: 'statutory-testing'
+        },
+        bugsnagKey: 'CHANGEME',
+        media_dir: './tmp_upload'
+    }
 };
 
 

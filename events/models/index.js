@@ -5,6 +5,6 @@ Event.hasMany(Application);
 Application.belongsTo(Event);
 
 module.exports = {
-  Event,
-  Application
+    Event,
+    Application
 };

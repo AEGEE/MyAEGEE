@@ -3,234 +3,234 @@ const moment = require('moment');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 
 const Event = sequelize.define('event', {
-  name: {
-    type: Sequelize.STRING,
-    allowNull: false,
-    defaultValue: '',
-    validate: {
-      notEmpty: { msg: 'Event name should be set.' },
-    }
-  },
-  url: {
-    type: Sequelize.STRING,
-    allowNull: true,
-    unique: true
-  },
-  image: {
-    type: Sequelize.STRING,
-    allowNull: true
-  },
-  description: {
-    type: Sequelize.TEXT,
-    allowNull: false,
-    defaultValue: '',
-    validate: {
-      notEmpty: { msg: 'Event description should be set.' },
-    }
-  },
-  application_starts: {
-    type: Sequelize.DATE,
-    allowNull: false,
-    defaultValue: '',
-    validate: {
-      notEmpty: { msg: 'Event application starts date should be set.' },
-      isDate: { msg: 'Event application starts date should be set.' }
-    }
-  },
-  application_ends: {
-    type: Sequelize.DATE,
-    allowNull: false,
-    defaultValue: '',
-    validate: {
-      notEmpty: { msg: 'Event application ends date should be set.' },
-      isDate: { msg: 'Event application ends date should be set.' },
-      laterThanApplicationStart(val) {
-        if (moment(val).isSameOrBefore(this.application_starts)) {
-          throw new Error('Application period cannot start after or at the same time it ends.');
+    name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Event name should be set.' },
         }
-      },
-      beforeEventStart(val) {
-        if (moment(val).isSameOrAfter(this.starts)) {
-          throw new Error('Application period cannot end before or at the same time the event starts.');
+    },
+    url: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        unique: true
+    },
+    image: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
+    description: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Event description should be set.' },
         }
-      }
-    }
-  },
-  starts: {
-    type: Sequelize.DATE,
-    allowNull: false,
-    defaultValue: '',
-    validate: {
-      notEmpty: { msg: 'Event start date should be set.' },
-      isDate: { msg: 'Event start date should be valid.' }
-    }
-  },
-  ends: {
-    type: Sequelize.DATE,
-    allowNull: false,
-    defaultValue: '',
-    validate: {
-      notEmpty: { msg: 'Event end date should be set.' },
-      isDate: { msg: 'Event end date should be valid.' },
-      laterThanStart(val) {
-        if (moment(val).isSameOrBefore(this.starts)) {
-          throw new Error('Event cannot start after or at the same time it ends.');
+    },
+    application_starts: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Event application starts date should be set.' },
+            isDate: { msg: 'Event application starts date should be set.' }
         }
-      }
-    }
-  },
-  fee: {
-    type: Sequelize.DECIMAL,
-    allowNull: false,
-    defaultValue: 0,
-    validate: {
-      notEmpty: { msg: 'Event fee should be set.' },
-      isNumeric: { msg: 'Event fee should be valid.' },
-      min: { args: [0], msg: 'Event fee cannot be negative' }
-    }
-  },
-  organizing_bodies: {
-    type: Sequelize.JSONB,
-    allowNull: false,
-    defaultValue: [],
-    validate: {
-      isValid(value) {
-        if (!Array.isArray(value)) {
-          throw new Error('Organizing bodies should be an array.');
+    },
+    application_ends: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Event application ends date should be set.' },
+            isDate: { msg: 'Event application ends date should be set.' },
+            laterThanApplicationStart(val) {
+                if (moment(val).isSameOrBefore(this.application_starts)) {
+                    throw new Error('Application period cannot start after or at the same time it ends.');
+                }
+            },
+            beforeEventStart(val) {
+                if (moment(val).isSameOrAfter(this.starts)) {
+                    throw new Error('Application period cannot end before or at the same time the event starts.');
+                }
+            }
         }
-
-        if (value.length === 0) {
-          throw new Error('At least 1 organizing body should be presented.');
+    },
+    starts: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Event start date should be set.' },
+            isDate: { msg: 'Event start date should be valid.' }
         }
-
-        for (const body of value) {
-          if (typeof body !== 'object' || body === null) {
-            throw new Error('Body is malformed.');
-          }
-
-          if (typeof body.body_id === 'undefined') {
-            throw new Error('body_id should be presented.');
-          }
-
-          if (typeof body.body_id !== 'number') {
-            throw new Error('body_id should be a number.');
-          }
+    },
+    ends: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Event end date should be set.' },
+            isDate: { msg: 'Event end date should be valid.' },
+            laterThanStart(val) {
+                if (moment(val).isSameOrBefore(this.starts)) {
+                    throw new Error('Event cannot start after or at the same time it ends.');
+                }
+            }
         }
-      }
-    }
-  },
-  locations: {
-    type: Sequelize.JSONB,
-    allowNull: false,
-    defaultValue: [],
-    validate: {
-      isValid(value) {
-        if (!Array.isArray(value)) {
-          throw new Error('Locations should be an array.');
+    },
+    fee: {
+        type: Sequelize.DECIMAL,
+        allowNull: false,
+        defaultValue: 0,
+        validate: {
+            notEmpty: { msg: 'Event fee should be set.' },
+            isNumeric: { msg: 'Event fee should be valid.' },
+            min: { args: [0], msg: 'Event fee cannot be negative' }
         }
+    },
+    organizing_bodies: {
+        type: Sequelize.JSONB,
+        allowNull: false,
+        defaultValue: [],
+        validate: {
+            isValid(value) {
+                if (!Array.isArray(value)) {
+                    throw new Error('Organizing bodies should be an array.');
+                }
 
-        for (const position of value) {
-          if (typeof position !== 'object' || position === null) {
-            throw new Error('Position is malformed.');
-          }
+                if (value.length === 0) {
+                    throw new Error('At least 1 organizing body should be presented.');
+                }
 
-          if (!position.name) {
-            throw new Error('Name should be presented.');
-          }
+                for (const body of value) {
+                    if (typeof body !== 'object' || body === null) {
+                        throw new Error('Body is malformed.');
+                    }
 
-          if (typeof position.position !== 'object' || position.position === null) {
-            throw new Error('Position.position is malformed.');
-          }
+                    if (typeof body.body_id === 'undefined') {
+                        throw new Error('body_id should be presented.');
+                    }
 
-          if (!position.position.lat || typeof position.position.lat !== 'number') {
-            throw new Error('Latitude is malformed.');
-          }
-
-          if (!position.position.lng || typeof position.position.lng !== 'number') {
-            throw new Error('Longitude is malformed.');
-          }
+                    if (typeof body.body_id !== 'number') {
+                        throw new Error('body_id should be a number.');
+                    }
+                }
+            }
         }
-      }
-    }
-  },
-  type: {
-    type: Sequelize.ENUM('wu', 'es', 'nwm', 'ltc', 'rtc', 'local', 'other'),
-    allowNull: false,
-    defaultValue: '',
-    validate: {
-      notEmpty: { msg: 'Event type should be set.' },
-      isIn: {
-        args: [['wu', 'es', 'nwm', 'ltc', 'rtc', 'local', 'other']],
-        msg: 'Event type should be one of these: "wu", "es", "nwm", "ltc", "rtc", "local", "other".'
-      }
-    }
-  },
-  status: {
-    type: Sequelize.ENUM('draft', 'requesting', 'published'),
-    allowNull: false,
-    defaultValue: 'draft',
-    validate: {
-        isIn: {
-            args: [['draft', 'requesting', 'published']],
-            msg: 'Event status should be one of these: "draft", "requesting", "published".'
+    },
+    locations: {
+        type: Sequelize.JSONB,
+        allowNull: false,
+        defaultValue: [],
+        validate: {
+            isValid(value) {
+                if (!Array.isArray(value)) {
+                    throw new Error('Locations should be an array.');
+                }
+
+                for (const position of value) {
+                    if (typeof position !== 'object' || position === null) {
+                        throw new Error('Position is malformed.');
+                    }
+
+                    if (!position.name) {
+                        throw new Error('Name should be presented.');
+                    }
+
+                    if (typeof position.position !== 'object' || position.position === null) {
+                        throw new Error('Position.position is malformed.');
+                    }
+
+                    if (!position.position.lat || typeof position.position.lat !== 'number') {
+                        throw new Error('Latitude is malformed.');
+                    }
+
+                    if (!position.position.lng || typeof position.position.lng !== 'number') {
+                        throw new Error('Longitude is malformed.');
+                    }
+                }
+            }
         }
-    }
-},
-  deleted: {
-    type: Sequelize.BOOLEAN,
-    allowNull: false,
-    defaultValue: false
-  },
-  organizers: {
-    type: Sequelize.JSONB,
-    allowNull: false,
-    defaultValue: [],
-    validate: {
-      isValid(value) {
-        if (!Array.isArray(value)) {
-          throw new Error('Organizers should be an array.');
+    },
+    type: {
+        type: Sequelize.ENUM('wu', 'es', 'nwm', 'ltc', 'rtc', 'local', 'other'),
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Event type should be set.' },
+            isIn: {
+                args: [['wu', 'es', 'nwm', 'ltc', 'rtc', 'local', 'other']],
+                msg: 'Event type should be one of these: "wu", "es", "nwm", "ltc", "rtc", "local", "other".'
+            }
         }
-
-        if (value.length === 0) {
-          throw new Error('At least 1 organizer should be presented.');
+    },
+    status: {
+        type: Sequelize.ENUM('draft', 'requesting', 'published'),
+        allowNull: false,
+        defaultValue: 'draft',
+        validate: {
+            isIn: {
+                args: [['draft', 'requesting', 'published']],
+                msg: 'Event status should be one of these: "draft", "requesting", "published".'
+            }
         }
+    },
+    deleted: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+    organizers: {
+        type: Sequelize.JSONB,
+        allowNull: false,
+        defaultValue: [],
+        validate: {
+            isValid(value) {
+                if (!Array.isArray(value)) {
+                    throw new Error('Organizers should be an array.');
+                }
 
-        for (const organizer of value) {
-          if (typeof organizer !== 'object' || organizer === null) {
-            throw new Error('Organizer is malformed.');
-          }
+                if (value.length === 0) {
+                    throw new Error('At least 1 organizer should be presented.');
+                }
 
-          if (!organizer.user_id || typeof organizer.user_id !== 'number') {
-            throw new Error('user_id is malformed.');
-          }
+                for (const organizer of value) {
+                    if (typeof organizer !== 'object' || organizer === null) {
+                        throw new Error('Organizer is malformed.');
+                    }
 
-          if (!organizer.first_name || typeof organizer.first_name !== 'string') {
-            throw new Error('first_name is malformed.');
-          }
+                    if (!organizer.user_id || typeof organizer.user_id !== 'number') {
+                        throw new Error('user_id is malformed.');
+                    }
 
-          if (!organizer.last_name || typeof organizer.last_name !== 'string') {
-            throw new Error('last_name is malformed.');
-          }
+                    if (!organizer.first_name || typeof organizer.first_name !== 'string') {
+                        throw new Error('first_name is malformed.');
+                    }
 
-          if (typeof organizer.comment !== 'undefined' && typeof organizer.comment !== 'string') {
-            throw new Error('comment is malformed.');
-          }
+                    if (!organizer.last_name || typeof organizer.last_name !== 'string') {
+                        throw new Error('last_name is malformed.');
+                    }
+
+                    if (typeof organizer.comment !== 'undefined' && typeof organizer.comment !== 'string') {
+                        throw new Error('comment is malformed.');
+                    }
+                }
+            }
         }
-      }
-    }
-  },
-  questions: {
-    type: Sequelize.JSONB,
-    allowNull: false,
-    defaultValue: [],
-    validate: {
-      isValid(value) {
-        if (!Array.isArray(value)) {
-          throw new Error('Event questions should be an array of strings.');
-        }
+    },
+    questions: {
+        type: Sequelize.JSONB,
+        allowNull: false,
+        defaultValue: [],
+        validate: {
+            isValid(value) {
+                if (!Array.isArray(value)) {
+                    throw new Error('Event questions should be an array of strings.');
+                }
 
-        for (let index = 0; index < value.length; index++) {
-          const question = value[index];
+                for (let index = 0; index < value.length; index++) {
+                    const question = value[index];
           /* Question structure
           {
               type: 'string|text|number|checkbox|select',
@@ -240,63 +240,63 @@ const Event = sequelize.define('event', {
           }
           */
 
-          if (typeof question !== 'object') {
-            throw new Error(`Question ${index + 1}: should be an object.`);
-          }
+                    if (typeof question !== 'object') {
+                        throw new Error(`Question ${index + 1}: should be an object.`);
+                    }
 
-          if (typeof question.description !== 'string' || question.description.trim().length === 0) {
-            throw new Error(`Question ${index + 1}: description should be set.`);
-          }
+                    if (typeof question.description !== 'string' || question.description.trim().length === 0) {
+                        throw new Error(`Question ${index + 1}: description should be set.`);
+                    }
 
-          if (typeof question.type !== 'string') {
-            throw new Error(`Question ${index + 1}: type should be set.`);
-          }
+                    if (typeof question.type !== 'string') {
+                        throw new Error(`Question ${index + 1}: type should be set.`);
+                    }
 
-          if (typeof question.required !== 'boolean') {
-            throw new Error(`Question ${index + 1}: required is not a boolean.`);
-          }
+                    if (typeof question.required !== 'boolean') {
+                        throw new Error(`Question ${index + 1}: required is not a boolean.`);
+                    }
 
-          switch (question.type) {
-          case 'string':
-          case 'text':
-          case 'checkbox':
-          case 'number':
-            break;
-          case 'select':
-            if (!Array.isArray(question.values)) {
-              throw new Error(`Question ${index + 1}: values is not an array.`);
+                    switch (question.type) {
+                    case 'string':
+                    case 'text':
+                    case 'checkbox':
+                    case 'number':
+                        break;
+                    case 'select':
+                        if (!Array.isArray(question.values)) {
+                            throw new Error(`Question ${index + 1}: values is not an array.`);
+                        }
+
+                        for (const val of question.values) {
+                            if (typeof val !== 'string' || val.trim().length === 0) {
+                                throw new Error(`Question ${index + 1}: some of the values are empty.`);
+                            }
+                        }
+                        break;
+                    default:
+                        throw new Error(`Question ${index + 1}: invalid question type: "${question.type}"`);
+                    }
+                }
             }
-
-            for (const val of question.values) {
-              if (typeof val !== 'string' || val.trim().length === 0) {
-                throw new Error(`Question ${index + 1}: some of the values are empty.`);
-              }
-            }
-            break;
-          default:
-            throw new Error(`Question ${index + 1}: invalid question type: "${question.type}"`);
-          }
         }
-      }
-    }
-  },
-  max_participants: {
-    type: Sequelize.INTEGER,
-    allowNull: true,
-    defaultValue: null,
-    validate: {
-      isNumeric: { msg: 'Event fee should be valid.' },
-      min: { args: [0], msg: 'Event fee cannot be negative' }
-    }
-  },
-  application_status: {
-    type: Sequelize.VIRTUAL,
-    get() {
-        return moment().isBetween(this.application_starts, this.application_ends, null, '[]')
+    },
+    max_participants: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        defaultValue: null,
+        validate: {
+            isNumeric: { msg: 'Event fee should be valid.' },
+            min: { args: [0], msg: 'Event fee cannot be negative' }
+        }
+    },
+    application_status: {
+        type: Sequelize.VIRTUAL,
+        get() {
+            return moment().isBetween(this.application_starts, this.application_ends, null, '[]')
           ? 'open'
           : 'closed'; // inclusive
-    }
-},
+        }
+    },
 }, { underscored: true, tableName: 'events' });
 
 module.exports = Event;

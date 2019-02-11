@@ -1,99 +1,96 @@
-const moment = require('moment');
-
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const { Event } = require('../../models');
 const user = require('../assets/oms-core-valid').data;
 
 describe('Events application listing', () => {
-  beforeEach(async () => {
-    mock.mockAll();
-    await startServer();
-  });
-
-  afterEach(async () => {
-    await stopServer();
-    mock.cleanAll();
-
-    await generator.clearAll();
-  });
-
-  it('should return 403 if you cannot view applications', async () => {
-    mock.mockAll({ mainPermissions: { noPermissions: true } });
-    const event = await generator.createEvent({ organizers: [{
-      first_name: 'test',
-      last_name: 'test',
-      user_id: 1337
-    }] });
-
-    const res = await request({
-      uri: '/single/' + event.id + '/applications',
-      headers: { 'X-Auth-Token': 'foobar' },
-      method: 'GET'
+    beforeEach(async () => {
+        mock.mockAll();
+        await startServer();
     });
 
-    expect(res.statusCode).toEqual(403);
+    afterEach(async () => {
+        await stopServer();
+        mock.cleanAll();
 
-    expect(res.body.success).toEqual(false);
-    expect(res.body).toHaveProperty('message');
-  });
-
-  it('should display applications if you can see them', async () => {
-    const event = await generator.createEvent({ organizers: [{
-      first_name: 'test',
-      last_name: 'test',
-      user_id: user.id
-    }] });
-
-    const application = await generator.createApplication({}, event);
-    const res = await request({
-      uri: '/single/' + event.id + '/applications',
-      headers: { 'X-Auth-Token': 'foobar' },
-      method: 'GET'
+        await generator.clearAll();
     });
 
-    expect(res.statusCode).toEqual(200);
+    it('should return 403 if you cannot view applications', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+        const event = await generator.createEvent({ organizers: [{
+            first_name: 'test',
+            last_name: 'test',
+            user_id: 1337
+        }] });
 
-    expect(res.body.success).toEqual(true);
-    expect(res.body).toHaveProperty('data');
-    expect(res.body.data.length).toEqual(1);
-    expect(res.body.data[0].id).toEqual(application.id);
-  });
+        const res = await request({
+            uri: '/single/' + event.id + '/applications',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'GET'
+        });
 
-  it('should not display events I haven\'t applied at /mine/participating', async () => {
-    const event = await generator.createEvent();
-    const application = await generator.createApplication({ user_id: 1337 }, event);
+        expect(res.statusCode).toEqual(403);
 
-    const res = await request({
-      uri: '/mine/participating',
-      headers: { 'X-Auth-Token': 'foobar' },
-      method: 'GET'
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
     });
 
-    expect(res.statusCode).toEqual(200);
+    it('should display applications if you can see them', async () => {
+        const event = await generator.createEvent({ organizers: [{
+            first_name: 'test',
+            last_name: 'test',
+            user_id: user.id
+        }] });
 
-    expect(res.body.success).toEqual(true);
-    expect(res.body).toHaveProperty('data');
-    expect(res.body.data.length).toEqual(0);
-  });
+        const application = await generator.createApplication({}, event);
+        const res = await request({
+            uri: '/single/' + event.id + '/applications',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'GET'
+        });
 
-  it('should display events I\'ve applied at /mine/participating', async () => {
-    const event = await generator.createEvent();
-    const application = await generator.createApplication({ user_id: user.id }, event);
+        expect(res.statusCode).toEqual(200);
 
-    const res = await request({
-      uri: '/mine/participating',
-      headers: { 'X-Auth-Token': 'foobar' },
-      method: 'GET'
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(application.id);
     });
 
-    expect(res.statusCode).toEqual(200);
+    it('should not display events I haven\'t applied at /mine/participating', async () => {
+        const event = await generator.createEvent();
+        await generator.createApplication({ user_id: 1337 }, event);
 
-    expect(res.body.success).toEqual(true);
-    expect(res.body).toHaveProperty('data');
-    expect(res.body.data.length).toEqual(1);
-    expect(res.body.data[0].id).toEqual(event.id)
-  });
+        const res = await request({
+            uri: '/mine/participating',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(0);
+    });
+
+    it('should display events I\'ve applied at /mine/participating', async () => {
+        const event = await generator.createEvent();
+        await generator.createApplication({ user_id: user.id }, event);
+
+        const res = await request({
+            uri: '/mine/participating',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(event.id);
+    });
 });
