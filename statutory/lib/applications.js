@@ -578,19 +578,28 @@ exports.exportAll = async (req, res) => {
         return errors.makeBadRequestError(res, 'Filters are not provided or are invalid.');
     }
 
+    if (typeof req.query.filter !== 'object') {
+        req.query.filter = {};
+    }
+
     // If prefix is /incoming, only specific fields are allowed.
     // If prefix is /all, all fields are available.
     if (req.params.prefix !== 'all') {
         req.query.select = req.query.select.filter(field => constants.ALLOWED_INCOMING_FIELDS.includes(field));
     }
 
-    const filtered = req.event.applications.filter(app => !app.cancelled);
+    // Default query is filtering out cancelled applications.
+    const defaultFilter = { cancelled: false };
+
+    // Then applying user filter on it.
+    const applicationsFilter = Object.assign(defaultFilter, req.query.filter);
 
     const headersNames = helpers.getApplicationFields(req.event);
     const headers = req.query.select.map(field => headersNames[field]);
 
-    const resultArray = filtered
+    const resultArray = req.event.applications
         .map(application => application.toJSON())
+        .filter(application => helpers.filterObject(application, applicationsFilter))
         .map(application => helpers.flattenObject(application))
         .map((application) => {
             return req.query.select.map(field => helpers.beautify(application[field]));

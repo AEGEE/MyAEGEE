@@ -219,4 +219,74 @@ describe('Export all', () => {
 
         expect(res.statusCode).toEqual(400);
     });
+
+    test('should use the default filter if the passed filter is not provided', async () => {
+        await generator.createApplication({
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id,
+            answers: [true, 'string'],
+            status: 'accepted'
+        }, event);
+
+        await generator.createApplication({
+            user_id: 1337,
+            body_id: regularUser.bodies[0].id,
+            answers: [true, 'string'],
+            status: 'rejected'
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/export/all',
+            method: 'GET',
+            json: false,
+            encoding: null, // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
+            qs: { select: Object.keys(helpers.getApplicationFields(event)), filter: false }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const data = xlsx.parse(res.body);
+        expect(data.length).toEqual(1);
+
+        const sheet = data[0].data;
+        expect(sheet.length).toEqual(3); // headers + 2 applications
+    });
+
+    test('should use the filter if provided', async () => {
+        await generator.createApplication({
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id,
+            answers: [true, 'string'],
+            status: 'accepted',
+            paid_fee: true
+        }, event);
+
+        await generator.createApplication({
+            user_id: 1337,
+            body_id: regularUser.bodies[0].id,
+            answers: [true, 'string'],
+            status: 'rejected'
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/export/all',
+            method: 'GET',
+            json: false,
+            encoding: null, // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
+            qs: {
+                select: Object.keys(helpers.getApplicationFields(event)),
+                filter: { status: 'accepted', paid_fee: true }
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const data = xlsx.parse(res.body);
+        expect(data.length).toEqual(1);
+
+        const sheet = data[0].data;
+        expect(sheet.length).toEqual(2); // headers + 1 application
+    });
 });

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = require('express-promise-router');
 const bodyParser = require('body-parser');
+const boolParser = require('express-query-boolean');
 
 const config = require('../config');
 const log = require('./logger');
@@ -31,6 +32,7 @@ const CandidatesRouter = router({ mergeParams: true });
 
 const server = express();
 server.use(bodyParser.json());
+server.use(boolParser());
 server.use(morgan);
 
 /* istanbul ignore next */
