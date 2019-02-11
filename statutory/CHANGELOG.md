@@ -1,3 +1,17 @@
+# [0.6.0](https://github.com/AEGEE/oms-statutory/compare/0.5.3...0.6.0) (2019-02-11)
+
+
+### Bug Fixes
+
+* **application:** required boolean answers. Fixes MEMB-450 ([1b9e13d](https://github.com/AEGEE/oms-statutory/commit/1b9e13d))
+
+
+### Features
+
+* **export:** add filtering for applications. Fixes MEMB-388 ([7bd27f8](https://github.com/AEGEE/oms-statutory/commit/7bd27f8))
+
+
+
 ## [0.5.3](https://github.com/AEGEE/oms-statutory/compare/0.5.2...0.5.3) (2019-02-10)
 
 
