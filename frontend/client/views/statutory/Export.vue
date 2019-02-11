@@ -22,6 +22,29 @@
         </div>
 
         <div>
+          <div class="field is-fullwidth">
+            <label class="label">Filter on participant status</label>
+            <div class="select">
+              <select v-model="filter.status">
+                <option :value="null">Everybody</option>
+                <option value="accepted">Accepted participants</option>
+                <option value="rejected">Rejected participants</option>
+                <option value="pending">Pending participants</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field is-fullwidth">
+            <label class="label">Filter on confirmation</label>
+            <div class="select">
+              <select v-model="filter.paid_fee">
+                <option :value="null">Everybody</option>
+                <option :value="true">Confirmed participants</option>
+                <option :value="false">Not confirmed participants</option>
+              </select>
+            </div>
+          </div>
+
           <div v-if="!can.export.all">
             <div class="field" v-for="(field, key) in incomingFields" v-bind:key="key">
               <label class="checkbox">
@@ -148,6 +171,10 @@ export default {
       event: {
         name: ''
       },
+      filter: {
+        status: null,
+        paid_fee: null
+      },
       can: {
         export: {
           all: false,
@@ -175,11 +202,14 @@ export default {
       })
     },
     exportAll (prefix) {
-      const keys = this.filterKeys()
+      const select = this.filterKeys()
+      const filter = this.filterApplications()
+
       this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/export/' + prefix, {
         responseType: 'blob',
         params: {
-          select: keys
+          select,
+          filter
         }
       }).then(response => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
@@ -192,6 +222,9 @@ export default {
     },
     filterKeys () {
       return Object.keys(this.selectedFields).filter(key => this.selectedFields[key])
+    },
+    filterApplications () {
+      return Object.keys(this.filter).filter(key => this.filter[key] !== null)
     }
   },
   mounted () {
