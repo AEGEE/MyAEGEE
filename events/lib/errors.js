@@ -1,8 +1,8 @@
-exports.makeError = (res, statusCode, err, message) => {
+exports.makeError = (res, statusCode, err) => {
     // 4 cases:
     // 1) 'err' is a string
-    // 2) 'err' is a ValidationError
-    // 3) 'err' is a SequelizeValidationError
+    // 2) 'err' is a SequelizeValidationError
+    // 3) 'err' is a SequelizeUniqueConstraintError
     // 4) 'err' is Error
 
     // If the error is a string, just forward it to user.
@@ -13,19 +13,8 @@ exports.makeError = (res, statusCode, err, message) => {
         });
     }
 
-    const msgText = message ? message + ' ' + err.message : err.message;
-
-    // If the error is ValidationError, pass the errors details to the user.
-    if (err.name && err.name === 'ValidationError') {
-        return res.status(statusCode).json({
-            success: false,
-            message: msgText,
-            errors: err.errors
-        });
-    }
-
-    // If the error is SequelizeValidationError, pass the errors details to the user.
-    if (err.name && (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError')) {
+    // If the error is SequelizeValidationError or SequelizeUniqueConstraintError, pass the errors details to the user.
+    if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
         // Reformat errors.
         return res.status(statusCode).json({
             success: false,
@@ -33,7 +22,7 @@ exports.makeError = (res, statusCode, err, message) => {
                 if (val.path in acc) {
                     acc[val.path].push(val.message);
                 } else {
-                    acc[val.path] = [val.message]
+                    acc[val.path] = [val.message];
                 }
                 return acc;
             }, {})
@@ -43,13 +32,13 @@ exports.makeError = (res, statusCode, err, message) => {
     // Otherwise, just pass the error message.
     return res.status(statusCode).json({
         success: false,
-        message: msgText
+        message: err.message
     });
 };
 
-exports.makeUnauthorizedError = (res, err, message) => exports.makeError(res, 401, err, message);
-exports.makeValidationError = (res, err, message) => exports.makeError(res, 422, err, message);
-exports.makeForbiddenError = (res, err, message) => exports.makeError(res, 403, err, message);
-exports.makeNotFoundError = (res, err, message) => exports.makeError(res, 404, err, message);
-exports.makeInternalError = (res, err, message) => exports.makeError(res, 500, err, message);
-exports.makeBadRequestError = (res, err, message) => exports.makeError(res, 400, err, message);
+exports.makeUnauthorizedError = (res, err) => exports.makeError(res, 401, err);
+exports.makeValidationError = (res, err) => exports.makeError(res, 422, err);
+exports.makeForbiddenError = (res, err) => exports.makeError(res, 403, err);
+exports.makeNotFoundError = (res, err) => exports.makeError(res, 404, err);
+exports.makeInternalError = (res, err) => exports.makeError(res, 500, err);
+exports.makeBadRequestError = (res, err) => exports.makeError(res, 400, err);

@@ -1,5 +1,4 @@
-const { errors } = require('oms-common-nodejs');
-
+const errors = require('./errors');
 const helpers = require('./helpers');
 const { Event, Application } = require('../models');
 const { Sequelize } = require('./sequelize');

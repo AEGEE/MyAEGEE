@@ -5,7 +5,7 @@ const readChunk = require('read-chunk');
 const fileType = require('file-type');
 const util = require('util');
 
-const { errors } = require('oms-common-nodejs');
+const errors = require('./errors');
 const log = require('./logger');
 const config = require('../config');
 

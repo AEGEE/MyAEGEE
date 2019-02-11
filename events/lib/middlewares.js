@@ -1,8 +1,7 @@
 const request = require('request-promise-native');
 const bugsnag = require('bugsnag');
-const { communication } = require('oms-common-nodejs');
-const errors = require('./errors');
 
+const errors = require('./errors');
 const logger = require('./logger');
 const { Event, Application } = require('../models');
 const helpers = require('./helpers');
@@ -15,14 +14,14 @@ exports.authenticateUser = async (req, res, next) => {
   }
 
   try {
-    // Get the request headers to send an auth token
-    const headers = await communication.getRequestHeaders(req);
-
     // Query the core for user and permissions.
     const [userBody, permissionsBody] = await Promise.all(['members/me', 'my_permissions'].map(endpoint => request({
       url: config.core.url + ':' + config.core.port + '/' + endpoint,
       method: 'GET',
-      headers,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Auth-Token': req.headers['x-auth-token'],
+      },
       simple: false,
       json: true,
     })));
@@ -33,7 +32,7 @@ exports.authenticateUser = async (req, res, next) => {
 
     if (!userBody.success) {
       // We are not authenticated
-      return errors.makeError(res, 401, 'Error fetching user: user is not authenticated.');
+      return errors.makeUnauthorizedError(res, 'Error fetching user: user is not authenticated.');
     }
 
     if (typeof permissionsBody !== 'object') {
@@ -42,7 +41,7 @@ exports.authenticateUser = async (req, res, next) => {
 
     if (!permissionsBody.success) {
       // We are not authenticated
-      return errors.makeError(res, 401, 'Error fetching permissions: user is not authenticated.');
+      return errors.makeUnauthorizedError(res, 'Error fetching permissions: user is not authenticated.');
     }
 
     // Fetching permissions for members approval, the list of bodies
@@ -50,7 +49,10 @@ exports.authenticateUser = async (req, res, next) => {
     const approveRequest = await request({
       url: config.core.url + ':' + config.core.port + '/my_permissions',
       method: 'POST',
-      headers,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Auth-Token': req.headers['x-auth-token'],
+      },
       simple: false,
       json: true,
       body: {
@@ -151,7 +153,7 @@ exports.errorHandler = (err, req, res, next) => {
   }
 
   // Handling validation errors
-  if (err.name && (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError')) {
+  if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
     return errors.makeValidationError(res, err);
   }
 
