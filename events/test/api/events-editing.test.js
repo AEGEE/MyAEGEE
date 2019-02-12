@@ -121,7 +121,7 @@ describe('Events editing', () => {
             }
         });
 
-        const newEvent = await Event.findById(event.id);
+        const newEvent = await Event.findByPk(event.id);
         expect(newEvent.organizers.map(org => org.user_id)).not.toContain(1337);
     });
 
