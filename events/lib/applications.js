@@ -38,7 +38,7 @@ exports.getApplication = async (req, res) => {
 };
 
 exports.setApplication = async (req, res) => {
-  // Check for permission
+    // Check for permission
     if (!req.permissions.apply) {
         return errors.makeForbiddenError(res, 'You cannot apply to this event or change your application');
     }
@@ -73,7 +73,7 @@ exports.setApplication = async (req, res) => {
 };
 
 exports.setApplicationStatus = async (req, res) => {
-  // Check user permissions
+    // Check user permissions
     if (!req.permissions.approve_participants) {
         return errors.makeForbiddenError(res, 'You are not allowed to accept or reject participants');
     }
@@ -87,12 +87,12 @@ exports.setApplicationStatus = async (req, res) => {
 };
 
 exports.setApplicationComment = async (req, res) => {
-  // Check user permissions
+    // Check user permissions
     if (!req.permissions.set_board_comment[req.application.body_id]) {
         return errors.makeForbiddenError(res, 'You are not allowed to put board comments');
     }
 
-  // Save changes
+    // Save changes
     await req.application.update({ board_comment: req.body.board_comment });
 
     return res.json({

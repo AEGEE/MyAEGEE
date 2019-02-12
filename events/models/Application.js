@@ -80,7 +80,7 @@ const Application = sequelize.define('application', {
                 }
 
                 const event = await Event.findOne({ where: { id: this.event_id } });
-        /* istanbul ignore next */
+                /* istanbul ignore next */
                 if (!event) {
                     throw new Error('Could not find event.');
                 }
@@ -116,7 +116,7 @@ const Application = sequelize.define('application', {
                             throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}"): type should be boolean, but got "${typeof value[index]}".`);
                         }
                         break;
-          /* istanbul ignore next */
+                    /* istanbul ignore next */
                     default:
                         throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}"): unknown question type: ${event.questions[index].type}`);
                     }

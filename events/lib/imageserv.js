@@ -48,7 +48,7 @@ const uploadAsync = util.promisify(upload);
 exports.uploadImage = async (req, res) => {
     const oldimg = req.event.image;
 
-  // If upload folder doesn't exists, create it.
+    // If upload folder doesn't exists, create it.
     if (!await existsAsync(uploadFolderName)) {
         await mkdirAsync(uploadFolderName);
     }
@@ -60,12 +60,12 @@ exports.uploadImage = async (req, res) => {
         return errors.makeValidationError(res, err);
     }
 
-  // If the head_image field is missing, do nothing.
+    // If the head_image field is missing, do nothing.
     if (!req.file) {
         return errors.makeValidationError(res, 'No head_image is specified.');
     }
 
-  // If the file's content is malformed, don't save it.
+    // If the file's content is malformed, don't save it.
     const buffer = readChunk.sync(req.file.path, 0, 4100);
     const type = fileType(buffer);
 
@@ -80,7 +80,7 @@ exports.uploadImage = async (req, res) => {
         image: req.file.filename
     });
 
-  // Remove old file
+    // Remove old file
     if (oldimg) {
         await removeAsync(path.join(uploadFolderName, oldimg));
     }
