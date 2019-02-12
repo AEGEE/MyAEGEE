@@ -138,4 +138,380 @@ describe('Events application create/update', () => {
         expect(applicationFromDb.body_id).toEqual(user.bodies[0].id);
         expect(applicationFromDb.answers[0]).toEqual('test');
     });
+
+    it('should return 422 if answers is not an array', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: [{
+                type: 'checkbox',
+                description: 'test',
+                required: true
+            }]
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications/mine',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: false
+            }
+        });
+
+        expect(res.statusCode).toEqual(422);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('answers');
+    });
+
+    it('should return 422 if answer number mismatch questions number', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: [{
+                type: 'checkbox',
+                description: 'test',
+                required: true
+            }]
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications/mine',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: []
+            }
+        });
+
+        expect(res.statusCode).toEqual(422);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('answers');
+    });
+
+    it('should return 422 if question.type = string, but answer is not a string', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: [{
+                type: 'string',
+                description: 'test',
+                required: true
+            }]
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications/mine',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: [false]
+            }
+        });
+
+        expect(res.statusCode).toEqual(422);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('answers');
+    });
+
+    it('should return 422 if question.type = text, but answer is not a string', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: [{
+                type: 'text',
+                description: 'test',
+                required: true
+            }]
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications/mine',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: [false]
+            }
+        });
+
+        expect(res.statusCode).toEqual(422);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('answers');
+    });
+
+    it('should return 422 if question.type = string, but answer is empty', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: [{
+                type: 'string',
+                description: 'test',
+                required: true
+            }]
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications/mine',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: ['']
+            }
+        });
+
+        expect(res.statusCode).toEqual(422);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('answers');
+    });
+
+    it('should return 422 if question.type = text, but answer is not a string', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: [{
+                type: 'text',
+                description: 'test',
+                required: true
+            }]
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications/mine',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: ['']
+            }
+        });
+
+        expect(res.statusCode).toEqual(422);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('answers');
+    });
+
+    it('should return 422 if question.type = number, but answer is not a number', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: [{
+                type: 'number',
+                description: 'test',
+                required: true
+            }]
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications/mine',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: [false]
+            }
+        });
+
+        expect(res.statusCode).toEqual(422);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('answers');
+    });
+
+    it('should return 200 if question.type = number, but answer is a number', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: [{
+                type: 'number',
+                description: 'test',
+                required: true
+            }]
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications/mine',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: [1]
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('answers');
+    });
+
+    it('should return 422 if question.type = select, but answer is not in values', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: [{
+                type: 'select',
+                description: 'test',
+                required: true,
+                values: ['first']
+            }]
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications/mine',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: ['second']
+            }
+        });
+
+        expect(res.statusCode).toEqual(422);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('answers');
+    });
+
+    it('should return 200 if question.type = select, but answer is in values', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: [{
+                type: 'select',
+                description: 'test',
+                required: true,
+                values: ['first', 'second']
+            }]
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications/mine',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: ['first']
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('answers');
+    });
+
+    it('should return 422 if question.type = checkbox, but answer is not a boolean', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: [{
+                type: 'checkbox',
+                description: 'test',
+                required: true
+            }]
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications/mine',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: ['second']
+            }
+        });
+
+        expect(res.statusCode).toEqual(422);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('answers');
+    });
+
+    it('should return 422 if question.type = checkbox and is required, but answer is not true', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: [{
+                type: 'checkbox',
+                description: 'test',
+                required: true
+            }]
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications/mine',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: [false]
+            }
+        });
+
+        expect(res.statusCode).toEqual(422);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('answers');
+    });
+
+    it('should return 200 if question.type = checkbox, but answer is boolean', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: [{
+                type: 'checkbox',
+                description: 'test',
+                required: true
+            }]
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications/mine',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: [true]
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('answers');
+    });
 });

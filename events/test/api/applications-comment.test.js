@@ -56,6 +56,25 @@ describe('Events application comments', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    it('should return 400 if the application ID is not a number', async () => {
+        mock.mockAll({ approvePermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent();
+        await generator.createApplication({}, event);
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications/false/comment',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: { board_comment: 'Not good.' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
     it('should allow changing status if everything is okay', async () => {
         const event = await generator.createEvent();
         const application = await generator.createApplication({

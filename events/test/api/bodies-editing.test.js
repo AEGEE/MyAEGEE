@@ -151,7 +151,40 @@ describe('Event bodies editing', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('message');
 
-        const newEvent = await Event.findById(event.id);
+        const newEvent = await Event.findByPk(event.id);
         expect(newEvent.organizing_bodies.map(org => org.body_id)).not.toContain(333);
+    });
+
+    it('should return 422 if passed value is not an integer', async () => {
+        const event = await generator.createEvent({
+            organizing_bodies: [{ body_id: 333 }, { body_id: 444 }]
+        });
+        const res = await request({
+            uri: '/single/' + event.id + '/bodies/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: { body_id: false }
+        });
+
+        expect(res.statusCode).toEqual(422);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('organizing_bodies');
+    });
+
+    it('should return a validation error when bodies is not an array', async () => {
+        const eventPromise = generator.createEvent({ organizing_bodies: false });
+        expect(eventPromise).rejects.toThrowError();
+    });
+
+    it('should return a validation error when body is not an array', async () => {
+        const eventPromise = generator.createEvent({ organizing_bodies: [false] });
+        expect(eventPromise).rejects.toThrowError();
+    });
+
+    it('should return a validation error when body is null', async () => {
+        const eventPromise = generator.createEvent({ organizing_bodies: [null] });
+        expect(eventPromise).rejects.toThrowError();
     });
 });
