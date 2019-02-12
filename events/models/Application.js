@@ -102,7 +102,7 @@ const Application = sequelize.define('application', {
                         }
                         break;
                     case 'number':
-                        if (Number.isNaN(Number(value[index]))) {
+                        if (typeof value[index] !== 'number') {
                             throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}") should be a number, but got "${value[index]}".`);
                         }
                         break;
@@ -114,6 +114,10 @@ const Application = sequelize.define('application', {
                     case 'checkbox':
                         if (typeof value[index] !== 'boolean') {
                             throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}"): type should be boolean, but got "${typeof value[index]}".`);
+                        }
+
+                        if (value[index] !== true && event.questions[index].required) {
+                            throw new Error(`Answer number ${index + 1} ("${event.questions[index].description}"): you should agree.`);
                         }
                         break;
                     /* istanbul ignore next */
