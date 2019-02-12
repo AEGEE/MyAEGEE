@@ -69,7 +69,7 @@ describe('Event bodies editing', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('message');
 
-        const newEvent = await Event.findById(event.id);
+        const newEvent = await Event.findByPk(event.id);
         expect(newEvent.organizing_bodies.map(org => org.body_id)).toContain(444);
     });
 
