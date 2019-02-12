@@ -108,12 +108,8 @@ const Event = sequelize.define('event', {
                         throw new Error('Body is malformed.');
                     }
 
-                    if (typeof body.body_id === 'undefined') {
-                        throw new Error('body_id should be presented.');
-                    }
-
                     if (typeof body.body_id !== 'number') {
-                        throw new Error('body_id should be a number.');
+                        throw new Error('body_id should be an integer.');
                     }
                 }
             }
@@ -134,7 +130,11 @@ const Event = sequelize.define('event', {
                         throw new Error('Position is malformed.');
                     }
 
-                    if (!position.name) {
+                    if (typeof position.name !== 'string') {
+                        throw new Error('Name is invalid.');
+                    }
+
+                    if (position.name.trim().length === 0) {
                         throw new Error('Name should be presented.');
                     }
 
@@ -142,11 +142,11 @@ const Event = sequelize.define('event', {
                         throw new Error('Position.position is malformed.');
                     }
 
-                    if (!position.position.lat || typeof position.position.lat !== 'number') {
+                    if (typeof position.position.lat !== 'number') {
                         throw new Error('Latitude is malformed.');
                     }
 
-                    if (!position.position.lng || typeof position.position.lng !== 'number') {
+                    if (typeof position.position.lng !== 'number') {
                         throw new Error('Longitude is malformed.');
                     }
                 }
