@@ -36,7 +36,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    it('should fail if the oms-core is unaccessible', async () => {
+    it('should fail if the oms-core is unaccessible for user', async () => {
         mock.mockAll({ core: { netError: true } });
 
         const res = await request({
@@ -49,7 +49,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    it('should fail if the oms-core returns non-JSON data', async () => {
+    it('should fail if the oms-core returns non-JSON data for user', async () => {
         mock.mockAll({ core: { badResponse: true } });
 
         const res = await request({
@@ -62,7 +62,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    it('should fail if the oms-core returns unsuccessful response', async () => {
+    it('should fail if the oms-core returns unsuccessful response for user', async () => {
         mock.mockAll({ core: { unsuccessfulResponse: true } });
 
         const res = await request({
@@ -72,6 +72,84 @@ describe('API requests', () => {
         });
 
         expect(res.statusCode).toEqual(401);
+        expect(res.body.success).toEqual(false);
+    });
+
+    it('should fail if the oms-core is unaccessible for permissions', async () => {
+        mock.mockAll({ mainPermissions: { netError: true } });
+
+        const res = await request({
+            uri: '/',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    it('should fail if the oms-core returns non-JSON data for permissions', async () => {
+        mock.mockAll({ mainPermissions: { badResponse: true } });
+
+        const res = await request({
+            uri: '/',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    it('should fail if the oms-core returns unsuccessful response for permissions', async () => {
+        mock.mockAll({ mainPermissions: { unsuccessfulResponse: true } });
+
+        const res = await request({
+            uri: '/',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    it('should fail if the oms-core is unaccessible for approve permissions', async () => {
+        mock.mockAll({ approvePermissions: { netError: true } });
+
+        const res = await request({
+            uri: '/',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    it('should fail if the oms-core returns non-JSON data for approve permissions', async () => {
+        mock.mockAll({ approvePermissions: { badResponse: true } });
+
+        const res = await request({
+            uri: '/',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    it('should fail if the oms-core returns unsuccessful response for approve permissions', async () => {
+        mock.mockAll({ approvePermissions: { unsuccessfulResponse: true } });
+
+        const res = await request({
+            uri: '/',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(500);
         expect(res.body.success).toEqual(false);
     });
 
