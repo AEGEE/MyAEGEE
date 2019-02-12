@@ -10,7 +10,6 @@ const events = require('./events'); // API middlewares for events management
 const applications = require('./applications'); // API middlewares for applications management
 const imageserv = require('./imageserv');
 const log = require('./logger');
-const service = require('./service');
 const middlewares = require('./middlewares');
 const config = require('../config');
 
@@ -46,18 +45,12 @@ process.on('unhandledRejection', (err) => {
     }
 });
 
-GeneralRouter.use(service.countRequests);
-GeneralRouter.get('/status', service.status);
-
 ImagesRouter.use(express.static(config.media_dir)); // Serving images.
 
 GeneralRouter.use(middlewares.authenticateUser);
 
 GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', events.addEvent);
-
-// Debugging requests, remove at some point in time
-GeneralRouter.get('/getUser', service.getUser);
 
 GeneralRouter.get('/mine/organizing', events.listUserOrganizedEvents);
 GeneralRouter.get('/mine/participating', applications.listUserAppliedEvents);
@@ -71,7 +64,6 @@ EventsRouter.get('/', events.eventDetails);
 EventsRouter.put('/', events.editEvent);
 EventsRouter.delete('/', events.deleteEvent);
 EventsRouter.put('/status', events.setApprovalStatus);
-EventsRouter.get('/rights', events.getEditRights);
 EventsRouter.post('/upload', imageserv.uploadImage);
 
 EventsRouter.get('/applications', applications.listAllApplications);
