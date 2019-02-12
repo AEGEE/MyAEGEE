@@ -65,7 +65,7 @@ exports.listBodyApplications = async (req, res) => {
         return errors.makeBadRequestError(res, 'bodyId is not a number.');
     }
 
-  // Only visible to board members
+    // Only visible to board members
     if (!req.permissions.see_boardview[bodyId]) {
         return errors.makeForbiddenError(res, 'You are not allowed to see this');
     }
@@ -95,7 +95,7 @@ exports.listUserOrganizedEvents = async (req, res) => {
 
 exports.listApprovableEvents = async (req, res) => {
     const allowedEventTypes = Object.keys(req.permissions.approve_event)
-    .filter(key => req.permissions.approve_event[key]);
+        .filter(key => req.permissions.approve_event[key]);
 
     const events = await Event.findAll({
         where: {
@@ -112,8 +112,8 @@ exports.listApprovableEvents = async (req, res) => {
 };
 
 exports.addEvent = async (req, res) => {
-  // Make sure the user doesn't insert malicious stuff
-  // Fields with other names will be ommitted automatically by mongoose
+    // Make sure the user doesn't insert malicious stuff
+    // Fields with other names will be ommitted automatically by mongoose
     const data = req.body;
     delete data._id;
     delete data.status;
@@ -129,7 +129,7 @@ exports.addEvent = async (req, res) => {
 
     const newEvent = new Event(data);
 
-  // Creating user automatically becomes organizer
+    // Creating user automatically becomes organizer
     newEvent.organizers = [
         {
             user_id: req.user.id,
@@ -138,7 +138,7 @@ exports.addEvent = async (req, res) => {
         },
     ];
 
-  // Checking if the user IS the member of the body.
+    // Checking if the user IS the member of the body.
     if (!data.body_id || !helpers.isMemberOf(req.user, data.body_id)) {
         return errors.makeForbiddenError(res, 'You are not a member of this body and cannot create an event on behalf of it.');
     }

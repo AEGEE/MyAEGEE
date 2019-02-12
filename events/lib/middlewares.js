@@ -147,23 +147,23 @@ exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such AP
 
 /* eslint-disable no-unused-vars */
 exports.errorHandler = (err, req, res, next) => {
-  // Handling invalid JSON
+    // Handling invalid JSON
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
         return errors.makeBadRequestError(res, 'Invalid JSON.');
     }
 
-  // Handling validation errors
+    // Handling validation errors
     if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
         return errors.makeValidationError(res, err);
     }
 
-  /* istanbul ignore next */
+    /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') {
         bugsnag.notify(err);
     }
 
-  /* istanbul ignore next */
+    /* istanbul ignore next */
     logger.error(err.stack);
-  /* istanbul ignore next */
+    /* istanbul ignore next */
     return errors.makeInternalError(res, err);
 };
