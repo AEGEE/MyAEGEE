@@ -107,9 +107,41 @@ describe('File upload', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('message');
 
-        const eventFromDb = await Event.findById(event.id);
+        const eventFromDb = await Event.findByPk(event.id);
 
         const imgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', eventFromDb.image);
         expect(fs.existsSync(imgPath)).toEqual(true);
+    });
+
+    it('should remove the old file', async () => {
+        // Uploading
+        const firstRequest = await request({
+            uri: '/single/' + event.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            formData: {
+                head_image: fs.createReadStream('./test/assets/valid_image.png')
+            }
+        });
+
+        expect(firstRequest.statusCode).toEqual(200);
+
+        const eventFromDb = await Event.findByPk(event.id);
+
+        const res = await request({
+            uri: '/single/' + event.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            formData: {
+                head_image: fs.createReadStream('./test/assets/valid_image.png')
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('message');
+
+        const oldImgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', eventFromDb.image);
+        expect(fs.existsSync(oldImgPath)).toEqual(false);
     });
 });
