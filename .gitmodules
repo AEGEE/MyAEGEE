@@ -16,3 +16,6 @@
 [submodule "oms-mailer"]
 	path = oms-mailer
 	url = https://github.com/AEGEE/oms-mailer.git
+[submodule "oms-elastic"]
+	path = oms-elastic
+	url = https://github.com/AEGEE/docker-elk.git
