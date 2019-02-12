@@ -19,6 +19,8 @@ services:
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock:ro
           - ./secrets/acme.json:/etc/acme.json #we have to mount it, so no secrets
+          - ./$PATH_OMS_GLOBAL/traefik/logs:/var/log/traefik/
+          #- shared_logs:/var/log/traefik/
 #        networks:
 #          - management
         labels:
@@ -27,7 +29,7 @@ services:
           - traefik.port=8080
           - traefik.frontend.rule=HostRegexp:{domain:traefik.[a-z0-9.]+}
           - traefik.frontend.priority=20
-          - traefik.frontend.auth.basic=admin:$$2y$$05$$xyGGmUIFoXSDXjBQ10gc7uIjinlWrIZxCmjZ6OGDwoqWk605lCPxi
+          - traefik.frontend.auth.basic=admin:$PW_TRAEFIK
 
     portal:
         build:
@@ -35,12 +37,12 @@ services:
           dockerfile: ./Dockerfile.dev
         image: aegee/portal:dev
         restart: always
-        ports:
-          - 9876:80
+        expose:
+          - 80
         labels:
           - traefik.enable=true
           - traefik.backend=portal
-          #- traefik.port=9876
+          - traefik.port=80
           - traefik.frontend.rule=HostRegexp:{domain:portal.[a-z0-9.]+}
           - traefik.frontend.priority=20
 
@@ -59,9 +61,10 @@ services:
           #- traefik.port=5050
           - traefik.frontend.rule=HostRegexp:{domain:pgadmin.[a-z0-9.]+}
           - traefik.frontend.priority=20
+          - traefik.frontend.auth.basic=admin:$PW_PGADMIN
         environment:
-          DEFAULT_USER: admin
-          DEFAULT_PASSWORD: admin
+          DEFAULT_USER: admin@aegee.org
+          DEFAULT_PASSWORD: $PW_PGADMIN 
 
 ### mongoui Container #######################################
     # mongoui:
@@ -123,7 +126,10 @@ services:
 #           - traefik.frontend.rule=HostRegexp:{domain:survey.[a-z0-9.]+}
 #           - traefik.frontend.priority=20
 #
-# volumes:
+
+#volumes:
+#   shared_logs:
+#       driver: "local"
 #   upload:
 
 
