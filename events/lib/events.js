@@ -123,10 +123,6 @@ exports.addEvent = async (req, res) => {
     delete data.organizing_locals;
     delete data.deleted;
 
-    if (!data.type) {
-        return errors.makeValidationError(res, 'No event type is specified.');
-    }
-
     const newEvent = new Event(data);
 
     // Creating user automatically becomes organizer
