@@ -662,4 +662,21 @@ describe('Events creation', () => {
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('questions');
     });
+
+    it('should return 200 if the fee is float', async () => {
+        const event = generator.generateEvent({ fee: 50.45 });
+        event.body_id = user.bodies[0].id;
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+    });
 });
