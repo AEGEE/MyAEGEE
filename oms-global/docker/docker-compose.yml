@@ -19,6 +19,8 @@ services:
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock:ro
           - ./secrets/acme.json:/etc/acme.json #we have to mount it, so no secrets
+          - ./$PATH_OMS_GLOBAL/traefik/logs:/var/log/traefik/
+          #- shared_logs:/var/log/traefik/
 #        networks:
 #          - management
         labels:
@@ -124,7 +126,10 @@ services:
 #           - traefik.frontend.rule=HostRegexp:{domain:survey.[a-z0-9.]+}
 #           - traefik.frontend.priority=20
 #
-# volumes:
+
+#volumes:
+#   shared_logs:
+#       driver: "local"
 #   upload:
 
 
