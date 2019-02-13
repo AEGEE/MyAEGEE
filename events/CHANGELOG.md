@@ -1,4 +1,13 @@
-## 0.3.1 (2019-02-12)
+## [0.3.2](https://github.com/AEGEE/oms-events/compare/0.3.1...0.3.2) (2019-02-13)
+
+
+### Bug Fixes
+
+* **event:** url validation. Fixes HELP-270 ([ee82b85](https://github.com/AEGEE/oms-events/commit/ee82b85))
+
+
+
+## [0.3.1](https://github.com/AEGEE/oms-events/compare/d10774f...0.3.1) (2019-02-12)
 
 
 ### Bug Fixes
