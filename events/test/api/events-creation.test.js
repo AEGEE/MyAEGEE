@@ -679,4 +679,42 @@ describe('Events creation', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body).not.toHaveProperty('errors');
     });
+
+    it('should return 422 if URL is invalid', async () => {
+        const event = generator.generateEvent({
+            body_id: user.bodies[0].id,
+            url: 'http://test.eu hello'
+        });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('url');
+    });
+
+    it('should return 200 if URL is valid', async () => {
+        const event = generator.generateEvent({
+            body_id: user.bodies[0].id,
+            url: 'some-valid-url'
+        });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+    });
 });

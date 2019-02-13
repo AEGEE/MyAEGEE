@@ -14,6 +14,9 @@ const Event = sequelize.define('event', {
     url: {
         type: Sequelize.STRING,
         allowNull: true,
+        validate: {
+            is: { args: [/^[a-zA-Z0-9-]+$/ ], msg: 'Event URL should only contain numbers, letters and dashes.' }
+        },
         unique: true
     },
     image: {
