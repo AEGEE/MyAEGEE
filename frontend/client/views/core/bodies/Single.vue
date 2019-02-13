@@ -10,8 +10,12 @@
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info">
-          <div v-for="item in actions" class="field is-grouped" v-if="checkPermissions(item.permission)">
-            <a @click="item.action(item.name)" :class="['button is-fullwidth ' +  item.class]">
+          <div v-for="(item, index) in actions" v-bind:key="index" class="field is-grouped" v-if="checkPermissions(item.permission)">
+            <a v-if="item.type !== 'link'" @click="item.action(item.name)" :class="['button', 'is-fullwidth', item.class]">
+              <span class="field-icon icon"><i :class="['fas fa-' + item.icon]"></i></span>
+              <span class="field-label">{{ item.label }}</span>
+            </a>
+            <router-link v-if="item.type === 'link'" :to="{ name: item.name, params: item.params() || {} }" :class="['button', 'is-fullwidth', item.class]">
               <span class="field-icon icon"><i :class="['fas fa-' + item.icon]"></i></span>
               <span class="field-label">{{ item.label }}</span>
             </a>
@@ -123,24 +127,27 @@ export default {
       actions: [
         {
           name: 'oms.bodies.members',
+          params: () => ({ id: this.body.id }),
           label: 'Members',
-          action: this.navigateTo,
+          type: 'link',
           class: '',
           icon: 'users',
           permission: 'view:member'
         },
         {
           name: 'oms.bodies.join_requests',
+          params: () => ({ id: this.body.id }),
           label: 'Join requests',
-          action: this.navigateTo,
+          type: 'link',
           class: '',
           icon: 'users',
           permission: 'view:join_request'
         },
         {
           name: 'oms.bodies.campaigns',
+          params: () => ({ id: this.body.id }),
           label: 'Recruitment campaigns',
-          action: this.navigateTo,
+          type: 'link',
           class: '',
           icon: 'users',
           permission: 'view:campaign'
@@ -162,9 +169,10 @@ export default {
           permission: 'create:bound_circle'
         },
         {
-          name: 'oms:bodies:edit',
+          name: 'oms.bodies.edit',
+          params: () => ({ id: this.body.id }),
           label: 'Edit body details',
-          action: this.navigateTo,
+          type: 'link',
           class: 'is-warning',
           icon: 'edit',
           permission: 'update:body'
@@ -199,9 +207,6 @@ export default {
       }
 
       return this.permissions.some(permission => permission.combined.endsWith(name))
-    },
-    navigateTo (name) {
-      this.$router.push({ name, params: { id: this.body.id } })
     },
     openAddCircleModal () {
       this.$modal.open({
