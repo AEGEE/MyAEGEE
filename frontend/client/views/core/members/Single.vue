@@ -242,16 +242,26 @@ export default {
         this.user = response.data.data
         this.isOwnProfile = this.user.id === this.loginUser.id
 
-        return this.axios.get(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id + '/my_permissions')
-      }).then((response) => {
-        this.permissions = response.data.data
+        // Combining global permissions and local ones for bodies of this users.
+        const links = [
+          this.services['oms-core-elixir'] + '/members/' + this.$route.params.id + '/my_permissions',
+          ...this.user.bodies.map(body => this.services['oms-core-elixir'] + '/bodies/' + body.id + '/my_permissions')
+        ]
 
-        this.can.setActive = this.permissions.some(permission => permission.combined.endsWith('update_active:user'))
-        this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:member'))
-        this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:user'))
+        return Promise.all(links.map(link => this.axios.get(link)))
+      }).then((responses) => {
+        this.permissions = responses[0].data.data // global permissions
+
+        // for global and local permissions for users' bodies check the following:
+        // set the permission to true if at least one set of permissions have
+        // the required permission (either first for global, or others for local).
+        this.can.setActive = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('update_active:user')))
+        this.can.edit = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('update:member')))
+        this.can.delete = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('delete:user')))
+
         this.isLoading = false
       }).catch((err) => {
-        let message = (err.response.status === 404) ? 'User is not found' : 'Some error happened: ' + err.message
+        let message = (err.response && err.response.status === 404) ? 'User is not found' : 'Some error happened: ' + err.message
 
         this.$root.showDanger(message)
         this.$router.push({ name: 'oms.members.list' })
