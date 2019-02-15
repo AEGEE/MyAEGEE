@@ -23,6 +23,11 @@
     "node": ">=4",
     "npm": ">=3"
   },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
   "scripts": {
     "build:watch": "cross-env NODE_ENV=production webpack --progress --watch --colors",
     "build": "cross-env NODE_ENV=production webpack",
@@ -30,7 +35,8 @@
     "dev:watch": "cross-env NODE_ENV=development webpack --progress --watch --colors",
     "dev": "cross-env NODE_ENV=development webpack",
     "lint": "eslint --ext .js --ext .vue client/",
-    "lint:fix": "eslint --fix --ext .js .vue electron.js client/* build/* config/*"
+    "lint:fix": "eslint --fix --ext .js .vue electron.js client/* build/* config/*",
+    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.6.3",
@@ -63,6 +69,7 @@
     "vuex-router-sync": "^4.1.2"
   },
   "devDependencies": {
+    "@commitlint/config-conventional": "^7.5.0",
     "autoprefixer": "^6.7.7",
     "babel-core": "^6.21.0",
     "babel-eslint": "^7.1.1",
@@ -71,6 +78,7 @@
     "babel-polyfill": "^6.26.0",
     "babel-preset-es2015": "^6.14.0",
     "babel-preset-stage-2": "^6.17.0",
+    "commitlint": "^7.5.2",
     "connect-history-api-fallback": "^1.3.0",
     "cross-env": "^3.1.3",
     "css-loader": "^0.27.1",
@@ -90,6 +98,7 @@
     "file-loader": "^0.10.1",
     "html-webpack-plugin": "^2.25.0",
     "http-proxy-middleware": "^0.17.4",
+    "husky": "^1.3.1",
     "imports-loader": "^0.7.0",
     "node-sass": "^4.11.0",
     "opn": "^4.0.2",
