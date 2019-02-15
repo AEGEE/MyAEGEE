@@ -146,5 +146,12 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert json_response(conn, 200)
     assert_email_delivered_with(subject: "pirates")
   end
+
+  # Member joined
+  test "POST / member joined", %{conn: conn} do
+    conn = post conn, "/", %{template: "member_joined.html", parameters: %{body_name: "AEGEE-Dresden", body_id: 1, member_firstname: "Test", member_lastname: "Member"}, to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(subject: "pirates")
+  end
 end
  
