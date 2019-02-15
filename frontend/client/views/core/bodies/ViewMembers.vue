@@ -19,102 +19,77 @@
           </div>
         </div>
 
-        <div class="table-responsive">
-          <table class="table is-bordered is-striped is-narrow is-fullwidth">
-            <thead>
-              <tr>
-                <th>Name and surname</th>
-                <th>Comment</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tfoot>
-              <tr>
-                <th>Name and surname</th>
-                <th>Comment</th>
-                <th></th>
-              </tr>
-            </tfoot>
-            <tbody>
-              <tr v-show="members.length" v-for="member in members" v-bind:key="member.id">
-                <td>
-                  <router-link :to="{ name: 'oms.members.view', params: { id: member.member_id } }">
-                    {{ member.member.first_name }} {{ member.member.last_name }}
-                  </router-link>
-                </td>
-                <td v-if="member.comment">{{ member.comment }}</td>
-                <td v-if="!member.comment"><i>No comment set.</i></td>
-                <td>
-                  <div class="field">
-                    <div class="control">
-                      <a class="button is-small is-warning" @click="askToChangeComment(member)" v-if="can.edit">
-                        <span class="icon"><i class="fa fa-edit"></i></span>
-                        <span>Edit</span>
-                      </a>
-                      <a class="button is-small is-danger" @click="askDeleteMember(member, false)"  v-if="can.delete">
-                        <span class="icon"><i class="fa fa-minus"></i></span>
-                        <span>Delete</span>
-                      </a>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              <tr v-show="!members.length && !isLoading">
-                <td colspan="4" class="has-text-centered">This body does not have any members.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <p>Total members: {{ members.length }}</p>
 
-        <!--<div class="tile">
-          <div class="tile is-vertical is-2 box" v-for="member in members" v-bind:key="member.id">
+        <b-table
+          :data="members"
+          :loading="isLoading"
+          paginated
+          :per-page="limit"
+          default-sort="id"
+          default-sort-direction="desc">
+          <template slot-scope="props">
+            <b-table-column field="id" label="#" numeric sortable>
+              {{ props.row.id }}
+            </b-table-column>
 
-            <div class="tile is-child">
-              <div class="image is-1by1">
-                <img src="https://bulma.io/images/placeholders/480x480.png" alt="" />
+            <b-table-column field="member.first_name" label="First and last name" sortable>
+              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.member_id } }" v-if="can.viewMember">
+                {{ props.row.member.first_name }} {{ props.row.member.last_name }}
+              </router-link>
+              <span v-if="!can.viewMember">
+                {{ props.row.member.first_name }} {{ props.row.member.last_name }}
+              </span>
+            </b-table-column>
+
+            <b-table-column field="comment" label="Comment">
+              {{ props.row.comment }}
+            </b-table-column>
+
+            <b-table-column label="Last payment exp. date" centered :visible="can.viewPayment && body.pays_fees">
+              <span v-if="props.row.lastPayment">{{ props.row.lastPayment.expires | date }}</span>
+            </b-table-column>
+
+            <b-table-column label="View payments" centered :visible="(can.viewPayment || can.createPayment) && body.pays_fees">
+              <a class="button is-small is-primary" @click="openListFeePaymentsModal(props.row)" >
+                <span class="icon"><i class="fa fa-dollar-sign"></i></span>
+                <span>View or manage payments</span>
+              </a>
+            </b-table-column>
+
+            <b-table-column label="Add payment" centered :visible="can.createPayment && body.pays_fees">
+              <a class="button is-small is-primary" @click="openAddFeePaymentModal(props.row)">
+                <span class="icon"><i class="fa fa-dollar-sign"></i></span>
+                <span>Add fee payment</span>
+              </a>
+            </b-table-column>
+
+            <b-table-column label="Edit" centered :visible="can.edit">
+              <a class="button is-small is-warning" @click="askToChangeComment(props.row)">
+                <span class="icon"><i class="fa fa-edit"></i></span>
+                <span>Edit</span>
+              </a>
+            </b-table-column>
+
+            <b-table-column label="Delete" centered :visible="can.delete">
+              <a class="button is-small is-danger" @click="askDeleteMember(props.row, false)">
+                <span class="icon"><i class="fa fa-minus"></i></span>
+                <span>Delete</span>
+              </a>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
               </div>
-            </div>
-
-            <div class="tile">
-              <strong class="has-text-centered">{{ member.member.first_name }} {{ member.member.last_name }}</strong>
-            </div>
-
-            <div class="tile">
-              <p class="has-text-centered" v-if="member.comment">{{ member.comment }}</p>
-              <p class="has-text-centered" v-if="!member.comment"><i>No comment set.</i></p>
-            </div>
-
-            <div class="tile">
-              <div class="field">
-                <div class="control">
-                  <a class="button is-warning" @click="askToChangeComment(member)" v-if="can.edit">
-                    <span class="icon"><i class="fa fa-edit"></i></span>
-                    <span>Edit</span>
-                  </a>
-                  <a class="button is-danger" @click="askDeleteMember(member, false)"  v-if="can.delete">
-                    <span class="icon"><i class="fa fa-minus"></i></span>
-                    <span>Delete</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="tile is-vertical is-12 is-child" v-if="members.length === 0 && !isLoading">
-            <h1 class="subtitle has-text-centered">No members inside this body.</h1>
-          </div>
-        </div>-->
-
-        <div class="field">
-          <button
-            class="button is-primary is-fullwidth"
-            :class="{ 'is-loading': isLoading }"
-            :disabled="isLoading"
-            v-show="canLoadMore"
-            @click="fetchData()">Load more members</button>
-        </div>
-
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+            </section>
+          </template>
+        </b-table>
       </article>
     </div>
   </div>
@@ -122,39 +97,70 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import ListFeePaymentsModal from './ListFeePaymentsModal'
+import AddFeePaymentModal from './AddFeePaymentModal'
 
 export default {
   name: 'BodyMembersList',
   data () {
     return {
       members: [],
+      payments: [],
+      body: { pays_fees: false },
       isLoading: false,
       query: '',
-      limit: 30,
-      offset: 0,
-      canLoadMore: true,
       source: null,
       permissions: [],
       can: {
-        putComments: false,
+        edit: false,
         delete: false,
-        create: false
+        create: false,
+        viewMember: false,
+        viewPayment: false,
+        createPayment: false
       }
     }
   },
   computed: {
     queryObject () {
-      const queryObj = {
-        limit: this.limit,
-        offset: this.offset
-      }
-
-      if (this.query) queryObj.query = this.query
-      return queryObj
+      return this.query ? { query: this.query } : {}
     },
     ...mapGetters(['services'])
   },
   methods: {
+    openListFeePaymentsModal (member) {
+      this.$modal.open({
+        component: ListFeePaymentsModal,
+        hasModalCard: true,
+        props: {
+          // When programmatically opening a modal, it doesn't have access to Vue instance
+          // and therefore store, services and notifications functions. That's why
+          // I'm passing them as props.
+          // More info: https://github.com/buefy/buefy/issues/55
+          member,
+          services: this.services,
+          showDanger: this.$root.showDanger,
+          showSuccess: this.$root.showSuccess
+        }
+      })
+    },
+    openAddFeePaymentModal (member) {
+      this.$modal.open({
+        component: AddFeePaymentModal,
+        hasModalCard: true,
+        props: {
+          // When programmatically opening a modal, it doesn't have access to Vue instance
+          // and therefore store, services and notifications functions. That's why
+          // I'm passing them as props.
+          // More info: https://github.com/buefy/buefy/issues/55
+          member,
+          body: this.body,
+          services: this.services,
+          showDanger: this.$root.showDanger,
+          showSuccess: this.$root.showSuccess
+        }
+      })
+    },
     askDeleteMember (member) {
       const message =
         'Are you sure you want to <b>delete</b> ' +
@@ -203,8 +209,6 @@ export default {
     },
     refetch () {
       this.members = []
-      this.offset = 0
-      this.canLoadMore = true
       this.fetchData()
     },
     fetchData () {
@@ -212,23 +216,52 @@ export default {
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members', {
-        params: this.queryObject, cancelToken: this.source.token
+      this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id, {
+        cancelToken: this.source.token
+      }).then((response) => {
+        this.body = response.data.data
+
+        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members', {
+          params: this.queryObject,
+          cancelToken: this.source.token
+        })
       }).then((response) => {
         this.members = this.members.concat(response.data.data)
-        this.offset += this.limit
-        this.canLoadMore = response.data.data.length === this.limit
 
-        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
+        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions', {
+          cancelToken: this.source.token
+        })
       }).then((response) => {
         this.permissions = response.data.data
 
         this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update_member:body'))
-        this.can.putComments = this.can.edit
         this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete_member:body'))
         this.can.create = this.permissions.some(permission => permission.combined.endsWith('create:member'))
+        this.can.viewMember = this.permissions.some(permission => permission.combined.endsWith('view:member'))
+        this.can.viewPayment = this.permissions.some(permission => permission.combined.endsWith('view:payment'))
+        this.can.createPayment = this.permissions.some(permission => permission.combined.endsWith('create:payment'))
 
-        this.isLoading = false
+        if (!this.can.viewPayment || !this.body.pays_fees) {
+          this.isLoading = false
+          return
+        }
+
+        // If you can see payments, fetch them.
+        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/payments', {
+          cancelToken: this.source.token
+        }).then((response) => {
+          this.payments = response.data.data
+
+          for (const member of this.members) {
+            const paymentsForMember = this.payments
+              .filter(payment => payment.member_id === member.member_id)
+              .sort((a, b) => a.expires.localeCompare(b.expires))
+            this.$set(member, 'payments', paymentsForMember)
+            this.$set(member, 'lastPayment', paymentsForMember.length >= 1 ? paymentsForMember[paymentsForMember.length - 1] : null)
+          }
+
+          this.isLoading = false
+        })
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
           return console.debug('Request cancelled.')

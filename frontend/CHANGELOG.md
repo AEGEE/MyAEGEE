@@ -1,4 +1,13 @@
-# [0.3.0](https://github.com/AEGEE/oms-frontend/compare/v0.2.4...v0.3.0) (2019-02-15)
+# [0.4.0](https://github.com/AEGEE/oms-frontend/compare/0.3.0...0.4.0) (2019-02-15)
+
+
+### Features
+
+* **core:** add membership fee management ([a9e0688](https://github.com/AEGEE/oms-frontend/commit/a9e0688))
+
+
+
+# [0.3.0](https://github.com/AEGEE/oms-frontend/compare/v0.2.4...0.3.0) (2019-02-15)
 
 
 ### Bug Fixes
