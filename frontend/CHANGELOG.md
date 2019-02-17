@@ -1,3 +1,12 @@
+## [0.4.1](https://github.com/AEGEE/oms-frontend/compare/0.4.0...0.4.1) (2019-02-17)
+
+
+### Features
+
+* **core:** add fee management. Fixes MEMB-462. Related: MEMB-397 ([0511fbb](https://github.com/AEGEE/oms-frontend/commit/0511fbb))
+
+
+
 # [0.4.0](https://github.com/AEGEE/oms-frontend/compare/0.3.0...0.4.0) (2019-02-15)
 
 
