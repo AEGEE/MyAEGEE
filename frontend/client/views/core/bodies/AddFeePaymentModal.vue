@@ -6,6 +6,18 @@
     </header>
     <section class="modal-card-body">
       <div class="field">
+        <label class="label">Starts at <span class="has-text-danger">*</span></label>
+        <div class="control">
+        <flat-pickr
+            placeholder="Select date"
+            class="input"
+            required
+            v-model="tmpPayment.starts" />
+        </div>
+        <p class="help is-danger" v-if="errors.starts">{{ errors.starts.join(', ') }}</p>
+      </div>
+
+      <div class="field">
         <label class="label">Expires on <span class="has-text-danger">*</span></label>
         <div class="control">
         <flat-pickr
@@ -36,6 +48,22 @@
         </div>
         <p class="help is-danger" v-if="errors.currency">{{ errors.currency.join(', ') }}</p>
       </div>
+
+      <div class="field">
+        <label class="label">Invoice address</label>
+        <div class="control">
+          <input type="text" class="input" v-model.number="tmpPayment.invoice_address" />
+        </div>
+        <p class="help is-danger" v-if="errors.invoice_address">{{ errors.invoice_address.join(', ') }}</p>
+      </div>
+
+      <div class="field">
+        <label class="label">Invoice name</label>
+        <div class="control">
+          <input type="text" class="input" v-model.number="tmpPayment.invoice_name" />
+        </div>
+        <p class="help is-danger" v-if="errors.invoice_name">{{ errors.invoice_name.join(', ') }}</p>
+      </div>
     </section>
     <footer class="modal-card-foot">
       <button class="button is-primary" @click="saveFeePayment()">Add fee payment</button>
@@ -57,10 +85,18 @@ export default {
       currencies,
       errors: {},
       tmpPayment: {
+        starts: '',
         expires: '',
         currency: '',
+        invoice_address: '',
+        invoice_name: '',
         amount: 0
       }
+    }
+  },
+  watch: {
+    'tmpPayment.starts' () {
+      this.tmpPayment.expires = moment(this.tmpPayment.starts, 'YYYY-MM-DD').add(1, 'year').format('YYYY-MM-DD')
     }
   },
   methods: {
@@ -69,21 +105,27 @@ export default {
 
       this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.body.id + '/payments', {
         payment: {
-          expires: moment(this.tmpPayment.expires, 'YYYY-MM-DD').toISOString(),
+          starts: this.tmpPayment.starts,
+          expires: this.tmpPayment.expires,
           currency: this.tmpPayment.currency,
           amount: this.tmpPayment.amount,
+          invoice_address: this.tmpPayment.invoice_address,
+          invoice_name: this.tmpPayment.invoice_name,
           member_id: this.member.member_id,
           body_id: this.body.id
         }
       }).then((response) => {
         this.showSuccess('Payment is added.')
 
-        this.tmpPayment = { expires: '', currency: '', amount: 0 }
-        this.member.payments.push(response.data.data)
-
-        if (this.member.payments.length <= 1) {
-          this.$set(this.member, 'lastPayment', response.data.data)
+        this.tmpPayment = {
+          starts: '',
+          expires: '',
+          currency: '',
+          amount: 0
         }
+
+        this.member.payments.push(response.data.data)
+        this.$set(this.member, 'lastPayment', this.member.payments[this.member.payments.length - 1])
 
         this.isLoading = false
         this.$parent.close()
@@ -95,6 +137,9 @@ export default {
         this.showDanger(message)
       })
     }
+  },
+  mounted () {
+    this.tmpPayment.starts = moment().format('YYYY-MM-DD')
   }
 }
 </script>

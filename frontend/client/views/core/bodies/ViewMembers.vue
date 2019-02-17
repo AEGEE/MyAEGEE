@@ -133,14 +133,7 @@ export default {
         component: ListFeePaymentsModal,
         hasModalCard: true,
         props: {
-          // When programmatically opening a modal, it doesn't have access to Vue instance
-          // and therefore store, services and notifications functions. That's why
-          // I'm passing them as props.
-          // More info: https://github.com/buefy/buefy/issues/55
-          member,
-          services: this.services,
-          showDanger: this.$root.showDanger,
-          showSuccess: this.$root.showSuccess
+          member
         }
       })
     },
