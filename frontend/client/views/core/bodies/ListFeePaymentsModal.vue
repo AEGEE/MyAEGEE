@@ -5,52 +5,48 @@
       <button class="delete" aria-label="close" @click="$parent.close()"></button>
     </header>
     <section class="modal-card-body">
-    <table class="table is-narrow is-fullwidth">
-      <thead>
-        <tr>
-          <th>Added at</th>
-          <th>Expires on</th>
-          <th>Value</th>
-          <th>Currency</th>
-        </tr>
-      </thead>
-      <tbody>
-        <b-table :data="member.payments">
-          <template slot-scope="props">
-            <b-table-column field="id" label="#" numeric sortable>
-              {{ props.row.id }}
-            </b-table-column>
+      <b-table :data="member.payments">
+        <template slot-scope="props">
+          <b-table-column field="id" label="#" numeric sortable>
+            {{ props.row.id }}
+          </b-table-column>
 
-            <b-table-column field="inserted_at" label="Added at">
-              {{ props.row.inserted_at }}
-            </b-table-column>
+          <b-table-column field="inserted_at" label="Starts at">
+            {{ props.row.starts }}
+          </b-table-column>
 
-            <b-table-column field="expires" label="Expires on">
-              {{ props.row.inserted_at }}
-            </b-table-column>
+          <b-table-column field="expires" label="Expires on">
+            {{ props.row.expires }}
+          </b-table-column>
 
-            <b-table-column field="amount" label="Amount">
-              {{ props.row.amount }}
-            </b-table-column>
+          <b-table-column field="amount" label="Amount">
+            {{ props.row.amount }}
+          </b-table-column>
 
-            <b-table-column field="currency" label="Currency">
-              {{ props.row.currency }}
-            </b-table-column>
-          </template>
+          <b-table-column field="currency" label="Currency">
+            {{ props.row.currency }}
+          </b-table-column>
 
-          <template slot="empty">
-            <section class="section">
-              <div class="content has-text-grey has-text-centered">
-                <p>
-                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
-                </p>
-                <p>Nothing here.</p>
-              </div>
-            </section>
-          </template>
-        </b-table>
-      </tbody>
-    </table>
+          <b-table-column field="invoice_address" label="Invoice address">
+            {{ props.row.invoice_address }}
+          </b-table-column>
+
+          <b-table-column field="invoice_name" label="Invoice name">
+            {{ props.row.invoice_name }}
+          </b-table-column>
+        </template>
+
+        <template slot="empty">
+          <section class="section">
+            <div class="content has-text-grey has-text-centered">
+              <p>
+                <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+              </p>
+              <p>Nothing here.</p>
+            </div>
+          </section>
+        </template>
+      </b-table>
     </section>
     <footer class="modal-card-foot">
 
@@ -60,8 +56,8 @@
 
 <script>
 export default {
-  name: 'AddBoundCircleModal',
-  props: ['member', 'services', 'showSuccess', 'showDanger'],
+  name: 'ListFeePaymentsModal',
+  props: ['member'],
   data () {
     return {
 
