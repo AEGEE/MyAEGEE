@@ -1,3 +1,12 @@
+## [0.4.2](https://github.com/AEGEE/oms-frontend/compare/0.4.1...0.4.2) (2019-02-18)
+
+
+### Bug Fixes
+
+* **general:** trimming input-tag values. Fixes MEMB-436 ([0bc2f15](https://github.com/AEGEE/oms-frontend/commit/0bc2f15))
+
+
+
 ## [0.4.1](https://github.com/AEGEE/oms-frontend/compare/0.4.0...0.4.1) (2019-02-17)
 
 
