@@ -258,7 +258,10 @@
                 <input type="checkbox" v-model="event.questions[index].required" />
               </td>
               <td>
-                <input-tag v-if="event.questions[index].type === 'select'" v-model="event.questions[index].values"></input-tag>
+                <input-tag
+                  v-if="event.questions[index].type === 'select'"
+                  v-model="event.questions[index].values"
+                  :before-adding="value => value.trim()"></input-tag>
               </td>
               <td>
                 <a class="button is-danger" @click="deleteQuestion(index)">Delete question</a>

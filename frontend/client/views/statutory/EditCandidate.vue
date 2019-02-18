@@ -102,7 +102,10 @@
         <div class="field">
           <label class="label">Languages</label>
           <div class="control">
-            <input-tag v-if="!isLoading" v-model="candidate.languages"></input-tag>
+            <input-tag
+                v-if="!isLoading"
+                v-model="candidate.languages"
+                :before-adding="value => value.trim()"></input-tag>
           </div>
           <p class="help is-danger" v-if="errors.languages">{{ errors.languages.join(', ') }}</p>
         </div>
