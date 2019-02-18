@@ -1,3 +1,12 @@
+## [0.4.4](https://github.com/AEGEE/oms-frontend/compare/0.4.3...0.4.4) (2019-02-18)
+
+
+### Bug Fixes
+
+* **general:** confirm body deletion ([24c9181](https://github.com/AEGEE/oms-frontend/commit/24c9181))
+
+
+
 ## [0.4.3](https://github.com/AEGEE/oms-frontend/compare/0.4.2...0.4.3) (2019-02-18)
 
 
