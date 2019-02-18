@@ -46,7 +46,7 @@
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
                           <div>
                             <a href="https://my.aegee.eu/bodies/<%= Map.fetch!(@parameters, "body_id") %>/join_requests" style="background-color:#1468C5;border-radius:50px;color:#ffffff;display:inline-block;font-family: 'lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:18px;font-weight: bold;line-height:40px;text-align:center;text-decoration:none;width:270px;-webkit-text-size-adjust:none;"
-                              target="_blank">Click here to approve or reject your new member!</a>
+                              target="_blank">Approve or reject</a>
                           </div>
                         </td>
                       </tr>
