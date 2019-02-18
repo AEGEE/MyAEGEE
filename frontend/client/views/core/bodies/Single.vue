@@ -188,7 +188,7 @@ export default {
         {
           name: 'deleteBody',
           label: 'Delete body',
-          action: this.deleteBody,
+          action: this.askDeleteBody,
           class: 'is-danger',
           icon: 'times',
           permission: 'delete:body'
