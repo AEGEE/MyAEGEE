@@ -33,7 +33,7 @@
 
           <ul>
             <li><a href="https://podio.com/">Podio</a> - for managing surveys and other stuff</li>
-            <li><a href="https://ru.atlassian.com/">Atlassian</a> - for internal bug fixing using JIRA</li>
+            <li><a href="https://atlassian.com/">Atlassian</a> - for internal bug fixing using JIRA</li>
             <li><a href="https://www.google.com/">Google</a> - for providing GSuite accounts</li>
             <li><a href="https://www.microsoft.com/">Microsoft</a></li>
           </ul>

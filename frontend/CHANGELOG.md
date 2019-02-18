@@ -1,3 +1,12 @@
+## [0.4.3](https://github.com/AEGEE/oms-frontend/compare/0.4.2...0.4.3) (2019-02-18)
+
+
+### Bug Fixes
+
+* **general:** fixed Atlassian link. Fixed HELP-306 ([db1e0ba](https://github.com/AEGEE/oms-frontend/commit/db1e0ba))
+
+
+
 ## [0.4.2](https://github.com/AEGEE/oms-frontend/compare/0.4.1...0.4.2) (2019-02-18)
 
 
