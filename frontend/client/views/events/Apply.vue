@@ -9,7 +9,7 @@
         <form @submit.prevent="saveApplication()">
           <div class="tile is-parent" v-show="isNew || (event.application_status === 'open')">
             <div class="tile is-child">
-              <div class="field">
+              <div class="field" v-show="autoComplete.bodies.values.length > 0">
                 <label class="label">Select body to apply from</label>
                 <div class="control">
                   <div class="field has-addons">
@@ -33,6 +33,32 @@
                       <a class="button is-static" v-if="!application.body">Not set.</a>
                     </p>
                   </div>
+                </div>
+              </div>
+
+              <div class="notification is-danger" v-show="autoComplete.bodies.values.length == 0">
+                <div class="content">
+                  <p>You are not a member of any body, therefore you cannot apply.</p>
+                  <p>To apply to a statutory event, you need to be a member of at least one body.</p>
+                  <p>For that, go to Bodies, send a join request to the body you are in and wait for the board to approve it</p>
+                </div>
+              </div>
+
+              <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender|| errors.date_of_birth">
+                <div class="content">
+                Could not apply because of these reasons:
+                  <ul>
+                    <li v-for="(error, index) in errors.answers" v-bind:key="index">{{ error }}</li>
+                  </ul>
+                  <ul>
+                    <li v-for="(error, index) in errors.body_id" v-bind:key="index">{{ error }}</li>
+                  </ul>
+                  <ul v-if="errors.gender">
+                    <li>Please set the gender in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank'>your profile.</router-link></li>
+                  </ul>
+                  <ul v-if="errors.date_of_birth">
+                    <li>Please set the date of birth in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank'>your profile.</router-link></li>
+                  </ul>
                 </div>
               </div>
 
@@ -155,7 +181,7 @@ export default {
         name: null,
         questions: []
       },
-      autoComplete: { bodies: { name: '' } },
+      autoComplete: { bodies: { name: '', values: [] } },
       application: {
         body: null,
         body_id: null,
@@ -171,6 +197,10 @@ export default {
   },
   methods: {
     saveApplication () {
+      if (!this.application.body_id) {
+        return this.$root.showDanger('Please select a body.')
+      }
+
       // Copy data from the form into an object to submit it in the format the backend needs it
       this.isSaving = true
 
