@@ -1,3 +1,12 @@
+## [0.4.5](https://github.com/AEGEE/oms-frontend/compare/0.4.4...0.4.5) (2019-02-19)
+
+
+### Bug Fixes
+
+* **general:** generate year in footer automatically. Fixes HELP-314 ([e4d9d77](https://github.com/AEGEE/oms-frontend/commit/e4d9d77))
+
+
+
 ## [0.4.4](https://github.com/AEGEE/oms-frontend/compare/0.4.3...0.4.4) (2019-02-18)
 
 
