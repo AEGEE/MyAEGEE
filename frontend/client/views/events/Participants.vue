@@ -4,6 +4,12 @@
       <div class="tile is-child">
         <div class="title">Applications</div>
 
+        <div class="field">
+          <div class="control">
+            <button class="button is-primary" @click="exportAll()">Export</button>
+          </div>
+        </div>
+
         <table class="table is-narrow is-fullwidth">
           <thead>
             <tr>
@@ -129,6 +135,18 @@ export default {
     }
   },
   methods: {
+    exportAll (prefix) {
+      this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/export/', {
+        responseType: 'blob'
+      }).then(response => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', 'participants.xlsx')
+        document.body.appendChild(link)
+        link.click()
+      })
+    },
     showModal (application) {
       this.selected = application
     },
