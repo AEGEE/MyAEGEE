@@ -1,3 +1,12 @@
+## [0.4.6](https://github.com/AEGEE/oms-frontend/compare/0.4.5...0.4.6) (2019-02-19)
+
+
+### Bug Fixes
+
+* **events:** display if there are errors on application. Fixes MEMB-471 ([efe91b7](https://github.com/AEGEE/oms-frontend/commit/efe91b7))
+
+
+
 ## [0.4.5](https://github.com/AEGEE/oms-frontend/compare/0.4.4...0.4.5) (2019-02-19)
 
 
