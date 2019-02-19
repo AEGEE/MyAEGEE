@@ -256,6 +256,8 @@ export default {
         }
       })
 
+      this.autoComplete.bodies.values = this.loginUser.bodies
+
       return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/mine').then((application) => {
         this.application = application.data.data
         this.application.body = this.loginUser.bodies.find(body => body.id === this.application.body_id)
