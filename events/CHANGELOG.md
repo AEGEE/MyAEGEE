@@ -1,3 +1,12 @@
+# [0.4.0](https://github.com/AEGEE/oms-events/compare/0.3.2...0.4.0) (2019-02-19)
+
+
+### Features
+
+* **export:** add export to XLSX. Fixes MEMB-406 ([a212025](https://github.com/AEGEE/oms-events/commit/a212025))
+
+
+
 ## [0.3.2](https://github.com/AEGEE/oms-events/compare/0.3.1...0.3.2) (2019-02-13)
 
 
