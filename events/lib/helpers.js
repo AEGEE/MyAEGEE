@@ -1,14 +1,6 @@
+const moment = require('moment');
+
 const constants = require('./constants');
-
-// A helper to whilelist object's properties.
-exports.whitelistObject = (object, allowedFields) => {
-    const newObject = {};
-    for (const field of allowedFields) {
-        newObject[field] = object[field];
-    }
-
-    return newObject;
-};
 
 // A helper to flatten the nested object. Copypasted from Google.
 exports.flattenObject = (obj, prefix = '') => {

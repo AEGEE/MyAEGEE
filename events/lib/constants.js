@@ -6,7 +6,9 @@ module.exports = {
         first_name: 'First name',
         last_name: 'Last name',
         status: 'Status',
-        board_comment: 'Board comment'
+        board_comment: 'Board comment',
+        created_at: 'Created at',
+        updated_at: 'Updated at'
     },
     EVENT_TYPES: ['wu', 'es', 'nwm', 'ltc', 'rtc', 'local', 'other']
 }
