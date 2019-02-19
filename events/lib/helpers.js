@@ -1,4 +1,54 @@
-const eventTypes = ['wu', 'es', 'nwm', 'ltc', 'rtc', 'local', 'other'];
+const constants = require('./constants');
+
+// A helper to whilelist object's properties.
+exports.whitelistObject = (object, allowedFields) => {
+    const newObject = {};
+    for (const field of allowedFields) {
+        newObject[field] = object[field];
+    }
+
+    return newObject;
+};
+
+// A helper to flatten the nested object. Copypasted from Google.
+exports.flattenObject = (obj, prefix = '') => {
+    return Object.keys(obj).reduce((acc, k) => {
+        const pre = prefix.length ? prefix + '.' : '';
+        if (typeof obj[k] === 'object' && obj[k] !== null && Object.prototype.toString.call(obj[k]) !== '[object Date]') {
+            Object.assign(acc, exports.flattenObject(obj[k], pre + k));
+        } else {
+            acc[pre + k] = obj[k];
+        }
+
+        return acc;
+    }, {});
+};
+
+// A helper uset to pretty-format values.
+exports.beautify = (value) => {
+    // If it's boolean, display it as Yes/No instead of true/false
+    if (typeof value === 'boolean') {
+        return value ? 'Yes' : 'No';
+    }
+
+    // If it's date, return date formatted.
+    if (Object.prototype.toString.call(value) === '[object Date]') {
+        return moment(value).format('YYYY-MM-DD HH:mm:SS');
+    }
+
+    // Else, present it as it is.
+    return value;
+};
+
+// A helper to get the names for application fields. Useful for exporting for getting columns headers.
+exports.getApplicationFields = (event) => {
+    const fields = Object.assign({}, constants.APPLICATION_FIELD_NAMES);
+    for (let index = 0; index < event.questions.length; index++) {
+        fields['answers.' + index] = `Answer ${index + 1}: ${event.questions[index].description}`;
+    }
+
+    return fields;
+};
 
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
@@ -26,7 +76,7 @@ exports.getPermissions = (user, corePermissions, approvePermissions) => {
         manage_event: {}
     };
 
-    for (const type of eventTypes) {
+    for (const type of constants.EVENT_TYPES) {
         permissions.approve_event[type] = hasPermission(corePermissions, 'approve_event:' + type);
         permissions.manage_event[type] = hasPermission(corePermissions, 'manage_event:' + type);
     }
@@ -51,6 +101,7 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
 
     permissions.approve_participants = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
     permissions.list_applications = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
+    permissions.export = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
     permissions.set_status = permissions.approve_event[event.type];
 
     return permissions;

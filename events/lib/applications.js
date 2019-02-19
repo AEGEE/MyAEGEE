@@ -1,3 +1,5 @@
+const xlsx = require('node-xlsx');
+
 const errors = require('./errors');
 const { Event, Application } = require('../models');
 const helpers = require('./helpers');
@@ -99,4 +101,39 @@ exports.setApplicationComment = async (req, res) => {
         success: true,
         data: req.application
     });
+};
+
+exports.exportAll = async (req, res) => {
+    // Exporting users as XLSX .
+    if (!req.permissions.export) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see statistics.');
+    }
+
+    const applications = await Application.findAll({ where: { event_id: req.event.id } });
+
+    const headersNames = helpers.getApplicationFields(req.event);
+    const headers = Object.keys(headersNames).map(field => headersNames[field]);
+
+    const resultArray = applications
+        .map(application => application.toJSON())
+        .map(application => helpers.flattenObject(application))
+        .map((application) => {
+            return Object.keys(headersNames).map(field => helpers.beautify(application[field]));
+        });
+
+    const resultBuffer = xlsx.build([
+        {
+            name: 'Application stats',
+            data: [
+                headers,
+                ...resultArray
+            ]
+        }
+    ]);
+
+
+    res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-disposition', 'attachment; filename=stats.xlsx');
+
+    return res.send(resultBuffer);
 };

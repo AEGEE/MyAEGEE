@@ -259,7 +259,6 @@ exports.editOrganizer = async (req, res) => {
     }
 
     if (req.body.comment) organizer.comment = req.body.comment;
-    if (req.body.roles) organizer.roles = req.body.roles;
 
     await req.event.save();
 
