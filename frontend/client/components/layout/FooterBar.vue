@@ -2,7 +2,7 @@
   <footer class="footer">
     <div class="container">
       <div class="content has-text-centered">
-        <p>© 2017-2018 AEGEE - OMS-Frontend version {{ version }}</p>
+        <p>© 2017-{{ year }} AEGEE - OMS-Frontend version {{ pkg.version }}</p>
         <p>Powered by <a href="//oms-project.atlassian.net/wiki/spaces/GENERAL">Online membership system</a></p>
         <p>
           <router-link :to="{ name: 'oms.legal.simple' }">Legal info (simple)</router-link> &bull;
@@ -25,12 +25,15 @@
 </template>
 
 <script>
+import moment from 'moment'
+
 export default {
-
   data () {
-    return this.$store.state.pkg
+    return {
+      pkg: this.$store.state.pkg,
+      year: moment().format('YYYY')
+    }
   }
-
 }
 </script>
 
