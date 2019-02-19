@@ -1,3 +1,17 @@
+# [0.5.0](https://github.com/AEGEE/oms-frontend/compare/0.4.6...0.5.0) (2019-02-19)
+
+
+### Bug Fixes
+
+* **events:** fixed selecting body for event application ([34ef678](https://github.com/AEGEE/oms-frontend/commit/34ef678))
+
+
+### Features
+
+* **events:** add applications export. Fixed MEMB-406 ([1f93691](https://github.com/AEGEE/oms-frontend/commit/1f93691))
+
+
+
 ## [0.4.6](https://github.com/AEGEE/oms-frontend/compare/0.4.5...0.4.6) (2019-02-19)
 
 
