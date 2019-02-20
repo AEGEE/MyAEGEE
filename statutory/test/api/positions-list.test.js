@@ -54,6 +54,27 @@ describe('Positions listing', () => {
         expect(res.body.data[0].id).toEqual(firstPosition.id);
     });
 
+    test('should sort positions on /', async () => {
+        const firstEvent = await generator.createEvent({ type: 'agora', applications: [] });
+        const firstPosition = await generator.createPosition({}, firstEvent);
+        const secondPosition = await generator.createPosition({}, firstEvent);
+
+        const res = await request({
+            uri: '/events/' + firstEvent.id + '/positions/',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+
+        expect(res.body.data.length).toEqual(2);
+        expect(res.body.data[0].id).toEqual(firstPosition.id);
+        expect(res.body.data[1].id).toEqual(secondPosition.id);
+    });
+
     test('should list all of the approved candidates on /approved', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const position = await generator.createPosition({
@@ -121,6 +142,27 @@ describe('Positions listing', () => {
         expect(res.body.data[0].candidates.length).toEqual(0);
     });
 
+    test('should sort positions on /all', async () => {
+        const firstEvent = await generator.createEvent({ type: 'agora', applications: [] });
+        const firstPosition = await generator.createPosition({}, firstEvent);
+        const secondPosition = await generator.createPosition({}, firstEvent);
+
+        const res = await request({
+            uri: '/events/' + firstEvent.id + '/positions/approved',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+
+        expect(res.body.data.length).toEqual(2);
+        expect(res.body.data[0].id).toEqual(firstPosition.id);
+        expect(res.body.data[1].id).toEqual(secondPosition.id);
+    });
+
     test('should list all applications on /all', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         await generator.createPosition({
@@ -167,6 +209,27 @@ describe('Positions listing', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+    });
+
+    test('should sort positions on /all', async () => {
+        const firstEvent = await generator.createEvent({ type: 'agora', applications: [] });
+        const firstPosition = await generator.createPosition({}, firstEvent);
+        const secondPosition = await generator.createPosition({}, firstEvent);
+
+        const res = await request({
+            uri: '/events/' + firstEvent.id + '/positions/all',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+
+        expect(res.body.data.length).toEqual(2);
+        expect(res.body.data[0].id).toEqual(firstPosition.id);
+        expect(res.body.data[1].id).toEqual(secondPosition.id);
     });
 
     test('should return my positions on /mine', async () => {
