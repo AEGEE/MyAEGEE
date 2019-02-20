@@ -156,7 +156,7 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     return permissions;
 };
 
-exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine }) => {
+exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine, application }) => {
     // Basically do everything with applications.
     const canManage = hasPermission(corePermissions, 'manage_applications:' + event.type);
 
@@ -166,7 +166,7 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     // See JC list and change 'registered' and 'departed' attributes only.
     const isJuridical = hasPermission(corePermissions, 'manage_juridical:' + event.type);
 
-    permissions.see_application = mine || canManage || isIncoming;
+    permissions.see_application = mine || canManage || isIncoming || permissions.see_boardview_of[application.body_id];
 
     // User can edit application if it's his application and it's within the deadline, or if he has the permission.
     permissions.edit_application = (mine && event.can_apply) || canManage;

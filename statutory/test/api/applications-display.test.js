@@ -33,6 +33,28 @@ describe('Applications displaying', () => {
         expect(res.body.data.user_id).toEqual(regularUser.id);
     });
 
+    test('should succeed for board members', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({ applications: [] });
+        const application = await generator.createApplication({
+            user_id: 1337,
+            body_id: regularUser.bodies[0].id
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.user_id).toEqual(1337);
+    });
+
     test('should succeed for those who has permissions to see applications', async () => {
         const userId = Math.floor(Math.random() * 100 * 50); // from 50 to 150
         const event = await generator.createEvent({ applications: [] });

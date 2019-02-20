@@ -177,6 +177,7 @@ exports.fetchSingleApplication = async (req, res, next) => {
         corePermissions: req.corePermissions,
         user: req.user,
         event: req.event,
+        application: req.application,
         mine: req.user.id === req.application.user_id
     });
 
