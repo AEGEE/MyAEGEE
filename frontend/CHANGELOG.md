@@ -1,3 +1,17 @@
+## [0.5.2](https://github.com/AEGEE/oms-frontend/compare/0.5.1...0.5.2) (2019-02-20)
+
+
+### Bug Fixes
+
+* **general:** fixed loading local permissions for campaign ([70d042e](https://github.com/AEGEE/oms-frontend/commit/70d042e))
+
+
+### Features
+
+* **statutory:** allow boards to see applications. Fixes MEMB-462 ([c13bce7](https://github.com/AEGEE/oms-frontend/commit/c13bce7))
+
+
+
 ## [0.5.1](https://github.com/AEGEE/oms-frontend/compare/0.5.0...0.5.1) (2019-02-20)
 
 
