@@ -82,6 +82,31 @@ describe('Massmailer', () => {
         expect(res.body.meta.sent).toEqual(3);
     });
 
+    test('should work okay if the pax type/order is not set', async () => {
+        await generator.createApplication({
+            user_id: 5,
+            body_id: regularUser.bodies[0].id,
+            participant_type: null,
+            participant_order: null,
+            status: 'accepted'
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/massmailer',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                subject: 'Testing',
+                text: 'Testing mail sending.'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body.meta.sent).toEqual(4);
+    });
+
     test('should fail if body is not set', async () => {
         const res = await request({
             uri: '/events/' + event.id + '/massmailer',
