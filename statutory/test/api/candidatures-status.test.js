@@ -99,8 +99,8 @@ describe('Candidates status', () => {
             ends: moment().add(1, 'week').toDate(),
             places: 1,
             candidates: [
-                generator.generateCandidate({ status: 'approved' }),
-                generator.generateCandidate({ status: 'pending' })
+                generator.generateCandidate({ user_id: 1, status: 'approved' }),
+                generator.generateCandidate({ user_id: 2, status: 'pending' })
             ]
         }, event);
 
@@ -127,8 +127,8 @@ describe('Candidates status', () => {
             ends: moment().add(1, 'week').toDate(),
             places: 1,
             candidates: [
-                generator.generateCandidate({ status: 'approved' }),
-                generator.generateCandidate({ status: 'pending' })
+                generator.generateCandidate({ user_id: 1, status: 'approved' }),
+                generator.generateCandidate({ user_id: 2, status: 'pending' })
             ]
         }, event);
 
