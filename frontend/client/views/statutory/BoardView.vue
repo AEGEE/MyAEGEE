@@ -125,6 +125,12 @@
               </span>
             </b-table-column>
 
+            <b-table-column label="View" centered>
+              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.id } }">
+                View
+              </router-link>
+            </b-table-column>
+
             <b-table-column field="status" label="Status" centered sortable>
               {{ props.row.status | beautify }}
             </b-table-column>
@@ -261,6 +267,8 @@ export default {
     this.isLoading = true
 
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
+      this.loading = false
+
       this.event = event.data.data
       this.can = event.data.data.permissions
       this.myBoards = Object.keys(this.can.see_boardview_of)
