@@ -1,14 +1,16 @@
-# [0.6.0](https://github.com/AEGEE/oms-statutory/compare/0.5.3...0.6.0) (2019-02-11)
+## [0.6.1](https://github.com/AEGEE/oms-statutory/compare/0.5.3...0.6.1) (2019-02-20)
 
 
 ### Bug Fixes
 
+* **application:** allow boards to see applications. Fixes MEMB-464 ([ba196fe](https://github.com/AEGEE/oms-statutory/commit/ba196fe))
 * **application:** required boolean answers. Fixes MEMB-450 ([1b9e13d](https://github.com/AEGEE/oms-statutory/commit/1b9e13d))
+* **test:** fix tests that could fail randomly ([c3c42b5](https://github.com/AEGEE/oms-statutory/commit/c3c42b5))
 
 
 ### Features
 
-* **export:** add filtering for applications. Fixes MEMB-388 ([7bd27f8](https://github.com/AEGEE/oms-statutory/commit/7bd27f8))
+* **export:** add filtering for applications. Fixes MEMB-388 ([51922ad](https://github.com/AEGEE/oms-statutory/commit/51922ad))
 
 
 
