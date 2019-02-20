@@ -185,8 +185,8 @@ export default {
       ]
 
       // If bound circle, also request local permission on the body.
-      if (this.campaign.body_id) {
-        requests.push(this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.campaign.body_id + '/my_permissions'))
+      if (this.campaign.autojoin_body_id) {
+        requests.push(this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.campaign.autojoin_body_id + '/my_permissions'))
       }
 
       return Promise.all(requests)
