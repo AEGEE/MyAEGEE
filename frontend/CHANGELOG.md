@@ -1,3 +1,12 @@
+## [0.5.1](https://github.com/AEGEE/oms-frontend/compare/0.5.0...0.5.1) (2019-02-20)
+
+
+### Bug Fixes
+
+* **general:** refactor campaigns page. Fixes HELP-320. Related: MEMB-397 ([e1efc8a](https://github.com/AEGEE/oms-frontend/commit/e1efc8a))
+
+
+
 # [0.5.0](https://github.com/AEGEE/oms-frontend/compare/0.4.6...0.5.0) (2019-02-19)
 
 

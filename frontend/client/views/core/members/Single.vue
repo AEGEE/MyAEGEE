@@ -219,7 +219,7 @@ export default {
       const active = this.user.user.active
       this.$dialog.confirm({
         title: active ? 'Suspend user' : 'Activate user',
-        message: 'Are you sure you want to <b>' + (active ? 'suspend' : 'acivate') + '</b> this user?',
+        message: 'Are you sure you want to <b>' + (active ? 'suspend' : 'activate') + '</b> this user?',
         confirmText: active ? 'Suspend user' : 'Activate user',
         type: active ? 'is-danger' : 'is-primary',
         hasIcon: true,

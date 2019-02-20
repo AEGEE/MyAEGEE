@@ -49,51 +49,79 @@
 
         <div class="tile is-parent">
           <article class="tile is-child is-info">
-            <div class="field is-grouped">
-              <router-link  v-if="can.edit && !$route.params.body_id" :to="{ name: 'oms.campaigns.edit', params: { id: campaign.id } }" class="button is-fullwidth is-warning">
+            <div class="buttons">
+              <router-link  v-if="can.edit && !$route.params.body_id" :to="{ name: 'oms.campaigns.edit', params: { id: campaign.id } }" class="button is-warning">
                 <span>Edit campaign details</span>
                 <span class="icon"><i class="fa fa-edit"></i></span>
               </router-link>
 
-              <router-link  v-if="can.edit && $route.params.body_id" :to="{ name: 'oms.bodies.campaigns.edit', params: { body_id: campaign.autojoin_body_id, id: campaign.id } }" class="button is-fullwidth is-warning">
+              <router-link  v-if="can.edit && $route.params.body_id" :to="{ name: 'oms.bodies.campaigns.edit', params: { body_id: campaign.autojoin_body_id, id: campaign.id } }" class="button is-warning">
                 <span>Edit campaign details</span>
                 <span class="icon"><i class="fa fa-edit"></i></span>
               </router-link>
 
-              <a v-if="can.delete" class="button is-fullwidth is-danger" @click="askDeleteCampaign()">
+              <button v-if="can.delete" class="button is-danger" @click="askDeleteCampaign()">
                 <span>Delete campaign</span>
                 <span class="icon"><i class="fa fa-times"></i></span>
-              </a>
+              </button>
             </div>
           </article>
         </div>
       </article>
 
-      <article class="tile is-child" v-if="campaign.submissions.length">
-        <div class="content">
-          <p class="subtitle">Submissions</p>
-          <div class="content">
-            <table class="table is-narrow">
-              <tbody>
-                <tr>
-                  <th>User</th>
-                  <th>Motivation</th>
-                  <th>Email confirmed?</th>
-                </tr>
-                <tr v-for="submission in campaign.submissions" v-bind:key="submission.id">
-                  <td>
-                    <router-link :to="{ name: 'oms.members.view', params: { id: submission.user.member_id } }">
-                      {{ submission.first_name }} {{ submission.last_name }}
-                    </router-link>
-                  </td>
-                  <td>{{ submission.motivation }}</td>
-                  <td>{{ submission.mail_confirmed ? 'Yes' : 'No' }}</td>
-                </tr>
-              </tbody>
-            </table>
+      <p class="subtitle">Submissions</p>
+
+      <div class="field">
+        <label class="label">Search by name or surname</label>
+        <div class="field has-addons">
+          <div class="control is-expanded">
+            <input class="input" type="text" v-model="query" placeholder="Search by name or surname" />
           </div>
         </div>
-      </article>
+      </div>
+
+      <b-table
+        :data="filteredSubmissions"
+        paginated
+        :per-page="limit"
+        default-sort="id"
+        default-sort-direction="desc">
+        <template slot-scope="props">
+          <b-table-column field="user.member_id" label="#" numeric sortable>
+            {{ props.row.user.member_id }}
+          </b-table-column>
+
+          <b-table-column field="first_name" label="User" sortable>
+            <router-link v-if="can.viewMember && props.row.mail_confirmed" :to="{ name: 'oms.members.view', params: { id: props.row.user.member_id } }">
+              {{ props.row.first_name }} {{ props.row.last_name }}
+            </router-link>
+            <span v-else>
+              {{ props.row.first_name }} {{ props.row.last_name }}
+            </span>
+          </b-table-column>
+
+          <b-table-column field="motivation" label="Motivation">
+            {{ props.row.motivation }}
+          </b-table-column>
+
+          <b-table-column field="mail_confirmed" label="Email confirmed?" sortable>
+            <span class="tag is-small" :class="props.row.mail_confirmed ? 'is-primary' : 'is-danger'">
+              {{ props.row.mail_confirmed | beautify }}
+            </span>
+          </b-table-column>
+        </template>
+
+        <template slot="empty">
+          <section class="section">
+            <div class="content has-text-grey has-text-centered">
+              <p>
+                <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+              </p>
+              <p>Nothing here.</p>
+            </div>
+          </section>
+        </template>
+      </b-table>
     </div>
 
     <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
@@ -118,11 +146,14 @@ export default {
         autojoin_body: null,
         active: null
       },
+      query: '',
+      limit: 50,
       isLoading: false,
       permissions: [],
       can: {
         edit: false,
-        delete: false
+        delete: false,
+        viewMember: false
       }
     }
   },
@@ -149,24 +180,43 @@ export default {
     this.axios.get(this.services['oms-core-elixir'] + '/backend_campaigns/' + this.$route.params.id).then((response) => {
       this.campaign = response.data.data
 
-      return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions')
-    }).then((response) => {
-      this.permissions = response.data.data
+      const requests = [
+        this.axios.get(this.services['oms-core-elixir'] + '/my_permissions')
+      ]
 
-      this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:campaign'))
-      this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:campaign'))
+      // If bound circle, also request local permission on the body.
+      if (this.campaign.body_id) {
+        requests.push(this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.campaign.body_id + '/my_permissions'))
+      }
+
+      return Promise.all(requests)
+    }).then((responses) => {
+      this.permissions = responses[0].data.data
+
+      this.can.viewMember = responses.some(responseList => responseList.data.data.some(permission => permission.combined.endsWith('view:member')))
+      this.can.edit = responses.some(responseList => responseList.data.data.some(permission => permission.combined.endsWith('update:campaign')))
+      this.can.delete = responses.some(responseList => responseList.data.data.some(permission => permission.combined.endsWith('delete:campaign')))
 
       this.isLoading = false
     }).catch((err) => {
-      let message = (err.response.status === 404) ? 'Campaign is not found' : 'Some error happened: ' + err.message
+      let message = (err.response && err.response.status === 404) ? 'Campaign is not found' : 'Some error happened: ' + err.message
 
       this.$root.showDanger(message)
       this.$router.push({ name: 'oms.campaigns.list' })
     })
   },
-  computed: mapGetters({
-    loginUser: 'user',
-    services: 'services'
-  })
+  computed: {
+    ...mapGetters({
+      loginUser: 'user',
+      services: 'services'
+    }),
+    filteredSubmissions () {
+      const queryLowerCase = this.query.toLowerCase()
+
+      return this.campaign.submissions.filter(submission => {
+        return submission.first_name.toLowerCase().includes(queryLowerCase) || submission.last_name.toLowerCase().includes(queryLowerCase)
+      })
+    }
+  }
 }
 </script>
