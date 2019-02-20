@@ -23,7 +23,10 @@ exports.findPosition = async (req, res, next) => {
 
 
 exports.listAllPositions = async (req, res) => {
-    const positions = await Position.findAll({ where: { event_id: req.event.id } });
+    const positions = await Position.findAll({
+        where: { event_id: req.event.id },
+        order: [['created_at', 'ASC']]
+    });
     return res.json({
         success: true,
         data: positions
@@ -37,6 +40,7 @@ exports.listPositionsWithAllCandidates = async (req, res) => {
 
     const positions = await Position.findAll({
         where: { event_id: req.event.id },
+        order: [['created_at', 'ASC']],
         include: [Candidate]
     });
 
@@ -48,9 +52,8 @@ exports.listPositionsWithAllCandidates = async (req, res) => {
 
 exports.listPositionsWithApprovedCandidates = async (req, res) => {
     const positions = await Position.findAll({
-        where: {
-            event_id: req.event.id
-        },
+        where: { event_id: req.event.id },
+        order: [['created_at', 'ASC']],
         include: [Candidate]
     });
 
