@@ -54,7 +54,7 @@ describe('Positions listing', () => {
         expect(res.body.data[0].id).toEqual(firstPosition.id);
     });
 
-    test('should list all of the approved candidates on /accepted', async () => {
+    test('should list all of the approved candidates on /approved', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const position = await generator.createPosition({
             candidates: [generator.generateCandidate({ status: 'approved' })]
@@ -77,7 +77,7 @@ describe('Positions listing', () => {
         expect(res.body.data[0].candidates[0]).toHaveProperty('first_name');
     });
 
-    test('should indicate that there is unapproved application on /accepted', async () => {
+    test('should indicate that there is unapproved application on /approved', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const position = await generator.createPosition({
             candidates: [generator.generateCandidate({ status: 'pending' })]
@@ -101,7 +101,7 @@ describe('Positions listing', () => {
     });
 
 
-    test('should not list rejected applications on /accepted', async () => {
+    test('should not list rejected applications on /approved', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         await generator.createPosition({
             candidates: [generator.generateCandidate({ status: 'rejected' })]
