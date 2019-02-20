@@ -355,7 +355,7 @@ describe('Applications editing', () => {
         expect(newApplication.board_comment).toEqual('Awesome guy, accept');
     });
 
-    test('should returrn 500 if members query returns net error', async () => {
+    test('should return 500 if members query returns net error', async () => {
         mock.mockAll({ member: { netError: true } });
 
         const event = await generator.createEvent();
@@ -378,7 +378,7 @@ describe('Applications editing', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should returrn 500 if members query returns bad response', async () => {
+    test('should return 500 if members query returns bad response', async () => {
         mock.mockAll({ member: { badResponse: true } });
 
         const event = await generator.createEvent();
