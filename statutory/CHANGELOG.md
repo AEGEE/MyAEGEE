@@ -1,3 +1,12 @@
+## [0.6.3](https://github.com/AEGEE/oms-statutory/compare/0.6.2...0.6.3) (2019-02-21)
+
+
+### Bug Fixes
+
+* **refactor:** refactor core requests. Fixes MEMB-439 ([7eabf61](https://github.com/AEGEE/oms-statutory/commit/7eabf61))
+
+
+
 ## [0.6.2](https://github.com/AEGEE/oms-statutory/compare/0.5.3...0.6.2) (2019-02-20)
 
 
