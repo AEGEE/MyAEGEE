@@ -37,57 +37,55 @@
           </div>
         </div>
 
-        <div class="table-responsive">
-          <table class="table is-bordered is-striped is-narrow is-fullwidth">
-            <thead>
-              <tr>
-                <th>Body code</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tfoot>
-              <tr>
-                <th>Body code</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Description</th>
-              </tr>
-            </tfoot>
-            <tbody>
-              <tr v-show="bodies.length" v-for="body in bodies" v-bind:key="body.id">
-                <td>{{ body.legacy_key }}</td>
-                <td>
-                  <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id } }">{{ body.name}}</router-link>
-                </td>
-                <td>{{ body.type | capitalize }}</td>
-                <td>
-                  <span v-html="$options.filters.markdown(body.description)"></span>
-                </td>
-              </tr>
-              <tr v-show="!bodies.length && !isLoading">
-                <td colspan="4" class="has-text-centered">Bodies list is empty</td>
-              </tr>
-              <tr v-show="isLoading">
-                <td colspan="4" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
-              </tr>
-            </tbody>
-          </table>
+        <b-table :data="bodies" :loading="isLoading" narrowed>
+          <template slot-scope="props">
+            <b-table-column field="legacy_key" label="Body code">
+              {{ props.row.legacy_key }}
+            </b-table-column>
 
-          <div class="field">
-            <button
-              class="button is-primary is-fullwidth"
-              :class="{ 'is-loading': isLoading }"
-              :disabled="isLoading"
-              v-show="canLoadMore"
-              @click="fetchData()">Load more bodies</button>
-          </div>
+            <b-table-column field="name" label="Body name">
+              <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.id } }">{{ props.row.name}}</router-link>
+            </b-table-column>
+
+            <b-table-column field="type" label="Type">
+              {{ props.row.type | capitalize }}
+            </b-table-column>
+
+            <b-table-column field="description" label="Description">
+              <span class="body-description" v-html="$options.filters.markdown(props.row.description)"></span>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
+
+        <div class="field">
+          <button
+            class="button is-primary is-fullwidth"
+            :class="{ 'is-loading': isLoading }"
+            :disabled="isLoading"
+            v-show="canLoadMore"
+            @click="fetchData()">Load more bodies</button>
         </div>
       </article>
     </div>
   </div>
 </template>
+
+<style>
+.body-description a {
+  word-break: break-all;
+}
+</style>
 
 <script>
 import { mapGetters } from 'vuex'
