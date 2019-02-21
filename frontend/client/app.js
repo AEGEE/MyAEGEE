@@ -60,7 +60,10 @@ router.beforeEach((route, redirect, next) => {
   }
 
   // If user if fetched, just redirect.
-  if (state.login.user) return state.login.isLoggedIn ? next() : next('/login')
+  if (state.login.user) {
+    document.title = 'OMS | ' + route.meta.label
+    return state.login.isLoggedIn ? next() : next('/login')
+  }
 
   // Fetching user if not fetched.
   return router.app.$auth.fetchUserWithExistingData().then(() => {
