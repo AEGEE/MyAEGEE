@@ -1,3 +1,12 @@
+## [0.5.3](https://github.com/AEGEE/oms-frontend/compare/0.5.2...0.5.3) (2019-02-21)
+
+
+### Bug Fixes
+
+* **general:** fixed changing page title on route change. Fixes MEMB-475 ([4f8ccd5](https://github.com/AEGEE/oms-frontend/commit/4f8ccd5))
+
+
+
 ## [0.5.2](https://github.com/AEGEE/oms-frontend/compare/0.5.1...0.5.2) (2019-02-20)
 
 
