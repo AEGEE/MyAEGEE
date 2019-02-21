@@ -1,8 +1,6 @@
-const request = require('request-promise-native');
-
+const core = require('./core');
 const errors = require('./errors');
 const { PaxLimit } = require('../models');
-const config = require('../config');
 
 exports.checkEventType = async (req, res, next) => {
     if (!['agora', 'epm'].includes(req.params.event_type)) {
@@ -14,27 +12,9 @@ exports.checkEventType = async (req, res, next) => {
 
 exports.listAllLimits = async (req, res) => {
     // Fetching bodies list
-    const bodies = await request({
-        url: config.core.url + ':' + config.core.port + '/bodies',
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
-        },
-        simple: false,
-        json: true
-    });
-
-    if (typeof bodies !== 'object') {
-        throw new Error('Malformed response when fetching bodies: ' + bodies);
-    }
-
-    if (!bodies.success) {
-        throw new Error('Error fetching bodies: ' + JSON.stringify(bodies));
-    }
-
+    const bodies = await core.getBodies(req);
     const limits = await PaxLimit.findAll({ where: { event_type: req.params.event_type } });
-    const result = bodies.data.map((body) => {
+    const result = bodies.map((body) => {
         const limitPerBody = limits.find(limit => limit.body_id === body.id);
 
         // Either return a custom limit for a body, or a default one if it's not found.
@@ -49,28 +29,8 @@ exports.listAllLimits = async (req, res) => {
 
 exports.getSingleLimit = async (req, res) => {
     // Fetching bodies list
-    const body = await request({
-        url: config.core.url + ':' + config.core.port + '/bodies/' + req.params.body_id,
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
-        },
-        simple: false,
-        json: true
-    });
-
-    if (typeof body !== 'object') {
-        throw new Error('Malformed response when fetching body: ' + body);
-    }
-
-    if (!body.success) {
-        // We are not authenticated
-        throw new Error('Error fetching body: ' + JSON.stringify(body));
-    }
-
-    const limit = await PaxLimit.fetchOrUseDefaultForBody(body.data, req.params.event_type);
-
+    const body = await core.getBody(req, req.params.body_id);
+    const limit = await PaxLimit.fetchOrUseDefaultForBody(body, req.params.event_type);
 
     return res.json({
         success: true,

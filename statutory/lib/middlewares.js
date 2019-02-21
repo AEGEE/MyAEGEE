@@ -1,7 +1,5 @@
-const request = require('request-promise-native');
-
+const core = require('./core');
 const errors = require('./errors');
-const config = require('../config');
 const helpers = require('./helpers');
 const logger = require('./logger');
 const constants = require('./constants');
@@ -17,37 +15,24 @@ exports.authenticateUser = async (req, res, next) => {
 
     try {
         // Query the core for user and permissions.
-        const [userBody, permissionsBody] = await Promise.all(['members/me', 'my_permissions'].map(endpoint => request({
-            url: config.core.url + ':' + config.core.port + '/' + endpoint,
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-Auth-Token': req.headers['x-auth-token'],
-            },
-            simple: false,
-            json: true,
-        })));
+        const [userBody, permissions] = await Promise.all([
+            core.getMyProfile(req),
+            core.getMyPermissions(req)
+        ]);
 
         if (typeof userBody !== 'object') {
             throw new Error('Malformed response when fetching user: ' + userBody);
         }
 
+        // We only check user body here and not in the core helper
+        // because if not authorized, we need to return 401.
         if (!userBody.success) {
             // We are not authenticated
             return errors.makeUnauthorizedError(res, 'Error fetching user: user is not authenticated.');
         }
 
-        if (typeof permissionsBody !== 'object') {
-            throw new Error('Malformed response when fetching permissions: ' + JSON.stringify(permissionsBody));
-        }
-
-        if (!permissionsBody.success) {
-            // We are not authenticated
-            return errors.makeUnauthorizedError(res, 'Error fetching permissions: user is not authenticated.');
-        }
-
         req.user = userBody.data;
-        req.corePermissions = permissionsBody.data;
+        req.corePermissions = permissions;
         req.permissions = helpers.getPermissions(req.user, req.corePermissions);
         req.user.special = ['Public']; // Everybody is included in 'Public', right?
 
@@ -106,34 +91,10 @@ function fetchEvent(includeApplications) {
             return errors.makeNotFoundError(res, 'Event with such url or ID is not found.');
         }
 
-        // Fetching permissions for members approval, the list of bodies
-        // where do you have the 'approve_members:<event_type>' permission for it.
-        const approveRequest = await request({
-            url: config.core.url + ':' + config.core.port + '/my_permissions',
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-Auth-Token': req.headers['x-auth-token'],
-            },
-            simple: false,
-            json: true,
-            body: {
-                action: 'approve_members',
-                object: event.type
-            }
-        });
-
-        if (typeof approveRequest !== 'object') {
-            throw new Error('Malformed response when fetching permissions for approve: ' + approveRequest);
-        }
-
-        if (!approveRequest.success) {
-            // We are not authenticated
-            throw new Error('Error fetching permissions for approve: user is not authenticated.');
-        }
+        const approveRequest = await core.getApprovePermissions(req, event);
 
         req.event = event;
-        req.approvePermissions = approveRequest.data;
+        req.approvePermissions = approveRequest;
         req.permissions = helpers.getEventPermissions({
             permissions: req.permissions,
             corePermissions: req.corePermissions,

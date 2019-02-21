@@ -110,7 +110,7 @@ describe('API requests', () => {
             }
         });
 
-        expect(res.statusCode).toEqual(401);
+        expect(res.statusCode).toEqual(500);
         expect(res.body.success).toEqual(false);
     });
 
