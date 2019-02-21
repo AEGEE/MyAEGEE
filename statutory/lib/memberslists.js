@@ -1,8 +1,6 @@
-const request = require('request-promise-native');
-
+const core = require('./core');
 const errors = require('./errors');
 const { MembersList, VotesPerAntenna } = require('../models');
-const config = require('../config');
 
 exports.checkIfAgora = async (req, res, next) => {
     if (req.event.type !== 'agora') {
@@ -58,25 +56,7 @@ exports.uploadMembersList = async (req, res) => {
     }
 
     // Fetching body. We'll need that for calculating votes per antenna.
-    const body = await request({
-        url: config.core.url + ':' + config.core.port + '/bodies/' + req.params.body_id,
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
-        },
-        simple: false,
-        json: true
-    });
-
-    if (typeof body !== 'object') {
-        throw new Error('Malformed response when fetching body: ' + body);
-    }
-
-    if (!body.success) {
-        // We are not authenticated
-        throw new Error('Error fetching body: ' + JSON.stringify(body));
-    }
+    const body = await core.getBody(req, req.params.body_id);
 
     req.body.body_id = req.params.body_id;
     req.body.user_id = req.user.id;
@@ -93,7 +73,7 @@ exports.uploadMembersList = async (req, res) => {
             { where: { event_id: req.event.id, body_id: req.params.body_id }, returning: true }
         );
         // Recalculating votes per antenna.
-        await VotesPerAntenna.recalculateVotesForAntenna(body.data, req.event);
+        await VotesPerAntenna.recalculateVotesForAntenna(body, req.event);
 
         return res.json({
             success: true,
@@ -104,7 +84,7 @@ exports.uploadMembersList = async (req, res) => {
     const newMembersList = await MembersList.create(req.body);
 
     // Calculating votes per antenna.
-    await VotesPerAntenna.recalculateVotesForAntenna(body.data, req.event);
+    await VotesPerAntenna.recalculateVotesForAntenna(body, req.event);
 
     return res.json({
         success: true,

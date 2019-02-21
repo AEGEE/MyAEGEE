@@ -1,11 +1,10 @@
 const moment = require('moment');
-const request = require('request-promise-native');
 const crypto = require('crypto');
 const xlsx = require('node-xlsx').default;
 
 const errors = require('./errors');
+const core = require('./core');
 const mailer = require('./mailer');
-const config = require('../config');
 const { Application, PaxLimit, VotesPerAntenna, MembersList } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
@@ -180,27 +179,8 @@ exports.updateApplication = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot edit this application.');
     }
 
-    // Fetching users list
-    const userBody = await request({
-        url: config.core.url + ':' + config.core.port + '/members/' + req.application.user_id,
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
-        },
-        simple: false,
-        json: true
-    });
-
-    if (typeof userBody !== 'object') {
-        throw new Error('Malformed response when fetching users: ' + userBody);
-    }
-
-    if (!userBody.success) {
-        throw new Error('Error fetching users: ' + JSON.stringify(userBody));
-    }
-
-    if (req.body.body_id && !helpers.isMemberOf(userBody.data, req.body.body_id)) {
+    const user = await core.getMember(req, req.application.user_id);
+    if (req.body.body_id && !helpers.isMemberOf(user, req.body.body_id)) {
         return errors.makeForbiddenError(res, 'You cannot apply on behalf of the body you are not a member of.');
     }
 
@@ -215,15 +195,15 @@ exports.updateApplication = async (req, res) => {
     delete req.body.user_id;
 
     // Some fields are filled in from the user/body automatically.
-    req.body.first_name = userBody.data.first_name;
-    req.body.last_name = userBody.data.last_name;
-    req.body.gender = userBody.data.gender;
-    req.body.email = userBody.data.user.email;
-    req.body.date_of_birth = userBody.data.date_of_birth;
+    req.body.first_name = user.first_name;
+    req.body.last_name = user.last_name;
+    req.body.gender = user.gender;
+    req.body.email = user.user.email;
+    req.body.date_of_birth = user.date_of_birth;
     if (req.body.body_id) {
         // Shouldn't crash, if the person is not a member of a body,
         // it will be caught by helpers.isMemberOf() above.
-        req.body.body_name = userBody.data.bodies.find(b => req.body.body_id === b.id).name;
+        req.body.body_name = user.bodies.find(b => req.body.body_id === b.id).name;
     }
 
     // If user changed his body (by himself), reset his board comment and participant type/order.
@@ -350,26 +330,8 @@ exports.setApplicationBoard = async (req, res) => {
     }
 
     // need to fetch body to get its body type
-    const body = await request({
-        url: config.core.url + ':' + config.core.port + '/bodies/' + req.application.body_id,
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
-        },
-        simple: false,
-        json: true
-    });
-
-    if (typeof body !== 'object') {
-        throw new Error('Malformed response when fetching bodies: ' + body);
-    }
-
-    if (!body.success) {
-        throw new Error('Error fetching body: ' + JSON.stringify(body));
-    }
-
-    const limit = await PaxLimit.fetchOrUseDefaultForBody(body.data, req.event.type);
+    const body = await core.getBody(req, req.application.body_id);
+    const limit = await PaxLimit.fetchOrUseDefaultForBody(body, req.event.type);
 
     const toUpdate = {};
     if (typeof req.body.participant_type !== 'undefined') toUpdate.participant_type = req.body.participant_type;
