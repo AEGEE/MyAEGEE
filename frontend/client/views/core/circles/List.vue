@@ -32,7 +32,7 @@
             </b-table-column>
 
             <b-table-column field="name" label="Campaign name" sortable width="150">
-              <router-link :to="{ name: 'oms.campaigns.view', params: { id: props.row.id } }">
+              <router-link :to="{ name: 'oms.circles.view', params: { id: props.row.id } }">
                 {{ props.row.name }}
               </router-link>
             </b-table-column>
