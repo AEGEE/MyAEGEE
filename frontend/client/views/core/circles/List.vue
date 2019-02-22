@@ -23,46 +23,46 @@
           </div>
         </div>
 
-        <div class="table-responsive">
-          <table class="table is-bordered is-striped is-narrow is-fullwidth">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tfoot>
-              <tr>
-                <th>Name</th>
-                <th>Description</th>
-              </tr>
-            </tfoot>
-            <tbody>
-              <tr v-show="circles.length" v-for="circle in circles" v-bind:key="circle.id">
-                <td>
-                  <router-link :to="{ name: 'oms.circles.view', params: { id: circle.id } }">
-                    {{ circle.name }}
-                  </router-link>
-                </td>
-                <td>{{ circle.description }}</td>
-              </tr>
-              <tr v-show="!circles.length && !isLoading">
-                <td colspan="2" class="has-text-centered">Circles list is empty</td>
-              </tr>
-              <tr v-show="isLoading">
-                <td colspan="2" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
-              </tr>
-            </tbody>
-          </table>
+        <b-table
+          :data="circles"
+          :loading="isLoading">
+          <template slot-scope="props">
+            <b-table-column field="id" label="#" numeric sortable>
+              {{ props.row.id }}
+            </b-table-column>
 
-          <div class="field">
-            <button
-              class="button is-primary is-fullwidth"
-              :class="{ 'is-loading': isLoading }"
-              :disabled="isLoading"
-              v-show="canLoadMore"
-              @click="fetchData()">Load more circles</button>
-          </div>
+            <b-table-column field="name" label="Campaign name" sortable width="150">
+              <router-link :to="{ name: 'oms.campaigns.view', params: { id: props.row.id } }">
+                {{ props.row.name }}
+              </router-link>
+            </b-table-column>
+
+            <b-table-column field="description" label="Description">
+              {{ props.row.description }}
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
+
+        <div class="field">
+          <button
+            class="button is-primary is-fullwidth"
+            :class="{ 'is-loading': isLoading }"
+            :disabled="isLoading"
+            v-show="canLoadMore"
+            @click="fetchData()">
+            Load more circles
+          </button>
         </div>
       </article>
     </div>
