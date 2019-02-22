@@ -10,52 +10,52 @@
           </div>
         </div>
 
-        <div class="table-responsive">
-          <table class="table is-bordered is-striped is-narrow is-fullwidth">
-            <thead>
-              <tr>
-                <th>Name and surname</th>
-                <th>Birthday</th>
-                <th>Address</th>
-                <th>About user</th>
-              </tr>
-            </thead>
-            <tfoot>
-              <tr>
-                <th>Name and surname</th>
-                <th>Birthday</th>
-                <th>Address</th>
-                <th>About user</th>
-              </tr>
-            </tfoot>
-            <tbody>
-              <tr v-show="users.length" v-for="user in users" v-bind:key="user.id">
-                <td>
-                  <router-link :to="{ name: 'oms.members.view', params: { id: user.seo_url || user.id } }">
-                    {{ user.first_name + ' ' + user.last_name }}
-                  </router-link>
-                </td>
-                <td>{{ user.date_of_birth }}</td>
-                <td>{{ user.address }}</td>
-                <td>{{ user.about_me }}</td>
-              </tr>
-              <tr v-show="!users.length && !isLoading">
-                <td colspan="4" class="has-text-centered">User list is empty</td>
-              </tr>
-              <tr v-show="isLoading">
-                <td colspan="4" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
-              </tr>
-            </tbody>
-          </table>
+        <b-table
+          :data="users"
+          :loading="isLoading">
+          <template slot-scope="props">
+            <b-table-column field="id" label="#" numeric sortable>
+              {{ props.row.id }}
+            </b-table-column>
 
-          <div class="field">
-            <button
-              class="button is-primary is-fullwidth"
-              :class="{ 'is-loading': isLoading }"
-              :disabled="isLoading"
-              v-show="canLoadMore"
-              @click="fetchData()">Load more users</button>
-          </div>
+            <b-table-column field="first_name" label="Name and surname" sortable width="150">
+              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.seo_url || props.row.id } }">
+                {{ props.row.first_name }} {{ props.row.last_name }}
+              </router-link>
+            </b-table-column>
+
+            <b-table-column field="birthday" label="Birthday" sortable width="150">
+              {{ props.row.date_of_birth }}
+            </b-table-column>
+
+            <b-table-column field="address" label="Address">
+              {{ props.row.address }}
+            </b-table-column>
+
+            <b-table-column field="about_me" label="About me">
+              {{ props.row.about_me }}
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
+
+        <div class="field">
+          <button
+            class="button is-primary is-fullwidth"
+            :class="{ 'is-loading': isLoading }"
+            :disabled="isLoading"
+            v-show="canLoadMore"
+            @click="fetchData()">Load more users</button>
         </div>
       </article>
     </div>
@@ -108,9 +108,7 @@ export default {
         this.canLoadMore = response.data.data.length === this.limit
         this.isLoading = false
       }).catch((err) => {
-        if (this.axios.isCancel(err)) {
-          return console.debug('Request cancelled.')
-        }
+        this.isLoading = false
 
         this.$root.showDanger('Could not fetch user list: ' + err.message)
       })
