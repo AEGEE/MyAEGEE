@@ -10,105 +10,44 @@
           </div>
         </div>
 
-        <table class="table is-narrow is-fullwidth">
-          <thead>
-            <tr>
-              <th>User ID</th>
-              <th>Name</th>
-              <th>Body</th>
-              <th v-if="can.approve_participants">Status</th>
-              <th v-if="can.approve_participants"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="pax in applications" v-bind:key="pax.user_id">
-              <td>{{ pax.user_id }}</td>
-              <td>
-                <router-link :to="{ name: 'oms.members.view', params: { id: pax.user_id } }">
-                  {{ pax.first_name }} {{ pax.last_name }}
-                </router-link>
-              </td>
-              <td>
-                <router-link :to="{ name: 'oms.bodies.view', params: { id: pax.body_id } }">
-                  {{ pax.body_name }}
-                </router-link>
-              </td>
-              <td v-if="can.approve_participants">
-                <span>{{ pax.status | capitalize }}</span>
-              </td>
-              <td>
-                <button class="button is-small is-primary" @click="showModal(pax)">
-                  <i class="fa fa-pencil-alt"></i>
-                </button>
-              </td>
-            </tr>
-            <tr v-if="applications.length == 0 && !isLoading">
-              <td colspan="4">No applications yet!</td>
-            </tr>
-            <tr v-if="isLoading">
-              <td colspan="4">Loading...</td>
-            </tr>
-          </tbody>
-        </table>
+        <p>Total applications: {{ applications.length }}.</p>
+        <p>Click on the application to extend it.</p>
 
-        <div class="tile is-parent" v-if="selected">
-          <div class="tile is-child">
-            <div class="title">Selected participant</div>
-            <table class="table is-narrow is-fullwidth">
-              <tr>
-                <td><b>First Name</b></td>
-                <td>{{ selected.first_name }}</td>
-              </tr>
+        <b-table
+          :data="applications"
+          :loading="isLoading"
+          @click="showModal">
+          <template slot-scope="props">
+            <b-table-column field="user_id" label="User ID" numeric sortable>
+              {{ props.row.user_id }}
+            </b-table-column>
 
-              <tr>
-                <td><b>Last Name</b></td>
-                <td>{{ selected.last_name }}</td>
-              </tr>
+            <b-table-column field="first_name" label="First and last name" sortable>
+              {{ props.row.first_name }} {{ props.row.last_name }}
+            </b-table-column>
 
-              <tr>
-                <td><b>Body</b></td>
-                <td>{{ selected.body_name }}</td>
-              </tr>
+            <b-table-column field="body_name" label="Body">
+              <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
+                {{ props.row.body_name }}
+              </router-link>
+            </b-table-column>
 
-              <tr>
-                <td><b>Application date</b></td>
-                <td>{{ selected.createdAt | date }}</td>
-              </tr>
+            <b-table-column label="Status" :visible="can.approve_participants">
+              {{ props.row.status | capitalize }}
+            </b-table-column>
+          </template>
 
-              <tr v-for="(field, index) in event.questions" v-bind:key="index">
-                <td><b>{{ field.description }}</b></td>
-                <td>{{ selected.answers[index] | beautify }}</td>
-              </tr>
-
-              <tr>
-                <td><b>Board comment</b></td>
-                <td v-show="selected.board_comment">{{ selected.board_comment }}</td>
-                <td v-show="!selected.board_comment">-</td>
-              </tr>
-            </table>
-
-            <div class="field">
-              <button class="button is-danger" @click="changeState(selected, 'rejected')">
-                <span class="icon">
-                  <i class="fa fa-minus-circle"></i>
-                </span>
-                <span>Reject</span>
-              </button>
-              <button class="button is-primary" @click="changeState(selected, 'accepted')">
-                <span class="icon">
-                  <i class="fa fa-plus-circle"></i>
-                </span>
-                <span>Accept</span>
-              </button>
-              <button class="button" @click="changeState(selected, 'pending')">
-                <span class="icon">
-                  <i class="fa fa-circle-notch"></i>
-                </span>
-                <span>Postpone</span>
-              </button>
-            </div>
-          </div>
-        </div>
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
       </div>
     </div>
   </div>
@@ -116,6 +55,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import ViewParticipantModal from './ViewParticipantModal'
 
 export default {
   name: 'ParticipantsList',
@@ -129,9 +69,7 @@ export default {
         approve_participants: false
       },
       applications: [],
-      isLoading: false,
-      isSaving: false,
-      selected: null
+      isLoading: false
     }
   },
   methods: {
@@ -147,20 +85,21 @@ export default {
         link.click()
       })
     },
-    showModal (application) {
-      this.selected = application
-    },
-    changeState (application, newState) {
-      // Store the change
-      this.axios.put(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/' + application.id + '/status/', {
-        status: newState
-      }).then(() => {
-        application.status = newState
-        this.selected = null
-
-        this.$root.showSuccess('Participant status is updated.')
-      }).catch((err) => {
-        this.$root.showDanger('Could not update participant status: ' + err.message)
+    showModal (participant) {
+      this.$modal.open({
+        component: ViewParticipantModal,
+        hasModalCard: true,
+        props: {
+          // When programmatically opening a modal, it doesn't have access to Vue instance
+          // and therefore store, services and notifications functions. That's why
+          // I'm passing them as props.
+          // More info: https://github.com/buefy/buefy/issues/55
+          event: this.event,
+          participant,
+          services: this.services,
+          showDanger: this.$root.showDanger,
+          showSuccess: this.$root.showSuccess
+        }
       })
     }
   },
