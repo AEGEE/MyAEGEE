@@ -1,3 +1,14 @@
+## [0.6.1](https://github.com/AEGEE/oms-frontend/compare/0.6.0...0.6.1) (2019-02-23)
+
+
+### Bug Fixes
+
+* **events:** fix changing participants statuses ([b325ff2](https://github.com/AEGEE/oms-frontend/commit/b325ff2))
+* **general:** fix members listing type-ahead ([aedcc8e](https://github.com/AEGEE/oms-frontend/commit/aedcc8e))
+* **statutory:** display boardviw validation. Fixes HELP-328 ([9814cb9](https://github.com/AEGEE/oms-frontend/commit/9814cb9))
+
+
+
 # [0.6.0](https://github.com/AEGEE/oms-frontend/compare/0.5.3...0.6.0) (2019-02-23)
 
 
