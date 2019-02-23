@@ -76,10 +76,10 @@ export default {
       }).then(() => {
         this.participant.status = newState
 
-        this.$root.showSuccess('Participant status is updated.')
+        this.showSuccess('Participant status is updated.')
         this.$parent.close()
       }).catch((err) => {
-        this.$root.showDanger('Could not update participant status: ' + err.message)
+        this.showDanger('Could not update participant status: ' + err.message)
       })
     }
   },
