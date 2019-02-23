@@ -4,58 +4,40 @@
       <article class="tile is-child">
         <h4 class="title">List all memberslists for {{ event.name }}</h4>
 
-        <div class="table-responsive">
-          <table class="table is-bordered is-striped is-narrow is-fullwidth">
-            <thead>
-              <tr>
-                <th>Body</th>
-                <th>Currency</th>
-                <th>Members amount</th>
-                <th>List</th>
-              </tr>
-            </thead>
-            <tfoot>
-              <tr>
-                <th>Body</th>
-                <th>Currency</th>
-                <th>Members amount</th>
-                <th>List</th>
-              </tr>
-            </tfoot>
-            <tbody>
-              <tr v-for="memberslist in memberslists" v-bind:key="memberslist.body_id">
-                <td>
-                  <router-link :to="{ name: 'oms.bodies.view', params: { id: memberslist.body_id } }">
-                    {{ memberslist.body ?  memberslist.body.name : 'Loading...' }}
-                  </router-link>
-                </td>
-                <td>{{ memberslist.currency }}</td>
-                <td>{{ memberslist.members.length }}</td>
-                <td>
-                  <ul>
-                    <li v-for="member in memberslist.members" v-bind:key="member.user_id">
-                      <router-link v-if="member.user_id" :to="{ name: 'oms.members.view', params: { id: member.user_id } }">
-                        <span class="tag is-info">
-                          {{ member.first_name }} {{ member.last_name }} ({{ member.fee }} {{ memberslist.currency }})
-                        </span>
-                      </router-link>
-                      <span class="tag is-info" v-if="!member.user_id">
-                        {{ member.first_name }} {{ member.last_name }} ({{ member.fee }} {{ memberslist.currency }})
-                      </span>
-                    </li>
-                  </ul>
-                </td>
-              </tr>
-              <tr v-show="!memberslists.length && !isLoading">
-                <td colspan="4" class="has-text-centered">No memberslists uploaded.</td>
-              </tr>
-              <tr v-show="isLoading">
-                <td colspan="4" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <b-table
+          :data="memberslists"
+          :loading="isLoading">
+          <template slot-scope="props">
+            <b-table-column field="body" label="Body name" sortable>
+              <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
+                {{ props.row.body ?  props.row.body.name : 'Loading...' }}
+              </router-link>
+            </b-table-column>
 
+            <b-table-column field="currency" label="Currency" sortable>
+              {{ props.row.currency }}
+            </b-table-column>
+
+            <b-table-column field="members.length" label="Members amount" numeric sortable>
+              {{ props.row.members.length }}
+            </b-table-column>
+
+            <b-table-column label="View" sortable>
+              <button class="button is-small is-primary" @click="openMembersListModal(props.row)">View memberslist</button>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
       </article>
     </div>
   </div>
@@ -63,19 +45,28 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import DisplayMembersListModal from './DisplayMembersListModal'
 
 export default {
   name: 'ListMembersLists',
   data () {
     return {
-      event: { name: '' },
+      event: { name: 'event that is still loading...' },
       memberslists: [],
       isLoading: false
     }
   },
   computed: mapGetters(['services']),
   methods: {
-
+    openMembersListModal (memberslist) {
+      this.$modal.open({
+        component: DisplayMembersListModal,
+        hasModalCard: true,
+        props: {
+          memberslist
+        }
+      })
+    }
   },
   mounted () {
     this.isLoading = true
