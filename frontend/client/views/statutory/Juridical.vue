@@ -13,6 +13,8 @@
           </div>
         </div>
 
+        <div>Total participants: {{ applications.length }}</div>
+
         <b-table
           :data="applications"
           :loading="isLoading"

@@ -39,6 +39,8 @@
           </div>
         </div>
 
+        <div>Total participants: {{ filteredApplications.length }}</div>
+
         <b-table
           :data="filteredApplications"
           :loading="isLoading"
