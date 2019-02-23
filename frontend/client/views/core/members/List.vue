@@ -108,6 +108,9 @@ export default {
         this.canLoadMore = response.data.data.length === this.limit
         this.isLoading = false
       }).catch((err) => {
+        if (this.axios.isCancel(err)) {
+          return
+        }
         this.isLoading = false
 
         this.$root.showDanger('Could not fetch user list: ' + err.message)
