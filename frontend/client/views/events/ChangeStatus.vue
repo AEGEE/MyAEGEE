@@ -4,52 +4,48 @@
       <article class="tile is-child">
         <h4 class="title">Change events' statuses</h4>
 
-        <div class="table-responsive">
-          <table class="table is-bordered is-striped is-narrow is-fullwidth">
-            <thead>
-              <tr>
-                <th>Event type</th>
-                <th>Event name</th>
-                <th>Description</th>
-                <th>Dates</th>
-                <th>Current status</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tfoot>
-              <tr>
-                <th>Event type</th>
-                <th>Event name</th>
-                <th>Description</th>
-                <th>Dates</th>
-                <th>Current status</th>
-                <th></th>
-              </tr>
-            </tfoot>
-            <tbody>
-              <tr v-show="events.length" v-for="event in events" v-bind:key="event.id">
-                <td>{{ event.type }}</td>
-                <td>
-                  <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }">
-                    {{ event.name }}
-                  </router-link>
-                </td>
-                <td>{{ event.description }}</td>
-                <td>{{ event.starts | date }} - {{ event.ends | date }}</td>
-                <td>{{ event.status }}</td>
-                <td>
-                  <button class="button is-small is-primary" @click="publishEvent(event)">Publish</button>
-                </td>
-              </tr>
-              <tr v-show="!events.length && !isLoading">
-                <td colspan="6" class="has-text-centered">There are no events for which you can change status.</td>
-              </tr>
-              <tr v-show="isLoading">
-                <td colspan="6" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <b-table
+          :data="events"
+          :loading="isLoading">
+          <template slot-scope="props">
+            <b-table-column field="type" label="Event type" sortable>
+              {{ props.row.type }}
+            </b-table-column>
+
+            <b-table-column field="name" label="Event name" sortable>
+              <router-link :to="{ name: 'oms.events.view', params: { id: props.row.url || props.row.id } }">
+                {{ props.row.name }}
+              </router-link>
+            </b-table-column>
+
+            <b-table-column field="description" label="Description" sortable>
+              {{ props.row.description }}
+            </b-table-column>
+
+            <b-table-column field="starts" label="Event dates" sortable>
+              {{ props.row.starts | date }} - {{ props.row.ends | date }}
+            </b-table-column>
+
+            <b-table-column field="status" label="Current status" sortable>
+              {{ props.row.status | capitalize }}
+            </b-table-column>
+
+            <b-table-column field="status" label="Publish" sortable>
+              <button class="button is-small is-primary" @click="publishEvent(props.row)">Publish</button>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
       </article>
     </div>
   </div>
