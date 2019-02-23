@@ -17,54 +17,59 @@
           </div>
         </div>
 
-        <div class="table-responsive">
-          <table class="table is-bordered is-striped is-narrow is-fullwidth">
-            <thead>
-              <tr>
-                <th>Name and surname</th>
-                <th>Motivation</th>
-                <th>Date</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tfoot>
-              <tr>
-                <th>Name and surname</th>
-                <th>Motivation</th>
-                <th>Date</th>
-                <th></th>
-              </tr>
-            </tfoot>
-            <tbody>
-              <tr v-show="members.length" v-for="member in members" v-bind:key="member.id">
-                <td>
-                  <router-link :to="{ name: 'oms.members.view', params: { id: member.member_id } }">
-                    {{ member.member.first_name }} {{ member.member.last_name }}
-                  </router-link>
-                </td>
-                <td>{{ member.motivation }}</td>
-                <td>{{ member.inserted_at | datetime }}
-                <td>
-                  <div class="field" v-if="!member.approved">
-                    <div class="control">
-                      <a class="button is-small is-info" @click="askSetMemberApproved(member, true)">
-                        <span class="icon"><i class="fa fa-plus"></i></span>
-                        <span>Approve</span>
-                      </a>
-                      <a class="button is-small is-danger" @click="askSetMemberApproved(member, false)">
-                        <span class="icon"><i class="fa fa-minus"></i></span>
-                        <span>Reject</span>
-                      </a>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              <tr v-show="!members.length && !isLoading">
-                <td colspan="4" class="has-text-centered">No join requests for this body.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <b-table :data="members" :loading="isLoading" narrowed>
+          <template slot-scope="props">
+            <b-table-column field="first_name" label="Name and surname" sortable>
+              <router-link v-if="canViewMember(props.row)" :to="{ name: 'oms.members.view', params: { id: props.row.member_id } }">
+                {{ props.row.member.first_name }} {{ props.row.member.last_name }}
+              </router-link>
+              <span v-else>
+                {{ props.row.member.first_name }} {{ props.row.member.last_name }}
+              </span>
+            </b-table-column>
+
+            <b-table-column field="motivation" label="Motivation">
+              {{ props.row.motivation }}
+            </b-table-column>
+
+            <b-table-column field="inserted_at" label="Date" sortable>
+              {{ props.row.inserted_at | datetime }}
+            </b-table-column>
+
+            <b-table-column label="Approve">
+              <div class="field" v-if="!props.row.approved">
+                <div class="control">
+                  <a class="button is-small is-info" @click="askSetMemberApproved(props.row, true)">
+                    <span class="icon"><i class="fa fa-plus"></i></span>
+                    <span>Approve</span>
+                  </a>
+                </div>
+              </div>
+            </b-table-column>
+
+            <b-table-column label="Reject">
+              <div class="field" v-if="!props.row.approved">
+                <div class="control">
+                  <a class="button is-small is-danger" @click="askSetMemberApproved(props.row, false)">
+                    <span class="icon"><i class="fa fa-minus"></i></span>
+                    <span>Reject</span>
+                  </a>
+                </div>
+              </div>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
 
         <div class="field">
           <button
@@ -74,8 +79,6 @@
             v-show="canLoadMore"
             @click="fetchData()">Load more join requests</button>
         </div>
-
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
       </article>
     </div>
   </div>
@@ -98,7 +101,7 @@ export default {
       source: null,
       permissions: [],
       can: {
-        create: false
+        viewMembers: false
       }
     }
   },
@@ -116,6 +119,9 @@ export default {
     ...mapGetters(['services'])
   },
   methods: {
+    canViewMember (member) {
+      return member.approved || this.can.viewMembers
+    },
     askSetMemberApproved (member, approved) {
       const title = (approved ? 'Approve' : 'Reject') + ' ' + member.member.first_name + ' ' + member.member.last_name
       const message = 'Are you sure you want to <b>' +
@@ -164,12 +170,13 @@ export default {
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit
 
+        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
+      }).then((response) => {
+        this.permissions = response.data.data
+        this.can.viewMembers = this.permissions.find(permission => permission.combined.endsWith('global:view:member'))
+
         this.isLoading = false
       }).catch((err) => {
-        if (this.axios.isCancel(err)) {
-          return console.debug('Request cancelled.')
-        }
-
         this.$root.showDanger('Could not fetch join requests: ' + err.message)
       })
     }

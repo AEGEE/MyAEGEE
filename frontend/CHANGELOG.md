@@ -1,3 +1,26 @@
+# [0.6.0](https://github.com/AEGEE/oms-frontend/compare/0.5.3...0.6.0) (2019-02-23)
+
+
+### Bug Fixes
+
+* **general:** b-table on bodies listing. Fixes MEMB-397 ([adcde10](https://github.com/AEGEE/oms-frontend/commit/adcde10))
+* **general:** b-table on body campaigns listing. Fixes MEMB-397 ([dd4fdd2](https://github.com/AEGEE/oms-frontend/commit/dd4fdd2))
+* **general:** b-table on bulk import listing. Fixes MEMB-397 ([4198683](https://github.com/AEGEE/oms-frontend/commit/4198683))
+* **general:** b-table on campaigns listing. Fixes MEMB-397 ([db7832a](https://github.com/AEGEE/oms-frontend/commit/db7832a))
+* **general:** b-table on circles listing. Fixes MEMB-397 ([82b7b11](https://github.com/AEGEE/oms-frontend/commit/82b7b11))
+* **general:** b-table on circles members listing. Fixes MEMB-397 ([01824d2](https://github.com/AEGEE/oms-frontend/commit/01824d2))
+* **general:** b-table on event approve listing. Fixes MEMB-397 ([8e838e1](https://github.com/AEGEE/oms-frontend/commit/8e838e1))
+* **general:** b-table on event boardview listing. Fixes MEMB-397 ([bb43393](https://github.com/AEGEE/oms-frontend/commit/bb43393))
+* **general:** b-table on join requests listing. Fixes MEMB-397 ([dc972a9](https://github.com/AEGEE/oms-frontend/commit/dc972a9))
+* **general:** b-table on members listing. Fixes MEMB-397 ([2195e5b](https://github.com/AEGEE/oms-frontend/commit/2195e5b))
+* **general:** b-table on permissions listing. Fixes MEMB-397 ([2acbef6](https://github.com/AEGEE/oms-frontend/commit/2acbef6))
+* **general:** events pax page refactor. Fixes MEMB-397, MEMB-476 ([31b9ab1](https://github.com/AEGEE/oms-frontend/commit/31b9ab1))
+* **general:** fix circle link on circle listing ([3640360](https://github.com/AEGEE/oms-frontend/commit/3640360))
+* **statutory:** added participants count. Fixes MEMB-468 ([32ba940](https://github.com/AEGEE/oms-frontend/commit/32ba940))
+* **statutory:** refactored members list view. Fixes MEBM-397, MEMB-455 ([97eb5a7](https://github.com/AEGEE/oms-frontend/commit/97eb5a7))
+
+
+
 ## [0.5.3](https://github.com/AEGEE/oms-frontend/compare/0.5.2...0.5.3) (2019-02-21)
 
 

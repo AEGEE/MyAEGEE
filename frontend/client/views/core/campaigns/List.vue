@@ -16,49 +16,48 @@
           </div>
         </div>
 
-        <div class="table-responsive">
-          <table class="table is-bordered is-striped is-narrow is-fullwidth">
-            <thead>
-              <tr>
-                <th>Campaign name</th>
-                <th>Description</th>
-                <th>Link</th>
-              </tr>
-            </thead>
-            <tfoot>
-              <tr>
-                <th>Campaign name</th>
-                <th>Description</th>
-                <th>Link</th>
-              </tr>
-            </tfoot>
-            <tbody>
-              <tr v-show="campaigns.length" v-for="campaign in campaigns" v-bind:key="campaign.id">
-                <td>
-                  <router-link :to="{ name: 'oms.campaigns.view', params: { id: campaign.id } }">
-                    {{ campaign.name }}
-                  </router-link>
-                </td>
-                <td>{{ campaign.description }}</td>
-                <td>{{ '/signup/' + campaign.url }}</td>
-              </tr>
-              <tr v-show="!campaigns.length && !isLoading">
-                <td colspan="4" class="has-text-centered">Campaigns list is empty</td>
-              </tr>
-              <tr v-show="isLoading">
-                <td colspan="4" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
-              </tr>
-            </tbody>
-          </table>
+        <b-table
+          :data="campaigns"
+          :loading="isLoading">
+          <template slot-scope="props">
+            <b-table-column field="id" label="#" numeric sortable>
+              {{ props.row.id }}
+            </b-table-column>
 
-          <div class="field">
-            <button
-              class="button is-primary is-fullwidth"
-              :class="{ 'is-loading': isLoading }"
-              :disabled="isLoading"
-              v-show="canLoadMore"
-              @click="fetchData()">Load more campaigns</button>
-          </div>
+            <b-table-column field="name" label="Campaign name" sortable>
+              <router-link :to="{ name: 'oms.campaigns.view', params: { id: props.row.id } }">
+                {{ props.row.name }}
+              </router-link>
+            </b-table-column>
+
+            <b-table-column field="description_short" label="Description">
+              {{ props.row.description_short }}
+            </b-table-column>
+
+            <b-table-column label="Link">
+              {{ '/signup/' + props.row.url }}
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
+
+        <div class="field">
+          <button
+            class="button is-primary is-fullwidth"
+            :class="{ 'is-loading': isLoading }"
+            :disabled="isLoading"
+            v-show="canLoadMore"
+            @click="fetchData()">Load more campaigns</button>
         </div>
       </article>
     </div>

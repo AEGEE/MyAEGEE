@@ -16,52 +16,45 @@
           </div>
         </div>
 
-        <div class="table-responsive">
-          <table class="table is-bordered is-striped is-narrow is-fullwidth">
-            <thead>
-              <tr>
-                <th>Permission code</th>
-                <th>Description</th>
-                <th>Additional info</th>
-              </tr>
-            </thead>
-            <tfoot>
-              <tr>
-                <th>Permission code</th>
-                <th>Description</th>
-                <th>Additional info</th>
-              </tr>
-            </tfoot>
-            <tbody>
-              <tr v-show="permissions.length" v-for="permission in permissions" v-bind:key="permission.id">
-                <td>
-                  <router-link :to="{ name: 'oms.permissions.view', params: { id: permission.id } }">
-                    {{ permission.combined }}
-                  </router-link>
-                </td>
-                <td>{{ permission.description }}</td>
-                <td>
-                  <span class="tag is-info" v-if="permission.always_assigned">Always assigned</span>
-                  <span class="tag is-warning" v-if="permission.filters.length > 0">Has filters</span>
-                </td>
-              </tr>
-              <tr v-show="!permissions.length && !isLoading">
-                <td colspan="3" class="has-text-centered">Permissions list is empty</td>
-              </tr>
-              <tr v-show="isLoading">
-                <td colspan="3" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
-              </tr>
-            </tbody>
-          </table>
+        <b-table
+          :data="permissions"
+          :loading="isLoading">
+          <template slot-scope="props">
+            <b-table-column field="combined" label="Permission code" sortable width="200">
+              <router-link :to="{ name: 'oms.permissions.view', params: { id: props.row.id } }">
+                {{ props.row.combined }}
+              </router-link>
+            </b-table-column>
 
-          <div class="field">
-            <button
-              class="button is-primary is-fullwidth"
-              :class="{ 'is-loading': isLoading }"
-              :disabled="isLoading"
-              v-show="canLoadMore"
-              @click="fetchData()">Load more permissions</button>
-          </div>
+            <b-table-column field="description" label="Description">
+              {{ props.row.description }}
+            </b-table-column>
+
+            <b-table-column label="Additional info">
+              <span class="tag is-info" v-if="props.row.always_assigned">Always assigned</span>
+              <span class="tag is-warning" v-if="props.row.filters.length > 0">Has filters</span>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
+
+        <div class="field">
+          <button
+            class="button is-primary is-fullwidth"
+            :class="{ 'is-loading': isLoading }"
+            :disabled="isLoading"
+            v-show="canLoadMore"
+            @click="fetchData()">Load more permissions</button>
         </div>
       </article>
     </div>

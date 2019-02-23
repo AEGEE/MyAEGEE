@@ -10,58 +10,56 @@
           </div>
         </div>
 
-        <div class="table-responsive">
-          <table class="table is-bordered is-striped is-narrow is-fullwidth">
-            <thead>
-              <tr>
-                <th>Name and surname</th>
-                <th>Position</th>
-                <th>Is circle admin?</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tfoot>
-              <tr>
-                <th>Name and surname</th>
-                <th>Position</th>
-                <th>Is circle admin?</th>
-                <th></th>
-              </tr>
-            </tfoot>
-            <tbody>
-              <tr v-show="members.length" v-for="member in members" v-bind:key="member.id">
-                <td>
-                  <router-link :to="{ name: 'oms.members.view', params: { id: member.member.seo_url || member.member.id } }">
-                    {{ member.member.first_name }} {{ member.member.last_name }}
-                  </router-link>
-                </td>
-                <td v-if="member.position">{{ member.position }}</td>
-                <td v-if="!member.position"><i>No position set.</i></td>
-                <td>
-                  <i v-if="!member.circle_admin">No</i>
-                  <strong v-if="member.circle_admin">Yes</strong>
-                </td>
-                <td>
-                  <div class="field">
-                    <div class="control">
-                      <a class="button is-small is-warning" @click="editMemberModal(member)" v-if="can.edit">
-                        <span class="icon"><i class="fa fa-edit"></i></span>
-                        <span>Edit</span>
-                      </a>
-                      <a class="button is-small is-danger" @click="askDeleteMember(member, false)"  v-if="can.delete">
-                        <span class="icon"><i class="fa fa-minus"></i></span>
-                        <span>Delete</span>
-                      </a>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              <tr v-show="!members.length && !isLoading">
-                <td colspan="4" class="has-text-centered">This circle does not have any members.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <b-table
+          :data="members"
+          :loading="isLoading">
+          <template slot-scope="props">
+            <b-table-column field="id" label="#" numeric sortable>
+              {{ props.row.member_id }}
+            </b-table-column>
+
+            <b-table-column field="first_name" label="Name and surname" sortable>
+              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.member.seo_url || props.row.member.id } }">
+                {{ props.row.member.first_name }} {{ props.row.member.last_name }}
+              </router-link>
+            </b-table-column>
+
+            <b-table-column field="position" label="Position">
+              {{ props.row.position }}
+            </b-table-column>
+
+            <b-table-column field="circle_admin" label="Is circle admin?">
+              <span :class="{ 'tag': props.row.circle_admin, 'is-primary': props.row.circle_admin, 'is-small': props.row.circle_admin }">
+                {{ props.row.circle_admin | beautify}}
+              </span>
+            </b-table-column>
+
+            <b-table-column label="Edit" :visible="can.edit" centered>
+              <a class="button is-small is-warning" @click="editMemberModal(props.row)">
+                <span class="icon"><i class="fa fa-edit"></i></span>
+                <span>Edit</span>
+              </a>
+            </b-table-column>
+
+            <b-table-column label="Delete" :visible="can.delete" centered>
+              <a class="button is-small is-danger" @click="askDeleteMember(props.row, false)">
+                <span class="icon"><i class="fa fa-minus"></i></span>
+                <span>Delete</span>
+              </a>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
 
         <div class="field">
           <button
@@ -71,8 +69,6 @@
             v-show="canLoadMore"
             @click="fetchData()">Load more members</button>
         </div>
-
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
       </article>
     </div>
   </div>

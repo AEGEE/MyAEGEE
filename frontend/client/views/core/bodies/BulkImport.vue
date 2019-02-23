@@ -14,48 +14,49 @@
           </div>
         </div>
 
-        <div class="table-responsive">
-          <table class="table is-bordered is-striped is-narrow is-fullwidth">
-            <thead>
-              <tr>
-                <th>First name</th>
-                <th>Last name</th>
-                <th>Email</th>
-                <th>User name</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tfoot>
-              <tr>
-                <th>First name</th>
-                <th>Last name</th>
-                <th>Email</th>
-                <th>User name</th>
-                <th></th>
-              </tr>
-            </tfoot>
-            <tbody>
-              <tr v-show="members.length" v-for="(member, index) in members" v-bind:key="member.id">
-                <td>{{ member.member.first_name }}</td>
-                <td>{{ member.member.last_name }}</td>
-                <td>{{ member.user.email }}</td>
-                <td>{{ member.user.name }}</td>
-                <td>
-                  <a v-if="!member.status" @click="members.splice(index, 1)" class="button is-danger is-small">
-                    <span class="icon"><i class="fa fa-minus"></i></span>
-                    <span>Delete user</span>
-                  </a>
-                  <span v-if="member.status === 'saving'">Saving...</span>
-                  <span class="has-text-success" v-if="member.status === 'success'">Successfully saved.</span>
-                  <span class="has-text-danger" v-if="member.status === 'error'">Error while saving: {{ member.errors }}</span>
-                </td>
-              </tr>
-              <tr v-show="!members.length">
-                <td colspan="5" class="has-text-centered">The members list is empty or not uploaded yet.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <b-table :data="members">
+          <template slot-scope="props">
+            <b-table-column field="member.first_name" label="First name">
+              {{ props.row.member.first_name }}
+            </b-table-column>
+
+            <b-table-column field="member.last_name" label="Last name">
+              {{ props.row.member.last_name }}
+            </b-table-column>
+
+            <b-table-column field="user.email" label="Email">
+              {{ props.row.user.email }}
+            </b-table-column>
+
+            <b-table-column field="user.name" label="Username">
+              {{ props.row.user.name }}
+            </b-table-column>
+
+            <b-table-column label="Delete user">
+              <a v-if="!props.row.status" @click="members.splice(props.index, 1)" class="button is-danger is-small">
+                <span class="icon"><i class="fa fa-minus"></i></span>
+                <span>Delete user</span>
+              </a>
+            </b-table-column>
+
+            <b-table-column label="Status">
+              <span v-if="props.row.status === 'saving'">Saving...</span>
+              <span class="has-text-success" v-if="props.row.status === 'success'">Successfully saved.</span>
+              <span class="has-text-danger" v-if="props.row.status === 'error'">Error while saving: {{ props.row.errors }}</span>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
 
         <div class="field" v-show="members.length">
           <div class="control">
