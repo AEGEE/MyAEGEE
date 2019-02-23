@@ -49,6 +49,7 @@
             <ul>
               <li v-if="errors.participant_type">Participant type: {{ errors.participant_type.join(', ') }}</li>
               <li v-if="errors.participant_order">Participant order: {{ errors.participant_order.join(', ') }}</li>
+              <li v-if="errors.participantTypeShouldBeSetWithOrder">{{ errors.participantTypeShouldBeSetWithOrder.join(', ') }}</li>
               <li v-if="errors.board_comment">Board comment: {{ errors.board_comment.join(', ') }}</li>
             </ul>
           </div>
