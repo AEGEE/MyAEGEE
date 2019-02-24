@@ -230,10 +230,17 @@ export default {
       }
 
       // loading map
-      if (this.event.locations.length > 1) {
+      if (this.event.locations.length > 0) {
         this.$nextTick()
           .then(() => this.$refs.mapRef.$mapPromise)
           .then((map) => {
+            // if it's a single point, then just centering on it
+            if (this.event.locations.length === 1) {
+              this.$refs.mapRef.$mapObject.panTo(this.event.locations[0].position)
+              return
+            }
+
+            // if there are multiple points, then fit them into map.
             const bounds = new this.google.maps.LatLngBounds()
             for (const marker of this.event.locations) {
               bounds.extend(marker.position)
