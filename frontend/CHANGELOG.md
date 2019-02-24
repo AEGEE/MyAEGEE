@@ -1,3 +1,12 @@
+## [0.6.3](https://github.com/AEGEE/oms-frontend/compare/0.6.2...0.6.3) (2019-02-24)
+
+
+### Bug Fixes
+
+* **events:** focus on single event location ([7e7dc32](https://github.com/AEGEE/oms-frontend/commit/7e7dc32))
+
+
+
 ## [0.6.2](https://github.com/AEGEE/oms-frontend/compare/0.6.1...0.6.2) (2019-02-24)
 
 
