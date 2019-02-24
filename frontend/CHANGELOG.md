@@ -1,3 +1,12 @@
+## [0.6.2](https://github.com/AEGEE/oms-frontend/compare/0.6.1...0.6.2) (2019-02-24)
+
+
+### Bug Fixes
+
+* **events:** fix zoom on single event page. Fixes MEMB-466 ([183e538](https://github.com/AEGEE/oms-frontend/commit/183e538))
+
+
+
 ## [0.6.1](https://github.com/AEGEE/oms-frontend/compare/0.6.0...0.6.1) (2019-02-23)
 
 

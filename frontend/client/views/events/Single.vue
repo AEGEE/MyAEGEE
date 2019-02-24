@@ -230,7 +230,7 @@ export default {
       }
 
       // loading map
-      if (this.event.locations.length > 0) {
+      if (this.event.locations.length > 1) {
         this.$nextTick()
           .then(() => this.$refs.mapRef.$mapPromise)
           .then((map) => {
