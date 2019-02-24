@@ -1,3 +1,12 @@
+## [0.4.1](https://github.com/AEGEE/oms-events/compare/0.4.0...0.4.1) (2019-02-24)
+
+
+### Bug Fixes
+
+* **logging:** log request body. Fixes MEMB-477 ([46750ca](https://github.com/AEGEE/oms-events/commit/46750ca))
+
+
+
 # [0.4.0](https://github.com/AEGEE/oms-events/compare/0.3.2...0.4.0) (2019-02-19)
 
 
