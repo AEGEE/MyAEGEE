@@ -1,6 +1,6 @@
 {
   "name": "oms-statutory",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Statutory events module for OMS",
   "main": "lib/server.js",
   "scripts": {

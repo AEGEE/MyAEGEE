@@ -1,3 +1,18 @@
+## [0.6.4](https://github.com/AEGEE/oms-statutory/compare/0.6.3...0.6.4) (2019-02-25)
+
+
+### Bug Fixes
+
+* **style:** fixed config for ESLint compliance ([c1df528](https://github.com/AEGEE/oms-statutory/commit/c1df528))
+* **test:** fixed some tests that could fail randomly ([72c0783](https://github.com/AEGEE/oms-statutory/commit/72c0783))
+
+
+### Features
+
+* **style:** added ESLint checking for Travis. Fixes MEMB-459 ([ff0359a](https://github.com/AEGEE/oms-statutory/commit/ff0359a))
+
+
+
 ## [0.6.3](https://github.com/AEGEE/oms-statutory/compare/0.6.2...0.6.3) (2019-02-21)
 
 
