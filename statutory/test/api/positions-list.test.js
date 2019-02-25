@@ -167,9 +167,9 @@ describe('Positions listing', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         await generator.createPosition({
             candidates: [
-                generator.generateCandidate({ status: 'rejected' }),
-                generator.generateCandidate({ status: 'approved' }),
-                generator.generateCandidate({ status: 'pending' })
+                generator.generateCandidate({ user_id: 1, status: 'rejected' }),
+                generator.generateCandidate({ user_id: 2, status: 'approved' }),
+                generator.generateCandidate({ user_id: 3, status: 'pending' })
             ]
         }, event);
 
@@ -193,9 +193,9 @@ describe('Positions listing', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         await generator.createPosition({
             candidates: [
-                generator.generateCandidate({ status: 'rejected' }),
-                generator.generateCandidate({ status: 'approved' }),
-                generator.generateCandidate({ status: 'pending' })
+                generator.generateCandidate({ user_id: 1, status: 'rejected' }),
+                generator.generateCandidate({ user_id: 2, status: 'approved' }),
+                generator.generateCandidate({ user_id: 3, status: 'pending' })
             ]
         }, event);
 
