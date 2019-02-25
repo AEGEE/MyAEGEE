@@ -1,19 +1,4 @@
 const deepAssign = require('deep-assign');
-const fs = require('fs');
-
-let mailerUsername;
-let mailerPassword;
-
-try {
-    mailerUsername = fs.readFileSync('/run/secrets/mail_user', 'utf-8');
-} catch (err) {
-    mailerUsername = '';
-}
-try {
-    mailerPassword = fs.readFileSync('/run/secrets/mail_password', 'utf-8');
-} catch (err) {
-    mailerPassword = '';
-}
 
 const config = {
     default: {

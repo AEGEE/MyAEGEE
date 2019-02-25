@@ -22,5 +22,6 @@ install:
   - cp ./config/index.js.example ./config/index.js
 
 script:
+  - npm run lint
   - npm test
   - codecov
