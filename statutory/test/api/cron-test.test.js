@@ -384,8 +384,8 @@ describe('Cron testing', () => {
                 ends: moment().add(2, 'week').toDate(),
                 places: 1,
                 candidates: [
-                    generator.generateCandidate({ status: 'approved' }),
-                    generator.generateCandidate({ status: 'approved' }), // so it would properly close
+                    generator.generateCandidate({ user_id: 1, status: 'approved' }),
+                    generator.generateCandidate({ user_id: 2, status: 'approved' }), // so it would properly close
                 ]
             }, event);
             expect(cron.getJobs().length).toEqual(1); // closing deadline
