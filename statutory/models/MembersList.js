@@ -1,4 +1,5 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const helpers = require('../lib/helpers');
 
 const MembersList = sequelize.define('memberslist', {
     event_id: {
@@ -81,7 +82,7 @@ const MembersList = sequelize.define('memberslist', {
                         }
                     }
 
-                    if (typeof member.user_id !== 'undefined' && typeof member.user_id !== 'number') {
+                    if (typeof member.user_id !== 'undefined' && member.user_id !== null && typeof member.user_id !== 'number') {
                         throw new Error('user_id is set, but is not a number.');
                     }
 
@@ -94,17 +95,21 @@ const MembersList = sequelize.define('memberslist', {
     }
 }, { underscored: true });
 
-MembersList.prototype.hasMember = function hasMember(application) {
-    return this.members.some((member) => {
-        // First, checking if user_id match.
-        if (member.user_id === application.user_id) {
-            return true;
-        }
+// Updating the users' inclusion in memberslist for this body.
+MembersList.afterSave(async (memberslist) => {
+    // Prevent circular model loading.
+    // eslint-disable-next-line global-require
+    const Application = require('./Application');
 
-        // If this fails, check if the first_name and last_name match.
-        return member.first_name.toLowerCase() === application.first_name.toLowerCase()
-            && member.last_name.toLowerCase() === application.last_name.toLowerCase();
-    });
-};
+    const applicationsForBody = await Application.findAll({ where: {
+        body_id: memberslist.body_id,
+        event_id: memberslist.event_id
+    } });
+
+    for (const application of applicationsForBody) {
+        const isOnMemberslist = helpers.memberslistHasMember(memberslist, application);
+        await application.update({ is_on_memberslist: isOnMemberslist });
+    }
+});
 
 module.exports = MembersList;

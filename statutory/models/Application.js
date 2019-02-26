@@ -1,5 +1,7 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const helpers = require('../lib/helpers');
 const Event = require('./Event');
+const MembersList = require('./MembersList');
 
 function isBoolean(val) {
     if (typeof val !== 'boolean') {
@@ -320,6 +322,14 @@ const Application = sequelize.define('application', {
     allergies: {
         allowNull: true,
         type: Sequelize.TEXT
+    },
+    is_on_memberslist: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        validate: {
+            isBoolean
+        }
     }
 }, {
     underscored: true,
@@ -365,6 +375,17 @@ const Application = sequelize.define('application', {
             }
         }
     }
+});
+
+// Updating the users' inclusion in memberslist for this body.
+Application.afterValidate(async (application, options) => {
+    const memberslistForBody = await MembersList.findOne({ where: {
+        body_id: application.body_id,
+        event_id: application.event_id
+    } });
+
+    options.fields.push('is_on_memberslist');
+    application.setDataValue('is_on_memberslist', helpers.memberslistHasMember(memberslistForBody, application));
 });
 
 module.exports = Application;

@@ -66,6 +66,30 @@ exports.beautify = (value) => {
     return value;
 };
 
+// A helper to check if the given application matches one of the members in memberslist.
+exports.memberMatchApplication = (member, application) => {
+    // First, checking if user_id match.
+    if (member.user_id === application.user_id) {
+        return true;
+    }
+
+    // If this fails, check if the first_name and last_name match.
+    return member.first_name.toLowerCase() === application.first_name.toLowerCase()
+        && member.last_name.toLowerCase() === application.last_name.toLowerCase();
+};
+
+// A helper to check if the memberslist has this member on it.
+// Used on memberslist update and on applying/changing the application.
+exports.memberslistHasMember = (memberslist, application) => {
+    // If no memberslist, then return false immediately.
+    if (!memberslist) {
+        return false;
+    }
+
+    // Otherwise, iterate through members to check if some of them match.
+    return memberslist.members.some(member => exports.memberMatchApplication(member, application));
+};
+
 // A helper to determine if the string is either 'me' or an integer.
 exports.isIDValid = id => id === constants.CURRENT_USER_PREFIX || !Number.isNaN(Number(id, 10));
 

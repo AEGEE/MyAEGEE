@@ -271,6 +271,7 @@ describe('Applications listing', () => {
             const event = await generator.createEvent({ applications: [] });
             const application = await generator.createApplication({ user_id: 1, first_name: 'first', last_name: 'last' }, event);
             await generator.createMembersList({
+                body_id: application.body_id,
                 members: [
                     generator.generateMembersListMember({ user_id: 2, first_name: 'other', last_name: 'other' })
                 ]
@@ -296,6 +297,7 @@ describe('Applications listing', () => {
             const event = await generator.createEvent({ applications: [] });
             const application = await generator.createApplication({ user_id: 1, first_name: 'first', last_name: 'last' }, event);
             await generator.createMembersList({
+                body_id: application.body_id,
                 members: [
                     generator.generateMembersListMember({ user_id: 1, first_name: 'other', last_name: 'other' })
                 ]
@@ -321,6 +323,7 @@ describe('Applications listing', () => {
             const event = await generator.createEvent({ applications: [] });
             const application = await generator.createApplication({ user_id: 1, first_name: 'first', last_name: 'last' }, event);
             await generator.createMembersList({
+                body_id: application.body_id,
                 members: [
                     generator.generateMembersListMember({ user_id: 2, first_name: 'first', last_name: 'last' })
                 ]
@@ -346,6 +349,7 @@ describe('Applications listing', () => {
             const event = await generator.createEvent({ applications: [] });
             const application = await generator.createApplication({ user_id: 1, first_name: 'first', last_name: 'last' }, event);
             await generator.createMembersList({
+                body_id: application.body_id,
                 members: [
                     generator.generateMembersListMember({ user_id: 2, first_name: 'FIRST', last_name: 'LAST' })
                 ]

@@ -68,16 +68,13 @@ exports.uploadMembersList = async (req, res) => {
     } });
 
     if (existingMembersList) {
-        const result = await MembersList.update(
-            req.body,
-            { where: { event_id: req.event.id, body_id: req.params.body_id }, returning: true }
-        );
+        const result = await existingMembersList.update(req.body);
         // Recalculating votes per antenna.
         await VotesPerAntenna.recalculateVotesForAntenna(body, req.event);
 
         return res.json({
             success: true,
-            data: result[1][0]
+            data: result
         });
     }
 
