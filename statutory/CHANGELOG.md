@@ -1,3 +1,20 @@
+# [0.7.0](https://github.com/AEGEE/oms-statutory/compare/0.6.4...0.7.0) (2019-02-26)
+
+
+### Bug Fixes
+
+* **memberslist:** allow null values as user IDs for memberslist ([5480a33](https://github.com/AEGEE/oms-statutory/commit/5480a33))
+* **test:** fixed test that could fail randomly ([eda76c5](https://github.com/AEGEE/oms-statutory/commit/eda76c5))
+* **test:** fixed tests for displaying is_on_memberslist ([9831d04](https://github.com/AEGEE/oms-statutory/commit/9831d04))
+
+
+### Features
+
+* **application:** added is_on_memberslist field ([1da9d0b](https://github.com/AEGEE/oms-statutory/commit/1da9d0b))
+* **application:** update is_on_memberslist when needed. Fixes MEMB-478 ([b2bca3c](https://github.com/AEGEE/oms-statutory/commit/b2bca3c))
+
+
+
 ## [0.6.4](https://github.com/AEGEE/oms-statutory/compare/0.6.3...0.6.4) (2019-02-25)
 
 
