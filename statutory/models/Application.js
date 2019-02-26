@@ -320,6 +320,14 @@ const Application = sequelize.define('application', {
     allergies: {
         allowNull: true,
         type: Sequelize.TEXT
+    },
+    is_on_memberslist: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        validate: {
+            isBoolean
+        }
     }
 }, {
     underscored: true,
