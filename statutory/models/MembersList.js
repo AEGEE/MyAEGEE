@@ -1,4 +1,5 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const helpers = require('../lib/helpers');
 
 const MembersList = sequelize.define('memberslist', {
     event_id: {
@@ -93,6 +94,21 @@ const MembersList = sequelize.define('memberslist', {
         }
     }
 }, { underscored: true });
+
+// Updating the users' inclusion in memberslist for this body.
+MembersList.afterSave(async (memberslist) => {
+    const Application = require('./Application');
+
+    const applicationsForBody = await Application.findAll({ where: {
+        body_id: memberslist.body_id,
+        event_id: memberslist.event_id
+    } });
+
+    for (const application of applicationsForBody) {
+        const isOnMemberslist = helpers.memberslistHasMember(memberslist, application);
+        await application.update({ is_on_memberslist: isOnMemberslist });
+    }
+});
 
 MembersList.prototype.hasMember = function hasMember(application) {
     return this.members.some((member) => {

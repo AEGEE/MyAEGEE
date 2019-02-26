@@ -978,4 +978,70 @@ describe('Applications creation', () => {
         const applications = await Application.findAll({ where: { event_id: event.id } });
         expect(applications.length).toEqual(0);
     });
+
+    describe('should update is_on_memberslist for user', () => {
+        test('should set is_on_memberslist = true if there\'s an ID match', async () => {
+            const event = await generator.createEvent({ type: 'agora' });
+            await generator.createMembersList({
+                body_id: regularUser.bodies[0].id,
+                members: [generator.generateMembersListMember({
+                    user_id: regularUser.id,
+                    first_name: 'testing',
+                    last_name: 'stuff'
+                })]
+            }, event)
+
+            const application = generator.generateApplication({
+                body_id: regularUser.bodies[0].id
+            }, event);
+
+            tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: application
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).toHaveProperty('data');
+
+            const applicationFromDb = await Application.findByPk(res.body.data.id);
+            expect(applicationFromDb.is_on_memberslist).toEqual(true);
+        });
+
+        test('should set is_on_memberslist = true if there\'s the first/last name match', async () => {
+            const event = await generator.createEvent({ type: 'agora' });
+            await generator.createMembersList({
+                body_id: regularUser.bodies[0].id,
+                members: [generator.generateMembersListMember({
+                    user_id: 300,
+                    first_name: regularUser.first_name,
+                    last_name: regularUser.last_name
+                })]
+            }, event)
+
+            const application = generator.generateApplication({
+                body_id: regularUser.bodies[0].id
+            }, event);
+
+            tk.travel(moment(event.application_period_starts).subtract(5, 'minutes').toDate());
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/',
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: application
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).toHaveProperty('data');
+
+            const applicationFromDb = await Application.findByPk(res.body.data.id);
+            expect(applicationFromDb.is_on_memberslist).toEqual(true);
+        });
+    });
 });

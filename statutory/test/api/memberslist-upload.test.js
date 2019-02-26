@@ -2,7 +2,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const { MembersList } = require('../../models');
+const { MembersList, Application } = require('../../models');
 const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Memberslist uploading', () => {
@@ -423,5 +423,102 @@ describe('Memberslist uploading', () => {
         expect(membersListFromDB[0].members[0].last_name).toEqual('not');
         expect(membersListFromDB[0].members[0].fee).toEqual(5);
         expect(membersListFromDB[0].members[0].user_id).toEqual(2);
+    });
+
+    describe('should update is_on_memberslist for user', () => {
+        test('should set is_on_memberslist = true if ID matches', async () => {
+            const event = await generator.createEvent({ type: 'agora' });
+            const application = await generator.createApplication({
+                user_id: 100,
+                body_id: regularUser.bodies[0].id
+            }, event);
+            expect(application.is_on_memberslist).toEqual(false);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateMembersList({
+                    members: [ generator.generateMembersListMember({ user_id: 100 }) ]
+                }, event)
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).toHaveProperty('data');
+
+            const applicationFromDb = await Application.findByPk(application.id);
+            expect(applicationFromDb.is_on_memberslist).toEqual(true);
+        });
+
+        test('should set is_on_memberslist = true if ID matches', async () => {
+            const event = await generator.createEvent({ type: 'agora' });
+            const application = await generator.createApplication({
+                user_id: 100,
+                first_name: 'testing',
+                last_name: 'stuff',
+                body_id: regularUser.bodies[0].id
+            }, event);
+            expect(application.is_on_memberslist).toEqual(false);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateMembersList({
+                    members: [generator.generateMembersListMember({
+                        user_id: null,
+                        first_name: 'testing',
+                        last_name: 'stuff'
+                    })]
+                }, event)
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).toHaveProperty('data');
+
+            const applicationFromDb = await Application.findByPk(application.id);
+            expect(applicationFromDb.is_on_memberslist).toEqual(true);
+        });
+
+        test('should set is_on_memberslist = false if no match', async () => {
+            const event = await generator.createEvent({ type: 'agora' });
+            await generator.createMembersList({
+                body_id: regularUser.bodies[0].id,
+                members: [generator.generateMembersListMember({
+                    user_id: 100,
+                    first_name: 'testing',
+                    last_name: 'stuff'
+                })]
+            }, event)
+            const application = await generator.createApplication({
+                user_id: 100,
+                first_name: 'testing',
+                last_name: 'stuff',
+                body_id: regularUser.bodies[0].id
+            }, event);
+            expect(application.is_on_memberslist).toEqual(true);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateMembersList({
+                    members: [generator.generateMembersListMember({
+                        user_id: 200,
+                        first_name: 'another',
+                        last_name: 'name'
+                    })]
+                }, event)
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).toHaveProperty('data');
+
+            const applicationFromDb = await Application.findByPk(application.id);
+            expect(applicationFromDb.is_on_memberslist).toEqual(false);
+        });
     });
 });
