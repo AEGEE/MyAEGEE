@@ -1,3 +1,13 @@
+## [0.7.1](https://github.com/AEGEE/oms-statutory/compare/0.7.0...0.7.1) (2019-02-26)
+
+
+### Bug Fixes
+
+* **memberslist:** do not run applications hooks on memberslist update ([1932633](https://github.com/AEGEE/oms-statutory/commit/1932633))
+* **migration:** forgot to re-add migration ([b6c2b0a](https://github.com/AEGEE/oms-statutory/commit/b6c2b0a))
+
+
+
 # [0.7.0](https://github.com/AEGEE/oms-statutory/compare/0.6.4...0.7.0) (2019-02-26)
 
 
