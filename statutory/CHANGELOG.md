@@ -1,3 +1,12 @@
+## [0.7.2](https://github.com/AEGEE/oms-statutory/compare/0.7.1...0.7.2) (2019-02-26)
+
+
+### Bug Fixes
+
+* **general:** use nodemon instead of supervisor. Fixes MEMB-480 ([ba9854b](https://github.com/AEGEE/oms-statutory/commit/ba9854b))
+
+
+
 ## [0.7.1](https://github.com/AEGEE/oms-statutory/compare/0.7.0...0.7.1) (2019-02-26)
 
 
