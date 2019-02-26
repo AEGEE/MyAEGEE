@@ -989,7 +989,7 @@ describe('Applications creation', () => {
                     first_name: 'testing',
                     last_name: 'stuff'
                 })]
-            }, event)
+            }, event);
 
             const application = generator.generateApplication({
                 body_id: regularUser.bodies[0].id
@@ -1021,7 +1021,7 @@ describe('Applications creation', () => {
                     first_name: regularUser.first_name,
                     last_name: regularUser.last_name
                 })]
-            }, event)
+            }, event);
 
             const application = generator.generateApplication({
                 body_id: regularUser.bodies[0].id

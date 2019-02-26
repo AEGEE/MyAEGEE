@@ -97,6 +97,8 @@ const MembersList = sequelize.define('memberslist', {
 
 // Updating the users' inclusion in memberslist for this body.
 MembersList.afterSave(async (memberslist) => {
+    // Prevent circular model loading.
+    // eslint-disable-next-line global-require
     const Application = require('./Application');
 
     const applicationsForBody = await Application.findAll({ where: {

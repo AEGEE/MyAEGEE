@@ -439,7 +439,7 @@ describe('Memberslist uploading', () => {
                 method: 'POST',
                 headers: { 'X-Auth-Token': 'blablabla' },
                 body: generator.generateMembersList({
-                    members: [ generator.generateMembersListMember({ user_id: 100 }) ]
+                    members: [generator.generateMembersListMember({ user_id: 100 })]
                 }, event)
             });
 
@@ -491,7 +491,7 @@ describe('Memberslist uploading', () => {
                     first_name: 'testing',
                     last_name: 'stuff'
                 })]
-            }, event)
+            }, event);
             const application = await generator.createApplication({
                 user_id: 100,
                 first_name: 'testing',
