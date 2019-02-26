@@ -5,7 +5,7 @@ const xlsx = require('node-xlsx').default;
 const errors = require('./errors');
 const core = require('./core');
 const mailer = require('./mailer');
-const { Application, PaxLimit, VotesPerAntenna, MembersList } = require('../models');
+const { Application, PaxLimit, VotesPerAntenna } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const { sequelize } = require('./sequelize');
@@ -15,15 +15,8 @@ exports.listAllApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
     }
 
-    const memberslists = await MembersList.findAll({ where: { event_id: req.event.id } });
-
     const applications = req.event.applications
-        .map(application => application.toJSON())
-        .map((application) => {
-            application.is_on_memberslist = memberslists.some(memberslist => memberslist.hasMember(application));
-
-            return application;
-        });
+        .map(application => application.toJSON());
 
     return res.json({
         success: true,
