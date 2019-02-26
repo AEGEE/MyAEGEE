@@ -108,7 +108,10 @@ MembersList.afterSave(async (memberslist) => {
 
     for (const application of applicationsForBody) {
         const isOnMemberslist = helpers.memberslistHasMember(memberslist, application);
-        await application.update({ is_on_memberslist: isOnMemberslist });
+        await application.update(
+            { is_on_memberslist: isOnMemberslist },
+            { hooks: false } // to prevent unnecessary queries for memberslists on application
+        );
     }
 });
 
