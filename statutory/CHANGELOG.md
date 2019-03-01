@@ -1,3 +1,12 @@
+## [0.7.4](https://github.com/AEGEE/oms-statutory/compare/0.7.3...0.7.4) (2019-03-01)
+
+
+### Bug Fixes
+
+* **limits:** updated default pax limits for IG for Agora. Fixes HELP-354 ([2c31dba](https://github.com/AEGEE/oms-statutory/commit/2c31dba))
+
+
+
 ## [0.7.3](https://github.com/AEGEE/oms-statutory/compare/0.7.2...0.7.3) (2019-03-01)
 
 

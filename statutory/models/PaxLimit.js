@@ -74,6 +74,7 @@ const PaxLimit = sequelize.define('PaxLimit', {
 // for contact antennae: unlimited envoys, no others
 // for contacts: unlimited observers, no others
 // for working groups, committees and projects: 3 envoys, 30 visitors, no others
+// for interest groups: 30 visitors, no others
 // default one is there if the body type is not one of described above: noone can apply dy default.
 /* istanbul ignore next */
 function defaultLimitForAgora(type) {
@@ -89,7 +90,8 @@ function defaultLimitForAgora(type) {
     case 'working group':
     case 'committee':
     case 'project':
-        return new PaxLimit({ delegate: 0, envoy: 3, visitor: 30, observer: 0 });
+    case 'interest group':
+        return new PaxLimit({ delegate: 0, envoy: 0, visitor: 30, observer: 0 });
     default:
         return new PaxLimit({ delegate: 0, envoy: 0, visitor: 0, observer: 0 });
     }
