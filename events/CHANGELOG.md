@@ -1,3 +1,12 @@
+## [0.4.2](https://github.com/AEGEE/oms-events/compare/0.4.1...0.4.2) (2019-03-01)
+
+
+### Bug Fixes
+
+* **docker:** fixed postgresql version ([7b259b2](https://github.com/AEGEE/oms-events/commit/7b259b2))
+
+
+
 ## [0.4.1](https://github.com/AEGEE/oms-events/compare/0.4.0...0.4.1) (2019-02-24)
 
 
