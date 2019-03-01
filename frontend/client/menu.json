@@ -33,7 +33,7 @@
       {
         "name": "oms.circles.list",
         "label": "Circles",
-        "icon": "fa-circle",
+        "icon": "fa-alastairalastaircircle",
         "permissions": ["global:view:circle"]
       },
       {
@@ -122,6 +122,26 @@
         "name": "oms.resources",
         "label": "Resources",
         "icon": "fa-external-link-alt"
+      }
+    ]
+  },
+  {
+    "categoryName": "Alastair",
+    "components": [
+      {
+        "label": "Organizers View",
+        "icon": "fa-id-badge",
+        "permissions": ["global:use:alastair"],
+        "children": [
+          {
+            "name": "oms.alastair.organizer.home",
+            "label": "Home"
+          },
+          {
+            "name": "oms.alastair.organizer.myevents",
+            "label": "My Events"
+          }
+        ]
       }
     ]
   }
