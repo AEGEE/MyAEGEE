@@ -1,3 +1,13 @@
+## [0.4.3](https://github.com/AEGEE/oms-events/compare/0.4.2...0.4.3) (2019-03-01)
+
+
+### Bug Fixes
+
+* **general:** updated packages to fix security vulnerabilities ([68b6ba7](https://github.com/AEGEE/oms-events/commit/68b6ba7))
+* **general:** use nodemon instead of supervisor. Fixes MEMB-480 ([e57b8a3](https://github.com/AEGEE/oms-events/commit/e57b8a3))
+
+
+
 ## [0.4.2](https://github.com/AEGEE/oms-events/compare/0.4.1...0.4.2) (2019-03-01)
 
 
