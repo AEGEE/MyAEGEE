@@ -1,3 +1,12 @@
+## [0.7.3](https://github.com/AEGEE/oms-statutory/compare/0.7.2...0.7.3) (2019-03-01)
+
+
+### Bug Fixes
+
+* **docker:** fixed postgresql version ([6b712f3](https://github.com/AEGEE/oms-statutory/commit/6b712f3))
+
+
+
 ## [0.7.2](https://github.com/AEGEE/oms-statutory/compare/0.7.1...0.7.2) (2019-02-26)
 
 
