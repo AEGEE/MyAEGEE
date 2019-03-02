@@ -90,6 +90,7 @@ function defaultLimitForAgora(type) {
     case 'working group':
     case 'committee':
     case 'project':
+        return new PaxLimit({ delegate: 0, envoy: 3, visitor: 30, observer: 0 });
     case 'interest group':
         return new PaxLimit({ delegate: 0, envoy: 0, visitor: 30, observer: 0 });
     default:
