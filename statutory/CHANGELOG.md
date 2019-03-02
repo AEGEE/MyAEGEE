@@ -1,3 +1,12 @@
+## [0.7.5](https://github.com/AEGEE/oms-statutory/compare/0.7.4...0.7.5) (2019-03-02)
+
+
+### Bug Fixes
+
+* **limits:** fixes limits for committees, WGs and projects ([235e3e1](https://github.com/AEGEE/oms-statutory/commit/235e3e1))
+
+
+
 ## [0.7.4](https://github.com/AEGEE/oms-statutory/compare/0.7.3...0.7.4) (2019-03-01)
 
 
