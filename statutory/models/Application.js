@@ -379,6 +379,11 @@ const Application = sequelize.define('application', {
 
 // Updating the users' inclusion in memberslist for this body.
 Application.afterValidate(async (application, options) => {
+    // Skipping if not Agora.
+    const event = await Event.findByPk(application.event_id);
+    if (event.type !== 'agora') {
+        return;
+    }
     const memberslistForBody = await MembersList.findOne({ where: {
         body_id: application.body_id,
         event_id: application.event_id
