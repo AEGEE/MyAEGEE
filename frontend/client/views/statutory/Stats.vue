@@ -52,6 +52,13 @@
 
         <div class="subtitle">By body</div>
         <pie-chart class="chart" :chart-data="byBodyData()" :options="byBodyOptions"></pie-chart>
+        <div class="content">
+          <div class="tags">
+            <span v-for="(body, index) in stats.by_body" v-bind:key="index" class="tag" :style="{ 'background-color': index >= colors.length ? '' : colors[index] }">
+              {{ body.body ? body.body.name : body.body_id }} ({{ body.value }})
+            </span>
+          </div>
+        </div>
 
         <div class="subtitle">By gender</div>
         <pie-chart class="chart" :chart-data="byGenderData()" :options="byGenderOptions"></pie-chart>
@@ -98,7 +105,7 @@ Vue.component('line-chart', {
 })
 
 export default {
-  name: 'EditApplication',
+  name: 'ApplicationStats',
   data () {
     return {
       event: {
@@ -235,6 +242,7 @@ export default {
           text: 'Applications by body'
         },
         legend: {
+          display: false,
           position: 'right'
         }
       }
