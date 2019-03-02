@@ -1,3 +1,13 @@
+## [0.7.6](https://github.com/AEGEE/oms-statutory/compare/0.7.5...0.7.6) (2019-03-02)
+
+
+### Bug Fixes
+
+* **application:** added is_on_memberslist management. Fixes MEMB-481 ([36da4a0](https://github.com/AEGEE/oms-statutory/commit/36da4a0))
+* **application:** do not update is_on_memberslist if not Agora ([0909f5e](https://github.com/AEGEE/oms-statutory/commit/0909f5e))
+
+
+
 ## [0.7.5](https://github.com/AEGEE/oms-statutory/compare/0.7.4...0.7.5) (2019-03-02)
 
 
