@@ -259,7 +259,7 @@ function setApplicationBoolean(key) {
 
         const dbResult = await req.application.update(
             toUpdate,
-            { returning: true }
+            { returning: true, hooks: false }
         );
 
         // Recalculating votes per delegate for this antenna.
@@ -277,7 +277,7 @@ exports.setApplicationAttended = setApplicationBoolean('attended');
 exports.setApplicationPaidFee = setApplicationBoolean('paid_fee');
 exports.setApplicationRegistered = setApplicationBoolean('registered');
 exports.setApplicationDeparted = setApplicationBoolean('departed');
-
+exports.setApplicationIsOnMemberslist = setApplicationBoolean('is_on_memberslist');
 
 exports.setApplicationStatus = async (req, res) => {
     if (Number.isNaN(Number(req.params.application_id, 10))) {
