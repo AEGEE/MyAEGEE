@@ -1,3 +1,13 @@
+## [0.6.4](https://github.com/AEGEE/oms-frontend/compare/0.6.3...0.6.4) (2019-03-02)
+
+
+### Bug Fixes
+
+* **general:** fix link preview. Fixes MEMB-484 ([b257b44](https://github.com/AEGEE/oms-frontend/commit/b257b44))
+* **statutory:** fix stats label displaying for bodies. Fixes HELP-332 ([09a57c4](https://github.com/AEGEE/oms-frontend/commit/09a57c4))
+
+
+
 ## [0.6.3](https://github.com/AEGEE/oms-frontend/compare/0.6.2...0.6.3) (2019-02-24)
 
 
