@@ -101,7 +101,7 @@ export default {
       const lowercaseQuery = this.query.toLowerCase()
 
       return this.applications.filter(app =>
-        ['first_name', 'last_name', 'email'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
+        ['first_name', 'last_name'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
     }
   },
   methods: {
