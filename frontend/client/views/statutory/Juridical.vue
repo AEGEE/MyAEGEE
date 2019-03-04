@@ -16,7 +16,7 @@
         <div>Total participants: {{ applications.length }}</div>
 
         <b-table
-          :data="applications"
+          :data="filteredApplications"
           :loading="isLoading"
           paginated
           :per-page="limit"

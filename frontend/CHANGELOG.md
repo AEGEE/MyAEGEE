@@ -1,3 +1,12 @@
+## [0.7.1](https://github.com/AEGEE/oms-frontend/compare/0.7.0...0.7.1) (2019-03-04)
+
+
+### Bug Fixes
+
+* **statutory:** fixed filtering on applications listings ([be7a53e](https://github.com/AEGEE/oms-frontend/commit/be7a53e))
+
+
+
 # [0.7.0](https://github.com/AEGEE/oms-frontend/compare/0.6.4...0.7.0) (2019-03-04)
 
 

@@ -16,7 +16,7 @@
         <div>Total participants: {{ applications.length }}</div>
 
         <b-table
-          :data="applications"
+          :data="filteredApplications"
           :loading="isLoading"
           paginated
           :per-page="limit"
@@ -115,7 +115,7 @@ export default {
       this.axios.put(url, { is_on_memberslist: pax.newIsOnMemberslist }).then(() => {
         pax.is_on_memberslist = pax.newIsOnMemberslist
         pax.isSavingOnMemberslist = false
-        this.$root.showSuccess(`Successfully updated memberslist status of application for user #${pax.user_id}`)
+        this.$root.showSuccess(`Successfully updated memberslist status of application for application #${pax.id}`)
       }).catch((err) => {
         pax.isSavingOnMemberslist = false
         this.$root.showDanger('Could not update participant memberslist info: ' + err.message)
