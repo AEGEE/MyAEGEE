@@ -1,5 +1,16 @@
 module.exports = {
     CURRENT_USER_PREFIX: 'me',
+    ALLOWED_NETWORK_LIST_FIELDS: [
+        'id',
+        'user_id',
+        'body_id',
+        'body_name',
+        'participant_type',
+        'participant_order',
+        'first_name',
+        'last_name',
+        'is_on_memberslist'
+    ],
     ALLOWED_JURIDICAL_LIST_FIELDS: [
         'id',
         'user_id',
@@ -73,6 +84,7 @@ module.exports = {
         body_id: 'Body ID',
         created_at: 'Applied on',
         updated_at: 'Updated at',
+        is_on_memberslist: 'Is on memberslist?',
         visa_required: 'Visa required?',
         participant_type: 'Participant type',
         participant_order: 'Participant order',

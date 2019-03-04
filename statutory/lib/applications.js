@@ -73,6 +73,23 @@ exports.listJCApplications = async (req, res) => {
     });
 };
 
+exports.listNetworkApplications = async (req, res) => {
+    if (!req.permissions.see_applications_network) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
+    }
+
+    const applications = req.event.applications
+        .filter(application => helpers.filterObject(application, { cancelled: false }))
+        .map(application => application.toJSON())
+        .map(application => helpers.whitelistObject(application, constants.ALLOWED_NETWORK_LIST_FIELDS));
+
+
+    return res.json({
+        success: true,
+        data: applications
+    });
+};
+
 exports.getStats = async (req, res) => {
     const statsObject = {
         by_date: [],

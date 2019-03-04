@@ -151,6 +151,7 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     permissions.see_applications = permissions.manage_applications;
     permissions.see_applications_juridical = permissions.manage_applications || permissions.manage_juridical;
     permissions.see_applications_incoming = permissions.manage_applications || permissions.manage_incoming;
+    permissions.see_applications_network = permissions.manage_applications || hasPermission(corePermissions, 'global:update_memberslist_status:' + event.type);
     permissions.see_participants_list = event.can_see_participants_list || permissions.manage_applications;
     permissions.export = {
         openslides: permissions.manage_applications || permissions.manage_incoming,

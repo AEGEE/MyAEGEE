@@ -65,6 +65,7 @@ ApplicationsRouter.get('/all', applications.listAllApplications);
 ApplicationsRouter.get('/accepted', applications.listAcceptedApplications);
 ApplicationsRouter.get('/juridical', applications.listJCApplications);
 ApplicationsRouter.get('/incoming', applications.listIncomingApplications);
+ApplicationsRouter.get('/network', applications.listNetworkApplications);
 ApplicationsRouter.get('/stats', applications.getStats);
 ApplicationsRouter.get('/export/openslides', applications.exportOpenslides);
 ApplicationsRouter.get('/export/:prefix', applications.exportAll);

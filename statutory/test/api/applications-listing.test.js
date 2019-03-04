@@ -245,6 +245,63 @@ describe('Applications listing', () => {
         expect(res.body.data.length).toEqual(0);
     });
 
+    test('should result in an error if user does not have permission on /network', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+        const event = await generator.createEvent();
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/network',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should return only required data on /network', async () => {
+        const event = await generator.createEvent();
+
+        await generator.createApplication({ status: 'accepted', paid_fee: true, user_id: 1 }, event);
+        await generator.createApplication({ user_id: 2 }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/network',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(2);
+
+        expect(Object.keys(res.body.data[0]).length).toEqual(constants.ALLOWED_NETWORK_LIST_FIELDS.length);
+        for (const field of constants.ALLOWED_NETWORK_LIST_FIELDS) {
+            expect(res.body.data[0]).toHaveProperty(field);
+        }
+    });
+
+    test('should not return cancelled applications on /network', async () => {
+        const event = await generator.createEvent();
+        await generator.createApplication({ status: 'accepted', cancelled: true, user_id: 2 }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/network',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(0);
+    });
+
     describe('displaying if the user is on memberslist', () => {
         test('should return no if no memberslist', async () => {
             const event = await generator.createEvent({ applications: [] });
