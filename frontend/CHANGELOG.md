@@ -1,3 +1,13 @@
+## [0.7.2](https://github.com/AEGEE/oms-frontend/compare/0.7.1...0.7.2) (2019-03-04)
+
+
+### Bug Fixes
+
+* **statutory:** fixed filtering on JC listing page ([795337c](https://github.com/AEGEE/oms-frontend/commit/795337c))
+* **statutory:** fixed filtering on ND listing page ([f2c6137](https://github.com/AEGEE/oms-frontend/commit/f2c6137))
+
+
+
 ## [0.7.1](https://github.com/AEGEE/oms-frontend/compare/0.7.0...0.7.1) (2019-03-04)
 
 
