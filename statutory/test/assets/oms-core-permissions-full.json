@@ -150,5 +150,15 @@
         "circles": null,
         "always_assigned": false,
         "action": "manage_candidates"
+      }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 71,
+        "filters": [],
+        "description": "Update memberslist status",
+        "combined": "global:update_memberslist_status:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "update_memberslist_status"
       }]
 }

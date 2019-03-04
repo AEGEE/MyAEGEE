@@ -151,6 +151,7 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     permissions.see_applications = permissions.manage_applications;
     permissions.see_applications_juridical = permissions.manage_applications || permissions.manage_juridical;
     permissions.see_applications_incoming = permissions.manage_applications || permissions.manage_incoming;
+    permissions.see_applications_network = permissions.manage_applications || hasPermission(corePermissions, 'global:update_memberslist_status:' + event.type);
     permissions.see_participants_list = event.can_see_participants_list || permissions.manage_applications;
     permissions.export = {
         openslides: permissions.manage_applications || permissions.manage_incoming,
@@ -190,6 +191,9 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     // See JC list and change 'registered' and 'departed' attributes only.
     const isJuridical = hasPermission(corePermissions, 'manage_juridical:' + event.type);
 
+    // Update is_on_memberslist attribute (Network Director).
+    const updateMemberslistStatus = hasPermission(corePermissions, 'update_memberslist_status:' + event.type);
+
     permissions.see_application = mine || canManage || isIncoming || permissions.see_boardview_of[application.body_id];
 
     // User can edit application if it's his application and it's within the deadline, or if he has the permission.
@@ -198,11 +202,12 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     // For cancellation, the same.
     permissions.set_application_cancelled = (mine && event.can_apply) || canManage;
 
-    // For paid fee and cancelled, only if has permissions.
+    // For paid fee and cancelled and others, only if has permissions.
     permissions.set_application_paid_fee = isIncoming || canManage;
     permissions.set_application_attended = isIncoming || canManage;
     permissions.set_application_registered = isJuridical || canManage;
     permissions.set_application_departed = isJuridical || canManage;
+    permissions.set_application_is_on_memberslist = updateMemberslistStatus || canManage;
 
     permissions.change_status = canManage;
 
