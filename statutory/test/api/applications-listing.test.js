@@ -226,7 +226,6 @@ describe('Applications listing', () => {
         }
     });
 
-
     test('should not return not accepted or cancelled applications on /incoming', async () => {
         const event = await generator.createEvent();
 

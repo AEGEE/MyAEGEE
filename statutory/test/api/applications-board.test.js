@@ -191,11 +191,13 @@ describe('Applications pax type/board comment', () => {
 
     test('should return 422 if there is already an application with the same pax type and order from this body', async () => {
         application = await application.update({
+            user_id: 1,
             participant_type: 'delegate',
             participant_order: 1
         }, { returning: true });
 
         const otherApplication = await generator.createApplication({
+            user_id: 2,
             body_id: regularUser.bodies[0].id,
             participant_type: null,
             participant_order: null
