@@ -517,6 +517,14 @@ module.exports = [
     }
   },
   {
+    name: 'oms.statutory.network',
+    path: '/statutory/:id/network',
+    component: 'statutory/NetworkListing',
+    meta: {
+      label: 'Set members list status for participants'
+    }
+  },
+  {
     name: 'oms.statutory.boardview',
     path: '/statutory/:id/boardview',
     component: 'statutory/BoardView',

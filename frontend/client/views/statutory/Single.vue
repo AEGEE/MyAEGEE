@@ -31,6 +31,13 @@
             </router-link>
           </div>
 
+          <div class="field is-grouped" v-if="can.see_applications_network">
+            <router-link :to="{ name: 'oms.statutory.network', params: { id: event.url || event.id } }" class="button is-fullwidth">
+              <span>Manage members list status</span>
+              <span class="icon"><i class="fa fa-users"></i></span>
+            </router-link>
+          </div>
+
           <div class="field is-grouped" v-if="can.export.all || can.export.incoming || can.export.openslides">
             <router-link :to="{ name: 'oms.statutory.applications.export', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Export participants info</span>
