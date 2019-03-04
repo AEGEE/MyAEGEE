@@ -1,3 +1,12 @@
+# [0.7.0](https://github.com/AEGEE/oms-frontend/compare/0.6.4...0.7.0) (2019-03-04)
+
+
+### Features
+
+* **statutory:** added members list status management. Fixes MEMB-481 ([de3957d](https://github.com/AEGEE/oms-frontend/commit/de3957d))
+
+
+
 ## [0.6.4](https://github.com/AEGEE/oms-frontend/compare/0.6.3...0.6.4) (2019-03-02)
 
 
