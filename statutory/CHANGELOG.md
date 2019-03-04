@@ -1,3 +1,13 @@
+## [0.7.7](https://github.com/AEGEE/oms-statutory/compare/0.7.6...0.7.7) (2019-03-04)
+
+
+### Bug Fixes
+
+* **application:** listing applications for network director ([3a88621](https://github.com/AEGEE/oms-statutory/commit/3a88621))
+* **test:** fix test that can fail randomly ([7b646b2](https://github.com/AEGEE/oms-statutory/commit/7b646b2))
+
+
+
 ## [0.7.6](https://github.com/AEGEE/oms-statutory/compare/0.7.5...0.7.6) (2019-03-02)
 
 
