@@ -106,8 +106,8 @@ describe('Applications listing', () => {
     test('should not display not accepted or cancelled application on /accepted', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
         const event = await generator.createEvent();
-        await generator.createApplication({ status: 'pending' }, event);
-        await generator.createApplication({ status: 'accepted', cancelled: true }, event);
+        await generator.createApplication({ user_id: 1, status: 'pending' }, event);
+        await generator.createApplication({ user_id: 2, status: 'accepted', cancelled: true }, event);
 
         tk.travel(moment(event.participants_list_publish_deadline).add(5, 'minutes').toDate());
 
