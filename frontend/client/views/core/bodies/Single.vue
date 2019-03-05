@@ -18,7 +18,7 @@
             <router-link v-if="item.type === 'link'" :to="{ name: item.name, params: item.params() || {} }" :class="['button', 'is-fullwidth', item.class]">
               <span class="field-icon icon"><i :class="['fas fa-' + item.icon]"></i></span>
               <span class="field-label">{{ item.label }}</span>
-            </a>
+            </router-link>
           </div>
         </article>
       </div>
@@ -161,6 +161,14 @@ export default {
           permission: 'join'
         },
         {
+          name: 'joinRequestPending',
+          label: 'Join request sent.',
+          action: () => {},
+          class: 'is-static',
+          icon: 'clock',
+          permission: 'joinRequestSent'
+        },
+        {
           name: 'createBoundCircle',
           label: 'Add bound circle',
           action: this.openAddCircleModal,
@@ -200,6 +208,10 @@ export default {
     checkPermissions (name) {
       if (name === 'join') {
         return !this.isMember && !this.isRequestingMembership
+      }
+
+      if (name === 'joinRequestSent') {
+        return !this.isMember && this.isRequestingMembership
       }
 
       if (name === 'leave') {

@@ -1,3 +1,12 @@
+## [0.7.3](https://github.com/AEGEE/oms-frontend/compare/0.7.2...0.7.3) (2019-03-05)
+
+
+### Bug Fixes
+
+* **body:** display pending join request button. Fixes MEMB-485 ([59dad37](https://github.com/AEGEE/oms-frontend/commit/59dad37))
+
+
+
 ## [0.7.2](https://github.com/AEGEE/oms-frontend/compare/0.7.1...0.7.2) (2019-03-04)
 
 
