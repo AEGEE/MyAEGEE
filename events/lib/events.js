@@ -1,4 +1,5 @@
 const errors = require('./errors');
+const merge = require('./merge');
 const helpers = require('./helpers');
 const { Event, Application } = require('../models');
 const { Sequelize } = require('./sequelize');
@@ -6,54 +7,25 @@ const { Sequelize } = require('./sequelize');
 /** Requests for all events **/
 
 exports.listEvents = async (req, res) => {
-    const filter = {
-        deleted: false, // Filter out deleted events,
-        status: 'published'
-    };
+    // Get default query obj.
+    const defaultQueryObj = helpers.getDefaultQuery(req);
 
-    if (req.query.type) {
-        filter.type = Array.isArray(req.query.type) ? { [Sequelize.Op.in]: req.query.type } : req.query.type;
-    }
-
-    if (req.query.displayPast === false) {
-        filter.starts = { [Sequelize.Op.gte]: new Date() };
-    }
-
-    if (req.query.search) {
-        filter[Sequelize.Op.or] = [
-            { name: { [Sequelize.Op.iLike]: '%' + req.query.search + '%' } },
-            { description: { [Sequelize.Op.iLike]: '%' + req.query.search + '%' } }
-        ];
-    }
-
-    const events = await Event.findAll({ where: filter });
-
-    let queryOffset = 0;
-    let queryLimit = events.length;
-
-    if (req.query.offset) {
-        const offset = parseInt(req.query.offset, 10);
-        if (!Number.isNaN(offset) && offset >= 0) {
-            queryOffset = offset;
+    // Applying custom filter: deleted = false, status === published.
+    const queryObj = merge(defaultQueryObj, {
+        where: {
+            deleted: false,
+            status: 'published'
         }
-    }
+    });
 
-    if (req.query.limit) {
-        const limit = parseInt(req.query.limit, 10);
-        if (!Number.isNaN(limit) && limit > 0) {
-            queryLimit = limit;
-        }
-    }
-
-    const eventsWithOffsetAndLimit = events.slice(queryOffset, queryOffset + queryLimit);
+    const events = await Event.findAll(queryObj);
 
     return res.json({
         success: true,
-        data: eventsWithOffsetAndLimit,
+        data: events,
         meta: {
-            offset: queryOffset,
-            limit: queryLimit,
-            moreAvailable: (queryOffset + queryLimit) < events.length
+            offset: queryObj.offset,
+            limit: queryObj.limit
         }
     });
 };
@@ -83,13 +55,55 @@ exports.listBodyApplications = async (req, res) => {
 
 // Returns all events the user is organizer on
 exports.listUserOrganizedEvents = async (req, res) => {
-    const events = await Event.findAll({ where: { deleted: false } });
+    const defaultQueryObj = helpers.getDefaultQuery(req);
+    const queryObj = merge(defaultQueryObj, {
+        where: {
+            deleted: false,
+            organizers: { [Sequelize.Op.contains] : [{ user_id: req.user.id }] }
+        }
+    });
 
-    const filteredEvents = events.filter(event => event.organizers.some(org => org.user_id === req.user.id));
+    const queryObj2 = {
+        where: {
+            deleted: false,
+            organizers: { [Sequelize.Op.contains] : [{ user_id: req.user.id }] }
+        }
+    }
+
+    const events = await Event.findAll(queryObj2);
 
     return res.json({
         success: true,
-        data: filteredEvents,
+        data: events,
+    });
+};
+
+// List all the event where the user is participant at.
+exports.listUserAppliedEvents = async (req, res) => {
+    const defaultQueryObj = helpers.getDefaultQuery(req);
+    const queryObj = merge(defaultQueryObj, {
+        where: {
+            deleted: false,
+            '$applications.user_id$': req.user.id
+        },
+        subQuery: false,
+        include: [{
+            model: Application,
+            attributes: ['user_id'], // we only need user_id here
+            required: true
+        }]
+    });
+
+    // The subQuery: false line is super important as if we'll remove it,
+    // the query fwill fail with `missing FROM-clause entry for table "applications"`
+    // error. It's a regression bug in Sequelize, more info
+    // here: https://github.com/sequelize/sequelize/issues/9869
+
+    const events = await Event.findAll(queryObj);
+
+    return res.json({
+        success: true,
+        data: events,
     });
 };
 
@@ -161,7 +175,7 @@ exports.eventDetails = async (req, res) => {
 };
 
 exports.editEvent = async (req, res) => {
-  // If user can't edit anything, return error right away
+    // If user can't edit anything, return error right away
     if (!req.permissions.edit_event) {
         return errors.makeForbiddenError(res, 'You cannot edit this event');
     }
@@ -169,7 +183,7 @@ exports.editEvent = async (req, res) => {
     const data = req.body;
     const event = req.event;
 
-  // Disallow changing applications and organizers, use separate requests for that
+    // Disallow changing applications and organizers, use separate requests for that
     delete data.applications;
     delete data.organizing_locals;
     delete data.organizers;
@@ -196,7 +210,7 @@ exports.deleteEvent = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not permitted to delete this event.');
     }
 
-  // Deletion is only setting the 'deleted' field to true.
+    // Deletion is only setting the 'deleted' field to true.
     await req.event.update({ deleted: true });
 
     return res.json({
@@ -206,7 +220,7 @@ exports.deleteEvent = async (req, res) => {
 };
 
 exports.setApprovalStatus = async (req, res) => {
-  // If there is no transition found, it's disallowed to everybody.
+    // If there is no transition found, it's disallowed to everybody.
     if (!req.permissions.set_status) {
         return errors.makeForbiddenError(res, 'You are not allowed to change status.');
     }

@@ -61,7 +61,6 @@ describe('Events listing', () => {
 
         expect(res.body.data.length).not.toEqual(1);
         expect(res.body.meta.limit).not.toEqual('nan');
-        expect(res.body.meta.moreAvailable).toEqual(false);
     });
 
     it('should use the default limit if limit is < 0', async () => {
@@ -80,7 +79,6 @@ describe('Events listing', () => {
 
         expect(res.body.data.length).not.toEqual(-1);
         expect(res.body.meta.limit).not.toEqual(-1);
-        expect(res.body.meta.moreAvailable).toEqual(false);
     });
 
     it('should work with limit if limit is > 0', async () => {
@@ -100,7 +98,6 @@ describe('Events listing', () => {
 
         expect(res.body.data.length).toEqual(1);
         expect(res.body.meta.limit).toEqual(1);
-        expect(res.body.meta.moreAvailable).toEqual(true);
     });
 
     it('should use the default offset if offset is NaN', async () => {
@@ -117,7 +114,6 @@ describe('Events listing', () => {
 
         expect(res.body.data.length).not.toEqual(1);
         expect(res.body.meta.offset).not.toEqual('nan');
-        expect(res.body.meta.moreAvailable).toEqual(false);
     });
 
     it('should use the default offset if offset is < 0', async () => {
@@ -134,7 +130,6 @@ describe('Events listing', () => {
 
         expect(res.body.data.length).not.toEqual(1);
         expect(res.body.meta.offset).not.toEqual(-1);
-        expect(res.body.meta.moreAvailable).toEqual(false);
     });
 
     it('should work with offset if offset is > 0', async () => {
@@ -156,7 +151,6 @@ describe('Events listing', () => {
 
         expect(res.body.data.length).toEqual(0);
         expect(res.body.meta.offset).toEqual(100);
-        expect(res.body.meta.moreAvailable).toEqual(false);
     });
 
     it('should display only specified event types if specified and if multiple types are specified', async () => {

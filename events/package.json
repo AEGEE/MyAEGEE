@@ -44,7 +44,6 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "bugsnag": "^1.9.1",
-    "deep-assign": "^2.0.0",
     "express": "^4.16.3",
     "express-promise-router": "^3.0.2",
     "express-query-boolean": "^2.0.0",
@@ -61,7 +60,7 @@
     "read-chunk": "^2.0.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.4",
-    "sequelize": "^4.42.0",
+    "sequelize": "^4.43.0",
     "sequelize-cli": "^5.4.0",
     "winston": "^3.0.0-rc5"
   },
