@@ -7,7 +7,8 @@ const { Sequelize } = require('./sequelize');
 exports.getDefaultQuery = (req) => {
     // Default filter is empty.
     const queryObj = {
-        where: {}
+        where: {},
+        order: [['starts', 'DESC']]
     }
 
     // If search is set, searching for event by name or description case-insensitive.

@@ -274,4 +274,44 @@ describe('Events listing', () => {
 
         expect(res.body.data[0].description.toLowerCase()).toContain('action agenda');
     });
+
+    it('should sort events properly', async () => {
+        const first = await generator.createEvent({
+            status: 'published',
+            application_starts: moment().add(1, 'day').toDate(),
+            application_ends: moment().add(2, 'days').toDate(),
+            starts: moment().add(3, 'days').toDate(),
+            ends: moment().add(4, 'days').toDate()
+        });
+        const third = await generator.createEvent({
+            status: 'published',
+            application_starts: moment().add(9, 'day').toDate(),
+            application_ends: moment().add(10, 'days').toDate(),
+            starts: moment().add(11, 'days').toDate(),
+            ends: moment().add(12, 'days').toDate()
+        });
+        const second = await generator.createEvent({
+            status: 'published',
+            application_starts: moment().add(5, 'day').toDate(),
+            application_ends: moment().add(6, 'days').toDate(),
+            starts: moment().add(7, 'days').toDate(),
+            ends: moment().add(8, 'days').toDate()
+        });
+
+        const res = await request({
+            uri: '/',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+
+        expect(res.body.data.length).toEqual(3);
+        expect(res.body.data[0].id).toEqual(third.id);
+        expect(res.body.data[1].id).toEqual(second.id);
+        expect(res.body.data[2].id).toEqual(first.id);
+    });
 });
