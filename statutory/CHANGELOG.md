@@ -1,3 +1,22 @@
+## [0.7.9](https://github.com/AEGEE/oms-statutory/compare/0.7.8...0.7.9) (2019-03-11)
+
+
+### Bug Fixes
+
+* **test:** updated packages to prevent test crashing ([c81e454](https://github.com/AEGEE/oms-statutory/commit/c81e454))
+
+
+
+## [0.7.8](https://github.com/AEGEE/oms-statutory/compare/0.7.7...0.7.8) (2019-03-11)
+
+
+### Bug Fixes
+
+* **general:** return 401 if my_permissions call fails. Fixes MEMB-487 ([858588a](https://github.com/AEGEE/oms-statutory/commit/858588a))
+* **test:** fix another test that could fail randomly ([72ce6cb](https://github.com/AEGEE/oms-statutory/commit/72ce6cb))
+
+
+
 ## [0.7.7](https://github.com/AEGEE/oms-statutory/compare/0.7.6...0.7.7) (2019-03-04)
 
 

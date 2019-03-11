@@ -127,13 +127,5 @@ module.exports.getMyPermissions = async (req) => {
         json: true,
     });
 
-    if (typeof permissionsBody !== 'object') {
-        throw new Error('Malformed response when fetching permissions: ' + JSON.stringify(permissionsBody));
-    }
-
-    if (!permissionsBody.success) {
-        throw new Error('Error fetching permissions: ' + JSON.stringify(permissionsBody));
-    }
-
-    return permissionsBody.data;
+    return permissionsBody;
 };

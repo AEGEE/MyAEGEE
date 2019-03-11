@@ -1,6 +1,6 @@
 {
   "name": "oms-statutory",
-  "version": "0.7.7",
+  "version": "0.7.9",
   "description": "Statutory events module for OMS",
   "main": "lib/server.js",
   "scripts": {
@@ -71,9 +71,9 @@
     "eslint-plugin-react": "^7.11.1",
     "faker": "^4.1.0",
     "husky": "^1.3.1",
-    "jest": "^23.6.0",
+    "jest": "^24.3.1",
     "nock": "^10.0.4",
-    "nyc": "^13.1.0",
+    "nyc": "^13.3.0",
     "timekeeper": "^2.1.2"
   }
 }
