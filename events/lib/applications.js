@@ -9,7 +9,10 @@ exports.listAllApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot see applications for this event.');
     }
 
-    const applications = await Application.findAll({ where: { event_id: req.event.id } });
+    const applications = await Application.findAll({
+        where: { event_id: req.event.id },
+        order: [['created_at', 'ASC']]
+    });
 
     return res.json({
         success: true,
