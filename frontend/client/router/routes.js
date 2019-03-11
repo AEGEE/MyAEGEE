@@ -747,6 +747,7 @@ module.exports = [
     }
   },
   /* Alastair */
+  /* Alastair organizer */
   {
     name: 'oms.alastair.organizer.home',
     path: '/alstair/organizer',
@@ -757,10 +758,100 @@ module.exports = [
   },
   {
     name: 'oms.alastair.organizer.myevents',
-    path: '/alastair/organizer/events',
+    path: '/alastair/organizer/myevents',
     meta: {
       label: 'My Events'
     },
     component: 'alastair/organizer/MyEvents'
+  },
+  {
+    name: 'oms.alastair.organizer.event',
+    path: '/alastair/organizer/event/:id',
+    meta: {
+      label: 'Single Event'
+    },
+    component: 'alastair/organizer/Event'
+  },
+  /* ALastair chef */
+  {
+    name: 'oms.alastair.chef.home',
+    path: '/alastair/chef',
+    meta: {
+      label: 'Home'
+    },
+    component: 'alastair/chef/Home'
+  },
+  {
+    name: 'oms.alastair.chef.ingredient.list',
+    path: '/alastair/chef/ingredients',
+    meta: {
+      label: 'Ingredients List'
+    },
+    component: 'alastair/chef/IngredientsList'
+  },
+  {
+    name: 'oms.alastair.chef.recipe.list',
+    path: '/alastair/chef/recipes/list/:which?',
+    meta: {
+      label: 'Recipes List'
+    },
+    component: 'alastair/chef/RecipesList'
+  },
+  {
+    name: 'oms.alastair.chef.recipe.edit',
+    path: '/alastair/chef/recipes/edit/:id?',
+    meta: {
+      label: 'Edit Recipe'
+    },
+    component: 'alastair/chef/RecipeEdit'
+  },
+  {
+    name: 'oms.alastair.chef.recipe.single',
+    path: '/alastair/chef/recipes/single/:id',
+    meta: {
+      label: 'Single Recipe'
+    },
+    component: 'alastair/chef/RecipeSingle'
+  },
+  /* Alastair shop */
+  {
+    name: 'oms.alastair.shop.home',
+    path: '/alastair/shop',
+    meta: {
+      label: 'Home'
+    },
+    component: 'alastair/shop/Home'
+  },
+  {
+    name: 'oms.alastair.shop.list',
+    path: '/alastair/shop/list',
+    meta: {
+      label: 'All Shops'
+    },
+    component: 'alastair/shop/List'
+  },
+  {
+    name: 'oms.alastair.shop.admins',
+    path: '/alastair/shop/admins/:id',
+    meta: {
+      label: 'Shop admins'
+    },
+    component: 'alastair/shop/Admins'
+  },
+  {
+    name: 'oms.alastair.shop.items',
+    path: '/alastair/shop/items/:id',
+    meta: {
+      label: 'Shopping Items'
+    },
+    component: 'alastair/shop/Items'
+  },
+  {
+    name: 'oms.alastair.shop.match',
+    path: '/alastair/shop/match/:id/',
+    meta: {
+      label: 'Match Shopping Items'
+    },
+    component: 'alastair/shop/Match'
   }
 ]

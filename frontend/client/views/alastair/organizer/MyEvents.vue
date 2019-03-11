@@ -18,6 +18,7 @@
       <button type="button" v-on:click="createEvent(newEventName)" class="btn btn-primary">Create new event</button>
     </div>
 
+    <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
   </div>
 </template>
 

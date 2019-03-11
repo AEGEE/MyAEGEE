@@ -142,6 +142,40 @@
             "label": "My Events"
           }
         ]
+      },
+      {
+        "label": "Chef View",
+        "icon": "fa-utensils",
+        "permissions": ["global:use:alastair"],
+        "children": [
+          {
+            "name": "oms.alastair.chef.home",
+            "label": "Home"
+          },
+          {
+            "name": "oms.alastair.chef.ingredient.list",
+            "label": "Ingredients"
+          },
+          {
+            "name": "oms.alastair.chef.recipe.list",
+            "label": "Recipes"
+          }
+        ]
+      },
+      {
+        "label": "Shop View",
+        "icon": "fa-shopping-cart",
+        "permissions": ["global:use:alastair"],
+        "children": [
+          {
+            "name": "oms.alastair.shop.home",
+            "label": "Home"
+          },
+          {
+            "name": "oms.alastair.shop.list",
+            "label": "Shops"
+          }
+        ]
       }
     ]
   }
