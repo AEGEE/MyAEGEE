@@ -23,7 +23,6 @@ install:
 
 script:
   - npm run lint
-  - npm outdated
   - npm audit
   - npm test
   - codecov
