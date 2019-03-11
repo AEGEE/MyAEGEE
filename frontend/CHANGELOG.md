@@ -1,3 +1,12 @@
+## [0.7.9](https://github.com/AEGEE/oms-frontend/compare/0.7.8...0.7.9) (2019-03-11)
+
+
+### Bug Fixes
+
+* **general:** removed non-lazy loading ([dd43b9d](https://github.com/AEGEE/oms-frontend/commit/dd43b9d))
+
+
+
 ## [0.7.8](https://github.com/AEGEE/oms-frontend/compare/0.7.7...0.7.8) (2019-03-11)
 
 

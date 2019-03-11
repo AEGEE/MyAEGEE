@@ -23,10 +23,11 @@ function setDefault (val, defaultVal) { return exists(val) ? val : defaultVal }
 function lazyLoading (name) { return () => import(`views/${name}.vue`) }
 
 // Setting default values for routes
+// I've removed non-lazy-loading for now, as it's not working with Webpack 4 somehow.
 function defaultRoutes (routes) {
   return routes.map(route => ({
     name: route.name,
-    component: (exists(route.meta.skipLazyLoad) && route.meta.skipLazyLoad) ? require(`views/${route.component}.vue`) : lazyLoading(route.component),
+    component: lazyLoading(route.component),
     path: route.path,
     meta: {
       label: route.meta.label,
