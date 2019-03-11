@@ -24,8 +24,8 @@ exports.getDefaultQuery = (req) => {
         queryObj.where.type = Array.isArray(req.query.type) ? { [Sequelize.Op.in]: req.query.type } : req.query.type;
     }
 
-    // If displayPast === false, only displaying future events.
-    if (req.query.displayPast === false) {
+    // If displayPast === true, display also past events.
+    if (req.query.displayPast !== true) {
         queryObj.where.starts = { [Sequelize.Op.gte]: new Date() };
     }
 
