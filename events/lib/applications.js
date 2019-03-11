@@ -1,25 +1,18 @@
 const xlsx = require('node-xlsx');
 
 const errors = require('./errors');
-const { Event, Application } = require('../models');
+const { Application } = require('../models');
 const helpers = require('./helpers');
-
-exports.listUserAppliedEvents = async (req, res) => {
-    const applications = await Application.findAll({ where: { user_id: req.user.id }, include: [Event] });
-    const events = applications.map(a => a.event);
-
-    return res.json({
-        success: true,
-        data: events,
-    });
-};
 
 exports.listAllApplications = async (req, res) => {
     if (!req.permissions.list_applications) {
         return errors.makeForbiddenError(res, 'You cannot see applications for this event.');
     }
 
-    const applications = await Application.findAll({ where: { event_id: req.event.id } });
+    const applications = await Application.findAll({
+        where: { event_id: req.event.id },
+        order: [['created_at', 'ASC']]
+    });
 
     return res.json({
         success: true,

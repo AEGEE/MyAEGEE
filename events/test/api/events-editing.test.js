@@ -152,7 +152,7 @@ describe('Events editing', () => {
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
-    // Delete one even
+        // Delete one event.
         expect(res.statusCode).toEqual(200);
 
         expect(res.body.data.id).toEqual(event.id);

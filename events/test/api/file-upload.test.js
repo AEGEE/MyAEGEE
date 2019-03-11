@@ -103,7 +103,6 @@ describe('File upload', () => {
         });
 
         expect(res.statusCode).toEqual(200);
-
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('message');
 

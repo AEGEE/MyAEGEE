@@ -15,7 +15,7 @@ const Event = sequelize.define('event', {
         type: Sequelize.STRING,
         allowNull: true,
         validate: {
-            is: { args: [/^[a-zA-Z0-9-]+$/ ], msg: 'Event URL should only contain numbers, letters and dashes.' }
+            is: { args: [/^[a-zA-Z0-9-]+$/], msg: 'Event URL should only contain numbers, letters and dashes.' }
         },
         unique: true
     },
@@ -234,14 +234,14 @@ const Event = sequelize.define('event', {
 
                 for (let index = 0; index < value.length; index++) {
                     const question = value[index];
-          /* Question structure
-          {
-              type: 'string|text|number|checkbox|select',
-              description: 'a line that will appear as a label',
-              required: 'boolean',
-              values: ['an array of strings, required for select']
-          }
-          */
+                    /* Question structure
+                    {
+                        type: 'string|text|number|checkbox|select',
+                        description: 'a line that will appear as a label',
+                        required: 'boolean',
+                        values: ['an array of strings, required for select']
+                    }
+                    */
 
                     if (typeof question !== 'object') {
                         throw new Error(`Question ${index + 1}: should be an object.`);
@@ -296,8 +296,8 @@ const Event = sequelize.define('event', {
         type: Sequelize.VIRTUAL,
         get() {
             return moment().isBetween(this.application_starts, this.application_ends, null, '[]')
-          ? 'open'
-          : 'closed'; // inclusive
+                ? 'open'
+                : 'closed'; // inclusive
         }
     },
 }, { underscored: true, tableName: 'events' });

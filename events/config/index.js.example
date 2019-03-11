@@ -1,4 +1,4 @@
-const deepAssign = require('deep-assign');
+const merge = require('../lib/merge');
 
 const config = {
     default: {
@@ -57,7 +57,7 @@ let appConfig = config.default || {};
 
 // If we have the environment config, overwrite the config's fields with its fields
 if (config[env]) {
-    appConfig = deepAssign(appConfig, config[env]);
+    appConfig = merge(appConfig, config[env]);
 }
 
 module.exports = appConfig;

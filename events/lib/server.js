@@ -44,7 +44,7 @@ GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', events.addEvent);
 
 GeneralRouter.get('/mine/organizing', events.listUserOrganizedEvents);
-GeneralRouter.get('/mine/participating', applications.listUserAppliedEvents);
+GeneralRouter.get('/mine/participating', events.listUserAppliedEvents);
 GeneralRouter.get('/mine/approvable', events.listApprovableEvents);
 GeneralRouter.get('/boardview/:body_id', events.listBodyApplications);
 
@@ -87,7 +87,7 @@ async function startServer() {
             await db.authenticate();
             return res();
         });
-    /* istanbul ignore next */
+        /* istanbul ignore next */
         localApp.on('error', err => rej(new Error('Error starting server: ' + err.stack)));
     });
 }

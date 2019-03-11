@@ -59,6 +59,36 @@ describe('Events application listing', () => {
         expect(res.body.data[0].id).toEqual(application.id);
     });
 
+    it('should sort applications properly', async () => {
+        const event = await generator.createEvent({ organizers: [{
+            first_name: 'test',
+            last_name: 'test',
+            user_id: user.id
+        }] });
+
+        const first = await generator.createApplication({ user_id: 1 }, event);
+        const second = await generator.createApplication({ user_id: 2 }, event);
+        const third = await generator.createApplication({ user_id: 3 }, event);
+
+        await first.update({ user_id: 4 });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(3);
+
+        expect(res.body.data[0].id).toEqual(first.id);
+        expect(res.body.data[1].id).toEqual(second.id);
+        expect(res.body.data[2].id).toEqual(third.id);
+    });
+
     it('should not display events I haven\'t applied at /mine/participating', async () => {
         const event = await generator.createEvent();
         await generator.createApplication({ user_id: 1337 }, event);

@@ -101,7 +101,7 @@ describe('Events creation', () => {
         expect(res.body.data).toHaveProperty('questions');
         expect(res.body.data).toHaveProperty('organizers');
 
-    // Check auto-filled fields
+        // Check auto-filled fields
         expect(res.body.data.status).toEqual('draft');
         expect(res.body.data.application_status).toEqual('closed');
         expect(res.body.data.questions.length).toEqual(0);

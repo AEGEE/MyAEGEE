@@ -1,6 +1,52 @@
 const moment = require('moment');
 
 const constants = require('./constants');
+const { Sequelize } = require('./sequelize');
+
+// A helper to get default search/query/pagination filter for events listings.
+exports.getDefaultQuery = (req) => {
+    // Default filter is empty.
+    const queryObj = {
+        where: {},
+        order: [['starts', 'ASC']]
+    };
+
+    // If search is set, searching for event by name or description case-insensitive.
+    if (req.query.search) {
+        queryObj.where[Sequelize.Op.or] = [
+            { name: { [Sequelize.Op.iLike]: '%' + req.query.search + '%' } },
+            { description: { [Sequelize.Op.iLike]: '%' + req.query.search + '%' } }
+        ];
+    }
+
+    // If event type is set, filter on it.
+    if (req.query.type) {
+        queryObj.where.type = Array.isArray(req.query.type) ? { [Sequelize.Op.in]: req.query.type } : req.query.type;
+    }
+
+    // If displayPast === true, display also past events.
+    if (req.query.displayPast !== true) {
+        queryObj.where.starts = { [Sequelize.Op.gte]: new Date() };
+    }
+
+    // If offset is set and is valid, use it.
+    if (req.query.offset) {
+        const offset = parseInt(req.query.offset, 10);
+        if (!Number.isNaN(offset) && offset >= 0) {
+            queryObj.offset = offset;
+        }
+    }
+
+    // If limit is set and is valid, use it.
+    if (req.query.limit) {
+        const limit = parseInt(req.query.limit, 10);
+        if (!Number.isNaN(limit) && limit > 0) {
+            queryObj.limit = limit;
+        }
+    }
+
+    return queryObj;
+};
 
 // A helper to flatten the nested object. Copypasted from Google.
 exports.flattenObject = (obj, prefix = '') => {
@@ -54,9 +100,9 @@ exports.isMemberOf = (user, bodyId) => user.bodies.map(body => body.id).includes
 // from POST /my_permissions
 function getBodiesListFromPermissions(result) {
     return result.reduce((acc, val) => acc.concat(val), [])
-      .filter(elt => elt.body_id)
-      .map(elt => elt.body_id)
-      .filter((elt, index, array) => array.indexOf(elt) === index);
+        .filter(elt => elt.body_id)
+        .map(elt => elt.body_id)
+        .filter((elt, index, array) => array.indexOf(elt) === index);
 }
 
 // A helper to determine if user is an organizer.

@@ -72,7 +72,6 @@ describe('Export all', () => {
 
         const sheet = data[0].data;
         expect(sheet.length).toEqual(2);
-        console.log(sheet);
     });
 
     test('should return 403 if you have no permissions to access', async () => {

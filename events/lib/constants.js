@@ -11,4 +11,4 @@ module.exports = {
         updated_at: 'Updated at'
     },
     EVENT_TYPES: ['wu', 'es', 'nwm', 'ltc', 'rtc', 'local', 'other']
-}
+};
