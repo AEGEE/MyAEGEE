@@ -1,3 +1,12 @@
+## [0.7.10](https://github.com/AEGEE/oms-statutory/compare/0.7.9...0.7.10) (2019-03-11)
+
+
+### Bug Fixes
+
+* **test:** add npm audit to Travis. Fixes MEMB-489 ([e28e668](https://github.com/AEGEE/oms-statutory/commit/e28e668))
+
+
+
 ## [0.7.9](https://github.com/AEGEE/oms-statutory/compare/0.7.8...0.7.9) (2019-03-11)
 
 
