@@ -12,10 +12,6 @@ const config = require('../config');
 const uploadFolderName = `${config.media_dir}/headimages`;
 const allowedExtensions = ['.png', '.jpg', '.jpeg'];
 
-const existsAsync = util.promisify(fs.exists);
-const mkdirAsync = util.promisify(fs.mkdirp);
-const removeAsync = util.promisify(fs.unlink);
-
 const storage = multer.diskStorage({ // multers disk storage settings
     destination(req, file, cb) {
         cb(null, uploadFolderName);
@@ -49,8 +45,8 @@ exports.uploadImage = async (req, res) => {
     const oldimg = req.event.image;
 
     // If upload folder doesn't exists, create it.
-    if (!await existsAsync(uploadFolderName)) {
-        await mkdirAsync(uploadFolderName);
+    if (!await fs.exists(uploadFolderName)) {
+        await fs.mkdirp(uploadFolderName);
     }
 
     try {
@@ -82,12 +78,12 @@ exports.uploadImage = async (req, res) => {
 
     // Remove old file
     if (oldimg) {
-        await removeAsync(path.join(uploadFolderName, oldimg));
+        await fs.remove(path.join(uploadFolderName, oldimg));
     }
 
     return res.json({
         success: true,
         message: 'File uploaded successfully',
-        data: req.event.head_image,
+        data: req.event.image,
     });
 };
