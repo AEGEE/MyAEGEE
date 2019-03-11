@@ -1,3 +1,12 @@
+## [0.7.4](https://github.com/AEGEE/oms-frontend/compare/0.7.3...0.7.4) (2019-03-11)
+
+
+### Bug Fixes
+
+* **statutory:** grouping genders on stats page ([9b6d03a](https://github.com/AEGEE/oms-frontend/commit/9b6d03a))
+
+
+
 ## [0.7.3](https://github.com/AEGEE/oms-frontend/compare/0.7.2...0.7.3) (2019-03-05)
 
 

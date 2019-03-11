@@ -337,6 +337,28 @@ export default {
       return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/stats')
     }).then((stats) => {
       this.stats = stats.data.data
+
+      // Grouping stats, so there'd be only 'male', 'female' and 'other'.
+      const femaleGenders = ['f', 'female']
+      const maleGenders = ['m', 'male']
+      const byGenderStats = [
+        { type: 'Male', value: 0 },
+        { type: 'Female', value: 0 },
+        { type: 'Other', value: 0 }
+      ]
+
+      for (const gender of this.stats.by_gender) {
+        const stripped = gender.type.toLowerCase().trim()
+        if (maleGenders.includes(stripped)) {
+          byGenderStats[0].value += gender.value
+        } else if (femaleGenders.includes(stripped)) {
+          byGenderStats[1].value += gender.value
+        } else {
+          byGenderStats[2].value += gender.value
+        }
+      }
+      this.stats.by_gender = byGenderStats
+
       return this.axios.get(this.services['oms-core-elixir'] + '/bodies/')
     }).then((bodies) => {
       this.bodies = bodies.data.data
