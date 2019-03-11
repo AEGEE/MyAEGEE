@@ -278,11 +278,22 @@ export default {
     },
     processFileContent (input) {
       // CSV content: first_name,last_name,fee
-      const members = input.split('\n').filter(line => line.length > 0).map((line) => {
-        const split = line.split(',')
-        const firstName = split[0].trim()
-        const lastName = split[1].trim()
-        const fee = parseInt(split[2].trim()) || 0
+      const csvArray = input
+        .replace(/;/g, ',') // replacing all semicolons with commas
+        .replace(/"/g, '') // removing all quotes
+        .split('\n') // splitting by new lime
+        .filter(line => line.length > 0) // removing empty strings
+        .map(elt => elt.split(','))
+
+      // Checking if each line has at least 3 columns.
+      if (csvArray.some(elt => elt.length < 3)) {
+        return this.$root.showDanger('CSV is malformed.')
+      }
+
+      const members = csvArray.map((element) => {
+        const firstName = element[0].trim()
+        const lastName = element[1].trim()
+        const fee = parseInt(element[2].trim()) || 0
 
         return {
           first_name: firstName,
