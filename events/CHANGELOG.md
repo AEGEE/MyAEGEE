@@ -1,3 +1,27 @@
+# [0.5.0](https://github.com/AEGEE/oms-events/compare/0.4.3...0.5.0) (2019-03-11)
+
+
+### Bug Fixes
+
+* **application:** sort applications ([5bfc00f](https://github.com/AEGEE/oms-events/commit/5bfc00f))
+* **event:** not displaying past events by detault ([e46b3c5](https://github.com/AEGEE/oms-events/commit/e46b3c5))
+* **event:** reverse sorting order for events ([c761961](https://github.com/AEGEE/oms-events/commit/c761961))
+* **event:** sort events on listing. Fixes MEMB-470 ([5dee0a9](https://github.com/AEGEE/oms-events/commit/5dee0a9))
+* **event:** updated fs-extra api to pass tests ([88729d3](https://github.com/AEGEE/oms-events/commit/88729d3))
+* **package:** updated all packages and fixed vulnerabilities ([743fd86](https://github.com/AEGEE/oms-events/commit/743fd86))
+* **test:** added ESLint check on Travis ([e647ade](https://github.com/AEGEE/oms-events/commit/e647ade))
+* **test:** checking for outdated and vulnerable packages on Travis ([9576426](https://github.com/AEGEE/oms-events/commit/9576426))
+* **test:** remove outdated check for Travis ([ad14a84](https://github.com/AEGEE/oms-events/commit/ad14a84))
+* **test:** updated Jest for tests to work ([0de8ee0](https://github.com/AEGEE/oms-events/commit/0de8ee0))
+* **test:** updated Jest to latest ([f9e9caf](https://github.com/AEGEE/oms-events/commit/f9e9caf))
+
+
+### Features
+
+* **event:** search and filtering for all listings. Fixes MEMB-469 ([a1b65c7](https://github.com/AEGEE/oms-events/commit/a1b65c7))
+
+
+
 ## [0.4.3](https://github.com/AEGEE/oms-events/compare/0.4.2...0.4.3) (2019-03-01)
 
 
