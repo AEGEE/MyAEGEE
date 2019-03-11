@@ -1,3 +1,12 @@
+## [0.7.5](https://github.com/AEGEE/oms-frontend/compare/0.7.4...0.7.5) (2019-03-11)
+
+
+### Bug Fixes
+
+* **general:** improve CSV upload. Fixes MEMB-486 ([c31ed67](https://github.com/AEGEE/oms-frontend/commit/c31ed67))
+
+
+
 ## [0.7.4](https://github.com/AEGEE/oms-frontend/compare/0.7.3...0.7.4) (2019-03-11)
 
 
