@@ -9,5 +9,6 @@ install:
   - npm install
 
 script:
+  - npm audit
   - npm run build
   - npm run lint

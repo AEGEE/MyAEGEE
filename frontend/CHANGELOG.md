@@ -1,3 +1,18 @@
+## [0.7.7](https://github.com/AEGEE/oms-frontend/compare/0.7.6...0.7.7) (2019-03-11)
+
+
+### Bug Fixes
+
+* **general:** fixed vulnerabilities ([b596f46](https://github.com/AEGEE/oms-frontend/commit/b596f46))
+
+
+### Features
+
+* **general:** switched to Webpack 4. Fixes MEMB-346, MEMB-355 ([4b1fb9b](https://github.com/AEGEE/oms-frontend/commit/4b1fb9b))
+* **test:** add npm audit check on Travis ([1abfd0b](https://github.com/AEGEE/oms-frontend/commit/1abfd0b))
+
+
+
 ## [0.7.6](https://github.com/AEGEE/oms-frontend/compare/0.7.5...0.7.6) (2019-03-11)
 
 

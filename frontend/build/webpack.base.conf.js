@@ -2,6 +2,7 @@
 
 const path = require('path')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const config = require('../config')
 const utils = require('./utils')
 const projectRoot = path.resolve(__dirname, '../')
@@ -38,7 +39,7 @@ module.exports = {
     }
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.(js|vue)$/,
         loader: 'eslint-loader',
@@ -87,7 +88,8 @@ module.exports = {
         fromType: 'dir',
         toType: 'dir'
       }
-    ])
+    ]),
+    new VueLoaderPlugin()
   ],
   // See https://github.com/webpack/webpack/issues/3486
   performance: {
