@@ -1,3 +1,12 @@
+## [0.7.6](https://github.com/AEGEE/oms-frontend/compare/0.7.5...0.7.6) (2019-03-11)
+
+
+### Bug Fixes
+
+* **events:** fixed events listing. Fixes MEMB-469, MEMB-470 ([411f47d](https://github.com/AEGEE/oms-frontend/commit/411f47d))
+
+
+
 ## [0.7.5](https://github.com/AEGEE/oms-frontend/compare/0.7.4...0.7.5) (2019-03-11)
 
 
