@@ -8,7 +8,7 @@ exports.getDefaultQuery = (req) => {
     // Default filter is empty.
     const queryObj = {
         where: {},
-        order: [['starts', 'DESC']]
+        order: [['starts', 'ASC']]
     }
 
     // If search is set, searching for event by name or description case-insensitive.

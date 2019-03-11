@@ -310,8 +310,8 @@ describe('Events listing', () => {
         expect(res.body).toHaveProperty('data');
 
         expect(res.body.data.length).toEqual(3);
-        expect(res.body.data[0].id).toEqual(third.id);
+        expect(res.body.data[0].id).toEqual(first.id);
         expect(res.body.data[1].id).toEqual(second.id);
-        expect(res.body.data[2].id).toEqual(first.id);
+        expect(res.body.data[2].id).toEqual(third.id);
     });
 });
