@@ -15,7 +15,7 @@ exports.authenticateUser = async (req, res, next) => {
 
     try {
         // Query the core for user and permissions.
-        const [userBody, permissions] = await Promise.all([
+        const [userBody, permissionsBody] = await Promise.all([
             core.getMyProfile(req),
             core.getMyPermissions(req)
         ]);
@@ -31,8 +31,17 @@ exports.authenticateUser = async (req, res, next) => {
             return errors.makeUnauthorizedError(res, 'Error fetching user: user is not authenticated.');
         }
 
+        if (typeof permissionsBody !== 'object') {
+            throw new Error('Malformed response when fetching permissions: ' + permissionsBody);
+        }
+
+        // Same store as with user body request.
+        if (!permissionsBody.success) {
+            return errors.makeUnauthorizedError(res, 'Error fetching permissions: user is not authenticated.');
+        }
+
         req.user = userBody.data;
-        req.corePermissions = permissions;
+        req.corePermissions = permissionsBody.data;
         req.permissions = helpers.getPermissions(req.user, req.corePermissions);
         req.user.special = ['Public']; // Everybody is included in 'Public', right?
 
