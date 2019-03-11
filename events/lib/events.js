@@ -4,8 +4,6 @@ const helpers = require('./helpers');
 const { Event, Application } = require('../models');
 const { Sequelize } = require('./sequelize');
 
-/** Requests for all events **/
-
 exports.listEvents = async (req, res) => {
     // Get default query obj.
     const defaultQueryObj = helpers.getDefaultQuery(req);
@@ -59,18 +57,11 @@ exports.listUserOrganizedEvents = async (req, res) => {
     const queryObj = merge(defaultQueryObj, {
         where: {
             deleted: false,
-            organizers: { [Sequelize.Op.contains] : [{ user_id: req.user.id }] }
+            organizers: { [Sequelize.Op.contains]: [{ user_id: req.user.id }] }
         }
     });
 
-    const queryObj2 = {
-        where: {
-            deleted: false,
-            organizers: { [Sequelize.Op.contains] : [{ user_id: req.user.id }] }
-        }
-    }
-
-    const events = await Event.findAll(queryObj2);
+    const events = await Event.findAll(queryObj);
 
     return res.json({
         success: true,
@@ -163,7 +154,6 @@ exports.addEvent = async (req, res) => {
     });
 };
 
-/** Single event **/
 exports.eventDetails = async (req, res) => {
     const event = req.event.toJSON();
 
@@ -233,7 +223,6 @@ exports.setApprovalStatus = async (req, res) => {
     });
 };
 
-/** Organizers **/
 exports.addOrganizer = async (req, res) => {
     if (!req.permissions.edit_event) {
         return errors.makeForbiddenError(res, 'You are not allowed to edit organizers.');
@@ -307,7 +296,6 @@ exports.deleteOrganizer = async (req, res) => {
     });
 };
 
-/** Locals **/
 exports.addLocal = async (req, res) => {
     if (!req.permissions.edit_event) {
         return errors.makeForbiddenError(res, 'You are not allowed to edit organizing bodies.');

@@ -9,7 +9,7 @@ exports.getDefaultQuery = (req) => {
     const queryObj = {
         where: {},
         order: [['starts', 'ASC']]
-    }
+    };
 
     // If search is set, searching for event by name or description case-insensitive.
     if (req.query.search) {
@@ -100,9 +100,9 @@ exports.isMemberOf = (user, bodyId) => user.bodies.map(body => body.id).includes
 // from POST /my_permissions
 function getBodiesListFromPermissions(result) {
     return result.reduce((acc, val) => acc.concat(val), [])
-      .filter(elt => elt.body_id)
-      .map(elt => elt.body_id)
-      .filter((elt, index, array) => array.indexOf(elt) === index);
+        .filter(elt => elt.body_id)
+        .map(elt => elt.body_id)
+        .filter((elt, index, array) => array.indexOf(elt) === index);
 }
 
 // A helper to determine if user is an organizer.

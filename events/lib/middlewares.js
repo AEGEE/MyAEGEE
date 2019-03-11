@@ -39,7 +39,7 @@ exports.authenticateUser = async (req, res, next) => {
     }
 
     if (!permissionsBody.success) {
-        throw new Error('Error fetching permissions: ' +  + JSON.stringify(permissionsBody));
+        throw new Error('Error fetching permissions: ' + JSON.stringify(permissionsBody));
     }
 
     // Fetching permissions for members approval, the list of bodies

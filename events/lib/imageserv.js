@@ -21,7 +21,7 @@ const storage = multer.diskStorage({ // multers disk storage settings
         cb(null, uploadFolderName);
     },
 
-  // Filename is 4 character random string and the current datetime to avoid collisions
+    // Filename is 4 character random string and the current datetime to avoid collisions
     filename(req, file, cb) {
         const prefix = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 4);
         const date = (new Date()).getTime();

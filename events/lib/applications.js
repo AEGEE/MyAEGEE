@@ -1,7 +1,7 @@
 const xlsx = require('node-xlsx');
 
 const errors = require('./errors');
-const { Event, Application } = require('../models');
+const { Application } = require('../models');
 const helpers = require('./helpers');
 
 exports.listAllApplications = async (req, res) => {

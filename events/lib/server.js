@@ -87,7 +87,7 @@ async function startServer() {
             await db.authenticate();
             return res();
         });
-    /* istanbul ignore next */
+        /* istanbul ignore next */
         localApp.on('error', err => rej(new Error('Error starting server: ' + err.stack)));
     });
 }

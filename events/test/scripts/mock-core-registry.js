@@ -8,129 +8,129 @@ exports.cleanAll = () => nock.cleanAll();
 exports.mockCore = (options) => {
     if (options.netError) {
         return nock(config.core.url + ':' + config.core.port)
-      .persist()
-      .get('/members/me')
-      .replyWithError('Some random error.');
+            .persist()
+            .get('/members/me')
+            .replyWithError('Some random error.');
     }
 
     if (options.badResponse) {
         return nock(config.core.url + ':' + config.core.port)
-      .persist()
-      .get('/members/me')
-      .reply(500, 'Some error happened.');
+            .persist()
+            .get('/members/me')
+            .reply(500, 'Some error happened.');
     }
 
     if (options.unsuccessfulResponse) {
         return nock(config.core.url + ':' + config.core.port)
-      .persist()
-      .get('/members/me')
-      .reply(500, { success: false, message: 'Some error' });
+            .persist()
+            .get('/members/me')
+            .reply(500, { success: false, message: 'Some error' });
     }
 
     if (options.unauthorized) {
         return nock(config.core.url + ':' + config.core.port)
-      .persist()
-      .get('/members/me')
-      .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+            .persist()
+            .get('/members/me')
+            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
     }
 
     if (options.notSuperadmin) {
         return nock(config.core.url + ':' + config.core.port)
-      .persist()
-      .get('/members/me')
-      .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-not-superadmin.json'));
+            .persist()
+            .get('/members/me')
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid-not-superadmin.json'));
     }
 
     return nock(config.core.url + ':' + config.core.port)
-    .persist()
-    .get('/members/me')
-    .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
+        .persist()
+        .get('/members/me')
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
 };
 
 
 exports.mockCoreMainPermissions = (options) => {
     if (options.netError) {
         return nock(`${config.core.url}:${config.core.port}`)
-          .persist()
-          .get('/my_permissions')
-          .replyWithError('Some random error.');
+            .persist()
+            .get('/my_permissions')
+            .replyWithError('Some random error.');
     }
 
     if (options.badResponse) {
         return nock(`${config.core.url}:${config.core.port}`)
-          .persist()
-          .get('/my_permissions')
-          .reply(500, 'Some error happened.');
+            .persist()
+            .get('/my_permissions')
+            .reply(500, 'Some error happened.');
     }
 
     if (options.unsuccessfulResponse) {
         return nock(`${config.core.url}:${config.core.port}`)
-          .persist()
-          .get('/my_permissions')
-          .reply(500, { success: false, message: 'Some error' });
+            .persist()
+            .get('/my_permissions')
+            .reply(500, { success: false, message: 'Some error' });
     }
 
     if (options.unauthorized) {
         return nock(`${config.core.url}:${config.core.port}`)
-          .persist()
-          .get('/my_permissions')
-          .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+            .persist()
+            .get('/my_permissions')
+            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
     }
 
     if (options.noPermissions) {
         return nock(`${config.core.url}:${config.core.port}`)
-          .persist()
-          .get('/my_permissions')
-          .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
+            .persist()
+            .get('/my_permissions')
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
-      .persist()
-      .get('/my_permissions')
-      .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-full.json'));
+        .persist()
+        .get('/my_permissions')
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-full.json'));
 };
 
 
 exports.mockCoreApprovePermissions = (options) => {
     if (options.netError) {
         return nock(`${config.core.url}:${config.core.port}`)
-          .persist()
-          .post('/my_permissions')
-          .replyWithError('Some random error.');
+            .persist()
+            .post('/my_permissions')
+            .replyWithError('Some random error.');
     }
 
     if (options.badResponse) {
         return nock(`${config.core.url}:${config.core.port}`)
-          .persist()
-          .post('/my_permissions')
-          .reply(500, 'Some error happened.');
+            .persist()
+            .post('/my_permissions')
+            .reply(500, 'Some error happened.');
     }
 
     if (options.unsuccessfulResponse) {
         return nock(`${config.core.url}:${config.core.port}`)
-          .persist()
-          .post('/my_permissions')
-          .reply(500, { success: false, message: 'Some error' });
+            .persist()
+            .post('/my_permissions')
+            .reply(500, { success: false, message: 'Some error' });
     }
 
     if (options.unauthorized) {
         return nock(`${config.core.url}:${config.core.port}`)
-          .persist()
-          .post('/my_permissions')
-          .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+            .persist()
+            .post('/my_permissions')
+            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
     }
 
     if (options.noPermissions) {
         return nock(`${config.core.url}:${config.core.port}`)
-          .persist()
-          .post('/my_permissions')
-          .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
+            .persist()
+            .post('/my_permissions')
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
-      .persist()
-      .post('/my_permissions')
-      .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-approve-permissions-full.json'));
+        .persist()
+        .post('/my_permissions')
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-approve-permissions-full.json'));
 };
 
 exports.mockAll = (options = {}) => {

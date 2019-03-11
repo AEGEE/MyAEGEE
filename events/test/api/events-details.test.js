@@ -44,7 +44,7 @@ describe('Events details', () => {
     });
 
     it('should return a single event on /single/<eventid> GET by URL', async () => {
-        const event = await generator.createEvent({ url: 'test'});
+        const event = await generator.createEvent({ url: 'test' });
         const res = await request({
             uri: '/single/' + event.url,
             headers: { 'X-Auth-Token': 'foobar' },
