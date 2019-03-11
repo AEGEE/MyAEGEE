@@ -1,3 +1,12 @@
+## [0.7.8](https://github.com/AEGEE/oms-frontend/compare/0.7.7...0.7.8) (2019-03-11)
+
+
+### Bug Fixes
+
+* **statutory:** pre-load all bodies on memberslist page. Fixes MEMB-488 ([020a782](https://github.com/AEGEE/oms-frontend/commit/020a782))
+
+
+
 ## [0.7.7](https://github.com/AEGEE/oms-frontend/compare/0.7.6...0.7.7) (2019-03-11)
 
 

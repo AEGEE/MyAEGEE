@@ -78,12 +78,14 @@ export default {
     }).then((response) => {
       this.memberslists = response.data.data
 
+      return this.axios.get(this.services['oms-core-elixir'] + '/bodies/')
+    }).then((response) => {
       for (const memberslist of this.memberslists) {
-        memberslist.expanded = false
-        this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + memberslist.body_id).then((response) => {
-          this.$set(memberslist, 'body', response.data.data)
-        }).catch(console.error)
+        const body = response.data.data.find(bodyFromList => bodyFromList.id === memberslist.body_id)
+        this.$set(memberslist, 'expanded', false)
+        this.$set(memberslist, 'body', body)
       }
+
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false
