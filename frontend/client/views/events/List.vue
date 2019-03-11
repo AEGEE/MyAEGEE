@@ -3,7 +3,7 @@
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
         <h4 class="title">Events list</h4>
-        <div class="field" v-show="scope === 'all'">
+        <div class="field">
           <label class="label">Search by name or description</label>
           <div class="field has-addons">
             <div class="control is-expanded">
@@ -17,7 +17,7 @@
           </div>
         </div>
 
-        <div class="field" v-if="scope === 'all'">
+        <div class="field">
           <label class="label">Event types</label>
           <label v-for="(value, index) in eventTypes" v-bind:key="index">
             <input class="checkbox" type="checkbox" v-model="value.enabled" @change="refetch()" />
@@ -185,11 +185,11 @@ export default {
   },
   watch: {
     '$route.name' () {
-      this.fetchData()
+      this.refetch()
     }
   },
   mounted () {
-    this.fetchData()
+    this.refetch()
   }
 }
 </script>
