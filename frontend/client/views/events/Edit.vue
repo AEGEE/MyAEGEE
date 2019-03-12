@@ -394,7 +394,7 @@ export default {
         required: false
       })
     },
-    deleteApplicationField (index) {
+    deleteQuestion (index) {
       this.event.questions.splice(index, 1)
     },
     addLocation () {
