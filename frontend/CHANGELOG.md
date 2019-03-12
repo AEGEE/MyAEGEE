@@ -1,3 +1,12 @@
+## [0.7.10](https://github.com/AEGEE/oms-frontend/compare/0.7.9...0.7.10) (2019-03-12)
+
+
+### Bug Fixes
+
+* **events:** fixed deleting event question. Fixes HELP-422 ([21fb9a5](https://github.com/AEGEE/oms-frontend/commit/21fb9a5))
+
+
+
 ## [0.7.9](https://github.com/AEGEE/oms-frontend/compare/0.7.8...0.7.9) (2019-03-11)
 
 
