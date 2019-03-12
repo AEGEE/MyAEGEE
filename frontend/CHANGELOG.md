@@ -1,3 +1,12 @@
+## [0.7.11](https://github.com/AEGEE/oms-frontend/compare/0.7.10...0.7.11) (2019-03-12)
+
+
+### Bug Fixes
+
+* **events:** display event description formatted on change events page ([87a7b6d](https://github.com/AEGEE/oms-frontend/commit/87a7b6d))
+
+
+
 ## [0.7.10](https://github.com/AEGEE/oms-frontend/compare/0.7.9...0.7.10) (2019-03-12)
 
 
