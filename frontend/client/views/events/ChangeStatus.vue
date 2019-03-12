@@ -18,8 +18,8 @@
               </router-link>
             </b-table-column>
 
-            <b-table-column field="description" label="Description" sortable>
-              {{ props.row.description }}
+            <b-table-column field="description" label="Description">
+              <div class="content" v-html="$options.filters.markdown(props.row.description)"></div>
             </b-table-column>
 
             <b-table-column field="starts" label="Event dates" sortable>
