@@ -1,3 +1,12 @@
+## [0.7.12](https://github.com/AEGEE/oms-frontend/compare/0.7.11...0.7.12) (2019-03-13)
+
+
+### Bug Fixes
+
+* **event:** fix organizers management. Fixes MEMB-191 ([16d80b2](https://github.com/AEGEE/oms-frontend/commit/16d80b2))
+
+
+
 ## [0.7.11](https://github.com/AEGEE/oms-frontend/compare/0.7.10...0.7.11) (2019-03-12)
 
 
