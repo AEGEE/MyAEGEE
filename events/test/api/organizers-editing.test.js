@@ -20,7 +20,11 @@ describe('Events organization management', () => {
     });
 
     it('should disallow adding organizer for event you cannot edit', async () => {
-        const notMineEvent = await generator.createEvent({ organizers: [{ user_id: 1337 }] });
+        const notMineEvent = await generator.createEvent({ organizers: [{
+            user_id: 1337,
+            first_name: 'test',
+            last_name: 'test'
+        }] });
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
@@ -29,6 +33,8 @@ describe('Events organization management', () => {
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
                 user_id: user.id,
+                first_name: user.first_name,
+                last_name: user.last_name,
                 comment: 'Good guy'
             }
         });
@@ -40,7 +46,11 @@ describe('Events organization management', () => {
     });
 
     it('should disallow adding organizer if the user is already an organizer', async () => {
-        const eventImOrganizing = await generator.createEvent({ organizers: [{ user_id: user.id }] });
+        const eventImOrganizing = await generator.createEvent({ organizers: [{
+            user_id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name
+        }] });
 
         const res = await request({
             uri: '/single/' + eventImOrganizing.id + '/organizers/',
@@ -48,6 +58,8 @@ describe('Events organization management', () => {
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
                 user_id: user.id,
+                first_name: user.first_name,
+                last_name: user.last_name,
                 comment: 'Not that good guy'
             }
         });
@@ -59,7 +71,11 @@ describe('Events organization management', () => {
     });
 
     it('should allow adding organizer for event you can edit', async () => {
-        const event = await generator.createEvent({ organizers: [{ user_id: 1337 }] });
+        const event = await generator.createEvent({ organizers: [{
+            user_id: 1337,
+            first_name: 'test',
+            last_name: 'test'
+        }] });
 
         const res = await request({
             uri: '/single/' + event.id + '/organizers/',
@@ -67,6 +83,8 @@ describe('Events organization management', () => {
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
                 user_id: user.id,
+                first_name: user.first_name,
+                last_name: user.last_name,
                 comment: 'Good guy'
             }
         });
@@ -81,8 +99,87 @@ describe('Events organization management', () => {
         expect(newEvent.organizers.map(org => org.comment)).toContain('Good guy');
     });
 
+    it('should return 500 on adding organizer if oms-core returns net error', async () => {
+        mock.mockAll({ member: { netError: true } });
+        const event = await generator.createEvent({ organizers: [{
+            user_id: 1337,
+            first_name: 'test',
+            last_name: 'test'
+        }] });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/organizers/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                user_id: user.id,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                comment: 'Good guy'
+            }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
+    it('should return 500 on adding organizer if oms-core returns bad response', async () => {
+        mock.mockAll({ member: { badResponse: true } });
+        const event = await generator.createEvent({ organizers: [{
+            user_id: 1337,
+            first_name: 'test',
+            last_name: 'test'
+        }] });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/organizers/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                user_id: user.id,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                comment: 'Good guy'
+            }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
+    it('should return 500 on adding organizer if oms-core returns unsuccessful response', async () => {
+        mock.mockAll({ member: { unsuccessfulResponse: true } });
+        const event = await generator.createEvent({ organizers: [{
+            user_id: 1337,
+            first_name: 'test',
+            last_name: 'test'
+        }] });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/organizers/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                user_id: user.id,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                comment: 'Good guy'
+            }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
     it('should disallow editing organizer for event you cannot edit', async () => {
-        const notMineEvent = await generator.createEvent({ organizers: [{ user_id: 1337 }] });
+        const notMineEvent = await generator.createEvent({ organizers: [{
+            user_id: 1337,
+            first_name: 'test',
+            last_name: 'test'
+        }] });
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
@@ -101,7 +198,11 @@ describe('Events organization management', () => {
     });
 
     it('should disallow editing organizer if userId is not a number', async () => {
-        const event = await generator.createEvent({ organizers: [{ user_id: user.id }] });
+        const event = await generator.createEvent({ organizers: [{
+            user_id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name
+        }] });
         const res = await request({
             uri: '/single/' + event.id + '/organizers/lalala',
             method: 'PUT',
@@ -118,7 +219,11 @@ describe('Events organization management', () => {
     });
 
     it('should disallow editing organizer if the user is not an organizer', async () => {
-        const event = await generator.createEvent({ organizers: [{ user_id: user.id }] });
+        const event = await generator.createEvent({ organizers: [{
+            user_id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name
+        }] });
         const res = await request({
             uri: '/single/' + event.id + '/organizers/1337',
             method: 'PUT',
@@ -135,7 +240,11 @@ describe('Events organization management', () => {
     });
 
     it('should allow editing organizer for event you can edit', async () => {
-        const event = await generator.createEvent({ organizers: [{ user_id: user.id }] });
+        const event = await generator.createEvent({ organizers: [{
+            user_id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name
+        }] });
         const res = await request({
             uri: '/single/' + event.id + '/organizers/' + user.id,
             method: 'PUT',
@@ -156,7 +265,11 @@ describe('Events organization management', () => {
     });
 
     it('should disallow deleting organizer for event you cannot edit', async () => {
-        const notMineEvent = await generator.createEvent({ organizers: [{ user_id: 1337 }] });
+        const notMineEvent = await generator.createEvent({ organizers: [{
+            user_id: 1337,
+            first_name: 'test',
+            last_name: 'test'
+        }] });
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const res = await request({
@@ -172,7 +285,11 @@ describe('Events organization management', () => {
     });
 
     it('should disallow deleting organizer if userId is not a number', async () => {
-        const event = await generator.createEvent({ organizers: [{ user_id: user.id }] });
+        const event = await generator.createEvent({ organizers: [{
+            user_id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name
+        }] });
         const res = await request({
             uri: '/single/' + event.id + '/organizers/lalala',
             method: 'DELETE',
@@ -186,7 +303,11 @@ describe('Events organization management', () => {
     });
 
     it('should disallow deleting organizer if the user is not an organizer', async () => {
-        const event = await generator.createEvent({ organizers: [{ user_id: user.id }] });
+        const event = await generator.createEvent({ organizers: [{
+            user_id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name
+        }] });
         const res = await request({
             uri: '/single/' + event.id + '/organizers/1337',
             method: 'DELETE',
@@ -200,7 +321,11 @@ describe('Events organization management', () => {
     });
 
     it('should disallow deleting organizer if the user is only organizer', async () => {
-        const myEvent = await generator.createEvent({ organizers: [{ user_id: user.id }] });
+        const myEvent = await generator.createEvent({ organizers: [{
+            user_id: 1337,
+            first_name: 'test',
+            last_name: 'test'
+        }] });
         const res = await request({
             uri: '/single/' + myEvent.id + '/organizers/1337',
             method: 'DELETE',
@@ -210,11 +335,20 @@ describe('Events organization management', () => {
         expect(res.statusCode).toEqual(422);
 
         expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('organizers');
     });
 
     it('should allow deleting organizer for event you can edit', async () => {
-        const myEvent = await generator.createEvent({ organizers: [{ user_id: user.id }, { user_id: 1337 }] });
+        const myEvent = await generator.createEvent({ organizers: [{
+            user_id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name
+        }, {
+            user_id: 1337,
+            first_name: 'test',
+            last_name: 'test'
+        }] });
 
         const res = await request({
             uri: '/single/' + myEvent.id + '/organizers/1337',

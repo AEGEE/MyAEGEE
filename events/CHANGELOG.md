@@ -1,3 +1,12 @@
+# [0.6.0](https://github.com/AEGEE/oms-events/compare/0.5.0...0.6.0) (2019-03-13)
+
+
+### Features
+
+* **event:** fix organizers management. Fixes MEMB-191 ([b95aae0](https://github.com/AEGEE/oms-events/commit/b95aae0))
+
+
+
 # [0.5.0](https://github.com/AEGEE/oms-events/compare/0.4.3...0.5.0) (2019-03-11)
 
 

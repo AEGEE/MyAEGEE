@@ -1,4 +1,7 @@
+const request = require('request-promise-native');
+
 const errors = require('./errors');
+const config = require('../config');
 const merge = require('./merge');
 const helpers = require('./helpers');
 const { Event, Application } = require('../models');
@@ -233,12 +236,37 @@ exports.addOrganizer = async (req, res) => {
         return errors.makeBadRequestError(res, 'User with id ' + req.body.user_id + ' is already an organizer.');
     }
 
-    req.event.organizers.push({
-        user_id: req.body.user_id,
-        comment: req.body.comment
+    // Fetching the organizer from core.
+    const user = await request({
+        url: config.core.url + ':' + config.core.port + '/members/' + req.body.user_id,
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Auth-Token': req.headers['x-auth-token'],
+        },
+        simple: false,
+        json: true
     });
 
-    await req.event.save();
+    if (typeof user !== 'object') {
+        throw new Error('Malformed response when fetching user: ' + user);
+    }
+
+    if (!user.success) {
+        throw new Error('Error fetching user: ' + JSON.stringify(user));
+    }
+
+    const organizers = req.event.organizers;
+    organizers.push({
+        user_id: req.body.user_id,
+        comment: req.body.comment,
+        first_name: user.data.first_name,
+        last_name: user.data.last_name
+    });
+
+    await req.event.update({
+        organizers
+    });
 
     return res.json({
         success: true,
@@ -260,10 +288,11 @@ exports.editOrganizer = async (req, res) => {
     if (!organizer) {
         return errors.makeNotFoundError(res, 'Organizer with id ' + userId + ' is not found.');
     }
+    organizer.comment = req.body.comment;
 
-    if (req.body.comment) organizer.comment = req.body.comment;
-
-    await req.event.save();
+    await req.event.update({
+        organizers: req.event.organizers
+    });
 
     return res.json({
         success: true,
@@ -286,9 +315,12 @@ exports.deleteOrganizer = async (req, res) => {
         return errors.makeNotFoundError(res, 'Organizer with id ' + userId + ' is not found.');
     }
 
-    req.event.organizers.splice(organizerIndex, 1);
+    const organizers = JSON.parse(JSON.stringify(req.event.organizers));
+    organizers.splice(organizerIndex, 1);
 
-    await req.event.save();
+    await req.event.update({
+        organizers
+    });
 
     return res.json({
         success: true,
