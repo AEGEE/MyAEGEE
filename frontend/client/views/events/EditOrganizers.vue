@@ -19,40 +19,48 @@
       </div>
 
       <div v-show="scope === 'organizers'">
-        <table class="table is-fullwidth" v-if="$route.params.id">
-          <thead>
-            <tr>
-              <th>User ID</th>
-              <th>User name</th>
-              <th>Comment</th>
-              <th></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(organizer, index) in event.organizers" v-bind:key="organizer.user_id">
-              <td>{{ organizer.user_id }}</td>
-              <td>
-                <router-link :to="{ name: 'oms.members.view', params: { id: organizer.user_id } }">
-                  {{ organizer.first_name }} {{ organizer.last_name }}
-                </router-link>
-              </td>
-              <td>
-                <div class="control">
-                  <input class="input" type="text" v-model="organizer.comment" @input="organizer.changed = true"/>
-                </div>
-              </td>
-              <td>
-                <button v-if="event.organizers.length > 1" class="button is-danger" @click="askDeleteOrganizer(index)">
-                  Delete organizer
-                  </button>
-              </td>
-              <td>
-                <button :disabled="!organizer.changed" class="button is-primary" @click="saveOrganizer(index)">Save</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <b-table
+          :data="event.organizers"
+          :loading="isLoading">
+          <template slot-scope="props">
+            <b-table-column field="id" label="User ID" sortable>
+              {{ props.row.user_id }}
+            </b-table-column>
+
+            <b-table-column field="first_name" label="First and last name" sortable>
+              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
+                {{ props.row.first_name }} {{ props.row.last_name }}
+              </router-link>
+            </b-table-column>
+
+            <b-table-column field="comment" label="Comment">
+              <div class="control">
+                <input class="input" type="text" v-model="props.row.comment" @input="props.row.changed = true"/>
+              </div>
+            </b-table-column>
+
+            <b-table-column label="Save">
+              <button :disabled="!props.row.changed" class="button is-small is-primary" @click="saveOrganizer(props.index)">Save</button>
+            </b-table-column>
+
+            <b-table-column label="Delete">
+              <button v-if="event.organizers.length > 1" class="button is-small is-danger" @click="askDeleteOrganizer(props.index)">
+                Delete organizer
+              </button>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
 
         <div class="field">
           <label class="label">Add organizer</label>
@@ -63,7 +71,7 @@
                 :data="autoComplete.members.values"
                 open-on-focus="true"
                 :loading="autoComplete.members.loading"
-                @input="query => fetchSomething(query, 'members', 'members')"
+                @input="query => fetchMembers(query, 'members', 'members')"
                 @select="organizer => addOrganizer(organizer)">
                 <template slot-scope="props">
                   <div class="media">
@@ -101,7 +109,7 @@
                 :data="autoComplete.bodies.values"
                 open-on-focus="true"
                 :loading="autoComplete.bodies.loading"
-                @input="query => fetchSomething(query, 'bodies', 'bodies')"
+                @input="query => fetchBodies(query, 'bodies', 'bodies')"
                 @select="local => addOrganizingLocal(local)">
                 <template slot-scope="props">
                   <div class="media">
@@ -134,10 +142,11 @@ export default {
       },
       autoComplete: {
         members: { name: '', values: [], loading: false },
-        bodies: { name: '', values: [], loading: false },
-        roles: { name: '' }
+        bodies: { name: '', values: [], loading: false }
       },
-      roles: [],
+      can: {
+        viewAllMembers: false
+      },
       errors: {},
       scope: 'organizers',
       isLoading: false,
@@ -145,34 +154,70 @@ export default {
     }
   },
   methods: {
-    fetchSomething (query, key, context) {
+    fetchBodies (query) {
       if (!query) return
 
-      this.autoComplete[key].values = []
-      this.autoComplete[key].loading = true
+      this.autoComplete.bodies.values = []
+      this.autoComplete.bodies.loading = true
 
       if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['oms-core-elixir'] + '/' + context, {
+      this.axios.get(this.services['oms-core-elixir'] + '/bodies', {
         cancelToken: this.token.token,
         params: { query }
       }).then((response) => {
-        this.autoComplete[key].values = response.data.data
-        this.autoComplete[key].loading = false
+        this.autoComplete.bodies.values = response.data.data
+        this.autoComplete.bodies.loading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
           return
         }
 
-        this.autoComplete[key].loading = false
-        this.$root.showDanger('Could not fetch ' + context + 's: ' + err.message)
+        this.autoComplete.bodies.loading = false
+        this.$root.showDanger('Could not fetch bodies: ' + err.message)
+      })
+    },
+    fetchMembers (query) {
+      if (!query) return
+
+      this.autoComplete.members.values = []
+      this.autoComplete.members.loading = true
+
+      if (this.token) this.token.cancel()
+      this.token = this.axios.CancelToken.source()
+
+      // If user has global permission, fetching global members list.
+      // Otherwise, fetch all of the members of the bodies this user is a member of.
+      const endpoints = this.can.viewAllMembers
+        ? [this.services['oms-core-elixir'] + '/members']
+        : this.loginUser.bodies.map(body => this.services['oms-core-elixir'] + '/bodies/' + body.id +  '/members')
+
+      Promise.all(endpoints.map(endpoint => this.axios.get(endpoint, {
+        cancelToken: this.token.token,
+        params: { query }
+      }))).then((responses) => {
+        // Merging all of the responses into one array.
+        // Then filtering out duplicate users.
+        // .map is there because the /bodies/:id/members returns users, not members.
+        this.autoComplete.members.values = responses
+          .map(response => response.data.data)
+          .reduce((acc, val) => acc.concat(val), [])
+          .map(value => this.can.viewAllMembers ? value : value.member)
+          .filter((elt, index, array) => array.findIndex(e => e.id === elt.id) === index)
+        this.autoComplete.members.loading = false
+      }).catch((err) => {
+        if (this.axios.isCancel(err)) {
+          return
+        }
+
+        this.autoComplete.members.loading = false
+        this.$root.showDanger('Could not fetch members: ' + err.message)
       })
     },
     addOrganizer (organizer) {
       const data = {
-        user_id: organizer.id,
-        roles: []
+        user_id: organizer.id
       }
       this.axios.post(this.services['oms-events'] + '/single/' + this.event.id + '/organizers', data).then((response) => {
         this.$root.showSuccess('Organizer is successfully added.')
@@ -180,7 +225,8 @@ export default {
         this.event.organizers.push({
           user_id: organizer.id,
           user: organizer,
-          roles: []
+          first_name: organizer.first_name,
+          last_name: organizer.last_name
         })
       }).catch((err) => {
         this.$root.showDanger('Could not add organizer: ' + err.message)
@@ -254,23 +300,30 @@ export default {
       })
     }
   },
-  computed: mapGetters(['services']),
+  computed: mapGetters({
+    loginUser: 'user',
+    services: 'services'
+  }),
   mounted () {
     this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
-      this.can = response.data.permissions.can
 
       this.event.starts = new Date(this.event.starts)
       this.event.ends = new Date(this.event.ends)
       if (this.event.application_deadline) this.event.application_deadline = new Date(this.event.application_deadline)
 
-      this.isLoading = false
-
+      // Loading bodies.
       for (const body of this.event.organizing_bodies) {
         this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + body.body_id).then((response) => {
           this.$set(body, 'body', response.data.data)
         }).catch(console.error)
       }
+
+      return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions/')
+    }).then((response) => {
+      this.can.viewAllMembers = response.data.data.some(permission => permission.combined.endsWith('global:view:member'))
+
+      this.isLoading = false
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
