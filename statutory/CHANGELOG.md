@@ -1,3 +1,12 @@
+## [0.7.11](https://github.com/AEGEE/oms-statutory/compare/0.7.10...0.7.11) (2019-03-13)
+
+
+### Bug Fixes
+
+* **application:** allow applying only with permissions ([1f03db6](https://github.com/AEGEE/oms-statutory/commit/1f03db6))
+
+
+
 ## [0.7.10](https://github.com/AEGEE/oms-statutory/compare/0.7.9...0.7.10) (2019-03-11)
 
 
