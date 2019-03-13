@@ -141,7 +141,9 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     permissions.edit_event = hasPermission(corePermissions, 'global:manage_event:' + event.type);
     permissions.change_event_status = hasPermission(corePermissions, 'global:manage_event:' + event.type);
     permissions.delete_event = hasPermission(corePermissions, 'global:manage_event:' + event.type);
-    permissions.apply = event.can_apply || hasPermission(corePermissions, 'global:manage_applications:' + event.type);
+    permissions.apply = event.can_apply
+        || hasPermission(corePermissions, 'global:manage_applications:' + event.type)
+        || hasPermission(corePermissions, 'global:apply:' + event.type);
 
     permissions.use_massmailer = hasPermission(corePermissions, 'global:use_massmailer:' + event.type);
 
