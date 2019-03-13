@@ -184,6 +184,9 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
 };
 
 exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine, application }) => {
+    // Apply disregard the application period
+    const canApply = hasPermission(corePermissions, 'apply:' + event.type);
+
     // Basically do everything with applications.
     const canManage = hasPermission(corePermissions, 'manage_applications:' + event.type);
 
@@ -199,7 +202,7 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     permissions.see_application = mine || canManage || isIncoming || permissions.see_boardview_of[application.body_id];
 
     // User can edit application if it's his application and it's within the deadline, or if he has the permission.
-    permissions.edit_application = (mine && event.can_apply) || canManage;
+    permissions.edit_application = (mine && event.can_apply) || canManage || canApply;
 
     // For cancellation, the same.
     permissions.set_application_cancelled = (mine && event.can_apply) || canManage;

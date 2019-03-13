@@ -1,3 +1,12 @@
+## [0.7.12](https://github.com/AEGEE/oms-statutory/compare/0.7.11...0.7.12) (2019-03-13)
+
+
+### Bug Fixes
+
+* **application:** allow editing application for those with permissions ([976c611](https://github.com/AEGEE/oms-statutory/commit/976c611))
+
+
+
 ## [0.7.11](https://github.com/AEGEE/oms-statutory/compare/0.7.10...0.7.11) (2019-03-13)
 
 
