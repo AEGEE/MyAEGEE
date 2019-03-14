@@ -160,5 +160,35 @@
         "circles": null,
         "always_assigned": false,
         "action": "update_memberslist_status"
+      }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 71,
+        "filters": [],
+        "description": "Manage plenaries",
+        "combined": "global:manage_plenaries:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_plenaries"
+      }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 71,
+        "filters": [],
+        "description": "See plenaries",
+        "combined": "global:see_plenaries:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "see_plenaries"
+      }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 71,
+        "filters": [],
+        "description": "Mark plenary attendance",
+        "combined": "global:mark_attendance:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "mark_attendance"
       }]
 }

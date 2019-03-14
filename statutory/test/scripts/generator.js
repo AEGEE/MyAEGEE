@@ -9,7 +9,8 @@ const {
     VotesPerAntenna,
     VotesPerDelegate,
     Position,
-    Candidate
+    Candidate,
+    Plenary
 } = require('../../models');
 
 const notSet = field => typeof field === 'undefined';
@@ -184,6 +185,18 @@ exports.generateCandidate = (options = {}, position) => {
     return options;
 };
 
+exports.generatePlenary = (options = {}, event = null) => {
+    if (notSet(options.name)) options.name = faker.lorem.sentence();
+    if (notSet(options.starts)) options.starts = faker.date.future();
+    if (notSet(options.ends)) options.ends = faker.date.future(null, options.starts);
+
+    if (event && event.id) {
+        options.event_id = event.id;
+    }
+
+    return options;
+};
+
 exports.createEvent = (options = {}) => {
     return Event.create(exports.generateEvent(options), { include: [Application] });
 };
@@ -208,7 +221,12 @@ exports.createCandidate = (options = {}, position = null) => {
     return Candidate.create(exports.generateCandidate(options, position));
 };
 
+exports.createPlenary = (options = {}, position = null) => {
+    return Plenary.create(exports.generatePlenary(options, position));
+};
+
 exports.clearAll = async () => {
+    await Plenary.destroy({ where: {}, truncate: { cascade: true } });
     await Candidate.destroy({ where: {}, truncate: { cascade: true } });
     await Position.destroy({ where: {}, truncate: { cascade: true } });
     await VotesPerDelegate.destroy({ where: {}, truncate: { cascade: true } });
