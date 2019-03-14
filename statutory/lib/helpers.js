@@ -173,6 +173,10 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
 
     permissions.manage_candidates = hasPermission(corePermissions, 'global:manage_candidates:agora');
 
+    permissions.manage_plenaries = hasPermission(corePermissions, 'global:manage_plenaries:agora');
+    permissions.see_plenaries = hasPermission(corePermissions, 'global:see_plenaries:agora') || permissions.manage_plenaries;
+    permissions.mark_attendance = hasPermission(corePermissions, 'global:mark_attendance:agora');
+
     const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
     for (const body of user.bodies) {
         permissions.set_board_comment_and_participant_type[body.id] = event.can_approve_members && approveBodiesList.includes(body.id);
