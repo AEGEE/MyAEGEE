@@ -70,7 +70,12 @@
                     </div>
                   </div>
                 </div>
-                <p class="help is-danger" v-if="errors.recipes_ingredients && errors.recipes_ingredients[index]">{{ errors.recipes_ingredients[index].join(', ') }}</p>
+                
+                <p class="help is-danger" v-if="errors.recipes_ingredients && errors.recipes_ingredients[index] && errors.recipes_ingredients[index] !== {}">
+                  <span v-for="(value, key) in errors.recipes_ingredients[index]">
+                    Error in {{ key }}: {{ value.join(', ') }}
+                  </span>
+                </p>
               </td>
               <td>
                 <button type="button" class="btn btn-warn" v-on:click="removeIngredient(index)"><i class="fa-minus"></i> Del</button>

@@ -1,11 +1,11 @@
 <template>
   <div class="tile is-ancestor ">
     <div class="tile is-child">
-      <div class="title" v-if="shop.id">
-        Matching for 
+      <div class="title">
+        Matching in 
         <router-link :to="{name: 'oms.alastair.shop.items', params: {id: shop.id}}">{{ shop.name }}</router-link>
       </div>
-      <div class="subtitle" v-if="item.mapped_ingredient.name">
+      <div class="subtitle" v-if="item.mapped_ingredient && item.mapped_ingredient.name">
         Matching ingredient {{ item.mapped_ingredient.name }}
       </div>
 
@@ -14,7 +14,7 @@
         <div class="field">
           <label class="label">Ingredient</label>
           <b-autocomplete
-            v-model="matchedIngredientName"
+            v-model="mappedIngredientName"
             :data="ingredients"
             field="name"
             :loading="isLoadingIngredients"
@@ -40,29 +40,18 @@
           <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ') }}</p>
         </div>
 
-        <div class="field">
-          <label class="label">Price</label>
-          <div class="control">
-            <div class="field has-addons">
-              <div class="control">
-                <input class="input" type="number" v-model="item.price" min="0" step="0.01" required />
-              </div>
-              <div class="control">
-                <a class="button is-static">{{ shop.currency.display_code }}</a>
-              </div>
+        <span v-if="item.mapped_ingredient && item.mapped_ingredient.default_measurement">
+          <div class="field">
+            <label class="label">Can you buy flexible amounts?</label>
+            <div class="select">
+              <select v-model="item.flexible_amount">
+                <option v-bind:value="false">No, price is per item</option>
+                <option v-bind:value="true">Yes, price is flexible</option>
+              </select>
             </div>
           </div>
-        </div>
 
-        <span v-if="item.mapped_ingredient">
-          <div class="select">
-            <select v-model="item.flexible_amount">
-              <option @value="false">Price is per item</option>
-              <option @value="true">Price is per weight</option>
-            </select>
-          </div>
-
-          <span v-if="item.flexible_amount === true">
+          <span v-if="item.flexible_amount">
             <div class="field">
               <label class="label">For every ... </label>
               <div class="control">
@@ -78,7 +67,7 @@
             </div>
           </span>
 
-          <span v-if="item.flexible_amount === false">
+          <span v-if="!item.flexible_amount">
             <div class="field">
               <label class="label">For every pack of... </label>
               <div class="control">
@@ -112,7 +101,7 @@
         <div class="field">
           <label class="label">Comment</label>
           <div class="control">
-            <input class="input" placeholder="e.g. Hello world" required v-model="item.comment"></textarea>
+            <input class="input" placeholder="e.g. Hello world" v-model="item.comment"></textarea>
           </div>
           <p class="help is-danger" v-if="errors.comment">{{ errors.comment.join(', ') }}</p>
         </div>        
@@ -143,19 +132,17 @@ export default {
     return {
       shop: {
         name: '',
-        currency: {}
+        currency: {},
+        id: null
       },
       item: {
         mapped_ingredient: null,
         name: '',
         price: null,
         flexible_amount: false,
-        comment: '',
-        instructions: '',
-        recipes_ingredients: [],
-        person_count: null
+        comment: ''
       },
-      matchedIngredientName: '',
+      mappedIngredientName: '',
       ingredients: [],
       isLoadingIngredients: false,
       permissions: {},
@@ -174,7 +161,7 @@ export default {
 
       this.axios.get(this.services['alastair'] + '/ingredients', {
         cancelToken: this.token.token,
-        params: { query: this.matchedIngredientName, limit: 20 }
+        params: { query: this.mappedIngredientName, limit: 20 }
       }).then((response) => {
         this.ingredients = response.data.data
 
@@ -190,16 +177,15 @@ export default {
     },
     selectIngredient (ing) {
       if (ing) {
-        this.item.matched_ingredient = ing
-        this.item.matched_ingredient_id = ing.id
+        this.item.mapped_ingredient = ing
+        this.item.mapped_ingredient_id = ing.id
+        console.log(ing)
       }
     },
     fetchShop () {
       this.isLoading = true
       this.axios.get(this.services['alastair'] + '/shops/' + this.$route.params.id).then((response) => {
         this.shop = response.data.data
-        console.log('saved shop')
-        console.log(this.shop)
 
         return this.axios.get(this.services['alastair'] + '/shops/' + this.$route.params.id + '/user').then((response) => {
           this.permissions = response.data.data
@@ -216,32 +202,49 @@ export default {
         this.$root.showDanger(message)
       })
     },
+    fetchItem () {
+      this.axios.get(this.services['alastair'] + '/shops/' + this.$route.params.id + '/shopping_items/' + this.$route.params.item).then((response) => {
+        this.item = response.data.data
+        if (this.item.mapped_ingredient && this.item.mapped_ingredient.name) {
+          this.mappedIngredientName = this.item.mapped_ingredient.name
+        }
+      }).catch((err) => {
+        this.$root.showDanger('Could not fetch item ' + err.message)
+      })
+    },
     saveMatch () {
       this.isSaving = true
       this.errors = {}
 
-      let promise = this.$route.params.id
-        ? this.axios.put(this.services['alastair'] + '/recipes/' + this.$route.params.id, {recipe: this.recipe})
-        : this.axios.post(this.services['alastair'] + '/recipes/', {recipe: this.recipe})
+      let promise = this.$route.params.item
+        ? this.axios.put(this.services['alastair'] + '/shops/' + this.$route.params.id + '/shopping_items/' + this.$route.params.item, {shopping_item: this.item})
+        : this.axios.post(this.services['alastair'] + '/shops/' + this.$route.params.id + '/shopping_items', {shopping_item: this.item})
 
       promise.then((response) => {
         this.isSaving = false
-        this.$root.showSuccess('Recipe is saved.')
-        this.recipe = response.data.data
 
-        return this.$router.push({
-          name: 'oms.alastair.chef.recipe.single',
-          params: { id: this.recipe.id }
-        })
+        if (this.$route.params.item) {
+          this.$router.push({name: 'oms.alastair.shop.items', params: { id: this.$route.params.id }})
+        } else {
+          this.$root.showSuccess('Item is saved. You can match another item now')
+          this.item = {
+            mapped_ingredient: null,
+            name: '',
+            price: null,
+            flexible_amount: false,
+            comment: ''
+          }
+          this.mappedIngredientName = ''
+        }
       }).catch((err) => {
         this.isSaving = false
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the recipe data is invalid.')
+          return this.$root.showDanger('Some of the item data is invalid.')
         }
 
-        this.$root.showDanger('Could not save recipe: ' + err.message)
+        this.$root.showDanger('Could not save item: ' + err.message)
       })
     },
     askDeleteItem () {
@@ -264,6 +267,10 @@ export default {
   computed: mapGetters({services: 'services'}),
   mounted () {
     this.fetchShop()
+
+    if (this.$route.params.item) {
+      this.fetchItem()
+    }
   }
 }
 </script>

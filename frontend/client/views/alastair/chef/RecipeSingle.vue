@@ -35,6 +35,8 @@
 
     <!-- TODO: Review mechanism -->
 
+    <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+
   </div>
 </template>
 

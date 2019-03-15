@@ -772,6 +772,22 @@ module.exports = [
     },
     component: 'alastair/organizer/Event'
   },
+  {
+    name: 'oms.alastair.organizer.meal.single',
+    path: '/alastair/organizer/event/:event_id/meal/:id',
+    meta: {
+      label: 'Single Meal'
+    },
+    component: 'alastair/organizer/MealSingle'
+  },
+  {
+    name: 'oms.alastair.organizer.shopping_list',
+    path: '/alastair/organizer/event/:id/shopping_list',
+    meta: {
+      label: 'Shopping List'
+    },
+    component: 'alastair/organizer/ShoppingList'
+  },
   /* ALastair chef */
   {
     name: 'oms.alastair.chef.home',
@@ -848,7 +864,7 @@ module.exports = [
   },
   {
     name: 'oms.alastair.shop.match',
-    path: '/alastair/shop/match/:id/',
+    path: '/alastair/shop/match/:id/:item?',
     meta: {
       label: 'Match Shopping Items'
     },

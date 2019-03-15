@@ -50,8 +50,7 @@
                 <td>{{ item.mapped_ingredient.name }}</td>
                 <td><i><small>{{ item.comment }}</small></i></td>
                 <td v-show="permissions.shop_admin">
-                  <router-link class="button is-warning" :to="{name: 'oms.alastair.shop.match', params: {id: shop.id, item: item}}"><i class="fa fa-pencil"></i> Rematch</router-link>
-                  <button type="button" class="button is-danger" @click="deleteItem(item)"><i class="fa fa-minus"></i> Del</button>
+                  <router-link class="button is-warning" :to="{name: 'oms.alastair.shop.match', params: {id: shop.id, item: item.id}}"><i class="fa fa-pencil"></i> Edit</router-link>
                 </td>
               </tr>
 

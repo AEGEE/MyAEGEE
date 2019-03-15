@@ -46,7 +46,7 @@
             v-if="ingredient.default_measurement">{{ ingredient.default_measurement.name }} (Click to unset)</a>
           <a class="button is-static" v-if="!ingredient.default_measurement">Not set.</a>
         </p>
-        
+
         <p class="help is-danger" v-if="ingredientErrors.default_measurement">{{ ingredientErrors.default_measurement.join(', ')}}</p>
         <p class="help is-danger" v-if="ingredientErrors.default_measurement_id">{{ ingredientErrors.default_measurement_id.join(', ')}}</p>
       </div>
@@ -104,7 +104,7 @@ export default {
 
       this.axios.get(this.services['alastair'] + '/measurements', {
         cancelToken: this.token.token,
-        params: { query: this.addedMeasurementName }
+        params: { query: this.addedMeasurementName, limit: 30 }
       }).then((response) => {
         this.measurements = response.data.data
 
