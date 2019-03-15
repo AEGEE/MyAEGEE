@@ -1,30 +1,33 @@
 module.exports = {
-    up: (queryInterface, Sequelize) => queryInterface.createTable('plenaries', {
+    up: (queryInterface, Sequelize) => queryInterface.createTable('attendances', {
         id: {
             allowNull: false,
             autoIncrement: true,
             primaryKey: true,
             type: Sequelize.INTEGER
         },
-        name: {
-            type: Sequelize.STRING,
-            allowNull: false
-        },
-        event_id: {
-            type: Sequelize.INTEGER,
+        application_id: {
             allowNull: false,
+            type: Sequelize.INTEGER,
             references: {
-                model: 'events',
+                model: 'applications',
+                key: 'id'
+            },
+        },
+        plenary_id: {
+            allowNull: false,
+            type: Sequelize.INTEGER,
+            references: {
+                model: 'plenaries',
                 key: 'id'
             },
         },
         starts: {
-            type: Sequelize.DATE,
-            allowNull: false
+            allowNull: false,
+            type: Sequelize.DATE
         },
         ends: {
-            type: Sequelize.DATE,
-            allowNull: false
+            type: Sequelize.DATE
         },
         created_at: {
             allowNull: false,
@@ -35,5 +38,5 @@ module.exports = {
             type: Sequelize.DATE
         }
     }),
-    down: queryInterface => queryInterface.dropTable('plenaries')
+    down: queryInterface => queryInterface.dropTable('attendances')
 };

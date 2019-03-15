@@ -7,6 +7,7 @@ const VotesPerDelegate = require('./VotesPerDelegate');
 const Position = require('./Position');
 const Candidate = require('./Candidate');
 const Plenary = require('./Plenary');
+const Attendance = require('./Attendance');
 
 Event.hasMany(Application);
 Event.hasMany(MembersList);
@@ -27,6 +28,13 @@ VotesPerDelegate.belongsTo(Application);
 Position.hasMany(Candidate);
 Candidate.belongsTo(Position);
 
+Plenary.hasMany(Attendance);
+Attendance.belongsTo(Plenary);
+
+Application.hasMany(Attendance);
+Attendance.belongsTo(Application);
+
+
 module.exports = {
     Event,
     Application,
@@ -36,5 +44,6 @@ module.exports = {
     VotesPerDelegate,
     Position,
     Candidate,
-    Plenary
+    Plenary,
+    Attendance
 };

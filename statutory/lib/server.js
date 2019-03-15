@@ -121,6 +121,8 @@ PlenariesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, member
 PlenariesRouter.get('/', plenaries.listAllPlenaries);
 PlenariesRouter.post('/', plenaries.createPlenary);
 PlenariesRouter.put('/:plenary_id', plenaries.findPlenary, plenaries.editPlenary);
+PlenariesRouter.get('/:plenary_id', plenaries.findPlenaryWithAttendances);
+PlenariesRouter.post('/:plenary_id/attendance/mark', plenaries.findPlenary, plenaries.markPlenaryAttendance);
 
 server.use('/events/:event_id/massmailer', MassMailerRouter);
 server.use('/events/:event_id/memberslists', MembersListsRouter);
