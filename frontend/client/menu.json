@@ -33,7 +33,7 @@
       {
         "name": "oms.circles.list",
         "label": "Circles",
-        "icon": "fa-alastairalastaircircle",
+        "icon": "fa-circle",
         "permissions": ["global:view:circle"]
       },
       {
