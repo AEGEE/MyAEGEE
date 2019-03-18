@@ -78,7 +78,9 @@ describe('Export all', () => {
         await generator.createApplication({
             user_id: regularUser.id,
             body_id: regularUser.bodies[0].id,
-            answers: [true, 'string']
+            answers: [true, 'string'],
+            participant_type: 'delegate',
+            participant_order: 2,
         }, event);
 
         await generator.createApplication({
