@@ -193,15 +193,19 @@ export default {
         ? [this.services['oms-core-elixir'] + '/members']
         : this.loginUser.bodies.map(body => this.services['oms-core-elixir'] + '/bodies/' + body.id +  '/members')
 
-      Promise.all(endpoints.map(endpoint => this.axios.get(endpoint, {
-        cancelToken: this.token.token,
-        params: { query }
-      }))).then((responses) => {
+      Promise.all(endpoints.map(endpoint => {
+        // Ignoring the requests that failed (because of 403 most likely)
+        // since the user does not always has the permissions to see
+        // the members of the body.
+        return this.axios.get(endpoint, {
+          cancelToken: this.token.token,
+          params: { query }
+        }).then(res => res.data.data).catch(() => [])
+      })).then((responses) => {
         // Merging all of the responses into one array.
         // Then filtering out duplicate users.
         // .map is there because the /bodies/:id/members returns users, not members.
         this.autoComplete.members.values = responses
-          .map(response => response.data.data)
           .reduce((acc, val) => acc.concat(val), [])
           .map(value => this.can.viewAllMembers ? value : value.member)
           .filter((elt, index, array) => array.findIndex(e => e.id === elt.id) === index)
