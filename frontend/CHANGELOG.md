@@ -1,3 +1,12 @@
+## [0.7.13](https://github.com/AEGEE/oms-frontend/compare/0.7.12...0.7.13) (2019-03-19)
+
+
+### Bug Fixes
+
+* **event:** ignoring errors on auto-completing organizers on adding ([3435b39](https://github.com/AEGEE/oms-frontend/commit/3435b39))
+
+
+
 ## [0.7.12](https://github.com/AEGEE/oms-frontend/compare/0.7.11...0.7.12) (2019-03-13)
 
 
