@@ -44,7 +44,7 @@
             </b-table-column>
 
             <b-table-column field="participant_type" label="Participant type" centered sortable>
-              {{ props.row.last_name | capitalize }}
+              {{ props.row.participant_type | capitalize }}
             </b-table-column>
 
             <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable>
