@@ -123,9 +123,9 @@ describe('Plenaries displaying', () => {
 
         expect(res.body.data.id).toEqual(plenary.id);
         expect(res.body.data.attendances.length).toEqual(4);
-        expect(res.body.data.attendances[0].id).toEqual(firstAttendance.id);
-        expect(res.body.data.attendances[1].id).toEqual(secondAttendance.id);
-        expect(res.body.data.attendances[2].id).toEqual(thirdAttendance.id);
-        expect(res.body.data.attendances[3].id).toEqual(fourthAttendance.id);
+        expect(res.body.data.attendances[0].id).toEqual(fourthAttendance.id);
+        expect(res.body.data.attendances[1].id).toEqual(thirdAttendance.id);
+        expect(res.body.data.attendances[2].id).toEqual(secondAttendance.id);
+        expect(res.body.data.attendances[3].id).toEqual(firstAttendance.id);
     });
 });

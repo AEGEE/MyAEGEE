@@ -38,7 +38,10 @@ describe('Plenary attendance marking', () => {
     test('should fail if no permissions', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication({
+            participant_type: 'delegate',
+            participant_order: 1
+        }, event);
 
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
@@ -87,6 +90,40 @@ describe('Plenary attendance marking', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    test('should fail if application_id is NaN', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const plenary = await generator.createPlenary({}, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { application_id: false }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should fail if application_id is not a valid string', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const plenary = await generator.createPlenary({}, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { application_id: 'test' }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
     test('should fail if application is not found', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
@@ -104,10 +141,58 @@ describe('Plenary attendance marking', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    test('should fail if applicant is not a delegate', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const plenary = await generator.createPlenary({}, event);
+        const application = await generator.createApplication({
+            participant_type: 'visitor',
+            participant_order: 1
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { application_id: application.id }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should fail if it\'s too late', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const plenary = await generator.createPlenary({
+            starts: moment().subtract(2, 'days').toDate(),
+            ends: moment().subtract(1, 'days').toDate()
+        }, event);
+        const application = await generator.createApplication({
+            participant_type: 'delegate',
+            participant_order: 1
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { application_id: application.id }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
     test('should succeed and create new plenary attendance if there is none', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication({
+            participant_type: 'delegate',
+            participant_order: 1
+        }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
@@ -135,7 +220,10 @@ describe('Plenary attendance marking', () => {
     test('should succeed and create new plenary attendance if there are some', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication({
+            participant_type: 'delegate',
+            participant_order: 1
+        }, event);
         await generator.createAttendance({
             plenary_id: plenary.id,
             application_id: application.id,
@@ -165,7 +253,10 @@ describe('Plenary attendance marking', () => {
     test('should succeed and update existing attendance if it exists', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication({
+            participant_type: 'delegate',
+            participant_order: 1
+        }, event);
         await generator.createAttendance({
             plenary_id: plenary.id,
             application_id: application.id,
@@ -199,7 +290,10 @@ describe('Plenary attendance marking', () => {
     test('should fail if ends < starts', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication({
+            participant_type: 'delegate',
+            participant_order: 1
+        }, event);
         await generator.createAttendance({
             plenary_id: plenary.id,
             application_id: application.id,
