@@ -10,7 +10,8 @@
     "db:migrate": "sequelize db:migrate",
     "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
     "cli": "node --experimental-repl-await -r ./cli.js",
-    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
+    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
+    "open-coverage": "opn coverage/lcov-report/index.html"
   },
   "jest": {
     "testEnvironment": "node",
@@ -49,6 +50,7 @@
     "express-promise-router": "^3.0.3",
     "express-query-boolean": "^2.0.0",
     "moment": "^2.24.0",
+    "moment-range": "^4.0.2",
     "moment-timezone": "^0.5.23",
     "morgan": "^1.9.1",
     "node-schedule": "^1.3.2",
@@ -74,6 +76,7 @@
     "jest": "^24.4.0",
     "nock": "^10.0.4",
     "nyc": "^13.3.0",
+    "opn-cli": "^4.0.0",
     "timekeeper": "^2.1.2"
   }
 }
