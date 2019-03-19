@@ -43,6 +43,10 @@
               {{ props.row.body_name }}
             </b-table-column>
 
+            <b-table-column field="participant_type" label="Participant type" centered sortable>
+              {{ props.row.last_name | capitalize }}
+            </b-table-column>
+
             <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable>
               <span :class="calculateClassForMemberslist(props.row)">
                 {{ props.row.is_on_memberslist | beautify }}
@@ -79,7 +83,7 @@
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'JuridicalView',
+  name: 'NetworkDirectorView',
   data () {
     return {
       applications: [],
