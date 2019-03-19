@@ -612,6 +612,14 @@ module.exports = [
       label: 'Edit your application'
     }
   },
+  {
+    name: 'oms.statutory.plenaries',
+    path: '/statutory/:id/plenaries/',
+    component: 'statutory/PlenariesList',
+    meta: {
+      label: 'Plenaries list for Agora'
+    }
+  },
   /* Static resources. */
   {
     name: 'oms.legal.simple',
