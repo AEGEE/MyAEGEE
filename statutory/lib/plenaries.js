@@ -1,4 +1,9 @@
-const moment = require('moment');
+const Moment = require('moment');
+const MomentRange = require('moment-range');
+const xlsx = require('node-xlsx');
+
+const moment = MomentRange.extendMoment(Moment);
+
 
 const errors = require('./errors');
 const constants = require('./constants');
@@ -71,6 +76,7 @@ exports.findPlenaryWithAttendances = async (req, res) => {
         return errors.makeBadRequestError(res, 'The plenary ID is invalid.');
     }
 
+    // Preloading values.
     const plenary = await Plenary.findOne({
         where: { id: Number(req.params.plenary_id) },
         include: [{
@@ -102,6 +108,10 @@ exports.listPlenariesStats = async (req, res) => {
 
     const plenaries = await Plenary.findAll({
         where: { event_id: req.event.id },
+        order: [
+            ['starts', 'ASC'],
+            [Attendance, 'starts', 'ASC']
+        ],
         include: [Attendance]
     });
     const applications = await Application.findAll({
@@ -109,31 +119,115 @@ exports.listPlenariesStats = async (req, res) => {
             event_id: req.event.id,
             participant_type: 'delegate'
         },
+        order: [['id', 'ASC']],
         attributes: constants.ALLOWED_PLENARY_ATTENDANCE_FIELDS
     });
 
-    // Calculating how much time were tracked for each application for each plenary.
-    // TODO: refactor, O(n^3) isn't very nice.
-    const result = plenaries.map(plenary => {
-        const plenaryToChange = plenary.toJSON();
-        plenaryToChange.applications = applications.map(application => {
-            const applicationToChange = application.toJSON();
-            const applicationAttendances = plenary.attendances.find(a => a.application_id === applicationToChange.id);
-            applicationToChange.attendances = applicationAttendances.map(attendance => {
-                attendance.timeTracked = helpers.calculateTimeForPlenary(attendance, plenary);
-            });
+    // First sheet with general status with all the info.
+    const firstSheet = {
+        name: 'Stats (general)',
+        data: [
+            // headers
+            [
+                'Application ID',
+                'First and last name',
+                'Body name',
+                ...plenaries.map(plenary => `${plenary.name} (seconds)`),
+                ...plenaries.map(plenary => `${plenary.name} (%)`),
+                'Total percent'
+            ],
+            // the actual data
+            ...applications.map((application) => {
+                // calculating how much time in total this participant has attended
+                // for each plenary, in seconds
+                const plenariesAttendanceInSeconds = plenaries.map((plenary) => {
+                    return plenary
+                        .attendances
+                        .filter(a => a.application_id === application.id)
+                        .map(attendance => helpers.calculateTimeForPlenary(attendance, plenary))
+                        .reduce((acc, val) => acc + val, 0);
+                });
 
-            return applicationToChange;
-        });
+                // same, but in percents
+                const plenariesAttendanceInPercents = plenariesAttendanceInSeconds
+                    .map((attendanceLength, index) => {
+                        // we need the plenary...
+                        const plenary = plenaries[index];
 
-        return plenaryToChange;
+                        // and its total plenary duration in seconds
+                        const plenaryDuration = moment.range(plenary.starts, plenary.ends).diff('seconds', true);
+                        return attendanceLength / plenaryDuration * 100;
+                    });
+
+                // aaaand the average percent
+                const avgPercentPerApplication = plenariesAttendanceInPercents
+                    .reduce((acc, val) => acc + val, 0)
+                    / plenariesAttendanceInPercents.length;
+
+                return [
+                    application.id,
+                    application.first_name + ' ' + application.last_name,
+                    application.body_name,
+                    ...plenariesAttendanceInSeconds.map(attendance => attendance.toFixed(2)),
+                    ...plenariesAttendanceInPercents.map(attendance => attendance.toFixed(2) + '%'),
+                    avgPercentPerApplication.toFixed(2) + '%'
+                ];
+            })
+        ]
+    };
+
+    const plenariesSheets = plenaries.map((plenary, index) => {
+        // total plenary duration in seconds
+        const plenaryDuration = moment.range(plenary.starts, plenary.ends).diff('seconds', true);
+
+        return {
+            name: `${index + 1} - ${plenary.name}`, // to prevent duplicate sheets when there's 2 plenaries with the same name
+            data: [
+                ['Name', plenary.name],
+                ['Starts at', helpers.beautify(plenary.starts)],
+                ['Ends at', helpers.beautify(plenary.ends)],
+                ['Duration in seconds', plenaryDuration],
+                [], // an empty line,
+                // headers
+                [
+                    'Application ID',
+                    'First and last name',
+                    'Body name',
+                    'Starts',
+                    'Ends',
+                    'Time in seconds',
+                    'Time in percent'
+                ],
+                // attendances data
+                ...plenary.attendances.map((attendance) => {
+                    const attendanceDuration = helpers.calculateTimeForPlenary(attendance, plenary);
+                    const application = applications.find(a => a.id === attendance.application_id);
+
+                    return [
+                        application.id,
+                        application.first_name + ' ' + application.last_name,
+                        application.body_name,
+                        helpers.beautify(attendance.starts),
+                        helpers.beautify(attendance.ends),
+                        attendanceDuration.toFixed(2),
+                        (attendanceDuration / plenaryDuration * 100).toFixed(2) + '%'
+                    ];
+                })
+            ]
+        };
     });
 
-    return res.json({
-        success: true,
-        data: result
-    });
-}
+    const resultBuffer = xlsx.build([
+        firstSheet,
+        ...plenariesSheets
+    ]);
+
+
+    res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-disposition', 'attachment; filename=plenary.xlsx');
+
+    return res.send(resultBuffer);
+};
 
 exports.markPlenaryAttendance = async (req, res) => {
     if (!req.permissions.mark_attendance) {

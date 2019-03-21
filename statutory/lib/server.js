@@ -120,6 +120,7 @@ CandidatesRouter.put('/:candidate_id/status', candidates.findCandidate, candidat
 PlenariesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora);
 PlenariesRouter.get('/', plenaries.listAllPlenaries);
 PlenariesRouter.post('/', plenaries.createPlenary);
+PlenariesRouter.get('/stats', plenaries.listPlenariesStats);
 PlenariesRouter.put('/:plenary_id', plenaries.findPlenary, plenaries.editPlenary);
 PlenariesRouter.get('/:plenary_id', plenaries.findPlenaryWithAttendances);
 PlenariesRouter.post('/:plenary_id/attendance/mark', plenaries.findPlenary, plenaries.markPlenaryAttendance);

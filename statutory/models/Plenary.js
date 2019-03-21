@@ -36,7 +36,7 @@ const Plenary = sequelize.define('plenary', {
     }
 }, { underscored: true, tableName: 'plenaries' });
 
-Plenary.prototype.closeAttendances = async function closeAttendances () {
+Plenary.prototype.closeAttendances = async function closeAttendances() {
     await Attendance.update(
         { ends: new Date() },
         { where: { plenary_id: this.id, ends: null } }
@@ -62,7 +62,5 @@ Plenary.afterSave((plenary) => {
     // will catch it.
     cron.registerCloseAttendancesDeadline(plenary.ends, plenary.id);
 });
-
-
 
 module.exports = Plenary;

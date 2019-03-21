@@ -1,6 +1,43 @@
-const moment = require('moment');
+const Moment = require('moment');
+const MomentRange = require('moment-range');
+
+const moment = MomentRange.extendMoment(Moment);
 
 const constants = require('./constants');
+
+exports.calculateTimeForPlenary = (attendance, plenary) => {
+    if (!attendance.ends) {
+        return 0;
+    }
+
+    // We need the intersection of the attendance range and the plenary range
+    // because some people can come earlier to the plenary and some
+    // people can leave later for some reason.
+    const attendanceRange = moment.range(attendance.starts, attendance.ends);
+    const plenaryRange = moment.range(plenary.starts, plenary.ends);
+    const intersectRange = plenaryRange.intersect(attendanceRange);
+
+    if (!intersectRange) {
+        return 0;
+    }
+
+    const difference = intersectRange.diff('seconds', true);
+    return difference;
+};
+
+// Figure out if the value is a number or a string containing only numbers
+exports.isNumber = (value) => {
+    if (typeof value === 'number') {
+        return true;
+    }
+
+    if (typeof value === 'string') {
+        const valueAsNumber = +value; // converts to number if it's all numbers or to NaN otherwise
+        return !Number.isNaN(valueAsNumber);
+    }
+
+    return false;
+};
 
 // A helper to whilelist object's properties.
 exports.whitelistObject = (object, allowedFields) => {
@@ -59,7 +96,7 @@ exports.beautify = (value) => {
 
     // If it's date, return date formatted.
     if (Object.prototype.toString.call(value) === '[object Date]') {
-        return moment(value).format('YYYY-MM-DD HH:mm:SS');
+        return moment(value).format('YYYY-MM-DD HH:mm:ss');
     }
 
     // Else, present it as it is.

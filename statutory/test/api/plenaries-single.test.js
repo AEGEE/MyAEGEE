@@ -101,8 +101,8 @@ describe('Plenaries displaying', () => {
 
     test('should sort attendances', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
-        const firstApplication = await generator.createApplication({}, event);
-        const secondApplication = await generator.createApplication({}, event);
+        const firstApplication = await generator.createApplication({ user_id: 1 }, event);
+        const secondApplication = await generator.createApplication({ user_id: 2 }, event);
         const plenary = await generator.createPlenary({}, event);
 
         const firstAttendance = await generator.createAttendance({ starts: moment().add(1, 'day').toDate(), application_id: firstApplication.id }, plenary);
