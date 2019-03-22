@@ -620,6 +620,14 @@ module.exports = [
       label: 'Plenaries list for Agora'
     }
   },
+  {
+    name: 'oms.statutory.plenaries.view',
+    path: '/statutory/:id/plenaries/:plenary_id',
+    component: 'statutory/ViewPlenary',
+    meta: {
+      label: 'Plenary details and marking attendance'
+    }
+  },
   /* Static resources. */
   {
     name: 'oms.legal.simple',

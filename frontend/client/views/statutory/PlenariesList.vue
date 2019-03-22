@@ -31,21 +31,13 @@
               <button class="button is-primary is-small" @click.prevent="openEditPlenaryModal(props.row)">Edit</button>
             </b-table-column>
 
-            <!-- <b-table-column label="Apply" centered>
+            <b-table-column label="Mark attendances" centered>
               <router-link
-                :to="{ name: 'oms.statutory.candidates.new', params: { id: $route.params.id, position_id: props.row.id } }"
-                class="button is-small"
-                v-if="props.row.status === 'open' && !props.row.myCandidate">
-                Apply!
+                :to="{ name: 'oms.statutory.plenaries.view', params: { id: $route.params.id, plenary_id: props.row.id } }"
+                class="button is-small">
+                View/mark attendances
               </router-link>
-              <router-link
-                :to="{ name: 'oms.statutory.candidates.edit', params: { id: $route.params.id, position_id: props.row.id, candidate_id: props.row.myCandidate.id } }"
-                class="button is-small is-warning"
-                v-if="props.row.status === 'open' && props.row.myCandidate">
-                Edit my application!
-              </router-link>
-              <span v-if="props.row.status !== 'open'">You cannot apply.</span>
-            </b-table-column> -->
+            </b-table-column>
           </template>
 
           <template slot="empty">
