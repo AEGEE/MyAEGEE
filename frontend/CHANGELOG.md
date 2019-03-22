@@ -1,3 +1,22 @@
+# [0.8.0](https://github.com/AEGEE/oms-frontend/compare/0.7.13...0.8.0) (2019-03-22)
+
+
+### Bug Fixes
+
+* **statutory:** add datetimeseconds view and use it on plenary listing ([dfa2beb](https://github.com/AEGEE/oms-frontend/commit/dfa2beb))
+* **statutory:** added plenaries management link ([712f417](https://github.com/AEGEE/oms-frontend/commit/712f417))
+* **statutory:** display participant type on ND view. Fixed HELP-433 ([706cc04](https://github.com/AEGEE/oms-frontend/commit/706cc04))
+* **statutory:** fix participant type displaying on ND view ([82da155](https://github.com/AEGEE/oms-frontend/commit/82da155))
+
+
+### Features
+
+* **statutory:** add plenary attendance management. Fixed MEMB-456 ([b980642](https://github.com/AEGEE/oms-frontend/commit/b980642))
+* **statutory:** export plenary data as XLSX ([2b94f5b](https://github.com/AEGEE/oms-frontend/commit/2b94f5b))
+* **statutory:** plenary details and marking attendance view ([a3e19fe](https://github.com/AEGEE/oms-frontend/commit/a3e19fe))
+
+
+
 ## [0.7.13](https://github.com/AEGEE/oms-frontend/compare/0.7.12...0.7.13) (2019-03-19)
 
 
