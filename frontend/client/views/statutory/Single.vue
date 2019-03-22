@@ -45,6 +45,13 @@
             </router-link>
           </div>
 
+          <div class="field is-grouped" v-if="can.see_plenaries || can.manage_plenaries">
+            <router-link :to="{ name: 'oms.statutory.plenaries', params: { id: event.url || event.id } }" class="button is-fullwidth">
+              <span>Manage/view plenaries</span>
+              <span class="icon"><i class="fa fa-check"></i></span>
+            </router-link>
+          </div>
+
           <div class="field is-grouped" v-if="can.see_participants_list">
             <router-link :to="{ name: 'oms.statutory.accepted', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Participants list</span>
