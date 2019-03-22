@@ -17,6 +17,7 @@ describe('Applications creation', () => {
     afterEach(async () => {
         await stopServer();
         mock.cleanAll();
+        await generator.clearAll();
     });
 
     test('should succeed if user can apply within deadline but without permissions', async () => {

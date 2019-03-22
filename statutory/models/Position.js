@@ -105,7 +105,7 @@ Position.afterUpdate((position) => {
 
     // Clearing the deadlines and setting them again on afterSave() (just in case).
     // Only needed on update.
-    cron.clearDeadlinesForPosition(position.id);
+    cron.clearDeadlinesForId(position.id);
 });
 
 Position.afterSave((position) => {

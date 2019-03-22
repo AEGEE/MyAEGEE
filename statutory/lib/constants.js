@@ -78,6 +78,15 @@ module.exports = {
         'created_at',
         'updated_at'
     ],
+    ALLOWED_PLENARY_ATTENDANCE_FIELDS: [
+        'id',
+        'first_name',
+        'last_name',
+        'participant_type',
+        'participant_order',
+        'body_id',
+        'body_name'
+    ],
     APPLICATION_FIELD_NAMES: {
         id: 'ID',
         user_id: 'User ID',

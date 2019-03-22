@@ -2,13 +2,13 @@ const scheduler = require('node-schedule');
 const moment = require('moment');
 
 const logger = require('./logger');
-const { Position, Candidate } = require('../models');
+const { Position, Candidate, Plenary } = require('../models');
 
 let jobs = [];
 
 exports.getJobs = () => jobs;
 
-exports.clearDeadlinesForPosition = (id) => {
+exports.clearDeadlinesForId = (id) => {
     for (const job of jobs) {
         if (job.objectId === id) {
             scheduler.cancelJob(job.jobId);
@@ -36,6 +36,34 @@ exports.registerAllDeadlines = async () => {
         exports.registerOpenApplicationDeadline(position.starts, position.id);
         exports.registerCloseApplicationDeadline(position.ends, position.id);
     }
+
+    const plenaries = await Plenary.findAll({});
+    logger.info(`Registering deadline for ${plenaries.length} plenaries...`);
+    for (const plenary of plenaries) {
+        if (moment().isAfter(plenary.ends)) {
+            await plenary.closeAttendances();
+        } else {
+            // Registering deadlines.
+            exports.registerCloseAttendancesDeadline(plenary.ends, plenary.id);
+        }
+    }
+};
+
+exports.registerCloseAttendancesDeadline = (time, id) => {
+    if (moment().isAfter(time)) {
+        logger.warn(`Trying to close plenary attendances at ${time}, which is in the past. Skipping...`);
+        return;
+    }
+
+    const jobId = scheduler.scheduleJob(time, () => exports.closeAttendances(id));
+    jobs.push({
+        type: 'plenary',
+        action: 'close',
+        id: jobId,
+        objectId: id,
+        time
+    });
+    logger.info(`Successfully registered closing attendances deadline for plenary #${id} as ${time}`);
 };
 
 exports.registerOpenApplicationDeadline = (time, id) => {
@@ -57,7 +85,7 @@ exports.registerOpenApplicationDeadline = (time, id) => {
 
 exports.registerCloseApplicationDeadline = (time, id) => {
     if (moment().isAfter(time)) {
-        logger.warn(`Trying to set close deadline to ${time}, which is in the past. Time ${time} Skipping...`);
+        logger.warn(`Trying to set close deadline to ${time}, which is in the past. Skipping...`);
         return;
     }
 
@@ -124,4 +152,19 @@ exports.closeApplications = async (id) => {
     logger.info(`Closing applications for position ${id}: Successfully closed deadline for position #${id} (${position.name})`);
 
     jobs = jobs.filter(job => !(job.type === 'position' && job.action === 'close' && job.objectId === id));
+};
+
+exports.closeAttendances = async (id) => {
+    const plenary = await Plenary.findByPk(id);
+
+    if (!plenary) {
+        logger.warn(`Closing attendances for plenary ${id}: Plenary is not found.`);
+        jobs = jobs.filter(job => !(job.type === 'plenary' && job.action === 'close' && job.objectId === id));
+        return;
+    }
+
+    await plenary.closeAttendances();
+    logger.info(`Closing attendances for plenary ${id}: Successfully closed attendances for plenary #${id} (${plenary.name})`);
+
+    jobs = jobs.filter(job => !(job.type === 'plenary' && job.action === 'close' && job.objectId === id));
 };

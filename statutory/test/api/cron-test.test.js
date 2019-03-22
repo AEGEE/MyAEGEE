@@ -4,7 +4,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const { Position } = require('../../models');
+const { Position, Attendance } = require('../../models');
 const cron = require('../../lib/cron');
 
 const sleep = delay => new Promise(res => setTimeout(res, delay));
@@ -23,7 +23,7 @@ describe('Cron testing', () => {
     });
 
     describe('on system start', () => {
-        test('should set the open and close deadline on cron.registerAll()', async () => {
+        test('should set the open and close deadline for positions on cron.registerAll()', async () => {
             const event = await generator.createEvent({ type: 'agora', applications: [] });
             const position = await generator.createPosition({
                 starts: moment().add(1, 'week').toDate(),
@@ -38,6 +38,41 @@ describe('Cron testing', () => {
             expect(cron.getJobs()[1].objectId).toEqual(position.id);
             expect(cron.getJobs().map(job => job.action)).toContain('open');
             expect(cron.getJobs().map(job => job.action)).toContain('close');
+        });
+
+        test('should set the close deadline for plenaries on cron.registerAll()', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const plenary = await generator.createPlenary({
+                starts: moment().subtract(1, 'week').toDate(),
+                ends: moment().add(1, 'week').toDate()
+            }, event);
+
+            cron.clearAll(); // to clear all of them
+            await cron.registerAllDeadlines();
+
+            expect(cron.getJobs().length).toEqual(1);
+            expect(cron.getJobs()[0].objectId).toEqual(plenary.id);
+            expect(cron.getJobs().map(job => job.action)).toContain('close');
+        });
+
+        test('should close all attendances on cron.registerAll()', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const application = await generator.createApplication({}, event);
+            const plenary = await generator.createPlenary({
+                starts: moment().subtract(2, 'week').toDate(),
+                ends: moment().subtract(1, 'week').toDate()
+            }, event);
+            const attendance = await generator.createAttendance({
+                application_id: application.id
+            }, plenary);
+
+            cron.clearAll(); // to clear all of them
+            await cron.registerAllDeadlines();
+
+            expect(cron.getJobs().length).toEqual(0);
+
+            const attendanceFromDb = await Attendance.findByPk(attendance.id);
+            expect(attendanceFromDb.ends).not.toEqual(null);
         });
     });
 
@@ -395,6 +430,85 @@ describe('Cron testing', () => {
 
             const positionFromDb = await Position.findByPk(position.id);
             expect(positionFromDb.status).toEqual('closed');
+        });
+    });
+
+    describe('executing close attendance deadlines', () => {
+        test('should not close the attendances for non-existant plenary', async () => {
+            await cron.registerCloseAttendancesDeadline(moment().add(1, 'week').toDate(), 1337);
+            expect(cron.getJobs().length).toEqual(1);
+
+            await cron.closeAttendances(1337);
+            expect(cron.getJobs().length).toEqual(0);
+        });
+
+        test('should not register the closing attendances schedule if the ends date has passed', async () => {
+            await cron.registerCloseAttendancesDeadline(moment().subtract(1, 'week').toDate(), 1337);
+            expect(cron.getJobs().length).toEqual(0);
+        });
+
+        test('should close attendances if everything\'s okay', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const application = await generator.createApplication({}, event);
+            const plenary = await generator.createPlenary({
+                starts: moment().subtract(2, 'week').toDate(),
+                ends: moment().subtract(1, 'week').toDate()
+            }, event);
+            const attendance = await generator.createAttendance({
+                application_id: application.id
+            }, plenary);
+
+            await cron.registerCloseAttendancesDeadline(moment().add(1, 'week').toDate(), plenary.id);
+            await cron.closeAttendances(plenary.id);
+
+            const attendanceFromDb = await Attendance.findByPk(attendance.id);
+            expect(attendanceFromDb.ends).not.toEqual(null);
+        });
+
+        test('should register close attendances deadline on creating plenary', async () => {
+            await cron.clearAll();
+
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const plenary = await generator.createPlenary({
+                starts: moment().subtract(2, 'week').toDate(),
+                ends: moment().add(1, 'week').toDate()
+            }, event);
+
+            expect(cron.getJobs().length).toEqual(1);
+            expect(cron.getJobs()[0].objectId).toEqual(plenary.id);
+        });
+
+        test('should register close attendances deadline on editing plenary', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const plenary = await generator.createPlenary({
+                starts: moment().subtract(2, 'week').toDate(),
+                ends: moment().add(1, 'week').toDate()
+            }, event);
+
+            await cron.clearAll();
+            await plenary.update({ ends: moment().add(2, 'weeks').toDate() });
+
+            expect(cron.getJobs().length).toEqual(1);
+            expect(cron.getJobs()[0].objectId).toEqual(plenary.id);
+        });
+
+        test('should execute the attendance closing', async () => {
+            const event = await generator.createEvent({ type: 'agora', applications: [] });
+            const application = await generator.createApplication({}, event);
+            const plenary = await generator.createPlenary({
+                starts: moment().subtract(2, 'week').toDate(),
+                ends: moment().add(1, 'second').toDate()
+            }, event);
+            const attendance = await generator.createAttendance({
+                application_id: application.id
+            }, plenary);
+
+            expect(cron.getJobs().length).toEqual(1);
+
+            await sleep(4000);
+
+            const attendanceFromDb = await Attendance.findByPk(attendance.id);
+            expect(attendanceFromDb.ends).not.toEqual(null);
         });
     });
 });

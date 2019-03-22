@@ -16,6 +16,7 @@ const paxLimits = require('./pax_limits');
 const votesAmounts = require('./votes_amounts');
 const positions = require('./positions');
 const candidates = require('./candidates');
+const plenaries = require('./plenaries');
 const bugsnag = require('./bugsnag');
 const cron = require('./cron');
 
@@ -29,6 +30,7 @@ const MassMailerRouter = router({ mergeParams: true });
 const VotesAmountRouter = router({ mergeParams: true });
 const PositionsRouter = router({ mergeParams: true });
 const CandidatesRouter = router({ mergeParams: true });
+const PlenariesRouter = router({ mergeParams: true });
 
 const server = express();
 server.use(bodyParser.json());
@@ -115,12 +117,21 @@ CandidatesRouter.get('/:candidate_id', candidates.findCandidate, candidates.getC
 CandidatesRouter.put('/:candidate_id', candidates.findCandidate, candidates.editCandidature);
 CandidatesRouter.put('/:candidate_id/status', candidates.findCandidate, candidates.setCandidatureStatus);
 
+PlenariesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora);
+PlenariesRouter.get('/', plenaries.listAllPlenaries);
+PlenariesRouter.post('/', plenaries.createPlenary);
+PlenariesRouter.get('/stats', plenaries.listPlenariesStats);
+PlenariesRouter.put('/:plenary_id', plenaries.findPlenary, plenaries.editPlenary);
+PlenariesRouter.get('/:plenary_id', plenaries.findPlenaryWithAttendances);
+PlenariesRouter.post('/:plenary_id/attendance/mark', plenaries.findPlenary, plenaries.markPlenaryAttendance);
+
 server.use('/events/:event_id/massmailer', MassMailerRouter);
 server.use('/events/:event_id/memberslists', MembersListsRouter);
 server.use('/events/:event_id/applications', ApplicationsRouter);
 server.use('/events/:event_id/applications/:application_id', SingleApplicationRouter);
 server.use('/events/:event_id', EventsRouter);
 server.use('/events/:event_id/votes-amounts', VotesAmountRouter);
+server.use('/events/:event_id/plenaries', PlenariesRouter);
 server.use('/events/:event_id/positions/:position_id/candidates', CandidatesRouter);
 server.use('/events/:event_id/positions', PositionsRouter);
 server.use('/limits/:event_type', PaxLimitsRouter);

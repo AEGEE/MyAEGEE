@@ -9,7 +9,9 @@ const {
     VotesPerAntenna,
     VotesPerDelegate,
     Position,
-    Candidate
+    Candidate,
+    Plenary,
+    Attendance
 } = require('../../models');
 
 const notSet = field => typeof field === 'undefined';
@@ -184,6 +186,29 @@ exports.generateCandidate = (options = {}, position) => {
     return options;
 };
 
+exports.generatePlenary = (options = {}, event = null) => {
+    if (notSet(options.name)) options.name = faker.lorem.sentence();
+    if (notSet(options.starts)) options.starts = faker.date.future();
+    if (notSet(options.ends)) options.ends = faker.date.future(null, options.starts);
+
+    if (event && event.id) {
+        options.event_id = event.id;
+    }
+
+    return options;
+};
+
+exports.generateAttendance = (options = {}, plenary = null) => {
+    if (notSet(options.starts)) options.starts = faker.date.future();
+    if (notSet(options.ends)) options.ends = faker.date.future(null, options.starts);
+
+    if (plenary && plenary.id) {
+        options.plenary_id = plenary.id;
+    }
+
+    return options;
+};
+
 exports.createEvent = (options = {}) => {
     return Event.create(exports.generateEvent(options), { include: [Application] });
 };
@@ -208,7 +233,17 @@ exports.createCandidate = (options = {}, position = null) => {
     return Candidate.create(exports.generateCandidate(options, position));
 };
 
+exports.createPlenary = (options = {}, plenary = null) => {
+    return Plenary.create(exports.generatePlenary(options, plenary), { include: [Attendance] });
+};
+
+exports.createAttendance = (options = {}, attendance = null) => {
+    return Attendance.create(exports.generateAttendance(options, attendance));
+};
+
 exports.clearAll = async () => {
+    await Attendance.destroy({ where: {}, truncate: { cascade: true } });
+    await Plenary.destroy({ where: {}, truncate: { cascade: true } });
     await Candidate.destroy({ where: {}, truncate: { cascade: true } });
     await Position.destroy({ where: {}, truncate: { cascade: true } });
     await VotesPerDelegate.destroy({ where: {}, truncate: { cascade: true } });
