@@ -4,10 +4,9 @@
       <div class="tile is-child">
         <div class="title">Plenaries list</div>
 
-        <div class="field" v-if="can.manage_plenaries">
-          <div class="control">
-            <button class="button is-primary" @click="openEditPlenaryModal(null)">Create a plenary</button>
-          </div>
+        <div class="buttons">
+            <button class="button is-primary" @click="openEditPlenaryModal(null)" v-if="can.manage_plenaries">Create a plenary</button>
+            <button class="button is-primary" @click="exportAll()">Export stats</button>
         </div>
 
         <b-table :data="plenaries" :loading="isLoading">
@@ -114,7 +113,19 @@ export default {
           router: this.$router
         }
       })
-    }
+    },
+    exportAll () {
+      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/plenaries/stats/' , {
+        responseType: 'blob'
+      }).then(response => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', 'plenaries.xlsx')
+        document.body.appendChild(link)
+        link.click()
+      })
+    },
   },
   mounted () {
     this.isLoading = true
