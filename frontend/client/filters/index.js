@@ -8,6 +8,9 @@ export default {
   datetime (value) {
     return moment(value).format('YYYY-MM-DD HH:mm')
   },
+  datetimeseconds (value) {
+    return moment(value).format('YYYY-MM-DD HH:mm:ss')
+  },
   markdown (value) {
     return marked(value, { sanitize: true })
   },

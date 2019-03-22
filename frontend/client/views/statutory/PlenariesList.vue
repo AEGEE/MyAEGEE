@@ -21,11 +21,11 @@
             </b-table-column>
 
             <b-table-column field="starts" label="Starts" centered>
-              {{ props.row.starts | datetime }}
+              {{ props.row.starts | datetimeseconds }}
             </b-table-column>
 
             <b-table-column field="starts" label="Ends" centered>
-              {{ props.row.ends | datetime }}
+              {{ props.row.ends | datetimeseconds }}
             </b-table-column>
 
             <b-table-column label="Edit" centered v-if="can.manage_plenaries">
