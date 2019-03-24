@@ -127,7 +127,7 @@
                 </tr>
                 <tr v-for="(question, index) in event.questions" v-bind:key="index">
                   <th>{{ question.description }}</th>
-                  <td>{{ application.answers[index] | beautify }}</td>
+                  <td class="has-text-pre-wrap">{{ application.answers[index] | beautify }}</td>
                 </tr>
               </tbody>
             </table>

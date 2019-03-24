@@ -68,9 +68,13 @@
               </span>
             </b-table-column>
 
-            <b-table-column v-for="(field, index) in fields" :visible="selectedFields.some(sField => sField.name === field.name)" v-bind:key="index" field="answers[index]" :label="field.name">
-              {{ field.get(props.row) | beautify }}
-            </b-table-column>
+            <!-- important: there should be no whitespaces/line breaks inside this tag, as it messes up the white-space: pre-wrap styling. !-->
+            <b-table-column
+              v-for="(field, index) in fields"
+              :visible="selectedFields.some(sField => sField.name === field.name)"
+              v-bind:key="index" field="answers[index]"
+              class="has-text-pre-wrap"
+              :label="field.name">{{ field.get(props.row) | beautify }}</b-table-column>
 
             <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled">
               {{ props.row.cancelled | beautify }}
