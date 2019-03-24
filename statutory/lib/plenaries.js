@@ -186,7 +186,7 @@ exports.listPlenariesStats = async (req, res) => {
                 ['Name', plenary.name],
                 ['Starts at', helpers.beautify(plenary.starts)],
                 ['Ends at', helpers.beautify(plenary.ends)],
-                ['Duration in seconds', plenaryDuration],
+                ['Duration in seconds', plenaryDuration.toFixed(2)],
                 [], // an empty line,
                 // headers
                 [

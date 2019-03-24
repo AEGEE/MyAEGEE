@@ -100,7 +100,7 @@ describe('Plenaries exports', () => {
         expect(plenarySheetData[0][1]).toEqual(plenary.name); // B1
         expect(plenarySheetData[1][1]).toEqual(moment(plenary.starts).format('YYYY-MM-DD HH:mm:ss')); // B2
         expect(plenarySheetData[2][1]).toEqual(moment(plenary.ends).format('YYYY-MM-DD HH:mm:ss')); // B3
-        expect(plenarySheetData[3][1]).toEqual(3600); // B4
+        expect(plenarySheetData[3][1]).toEqual(3600..toFixed(2)); // B4
     });
 
     test('should return right attendances details for plenary', async () => {
