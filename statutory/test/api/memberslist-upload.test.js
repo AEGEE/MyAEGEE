@@ -6,6 +6,7 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { MembersList, Application } = require('../../models');
 const regularUser = require('../assets/oms-core-valid').data;
+const conversionRates = require('../assets/conversion-rates-api');
 
 describe('Memberslist uploading', () => {
     beforeEach(async () => {
@@ -681,6 +682,119 @@ describe('Memberslist uploading', () => {
 
             const applicationFromDb = await Application.findByPk(application.id);
             expect(applicationFromDb.is_on_memberslist).toEqual(false);
+        });
+    });
+
+    describe('calculating conversion rate', () => {
+        test('should calculate conversion rate if it is in the list', async () => {
+            const event = await generator.createEvent({
+                type: 'agora',
+                application_period_starts: moment().subtract(1, 'week').toDate(),
+                application_period_ends: moment().add(1, 'week').toDate()
+            });
+            const res = await request({
+                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateMembersList({ currency: 'HU' }, event)
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).toHaveProperty('data');
+
+            const conversionForTest = conversionRates.find(rate => rate.isoA2Code === 'HU');
+            expect(res.body.data.conversion_rate).toEqual(conversionForTest.value);
+        });
+
+        test('should calculate conversion rate if it is in the "special" list', async () => {
+            const event = await generator.createEvent({
+                type: 'agora',
+                application_period_starts: moment().subtract(1, 'week').toDate(),
+                application_period_ends: moment().add(1, 'week').toDate()
+            });
+
+            // EU is BE in the conversion rate API.
+            const res = await request({
+                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateMembersList({ currency: 'EU' }, event)
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).toHaveProperty('data');
+
+            const conversionForTest = conversionRates.find(rate => rate.isoA2Code === 'BE');
+            expect(res.body.data.conversion_rate).toEqual(conversionForTest.value);
+        });
+
+        test('should return 500 if the currency is not in a list', async () => {
+            const event = await generator.createEvent({
+                type: 'agora',
+                application_period_starts: moment().subtract(1, 'week').toDate(),
+                application_period_ends: moment().add(1, 'week').toDate()
+            });
+
+            // EU is BE in the conversion rate API.
+            const res = await request({
+                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateMembersList({ currency: 'TEST' }, event)
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).not.toHaveProperty('data');
+            expect(res.body).toHaveProperty('message');
+        });
+
+        test('should return 500 on conversion rate API\'s net error ', async () => {
+            mock.mockAll({ conversion: { netError: true } });
+
+            const event = await generator.createEvent({
+                type: 'agora',
+                application_period_starts: moment().subtract(1, 'week').toDate(),
+                application_period_ends: moment().add(1, 'week').toDate()
+            });
+
+            // EU is BE in the conversion rate API.
+            const res = await request({
+                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateMembersList({ currency: 'HU' }, event)
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).not.toHaveProperty('data');
+            expect(res.body).toHaveProperty('message');
+        });
+
+        test('should return 500 on conversion rate API\'s bad response ', async () => {
+            mock.mockAll({ conversion: { badResponse: true } });
+
+            const event = await generator.createEvent({
+                type: 'agora',
+                application_period_starts: moment().subtract(1, 'week').toDate(),
+                application_period_ends: moment().add(1, 'week').toDate()
+            });
+
+            // EU is BE in the conversion rate API.
+            const res = await request({
+                uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+                method: 'POST',
+                headers: { 'X-Auth-Token': 'blablabla' },
+                body: generator.generateMembersList({ currency: 'HU' }, event)
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).not.toHaveProperty('data');
+            expect(res.body).toHaveProperty('message');
         });
     });
 });
