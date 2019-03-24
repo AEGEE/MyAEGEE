@@ -198,16 +198,18 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
         incoming: permissions.manage_applications || permissions.manage_incoming
     };
 
-    permissions.set_board_comment_and_participant_type_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
-    permissions.upload_memberslists_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
-    permissions.see_boardview_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
-
-    permissions.see_memberslists_global = hasPermission(corePermissions, 'global:see_memberslists:' + event.type);
-
-    permissions.set_board_comment_and_participant_type = {};
-    permissions.see_boardview_of = {};
-    permissions.upload_memberslist = {};
-    permissions.see_memberslist = {};
+    permissions.set_board_comment_and_participant_type = {
+        global: hasPermission(corePermissions, 'global:approve_members:' + event.type)
+    };
+    permissions.see_boardview = {
+        global: hasPermission(corePermissions, 'global:approve_members:' + event.type)
+    };
+    permissions.upload_memberslist = {
+        global: hasPermission(corePermissions, 'global:approve_members:' + event.type)
+    };
+    permissions.see_memberslist = {
+        global: hasPermission(corePermissions, 'global:see_memberslists:' + event.type)
+    };
 
     permissions.manage_candidates = hasPermission(corePermissions, 'global:manage_candidates:agora');
 
@@ -218,7 +220,7 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
     for (const body of user.bodies) {
         permissions.set_board_comment_and_participant_type[body.id] = event.can_approve_members && approveBodiesList.includes(body.id);
-        permissions.see_boardview_of[body.id] = approveBodiesList.includes(body.id);
+        permissions.see_boardview[body.id] = approveBodiesList.includes(body.id);
         permissions.upload_memberslist[body.id] = event.can_approve_members && approveBodiesList.includes(body.id) && exports.isLocal(body);
         permissions.see_memberslist[body.id] = approveBodiesList.includes(body.id) && exports.isLocal(body);
     }
@@ -242,7 +244,7 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     // Update is_on_memberslist attribute (Network Director).
     const updateMemberslistStatus = hasPermission(corePermissions, 'update_memberslist_status:' + event.type);
 
-    permissions.see_application = mine || canManage || isIncoming || permissions.see_boardview_of[application.body_id];
+    permissions.see_application = mine || canManage || isIncoming || permissions.see_boardview[application.body_id];
 
     // User can edit application if it's his application and it's within the deadline, or if he has the permission.
     permissions.edit_application = (mine && event.can_apply) || canManage || canApply;

@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -42,7 +44,11 @@ describe('Votes per antenna calculation', () => {
         test(`should save ${amount.votes} amount of votes for antenna with ${amount.members} members`, async () => {
             mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-            const event = await generator.createEvent({ type: 'agora' });
+            const event = await generator.createEvent({
+                type: 'agora',
+                application_period_starts: moment().subtract(1, 'week').toDate(),
+                application_period_ends: moment().add(1, 'week').toDate()
+            });
             const memberslist = generator.generateMembersList({
                 body_id: regularUser.bodies[0].id,
                 members: Array.from(
@@ -74,7 +80,12 @@ describe('Votes per antenna calculation', () => {
         test(`should save 0 votes for ${type}`, async () => {
             mock.mockAll({ mainPermissions: { noPermissions: true }, body: { type } });
 
-            const event = await generator.createEvent({ type: 'agora' });
+            const event = await generator.createEvent({
+                type: 'agora',
+                application_period_starts: moment().subtract(1, 'week').toDate(),
+                application_period_ends: moment().add(1, 'week').toDate()
+            });
+
             const memberslist = generator.generateMembersList({
                 body_id: regularUser.bodies[0].id,
                 members: Array.from(
@@ -105,7 +116,11 @@ describe('Votes per antenna calculation', () => {
     test('should recalculate the votes for antenna on memberslists upload', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true }, body: { type: 'antenna' } });
 
-        const event = await generator.createEvent({ type: 'agora' });
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate()
+        });
         let memberslist = generator.generateMembersList({
             body_id: regularUser.bodies[0].id,
             members: Array.from(

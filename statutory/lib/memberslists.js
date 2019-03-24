@@ -11,7 +11,7 @@ exports.checkIfAgora = async (req, res, next) => {
 };
 
 exports.getAllMemberslists = async (req, res) => {
-    if (!req.permissions.see_memberslists_global) {
+    if (!req.permissions.see_memberslist.global) {
         return errors.makeForbiddenError(res, 'You are not allowed to see memberslists.');
     }
 
@@ -27,7 +27,7 @@ exports.getMemberslist = async (req, res) => {
         return errors.makeBadRequestError(res, 'The body_id parameter is invalid.');
     }
 
-    if (!req.permissions.see_memberslists_global && !req.permissions.see_memberslist[req.params.body_id]) {
+    if (!req.permissions.see_memberslist.global && !req.permissions.see_memberslist[req.params.body_id]) {
         return errors.makeForbiddenError(res, 'You are not allowed to see this memberslist.');
     }
 
@@ -51,7 +51,7 @@ exports.uploadMembersList = async (req, res) => {
         return errors.makeBadRequestError(res, 'The body_id parameter is invalid.');
     }
 
-    if (!req.permissions.upload_memberslist[req.params.body_id] && !req.permissions.upload_memberslists_global) {
+    if (!req.permissions.upload_memberslist.global && !req.permissions.upload_memberslist[req.params.body_id]) {
         return errors.makeForbiddenError(res, 'You are not allowed to upload memberslist.');
     }
 
