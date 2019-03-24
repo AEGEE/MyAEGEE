@@ -288,8 +288,9 @@ export default {
 
       this.event = event.data.data
       this.can = event.data.data.permissions
-      this.myBoards = Object.keys(this.can.see_boardview_of)
-        .filter(key => this.can.see_boardview_of[key])
+      this.myBoards = Object.keys(this.can.see_boardview)
+        .filter(key => key !== 'global')
+        .filter(key => this.can.see_boardview[key])
         .map(id => Number(id))
       this.selectedBody = this.myBoards.length > 0 ? this.myBoards[0] : null
 
@@ -300,7 +301,7 @@ export default {
         })
       }
 
-      if (this.can.see_boardview_global) {
+      if (this.can.see_boardview.global) {
         // Fetching all bodies
         this.axios.get(this.services['oms-core-elixir'] + '/bodies/').then((body) => {
           this.boardBodies = body.data.data
@@ -311,7 +312,7 @@ export default {
       }
     }).catch((err) => {
       this.isLoading = false
-      let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+      let message = (err.response && err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
       this.$root.showDanger(message)
       this.$router.push({ name: 'oms.statutory.list' })

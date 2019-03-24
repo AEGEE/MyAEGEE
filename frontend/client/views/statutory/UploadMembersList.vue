@@ -2,10 +2,10 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Upload members list</div>
+        <div class="title">Manage members list</div>
 
         <div class="field" v-if="boardBodies.length > 0">
-          <label>Select the body to upload members list to:</label>
+          <label>Select the body to manage members list for:</label>
           <div class="field">
             <div class="control has-icons-left">
               <div class="select">
@@ -23,42 +23,45 @@
         <div class="subtitle" v-if="boardBodies.length === 0">You are not a board member of any body.</div>
         <div class="subtitle" v-if="!selectedBody && boardBodies.length > 0">You haven't selected the antenna yet.</div>
 
-        <div class="field is-grouped" v-if="selectedBody">
-          <div class="control">
-            <button class="button is-primary" @click="fetchFromBody()">Fetch members list from a body</button>
-          </div>
-          <div class="control">
-            <div class="file">
-              <label class="file-label">
-                <input class="file-input" type="file" name="resume" @change="openFileDialog($event)">
-                <span class="file-cta">
-                  <span class="file-icon">
-                    <i class="fa fa-upload"></i>
-                  </span>
-                  <span class="file-label">
-                    Fetch members list from CSV
-                  </span>
-                </span>
-              </label>
+        <div v-show="selectedBody && canEditMemberslist(selectedBody)">
+          <div class="field is-grouped">
+            <div class="control">
+              <button class="button is-primary" @click="fetchFromBody()">Fetch members list from a body</button>
             </div>
-          </div>
+            <div class="control">
+              <div class="file">
+                <label class="file-label">
+                  <input class="file-input" type="file" name="resume" @change="openFileDialog($event)">
+                  <span class="file-cta">
+                    <span class="file-icon">
+                      <i class="fa fa-upload"></i>
+                    </span>
+                    <span class="file-label">
+                      Fetch members list from CSV
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </div>
 
-          <div class="control">
-            <button class="button" v-show="isEditing" @click="isEditing = false">Stop editing</button>
-            <button class="button" v-show="!isEditing" @click="isEditing = true">Edit</button>
-          </div>
-          <div class="control">
-            <button class="button is-warning" @click="saveMembersList()">Save!</button>
+            <div class="control">
+              <button class="button" v-show="isEditing" @click="isEditing = false">Stop editing</button>
+              <button class="button" v-show="!isEditing" @click="isEditing = true">Edit</button>
+            </div>
+            <div class="control">
+              <button class="button is-warning" @click="saveMembersList()">Save!</button>
+            </div>
           </div>
         </div>
 
         <div v-if="selectedBody && memberslist">
+          <hr />
           <span>Uploaded list:</span>
           <ul v-if="!isEditing">
             <li><strong>Total members: </strong>{{ memberslist.members.length }}</li>
             <li><strong>Currency: </strong>{{ memberslist.currency }}</li>
+            <li v-if="memberslist.fee_to_aegee"><strong>Total fee paid to AEGEE-Europe: </strong>{{ memberslist.fee_to_aegee.toFixed(2) }} EUR</li>
           </ul>
-
           <div class="field" v-if="isEditing">
             <label class="label">Currency</label>
             <div class="control">
@@ -92,7 +95,7 @@
                 <th>First name</th>
                 <th>Last name</th>
                 <th>Fee</th>
-                <th></th>
+                <th v-if="memberslist.fee_to_aegee">Fee to AEGEE-Europe</th>
               </tr>
             </thead>
             <tbody>
@@ -107,12 +110,14 @@
                 <td v-if="!isEditing">{{ member.first_name }}</td>
                 <td v-if="!isEditing">{{ member.last_name }}</td>
                 <td v-if="!isEditing">{{ member.fee }}</td>
-                <td v-if="!isEditing"></td>
 
                 <td v-if="isEditing"><input type="text" class="input" v-model="member.first_name"/></td>
                 <td v-if="isEditing"><input type="text" class="input" v-model="member.last_name"/></td>
                 <td v-if="isEditing"><input type="number" class="input" v-model.number="member.fee"/></td>
-                <td v-if="isEditing"></td>
+
+                <td>
+                  <span v-if="memberslist.fee_to_aegee">{{ member.fee_to_aegee.toFixed(2) }} EUR</span>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -128,6 +133,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import currenciesList from '../../currencies.json'
 
 export default {
   name: 'UploadMembersList',
@@ -140,37 +146,9 @@ export default {
       event: {
         questions: []
       },
-      currenciesList: {
-        EU: 'Euro',
-        BG: 'Lev (New) (BG)',
-        CZ: 'Czech Koruna (CZ)',
-        DK: 'Danish Krone (DK)',
-        HU: 'Forint (HU)',
-        PL: 'Zloty (PL)',
-        RO: 'New Romanian Leu (RO)',
-        SE: 'Swedish Krona (SE)',
-        GB: 'Pound Sterling (GB)',
-        HR: 'Kuna (HR)',
-        NO: 'Norwegian Krone (NO)',
-        RU: 'New Rouble (RU)',
-        CH: 'Swiss Franc (CH)',
-        TR: 'Turkish Lira (new) (TR)',
-        AL: 'Lek (AL)',
-        AM: 'Dram (AM)',
-        AZ: 'Azerbaijani Manat (AZ)',
-        BY: 'Belarussian Rouble (BY)',
-        BA: 'Bosnian Convertible Mark',
-        GE: 'Lari (GE)',
-        GI: 'Gibraltar pound (GI)',
-        IS: 'Icelandic Króna (IS)',
-        MK: 'Denar (MK)',
-        MD: 'Moldovan Leu (MD)',
-        RS: 'Serbian Dinar (RS)',
-        UA: 'Hryvnia (UA)',
-        US: 'US Dolar'
-      },
+      currenciesList,
       can: {
-        upload_members_list: {}
+        upload_memberslist: {},
       },
       tempFee: 0,
       isLoading: false,
@@ -194,7 +172,7 @@ export default {
       }).catch((err) => {
         this.isLoading = false
 
-        if (err.response.status !== 404) {
+        if (err.response && err.response.status !== 404) {
           this.$root.showDanger('Could not fetch memberslist: ' + err.message)
         }
       })
@@ -251,10 +229,22 @@ export default {
         }
       }
 
+      // Filtering out fee_to_aegee to pass validation.
+      const body = {
+        currency: this.memberslist.currency,
+        members: this.memberslist.members.map(member => ({
+          user_id: member.user_id,
+          first_name: member.first_name,
+          last_name: member.last_name,
+          fee: member.fee
+        }))
+      }
+
       this.isLoading = true
       this.isEditing = false
-      this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + this.selectedBody, this.memberslist).then((response) => {
+      this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + this.selectedBody, body).then((response) => {
         this.$root.showSuccess('Members list is uploaded.')
+        this.memberslist = response.data.data
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
@@ -275,6 +265,9 @@ export default {
           this.$root.showDanger('Could not open file: ' + err.message)
         }
       }
+    },
+    isLocal (body) {
+      return ['antenna', 'contact antenna', 'contact'].includes(body.type);
     },
     processFileContent (input) {
       // CSV content: first_name,last_name,fee
@@ -306,6 +299,9 @@ export default {
         currency: null,
         members
       }
+    },
+    canEditMemberslist(bodyId) {
+      return this.can.upload_memberslist.global || this.can.upload_memberslist[bodyId]
     }
   },
   watch: {
@@ -319,25 +315,29 @@ export default {
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
-      this.myBoards = Object.keys(this.can.see_boardview_of).filter(key => this.can.see_boardview_of[key])
+      this.myBoards = Object.keys(this.can.see_boardview)
+        .filter(key => key !== 'global')
+        .filter(key => this.can.see_boardview[key])
       this.selectedBody = this.myBoards.length > 0 ? this.myBoards[0] : null
 
       // If user has global permission, fetch all bodies.
       // Otherwise, fetch only bodies that user is a member of.
-      if (!this.can.set_board_comment_and_participant_type_global) {
+      if (!this.can.set_board_comment_and_participant_type.global) {
         for (const bodyId of this.myBoards) {
           this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + bodyId).then((body) => {
-            this.boardBodies.push(body.data.data)
+            if (this.isLocal(body)) {
+              this.boardBodies.push(body.data.data)
+            }
           })
         }
       } else {
         this.axios.get(this.services['oms-core-elixir'] + '/bodies/').then((response) => {
-          this.boardBodies = response.data.data
+          this.boardBodies = response.data.data.filter(body => this.isLocal(body))
         })
       }
     }).catch((err) => {
       this.isLoading = false
-      let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+      let message = (err.response && err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
       this.$root.showDanger(message)
       this.$router.push({ name: 'oms.statutory.single', params: { id: this.$route.params.id } })
