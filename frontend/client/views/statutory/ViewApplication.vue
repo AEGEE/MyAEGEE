@@ -127,7 +127,7 @@
                 </tr>
                 <tr v-for="(question, index) in event.questions" v-bind:key="index">
                   <th>{{ question.description }}</th>
-                  <td>{{ application.answers[index] | beautify }}</td>
+                  <td class="has-text-pre-wrap">{{ application.answers[index] | beautify }}</td>
                 </tr>
               </tbody>
             </table>
@@ -155,7 +155,7 @@
         </div>
 
         <!-- Application status -->
-         <div class="tile is-parent" v-if="application && !application.cancelled">
+        <div class="tile is-parent" v-if="application && !application.cancelled">
           <div class="tile is-child">
             <div class="notification is-warning" v-if="application.status === 'pending'">
               Your application is recorded, please wait for the organizers to evaluate your application.
@@ -168,7 +168,7 @@
               Sorry, but you were not accepted to the event.
             </div>
           </div>
-         </div>
+        </div>
 
         <!-- Cancellation status (if cancelled) -->
         <div class="tile is-parent" v-if="application && application.cancelled">
@@ -205,31 +205,36 @@
 
         <hr v-show="can.set_application_cancelled || can.edit || can.apply" />
 
-        <div class="tile is-parent" v-show="can.set_application_cancelled || can.edit || can.apply">
-          <div class="tile is-child">
-            <div class="field is-grouped">
-              <p class="control" v-if="!application && can.apply">
-                <router-link :to="{ name: 'oms.statutory.applications.new', params: { id: event.url || event.id } }" type="submit" class="button is-warning">
-                  Apply!
-                </router-link>
-              </p>
-              <p class="control" v-if="application && can.edit_application">
-                <router-link :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: application.id } }" type="submit" class="button is-warning">
-                  Edit your application
-                </router-link>
-              </p>
-              <p class="control" v-if="application && !application.cancelled && can.set_application_cancelled">
-                <button class="button is-danger" @click="askSetCancelled(true)">
-                  Cancel application
-                </button>
-              </p>
-              <p class="control" v-if="application && application.cancelled && can.set_application_cancelled">
-                <button class="button is-info" @click="setCancelled(false)">
-                  Uncancel application
-                </button>
-              </p>
-            </div>
-          </div>
+        <div class="buttons" v-show="can.set_application_cancelled || can.edit || can.apply">
+          <router-link
+            :to="{ name: 'oms.statutory.applications.new', params: { id: event.url || event.id } }"
+            type="submit"
+            class="button is-warning"
+            v-if="!application && can.apply">
+            Apply!
+          </router-link>
+
+          <router-link
+          :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: application.id } }"
+          type="submit"
+          class="button is-warning"
+          v-if="application && can.edit_application">
+            Edit your application
+          </router-link>
+
+          <button
+            class="button is-danger"
+            @click="askSetCancelled(true)"
+            v-if="application && !application.cancelled && can.set_application_cancelled">
+            Cancel application
+          </button>
+
+          <button
+            class="button is-info"
+            @click="setCancelled(false)"
+              v-if="application && application.cancelled && can.set_application_cancelled">
+            Uncancel application
+          </button>
         </div>
       </div>
     </div>

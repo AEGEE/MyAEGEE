@@ -1,3 +1,19 @@
+# [0.9.0](https://github.com/AEGEE/oms-frontend/compare/0.8.0...0.9.0) (2019-03-24)
+
+
+### Bug Fixes
+
+* **general:** fixed security vulnerability ([e45f8ae](https://github.com/AEGEE/oms-frontend/commit/e45f8ae))
+* **statutory:** added boardview filtering ([219c3fe](https://github.com/AEGEE/oms-frontend/commit/219c3fe))
+* **statutory:** fixed text wrap for application fields. Fixes HELP-353 ([32d430c](https://github.com/AEGEE/oms-frontend/commit/32d430c))
+
+
+### Features
+
+* **statutory:** added fee paid reporting. Fixes HELP-428 ([23bf526](https://github.com/AEGEE/oms-frontend/commit/23bf526))
+
+
+
 # [0.8.0](https://github.com/AEGEE/oms-frontend/compare/0.7.13...0.8.0) (2019-03-22)
 
 

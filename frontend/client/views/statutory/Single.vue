@@ -73,7 +73,7 @@
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.see_memberslists && this.event.type === 'agora'">
+          <div class="field is-grouped" v-if="can.see_memberslist.global && this.event.type === 'agora'">
             <router-link :to="{ name: 'oms.statutory.memberslist.list', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>See members lists</span>
               <span class="icon"><i class="fa fa-users"></i></span>
@@ -299,12 +299,13 @@ export default {
       services: 'services'
     }),
     canAccessBoardview () {
-      if (this.can.set_board_comment_and_participant_type_global) {
-        return true
-      }
-
       return Object.keys(this.can.set_board_comment_and_participant_type)
         .filter(key => this.can.set_board_comment_and_participant_type[key])
+        .length > 0
+    },
+    canAccessMembersLists () {
+      return Object.keys(this.can.see_memberslist)
+        .filter(key => this.can.see_memberslist[key])
         .length > 0
     }
   }

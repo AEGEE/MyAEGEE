@@ -21,10 +21,14 @@
         </div>
 
         <div class="field">
-          <label class="label">Search by name or description</label>
+          <label class="label">Search by name, surname or email</label>
           <div class="field has-addons">
             <div class="control is-expanded">
               <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
+            </div>
+            <div class="control">
+              <button class="button is-primary" v-if="!displayCancelled" @click="displayCancelled = true">Display all applications</button>
+              <button class="button is-primary" v-if="displayCancelled" @click="displayCancelled = false">Display only not cancelled applications</button>
             </div>
           </div>
         </div>
@@ -120,7 +124,13 @@
               <textarea class="textarea" v-model="props.row.board_comment" />
             </b-table-column>
 
-            <b-table-column field="cancelled" label="Cancelled?" centered sortable>
+            <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable>
+              <span :class="calculateClassForMemberslist(props.row)">
+                {{ props.row.is_on_memberslist | beautify }}
+              </span>
+            </b-table-column>
+
+            <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled">
               <span class="tag" :class="{ 'is-danger': props.row.cancelled }">
                 {{ props.row.cancelled | beautify }}
               </span>
@@ -133,7 +143,7 @@
             </b-table-column>
 
             <b-table-column field="status" label="Status" centered sortable>
-              {{ props.row.status | beautify }}
+              {{ props.row.status | capitalize }}
             </b-table-column>
 
             <b-table-column centered>
@@ -184,6 +194,7 @@ export default {
         see_boardview_of: {},
         see_boardview_global: false
       },
+      displayCancelled: false,
       errors: {},
       selectedFields: [],
       fields: [
@@ -209,15 +220,20 @@ export default {
       return this.limits.delegate !== 0 || this.limits.visitor !== 0 || this.limits.envoy !== 0 || this.limits.observer !== 0
     },
     filteredApplications () {
-      const filtered = this.applications
+      const filterCancelled = this.displayCancelled
+        ? this.applications
+        : this.applications.filter(app => !app.cancelled)
 
       const lowercaseQuery = this.query.toLowerCase()
 
-      return filtered.filter(app =>
+      return filterCancelled.filter(app =>
         ['first_name', 'last_name', 'email'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
     }
   },
   methods: {
+    calculateClassForMemberslist (pax) {
+      return ['tag', 'is-small', pax.is_on_memberslist ? 'is-primary' : 'is-danger']
+    },
     updateParticipant (pax) {
       this.errors = {}
       const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/board'
@@ -272,8 +288,9 @@ export default {
 
       this.event = event.data.data
       this.can = event.data.data.permissions
-      this.myBoards = Object.keys(this.can.see_boardview_of)
-        .filter(key => this.can.see_boardview_of[key])
+      this.myBoards = Object.keys(this.can.see_boardview)
+        .filter(key => key !== 'global')
+        .filter(key => this.can.see_boardview[key])
         .map(id => Number(id))
       this.selectedBody = this.myBoards.length > 0 ? this.myBoards[0] : null
 
@@ -284,7 +301,7 @@ export default {
         })
       }
 
-      if (this.can.see_boardview_global) {
+      if (this.can.see_boardview.global) {
         // Fetching all bodies
         this.axios.get(this.services['oms-core-elixir'] + '/bodies/').then((body) => {
           this.boardBodies = body.data.data
@@ -295,7 +312,7 @@ export default {
       }
     }).catch((err) => {
       this.isLoading = false
-      let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+      let message = (err.response && err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
       this.$root.showDanger(message)
       this.$router.push({ name: 'oms.statutory.list' })
