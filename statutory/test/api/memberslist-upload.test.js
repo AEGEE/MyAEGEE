@@ -579,10 +579,10 @@ describe('Memberslist uploading', () => {
     describe('should update is_on_memberslist for user', () => {
         test('should set is_on_memberslist = true if ID matches', async () => {
             const event = await generator.createEvent({
-            type: 'agora',
-            application_period_starts: moment().subtract(1, 'week').toDate(),
-            application_period_ends: moment().add(1, 'week').toDate()
-        });
+                type: 'agora',
+                application_period_starts: moment().subtract(1, 'week').toDate(),
+                application_period_ends: moment().add(1, 'week').toDate()
+            });
             const application = await generator.createApplication({
                 user_id: 100,
                 body_id: regularUser.bodies[0].id

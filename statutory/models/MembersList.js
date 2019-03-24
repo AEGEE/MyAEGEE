@@ -64,6 +64,7 @@ const MembersList = sequelize.define('memberslist', {
                     throw error;
                 }
 
+                // eslint-disable-next-line no-param-reassign
                 membersValue = value;
             }
         },
