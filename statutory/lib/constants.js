@@ -124,5 +124,12 @@ module.exports = {
         number_of_events_visited: 'Number of Agora/EPM visited',
         meals: 'Meals',
         allergies: 'Allergies'
+    },
+    CONVERSION_RATE_API: {
+        host: 'http://ec.europa.eu',
+        path: '/budg/inforeuro/api/public/monthly-rates',
+    },
+    CONVERSION_RATE_MAP: {
+        EU: 'BE'
     }
 };
