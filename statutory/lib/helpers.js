@@ -199,14 +199,15 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     };
 
     permissions.set_board_comment_and_participant_type_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
-    permissions.upload_memberslist_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
+    permissions.upload_memberslists_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
     permissions.see_boardview_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
 
-    permissions.see_memberslists = hasPermission(corePermissions, 'global:see_memberslists:' + event.type);
+    permissions.see_memberslists_global = hasPermission(corePermissions, 'global:see_memberslists:' + event.type);
 
     permissions.set_board_comment_and_participant_type = {};
     permissions.see_boardview_of = {};
     permissions.upload_memberslist = {};
+    permissions.see_memberslist = {};
 
     permissions.manage_candidates = hasPermission(corePermissions, 'global:manage_candidates:agora');
 
@@ -218,7 +219,8 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     for (const body of user.bodies) {
         permissions.set_board_comment_and_participant_type[body.id] = event.can_approve_members && approveBodiesList.includes(body.id);
         permissions.see_boardview_of[body.id] = approveBodiesList.includes(body.id);
-        permissions.upload_memberslist[body.id] = approveBodiesList.includes(body.id) && exports.isLocal(body);
+        permissions.upload_memberslist[body.id] = event.can_approve_members && approveBodiesList.includes(body.id) && exports.isLocal(body);
+        permissions.see_memberslist[body.id] = approveBodiesList.includes(body.id) && exports.isLocal(body);
     }
 
     return permissions;
