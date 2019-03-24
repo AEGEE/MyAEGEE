@@ -3,6 +3,7 @@ const path = require('path');
 
 const config = require('../../config');
 const regularUser = require('../assets/oms-core-valid').data;
+const constants = require('../../lib/constants');
 
 exports.cleanAll = () => nock.cleanAll();
 
@@ -345,6 +346,27 @@ exports.mockCoreMailer = (options) => {
         .reply(200, { success: true });
 };
 
+exports.mockConversionApi = (options) => {
+    if (options.netError) {
+        return nock(constants.CONVERSION_RATE_API.host)
+            .persist()
+            .get(constants.CONVERSION_RATE_API.path)
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock(constants.CONVERSION_RATE_API.host)
+            .persist()
+            .get(constants.CONVERSION_RATE_API.path)
+            .reply(500, 'Some error happened.');
+    }
+
+    return nock(constants.CONVERSION_RATE_API.host)
+        .persist()
+        .get(constants.CONVERSION_RATE_API.path)
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'conversion-rates-api.json'));
+};
+
 exports.mockAll = (options = {}) => {
     nock.cleanAll();
     const omsCoreStub = exports.mockCore(options.core || {});
@@ -355,6 +377,7 @@ exports.mockAll = (options = {}) => {
     const omsCoreBodyStub = exports.mockCoreBody(options.body || {});
     const omsCoreMemberStub = exports.mockCoreMember(options.member || {});
     const omsMailerStub = exports.mockCoreMailer(options.mailer || {});
+    const conversionRatesStub = exports.mockConversionApi(options.conversion || {});
 
     return {
         omsCoreStub,
@@ -364,6 +387,7 @@ exports.mockAll = (options = {}) => {
         omsCoreBodiesStub,
         omsCoreBodyStub,
         omsCoreMemberStub,
-        omsMailerStub
+        omsMailerStub,
+        conversionRatesStub
     };
 };
