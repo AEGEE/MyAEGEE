@@ -66,6 +66,20 @@ const MembersList = sequelize.define('memberslist', {
 
                 membersValue = value;
             }
+        },
+        get() {
+            const members = JSON.parse(JSON.stringify(this.getDataValue('members')));
+            for (const member of members) {
+                member.fee_to_aegee = helpers.calculateFeeForMember(member, this.getDataValue('conversion_rate'));
+            }
+
+            return members;
+        }
+    },
+    fee_to_aegee: {
+        type: Sequelize.VIRTUAL,
+        get() {
+            return this.members.reduce((accumulator, member) => accumulator + member.fee_to_aegee, 0);
         }
     }
 }, { underscored: true });

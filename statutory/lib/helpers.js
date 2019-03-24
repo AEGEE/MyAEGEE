@@ -5,6 +5,7 @@ const moment = MomentRange.extendMoment(Moment);
 
 const constants = require('./constants');
 
+// A helper to calculate time for plenary.
 exports.calculateTimeForPlenary = (attendance, plenary) => {
     if (!attendance.ends) {
         return 0;
@@ -23,6 +24,29 @@ exports.calculateTimeForPlenary = (attendance, plenary) => {
 
     const difference = intersectRange.diff('seconds', true);
     return difference;
+};
+
+// A helper to calculate fee for member of memberslist with given conversion rate to EUR.
+exports.calculateFeeForMember = (member, conversionRate) => {
+    // According to Matis (FD):
+    // As per the CIA, the formula for calculating the fees is "1An annual membership fee
+    // towards AEGEE-Europe of 25% of the part of the local annual membership fee under 30 euro
+    // has to be paid for each current member, with a minimum of 4 euro
+    // per current member plus 10% of the part of the local annual membership fee above 30 Euro"
+    //
+    // Dividing these numbers by 2 as there's 2 Agorae and locals pay fee for their
+    // members at each of them.
+
+    // First, converting to EUR.
+    const feeInEuro = member.fee / conversionRate;
+
+    // Then calculating fee to AEGEE-Europe using the formula above.
+    const feeToAEGEE = feeInEuro <= 30
+        ? feeInEuro * 0.125 // 12.5% of fee under 30 EUR
+        : (30 * 0.125) + feeInEuro * 0.05; // 12.5% of 30EUR + 5% fee above 30EUR
+
+    // Minimum EUR amount is 2EUR.
+    return Math.max(feeToAEGEE, 2);
 };
 
 // Figure out if the value is a number or a string containing only numbers
