@@ -315,14 +315,14 @@ export default {
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
-      this.myBoards = Object.keys(this.can.see_boardview)
+      this.myBoards = Object.keys(this.can.see_memberslist)
         .filter(key => key !== 'global')
-        .filter(key => this.can.see_boardview[key])
+        .filter(key => this.can.see_memberslist[key])
       this.selectedBody = this.myBoards.length > 0 ? this.myBoards[0] : null
 
       // If user has global permission, fetch all bodies.
       // Otherwise, fetch only bodies that user is a member of.
-      if (!this.can.set_board_comment_and_participant_type.global) {
+      if (!this.can.see_memberslist.global) {
         for (const bodyId of this.myBoards) {
           this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + bodyId).then((body) => {
             if (this.isLocal(body)) {

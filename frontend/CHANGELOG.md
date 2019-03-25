@@ -1,3 +1,12 @@
+## [0.9.1](https://github.com/AEGEE/oms-frontend/compare/0.9.0...0.9.1) (2019-03-25)
+
+
+### Bug Fixes
+
+* **statutory:** fix memberslists and boardview permissions ([4fa2ebc](https://github.com/AEGEE/oms-frontend/commit/4fa2ebc))
+
+
+
 # [0.9.0](https://github.com/AEGEE/oms-frontend/compare/0.8.0...0.9.0) (2019-03-24)
 
 
