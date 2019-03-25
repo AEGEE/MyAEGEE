@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -39,7 +41,12 @@ describe('Votes per antenna/delegate recalculation', () => {
             mock.mockAll();
             await startServer();
 
-            event = await generator.createEvent({ type: 'agora', applications: [] });
+            event = await generator.createEvent({
+                type: 'agora',
+                applications: [],
+                application_period_starts: moment().subtract(1, 'week').toDate(),
+                application_period_ends: moment().add(1, 'week').toDate()
+            });
             memberslist = generator.generateMembersList({
                 body_id: regularUser.bodies[0].id,
                 members: Array.from(
@@ -241,6 +248,10 @@ describe('Votes per antenna/delegate recalculation', () => {
             { delegates: 2, members: 225, votes: [3, 3] },
             { delegates: 3, members: 225, votes: [2, 2, 2] },
         ];
+
+        beforeEach(async () => {
+            mock.mockAll();
+        });
 
         afterEach(async () => {
             await generator.clearAll();

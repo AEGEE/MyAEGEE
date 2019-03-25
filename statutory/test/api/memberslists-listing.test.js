@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
@@ -19,7 +21,11 @@ describe('Memberslist listing', () => {
     test('should fail if user has no permissions', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-        const event = await generator.createEvent({ type: 'agora' });
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate()
+        });
         await generator.createMembersList({ body_id: regularUser.bodies[0].id }, event);
 
         const res = await request({
@@ -37,7 +43,11 @@ describe('Memberslist listing', () => {
     test('should succeed if user has permission', async () => {
         mock.mockAll({ approvePermissions: { noPermissions: true } });
 
-        const event = await generator.createEvent({ type: 'agora' });
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate()
+        });
         await generator.createMembersList({ body_id: 1337 }, event);
 
         const res = await request({
@@ -57,7 +67,11 @@ describe('Memberslist listing', () => {
     test('should fail if the event is not Agora', async () => {
         mock.mockAll({ approvePermissions: { noPermissions: true } });
 
-        const event = await generator.createEvent({ type: 'epm' });
+        const event = await generator.createEvent({
+            type: 'epm',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate()
+        });
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/',
             method: 'GET',

@@ -5,6 +5,7 @@ const moment = MomentRange.extendMoment(Moment);
 
 const constants = require('./constants');
 
+// A helper to calculate time for plenary.
 exports.calculateTimeForPlenary = (attendance, plenary) => {
     if (!attendance.ends) {
         return 0;
@@ -23,6 +24,29 @@ exports.calculateTimeForPlenary = (attendance, plenary) => {
 
     const difference = intersectRange.diff('seconds', true);
     return difference;
+};
+
+// A helper to calculate fee for member of memberslist with given conversion rate to EUR.
+exports.calculateFeeForMember = (member, conversionRate) => {
+    // According to Matis (FD):
+    // As per the CIA, the formula for calculating the fees is "1An annual membership fee
+    // towards AEGEE-Europe of 25% of the part of the local annual membership fee under 30 euro
+    // has to be paid for each current member, with a minimum of 4 euro
+    // per current member plus 10% of the part of the local annual membership fee above 30 Euro"
+    //
+    // Dividing these numbers by 2 as there's 2 Agorae and locals pay fee for their
+    // members at each of them.
+
+    // First, converting to EUR.
+    const feeInEuro = member.fee / conversionRate;
+
+    // Then calculating fee to AEGEE-Europe using the formula above.
+    const feeToAEGEE = feeInEuro <= 30
+        ? feeInEuro * 0.125 // 12.5% of fee under 30 EUR
+        : (30 * 0.125) + feeInEuro * 0.05; // 12.5% of 30EUR + 5% fee above 30EUR
+
+    // Minimum EUR amount is 2EUR.
+    return Math.max(feeToAEGEE, 2);
 };
 
 // Figure out if the value is a number or a string containing only numbers
@@ -198,15 +222,18 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
         incoming: permissions.manage_applications || permissions.manage_incoming
     };
 
-    permissions.set_board_comment_and_participant_type_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
-    permissions.upload_memberslist_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
-    permissions.see_boardview_global = hasPermission(corePermissions, 'global:approve_members:' + event.type);
-
-    permissions.see_memberslists = hasPermission(corePermissions, 'global:see_memberslists:' + event.type);
-
-    permissions.set_board_comment_and_participant_type = {};
-    permissions.see_boardview_of = {};
-    permissions.upload_memberslist = {};
+    permissions.set_board_comment_and_participant_type = {
+        global: hasPermission(corePermissions, 'global:approve_members:' + event.type)
+    };
+    permissions.see_boardview = {
+        global: hasPermission(corePermissions, 'global:approve_members:' + event.type)
+    };
+    permissions.upload_memberslist = {
+        global: hasPermission(corePermissions, 'global:approve_members:' + event.type)
+    };
+    permissions.see_memberslist = {
+        global: hasPermission(corePermissions, 'global:see_memberslists:' + event.type)
+    };
 
     permissions.manage_candidates = hasPermission(corePermissions, 'global:manage_candidates:agora');
 
@@ -217,8 +244,9 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
     for (const body of user.bodies) {
         permissions.set_board_comment_and_participant_type[body.id] = event.can_approve_members && approveBodiesList.includes(body.id);
-        permissions.see_boardview_of[body.id] = approveBodiesList.includes(body.id);
-        permissions.upload_memberslist[body.id] = approveBodiesList.includes(body.id) && exports.isLocal(body);
+        permissions.see_boardview[body.id] = approveBodiesList.includes(body.id);
+        permissions.upload_memberslist[body.id] = event.can_approve_members && approveBodiesList.includes(body.id) && exports.isLocal(body);
+        permissions.see_memberslist[body.id] = approveBodiesList.includes(body.id) && exports.isLocal(body);
     }
 
     return permissions;
@@ -240,7 +268,7 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     // Update is_on_memberslist attribute (Network Director).
     const updateMemberslistStatus = hasPermission(corePermissions, 'update_memberslist_status:' + event.type);
 
-    permissions.see_application = mine || canManage || isIncoming || permissions.see_boardview_of[application.body_id];
+    permissions.see_application = mine || canManage || isIncoming || permissions.see_boardview[application.body_id];
 
     // User can edit application if it's his application and it's within the deadline, or if he has the permission.
     permissions.edit_application = (mine && event.can_apply) || canManage || canApply;

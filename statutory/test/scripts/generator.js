@@ -101,7 +101,7 @@ exports.generateApplication = (options = {}, event = null) => {
 };
 
 exports.generateMembersList = (options = {}, event = null) => {
-    if (notSet(options.currency)) options.currency = faker.lorem.sentence();
+    if (notSet(options.currency)) options.currency = 'EU';
     if (notSet(options.user_id)) options.user_id = faker.random.number(100);
     if (notSet(options.body_id)) options.body_id = faker.random.number(100);
     if (notSet(options.members)) {

@@ -1,5 +1,16 @@
+const request = require('request-promise-native');
+const Joi = require('joi');
+
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const helpers = require('../lib/helpers');
+const constants = require('../lib/constants');
+
+const membersSchema = Joi.array().min(1).items(Joi.object().keys({
+    first_name: Joi.string().trim().required(),
+    last_name: Joi.string().trim().required(),
+    user_id: Joi.number().integer().allow(null).optional(),
+    fee: Joi.number().min(0).required()
+}));
 
 const MembersList = sequelize.define('memberslist', {
     event_id: {
@@ -37,63 +48,72 @@ const MembersList = sequelize.define('memberslist', {
             notEmpty: { msg: 'Currency should be set.' }
         },
     },
+    conversion_rate: {
+        allowNull: true,
+        type: Sequelize.DECIMAL,
+        defaultValue: 1 // no validation as it's not processed by user, but by API instead.
+    },
     members: {
         type: Sequelize.JSONB,
         allowNull: false,
         defaultValue: '',
         validate: {
-            isValid(value) {
-                if (typeof value === 'undefined' || value === '') {
-                    throw new Error('Members should be set.');
+            isValid(membersValue) {
+                const { error, value } = Joi.validate(membersValue, membersSchema);
+                if (error) {
+                    throw error;
                 }
 
-                if (!Array.isArray(value)) {
-                    throw new Error('Members is not an array.');
-                }
-
-                if (value.length === 0) {
-                    throw new Error('Members list is empty.');
-                }
-
-                for (const member of value) {
-                    if (typeof member !== 'object' || member === null) {
-                        throw new Error('Member should be an object.');
-                    }
-
-                    for (const key of ['first_name', 'last_name', 'fee']) {
-                        if (typeof member[key] === 'undefined') {
-                            throw new Error('The "' + key + '" attribute is not set for a member.');
-                        }
-                    }
-
-                    for (const key of ['first_name', 'last_name']) {
-                        if (typeof member[key] !== 'string') {
-                            throw new Error(`${key} should be a string.`);
-                        }
-
-                        if (member[key].trim() === '') {
-                            throw new Error(`${key} should not be empty.`);
-                        }
-                    }
-
-                    for (const key of ['fee']) {
-                        if (typeof member[key] !== 'number') {
-                            throw new Error(`${key} is not a number.`);
-                        }
-                    }
-
-                    if (typeof member.user_id !== 'undefined' && member.user_id !== null && typeof member.user_id !== 'number') {
-                        throw new Error('user_id is set, but is not a number.');
-                    }
-
-                    if (member.fee < 0) {
-                        throw new Error('Member\'s fee should be not negative number.');
-                    }
-                }
+                // eslint-disable-next-line no-param-reassign
+                membersValue = value;
             }
+        },
+        get() {
+            const members = JSON.parse(JSON.stringify(this.getDataValue('members')));
+            for (const member of members) {
+                member.fee_to_aegee = helpers.calculateFeeForMember(member, this.getDataValue('conversion_rate'));
+            }
+
+            return members;
+        }
+    },
+    fee_to_aegee: {
+        type: Sequelize.VIRTUAL,
+        get() {
+            return this.members.reduce((accumulator, member) => accumulator + member.fee_to_aegee, 0);
         }
     }
 }, { underscored: true });
+
+// Setting the conversion rate for members list.
+MembersList.beforeSave(async (memberslist, options) => {
+    // The conversion API returns some currencles under other name,
+    // for example euro (EU in the system) is BE.
+    const currency = constants.CONVERSION_RATE_MAP[memberslist.currency]
+        ? constants.CONVERSION_RATE_MAP[memberslist.currency]
+        : memberslist.currency;
+
+    const conversion = await request({
+        url: constants.CONVERSION_RATE_API.host + constants.CONVERSION_RATE_API.path,
+        method: 'GET',
+        simple: false,
+        json: true
+    });
+
+    if (typeof conversion !== 'object') {
+        throw new Error('Malformed response when fetching API rates: ' + conversion);
+    }
+
+    const conversionForCurrency = conversion.find(c => c.isoA2Code.toLowerCase() === currency.toLowerCase());
+    if (!conversionForCurrency) {
+        throw new Error('No currency found: ' + currency);
+    }
+
+    memberslist.setDataValue('conversion_rate', conversionForCurrency.value);
+    options.fields.push('conversion_rate');
+});
+
+module.exports = MembersList;
 
 // Updating the users' inclusion in memberslist for this body.
 MembersList.afterSave(async (memberslist) => {

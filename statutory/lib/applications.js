@@ -156,7 +156,7 @@ exports.listBoardView = async (req, res) => {
         return errors.makeBadRequestError(res, 'Body ID should be a number.');
     }
 
-    if (!req.permissions.see_boardview_of[req.params.body_id] && !req.permissions.see_boardview_global) {
+    if (!req.permissions.see_boardview.global && !req.permissions.see_boardview[req.params.body_id]) {
         return errors.makeForbiddenError(res, 'You are not allowed to see the boardview of this body.');
     }
 
@@ -331,7 +331,7 @@ exports.setApplicationBoard = async (req, res) => {
     // Either the current user or this user who has permission to see it is allowed.
     if (
         !req.permissions.set_board_comment_and_participant_type[req.application.body_id]
-        && !req.permissions.set_board_comment_and_participant_type_global
+        && !req.permissions.set_board_comment_and_participant_type.global
     ) {
         return errors.makeForbiddenError(
             res,
