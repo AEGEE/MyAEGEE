@@ -22,6 +22,10 @@
           <b-table-column field="fee" label="Fee" numeric sortable>
             {{ props.row.fee }} {{ memberslist.currency }}
           </b-table-column>
+
+          <b-table-column field="fee_to_aegee" label="Fee to AEGEE-Europe" numeric sortable>
+            {{ props.row.fee_to_aegee }} EUR
+          </b-table-column>
         </template>
 
         <template slot="empty">
