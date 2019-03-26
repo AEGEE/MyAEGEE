@@ -22,6 +22,11 @@
               {{ props.row.members.length }}
             </b-table-column>
 
+            <b-table-column field="fee_to_aegee" label="Fee to AEGEE-Europe" numeric sortable>
+              {{ props.row.fee_to_aegee }} EUR
+            </b-table-column>
+
+
             <b-table-column label="View" sortable>
               <button class="button is-small is-primary" @click="openMembersListModal(props.row)">View memberslist</button>
             </b-table-column>

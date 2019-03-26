@@ -1,3 +1,12 @@
+## [0.9.2](https://github.com/AEGEE/oms-frontend/compare/0.9.1...0.9.2) (2019-03-26)
+
+
+### Features
+
+* **statutory:** display fee to AEGEE-Europe on ND listing ([a06c46a](https://github.com/AEGEE/oms-frontend/commit/a06c46a))
+
+
+
 ## [0.9.1](https://github.com/AEGEE/oms-frontend/compare/0.9.0...0.9.1) (2019-03-25)
 
 
