@@ -122,6 +122,63 @@ describe('Memberslist uploading', () => {
         expect(res.body).toHaveProperty('data');
     });
 
+    test('should discard fee_paid', async () => {
+        mock.mockAll({ approvePermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate()
+        });
+
+        const body = generator.generateMembersList({});
+        body.fee_paid = 1300;
+
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/1337',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+
+        expect(res.body.data.fee_paid).toEqual(0);
+    });
+
+    test('should re-calculate fee to AEGEE', async () => {
+        mock.mockAll({ approvePermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate()
+        });
+
+        const body = generator.generateMembersList({
+            currency: 'EU', // conversion rate == 1
+            fee_to_aegee: 0,
+            members: [
+                generator.generateMembersListMember({ fee: 100 })
+            ]
+        });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/1337',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+
+        expect(res.body.data.fee_to_aegee).not.toEqual(0);
+    });
+
     test('should return 403 if user has local permission for his body, but deadline has passed or hasn\'t started yet', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
