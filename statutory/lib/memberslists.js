@@ -46,6 +46,32 @@ exports.getMemberslist = async (req, res) => {
     });
 };
 
+exports.setMemberslistFeePaid = async (req, res) => {
+    if (Number.isNaN(parseInt(req.params.body_id, 10))) {
+        return errors.makeBadRequestError(res, 'The body_id parameter is invalid.');
+    }
+
+    if (!req.permissions.set_memberslists_fee_paid) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see this memberslist.');
+    }
+
+    const memberslist = await MembersList.findOne({ where: {
+        event_id: req.event.id,
+        body_id: parseInt(req.params.body_id, 10)
+    } });
+
+    if (!memberslist) {
+        return errors.makeNotFoundError(res, 'Members list is not found.');
+    }
+
+    await memberslist.update({ fee_paid: req.body.fee_paid }, { hooks: false });
+
+    return res.json({
+        success: true,
+        data: memberslist
+    });
+};
+
 exports.uploadMembersList = async (req, res) => {
     if (Number.isNaN(parseInt(req.params.body_id, 10))) {
         return errors.makeBadRequestError(res, 'The body_id parameter is invalid.');
@@ -61,6 +87,8 @@ exports.uploadMembersList = async (req, res) => {
     req.body.body_id = req.params.body_id;
     req.body.user_id = req.user.id;
     req.body.event_id = req.event.id;
+
+    delete req.body.fee_paid;
 
     const existingMembersList = await MembersList.findOne({ where: {
         event_id: req.event.id,
