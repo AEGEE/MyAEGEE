@@ -1,4 +1,18 @@
-# 0.8.0 (2019-03-24)
+# [0.9.0](https://github.com/AEGEE/oms-statutory/compare/0.8.0...0.9.0) (2019-03-30)
+
+
+### Bug Fixes
+
+* **test:** fixed test that could fail because of unstable network ([c815983](https://github.com/AEGEE/oms-statutory/commit/c815983))
+
+
+### Features
+
+* **memberslist:** editing fee_paid for members list ([5c8d9e5](https://github.com/AEGEE/oms-statutory/commit/5c8d9e5))
+
+
+
+# [0.8.0](https://github.com/AEGEE/oms-statutory/compare/be680b8...0.8.0) (2019-03-24)
 
 
 ### Bug Fixes

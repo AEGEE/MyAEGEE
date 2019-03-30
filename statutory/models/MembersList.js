@@ -82,6 +82,21 @@ const MembersList = sequelize.define('memberslist', {
         get() {
             return this.members.reduce((accumulator, member) => accumulator + member.fee_to_aegee, 0);
         }
+    },
+    fee_paid: {
+        allowNull: true,
+        type: Sequelize.DECIMAL,
+        defaultValue: 0,
+        validate: {
+            isNumeric: { msg: 'Fee paid should be a number.' },
+            min: { args: [0], msg: 'Fee paid should be positive.' }
+        },
+    },
+    fee_not_paid: {
+        type: Sequelize.VIRTUAL,
+        get() {
+            return this.fee_to_aegee - this.fee_paid;
+        }
     }
 }, { underscored: true });
 

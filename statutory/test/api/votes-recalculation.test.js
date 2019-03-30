@@ -9,6 +9,7 @@ const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Votes per antenna/delegate recalculation', () => {
     test('should not recalculate the votes for EPM', async () => {
+        mock.mockAll();
         await generator.clearAll();
 
         const event = await generator.createEvent({ type: 'epm', applications: [] });
@@ -32,6 +33,7 @@ describe('Votes per antenna/delegate recalculation', () => {
         expect(votesInDb.length).toEqual(0);
 
         await generator.clearAll();
+        mock.cleanAll();
     });
 
     describe('should update if something would be updated', () => {

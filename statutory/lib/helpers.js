@@ -235,6 +235,8 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
         global: hasPermission(corePermissions, 'global:see_memberslists:' + event.type)
     };
 
+    permissions.set_memberslists_fee_paid = hasPermission(corePermissions, 'global:set_memberslists_fee_paid:' + event.type);
+
     permissions.manage_candidates = hasPermission(corePermissions, 'global:manage_candidates:agora');
 
     permissions.manage_plenaries = hasPermission(corePermissions, 'global:manage_plenaries:agora');

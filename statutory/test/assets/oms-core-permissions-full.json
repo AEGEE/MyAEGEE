@@ -190,5 +190,15 @@
         "circles": null,
         "always_assigned": false,
         "action": "mark_attendance"
+      }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 71,
+        "filters": [],
+        "description": "Mark fee_paid for memberslists",
+        "combined": "global:set_memberslists_fee_paid:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "set_memberslists_fee_paid"
       }]
 }
