@@ -20,11 +20,11 @@
           </b-table-column>
 
           <b-table-column field="fee" label="Fee" numeric sortable>
-            {{ props.row.fee }} {{ memberslist.currency }}
+            {{ props.row.fee.toFixed(2) }} {{ memberslist.currency }}
           </b-table-column>
 
           <b-table-column field="fee_to_aegee" label="Fee to AEGEE-Europe" numeric sortable>
-            {{ props.row.fee_to_aegee }} EUR
+            {{ props.row.fee_to_aegee.toFixed(2) }} EUR
           </b-table-column>
         </template>
 
