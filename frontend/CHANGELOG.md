@@ -1,3 +1,12 @@
+## [0.10.3](https://github.com/AEGEE/oms-frontend/compare/0.10.2...0.10.3) (2019-03-31)
+
+
+### Bug Fixes
+
+* **statutory:** round fee values for memberslist modal ([603dc70](https://github.com/AEGEE/oms-frontend/commit/603dc70))
+
+
+
 ## [0.10.2](https://github.com/AEGEE/oms-frontend/compare/0.10.1...0.10.2) (2019-03-31)
 
 
