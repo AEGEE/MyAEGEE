@@ -1,3 +1,12 @@
+## [0.10.5](https://github.com/AEGEE/oms-frontend/compare/0.10.4...0.10.5) (2019-03-31)
+
+
+### Bug Fixes
+
+* **statutory:** proper sorting on participants list. Fixes HELP-430 ([e54e73e](https://github.com/AEGEE/oms-frontend/commit/e54e73e))
+
+
+
 ## [0.10.4](https://github.com/AEGEE/oms-frontend/compare/0.10.3...0.10.4) (2019-03-31)
 
 
