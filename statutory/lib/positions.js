@@ -73,7 +73,7 @@ exports.listPositionsWithApprovedCandidates = async (req, res) => {
                     return candidate.toJSON();
                 }
 
-                return helpers.whitelistObject(candidate, constants.ALLOWED_PENDING_CANDIDATE_FIELDS)
+                return helpers.whitelistObject(candidate, constants.ALLOWED_PENDING_CANDIDATE_FIELDS);
             });
 
         return jsonPosition;
