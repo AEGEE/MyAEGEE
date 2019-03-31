@@ -248,10 +248,9 @@ export default {
         change_event_status: false,
         delete_event: false,
         apply: false,
-        set_board_comment_and_participant_type_global: false,
         set_board_comment_and_participant_type: {},
         see_participants_list: false,
-        see_memberslists: false,
+        see_memberslist: {},
         export: false
       }
     }
