@@ -1,3 +1,12 @@
+## [0.10.1](https://github.com/AEGEE/oms-frontend/compare/0.10.0...0.10.1) (2019-03-31)
+
+
+### Bug Fixes
+
+* **statutory:** rounding fee to AEGEE on memberslists listing ([1c041d4](https://github.com/AEGEE/oms-frontend/commit/1c041d4))
+
+
+
 # [0.10.0](https://github.com/AEGEE/oms-frontend/compare/0.9.2...0.10.0) (2019-03-31)
 
 
