@@ -1,3 +1,12 @@
+## [0.10.7](https://github.com/AEGEE/oms-frontend/compare/0.10.6...0.10.7) (2019-03-31)
+
+
+### Bug Fixes
+
+* **statutory:** display basic info of pending candidates ([02c7a4a](https://github.com/AEGEE/oms-frontend/commit/02c7a4a))
+
+
+
 ## [0.10.6](https://github.com/AEGEE/oms-frontend/compare/0.10.5...0.10.6) (2019-03-31)
 
 

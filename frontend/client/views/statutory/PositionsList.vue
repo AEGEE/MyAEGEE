@@ -78,13 +78,17 @@
           <thead>
             <tr v-for="candidate in selectedPosition.candidates" v-bind:key="candidate.id">
               <td>{{ candidate.id }}</td>
-              <td v-if="candidate.status === 'approved' || prefix === 'all'">{{ candidate.first_name }}</td>
-              <td v-if="candidate.status === 'approved' || prefix === 'all'">{{ candidate.last_name }}</td>
-              <td v-if="candidate.status === 'approved' || prefix === 'all'">{{ candidate.body_name }}</td>
-              <td v-if="candidate.status === 'approved' || prefix === 'all'">
-                <a href="#" @click.prevent="openViewCandidateModal(candidate, selectedPosition)">View</a>
+              <td>{{ candidate.first_name }}</td>
+              <td>{{ candidate.last_name }}</td>
+              <td>{{ candidate.body_name }}</td>
+              <td>
+                <a
+                  v-if="candidate.status === 'approved' || prefix === 'all'"
+                  href="#"
+                  @click.prevent="openViewCandidateModal(candidate, selectedPosition)">
+                  View
+                </a>
               </td>
-              <td v-if="candidate.status !== 'approved' && prefix === 'approved'" colspan="4">This application is not approved yet.</td>
               <td v-if="prefix === 'all'">
                 <div class="select" :class="{ 'is-loading': candidate.isSaving }">
                   <select v-model="candidate.newStatus" @change="switchCandidateStatus(candidate, selectedPosition)">
