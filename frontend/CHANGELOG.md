@@ -1,3 +1,12 @@
+## [0.10.4](https://github.com/AEGEE/oms-frontend/compare/0.10.3...0.10.4) (2019-03-31)
+
+
+### Bug Fixes
+
+* **statutory:** fixed memberslists permissions ([af1ddf7](https://github.com/AEGEE/oms-frontend/commit/af1ddf7))
+
+
+
 ## [0.10.3](https://github.com/AEGEE/oms-frontend/compare/0.10.2...0.10.3) (2019-03-31)
 
 
