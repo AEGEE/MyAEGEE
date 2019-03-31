@@ -87,6 +87,13 @@ module.exports = {
         'body_id',
         'body_name'
     ],
+    ALLOWED_PENDING_CANDIDATE_FIELDS: [
+        'id',
+        'status',
+        'first_name',
+        'last_name',
+        'body_name'
+    ],
     APPLICATION_FIELD_NAMES: {
         id: 'ID',
         user_id: 'User ID',
