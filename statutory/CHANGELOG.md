@@ -1,3 +1,12 @@
+## [0.9.1](https://github.com/AEGEE/oms-statutory/compare/0.9.0...0.9.1) (2019-03-31)
+
+
+### Bug Fixes
+
+* **candidate:** display first and last name for pending candidates ([23b3c98](https://github.com/AEGEE/oms-statutory/commit/23b3c98))
+
+
+
 # [0.9.0](https://github.com/AEGEE/oms-statutory/compare/0.8.0...0.9.0) (2019-03-30)
 
 

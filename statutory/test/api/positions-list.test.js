@@ -118,7 +118,7 @@ describe('Positions listing', () => {
         expect(res.body.data.length).toEqual(1);
         expect(res.body.data[0].id).toEqual(position.id);
         expect(res.body.data[0].candidates.length).toEqual(1);
-        expect(res.body.data[0].candidates[0]).not.toHaveProperty('first_name');
+        expect(res.body.data[0].candidates[0]).not.toHaveProperty('european_experience');
     });
 
 

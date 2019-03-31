@@ -1,6 +1,7 @@
 const errors = require('./errors');
 const { Position, Candidate } = require('../models');
 const helpers = require('./helpers');
+const constants = require('./constants');
 
 exports.findPosition = async (req, res, next) => {
     if (Number.isNaN(Number(req.params.position_id))) {
@@ -72,7 +73,7 @@ exports.listPositionsWithApprovedCandidates = async (req, res) => {
                     return candidate.toJSON();
                 }
 
-                return { id: candidate.id, status: candidate.status };
+                return helpers.whitelistObject(candidate, constants.ALLOWED_PENDING_CANDIDATE_FIELDS);
             });
 
         return jsonPosition;
