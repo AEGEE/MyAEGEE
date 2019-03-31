@@ -1,3 +1,12 @@
+## [0.10.6](https://github.com/AEGEE/oms-frontend/compare/0.10.5...0.10.6) (2019-03-31)
+
+
+### Features
+
+* **statutory:** added acceptance info to some pages. Fixes HELP-447 ([b25413e](https://github.com/AEGEE/oms-frontend/commit/b25413e))
+
+
+
 ## [0.10.5](https://github.com/AEGEE/oms-frontend/compare/0.10.4...0.10.5) (2019-03-31)
 
 
