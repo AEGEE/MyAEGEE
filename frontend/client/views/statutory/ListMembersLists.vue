@@ -27,15 +27,15 @@
             </b-table-column>
 
             <b-table-column field="fee_to_aegee" label="Fee to AEGEE-Europe" numeric sortable>
-              {{ props.row.fee_to_aegee }} EUR
+              {{ props.row.fee_to_aegee.toFixed(2) }} EUR
             </b-table-column>
 
             <b-table-column field="fee_paid" label="Fee paid" numeric sortable>
-              {{ props.row.fee_paid }} EUR
+              {{ props.row.fee_paid.toFixed(2) }} EUR
             </b-table-column>
 
             <b-table-column field="fee_not_paid" label="Fee not paid" numeric sortable>
-              {{ props.row.fee_not_paid }} EUR
+              {{ props.row.fee_not_paid.toFixed(2) }} EUR
             </b-table-column>
 
             <b-table-column label="Set fee paid" sortable :visible="can.set_memberslists_fee_paid">
