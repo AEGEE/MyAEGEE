@@ -149,6 +149,18 @@
                   <td v-if="application.board_comment">{{ application.board_comment }}</td>
                   <td v-if="!application.board_comment"><i>Not set yet.</i></td>
                 </tr>-->
+                <tr>
+                  <th>Confirmed?</th>
+                  <td>{{ application.paid_fee | beautify }}</td>
+                </tr>
+                <tr>
+                  <th>Attended?</th>
+                  <td>{{ application.attended | beautify }}</td>
+                </tr>
+                <tr>
+                  <th>Registered</th>
+                  <td>{{ application.registered | beautify }}</td>
+                </tr>
               </tbody>
             </table>
           </div>

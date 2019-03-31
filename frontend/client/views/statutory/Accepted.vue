@@ -29,6 +29,24 @@
             <b-table-column field="participant_type" label="Participant type and order">
               {{ props.row.participant_type ? `${props.row.participant_type} (${props.row.participant_order})` : '' }}
             </b-table-column>
+
+            <b-table-column field="paid_fee" label="Confirmed?" centered>
+              <span :class="calculateClassForTag(props.row.paid_fee)">
+                {{ props.row.paid_fee | beautify }}
+              </span>
+            </b-table-column>
+
+            <b-table-column field="attended" label="Attended?" centered>
+              <span :class="calculateClassForTag(props.row.attended)">
+                {{ props.row.attended | beautify }}
+              </span>
+            </b-table-column>
+
+            <b-table-column field="registered" label="Registered?" centered>
+              <span :class="calculateClassForTag(props.row.registered)">
+                {{ props.row.registered | beautify }}
+              </span>
+            </b-table-column>
           </template>
 
           <template slot="empty">
@@ -62,6 +80,11 @@ export default {
     services: 'services',
     loginUser: 'user'
   }),
+  methods: {
+    calculateClassForTag (value) {
+      return ['tag', 'is-small', value ? 'is-primary' : 'is-danger']
+    },
+  },
   mounted () {
     this.isLoading = true
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/accepted').then((application) => {
