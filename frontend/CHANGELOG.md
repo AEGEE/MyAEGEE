@@ -1,3 +1,12 @@
+# [0.10.0](https://github.com/AEGEE/oms-frontend/compare/0.9.2...0.10.0) (2019-03-31)
+
+
+### Features
+
+* **statutory:** added fee_paid management and displaying ([60a5188](https://github.com/AEGEE/oms-frontend/commit/60a5188))
+
+
+
 ## [0.9.2](https://github.com/AEGEE/oms-frontend/compare/0.9.1...0.9.2) (2019-03-26)
 
 

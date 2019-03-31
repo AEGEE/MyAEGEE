@@ -22,13 +22,24 @@
               {{ props.row.members.length }}
             </b-table-column>
 
+            <b-table-column label="View">
+              <button class="button is-small is-primary" @click="openMembersListModal(props.row)">View memberslist</button>
+            </b-table-column>
+
             <b-table-column field="fee_to_aegee" label="Fee to AEGEE-Europe" numeric sortable>
               {{ props.row.fee_to_aegee }} EUR
             </b-table-column>
 
+            <b-table-column field="fee_paid" label="Fee paid" numeric sortable>
+              {{ props.row.fee_paid }} EUR
+            </b-table-column>
 
-            <b-table-column label="View" sortable>
-              <button class="button is-small is-primary" @click="openMembersListModal(props.row)">View memberslist</button>
+            <b-table-column field="fee_not_paid" label="Fee not paid" numeric sortable>
+              {{ props.row.fee_not_paid }} EUR
+            </b-table-column>
+
+            <b-table-column label="Set fee paid" sortable :visible="can.set_memberslists_fee_paid">
+              <button class="button is-small is-primary" @click="askToSetFeePaid(props.row)">Set fee paid</button>
             </b-table-column>
           </template>
 
@@ -58,6 +69,9 @@ export default {
     return {
       event: { name: 'event that is still loading...' },
       memberslists: [],
+      can: {
+        set_memberslists_fee_paid: false
+      },
       isLoading: false
     }
   },
@@ -71,13 +85,39 @@ export default {
           memberslist
         }
       })
-    }
+    },
+    askToSetFeePaid (memberslist) {
+      this.$dialog.prompt({
+        message: 'Set fee paid',
+        inputAttrs: {
+          placeholder: 'Fee paid (in EUR)',
+          required: true
+        },
+        onConfirm: (newFee) => this.setFeePaid(newFee, memberslist)
+      })
+    },
+    setFeePaid (newFee, memberslist) {
+      this.isLoading = true
+      this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + memberslist.body_id + '/fee_paid', {
+        fee_paid: newFee
+      }).then((response) => {
+        this.$root.showSuccess('Fee paid is set.')
+        this.isLoading = false
+
+        memberslist.fee_paid = newFee
+        memberslist.fee_not_paid = memberslist.fee_to_aegee - newFee
+      }).catch((err) => {
+        this.isLoading = false
+        this.$root.showDanger('Could not set fee paid: ' + err.message)
+      })
+    },
   },
   mounted () {
     this.isLoading = true
 
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
+      this.can = response.data.data.permissions
 
       return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/memberslists')
     }).then((response) => {
