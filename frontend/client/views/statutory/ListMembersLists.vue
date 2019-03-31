@@ -115,21 +115,25 @@ export default {
   mounted () {
     this.isLoading = true
 
+    let memberslists;
+
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
       this.can = response.data.data.permissions
 
       return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/memberslists')
     }).then((response) => {
-      this.memberslists = response.data.data
+      memberslists = response.data.data
 
       return this.axios.get(this.services['oms-core-elixir'] + '/bodies/')
     }).then((response) => {
-      for (const memberslist of this.memberslists) {
+      for (const memberslist of memberslists) {
         const body = response.data.data.find(bodyFromList => bodyFromList.id === memberslist.body_id)
-        this.$set(memberslist, 'expanded', false)
-        this.$set(memberslist, 'body', body)
+        memberslist.expanded = false
+        memberslist.body = body
       }
+
+      this.memberslists = memberslists
 
       this.isLoading = false
     }).catch((err) => {
