@@ -1,3 +1,12 @@
+## [0.10.2](https://github.com/AEGEE/oms-frontend/compare/0.10.1...0.10.2) (2019-03-31)
+
+
+### Bug Fixes
+
+* **statutory:** pre-load bodies before setting on memberslists list page ([0b8666c](https://github.com/AEGEE/oms-frontend/commit/0b8666c))
+
+
+
 ## [0.10.1](https://github.com/AEGEE/oms-frontend/compare/0.10.0...0.10.1) (2019-03-31)
 
 
