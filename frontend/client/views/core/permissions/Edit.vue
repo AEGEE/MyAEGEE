@@ -9,6 +9,7 @@
               <select v-model="permission.scope">
                 <option value="global">Global</option>
                 <option value="local">Local</option>
+                <option value="join_request">Join request</option>
               </select>
             </div>
           </div>
