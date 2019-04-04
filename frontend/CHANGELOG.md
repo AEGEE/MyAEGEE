@@ -1,3 +1,12 @@
+## [0.10.8](https://github.com/AEGEE/oms-frontend/compare/0.10.7...0.10.8) (2019-04-04)
+
+
+### Bug Fixes
+
+* **core:** added join_request permissions scope ([9c18adc](https://github.com/AEGEE/oms-frontend/commit/9c18adc))
+
+
+
 ## [0.10.7](https://github.com/AEGEE/oms-frontend/compare/0.10.6...0.10.7) (2019-03-31)
 
 
