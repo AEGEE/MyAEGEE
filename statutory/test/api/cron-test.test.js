@@ -127,31 +127,6 @@ describe('Cron testing', () => {
             expect(cron.getJobs()[0].action).toContain('close');
         });
 
-        test('should set the close deadline if the applications started is not set', async () => {
-            const event = await generator.createEvent({ type: 'agora', applications: [] });
-            const position = generator.generatePosition({
-                ends: moment().add(1, 'week').toDate(),
-            });
-
-            delete position.starts;
-
-            const res = await request({
-                uri: '/events/' + event.id + '/positions/',
-                method: 'POST',
-                body: position,
-                headers: { 'X-Auth-Token': 'blablabla' }
-            });
-
-            expect(res.statusCode).toEqual(200);
-            expect(res.body.success).toEqual(true);
-            expect(res.body).not.toHaveProperty('errors');
-            expect(res.body).toHaveProperty('data');
-
-            expect(cron.getJobs().length).toEqual(1);
-            expect(cron.getJobs()[0].objectId).toEqual(res.body.data.id);
-            expect(cron.getJobs()[0].action).toContain('close');
-        });
-
         test('should not set the deadlines if the candidating is in the past', async () => {
             const event = await generator.createEvent({ type: 'agora', applications: [] });
             const position = generator.generatePosition({
@@ -270,30 +245,6 @@ describe('Cron testing', () => {
                 body: {
                     starts: moment().subtract(1, 'week').toDate(),
                     ends: moment().add(1, 'week').toDate(),
-                },
-                headers: { 'X-Auth-Token': 'blablabla' }
-            });
-
-            expect(res.statusCode).toEqual(200);
-            expect(res.body.success).toEqual(true);
-            expect(res.body).not.toHaveProperty('errors');
-            expect(res.body).toHaveProperty('data');
-
-            expect(cron.getJobs().length).toEqual(1);
-            expect(cron.getJobs()[0].objectId).toEqual(res.body.data.id);
-            expect(cron.getJobs()[0].action).toContain('close');
-        });
-
-        test('should set the close deadline if the applications started is not set', async () => {
-            const event = await generator.createEvent({ type: 'agora', applications: [] });
-            const position = await generator.createPosition({}, event);
-
-            const res = await request({
-                uri: '/events/' + event.id + '/positions/' + position.id,
-                method: 'PUT',
-                body: {
-                    ends: moment().add(1, 'week').toDate(),
-                    starts: null
                 },
                 headers: { 'X-Auth-Token': 'blablabla' }
             });

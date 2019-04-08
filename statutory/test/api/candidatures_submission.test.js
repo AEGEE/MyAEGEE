@@ -194,7 +194,7 @@ describe('Candidates submission', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const position = await generator.createPosition({
             starts: moment().subtract(2, 'week').toDate(),
-            ends: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate(),
             places: 5
         }, event);
         const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });

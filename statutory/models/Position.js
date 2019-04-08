@@ -64,38 +64,17 @@ const Position = sequelize.define('Position', {
     }
 }, { underscored: true, tableName: 'positions' });
 
-Position.beforeValidate(async (position, options) => {
-    if (position.starts) {
-        // If it's set we set the status either to "open" or "closed"
-        // based on starts and ends params.
-        // Also if it should start in the future, we set the cron task for it
-        // to open applications.
-        // TODO: add cron task for it.
-        const canApply = moment().isBetween(position.starts, position.ends, null, '[]');
-        const applicationsClosed = moment().isAfter(position.ends);
+Position.beforeCreate(async (position, options) => {
+    // We set the status either to "open" or "closed"
+    // based on starts and ends params.
+    // Also if it should start in the future, we set the cron task for it
+    // to open applications.
 
-        let candidatesCount = 0;
+    // TODO: refactor
+    const canApply = moment().isBetween(position.starts, position.ends, null, '[]');
 
-        if (!position.isNewRecord) {
-            candidatesCount = await Candidate.count({
-                where: {
-                    position_id: position.id,
-                    status: { [Sequelize.Op.ne]: 'rejected' }
-                }
-            });
-        }
-
-        position.setDataValue('status', (canApply || (applicationsClosed && candidatesCount <= position.places)) ? 'open' : 'closed');
-        options.fields.push('status');
-    } else {
-        // Else, if it's not set, that means we want to open the application
-        // period right now. So, position.starts should be the current time.
-
-        position.setDataValue('starts', new Date());
-        position.setDataValue('status', 'open');
-        options.fields.push('starts');
-        options.fields.push('status');
-    }
+    position.setDataValue('status', canApply ? 'open' : 'closed');
+    options.fields.push('status');
 });
 
 Position.afterUpdate((position) => {

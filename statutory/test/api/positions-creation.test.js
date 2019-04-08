@@ -197,27 +197,4 @@ describe('Positions creation', () => {
         expect(res.body.data.places).toEqual(position.places);
         expect(res.body.data.status).toEqual('open');
     });
-
-    test('should open the application period if no start date is provided', async () => {
-        const event = await generator.createEvent({ type: 'agora', applications: [] });
-        const position = generator.generatePosition({});
-        delete position.starts;
-
-        const res = await request({
-            uri: '/events/' + event.id + '/positions/',
-            method: 'POST',
-            body: position,
-            headers: { 'X-Auth-Token': 'blablabla' }
-        });
-
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        expect(res.body).not.toHaveProperty('errors');
-        expect(res.body).toHaveProperty('data');
-        expect(res.body.data.name).toEqual(position.name);
-        expect(res.body.data.description).toEqual(position.description);
-        expect(res.body.data.places).toEqual(position.places);
-        expect(res.body.data.starts).not.toEqual(null);
-        expect(res.body.data.status).toEqual('open');
-    });
 });
