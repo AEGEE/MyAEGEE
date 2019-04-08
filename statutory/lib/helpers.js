@@ -296,10 +296,10 @@ exports.getPositionPermissions = ({ permissions, position }) => {
     return permissions;
 };
 
-exports.getCandidatePermissions = ({ permissions, position, candidate, user }) => {
+exports.getCandidatePermissions = ({ permissions, candidate, user }) => {
     const mine = candidate.user_id === user.id;
 
-    permissions.edit_candidature = (mine && position.status === 'open') || permissions.manage_candidates;
+    permissions.edit_candidature = (mine && candidate.status === 'pending') || permissions.manage_candidates;
     permissions.set_candidature_status = permissions.manage_candidates;
 
     return permissions;

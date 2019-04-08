@@ -18,7 +18,7 @@ describe('Candidates editing', () => {
         await generator.clearAll();
     });
 
-    test('should return 403 if the applications have not started', async () => {
+    test('should return 403 if the application is not pending', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
@@ -26,32 +26,7 @@ describe('Candidates editing', () => {
             starts: moment().add(1, 'week').toDate(),
             ends: moment().add(2, 'week').toDate(),
             candidates: [
-                generator.generateCandidate({ user_id: regularUser.id })
-            ]
-        }, event);
-
-        const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
-            method: 'PUT',
-            body: { first_name: 'Different' },
-            headers: { 'X-Auth-Token': 'blablabla' }
-        });
-
-        expect(res.statusCode).toEqual(403);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-        expect(res.body).not.toHaveProperty('data');
-    });
-
-    test('should return 403 if the applications deadline has passedd', async () => {
-        mock.mockAll({ mainPermissions: { noPermissions: true } });
-
-        const event = await generator.createEvent({ type: 'agora', applications: [] });
-        const position = await generator.createPosition({
-            starts: moment().add(1, 'week').toDate(),
-            ends: moment().add(2, 'week').toDate(),
-            candidates: [
-                generator.generateCandidate({ user_id: regularUser.id })
+                generator.generateCandidate({ user_id: regularUser.id, status: 'approved' })
             ]
         }, event);
 
