@@ -51,13 +51,15 @@
                 v-if="props.row.status === 'open' && !props.row.myCandidate">
                 Apply!
               </router-link>
+              <span v-if="props.row.status !== 'open' && !props.row.myCandidate">You cannot apply.</span>
+
               <router-link
                 :to="{ name: 'oms.statutory.candidates.edit', params: { id: $route.params.id, position_id: props.row.id, candidate_id: props.row.myCandidate.id } }"
                 class="button is-small is-warning"
-                v-if="props.row.status === 'open' && props.row.myCandidate">
+                v-if="props.row.myCandidate && props.row.myCandidate.status === 'pending'">
                 Edit my application!
               </router-link>
-              <span v-if="props.row.status !== 'open'">You cannot apply.</span>
+              <span v-if="props.row.myCandidate && props.row.myCandidate.status !== 'pending'">You cannot edit your application.</span>
             </b-table-column>
           </template>
         </b-table>
