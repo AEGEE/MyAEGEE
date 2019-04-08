@@ -1,3 +1,12 @@
+## [0.9.3](https://github.com/AEGEE/oms-statutory/compare/0.9.2...0.9.3) (2019-04-08)
+
+
+### Bug Fixes
+
+* **candidates:** do not close position if someone applied after deadline ([edf9d05](https://github.com/AEGEE/oms-statutory/commit/edf9d05))
+
+
+
 ## [0.9.2](https://github.com/AEGEE/oms-statutory/compare/0.9.1...0.9.2) (2019-04-08)
 
 

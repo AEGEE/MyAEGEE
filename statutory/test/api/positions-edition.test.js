@@ -1,11 +1,8 @@
-const moment = require('moment');
-const tk = require('timekeeper');
 
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const { Position } = require('../../models');
 
 describe('Positions edition', () => {
     beforeEach(async () => {
@@ -107,38 +104,5 @@ describe('Positions edition', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('places');
-    });
-
-    test('should close applications if enough applications', async () => {
-        const event = await generator.createEvent({ type: 'agora', applications: [] });
-        const position = await generator.createPosition({
-            starts: moment().subtract(1, 'week').toDate(),
-            ends: moment().add(1, 'week').toDate(),
-            places: 1
-        }, event);
-
-        expect(position.status).toEqual('open');
-
-        await generator.createCandidate({ status: 'approved', user_id: 1 }, position);
-        await generator.createCandidate({ status: 'approved', user_id: 2 }, position);
-
-        tk.travel(moment(event.application_period_starts).add(2, 'week').toDate());
-
-        const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id,
-            method: 'PUT',
-            body: { ends: position.ends },
-            headers: { 'X-Auth-Token': 'blablabla' }
-        });
-
-        tk.reset();
-
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        expect(res.body).toHaveProperty('data');
-        expect(res.body).not.toHaveProperty('errors');
-
-        const positionFromDb = await Position.findByPk(position.id);
-        expect(positionFromDb.status).toEqual('closed');
     });
 });
