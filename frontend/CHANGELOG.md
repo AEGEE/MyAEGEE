@@ -1,3 +1,12 @@
+## [0.10.9](https://github.com/AEGEE/oms-frontend/compare/0.10.8...0.10.9) (2019-04-08)
+
+
+### Bug Fixes
+
+* **statutory:** allowing late editing candidates ([467064a](https://github.com/AEGEE/oms-frontend/commit/467064a))
+
+
+
 ## [0.10.8](https://github.com/AEGEE/oms-frontend/compare/0.10.7...0.10.8) (2019-04-04)
 
 
