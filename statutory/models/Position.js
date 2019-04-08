@@ -1,7 +1,6 @@
 const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
-const Candidate = require('./Candidate');
 
 const Position = sequelize.define('Position', {
     name: {
