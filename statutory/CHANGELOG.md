@@ -1,3 +1,12 @@
+## [0.9.2](https://github.com/AEGEE/oms-statutory/compare/0.9.1...0.9.2) (2019-04-08)
+
+
+### Bug Fixes
+
+* **candidates:** allow editing applications if they are not pending ([fecd560](https://github.com/AEGEE/oms-statutory/commit/fecd560))
+
+
+
 ## [0.9.1](https://github.com/AEGEE/oms-statutory/compare/0.9.0...0.9.1) (2019-03-31)
 
 
