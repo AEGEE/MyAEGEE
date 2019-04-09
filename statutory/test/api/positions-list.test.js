@@ -96,6 +96,7 @@ describe('Positions listing', () => {
         expect(res.body.data[0].id).toEqual(position.id);
         expect(res.body.data[0].candidates.length).toEqual(1);
         expect(res.body.data[0].candidates[0]).toHaveProperty('first_name');
+        expect(res.body.data[0].candidates[0]).not.toHaveProperty('email');
     });
 
     test('should indicate that there is unapproved application on /approved', async () => {

@@ -157,6 +157,7 @@ exports.generateCandidate = (options = {}, position) => {
     if (notSet(options.body_id)) options.body_id = faker.random.number({ min: 1, max: 100 });
     if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
     if (notSet(options.last_name)) options.last_name = faker.lorem.sentence();
+    if (notSet(options.email)) options.email = faker.internet.email();
     if (notSet(options.date_of_birth)) options.date_of_birth = moment(faker.date.past()).format('YYYY-MM-DD');
     if (notSet(options.gender)) options.gender = faker.lorem.sentence();
     if (notSet(options.nationality)) options.nationality = faker.lorem.sentence();

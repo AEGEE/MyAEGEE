@@ -70,10 +70,10 @@ exports.listPositionsWithApprovedCandidates = async (req, res) => {
             .filter(candidate => candidate.status !== 'rejected')
             .map((candidate) => {
                 if (candidate.status === 'approved') {
-                    return candidate.toJSON();
+                    return helpers.blacklistObject(candidate.toJSON(), ['email']); // the email should be visible to JC only
                 }
 
-                return helpers.whitelistObject(candidate, constants.ALLOWED_PENDING_CANDIDATE_FIELDS);
+                return helpers.whitelistObject(candidate.toJSON(), constants.ALLOWED_PENDING_CANDIDATE_FIELDS);
             });
 
         return jsonPosition;

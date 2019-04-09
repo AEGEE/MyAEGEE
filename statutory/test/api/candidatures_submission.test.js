@@ -539,4 +539,54 @@ describe('Candidates submission', () => {
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('agreed_to_privacy_policy');
     });
+
+    test('should fail if email is not set', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate()
+        }, event);
+        const candidate = generator.generateCandidate({
+            body_id: regularUser.bodies[0].id,
+            email: null
+        });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            method: 'POST',
+            body: candidate,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('email');
+    });
+
+    test('should fail if email is invalid', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate()
+        }, event);
+        const candidate = generator.generateCandidate({
+            body_id: regularUser.bodies[0].id,
+            email: 'totally-not-an-email'
+        });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',
+            method: 'POST',
+            body: candidate,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('email');
+    });
 });
