@@ -54,6 +54,14 @@
         </div>
 
         <div class="field">
+          <label class="label">Email</label>
+          <div class="control">
+            <input class="input" type="email" required v-model="candidate.email" />
+          </div>
+          <p class="help is-danger" v-if="errors.email">{{ errors.email.join(', ') }}</p>
+        </div>
+
+        <div class="field">
           <label class="label">Gender</label>
           <div class="control">
             <input class="input" type="text" required v-model="candidate.gender" />
@@ -295,6 +303,7 @@ export default {
       // Prefilling values
       this.candidate.first_name = this.loginUser.first_name
       this.candidate.last_name = this.loginUser.last_name
+      this.candidate.email = this.loginUser.user.email
       this.candidate.gender = this.loginUser.gender
       this.candidate.date_of_birth = this.loginUser.date_of_birth
       this.candidate.member_since = moment(this.loginUser.user.inserted_at).format('YYYY-MM-DD')
