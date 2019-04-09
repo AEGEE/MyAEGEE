@@ -1,3 +1,13 @@
+## [0.9.5](https://github.com/AEGEE/oms-statutory/compare/0.9.4...0.9.5) (2019-04-09)
+
+
+### Bug Fixes
+
+* **statutory:** added missing migration ([58e317f](https://github.com/AEGEE/oms-statutory/commit/58e317f))
+* **statutory:** return created_at for approved candidates on listing ([37d16d4](https://github.com/AEGEE/oms-statutory/commit/37d16d4))
+
+
+
 ## [0.9.4](https://github.com/AEGEE/oms-statutory/compare/0.9.3...0.9.4) (2019-04-09)
 
 
