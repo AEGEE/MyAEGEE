@@ -1,3 +1,18 @@
+## [0.10.10](https://github.com/AEGEE/oms-frontend/compare/0.10.9...0.10.10) (2019-04-09)
+
+
+### Bug Fixes
+
+* **statutory:** added disclaimer for positions listing ([c2f9ea7](https://github.com/AEGEE/oms-frontend/commit/c2f9ea7))
+* **statutory:** added timestamps and email for candidates ([19eea2a](https://github.com/AEGEE/oms-frontend/commit/19eea2a))
+
+
+### Features
+
+* **statutory:** added email for candidates ([837e58c](https://github.com/AEGEE/oms-frontend/commit/837e58c))
+
+
+
 ## [0.10.9](https://github.com/AEGEE/oms-frontend/compare/0.10.8...0.10.9) (2019-04-08)
 
 
