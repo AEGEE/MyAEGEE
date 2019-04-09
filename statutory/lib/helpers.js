@@ -73,6 +73,16 @@ exports.whitelistObject = (object, allowedFields) => {
     return newObject;
 };
 
+// A helper to blacklist object's properties.
+exports.blacklistObject = (object, filteredFields) => {
+    const newObject = Object.assign({}, object);
+    for (const field of filteredFields) {
+        delete newObject[field];
+    }
+
+    return newObject;
+};
+
 // A helper to filter object by another object fields.
 exports.filterObject = (object, targetObject) => {
     for (const field in targetObject) {
