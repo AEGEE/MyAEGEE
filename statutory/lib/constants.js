@@ -92,7 +92,8 @@ module.exports = {
         'status',
         'first_name',
         'last_name',
-        'body_name'
+        'body_name',
+        'created_at'
     ],
     APPLICATION_FIELD_NAMES: {
         id: 'ID',
