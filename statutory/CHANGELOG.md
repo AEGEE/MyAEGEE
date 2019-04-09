@@ -1,3 +1,17 @@
+## [0.9.4](https://github.com/AEGEE/oms-statutory/compare/0.9.3...0.9.4) (2019-04-09)
+
+
+### Bug Fixes
+
+* **statutory:** do not return email for approved candidates ([88c814c](https://github.com/AEGEE/oms-statutory/commit/88c814c))
+
+
+### Features
+
+* **candidates:** added emails to candidates ([69d9e74](https://github.com/AEGEE/oms-statutory/commit/69d9e74))
+
+
+
 ## [0.9.3](https://github.com/AEGEE/oms-statutory/compare/0.9.2...0.9.3) (2019-04-08)
 
 
