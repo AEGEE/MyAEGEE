@@ -72,6 +72,8 @@
           </template>
         </b-table>
 
+        <hr />
+
         <div class="subtitle" v-if="selectedPosition">Applications for selected position</div>
 
         <table class="table is-narrow is-fullwidth" v-if="selectedPosition">
@@ -81,6 +83,8 @@
               <th>First name</th>
               <th>Last name</th>
               <th>Body</th>
+              <th>Applied on</th>
+              <th v-if="prefix === 'all'">Email</th>
               <th>View</th>
               <th v-if="prefix === 'all'">Update status</th>
             </tr>
@@ -91,6 +95,8 @@
               <td>{{ candidate.first_name }}</td>
               <td>{{ candidate.last_name }}</td>
               <td>{{ candidate.body_name }}</td>
+              <td>{{ candidate.created_at | datetimeseconds }}</td>
+              <td v-if="prefix === 'all'">{{ candidate.email }}</td>
               <td>
                 <a
                   v-if="candidate.status === 'approved' || prefix === 'all'"
