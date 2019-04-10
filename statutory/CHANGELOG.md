@@ -1,3 +1,12 @@
+## [0.9.6](https://github.com/AEGEE/oms-statutory/compare/0.9.5...0.9.6) (2019-04-10)
+
+
+### Bug Fixes
+
+* **candidates:** sorting candidates. Fixes MEMB-503 ([d6f134b](https://github.com/AEGEE/oms-statutory/commit/d6f134b))
+
+
+
 ## [0.9.5](https://github.com/AEGEE/oms-statutory/compare/0.9.4...0.9.5) (2019-04-09)
 
 
