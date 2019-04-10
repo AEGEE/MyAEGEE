@@ -18,7 +18,7 @@
           </div>
         </div>
 
-        <b-table :data="positions" :loading="isLoading" :selected.sync="selectedPosition">
+        <b-table :data="positions" :loading="isLoading" :selected.sync="selectedPosition" narrowed>
           <template slot-scope="props">
             <b-table-column field="id" label="#" numeric>
               {{ props.row.id }}
@@ -70,56 +70,80 @@
               <span v-if="props.row.myCandidate && props.row.myCandidate.status !== 'pending'">You cannot edit your application.</span>
             </b-table-column>
           </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
         </b-table>
 
         <hr />
 
         <div class="subtitle" v-if="selectedPosition">Applications for selected position</div>
 
-        <table class="table is-narrow is-fullwidth" v-if="selectedPosition">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>First name</th>
-              <th>Last name</th>
-              <th>Body</th>
-              <th>Applied on</th>
-              <th v-if="prefix === 'all'">Email</th>
-              <th>View</th>
-              <th v-if="prefix === 'all'">Update status</th>
-            </tr>
-          </thead>
-          <thead>
-            <tr v-for="candidate in selectedPosition.candidates" v-bind:key="candidate.id">
-              <td>{{ candidate.id }}</td>
-              <td>{{ candidate.first_name }}</td>
-              <td>{{ candidate.last_name }}</td>
-              <td>{{ candidate.body_name }}</td>
-              <td>{{ candidate.created_at | datetimeseconds }}</td>
-              <td v-if="prefix === 'all'">{{ candidate.email }}</td>
-              <td>
-                <a
-                  v-if="candidate.status === 'approved' || prefix === 'all'"
-                  href="#"
-                  @click.prevent="openViewCandidateModal(candidate, selectedPosition)">
-                  View
-                </a>
-              </td>
-              <td v-if="prefix === 'all'">
-                <div class="select" :class="{ 'is-loading': candidate.isSaving }">
-                  <select v-model="candidate.newStatus" @change="switchCandidateStatus(candidate, selectedPosition)">
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </div>
-              </td>
-            </tr>
-            <tr v-if="selectedPosition.candidates.length === 0">
-              <td colspan="5">No applications yet!</td>
-            </tr>
-          </thead>
-        </table>
+        <b-table :data.sync="selectedPosition.candidates" v-if="selectedPosition" narrowed>
+          <template slot-scope="props">
+            <b-table-column field="id" label="#" numeric>
+              {{ props.row.id }}
+            </b-table-column>
+
+            <b-table-column field="first_name" label="First name">
+              {{ props.row.first_name }}
+            </b-table-column>
+
+            <b-table-column field="last_name" label="Last name">
+              {{ props.row.last_name }}
+            </b-table-column>
+
+            <b-table-column field="body_name" label="Body">
+              {{ props.row.last_name }}
+            </b-table-column>
+
+            <b-table-column field="created_at" label="Applied on">
+              {{ props.row.created_at | datetimeseconds }}
+            </b-table-column>
+
+            <b-table-column field="email" label="Email" :visible="prefix === 'all'">
+              {{ props.row.email }}
+            </b-table-column>
+
+            <b-table-column label="View">
+              <a
+                v-if="props.row.status === 'approved' || prefix === 'all'"
+                href="#"
+                @click.prevent="openViewCandidateModal(props.row, selectedPosition)">
+                View
+              </a>
+            </b-table-column>
+
+            <b-table-column label="Update status" :visible="prefix === 'all'">
+              <div class="select" :class="{ 'is-loading': props.row.isSaving }">
+                <select v-model="props.row.newStatus" @change="switchCandidateStatus(props.row, selectedPosition)">
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <section class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon icon="fa fa-times-circle" size="is-large"></b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+            </section>
+          </template>
+        </b-table>
       </div>
     </div>
   </div>
