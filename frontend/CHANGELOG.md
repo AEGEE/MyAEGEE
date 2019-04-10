@@ -1,3 +1,13 @@
+## [0.10.11](https://github.com/AEGEE/oms-frontend/compare/0.10.10...0.10.11) (2019-04-10)
+
+
+### Bug Fixes
+
+* **statutory:** display more fields in candidate modal ([0760faa](https://github.com/AEGEE/oms-frontend/commit/0760faa))
+* **statutory:** refactored positions listing tables ([96c4b33](https://github.com/AEGEE/oms-frontend/commit/96c4b33))
+
+
+
 ## [0.10.10](https://github.com/AEGEE/oms-frontend/compare/0.10.9...0.10.10) (2019-04-09)
 
 
