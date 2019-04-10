@@ -275,7 +275,7 @@ describe('Positions listing', () => {
         expect(res.body).toHaveProperty('data');
 
         expect(res.body.data.length).toEqual(1);
-        expect(res.body.data[0].candidates.length).toEqual(3)
+        expect(res.body.data[0].candidates.length).toEqual(3);
         expect(res.body.data[0].candidates[0].id).toEqual(firstCandidate.id);
         expect(res.body.data[0].candidates[1].id).toEqual(secondCandidate.id);
         expect(res.body.data[0].candidates[2].id).toEqual(thirdCandidate.id);
@@ -301,7 +301,7 @@ describe('Positions listing', () => {
         expect(res.body).toHaveProperty('data');
 
         expect(res.body.data.length).toEqual(1);
-        expect(res.body.data[0].candidates.length).toEqual(3)
+        expect(res.body.data[0].candidates.length).toEqual(3);
         expect(res.body.data[0].candidates[0].id).toEqual(firstCandidate.id);
         expect(res.body.data[0].candidates[1].id).toEqual(secondCandidate.id);
         expect(res.body.data[0].candidates[2].id).toEqual(thirdCandidate.id);
