@@ -254,4 +254,56 @@ describe('Positions listing', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body).not.toHaveProperty('errorss');
     });
+
+    test('should sort candidates on /all', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({}, event);
+
+        const firstCandidate = await generator.createCandidate({ user_id: 1 }, position);
+        const secondCandidate = await generator.createCandidate({ user_id: 2 }, position);
+        const thirdCandidate = await generator.createCandidate({ user_id: 3 }, position);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/all',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].candidates.length).toEqual(3)
+        expect(res.body.data[0].candidates[0].id).toEqual(firstCandidate.id);
+        expect(res.body.data[0].candidates[1].id).toEqual(secondCandidate.id);
+        expect(res.body.data[0].candidates[2].id).toEqual(thirdCandidate.id);
+    });
+
+    test('should sort candidates on /approved', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({}, event);
+
+        const firstCandidate = await generator.createCandidate({ user_id: 1, status: 'approved' }, position);
+        const secondCandidate = await generator.createCandidate({ user_id: 2, status: 'approved' }, position);
+        const thirdCandidate = await generator.createCandidate({ user_id: 3, status: 'approved' }, position);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/approved',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].candidates.length).toEqual(3)
+        expect(res.body.data[0].candidates[0].id).toEqual(firstCandidate.id);
+        expect(res.body.data[0].candidates[1].id).toEqual(secondCandidate.id);
+        expect(res.body.data[0].candidates[2].id).toEqual(thirdCandidate.id);
+    });
 });
