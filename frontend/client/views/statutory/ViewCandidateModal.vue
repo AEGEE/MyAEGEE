@@ -26,6 +26,14 @@
             <th>Last name</th>
             <td>{{ candidate.last_name }}</td>
           </tr>
+          <tr v-if="candidate.email">
+            <th>Email</th>
+            <td>{{ candidate.email }}</td>
+          </tr>
+          <tr>
+            <th>Applied on</th>
+            <td>{{ candidate.created_at | datetimeseconds }}</td>
+          </tr>
           <tr>
             <th>Body</th>
             <td>{{ candidate.body_name }}</td>
