@@ -55,7 +55,9 @@ export default {
   mounted () {
     if (this.$route.query.token) {
       this.token = this.$route.query.token
-      this.confirmToken()
+
+      // Not doing this automatically, as it can be executed by a mailer robot.
+      // this.confirmToken()
     }
   }
 }

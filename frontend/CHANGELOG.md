@@ -1,3 +1,12 @@
+## [0.10.12](https://github.com/AEGEE/oms-frontend/compare/0.10.11...0.10.12) (2019-04-10)
+
+
+### Bug Fixes
+
+* **core:** disable automatically confirming with token. Fixed MEMB-504 ([2a86cab](https://github.com/AEGEE/oms-frontend/commit/2a86cab))
+
+
+
 ## [0.10.11](https://github.com/AEGEE/oms-frontend/compare/0.10.10...0.10.11) (2019-04-10)
 
 
