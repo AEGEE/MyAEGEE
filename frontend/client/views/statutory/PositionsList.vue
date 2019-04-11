@@ -102,7 +102,7 @@
             </b-table-column>
 
             <b-table-column field="body_name" label="Body">
-              {{ props.row.last_name }}
+              {{ props.row.body_name }}
             </b-table-column>
 
             <b-table-column field="created_at" label="Applied on">

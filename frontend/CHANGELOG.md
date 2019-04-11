@@ -1,3 +1,12 @@
+## [0.10.13](https://github.com/AEGEE/oms-frontend/compare/0.10.12...0.10.13) (2019-04-11)
+
+
+### Bug Fixes
+
+* **statutory:** fixed body name displaying in candidates listing ([d63771d](https://github.com/AEGEE/oms-frontend/commit/d63771d))
+
+
+
 ## [0.10.12](https://github.com/AEGEE/oms-frontend/compare/0.10.11...0.10.12) (2019-04-10)
 
 
