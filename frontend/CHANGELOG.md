@@ -1,3 +1,12 @@
+## [0.10.15](https://github.com/AEGEE/oms-frontend/compare/0.10.14...0.10.15) (2019-04-11)
+
+
+### Bug Fixes
+
+* **core:** display links to join requests profiles. Fixes HELP-429 ([e94d9a0](https://github.com/AEGEE/oms-frontend/commit/e94d9a0))
+
+
+
 ## [0.10.14](https://github.com/AEGEE/oms-frontend/compare/0.10.13...0.10.14) (2019-04-11)
 
 
