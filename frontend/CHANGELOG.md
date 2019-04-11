@@ -1,3 +1,12 @@
+## [0.10.14](https://github.com/AEGEE/oms-frontend/compare/0.10.13...0.10.14) (2019-04-11)
+
+
+### Bug Fixes
+
+* **statutory:** separate empty table stub to a component. Fixes MEMB-504 ([9943050](https://github.com/AEGEE/oms-frontend/commit/9943050))
+
+
+
 ## [0.10.13](https://github.com/AEGEE/oms-frontend/compare/0.10.12...0.10.13) (2019-04-11)
 
 
