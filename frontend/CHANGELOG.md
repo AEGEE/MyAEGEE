@@ -1,3 +1,12 @@
+## [0.10.16](https://github.com/AEGEE/oms-frontend/compare/0.10.15...0.10.16) (2019-04-11)
+
+
+### Bug Fixes
+
+* **statutory:** fixed links displaying for join requests ([d4adddc](https://github.com/AEGEE/oms-frontend/commit/d4adddc))
+
+
+
 ## [0.10.15](https://github.com/AEGEE/oms-frontend/compare/0.10.14...0.10.15) (2019-04-11)
 
 

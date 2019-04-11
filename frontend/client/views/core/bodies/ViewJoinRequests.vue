@@ -20,7 +20,7 @@
         <b-table :data="members" :loading="isLoading" narrowed>
           <template slot-scope="props">
             <b-table-column field="first_name" label="Name and surname" sortable>
-              <router-link v-if="canViewMember(props.row)" :to="{ name: 'oms.members.view', params: { id: props.row.member_id } }">
+              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.member_id } }">
                 {{ props.row.member.first_name }} {{ props.row.member.last_name }}
               </router-link>
             </b-table-column>
@@ -89,10 +89,7 @@ export default {
       offset: 0,
       canLoadMore: true,
       source: null,
-      permissions: [],
-      can: {
-        viewMembers: false
-      }
+      permissions: []
     }
   },
   computed: {
@@ -109,9 +106,6 @@ export default {
     ...mapGetters(['services'])
   },
   methods: {
-    canViewMember (member) {
-      return member.approved || this.can.viewMembers
-    },
     askSetMemberApproved (member, approved) {
       const title = (approved ? 'Approve' : 'Reject') + ' ' + member.member.first_name + ' ' + member.member.last_name
       const message = 'Are you sure you want to <b>' +
@@ -163,7 +157,6 @@ export default {
         return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
       }).then((response) => {
         this.permissions = response.data.data
-        this.can.viewMembers = this.permissions.find(permission => permission.combined.endsWith('global:view:member'))
 
         this.isLoading = false
       }).catch((err) => {
