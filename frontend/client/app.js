@@ -19,6 +19,7 @@ import filters from './filters'
 import Auth from './auth'
 import SelectOrCustom from './components/SelectOrCustom'
 import PasswordToggle from './components/PasswordToggle'
+import EmptyTableStub from './components/EmptyTableStub'
 
 axios.defaults.paramsSerializer = params => qs.stringify(params, {
   arrayFormat: 'brackets',
@@ -43,6 +44,8 @@ Vue.component('multiselect', Multiselect)
 Vue.component('input-tag', InputTag)
 Vue.component('select-or-custom', SelectOrCustom)
 Vue.component('password-toggle', PasswordToggle)
+Vue.component('empty-table-stub', EmptyTableStub)
+
 
 // Enable devtools
 Vue.config.devtools = true
