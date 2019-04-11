@@ -23,9 +23,6 @@
               <router-link v-if="canViewMember(props.row)" :to="{ name: 'oms.members.view', params: { id: props.row.member_id } }">
                 {{ props.row.member.first_name }} {{ props.row.member.last_name }}
               </router-link>
-              <span v-else>
-                {{ props.row.member.first_name }} {{ props.row.member.last_name }}
-              </span>
             </b-table-column>
 
             <b-table-column field="motivation" label="Motivation">
