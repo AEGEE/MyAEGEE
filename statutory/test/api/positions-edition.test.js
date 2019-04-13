@@ -1,3 +1,4 @@
+const moment = require('moment');
 
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
@@ -104,5 +105,30 @@ describe('Positions edition', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('places');
+    });
+
+    test('should remove extra fields', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate() // status = open
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/' + position.id,
+            method: 'PUT',
+            body: {
+                id: position.id + 1,
+                status: 'closed'
+            },
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body.data.id).toEqual(position.id);
+        expect(res.body.data.status).toEqual('open');
     });
 });

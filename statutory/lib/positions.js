@@ -112,6 +112,9 @@ exports.editPosition = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage positions.');
     }
 
+    delete req.body.status;
+    delete req.body.id;
+    delete req.body.event_id;
     await req.position.update(req.body);
 
     return res.json({
