@@ -109,6 +109,7 @@ PositionsRouter.get('/', positions.listAllPositions);
 PositionsRouter.get('/all', positions.listPositionsWithAllCandidates);
 PositionsRouter.get('/approved', positions.listPositionsWithApprovedCandidates);
 PositionsRouter.post('/', positions.createPosition);
+PositionsRouter.put('/:position_id/status', positions.findPosition, positions.updatePositionStatus);
 PositionsRouter.put('/:position_id', positions.findPosition, positions.editPosition);
 PositionsRouter.get('/candidates/mine', candidates.getMyCandidatures);
 
