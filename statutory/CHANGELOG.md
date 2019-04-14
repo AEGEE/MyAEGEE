@@ -1,3 +1,18 @@
+## [0.9.7](https://github.com/AEGEE/oms-statutory/compare/0.9.6...0.9.7) (2019-04-14)
+
+
+### Bug Fixes
+
+* **general:** updated packages, fixed Sequelize vulnerability ([1efe47f](https://github.com/AEGEE/oms-statutory/commit/1efe47f))
+* **position:** removing extra fields on position update ([ac8f912](https://github.com/AEGEE/oms-statutory/commit/ac8f912))
+
+
+### Features
+
+* **position:** allow changing position status. Fixes MEMB-502 ([9734958](https://github.com/AEGEE/oms-statutory/commit/9734958))
+
+
+
 ## [0.9.6](https://github.com/AEGEE/oms-statutory/compare/0.9.5...0.9.6) (2019-04-10)
 
 
