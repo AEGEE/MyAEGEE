@@ -1,8 +1,5 @@
-const moment = require('moment');
-
 const errors = require('./errors');
 const { Candidate, Position } = require('../models');
-const { Sequelize } = require('./sequelize');
 
 const helpers = require('./helpers');
 
@@ -95,21 +92,6 @@ exports.setCandidatureStatus = async (req, res) => {
     }
 
     await req.candidate.update({ status: req.body.status });
-
-    // Checking if we have enough approve candidates and if the deadline has passed.
-    // If so, closing the deadline (can reopen manually later).
-    const candidatesCount = await Candidate.count({
-        where: {
-            position_id: req.position.id,
-            status: { [Sequelize.Op.ne]: 'rejected' }
-        }
-    });
-
-    if (moment().isAfter(req.position.ends)) {
-        await req.position.update({
-            status: candidatesCount > req.position.places ? 'closed' : 'open'
-        }, { hooks: false });
-    }
 
     return res.json({
         success: true,

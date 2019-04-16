@@ -1,3 +1,13 @@
+## [0.9.9](https://github.com/AEGEE/oms-statutory/compare/0.9.8...0.9.9) (2019-04-16)
+
+
+### Bug Fixes
+
+* **candidates:** do not update position on status change. Fixed MEMB-519 ([5362a7d](https://github.com/AEGEE/oms-statutory/commit/5362a7d))
+* **deps:** fixed security vulnerabilities ([f872e73](https://github.com/AEGEE/oms-statutory/commit/f872e73))
+
+
+
 ## [0.9.8](https://github.com/AEGEE/oms-statutory/compare/0.9.7...0.9.8) (2019-04-16)
 
 
