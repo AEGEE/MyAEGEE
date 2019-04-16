@@ -3,6 +3,24 @@ const moment = require('moment');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 
 const Attendance = sequelize.define('attendance', {
+    plenary_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Plenary should be set.' },
+            isInt: { msg: 'Plenary ID should be a number.' }
+        },
+    },
+    application_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Application should be set.' },
+            isInt: { msg: 'Application ID should be a number.' }
+        },
+    },
     starts: {
         type: Sequelize.DATE,
         allowNull: false,

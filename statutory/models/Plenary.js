@@ -4,6 +4,15 @@ const { Sequelize, sequelize } = require('../lib/sequelize');
 const Attendance = require('./Attendance');
 
 const Plenary = sequelize.define('plenary', {
+    event_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Event should be set.' },
+            isInt: { msg: 'Event ID should be a number.' }
+        },
+    },
     name: {
         type: Sequelize.INTEGER,
         defaultValue: '',

@@ -13,6 +13,15 @@ function isValidDate(value) {
 }
 
 const Candidate = sequelize.define('candidate', {
+    position_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Position should be set.' },
+            isInt: { msg: 'Position ID should be a number.' }
+        },
+    },
     user_id: {
         allowNull: false,
         type: Sequelize.INTEGER,

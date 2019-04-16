@@ -10,6 +10,15 @@ function isBoolean(val) {
 }
 
 const Application = sequelize.define('application', {
+    event_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Event should be set.' },
+            isInt: { msg: 'Event ID should be a number.' }
+        },
+    },
     user_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
