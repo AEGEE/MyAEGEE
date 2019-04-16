@@ -45,7 +45,18 @@
             </b-table-column>
 
             <b-table-column field="starts" label="Status" centered>
-              <span class="tag" :class="props.row.status === 'open' ? 'is-primary' : 'is-danger'">{{ props.row.status }}</span>
+              <span
+                class="tag"
+                v-if="prefix !== 'all'"
+                :class="props.row.status === 'open' ? 'is-primary' : 'is-danger'">
+                {{ props.row.status }}
+              </span>
+              <div v-else class="select is-small" :class="{ 'is-loading': props.row.isSaving }">
+                <select v-model="props.row.newStatus" @change="switchPositionStatus(props.row)">
+                  <option value="open">Open</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </div>
             </b-table-column>
 
             <b-table-column label="Edit" centered v-if="can.manage_candidates">
@@ -233,6 +244,19 @@ export default {
         candidate.isSaving = false
         this.$root.showDanger('Could not update candidature status: ' + err.message)
       })
+    },
+    switchPositionStatus (position) {
+      position.isSaving = true
+      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/' + position.id + '/status'
+
+      this.axios.put(url, { status: position.newStatus }).then(() => {
+        position.status = position.newStatus
+        position.isSaving = false
+        this.$root.showSuccess(`Successfully updated status of application for position "${position.name}" to ${position.status}.`)
+      }).catch((err) => {
+        position.isSaving = false
+        this.$root.showDanger('Could not update participant status: ' + err.message)
+      })
     }
   },
   mounted () {
@@ -244,14 +268,17 @@ export default {
 
       return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/' + this.prefix)
     }).then((position) => {
-      this.positions = position.data.data
+      for (const position of position.data.data) {
+        position.isSaving = false
+        position.newStatus = position.status
 
-      for (const position of this.positions) {
         for (const candidate of position.candidates) {
-          this.$set(candidate, 'isSaving', false)
-          this.$set(candidate, 'newStatus', candidate.status)
+          candidate.isSaving = false
+          candidate.newStatus = candidate.status
         }
       }
+
+      this.positions = position.data.data
 
       return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/candidates/mine')
     }).then((myCandidates) => {
