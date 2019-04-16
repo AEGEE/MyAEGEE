@@ -1,12 +1,10 @@
 const moment = require('moment');
-const tk = require('timekeeper');
 
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/oms-core-valid').data;
-const { Position } = require('../../models');
 
 describe('Candidates status', () => {
     beforeEach(async () => {
