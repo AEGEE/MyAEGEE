@@ -3,6 +3,15 @@ const moment = require('moment');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 
 const Position = sequelize.define('Position', {
+    event_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Event should be set.' },
+            isInt: { msg: 'Event ID should be a number.' }
+        },
+    },
     name: {
         type: Sequelize.STRING,
         allowNull: false,

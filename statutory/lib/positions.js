@@ -112,7 +112,26 @@ exports.editPosition = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage positions.');
     }
 
+    delete req.body.status;
+    delete req.body.id;
+    delete req.body.event_id;
     await req.position.update(req.body);
+
+    return res.json({
+        success: true,
+        data: req.position
+    });
+};
+
+
+exports.updatePositionStatus = async (req, res) => {
+    if (!req.permissions.manage_candidates) {
+        return errors.makeForbiddenError(res, 'You cannot manage positions.');
+    }
+
+    if (typeof req.body.status !== 'undefined') {
+        await req.position.update({ status: req.body.status });
+    }
 
     return res.json({
         success: true,

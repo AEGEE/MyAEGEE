@@ -1,8 +1,8 @@
 const models = require('./models');
-const { Sequlize, sequelize, authenticate } = require('./lib/sequelize');
+const { Sequelize, sequelize, authenticate } = require('./lib/sequelize');
 
 global.authenticate = authenticate;
-global.Sequlize = Sequlize;
+global.Sequelize = Sequelize;
 global.sequelize = sequelize;
 
 for (const key in models) {

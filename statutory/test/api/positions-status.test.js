@@ -5,7 +5,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 
-describe('Positions edition', () => {
+describe('Positions status update', () => {
     beforeEach(async () => {
         mock.mockAll();
         await startServer();
@@ -21,12 +21,15 @@ describe('Positions edition', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({ type: 'agora', applications: [] });
-        const position = await generator.createPosition({}, event);
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate() // status = open
+        }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id,
+            uri: '/events/' + event.id + '/positions/' + position.id + '/status',
             method: 'PUT',
-            body: { places: 3 },
+            body: { status: 'closed' },
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -42,9 +45,9 @@ describe('Positions edition', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/1337',
+            uri: '/events/' + event.id + '/positions/1337/status',
             method: 'PUT',
-            body: { places: 3 },
+            body: { status: 'closed' },
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -56,12 +59,11 @@ describe('Positions edition', () => {
 
     test('should fail if positions ID is NaN', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
-        await generator.createPosition({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/NaN',
+            uri: '/events/' + event.id + '/positions/NaN/status',
             method: 'PUT',
-            body: { places: 3 },
+            body: { status: 'closed' },
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -73,12 +75,15 @@ describe('Positions edition', () => {
 
     test('should succeed if everything\'s okay', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
-        const position = await generator.createPosition({}, event);
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate() // status = open
+        }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id,
+            uri: '/events/' + event.id + '/positions/' + position.id + '/status',
             method: 'PUT',
-            body: { places: 3 },
+            body: { status: 'closed' },
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
@@ -86,28 +91,10 @@ describe('Positions edition', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
         expect(res.body).not.toHaveProperty('errors');
-        expect(res.body.data.places).toEqual(3);
+        expect(res.body.data.status).toEqual('closed');
     });
 
-    test('should fail on validation errors', async () => {
-        const event = await generator.createEvent({ type: 'agora', applications: [] });
-        const position = await generator.createPosition({}, event);
-
-        const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id,
-            method: 'PUT',
-            body: { places: false },
-            headers: { 'X-Auth-Token': 'blablabla' }
-        });
-
-        expect(res.statusCode).toEqual(422);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('places');
-    });
-
-    test('should remove extra fields', async () => {
+    test('should not update anything if body is empty', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const position = await generator.createPosition({
             starts: moment().subtract(1, 'week').toDate(),
@@ -115,11 +102,53 @@ describe('Positions edition', () => {
         }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/positions/' + position.id,
+            uri: '/events/' + event.id + '/positions/' + position.id + '/status',
+            method: 'PUT',
+            body: {},
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body.data.status).toEqual('open');
+    });
+
+    test('should fail on validation errors', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate() // status = open
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/' + position.id + '/status',
+            method: 'PUT',
+            body: { status: false },
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('status');
+    });
+
+    test('should not affect extra fields', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = await generator.createPosition({
+            starts: moment().subtract(1, 'week').toDate(),
+            ends: moment().add(1, 'week').toDate(), // status = open
+            places: 1
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/' + position.id + '/status',
             method: 'PUT',
             body: {
-                id: position.id + 1,
-                status: 'closed'
+                places: 5
             },
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -128,7 +157,6 @@ describe('Positions edition', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
         expect(res.body).not.toHaveProperty('errors');
-        expect(res.body.data.id).toEqual(position.id);
-        expect(res.body.data.status).toEqual('open');
+        expect(res.body.data.places).toEqual(1);
     });
 });
