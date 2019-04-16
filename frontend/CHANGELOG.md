@@ -1,3 +1,18 @@
+## [0.10.17](https://github.com/AEGEE/oms-frontend/compare/0.10.16...0.10.17) (2019-04-16)
+
+
+### Bug Fixes
+
+* **statutory:** smaller select on candidate status change ([d01bb73](https://github.com/AEGEE/oms-frontend/commit/d01bb73))
+* **statutory:** wrapping text on candidate modal. Fixes MEMB-518 ([131509d](https://github.com/AEGEE/oms-frontend/commit/131509d))
+
+
+### Features
+
+* **statutory:** changing positions status. Fixes MEMB-502 ([84e2e17](https://github.com/AEGEE/oms-frontend/commit/84e2e17))
+
+
+
 ## [0.10.16](https://github.com/AEGEE/oms-frontend/compare/0.10.15...0.10.16) (2019-04-11)
 
 

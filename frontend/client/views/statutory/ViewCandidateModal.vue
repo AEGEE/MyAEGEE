@@ -16,87 +16,87 @@
         <tbody>
           <tr>
             <th>Position</th>
-            <td>{{ position.name }}</td>
+            <td class="has-text-pre-wrap">{{ position.name }}</td>
           </tr>
           <tr>
             <th>First name</th>
-            <td>{{ candidate.first_name }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.first_name }}</td>
           </tr>
           <tr>
             <th>Last name</th>
-            <td>{{ candidate.last_name }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.last_name }}</td>
           </tr>
           <tr v-if="candidate.email">
             <th>Email</th>
-            <td>{{ candidate.email }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.email }}</td>
           </tr>
           <tr>
             <th>Applied on</th>
-            <td>{{ candidate.created_at | datetimeseconds }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.created_at | datetimeseconds }}</td>
           </tr>
           <tr>
             <th>Body</th>
-            <td>{{ candidate.body_name }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.body_name }}</td>
           </tr>
           <tr>
             <th>Date of birth</th>
-            <td>{{ candidate.date_of_birth }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.date_of_birth }}</td>
           </tr>
           <tr>
             <th>Gender</th>
-            <td>{{ candidate.gender }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.gender }}</td>
           </tr>
           <tr>
             <th>Nationality</th>
-            <td>{{ candidate.nationality }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.nationality }}</td>
           </tr>
           <tr>
             <th>Member since</th>
-            <td>{{ candidate.member_since }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.member_since }}</td>
           </tr>
           <tr>
             <th>Languages</th>
-            <td>{{ candidate.languages.join(', ') }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.languages.join(', ') }}</td>
           </tr>
           <tr>
             <th>Studies</th>
-            <td>{{ candidate.studies }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.studies }}</td>
           </tr>
           <tr>
             <th>European level experience</th>
-            <td>{{ candidate.european_experience }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.european_experience }}</td>
           </tr>
           <tr>
             <th>Local level experience</th>
-            <td>{{ candidate.local_experience }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.local_experience }}</td>
           </tr>
           <tr>
             <th>Attended Agorae</th>
-            <td>{{ candidate.attended_agorae }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.attended_agorae }}</td>
           </tr>
           <tr>
             <th>Attended EPMs</th>
-            <td>{{ candidate.attended_epm }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.attended_epm }}</td>
           </tr>
           <tr>
             <th>Attended AEGEE conferences</th>
-            <td>{{ candidate.attended_conferences }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.attended_conferences }}</td>
           </tr>
           <tr>
             <th>Non-AEGEE experience</th>
-            <td>{{ candidate.external_experience }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.external_experience }}</td>
           </tr>
           <tr>
             <th>Position-related experience</th>
-            <td>{{ candidate.related_experience }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.related_experience }}</td>
           </tr>
           <tr>
             <th>Motivation</th>
-            <td>{{ candidate.motivation }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.motivation }}</td>
           </tr>
           <tr>
             <th>Program</th>
-            <td>{{ candidate.program }}</td>
+            <td class="has-text-pre-wrap">{{ candidate.program }}</td>
           </tr>
         </tbody>
       </table>
