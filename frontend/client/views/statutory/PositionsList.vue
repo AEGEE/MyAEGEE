@@ -127,7 +127,7 @@
             </b-table-column>
 
             <b-table-column label="Update status" :visible="prefix === 'all'">
-              <div class="select" :class="{ 'is-loading': props.row.isSaving }">
+              <div class="select is-small" :class="{ 'is-loading': props.row.isSaving }">
                 <select v-model="props.row.newStatus" @change="switchCandidateStatus(props.row, selectedPosition)">
                   <option value="pending">Pending</option>
                   <option value="approved">Approved</option>
