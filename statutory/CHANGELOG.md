@@ -1,3 +1,14 @@
+## [0.9.8](https://github.com/AEGEE/oms-statutory/compare/0.9.7...0.9.8) (2019-04-16)
+
+
+### Bug Fixes
+
+* **cli:** fixed Sequelize export ([5aa0f5a](https://github.com/AEGEE/oms-statutory/commit/5aa0f5a))
+* **deps:** reverted sequelize to 4.x to pass tests and everything ([b06cd18](https://github.com/AEGEE/oms-statutory/commit/b06cd18))
+* **general:** added application_id and event_id to models when required ([97ca7b9](https://github.com/AEGEE/oms-statutory/commit/97ca7b9))
+
+
+
 ## [0.9.7](https://github.com/AEGEE/oms-statutory/compare/0.9.6...0.9.7) (2019-04-14)
 
 
