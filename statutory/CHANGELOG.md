@@ -1,3 +1,12 @@
+## [0.9.10](https://github.com/AEGEE/oms-statutory/compare/0.9.9...0.9.10) (2019-04-18)
+
+
+### Bug Fixes
+
+* **memberslist:** zero-fee members do not pay fee to AEGEE-Europe ([c8e2621](https://github.com/AEGEE/oms-statutory/commit/c8e2621))
+
+
+
 ## [0.9.9](https://github.com/AEGEE/oms-statutory/compare/0.9.8...0.9.9) (2019-04-16)
 
 
