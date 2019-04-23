@@ -1,3 +1,12 @@
+## [0.9.11](https://github.com/AEGEE/oms-statutory/compare/0.9.10...0.9.11) (2019-04-23)
+
+
+### Bug Fixes
+
+* **attendance:** allow envoys to be marked as attended. Fixes MEMB-491 ([cca873e](https://github.com/AEGEE/oms-statutory/commit/cca873e))
+
+
+
 ## [0.9.10](https://github.com/AEGEE/oms-statutory/compare/0.9.9...0.9.10) (2019-04-18)
 
 
