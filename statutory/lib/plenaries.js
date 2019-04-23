@@ -255,8 +255,9 @@ exports.markPlenaryAttendance = async (req, res) => {
         return errors.makeNotFoundError(res, 'The application is not found.');
     }
 
-    if (application.participant_type !== 'delegate') {
-        return errors.makeForbiddenError(res, 'The applicant is not a delegate.');
+    // Only delegates and envoys (of CAs) are allowed.
+    if (!['delegate', 'envoy'].includes(application.participant_type)) {
+        return errors.makeForbiddenError(res, 'The applicant is not a delegate or envoy.');
     }
 
     // Second, there can be 2 cases:
