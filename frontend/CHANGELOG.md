@@ -1,3 +1,21 @@
+## [0.10.18](https://github.com/AEGEE/oms-frontend/compare/0.10.17...0.10.18) (2019-04-24)
+
+
+### Bug Fixes
+
+* **deps:** fixed security vulnerabilities ([ba78c81](https://github.com/AEGEE/oms-frontend/commit/ba78c81))
+* **general:** add appreciation logos. Fixes MEMB-429 ([47f70a5](https://github.com/AEGEE/oms-frontend/commit/47f70a5))
+* **general:** added internal mailer info to /about page ([9fd472a](https://github.com/AEGEE/oms-frontend/commit/9fd472a))
+* **general:** fix mail confirmations ([e0e3818](https://github.com/AEGEE/oms-frontend/commit/e0e3818))
+* **test:** fix Travis CI node version ([ba6f367](https://github.com/AEGEE/oms-frontend/commit/ba6f367))
+
+
+### Features
+
+* **general:** added appreciation to contributors. Fixes MEMB-515 ([169378b](https://github.com/AEGEE/oms-frontend/commit/169378b))
+
+
+
 ## [0.10.17](https://github.com/AEGEE/oms-frontend/compare/0.10.16...0.10.17) (2019-04-16)
 
 

@@ -40,7 +40,7 @@ export default {
     confirmToken () {
       this.error = ''
 
-      this.axios.post(this.services['oms-core-elixir'] + '/confirm_mail/' + this.token).then((res) => {
+      this.axios.post(this.services['oms-core-elixir'] + '/confirm_mail', { confirmation_url: this.token }).then((res) => {
         this.$root.showSuccess('Your email is verified.')
         return this.$router.push({ name: 'oms.login' })
       }).catch((err) => {
