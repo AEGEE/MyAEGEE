@@ -135,6 +135,11 @@
                 <td><a href="https://github.com/AEGEE/oms-events">oms-events<a></td>
                 <td>Events (not statutory and SU) and their application procedure.</td>
               </tr>
+
+              <tr>
+                <td><a href="https://github.com/AEGEE/oms-mailer">oms-mailer<a></td>
+                <td>Internal mailer (every email sent from our system is going through it).</td>
+              </tr>
             </tbody>
           </table>
 
