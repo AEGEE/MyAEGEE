@@ -80,6 +80,36 @@
             </tbody>
           </table>
 
+          <h2>Services used</h2>
+          <div class="content">
+            <p>We use the following technologies:</p>
+          </div>
+
+          <div class="images-block">
+            <img src="/images/partners-logos/docker.svg" alt="Docker" />
+            <img src="/images/partners-logos/git.png" alt="Git" />
+            <img src="/images/partners-logos/travis.svg" alt="Travis CI" />
+            <img src="/images/partners-logos/codecov.png" alt="Codecov" />
+            <img src="/images/partners-logos/slack.svg" alt="Slack" />
+          </div>
+
+          <div class="content">
+            <p>We also use the following technologies as donations (thank you!). We are in no way associated with the companies, and their logos are used with permission:</p>
+          </div>
+
+          <div class="images-block">
+            <img src="/images/partners-logos/auth0.svg" alt="Auth0" />
+            <img src="/images/partners-logos/1password.png" alt="1password" />
+            <img src="/images/partners-logos/azure.svg" alt="Microsoft Azure" />
+            <img src="/images/partners-logos/o365.svg" alt="Microsoft O365" />
+            <img src="/images/partners-logos/jira-core.svg" alt="Jira" />
+            <img src="/images/partners-logos/github.png" alt="GitHub" />
+            <img src="/images/partners-logos/jira-service-desk.svg" alt="Jira Service Desk" />
+            <img src="/images/partners-logos/bugsnag.png" alt="Bugsnag" />
+            <img src="/images/partners-logos/confluence.png" alt="Confluence" />
+            <img src="/images/partners-logos/gsuite.svg" alt="GSuite" />
+          </div>
+
           <h2>Microservices</h2>
 
           <table class="table is-bordered is-striped is-narrow is-fullwidth">
