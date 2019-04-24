@@ -168,15 +168,41 @@
                 <td><a href="https://github.com/blacksph3re">Nico Westerbeck</td>
                 <td>Maintainer of oms-core module, developed deployment scripts.</td>
               </tr>
-
-              <tr>
-                <td><a href="https://github.com/i3anaan/">Derk Snijders</td>
-                <td>Development of deployment scripts and frontend.</td>
-              </tr>
             </tbody>
           </table>
+
+          <div class="content">
+            <p>Also this website wouldn't exist without these people:</p>
+            <ul>
+              <li><strong>Derk Snijders</strong> - deployment scripts and frontend</li>
+              <li><strong>Flaviu Porutiu</strong> - development of the previous system of the core module</li>
+              <li><strong>Dilyan Palauzov</strong> - helping integrating MyAEGEE with the mail server</li>
+              <li><strong>George Dimitrakopoulos</strong> - helping integrating MyAEGEE with the JC OMS module</li>
+              <li><strong>Philipp von Klitzing</strong> - monitoring improvements and general advices</li>
+              <li><strong>Wim van Ravesteijn</strong> - maintaining the previous systems and helping with setting up domains and DNS</li>
+              <li><strong>Tekla Hajdu</strong> - reporting a lot of bugs and clarifying procedures as a former CD/Chair/NetCom</li>
+              <li><strong>Veva Chmelarova and Timo Haarman</strong> - clarifying procedures and collaboration as Chair Team</li>
+              <li><strong>Giuseppe Aquilino and Lisette Kunst</strong> - clarifying procedures and collaboration as JC member</li>
+              <li><strong>Oksana Prokopchenko and Karolina Lapczyk</strong> - clarifying procedures and collaboration as Netcommies</li>
+              <li><strong>Matis Joab, Evrim Emiroğlu and Alejandra Piot Pérez-Abadín</strong> - clarifying procedures and collaboration as the members of the Comite Directeur</li>
+              <li><strong>Daniele Napolitano</strong> - reporting MyAEGEE issues</li>
+              <li>... and many many other people who also helped us with every aspect of the system.</li>
+            </ul>
+
+            <p>Do you want to join the development team? Are you interested in helping MyAEGEE to become better and better? Contact us here: <a href="https://myaegee.slack.com/" target="_blank">https://myaegee.slack.com/</a> using your @aegee.eu or @aegee.org email. (IT knowledge is not a must, we have a lot of things you can help with.)</p>
+
+            <p>Have you found an issue on MyAEGEE? Do you want to know more about it? Submit a ticket to <a href="https://aegee.org/support" target="_blank">AEGEE's helpdesk</a> and we'll see what we can do.</p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<style>
+.images-block img {
+  height: 80px;
+  padding-right: 40px;
+  padding-bottom: 20px;
+}
+</style>
