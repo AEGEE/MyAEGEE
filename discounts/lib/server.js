@@ -7,11 +7,14 @@ const log = require('./logger');
 const bugsnag = require('./bugsnag');
 const morgan = require('./morgan');
 const middlewares = require('./middlewares');
+const integrations = require('./integrations');
 const db = require('./sequelize');
 
 const server = express();
 server.use(bodyParser.json());
 server.use(morgan);
+
+const GeneralRouter = router({ mergeParams: true });
 
 /* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
@@ -22,6 +25,13 @@ process.on('unhandledRejection', (err) => {
     }
 });
 
+GeneralRouter.use(middlewares.authenticateUser);
+GeneralRouter.get('/integrations', integrations.listAllIntegrations);
+GeneralRouter.post('/integrations', integrations.createIntegration);
+GeneralRouter.put('/integrations/:integration_id', integrations.findIntegration, integrations.updateIntegration);
+GeneralRouter.delete('/integrations/:integration_id', integrations.findIntegration, integrations.deleteIntegration);
+
+server.use('/', GeneralRouter);
 server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);
 
