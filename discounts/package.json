@@ -1,0 +1,30 @@
+{
+  "name": "oms-discounts",
+  "version": "0.0.0",
+  "description": "Discounts module for OMS, for populating codes and for distributing them to AEGEE members.",
+  "main": "lib/run.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Sergey Peshkov <github.com/serge1peshcoff>",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AEGEE/oms-discounts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AEGEE/oms-discounts/issues"
+  },
+  "homepage": "https://github.com/AEGEE/oms-discounts",
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^7.5.2",
+    "@commitlint/config-conventional": "^7.5.0",
+    "husky": "^2.1.0"
+  }
+}
