@@ -1,0 +1,53 @@
+version: '3.2'
+### OMS DISCOUNTS     #######################################
+services:
+    postgres-oms-discounts:
+        image: postgres:10
+        volumes:
+            - postgres:/var/lib/postgresql/data
+        expose:
+            - "5432"
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+    oms-discounts:
+        build:
+            context: ./$PATH_OMS_DISCOUNTS/oms-discounts
+            dockerfile: ./Dockerfile.dev
+        image: aegee/oms-discounts:dev
+        volumes:
+            - oms-discounts-media:/usr/app/media
+            - ./$PATH_OMS_DISCOUNTS/../:/usr/app/src
+            - shared:/usr/app/shared:ro
+        links:
+            - postgres-oms-discounts
+        expose:
+            - "8084"
+        environment:
+            BUGSNAG_KEY: a7dfed96a71033eca7f4469e8f88878b
+        secrets:
+            - mail_user
+            - mail_password
+        labels:
+            - "traefik.backend=oms-discounts"
+            - "traefik.port=8084"
+            - "traefik.frontend.rule=HostRegexp:{domain:[a-z0-9.]+};PathPrefix:/services/oms-discounts/api;PathPrefixStrip:/services/oms-discounts/api"
+            - "traefik.frontend.priority=110"
+            - "traefik.enable=true"
+            - "registry.categories=(discounts, 10);(events, 10);(notifications, 10)"
+            - "registry.servicename=oms-discounts"
+
+
+
+volumes:
+    postgres:
+        driver: "local"
+    oms-discounts-media:
+        driver: "local"
+    shared:
+        driver: "local"
+
+networks:
+  default:
+    external:
+      name: OMS
