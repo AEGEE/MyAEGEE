@@ -24,7 +24,7 @@ services:
         expose:
             - "8084"
         environment:
-            BUGSNAG_KEY: a7dfed96a71033eca7f4469e8f88878b
+            BUGSNAG_KEY: bbef84ab99c91665262f672ba6507a2d
         secrets:
             - mail_user
             - mail_password
