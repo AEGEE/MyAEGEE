@@ -161,37 +161,13 @@ exports.memberslistHasMember = (memberslist, application) => {
     return memberslist.members.some(member => exports.memberMatchApplication(member, application));
 };
 
-// A helper to determine if the string is either 'me' or an integer.
-exports.isIDValid = id => id === constants.CURRENT_USER_PREFIX || !Number.isNaN(Number(id, 10));
 
 // A helpers to determine if the user is member of a body.
 exports.isMemberOf = (user, bodyId) => user.bodies.map(body => body.id).includes(bodyId);
 
-// A helpers to determine if body is a local.
-exports.isLocal = body => ['antenna', 'contact antenna', 'contact'].includes(body.type);
-
-// A helper to get the names for application fields. Useful for exporting for getting columns headers.
-exports.getApplicationFields = (event) => {
-    const fields = Object.assign({}, constants.APPLICATION_FIELD_NAMES);
-    for (let index = 0; index < event.questions.length; index++) {
-        fields['answers.' + index] = `Answer ${index + 1}: ${event.questions[index].description}`;
-    }
-
-    return fields;
-};
-
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
     return permissionsList.some(permission => permission.combined.endsWith(combinedPermission));
-}
-
-// A helper to get bodies list where I have some permission
-// from POST /my_permissions
-function getBodiesListFromPermissions(result) {
-    return result.reduce((acc, val) => acc.concat(val), [])
-        .filter(elt => elt.body_id)
-        .map(elt => elt.body_id)
-        .filter((elt, index, array) => array.indexOf(elt) === index);
 }
 
 exports.getPermissions = (user, corePermissions) => {
@@ -205,112 +181,4 @@ exports.getPermissions = (user, corePermissions) => {
             epm: hasPermission(corePermissions, 'manage_event:epm')
         }
     };
-};
-
-exports.getEventPermissions = ({ permissions, corePermissions, approvePermissions, user, event }) => {
-    // Event-related permissions
-    permissions.edit_event = hasPermission(corePermissions, 'global:manage_event:' + event.type);
-    permissions.change_event_status = hasPermission(corePermissions, 'global:manage_event:' + event.type);
-    permissions.delete_event = hasPermission(corePermissions, 'global:manage_event:' + event.type);
-    permissions.apply = event.can_apply
-        || hasPermission(corePermissions, 'global:manage_applications:' + event.type)
-        || hasPermission(corePermissions, 'global:apply:' + event.type);
-
-    permissions.use_massmailer = hasPermission(corePermissions, 'global:use_massmailer:' + event.type);
-
-    permissions.manage_applications = hasPermission(corePermissions, 'global:manage_applications:' + event.type);
-    permissions.manage_incoming = hasPermission(corePermissions, 'global:manage_incoming:' + event.type);
-    permissions.manage_juridical = hasPermission(corePermissions, 'global:manage_juridical:' + event.type);
-    permissions.see_applications = permissions.manage_applications;
-    permissions.see_applications_juridical = permissions.manage_applications || permissions.manage_juridical;
-    permissions.see_applications_incoming = permissions.manage_applications || permissions.manage_incoming;
-    permissions.see_applications_network = permissions.manage_applications || hasPermission(corePermissions, 'global:update_memberslist_status:' + event.type);
-    permissions.see_participants_list = event.can_see_participants_list || permissions.manage_applications;
-    permissions.export = {
-        openslides: permissions.manage_applications || permissions.manage_incoming,
-        all: permissions.manage_applications,
-        incoming: permissions.manage_applications || permissions.manage_incoming
-    };
-
-    permissions.set_board_comment_and_participant_type = {
-        global: hasPermission(corePermissions, 'global:approve_members:' + event.type)
-    };
-    permissions.see_boardview = {
-        global: hasPermission(corePermissions, 'global:approve_members:' + event.type)
-    };
-    permissions.upload_memberslist = {
-        global: hasPermission(corePermissions, 'global:approve_members:' + event.type)
-    };
-    permissions.see_memberslist = {
-        global: hasPermission(corePermissions, 'global:see_memberslists:' + event.type)
-    };
-
-    permissions.set_memberslists_fee_paid = hasPermission(corePermissions, 'global:set_memberslists_fee_paid:' + event.type);
-
-    permissions.manage_candidates = hasPermission(corePermissions, 'global:manage_candidates:agora');
-
-    permissions.manage_plenaries = hasPermission(corePermissions, 'global:manage_plenaries:agora');
-    permissions.see_plenaries = hasPermission(corePermissions, 'global:see_plenaries:agora') || permissions.manage_plenaries;
-    permissions.mark_attendance = hasPermission(corePermissions, 'global:mark_attendance:agora');
-
-    const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
-    for (const body of user.bodies) {
-        permissions.set_board_comment_and_participant_type[body.id] = event.can_approve_members && approveBodiesList.includes(body.id);
-        permissions.see_boardview[body.id] = approveBodiesList.includes(body.id);
-        permissions.upload_memberslist[body.id] = event.can_approve_members && approveBodiesList.includes(body.id) && exports.isLocal(body);
-        permissions.see_memberslist[body.id] = approveBodiesList.includes(body.id) && exports.isLocal(body);
-    }
-
-    return permissions;
-};
-
-exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine, application }) => {
-    // Apply disregard the application period
-    const canApply = hasPermission(corePermissions, 'apply:' + event.type);
-
-    // Basically do everything with applications.
-    const canManage = hasPermission(corePermissions, 'manage_applications:' + event.type);
-
-    // See pax list and change 'paid_fee' and 'attended' attribute only.
-    const isIncoming = hasPermission(corePermissions, 'manage_incoming:' + event.type);
-
-    // See JC list and change 'registered' and 'departed' attributes only.
-    const isJuridical = hasPermission(corePermissions, 'manage_juridical:' + event.type);
-
-    // Update is_on_memberslist attribute (Network Director).
-    const updateMemberslistStatus = hasPermission(corePermissions, 'update_memberslist_status:' + event.type);
-
-    permissions.see_application = mine || canManage || isIncoming || permissions.see_boardview[application.body_id];
-
-    // User can edit application if it's his application and it's within the deadline, or if he has the permission.
-    permissions.edit_application = (mine && event.can_apply) || canManage || canApply;
-
-    // For cancellation, the same.
-    permissions.set_application_cancelled = (mine && event.can_apply) || canManage;
-
-    // For paid fee and cancelled and others, only if has permissions.
-    permissions.set_application_paid_fee = isIncoming || canManage;
-    permissions.set_application_attended = isIncoming || canManage;
-    permissions.set_application_registered = isJuridical || canManage;
-    permissions.set_application_departed = isJuridical || canManage;
-    permissions.set_application_is_on_memberslist = updateMemberslistStatus || canManage;
-
-    permissions.change_status = canManage;
-
-    return permissions;
-};
-
-exports.getPositionPermissions = ({ permissions, position }) => {
-    permissions.submit_candidature = position.status === 'open' || permissions.manage_candidates;
-
-    return permissions;
-};
-
-exports.getCandidatePermissions = ({ permissions, candidate, user }) => {
-    const mine = candidate.user_id === user.id;
-
-    permissions.edit_candidature = (mine && candidate.status === 'pending') || permissions.manage_candidates;
-    permissions.set_candidature_status = permissions.manage_candidates;
-
-    return permissions;
 };
