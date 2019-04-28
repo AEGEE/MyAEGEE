@@ -1,3 +1,12 @@
+## [0.9.12](https://github.com/AEGEE/oms-statutory/compare/0.9.11...0.9.12) (2019-04-28)
+
+
+### Bug Fixes
+
+* **statutory:** fix fee to AEGEE-Europe calculation. Fixes HELP-511 ([ebcce5e](https://github.com/AEGEE/oms-statutory/commit/ebcce5e))
+
+
+
 ## [0.9.11](https://github.com/AEGEE/oms-statutory/compare/0.9.10...0.9.11) (2019-04-23)
 
 
