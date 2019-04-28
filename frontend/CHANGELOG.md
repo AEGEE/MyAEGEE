@@ -1,3 +1,12 @@
+## [0.10.20](https://github.com/AEGEE/oms-frontend/compare/0.10.19...0.10.20) (2019-04-28)
+
+
+### Bug Fixes
+
+* **general:** renamed OMS - MyAEGEE, part 2 ([a1f7101](https://github.com/AEGEE/oms-frontend/commit/a1f7101))
+
+
+
 ## [0.10.19](https://github.com/AEGEE/oms-frontend/compare/0.10.18...0.10.19) (2019-04-28)
 
 
