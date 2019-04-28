@@ -1,3 +1,12 @@
+## [0.3.1](https://github.com/AEGEE/oms-discounts/compare/0.3.0...0.3.1) (2019-04-28)
+
+
+### Features
+
+* **integration:** add single integration displaying ([bb73032](https://github.com/AEGEE/oms-discounts/commit/bb73032))
+
+
+
 # [0.3.0](https://github.com/AEGEE/oms-discounts/compare/0.2.0...0.3.0) (2019-04-28)
 
 
