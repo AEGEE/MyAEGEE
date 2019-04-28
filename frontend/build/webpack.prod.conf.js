@@ -57,7 +57,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     // you can customize output by editing /index.html
     // see https://github.com/ampedandwired/html-webpack-plugin
     new HtmlWebpackPlugin({
-      title: 'OMS | Online Membership System',
+      title: 'MyAEGEE | Online Membership System',
       filename: config.build.index,
       template: 'index.html',
       inject: true,
