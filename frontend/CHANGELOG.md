@@ -1,3 +1,12 @@
+## [0.10.21](https://github.com/AEGEE/oms-frontend/compare/0.10.20...0.10.21) (2019-04-28)
+
+
+### Bug Fixes
+
+* **statutory:** added SPM as event type ([378b379](https://github.com/AEGEE/oms-frontend/commit/378b379))
+
+
+
 ## [0.10.20](https://github.com/AEGEE/oms-frontend/compare/0.10.19...0.10.20) (2019-04-28)
 
 
