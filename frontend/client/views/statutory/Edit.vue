@@ -195,6 +195,7 @@
               <select v-model="event.type">
                 <option value="agora">Agora</option>
                 <option value="epm">EPM</option>
+                <option value="spm">SPM</option>
               </select>
             </div>
           </div>

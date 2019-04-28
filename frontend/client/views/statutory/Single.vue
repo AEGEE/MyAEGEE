@@ -158,6 +158,7 @@
                   <th>Type</th>
                   <td v-if="event.type === 'agora'">Agora</td>
                   <td v-if="event.type === 'epm'">EPM</td>
+                  <td v-if="event.type === 'spm'">SPM</td>
                 </tr>
                 <tr>
                   <th>Starts</th>
