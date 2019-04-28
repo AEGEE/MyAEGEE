@@ -1,3 +1,12 @@
+## [0.10.19](https://github.com/AEGEE/oms-frontend/compare/0.10.18...0.10.19) (2019-04-28)
+
+
+### Bug Fixes
+
+* **general:** rename: OMS -> MyAEGEE. Fixes MEMB-523 ([e8e1fa7](https://github.com/AEGEE/oms-frontend/commit/e8e1fa7))
+
+
+
 ## [0.10.18](https://github.com/AEGEE/oms-frontend/compare/0.10.17...0.10.18) (2019-04-24)
 
 
