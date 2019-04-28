@@ -79,9 +79,6 @@ describe('API requests', () => {
             }
         });
 
-        console.log(res.body)
-
-
         expect(res.statusCode).toEqual(500);
         expect(res.body.success).toEqual(false);
     });
