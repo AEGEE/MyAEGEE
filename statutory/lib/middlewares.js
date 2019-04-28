@@ -78,7 +78,7 @@ function fetchEvent(includeApplications) {
                 },
                 order: [['starts', 'DESC']]
             };
-        }  else if (req.params.event_id === 'latest-spm') {
+        } else if (req.params.event_id === 'latest-spm') {
             query = {
                 where: {
                     type: 'spm',

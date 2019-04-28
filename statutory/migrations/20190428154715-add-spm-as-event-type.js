@@ -4,26 +4,26 @@ module.exports = {
         await queryInterface.changeColumn(
             'events',
             'type',
-            { type: Sequelize.TEXT },
-        ),
-        await queryInterface.sequelize.query('drop type enum_events_type;')
+            { type: Sequelize.TEXT }
+        );
+        await queryInterface.sequelize.query('drop type enum_events_type;');
         await queryInterface.changeColumn(
             'events',
             'type',
-            { type: Sequelize.ENUM('agora', 'epm', 'spm'), allowNull: false },
+            { type: Sequelize.ENUM('agora', 'epm', 'spm'), allowNull: false }
         );
     },
     down: async (queryInterface, Sequelize) => {
         await queryInterface.changeColumn(
             'events',
             'type',
-            { type: Sequelize.TEXT },
-        ),
-        await queryInterface.sequelize.query('drop type enum_events_type;')
+            { type: Sequelize.TEXT }
+        );
+        await queryInterface.sequelize.query('drop type enum_events_type;');
         await queryInterface.changeColumn(
             'events',
             'type',
-            { type: Sequelize.ENUM('agora', 'epm'), allowNull: false },
+            { type: Sequelize.ENUM('agora', 'epm'), allowNull: false }
         );
     }
 };
