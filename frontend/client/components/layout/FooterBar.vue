@@ -2,12 +2,12 @@
   <footer class="footer">
     <div class="container">
       <div class="content has-text-centered">
-        <p>© 2017-{{ year }} AEGEE - OMS-Frontend version {{ pkg.version }}</p>
+        <p>© 2017-{{ year }} AEGEE - Frontend version {{ pkg.version }}</p>
         <p>Powered by <a href="//oms-project.atlassian.net/wiki/spaces/GENERAL">Online membership system</a></p>
         <p>
           <router-link :to="{ name: 'oms.legal.simple' }">Legal info (simple)</router-link> &bull;
           <!--<router-link :to="{ name: 'oms.legal.full' }">(complex)</router-link> &bull;-->
-          <router-link :to="{ name: 'oms.about' }">About OMS</router-link> &bull;
+          <router-link :to="{ name: 'oms.about' }">About MyAEGEE</router-link> &bull;
           <router-link :to="{ name: 'oms.bug_report' }">Report a bug!</router-link>
         </p>
       </div>
