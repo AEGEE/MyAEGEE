@@ -2,7 +2,7 @@ const { Sequelize, sequelize } = require('../lib/sequelize');
 
 const Code = sequelize.define('code', {
     value: {
-        type:Sequelize.STRING,
+        type: Sequelize.STRING,
         allowNull: false,
         defaultValue: '',
         validate: {
@@ -10,7 +10,7 @@ const Code = sequelize.define('code', {
         },
     },
     integration_id: {
-        type:Sequelize.INTEGER,
+        type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: '',
         validate: {

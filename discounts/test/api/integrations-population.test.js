@@ -42,7 +42,7 @@ describe('Integrations codes population', () => {
             headers: { 'X-Auth-Token': 'blablabla' },
             body: ['first', 'second', 'third']
         });
-    
+
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
