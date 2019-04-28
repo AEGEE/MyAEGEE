@@ -1,5 +1,5 @@
 const { Integration } = require('../models');
-const errors = require('./errors')
+const errors = require('./errors');
 
 exports.createIntegration = async (req, res) => {
     if (!req.permissions.manage_discounts) {
@@ -50,7 +50,7 @@ exports.updateIntegration = async (req, res) => {
     return res.json({
         success: true,
         data: req.integration
-    })
+    });
 };
 
 exports.deleteIntegration = async (req, res) => {
@@ -63,5 +63,5 @@ exports.deleteIntegration = async (req, res) => {
     return res.json({
         success: true,
         data: req.integration
-    })
+    });
 };

@@ -1,6 +1,5 @@
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
-const generator = require('../scripts/generator');
 const mock = require('../scripts/mock-core-registry');
 
 describe('API requests', () => {
