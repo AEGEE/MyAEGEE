@@ -33,8 +33,7 @@ GeneralRouter.post('/integrations/:integration_id/claim', integrations.findInteg
 GeneralRouter.put('/integrations/:integration_id', integrations.findIntegration, integrations.updateIntegration);
 GeneralRouter.delete('/integrations/:integration_id', integrations.findIntegration, integrations.deleteIntegration);
 
-GeneralRouter.post('/codes/mine', integrations.getMyCodes);
-
+GeneralRouter.get('/codes/mine', integrations.getMyCodes);
 
 server.use('/', GeneralRouter);
 server.use(middlewares.notFound);

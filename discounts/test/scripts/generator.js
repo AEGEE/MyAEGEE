@@ -1,7 +1,8 @@
 const faker = require('faker');
 
 const {
-    Integration
+    Integration,
+    Code
 } = require('../../models');
 
 const notSet = field => typeof field === 'undefined';
@@ -15,10 +16,25 @@ exports.generateIntegration = (options = {}) => {
     return options;
 };
 
+exports.generateCode = (options = {}, integration = null) => {
+    if (notSet(options.value)) options.value = faker.random.word();
+
+    if (integration && integration.id) {
+        options.integration_id = integration.id;
+    }
+
+    return options;
+};
+
 exports.createIntegration = (options = {}) => {
-    return Integration.create(exports.generateIntegration(options), { include: [] });
+    return Integration.create(exports.generateIntegration(options));
+};
+
+exports.createCode = (options = {}, integration = null) => {
+    return Code.create(exports.generateCode(options, integration));
 };
 
 exports.clearAll = async () => {
+    await Code.destroy({ where: {}, truncate: { cascade: true } });
     await Integration.destroy({ where: {}, truncate: { cascade: true } });
 };
