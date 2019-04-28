@@ -1,3 +1,12 @@
+## [0.10.1](https://github.com/AEGEE/oms-statutory/compare/0.10.0...0.10.1) (2019-04-28)
+
+
+### Bug Fixes
+
+* **test:** added SPM displaying test ([dec500a](https://github.com/AEGEE/oms-statutory/commit/dec500a))
+
+
+
 # [0.10.0](https://github.com/AEGEE/oms-statutory/compare/0.9.12...0.10.0) (2019-04-28)
 
 
