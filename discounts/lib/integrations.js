@@ -1,5 +1,6 @@
 const { Integration } = require('../models');
 const errors = require('./errors');
+const helpers = require('./helpers');
 
 exports.createIntegration = async (req, res) => {
     if (!req.permissions.manage_discounts) {
@@ -24,7 +25,7 @@ exports.listAllIntegrations = async (req, res) => {
 };
 
 exports.findIntegration = async (req, res, next) => {
-    const isNumber = !Number.isNaN(Number(req.params.integration_id));
+    const isNumber = helpers.isNumber(req.params.integration_id);
 
     const whereClause = isNumber
         ? { id: Number(req.params.integration_id) }

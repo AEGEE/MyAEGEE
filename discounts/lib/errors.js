@@ -19,6 +19,7 @@ exports.makeError = (res, statusCode, err) => {
         return res.status(statusCode).json({
             success: false,
             errors: err.errors.reduce((acc, val) => {
+                // istanbul ignore next
                 if (val.path in acc) {
                     acc[val.path].push(val.message);
                 } else {

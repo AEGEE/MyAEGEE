@@ -10,42 +10,36 @@ exports.authenticateUser = async (req, res, next) => {
         return errors.makeError(res, 401, 'No auth token provided');
     }
 
-    try {
-        // Query the core for user and permissions.
-        const [userBody, permissionsBody] = await Promise.all([
-            core.getMyProfile(req),
-            core.getMyPermissions(req)
-        ]);
+    const [userBody, permissionsBody] = await Promise.all([
+        core.getMyProfile(req),
+        core.getMyPermissions(req)
+    ]);
 
-        if (typeof userBody !== 'object') {
-            throw new Error('Malformed response when fetching user: ' + userBody);
-        }
-
-        // We only check user body here and not in the core helper
-        // because if not authorized, we need to return 401.
-        if (!userBody.success) {
-            // We are not authenticated
-            return errors.makeUnauthorizedError(res, 'Error fetching user: user is not authenticated.');
-        }
-
-        if (typeof permissionsBody !== 'object') {
-            throw new Error('Malformed response when fetching permissions: ' + permissionsBody);
-        }
-
-        // Same store as with user body request.
-        if (!permissionsBody.success) {
-            return errors.makeUnauthorizedError(res, 'Error fetching permissions: user is not authenticated.');
-        }
-
-        req.user = userBody.data;
-        req.corePermissions = permissionsBody.data;
-        req.permissions = helpers.getPermissions(req.user, req.corePermissions);
-        req.user.special = ['Public']; // Everybody is included in 'Public', right?
-
-        return next();
-    } catch (err) {
-        return errors.makeInternalError(res, err);
+    if (typeof userBody !== 'object') {
+        throw new Error('Malformed response when fetching user: ' + userBody);
     }
+
+    // We only check user body here and not in the core helper
+    // because if not authorized, we need to return 401.
+    if (!userBody.success) {
+        // We are not authenticated
+        return errors.makeUnauthorizedError(res, 'Error fetching user: user is not authenticated.');
+    }
+
+    if (typeof permissionsBody !== 'object') {
+        throw new Error('Malformed response when fetching permissions: ' + permissionsBody);
+    }
+
+    // Same store as with user body request.
+    if (!permissionsBody.success) {
+        return errors.makeUnauthorizedError(res, 'Error fetching permissions: user is not authenticated.');
+    }
+
+    req.user = userBody.data;
+    req.corePermissions = permissionsBody.data;
+    req.permissions = helpers.getPermissions(req.user, req.corePermissions);
+
+    return next();
 };
 
 /* eslint-disable no-unused-vars */

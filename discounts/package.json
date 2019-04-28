@@ -9,7 +9,8 @@
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
-    "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit"
+    "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
+    "open-coverage": "opn coverage/lcov-report/index.html"
   },
   "keywords": [],
   "author": "Sergey Peshkov <github.com/serge1peshcoff>",
@@ -52,7 +53,8 @@
     "husky": "^2.1.0",
     "jest": "^24.7.1",
     "nock": "^10.0.6",
-    "nyc": "^14.0.0"
+    "nyc": "^14.0.0",
+    "opn-cli": "^4.1.0"
   },
   "dependencies": {
     "@bugsnag/js": "^6.2.0",

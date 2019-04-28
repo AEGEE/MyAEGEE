@@ -26,13 +26,13 @@ const Integration = sequelize.define('integration', {
         },
     },
     quota_amount: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Integration quota amount should be set.' },
             isInt: { msg: 'Integration quota amount should be valid.' },
-            min: { args: [0], msg: 'Integration quota amount cannot be negative.' }
+            min: { args: [1], msg: 'Integration quota amount cannot be negative or null.' }
         },
     },
     description: {
