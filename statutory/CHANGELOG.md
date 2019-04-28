@@ -1,3 +1,12 @@
+# [0.10.0](https://github.com/AEGEE/oms-statutory/compare/0.9.12...0.10.0) (2019-04-28)
+
+
+### Features
+
+* **statutory:** added SPM as event type ([9769d07](https://github.com/AEGEE/oms-statutory/commit/9769d07))
+
+
+
 ## [0.9.12](https://github.com/AEGEE/oms-statutory/compare/0.9.11...0.9.12) (2019-04-28)
 
 
