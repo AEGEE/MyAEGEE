@@ -1,4 +1,7 @@
-const { Integration } = require('../models');
+const moment = require('moment');
+
+const { Integration, Code } = require('../models');
+const { Sequelize } = require('./sequelize');
 const errors = require('./errors');
 const helpers = require('./helpers');
 
@@ -64,5 +67,90 @@ exports.deleteIntegration = async (req, res) => {
     return res.json({
         success: true,
         data: req.integration
+    });
+};
+
+exports.addCodesToIntegration = async (req, res) => {
+    if (!req.permissions.manage_discounts) {
+        return errors.makeForbiddenError(res, 'You are not allowed to populate codes.');
+    }
+
+    if (!Array.isArray(req.body)) {
+        return errors.makeBadRequestError(res, 'The body should be an array.');
+    }
+
+    if (req.body.length === 0) {
+        return errors.makeBadRequestError(res, 'No codes are provided.');
+    }
+
+    const arrayToCreate = req.body.map(code => ({
+        integration_id: req.integration.id,
+        value: code
+    }));
+
+    await Code.bulkCreate(arrayToCreate);
+
+    return res.json({
+        success: true,
+        message: 'Codes are populated.'
+    });
+};
+
+exports.claimCode = async (req, res) => {
+    // Checking if a user has already claimed more codes than available.
+    const startPeriod = moment().startOf(req.integration.quota_period).toDate();
+    const endPeriod = moment().endOf(req.integration.quota_period).toDate();
+
+    const existingCodes = await Code.count({
+        where: {
+            claimed_by: req.user.id,
+            integration_id: req.integration.id,
+            updated_at: {
+                [Sequelize.Op.gte]: startPeriod,
+                [Sequelize.Op.lte]: endPeriod
+            }
+        }
+    });
+
+    if (existingCodes >= req.integration.quota_amount) {
+        return errors.makeForbiddenError(res, 'Your quota is exceeded for this integration.');
+    }
+
+    // Trying to get a random code from DB.
+    const codeToClaim = await Code.findOne({
+        where: {
+            claimed_by: null,
+            integration_id: req.integration.id
+        }
+    });
+
+    // There can be cases when there are no free codes anymore.
+    if (!codeToClaim) {
+        return errors.makeForbiddenError(res, 'There are no codes left. Wait for CD to add them.');
+    }
+
+    await codeToClaim.update({ claimed_by: req.user.id });
+
+    // TODO: Send mail to user.
+    return res.json({
+        success: true,
+        data: codeToClaim
+    });
+};
+
+exports.getMyCodes = async (req, res) => {
+    const myCodes = await Code.findAll({
+        where: {
+            claimed_by: req.user.id
+        },
+        include: [Integration],
+        order: [
+            ['updated_at', 'DESC'],
+        ]
+    });
+
+    return res.json({
+        success: true,
+        data: myCodes
     });
 };

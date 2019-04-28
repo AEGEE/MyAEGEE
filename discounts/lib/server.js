@@ -28,8 +28,13 @@ process.on('unhandledRejection', (err) => {
 GeneralRouter.use(middlewares.authenticateUser);
 GeneralRouter.get('/integrations', integrations.listAllIntegrations);
 GeneralRouter.post('/integrations', integrations.createIntegration);
+GeneralRouter.post('/integrations/:integration_id/codes', integrations.findIntegration, integrations.addCodesToIntegration);
+GeneralRouter.post('/integrations/:integration_id/claim', integrations.findIntegration, integrations.claimCode);
 GeneralRouter.put('/integrations/:integration_id', integrations.findIntegration, integrations.updateIntegration);
 GeneralRouter.delete('/integrations/:integration_id', integrations.findIntegration, integrations.deleteIntegration);
+
+GeneralRouter.post('/codes/mine', integrations.getMyCodes);
+
 
 server.use('/', GeneralRouter);
 server.use(middlewares.notFound);
