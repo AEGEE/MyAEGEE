@@ -106,7 +106,7 @@
             <img src="/images/partners-logos/github.png" alt="GitHub" />
             <img src="/images/partners-logos/jira-service-desk.svg" alt="Jira Service Desk" />
             <img src="/images/partners-logos/bugsnag.png" alt="Bugsnag" />
-            <img src="/images/partners-logos/confluence.png" alt="Confluence" />
+            <img src="/images/partners-logos/confluence.svg" alt="Confluence" />
             <img src="/images/partners-logos/gsuite.svg" alt="GSuite" />
           </div>
 
