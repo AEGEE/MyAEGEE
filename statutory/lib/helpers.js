@@ -48,7 +48,7 @@ exports.calculateFeeForMember = (member, conversionRate) => {
     // Then calculating fee to AEGEE-Europe using the formula above.
     const feeToAEGEE = feeInEuro <= 30
         ? feeInEuro * 0.125 // 12.5% of fee under 30 EUR
-        : (30 * 0.125) + feeInEuro * 0.05; // 12.5% of 30EUR + 5% fee above 30EUR
+        : (30 * 0.125) + (feeInEuro - 30) * 0.05; // 12.5% of 30EUR + 5% fee above 30EUR
 
     // Minimum EUR amount is 2EUR.
     return Math.max(feeToAEGEE, 2);
