@@ -1,3 +1,22 @@
+## [0.10.22](https://github.com/AEGEE/oms-frontend/compare/0.10.21...0.10.22) (2019-04-28)
+
+
+### Bug Fixes
+
+* **general:** fixed broken Confluence link on /about ([82f353f](https://github.com/AEGEE/oms-frontend/commit/82f353f))
+* **statutory:** allow SPM for pax limits ([c8a38f6](https://github.com/AEGEE/oms-frontend/commit/c8a38f6))
+
+
+
+## [0.10.21](https://github.com/AEGEE/oms-frontend/compare/0.10.20...0.10.21) (2019-04-28)
+
+
+### Bug Fixes
+
+* **statutory:** added SPM as event type ([378b379](https://github.com/AEGEE/oms-frontend/commit/378b379))
+
+
+
 ## [0.10.20](https://github.com/AEGEE/oms-frontend/compare/0.10.19...0.10.20) (2019-04-28)
 
 

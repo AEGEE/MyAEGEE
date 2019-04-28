@@ -99,12 +99,12 @@
           {
             "name": "oms.statutory.create",
             "label": "Create event",
-            "permissions": ["global:manage_event:agora", "global:manage_event:epm"]
+            "permissions": ["global:manage_event:agora", "global:manage_event:epm", "global:manage_event:spm"]
           },
           {
             "name": "oms.statutory.limits",
             "label": "Participants types amount",
-            "permissions": ["global:manage_event:agora", "global:manage_event:epm"]
+            "permissions": ["global:manage_event:agora", "global:manage_event:epm", "global:manage_event:spm"]
           }
         ]
       }

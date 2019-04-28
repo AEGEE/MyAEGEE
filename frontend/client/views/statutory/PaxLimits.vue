@@ -2,9 +2,9 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
-        <h4 class="title">Manage participants limits for Agora</h4>
+        <h4 class="title">Manage participants limits for a statutory event</h4>
 
-        <p>Here you can specify how much envoys, delegates, visitors and observers can go to Agora for every body.</p>
+        <p>Here you can specify how much envoys, delegates, visitors and observers can go to a statutory event for every body.</p>
         <p>When editing, type the empty value for unlimited.</p>
         <p>The limits that were set in a custom way have grey background. Others use the default limits.</p>
         <br />
@@ -16,6 +16,7 @@
               <select v-model="eventType">
                 <option value="agora">Agora</option>
                 <option value="epm">EPM</option>
+                <option value="spm">SPM</option>
               </select>
             </div>
           </div>
