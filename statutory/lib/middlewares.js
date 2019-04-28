@@ -61,7 +61,7 @@ function fetchEvent(includeApplications) {
 
         // If event_id is not an integer, assuming it's the event URL.
         // If it's latest, fetch latest published.
-        // If it's latest-agora or latest-epm, fetch latest Agora or EPM published.
+        // If it's latest-agora, latest-epm or latest-spm, fetch latest Agora or EPM or SPM published.
         if (req.params.event_id === 'latest-agora') {
             query = {
                 where: {
@@ -74,6 +74,14 @@ function fetchEvent(includeApplications) {
             query = {
                 where: {
                     type: 'epm',
+                    status: 'published'
+                },
+                order: [['starts', 'DESC']]
+            };
+        }  else if (req.params.event_id === 'latest-spm') {
+            query = {
+                where: {
+                    type: 'spm',
                     status: 'published'
                 },
                 order: [['starts', 'DESC']]
