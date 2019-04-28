@@ -5,11 +5,11 @@
   "main": "lib/run.js",
   "scripts": {
     "lint": "eslint .",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
-    "db:migrate": "sequelize db:migrate"
+    "db:migrate": "sequelize db:migrate",
+    "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit"
   },
   "keywords": [],
   "author": "Sergey Peshkov <github.com/serge1peshcoff>",
@@ -27,6 +27,18 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
+  "jest": {
+    "testEnvironment": "node",
+    "verbose": true,
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "lib/**/*.js",
+      "models/**/*.js",
+      "!lib/run.js",
+      "!lib/sequelize.js",
+      "!lib/logger.js"
+    ]
+  },
   "devDependencies": {
     "@commitlint/cli": "^7.5.2",
     "@commitlint/config-conventional": "^7.5.0",
@@ -35,7 +47,11 @@
     "eslint-plugin-import": "^2.17.2",
     "eslint-plugin-jsx-a11y": "^6.2.1",
     "eslint-plugin-react": "^7.12.4",
-    "husky": "^2.1.0"
+    "faker": "^4.1.0",
+    "husky": "^2.1.0",
+    "jest": "^24.7.1",
+    "nock": "^10.0.6",
+    "nyc": "^14.0.0"
   },
   "dependencies": {
     "@bugsnag/js": "^6.2.0",
