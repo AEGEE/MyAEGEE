@@ -1,4 +1,21 @@
-# [0.2.0](https://github.com/AEGEE/oms-discounts/compare/v0.1.0...v0.2.0) (2019-04-28)
+# [0.3.0](https://github.com/AEGEE/oms-discounts/compare/0.2.0...0.3.0) (2019-04-28)
+
+
+### Bug Fixes
+
+* **general:** added Codecov package ([fad3cfe](https://github.com/AEGEE/oms-discounts/commit/fad3cfe))
+
+
+### Features
+
+* **code:** add code model ([a7dd4e2](https://github.com/AEGEE/oms-discounts/commit/a7dd4e2))
+* **code:** added code middlewares ([508a460](https://github.com/AEGEE/oms-discounts/commit/508a460))
+* **test:** added tests for everything ([a1e77d5](https://github.com/AEGEE/oms-discounts/commit/a1e77d5))
+* **test:** testing codes claiming and displaying ([bb3b649](https://github.com/AEGEE/oms-discounts/commit/bb3b649))
+
+
+
+# [0.2.0](https://github.com/AEGEE/oms-discounts/compare/v0.1.0...0.2.0) (2019-04-28)
 
 
 ### Features
