@@ -10,7 +10,7 @@
     ]
   },
   {
-    "categoryName": "OMS Core",
+    "categoryName": "Core",
     "components": [
       {
         "name": "oms.members.list",
@@ -45,7 +45,7 @@
     ]
   },
   {
-    "categoryName": "OMS Events",
+    "categoryName": "Events",
     "components": [
       {
         "label": "Events admin",

@@ -72,7 +72,7 @@ module.exports = [
     path: '/bug_report/',
     component: 'static/BugReport',
     meta: {
-      label: 'Report a bug in OMS',
+      label: 'Report a bug in MyAEGEE',
       auth: false,
       showSidebar: false
     }
@@ -660,7 +660,7 @@ module.exports = [
     name: 'oms.about',
     path: '/about',
     meta: {
-      label: 'About OMS',
+      label: 'About MyAEGEE',
       auth: false
     },
     component: 'static/About'
