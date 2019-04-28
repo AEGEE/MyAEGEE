@@ -12,7 +12,8 @@ module.exports = {
         },
         code: {
             type: Sequelize.STRING,
-            allowNull: false
+            allowNull: false,
+            unique: true
         },
         quota_period: {
             type: Sequelize.STRING,

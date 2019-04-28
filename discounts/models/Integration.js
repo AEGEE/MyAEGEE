@@ -16,6 +16,10 @@ const Integration = sequelize.define('integration', {
         validate: {
             notEmpty: { msg: 'Integration code should be set.' },
         },
+        unique: {
+            args: true,
+            msg: 'Integration code is already taken.'
+        }
     },
     quota_period: {
         type: Sequelize.STRING,

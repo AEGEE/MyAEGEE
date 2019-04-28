@@ -127,4 +127,19 @@ describe('Integrations creation', () => {
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('quota_period');
     });
+
+    test('should fail if the code is taken already', async () => {
+        await generator.createIntegration({ code: 'test' });
+        const res = await request({
+            uri: '/integrations',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateIntegration({ code: 'test' })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('code');
+    });
 });
