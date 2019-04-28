@@ -44,6 +44,13 @@ exports.findIntegration = async (req, res, next) => {
     return next();
 };
 
+exports.getIntegration = async (req, res) => {
+    return res.json({
+        success: true,
+        data: req.integration
+    });
+};
+
 exports.updateIntegration = async (req, res) => {
     if (!req.permissions.manage_discounts) {
         return errors.makeForbiddenError(res, 'You are not allowed to update integration.');
