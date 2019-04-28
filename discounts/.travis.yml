@@ -1,0 +1,28 @@
+language: node_js
+node_js:
+  - 'node'
+
+notifications:
+  slack: myaegee:cWvrgZtjxgBpKWIlKW92xuqC
+
+services:
+  - postgresql
+  - docker
+
+env:
+  - NODE_ENV=test
+
+addons:
+  postgresql: "9.6"
+
+before_install:
+  - npm install
+
+install:
+  - cp ./config/index.js.example ./config/index.js
+
+script:
+  - npm audit
+  - npm run lint
+  - npm test
+  - codecov
