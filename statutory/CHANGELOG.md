@@ -1,3 +1,13 @@
+## [0.10.2](https://github.com/AEGEE/oms-statutory/compare/0.10.1...0.10.2) (2019-04-28)
+
+
+### Bug Fixes
+
+* **limits:** added SPM for pax limits ([425eb67](https://github.com/AEGEE/oms-statutory/commit/425eb67))
+* **statutory:** allow SPM for pax limits ([7fef261](https://github.com/AEGEE/oms-statutory/commit/7fef261))
+
+
+
 ## [0.10.1](https://github.com/AEGEE/oms-statutory/compare/0.10.0...0.10.1) (2019-04-28)
 
 
