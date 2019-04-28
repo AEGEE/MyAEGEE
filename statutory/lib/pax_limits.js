@@ -3,8 +3,8 @@ const errors = require('./errors');
 const { PaxLimit } = require('../models');
 
 exports.checkEventType = async (req, res, next) => {
-    if (!['agora', 'epm'].includes(req.params.event_type)) {
-        return errors.makeBadRequestError(res, 'The event type should be one of these: agora, epm.');
+    if (!['agora', 'epm', 'spm'].includes(req.params.event_type)) {
+        return errors.makeBadRequestError(res, 'The event type should be one of these: agora, epm, spm.');
     }
 
     return next();
