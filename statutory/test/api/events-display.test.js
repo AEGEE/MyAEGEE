@@ -158,6 +158,41 @@ describe('Events listing for single', () => {
         expect(res.body.data.id).toEqual(secondEvent.id);
     });
 
+    test('should find latest SPM', async () => {
+        await generator.createEvent({
+            type: 'spm',
+            application_period_starts: moment().subtract(12, 'days'),
+            application_period_ends: moment().subtract(11, 'days'),
+            board_approve_deadline: moment().subtract(10, 'days'),
+            participants_list_publish_deadline: moment().subtract(9, 'days'),
+            starts: moment().subtract(8, 'days'),
+            ends: moment().subtract(7, 'days'),
+            status: 'published'
+        });
+
+        const secondEvent = await generator.createEvent({
+            type: 'spm',
+            application_period_starts: moment().subtract(6, 'days'),
+            application_period_ends: moment().subtract(5, 'days'),
+            board_approve_deadline: moment().subtract(4, 'days'),
+            participants_list_publish_deadline: moment().subtract(3, 'days'),
+            starts: moment().subtract(2, 'days'),
+            ends: moment().subtract(1, 'days'),
+            status: 'published'
+        });
+
+        const res = await request({
+            uri: '/events/latest-spm',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.name).toEqual(secondEvent.name);
+        expect(res.body.data.id).toEqual(secondEvent.id);
+    });
+
     test('should not return not published event on /events/latest', async () => {
         await generator.createEvent({
             application_period_starts: moment().subtract(6, 'days'),

@@ -214,14 +214,14 @@ const Event = sequelize.define('event', {
         }
     },
     type: {
-        type: Sequelize.ENUM('agora', 'epm'),
+        type: Sequelize.ENUM('agora', 'epm', 'spm'),
         allowNull: false,
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Event type should be set.' },
             isIn: {
-                args: [['agora', 'epm']],
-                msg: 'Event type should be one of these: "agora", "epm".'
+                args: [['agora', 'epm', 'spm']],
+                msg: 'Event type should be one of these: "agora", "epm", "spm".'
             }
         }
     },
