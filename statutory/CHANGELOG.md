@@ -1,3 +1,12 @@
+## [0.10.4](https://github.com/AEGEE/oms-statutory/compare/0.10.3...0.10.4) (2019-04-29)
+
+
+### Bug Fixes
+
+* **statutory:** fixed zero delegates displaying in attendance stats ([e03f9b4](https://github.com/AEGEE/oms-statutory/commit/e03f9b4))
+
+
+
 ## [0.10.3](https://github.com/AEGEE/oms-statutory/compare/0.10.2...0.10.3) (2019-04-29)
 
 
