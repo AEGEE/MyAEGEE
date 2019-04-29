@@ -218,7 +218,9 @@ exports.listPlenariesStats = async (req, res) => {
                         });
 
                     // Calculating avg% of the whole body.
-                    const totalAverageAttendance = applicationsAttendances.reduce((acc, val) => acc + val, 0) / applicationsAttendances.length;
+                    // Math.max() is for the cases when there are 0 delegates/envoys
+                    const totalAverageAttendance = applicationsAttendances.reduce((acc, val) => acc + val, 0)
+                        / Math.max(applicationsAttendances.length, 1);
 
                     return [
                         body.id,

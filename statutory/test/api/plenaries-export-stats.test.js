@@ -509,4 +509,37 @@ describe('Plenaries exports', () => {
         const row = bodiesSheetsData.find(r => r[2] === regularUser.bodies[1].name); // Chair Team, not A/CA
         expect(row).toBeFalsy();
     });
+
+    test('should display 0% if 0 delegates/envoys for bodies stats', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/plenaries/stats',
+            method: 'GET',
+            json: false,
+            encoding: null, // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const data = xlsx.parse(res.body);
+        expect(data.length).toEqual(2); // 1 general + 1 bodies
+
+        const bodiesSheets = data[1];
+        const bodiesSheetsData = bodiesSheets.data;
+
+        // finding the row with the body
+        const row = bodiesSheetsData.find(r => r[2] === regularUser.bodies[0].name);
+        expect(row).toBeTruthy();
+
+        expect(row.length).toEqual(6); // body ID, code, name, type, delegates count, avg%, 0 delegates %
+
+        expect(row[0]).toEqual(regularUser.bodies[0].id);
+        expect(row[1]).toEqual(regularUser.bodies[0].legacy_key);
+        expect(row[2]).toEqual(regularUser.bodies[0].name);
+        expect(row[3]).toEqual(regularUser.bodies[0].type);
+        expect(row[4]).toEqual(0); // 3 delegates
+        expect(row[5]).toEqual(0.0.toFixed(2) + '%'); // avg% for all
+    });
 });
