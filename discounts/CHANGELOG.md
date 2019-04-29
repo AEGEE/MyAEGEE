@@ -1,3 +1,13 @@
+## [0.3.2](https://github.com/AEGEE/oms-discounts/compare/0.3.1...0.3.2) (2019-04-29)
+
+
+### Bug Fixes
+
+* **deps:** downgraded Sequelize to 4.x to avoid camelCase ([a7f898b](https://github.com/AEGEE/oms-discounts/commit/a7f898b))
+* **integration:** integration code is unique now ([d2a795c](https://github.com/AEGEE/oms-discounts/commit/d2a795c))
+
+
+
 ## [0.3.1](https://github.com/AEGEE/oms-discounts/compare/0.3.0...0.3.1) (2019-04-28)
 
 
