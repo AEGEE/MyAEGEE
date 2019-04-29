@@ -96,7 +96,7 @@
               </div>
 
               <div class="field is-fullwidth">
-                <label class="label">Number of {{ event.type === 'agora' ? 'Agorae' : 'EPM' }} visited <span class="has-text-danger">*</span></label>
+                <label class="label">Number of {{ eventTypesPlural[event.type] || 'EPM' }} visited <span class="has-text-danger">*</span></label>
                 <div class="control">
                   <input
                     class="input"
@@ -370,6 +370,11 @@ export default {
       event: {
         name: null,
         questions: []
+      },
+      eventTypesPlural: {
+        agora: 'Agorae',
+        epm: 'EPMs',
+        spm: 'SPMs'
       },
       autoComplete: { bodies: { name: '', values: [] } },
       application: {

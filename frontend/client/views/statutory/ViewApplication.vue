@@ -78,7 +78,7 @@
                   <td>{{ application.allergies }}</td>
                 </tr>
                 <tr>
-                  <th>Number of {{ event.type === 'agora' ? 'Agorae' : 'EPM' }} visited</th>
+                  <th>Number of {{ eventTypesPlural[event.type] || 'EPM' }} visited</th>
                   <td>{{ application.number_of_events_visited | beautify }}</td>
                 </tr>
                 <tr>
@@ -265,6 +265,11 @@ export default {
       event: {
         name: null,
         questions: []
+      },
+      eventTypesPlural: {
+        agora: 'Agorae',
+        epm: 'EPMs',
+        spm: 'SPMs'
       },
       application: null,
       can: {
