@@ -1,3 +1,12 @@
+## [0.10.3](https://github.com/AEGEE/oms-statutory/compare/0.10.2...0.10.3) (2019-04-29)
+
+
+### Bug Fixes
+
+* **statutory:** display local attendance. Fixes MEMB-492 ([bae0a00](https://github.com/AEGEE/oms-statutory/commit/bae0a00))
+
+
+
 ## [0.10.2](https://github.com/AEGEE/oms-statutory/compare/0.10.1...0.10.2) (2019-04-28)
 
 
