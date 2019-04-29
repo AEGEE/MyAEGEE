@@ -4,7 +4,7 @@ const xlsx = require('node-xlsx');
 
 const moment = MomentRange.extendMoment(Moment);
 
-
+const core = require('./core');
 const errors = require('./errors');
 const constants = require('./constants');
 const helpers = require('./helpers');
@@ -114,6 +114,7 @@ exports.listPlenariesStats = async (req, res) => {
         ],
         include: [Attendance]
     });
+
     const applications = await Application.findAll({
         where: {
             event_id: req.event.id,
@@ -122,6 +123,8 @@ exports.listPlenariesStats = async (req, res) => {
         order: [['id', 'ASC']],
         attributes: constants.ALLOWED_PLENARY_ATTENDANCE_FIELDS
     });
+
+    const bodies = await core.getBodies(req);
 
     // First sheet with general status with all the info.
     const firstSheet = {
@@ -155,8 +158,7 @@ exports.listPlenariesStats = async (req, res) => {
                         const plenary = plenaries[index];
 
                         // and its total plenary duration in seconds
-                        const plenaryDuration = moment.range(plenary.starts, plenary.ends).diff('seconds', true);
-                        return attendanceLength / plenaryDuration * 100;
+                        return attendanceLength / plenary.duration * 100;
                     });
 
                 // aaaand the average percent
@@ -176,17 +178,69 @@ exports.listPlenariesStats = async (req, res) => {
         ]
     };
 
-    const plenariesSheets = plenaries.map((plenary, index) => {
-        // total plenary duration in seconds
-        const plenaryDuration = moment.range(plenary.starts, plenary.ends).diff('seconds', true);
+    // Second sheet with all the locals and their stats
+    const bodiesSheet = {
+        name: 'Stats (bodies)',
+        data: [
+            // headers
+            [
+                'Body ID',
+                'Body code',
+                'Body name',
+                'Body type',
+                'Amount of delegates/envoys',
+                'Average attendance %',
+                'Delegate/envoy 1 %',
+                'Delegate/envoy 2 %',
+                'Delegate/envoy 3 %',
+            ],
+            // the actual data
+            ...bodies
+                .filter(body => ['antenna', 'contact antenna'].includes(body.type))
+                .map((body) => {
+                    // Getting applications for body.
+                    // TODO: refactor (at some point, this is super ugly).
+                    const applicationsForBody = applications.filter(a => a.body_id === body.id && ['delegate', 'envoy'].includes(a.participant_type));
 
+                    // Calculating avg% of visiting for each local.
+                    const applicationsAttendances = applicationsForBody
+                        .map((application) => {
+                            // Calculate avg% per each plenary per each delegate/envoy,
+                            // then calculating avg% for all of them to display the avg% per local.
+                            return plenaries.map((plenary) => {
+                                const plenaryAttendancesForBody = plenary.attendances.filter(a => a.application_id === application.id);
+
+                                // Return array of avg% per each plenary.
+                                return plenaryAttendancesForBody
+                                    .map(attendance => helpers.calculateTimeForPlenary(plenary, attendance))
+                                    .reduce((acc, val) => acc + val, 0) * 100 / plenary.duration;
+                            }).reduce((acc, val) => acc + val, 0) / plenaries.length;
+                        });
+
+                    // Calculating avg% of the whole body.
+                    const totalAverageAttendance = applicationsAttendances.reduce((acc, val) => acc + val, 0) / applicationsAttendances.length;
+
+                    return [
+                        body.id,
+                        body.legacy_key,
+                        body.name,
+                        body.type,
+                        applicationsForBody.length,
+                        totalAverageAttendance.toFixed(2) + '%',
+                        ...applicationsAttendances.map(attendance => attendance.toFixed(2) + '%')
+                    ];
+                })
+        ]
+    };
+
+    const plenariesSheets = plenaries.map((plenary, index) => {
         return {
             name: `${index + 1} - ${plenary.name}`, // to prevent duplicate sheets when there's 2 plenaries with the same name
             data: [
                 ['Name', plenary.name],
                 ['Starts at', helpers.beautify(plenary.starts)],
                 ['Ends at', helpers.beautify(plenary.ends)],
-                ['Duration in seconds', plenaryDuration.toFixed(2)],
+                ['Duration in seconds', plenary.duration.toFixed(2)],
                 [], // an empty line,
                 // headers
                 [
@@ -210,7 +264,7 @@ exports.listPlenariesStats = async (req, res) => {
                         helpers.beautify(attendance.starts),
                         helpers.beautify(attendance.ends),
                         attendanceDuration.toFixed(2),
-                        (attendanceDuration / plenaryDuration * 100).toFixed(2) + '%'
+                        (attendanceDuration / plenary.duration * 100).toFixed(2) + '%'
                     ];
                 })
             ]
@@ -219,6 +273,7 @@ exports.listPlenariesStats = async (req, res) => {
 
     const resultBuffer = xlsx.build([
         firstSheet,
+        bodiesSheet,
         ...plenariesSheets
     ]);
 
