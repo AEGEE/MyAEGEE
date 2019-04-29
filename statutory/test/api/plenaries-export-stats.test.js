@@ -485,4 +485,28 @@ describe('Plenaries exports', () => {
         expect(row[7]).toEqual(0.0.toFixed(2) + '%'); // avg% for 2st delegate (0%)
         expect(row[8]).toEqual(0.0.toFixed(2) + '%'); // avg% for 3st delegate (0%)
     });
+
+    test('should not display non A/CAs on bodies stats', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/plenaries/stats',
+            method: 'GET',
+            json: false,
+            encoding: null, // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const data = xlsx.parse(res.body);
+        expect(data.length).toEqual(2); // 1 general + 1 bodies
+
+        const bodiesSheets = data[1];
+        const bodiesSheetsData = bodiesSheets.data;
+
+        // finding the row with the body
+        const row = bodiesSheetsData.find(data => data[2] === regularUser.bodies[1].name); // Chair Team, not A/CA
+        expect(row).toBeFalsy();
+    });
 });
