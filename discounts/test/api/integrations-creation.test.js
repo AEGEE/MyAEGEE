@@ -142,4 +142,18 @@ describe('Integrations creation', () => {
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('code');
     });
+
+    test('should fail if the quota period is invalid', async () => {
+        const res = await request({
+            uri: '/integrations',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateIntegration({ quota_period: 'bullshit' })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('quota_period');
+    });
 });

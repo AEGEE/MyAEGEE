@@ -6,7 +6,7 @@ const Integration = sequelize.define('integration', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Integration name should be set.' },
+            notEmpty: { msg: 'Integration name should be set.' }
         },
     },
     code: {
@@ -14,7 +14,7 @@ const Integration = sequelize.define('integration', {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Integration code should be set.' },
+            notEmpty: { msg: 'Integration code should be set.' }
         },
         unique: {
             args: true,
@@ -27,6 +27,10 @@ const Integration = sequelize.define('integration', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Integration quota period should be set.' },
+            isIn: {
+                args: [['day', 'month', 'year']],
+                msg: 'Integration quota period should be one of these: "day", "month", "year".'
+            }
         },
     },
     quota_amount: {
