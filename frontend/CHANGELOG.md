@@ -1,3 +1,12 @@
+## [0.10.23](https://github.com/AEGEE/oms-frontend/compare/0.10.22...0.10.23) (2019-04-29)
+
+
+### Bug Fixes
+
+* **statutory:** fixed Number of SPMs visited. Fixes MEMB-524 ([4e1f50d](https://github.com/AEGEE/oms-frontend/commit/4e1f50d))
+
+
+
 ## [0.10.22](https://github.com/AEGEE/oms-frontend/compare/0.10.21...0.10.22) (2019-04-28)
 
 
