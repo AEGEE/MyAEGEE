@@ -5,6 +5,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
+const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Plenaries exports', () => {
     beforeEach(async () => {
@@ -64,12 +65,12 @@ describe('Plenaries exports', () => {
         expect(res.statusCode).toEqual(200);
 
         const data = xlsx.parse(res.body);
-        expect(data.length).toEqual(4); // 1 general + 3 plenaries
+        expect(data.length).toEqual(5); // 1 general + + 1 bodies + 3 plenaries
 
         expect(data[0].name).toEqual('Stats (general)');
-        expect(data[1].name).toEqual('1 - Test plenary 1');
-        expect(data[2].name).toEqual('2 - Test plenary 2');
-        expect(data[3].name).toEqual('3 - Test plenary 3');
+        expect(data[2].name).toEqual('1 - Test plenary 1');
+        expect(data[3].name).toEqual('2 - Test plenary 2');
+        expect(data[4].name).toEqual('3 - Test plenary 3');
     });
 
     test('should return right plenary details', async () => {
@@ -91,9 +92,9 @@ describe('Plenaries exports', () => {
         expect(res.statusCode).toEqual(200);
 
         const data = xlsx.parse(res.body);
-        expect(data.length).toEqual(2); // 1 general + 1 plenary
+        expect(data.length).toEqual(3); // 1 general + + 1 bodies + 1 plenary
 
-        const plenaryDetailsSheet = data[1];
+        const plenaryDetailsSheet = data[2];
         expect(plenaryDetailsSheet.name).toEqual('1 - Test plenary');
 
         const plenarySheetData = plenaryDetailsSheet.data;
@@ -145,9 +146,9 @@ describe('Plenaries exports', () => {
         expect(res.statusCode).toEqual(200);
 
         const data = xlsx.parse(res.body);
-        expect(data.length).toEqual(2); // 1 general + 1 plenary
+        expect(data.length).toEqual(3); // 1 general + 1 bodies + 1 plenary
 
-        const plenaryDetailsSheet = data[1];
+        const plenaryDetailsSheet = data[2];
         const plenarySheetData = plenaryDetailsSheet.data;
         expect(plenarySheetData.length).toEqual(9); // 4 plenary details, empty line, headers, 3 attendances
 
@@ -195,9 +196,9 @@ describe('Plenaries exports', () => {
         expect(res.statusCode).toEqual(200);
 
         const data = xlsx.parse(res.body);
-        expect(data.length).toEqual(2); // 1 general + 1 plenary
+        expect(data.length).toEqual(3); // 1 general + + 1 bodies + 1 plenary
 
-        const plenaryDetailsSheet = data[1];
+        const plenaryDetailsSheet = data[2];
         const plenarySheetData = plenaryDetailsSheet.data;
         expect(plenarySheetData.length).toEqual(7); // 4 plenary details, empty line, headers, 1 attendance
 
@@ -235,9 +236,9 @@ describe('Plenaries exports', () => {
         expect(res.statusCode).toEqual(200);
 
         const data = xlsx.parse(res.body);
-        expect(data.length).toEqual(2); // 1 general + 1 plenary
+        expect(data.length).toEqual(3); // 1 general + + 1 bodies + 1 plenary
 
-        const plenaryDetailsSheet = data[1];
+        const plenaryDetailsSheet = data[2];
         const plenarySheetData = plenaryDetailsSheet.data;
         expect(plenarySheetData.length).toEqual(7); // 4 plenary details, empty line, headers, 1 attendance
 
@@ -305,7 +306,7 @@ describe('Plenaries exports', () => {
         expect(res.statusCode).toEqual(200);
 
         const data = xlsx.parse(res.body);
-        expect(data.length).toEqual(2); // 1 general + 1 plenary
+        expect(data.length).toEqual(3); // 1 general + + 1 bodies + 1 plenary
 
         const plenaryDetailsSheet = data[0];
         const plenarySheetData = plenaryDetailsSheet.data;
@@ -371,7 +372,7 @@ describe('Plenaries exports', () => {
         expect(res.statusCode).toEqual(200);
 
         const data = xlsx.parse(res.body);
-        expect(data.length).toEqual(4); // 1 general + 3 plenaries
+        expect(data.length).toEqual(5); // 1 general + + 1 bodies + 3 plenaries
 
         const plenaryDetailsSheet = data[0];
         const plenarySheetData = plenaryDetailsSheet.data;
@@ -390,5 +391,122 @@ describe('Plenaries exports', () => {
         expect(firstApplicationSheet[7]).toEqual('100.00%');// second plenary in percents
         expect(firstApplicationSheet[8]).toEqual('0.00%'); // third plenary in percents
         expect(firstApplicationSheet[9]).toEqual('66.67%'); // average
+    });
+
+    test('should calculate the average time for bodies', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const firstPlenary = await generator.createPlenary({
+            name: 'First',
+            starts: moment().add(1, 'week').toDate(),
+            ends: moment().add(1, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+        }, event);
+
+        const secondPlenary = await generator.createPlenary({
+            name: 'Second',
+            starts: moment().add(2, 'week').toDate(),
+            ends: moment().add(2, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+        }, event);
+
+        const thirdPlenary = await generator.createPlenary({
+            name: 'Third',
+            starts: moment().add(2, 'week').toDate(),
+            ends: moment().add(2, 'week').add(1, 'hour').toDate(), // so the plenary is 3600 seconds
+        }, event);
+
+        // 3 applications from body, one attended everything, 2nd and 3rd - nothing
+        const application = await generator.createApplication({
+            participant_type: 'delegate',
+            participant_order: 1,
+            user_id: regularUser.id,
+            body_id: regularUser.bodies[0].id
+        }, event);
+
+        await generator.createApplication({
+            participant_type: 'delegate',
+            participant_order: 2,
+            user_id: 1337,
+            body_id: regularUser.bodies[0].id
+        }, event);
+
+        await generator.createApplication({
+            participant_type: 'delegate',
+            participant_order: 3,
+            user_id: 1338,
+            body_id: regularUser.bodies[0].id
+        }, event);
+
+        // all plenaries are fully attended
+        await generator.createAttendance({
+            application_id: application.id,
+            starts: moment(firstPlenary.starts).subtract(1, 'minute').toDate(),
+            ends: moment(firstPlenary.ends).add(1, 'minute').toDate(),
+        }, firstPlenary);
+
+        await generator.createAttendance({
+            application_id: application.id,
+            starts: moment(secondPlenary.starts).subtract(1, 'minute').toDate(),
+            ends: moment(secondPlenary.ends).add(1, 'minute').toDate(),
+        }, secondPlenary);
+
+        await generator.createAttendance({
+            application_id: application.id,
+            starts: moment(secondPlenary.starts).subtract(1, 'minute').toDate(),
+            ends: moment(secondPlenary.ends).add(1, 'minute').toDate(),
+        }, thirdPlenary);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/plenaries/stats',
+            method: 'GET',
+            json: false,
+            encoding: null, // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const data = xlsx.parse(res.body);
+        expect(data.length).toEqual(5); // 1 general + + 1 bodies + 3 plenaries
+
+        const bodiesSheets = data[1];
+        const bodiesSheetsData = bodiesSheets.data;
+
+        // finding the row with the body
+        const row = bodiesSheetsData.find(r => r[2] === regularUser.bodies[0].name);
+        expect(row).toBeTruthy();
+        expect(row.length).toEqual(9); // body ID, code, name, type, delegates count, avg%, 3 delegates %
+
+        expect(row[0]).toEqual(regularUser.bodies[0].id);
+        expect(row[1]).toEqual(regularUser.bodies[0].legacy_key);
+        expect(row[2]).toEqual(regularUser.bodies[0].name);
+        expect(row[3]).toEqual(regularUser.bodies[0].type);
+        expect(row[4]).toEqual(3); // 3 delegates
+        expect(row[5]).toEqual(33.33.toFixed(2) + '%'); // avg% for all
+        expect(row[6]).toEqual(100.0.toFixed(2) + '%'); // avg% for 1st delegate (100%)
+        expect(row[7]).toEqual(0.0.toFixed(2) + '%'); // avg% for 2st delegate (0%)
+        expect(row[8]).toEqual(0.0.toFixed(2) + '%'); // avg% for 3st delegate (0%)
+    });
+
+    test('should not display non A/CAs on bodies stats', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/plenaries/stats',
+            method: 'GET',
+            json: false,
+            encoding: null, // make response body to Buffer.
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const data = xlsx.parse(res.body);
+        expect(data.length).toEqual(2); // 1 general + 1 bodies
+
+        const bodiesSheets = data[1];
+        const bodiesSheetsData = bodiesSheets.data;
+
+        // finding the row with the body
+        const row = bodiesSheetsData.find(r => r[2] === regularUser.bodies[1].name); // Chair Team, not A/CA
+        expect(row).toBeFalsy();
     });
 });

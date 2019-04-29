@@ -42,7 +42,13 @@ const Plenary = sequelize.define('plenary', {
                 }
             }
         }
-    }
+    },
+    duration: {
+        type: Sequelize.VIRTUAL,
+        get() {
+            return moment.range(this.starts, this.ends).diff('seconds', true);
+        }
+    },
 }, { underscored: true, tableName: 'plenaries' });
 
 Plenary.prototype.closeAttendances = async function closeAttendances() {
