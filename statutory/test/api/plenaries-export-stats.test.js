@@ -471,7 +471,7 @@ describe('Plenaries exports', () => {
         const bodiesSheetsData = bodiesSheets.data;
 
         // finding the row with the body
-        const row = bodiesSheetsData.find(data => data[2] === regularUser.bodies[0].name);
+        const row = bodiesSheetsData.find(r => r[2] === regularUser.bodies[0].name);
         expect(row).toBeTruthy();
         expect(row.length).toEqual(9); // body ID, code, name, type, delegates count, avg%, 3 delegates %
 
@@ -506,7 +506,7 @@ describe('Plenaries exports', () => {
         const bodiesSheetsData = bodiesSheets.data;
 
         // finding the row with the body
-        const row = bodiesSheetsData.find(data => data[2] === regularUser.bodies[1].name); // Chair Team, not A/CA
+        const row = bodiesSheetsData.find(r => r[2] === regularUser.bodies[1].name); // Chair Team, not A/CA
         expect(row).toBeFalsy();
     });
 });
