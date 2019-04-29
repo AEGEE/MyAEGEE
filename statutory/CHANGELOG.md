@@ -1,3 +1,12 @@
+## [0.10.5](https://github.com/AEGEE/oms-statutory/compare/0.10.4...0.10.5) (2019-04-29)
+
+
+### Bug Fixes
+
+* **memberslist:** allow managing memberslist for board till event starts ([ea12ae1](https://github.com/AEGEE/oms-statutory/commit/ea12ae1))
+
+
+
 ## [0.10.4](https://github.com/AEGEE/oms-statutory/compare/0.10.3...0.10.4) (2019-04-29)
 
 

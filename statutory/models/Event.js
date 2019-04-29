@@ -237,6 +237,12 @@ const Event = sequelize.define('event', {
             return moment().isBetween(this.application_period_starts, this.board_approve_deadline, null, '[]'); // inclusive
         }
     },
+    can_manage_memberslists: {
+        type: Sequelize.VIRTUAL,
+        get() {
+            return moment().isBetween(this.application_period_starts, this.starts, null, '[]'); // inclusive
+        }
+    },
     can_see_participants_list: {
         type: Sequelize.VIRTUAL,
         get() {
