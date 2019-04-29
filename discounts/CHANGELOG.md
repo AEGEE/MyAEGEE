@@ -1,3 +1,12 @@
+## [0.3.3](https://github.com/AEGEE/oms-discounts/compare/0.3.2...0.3.3) (2019-04-29)
+
+
+### Bug Fixes
+
+* **integration:** quota_period now can be only day, month or year ([67ee4bb](https://github.com/AEGEE/oms-discounts/commit/67ee4bb))
+
+
+
 ## [0.3.2](https://github.com/AEGEE/oms-discounts/compare/0.3.1...0.3.2) (2019-04-29)
 
 
