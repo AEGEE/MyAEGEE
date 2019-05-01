@@ -1,7 +1,6 @@
 <template>
   <div class='tile is-ancestor discounts'>
     <div class='tile is-parent is-vertical'>
-
       <section v-for="block in discounts" v-bind:key="block.name">
         <div class="title">{{ block.name }}</div>
 
@@ -28,6 +27,11 @@
         </div>
       </section>
 
+      <section>
+        <div class="control">
+          <router-link class="button is-primary" :to="{ name: 'oms.discounts.my_discounts' }">My codes</router-link>
+        </div>
+      </section>
     </div>
   </div>
 </template>

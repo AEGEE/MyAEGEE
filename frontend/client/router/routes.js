@@ -680,5 +680,46 @@ module.exports = [
       label: 'Resources'
     },
     component: 'static/Resources'
+  },
+  /* Discounts distribution */
+  {
+    name: 'oms.discounts.list',
+    path: '/discounts/integrations',
+    component: 'discounts/List',
+    meta: {
+      label: 'View discount integrations'
+    }
+  },
+  {
+    name: 'oms.discounts.my_discounts',
+    path: '/discounts/my',
+    component: 'discounts/MyDiscounts',
+    meta: {
+      label: 'My discounts'
+    }
+  },
+  {
+    name: 'oms.discounts.add_codes',
+    path: '/discounts/integrations/:id/add-codes',
+    component: 'discounts/AddCodes',
+    meta: {
+      label: 'Add codes to integration'
+    }
+  },
+  {
+    name: 'oms.discounts.edit',
+    path: '/discounts/integrations/:id/edit',
+    component: 'discounts/Edit',
+    meta: {
+      label: 'Edit single integration'
+    }
+  },
+  {
+    name: 'oms.discounts.create',
+    path: '/discounts/integrations/new',
+    component: 'discounts/Edit',
+    meta: {
+      label: 'Create a integration'
+    }
   }
 ]
