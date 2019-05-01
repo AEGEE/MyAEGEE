@@ -7,7 +7,7 @@
         <div class="collapse is-fullwidth">
           <div class="discounts-item" v-for="discount in block.children" v-bind:key="discount.title">
             <div class="card collapse-item" :class="{ 'is-active' : discount.expanded }">
-              <header role="tab" aria-expanded="fase" class="card-header touchable" @click="discount.expanded = !discount.expanded">
+              <header role="tab" class="card-header touchable" @click="discount.expanded = !discount.expanded">
                 <div class="card-header-icon">
                   <i class="fa" :class="discount.icon" />
                 </div>
@@ -40,9 +40,8 @@
 .discounts .discounts-item:last-child {
   margin-bottom: 50px;
 }
-.discounts .discounts-item i.fa {
-  margin-right: 10px;
-  width: 20px;
+.discounts .discounts-item .card-header-icon {
+  width: 48px;
   text-align: center;
 }
 .discounts .not-bold {
@@ -79,7 +78,7 @@ export default {
             icon: 'fa-bus',
             title: 'FlixBus',
             shortDescription: 'Bus company | 10% Discount',
-            fullDescription: 'Get your <a href="https://www.aegee.org/flixbus"><b>10% FlixBus discount</b></a> codes. You can get 2 codes per month of 10% discount each.'
+            fullDescription: 'Get your <a href="https://my.aegee.eu/discounts/my"><b>10% FlixBus discount</b></a> codes. You can get 2 codes per month of 10% discount each.'
           },
           {
             expanded: false,
