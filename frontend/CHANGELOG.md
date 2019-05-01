@@ -1,3 +1,13 @@
+## [0.11.1](https://github.com/AEGEE/oms-frontend/compare/0.11.0...0.11.1) (2019-05-01)
+
+
+### Bug Fixes
+
+* **discounts:** fixed Flixbus link at discounts page ([cf9cde5](https://github.com/AEGEE/oms-frontend/commit/cf9cde5))
+* **discounts:** fixed icons styling on discounts page ([44bbf6f](https://github.com/AEGEE/oms-frontend/commit/44bbf6f))
+
+
+
 # [0.11.0](https://github.com/AEGEE/oms-frontend/compare/0.10.23...0.11.0) (2019-05-01)
 
 
