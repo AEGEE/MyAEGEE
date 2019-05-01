@@ -8,6 +8,7 @@ services:
 ### Proxy container #######################################
 
     traefik:
+        restart: unless-stopped
         build:
           context: ./$PATH_OMS_GLOBAL/traefik/
           dockerfile: ./Dockerfile.dev
@@ -27,11 +28,12 @@ services:
           - traefik.enable=true
           - traefik.backend=traefik
           - traefik.port=8080
-          - traefik.frontend.rule=HostRegexp:{domain:traefik.[a-z0-9.]+}
+          - traefik.frontend.rule=Host:${SUBDOMAIN_TRAEFIK}${BASE_URL}
           - traefik.frontend.priority=20
-          - traefik.frontend.auth.basic=admin:$PW_TRAEFIK
+          - traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}
 
     portal:
+        restart: on-failure
         build:
           context: ./$PATH_OMS_GLOBAL/portal/
           dockerfile: ./Dockerfile.dev
@@ -43,7 +45,7 @@ services:
           - traefik.enable=true
           - traefik.backend=portal
           - traefik.port=80
-          - traefik.frontend.rule=HostRegexp:{domain:portal.[a-z0-9.]+}
+          - traefik.frontend.rule=Host:${SUBDOMAIN_PORTAL}${BASE_URL}
           - traefik.frontend.priority=20
 
 ### DB admin (UIs) Containers #######################################
@@ -51,20 +53,21 @@ services:
 ### pgAdmin Container #######################################
 
     pgadmin:
+        restart: on-error
         image: fenglc/pgadmin4:2.0
         restart: on-failure
-        ports:
-            - 10100:5050
+        expose:
+            - 5050
         labels:
           - traefik.enable=true
           - traefik.backend=pgadmin
-          #- traefik.port=5050
-          - traefik.frontend.rule=HostRegexp:{domain:pgadmin.[a-z0-9.]+}
+          - traefik.port=5050
+          - traefik.frontend.rule=Host:${SUBDOMAIN_PGADMIN}${BASE_URL}
           - traefik.frontend.priority=20
-          - traefik.frontend.auth.basic=admin:$PW_PGADMIN
+          - traefik.frontend.auth.basic.users=admin:${PW_PGADMIN_BLOWF}
         environment:
           DEFAULT_USER: admin@aegee.org
-          DEFAULT_PASSWORD: $PW_PGADMIN 
+          DEFAULT_PASSWORD: ${PW_PGADMIN} 
 
 ### mongoui Container #######################################
     # mongoui:
@@ -77,8 +80,9 @@ services:
     #       - traefik.enable=true
     #       - traefik.backend=mongoui
     #       - traefik.port=3000
-    #       - traefik.frontend.rule=HostRegexp:{domain:mongoui.[a-z0-9.]+}
+    #       - traefik.frontend.rule=Host:${SUBDOMAIN_MONGOADMIN}${BASE_URL}
     #       - traefik.frontend.priority=20
+    #       - traefik.frontend.auth.basic.users=admin:${PW_MONGO_BLOWF}
 
 ### additional services Container #######################################
 
@@ -102,7 +106,7 @@ services:
 #           - traefik.enable=true
 #           - traefik.backend=wiki
 #           - traefik.port=80
-#           - traefik.frontend.rule=HostRegexp:{domain:wiki.[a-z0-9.]+}
+#           - traefik.frontend.rule=Host:${SUBDOMAIN_WIKI}${BASE_URL}
 #           - traefik.frontend.priority=20
 
 #     survey:
@@ -112,9 +116,9 @@ services:
 #         #volumes:
 #          # - /var/www/html/images
 #             # After initial setup, download LocalSettings.php to the same directory as
-#             #       # this yaml and uncomment the following line and use compose to restart
-#             #             # the mediawiki service
-#             #                   # - ./LocalSettings.php:/var/www/html/LocalSettings.php
+#             # this yaml and uncomment the following line and use compose to restart
+#             # the mediawiki service
+#          # - ./LocalSettings.php:/var/www/html/LocalSettings.php
 # #        networks:
 # #          - management
 #         volumes:
@@ -123,7 +127,7 @@ services:
 #           - traefik.enable=true
 #           - traefik.backend=survey
 #           - traefik.port=80
-#           - traefik.frontend.rule=HostRegexp:{domain:survey.[a-z0-9.]+}
+#           - traefik.frontend.rule=Host:${SUBDOMAIN_SURVEY}${BASE_URL}
 #           - traefik.frontend.priority=20
 #
 

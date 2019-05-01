@@ -1,4 +1,4 @@
-  
+
 default:  
 	echo 'Most common options are bootstrap, start, monitor, live_refresh, restart, nuke_dev, clean (cleans untagged/unnamed images)'
 
@@ -13,20 +13,20 @@ build: #docker-compose build
 
 start: #docker-compose up -d
 	./helper.sh --start
-  
+
 bootstrap: init build start
 
 monitor: #by default it logs everything, to log some containers only, use the script by hand
 	./helper.sh --monitor
 
 refresh:  build
-  
+
 live_refresh:  # docker-compose up -d --build (CD TARGET)
 	./helper.sh --refresh
-  
+
 # stop: # docker-compose stop
 # 	./helper.sh --stop
-  
+
 # down: # docker-compose down
 # 	./helper.sh --down
 
@@ -37,7 +37,7 @@ hard_restart: nuke_dev restart
 
 nuke_dev:   #docker-compose down -v #TODO if needed: make this nuke take into account the .env like in deploy
 	./helper.sh --nuke
-  
+
 clean_docker_dangling_images:
 	docker rmi $(docker images -qf "dangling=true")
 

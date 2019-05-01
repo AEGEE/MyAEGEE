@@ -2,6 +2,8 @@
 .env
 *.log
 *.swp
+current-config.yml
+would-be-config.yml
 
 secrets/*
 

@@ -9,9 +9,10 @@ services:
   #to get the password (hashed): (also remember to escape $ with anotehr $)
   # docker run --rm httpd:2.4-alpine htpasswd -nbB admin 5ecr3t | cut -d ":" -f 2
   portainer:
+    restart: no
     image: portainer/portainer:1.15.5
-      #image: portainer/portainer:1.19.2
-    command: -H unix:///var/run/docker.sock --logo $AEGEE_LOGO_B64  --admin-password $PW_PORTAINER
+    #image: portainer/portainer:1.19.2
+    command: -H unix:///var/run/docker.sock --admin-password $PW_PORTAINER --logo $AEGEE_LOGO_B64
     restart: on-failure
     expose:
       - 9000
@@ -21,7 +22,7 @@ services:
       - traefik.enable=true
       - traefik.backend=portainer
       - traefik.port=9000
-      - traefik.frontend.rule=HostRegexp:{domain:portainer.[a-z0-9.]+}
+      - traefik.frontend.rule=Host:${SUBDOMAIN_PORTAINER}${BASE_URL}
       - traefik.frontend.priority=20
 
   # drone-server:
@@ -42,7 +43,7 @@ services:
   #     - traefik.enable=true
   #     - traefik.backend=drone-server
   #     - traefik.port=8000
-  #     - traefik.frontend.rule=HostRegexp:{domain:drone.[a-z0-9.]+}
+  #     - traefik.frontend.rule=Host:${SUBDOMAIN_DRONE}${BASE_URL}
   #     - traefik.frontend.priority=10
   # 
   # drone-agent:
@@ -64,11 +65,12 @@ secrets:
         file: secrets/jwt_key
     sendgrid_key:
         file: secrets/sendgrid_key
-    https_cert:
-        file: secrets/cert.pem
-    https_key:
-        file: secrets/key.pem
     mail_user:
         file: secrets/sendgrid_key
     mail_password:
         file: secrets/sendgrid_key
+
+networks:
+  default:
+    external:
+      name: OMS

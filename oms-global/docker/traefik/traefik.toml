@@ -96,7 +96,7 @@ endpoint = "unix:///var/run/docker.sock"
 #
 # Required
 #
-domain = "appserver"
+domain = "aegee.eu"
 
 
 # Enable watch docker changes

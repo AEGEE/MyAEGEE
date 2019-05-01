@@ -17,7 +17,7 @@ bump_repo ()
     git diff --cached --quiet 
     if (( "$?" )); then 
         git checkout -b "bump-submodules-$(date '+%d-%m')-$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 4)"
-        git commit -m "(bump) Bump version of the submodules via make bump"
+        git commit -m "bump: Bump version of the submodules via make bump"
     fi
 }
 
@@ -126,6 +126,8 @@ restart=false;
 nuke=false;
 bump=false;
 execute=false;
+debug=false;
+verbose=true; #TODO put me to false default
 command_num=0;
 declare -a arguments # = EMPTY ARRAY
 if [[ "$#" -ge 1 ]]; then
@@ -143,6 +145,7 @@ if [[ "$#" -ge 1 ]]; then
             --nuke) nuke=true; ((command_num++)); shift ;;
             --bump) bump=true; ((command_num++)); shift ;;
             --execute) execute=true; ((command_num++)); shift ;;
+            --debug) debug=true; ((command_num++)); shift ;;
             
             -v) verbose=true; shift ;;
 
@@ -169,17 +172,17 @@ if ( $init ); then
 fi
 
 if ( $build ); then
-    compose_wrapper build
+    compose_wrapper config > current-config.yml && compose_wrapper build
     exit $?
 fi
 
 if ( $start ); then
-    compose_wrapper up -d
+    compose_wrapper config > current-config.yml && compose_wrapper up -d
     exit $?
 fi
 
 if ( $refresh ); then #THIS IS AN UPGRADING, i.e. CD pipeline target
-    compose_wrapper up -d --build
+    compose_wrapper config > current-config.yml && compose_wrapper up -d --build
     exit $?
 fi
 
@@ -193,43 +196,48 @@ if ( $execute ); then
     exit $?
 fi
 
+if ( $debug ); then
+    compose_wrapper config | tee would-be-config.yml
+    exit $?
+fi
+
 if ( $stop ); then 
-    if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
-       compose_wrapper stop $arguments #TODO: improve robustness. if there is rubbish it is still not empty
-       exit $?
-    fi
-    echo "'Stop' must only be used with a container name"
-    exit 0
+  if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
+    compose_wrapper stop $arguments #TODO: improve robustness. if there is rubbish it is still not empty
+    exit $?
+  fi
+  echo "'Stop' must only be used with a container name"
+  exit 0
 fi
 
 if ( $down ); then 
-    if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
-        compose_wrapper down $arguments #TODO: improve robustness. if there is rubbish it is still not empty
-        exit $?
-    fi
-    echo "'Down' must only be used with a container name"
-    exit 0
+  if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
+    compose_wrapper down $arguments #TODO: improve robustness. if there is rubbish it is still not empty
+    exit $?
+  fi
+  echo "'Down' must only be used with a container name"
+  exit 0
 fi
 
 if ( $restart ); then 
-    if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
-        compose_wrapper restart $arguments #TODO: improve robustness. if there is rubbish it is still not empty
-        exit $?
-    fi
-    echo "'Restart' must only be used with a container name"
-    exit 0
+  if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
+    compose_wrapper restart $arguments #TODO: improve robustness. if there is rubbish it is still not empty
+    exit $?
+  fi
+  echo "'Restart' must only be used with a container name"
+  exit 0
 fi
 
 if ( $nuke ); then
-    if [[ "$(hostname)" == *prod* ]]; then
-        echo "DUUUDE you can't kill production" && exit 1; 
-    else if [[ "$(hostname)" == *staging* ]]; then
-           echo "DUUUDE you better do this manually, no script" && exit 2; 
-         else
-           compose_wrapper down -v
-           exit $?
-         fi
-    fi 
+  if [[ "$(hostname)" == *prod* ]]; then
+    echo "DUUUDE you can't kill production" && exit 1; 
+  else if [[ "$(hostname)" == *OMS2* ]]; then
+      echo "DUUUDE you better do this manually, no script" && exit 2; 
+    else
+      compose_wrapper down -v
+      exit $?
+    fi
+  fi 
 fi
 
 if ( $bump ); then
