@@ -1,3 +1,17 @@
+# [0.11.0](https://github.com/AEGEE/oms-frontend/compare/0.10.23...0.11.0) (2019-05-01)
+
+
+### Bug Fixes
+
+* **deps:** updated node-sass to 4.12.0 ([e3a4df3](https://github.com/AEGEE/oms-frontend/commit/e3a4df3))
+
+
+### Features
+
+* **discounts:** added discounts things. Fixes MEMB-521 ([e171d97](https://github.com/AEGEE/oms-frontend/commit/e171d97))
+
+
+
 ## [0.10.23](https://github.com/AEGEE/oms-frontend/compare/0.10.22...0.10.23) (2019-04-29)
 
 
