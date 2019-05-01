@@ -79,7 +79,7 @@ export default {
             icon: 'fa-bus',
             title: 'FlixBus',
             shortDescription: 'Bus company | 10% Discount',
-            fullDescription: 'Get your <a href="https://www.aegee.org/flixbus"><b>10% FlixBus discount</b></a> codes. You can get 2 codes per month of 10% discount each.'
+            fullDescription: 'Get your <a href="https://my.aegee.eu/discounts/my"><b>10% FlixBus discount</b></a> codes. You can get 2 codes per month of 10% discount each.'
           },
           {
             expanded: false,
