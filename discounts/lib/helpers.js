@@ -18,17 +18,17 @@ exports.isNumber = (value) => {
 };
 
 exports.getMailText = ({ code, integration, user}) => {
-    return `Hey ${user.first_name},
-
-You've claimed the code for the discount, here are the details.
-
-Partner: ${integration.name}
-Code: ${code.value}
-Claimed on: ${moment(code.created_at).format('YYYY-MM-DD HH:MM')}
-
-${integration.description}
-
-Sincerely yours,
+    return `Hey ${user.first_name},<br/>
+    <br/>
+You've claimed the code for the discount, here are the details.<br/>
+<br/>
+Partner: ${integration.name}<br/>
+Code: ${code.value}<br/>
+Claimed on: ${moment(code.created_at).format('YYYY-MM-DD HH:MM')}<br/>
+<br/>
+${integration.description}<br/>
+<br/>
+Sincerely yours,<br/>
 MyAEGEE discounts team.`
 };
 
