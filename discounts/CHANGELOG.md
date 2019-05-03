@@ -1,3 +1,12 @@
+## [0.4.2](https://github.com/AEGEE/oms-discounts/compare/0.4.1...0.4.2) (2019-05-03)
+
+
+### Bug Fixes
+
+* **codes:** fix claimed date ([a060bdf](https://github.com/AEGEE/oms-discounts/commit/a060bdf))
+
+
+
 ## [0.4.1](https://github.com/AEGEE/oms-discounts/compare/0.4.0...0.4.1) (2019-05-03)
 
 
