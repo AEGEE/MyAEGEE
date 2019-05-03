@@ -1,3 +1,13 @@
+# [0.4.0](https://github.com/AEGEE/oms-discounts/compare/0.3.3...0.4.0) (2019-05-03)
+
+
+### Features
+
+* **codes:** mailing code to a member on claiming. Fixed MEMB-528 ([147ad23](https://github.com/AEGEE/oms-discounts/commit/147ad23))
+* **test:** tests refactor ([3e665ef](https://github.com/AEGEE/oms-discounts/commit/3e665ef))
+
+
+
 ## [0.3.3](https://github.com/AEGEE/oms-discounts/compare/0.3.2...0.3.3) (2019-04-29)
 
 
