@@ -82,13 +82,44 @@ exports.mockCoreMainPermissions = (options) => {
         .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-full.json'));
 };
 
+exports.mockCoreMailer = (options) => {
+    if (options.netError) {
+        return nock(`${config.mailer.url}:${config.mailer.port}`)
+            .persist()
+            .post('/')
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock(`${config.mailer.url}:${config.mailer.port}`)
+            .persist()
+            .post('/')
+            .reply(500, 'Some error happened.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock(`${config.mailer.url}:${config.mailer.port}`)
+            .persist()
+            .post('/')
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
+    return nock(`${config.mailer.url}:${config.mailer.port}`)
+        .persist()
+        .post('/')
+        .reply(200, { success: true });
+};
+
+
 exports.mockAll = (options = {}) => {
     nock.cleanAll();
     const omsCoreStub = exports.mockCore(options.core || {});
     const omsMainPermissionsStub = exports.mockCoreMainPermissions(options.mainPermissions || {});
+    const omsMailerStub = exports.mockCoreMailer(options.mailer || {});
 
     return {
         omsCoreStub,
-        omsMainPermissionsStub
+        omsMainPermissionsStub,
+        omsMailerStub
     };
 };

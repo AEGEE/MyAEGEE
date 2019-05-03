@@ -1,6 +1,6 @@
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
-const mock = require('../scripts/mock-core-registry');
+const mock = require('../scripts/mock');
 const generator = require('../scripts/generator');
 
 describe('Integrations displaying', () => {
