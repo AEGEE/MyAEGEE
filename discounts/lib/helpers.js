@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 // Figure out if the value is a number or a string containing only numbers
 exports.isNumber = (value) => {
     /* istanbul ignore next */
@@ -13,6 +15,21 @@ exports.isNumber = (value) => {
 
     /* istanbul ignore next */
     return false;
+};
+
+exports.getMailText = ({ code, integration, user}) => {
+    return `Hey ${user.first_name},
+
+You've claimed the code for the discount, here are the details.
+
+Partner: ${integration.name}
+Code: ${code.value}
+Claimed on: ${moment(code.created_at).format('YYYY-MM-DD HH:MM')}
+
+${integration.description}
+
+Sincerely yours,
+MyAEGEE discounts team.`
 };
 
 // A helper to determine if user has permission.

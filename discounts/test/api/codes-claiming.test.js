@@ -98,4 +98,70 @@ describe('Codes claiming', () => {
         const codeFromDb = await Code.findByPk(code.id);
         expect(codeFromDb.claimed_by).toEqual(user.id);
     });
+
+    test('should return 500 if mailer returns net error', async () => {
+        mock.mockAll({ mailer: { netError: true } });
+        const integration = await generator.createIntegration({
+            quota_period: 'month',
+            quota_amount: 1
+        });
+
+        // 1 code available
+        await generator.createCode({}, integration);
+
+        const res = await request({
+            uri: '/integrations/' + integration.id + '/claim',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should return 500 if mailer returns bad response', async () => {
+        mock.mockAll({ mailer: { badResponse: true } });
+        const integration = await generator.createIntegration({
+            quota_period: 'month',
+            quota_amount: 1
+        });
+
+        // 1 code available
+        await generator.createCode({}, integration);
+
+        const res = await request({
+            uri: '/integrations/' + integration.id + '/claim',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should return 500 if mailer returns unsuccessful response', async () => {
+        mock.mockAll({ mailer: { unsuccessfulResponse: true } });
+        const integration = await generator.createIntegration({
+            quota_period: 'month',
+            quota_amount: 1
+        });
+
+        // 1 code available
+        await generator.createCode({}, integration);
+
+        const res = await request({
+            uri: '/integrations/' + integration.id + '/claim',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
 });

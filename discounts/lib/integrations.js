@@ -4,6 +4,7 @@ const { Integration, Code } = require('../models');
 const { Sequelize } = require('./sequelize');
 const errors = require('./errors');
 const helpers = require('./helpers');
+const mailer = require('./mailer');
 
 exports.createIntegration = async (req, res) => {
     if (!req.permissions.manage_discounts) {
@@ -137,6 +138,20 @@ exports.claimCode = async (req, res) => {
     }
 
     await codeToClaim.update({ claimed_by: req.user.id });
+
+    await mailer.sendMail({
+        from: 'oms-mailer@aegee.org',
+        to: req.user.user.email,
+        subject: `Your ${req.integration.name} discount code`,
+        template: 'custom.html',
+        parameters: {
+            body: helpers.getMailText({
+                user: req.user,
+                integration: req.integration,
+                code: codeToClaim
+            })
+        }
+    });
 
     // TODO: Send mail to user.
     return res.json({
