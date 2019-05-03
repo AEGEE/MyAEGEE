@@ -1,3 +1,12 @@
+## [0.4.1](https://github.com/AEGEE/oms-discounts/compare/0.4.0...0.4.1) (2019-05-03)
+
+
+### Bug Fixes
+
+* **codes:** fix mailer template breaking ([589f490](https://github.com/AEGEE/oms-discounts/commit/589f490))
+
+
+
 # [0.4.0](https://github.com/AEGEE/oms-discounts/compare/0.3.3...0.4.0) (2019-05-03)
 
 
