@@ -1,3 +1,12 @@
+## [0.11.5](https://github.com/AEGEE/oms-frontend/compare/0.11.4...0.11.5) (2019-05-17)
+
+
+### Bug Fixes
+
+* **statutory:** added pax type filter for massmailer. Fixes MEMB-516 ([973a540](https://github.com/AEGEE/oms-frontend/commit/973a540))
+
+
+
 ## [0.11.4](https://github.com/AEGEE/oms-frontend/compare/0.11.3...0.11.4) (2019-05-17)
 
 
