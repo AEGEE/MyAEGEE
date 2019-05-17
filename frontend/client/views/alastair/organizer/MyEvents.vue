@@ -2,7 +2,7 @@
 <template>
   <div>
     <ul>
-      <li v-for="event in events">
+      <li v-for="(event, index) in events" v-bind:key="index">
         <router-link :to='{name: "oms.alastair.organizer.event", params: {id: event.id}}'>{{ event.name }}</router-link>
       </li>
     </ul>

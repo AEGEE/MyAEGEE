@@ -24,12 +24,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="meal in meals">
+            <tr v-for="(meal, index) in meals"  v-bind:key="index">
               <td>{{ meal.date | date:'EEE d.M'}}</td>
               <td>
                 <router-link class="btn btn-primary" :to="{name: 'oms.alastair.organizer.meal.single', params: { event_id: event.id, id: meal.id }}">{{ meal.name }}</router-link>
                 <ul>
-                  <li v-for="mr in meal.meals_recipes">
+                  <li v-for="(mr, mrIndex) in meal.meals_recipes"  v-bind:key="mrIndex">
                     {{ mr.person_count }} ppl <router-link :to="{name: 'oms.alastair.chef.single_recipe', params: { id: mr.recipe.id }}">{{ mr.recipe.name }}</router-link>
                   </li> 
                 </ul>

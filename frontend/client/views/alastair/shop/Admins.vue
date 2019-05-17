@@ -1,34 +1,33 @@
 <template>
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
-        <div class="table-responsive">
-          <table class="table is-bordered is-striped is-narrow is-fullwidth">
-            <thead>
-              <tr>
-                <th>Name</th>
-              </tr>
-            </thead>
-            <tfoot>
-              <tr>
-                <th>Name</th>
-              </tr>
-            </tfoot>
-            <tbody>
-              <tr v-for="admin in admins" v-bind:key="admin.id">
-                <td><router-link :to="{name: 'oms.members.view', params: {id: admin.user_id}}">name hidden for privacy reasons</router-link></td>
-              </tr>
+      <div class="table-responsive">
+        <table class="table is-bordered is-striped is-narrow is-fullwidth">
+          <thead>
+            <tr>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tfoot>
+            <tr>
+              <th>Name</th>
+            </tr>
+          </tfoot>
+          <tbody>
+            <tr v-for="admin in admins" v-bind:key="admin.id">
+              <td><router-link :to="{name: 'oms.members.view', params: {id: admin.user_id}}">name hidden for privacy reasons</router-link></td>
+            </tr>
 
-              <tr v-show="!admins.length && !isLoading">
-                <td colspan="4" class="has-text-centered">Shop admin list is empty</td>
-              </tr>
-              <tr v-show="isLoading">
-                <td colspan="4" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
-              </tr>
-            </tbody>
-          </table>
+            <tr v-show="!admins.length && !isLoading">
+              <td colspan="4" class="has-text-centered">Shop admin list is empty</td>
+            </tr>
+            <tr v-show="isLoading">
+              <td colspan="4" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
+            </tr>
+          </tbody>
+        </table>
 
-        </div>
-      </article>
+      </div>
     </div>
   </div>
 </template>

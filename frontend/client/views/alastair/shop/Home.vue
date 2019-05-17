@@ -7,7 +7,7 @@
         You made it to the disgusting part of Alastair. Somehow this app needs to know what the prices are for the ingredients, so it can calculate a price for you. Pray to god someone already copied all the prices from a nearby supermarket, otherwise you are up for some serious fun now -you may match each ingredient with a shopping item from that store. If you want to see the shopping list, go to the event page you want to see it for.
         Each shop has a number of shop admins, which are entitled to edit the details and shopping items in that shop, however everyone is able to use any shop for his project to calculate the food. In case you are using a shop which you can not edit, please bear in mind that other admins could remove or edit items and thus outdate your calculated price.
       </div>
-    </article>    
+    </article>
 
     <article class="message is-info">
       <div class="message-body">

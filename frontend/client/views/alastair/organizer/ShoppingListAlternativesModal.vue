@@ -5,7 +5,7 @@
       <button class="delete" aria-label="close" @click="$parent.close()"></button>
     </header>
     <section class="modal-card-body">
-      <h6>Needed: {{ item.calculated_quantity }}{{ getMeasurement() }}</td>
+      <h6>Needed: {{ item.calculated_quantity }}{{ getMeasurement() }}</h6>
 
       <table class="table">
         <thead>
@@ -17,9 +17,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in item.items">
+          <tr v-for="(item, index) in item.items" v-bind:key="index">
             <td>
-              {{ item.shopping_item.name }} 
+              {{ item.shopping_item.name }}
             </td>
             <td>{{ item.item_buying_quantity  }}{{ getMeasurement() }} ({{ item.item_count }} items)</td>
             <td>{{ item.item_price }}{{ event.shop.currency.display_code }}</td>
@@ -29,7 +29,6 @@
           </tr>
         </tbody>
       </table>
-      
     </section>
   </div>
 </template>

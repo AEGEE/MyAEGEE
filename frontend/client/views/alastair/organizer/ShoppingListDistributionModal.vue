@@ -5,8 +5,7 @@
       <button class="delete" aria-label="close" @click="$parent.close()"></button>
     </header>
     <section class="modal-card-body">
-    
-      <h6>Needed: {{ item.calculated_quantity }}{{ item.ingredient.default_measurement.display_code }}</td>
+      <h6>Needed: {{ item.calculated_quantity }}{{ item.ingredient.default_measurement.display_code }}</h6>
 
       <div class="table-responsive">
         <table class="table">
@@ -19,7 +18,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="meal in item.used_in_meals">
+            <tr v-for="(meal, index) in item.used_in_meals" v-bind:key="index">
               <td><a @click="goToMeal(meal)">{{ meal.name }}</a></td>
               <td>{{ meal.date | date }}</td>
               <td>{{ meal.time | time}}</td>

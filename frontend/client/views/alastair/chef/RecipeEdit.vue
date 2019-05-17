@@ -55,7 +55,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(ri, index) in recipe.recipes_ingredients">
+            <tr v-for="(ri, index) in recipe.recipes_ingredients" v-bind:key="index">
               <td>{{ ri.ingredient.name }}</td>
               <td>
                  <div class="field">
@@ -70,9 +70,8 @@
                     </div>
                   </div>
                 </div>
-                
                 <p class="help is-danger" v-if="errors.recipes_ingredients && errors.recipes_ingredients[index] && errors.recipes_ingredients[index] !== {}">
-                  <span v-for="(value, key) in errors.recipes_ingredients[index]">
+                  <span v-for="(value, key) in errors.recipes_ingredients[index]" v-bind:key="key">
                     Error in {{ key }}: {{ value.join(', ') }}
                   </span>
                 </p>

@@ -26,7 +26,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="ingredient in ingredients">
+            <tr v-for="(ingredient, index) in ingredients" v-bind:key="index">
               <td>
                 <input type="checkbox" @change="checkboxTicked(ingredient)" v-model="ingredient.note.ticked">
                 <i class="fa fa-hourglass-start" v-show="ingredient.note_loading">...</i>

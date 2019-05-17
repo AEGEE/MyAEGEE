@@ -16,7 +16,7 @@
 
     <table class="table table-responsive">
       <tbody>
-        <tr v-for="ri in recipe.recipes_ingredients">
+        <tr v-for="(ri, index) in recipe.recipes_ingredients" v-bind:key="index">
           <td style="text-align: right;">{{ ri.quantity }}&nbsp;{{ ri.ingredient.default_measurement.display_code }}</td>
           <td>{{ ri.ingredient.name }}</td>
           <td><small><i>{{ ri.comment | limitTo:100 }}</i></small></td>

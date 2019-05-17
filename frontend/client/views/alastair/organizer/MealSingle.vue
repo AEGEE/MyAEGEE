@@ -16,7 +16,7 @@
 
       <table class="table table-responsive">
         <tbody>
-          <tr v-for="mr in meal.meals_recipes">
+          <tr v-for="(mr, index) in meal.meals_recipes" v-bind:key="index">
             <td style="text-align: right;">{{ mr.person_count }} ppl</td>
             <td>{{ mr.recipe.name }}</td>
           </tr>
@@ -24,7 +24,7 @@
       </table>
     </div>
 
-    <div class="section" v-for="mr in meal.meals_recipes">
+    <div class="section" v-for="(mr, index) in meal.meals_recipes" v-bind:key="index">
       <hr />
       <div class="title">
         <router-link :to="{name: 'oms.alastair.chef.recipe.single', params: {id: mr.recipe_id}}">{{ mr.recipe.name }} (version {{ mr.recipe.version }})</router-link> for {{ mr.person_count }} ppl
@@ -36,7 +36,7 @@
 
       <table class="table table-responsive">
         <tbody>
-          <tr v-for="ri in mr.recipe.recipes_ingredients">
+          <tr v-for="(ri, riIndex) in mr.recipe.recipes_ingredients"  v-bind:key="riIndex">
             <td style="text-align: right;">{{ ri.item_quantity }}&nbsp;{{ ri.ingredient.default_measurement.display_code }}</td>
             <td>{{ ri.ingredient.name }}</td>
             <td><small><i>{{ ri.comment | limitTo:100 }}</i></small></td>

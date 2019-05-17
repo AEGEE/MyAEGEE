@@ -101,10 +101,10 @@
         <div class="field">
           <label class="label">Comment</label>
           <div class="control">
-            <input class="input" placeholder="e.g. Hello world" v-model="item.comment"></textarea>
+            <input class="input" placeholder="e.g. Hello world" v-model="item.comment" />
           </div>
           <p class="help is-danger" v-if="errors.comment">{{ errors.comment.join(', ') }}</p>
-        </div>        
+        </div>
 
         <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
 
