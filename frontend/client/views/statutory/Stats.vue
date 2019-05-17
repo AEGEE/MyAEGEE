@@ -130,7 +130,13 @@ export default {
           departed: 0
         }
       },
-      colors: ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'],
+      colors: [
+        '#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850',
+        '#FFB6B2', '#E5E6BB', '#E6BDE5', '#FFF0B2', '#B2D6FF',
+        '#FF5543', '#C2DE5D', '#C44BC2', '#FFDB4C', '#4CA0FF',
+        '#C51C13', '#A0C514', '#931991', '#FBBA00', '#1468C5',
+        '#7A1E16', '#647A16', '#70086E', '#CF9800', '#163E7A'
+      ],
       can: {
         apply: false
       },

@@ -1,3 +1,12 @@
+## [0.11.3](https://github.com/AEGEE/oms-frontend/compare/0.11.2...0.11.3) (2019-05-17)
+
+
+### Bug Fixes
+
+* **statutory:** more colors to application stats. Fixes HELP-524 ([89e0c4f](https://github.com/AEGEE/oms-frontend/commit/89e0c4f))
+
+
+
 ## [0.11.2](https://github.com/AEGEE/oms-frontend/compare/0.11.1...0.11.2) (2019-05-17)
 
 
