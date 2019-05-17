@@ -54,7 +54,11 @@
         <pie-chart class="chart" :chart-data="byBodyData()" :options="byBodyOptions"></pie-chart>
         <div class="content">
           <div class="tags">
-            <span v-for="(body, index) in stats.by_body" v-bind:key="index" class="tag" :style="{ 'background-color': index >= colors.length ? '' : colors[index] }">
+            <span
+              v-for="(body, index) in stats.by_body"
+              v-bind:key="index"
+              class="tag"
+              :style="{ 'background-color': index >= colors.length ? '' : colors[index], 'color': index >= backgroundColors.length ? '' : backgroundColors[index] }">
               {{ body.body ? body.body.name : body.body_id }} ({{ body.value }})
             </span>
           </div>
@@ -136,6 +140,13 @@ export default {
         '#FF5543', '#C2DE5D', '#C44BC2', '#FFDB4C', '#4CA0FF',
         '#C51C13', '#A0C514', '#931991', '#FBBA00', '#1468C5',
         '#7A1E16', '#647A16', '#70086E', '#CF9800', '#163E7A'
+      ],
+      backgroundColors: [ // using black for all of them except for those when it's unreadable
+        '#FFFFFF', '#FFFFFF', '#000000', '#000000', '#000000',
+        '#000000', '#000000', '#000000', '#000000', '#000000',
+        '#000000', '#000000', '#000000', '#000000', '#000000',
+        '#000000', '#000000', '#FFFFFF', '#000000', '#FFFFFF',
+        '#FFFFFF', '#FFFFFF', '#FFFFFF', '#000000', '#FFFFFF'
       ],
       can: {
         apply: false
@@ -285,7 +296,7 @@ export default {
         labels: [`Present (${present.toFixed(2)}%)`, `Not present (${(100 - present).toFixed(2)}%)`],
         datasets: [{
           label: 'Quorum',
-          backgroundColor: ['#3e95cd', '#8e5ea2'],
+          backgroundColor: this.colors,
           data: [this.stats.by_body.length, this.bodies.length - this.stats.by_body.length]
         }]
       }
@@ -309,7 +320,7 @@ export default {
         }),
         datasets: [{
           label: 'Applications by body',
-          backgroundColor: ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'],
+          backgroundColor: this.colors,
           data: this.stats.by_body.map(s => s.value)
         }]
       }
