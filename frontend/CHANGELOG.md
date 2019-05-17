@@ -1,3 +1,13 @@
+## [0.11.2](https://github.com/AEGEE/oms-frontend/compare/0.11.1...0.11.2) (2019-05-17)
+
+
+### Bug Fixes
+
+* **deps:** fixed security vulnerability in node-sass ([51e44cc](https://github.com/AEGEE/oms-frontend/commit/51e44cc))
+* **deps:** updated outdated packages ([257fae4](https://github.com/AEGEE/oms-frontend/commit/257fae4))
+
+
+
 ## [0.11.1](https://github.com/AEGEE/oms-frontend/compare/0.11.0...0.11.1) (2019-05-01)
 
 
