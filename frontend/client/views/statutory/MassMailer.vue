@@ -31,6 +31,19 @@
                 </div>
               </div>
 
+              <div class="field is-fullwidth">
+                <label class="label">Filter on participant type</label>
+                <div class="select">
+                  <select v-model="participant_type">
+                    <option :value="null">Everybody</option>
+                    <option value="envoy">Envoy</option>
+                    <option value="delegate">Delegate</option>
+                    <option value="visitor">Visitor</option>
+                    <option value="observer">Observer</option>
+                  </select>
+                </div>
+              </div>
+
               <div class="tile is-parent">
                 <div class="tile is-child">
                   <div class="notification is-warning">
@@ -115,6 +128,7 @@ export default {
       text: '',
       status: null,
       paid_fee: null,
+      participant_type: null,
       subject: '',
       reply_to: 'chair@aegee.org',
       isSending: false,
@@ -146,6 +160,7 @@ export default {
 
       if (this.status !== null) filterObj.status = this.status
       if (this.paid_fee !== null) filterObj.paid_fee = this.paid_fee
+      if (this.participant_type !== null) filterObj.participant_type = this.participant_type
 
       return filterObj
     },
