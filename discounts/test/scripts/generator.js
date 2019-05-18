@@ -2,7 +2,8 @@ const faker = require('faker');
 
 const {
     Integration,
-    Code
+    Code,
+    Category
 } = require('../../models');
 
 const notSet = field => typeof field === 'undefined';
@@ -26,6 +27,25 @@ exports.generateCode = (options = {}, integration = null) => {
     return options;
 };
 
+exports.generateDiscount = (options = {}) => {
+    if (notSet(options.name)) options.name = faker.random.word();
+    if (notSet(options.icon)) options.icon = faker.random.word();
+    if (notSet(options.shortDescription)) options.shortDescription = faker.lorem.sentence();
+    if (notSet(options.longDescription)) options.longDescription = faker.lorem.sentence();
+
+    return options;
+};
+
+exports.generateCategory = (options = {}) => {
+    if (notSet(options.name)) options.name = faker.random.word();
+    if (notSet(options.discounts)) {
+        const discountsCount = Math.round(Math.random() * 5) + 1; // from 1 to 6
+        options.discounts = Array.from({ length: discountsCount }, () => exports.generateDiscount());
+    }
+
+    return options;
+};
+
 exports.createIntegration = (options = {}) => {
     return Integration.create(exports.generateIntegration(options));
 };
@@ -34,7 +54,12 @@ exports.createCode = (options = {}, integration = null) => {
     return Code.create(exports.generateCode(options, integration));
 };
 
+exports.createCategory = (options = {}) => {
+    return Category.create(exports.generateCategory(options));
+};
+
 exports.clearAll = async () => {
     await Code.destroy({ where: {}, truncate: { cascade: true } });
     await Integration.destroy({ where: {}, truncate: { cascade: true } });
+    await Category.destroy({ where: {}, truncate: { cascade: true } });
 };

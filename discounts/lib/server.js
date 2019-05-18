@@ -8,6 +8,7 @@ const bugsnag = require('./bugsnag');
 const morgan = require('./morgan');
 const middlewares = require('./middlewares');
 const integrations = require('./integrations');
+const categories = require('./categories');
 const db = require('./sequelize');
 
 const server = express();
@@ -26,6 +27,8 @@ process.on('unhandledRejection', (err) => {
 });
 
 GeneralRouter.use(middlewares.authenticateUser);
+
+// integrations and codes
 GeneralRouter.get('/integrations', integrations.listAllIntegrations);
 GeneralRouter.post('/integrations', integrations.createIntegration);
 GeneralRouter.post('/integrations/:integration_id/codes', integrations.findIntegration, integrations.addCodesToIntegration);
@@ -35,6 +38,13 @@ GeneralRouter.put('/integrations/:integration_id', integrations.findIntegration,
 GeneralRouter.delete('/integrations/:integration_id', integrations.findIntegration, integrations.deleteIntegration);
 
 GeneralRouter.get('/codes/mine', integrations.getMyCodes);
+
+// categories and discounts (for listing to members)
+GeneralRouter.get('/categories', categories.listAllCategories);
+GeneralRouter.post('/categories', categories.createCategory);
+GeneralRouter.get('/categories/:category_id', categories.findCategory, categories.getCategory);
+GeneralRouter.put('/categories/:category_id', categories.findCategory, categories.updateCategory);
+GeneralRouter.delete('/categories/:category_id', categories.findCategory, categories.deleteCategory);
 
 server.use('/', GeneralRouter);
 server.use(middlewares.notFound);
