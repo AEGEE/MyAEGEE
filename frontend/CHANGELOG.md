@@ -1,3 +1,12 @@
+## [0.12.2](https://github.com/AEGEE/oms-frontend/compare/0.12.1...0.12.2) (2019-05-18)
+
+
+### Bug Fixes
+
+* **discounts:** fixed selecting integration on loading ([f399e7f](https://github.com/AEGEE/oms-frontend/commit/f399e7f))
+
+
+
 ## [0.12.1](https://github.com/AEGEE/oms-frontend/compare/0.11.5...0.12.1) (2019-05-18)
 
 
