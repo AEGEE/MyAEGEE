@@ -1,4 +1,9 @@
-# [0.12.0](https://github.com/AEGEE/oms-frontend/compare/0.11.5...0.12.0) (2019-05-18)
+## [0.12.1](https://github.com/AEGEE/oms-frontend/compare/0.11.5...0.12.1) (2019-05-18)
+
+
+### Bug Fixes
+
+* **discounts:** choosing 1st integration always when claiming codes ([8275c44](https://github.com/AEGEE/oms-frontend/commit/8275c44))
 
 
 ### Features
