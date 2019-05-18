@@ -103,8 +103,9 @@ export default {
 
         // choosing 1st integration to not bother
         if (this.integrations.length > 0) {
-          this.selectedIntegration = this.integrations[0]
+          this.selectedIntegration = this.integrations[0].id
         }
+
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
