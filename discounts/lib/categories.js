@@ -28,7 +28,7 @@ exports.findCategory = async (req, res, next) => {
     const isNumber = helpers.isNumber(req.params.category_id);
 
     if (!isNumber) {
-        return errors.makeBadRequestError(res, 'The category ID is not a number.')
+        return errors.makeBadRequestError(res, 'The category ID is not a number.');
     }
 
     const category = await Category.findOne({ where: { id: Number(req.params.category_id) } });

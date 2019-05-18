@@ -17,7 +17,7 @@ exports.isNumber = (value) => {
     return false;
 };
 
-exports.getMailText = ({ code, integration, user}) => {
+exports.getMailText = ({ code, integration, user }) => {
     return `Hey ${user.first_name},<br/>
     <br/>
 You've claimed the code for the discount, here are the details.<br/>
@@ -29,7 +29,7 @@ Claimed on: ${moment(code.updated_at).format('YYYY-MM-DD HH:MM')}<br/>
 ${integration.description}<br/>
 <br/>
 Sincerely yours,<br/>
-MyAEGEE discounts team.`
+MyAEGEE discounts team.`;
 };
 
 // A helper to determine if user has permission.
