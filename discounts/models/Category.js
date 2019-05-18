@@ -1,0 +1,41 @@
+const Joi = require('joi');
+const { Sequelize, sequelize } = require('../lib/sequelize');
+
+const categoriesSchema = Joi.array().min(1).items(Joi.object().keys({
+    icon: Joi.string().trim().required(),
+    name: Joi.string().trim().required(),
+    shortDescription: Joi.string().trim().required(),
+    longDescription: Joi.string().trim().required(),
+}));
+
+const Code = sequelize.define('code', {
+    name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Name should be set.' },
+        },
+    },
+    discounts: {
+        type: Sequelize.JSONB,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            isValid(categoriesValue) {
+                const { error, value } = Joi.validate(categoriesValue, categoriesSchema);
+                if (error) {
+                    throw error;
+                }
+
+                // eslint-disable-next-line no-param-reassign
+                categoriesValue = value;
+            }
+        },
+    },
+    claimed_by: {
+        type: Sequelize.INTEGER
+    }
+}, { underscored: true, tableName: 'codes' });
+
+module.exports = Code;
