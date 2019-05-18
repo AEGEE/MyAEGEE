@@ -100,6 +100,11 @@ export default {
         return this.axios.get(this.services['oms-discounts'] + '/integrations')
       }).then((response) => {
         this.integrations = response.data.data
+
+        // choosing 1st integration to not bother
+        if (this.integrations.length > 0) {
+          this.selectedIntegration = this.integrations[0]
+        }
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
