@@ -1,0 +1,103 @@
+<template>
+  <div class="tile is-ancestor">
+    <div class="tile is-parent is-vertical">
+      <article class="tile is-child">
+        <h4 class="title">Discounts categories list</h4>
+
+        <div class="field" v-if="can.create">
+          <div class="control">
+            <router-link class="button is-primary" :to="{ name: 'oms.discounts.categories.create' }">Create category</router-link>
+          </div>
+        </div>
+
+        <b-table :data="categories" :loading="isLoading" narrowed>
+          <template slot-scope="props">
+            <b-table-column field="name" label="Name">
+              {{ props.row.name }}
+            </b-table-column>
+
+            <b-table-column field="discounts" label="Discounts">
+              <ul v-for="(discount, index) in props.row.discounts" v-bind:key="index">
+                <li>{{ discount.name }}</li>
+              </ul>
+            </b-table-column>
+
+            <b-table-column label="Edit">
+              <router-link :to="{ name: 'oms.discounts.categories.edit', params: { id: props.row.id } }" class="button is-small is-warning">Edit</router-link>
+            </b-table-column>
+
+            <b-table-column label="Delete">
+              <button @click="askDeleteCategory(props.index)" class="button is-small is-danger">Delete</button>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <empty-table-stub />
+          </template>
+        </b-table>
+      </article>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapGetters } from 'vuex'
+
+export default {
+  name: 'CategoriesList',
+  data () {
+    return {
+      categories: [],
+      isLoading: false,
+      permissions: [],
+      can: {
+        create: false
+      }
+    }
+  },
+  computed: {
+    ...mapGetters(['services'])
+  },
+  methods: {
+    askDeleteCategory (index) {
+      this.$dialog.confirm({
+        title: 'Delete a category',
+        message: 'Are you sure you want to <b>delete</b> this category? This action cannot be undone.',
+        confirmText: 'Delete category',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.deleteCategory(index)
+      })
+    },
+    deleteCategory (index) {
+      this.axios.delete(this.services['oms-discounts'] + '/categories/' + this.categories[index].id).then((response) => {
+        this.$root.showSuccess('Category is deleted.')
+        this.categories.splice(index, 1)
+      }).catch((err) => this.$root.showDanger('Could not delete category: ' + err.message))
+    },
+    refetch () {
+      this.integrations = []
+      this.fetchData()
+    },
+    fetchData (state) {
+      this.isLoading = true
+
+      this.axios.get(this.services['oms-discounts'] + '/categories').then((response) => {
+        this.categories = response.data.data
+
+        return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions')
+      }).then((response) => {
+        this.permissions = response.data.data
+
+        this.can.create = this.permissions.some(permission => permission.combined.endsWith('manage:discounts'))
+        this.isLoading = false
+      }).catch((err) => {
+        this.$root.showDanger('Could not fetch categories list: ' + err.message)
+      })
+    }
+  },
+  mounted () {
+    this.fetchData()
+  }
+}
+</script>
