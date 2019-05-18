@@ -1,3 +1,18 @@
+# [0.5.0](https://github.com/AEGEE/oms-discounts/compare/0.4.2...0.5.0) (2019-05-18)
+
+
+### Bug Fixes
+
+* **categories:** fixed categories endpoints ([08320a0](https://github.com/AEGEE/oms-discounts/commit/08320a0))
+
+
+### Features
+
+* **discounts:** added categories. Fixes MEMB-529 ([67d7380](https://github.com/AEGEE/oms-discounts/commit/67d7380))
+* **test:** testing categories CRUD ([53af8e7](https://github.com/AEGEE/oms-discounts/commit/53af8e7))
+
+
+
 ## [0.4.2](https://github.com/AEGEE/oms-discounts/compare/0.4.1...0.4.2) (2019-05-03)
 
 
