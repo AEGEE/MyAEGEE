@@ -2,7 +2,8 @@ const faker = require('faker');
 
 const {
     Integration,
-    Code
+    Code,
+    Category
 } = require('../../models');
 
 const notSet = field => typeof field === 'undefined';

@@ -67,7 +67,7 @@ exports.updateIntegration = async (req, res) => {
 
 exports.deleteIntegration = async (req, res) => {
     if (!req.permissions.manage_discounts) {
-        return errors.makeForbiddenError(res, 'You are not allowed to update integration.');
+        return errors.makeForbiddenError(res, 'You are not allowed to delete integration.');
     }
 
     await req.integration.destroy();

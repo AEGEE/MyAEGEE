@@ -8,7 +8,7 @@ const categoriesSchema = Joi.array().min(1).items(Joi.object().keys({
     longDescription: Joi.string().trim().required(),
 }));
 
-const Code = sequelize.define('code', {
+const Category = sequelize.define('category', {
     name: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -32,10 +32,7 @@ const Code = sequelize.define('code', {
                 categoriesValue = value;
             }
         },
-    },
-    claimed_by: {
-        type: Sequelize.INTEGER
     }
-}, { underscored: true, tableName: 'codes' });
+}, { underscored: true, tableName: 'categories' });
 
-module.exports = Code;
+module.exports = Category;

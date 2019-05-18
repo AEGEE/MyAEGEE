@@ -28,23 +28,23 @@ exports.findCategory = async (req, res, next) => {
     const isNumber = helpers.isNumber(req.params.category_id);
 
     if (!isNumber) {
-        return errors.makeBadRequestError('The category ID is not a number.')
+        return errors.makeBadRequestError(res, 'The category ID is not a number.')
     }
 
-    const caregory = await caregory.findOne({ where: { id: Number(req.params.category_id) } });
+    const category = await Category.findOne({ where: { id: Number(req.params.category_id) } });
 
-    if (!caregory) {
-        return errors.makeNotFoundError(res, 'The caregory is not found.');
+    if (!category) {
+        return errors.makeNotFoundError(res, 'The category is not found.');
     }
 
-    req.caregory = caregory;
+    req.category = category;
     return next();
 };
 
 exports.getCategory = async (req, res) => {
     return res.json({
         success: true,
-        data: req.caregory
+        data: req.category
     });
 };
 
@@ -63,13 +63,13 @@ exports.updateCategory = async (req, res) => {
 
 exports.deleteCategory = async (req, res) => {
     if (!req.permissions.manage_discounts) {
-        return errors.makeForbiddenError(res, 'You are not allowed to update caregory.');
+        return errors.makeForbiddenError(res, 'You are not allowed to delete category.');
     }
 
-    await req.caregory.destroy();
+    await req.category.destroy();
 
     return res.json({
         success: true,
-        data: req.caregory
+        data: req.category
     });
 };
