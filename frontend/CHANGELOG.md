@@ -1,3 +1,17 @@
+## [0.12.1](https://github.com/AEGEE/oms-frontend/compare/0.11.5...0.12.1) (2019-05-18)
+
+
+### Bug Fixes
+
+* **discounts:** choosing 1st integration always when claiming codes ([8275c44](https://github.com/AEGEE/oms-frontend/commit/8275c44))
+
+
+### Features
+
+* **discounts:** discounts management. Fixed MEMB-529 ([c055aa3](https://github.com/AEGEE/oms-frontend/commit/c055aa3))
+
+
+
 ## [0.11.5](https://github.com/AEGEE/oms-frontend/compare/0.11.4...0.11.5) (2019-05-17)
 
 
@@ -280,16 +294,12 @@
 
 
 
-## [0.10.1](https://github.com/AEGEE/oms-frontend/compare/0.10.0...0.10.1) (2019-03-31)
+## [0.10.1](https://github.com/AEGEE/oms-frontend/compare/0.9.2...0.10.1) (2019-03-31)
 
 
 ### Bug Fixes
 
 * **statutory:** rounding fee to AEGEE on memberslists listing ([1c041d4](https://github.com/AEGEE/oms-frontend/commit/1c041d4))
-
-
-
-# [0.10.0](https://github.com/AEGEE/oms-frontend/compare/0.9.2...0.10.0) (2019-03-31)
 
 
 ### Features

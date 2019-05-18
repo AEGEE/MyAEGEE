@@ -666,14 +666,6 @@ module.exports = [
     component: 'static/About'
   },
   {
-    name: 'oms.discounts',
-    path: '/discounts',
-    meta: {
-      label: 'Discounts'
-    },
-    component: 'static/Discounts'
-  },
-  {
     name: 'oms.resources',
     path: '/resources',
     meta: {
@@ -682,6 +674,38 @@ module.exports = [
     component: 'static/Resources'
   },
   /* Discounts distribution */
+  {
+    name: 'oms.discounts',
+    path: '/discounts',
+    meta: {
+      label: 'Discounts'
+    },
+    component: 'discounts/DiscountsList'
+  },
+  {
+    name: 'oms.discounts.categories.edit',
+    path: '/discounts/categories/:id/edit',
+    component: 'discounts/CategoryEdit',
+    meta: {
+      label: 'Edit single category'
+    }
+  },
+  {
+    name: 'oms.discounts.categories.list',
+    path: '/discounts/categories/',
+    component: 'discounts/CategoriesList',
+    meta: {
+      label: 'List a category of discounts'
+    }
+  },
+  {
+    name: 'oms.discounts.categories.create',
+    path: '/discounts/categories/new',
+    component: 'discounts/CategoryEdit',
+    meta: {
+      label: 'Create a category of discounts'
+    }
+  },
   {
     name: 'oms.discounts.list',
     path: '/discounts/integrations',
