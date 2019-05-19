@@ -121,4 +121,23 @@ describe('Applications status', () => {
         expect(res.body).toHaveProperty('errors');
         expect(res.body).not.toHaveProperty('data');
     });
+
+    test('should succeed for waiting_list', async () => {
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({}, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id + '/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { status: 'waiting_list' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.id).toEqual(application.id);
+        expect(res.body.data.status).toEqual('waiting_list');
+    });
 });
