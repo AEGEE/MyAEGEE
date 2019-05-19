@@ -165,8 +165,9 @@ exports.listBoardView = async (req, res) => {
         .map(application => application.toJSON())
         .filter(application => application.body_id === parseInt(req.params.body_id, 10))
         .sort((a, b) => {
-            if ((a.participant_type || 'zzzzzz').localeCompare(b.participant_type || 'zzzzzz') !== 0) {
-                return (a.participant_type || 'zzzzzz').localeCompare(b.participant_type || 'zzzzzz')
+            const compareByType = (a.participant_type || 'zzzzzz').localeCompare(b.participant_type || 'zzzzzz');
+            if (compareByType !== 0) {
+                return compareByType
             }
 
             return (a.participant_order || 999) - (b.participant_order || 999)
