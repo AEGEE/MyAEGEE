@@ -134,12 +134,12 @@ const Application = sequelize.define('application', {
         }
     },
     status: {
-        type: Sequelize.ENUM('pending', 'requesting', 'accepted', 'rejected'),
+        type: Sequelize.ENUM('pending', 'waiting_list', 'accepted', 'rejected'),
         defaultValue: 'pending',
         validate: {
             isIn: {
-                args: [['pending', 'requesting', 'accepted', 'rejected']],
-                msg: 'Participant status should be one of these: "pending", "requesting", "accepted", "rejected".'
+                args: [['pending', 'waiting_list', 'accepted', 'rejected']],
+                msg: 'Participant status should be one of these: "pending", "waiting_list", "accepted", "rejected".'
             }
         }
     },
