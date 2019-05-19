@@ -72,6 +72,7 @@ ApplicationsRouter.get('/stats', applications.getStats);
 ApplicationsRouter.get('/export/openslides', applications.exportOpenslides);
 ApplicationsRouter.get('/export/:prefix', applications.exportAll);
 ApplicationsRouter.get('/boardview/:body_id', applications.listBoardView);
+ApplicationsRouter.post('/boardview/:body_id', applications.setBoardForBody);
 
 SingleApplicationRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, middlewares.fetchSingleApplication);
 SingleApplicationRouter.put('/cancel', applications.setApplicationCancelled);

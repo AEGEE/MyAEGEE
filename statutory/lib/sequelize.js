@@ -3,6 +3,7 @@ const Sequelize = require('sequelize');
 const logger = require('./logger');
 const config = require('../config');
 
+// not using helpers.isDefined() here because of the circular dependency caching issues
 const requiredFields = ['database', 'username', 'password', 'host', 'port'];
 for (const field of requiredFields) {
     if (typeof config.postgres[field] === 'undefined') { // if var is set

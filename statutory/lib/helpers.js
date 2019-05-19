@@ -4,6 +4,7 @@ const MomentRange = require('moment-range');
 const moment = MomentRange.extendMoment(Moment);
 
 const constants = require('./constants');
+const { Application, PaxLimit } = require('../models');
 
 // A helper to calculate time for plenary.
 exports.calculateTimeForPlenary = (attendance, plenary) => {
@@ -24,6 +25,63 @@ exports.calculateTimeForPlenary = (attendance, plenary) => {
 
     const difference = intersectRange.diff('seconds', true);
     return difference;
+};
+
+// A helper to check if the passed value is an object.
+exports.isObject = value => typeof value === 'object' && value !== null;
+
+// A helper to check if the value is set.
+exports.isDefined = value => typeof value !== 'undefined';
+
+// A helper to check if the value is truthy.
+exports.isTruthy = value => exports.isDefined(value) && value !== null;
+
+// A helper to check if the boardview update for application was okay.
+// It's run within a transaction, so if this will throw an error, the transaction will be rolled back.
+exports.checkApplicationBoardviewValidity = async ({ event, application, body, transaction }) => {
+    // If the pax type is null (it wasn't updated or was unset)
+    // that means also that pax order is null (look in validations).
+    // Therefore, no need to check, the number couldn't increase because of that.
+    // Also, to avoid querying on participant_type === null below.
+    if (!application.participant_type) {
+        return;
+    }
+
+    // Fetching pax limits for this body for this event.
+    const limit = await PaxLimit.fetchOrUseDefaultForBody(body, event.type);
+
+
+    // Second, get from database how much people we have for this event
+    // from this body with this pax type.
+    // If we got the validation error, it'll fail the transaction.
+    // Therefore, all the data here is valid.
+    const applicationsCount = await Application.count({
+        where: {
+            event_id: application.event_id,
+            body_id: application.body_id,
+            participant_type: application.participant_type
+        },
+        transaction
+    });
+
+    if (limit[application.participant_type] !== null) {
+        // If the limit's value is not null and is less than
+        // the applications amount (meaning, it increased by one within this transaction),
+        // that means setting the pax order for this user was a mistake and
+        // this needs to be rolled back.
+        if (limit[application.participant_type] < applicationsCount) {
+            throw new Error(`Too much applications \
+for body #${application.body_id} for type "${application.participant_type}": \
+expected ${limit[application.participant_type]}, got ${applicationsCount}.`);
+        }
+
+        // If the participant_order is bigger than the limit (e.g. envoy (4) when only 3 envoys are eligible)
+        // then rolling back as well.
+        if (application.participant_order > limit[application.participant_type]) {
+            throw new Error(`Expected participant number from 1 to ${applicationsCount}, \
+got participant type ${application.participant_order}`);
+        }
+    }
 };
 
 // A helper to calculate fee for member of memberslist with given conversion rate to EUR.

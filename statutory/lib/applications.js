@@ -5,7 +5,7 @@ const xlsx = require('node-xlsx').default;
 const errors = require('./errors');
 const core = require('./core');
 const mailer = require('./mailer');
-const { Application, PaxLimit, VotesPerAntenna } = require('../models');
+const { Application, VotesPerAntenna } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const { sequelize } = require('./sequelize');
@@ -332,6 +332,7 @@ exports.setApplicationStatus = async (req, res) => {
     });
 };
 
+// For single application
 exports.setApplicationBoard = async (req, res) => {
     if (Number.isNaN(Number(req.params.application_id, 10))) {
         return errors.makeForbiddenError(res, 'You cannot edit board comment or participant type of yourself.');
@@ -350,12 +351,11 @@ exports.setApplicationBoard = async (req, res) => {
 
     // need to fetch body to get its body type
     const body = await core.getBody(req, req.application.body_id);
-    const limit = await PaxLimit.fetchOrUseDefaultForBody(body, req.event.type);
 
     const toUpdate = {};
-    if (typeof req.body.participant_type !== 'undefined') toUpdate.participant_type = req.body.participant_type;
-    if (typeof req.body.participant_order !== 'undefined') toUpdate.participant_order = req.body.participant_order;
-    if (typeof req.body.board_comment !== 'undefined') toUpdate.board_comment = req.body.board_comment;
+    if (helpers.isDefined(req.body.participant_type)) toUpdate.participant_type = req.body.participant_type;
+    if (helpers.isDefined(req.body.participant_order)) toUpdate.participant_order = req.body.participant_order;
+    if (helpers.isDefined(req.body.board_comment)) toUpdate.board_comment = req.body.board_comment;
 
     // Well, this is tricky.
     // Simplest way possible: executing it, then checking how much people
@@ -368,57 +368,146 @@ exports.setApplicationBoard = async (req, res) => {
             // First, saving the application.
             // If we've passed after this one, there's no duplicated, validations
             // and constraint take care about it.
-            const dbResult = await req.application.update(toUpdate, { returning: true, transaction: t });
+            const application = await req.application.update(toUpdate, { returning: true, transaction: t });
 
             // Recalculating votes per delegate for this antenna.
             await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.application.body_id, t);
 
-            // If the pax type is null (it wasn't updated or was unset)
-            // that means also that pax order is null (look in validations).
-            // Therefore, no need to check, the number couldn't increase because of that.
-            // Also, to avoid querying on participant_type === null below.
-            if (!dbResult.participant_type) {
-                return res.json({
-                    success: true,
-                    data: dbResult
-                });
-            }
-
-            // Second, get from database how much people we have for this event
-            // from this body with this pax type.
-            // If we got the validation error, it'll fail the transaction.
-            // Therefore, all the data here is valid.
-            const applicationsCount = await Application.count({
-                where: {
-                    event_id: dbResult.event_id,
-                    body_id: dbResult.body_id,
-                    participant_type: dbResult.participant_type
-                },
+            // Checking is done in a helper.
+            await helpers.checkApplicationBoardviewValidity({
+                body,
+                event: req.event,
+                application,
                 transaction: t
             });
 
-            if (limit[dbResult.participant_type] !== null) {
-                // If the limit's value is not null and is less than
-                // the applications amount (meaning, it increased by one within this transaction),
-                // that means setting the pax order for this user was a mistake and
-                // this needs to be rolled back.
-                if (limit[dbResult.participant_type] < applicationsCount) {
-                    throw new Error(`Too much applications \
-for body #${dbResult.body_id} for type "${dbResult.participant_type}": \
-expected ${limit[dbResult.participant_type]}, got ${applicationsCount}.`);
-                }
-
-                // If the participant_order is bigger than the limit (e.g. envoy (4) when only 3 envoys are eligible)
-                // then rolling back as well.
-                if (dbResult.participant_order > limit[dbResult.participant_type]) {
-                    throw new Error(`Expected participant number from 1 to ${applicationsCount}, \
-got participant type ${dbResult.participant_order}`);
-                }
-            }
-
+            // If we got here, everything is okay.
             return res.json({
                 success: true,
-                data: dbResult
+                data: application
+            });
+        });
+    } catch (err) {
+        // Here we go only when the transaction has failed and rolled back.
+
+        // If validation error, throw it further so general error handler can handle it.
+        if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
+            throw err;
+        }
+
+        return errors.makeForbiddenError(res, err.message);
+    }
+};
+
+// WARNING: This will reset all of the pax types and orders and board comments
+// and will set it only for those specified in the input.
+exports.setBoardForBody = async (req, res) => {
+    if (Number.isNaN(Number(req.params.body_id, 10))) {
+        return errors.makeBadRequestError(res, 'The body ID is invalid.');
+    }
+
+    if (
+        !req.permissions.set_board_comment_and_participant_type[req.params.body_id]
+        && !req.permissions.set_board_comment_and_participant_type.global
+    ) {
+        return errors.makeForbiddenError(
+            res,
+            'You don\'t have permissions to change the board comment or participant type of this body.'
+        );
+    }
+
+    // Validating input.
+    if (!Array.isArray(req.body)) {
+        return errors.makeBadRequestError(res, 'The body is not an array.');
+    }
+
+    for (const index in req.body) {
+        const entry = req.body[index];
+        if (!helpers.isObject(entry)) {
+            return errors.makeBadRequestError(res, `Entry ${index + 1}: is not an object.`);
+        }
+
+        if (typeof entry.user_id !== 'number') {
+            return errors.makeBadRequestError(res, `Entry ${index + 1}: user ID is not a number.`);
+        }
+
+        if (typeof entry.participant_type !== 'string') {
+            return errors.makeBadRequestError(res, `Entry ${index + 1}: participant type is not a string.`);
+        }
+
+        if (typeof entry.participant_order !== 'number') {
+            return errors.makeBadRequestError(res, `Entry ${index + 1}: participant order is not a number.`);
+        }
+    }
+
+    // need to fetch body to get its body type
+    const body = await core.getBody(req, req.params.body_id);
+
+    // Same as in above.
+    try {
+        await sequelize.transaction(async (t) => {
+            // First, resetting all applications' pax type, order and board comment.
+            // (will re-set them later).
+            await Application.update(
+                {
+                    participant_type: null,
+                    participant_order: null,
+                    board_comment: null
+                },
+                {
+                    where: {
+                        event_id: req.event.id,
+                        body_id: body.id
+                    },
+                    transaction: t,
+                    hooks: false // apparently event_id is not there yet somehow, and anyway it's not needed
+                }
+            );
+
+            // Then iterating through entries.
+            for (const entry of req.body) {
+                // Finding the application required.
+                const application = await Application.findOne({
+                    where: {
+                        user_id: entry.user_id,
+                        event_id: req.event.id,
+                        body_id: body.id
+                    },
+                    transaction: t
+                });
+
+                if (!application) {
+                    throw new Error(`Application with user ID #${entry.user_id} from body ID #${body.id} is not found.`);
+                }
+
+                const toUpdate = {
+                    participant_type: entry.participant_type,
+                    participant_order: entry.participant_order
+                };
+                if (helpers.isTruthy(entry.board_comment)) toUpdate.board_comment = entry.board_comment;
+
+                // First, saving the application.
+                // If we've passed after this one, there's no duplications, validations
+                // and constraint take care about it.
+                await application.update(toUpdate, { returning: true, transaction: t });
+
+                // Checking is done in a helper.
+                await helpers.checkApplicationBoardviewValidity({
+                    body,
+                    event: req.event,
+                    application,
+                    transaction: t
+                });
+            }
+
+            // Recalculating votes per delegate for this antenna.
+            // We only do it once, because a lot of applications are changed.
+            await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.params.body_id, t);
+
+            // If we got here, everything is okay.
+            return res.json({
+                success: true,
+                message: 'Board information was updated.'
             });
         });
     } catch (err) {

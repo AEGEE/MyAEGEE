@@ -129,7 +129,7 @@ exports.updatePositionStatus = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage positions.');
     }
 
-    if (typeof req.body.status !== 'undefined') {
+    if (helpers.isDefined(req.body.status)) {
         await req.position.update({ status: req.body.status });
     }
 
