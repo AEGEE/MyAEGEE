@@ -160,9 +160,17 @@ exports.listBoardView = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see the boardview of this body.');
     }
 
+    // 'zzzzz' is used to be last, 'unset' won't do
     const applications = req.event.applications
         .map(application => application.toJSON())
-        .filter(application => application.body_id === parseInt(req.params.body_id, 10));
+        .filter(application => application.body_id === parseInt(req.params.body_id, 10))
+        .sort((a, b) => {
+            if ((a.participant_type || 'zzzzzz').localeCompare(b.participant_type || 'zzzzzz') !== 0) {
+                return (a.participant_type || 'zzzzzz').localeCompare(b.participant_type || 'zzzzzz')
+            }
+
+            return (a.participant_order || 999) - (b.participant_order || 999)
+        });
 
     return res.json({
         success: true,
