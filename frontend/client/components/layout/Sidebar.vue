@@ -1,11 +1,11 @@
 <template>
   <aside class="menu app-sidebar animated" :class="{ slideInLeft: show, slideOutLeft: !show, 'is-menu-opened': navbar.menuOpened }">
-    <div v-for="(category, categoryIndex) in menu" v-bind:key="category.categoryName">
+    <div v-for="(category, categoryIndex) in filteredMenu" v-bind:key="category.categoryName">
       <p class="menu-label">
         {{ category.categoryName }}
       </p>
       <ul class="menu-list">
-        <li v-for="(item, index) in category.components" exact="true" v-bind:key="item.name" v-if="userHasPermissions(item)">
+        <li v-for="(item, index) in category.components" exact="true" v-bind:key="item.name">
           <router-link :to="{ name: item.name }" v-if="item.name" :aria-expanded="isExpanded(item) ? 'true' : 'false'" @click.native="toggle(index, categoryIndex, item)">
             <span><i :class="['fas', item.icon]"></i></span>
             {{ item.label }}
@@ -22,7 +22,7 @@
           </a>
 
           <ul v-show="isExpanded(item)">
-            <li v-for="subItem in item.children" v-bind:key="subItem.name" v-if="userHasPermissions(subItem)">
+            <li v-for="subItem in item.children" v-bind:key="subItem.name">
               <router-link :to="{ name: subItem.name }" exact="true">
                 {{ subItem.label }}
               </router-link>
@@ -53,12 +53,37 @@ export default {
       this.shouldExpandMatchItem(route)
     }
   },
-  computed: mapGetters({
-    menu: 'menuitems',
-    permissions: 'permissions',
-    navbar: 'navbar',
-    device: 'device'
-  }),
+  computed: {
+    ...mapGetters({
+      menu: 'menuitems',
+      permissions: 'permissions',
+      navbar: 'navbar',
+      device: 'device'
+    }),
+    filteredMenu () {
+      let newMenu = JSON.parse(JSON.stringify(this.menu));
+
+      // structure: menu => array of categories => array of components => (probably) array of children
+      for (const category of newMenu) {
+        for (const component of category.components) {
+          // first, remove all children you don't have permissions to
+          if (Array.isArray(component.children)) {
+            component.children = component.children.filter(child => this.userHasPermissions(child))
+          }
+        }
+
+        // remove all components that have no children (either empty or removed because no permissions)
+        // and then remove all components you don't have permissions to
+        category.components = category.components
+          .filter(component => !Array.isArray(component.children) || component.children.length > 0)
+          .filter(component => this.userHasPermissions(component))
+      }
+
+      // then removing categories when you don't have any components inside
+      newMenu = newMenu.filter(category => category.components.length > 0)
+      return newMenu
+    }
+  },
   methods: {
     ...mapActions([
       'expandMenu',
