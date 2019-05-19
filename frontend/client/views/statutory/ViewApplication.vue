@@ -176,6 +176,9 @@
             <div class="notification is-success" v-if="application.status === 'accepted'">
               Congratulations, you have been accepted to the event!
             </div>
+            <div class="notification is-warning" v-if="application.status === 'waiting_list'">
+              Unfortunately you've been put to a waiting list. Please contact organizers to get more info on that.
+            </div>
             <div class="notification is-danger" v-if="application.status === 'rejected'">
               Sorry, but you were not accepted to the event.
             </div>

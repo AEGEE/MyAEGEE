@@ -99,6 +99,7 @@
                 <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)">
                   <option value="pending">Pending</option>
                   <option value="accepted">Accepted</option>
+                  <option value="waiting_list">Waiting list</option>
                   <option value="rejected">Rejected</option>
                 </select>
               </div>
@@ -187,6 +188,8 @@ export default {
           return 'has-background-success'
         case 'rejected':
           return 'has-background-danger'
+        case 'waiting_list':
+          return 'has-background-warning'
         default:
           return ''
       }

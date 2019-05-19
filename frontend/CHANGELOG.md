@@ -1,3 +1,12 @@
+## [0.12.3](https://github.com/AEGEE/oms-frontend/compare/0.12.2...0.12.3) (2019-05-19)
+
+
+### Bug Fixes
+
+* **statutory:** added waiting_list status for pax. Fixed MEMB-490 ([45e3f66](https://github.com/AEGEE/oms-frontend/commit/45e3f66))
+
+
+
 ## [0.12.2](https://github.com/AEGEE/oms-frontend/compare/0.12.1...0.12.2) (2019-05-18)
 
 

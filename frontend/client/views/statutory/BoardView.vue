@@ -143,7 +143,10 @@
             </b-table-column>
 
             <b-table-column field="status" label="Status" centered sortable>
-              {{ props.row.status | capitalize }}
+              <span v-if="props.row.status === 'accepted'">Accepted</span>
+              <span v-if="props.row.status === 'rejected'">Rejected</span>
+              <span v-if="props.row.status === 'waiting_list'">Waiting list</span>
+              <span v-if="props.row.status === 'pending'">Pending</span>
             </b-table-column>
 
             <b-table-column centered>
