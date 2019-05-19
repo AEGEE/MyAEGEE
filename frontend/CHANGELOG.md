@@ -1,3 +1,12 @@
+## [0.12.4](https://github.com/AEGEE/oms-frontend/compare/0.12.3...0.12.4) (2019-05-19)
+
+
+### Bug Fixes
+
+* **general:** refactored sidebar. Fixes MEMB-498 ([6946c6b](https://github.com/AEGEE/oms-frontend/commit/6946c6b))
+
+
+
 ## [0.12.3](https://github.com/AEGEE/oms-frontend/compare/0.12.2...0.12.3) (2019-05-19)
 
 
