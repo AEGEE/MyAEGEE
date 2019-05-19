@@ -1,3 +1,12 @@
+## [0.10.8](https://github.com/AEGEE/oms-statutory/compare/0.10.7...0.10.8) (2019-05-19)
+
+
+### Bug Fixes
+
+* **boardview:** sorting boardview applications ([e9fafd6](https://github.com/AEGEE/oms-statutory/commit/e9fafd6))
+
+
+
 ## [0.10.7](https://github.com/AEGEE/oms-statutory/compare/0.10.6...0.10.7) (2019-05-19)
 
 
