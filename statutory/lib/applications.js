@@ -99,10 +99,10 @@ exports.getStats = async (req, res) => {
     };
 
     statsObject.numbers = {
-        total: req.event.applications.length,
-        accepted: req.event.applications.filter(app => helpers.filterObject(app, { status: 'accepted' })).length,
-        rejected: req.event.applications.filter(app => helpers.filterObject(app, { status: 'rejected' })).length,
-        pending: req.event.applications.filter(app => helpers.filterObject(app, { status: 'pending' })).length,
+        total: req.event.applications.filter(app => helpers.filterObject(app, { cancelled: false })).length,
+        accepted: req.event.applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'accepted' })).length,
+        rejected: req.event.applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'rejected' })).length,
+        pending: req.event.applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'pending' })).length,
         paid_fee: req.event.applications.filter(app => helpers.filterObject(app, { paid_fee: true })).length,
         registered: req.event.applications.filter(app => helpers.filterObject(app, { registered: true })).length,
         attended: req.event.applications.filter(app => helpers.filterObject(app, { attended: true })).length,

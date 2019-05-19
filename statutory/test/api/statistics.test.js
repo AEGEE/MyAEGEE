@@ -283,6 +283,11 @@ describe('Statistics testing', () => {
         await generator.createApplication({ user_id: 6, status: 'accepted', paid_fee: true, attended: true, registered: true }, event);
         await generator.createApplication({ user_id: 7, status: 'accepted', paid_fee: true, attended: true, registered: true, departed: true }, event);
 
+        // cancelled aplications shouldn't count
+        await generator.createApplication({ user_id: 8, status: 'pending', cancelled: true }, event);
+        await generator.createApplication({ user_id: 9, status: 'rejected', cancelled: true }, event);
+        await generator.createApplication({ user_id: 10, status: 'accepted', cancelled: true }, event);
+
         const res = await request({
             uri: '/events/' + event.id + '/applications/stats',
             method: 'GET',
