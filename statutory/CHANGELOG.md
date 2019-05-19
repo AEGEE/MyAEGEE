@@ -1,3 +1,12 @@
+## [0.10.6](https://github.com/AEGEE/oms-statutory/compare/0.10.5...0.10.6) (2019-05-19)
+
+
+### Bug Fixes
+
+* **application:** added waiting_list status. Fixes MEMB-490 ([76f611d](https://github.com/AEGEE/oms-statutory/commit/76f611d))
+
+
+
 ## [0.10.5](https://github.com/AEGEE/oms-statutory/compare/0.10.4...0.10.5) (2019-04-29)
 
 
