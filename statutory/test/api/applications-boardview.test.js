@@ -141,7 +141,7 @@ describe('Applications boardview list', () => {
                 participant_type: null,
                 participant_order: null
             }, event),
-        ]
+        ];
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/boardview/' + regularUser.bodies[0].id,

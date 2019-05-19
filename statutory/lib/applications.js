@@ -167,10 +167,10 @@ exports.listBoardView = async (req, res) => {
         .sort((a, b) => {
             const compareByType = (a.participant_type || 'zzzzzz').localeCompare(b.participant_type || 'zzzzzz');
             if (compareByType !== 0) {
-                return compareByType
+                return compareByType;
             }
 
-            return (a.participant_order || 999) - (b.participant_order || 999)
+            return (a.participant_order || 999) - (b.participant_order || 999);
         });
 
     return res.json({
