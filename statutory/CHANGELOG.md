@@ -1,3 +1,12 @@
+## [0.10.7](https://github.com/AEGEE/oms-statutory/compare/0.10.6...0.10.7) (2019-05-19)
+
+
+### Bug Fixes
+
+* **stats:** not counting cancelled applications. Fixes MEMB-509 ([e87c749](https://github.com/AEGEE/oms-statutory/commit/e87c749))
+
+
+
 ## [0.10.6](https://github.com/AEGEE/oms-statutory/compare/0.10.5...0.10.6) (2019-05-19)
 
 
