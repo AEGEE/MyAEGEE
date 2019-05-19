@@ -88,23 +88,21 @@
           :data="filteredApplications"
           :loading="isLoading"
           paginated
-          :per-page="limit"
-          default-sort="id"
-          default-sort-direction="desc">
+          :per-page="limit">
           <template slot-scope="props">
-            <b-table-column field="id" label="#" numeric sortable>
+            <b-table-column field="id" label="#" numeric>
               {{ props.row.id }}
             </b-table-column>
 
-            <b-table-column field="last_name" label="First and last name" sortable>
+            <b-table-column field="last_name" label="First and last name">
               {{ props.row.first_name }} {{ props.row.last_name }}
             </b-table-column>
 
-            <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name" sortable>
+            <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name">
               {{ field.get(props.row) | beautify }}
             </b-table-column>
 
-            <b-table-column field="participant_type" label="Participant type" sortable>
+            <b-table-column field="participant_type" label="Participant type">
               <div class="select">
                 <select v-model="props.row.participant_type">
                   <option :value="null">Not set</option>
@@ -116,21 +114,21 @@
               </div>
             </b-table-column>
 
-            <b-table-column field="participant_type" label="Participant order" sortable>
+            <b-table-column field="participant_type" label="Participant order">
               <input class="input" type="number" v-model.number="props.row.participant_order" min="1" />
             </b-table-column>
 
-            <b-table-column field="board_comment" label="Board comment" sortable>
+            <b-table-column field="board_comment" label="Board comment">
               <textarea class="textarea" v-model="props.row.board_comment" />
             </b-table-column>
 
-            <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable>
+            <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered>
               <span :class="calculateClassForMemberslist(props.row)">
                 {{ props.row.is_on_memberslist | beautify }}
               </span>
             </b-table-column>
 
-            <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled">
+            <b-table-column field="cancelled" label="Cancelled?" centered :visible="displayCancelled">
               <span class="tag" :class="{ 'is-danger': props.row.cancelled }">
                 {{ props.row.cancelled | beautify }}
               </span>
@@ -142,7 +140,7 @@
               </router-link>
             </b-table-column>
 
-            <b-table-column field="status" label="Status" centered sortable>
+            <b-table-column field="status" label="Status" centered>
               <span v-if="props.row.status === 'accepted'">Accepted</span>
               <span v-if="props.row.status === 'rejected'">Rejected</span>
               <span v-if="props.row.status === 'waiting_list'">Waiting list</span>
