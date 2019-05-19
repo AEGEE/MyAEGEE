@@ -1,3 +1,12 @@
+## [0.12.5](https://github.com/AEGEE/oms-frontend/compare/0.12.4...0.12.5) (2019-05-19)
+
+
+### Bug Fixes
+
+* **statutory:** removed sorting on statutory boardview ([50f5109](https://github.com/AEGEE/oms-frontend/commit/50f5109))
+
+
+
 ## [0.12.4](https://github.com/AEGEE/oms-frontend/compare/0.12.3...0.12.4) (2019-05-19)
 
 
