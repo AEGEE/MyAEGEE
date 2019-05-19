@@ -1,5 +1,5 @@
 module.exports = {
-    up: async (queryInterface, Sequelize) => {
+    up: async (queryInterface) => {
         // https://stackoverflow.com/questions/1771543/adding-a-new-value-to-an-existing-enum-type
         await queryInterface.sequelize.query('alter type enum_applications_status add value \'waiting_list\';');
     },
