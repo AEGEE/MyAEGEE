@@ -1,3 +1,20 @@
+# [0.13.0](https://github.com/AEGEE/oms-frontend/compare/0.12.5...0.13.0) (2019-05-20)
+
+
+### Bug Fixes
+
+* **alastair:** forgot to remove dashboard debug output ([1f6c189](https://github.com/AEGEE/oms-frontend/commit/1f6c189))
+* **alastair:** removed small fuckups ([f9fd284](https://github.com/AEGEE/oms-frontend/commit/f9fd284))
+
+
+### Features
+
+* **alastair:** added most of chef and shop view ([f9faeb3](https://github.com/AEGEE/oms-frontend/commit/f9faeb3))
+* **alastair:** added welcome and my events page ([f058488](https://github.com/AEGEE/oms-frontend/commit/f058488))
+* **alastair:** first usable version of the frontend ([79836d2](https://github.com/AEGEE/oms-frontend/commit/79836d2))
+
+
+
 ## [0.12.5](https://github.com/AEGEE/oms-frontend/compare/0.12.4...0.12.5) (2019-05-19)
 
 

@@ -2,5 +2,6 @@
   "oms-core-elixir": "/services/oms-core-elixir/api",
   "oms-events": "/services/oms-events/api",
   "oms-statutory": "/services/oms-statutory/api",
-  "oms-discounts": "/services/oms-discounts/api"
+  "oms-discounts": "/services/oms-discounts/api",
+  "alastair": "/services/alastair/api"
 }
