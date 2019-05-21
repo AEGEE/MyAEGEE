@@ -1,3 +1,12 @@
+# [0.14.0](https://github.com/AEGEE/oms-frontend/compare/0.13.0...0.14.0) (2019-05-21)
+
+
+### Features
+
+* **statutory:** boardview refactor. Fixes MEMB-376 ([91517d4](https://github.com/AEGEE/oms-frontend/commit/91517d4))
+
+
+
 # [0.13.0](https://github.com/AEGEE/oms-frontend/compare/0.12.5...0.13.0) (2019-05-20)
 
 
