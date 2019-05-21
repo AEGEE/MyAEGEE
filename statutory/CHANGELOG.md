@@ -1,3 +1,13 @@
+# [0.11.0](https://github.com/AEGEE/oms-statutory/compare/0.10.8...0.11.0) (2019-05-21)
+
+
+### Bug Fixes
+
+* **application:** refactor pax type and comments setting. Fixes MEMB-376 ([b5c339d](https://github.com/AEGEE/oms-statutory/commit/b5c339d))
+* **test:** more test coverage for boardview ([2847769](https://github.com/AEGEE/oms-statutory/commit/2847769))
+
+
+
 ## [0.10.8](https://github.com/AEGEE/oms-statutory/compare/0.10.7...0.10.8) (2019-05-19)
 
 
