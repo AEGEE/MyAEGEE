@@ -20,19 +20,6 @@
           </div>
         </div>
 
-        <div class="field">
-          <label class="label">Search by name, surname or email</label>
-          <div class="field has-addons">
-            <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
-            </div>
-            <div class="control">
-              <button class="button is-primary" v-if="!displayCancelled" @click="displayCancelled = true">Display all applications</button>
-              <button class="button is-primary" v-if="displayCancelled" @click="displayCancelled = false">Display only not cancelled applications</button>
-            </div>
-          </div>
-        </div>
-
         <div class="content" v-if="selectedBody">
           <p>Your body can send:</p>
           <ul>
@@ -47,115 +34,162 @@
           <p v-if="allowedToSendAnyPax">The deadline for board approval is: <strong>{{ event.board_approve_deadline | datetime }}</strong> (local time).</p>
         </div>
 
-        <div class="notification is-danger" v-if="Object.keys(this.errors).length > 0">
-          <div class="content">
-            <strong>This errors occured while trying to update the participant:</strong>
-            <ul>
-              <li v-if="errors.participant_type">Participant type: {{ errors.participant_type.join(', ') }}</li>
-              <li v-if="errors.participant_order">Participant order: {{ errors.participant_order.join(', ') }}</li>
-              <li v-if="errors.participantTypeShouldBeSetWithOrder">{{ errors.participantTypeShouldBeSetWithOrder.join(', ') }}</li>
-              <li v-if="errors.board_comment">Board comment: {{ errors.board_comment.join(', ') }}</li>
-            </ul>
-          </div>
+        <div class="tabs is-centered is-boxed">
+          <ul>
+            <li :class="{'is-active': scope === 'edit' }" @click="scope = 'edit'">
+              <a>
+                <span class="icon is-small"><i class="fa fa-pen" aria-hidden="true"></i></span>
+                <span>Edit boardview</span>
+              </a>
+            </li>
+            <li :class="{'is-active': scope === 'view' }" @click="scope = 'view'">
+              <a>
+                <span class="icon is-small"><i class="fa fa-users" aria-hidden="true"></i></span>
+                <span>View applications</span>
+              </a>
+            </li>
+          </ul>
         </div>
 
-        <div class="field" v-if="allowedToSendAnyPax && selectedBody">
-          <div class="control">
-            <multiselect
-              v-model="selectedFields"
-              :multiple="true"
-              :searchable="false"
-              :close-on-select="false"
-              :clear-on-select="false"
-              :preserve-search="true"
-              :options="fields"
-              placeholder="Select application fields"
-              track-by="name"
-              label="name" >
-              <template
-                slot="selection"
-                slot-scope="{ values, search, isOpen }">
-                <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} fields selected</span>
-              </template>
-            </multiselect>
+        <div v-show="scope === 'edit' && selectedBody">
+          <div class="notification is-danger" v-if="Object.keys(this.errors).length > 0">
+            <div class="content">
+              <strong>This errors occured while trying to update the participant:</strong>
+              <ul>
+                <li v-if="errors.participant_type">Participant type: {{ errors.participant_type.join(', ') }}</li>
+                <li v-if="errors.participant_order">Participant order: {{ errors.participant_order.join(', ') }}</li>
+                <li v-if="errors.participantTypeShouldBeSetWithOrder">{{ errors.participantTypeShouldBeSetWithOrder.join(', ') }}</li>
+                <li v-if="errors.board_comment">Board comment: {{ errors.board_comment.join(', ') }}</li>
+              </ul>
+            </div>
           </div>
+
+          <b-table
+            :data="bodyStatuses">
+            <template slot-scope="props">
+              <b-table-column label="Participant type and order">
+                {{ props.row.participant_type }} ({{ props.row.participant_order }})
+              </b-table-column>
+
+              <b-table-column field="user_id" label="User">
+                <div class="select">
+                  <select v-model="props.row.user_id">
+                    <option :value="null">Not set</option>
+                    <option v-for="application in applications" v-bind:key="application.user_id" v-bind:value="application.user_id">
+                      {{ application.first_name }} {{ application.last_name }}
+                    </option>
+                  </select>
+                </div>
+              </b-table-column>
+
+              <b-table-column field="board_comment" label="Board comment" sortable>
+                <textarea class="textarea" v-model="props.row.board_comment" />
+              </b-table-column>
+            </template>
+          </b-table>
+
+          <div class="notification is-warning">
+            <p>Please keep in mind that if you haven't selected any application here, its participant type/order and board comment would be unset.</p>
+            <p>If you are swapping 2 applications, please swap their board comments as well.</p>
+          </div>
+
+          <button class="button is-fullwidth is-primary" @click="updateParticipants()">Save!</button>
+        </div>
+
+        <div v-show="scope === 'view' && selectedBody">
+          <div class="field">
+            <label class="label">Search by name, surname or email</label>
+            <div class="field has-addons">
+              <div class="control is-expanded">
+                <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
+              </div>
+              <div class="control">
+                <button class="button is-primary" v-if="!displayCancelled" @click="displayCancelled = true">Display all applications</button>
+                <button class="button is-primary" v-if="displayCancelled" @click="displayCancelled = false">Display only not cancelled applications</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="field" v-if="allowedToSendAnyPax && selectedBody">
+            <div class="control">
+              <multiselect
+                v-model="selectedFields"
+                :multiple="true"
+                :searchable="false"
+                :close-on-select="false"
+                :clear-on-select="false"
+                :preserve-search="true"
+                :options="fields"
+                placeholder="Select application fields"
+                track-by="name"
+                label="name" >
+                <template
+                  slot="selection"
+                  slot-scope="{ values, search, isOpen }">
+                  <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} fields selected</span>
+                </template>
+              </multiselect>
+            </div>
+          </div>
+
+          <b-table
+            :data="filteredApplications"
+            :loading="isLoading"
+            paginated
+            :per-page="limit"
+            default-sort="id"
+            default-sort-direction="desc">
+            <template slot-scope="props">
+              <b-table-column field="id" label="#" numeric sortable>
+                {{ props.row.id }}
+              </b-table-column>
+
+              <b-table-column field="last_name" label="First and last name" sortable>
+                {{ props.row.first_name }} {{ props.row.last_name }}
+              </b-table-column>
+
+              <b-table-column label="Participant type and order">
+                <span v-if="props.row.participant_type">{{ props.row.participant_type }} ({{ props.row.participant_order }})</span>
+              </b-table-column>
+
+              <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable>
+                <span :class="calculateClassForMemberslist(props.row)">
+                  {{ props.row.is_on_memberslist | beautify }}
+                </span>
+              </b-table-column>
+
+              <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled">
+                <span class="tag" :class="{ 'is-danger': props.row.cancelled }">
+                  {{ props.row.cancelled | beautify }}
+                </span>
+              </b-table-column>
+
+              <b-table-column label="View" centered>
+                <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.id } }">
+                  View
+                </router-link>
+              </b-table-column>
+
+              <b-table-column field="status" label="Status" centered sortable>
+                <span v-if="props.row.status === 'accepted'">Accepted</span>
+                <span v-if="props.row.status === 'rejected'">Rejected</span>
+                <span v-if="props.row.status === 'waiting_list'">Waiting list</span>
+                <span v-if="props.row.status === 'pending'">Pending</span>
+              </b-table-column>
+
+              <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name" sortable>
+                {{ field.get(props.row) | beautify }}
+              </b-table-column>
+            </template>
+
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
         </div>
 
         <div class="subtitle" v-if="boardBodies.length === 0">You are not a board member of any body.</div>
         <div class="subtitle" v-if="!selectedBody && boardBodies.length > 0">You haven't selected the antenna yet.</div>
-
-        <b-table
-          :data="filteredApplications"
-          :loading="isLoading"
-          paginated
-          :per-page="limit">
-          <template slot-scope="props">
-            <b-table-column field="id" label="#" numeric>
-              {{ props.row.id }}
-            </b-table-column>
-
-            <b-table-column field="last_name" label="First and last name">
-              {{ props.row.first_name }} {{ props.row.last_name }}
-            </b-table-column>
-
-            <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name">
-              {{ field.get(props.row) | beautify }}
-            </b-table-column>
-
-            <b-table-column field="participant_type" label="Participant type">
-              <div class="select">
-                <select v-model="props.row.participant_type">
-                  <option :value="null">Not set</option>
-                  <option value="delegate" v-show="limits.delegate !== 0">Delegate</option>
-                  <option value="visitor" v-show="limits.visitor !== 0">Visitor</option>
-                  <option value="envoy" v-show="limits.envoy !== 0">Envoy</option>
-                  <option value="observer" v-show="limits.observer !== 0">Observer</option>
-                </select>
-              </div>
-            </b-table-column>
-
-            <b-table-column field="participant_type" label="Participant order">
-              <input class="input" type="number" v-model.number="props.row.participant_order" min="1" />
-            </b-table-column>
-
-            <b-table-column field="board_comment" label="Board comment">
-              <textarea class="textarea" v-model="props.row.board_comment" />
-            </b-table-column>
-
-            <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered>
-              <span :class="calculateClassForMemberslist(props.row)">
-                {{ props.row.is_on_memberslist | beautify }}
-              </span>
-            </b-table-column>
-
-            <b-table-column field="cancelled" label="Cancelled?" centered :visible="displayCancelled">
-              <span class="tag" :class="{ 'is-danger': props.row.cancelled }">
-                {{ props.row.cancelled | beautify }}
-              </span>
-            </b-table-column>
-
-            <b-table-column label="View" centered>
-              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.id } }">
-                View
-              </router-link>
-            </b-table-column>
-
-            <b-table-column field="status" label="Status" centered>
-              <span v-if="props.row.status === 'accepted'">Accepted</span>
-              <span v-if="props.row.status === 'rejected'">Rejected</span>
-              <span v-if="props.row.status === 'waiting_list'">Waiting list</span>
-              <span v-if="props.row.status === 'pending'">Pending</span>
-            </b-table-column>
-
-            <b-table-column centered>
-              <button class="button is-primary is-small" @click="updateParticipant(props.row)">Save!</button>
-            </b-table-column>
-          </template>
-
-          <template slot="empty">
-            <empty-table-stub />
-          </template>
-        </b-table>
       </div>
     </div>
   </div>
@@ -171,6 +205,8 @@ export default {
       applications: [],
       boardBodies: [],
       myBoards: [],
+      bodyStatuses: [],
+      scope: 'edit',
       selectedBody: null,
       limits: {
         delegate: 0,
@@ -228,23 +264,39 @@ export default {
     calculateClassForMemberslist (pax) {
       return ['tag', 'is-small', pax.is_on_memberslist ? 'is-primary' : 'is-danger']
     },
-    updateParticipant (pax) {
-      this.errors = {}
-      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/board'
+    updateParticipants () {
+      // checking for dups
+      const ids = this.bodyStatuses
+        .map(s => s.user_id)
+        .filter(s => !!s)
 
-      this.axios.put(url, {
-        participant_type: pax.participant_type,
-        participant_order: pax.participant_order,
-        board_comment: pax.board_comment
-      }).then(() => {
-        this.$root.showSuccess('Participant is successfully updated.')
+      for (let index = 0; index < ids.length; index++) {
+        if (ids[index] && ids.indexOf(ids[index]) !== index) {
+          return this.$root.showDanger('You\'ve specified one user multiple times, please remove any duplicate users and try again.')
+        }
+      }
+
+      // also checking if there's an entry with a board comment but without user (pointless)
+      for (const entry of this.bodyStatuses) {
+        if (!entry.user_id && entry.board_comment) {
+          return this.$root.showWarning('You\'ve specified a board comment but didn\'t select an appplication for it. Either remove the board comment or select an applicant for it.')
+        }
+      }
+
+
+      this.errors = {}
+      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + this.selectedBody
+      const body = this.bodyStatuses.filter(entry => entry.user_id !== null && typeof entry.user_id !== 'undefined')
+
+      this.axios.post(url, body).then(() => {
+        this.$root.showSuccess('Participants info is successfully updated.')
       }).catch((err) => {
         if (err.response && err.response.data && err.response.data.message) {
-          this.$root.showDanger('Could not update participant: ' + err.response.data.message)
+          this.$root.showDanger('Could not update participants info: ' + err.response.data.message)
         } else if (err.response && err.response.data.errors) {
           this.errors = err.response.data.errors
         } else {
-          this.$root.showDanger('Could not update participant: ' + err.message)
+          this.$root.showDanger('Could not update participants info: ' + err.message)
         }
       })
     },
@@ -256,6 +308,29 @@ export default {
         return this.axios.get(this.services['oms-statutory'] + '/limits/' + this.event.type + '/' + this.selectedBody)
       }).then((limit) => {
         this.limits = limit.data.data
+
+        // setting the selected body statuses to send to the endpoint
+        this.bodyStatuses = []
+        for (const type of ['delegate', 'envoy', 'observer', 'visitor']) {
+          // setting 30 as a max value, why not
+          const limit = type in this.limits ? this.limits[type] : 30;
+
+          for (let order = 1; order <= limit; order++) {
+            const entry = {
+              participant_type: type,
+              participant_order: order,
+              user_id: null,
+              board_comment: null
+            }
+            const application = this.applications.find(a => a.participant_type === type && a.participant_order === order)
+            if (application) {
+              entry.user_id = application.user_id
+              entry.board_comment = application.board_comment
+            }
+
+            this.bodyStatuses.push(entry)
+          }
+        }
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
