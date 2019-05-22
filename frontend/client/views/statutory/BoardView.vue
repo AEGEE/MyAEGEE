@@ -137,14 +137,12 @@
             :loading="isLoading"
             paginated
             :per-page="limit"
-            default-sort="id"
-            default-sort-direction="desc">
             <template slot-scope="props">
-              <b-table-column field="id" label="#" numeric sortable>
+              <b-table-column field="id" label="#" numeric>
                 {{ props.row.id }}
               </b-table-column>
 
-              <b-table-column field="last_name" label="First and last name" sortable>
+              <b-table-column field="last_name" label="First and last name">
                 {{ props.row.first_name }} {{ props.row.last_name }}
               </b-table-column>
 
@@ -152,13 +150,13 @@
                 <span v-if="props.row.participant_type">{{ props.row.participant_type }} ({{ props.row.participant_order }})</span>
               </b-table-column>
 
-              <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable>
+              <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered>
                 <span :class="calculateClassForMemberslist(props.row)">
                   {{ props.row.is_on_memberslist | beautify }}
                 </span>
               </b-table-column>
 
-              <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled">
+              <b-table-column field="cancelled" label="Cancelled?" centered :visible="displayCancelled">
                 <span class="tag" :class="{ 'is-danger': props.row.cancelled }">
                   {{ props.row.cancelled | beautify }}
                 </span>
@@ -170,14 +168,14 @@
                 </router-link>
               </b-table-column>
 
-              <b-table-column field="status" label="Status" centered sortable>
+              <b-table-column field="status" label="Status" centered>
                 <span v-if="props.row.status === 'accepted'">Accepted</span>
                 <span v-if="props.row.status === 'rejected'">Rejected</span>
                 <span v-if="props.row.status === 'waiting_list'">Waiting list</span>
                 <span v-if="props.row.status === 'pending'">Pending</span>
               </b-table-column>
 
-              <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name" sortable>
+              <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name">
                 {{ field.get(props.row) | beautify }}
               </b-table-column>
             </template>
