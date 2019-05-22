@@ -136,7 +136,7 @@
             :data="filteredApplications"
             :loading="isLoading"
             paginated
-            :per-page="limit"
+            :per-page="limit">
             <template slot-scope="props">
               <b-table-column field="id" label="#" numeric>
                 {{ props.row.id }}
