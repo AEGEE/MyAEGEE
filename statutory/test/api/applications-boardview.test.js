@@ -138,6 +138,18 @@ describe('Applications boardview list', () => {
             await generator.createApplication({
                 body_id: regularUser.bodies[0].id,
                 user_id: 5,
+                participant_type: 'visitor',
+                participant_order: 3
+            }, event),
+            await generator.createApplication({
+                body_id: regularUser.bodies[0].id,
+                user_id: 6,
+                participant_type: null,
+                participant_order: null
+            }, event),
+            await generator.createApplication({
+                body_id: regularUser.bodies[0].id,
+                user_id: 7,
                 participant_type: null,
                 participant_order: null
             }, event),
@@ -154,11 +166,13 @@ describe('Applications boardview list', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
 
-        expect(res.body.data.length).toEqual(5);
+        expect(res.body.data.length).toEqual(7);
         expect(res.body.data[0].id).toEqual(applications[0].id);
         expect(res.body.data[1].id).toEqual(applications[1].id);
         expect(res.body.data[2].id).toEqual(applications[2].id);
         expect(res.body.data[3].id).toEqual(applications[3].id);
         expect(res.body.data[4].id).toEqual(applications[4].id);
+        expect(res.body.data[5].id).toEqual(applications[5].id);
+        expect(res.body.data[6].id).toEqual(applications[6].id);
     });
 });
