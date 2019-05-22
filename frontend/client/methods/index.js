@@ -11,6 +11,12 @@ export default {
       message
     })
   },
+  showWarning (message) {
+    this.showNotification({
+      type: 'is-warning',
+      message
+    })
+  },
   showSuccess (message) {
     this.showNotification({
       type: 'is-success',
