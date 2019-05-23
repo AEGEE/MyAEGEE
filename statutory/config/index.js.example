@@ -7,7 +7,7 @@ const config = {
             host: process.env.DB_HOST || 'postgres-oms-statutory',
             port: parseInt(process.env.DB_PORT, 10) || 5432,
             username: process.env.USERNAME || 'postgres',
-            password: process.env.PASSWORD || 'postgres',
+            password: process.env.PASSWORD || '5ecr3t',
             database: process.env.DB_DATABASE || 'statutory'
         },
         core: {

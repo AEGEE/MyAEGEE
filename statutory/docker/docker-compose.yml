@@ -3,15 +3,18 @@ version: '3.2'
 ### mongodb Container #######################################
 services:
     postgres-oms-statutory:
+        restart: always
         image: postgres:10
         volumes:
             - postgres:/var/lib/postgresql/data
         expose:
-            - "5432"
+            - 5432
         environment:
             POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: postgres
+            POSTGRES_PASSWORD: ${PW_POSTGRES}
+    
     oms-statutory:
+        restart: always
         build:
             context: ./$PATH_OMS_STATUTORY/oms-statutory
             dockerfile: ./Dockerfile.dev
@@ -23,7 +26,7 @@ services:
         links:
             - postgres-oms-statutory
         expose:
-            - "8084"
+            - 8084
         environment:
             BUGSNAG_KEY: a7dfed96a71033eca7f4469e8f88878b
         secrets:
@@ -32,12 +35,9 @@ services:
         labels:
             - "traefik.backend=oms-statutory"
             - "traefik.port=8084"
-            - "traefik.frontend.rule=HostRegexp:{domain:[a-z0-9.]+};PathPrefix:/services/oms-statutory/api;PathPrefixStrip:/services/oms-statutory/api"
+            - "traefik.frontend.rule=PathPrefix:/services/oms-statutory/api;PathPrefixStrip:/services/oms-statutory/api"
             - "traefik.frontend.priority=110"
             - "traefik.enable=true"
-            - "registry.categories=(statutory, 10);(events, 10);(notifications, 10)"
-            - "registry.servicename=oms-statutory"
-
 
 
 volumes:
