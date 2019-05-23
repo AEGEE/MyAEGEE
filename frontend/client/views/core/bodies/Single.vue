@@ -49,6 +49,10 @@
                   <td>{{ body.legacy_key }}</td>
                 </tr>
                 <tr>
+                  <th>Foundation date</th>
+                  <td>{{ body.founded_at }}</td>
+                </tr>
+                <tr>
                   <th>Email</th>
                   <td v-if="body.email"><a :href="'mailto:' + body.email">{{ body.email }}</td>
                   <td v-if="!body.email"><i>Not set.</i></td>

@@ -54,6 +54,10 @@
             <b-table-column field="description" label="Description">
               <span class="body-description" v-html="$options.filters.markdown(props.row.description)"></span>
             </b-table-column>
+
+            <b-table-column field="founded_at" label="Foundation date">
+              {{ props.row.founded_at }}
+            </b-table-column>
           </template>
 
           <template slot="empty">
