@@ -1,3 +1,12 @@
+## [0.11.1](https://github.com/AEGEE/oms-statutory/compare/0.11.0...0.11.1) (2019-05-23)
+
+
+### Features
+
+* **provisioning:** standardise passwords; improve deployability ([d0f8ba9](https://github.com/AEGEE/oms-statutory/commit/d0f8ba9))
+
+
+
 # [0.11.0](https://github.com/AEGEE/oms-statutory/compare/0.10.8...0.11.0) (2019-05-21)
 
 
