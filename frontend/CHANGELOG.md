@@ -1,3 +1,12 @@
+## [0.14.2](https://github.com/AEGEE/oms-frontend/compare/0.14.1...0.14.2) (2019-05-23)
+
+
+### Features
+
+* **core:** introduce body foundation date. Fixes HELP-513 ([c7ceadf](https://github.com/AEGEE/oms-frontend/commit/c7ceadf))
+
+
+
 ## [0.14.1](https://github.com/AEGEE/oms-frontend/compare/0.14.0...0.14.1) (2019-05-22)
 
 
