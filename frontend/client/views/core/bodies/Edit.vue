@@ -51,7 +51,6 @@
           <p class="help is-danger" v-if="errors.legacy_key">{{ errors.legacy_key.join(', ')}}</p>
         </div>
 
-
         <div class="field">
           <label class="label">Email</label>
           <div class="control has-icons-left">
@@ -76,6 +75,12 @@
             <input class="input" type="text" required v-model="body.address" />
           </div>
           <p class="help is-danger" v-if="errors.address">{{ errors.address.join(', ')}}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Founded at</label>
+          <b-datepicker :date-formatter="formatDate" :date-parser="parseDate" v-model="foundationDate" @input="transformFoundedAt()" />
+          <p class="help is-danger" v-if="errors.founded_at">{{ errors.founded_at.join(', ')}}</p>
         </div>
 
         <div class="field" v-if="$route.params.id && can.editShadowCircle">
@@ -126,6 +131,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import moment from 'moment'
 
 export default {
   name: 'EditBody',
@@ -143,6 +149,7 @@ export default {
         shadow_circle: null,
         circles: []
       },
+      foundationDate: null,
       permissions: [],
       can: {
         editName: true,
@@ -163,6 +170,15 @@ export default {
     }
   },
   methods: {
+    parseDate (date) {
+      return moment(date, 'YYYY-MM-DD').toDate()
+    },
+    formatDate (date) {
+      return moment(date).format('YYYY-MM-DD')
+    },
+    transformFoundedAt () {
+      this.body.founded_at = moment(this.foundationDate).format('YYYY-MM-DD')
+    },
     saveBody () {
       this.isSaving = true
       this.errors = {}
@@ -200,6 +216,8 @@ export default {
     this.isLoading = true
     this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
       this.body = response.data.data
+      this.foundationDate = response.data.data.founded_at ? moment(response.data.data.founded_at, 'YYYY-MM-DD').toDate() : null
+
       this.isLoading = false
 
       return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
