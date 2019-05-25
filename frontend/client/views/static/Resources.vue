@@ -159,7 +159,7 @@ export default {
             color: '#A0C514'
           },
           {
-            url: 'http://www.zeus.aegee.org/portal/wp-content/uploads/CIA_General-Rules_v27.1.pdf',
+            url: 'https://www.zeus.aegee.org/portal/new-cia-29-1/',
             title: 'CIA',
             description: 'Statutes, regulation, working formats and motions',
             img: 'none.png',
