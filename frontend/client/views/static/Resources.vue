@@ -65,7 +65,7 @@ export default {
         'External': [
           {
             url: 'http://aegee.org',
-            title: 'AEGEE Website',
+            title: 'AEGEE website',
             description: 'Official website',
             img: 'default-blue.png',
             color: '#1468C5'
@@ -102,21 +102,21 @@ export default {
           },
           {
             url: 'http://www.zeus.aegee.org/portal/',
-            title: 'Internal News',
+            title: 'Internal news',
             description: 'Open calls and news from European Bodies',
             img: 'members-portal.png',
             color: '#FBBA00'
           },
           {
             url: 'https://lists.aegee.org/join/AEGEENEWS-L',
-            title: 'Internal Newsletter',
+            title: 'Internal newsletter',
             description: 'Bi-weekly internal newsletter',
             img: 'default-yellow.png',
             color: '#FBBA00'
           },
           {
             url: 'http://www.zeus.aegee.org/magazine/',
-            title: 'The AEGEEan Magazine',
+            title: 'The AEGEEan magazine',
             description: 'AEGEE\'s online Magazine',
             img: 'none.png',
             color: '#FBBA00'
@@ -183,7 +183,7 @@ export default {
         'Resources': [
           {
             url: 'http://www.zeus.aegee.org/portal/resources/pr-materials/',
-            title: 'Visual Identity',
+            title: 'Visual identity',
             description: 'Manual, logos, PR materials and more',
             img: 'default-red.png',
             color: '#C51C13'
