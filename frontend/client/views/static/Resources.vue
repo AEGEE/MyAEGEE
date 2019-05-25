@@ -175,9 +175,16 @@ export default {
             color: '#C51C13'
           },
           {
-            url: 'http://www.zeus.aegee.org/portal/resources/pr-materials/',
-            title: 'Booklets',
-            description: 'Members Manual, LTC packages, guides etc.',
+            url: 'https://www.zeus.aegee.org/portal/resources/internal-education/',
+            title: 'Internal education',
+            description: 'LTC and RTC packages.',
+            img: 'default-red.png',
+            color: '#C51C13'
+          },
+          {
+            url: 'https://www.zeus.aegee.org/portal/resources/members-manual/',
+            title: 'Members manual',
+            description: 'Members Manual, guides etc.',
             img: 'default-red.png',
             color: '#C51C13'
           }
