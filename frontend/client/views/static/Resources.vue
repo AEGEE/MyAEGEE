@@ -126,28 +126,28 @@ export default {
             title: 'AEGEE Wiki',
             description: 'A collaborative knowledge backbone of AEGEE',
             img: 'wiki.png',
-            color: '#931991'
+            color: '#FBBA00'
           },
           {
             url: 'https://www.zeus.aegee.org/forum',
             title: 'Forum',
             description: 'Place for structured discussions ',
             img: 'default-purple.png',
-            color: '#931991'
+            color: '#FBBA00'
           },
           {
             url: 'https://lists.aegee.org/?HOME',
             title: 'Mailing lists',
             description: 'AEGEE mailing lists',
             img: 'default-purple.png',
-            color: '#931991'
+            color: '#FBBA00'
           },
           {
             url: 'https://www.facebook.com/groups/aegeeans/',
             title: 'Facebook group',
             description: 'AEGEE\'s official group on Facebook',
             img: 'facebook.png',
-            color: '#931991'
+            color: '#FBBA00'
           }
         ],
         'Statutory': [
