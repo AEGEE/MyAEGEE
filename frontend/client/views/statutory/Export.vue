@@ -95,6 +95,7 @@ export default {
       applications: [],
       fields: {
         id: 'ID',
+        statutory_id: 'Statutory ID',
         user_id: 'User ID',
         body_id: 'Body ID',
         created_at: 'Applied on',
@@ -132,6 +133,7 @@ export default {
       },
       incomingFields: {
         id: 'ID',
+        statutory_id: 'Statutory ID',
         user_id: 'User ID',
         body_id: 'Body ID',
         created_at: 'Applied on',
