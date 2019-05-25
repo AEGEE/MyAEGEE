@@ -85,7 +85,7 @@ export default {
             color: '#1468C5'
           },
           {
-            url: 'http://aegee.org/press/publications/key-to-europe/',
+            url: 'https://www.aegee.org/external/key-to-europe/',
             title: 'Key to Europe',
             description: 'Yearbook - the annual report publication',
             img: 'none.png',
