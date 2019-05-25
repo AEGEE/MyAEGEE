@@ -166,7 +166,7 @@ export default {
             color: '#A0C514'
           }
         ],
-        'Resources': [
+        'Useful guides': [
           {
             url: 'http://www.zeus.aegee.org/portal/resources/pr-materials/',
             title: 'Visual identity',
