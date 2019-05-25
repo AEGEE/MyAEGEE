@@ -2,6 +2,7 @@ module.exports = {
     CURRENT_USER_PREFIX: 'me',
     ALLOWED_NETWORK_LIST_FIELDS: [
         'id',
+        'statutory_id',
         'user_id',
         'body_id',
         'body_name',
@@ -13,6 +14,7 @@ module.exports = {
     ],
     ALLOWED_JURIDICAL_LIST_FIELDS: [
         'id',
+        'statutory_id',
         'user_id',
         'body_id',
         'body_name',
@@ -31,6 +33,7 @@ module.exports = {
     ],
     ALLOWED_INCOMING_FIELDS: [
         'id',
+        'statutory_id',
         'user_id',
         'body_id',
         'body_name',
@@ -63,6 +66,7 @@ module.exports = {
     ],
     ALLOWED_PARTICIPANTS_LIST_FIELDS: [
         'id',
+        'statutory_id',
         'user_id',
         'body_id',
         'body_name',
@@ -80,6 +84,7 @@ module.exports = {
     ],
     ALLOWED_PLENARY_ATTENDANCE_FIELDS: [
         'id',
+        'statutory_id',
         'first_name',
         'last_name',
         'participant_type',
@@ -89,6 +94,7 @@ module.exports = {
     ],
     ALLOWED_PENDING_CANDIDATE_FIELDS: [
         'id',
+        'statutory_id',
         'status',
         'first_name',
         'last_name',
@@ -97,6 +103,7 @@ module.exports = {
     ],
     APPLICATION_FIELD_NAMES: {
         id: 'ID',
+        statutory_id: 'Statutory ID',
         user_id: 'User ID',
         body_id: 'Body ID',
         created_at: 'Applied on',
