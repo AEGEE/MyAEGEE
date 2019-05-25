@@ -152,13 +152,6 @@ export default {
         ],
         'Statutory': [
           {
-            url: 'https://www.zeus.aegee.org/statutory/',
-            title: 'Statutory',
-            description: 'Register for Statutory Events - Agorae and EPM',
-            img: 'none.png',
-            color: '#A0C514'
-          },
-          {
             url: 'https://www.zeus.aegee.org/statutoryvote/jc/',
             title: 'Online voting',
             description: 'Online Voting for Agorae/General Assembly',
