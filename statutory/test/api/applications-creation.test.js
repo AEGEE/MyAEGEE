@@ -1045,4 +1045,30 @@ describe('Applications creation', () => {
             expect(applicationFromDb.is_on_memberslist).toEqual(true);
         });
     });
+
+    test('should calculate statutory_id correctly', async () => {
+        const event = await generator.createEvent({ applications: [] });
+
+        // user with ID 2 applied first => statutory_id === XXX-0001
+        // current user (with ID 1) applied second => statutory_id === XXX-0002
+        const firstApplication = await generator.createApplication({ user_id: 2 }, event);
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id,
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+
+        expect(firstApplication.statutory_id).toEqual(event.id.toString().padStart(3, '0') + '-0001');
+        expect(res.body.data.statutory_id).toEqual(event.id.toString().padStart(3, '0') + '-0002');
+    });
 });

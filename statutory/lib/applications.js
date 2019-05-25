@@ -203,6 +203,7 @@ exports.updateApplication = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot apply on behalf of the body you are not a member of.');
     }
 
+    delete req.body.statutory_id;
     delete req.body.status;
     delete req.body.board_comment;
     delete req.body.participant_type;
@@ -532,6 +533,7 @@ exports.postApplication = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot apply on behalf of the body you are not a member of.');
     }
 
+    delete req.body.statutory_id;
     delete req.body.status;
     delete req.body.board_comment;
     delete req.body.participant_type;

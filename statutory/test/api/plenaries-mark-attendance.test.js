@@ -90,40 +90,6 @@ describe('Plenary attendance marking', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should fail if application_id is NaN', async () => {
-        const event = await generator.createEvent({ type: 'agora', applications: [] });
-        const plenary = await generator.createPlenary({}, event);
-
-        const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { application_id: false }
-        });
-
-        expect(res.statusCode).toEqual(400);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
-    });
-
-    test('should fail if application_id is not a valid string', async () => {
-        const event = await generator.createEvent({ type: 'agora', applications: [] });
-        const plenary = await generator.createPlenary({}, event);
-
-        const res = await request({
-            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { application_id: 'test' }
-        });
-
-        expect(res.statusCode).toEqual(400);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
-    });
-
     test('should fail if application is not found', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const plenary = await generator.createPlenary({}, event);
@@ -313,5 +279,36 @@ describe('Plenary attendance marking', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('ends');
+    });
+
+    test('should find application by statutory_id', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const plenary = await generator.createPlenary({}, event);
+        const application = await generator.createApplication({
+            participant_type: 'delegate',
+            participant_order: 1
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/plenaries/' + plenary.id + '/attendance/mark',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { application_id: application.statutory_id }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        const attendanceFromDb = await Attendance.findAll({
+            where: {
+                application_id: application.id,
+                plenary_id: plenary.id
+            }
+        });
+        expect(attendanceFromDb.length).toEqual(1);
+        expect(res.body.data.id).toEqual(attendanceFromDb[0].id);
+        expect(attendanceFromDb[0].ends).toEqual(null);
     });
 });

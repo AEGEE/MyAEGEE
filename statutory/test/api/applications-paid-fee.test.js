@@ -106,22 +106,6 @@ describe('Applications paid fee', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should return 400 on malformed user_id', async () => {
-        const event = await generator.createEvent({ applications: [] });
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/lalala/paid_fee',
-            method: 'PUT',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { paid_fee: true }
-        });
-
-        expect(res.statusCode).toEqual(400);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-        expect(res.body).not.toHaveProperty('data');
-    });
-
     test('should return 422 if paid_fee is invalid', async () => {
         const event = await generator.createEvent();
         const application = await generator.createApplication({}, event);

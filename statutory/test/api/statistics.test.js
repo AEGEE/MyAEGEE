@@ -17,6 +17,8 @@ describe('Statistics testing', () => {
     afterEach(async () => {
         await stopServer();
         mock.cleanAll();
+
+        await generator.clearAll();
     });
 
     test('should return nothing if no applications', async () => {

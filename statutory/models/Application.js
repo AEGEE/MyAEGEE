@@ -339,6 +339,12 @@ const Application = sequelize.define('application', {
         validate: {
             isBoolean
         }
+    },
+    statutory_id: {
+        // no validation because it's set automatically in pre-create hook
+        // allowNull: true is here for the same reason
+        type: Sequelize.STRING,
+        allowNull: true
     }
 }, {
     underscored: true,
@@ -400,6 +406,20 @@ Application.afterValidate(async (application, options) => {
 
     options.fields.push('is_on_memberslist');
     application.setDataValue('is_on_memberslist', helpers.memberslistHasMember(memberslistForBody, application));
+});
+
+// Generating and setting statutory_id
+Application.beforeCreate(async (application, options) => {
+    const applicationsCount = await Application.count({
+        where: { event_id: application.event_id }
+    });
+
+    const newStatutoryId = application.event_id.toString().padStart(3, '0')
+        + '-'
+        + (applicationsCount + 1).toString().padStart(4, '0');
+
+    options.fields.push('statutory_id');
+    application.setDataValue('statutory_id', newStatutoryId);
 });
 
 module.exports = Application;

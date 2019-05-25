@@ -118,11 +118,14 @@ exports.isNumber = (value) => {
         return true;
     }
 
+    /* istanbul ignore else */
     if (typeof value === 'string') {
         const valueAsNumber = +value; // converts to number if it's all numbers or to NaN otherwise
         return !Number.isNaN(valueAsNumber);
     }
 
+    // Is not covered, probably will be in the future.
+    /* istanbul ignore next */
     return false;
 };
 
@@ -223,9 +226,6 @@ exports.memberslistHasMember = (memberslist, application) => {
     // Otherwise, iterate through members to check if some of them match.
     return memberslist.members.some(member => exports.memberMatchApplication(member, application));
 };
-
-// A helper to determine if the string is either 'me' or an integer.
-exports.isIDValid = id => id === constants.CURRENT_USER_PREFIX || !Number.isNaN(Number(id, 10));
 
 // A helpers to determine if the user is member of a body.
 exports.isMemberOf = (user, bodyId) => user.bodies.map(body => body.id).includes(bodyId);

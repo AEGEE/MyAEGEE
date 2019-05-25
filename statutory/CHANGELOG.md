@@ -1,3 +1,18 @@
+# [0.12.0](https://github.com/AEGEE/oms-statutory/compare/0.11.1...0.12.0) (2019-05-25)
+
+
+### Bug Fixes
+
+* **application:** getting application by statutory_id and tests ([9e6282e](https://github.com/AEGEE/oms-statutory/commit/9e6282e))
+* **statutory:** can mark attendance by statutory_id ([93239cc](https://github.com/AEGEE/oms-statutory/commit/93239cc))
+
+
+### Features
+
+* **application:** added statutory_id. Fixes HELP-239 ([9459ec6](https://github.com/AEGEE/oms-statutory/commit/9459ec6))
+
+
+
 ## [0.11.1](https://github.com/AEGEE/oms-statutory/compare/0.11.0...0.11.1) (2019-05-23)
 
 
