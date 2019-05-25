@@ -45,7 +45,7 @@
           </thead>
           <tbody>
             <tr v-for="vote in delegates" v-bind:key="vote.id">
-              <td>{{ vote.application.id }}</td>
+              <td>{{ vote.application.statutory_id }}</td>
               <td>{{ vote.application.user_id }}</td>
               <td>
                 <router-link :to="{ name: 'oms.bodies.view', params: { id: vote.body_id } }">

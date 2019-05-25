@@ -1,3 +1,12 @@
+## [0.14.3](https://github.com/AEGEE/oms-frontend/compare/0.14.2...0.14.3) (2019-05-25)
+
+
+### Bug Fixes
+
+* **statutory:** added statutory ID. Fixes HELP-239 ([b390661](https://github.com/AEGEE/oms-frontend/commit/b390661))
+
+
+
 ## [0.14.2](https://github.com/AEGEE/oms-frontend/compare/0.14.1...0.14.2) (2019-05-23)
 
 

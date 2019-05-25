@@ -9,11 +9,11 @@
         <b-table
           :data="applications"
           :loading="isLoading"
-          default-sort="id"
+          default-sort="statutory_id"
           default-sort-direction="desc">
           <template slot-scope="props">
-            <b-table-column field="id" label="#" numeric>
-              {{ props.row.id }}
+            <b-table-column field="statutory_id" label="#" numeric>
+              {{ props.row.statutory_id }}
             </b-table-column>
 
             <b-table-column field="first_name" label="Name">

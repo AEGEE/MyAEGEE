@@ -34,8 +34,8 @@
               </thead>
               <tbody>
                 <tr>
-                  <th>ID</th>
-                  <td>{{ application.id }}</td>
+                  <th>Statutory ID</th>
+                  <td>{{ application.statutory_id }}</td>
                 </tr>
                 <tr>
                   <th>Applied on</th>

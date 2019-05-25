@@ -138,8 +138,8 @@
             paginated
             :per-page="limit">
             <template slot-scope="props">
-              <b-table-column field="id" label="#" numeric>
-                {{ props.row.id }}
+              <b-table-column field="statutory_id" label="#" numeric>
+                {{ props.row.statutory_id }}
               </b-table-column>
 
               <b-table-column field="last_name" label="First and last name">
@@ -163,7 +163,7 @@
               </b-table-column>
 
               <b-table-column label="View" centered>
-                <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.id } }">
+                <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
                   View
                 </router-link>
               </b-table-column>

@@ -47,11 +47,11 @@
           :row-class="row => calculateClassForApplication(row)"
           paginated
           :per-page="limit"
-          default-sort="id"
+          default-sort="statutory_id"
           default-sort-direction="desc">
           <template slot-scope="props">
-            <b-table-column field="id" label="#" numeric sortable>
-              {{ props.row.id }}
+            <b-table-column field="statutory_id" label="#" numeric sortable>
+              {{ props.row.statutory_id }}
             </b-table-column>
 
             <b-table-column field="name" label="User ID" sortable>
@@ -89,7 +89,7 @@
             </b-table-column>
 
             <b-table-column label="View" centered>
-              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.id } }">
+              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
                 View
               </router-link>
             </b-table-column>
