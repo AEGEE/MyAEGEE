@@ -106,22 +106,6 @@ describe('Applications registration', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should return 400 on malformed user_id', async () => {
-        const event = await generator.createEvent({ applications: [] });
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/lalala/registered',
-            method: 'PUT',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { registered: true }
-        });
-
-        expect(res.statusCode).toEqual(400);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-        expect(res.body).not.toHaveProperty('data');
-    });
-
     test('should return 422 if registered is invalid', async () => {
         const event = await generator.createEvent();
         const application = await generator.createApplication({ paid_fee: true, attended: true }, event);

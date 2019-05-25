@@ -60,7 +60,6 @@ describe('Applications displaying', () => {
         const event = await generator.createEvent({ applications: [] });
         const application = await generator.createApplication({ user_id: userId }, event);
 
-
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id,
             method: 'GET',
@@ -72,6 +71,24 @@ describe('Applications displaying', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.user_id).toEqual(userId);
+    });
+
+    test('should find application by statutory_id', async () => {
+        const userId = Math.floor(Math.random() * 100 * 50); // from 50 to 150
+        const event = await generator.createEvent({ applications: [] });
+        const application = await generator.createApplication({ user_id: userId }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.statutory_id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.statutory_id).toEqual(application.statutory_id);
     });
 
     test('should return the error for those who does not have permissions to see applications', async () => {
@@ -89,21 +106,6 @@ describe('Applications displaying', () => {
         });
 
         expect(res.statusCode).toEqual(403);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-        expect(res.body).not.toHaveProperty('data');
-    });
-
-    test('should return 400 if ID is malformed', async () => {
-        const event = await generator.createEvent();
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/malformed',
-            method: 'GET',
-            headers: { 'X-Auth-Token': 'blablabla' }
-        });
-
-        expect(res.statusCode).toEqual(400);
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('message');
         expect(res.body).not.toHaveProperty('data');

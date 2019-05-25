@@ -88,22 +88,6 @@ describe('Applications status', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should return 400 on malformed application_id', async () => {
-        const event = await generator.createEvent({ applications: [] });
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/lalala/status',
-            method: 'PUT',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { status: 'accepted' }
-        });
-
-        expect(res.statusCode).toEqual(400);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-        expect(res.body).not.toHaveProperty('data');
-    });
-
     test('should return 422 if status is invalid', async () => {
         const event = await generator.createEvent();
         const application = await generator.createApplication({}, event);

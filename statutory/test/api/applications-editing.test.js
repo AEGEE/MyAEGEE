@@ -197,26 +197,6 @@ describe('Applications editing', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should return 400 on malformed user_id', async () => {
-        const event = await generator.createEvent({ applications: [] });
-
-        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/lalala',
-            method: 'PUT',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { body_id: regularUser.bodies[0].id }
-        });
-
-        tk.reset();
-
-        expect(res.statusCode).toEqual(400);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-        expect(res.body).not.toHaveProperty('data');
-    });
-
     test('should remove any additional fields', async () => {
         const event = await generator.createEvent();
         const application = await generator.createApplication({

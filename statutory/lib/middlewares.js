@@ -128,17 +128,14 @@ exports.fetchEvent = fetchEvent(false);
 exports.fetchEventWithApplications = fetchEvent(true);
 
 exports.fetchSingleApplication = async (req, res, next) => {
-    // ID is either 'me' or an integer (user ID)
-    if (!helpers.isIDValid(req.params.application_id)) {
-        return errors.makeBadRequestError(res, `Application ID should be either a number or '${constants.CURRENT_USER_PREFIX}'`);
-    }
-
     const whereObj = { event_id: req.event.id };
 
-    if (req.params.application_id === constants.CURRENT_USER_PREFIX) { // /me, find by user_id
+    if (req.params.application_id === constants.CURRENT_USER_PREFIX) { // / me, find by user_id
         whereObj.user_id = req.user.id;
-    } else { // Find by application ID
-        whereObj.id = parseInt(req.params.application_id, 10);
+    } else if (helpers.isNumber(req.params.application_id)) { // Find by application ID
+        whereObj.id = Number(req.params.application_id);
+    } else { // Find by statutory ID
+        whereObj.statutory_id = req.params.application_id;
     }
 
     const userPrefix = req.params.application_id === constants.CURRENT_USER_PREFIX ? 'You' : 'This user';

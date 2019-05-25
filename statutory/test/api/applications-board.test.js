@@ -104,20 +104,6 @@ describe('Applications pax type/board comment', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should return 400 on malformed user_id', async () => {
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/lalala/board',
-            method: 'PUT',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { participant_type: 'delegate', participant_order: 1 }
-        });
-
-        expect(res.statusCode).toEqual(400);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-        expect(res.body).not.toHaveProperty('data');
-    });
-
     test('should return 422 if info is invalid', async () => {
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/board',

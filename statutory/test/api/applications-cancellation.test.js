@@ -136,22 +136,6 @@ describe('Applications cancellation', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should return 400 on malformed user_id', async () => {
-        const event = await generator.createEvent({ applications: [] });
-
-        const res = await request({
-            uri: '/events/' + event.id + '/applications/lalala/cancel',
-            method: 'PUT',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: { cancelled: true }
-        });
-
-        expect(res.statusCode).toEqual(400);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-        expect(res.body).not.toHaveProperty('data');
-    });
-
     test('should return 422 if cancelled is invalid', async () => {
         const event = await generator.createEvent();
         const application = await generator.createApplication({}, event);
