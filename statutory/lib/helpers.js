@@ -118,11 +118,14 @@ exports.isNumber = (value) => {
         return true;
     }
 
+    /* istanbul ignore else */
     if (typeof value === 'string') {
         const valueAsNumber = +value; // converts to number if it's all numbers or to NaN otherwise
         return !Number.isNaN(valueAsNumber);
     }
 
+    // Is not covered, probably will be in the future.
+    /* istanbul ignore next */
     return false;
 };
 

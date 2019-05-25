@@ -291,20 +291,23 @@ exports.markPlenaryAttendance = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage plenaries.');
     }
 
-    if (!helpers.isNumber(req.body.application_id)) {
-        return errors.makeBadRequestError(res, 'The application ID is not a number.');
-    }
-
     if (moment().isAfter(req.plenary.ends)) {
         return errors.makeForbiddenError(res, 'The plenary is over already, cannot mark any more members.');
     }
 
+    const whereClause = {
+        event_id: req.event.id
+    };
+
+    if (!helpers.isNumber(req.body.application_id)) {
+        whereClause.statutory_id = req.body.application_id;
+    } else {
+        whereClause.id = Number(req.body.application_id);
+    }
+
     // First, fetch application.
     const application = await Application.findOne({
-        where: {
-            id: req.body.application_id,
-            event_id: req.event.id
-        },
+        where: whereClause,
         attributes: constants.ALLOWED_PLENARY_ATTENDANCE_FIELDS
     });
 
