@@ -164,13 +164,6 @@ export default {
             description: 'Statutes, regulation, working formats and motions',
             img: 'none.png',
             color: '#A0C514'
-          },
-          {
-            url: 'https://site2.aegee.org/wp-content/uploads/2017/07/CIA_General-Rules_v27.1.pdf/',
-            title: 'Strategic Planning',
-            description: 'Strategic Plan 2017-2020 and Action Agenda 2017-2018',
-            img: 'none.png',
-            color: '#A0C514'
           }
         ],
         'Resources': [
