@@ -1,3 +1,20 @@
+## [0.14.4](https://github.com/AEGEE/oms-frontend/compare/0.14.3...0.14.4) (2019-05-25)
+
+
+### Bug Fixes
+
+* **discounts:** updated links to internal education and members manual ([b39d9f8](https://github.com/AEGEE/oms-frontend/commit/b39d9f8))
+* **resources:** fixed case. Fixes HELP-391 ([87f5022](https://github.com/AEGEE/oms-frontend/commit/87f5022))
+* **resources:** fixed CIA link. Fixes HELP-386, HELP-506 ([cd20df7](https://github.com/AEGEE/oms-frontend/commit/cd20df7))
+* **resources:** fixed intranet description ([c801236](https://github.com/AEGEE/oms-frontend/commit/c801236))
+* **resources:** fixed Key to Europe link ([ebbe0a1](https://github.com/AEGEE/oms-frontend/commit/ebbe0a1))
+* **resources:** removed Strategic Planning link ([fe84b2a](https://github.com/AEGEE/oms-frontend/commit/fe84b2a))
+* **resources:** renamed Resources. Fixes HELP-388 ([01439a4](https://github.com/AEGEE/oms-frontend/commit/01439a4))
+* **resources:** switched to one color. Fixes HELP-385 ([bd795ab](https://github.com/AEGEE/oms-frontend/commit/bd795ab))
+* **statutory:** removed link to old statutory. Fixes MEMB-394 ([83850ec](https://github.com/AEGEE/oms-frontend/commit/83850ec))
+
+
+
 ## [0.14.3](https://github.com/AEGEE/oms-frontend/compare/0.14.2...0.14.3) (2019-05-25)
 
 

@@ -65,7 +65,7 @@ export default {
         'External': [
           {
             url: 'http://aegee.org',
-            title: 'AEGEE Website',
+            title: 'AEGEE website',
             description: 'Official website',
             img: 'default-blue.png',
             color: '#1468C5'
@@ -85,7 +85,7 @@ export default {
             color: '#1468C5'
           },
           {
-            url: 'http://aegee.org/press/publications/key-to-europe/',
+            url: 'https://www.aegee.org/external/key-to-europe/',
             title: 'Key to Europe',
             description: 'Yearbook - the annual report publication',
             img: 'none.png',
@@ -96,27 +96,27 @@ export default {
           {
             url: 'http://intranet.aegee.org',
             title: 'Intranet',
-            description: 'European Events and internal documents ',
+            description: 'The system that was used before MyAEGEE and is still used for some old things.',
             img: 'default-yellow.png',
             color: '#FBBA00'
           },
           {
             url: 'http://www.zeus.aegee.org/portal/',
-            title: 'Internal News',
+            title: 'Internal news',
             description: 'Open calls and news from European Bodies',
             img: 'members-portal.png',
             color: '#FBBA00'
           },
           {
             url: 'https://lists.aegee.org/join/AEGEENEWS-L',
-            title: 'Internal Newsletter',
+            title: 'Internal newsletter',
             description: 'Bi-weekly internal newsletter',
             img: 'default-yellow.png',
             color: '#FBBA00'
           },
           {
             url: 'http://www.zeus.aegee.org/magazine/',
-            title: 'The AEGEEan Magazine',
+            title: 'The AEGEEan magazine',
             description: 'AEGEE\'s online Magazine',
             img: 'none.png',
             color: '#FBBA00'
@@ -126,38 +126,31 @@ export default {
             title: 'AEGEE Wiki',
             description: 'A collaborative knowledge backbone of AEGEE',
             img: 'wiki.png',
-            color: '#931991'
+            color: '#FBBA00'
           },
           {
             url: 'https://www.zeus.aegee.org/forum',
             title: 'Forum',
             description: 'Place for structured discussions ',
             img: 'default-purple.png',
-            color: '#931991'
+            color: '#FBBA00'
           },
           {
             url: 'https://lists.aegee.org/?HOME',
             title: 'Mailing lists',
             description: 'AEGEE mailing lists',
             img: 'default-purple.png',
-            color: '#931991'
+            color: '#FBBA00'
           },
           {
             url: 'https://www.facebook.com/groups/aegeeans/',
             title: 'Facebook group',
             description: 'AEGEE\'s official group on Facebook',
             img: 'facebook.png',
-            color: '#931991'
+            color: '#FBBA00'
           }
         ],
         'Statutory': [
-          {
-            url: 'https://www.zeus.aegee.org/statutory/',
-            title: 'Statutory',
-            description: 'Register for Statutory Events - Agorae and EPM',
-            img: 'none.png',
-            color: '#A0C514'
-          },
           {
             url: 'https://www.zeus.aegee.org/statutoryvote/jc/',
             title: 'Online voting',
@@ -166,32 +159,32 @@ export default {
             color: '#A0C514'
           },
           {
-            url: 'http://www.zeus.aegee.org/portal/wp-content/uploads/CIA_General-Rules_v27.1.pdf',
+            url: 'https://www.zeus.aegee.org/portal/new-cia-29-1/',
             title: 'CIA',
             description: 'Statutes, regulation, working formats and motions',
             img: 'none.png',
             color: '#A0C514'
-          },
-          {
-            url: 'https://site2.aegee.org/wp-content/uploads/2017/07/CIA_General-Rules_v27.1.pdf/',
-            title: 'Strategic Planning',
-            description: 'Strategic Plan 2017-2020 and Action Agenda 2017-2018',
-            img: 'none.png',
-            color: '#A0C514'
           }
         ],
-        'Resources': [
+        'Useful guides': [
           {
             url: 'http://www.zeus.aegee.org/portal/resources/pr-materials/',
-            title: 'Visual Identity',
+            title: 'Visual identity',
             description: 'Manual, logos, PR materials and more',
             img: 'default-red.png',
             color: '#C51C13'
           },
           {
-            url: 'http://www.zeus.aegee.org/portal/resources/pr-materials/',
-            title: 'Booklets',
-            description: 'Members Manual, LTC packages, guides etc.',
+            url: 'https://www.zeus.aegee.org/portal/resources/internal-education/',
+            title: 'Internal education',
+            description: 'LTC and RTC packages.',
+            img: 'default-red.png',
+            color: '#C51C13'
+          },
+          {
+            url: 'https://www.zeus.aegee.org/portal/resources/members-manual/',
+            title: 'Members manual',
+            description: 'Members Manual, guides etc.',
             img: 'default-red.png',
             color: '#C51C13'
           }
