@@ -96,7 +96,7 @@ export default {
           {
             url: 'http://intranet.aegee.org',
             title: 'Intranet',
-            description: 'European Events and internal documents ',
+            description: 'The system that was used before MyAEGEE and is still used for some old things.',
             img: 'default-yellow.png',
             color: '#FBBA00'
           },
