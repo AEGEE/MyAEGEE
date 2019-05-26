@@ -1,3 +1,12 @@
+## [0.12.1](https://github.com/AEGEE/oms-statutory/compare/0.12.0...0.12.1) (2019-05-26)
+
+
+### Bug Fixes
+
+* **statutory:** allow setting DB host from env in testing ([859ce04](https://github.com/AEGEE/oms-statutory/commit/859ce04))
+
+
+
 # [0.12.0](https://github.com/AEGEE/oms-statutory/compare/0.11.1...0.12.0) (2019-05-25)
 
 
