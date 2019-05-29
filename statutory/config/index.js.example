@@ -6,8 +6,8 @@ const config = {
         postgres: {
             host: process.env.DB_HOST || 'postgres-oms-statutory',
             port: parseInt(process.env.DB_PORT, 10) || 5432,
-            username: process.env.USERNAME || 'postgres',
-            password: process.env.PASSWORD || '5ecr3t',
+            username: process.env.PG_USERNAME || 'postgres',
+            password: process.env.PG_PASSWORD || '5ecr3t',
             database: process.env.DB_DATABASE || 'statutory'
         },
         core: {
@@ -26,8 +26,8 @@ const config = {
     test: {
         port: 8085,
         postgres: {
-            host: 'localhost',
-            database: 'statutory-testing'
+            host: process.env.DB_HOST || 'localhost',
+            database: process.env.DB_DATABASE || 'statutory-testing'
         },
         bugsnagKey: 'CHANGEME'
     }
