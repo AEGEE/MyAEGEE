@@ -123,6 +123,7 @@ CandidatesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, membe
 CandidatesRouter.post('/', candidates.submitYourCandidature);
 CandidatesRouter.get('/:candidate_id', candidates.findCandidate, candidates.getCandidature);
 CandidatesRouter.put('/:candidate_id', candidates.findCandidate, candidates.editCandidature);
+CandidatesRouter.post('/:candidate_id/:image', candidates.findCandidate, imageserv.uploadImage, candidates.updateCandidateImage);
 CandidatesRouter.put('/:candidate_id/status', candidates.findCandidate, candidates.setCandidatureStatus);
 
 PlenariesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora);

@@ -38,6 +38,9 @@ Attendance.belongsTo(Application);
 Event.belongsTo(Image);
 Image.hasOne(Event);
 
+Candidate.belongsTo(Image);
+Image.hasOne(Candidate);
+
 module.exports = {
     Event,
     Image,

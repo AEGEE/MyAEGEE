@@ -1,5 +1,5 @@
 const errors = require('./errors');
-const { Position, Candidate } = require('../models');
+const { Position, Candidate, Image } = require('../models');
 const helpers = require('./helpers');
 const constants = require('./constants');
 
@@ -45,7 +45,10 @@ exports.listPositionsWithAllCandidates = async (req, res) => {
             ['created_at', 'ASC'],
             [Candidate, 'created_at', 'ASC']
         ],
-        include: [Candidate]
+        include: [{
+            model: Candidate,
+            include: Image
+        }]
     });
 
     return res.json({
@@ -61,7 +64,10 @@ exports.listPositionsWithApprovedCandidates = async (req, res) => {
             ['created_at', 'ASC'],
             [Candidate, 'created_at', 'ASC']
         ],
-        include: [Candidate]
+        include: [{
+            model: Candidate,
+            include: Image
+        }]
     });
 
     // Only returning these candidatures which are approved.

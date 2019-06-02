@@ -1,5 +1,5 @@
 const errors = require('./errors');
-const { Candidate, Position } = require('../models');
+const { Candidate, Position, Image } = require('../models');
 
 const helpers = require('./helpers');
 
@@ -8,7 +8,10 @@ exports.findCandidate = async (req, res, next) => {
         return errors.makeBadRequestError(res, 'The candidate ID is invalid.');
     }
 
-    const candidate = await Candidate.findByPk(Number(req.params.candidate_id));
+    const candidate = await Candidate.findOne({
+        where: { id: Number(req.params.candidate_id) },
+        include: [Image]
+    });
     if (!candidate) {
         return errors.makeNotFoundError(res, 'Candidate is not found.');
     }
@@ -27,7 +30,7 @@ exports.findCandidate = async (req, res, next) => {
 exports.getMyCandidatures = async (req, res) => {
     const candidatures = await Candidate.findAll({
         where: { user_id: req.user.id },
-        include: [Position]
+        include: [Position, Image]
     });
 
     return res.json({
@@ -83,6 +86,36 @@ exports.editCandidature = async (req, res) => {
     return res.json({
         success: true,
         data: req.candidate
+    });
+};
+
+exports.updateCandidateImage = async (req, res) => {
+    if (!req.permissions.edit_candidature) {
+        await req.image.destroy();
+        return errors.makeForbiddenError(res, 'You cannot edit this candidature.');
+    }
+
+    // removing old image
+    if (req.candidate.image_id) {
+        // first updating the candidate's image to the new one, and then deleting the old one
+        // doing it the other way around would violate the foreign key constraint.
+        const oldImageId = req.candidate.image_id;
+        await req.candidate.update({ image_id: req.image.id });
+        await Image.destroy({
+            where: { id: oldImageId },
+            limit: 1,
+            individualHooks: true
+        });
+    } else {
+        await req.candidate.update({ image_id: req.image.id });
+    }
+
+    const candidate = req.candidate.toJSON();
+    candidate.image = req.image.toJSON();
+
+    return res.json({
+        success: true,
+        data: candidate
     });
 };
 
