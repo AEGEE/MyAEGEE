@@ -1,7 +1,7 @@
 <template>
   <div class="tile is-ancestor ">
     <div class="tile is-child">
-      <!--<div v-if="$route.params.id">
+      <div v-if="$route.params.id">
         <div class="subtitle">Update event image</div>
 
         <div class="field is-grouped">
@@ -30,7 +30,14 @@
         </div>
 
         <hr />
-      </div>-->
+      </div>
+      <div class="tile is-parent" v-else>
+        <div class="tile is-child">
+          <div class="notification is-info">
+            You can upload event image after saving it.
+          </div>
+        </div>
+      </div>
 
       <form @submit.prevent="saveEvent()">
         <div class="field">
@@ -346,12 +353,34 @@ export default {
       can: {
         edit_application_status: false
       },
+      file: null,
       errors: {},
       isLoading: false,
       isSaving: false
     }
   },
   methods: {
+    setFile (event) {
+      this.file = event.target.files[0]
+    },
+    updateImage () {
+      if (!this.file) {
+        return
+      }
+
+      const data = new FormData()
+      data.append('image', this.file)
+
+      this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/image', data).then(() => {
+        this.$root.showSuccess('Event image is updated.')
+        this.file = null
+      }).catch((err) => {
+        const message = err.response && err.response.data && err.response.data.message
+          ? err.response.data.message
+          : err.message
+        this.$root.showDanger('Could not update image: ' + message)
+      })
+    },
     fetchBodies (query) {
       if (!query) return
 

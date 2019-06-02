@@ -3,8 +3,9 @@
     <div class="tile is-vertical is-3">
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
-          <figure class="image is-1by1">
-            <img src="/images/logo.png">
+          <figure class="image">
+            <img v-if="!event.image" src="/images/logo.png">
+            <img v-if="event.image" :src="services['oms-statutory'] + event.image.frontend_path">
           </figure>
         </article>
       </div>
@@ -241,7 +242,8 @@ export default {
         body_id: null,
         body: null,
         status: null,
-        type: ''
+        type: '',
+        image: null
       },
       isLoading: false,
       can: {

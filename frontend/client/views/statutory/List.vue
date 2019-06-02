@@ -22,8 +22,9 @@
           <div class="card-content">
             <div class="media">
               <div class="media-left">
-                <figure class="image is-96x96">
-                  <img src="/images/logo.png">
+                <figure class="image image-96px">
+                  <img v-if="!event.image" src="/images/logo.png">
+                  <img v-if="event.image" :src="services['oms-statutory'] + event.image.frontend_path">
                 </figure>
               </div>
               <div class="media-content">
@@ -86,6 +87,12 @@
     </div>
   </div>
 </template>
+
+<style>
+.image-96px {
+  width:96px;
+}
+</style>
 
 <script>
 import { mapGetters } from 'vuex'

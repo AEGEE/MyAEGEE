@@ -1,3 +1,12 @@
+# [0.15.0](https://github.com/AEGEE/oms-frontend/compare/0.14.4...0.15.0) (2019-06-02)
+
+
+### Features
+
+* **statutory:** add image upload. Fixes MEMB-549 ([12a3194](https://github.com/AEGEE/oms-frontend/commit/12a3194))
+
+
+
 ## [0.14.4](https://github.com/AEGEE/oms-frontend/compare/0.14.3...0.14.4) (2019-05-25)
 
 
