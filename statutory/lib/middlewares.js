@@ -3,7 +3,7 @@ const errors = require('./errors');
 const helpers = require('./helpers');
 const logger = require('./logger');
 const constants = require('./constants');
-const { Event, Application } = require('../models');
+const { Event, Application, Image } = require('../models');
 const { Sequelize } = require('./sequelize');
 const bugsnag = require('./bugsnag');
 
@@ -101,7 +101,7 @@ function fetchEvent(includeApplications) {
             };
         }
 
-        if (includeApplications) query.include = [Application];
+        query.include = includeApplications ? [Application, Image] : [Image];
         const event = await Event.findOne(query);
 
         if (!event) {
