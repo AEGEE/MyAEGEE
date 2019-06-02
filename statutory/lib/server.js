@@ -19,6 +19,7 @@ const candidates = require('./candidates');
 const plenaries = require('./plenaries');
 const bugsnag = require('./bugsnag');
 const cron = require('./cron');
+const imageserv = require('./imageserv');
 
 const GeneralRouter = router({ mergeParams: true });
 const PaxLimitsRouter = router({ mergeParams: true });
@@ -31,6 +32,7 @@ const VotesAmountRouter = router({ mergeParams: true });
 const PositionsRouter = router({ mergeParams: true });
 const CandidatesRouter = router({ mergeParams: true });
 const PlenariesRouter = router({ mergeParams: true });
+const ImagesRouter = router({ mergeParams: true });
 
 const server = express();
 server.use(bodyParser.json());
@@ -46,6 +48,8 @@ process.on('unhandledRejection', (err) => {
     }
 });
 
+ImagesRouter.use(express.static(config.images_dir)); // Serving images.
+
 GeneralRouter.use(middlewares.authenticateUser);
 GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', events.addEvent);
@@ -60,6 +64,7 @@ EventsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
 EventsRouter.get('/', events.displayEvent);
 EventsRouter.put('/', events.editEvent);
 EventsRouter.put('/status', events.changeEventStatus);
+EventsRouter.post('/image', imageserv.uploadImage, events.updateEventImage);
 
 ApplicationsRouter.use(middlewares.authenticateUser, middlewares.fetchEventWithApplications);
 ApplicationsRouter.post('/', applications.postApplication);
@@ -118,6 +123,7 @@ CandidatesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, membe
 CandidatesRouter.post('/', candidates.submitYourCandidature);
 CandidatesRouter.get('/:candidate_id', candidates.findCandidate, candidates.getCandidature);
 CandidatesRouter.put('/:candidate_id', candidates.findCandidate, candidates.editCandidature);
+CandidatesRouter.post('/:candidate_id/:image', candidates.findCandidate, imageserv.uploadImage, candidates.updateCandidateImage);
 CandidatesRouter.put('/:candidate_id/status', candidates.findCandidate, candidates.setCandidatureStatus);
 
 PlenariesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora);
@@ -138,6 +144,7 @@ server.use('/events/:event_id/plenaries', PlenariesRouter);
 server.use('/events/:event_id/positions/:position_id/candidates', CandidatesRouter);
 server.use('/events/:event_id/positions', PositionsRouter);
 server.use('/limits/:event_type', PaxLimitsRouter);
+server.use(config.media_url, ImagesRouter);
 server.use('/', GeneralRouter);
 
 server.use(middlewares.notFound);

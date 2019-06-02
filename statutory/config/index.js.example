@@ -18,7 +18,9 @@ const config = {
             url: 'http://oms-mailer',
             port: 4000
         },
-        bugsnagKey: process.env.BUGSNAG_KEY || ''
+        bugsnagKey: process.env.BUGSNAG_KEY || '',
+        images_dir: '/usr/app/media',
+        media_url: '/media/'
     },
     development: {
 
@@ -29,7 +31,8 @@ const config = {
             host: process.env.DB_HOST || 'localhost',
             database: process.env.DB_DATABASE || 'statutory-testing'
         },
-        bugsnagKey: 'CHANGEME'
+        bugsnagKey: 'CHANGEME',
+        images_dir: './tmp_upload'
     }
 };
 

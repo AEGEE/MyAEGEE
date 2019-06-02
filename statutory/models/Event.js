@@ -225,6 +225,13 @@ const Event = sequelize.define('event', {
             }
         }
     },
+    image_id: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+        validate: {
+            isInt: { msg: 'Image ID should be a number.' }
+        },
+    },
     can_apply: {
         type: Sequelize.VIRTUAL,
         get() {

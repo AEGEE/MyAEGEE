@@ -8,6 +8,7 @@ const Position = require('./Position');
 const Candidate = require('./Candidate');
 const Plenary = require('./Plenary');
 const Attendance = require('./Attendance');
+const Image = require('./Image');
 
 Event.hasMany(Application);
 Event.hasMany(MembersList);
@@ -34,9 +35,15 @@ Attendance.belongsTo(Plenary);
 Application.hasMany(Attendance);
 Attendance.belongsTo(Application);
 
+Event.belongsTo(Image);
+Image.hasOne(Event);
+
+Candidate.belongsTo(Image);
+Image.hasOne(Candidate);
 
 module.exports = {
     Event,
+    Image,
     Application,
     MembersList,
     PaxLimit,
