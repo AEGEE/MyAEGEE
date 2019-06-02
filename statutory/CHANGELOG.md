@@ -1,3 +1,18 @@
+# [0.13.0](https://github.com/AEGEE/oms-statutory/compare/0.12.1...0.13.0) (2019-06-02)
+
+
+### Bug Fixes
+
+* **deps:** updated dependencies ([6fefc76](https://github.com/AEGEE/oms-statutory/commit/6fefc76))
+
+
+### Features
+
+* **image:** add images model and uploading event images. Fixes MEMB-549 ([447aee6](https://github.com/AEGEE/oms-statutory/commit/447aee6))
+* **statutory:** add candidates image upload. Fixes MEMB-549 ([34a66f7](https://github.com/AEGEE/oms-statutory/commit/34a66f7))
+
+
+
 ## [0.12.1](https://github.com/AEGEE/oms-statutory/compare/0.12.0...0.12.1) (2019-05-26)
 
 
