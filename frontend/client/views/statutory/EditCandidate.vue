@@ -37,6 +37,44 @@
           </div>
         </div>
 
+        <div v-if="$route.params.id">
+          <div class="subtitle">Update candidature image</div>
+
+          <div class="field is-grouped">
+            <div class="control">
+              <div class="file has-name">
+                <label class="file-label">
+                  <input class="file-input" type="file" name="resume" @change="setFile($event)">
+                  <span class="file-cta">
+                    <span class="file-icon">
+                      <i class="fa fa-upload"></i>
+                    </span>
+                    <span class="file-label">
+                      Choose a file
+                    </span>
+                  </span>
+                  <span class="file-name">
+                    {{ file ? file.name : 'Not set.' }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="control">
+              <a class="button is-info" :disabled="!file" @click="updateImage()">Upload!</a>
+            </div>
+          </div>
+
+          <hr />
+        </div>
+        <div class="tile is-parent" v-else>
+          <div class="tile is-child">
+            <div class="notification is-info">
+              You can upload candidature image after saving it.
+            </div>
+          </div>
+        </div>
+
         <div class="field">
           <label class="label">First name</label>
           <div class="control">
@@ -249,12 +287,41 @@ export default {
       autoComplete: {
         bodies: { name: '', values: [], loading: false }
       },
+      file: null,
       errors: {},
       isLoading: false,
       isSaving: false
     }
   },
   methods: {
+    setFile (event) {
+      this.file = event.target.files[0]
+    },
+    updateImage () {
+      if (!this.file) {
+        return
+      }
+
+      const data = new FormData()
+      data.append('image', this.file)
+
+      this.axios.post(
+        this.services['oms-statutory']
+        + '/events/' + this.$route.params.id
+        + '/positions/' + this.$route.params.position_id
+        + '/candidates/' + this.$route.params.candidate_id
+        + '/image',
+        data
+      ).then(() => {
+        this.$root.showSuccess('Image is updated.')
+        this.file = null
+      }).catch((err) => {
+        const message = err.response && err.response.data && err.response.data.message
+          ? err.response.data.message
+          : err.message
+        this.$root.showDanger('Could not update image: ' + message)
+      })
+    },
     saveCandidate () {
       if (!this.candidate.body_id) {
         return this.$root.showDanger('Please select a body.')

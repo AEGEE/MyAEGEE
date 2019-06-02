@@ -228,7 +228,8 @@ export default {
           // More info: https://github.com/buefy/buefy/issues/55
           position,
           candidate,
-          event: this.event
+          event: this.event,
+          services: this.services
         }
       })
     },

@@ -7,8 +7,9 @@
     <section class="modal-card-body">
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
-          <figure class="image is-1by1">
-            <img src="/images/logo.png">
+          <figure class="image">
+            <img v-if="!candidate.image" src="/images/logo.png">
+            <img v-if="candidate.image" :src="services['oms-statutory'] + candidate.image.frontend_path">
           </figure>
         </article>
       </div>
@@ -109,7 +110,7 @@
 <script>
 export default {
   name: 'ViewCandidateModal',
-  props: ['event', 'position', 'candidate'],
+  props: ['event', 'position', 'candidate', 'services'],
   data () {
     return {}
   }
