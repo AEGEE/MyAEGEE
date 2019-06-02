@@ -18,7 +18,7 @@ const config = {
             url: 'http://oms-mailer',
             port: 4000
         },
-        bugsnagKey: process.env.BUGSNAG_KEY || ''
+        bugsnagKey: process.env.BUGSNAG_KEY || '',
         images_dir: '/usr/app/media',
         media_url: '/media/'
     },
