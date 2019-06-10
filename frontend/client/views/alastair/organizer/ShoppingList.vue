@@ -57,7 +57,7 @@
               <td><b>Total: {{ accumulates.count }} items</b></td>
               <td></td>
               <td></td>
-              <td><b>{{ accumulates.price | number:2 }}{{ event.shop.currency.display_code }}</b></td>
+              <td><b v-if="event.shop && event.shop.currency">{{ accumulates.price | number:2 }}{{ event.shop.currency.display_code }}</b></td>
               <td></td>
               <td v-show="detailed_view" colspan="2"></td>
             </tr>
