@@ -51,6 +51,7 @@
             <tr>
               <th>Ingredient</th>
               <th>Amount</th>
+              <th>Comment</th>
               <th></th>
             </tr>
           </thead>
@@ -77,6 +78,9 @@
                 </p>
               </td>
               <td>
+                <input class="input" v-model="ri.comment" />
+              </td>
+              <td>
                 <button type="button" class="btn btn-warn" v-on:click="removeIngredient(index)"><i class="fa-minus"></i> Del</button>
               </td>
             </tr>
@@ -90,6 +94,7 @@
                 :loading="isLoadingIngredients"
                 @input="fetchIngredients"
                 expanded="true"
+                clear-on-select="true"
                 @select="option => selectIngredient(option)">
 
                   <template slot-scope="props">
@@ -177,7 +182,6 @@ export default {
       })
     },
     selectIngredient (ing) {
-      this.addedIngredientName = ''
       if (ing) {
         this.recipe.recipes_ingredients.push({
           quantity: 0,

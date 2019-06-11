@@ -30,7 +30,7 @@
                 <router-link class="btn btn-primary" :to="{name: 'oms.alastair.organizer.meal.single', params: { event_id: event.id, id: meal.id }}">{{ meal.name }}</router-link>
                 <ul>
                   <li v-for="(mr, mrIndex) in meal.meals_recipes"  v-bind:key="mrIndex">
-                    {{ mr.person_count }} ppl <router-link :to="{name: 'oms.alastair.chef.single_recipe', params: { id: mr.recipe.id }}">{{ mr.recipe.name }}</router-link>
+                    {{ mr.person_count }} ppl <router-link :to="{name: 'oms.alastair.chef.recipe.single', params: { id: mr.recipe.id }}">{{ mr.recipe.name }}</router-link>
                   </li> 
                 </ul>
               </td>
