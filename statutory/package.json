@@ -23,7 +23,8 @@
       "!lib/run.js",
       "!lib/sequelize.js",
       "!lib/logger.js"
-    ]
+    ],
+    "testResultsProcessor": "jest-teamcity-reporter"
   },
   "husky": {
     "hooks": {
@@ -79,6 +80,7 @@
     "faker": "^4.1.0",
     "husky": "^2.3.0",
     "jest": "^24.8.0",
+    "jest-teamcity-reporter": "^0.9.0",
     "nock": "^10.0.4",
     "nyc": "^14.1.1",
     "open-cli": "^5.0.0",
