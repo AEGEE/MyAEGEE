@@ -4,7 +4,10 @@ RUN mkdir -p /usr/app/src \
 	&& mkdir -p /usr/app/media \
 	&& mkdir -p /usr/app/scripts
 
+RUN apt-get install netcat
+
 ADD ./bootstrap.sh /usr/app/scripts/bootstrap.sh
+ADD wait.sh /usr/app/scripts/wait.sh
 
 RUN chown -R node:node /usr/app
 
