@@ -504,12 +504,6 @@ exports.setBoardForBody = async (req, res) => {
             // Recalculating votes per delegate for this antenna.
             // We only do it once, because a lot of applications are changed.
             await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.params.body_id, t);
-
-            // If we got here, everything is okay.
-            return res.json({
-                success: true,
-                message: 'Board information was updated.'
-            });
         });
     } catch (err) {
         // Here we go only when the transaction has failed and rolled back.
@@ -521,6 +515,12 @@ exports.setBoardForBody = async (req, res) => {
 
         return errors.makeForbiddenError(res, err.message);
     }
+
+    // If we got here, everything is okay.
+    return res.json({
+        success: true,
+        message: 'Board information was updated.'
+    });
 };
 
 exports.postApplication = async (req, res) => {

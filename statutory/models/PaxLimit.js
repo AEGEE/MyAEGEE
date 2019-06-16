@@ -124,8 +124,11 @@ PaxLimit.getDefaultForBody = function getDefaultForBody(body, eventType) {
     return paxLimit;
 };
 
-PaxLimit.fetchOrUseDefaultForBody = async function fetchOrUseDefaultForBody(body, eventType) {
-    const limit = await this.findOne({ where: { body_id: body.id, event_type: eventType } });
+PaxLimit.fetchOrUseDefaultForBody = async function fetchOrUseDefaultForBody(body, eventType, transaction = null) {
+    const limit = await this.findOne({
+        where: { body_id: body.id, event_type: eventType },
+        transaction
+    });
     if (limit) {
         return limit;
     }

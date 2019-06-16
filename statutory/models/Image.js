@@ -1,7 +1,8 @@
-const fs = require('fs-extra');
 const path = require('path');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const fs = require('../lib/fs');
+const logger = require('../lib/logger');
 const config = require('../config');
 
 const Image = sequelize.define('image', {
@@ -46,7 +47,11 @@ const Image = sequelize.define('image', {
 Image.afterDestroy(async (image) => {
     // fs-extra just swallows the error if the file couldn't be deleted.
     const fileName = path.join(image.file_folder, image.file_name);
-    await fs.remove(fileName);
+    try {
+        await fs.remove(fileName);
+    } catch (err) {
+        logger.warn(`Could not remove file ${fileName} when deleting image: ${err}`);
+    }
 });
 
 module.exports = Image;

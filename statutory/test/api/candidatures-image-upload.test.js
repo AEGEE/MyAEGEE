@@ -1,4 +1,4 @@
-const fs = require('fs-extra');
+const fs = require('../../lib/fs');
 const path = require('path');
 
 const { startServer, stopServer } = require('../../lib/server.js');
@@ -27,11 +27,11 @@ describe('Candidates image upload', () => {
         mock.cleanAll();
 
         await generator.clearAll();
-        await fs.remove(config.images_dir);
+        await fs.rimraf(config.images_dir);
     });
 
     it('should create an upload folder if it doesn\'t exist', async () => {
-        await fs.remove(config.images_dir);
+        await fs.rimraf(config.images_dir);
 
         await request({
             uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/image',
