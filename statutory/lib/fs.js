@@ -2,14 +2,14 @@ const fs = require('fs');
 const rimraf = require('rimraf');
 
 const rimrafPromisified = (file) => new Promise((resolve, reject) => {
-    rimraf(file, (err) => {
+    rimraf(file, err => {
         if (err) {
             return reject(err);
         }
 
         return resolve();
-    })
-})
+    });
+});
 
 module.exports = {
     createReadStream: fs.createReadStream,
