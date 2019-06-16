@@ -570,11 +570,11 @@ exports.postApplication = async (req, res) => {
                 event: req.event
             }
         });
+    });
 
-        return res.json({
-            success: true,
-            data: newApplication
-        });
+    return res.json({
+        success: true,
+        data: newApplication
     });
 };
 
