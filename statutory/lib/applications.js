@@ -553,9 +553,11 @@ exports.postApplication = async (req, res) => {
     req.body.body_name = req.user.bodies.find(b => req.body.body_id === b.id).name;
     req.body.date_of_birth = req.user.date_of_birth;
 
+    let newApplication;
+
     // Doing it inside of a transaction, so it'd fail and revert if mail was not sent.
     await sequelize.transaction(async (t) => {
-        const newApplication = await Application.create(req.body, { transaction: t });
+        newApplication = await Application.create(req.body, { transaction: t });
 
         // We don't need to recalculate the votes amount, as the pax type is not set here.
 
