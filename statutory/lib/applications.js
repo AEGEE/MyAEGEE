@@ -504,12 +504,6 @@ exports.setBoardForBody = async (req, res) => {
             // Recalculating votes per delegate for this antenna.
             // We only do it once, because a lot of applications are changed.
             await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.params.body_id, t);
-
-            // If we got here, everything is okay.
-            return res.json({
-                success: true,
-                message: 'Board information was updated.'
-            });
         });
     } catch (err) {
         // Here we go only when the transaction has failed and rolled back.
@@ -521,6 +515,12 @@ exports.setBoardForBody = async (req, res) => {
 
         return errors.makeForbiddenError(res, err.message);
     }
+
+    // If we got here, everything is okay.
+    return res.json({
+        success: true,
+        message: 'Board information was updated.'
+    });
 };
 
 exports.postApplication = async (req, res) => {
@@ -553,9 +553,11 @@ exports.postApplication = async (req, res) => {
     req.body.body_name = req.user.bodies.find(b => req.body.body_id === b.id).name;
     req.body.date_of_birth = req.user.date_of_birth;
 
+    let newApplication;
+
     // Doing it inside of a transaction, so it'd fail and revert if mail was not sent.
     await sequelize.transaction(async (t) => {
-        const newApplication = await Application.create(req.body, { transaction: t });
+        newApplication = await Application.create(req.body, { transaction: t });
 
         // We don't need to recalculate the votes amount, as the pax type is not set here.
 
@@ -570,11 +572,11 @@ exports.postApplication = async (req, res) => {
                 event: req.event
             }
         });
+    });
 
-        return res.json({
-            success: true,
-            data: newApplication
-        });
+    return res.json({
+        success: true,
+        data: newApplication
     });
 };
 

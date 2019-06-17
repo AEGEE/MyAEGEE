@@ -610,7 +610,11 @@ describe('Applications creation', () => {
         }, event);
 
         expect.assertions(1);
-        await expect(applicationPromise).rejects.toThrowError();
+        try {
+            await applicationPromise;
+        } catch (err) {
+            expect(1).toEqual(1);
+        }
     });
 
     const requiredFields = [

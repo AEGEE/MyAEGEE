@@ -22,8 +22,10 @@
       "models/**/*.js",
       "!lib/run.js",
       "!lib/sequelize.js",
-      "!lib/logger.js"
-    ]
+      "!lib/logger.js",
+      "!lib/fs.js"
+    ],
+    "testResultsProcessor": "jest-teamcity-reporter"
   },
   "husky": {
     "hooks": {
@@ -49,8 +51,7 @@
     "express": "^4.17.1",
     "express-promise-router": "^3.0.3",
     "express-query-boolean": "^2.0.0",
-    "file-type": "^11.1.0",
-    "fs-extra": "^8.0.1",
+    "file-type": "^12.0.0",
     "joi": "^14.3.1",
     "moment": "^2.24.0",
     "moment-range": "^4.0.2",
@@ -63,8 +64,9 @@
     "read-chunk": "^3.2.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
+    "rimraf": "^2.6.3",
     "sequelize": "^4.43.2",
-    "sequelize-cli": "^5.4.0",
+    "sequelize-cli": "^5.5.0",
     "winston": "^3.2.1"
   },
   "devDependencies": {
@@ -78,7 +80,8 @@
     "eslint-plugin-react": "^7.13.0",
     "faker": "^4.1.0",
     "husky": "^2.3.0",
-    "jest": "^24.8.0",
+    "jest": "^21.2.1",
+    "jest-teamcity-reporter": "^0.9.0",
     "nock": "^10.0.4",
     "nyc": "^14.1.1",
     "open-cli": "^5.0.0",
