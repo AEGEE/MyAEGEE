@@ -36,7 +36,7 @@
 
         <div class="tabs is-centered is-boxed">
           <ul>
-            <li :class="{'is-active': scope === 'edit' }" @click="scope = 'edit'">
+            <li :class="{'is-active': scope === 'edit' }" @click="scope = 'edit'" v-show="bodyStatuses.length > 0">
               <a>
                 <span class="icon is-small"><i class="fa fa-pen" aria-hidden="true"></i></span>
                 <span>Edit boardview</span>
@@ -311,7 +311,7 @@ export default {
         this.bodyStatuses = []
         for (const type of ['delegate', 'envoy', 'observer', 'visitor']) {
           // setting 30 as a max value, why not
-          const limit = type in this.limits ? this.limits[type] : 30;
+          const limit = this.limits[type] !== null ? this.limits[type] : 30
 
           for (let order = 1; order <= limit; order++) {
             const entry = {
@@ -329,6 +329,13 @@ export default {
             this.bodyStatuses.push(entry)
           }
         }
+
+        // if the body cannot send anyone, disabling the 'edit' scope
+        // and switching to applications view instead.
+        if (this.bodyStatuses.length === 0) {
+          this.scope = 'view'
+        }
+
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
