@@ -1,3 +1,13 @@
+## [0.15.1](https://github.com/AEGEE/oms-frontend/compare/0.15.0...0.15.1) (2019-07-23)
+
+
+### Bug Fixes
+
+* **alastair:** fixed modal interactions and a broken link ([a743b78](https://github.com/AEGEE/oms-frontend/commit/a743b78))
+* **alastair:** Shop-Modal didn't open ([6f6a593](https://github.com/AEGEE/oms-frontend/commit/6f6a593))
+
+
+
 # [0.15.0](https://github.com/AEGEE/oms-frontend/compare/0.14.4...0.15.0) (2019-06-02)
 
 
