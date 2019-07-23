@@ -1,3 +1,13 @@
+## [0.15.2](https://github.com/AEGEE/oms-frontend/compare/0.15.1...0.15.2) (2019-07-23)
+
+
+### Bug Fixes
+
+* **deps:** updated outdated packages ([9d21619](https://github.com/AEGEE/oms-frontend/commit/9d21619))
+* **statutory:** fixed boardview for unlimited participants ([d50c09b](https://github.com/AEGEE/oms-frontend/commit/d50c09b))
+
+
+
 ## [0.15.1](https://github.com/AEGEE/oms-frontend/compare/0.15.0...0.15.1) (2019-07-23)
 
 
