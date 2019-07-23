@@ -80,6 +80,7 @@
               :loading="isLoadingRecipes"
               @input="fetchRecipes"
               expanded="true"
+              clear-on-select="true"
               @select="option => selectRecipe(option)">
 
                 <template slot-scope="props">
@@ -167,7 +168,6 @@ export default {
       })
     },
     selectRecipe (option) {
-      this.addedRecipeName = ''
       if (option) {
         this.meal.meals_recipes.push({
           person_count: 0,

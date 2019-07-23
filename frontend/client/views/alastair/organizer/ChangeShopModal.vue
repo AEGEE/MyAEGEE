@@ -33,8 +33,8 @@
       </div>
     </section>
     <footer class="modal-card-foot">
-      <button class="button is-primary" @click="saveShop(shop)">Switch to {{ shop.name }}</button>
-      <button class="button is-primary" @click="saveShop(null)">Clear shop ({{ event.shop.name }})</button>
+      <button class="button is-primary" @click="saveShop(shop)" v-if="shop.name">Switch to {{ shop.name }}</button>
+      <button class="button is-primary" @click="saveShop(null)" v-if="event.shop">Clear shop ({{ event.shop.name }})</button>
       <button class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
@@ -48,7 +48,9 @@ export default {
     return {
       addedShopName: '',
       shops: [],
-      shop: {},
+      shop: {
+        name: '',
+      },
       token: null,
       isLoadingShops: false
     }
