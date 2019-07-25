@@ -28,7 +28,8 @@
             <div class="control">
               <button class="button is-primary" @click="fetchFromBody()">Fetch members list from a body</button>
             </div>
-            <div class="control">
+            <!-- Disabled for now, probably will be enabled again later, therefore not deleted. -->
+            <!-- <div class="control">
               <div class="file">
                 <label class="file-label">
                   <input class="file-input" type="file" name="resume" @change="openFileDialog($event)">
@@ -42,7 +43,7 @@
                   </span>
                 </label>
               </div>
-            </div>
+            </div> -->
 
             <div class="control">
               <button class="button" v-show="isEditing" @click="isEditing = false">Stop editing</button>
@@ -59,10 +60,9 @@
           <span>Uploaded list:</span>
           <ul v-if="!isEditing">
             <li><strong>Total members: </strong>{{ memberslist.members.length }}</li>
-            <li><strong>Currency: </strong>{{ memberslist.currency }}</li>
             <li v-if="memberslist.fee_to_aegee"><strong>Total fee paid to AEGEE-Europe: </strong>{{ memberslist.fee_to_aegee.toFixed(2) }} EUR</li>
           </ul>
-          <div class="field" v-if="isEditing">
+          <div class="field">
             <label class="label">Currency</label>
             <div class="control">
               <div class="select">
@@ -133,6 +133,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import moment from 'moment'
 import currenciesList from '../../currencies.json'
 
 export default {
@@ -150,6 +151,7 @@ export default {
       can: {
         upload_memberslist: {},
       },
+      payments: [],
       tempFee: 0,
       isLoading: false,
       isEditing: false,
@@ -187,7 +189,6 @@ export default {
       this.isEditing = false
 
       this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.selectedBody + '/members').then((response) => {
-        this.isLoading = false
         this.memberslist = {
           currency: null,
           members: response.data.data.map(member => ({
@@ -197,6 +198,37 @@ export default {
             fee: 0
           }))
         }
+
+        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.selectedBody + '/payments')
+          .then((response) => {
+            this.payments = response.data.data
+
+            // getting last payment for each user, setting it as a members' fee on newly-created memberslist
+            for (const member of this.memberslist.members) {
+              // for old memberslists that were uploaded through CSV and do not have the user ID, do nothing
+              if (!member.user_id) {
+                continue;
+              }
+
+
+              // get member's current payment
+              const currentPayment = this.payments.find(payment =>
+                payment.member_id === member.user_id && moment().isBetween(payment.starts, payment.expires))
+
+              // if there's no payment, do nothing, so it'd default to zero
+              // if there is one, setting it for the user.
+              if (currentPayment) {
+                member.fee = currentPayment.amount
+              }
+            }
+
+            this.isLoading = false
+          })
+          .catch((err) => {
+            // not great, not terrible
+            this.$root.showWarning('Could not fetch payments info: ' + err.message)
+            this.isLoading = false
+          });
       }).catch((err) => {
         this.isLoading = false
         this.$root.showDanger('Some error happened: ' + err.message)

@@ -1,3 +1,13 @@
+## [0.15.4](https://github.com/AEGEE/oms-frontend/compare/0.15.3...0.15.4) (2019-07-25)
+
+
+### Bug Fixes
+
+* **statutory:** disabled CSV memberslist upload. Fixes MEMB-574 ([37af227](https://github.com/AEGEE/oms-frontend/commit/37af227))
+* **statutory:** fetching membership fee on memberslist upload. Fixes HELP-349 ([90d0b15](https://github.com/AEGEE/oms-frontend/commit/90d0b15))
+
+
+
 ## [0.15.3](https://github.com/AEGEE/oms-frontend/compare/0.15.2...0.15.3) (2019-07-25)
 
 
