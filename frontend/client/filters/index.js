@@ -1,5 +1,6 @@
 import moment from 'moment'
 import marked from 'marked'
+import DOMPurify from 'dompurify';
 
 export default {
   date (value) {
@@ -12,7 +13,7 @@ export default {
     return moment(value).format('YYYY-MM-DD HH:mm:ss')
   },
   markdown (value) {
-    return marked(value, { sanitize: true })
+    return marked(DOMPurify.sanitize(value))
   },
   capitalize (value) {
     if (typeof value !== 'string') return ''

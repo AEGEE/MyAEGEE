@@ -9,34 +9,16 @@
         <form @submit.prevent="saveApplication()">
           <div class="tile is-parent" v-show="isNew || (event.application_status === 'open')">
             <div class="tile is-child">
-              <div class="field" v-show="autoComplete.bodies.values.length > 0">
-                <label class="label">Select body to apply from</label>
-                <div class="control">
-                  <div class="field has-addons">
-                    <b-autocomplete
-                      v-model="autoComplete.bodies.name"
-                      :data="loginUser.bodies"
-                      open-on-focus="true"
-                      @select="body => { application.body_id = body.id; application.body = body }">
-                      <template slot-scope="props">
-                        <div class="media">
-                          <div class="media-content">
-                            {{ props.option.name }}
-                          </div>
-                        </div>
-                      </template>
-                    </b-autocomplete>
-                    <p class="control">
-                      <a class="button is-danger"
-                        @click="body => { application.body_id = null; application.body = null }"
-                        v-if="application.body">{{ application.body.name }} (Click to unset)</a>
-                      <a class="button is-static" v-if="!application.body">Not set.</a>
-                    </p>
-                  </div>
+              <div class="field">
+                <label class="label">Body <span class="has-text-danger">*</span></label>
+                <div class="select" v-show="bodies.length > 0">
+                  <select v-model="application.body_id">
+                    <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
+                  </select>
                 </div>
               </div>
 
-              <div class="notification is-danger" v-show="autoComplete.bodies.values.length == 0">
+              <div class="notification is-danger" v-show="bodies.length == 0">
                 <div class="content">
                   <p>You are not a member of any body, therefore you cannot apply.</p>
                   <p>To apply to the event, you need to be a member of at least one body.</p>
@@ -181,7 +163,7 @@ export default {
         name: null,
         questions: []
       },
-      autoComplete: { bodies: { name: '', values: [] } },
+      bodies: [],
       application: {
         body: null,
         body_id: null,
@@ -205,7 +187,7 @@ export default {
       this.isSaving = true
 
       const toServer = {
-        body_id: this.application.body.id,
+        body_id: this.application.body_id,
         answers: this.application.answers
       }
 
@@ -256,11 +238,16 @@ export default {
         }
       })
 
-      this.autoComplete.bodies.values = this.loginUser.bodies
+      this.bodies = this.loginUser.bodies
+
+      // Setting 1st body as an application body if possible
+      if (this.bodies.length > 0) {
+        this.application.body_id = this.bodies[0].id
+      }
 
       return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/mine').then((application) => {
         this.application = application.data.data
-        this.application.body = this.loginUser.bodies.find(body => body.id === this.application.body_id)
+        this.application.body = this.bodies.find(body => body.id === this.application.body_id)
 
         this.isLoading = false
       }).catch((err) => {
