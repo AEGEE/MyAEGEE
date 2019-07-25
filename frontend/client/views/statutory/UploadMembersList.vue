@@ -28,7 +28,8 @@
             <div class="control">
               <button class="button is-primary" @click="fetchFromBody()">Fetch members list from a body</button>
             </div>
-            <div class="control">
+            <!-- Disabled for now, probably will be enabled again later, therefore not deleted. -->
+            <!-- <div class="control">
               <div class="file">
                 <label class="file-label">
                   <input class="file-input" type="file" name="resume" @change="openFileDialog($event)">
@@ -42,7 +43,7 @@
                   </span>
                 </label>
               </div>
-            </div>
+            </div> -->
 
             <div class="control">
               <button class="button" v-show="isEditing" @click="isEditing = false">Stop editing</button>
