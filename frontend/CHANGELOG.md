@@ -1,3 +1,14 @@
+## [0.15.3](https://github.com/AEGEE/oms-frontend/compare/0.15.2...0.15.3) (2019-07-25)
+
+
+### Bug Fixes
+
+* **deps:** fixed marked deprecation warning ([1405c2c](https://github.com/AEGEE/oms-frontend/commit/1405c2c))
+* **statutory:** switched to select on body select for events. Fixed MEMB-576 ([92e1000](https://github.com/AEGEE/oms-frontend/commit/92e1000))
+* **statutory:** switched to select on body select for statutory. Fixed MEMB-576 ([ec9892f](https://github.com/AEGEE/oms-frontend/commit/ec9892f))
+
+
+
 ## [0.15.2](https://github.com/AEGEE/oms-frontend/compare/0.15.1...0.15.2) (2019-07-23)
 
 
