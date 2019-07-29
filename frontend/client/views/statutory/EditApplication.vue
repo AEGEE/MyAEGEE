@@ -62,6 +62,7 @@
                     <select v-model="application.meals">
                       <option>Meat-eater</option>
                       <option>Vegetarian</option>
+                      <option>Vegan</option>
                     </select>
                   </div>
                 </div>
