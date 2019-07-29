@@ -70,7 +70,12 @@ const Position = sequelize.define('Position', {
             return moment().isBetween(this.starts, this.ends, null, '[]'); // inclusive
         }
     }
-}, { underscored: true, tableName: 'positions' });
+}, {
+    underscored: true,
+    tableName: 'positions',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 Position.beforeCreate(async (position, options) => {
     // We set the status either to "open" or "closed"

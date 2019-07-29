@@ -64,7 +64,11 @@ const PaxLimit = sequelize.define('PaxLimit', {
             return this.isNewRecord;
         }
     }
-}, { underscored: true, tableName: 'pax_limits' });
+}, {
+    underscored: true,
+    tableName: 'pax_limits',createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 // Getting max participants amount for Agora. null is 'unlimited' (no limit)
 // This would be called when there's no PaxLimit for specified body (for most of the cases it'd be like that)

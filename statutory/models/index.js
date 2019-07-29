@@ -10,36 +10,36 @@ const Plenary = require('./Plenary');
 const Attendance = require('./Attendance');
 const Image = require('./Image');
 
-Event.hasMany(Application);
-Event.hasMany(MembersList);
-Event.hasMany(VotesPerAntenna);
-Event.hasMany(VotesPerDelegate);
-Event.hasMany(Position);
-Event.hasMany(Plenary);
-Application.belongsTo(Event);
-MembersList.belongsTo(Event);
-VotesPerAntenna.belongsTo(Event);
-VotesPerDelegate.belongsTo(Event);
-Position.belongsTo(Event);
-Plenary.belongsTo(Event);
+Event.hasMany(Application, { foreignKey: 'event_id' });
+Event.hasMany(MembersList, { foreignKey: 'event_id' });
+Event.hasMany(VotesPerAntenna, { foreignKey: 'event_id' });
+Event.hasMany(VotesPerDelegate, { foreignKey: 'event_id' });
+Event.hasMany(Position, { foreignKey: 'event_id' });
+Event.hasMany(Plenary, { foreignKey: 'event_id' });
+Application.belongsTo(Event, { foreignKey: 'event_id' });
+MembersList.belongsTo(Event, { foreignKey: 'event_id' });
+VotesPerAntenna.belongsTo(Event, { foreignKey: 'event_id' });
+VotesPerDelegate.belongsTo(Event, { foreignKey: 'event_id' });
+Position.belongsTo(Event, { foreignKey: 'event_id' });
+Plenary.belongsTo(Event, { foreignKey: 'event_id' });
 
-Application.hasMany(VotesPerDelegate);
-VotesPerDelegate.belongsTo(Application);
+Application.hasMany(VotesPerDelegate, { foreignKey: 'application_id' });
+VotesPerDelegate.belongsTo(Application, { foreignKey: 'application_id' });
 
-Position.hasMany(Candidate);
-Candidate.belongsTo(Position);
+Position.hasMany(Candidate, { foreignKey: 'position_id' });
+Candidate.belongsTo(Position, { foreignKey: 'position_id' });
 
-Plenary.hasMany(Attendance);
-Attendance.belongsTo(Plenary);
+Plenary.hasMany(Attendance, { foreignKey: 'plenary_id' });
+Attendance.belongsTo(Plenary, { foreignKey: 'plenary_id' });
 
-Application.hasMany(Attendance);
-Attendance.belongsTo(Application);
+Application.hasMany(Attendance, { foreignKey: 'application_id' });
+Attendance.belongsTo(Application, { foreignKey: 'application_id' });
 
-Event.belongsTo(Image);
-Image.hasOne(Event);
+Event.belongsTo(Image, { foreignKey: 'image_id' });
+Image.hasOne(Event, { foreignKey: 'image_id' });
 
-Candidate.belongsTo(Image);
-Image.hasOne(Candidate);
+Candidate.belongsTo(Image, { foreignKey: 'image_id' });
+Image.hasOne(Candidate, { foreignKey: 'image_id' });
 
 module.exports = {
     Event,

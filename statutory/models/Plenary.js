@@ -49,7 +49,12 @@ const Plenary = sequelize.define('plenary', {
             return moment.range(this.starts, this.ends).diff('seconds', true);
         }
     },
-}, { underscored: true, tableName: 'plenaries' });
+}, {
+    underscored: true,
+    tableName: 'plenaries',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 Plenary.prototype.closeAttendances = async function closeAttendances() {
     await Attendance.update(

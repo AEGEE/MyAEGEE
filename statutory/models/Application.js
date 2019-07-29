@@ -348,6 +348,8 @@ const Application = sequelize.define('application', {
     }
 }, {
     underscored: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
     validate: {
         visaFieldsFilledIn() {
             if (!this.visa_required) {

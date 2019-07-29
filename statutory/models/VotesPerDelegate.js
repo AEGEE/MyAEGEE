@@ -59,6 +59,11 @@ const VotesPerDelegate = sequelize.define('VotesPerDelegate', {
             min: { args: [0], msg: 'Votes per antenna cannot be negative' }
         }
     }
-}, { underscored: true, tableName: 'votes_per_delegate' });
+}, {
+    underscored: true,
+    tableName: 'votes_per_delegate',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 module.exports = VotesPerDelegate;

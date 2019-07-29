@@ -264,7 +264,11 @@ const Event = sequelize.define('event', {
             msg: 'URL is already taken'
         }
     }
-}, { underscored: true });
+}, {
+    underscored: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 Event.beforeValidate((event, options) => {
     if (!event.url) event.setDataValue('url', event.name.toLowerCase().replace(/ /g, '-').replace(/[^a-zA-Z0-9-]/g, ''));
