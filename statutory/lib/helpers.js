@@ -306,6 +306,9 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     permissions.upload_memberslist = {
         global: hasPermission(corePermissions, 'global:approve_members:' + event.type)
     };
+    permissions.edit_memberslist = {
+        global: hasPermission(corePermissions, 'global:approve_members:' + event.type)
+    };
     permissions.see_memberslist = {
         global: hasPermission(corePermissions, 'global:see_memberslists:' + event.type)
     };
@@ -322,7 +325,8 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
     for (const body of user.bodies) {
         permissions.set_board_comment_and_participant_type[body.id] = event.can_approve_members && approveBodiesList.includes(body.id);
         permissions.see_boardview[body.id] = approveBodiesList.includes(body.id);
-        permissions.upload_memberslist[body.id] = event.can_manage_memberslists && approveBodiesList.includes(body.id) && exports.isLocal(body);
+        permissions.upload_memberslist[body.id] = event.can_upload_memberslist && approveBodiesList.includes(body.id) && exports.isLocal(body);
+        permissions.edit_memberslist[body.id] = event.can_edit_memberslist && approveBodiesList.includes(body.id) && exports.isLocal(body);
         permissions.see_memberslist[body.id] = approveBodiesList.includes(body.id) && exports.isLocal(body);
     }
 

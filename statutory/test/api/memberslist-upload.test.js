@@ -102,7 +102,7 @@ describe('Memberslist uploading', () => {
         expect(res.body).toHaveProperty('data');
     });
 
-    test('should succeed if user has local permission for his body', async () => {
+    test('should succeed if user has local permission for his body on uploading new memberslist', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
@@ -110,6 +110,33 @@ describe('Memberslist uploading', () => {
             application_period_starts: moment().subtract(1, 'week').toDate(),
             application_period_ends: moment().add(1, 'week').toDate()
         });
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({}, event)
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+    });
+
+    test('should succeed if user has local permission for his body on updating memberslist', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(1, 'week').toDate(),
+            application_period_ends: moment().add(1, 'week').toDate()
+        });
+
+        await generator.createMembersList({
+            body_id: regularUser.bodies[0].id,
+            user_id: regularUser.id,
+            members: [{ first_name: 'test', last_name: 'test', fee: 3, user_id: 1 }]
+        }, event);
+
         const res = await request({
             uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
             method: 'POST',
@@ -666,6 +693,38 @@ describe('Memberslist uploading', () => {
         expect(membersListFromDB[0].members[0].last_name).toEqual('not');
         expect(membersListFromDB[0].members[0].fee).toEqual(5);
         expect(membersListFromDB[0].members[0].user_id).toEqual(2);
+    });
+
+    test('should fail if user has local permission for his body on updating memberslist but after the deadline', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            type: 'agora',
+            application_period_starts: moment().subtract(7, 'days'),
+            application_period_ends: moment().subtract(6, 'days'),
+            board_approve_deadline: moment().subtract(5, 'days'),
+            participants_list_publish_deadline: moment().subtract(4, 'days'),
+            memberslist_submission_deadline: moment().subtract(3, 'days'),
+            starts: moment().subtract(2, 'days'),
+            ends: moment().subtract(1, 'days')
+        });
+
+        await generator.createMembersList({
+            body_id: regularUser.bodies[0].id,
+            user_id: regularUser.id,
+            members: [{ first_name: 'test', last_name: 'test', fee: 3, user_id: 1 }]
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/memberslists/' + regularUser.bodies[0].id,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateMembersList({}, event)
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
     });
 
     test('should return 422 on any extra fields', async () => {

@@ -77,10 +77,6 @@ exports.uploadMembersList = async (req, res) => {
         return errors.makeBadRequestError(res, 'The body_id parameter is invalid.');
     }
 
-    if (!req.permissions.upload_memberslist.global && !req.permissions.upload_memberslist[req.params.body_id]) {
-        return errors.makeForbiddenError(res, 'You are not allowed to upload memberslist.');
-    }
-
     // Fetching body. We'll need that for calculating votes per antenna.
     const body = await core.getBody(req, req.params.body_id);
 
@@ -96,6 +92,10 @@ exports.uploadMembersList = async (req, res) => {
     } });
 
     if (existingMembersList) {
+        if (!req.permissions.edit_memberslist.global && !req.permissions.edit_memberslist[req.params.body_id]) {
+            return errors.makeForbiddenError(res, 'You are not allowed to edit memberslist.');
+        }
+
         const result = await existingMembersList.update(req.body);
         // Recalculating votes per antenna.
         await VotesPerAntenna.recalculateVotesForAntenna(body, req.event);
@@ -104,6 +104,10 @@ exports.uploadMembersList = async (req, res) => {
             success: true,
             data: result
         });
+    }
+
+    if (!req.permissions.upload_memberslist.global && !req.permissions.upload_memberslist[req.params.body_id]) {
+        return errors.makeForbiddenError(res, 'You are not allowed to upload memberslist.');
     }
 
     const newMembersList = await MembersList.create(req.body);
