@@ -1,3 +1,13 @@
+## [0.15.5](https://github.com/AEGEE/oms-frontend/compare/0.15.4...0.15.5) (2019-07-29)
+
+
+### Bug Fixes
+
+* **statutory:** added vegan meals option ([c536a5a](https://github.com/AEGEE/oms-frontend/commit/c536a5a))
+* **statutory:** fixed memberslist upload permission. Fixes HELP-570 ([cdac90c](https://github.com/AEGEE/oms-frontend/commit/cdac90c))
+
+
+
 ## [0.15.4](https://github.com/AEGEE/oms-frontend/compare/0.15.3...0.15.4) (2019-07-25)
 
 
