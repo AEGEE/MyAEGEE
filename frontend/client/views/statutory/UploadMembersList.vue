@@ -357,7 +357,7 @@ export default {
       if (!this.can.see_memberslist.global) {
         for (const bodyId of this.myBoards) {
           this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + bodyId).then((body) => {
-            if (this.isLocal(body)) {
+            if (this.isLocal(body.data.data)) {
               this.boardBodies.push(body.data.data)
             }
           })
