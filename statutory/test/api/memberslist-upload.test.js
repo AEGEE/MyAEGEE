@@ -722,9 +722,9 @@ describe('Memberslist uploading', () => {
             body: generator.generateMembersList({}, event)
         });
 
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        expect(res.body).toHaveProperty('data');
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
     });
 
     test('should return 422 on any extra fields', async () => {
