@@ -1,3 +1,26 @@
+# [0.14.0](https://github.com/AEGEE/oms-statutory/compare/0.13.0...0.14.0) (2019-07-30)
+
+
+### Bug Fixes
+
+* **conig:** fixed config syntax ([60b552e](https://github.com/AEGEE/oms-statutory/commit/60b552e))
+* **deps:** updated sequelize to the latest. Fixes MEMB-520 ([aab02dd](https://github.com/AEGEE/oms-statutory/commit/aab02dd))
+* **docker:** fixed netcat setup ([8ec3e4c](https://github.com/AEGEE/oms-statutory/commit/8ec3e4c))
+* **docker:** fixed netcat setup again ([c9b42ae](https://github.com/AEGEE/oms-statutory/commit/c9b42ae))
+* **docker:** remove OMS network from docker-compose ([5be68b0](https://github.com/AEGEE/oms-statutory/commit/5be68b0))
+* **docker:** removed secrets from docker-compose ([706b20c](https://github.com/AEGEE/oms-statutory/commit/706b20c))
+* **tests:** fix another flappy test ([07e47c5](https://github.com/AEGEE/oms-statutory/commit/07e47c5))
+* **tests:** fix flapping tests, downgraded Jest to 22.x ([47ead03](https://github.com/AEGEE/oms-statutory/commit/47ead03))
+
+
+### Features
+
+* **docker:** added wait script ([a65f35d](https://github.com/AEGEE/oms-statutory/commit/a65f35d))
+* **event:** added members list submission deadline. Fixes MEMB-578 ([798f9cd](https://github.com/AEGEE/oms-statutory/commit/798f9cd))
+* **test:** added TeamCity reporter for Jest ([4933404](https://github.com/AEGEE/oms-statutory/commit/4933404))
+
+
+
 # [0.13.0](https://github.com/AEGEE/oms-statutory/compare/0.12.1...0.13.0) (2019-06-02)
 
 
