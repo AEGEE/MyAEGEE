@@ -216,6 +216,16 @@
                   <th>Participants list publishing</th>
                   <td colspan="2">{{ event.participants_list_publish_deadline | datetime }}</td>
                 </tr>
+                <tr v-if="event.type === 'agora'">
+                  <th>Members list upload period</th>
+                  <td>{{ event.application_period_starts | datetime }}</td>
+                  <td>{{ event.memberslist_submission_deadline | datetime }}</td>
+                </tr>
+                <tr v-if="event.type === 'agora'">
+                  <th>Members list edit period</th>
+                  <td>{{ event.application_period_starts | datetime }}</td>
+                  <td>{{ event.memberslist_edit_deadline | datetime }}</td>
+                </tr>
               </tbody>
             </table>
           </div>

@@ -136,6 +136,19 @@
           <p class="help is-danger" v-if="errors.participants_list_publish_deadline">{{ errors.participants_list_publish_deadline.join(', ') }}</p>
         </div>
 
+        <div class="field" v-if="event.type === 'agora'">
+          <label class="label">Members list submission deadline</label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.memberslist_submission_deadline" />
+          </div>
+          <p class="help is-danger" v-if="errors.memberslist_submission_deadline">{{ errors.memberslist_submission_deadline.join(', ') }}</p>
+        </div>
+
         <div class="field">
           <label class="label">Event start date</label>
           <div class="control">
@@ -328,6 +341,7 @@ export default {
         application_period_ends: null,
         board_approve_deadline: null,
         participants_list_publish_deadline: null,
+        memberslist_submission_deadline: null,
         questions: [],
         fee: null,
         starts: null,
@@ -339,6 +353,7 @@ export default {
         application_period_ends: null,
         board_approve_deadline: null,
         participants_list_publish_deadline: null,
+        memberslist_submission_deadline: null,
         starts: null,
         ends: null
       },
@@ -436,6 +451,12 @@ export default {
         return this.$root.showDanger('Please set the participants list publish deadline.')
       }
 
+      if (this.event.type === 'agora' && !this.event.memberslist_submission_deadline) {
+        return this.$root.showDanger('Please set the members list submission deadline.')
+      } else if (this.event.type !== 'agora') {
+        this.event.memberslist_submission_deadline = null
+      }
+
       if (!this.event.starts) {
         return this.$root.showDanger('Please set the date when the event will start.')
       }
@@ -501,6 +522,9 @@ export default {
     'dates.participants_list_publish_deadline' (newDate) {
       this.event.participants_list_publish_deadline = new Date(newDate)
     },
+    'dates.memberslist_submission_deadline' (newDate) {
+      this.event.memberslist_submission_deadline = new Date(newDate)
+    },
     'dates.starts' (newDate) {
       this.event.starts = new Date(newDate)
     },
@@ -525,6 +549,8 @@ export default {
       this.dates.application_period_ends = this.event.application_period_ends = new Date(this.event.application_period_ends)
       this.dates.board_approve_deadline = this.event.board_approve_deadline = new Date(this.event.board_approve_deadline)
       this.dates.participants_list_publish_deadline = this.event.participants_list_publish_deadline = new Date(this.event.participants_list_publish_deadline)
+      this.dates.memberslist_submission_deadline = this.event.memberslist_submission_deadline = new Date(this.event.memberslist_submission_deadline)
+
 
       return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.event.body_id)
     }).then((response) => {

@@ -1,3 +1,12 @@
+# [0.16.0](https://github.com/AEGEE/oms-frontend/compare/0.15.5...0.16.0) (2019-07-30)
+
+
+### Features
+
+* **statutory:** added members list submission deadline. Fixes MEMB-578 ([cedbd36](https://github.com/AEGEE/oms-frontend/commit/cedbd36))
+
+
+
 ## [0.15.5](https://github.com/AEGEE/oms-frontend/compare/0.15.4...0.15.5) (2019-07-29)
 
 
