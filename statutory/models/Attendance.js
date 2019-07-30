@@ -42,6 +42,11 @@ const Attendance = sequelize.define('attendance', {
             }
         }
     }
-}, { underscored: true, tableName: 'attendances' });
+}, {
+    underscored: true,
+    tableName: 'attendances',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 module.exports = Attendance;

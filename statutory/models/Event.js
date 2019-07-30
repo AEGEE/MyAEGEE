@@ -129,6 +129,36 @@ const Event = sequelize.define('event', {
             }
         }
     },
+    memberslist_submission_deadline: {
+        type: Sequelize.DATE,
+        allowNull: true,
+        validate: {
+            isValidForAgora(val) {
+                // console.log('test', val, this.type);
+                if (this.type !== 'agora') {
+                    return;
+                }
+
+                if (!val) {
+                    throw new Error('Event is Agora, but the members list submission deadline is not set.');
+                }
+
+                if (!moment(val).isValid()) {
+                    throw new Error('Event is Agora, but the members list submission deadline is invalid.');
+                }
+            },
+            laterThanApplicationEnd(val) {
+                if (val && moment(val).isSameOrBefore(this.application_period_ends)) {
+                    throw new Error('Members list submission deadline cannot be after or at the same time the aplication period ends.');
+                }
+            },
+            beforeEventStart(val) {
+                if (val && moment(val).isSameOrAfter(this.starts)) {
+                    throw new Error('Members list submission deadline cannot be before or at the same time the event starts.');
+                }
+            }
+        }
+    },
     body_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -232,6 +262,12 @@ const Event = sequelize.define('event', {
             isInt: { msg: 'Image ID should be a number.' }
         },
     },
+    memberslist_edit_deadline: {
+        type: Sequelize.VIRTUAL,
+        get() {
+            return moment(this.starts).subtract(1, 'day').toDate(); // inclusive
+        }
+    },
     can_apply: {
         type: Sequelize.VIRTUAL,
         get() {
@@ -244,16 +280,22 @@ const Event = sequelize.define('event', {
             return moment().isBetween(this.application_period_starts, this.board_approve_deadline, null, '[]'); // inclusive
         }
     },
-    can_manage_memberslists: {
-        type: Sequelize.VIRTUAL,
-        get() {
-            return moment().isBetween(this.application_period_starts, this.starts, null, '[]'); // inclusive
-        }
-    },
     can_see_participants_list: {
         type: Sequelize.VIRTUAL,
         get() {
             return moment().isAfter(this.participants_list_publish_deadline);
+        }
+    },
+    can_upload_memberslist: {
+        type: Sequelize.VIRTUAL,
+        get() {
+            return moment().isBetween(this.application_period_starts, this.memberslist_submission_deadline, null, '[]'); // inclusive
+        }
+    },
+    can_edit_memberslist: {
+        type: Sequelize.VIRTUAL,
+        get() {
+            return moment().isBetween(this.application_period_starts, this.memberslist_edit_deadline, null, '[]'); // inclusive
         }
     },
     url: {
@@ -264,7 +306,11 @@ const Event = sequelize.define('event', {
             msg: 'URL is already taken'
         }
     }
-}, { underscored: true });
+}, {
+    underscored: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 Event.beforeValidate((event, options) => {
     if (!event.url) event.setDataValue('url', event.name.toLowerCase().replace(/ /g, '-').replace(/[^a-zA-Z0-9-]/g, ''));

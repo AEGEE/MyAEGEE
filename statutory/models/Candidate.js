@@ -246,6 +246,11 @@ const Candidate = sequelize.define('candidate', {
             isInt: { msg: 'Image ID should be a number.' }
         },
     }
-}, { underscored: true, tableName: 'candidates' });
+}, {
+    underscored: true,
+    tableName: 'candidates',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 module.exports = Candidate;

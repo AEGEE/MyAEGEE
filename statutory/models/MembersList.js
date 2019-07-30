@@ -98,7 +98,11 @@ const MembersList = sequelize.define('memberslist', {
             return this.fee_to_aegee - this.fee_paid;
         }
     }
-}, { underscored: true });
+}, {
+    underscored: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 // Setting the conversion rate for members list.
 MembersList.beforeSave(async (memberslist, options) => {

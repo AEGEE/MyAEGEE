@@ -42,7 +42,12 @@ const Image = sequelize.define('image', {
             return config.media_url + this.file_name;
         }
     },
-}, { underscored: true, tableName: 'images' });
+}, {
+    underscored: true,
+    tableName: 'images',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 Image.afterDestroy(async (image) => {
     // fs-extra just swallows the error if the file couldn't be deleted.

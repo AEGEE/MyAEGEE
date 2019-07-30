@@ -33,7 +33,12 @@ const VotesPerAntenna = sequelize.define('VotesPerAntenna', {
             min: { args: [0], msg: 'Votes per antenna cannot be negative' }
         }
     }
-}, { underscored: true, tableName: 'votes_per_antenna' });
+}, {
+    underscored: true,
+    tableName: 'votes_per_antenna',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 VotesPerAntenna.recalculateVotesForAntenna = async function recalculateVotesForAntenna(body, event) {
     // Not calculating amount of votes for EPM.

@@ -61,18 +61,20 @@ describe('Events listing', () => {
             application_period_ends: moment().add(2, 'week').toDate(),
             board_approve_deadline: moment().add(3, 'week').toDate(),
             participants_list_publish_deadline: moment().add(4, 'week').toDate(),
-            starts: moment().add(5, 'week').toDate(),
-            ends: moment().add(6, 'week').toDate(),
+            memberslist_submission_deadline: moment().add(5, 'week').toDate(),
+            starts: moment().add(6, 'week').toDate(),
+            ends: moment().add(7, 'week').toDate(),
         });
 
         const second = await generator.createEvent({
             status: 'published',
-            application_period_starts: moment().add(7, 'week').toDate(),
-            application_period_ends: moment().add(8, 'week').toDate(),
-            board_approve_deadline: moment().add(9, 'week').toDate(),
-            participants_list_publish_deadline: moment().add(10, 'week').toDate(),
-            starts: moment().add(11, 'week').toDate(),
-            ends: moment().add(12, 'week').toDate(),
+            application_period_starts: moment().add(8, 'week').toDate(),
+            application_period_ends: moment().add(9, 'week').toDate(),
+            board_approve_deadline: moment().add(10, 'week').toDate(),
+            participants_list_publish_deadline: moment().add(11, 'week').toDate(),
+            memberslist_submission_deadline: moment().add(12, 'week').toDate(),
+            starts: moment().add(13, 'week').toDate(),
+            ends: moment().add(14, 'week').toDate(),
         });
 
         const res = await request({
