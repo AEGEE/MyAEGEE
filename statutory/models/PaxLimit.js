@@ -66,7 +66,8 @@ const PaxLimit = sequelize.define('PaxLimit', {
     }
 }, {
     underscored: true,
-    tableName: 'pax_limits',createdAt: 'created_at',
+    tableName: 'pax_limits',
+    createdAt: 'created_at',
     updatedAt: 'updated_at'
 });
 
