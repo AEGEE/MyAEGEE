@@ -1,0 +1,35 @@
+version: '3.2'
+### OMS GSUITE WRAPPER   #######################################
+services:
+    redis-oms-gsuite-wrapper:
+        restart: always
+        image: redis:5-alpine
+        volumes:
+            - redis-gsuite-persistence:/data
+
+    oms-gsuite-wrapper:
+        restart: on-failure
+        image: aegee/oms-gsuite-wrapper:fab
+        links:
+          - redis-oms-gsuite-wrapper
+        expose:
+          - 8084
+        volumes:
+          - ./secrets/gsuite-wrapper-secrets.json:/usr/app/src/lib/config/secrets.json
+          - ./secrets/myaegee-service.keys.json:/usr/app/src/lib/config/myaegee-service.keys.json
+        env_file: ./$PATH_OMS_GSUITE_WRAPPER/.env
+        labels:
+          - "traefik.backend=oms-events"
+          - "traefik.port=8084"
+          - "traefik.frontend.rule=PathPrefix:/services/oms-gsuite-wrapper/api;PathPrefixStrip:/services/oms-gsuite-wrapper/api"
+          - "traefik.frontend.priority=110"
+          - "traefik.enable=true"
+
+volumes:
+    redis-gsuite-persistence:
+        driver: "local"
+
+networks:
+  default:
+    external:
+      name: OMS

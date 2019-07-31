@@ -1,0 +1,22 @@
+{
+    "extends": "strongloop",
+
+    "env": {
+        "es6": true,
+        "node": true,
+        "mocha": true
+    },
+
+    "parserOptions": {
+        "ecmaVersion": 2017
+    },
+
+    "plugins": [
+        "mocha"
+    ],
+
+    "rules": {
+      "max-len": "off",
+      "mocha/no-exclusive-tests": "error"
+    }
+}
