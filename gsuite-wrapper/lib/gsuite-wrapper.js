@@ -1,19 +1,19 @@
 const {runGsuiteOperation, gsuiteOperations} = require('./google-suite.js');
 
-const log = require('./config/logger.js');
+const log = require('./util/logger.js');
 
 const redis = require('./redis.js').db;
 
 //API DEFINITION
 
-exports.createGroup = async function(req, res , next) { 
+exports.createGroup = async function(req, res , next) {
     log.debug(req.headers['test-title']);
 
     const data = req.body;
 
     let response = {success: false, message: "Undefined error"};
     let statusCode = 500;
-    
+
     if( !data.groupName || !data.primaryEmail || !data.bodyPK){
 
         response.message = "Validation error: primaryEmail, groupName, or bodyPK is absent or empty";
@@ -41,20 +41,20 @@ exports.createGroup = async function(req, res , next) {
     return res.status(statusCode).json(response);
 };
 
-exports.deleteGroup = async function(req, res , next) { 
+exports.deleteGroup = async function(req, res , next) {
     log.debug(req.headers['test-title']);
 
     const bodyPK = req.params.bodyPK;
-    log.debug(bodyPK); 
+    log.debug(bodyPK);
 
     let response = {success: false, message: "Undefined error"};
     let statusCode = 500;
-    let groupID = ""; 
+    let groupID = "";
 
-    if(bodyPK){ 
+    if(bodyPK){
         groupID = await redis.get("primary:"+bodyPK);
         log.debug(groupID);
-    } 
+    }
     if(!groupID){
 
         response.message = "Error: no group matching bodyPK "+ bodyPK;
@@ -64,12 +64,12 @@ exports.deleteGroup = async function(req, res , next) {
 
         const data = {primaryEmail: groupID};
         log.debug(data.primaryEmail);
-    
+
         try{
             let result = await runGsuiteOperation(gsuiteOperations.deleteGroup, data);
             response = {success: result.success, message: data.primaryEmail+" group has been deleted", data: result.data };
             statusCode = result.code;
-            log.debug(result); 
+            log.debug(result);
             if(result.success) {
               await redis.del("group:"+bodyPK, "primary:"+bodyPK, "id:"+groupID).catch(err => console.log("redis error: "+err));
             }
@@ -84,22 +84,22 @@ exports.deleteGroup = async function(req, res , next) {
     return res.status(statusCode).json(response);
 };
 
-exports.createAccount = async function(req, res , next) { 
+exports.createAccount = async function(req, res , next) {
     log.debug(req.headers['test-title']);
 
-    const data = req.body; 
+    const data = req.body;
 
     let response = {success: false, message: "Undefined error"};
     let statusCode = 500;
 
-    if( !data.userPK || 
-        !data.primaryEmail || 
-        !data.secondaryEmail || 
-        !data.password || 
-        !data.antenna || 
+    if( !data.userPK ||
+        !data.primaryEmail ||
+        !data.secondaryEmail ||
+        !data.password ||
+        !data.antenna ||
         !data.name.givenName ||
         !data.name.familyName ){
-     
+
         response.message = "Validation error: a required property is absent or empty";
         statusCode = 400;
 
@@ -154,7 +154,7 @@ exports.createAccount = async function(req, res , next) {
 exports.editMembershipToGroup = async function(req, res , next) {
     log.debug(req.headers['test-title']);
 
-    const personPK = req.params.userPK;    
+    const personPK = req.params.userPK;
     const data = req.body;
 
     let response = {success: false, message: "Undefined error"};
@@ -163,8 +163,8 @@ exports.editMembershipToGroup = async function(req, res , next) {
     if( !data.groupPK ||
         !data.operation ||
         data.operation === "upgrade" || //NOT IMPLEMENTED YET
-        data.operation === "downgrade" ||  //NOT IMPLEMENTED YET       
-        (data.operation !== "add" && 
+        data.operation === "downgrade" ||  //NOT IMPLEMENTED YET
+        (data.operation !== "add" &&
         data.operation !== "remove") ){
 
         response.message = "Validation error: operation empty or not valid; or primaryKey is absent or empty";
@@ -181,7 +181,7 @@ exports.editMembershipToGroup = async function(req, res , next) {
 
         try{
             let operation = null;
-            data.operation === "add" 
+            data.operation === "add"
                     ? operation = gsuiteOperations.addUserInGroup
                     : data.operation === "remove" ? operation = gsuiteOperations.removeUserFromGroup
                     : operation = gsuiteOperations.changeUserGroupPrivilege ; ;
@@ -213,7 +213,7 @@ exports.editMembershipToGroup = async function(req, res , next) {
 exports.updateAlias = async function(req, res , next) {
     log.debug(req.headers['test-title']);
 
-    const personPK = req.params.userPK;    
+    const personPK = req.params.userPK;
     const data = req.body;
 
     let response = {success: false, message: "Undefined error"};
@@ -221,7 +221,7 @@ exports.updateAlias = async function(req, res , next) {
 
     if( !data.aliasName ||
         !data.operation ||
-        (data.operation !== "add" && 
+        (data.operation !== "add" &&
         data.operation !== "remove") ){
 
         response.message = "Validation error: operation empty or not valid; or aliasName is absent or empty";
@@ -229,7 +229,7 @@ exports.updateAlias = async function(req, res , next) {
 
     }else{
 
-        const operation = (data.operation === "add" ? gsuiteOperations.addEmailAlias : gsuiteOperations.removeEmailAlias); 
+        const operation = (data.operation === "add" ? gsuiteOperations.addEmailAlias : gsuiteOperations.removeEmailAlias);
 
         const userID = await redis.get("primary:"+personPK);
         log.debug(userID);
@@ -241,7 +241,7 @@ exports.updateAlias = async function(req, res , next) {
         };
 
         try{
-            
+
             let result = await runGsuiteOperation(operation, payload);
             response = {success: result.success, message: result.data.email+" membership has been created", data: result.data };
             statusCode = result.code;
@@ -278,19 +278,19 @@ exports.updateAlias = async function(req, res , next) {
 exports.getAliasFromRedis = async function(req, res , next) {
     log.debug(req.headers['test-title']);
 
-    const personPK = req.params.userPK;    
+    const personPK = req.params.userPK;
 
     const userID = await redis.get("primary:"+personPK);
     log.debug(userID);
 
-    const response = {success: true, 
-                message: "Aliases as follow", 
+    const response = {success: true,
+                message: "Aliases as follow",
                 data: "" };
 
     const aliases = await redis.smembers("alias:"+userID)
                    .catch(err => {
-                       response.success = false; 
-                       response.message = "Something with redis"; 
+                       response.success = false;
+                       response.message = "Something with redis";
                        response.data = err; });
 
     response.data = aliases;
@@ -298,19 +298,19 @@ exports.getAliasFromRedis = async function(req, res , next) {
     return res.status(200).json(response);
 };
 
-exports.createCalEvent = async function(req, res , next) { 
+exports.createCalEvent = async function(req, res , next) {
     log.debug(req.headers['test-title']);
 
-    const data = req.body; 
+    const data = req.body;
 
     let response = {success: false, message: "Undefined error"};
     let statusCode = 500;
-    
-    if( !data.name || 
-        !data.startDate || 
-        !data.endDate || 
-        !data.description || 
-        !data.location || 
+
+    if( !data.name ||
+        !data.startDate ||
+        !data.endDate ||
+        !data.description ||
+        !data.location ||
         !data.eventID){
 
         response.message = "Validation error: a required property is absent or empty";

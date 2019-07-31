@@ -1,10 +1,10 @@
 const config = require('./config/configFile.js');
-const log = require('./config/logger.js');
+const log = require('./util/logger.js');
 
 const Redis = require('ioredis');
 const redis = new Redis(config.redis);
 
-async function startRedis(){ 
+async function startRedis(){
 //  const result = await redis.connect();
 //  console.log("Redis has started: "+result);
 //  log.info("Redis has started: "+result);

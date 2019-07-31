@@ -1,7 +1,7 @@
 const { errors } = require('oms-common-nodejs');
-const serverInfo = require('./info.js');
+const serverInfo = require('./util/info.js');
 
-const log = require('./config/logger.js');
+const log = require('./util/logger.js');
 
 /* eslint-disable no-unused-vars */
 exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such API endpoint: ' + req.method + ' ' + req.originalUrl);
