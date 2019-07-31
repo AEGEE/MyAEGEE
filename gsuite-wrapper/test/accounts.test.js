@@ -6,13 +6,13 @@ const crypto = require('crypto');
 
 const redis = require('../lib/redis.js').db;
 function delay(interval){
-    return it('should delay', done => 
+    return it('should delay', done =>
             {setTimeout(() => done(), interval)}
             ).timeout(interval + 100) // The extra 100ms should guarantee the test will not fail due to exceeded timeout
 }
 
 describe('Accounts', function(){
-  
+
   const name = "Automated";
   const surname = "APITest";
   const generatedUsername = name.toLowerCase()+"."+surname.toLowerCase()+"@aegee.eu";
@@ -48,7 +48,7 @@ describe('Accounts', function(){
 
     pip = redis.pipeline();
 
-    //user    
+    //user
     pip.hdel("user:"+userPK, "GsuiteAccount");
     pip.hdel("user:"+userPK, "SecondaryEmail");
     pip.del("primary:"+userPK, "primary:"+user_secondaryEmail, "id:"+user_primaryEmail, "secondary:"+user_primaryEmail);
@@ -56,10 +56,10 @@ describe('Accounts', function(){
 
     keys = await redis.keys('*');
     console.log(keys);
- });
+  });
 
-  describe('POST /account', function(){  
-    
+  describe('POST /account', function(){
+
     it('Should add an account if valid',  async () => {
       this.timeout(3000);
       const payload = JSON.parse(JSON.stringify(data));
@@ -74,11 +74,11 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(201);
       body.success.should.equal(true);
-      
+
     });
-    
+
     it('Should not add an account if already existing',  async () => {
-      
+
       const payload = JSON.parse(JSON.stringify(data));
 
       const res = await request({
@@ -91,11 +91,11 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(409);
       body.success.should.equal(false);
-      
+
     });
-  
+
     it('Should not add an account if without primaryEmail',  async () => {
-      
+
       const payload = JSON.parse(JSON.stringify(data));
       delete payload.primaryEmail;
 
@@ -109,11 +109,11 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(400);
       body.success.should.equal(false);
-      
+
     });
 
     it('Should not add an account if primaryEmail is empty',  async () => {
-      
+
       const payload = JSON.parse(JSON.stringify(data));
       payload.primaryEmail = "";
 
@@ -127,11 +127,11 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(400);
       body.success.should.equal(false);
-      
+
     });
 
     it('Should not add an account if without secondaryEmail',  async () => {
-      
+
       const payload = JSON.parse(JSON.stringify(data));
       delete payload.secondaryEmail;
 
@@ -145,11 +145,11 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(400);
       body.success.should.equal(false);
-      
+
     });
 
     it('Should not add an account if secondaryEmail is empty',  async () => {
-      
+
       const payload = JSON.parse(JSON.stringify(data));
       payload.secondaryEmail = "";
 
@@ -163,11 +163,11 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(400);
       body.success.should.equal(false);
-      
+
     });
 
     it('Should not add an account if without password',  async () => {
-      
+
       const payload = JSON.parse(JSON.stringify(data));
       delete payload.password;
 
@@ -181,11 +181,11 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(400);
       body.success.should.equal(false);
-      
+
     });
 
     it('Should not add an account if password is empty',  async () => {
-      
+
       const payload = JSON.parse(JSON.stringify(data));
       payload.password = "";
 
@@ -199,11 +199,11 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(400);
       body.success.should.equal(false);
-      
+
     });
 
     it('Should not add an account if without antenna',  async () => {
-      
+
       const payload = JSON.parse(JSON.stringify(data));
       delete payload.antenna;
 
@@ -217,11 +217,11 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(400);
       body.success.should.equal(false);
-      
+
     });
 
     it('Should not add an account if antenna is empty',  async () => {
-      
+
       const payload = JSON.parse(JSON.stringify(data));
       payload.antenna = "";
 
@@ -235,11 +235,11 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(400);
       body.success.should.equal(false);
-      
+
     });
-    
+
     it('Should not add an account if without name',  async () => {
-      
+
       const payload = JSON.parse(JSON.stringify(data));
       delete payload.name.givenName;
 
@@ -253,11 +253,11 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(400);
       body.success.should.equal(false);
-      
+
     });
 
     it('Should not add an account if name is empty',  async () => {
-      
+
       const payload = JSON.parse(JSON.stringify(data));
       payload.name.givenName = "";
 
@@ -271,11 +271,11 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(400);
       body.success.should.equal(false);
-      
+
     });
 
     it('Should not add an account if without surname',  async () => {
-      
+
       const payload = JSON.parse(JSON.stringify(data));
       delete payload.name.familyName;
 
@@ -289,11 +289,11 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(400);
       body.success.should.equal(false);
-      
+
     });
 
     it('Should not add an account if surname is empty',  async () => {
-      
+
       const payload = JSON.parse(JSON.stringify(data));
       payload.name.familyName = "";
 
@@ -307,11 +307,11 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(400);
       body.success.should.equal(false);
-      
+
     });
 
     it('Should not add an account if without userPK',  async () => {
-      
+
       const payload = JSON.parse(JSON.stringify(data));
       delete payload.userPK;
 
@@ -325,11 +325,11 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(400);
       body.success.should.equal(false);
-      
+
     });
 
     it('Should not add an account if userPK is empty',  async () => {
-      
+
       const payload = JSON.parse(JSON.stringify(data));
       payload.userPK = "";
 
@@ -343,11 +343,18 @@ describe('Accounts', function(){
       const body = res.body;
       res.statusCode.should.equal(400);
       body.success.should.equal(false);
-      
+
     });
-    
+
   });
 
   delay(2000);
 
+  xdescribe('GET /account', function(){
+
+    it('Should list all accounts if valid',  async () => {
+
+    });
+
+  });
 });

@@ -45,7 +45,7 @@ async function runGsuiteOperation(operation, payload) {
     const operationResult = {success: true, code: res.status, data: res.data};
     if( operation.name.indexOf("add") > -1 && operationResult.code === 200) { operationResult.code = 201 };
     if( operationResult.code === 204) { operationResult.code = 200 };
-  
+
   return operationResult;
 };
 
@@ -53,11 +53,11 @@ async function runGsuiteOperation(operation, payload) {
 const gsuiteOperations = {
 
   // Insert group in the system
-  addGroup: async function addGroup(jwt, data){ 
+  addGroup: async function addGroup(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.groups.insert({
         requestBody: {
-            name: data.groupName, 
+            name: data.groupName,
             email: data.primaryEmail,
         },
         auth: jwt
@@ -66,7 +66,7 @@ const gsuiteOperations = {
   },
 
   // Delete the group
-  deleteGroup: async function deleteGroup(jwt, data){ 
+  deleteGroup: async function deleteGroup(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.groups.delete({
         groupKey: data.primaryEmail,
@@ -76,7 +76,7 @@ const gsuiteOperations = {
   },
 
    // Insert user account in the system
-  addAccount: async function addAccount(jwt, data){ 
+  addAccount: async function addAccount(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.users.insert({
       requestBody: data,
@@ -86,8 +86,16 @@ const gsuiteOperations = {
     return result;
   },
 
+  // List user accounts present in the system (only for the initial sync script)
+  listAccounts: async function addAccount(jwt, data){
+    const admin = google.admin('directory_v1');
+    data.auth = jwt;
+    const result = await admin.users.list(data);
+    return result;
+  },
+
   // Delete the account
-  deleteAccount: async function deleteaccount(jwt, data){ 
+  deleteAccount: async function deleteaccount(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.users.delete({
         userKey: data.primaryEmail,
@@ -97,7 +105,7 @@ const gsuiteOperations = {
   },
 
   // Insert member in Google group
-  addUserInGroup: async function addUserInGroup(jwt, data){ 
+  addUserInGroup: async function addUserInGroup(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.members.insert({
         groupKey: data.primaryEmail,
@@ -110,7 +118,7 @@ const gsuiteOperations = {
   },
 
   // Remove member from Google group
-  removeUserFromGroup: async function removeUserFromGroup(jwt, data){ 
+  removeUserFromGroup: async function removeUserFromGroup(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.members.delete({
         groupKey: data.primaryEmail,
@@ -122,10 +130,10 @@ const gsuiteOperations = {
   },
 
   // Add gsuite alias (e.g. netcom-xxx@aegeee.eu)
-  addEmailAlias: async function addEmailAlias(jwt, data){ 
+  addEmailAlias: async function addEmailAlias(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.users.aliases.insert({
-        userKey: data.primaryEmail,        
+        userKey: data.primaryEmail,
         requestBody: {
           alias: data.aliasName,
         },
@@ -136,7 +144,7 @@ const gsuiteOperations = {
   },
 
   // Remove gsuite alias (e.g. netcom-xxx@aegeee.eu)
-  removeEmailAlias: async function removeEmailAlias(jwt, data){ 
+  removeEmailAlias: async function removeEmailAlias(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.users.aliases.delete({
         userKey: data.primaryEmail,
@@ -148,11 +156,11 @@ const gsuiteOperations = {
   },
 
   // Insert event in the system
-  addEvent: async function addEvent(jwt, data){ 
+  addEvent: async function addEvent(jwt, data){
     const calendar = google.calendar('v3');
     const result = await calendar.events.insert({
       auth: jwt,
-      calendarId: 'member.aegee.org_pmfkss8cqipbjlg3qf3306bmjo@group.calendar.google.com', 
+      calendarId: 'member.aegee.org_pmfkss8cqipbjlg3qf3306bmjo@group.calendar.google.com',
       resource: data,
     });
     return result;
