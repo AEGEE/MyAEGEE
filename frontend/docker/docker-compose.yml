@@ -21,8 +21,3 @@ services:
             - "traefik.enable=true"
             - "registry.status=status.json"
             - "registry.modules=getModules.json"
-
-networks:
-  default:
-    external:
-      name: OMS
