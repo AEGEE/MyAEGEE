@@ -67,7 +67,7 @@
                   <router-link
                     :to="{ name: 'oms.events.apply', params: { id: event.url || event.id } }"
                     class="button is-warning">
-                    {{ scope === 'participating' ? 'Manage my application' : 'Apply' }}
+                    Manage my application
                   </router-link>
                 </p>
               </div>

@@ -336,10 +336,16 @@ export default {
       }
     },
     byNumOfEventsData () {
+      const eventTypePlural = {
+        agora: 'Agorae',
+        epm: 'EPMs',
+        spm: 'SPMs',
+      }
+
       return {
         labels: this.stats.by_number_of_events_visited.map(s => `${s.type} (${s.value})`),
         datasets: [{
-          label: 'Applications by number of events visited',
+          label: `Applications by number of ${eventTypePlural[this.event.type]} visited`,
           backgroundColor: this.colors,
           data: this.stats.by_number_of_events_visited.map(s => s.value)
         }]
