@@ -27,7 +27,7 @@
 
           <div class="field is-grouped" v-if="can.apply">
             <router-link :to="{ name: 'oms.events.apply', params: { id: event.url || event.id } }" class="button is-warning is-fullwidth">
-              <span>Apply</span>
+              <span>Manage my application</span>
               <span class="icon"><i class="fa fa-plus"></i></span>
             </router-link>
           </div>
