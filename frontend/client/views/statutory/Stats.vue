@@ -67,7 +67,7 @@
         <div class="subtitle">By gender</div>
         <pie-chart class="chart" :chart-data="byGenderData()" :options="byGenderOptions"></pie-chart>
 
-        <div class="subtitle">By number of events visited</div>
+        <div class="subtitle">By number of {{ eventTypePluralized }} visited</div>
         <pie-chart class="chart" :chart-data="byNumOfEventsData()" :options="byNumOfEventsOptions"></pie-chart>
 
         <div class="subtitle">Quorum</div>
@@ -283,7 +283,7 @@ export default {
         maintainAspectRatio: false,
         title: {
           display: true,
-          text: 'Applications by number of events visited'
+          label: `Applications by number of ${this.eventTypePluralized} visited`,
         },
         legend: {
           position: 'right'
@@ -310,6 +310,15 @@ export default {
           onClick: (e) => e.stopPropagation()
         }
       }
+    },
+    eventTypePluralized() {
+      const eventTypePlural = {
+        agora: 'Agorae',
+        epm: 'EPMs',
+        spm: 'SPMs',
+      }
+
+      return eventTypePlural[this.event.type]
     }
   },
   methods: {
@@ -336,16 +345,10 @@ export default {
       }
     },
     byNumOfEventsData () {
-      const eventTypePlural = {
-        agora: 'Agorae',
-        epm: 'EPMs',
-        spm: 'SPMs',
-      }
-
       return {
         labels: this.stats.by_number_of_events_visited.map(s => `${s.type} (${s.value})`),
         datasets: [{
-          label: `Applications by number of ${eventTypePlural[this.event.type]} visited`,
+          label: `Applications by number of ${this.eventTypePluralized} visited`,
           backgroundColor: this.colors,
           data: this.stats.by_number_of_events_visited.map(s => s.value)
         }]
