@@ -1,5 +1,16 @@
+<a name="0.16.2"></a>
+## [0.16.2](https://github.com/AEGEE/oms-frontend/compare/0.16.1...0.16.2) (2019-08-02)
+
+
+### Bug Fixes
+
+* **deps:** updated deps to the latest ([085c870](https://github.com/AEGEE/oms-frontend/commit/085c870))
+* **test:** add Circle CI ([066f7cf](https://github.com/AEGEE/oms-frontend/commit/066f7cf))
+
+
+
 <a name="0.16.1"></a>
-## 0.16.1 (2019-08-01)
+## [0.16.1](https://github.com/AEGEE/oms-frontend/compare/8ce8761...0.16.1) (2019-08-01)
 
 
 ### Bug Fixes
