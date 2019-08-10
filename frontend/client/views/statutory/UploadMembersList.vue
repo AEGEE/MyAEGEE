@@ -50,7 +50,12 @@
               <button class="button" v-show="!isEditing" @click="isEditing = true">Edit</button>
             </div>
             <div class="control">
-              <button class="button is-warning" @click="saveMembersList()">Save!</button>
+              <button
+                class="button is-warning"
+                @click="saveMembersList()"
+                :disabled="isLoading">
+                Save!
+              </button>
             </div>
           </div>
         </div>
