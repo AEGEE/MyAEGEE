@@ -1,3 +1,14 @@
+<a name="0.16.5"></a>
+## [0.16.5](https://github.com/AEGEE/oms-frontend/compare/0.16.4...0.16.5) (2019-08-10)
+
+
+### Bug Fixes
+
+* **deps:** fix security vulnerabilities ([ba52be0](https://github.com/AEGEE/oms-frontend/commit/ba52be0))
+* **statutory:** fix statutory stats ticks size. Fixes MEMB-581 ([ba61369](https://github.com/AEGEE/oms-frontend/commit/ba61369))
+
+
+
 <a name="0.16.4"></a>
 ## [0.16.4](https://github.com/AEGEE/oms-frontend/compare/0.16.3...0.16.4) (2019-08-10)
 
