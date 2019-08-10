@@ -1,3 +1,13 @@
+<a name="0.16.4"></a>
+## [0.16.4](https://github.com/AEGEE/oms-frontend/compare/0.16.3...0.16.4) (2019-08-10)
+
+
+### Bug Fixes
+
+* **statutory:** fix memberslist fee fetching ([55b9003](https://github.com/AEGEE/oms-frontend/commit/55b9003))
+
+
+
 <a name="0.16.3"></a>
 ## [0.16.3](https://github.com/AEGEE/oms-frontend/compare/0.16.0...0.16.3) (2019-08-02)
 

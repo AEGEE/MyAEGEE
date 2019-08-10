@@ -218,7 +218,8 @@ export default {
               // if there's no payment, do nothing, so it'd default to zero
               // if there is one, setting it for the user.
               if (currentPayment) {
-                member.fee = currentPayment.amount
+                const intFee = Number(currentPayment.amount)
+                member.fee = !Number.isNaN(intFee) ? intFee : 0
               }
             }
 
