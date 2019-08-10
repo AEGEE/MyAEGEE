@@ -50,6 +50,7 @@ process.on('unhandledRejection', (err) => {
 
 ImagesRouter.use(express.static(config.images_dir)); // Serving images.
 
+GeneralRouter.get('/healthcheck', middlewares.healthcheck);
 GeneralRouter.use(middlewares.authenticateUser);
 GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', events.addEvent);

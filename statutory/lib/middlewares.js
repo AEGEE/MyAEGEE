@@ -6,6 +6,7 @@ const constants = require('./constants');
 const { Event, Application, Image } = require('../models');
 const { Sequelize } = require('./sequelize');
 const bugsnag = require('./bugsnag');
+const packageInfo = require('../package');
 
 exports.authenticateUser = async (req, res, next) => {
     const token = req.header('x-auth-token');
@@ -157,6 +158,18 @@ exports.fetchSingleApplication = async (req, res, next) => {
     });
 
     return next();
+};
+
+/* istanbul ignore next */
+exports.healthcheck = (req, res) => {
+    return res.json({
+        success: true,
+        data: {
+            name: packageInfo.name,
+            description: packageInfo.description,
+            version: packageInfo.version
+        }
+    });
 };
 
 /* eslint-disable no-unused-vars */
