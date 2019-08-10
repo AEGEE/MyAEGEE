@@ -1,3 +1,17 @@
+## [0.14.1](https://github.com/AEGEE/oms-statutory/compare/0.14.0...0.14.1) (2019-08-10)
+
+
+### Bug Fixes
+
+* **test:** fix failing test ([8e07f2b](https://github.com/AEGEE/oms-statutory/commit/8e07f2b))
+
+
+### Features
+
+* **other:** added /healthcheck endpoint. Fixes MEMB-560 ([e7a2f07](https://github.com/AEGEE/oms-statutory/commit/e7a2f07))
+
+
+
 # [0.14.0](https://github.com/AEGEE/oms-statutory/compare/0.13.0...0.14.0) (2019-07-30)
 
 
