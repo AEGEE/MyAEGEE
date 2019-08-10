@@ -1,3 +1,13 @@
+<a name="0.16.6"></a>
+## [0.16.6](https://github.com/AEGEE/oms-frontend/compare/0.16.5...0.16.6) (2019-08-10)
+
+
+### Bug Fixes
+
+* **statutory:** do not allow saving memberslist if save is in progress ([34eff46](https://github.com/AEGEE/oms-frontend/commit/34eff46))
+
+
+
 <a name="0.16.5"></a>
 ## [0.16.5](https://github.com/AEGEE/oms-frontend/compare/0.16.4...0.16.5) (2019-08-10)
 
