@@ -128,6 +128,11 @@ const Application = sequelize.define('application', {
             }
         }
     },
-}, { underscored: true, tableName: 'applications' });
+}, {
+    underscored: true,
+    tableName: 'applications',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 module.exports = Application;

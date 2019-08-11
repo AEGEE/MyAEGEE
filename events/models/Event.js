@@ -300,6 +300,11 @@ const Event = sequelize.define('event', {
                 : 'closed'; // inclusive
         }
     },
-}, { underscored: true, tableName: 'events' });
+}, {
+    underscored: true,
+    tableName: 'events',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 module.exports = Event;
