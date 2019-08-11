@@ -1,0 +1,114 @@
+<template>
+  <div class="tile is-ancestor">
+    <div class="tile is-parent is-vertical">
+      <article class="tile is-child">
+        <h4 class="title">Services statuses</h4>
+
+				<table class="table is-bordered is-striped is-narrow is-fullwidth">
+          <thead>
+						<tr>
+							<th>Name</th>
+							<th>Version</th>
+							<th>Changelog</th>
+							<th>Round-trip time</th>
+							<th>Is alive?</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="(value, service) in statuses" v-bind:key="service">
+							<td>{{ service }}</td>
+							<td>{{ value.version }}</td>
+							<td v-if="value.changelog">
+								<a :href="value.changelog" target="_blank">{{ value.changelog }}</a>
+							</td>
+							<td v-else>-</td>
+							<td v-if="value.roundTrip">{{ value.roundTrip }} ms.</td>
+							<td v-else>-</td>
+							<td>
+								<span class="tag is-small" :class="calculateClassForService(value.isAlive)">{{ value.isAlive | beautify }}</span>
+							</td>
+						</tr>
+					</tbody>
+        </table>
+      </article>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapGetters } from 'vuex'
+
+export default {
+  name: 'Status',
+  data () {
+    return {
+			statuses: {
+				'oms-core-elixir': {
+					roundTrip: null,
+					version: '-',
+					isAlive: 'Waiting...',
+					changelog: null
+				},
+				'oms-events': {
+					roundTrip: null,
+					version: '-',
+					isAlive: 'Waiting...',
+					changelog: 'https://github.com/AEGEE/oms-events/blob/master/CHANGELOG.md'
+				},
+				'oms-statutory': {
+					roundTrip: null,
+					version: '-',
+					isAlive: 'Waiting...',
+					changelog: 'https://github.com/AEGEE/oms-statutory/blob/master/CHANGELOG.md'
+				},
+				'oms-discounts': {
+					roundTrip: null,
+					version: '-',
+					isAlive: 'Waiting...',
+					changelog: 'https://github.com/AEGEE/oms-discounts/blob/master/CHANGELOG.md'
+				},
+				'oms-frontend': {
+					roundTrip: null,
+					version: this.$store.state.pkg.version,
+					isAlive: 'Waiting...',
+					changelog: 'https://github.com/AEGEE/oms-frontend/blob/master/CHANGELOG.md'
+				},
+			}
+    }
+	},
+	methods: {
+		calculateClassForService (isAlive) {
+			switch (isAlive) {
+				case true:
+					return 'is-success'
+				case false:
+					return 'is-danger'
+				default:
+					return 'is-warning'
+			}
+		},
+		fetchHealthcheckForService (service) {
+			const timeStart = Date.now()
+			this.axios.get(this.services[service] + '/healthcheck').then((response) => {
+				this.statuses[service].roundTrip = Date.now() - timeStart
+				this.statuses[service].isAlive = true
+				if (response.data && response.data.data && response.data.data.version) {
+					this.statuses[service].version = response.data.data.version
+				}
+			}).catch((err) => {
+				console.log(err)
+				this.statuses[service].roundTrip = Date.now() - timeStart
+				this.statuses[service].isAlive = false
+			})
+		}
+	},
+	computed: {
+    ...mapGetters(['services'])
+  },
+  mounted () {
+		for (const service in this.statuses) {
+			this.fetchHealthcheckForService(service)
+		}
+  }
+}
+</script>
