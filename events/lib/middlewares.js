@@ -6,6 +6,7 @@ const logger = require('./logger');
 const { Event, Application } = require('../models');
 const helpers = require('./helpers');
 const config = require('../config');
+const packageInfo = require('../package');
 
 exports.authenticateUser = async (req, res, next) => {
     const token = req.header('x-auth-token');
@@ -120,6 +121,18 @@ exports.fetchSingleApplication = async (req, res, next) => {
         event: req.event
     });
     return next();
+};
+
+/* istanbul ignore next */
+exports.healthcheck = (req, res) => {
+    return res.json({
+        success: true,
+        data: {
+            name: packageInfo.name,
+            description: packageInfo.description,
+            version: packageInfo.version
+        }
+    });
 };
 
 /* eslint-disable no-unused-vars */
