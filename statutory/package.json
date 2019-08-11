@@ -1,6 +1,6 @@
 {
   "name": "oms-statutory",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "description": "Statutory events module for OMS",
   "main": "lib/server.js",
   "scripts": {
@@ -70,7 +70,7 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^8.0.0",
+    "@commitlint/cli": "^8.1.0",
     "@commitlint/config-conventional": "^8.0.0",
     "codecov": "^3.5.0",
     "eslint": "^5.16.0",
