@@ -26,6 +26,7 @@ process.on('unhandledRejection', (err) => {
     }
 });
 
+GeneralRouter.get('/healthcheck', middlewares.healthcheck);
 GeneralRouter.use(middlewares.authenticateUser);
 
 // integrations and codes
@@ -60,7 +61,7 @@ async function startServer() {
             return res();
         });
         /* istanbul ignore next */
-        localApp.on('error', err => rej(new Error('Error starting server: ' + err.stack)));
+        localApp.on('error', (err) => rej(new Error('Error starting server: ' + err.stack)));
     });
 }
 

@@ -20,6 +20,11 @@ const Code = sequelize.define('code', {
     claimed_by: {
         type: Sequelize.INTEGER
     }
-}, { underscored: true, tableName: 'codes' });
+}, {
+    underscored: true,
+    tableName: 'codes',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 module.exports = Code;

@@ -1,6 +1,6 @@
 {
   "name": "oms-discounts",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Discounts module for OMS, for populating codes and for distributing them to AEGEE members.",
   "main": "lib/run.js",
   "scripts": {
@@ -41,35 +41,35 @@
     ]
   },
   "devDependencies": {
-    "@commitlint/cli": "^7.5.2",
-    "@commitlint/config-conventional": "^7.5.0",
-    "codecov": "^3.3.0",
-    "eslint": "^5.16.0",
-    "eslint-config-airbnb": "^17.1.0",
-    "eslint-plugin-import": "^2.17.2",
-    "eslint-plugin-jsx-a11y": "^6.2.1",
-    "eslint-plugin-react": "^7.12.4",
+    "@commitlint/cli": "^8.1.0",
+    "@commitlint/config-conventional": "^8.1.0",
+    "codecov": "^3.5.0",
+    "eslint": "^6.1.0",
+    "eslint-config-airbnb": "^18.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.14.3",
     "faker": "^4.1.0",
-    "husky": "^2.1.0",
-    "jest": "^24.7.1",
+    "husky": "^3.0.3",
+    "jest": "^24.8.0",
     "nock": "^10.0.6",
-    "nyc": "^14.0.0",
-    "opn-cli": "^4.1.0"
+    "nyc": "^14.1.1",
+    "opn-cli": "^5.0.0"
   },
   "dependencies": {
-    "@bugsnag/js": "^6.2.0",
+    "@bugsnag/js": "^6.3.2",
     "body-parser": "^1.19.0",
     "deep-assign": "^3.0.0",
-    "express": "^4.16.4",
+    "express": "^4.17.1",
     "express-promise-router": "^3.0.3",
     "joi": "^14.3.1",
     "moment": "^2.24.0",
     "morgan": "^1.9.1",
-    "pg": "^7.10.0",
+    "pg": "^7.12.1",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
-    "sequelize": "^4.43.2",
-    "sequelize-cli": "^4.1.1",
+    "sequelize": "^5.13.1",
+    "sequelize-cli": "^5.5.0",
     "winston": "^3.2.1"
   }
 }
