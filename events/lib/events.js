@@ -103,7 +103,7 @@ exports.listUserAppliedEvents = async (req, res) => {
 
 exports.listApprovableEvents = async (req, res) => {
     const allowedEventTypes = Object.keys(req.permissions.approve_event)
-        .filter(key => req.permissions.approve_event[key]);
+        .filter((key) => req.permissions.approve_event[key]);
 
     const events = await Event.findAll({
         where: {
@@ -231,7 +231,7 @@ exports.addOrganizer = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to edit organizers.');
     }
 
-    const organizer = req.event.organizers.find(org => org.user_id === req.body.user_id);
+    const organizer = req.event.organizers.find((org) => org.user_id === req.body.user_id);
     if (organizer) {
         return errors.makeBadRequestError(res, 'User with id ' + req.body.user_id + ' is already an organizer.');
     }
@@ -284,7 +284,7 @@ exports.editOrganizer = async (req, res) => {
         return errors.makeBadRequestError(res, 'userId is not a number.');
     }
 
-    const organizer = req.event.organizers.find(org => org.user_id === userId);
+    const organizer = req.event.organizers.find((org) => org.user_id === userId);
     if (!organizer) {
         return errors.makeNotFoundError(res, 'Organizer with id ' + userId + ' is not found.');
     }
@@ -310,7 +310,7 @@ exports.deleteOrganizer = async (req, res) => {
         return errors.makeBadRequestError(res, 'userId is not a number.');
     }
 
-    const organizerIndex = req.event.organizers.findIndex(org => org.user_id === userId);
+    const organizerIndex = req.event.organizers.findIndex((org) => org.user_id === userId);
     if (organizerIndex === -1) {
         return errors.makeNotFoundError(res, 'Organizer with id ' + userId + ' is not found.');
     }
@@ -333,7 +333,7 @@ exports.addLocal = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to edit organizing bodies.');
     }
 
-    const organizer = req.event.organizing_bodies.find(org => org.body_id === req.body.body_id);
+    const organizer = req.event.organizing_bodies.find((org) => org.body_id === req.body.body_id);
     if (organizer) {
         return errors.makeBadRequestError(res, 'Body with id ' + req.body.body_id + ' is already an organizing body of this event.');
     }
@@ -361,7 +361,7 @@ exports.deleteLocal = async (req, res) => {
         return errors.makeBadRequestError(res, 'bodyId is not a number.');
     }
 
-    const localIndex = req.event.organizing_bodies.findIndex(org => org.body_id === bodyId);
+    const localIndex = req.event.organizing_bodies.findIndex((org) => org.body_id === bodyId);
     if (localIndex === -1) {
         return errors.makeNotFoundError(res, 'Body with id ' + bodyId + ' is not an organizing local of this event.');
     }

@@ -95,8 +95,8 @@ describe('Events organization management', () => {
         expect(res.body).toHaveProperty('message');
 
         const newEvent = await Event.findByPk(event.id);
-        expect(newEvent.organizers.map(org => org.user_id)).toContain(user.id);
-        expect(newEvent.organizers.map(org => org.comment)).toContain('Good guy');
+        expect(newEvent.organizers.map((org) => org.user_id)).toContain(user.id);
+        expect(newEvent.organizers.map((org) => org.comment)).toContain('Good guy');
     });
 
     it('should return 500 on adding organizer if oms-core returns net error', async () => {
@@ -260,8 +260,8 @@ describe('Events organization management', () => {
         expect(res.body).toHaveProperty('message');
 
         const newEvent = await Event.findByPk(event.id);
-        expect(newEvent.organizers.map(org => org.user_id)).toContain(user.id);
-        expect(newEvent.organizers.map(org => org.comment)).toContain('Not that good guy');
+        expect(newEvent.organizers.map((org) => org.user_id)).toContain(user.id);
+        expect(newEvent.organizers.map((org) => org.comment)).toContain('Not that good guy');
     });
 
     it('should disallow deleting organizer for event you cannot edit', async () => {
@@ -362,6 +362,6 @@ describe('Events organization management', () => {
         expect(res.body).toHaveProperty('message');
 
         const newEvent = await Event.findByPk(myEvent.id);
-        expect(newEvent.organizers.map(org => org.user_id)).not.toContain(1337);
+        expect(newEvent.organizers.map((org) => org.user_id)).not.toContain(1337);
     });
 });

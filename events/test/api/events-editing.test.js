@@ -122,7 +122,7 @@ describe('Events editing', () => {
         });
 
         const newEvent = await Event.findByPk(event.id);
-        expect(newEvent.organizers.map(org => org.user_id)).not.toContain(1337);
+        expect(newEvent.organizers.map((org) => org.user_id)).not.toContain(1337);
     });
 
     it('should disallow event deleting if the user doesn\'t have rights', async () => {

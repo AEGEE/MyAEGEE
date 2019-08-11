@@ -70,7 +70,7 @@ describe('Event bodies editing', () => {
         expect(res.body).toHaveProperty('message');
 
         const newEvent = await Event.findByPk(event.id);
-        expect(newEvent.organizing_bodies.map(org => org.body_id)).toContain(444);
+        expect(newEvent.organizing_bodies.map((org) => org.body_id)).toContain(444);
     });
 
     it('should disallow deleting organizing body for event you cannot edit', async () => {
@@ -152,7 +152,7 @@ describe('Event bodies editing', () => {
         expect(res.body).toHaveProperty('message');
 
         const newEvent = await Event.findByPk(event.id);
-        expect(newEvent.organizing_bodies.map(org => org.body_id)).not.toContain(333);
+        expect(newEvent.organizing_bodies.map((org) => org.body_id)).not.toContain(333);
     });
 
     it('should return 422 if passed value is not an integer', async () => {
