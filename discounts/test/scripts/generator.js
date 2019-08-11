@@ -6,7 +6,7 @@ const {
     Category
 } = require('../../models');
 
-const notSet = field => typeof field === 'undefined';
+const notSet = (field) => typeof field === 'undefined';
 
 exports.generateIntegration = (options = {}) => {
     if (notSet(options.name)) options.name = faker.lorem.sentence();

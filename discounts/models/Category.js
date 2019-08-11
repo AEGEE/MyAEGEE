@@ -38,6 +38,6 @@ const Category = sequelize.define('category', {
     tableName: 'categories',
     createdAt: 'created_at',
     updatedAt: 'updated_at'
- });
+});
 
 module.exports = Category;

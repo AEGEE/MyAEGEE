@@ -91,7 +91,7 @@ exports.addCodesToIntegration = async (req, res) => {
         return errors.makeBadRequestError(res, 'No codes are provided.');
     }
 
-    const arrayToCreate = req.body.map(code => ({
+    const arrayToCreate = req.body.map((code) => ({
         integration_id: req.integration.id,
         value: code
     }));

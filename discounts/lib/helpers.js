@@ -34,7 +34,7 @@ MyAEGEE discounts team.`;
 
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
-    return permissionsList.some(permission => permission.combined.endsWith(combinedPermission));
+    return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
 }
 
 exports.getPermissions = (user, corePermissions) => {
