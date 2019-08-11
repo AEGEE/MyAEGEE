@@ -46,6 +46,11 @@ const Integration = sequelize.define('integration', {
     description: {
         type: Sequelize.TEXT
     }
-}, { underscored: true, tableName: 'integrations' });
+}, {
+    underscored: true,
+    tableName: 'integrations',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 module.exports = Integration;

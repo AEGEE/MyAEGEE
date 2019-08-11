@@ -33,6 +33,11 @@ const Category = sequelize.define('category', {
             }
         },
     }
-}, { underscored: true, tableName: 'categories' });
+}, {
+    underscored: true,
+    tableName: 'categories',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+ });
 
 module.exports = Category;
