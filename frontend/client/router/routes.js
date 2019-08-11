@@ -78,6 +78,16 @@ module.exports = [
     }
   },
   {
+    name: 'oms.status',
+    path: '/status/',
+    component: 'static/Status',
+    meta: {
+      label: 'Status of MyAEGEE services',
+      auth: false,
+      showSidebar: false
+    }
+  },
+  {
     name: 'oms.dashboard',
     path: '/dashboard',
     meta: {

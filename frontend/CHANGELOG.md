@@ -1,3 +1,13 @@
+<a name="0.17.0"></a>
+# [0.17.0](https://github.com/AEGEE/oms-frontend/compare/0.16.6...0.17.0) (2019-08-11)
+
+
+### Features
+
+* **other:** added /status page. Fixes MEMB-584 ([28789b0](https://github.com/AEGEE/oms-frontend/commit/28789b0))
+
+
+
 <a name="0.16.6"></a>
 ## [0.16.6](https://github.com/AEGEE/oms-frontend/compare/0.16.5...0.16.6) (2019-08-10)
 
