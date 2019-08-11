@@ -15,7 +15,7 @@ exports.authenticateUser = async (req, res, next) => {
     }
 
     // Query the core for user and permissions.
-    const [userBody, permissionsBody] = await Promise.all(['members/me', 'my_permissions'].map(endpoint => request({
+    const [userBody, permissionsBody] = await Promise.all(['members/me', 'my_permissions'].map((endpoint) => request({
         url: config.core.url + ':' + config.core.port + '/' + endpoint,
         method: 'GET',
         headers: {

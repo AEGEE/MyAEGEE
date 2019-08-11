@@ -1,3 +1,15 @@
+## [0.6.2](https://github.com/AEGEE/oms-events/compare/0.6.1...0.6.2) (2019-08-11)
+
+
+### Bug Fixes
+
+* **deps:** fixed non-major semver security vulnerabilities ([51530bf](https://github.com/AEGEE/oms-events/commit/51530bf))
+* **deps:** fixed non-major semver security vulnerabilities ([15724d2](https://github.com/AEGEE/oms-events/commit/15724d2))
+* **deps:** updated Sequelize. Fixes MEMB-520 ([37c53af](https://github.com/AEGEE/oms-events/commit/37c53af))
+* **test:** increased test coverage. Fixes MEMB-583 ([5985379](https://github.com/AEGEE/oms-events/commit/5985379))
+
+
+
 ## [0.6.1](https://github.com/AEGEE/oms-events/compare/0.6.0...0.6.1) (2019-08-11)
 
 

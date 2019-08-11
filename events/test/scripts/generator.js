@@ -3,7 +3,7 @@ const faker = require('faker');
 const { Event, Application } = require('../../models');
 const firstUser = require('../assets/oms-core-valid').data;
 
-const notSet = field => typeof field === 'undefined';
+const notSet = (field) => typeof field === 'undefined';
 
 exports.generateEvent = (options = {}) => {
     if (notSet(options.name)) options.name = faker.lorem.sentence();

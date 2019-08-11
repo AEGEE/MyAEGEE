@@ -89,7 +89,7 @@ async function startServer() {
             return res();
         });
         /* istanbul ignore next */
-        localApp.on('error', err => rej(new Error('Error starting server: ' + err.stack)));
+        localApp.on('error', (err) => rej(new Error('Error starting server: ' + err.stack)));
     });
 }
 

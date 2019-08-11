@@ -80,7 +80,7 @@ exports.beautify = (value) => {
 
 // A helper to get the names for application fields. Useful for exporting for getting columns headers.
 exports.getApplicationFields = (event) => {
-    const fields = Object.assign({}, constants.APPLICATION_FIELD_NAMES);
+    const fields = { ...constants.APPLICATION_FIELD_NAMES };
     for (let index = 0; index < event.questions.length; index++) {
         fields['answers.' + index] = `Answer ${index + 1}: ${event.questions[index].description}`;
     }
@@ -90,23 +90,23 @@ exports.getApplicationFields = (event) => {
 
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
-    return permissionsList.some(permission => permission.combined.endsWith(combinedPermission));
+    return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
 }
 
 // A helpers to determine if the user is member of a body.
-exports.isMemberOf = (user, bodyId) => user.bodies.map(body => body.id).includes(bodyId);
+exports.isMemberOf = (user, bodyId) => user.bodies.map((body) => body.id).includes(bodyId);
 
 // A helper to get bodies list where I have some permission
 // from POST /my_permissions
 function getBodiesListFromPermissions(result) {
     return result.reduce((acc, val) => acc.concat(val), [])
-        .filter(elt => elt.body_id)
-        .map(elt => elt.body_id)
+        .filter((elt) => elt.body_id)
+        .map((elt) => elt.body_id)
         .filter((elt, index, array) => array.indexOf(elt) === index);
 }
 
 // A helper to determine if user is an organizer.
-exports.isOrganizer = (event, user) => event.organizers.some(organizer => organizer.user_id === user.id);
+exports.isOrganizer = (event, user) => event.organizers.some((organizer) => organizer.user_id === user.id);
 
 exports.getPermissions = (user, corePermissions, approvePermissions) => {
     const permissions = {

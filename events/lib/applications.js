@@ -52,7 +52,7 @@ exports.setApplication = async (req, res) => {
     } else {
         req.body.first_name = req.user.first_name;
         req.body.last_name = req.user.last_name;
-        req.body.body_name = req.user.bodies.find(b => b.id === req.body.body_id).name;
+        req.body.body_name = req.user.bodies.find((b) => b.id === req.body.body_id).name;
         req.body.user_id = req.user.id;
         req.body.event_id = req.event.id;
 
@@ -105,13 +105,13 @@ exports.exportAll = async (req, res) => {
     const applications = await Application.findAll({ where: { event_id: req.event.id } });
 
     const headersNames = helpers.getApplicationFields(req.event);
-    const headers = Object.keys(headersNames).map(field => headersNames[field]);
+    const headers = Object.keys(headersNames).map((field) => headersNames[field]);
 
     const resultArray = applications
-        .map(application => application.toJSON())
-        .map(application => helpers.flattenObject(application))
+        .map((application) => application.toJSON())
+        .map((application) => helpers.flattenObject(application))
         .map((application) => {
-            return Object.keys(headersNames).map(field => helpers.beautify(application[field]));
+            return Object.keys(headersNames).map((field) => helpers.beautify(application[field]));
         });
 
     const resultBuffer = xlsx.build([

@@ -8,6 +8,7 @@ const Application = sequelize.define('application', {
         defaultValue: '',
         validate: {
             async isValid(value) {
+                /* istanbul ignore next */
                 if (typeof value !== 'number') {
                     throw new Error('User ID must be a number.');
                 }
@@ -17,6 +18,7 @@ const Application = sequelize.define('application', {
                     user_id: this.user_id
                 } });
 
+                /* istanbul ignore next */
                 if (application) {
                     throw new Error('The application for this event from this user already exists.');
                 }
@@ -128,6 +130,11 @@ const Application = sequelize.define('application', {
             }
         }
     },
-}, { underscored: true, tableName: 'applications' });
+}, {
+    underscored: true,
+    tableName: 'applications',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
 
 module.exports = Application;
