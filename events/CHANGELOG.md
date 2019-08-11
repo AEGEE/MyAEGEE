@@ -1,3 +1,17 @@
+## [0.6.1](https://github.com/AEGEE/oms-events/compare/0.6.0...0.6.1) (2019-08-11)
+
+
+### Bug Fixes
+
+* **other:** added /healthcheck endpoint. Fixes MEMB-562 ([b39b20a](https://github.com/AEGEE/oms-events/commit/b39b20a))
+
+
+### Features
+
+* standardise passwords; improve deployability ([4a098f0](https://github.com/AEGEE/oms-events/commit/4a098f0))
+
+
+
 # [0.6.0](https://github.com/AEGEE/oms-events/compare/0.5.0...0.6.0) (2019-03-13)
 
 
