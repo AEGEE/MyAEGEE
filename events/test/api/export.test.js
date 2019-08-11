@@ -46,6 +46,7 @@ describe('Export all', () => {
         const event = await generator.createEvent({
             questions: [
                 { type: 'checkbox', description: 'test', required: true },
+                { type: 'checkbox', description: 'test', required: false },
                 { type: 'string', description: 'test', required: true }
             ]
         });
@@ -54,7 +55,7 @@ describe('Export all', () => {
             cancelled: true,
             user_id: regularUser.id,
             body_id: regularUser.bodies[0].id,
-            answers: [true, 'string']
+            answers: [true, false, 'string']
         }, event);
 
         const res = await request({

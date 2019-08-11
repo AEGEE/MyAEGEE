@@ -190,6 +190,7 @@ const Event = sequelize.define('event', {
         defaultValue: [],
         validate: {
             isValid(value) {
+                /* istanbul ignore next */
                 if (!Array.isArray(value)) {
                     throw new Error('Organizers should be an array.');
                 }
@@ -198,6 +199,7 @@ const Event = sequelize.define('event', {
                     throw new Error('At least 1 organizer should be presented.');
                 }
 
+                /* istanbul ignore next */
                 for (const organizer of value) {
                     if (typeof organizer !== 'object' || organizer === null) {
                         throw new Error('Organizer is malformed.');
