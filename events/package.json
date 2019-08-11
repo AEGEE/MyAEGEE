@@ -60,7 +60,7 @@
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
     "sequelize": "^4.43.0",
-    "sequelize-cli": "^5.4.0",
+    "sequelize-cli": "^5.5.0",
     "winston": "^3.2.1"
   },
   "devDependencies": {
