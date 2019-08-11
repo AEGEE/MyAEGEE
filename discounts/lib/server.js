@@ -26,6 +26,7 @@ process.on('unhandledRejection', (err) => {
     }
 });
 
+GeneralRouter.get('/healthcheck', middlewares.healthcheck);
 GeneralRouter.use(middlewares.authenticateUser);
 
 // integrations and codes

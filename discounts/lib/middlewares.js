@@ -3,6 +3,7 @@ const errors = require('./errors');
 const helpers = require('./helpers');
 const logger = require('./logger');
 const bugsnag = require('./bugsnag');
+const packageInfo = require('../package');
 
 exports.authenticateUser = async (req, res, next) => {
     const token = req.header('x-auth-token');
@@ -40,6 +41,18 @@ exports.authenticateUser = async (req, res, next) => {
     req.permissions = helpers.getPermissions(req.user, req.corePermissions);
 
     return next();
+};
+
+/* istanbul ignore next */
+exports.healthcheck = (req, res) => {
+    return res.json({
+        success: true,
+        data: {
+            name: packageInfo.name,
+            description: packageInfo.description,
+            version: packageInfo.version
+        }
+    });
 };
 
 /* eslint-disable no-unused-vars */
