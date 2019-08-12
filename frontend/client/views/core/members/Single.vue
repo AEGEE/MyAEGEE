@@ -222,6 +222,7 @@ export default {
         message: 'Are you sure you want to <b>' + (active ? 'suspend' : 'activate') + '</b> this user?',
         confirmText: active ? 'Suspend user' : 'Activate user',
         type: active ? 'is-danger' : 'is-primary',
+        icon: active ? 'exclamation-circle' : 'plus-circle',
         hasIcon: true,
         onConfirm: () => this.toggleActive()
       })
