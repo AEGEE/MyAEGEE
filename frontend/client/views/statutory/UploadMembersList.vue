@@ -178,6 +178,7 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
+        this.memberslist = null
 
         if (err.response && err.response.status !== 404) {
           this.$root.showDanger('Could not fetch memberslist: ' + err.message)
@@ -339,6 +340,10 @@ export default {
       }
     },
     canEditMemberslist(bodyId) {
+      if (this.memberslist) {
+        return this.can.edit_memberslist.global || this.can.edit_memberslist[bodyId]
+      }
+
       return this.can.upload_memberslist.global || this.can.upload_memberslist[bodyId]
     }
   },

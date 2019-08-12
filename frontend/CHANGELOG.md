@@ -1,3 +1,13 @@
+<a name="0.17.2"></a>
+## [0.17.2](https://github.com/AEGEE/oms-frontend/compare/0.17.1...0.17.2) (2019-08-12)
+
+
+### Bug Fixes
+
+* **statutory:** fix memberslist editing. Fixes HELP-607 ([143243d](https://github.com/AEGEE/oms-frontend/commit/143243d))
+
+
+
 <a name="0.17.1"></a>
 ## [0.17.1](https://github.com/AEGEE/oms-frontend/compare/0.17.0...0.17.1) (2019-08-12)
 
