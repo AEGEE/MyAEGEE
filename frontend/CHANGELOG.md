@@ -1,3 +1,13 @@
+<a name="0.17.1"></a>
+## [0.17.1](https://github.com/AEGEE/oms-frontend/compare/0.17.0...0.17.1) (2019-08-12)
+
+
+### Bug Fixes
+
+* **core:** fixed activate user icon missing. Fixes MEMB-567 ([71092b3](https://github.com/AEGEE/oms-frontend/commit/71092b3))
+
+
+
 <a name="0.17.0"></a>
 # [0.17.0](https://github.com/AEGEE/oms-frontend/compare/0.16.6...0.17.0) (2019-08-11)
 
