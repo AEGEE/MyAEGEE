@@ -84,10 +84,15 @@
                 </div>
               </div>
 
-              <div class="field" v-show="event.questions.length == 0">
-                <p class="notification is-info">
-                  You do not need to fill in any application fields to apply for this event! Just press the button.
-                </p>
+              <div class="field">
+                <label class="checkbox">
+                  I agree to the storing and processing of my personal data provided
+                  in the above form by AEGEE-Europe for evaluation purposes.
+                  Additionally, AEGEE-Europe can publish the application
+                  if requested, but ensuring the protection of personal data.
+                  <input type="checkbox" required v-model="application.agreed_to_privacy_policy" />
+                </label>
+                <p class="help is-danger" v-if="errors.agreed_to_privacy_policy">{{ errors.agreed_to_privacy_policy.join(', ') }}</p>
               </div>
 
               <div class="field">
@@ -117,6 +122,17 @@
                   <tr v-for="(field, index) in event.questions" v-bind:key="index">
                     <td><b>{{ field.description }}</b><span class="is-danger" ng-show="field.required">*</span></td>
                     <td>{{ field.answer | beautify }}</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <b>
+                        I agree to the storing and processing of my personal data provided
+                        in the above form by AEGEE-Europe for evaluation purposes.
+                        Additionally, AEGEE-Europe can publish the application
+                        if requested, but ensuring the protection of personal data.
+                      </b>
+                    </td>
+                    <td>{{ application.agreed_to_privacy_policy | beautify }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -170,7 +186,8 @@ export default {
         user: null,
         user_id: null,
         id: null,
-        answers: []
+        answers: [],
+        agreed_to_privacy_policy: false
       },
       errors: {},
       isLoading: false,
@@ -188,7 +205,8 @@ export default {
 
       const toServer = {
         body_id: this.application.body_id,
-        answers: this.application.answers
+        answers: this.application.answers,
+        agreed_to_privacy_policy: this.application.agreed_to_privacy_policy
       }
 
       this.axios.put(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/mine', toServer).then(() => {
