@@ -301,7 +301,7 @@ const Event = sequelize.define('event', {
                 ? 'open'
                 : 'closed'; // inclusive
         }
-    },
+    }
 }, {
     underscored: true,
     tableName: 'events',

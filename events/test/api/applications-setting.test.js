@@ -95,7 +95,8 @@ describe('Events application create/update', () => {
             method: 'PUT',
             body: {
                 body_id: 1337,
-                answers: ['test']
+                answers: ['test'],
+                agreed_to_privacy_policy: true
             }
         });
 
@@ -124,7 +125,8 @@ describe('Events application create/update', () => {
             method: 'PUT',
             body: {
                 body_id: user.bodies[0].id,
-                answers: ['test']
+                answers: ['test'],
+                agreed_to_privacy_policy: true
             }
         });
 
@@ -137,6 +139,32 @@ describe('Events application create/update', () => {
         expect(applicationFromDb.user_id).toEqual(user.id);
         expect(applicationFromDb.body_id).toEqual(user.bodies[0].id);
         expect(applicationFromDb.answers[0]).toEqual('test');
+    });
+
+    it('should return 422 if agreed_to_privacy_policy = false', async () => {
+        const event = await generator.createEvent({
+            application_starts: moment().subtract(1, 'weeks').toDate(),
+            application_ends: moment().add(1, 'week').toDate(),
+            status: 'published',
+            questions: []
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications/mine',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: {
+                body_id: user.bodies[0].id,
+                answers: [],
+                agreed_to_privacy_policy: false
+            }
+        });
+
+        expect(res.statusCode).toEqual(422);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('agreed_to_privacy_policy');
     });
 
     it('should return 422 if answers is not an array', async () => {
@@ -157,7 +185,8 @@ describe('Events application create/update', () => {
             method: 'PUT',
             body: {
                 body_id: user.bodies[0].id,
-                answers: false
+                answers: false,
+                agreed_to_privacy_policy: true
             }
         });
 
@@ -186,7 +215,8 @@ describe('Events application create/update', () => {
             method: 'PUT',
             body: {
                 body_id: user.bodies[0].id,
-                answers: []
+                answers: [],
+                agreed_to_privacy_policy: true
             }
         });
 
@@ -215,7 +245,8 @@ describe('Events application create/update', () => {
             method: 'PUT',
             body: {
                 body_id: user.bodies[0].id,
-                answers: [false]
+                answers: [false],
+                agreed_to_privacy_policy: true
             }
         });
 
@@ -244,7 +275,8 @@ describe('Events application create/update', () => {
             method: 'PUT',
             body: {
                 body_id: user.bodies[0].id,
-                answers: [false]
+                answers: [false],
+                agreed_to_privacy_policy: true
             }
         });
 
@@ -273,7 +305,8 @@ describe('Events application create/update', () => {
             method: 'PUT',
             body: {
                 body_id: user.bodies[0].id,
-                answers: ['']
+                answers: [''],
+                agreed_to_privacy_policy: true
             }
         });
 
@@ -302,7 +335,8 @@ describe('Events application create/update', () => {
             method: 'PUT',
             body: {
                 body_id: user.bodies[0].id,
-                answers: ['']
+                answers: [''],
+                agreed_to_privacy_policy: true
             }
         });
 
@@ -331,7 +365,8 @@ describe('Events application create/update', () => {
             method: 'PUT',
             body: {
                 body_id: user.bodies[0].id,
-                answers: [false]
+                answers: [false],
+                agreed_to_privacy_policy: true
             }
         });
 
@@ -360,7 +395,8 @@ describe('Events application create/update', () => {
             method: 'PUT',
             body: {
                 body_id: user.bodies[0].id,
-                answers: [1]
+                answers: [1],
+                agreed_to_privacy_policy: true
             }
         });
 
@@ -389,7 +425,8 @@ describe('Events application create/update', () => {
             method: 'PUT',
             body: {
                 body_id: user.bodies[0].id,
-                answers: ['second']
+                answers: ['second'],
+                agreed_to_privacy_policy: true
             }
         });
 
@@ -419,7 +456,8 @@ describe('Events application create/update', () => {
             method: 'PUT',
             body: {
                 body_id: user.bodies[0].id,
-                answers: ['first']
+                answers: ['first'],
+                agreed_to_privacy_policy: true
             }
         });
 
@@ -447,7 +485,8 @@ describe('Events application create/update', () => {
             method: 'PUT',
             body: {
                 body_id: user.bodies[0].id,
-                answers: ['second']
+                answers: ['second'],
+                agreed_to_privacy_policy: true
             }
         });
 
@@ -476,7 +515,8 @@ describe('Events application create/update', () => {
             method: 'PUT',
             body: {
                 body_id: user.bodies[0].id,
-                answers: [false]
+                answers: [false],
+                agreed_to_privacy_policy: true
             }
         });
 
@@ -505,7 +545,8 @@ describe('Events application create/update', () => {
             method: 'PUT',
             body: {
                 body_id: user.bodies[0].id,
-                answers: [true]
+                answers: [true],
+                agreed_to_privacy_policy: true
             }
         });
 

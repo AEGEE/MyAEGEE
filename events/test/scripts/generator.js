@@ -41,6 +41,7 @@ exports.generateApplication = (options = {}, event) => {
     if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
     if (notSet(options.last_name)) options.last_name = faker.lorem.sentence();
     if (notSet(options.body_name)) options.body_name = faker.lorem.sentence();
+    if (notSet(options.agreed_to_privacy_policy)) options.agreed_to_privacy_policy = true;
 
     if (notSet(options.answers)) {
         const answersCount = event ? event.questions.length : Math.round(Math.random() * 5) + 1; // from 1 to 6
