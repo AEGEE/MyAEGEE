@@ -1,3 +1,12 @@
+# [0.7.0](https://github.com/AEGEE/oms-events/compare/0.6.2...0.7.0) (2019-08-14)
+
+
+### Bug Fixes
+
+* **application:** added application consent. Fixes HELP-598 ([a952bf8](https://github.com/AEGEE/oms-events/commit/a952bf8))
+
+
+
 ## [0.6.2](https://github.com/AEGEE/oms-events/compare/0.6.1...0.6.2) (2019-08-11)
 
 
