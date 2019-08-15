@@ -1,10 +1,11 @@
-<a name="0.17.3"></a>
-## [0.17.3](https://github.com/AEGEE/oms-frontend/compare/0.17.2...0.17.3) (2019-08-14)
+<a name="0.17.4"></a>
+## [0.17.4](https://github.com/AEGEE/oms-frontend/compare/0.17.2...0.17.4) (2019-08-15)
 
 
 ### Bug Fixes
 
-* **events:** added events application consent. Fixes MEMB-598 ([45c4a2c](https://github.com/AEGEE/oms-frontend/commit/45c4a2c))
+* **events:** added events application consent. Fixes HELP-598 ([ec15ba0](https://github.com/AEGEE/oms-frontend/commit/ec15ba0))
+* **events:** updated events application consent text. Fixes HELP-598 ([fb09760](https://github.com/AEGEE/oms-frontend/commit/fb09760))
 
 
 
