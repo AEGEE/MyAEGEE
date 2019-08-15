@@ -261,7 +261,7 @@ export default {
         change_event_status: false,
         delete_event: false,
         apply: false,
-        set_board_comment_and_participant_type: {},
+        see_boardview: {},
         see_participants_list: false,
         see_memberslist: {},
         export: false
@@ -311,8 +311,8 @@ export default {
       services: 'services'
     }),
     canAccessBoardview () {
-      return Object.keys(this.can.set_board_comment_and_participant_type)
-        .filter(key => this.can.set_board_comment_and_participant_type[key])
+      return Object.keys(this.can.see_boardview)
+        .filter(key => this.can.see_boardview[key])
         .length > 0
     },
     canAccessMembersLists () {

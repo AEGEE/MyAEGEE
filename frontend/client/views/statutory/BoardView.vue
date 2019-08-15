@@ -36,7 +36,7 @@
 
         <div class="tabs is-centered is-boxed">
           <ul>
-            <li :class="{'is-active': scope === 'edit' }" @click="scope = 'edit'" v-show="bodyStatuses.length > 0">
+            <li :class="{'is-active': scope === 'edit' }" @click="scope = 'edit'" v-show="bodyStatuses.length > 0 && canEditSelectedBody">
               <a>
                 <span class="icon is-small"><i class="fa fa-pen" aria-hidden="true"></i></span>
                 <span>Edit boardview</span>
@@ -256,6 +256,10 @@ export default {
 
       return filterCancelled.filter(app =>
         ['first_name', 'last_name', 'email'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
+    },
+    canEditSelectedBody() {
+      return this.can.set_board_comment_and_participant_type.global
+        || this.can.set_board_comment_and_participant_type[this.selectedBody]
     }
   },
   methods: {
@@ -332,7 +336,7 @@ export default {
 
         // if the body cannot send anyone, disabling the 'edit' scope
         // and switching to applications view instead.
-        if (this.bodyStatuses.length === 0) {
+        if (this.bodyStatuses.length === 0 || !this.canEditSelectedBody) {
           this.scope = 'view'
         }
 

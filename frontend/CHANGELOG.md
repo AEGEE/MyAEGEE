@@ -1,3 +1,13 @@
+<a name="0.17.5"></a>
+## [0.17.5](https://github.com/AEGEE/oms-frontend/compare/0.17.4...0.17.5) (2019-08-15)
+
+
+### Bug Fixes
+
+* **statutory:** allow displaying statutory applications after deadline. Fixes HELP-611 ([04c1a65](https://github.com/AEGEE/oms-frontend/commit/04c1a65))
+
+
+
 <a name="0.17.4"></a>
 ## [0.17.4](https://github.com/AEGEE/oms-frontend/compare/0.17.2...0.17.4) (2019-08-15)
 
