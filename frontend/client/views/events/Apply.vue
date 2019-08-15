@@ -86,10 +86,10 @@
 
               <div class="field">
                 <label class="checkbox">
-                  I agree to the storing and processing of my personal data provided
-                  in the above form by AEGEE-Europe for evaluation purposes.
-                  Additionally, AEGEE-Europe can publish the application
-                  if requested, but ensuring the protection of personal data.
+                  I agree with my personal data to be processed
+                  by AEGEE-Europe for the purposes of the participant selection
+                  and event organisation. AEGEE-Europe will disclose this data
+                  to organising local for the time period of the event organisation.
                   <input type="checkbox" required v-model="application.agreed_to_privacy_policy" />
                 </label>
                 <p class="help is-danger" v-if="errors.agreed_to_privacy_policy">{{ errors.agreed_to_privacy_policy.join(', ') }}</p>
@@ -126,10 +126,10 @@
                   <tr>
                     <td>
                       <b>
-                        I agree to the storing and processing of my personal data provided
-                        in the above form by AEGEE-Europe for evaluation purposes.
-                        Additionally, AEGEE-Europe can publish the application
-                        if requested, but ensuring the protection of personal data.
+                        I agree with my personal data to be processed
+                        by AEGEE-Europe for the purposes of the participant selection
+                        and event organisation. AEGEE-Europe will disclose this data
+                        to organising local for the time period of the event organisation.
                       </b>
                     </td>
                     <td>{{ application.agreed_to_privacy_policy | beautify }}</td>
