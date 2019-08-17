@@ -7,9 +7,16 @@ const regularUser = require('../assets/oms-core-valid').data;
 describe('Massmailer', () => {
     let event;
 
+    beforeAll(async () => {
+        await startServer();
+    });
+
+    afterAll(async () => {
+        await stopServer();
+    });
+
     beforeEach(async () => {
         mock.mockAll();
-        await startServer();
 
         event = await generator.createEvent();
         await generator.createApplication({
@@ -42,7 +49,6 @@ describe('Massmailer', () => {
     });
 
     afterEach(async () => {
-        await stopServer();
         await generator.clearAll();
         mock.cleanAll();
     });

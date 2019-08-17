@@ -8,16 +8,23 @@ const generator = require('../scripts/generator');
 
 describe('Statistics testing', () => {
     let event;
+
+    beforeAll(async () => {
+        await startServer();
+    });
+
+    afterAll(async () => {
+        await stopServer();
+    });
+
     beforeEach(async () => {
         mock.mockAll();
-        await startServer();
+
         event = await generator.createEvent();
     });
 
     afterEach(async () => {
-        await stopServer();
         mock.cleanAll();
-
         await generator.clearAll();
     });
 

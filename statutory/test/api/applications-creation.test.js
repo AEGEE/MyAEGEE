@@ -9,15 +9,21 @@ const generator = require('../scripts/generator');
 const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Applications creation', () => {
-    beforeEach(async () => {
-        mock.mockAll();
+    beforeAll(async () => {
         await startServer();
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await stopServer();
-        mock.cleanAll();
+    });
+
+    beforeEach(async () => {
+        mock.mockAll();
+    });
+
+    afterEach(async () => {
         await generator.clearAll();
+        mock.cleanAll();
     });
 
     test('should succeed if user can apply within deadline but without permissions', async () => {

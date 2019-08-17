@@ -8,13 +8,19 @@ const generator = require('../scripts/generator');
 const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Plenaries exports', () => {
-    beforeEach(async () => {
-        mock.mockAll();
+    beforeAll(async () => {
         await startServer();
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await stopServer();
+    });
+
+    beforeEach(async () => {
+        mock.mockAll();
+    });
+
+    afterEach(async () => {
         mock.cleanAll();
         await generator.clearAll();
     });

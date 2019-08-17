@@ -8,15 +8,21 @@ const regularUser = require('../assets/oms-core-valid').data;
 const { Position } = require('../../models');
 
 describe('Candidates submission', () => {
-    beforeEach(async () => {
-        mock.mockAll();
+    beforeAll(async () => {
         await startServer();
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await stopServer();
-        mock.cleanAll();
+    });
+
+    beforeEach(async () => {
+        mock.mockAll();
+    });
+
+    afterEach(async () => {
         await generator.clearAll();
+        mock.cleanAll();
     });
 
     test('should return 403 if the applications have not started', async () => {

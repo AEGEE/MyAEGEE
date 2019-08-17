@@ -11,14 +11,20 @@ const config = require('../../config');
 describe('Events image upload', () => {
     let event;
 
-    beforeEach(async () => {
-        event = await generator.createEvent();
-        mock.mockAll();
+    beforeAll(async () => {
         await startServer();
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await stopServer();
+    });
+
+    beforeEach(async () => {
+        event = await generator.createEvent();
+        mock.mockAll();
+    });
+
+    afterEach(async () => {
         mock.cleanAll();
 
         await generator.clearAll();

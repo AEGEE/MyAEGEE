@@ -13,17 +13,23 @@ describe('Candidates image upload', () => {
     let position;
     let candidate;
 
+    beforeAll(async () => {
+        await startServer();
+    });
+
+    afterAll(async () => {
+        await stopServer();
+    });
+
     beforeEach(async () => {
         event = await generator.createEvent({ type: 'agora' });
         position = await generator.createPosition({}, event);
         candidate = await generator.createCandidate({}, position);
 
         mock.mockAll();
-        await startServer();
     });
 
     afterEach(async () => {
-        await stopServer();
         mock.cleanAll();
 
         await generator.clearAll();

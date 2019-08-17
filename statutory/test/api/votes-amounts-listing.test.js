@@ -6,15 +6,21 @@ const { VotesPerAntenna } = require('../../models');
 const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Votes amounts listing', () => {
-    beforeEach(async () => {
-        mock.mockAll();
+    beforeAll(async () => {
         await startServer();
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await stopServer();
-        await generator.clearAll();
+    });
+
+    beforeEach(async () => {
+        mock.mockAll();
+    });
+
+    afterEach(async () => {
         mock.cleanAll();
+        await generator.clearAll();
     });
 
     test('should return proper amount of votes per antenna', async () => {

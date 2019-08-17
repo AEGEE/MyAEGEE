@@ -5,17 +5,22 @@ const generator = require('../scripts/generator');
 const bodies = require('../assets/oms-core-bodies').data;
 
 describe('Pax limits deletion', () => {
-    beforeEach(async () => {
-        mock.mockAll();
+    beforeAll(async () => {
         await startServer();
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await stopServer();
+    });
+
+    beforeEach(async () => {
+        mock.mockAll();
+    });
+
+    afterEach(async () => {
         mock.cleanAll();
         await generator.clearAll();
     });
-
 
     test('should allow deleting custom limit', async () => {
         await generator.createPaxLimit({ body_id: bodies[0].id, event_type: 'agora' });

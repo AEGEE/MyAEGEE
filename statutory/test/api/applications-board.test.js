@@ -10,9 +10,16 @@ describe('Applications pax type/board comment', () => {
     let event;
     let application;
 
+    beforeAll(async () => {
+        await startServer();
+    });
+
+    afterAll(async () => {
+        await stopServer();
+    });
+
     beforeEach(async () => {
         mock.mockAll();
-        await startServer();
 
         // Checking on agora and on delegate, for others - pretty much the same.
         event = await generator.createEvent({
@@ -31,7 +38,6 @@ describe('Applications pax type/board comment', () => {
     });
 
     afterEach(async () => {
-        await stopServer();
         mock.cleanAll();
         await generator.clearAll();
     });

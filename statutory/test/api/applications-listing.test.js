@@ -9,13 +9,19 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 
 describe('Applications listing', () => {
-    beforeEach(async () => {
-        mock.mockAll();
+    beforeAll(async () => {
         await startServer();
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await stopServer();
+    });
+
+    beforeEach(async () => {
+        mock.mockAll();
+    });
+
+    afterEach(async () => {
         await generator.clearAll();
         mock.cleanAll();
     });

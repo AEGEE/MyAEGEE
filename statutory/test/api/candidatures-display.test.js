@@ -7,15 +7,21 @@ const generator = require('../scripts/generator');
 const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Candidates displaying', () => {
-    beforeEach(async () => {
-        mock.mockAll();
+    beforeAll(async () => {
         await startServer();
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await stopServer();
-        mock.cleanAll();
+    });
+
+    beforeEach(async () => {
+        mock.mockAll();
+    });
+
+    afterEach(async () => {
         await generator.clearAll();
+        mock.cleanAll();
     });
 
     test('should return 404 if candidate is not found', async () => {
