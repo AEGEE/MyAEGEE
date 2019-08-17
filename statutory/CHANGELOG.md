@@ -1,3 +1,16 @@
+## [0.14.2](https://github.com/AEGEE/oms-statutory/compare/0.14.1...0.14.2) (2019-08-17)
+
+
+### Bug Fixes
+
+* **deps:** fixed non-major semver security vulnerabilities ([e625880](https://github.com/AEGEE/oms-statutory/commit/e625880))
+* **docker:** exposing PG_PASSWORD to Docker container ([ac26f04](https://github.com/AEGEE/oms-statutory/commit/ac26f04))
+* **general:** use logging from env. Fixes MEMB-537 ([7eb9097](https://github.com/AEGEE/oms-statutory/commit/7eb9097))
+* **lint:** removed header-max-length from commitlint ([5770b07](https://github.com/AEGEE/oms-statutory/commit/5770b07))
+* **test:** moved starting and stopping server to beforeAll/afterAll. Fixes MEMB-473 ([f89a498](https://github.com/AEGEE/oms-statutory/commit/f89a498))
+
+
+
 ## [0.14.1](https://github.com/AEGEE/oms-statutory/compare/0.14.0...0.14.1) (2019-08-10)
 
 
@@ -351,8 +364,8 @@
 * **statutory:** added migration for conversion rate ([c6ab19a](https://github.com/AEGEE/oms-statutory/commit/c6ab19a))
 * **style:** fixed config for ESLint compliance ([c1df528](https://github.com/AEGEE/oms-statutory/commit/c1df528))
 * **test:** add npm audit to Travis. Fixes MEMB-489 ([e28e668](https://github.com/AEGEE/oms-statutory/commit/e28e668))
-* **test:** fix another test that could fail randomly ([72ce6cb](https://github.com/AEGEE/oms-statutory/commit/72ce6cb))
 * **test:** fix another test that could fail randomly ([740741f](https://github.com/AEGEE/oms-statutory/commit/740741f))
+* **test:** fix another test that could fail randomly ([72ce6cb](https://github.com/AEGEE/oms-statutory/commit/72ce6cb))
 * **test:** fix test that can fail randomly ([7b646b2](https://github.com/AEGEE/oms-statutory/commit/7b646b2))
 * **test:** fix tests that could fail randomly ([acdc504](https://github.com/AEGEE/oms-statutory/commit/acdc504))
 * **test:** fixed some tests that could fail randomly ([72c0783](https://github.com/AEGEE/oms-statutory/commit/72c0783))
@@ -364,6 +377,8 @@
 
 ### Features
 
+* **memberslist:** display fee to AEGEE-Europe on memberslist ([d546e0a](https://github.com/AEGEE/oms-statutory/commit/d546e0a))
+* refactored permissions for members lists and boardview again ([df2f35e](https://github.com/AEGEE/oms-statutory/commit/df2f35e))
 * **application:** added is_on_memberslist field ([1da9d0b](https://github.com/AEGEE/oms-statutory/commit/1da9d0b))
 * **application:** update is_on_memberslist when needed. Fixes MEMB-478 ([b2bca3c](https://github.com/AEGEE/oms-statutory/commit/b2bca3c))
 * **cron:** closing plenaries on scheduler and testing ([c2b4e13](https://github.com/AEGEE/oms-statutory/commit/c2b4e13))
@@ -373,7 +388,6 @@
 * **general:** added moment-range and opn and script to open coverage ([216694f](https://github.com/AEGEE/oms-statutory/commit/216694f))
 * **listing:** added /incoming for incoming LOs, changed permissions. Fixes MEMB-398 ([17f03bc](https://github.com/AEGEE/oms-statutory/commit/17f03bc))
 * **massmailer:** added massmailer filters. Fixes MEMB-389 ([ce7320f](https://github.com/AEGEE/oms-statutory/commit/ce7320f))
-* **memberslist:** display fee to AEGEE-Europe on memberslist ([d546e0a](https://github.com/AEGEE/oms-statutory/commit/d546e0a))
 * **memberslist:** refactored permissions for members lists ([7ba00aa](https://github.com/AEGEE/oms-statutory/commit/7ba00aa))
 * **memberslists:** display if the user is on memberslist ([0e6805b](https://github.com/AEGEE/oms-statutory/commit/0e6805b))
 * **plenary:** added exporting plenaries attendance stats as XLSX ([79e904e](https://github.com/AEGEE/oms-statutory/commit/79e904e))
@@ -383,7 +397,6 @@
 * **style:** added ESLint checking for Travis. Fixes MEMB-459 ([ff0359a](https://github.com/AEGEE/oms-statutory/commit/ff0359a))
 * **test:** add attendance management testing ([2bf6f3c](https://github.com/AEGEE/oms-statutory/commit/2bf6f3c))
 * **test:** add plenaries management testing ([ded41b5](https://github.com/AEGEE/oms-statutory/commit/ded41b5))
-* refactored permissions for members lists and boardview again ([df2f35e](https://github.com/AEGEE/oms-statutory/commit/df2f35e))
 
 
 
