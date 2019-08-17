@@ -5,15 +5,21 @@ const generator = require('../scripts/generator');
 const Event = require('../../models/Event');
 
 describe('Events status editing', () => {
-    beforeEach(async () => {
-        mock.mockAll();
+    beforeAll(async () => {
         await startServer();
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await stopServer();
-        await generator.clearAll();
+    });
+
+    beforeEach(async () => {
+        mock.mockAll();
+    });
+
+    afterEach(async () => {
         mock.cleanAll();
+        await generator.clearAll();
     });
 
     test('should disallow changing event status if user has no rights', async () => {

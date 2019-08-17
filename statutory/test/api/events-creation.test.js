@@ -7,14 +7,21 @@ const generator = require('../scripts/generator');
 const { Event } = require('../../models');
 
 describe('Events creation', () => {
-    beforeEach(async () => {
-        mock.mockAll();
+    beforeAll(async () => {
         await startServer();
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await stopServer();
+    });
+
+    beforeEach(async () => {
+        mock.mockAll();
+    });
+
+    afterEach(async () => {
         mock.cleanAll();
+        await generator.clearAll();
     });
 
     test('should fail if user does not have rights to create events', async () => {

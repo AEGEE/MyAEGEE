@@ -5,15 +5,21 @@ const generator = require('../scripts/generator');
 const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Memberslist displaying', () => {
-    beforeEach(async () => {
-        mock.mockAll();
+    beforeAll(async () => {
         await startServer();
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await stopServer();
-        await generator.clearAll();
+    });
+
+    beforeEach(async () => {
+        mock.mockAll();
+    });
+
+    afterEach(async () => {
         mock.cleanAll();
+        await generator.clearAll();
     });
 
     test('should fail if user has no permissions at all', async () => {

@@ -12,9 +12,16 @@ const users = require('../assets/oms-core-members').data;
 describe('Export all', () => {
     let event;
 
+    beforeAll(async () => {
+        await startServer();
+    });
+
+    afterAll(async () => {
+        await stopServer();
+    });
+
     beforeEach(async () => {
         mock.mockAll();
-        await startServer();
         event = await generator.createEvent({
             applications: [],
             questions: [
@@ -25,7 +32,6 @@ describe('Export all', () => {
     });
 
     afterEach(async () => {
-        await stopServer();
         await generator.clearAll();
         mock.cleanAll();
     });

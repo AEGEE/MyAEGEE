@@ -28,6 +28,7 @@ services:
             - 8084
         environment:
             BUGSNAG_KEY: a7dfed96a71033eca7f4469e8f88878b
+            PG_PASSWORD: ${PW_POSTGRES}
         labels:
             - "traefik.backend=oms-statutory"
             - "traefik.port=8084"

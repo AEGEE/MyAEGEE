@@ -6,15 +6,21 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 
 describe('Events listing for single', () => {
-    beforeEach(async () => {
-        mock.mockAll();
+    beforeAll(async () => {
         await startServer();
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await stopServer();
-        await generator.clearAll();
+    });
+
+    beforeEach(async () => {
+        mock.mockAll();
+    });
+
+    afterEach(async () => {
         mock.cleanAll();
+        await generator.clearAll();
     });
 
     test('should return 404 if the event is not found', async () => {

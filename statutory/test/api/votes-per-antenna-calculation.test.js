@@ -29,15 +29,21 @@ describe('Votes per antenna calculation', () => {
         { members: 1450, votes: 16 }
     ];
 
-    beforeEach(async () => {
-        mock.mockAll();
+    beforeAll(async () => {
         await startServer();
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await stopServer();
-        await generator.clearAll();
+    });
+
+    beforeEach(async () => {
+        mock.mockAll();
+    });
+
+    afterEach(async () => {
         mock.cleanAll();
+        await generator.clearAll();
     });
 
     for (const amount of amounts) {

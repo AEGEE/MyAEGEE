@@ -18,7 +18,6 @@ const getSequelize = () => new Sequelize(config.postgres.database, config.postgr
     host: config.postgres.host,
     port: config.postgres.port,
     dialect: 'postgres',
-    operatorsAliases: false,
     logging: sql => logger.debug(sql),
 });
 

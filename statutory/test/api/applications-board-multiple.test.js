@@ -10,9 +10,16 @@ const { Application } = require('../../models');
 describe('Applications pax type/board comment for a body', () => {
     let event;
 
+    beforeAll(async () => {
+        await startServer();
+    });
+
+    afterAll(async () => {
+        await stopServer();
+    });
+
     beforeEach(async () => {
         mock.mockAll();
-        await startServer();
 
         event = await generator.createEvent({
             type: 'agora',
@@ -23,7 +30,6 @@ describe('Applications pax type/board comment for a body', () => {
     });
 
     afterEach(async () => {
-        await stopServer();
         mock.cleanAll();
         await generator.clearAll();
     });

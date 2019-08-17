@@ -6,13 +6,19 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 
 describe('Plenaries displaying', () => {
-    beforeEach(async () => {
-        mock.mockAll();
+    beforeAll(async () => {
         await startServer();
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await stopServer();
+    });
+
+    beforeEach(async () => {
+        mock.mockAll();
+    });
+
+    afterEach(async () => {
         mock.cleanAll();
         await generator.clearAll();
     });

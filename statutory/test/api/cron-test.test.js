@@ -10,13 +10,19 @@ const cron = require('../../lib/cron');
 const sleep = delay => new Promise(res => setTimeout(res, delay));
 
 describe('Cron testing', () => {
-    beforeEach(async () => {
-        mock.mockAll();
+    beforeAll(async () => {
         await startServer();
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await stopServer();
+    });
+
+    beforeEach(async () => {
+        mock.mockAll();
+    });
+
+    afterEach(async () => {
         mock.cleanAll();
         await generator.clearAll();
         cron.clearAll();

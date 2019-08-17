@@ -39,9 +39,17 @@ describe('Votes per antenna/delegate recalculation', () => {
     describe('should update if something would be updated', () => {
         let event;
         let memberslist;
+
+        beforeAll(async () => {
+            await startServer();
+        });
+
+        afterAll(async () => {
+            await stopServer();
+        });
+
         beforeEach(async () => {
             mock.mockAll();
-            await startServer();
 
             event = await generator.createEvent({
                 type: 'agora',
@@ -71,7 +79,6 @@ describe('Votes per antenna/delegate recalculation', () => {
         });
 
         afterEach(async () => {
-            await stopServer();
             await generator.clearAll();
             mock.cleanAll();
         });
