@@ -102,6 +102,13 @@
             </router-link>
           </div>
 
+          <div class="field is-grouped" v-if="can.see_questions || can.manage_question_lines">
+            <router-link :to="{ name: 'oms.statutory.question_lines', params: { id: event.url || event.id } }" class="button is-fullwidth">
+              <span>Question lines</span>
+              <span class="icon"><i class="fa fa-question"></i></span>
+            </router-link>
+          </div>
+
           <div class="field is-grouped">
             <router-link :to="{ name: 'oms.statutory.applications.stats', params: { id: event.url || event.id} }" class="button is-fullwidth">
               <span>Applications stats</span>
@@ -264,7 +271,9 @@ export default {
         see_boardview: {},
         see_participants_list: false,
         see_memberslist: {},
-        export: false
+        export: false,
+        see_questions: false,
+        manage_question_lines: false
       }
     }
   },
