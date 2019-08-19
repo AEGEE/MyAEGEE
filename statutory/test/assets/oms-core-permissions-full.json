@@ -200,5 +200,15 @@
         "circles": null,
         "always_assigned": false,
         "action": "set_memberslists_fee_paid"
+      }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 71,
+        "filters": [],
+        "description": "Mark fee_paid for memberslists",
+        "combined": "global:manage_question_lines:agora",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_question_lines"
       }]
 }

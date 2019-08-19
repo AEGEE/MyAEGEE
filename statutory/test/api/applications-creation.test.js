@@ -110,7 +110,7 @@ describe('Applications creation', () => {
         });
         const event = await generator.createEvent({
             applications: [application],
-            questions: [generator.generateQuestion({ type: 'string' })]
+            questions: [generator.generateQuestionForEvent({ type: 'string' })]
         });
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
@@ -133,7 +133,7 @@ describe('Applications creation', () => {
     test('should return 422 if questions amount is not the same as answers amount', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-        const event = await generator.createEvent({ questions: [generator.generateQuestion()] });
+        const event = await generator.createEvent({ questions: [generator.generateQuestionForEvent()] });
         const application = generator.generateApplication({
             answers: [],
             body_id: regularUser.bodies[0].id,
@@ -161,7 +161,7 @@ describe('Applications creation', () => {
     test('should return 422 if questions amount if the answers are not set', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-        const event = await generator.createEvent({ questions: [generator.generateQuestion()], applications: [] });
+        const event = await generator.createEvent({ questions: [generator.generateQuestionForEvent()], applications: [] });
         const application = generator.generateApplication({
             body_id: regularUser.bodies[0].id
         });
@@ -189,7 +189,7 @@ describe('Applications creation', () => {
     test('should return 422 if some of answers are empty', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-        const event = await generator.createEvent({ questions: [generator.generateQuestion()], applications: [] });
+        const event = await generator.createEvent({ questions: [generator.generateQuestionForEvent()], applications: [] });
         const application = generator.generateApplication({
             user_id: regularUser.id,
             body_id: regularUser.bodies[0].id,
@@ -217,7 +217,7 @@ describe('Applications creation', () => {
     test('should return 422 if answers is not an array', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-        const event = await generator.createEvent({ questions: [generator.generateQuestion()], applications: [] });
+        const event = await generator.createEvent({ questions: [generator.generateQuestionForEvent()], applications: [] });
         const application = generator.generateApplication({
             user_id: regularUser.id,
             body_id: regularUser.bodies[0].id,
@@ -311,7 +311,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'text' })],
+            questions: [generator.generateQuestionForEvent({ type: 'text' })],
             applications: []
         });
         const application = generator.generateApplication({
@@ -342,7 +342,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'text' })],
+            questions: [generator.generateQuestionForEvent({ type: 'text' })],
             applications: []
         });
         const application = generator.generateApplication({
@@ -372,7 +372,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'number' })],
+            questions: [generator.generateQuestionForEvent({ type: 'number' })],
             applications: []
         });
         const application = generator.generateApplication({
@@ -402,7 +402,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'select', values: ['valid'] })],
+            questions: [generator.generateQuestionForEvent({ type: 'select', values: ['valid'] })],
             applications: []
         });
         const application = generator.generateApplication({
@@ -432,7 +432,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'checkbox' })],
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
             applications: []
         });
         const application = generator.generateApplication({
@@ -462,7 +462,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'text' })],
+            questions: [generator.generateQuestionForEvent({ type: 'text' })],
             applications: []
         });
         const application = generator.generateApplication({
@@ -491,7 +491,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'number' })],
+            questions: [generator.generateQuestionForEvent({ type: 'number' })],
             applications: []
         });
         const application = generator.generateApplication({
@@ -520,7 +520,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'select', values: ['valid'] })],
+            questions: [generator.generateQuestionForEvent({ type: 'select', values: ['valid'] })],
             applications: []
         });
         const application = generator.generateApplication({
@@ -549,7 +549,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'checkbox', required: true })],
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox', required: true })],
             applications: []
         });
         const application = generator.generateApplication({
@@ -579,7 +579,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'checkbox', required: false })],
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox', required: false })],
             applications: []
         });
         const application = generator.generateApplication({
@@ -606,7 +606,7 @@ describe('Applications creation', () => {
 
     test('should fail if user_id is not a number', async () => {
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'checkbox' })],
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
             applications: []
         });
         const applicationPromise = generator.createApplication({
@@ -634,7 +634,7 @@ describe('Applications creation', () => {
             mock.mockAll({ mainPermissions: { noPermissions: true } });
 
             const event = await generator.createEvent({
-                questions: [generator.generateQuestion({ type: 'checkbox' })],
+                questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
                 applications: []
             });
             const application = generator.generateApplication({
@@ -665,7 +665,7 @@ describe('Applications creation', () => {
             mock.mockAll({ mainPermissions: { noPermissions: true } });
 
             const event = await generator.createEvent({
-                questions: [generator.generateQuestion({ type: 'checkbox' })],
+                questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
                 applications: []
             });
             const application = generator.generateApplication({
@@ -697,7 +697,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'checkbox' })],
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
             applications: []
         });
         const application = generator.generateApplication({
@@ -728,7 +728,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'checkbox' })],
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
             applications: []
         });
         const application = generator.generateApplication({
@@ -773,7 +773,7 @@ describe('Applications creation', () => {
             mock.mockAll({ mainPermissions: { noPermissions: true } });
 
             const event = await generator.createEvent({
-                questions: [generator.generateQuestion({ type: 'checkbox' })],
+                questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
                 applications: []
             });
             const application = generator.generateApplication({
@@ -804,7 +804,7 @@ describe('Applications creation', () => {
             mock.mockAll({ mainPermissions: { noPermissions: true } });
 
             const event = await generator.createEvent({
-                questions: [generator.generateQuestion({ type: 'checkbox' })],
+                questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
                 applications: []
             });
             const application = generator.generateApplication({
@@ -835,7 +835,7 @@ describe('Applications creation', () => {
             mock.mockAll({ mainPermissions: { noPermissions: true } });
 
             const event = await generator.createEvent({
-                questions: [generator.generateQuestion({ type: 'checkbox' })],
+                questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
                 applications: []
             });
             const application = generator.generateApplication({
@@ -866,7 +866,7 @@ describe('Applications creation', () => {
             mock.mockAll({ mainPermissions: { noPermissions: true } });
 
             const event = await generator.createEvent({
-                questions: [generator.generateQuestion({ type: 'checkbox' })],
+                questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
                 applications: []
             });
             const application = generator.generateApplication({
@@ -898,7 +898,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true }, mailer: { netError: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'checkbox' })],
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
             applications: []
         });
         const application = generator.generateApplication({
@@ -930,7 +930,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true }, mailer: { badResponse: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'checkbox' })],
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
             applications: []
         });
         const application = generator.generateApplication({
@@ -962,7 +962,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true }, mailer: { unsuccessfulResponse: true } });
 
         const event = await generator.createEvent({
-            questions: [generator.generateQuestion({ type: 'checkbox' })],
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
             applications: []
         });
         const application = generator.generateApplication({

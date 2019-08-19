@@ -111,14 +111,23 @@ function fetchEvent(includeApplications) {
 
         const approveRequest = await core.getApprovePermissions(req, event);
 
+        const myApplication = await Application.findOne({
+            where: {
+                user_id: req.user.id,
+                event_id: event.id
+            }
+        });
+
         req.event = event;
+        req.myApplication = myApplication;
         req.approvePermissions = approveRequest;
         req.permissions = helpers.getEventPermissions({
             permissions: req.permissions,
             corePermissions: req.corePermissions,
             approvePermissions: req.approvePermissions,
             user: req.user,
-            event
+            event,
+            myApplication
         });
 
         return next();

@@ -272,7 +272,17 @@ exports.getPermissions = (user, corePermissions) => {
     };
 };
 
-exports.getEventPermissions = ({ permissions, corePermissions, approvePermissions, user, event }) => {
+exports.getEventPermissions = (data) => {
+    const {
+        permissions,
+        corePermissions,
+        approvePermissions,
+        user,
+        event,
+        myApplication
+    } = data;
+
+
     // Event-related permissions
     permissions.edit_event = hasPermission(corePermissions, 'global:manage_event:' + event.type);
     permissions.change_event_status = hasPermission(corePermissions, 'global:manage_event:' + event.type);
@@ -329,6 +339,10 @@ exports.getEventPermissions = ({ permissions, corePermissions, approvePermission
         permissions.edit_memberslist[body.id] = event.can_edit_memberslist && approveBodiesList.includes(body.id) && exports.isLocal(body);
         permissions.see_memberslist[body.id] = approveBodiesList.includes(body.id) && exports.isLocal(body);
     }
+
+    permissions.manage_question_lines = hasPermission(corePermissions, 'global:manage_question_lines:' + event.type);
+    permissions.see_questions = permissions.manage_question_lines || (myApplication ? myApplication.paid_fee : false);
+    permissions.submit_questions = myApplication ? myApplication.paid_fee : false;
 
     return permissions;
 };

@@ -11,7 +11,9 @@ const {
     Position,
     Candidate,
     Plenary,
-    Attendance
+    Attendance,
+    QuestionLine,
+    Question
 } = require('../../models');
 
 const notSet = field => typeof field === 'undefined';
@@ -47,7 +49,7 @@ exports.generateEvent = (options = {}) => {
 
     if (notSet(options.questions)) {
         const questionsCount = Math.round(Math.random() * 5) + 1; // from 1 to 6
-        options.questions = Array.from({ length: questionsCount }, () => exports.generateQuestion());
+        options.questions = Array.from({ length: questionsCount }, () => exports.generateQuestionForEvent());
     }
 
     if (notSet(options.applications)) {
@@ -57,7 +59,7 @@ exports.generateEvent = (options = {}) => {
     return options;
 };
 
-exports.generateQuestion = (options = {}) => {
+exports.generateQuestionForEvent = (options = {}) => {
     if (notSet(options.description)) options.description = faker.lorem.sentence();
     if (notSet(options.required)) options.required = true;
     if (notSet(options.type)) options.type = 'string';
@@ -189,6 +191,26 @@ exports.generateCandidate = (options = {}, position) => {
     return options;
 };
 
+exports.generateQuestionLine = (options = {}, event = null) => {
+    if (notSet(options.name)) options.name = faker.lorem.sentence();
+
+    if (event && event.id) {
+        options.event_id = event.id;
+    }
+
+    return options;
+};
+
+exports.generateQuestion = (options = {}, questionLine = null) => {
+    if (notSet(options.text)) options.text = faker.lorem.sentence();
+
+    if (questionLine && questionLine.id) {
+        options.question_line_id = questionLine.id;
+    }
+
+    return options;
+};
+
 exports.generatePlenary = (options = {}, event = null) => {
     if (notSet(options.name)) options.name = faker.lorem.sentence();
     if (notSet(options.starts)) options.starts = faker.date.future();
@@ -244,7 +266,17 @@ exports.createAttendance = (options = {}, attendance = null) => {
     return Attendance.create(exports.generateAttendance(options, attendance));
 };
 
+exports.createQuestionLine = (options = {}, event = null) => {
+    return QuestionLine.create(exports.generateQuestionLine(options, event), { include: [Question] });
+};
+
+exports.createQuestion = (options = {}, questionLine = null) => {
+    return Question.create(exports.generateQuestion(options, questionLine));
+};
+
 exports.clearAll = async () => {
+    await Question.destroy({ where: {}, truncate: { cascade: true } });
+    await QuestionLine.destroy({ where: {}, truncate: { cascade: true } });
     await Attendance.destroy({ where: {}, truncate: { cascade: true } });
     await Plenary.destroy({ where: {}, truncate: { cascade: true } });
     await Candidate.destroy({ where: {}, truncate: { cascade: true } });

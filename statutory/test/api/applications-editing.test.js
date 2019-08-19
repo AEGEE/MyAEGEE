@@ -120,7 +120,7 @@ describe('Applications editing', () => {
     });
 
     test('should return 422 if questions amount is not the same as answers amount', async () => {
-        const event = await generator.createEvent({ questions: [generator.generateQuestion()] });
+        const event = await generator.createEvent({ questions: [generator.generateQuestionForEvent()] });
         const application = await generator.createApplication({ answers: ['Test answer'] }, event);
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
@@ -142,7 +142,7 @@ describe('Applications editing', () => {
     });
 
     test('should work okay if some questions were changed', async () => {
-        const event = await generator.createEvent({ questions: [generator.generateQuestion()] });
+        const event = await generator.createEvent({ questions: [generator.generateQuestionForEvent()] });
         const application = await generator.createApplication({ answers: ['Test answer'] }, event);
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());

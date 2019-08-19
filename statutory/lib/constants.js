@@ -101,6 +101,17 @@ module.exports = {
         'body_name',
         'created_at'
     ],
+    ALLOWED_QUESTION_LINE_APPLICATION_FIELDS: [
+        'id',
+        'statutory_id',
+        'user_id',
+        'first_name',
+        'last_name',
+        'participant_type',
+        'participant_order',
+        'body_id',
+        'body_name'
+    ],
     APPLICATION_FIELD_NAMES: {
         id: 'ID',
         statutory_id: 'Statutory ID',
