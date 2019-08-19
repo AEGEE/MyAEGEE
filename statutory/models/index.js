@@ -9,6 +9,8 @@ const Candidate = require('./Candidate');
 const Plenary = require('./Plenary');
 const Attendance = require('./Attendance');
 const Image = require('./Image');
+const QuestionLine = require('./QuestionLine');
+const Question = require('./Question');
 
 Event.hasMany(Application, { foreignKey: 'event_id' });
 Event.hasMany(MembersList, { foreignKey: 'event_id' });
@@ -41,6 +43,12 @@ Image.hasOne(Event, { foreignKey: 'image_id' });
 Candidate.belongsTo(Image, { foreignKey: 'image_id' });
 Image.hasOne(Candidate, { foreignKey: 'image_id' });
 
+Question.belongsTo(QuestionLine, { foreignKey: 'question_line_id' });
+QuestionLine.hasMany(Question, { foreignKey: 'question_line_id' });
+
+Application.hasMany(Question, { foreignKey: 'application_id' });
+Question.belongsTo(Application, { foreignKey: 'application_id' });
+
 module.exports = {
     Event,
     Image,
@@ -52,5 +60,7 @@ module.exports = {
     Position,
     Candidate,
     Plenary,
-    Attendance
+    Attendance,
+    QuestionLine,
+    Question,
 };

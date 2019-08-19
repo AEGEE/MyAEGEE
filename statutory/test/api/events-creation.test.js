@@ -358,7 +358,7 @@ describe('Events creation', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
-                questions: [generator.generateQuestion({ description: null })]
+                questions: [generator.generateQuestionForEvent({ description: null })]
             })
         });
 
@@ -372,7 +372,7 @@ describe('Events creation', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
-                questions: [generator.generateQuestion({ description: { test: 'test' } })]
+                questions: [generator.generateQuestionForEvent({ description: { test: 'test' } })]
             })
         });
 
@@ -386,7 +386,7 @@ describe('Events creation', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
-                questions: [generator.generateQuestion({ required: null })]
+                questions: [generator.generateQuestionForEvent({ required: null })]
             })
         });
 
@@ -400,7 +400,7 @@ describe('Events creation', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
-                questions: [generator.generateQuestion({ required: { test: 'test' } })]
+                questions: [generator.generateQuestionForEvent({ required: { test: 'test' } })]
             })
         });
 
@@ -414,7 +414,7 @@ describe('Events creation', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
-                questions: [generator.generateQuestion({ values: null, type: 'select' })]
+                questions: [generator.generateQuestionForEvent({ values: null, type: 'select' })]
             })
         });
 
@@ -428,7 +428,7 @@ describe('Events creation', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
-                questions: [generator.generateQuestion({ values: [{ test: 'test' }], type: 'select' })]
+                questions: [generator.generateQuestionForEvent({ values: [{ test: 'test' }], type: 'select' })]
             })
         });
 
@@ -442,7 +442,7 @@ describe('Events creation', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
-                questions: [generator.generateQuestion({ type: null })]
+                questions: [generator.generateQuestionForEvent({ type: null })]
             })
         });
 
@@ -456,7 +456,7 @@ describe('Events creation', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
-                questions: [generator.generateQuestion({ type: 'test' })]
+                questions: [generator.generateQuestionForEvent({ type: 'test' })]
             })
         });
 
@@ -470,7 +470,7 @@ describe('Events creation', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
-                questions: [generator.generateQuestion({ values: [''], type: 'select' })]
+                questions: [generator.generateQuestionForEvent({ values: [''], type: 'select' })]
             })
         });
 
@@ -484,7 +484,7 @@ describe('Events creation', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: generator.generateEvent({
-                questions: [generator.generateQuestion({ values: ['test'], type: 'select' })]
+                questions: [generator.generateQuestionForEvent({ values: ['test'], type: 'select' })]
             })
         });
 

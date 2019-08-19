@@ -232,6 +232,8 @@ describe('Export all', () => {
         await generator.createApplication({
             user_id: regularUser.id,
             body_id: regularUser.bodies[0].id,
+            participant_type: 'delegate',
+            participant_order: 1,
             answers: [true, 'string'],
             status: 'accepted'
         }, event);
@@ -239,6 +241,8 @@ describe('Export all', () => {
         await generator.createApplication({
             user_id: 1337,
             body_id: regularUser.bodies[0].id,
+            participant_type: 'delegate',
+            participant_order: 2,
             answers: [true, 'string'],
             status: 'rejected'
         }, event);

@@ -1,3 +1,17 @@
+# [0.15.0](https://github.com/AEGEE/oms-statutory/compare/0.14.2...0.15.0) (2019-08-19)
+
+
+### Bug Fixes
+
+* **deps:** updated Jest to the latest ([8ef6f55](https://github.com/AEGEE/oms-statutory/commit/8ef6f55))
+
+
+### Features
+
+* **question lines:** added question lines management. Fixes MEMB-590 ([7d11ef1](https://github.com/AEGEE/oms-statutory/commit/7d11ef1))
+
+
+
 ## [0.14.2](https://github.com/AEGEE/oms-statutory/compare/0.14.1...0.14.2) (2019-08-17)
 
 

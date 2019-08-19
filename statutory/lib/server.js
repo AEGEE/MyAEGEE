@@ -15,6 +15,8 @@ const massmailer = require('./massmailer');
 const paxLimits = require('./pax_limits');
 const votesAmounts = require('./votes_amounts');
 const positions = require('./positions');
+const questionLines = require('./question_lines');
+const questions = require('./questions');
 const candidates = require('./candidates');
 const plenaries = require('./plenaries');
 const bugsnag = require('./bugsnag');
@@ -33,6 +35,8 @@ const PositionsRouter = router({ mergeParams: true });
 const CandidatesRouter = router({ mergeParams: true });
 const PlenariesRouter = router({ mergeParams: true });
 const ImagesRouter = router({ mergeParams: true });
+const QuestionLinesRouter = router({ mergeParams: true });
+const QuestionsRouter = router({ mergeParams: true });
 
 const server = express();
 server.use(bodyParser.json());
@@ -120,6 +124,18 @@ PositionsRouter.put('/:position_id/status', positions.findPosition, positions.up
 PositionsRouter.put('/:position_id', positions.findPosition, positions.editPosition);
 PositionsRouter.get('/candidates/mine', candidates.getMyCandidatures);
 
+QuestionLinesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
+QuestionLinesRouter.get('/', questionLines.listAllQuestionLines);
+QuestionLinesRouter.post('/', questionLines.createQuestionLine);
+QuestionLinesRouter.put('/:question_line_id/status', questionLines.findQuestionLine, questionLines.updateQuestionLineStatus);
+QuestionLinesRouter.put('/:question_line_id', questionLines.findQuestionLine, questionLines.editQuestionLine);
+
+QuestionsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, questionLines.findQuestionLine);
+QuestionsRouter.post('/', questions.submitQuestion);
+QuestionsRouter.get('/:question_id', questions.findQuestion, questions.getQuestion);
+QuestionsRouter.put('/:question_id', questions.findQuestion, questions.editQuestion);
+QuestionsRouter.delete('/:question_id', questions.findQuestion, questions.deleteQuestion);
+
 CandidatesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora, positions.findPosition);
 CandidatesRouter.post('/', candidates.submitYourCandidature);
 CandidatesRouter.get('/:candidate_id', candidates.findCandidate, candidates.getCandidature);
@@ -137,6 +153,8 @@ PlenariesRouter.post('/:plenary_id/attendance/mark', plenaries.findPlenary, plen
 
 server.use('/events/:event_id/massmailer', MassMailerRouter);
 server.use('/events/:event_id/memberslists', MembersListsRouter);
+server.use('/events/:event_id/question-lines', QuestionLinesRouter);
+server.use('/events/:event_id/question-lines/:question_line_id/questions', QuestionsRouter);
 server.use('/events/:event_id/applications', ApplicationsRouter);
 server.use('/events/:event_id/applications/:application_id', SingleApplicationRouter);
 server.use('/events/:event_id', EventsRouter);
