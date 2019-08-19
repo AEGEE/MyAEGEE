@@ -1,0 +1,271 @@
+<template>
+  <div class="tile is-ancestor">
+    <div class="tile is-parent">
+      <div class="tile is-child">
+        <div class="title">Question lines list</div>
+
+        <div class="field" v-if="can.manage_question_lines">
+          <div class="control">
+            <button class="button is-primary" @click="openCreateQuestionLineModal">Create a question line</button>
+          </div>
+        </div>
+
+        <b-table :data="questionLines" :loading="isLoading" :selected.sync="selectedQuestionLine" narrowed>
+          <template slot-scope="props">
+            <b-table-column field="id" label="#" numeric>
+              {{ props.row.id }}
+            </b-table-column>
+
+            <b-table-column field="name" label="Name">
+              {{ props.row.name }}
+            </b-table-column>
+
+            <b-table-column field="starts" label="Status" centered>
+              <span
+                class="tag"
+                v-if="!can.manage_question_lines"
+                :class="props.row.status === 'open' ? 'is-primary' : 'is-danger'">
+                {{ props.row.status }}
+              </span>
+              <div v-else class="select is-small" :class="{ 'is-loading': props.row.isSaving }">
+                <select v-model="props.row.newStatus" @change="switchQuestionLineStatus(props.row)">
+                  <option value="open">Open</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </div>
+            </b-table-column>
+
+            <b-table-column label="Edit" centered v-if="can.manage_question_lines">
+              <a href="#" class="button is-warning is-small" @click.prevent="openEditQuestionLineModal(props.row)">Edit</a>
+            </b-table-column>
+
+            <b-table-column label="Ask a question" centered>
+              <button
+                class="button is-small"
+                v-if="can.submit_questions && props.row.status === 'open'"
+                @click="openCreateQuestionModal(props.row)">
+                Ask a question!
+              </button>
+              <span v-else>The question line is closed.</span>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <empty-table-stub />
+          </template>
+        </b-table>
+
+        <hr />
+
+        <div class="subtitle" v-if="selectedQuestionLine">Question for selected question line</div>
+
+        <b-table :data.sync="selectedQuestionLine.questions" v-if="selectedQuestionLine" narrowed>
+          <template slot-scope="props">
+            <b-table-column field="participant" label="Participant">
+              {{ props.row.application.first_name }} {{ props.row.application.last_name }}, {{ props.row.application.body_name }}
+            </b-table-column>
+
+            <b-table-column :visible="can.manage_question_lines" field="paricipant_type" label="Participant type">
+              {{ props.row.application.participant_type }} {{ props.row.application.participant_order}}
+            </b-table-column>
+
+            <b-table-column field="text" label="Text">
+              {{ props.row.text }}
+            </b-table-column>
+
+            <b-table-column label="">
+              <button
+                class="button is-small is-warning"
+                v-show="loginUser.id === props.row.application.id || can.manage_question_lines"
+                @click="openEditQuestionModal(selectedQuestionLine, props.row)">
+                Edit                  
+              </button>
+            </b-table-column>
+            <b-table-column label=" ">
+              <button
+                class="button is-small is-danger"
+                v-show="loginUser.id === props.row.application.id || can.manage_question_lines"
+                @click="askDeleteQuestion(selectedQuestionLine, props.row, props.index)">
+                Delete                  
+              </button>
+            </b-table-column>
+          </template>
+
+          <template slot="empty">
+            <empty-table-stub />
+          </template>
+        </b-table>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapGetters } from 'vuex'
+import EditQuestionLineModal from './EditQuestionLineModal'
+import EditQuestionModal from './EditQuestionModal'
+
+export default {
+  name: 'StatutoryQuestionLinesList',
+  data () {
+    return {
+      questionLines: [],
+      selected: null,
+      event: {},
+      selectedQuestionLine: null,
+      can: {
+        manage_question_lines: false
+      },
+      isLoading: false
+    }
+  },
+  computed: {
+    ...mapGetters({
+      services: 'services',
+      loginUser: 'user'
+    })
+  },
+  methods: {
+    askDeleteQuestion (questionLine, question, questionIndex) {
+      this.$dialog.confirm({
+        title: 'Deleting a question',
+        message: 'Are you sure you want to <b>delete</b> this question? This action cannot be undone.',
+        confirmText: 'Delete question',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.deleteQuestion(questionLine, question, questionIndex)
+      })
+    },
+    deleteQuestion (questionLine, question, questionIndex) {
+      this.axios.delete(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/question-lines/' + questionLine.id + '/questions/' + question.id).then((response) => {
+        this.$root.showSuccess('Question is deleted.')
+        questionLine.questions.splice(questionIndex, 1)
+      }).catch((err) => this.$root.showDanger('Could not delete question: ' + err.message))
+    },
+    openCreateQuestionLineModal () {
+      this.$modal.open({
+        component: EditQuestionLineModal,
+        hasModalCard: true,
+        props: {
+          // When programmatically opening a modal, it doesn't have access to Vue instance
+          // and therefore store, services and notifications functions. That's why
+          // I'm passing them as props.
+          // More info: https://github.com/buefy/buefy/issues/55
+          questionLine: {
+            name: '',
+          },
+          event: this.event,
+          services: this.services,
+          showDanger: this.$root.showDanger,
+          showSuccess: this.$root.showSuccess,
+          router: this.$router
+        }
+      })
+    },
+    openEditQuestionLineModal (questionLine) {
+      this.$modal.open({
+        component: EditQuestionLineModal,
+        hasModalCard: true,
+        props: {
+          // When programmatically opening a modal, it doesn't have access to Vue instance
+          // and therefore store, services and notifications functions. That's why
+          // I'm passing them as props.
+          // More info: https://github.com/buefy/buefy/issues/55
+          questionLine,
+          event: this.event,
+          services: this.services,
+          showDanger: this.$root.showDanger,
+          showSuccess: this.$root.showSuccess,
+          router: this.$router
+        }
+      })
+    },
+    openCreateQuestionModal (questionLine) {
+      this.$modal.open({
+        component: EditQuestionModal,
+        hasModalCard: true,
+        props: {
+          // When programmatically opening a modal, it doesn't have access to Vue instance
+          // and therefore store, services and notifications functions. That's why
+          // I'm passing them as props.
+          // More info: https://github.com/buefy/buefy/issues/55
+          questionLine,
+          question: {
+            name: '',
+          },
+          event: this.event,
+          services: this.services,
+          showDanger: this.$root.showDanger,
+          showSuccess: this.$root.showSuccess,
+          router: this.$router
+        }
+      })
+    },
+    openEditQuestionModal (questionLine, question) {
+      this.$modal.open({
+        component: EditQuestionModal,
+        hasModalCard: true,
+        props: {
+          // When programmatically opening a modal, it doesn't have access to Vue instance
+          // and therefore store, services and notifications functions. That's why
+          // I'm passing them as props.
+          // More info: https://github.com/buefy/buefy/issues/55
+          questionLine,
+          question,
+          event: this.event,
+          services: this.services,
+          showDanger: this.$root.showDanger,
+          showSuccess: this.$root.showSuccess,
+          router: this.$router
+        }
+      })
+    },
+    switchQuestionLineStatus (questionLine) {
+      questionLine.isSaving = true
+      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/question-lines/' + questionLine.id + '/status'
+
+      this.axios.put(url, { status: questionLine.newStatus }).then(() => {
+        questionLine.status = questionLine.newStatus
+        questionLine.isSaving = false
+        this.$root.showSuccess(`Successfully updated status of application for question line "${questionLine.name}" to ${questionLine.status}.`)
+      }).catch((err) => {
+        questionLine.isSaving = false
+        this.$root.showDanger('Could not update question line status: ' + err.message)
+      })
+    }
+  },
+  mounted () {
+    this.isLoading = true
+
+    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
+      this.event = event.data.data
+      this.can = event.data.data.permissions
+
+      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/question-lines/')
+    }).then((questionLines) => {
+      for (const questionLine of questionLines.data.data) {
+        questionLine.isSaving = false
+        questionLine.newStatus = questionLine.status
+      }
+
+      this.questionLines = questionLines.data.data
+      this.isLoading = false
+    }).catch((err) => {
+      this.isLoading = false
+      let message = (err.response && err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+
+      this.$root.showDanger(message)
+      this.$router.push({ name: 'oms.statutory.list' })
+    })
+  }
+}
+</script>
+
+<style>
+.table-wrapper .table .button:not(.is-primary) {
+  color: #000;
+}
+.table-wrapper .table .is-selected .button, .table-wrapper .table .is-selected .tag {
+  border: 1px solid white;
+}
+</style>

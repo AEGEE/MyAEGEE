@@ -623,6 +623,14 @@ module.exports = [
     }
   },
   {
+    name: 'oms.statutory.question_lines',
+    path: '/statutory/:id/question-lines/',
+    component: 'statutory/QuestionLinesList',
+    meta: {
+      label: 'Question lines list for Agora'
+    }
+  },
+  {
     name: 'oms.statutory.plenaries',
     path: '/statutory/:id/plenaries/',
     component: 'statutory/PlenariesList',
