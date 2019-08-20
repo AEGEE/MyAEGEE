@@ -1,3 +1,13 @@
+<a name="0.18.3"></a>
+## [0.18.3](https://github.com/AEGEE/oms-frontend/compare/0.18.2...0.18.3) (2019-08-20)
+
+
+### Bug Fixes
+
+* **general:** use work break for links in markdown. Fixes MEMB-531, HELP-580 ([839d191](https://github.com/AEGEE/oms-frontend/commit/839d191))
+
+
+
 <a name="0.18.2"></a>
 ## [0.18.2](https://github.com/AEGEE/oms-frontend/compare/0.18.1...0.18.2) (2019-08-20)
 

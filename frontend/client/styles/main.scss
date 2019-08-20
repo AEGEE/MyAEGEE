@@ -67,3 +67,8 @@ h1, h2, h3, h4, h5, h6 {
 .has-text-pre-wrap {
 	white-space: pre-wrap;
 }
+
+/* for links breaking in markdown-formatted html */
+.markdown a {
+	word-break: break-all;
+}
