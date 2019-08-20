@@ -1,5 +1,7 @@
 'use strict'
 
+const autoprefixer = require('autoprefixer')
+
 const utils = require('./utils')
 const config = require('../config')
 
@@ -11,8 +13,6 @@ module.exports = {
     extract: isProduction
   }),
   postcss: [
-    require('autoprefixer')({
-      browsers: ['last 3 versions']
-    })
+    autoprefixer()
   ]
 }
