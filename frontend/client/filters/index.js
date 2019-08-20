@@ -13,7 +13,7 @@ export default {
     return moment(value).format('YYYY-MM-DD HH:mm:ss')
   },
   markdown (value) {
-    return marked(DOMPurify.sanitize(value))
+    return `<div class="markdown">${marked(DOMPurify.sanitize(value))}</div>`
   },
   capitalize (value) {
     if (typeof value !== 'string') return ''
