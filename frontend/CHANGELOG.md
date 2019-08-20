@@ -1,3 +1,15 @@
+<a name="0.18.2"></a>
+## [0.18.2](https://github.com/AEGEE/oms-frontend/compare/0.18.1...0.18.2) (2019-08-20)
+
+
+### Bug Fixes
+
+* **general:** fixes autoprefixer deprecation warning. Fixes MEMB-593 ([968b4a0](https://github.com/AEGEE/oms-frontend/commit/968b4a0))
+* **statutory:** added waiting list for massmailer. Fixes MEMB-597 ([62d7a1a](https://github.com/AEGEE/oms-frontend/commit/62d7a1a))
+* **statutory:** minor fixes for question lines. Fixes MEMB-590 ([8abda25](https://github.com/AEGEE/oms-frontend/commit/8abda25))
+
+
+
 <a name="0.18.1"></a>
 ## [0.18.1](https://github.com/AEGEE/oms-frontend/compare/0.17.5...0.18.1) (2019-08-19)
 
