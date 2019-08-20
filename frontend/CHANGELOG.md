@@ -1,3 +1,13 @@
+<a name="0.19.0"></a>
+# [0.19.0](https://github.com/AEGEE/oms-frontend/compare/0.18.3...0.19.0) (2019-08-20)
+
+
+### Features
+
+* **statutory:** added statutory debug page. Fixes MEMB-594 ([f5dafb4](https://github.com/AEGEE/oms-frontend/commit/f5dafb4))
+
+
+
 <a name="0.18.3"></a>
 ## [0.18.3](https://github.com/AEGEE/oms-frontend/compare/0.18.2...0.18.3) (2019-08-20)
 
