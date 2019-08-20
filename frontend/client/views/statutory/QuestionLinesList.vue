@@ -46,7 +46,8 @@
                 @click="openCreateQuestionModal(props.row)">
                 Ask a question!
               </button>
-              <span v-else>The question line is closed.</span>
+              <span v-else-if=" props.row.status !== 'open'">The question line is closed.</span>
+              <span v-else>You are not a confirmed participant.</span>
             </b-table-column>
           </template>
 
@@ -66,7 +67,7 @@
             </b-table-column>
 
             <b-table-column :visible="can.manage_question_lines" field="paricipant_type" label="Participant type">
-              {{ props.row.application.participant_type }} {{ props.row.application.participant_order}}
+              {{ props.row.application.participant_type }}
             </b-table-column>
 
             <b-table-column field="text" label="Text">
@@ -76,9 +77,9 @@
             <b-table-column label="">
               <button
                 class="button is-small is-warning"
-                v-show="loginUser.id === props.row.application.id || can.manage_question_lines"
+                v-show="loginUser.id === props.row.application.user_id || can.manage_question_lines"
                 @click="openEditQuestionModal(selectedQuestionLine, props.row)">
-                Edit                  
+                Edit
               </button>
             </b-table-column>
             <b-table-column label=" ">
@@ -86,7 +87,7 @@
                 class="button is-small is-danger"
                 v-show="loginUser.id === props.row.application.id || can.manage_question_lines"
                 @click="askDeleteQuestion(selectedQuestionLine, props.row, props.index)">
-                Delete                  
+                Delete
               </button>
             </b-table-column>
           </template>

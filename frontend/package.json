@@ -1,6 +1,6 @@
 {
   "name": "oms-frontend",
-  "version": "0.18.1",
+  "version": "0.18.2",
   "description": "OMS Frontend",
   "repository": "AEGEE/oms-frontend",
   "homepage": "https://my.aegee.eu",
@@ -38,6 +38,9 @@
     "lint:fix": "eslint --fix --ext .js .vue electron.js client/* build/* config/*",
     "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
   },
+  "browserslist": [
+    "last 3 versions"
+  ],
   "dependencies": {
     "animate.css": "^3.7.2",
     "axios": "^0.19.0",

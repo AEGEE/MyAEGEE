@@ -14,6 +14,7 @@
                   <select v-model="status">
                     <option :value="null">Everybody</option>
                     <option value="accepted">Accepted participants</option>
+                    <option value="waiting_list">Waiting list participants</option>
                     <option value="rejected">Rejected participants</option>
                     <option value="pending">Pending participants</option>
                   </select>
