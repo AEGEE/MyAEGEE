@@ -455,6 +455,14 @@ module.exports = [
     }
   },
   {
+    name: 'oms.statutory.debug',
+    path: '/statutory/:id/debug',
+    component: 'statutory/Debug',
+    meta: {
+      label: 'Service page'
+    }
+  },
+  {
     name: 'oms.statutory.applications',
     path: '/statutory/:id/applications',
     component: 'statutory/Applications',
