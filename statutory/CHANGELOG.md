@@ -1,3 +1,17 @@
+# [0.16.0](https://github.com/AEGEE/oms-statutory/compare/0.15.0...0.16.0) (2019-08-21)
+
+
+### Bug Fixes
+
+* **tests:** fix another flapping test ([359bb21](https://github.com/AEGEE/oms-statutory/commit/359bb21))
+
+
+### Features
+
+* **statutory:** added /tasks endpoint. Fixes MEMB-594 ([460e00f](https://github.com/AEGEE/oms-statutory/commit/460e00f))
+
+
+
 # [0.15.0](https://github.com/AEGEE/oms-statutory/compare/0.14.2...0.15.0) (2019-08-19)
 
 
