@@ -455,6 +455,14 @@ module.exports = [
     }
   },
   {
+    name: 'oms.statutory.tasks',
+    path: '/statutory/tasks',
+    component: 'statutory/TasksList',
+    meta: {
+      label: 'See background tasks for statutory'
+    }
+  },
+  {
     name: 'oms.statutory.debug',
     path: '/statutory/:id/debug',
     component: 'statutory/Debug',
