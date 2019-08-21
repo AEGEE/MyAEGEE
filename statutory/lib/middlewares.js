@@ -7,6 +7,7 @@ const { Event, Application, Image } = require('../models');
 const { Sequelize } = require('./sequelize');
 const bugsnag = require('./bugsnag');
 const packageInfo = require('../package');
+const cron = require('./cron');
 
 exports.authenticateUser = async (req, res, next) => {
     const token = req.header('x-auth-token');
@@ -178,6 +179,18 @@ exports.healthcheck = (req, res) => {
             description: packageInfo.description,
             version: packageInfo.version
         }
+    });
+};
+
+/* istanbul ignore next */
+exports.getTasksList = (req, res) => {
+    if (!req.permissions.see_background_tasks) {
+        return errors.makeForbiddenError(res, 'You cannot see background tasks.');
+    }
+
+    return res.json({
+        success: true,
+        data: cron.getJobs()
     });
 };
 

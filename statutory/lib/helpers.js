@@ -268,7 +268,8 @@ exports.getPermissions = (user, corePermissions) => {
             agora: hasPermission(corePermissions, 'manage_event:agora'),
             epm: hasPermission(corePermissions, 'manage_event:epm'),
             spm: hasPermission(corePermissions, 'manage_event:spm')
-        }
+        },
+        see_background_tasks: hasPermission(corePermissions, 'global:see_background_tasks:statutory')
     };
 };
 

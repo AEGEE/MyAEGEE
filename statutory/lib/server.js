@@ -58,6 +58,7 @@ GeneralRouter.get('/healthcheck', middlewares.healthcheck);
 GeneralRouter.use(middlewares.authenticateUser);
 GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', events.addEvent);
+GeneralRouter.get('/tasks', middlewares.getTasksList);
 
 PaxLimitsRouter.use(middlewares.authenticateUser, paxLimits.checkEventType);
 PaxLimitsRouter.get('/:body_id', paxLimits.getSingleLimit);

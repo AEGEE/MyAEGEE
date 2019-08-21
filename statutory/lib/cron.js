@@ -9,13 +9,13 @@ let jobs = [];
 exports.getJobs = () => jobs;
 
 exports.clearDeadlinesForId = (id) => {
-    for (const job of jobs) {
+    for (let index = jobs.length - 1; index >= 0; index--) {
+        const job = jobs[index];
         if (job.objectId === id) {
             scheduler.cancelJob(job.jobId);
+            jobs.splice(index, 1);
         }
     }
-
-    jobs = jobs.filter(job => job.objectId !== id);
 };
 
 exports.clearAll = () => {
