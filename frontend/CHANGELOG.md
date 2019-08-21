@@ -1,3 +1,13 @@
+<a name="0.20.0"></a>
+# [0.20.0](https://github.com/AEGEE/oms-frontend/compare/0.19.0...0.20.0) (2019-08-21)
+
+
+### Features
+
+* **statutory:** added background tasks list page. Fixes MEMB-594 ([324ccf5](https://github.com/AEGEE/oms-frontend/commit/324ccf5))
+
+
+
 <a name="0.19.0"></a>
 # [0.19.0](https://github.com/AEGEE/oms-frontend/compare/0.18.3...0.19.0) (2019-08-20)
 
