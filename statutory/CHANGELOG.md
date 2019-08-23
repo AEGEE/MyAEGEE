@@ -1,3 +1,12 @@
+## [0.16.1](https://github.com/AEGEE/oms-statutory/compare/0.16.0...0.16.1) (2019-08-23)
+
+
+### Bug Fixes
+
+* **docker:** use separate postgres volume. Fixes MEMB-592 ([ac8d2f9](https://github.com/AEGEE/oms-statutory/commit/ac8d2f9))
+
+
+
 # [0.16.0](https://github.com/AEGEE/oms-statutory/compare/0.15.0...0.16.0) (2019-08-21)
 
 
