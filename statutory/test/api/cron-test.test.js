@@ -28,6 +28,30 @@ describe('Cron testing', () => {
         cron.clearAll();
     });
 
+    test('should not clear the events that don\'t match the params', async () => {
+        cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, moment().add(1, 'week').toDate(), { id: 1337 });
+        expect(cron.jobs.length).toEqual(1);
+
+        cron.clearJobs(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, { id: 1338 });
+        expect(cron.jobs.length).toEqual(1);
+    });
+
+    test('should throw if trying to cancel nonexistant job', async () => {
+        cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, moment().add(1, 'week').toDate(), { id: 1337 });
+        expect(cron.jobs.length).toEqual(1);
+
+        cron.cancelJobByIndex(1);
+        expect(cron.jobs.length).toEqual(1);
+    });
+
+    test('should throw if trying to execute nonexistant job', async () => {
+        cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, moment().add(1, 'week').toDate(), { id: 1337 });
+        expect(cron.jobs.length).toEqual(1);
+
+        await cron.executeJob(cron.jobs[0].id + 1);
+        expect(cron.jobs.length).toEqual(1);
+    });
+
     describe('on system start', () => {
         test('should set the open and close deadline for positions on cron.registerAll()', async () => {
             const event = await generator.createEvent({ type: 'agora', applications: [] });
@@ -39,11 +63,11 @@ describe('Cron testing', () => {
             cron.clearAll(); // to clear all of them
             await cron.registerAllDeadlines();
 
-            expect(cron.getJobs().length).toEqual(2);
-            expect(cron.getJobs()[0].objectId).toEqual(position.id);
-            expect(cron.getJobs()[1].objectId).toEqual(position.id);
-            expect(cron.getJobs().map(job => job.action)).toContain('open');
-            expect(cron.getJobs().map(job => job.action)).toContain('close');
+            expect(cron.jobs.length).toEqual(2);
+            expect(cron.jobs[0].params.id).toEqual(position.id);
+            expect(cron.jobs[1].params.id).toEqual(position.id);
+            expect(cron.jobs.map(job => job.key)).toContain(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key);
+            expect(cron.jobs.map(job => job.key)).toContain(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key);
         });
 
         test('should set the close deadline for plenaries on cron.registerAll()', async () => {
@@ -56,9 +80,9 @@ describe('Cron testing', () => {
             cron.clearAll(); // to clear all of them
             await cron.registerAllDeadlines();
 
-            expect(cron.getJobs().length).toEqual(1);
-            expect(cron.getJobs()[0].objectId).toEqual(plenary.id);
-            expect(cron.getJobs().map(job => job.action)).toContain('close');
+            expect(cron.jobs.length).toEqual(1);
+            expect(cron.jobs[0].params.id).toEqual(plenary.id);
+            expect(cron.jobs[0].key).toEqual(cron.JOB_TYPES.CLOSE_ATTENDANCES.key);
         });
 
         test('should close all attendances on cron.registerAll()', async () => {
@@ -75,7 +99,7 @@ describe('Cron testing', () => {
             cron.clearAll(); // to clear all of them
             await cron.registerAllDeadlines();
 
-            expect(cron.getJobs().length).toEqual(0);
+            expect(cron.jobs.length).toEqual(0);
 
             const attendanceFromDb = await Attendance.findByPk(attendance.id);
             expect(attendanceFromDb.ends).not.toEqual(null);
@@ -102,11 +126,11 @@ describe('Cron testing', () => {
             expect(res.body).not.toHaveProperty('errors');
             expect(res.body).toHaveProperty('data');
 
-            expect(cron.getJobs().length).toEqual(2);
-            expect(cron.getJobs()[0].objectId).toEqual(res.body.data.id);
-            expect(cron.getJobs()[1].objectId).toEqual(res.body.data.id);
-            expect(cron.getJobs().map(job => job.action)).toContain('open');
-            expect(cron.getJobs().map(job => job.action)).toContain('close');
+            expect(cron.jobs.length).toEqual(2);
+            expect(cron.jobs[0].params.id).toEqual(res.body.data.id);
+            expect(cron.jobs[1].params.id).toEqual(res.body.data.id);
+            expect(cron.jobs.map(job => job.key)).toContain(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key);
+            expect(cron.jobs.map(job => job.key)).toContain(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key);
         });
 
         test('should set the close deadline if the applications started but not ended', async () => {
@@ -128,9 +152,9 @@ describe('Cron testing', () => {
             expect(res.body).not.toHaveProperty('errors');
             expect(res.body).toHaveProperty('data');
 
-            expect(cron.getJobs().length).toEqual(1);
-            expect(cron.getJobs()[0].objectId).toEqual(res.body.data.id);
-            expect(cron.getJobs()[0].action).toContain('close');
+            expect(cron.jobs.length).toEqual(1);
+            expect(cron.jobs[0].params.id).toEqual(res.body.data.id);
+            expect(cron.jobs[0].key).toEqual(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key);
         });
 
         test('should not set the deadlines if the candidating is in the past', async () => {
@@ -152,7 +176,7 @@ describe('Cron testing', () => {
             expect(res.body).not.toHaveProperty('errors');
             expect(res.body).toHaveProperty('data');
 
-            expect(cron.getJobs().length).toEqual(0);
+            expect(cron.jobs.length).toEqual(0);
         });
 
         test('should execute the application opening', async () => {
@@ -175,20 +199,20 @@ describe('Cron testing', () => {
             expect(res.body).toHaveProperty('data');
             expect(res.body.data.status).toEqual('closed');
 
-            expect(cron.getJobs().length).toEqual(2); // opening, closing
+            expect(cron.jobs.length).toEqual(2); // opening, closing
 
             await sleep(4000);
 
             const positionFromDb = await Position.findByPk(res.body.data.id);
             expect(positionFromDb.status).toEqual('open');
-            expect(cron.getJobs().length).toEqual(1); // closing
+            expect(cron.jobs.length).toEqual(1); // closing
         });
 
         test('should execute the application closing', async () => {
             const event = await generator.createEvent({ type: 'agora', applications: [] });
             const position = generator.generatePosition({
                 starts: moment().subtract(1, 'week').toDate(),
-                ends: moment().add(3, 'second').toDate(),
+                ends: moment().add(1, 'second').toDate(),
             });
 
             const res = await request({
@@ -204,13 +228,13 @@ describe('Cron testing', () => {
             expect(res.body).toHaveProperty('data');
             expect(res.body.data.status).toEqual('open');
 
-            expect(cron.getJobs().length).toEqual(1); // closing
+            expect(cron.jobs.length).toEqual(1); // closing
 
             await sleep(4000);
 
             const positionFromDb = await Position.findByPk(res.body.data.id);
             expect(positionFromDb.status).toEqual('open'); // because no one applied
-            expect(cron.getJobs().length).toEqual(0);
+            expect(cron.jobs.length).toEqual(0);
         });
     });
 
@@ -234,11 +258,11 @@ describe('Cron testing', () => {
             expect(res.body).not.toHaveProperty('errors');
             expect(res.body).toHaveProperty('data');
 
-            expect(cron.getJobs().length).toEqual(2);
-            expect(cron.getJobs()[0].objectId).toEqual(res.body.data.id);
-            expect(cron.getJobs()[1].objectId).toEqual(res.body.data.id);
-            expect(cron.getJobs().map(job => job.action)).toContain('open');
-            expect(cron.getJobs().map(job => job.action)).toContain('close');
+            expect(cron.jobs.length).toEqual(2);
+            expect(cron.jobs[0].params.id).toEqual(res.body.data.id);
+            expect(cron.jobs[1].params.id).toEqual(res.body.data.id);
+            expect(cron.jobs.map(job => job.key)).toContain(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key);
+            expect(cron.jobs.map(job => job.key)).toContain(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key);
         });
 
         test('should set the close deadline if the applications started but not ended', async () => {
@@ -260,9 +284,9 @@ describe('Cron testing', () => {
             expect(res.body).not.toHaveProperty('errors');
             expect(res.body).toHaveProperty('data');
 
-            expect(cron.getJobs().length).toEqual(1);
-            expect(cron.getJobs()[0].objectId).toEqual(res.body.data.id);
-            expect(cron.getJobs()[0].action).toContain('close');
+            expect(cron.jobs.length).toEqual(1);
+            expect(cron.jobs[0].params.id).toEqual(res.body.data.id);
+            expect(cron.jobs[0].key).toEqual(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key);
         });
 
         test('should not set the deadlines if the candidating is in the past', async () => {
@@ -284,17 +308,17 @@ describe('Cron testing', () => {
             expect(res.body).not.toHaveProperty('errors');
             expect(res.body).toHaveProperty('data');
 
-            expect(cron.getJobs().length).toEqual(0);
+            expect(cron.jobs.length).toEqual(0);
         });
     });
 
     describe('executing open deadlines', () => {
         test('should not open the deadline for non-existant position', async () => {
-            await cron.registerOpenApplicationDeadline(moment().add(1, 'week').toDate(), 1337);
-            expect(cron.getJobs().length).toEqual(1);
+            await cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, moment().add(1, 'week').toDate(), { id: 1337 });
+            expect(cron.jobs.length).toEqual(1);
 
-            await cron.openApplications(1337);
-            expect(cron.getJobs().length).toEqual(0);
+            await cron.executeJob(cron.jobs[0].id);
+            expect(cron.jobs.length).toEqual(0);
         });
 
         test('should not open the deadline if it\'s opened already', async () => {
@@ -303,13 +327,14 @@ describe('Cron testing', () => {
                 starts: moment().subtract(2, 'week').toDate(),
                 ends: moment().add(1, 'week').toDate(),
             }, event);
-            expect(cron.getJobs().length).toEqual(1); // closing deadline
+            expect(cron.jobs.length).toEqual(1); // closing deadline
 
-            await cron.registerOpenApplicationDeadline(moment().add(1, 'week').toDate(), position.id);
-            expect(cron.getJobs().length).toEqual(2);
+            await cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, moment().add(1, 'week').toDate(), { id: position.id });
+            expect(cron.jobs.length).toEqual(2);
 
-            await cron.openApplications(position.id);
-            expect(cron.getJobs().length).toEqual(1); // closing deadline
+            const job = cron.jobs.find(job => job.key === cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key)
+            await cron.executeJob(job.id);
+            expect(cron.jobs.length).toEqual(1); // closing deadline
         });
 
         test('should open the deadline if everything\'s okay', async () => {
@@ -318,20 +343,21 @@ describe('Cron testing', () => {
                 starts: moment().add(1, 'week').toDate(),
                 ends: moment().add(2, 'week').toDate(),
             }, event);
-            expect(cron.getJobs().length).toEqual(2); // closing deadline
+            expect(cron.jobs.length).toEqual(2); // closing deadline
 
-            await cron.openApplications(position.id);
-            expect(cron.getJobs().length).toEqual(1); // closing deadline
+            const job = cron.jobs.find(job => job.key === cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key)
+            await cron.executeJob(job.id);
+            expect(cron.jobs.length).toEqual(1); // closing deadline
         });
     });
 
     describe('executing close deadlines', () => {
         test('should not close the deadline for non-existant position', async () => {
-            await cron.registerCloseApplicationDeadline(moment().add(1, 'week').toDate(), 1337);
-            expect(cron.getJobs().length).toEqual(1);
+            await cron.addJob(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS, moment().add(1, 'week').toDate(), { id: 1337 });
+            expect(cron.jobs.length).toEqual(1);
 
-            await cron.closeApplications(1337);
-            expect(cron.getJobs().length).toEqual(0);
+            await cron.executeJob(cron.jobs[0].id);
+            expect(cron.jobs.length).toEqual(0);
         });
 
         test('should not close the deadline if it\'s closed already', async () => {
@@ -343,13 +369,14 @@ describe('Cron testing', () => {
             }, event);
             cron.clearAll();
 
-            expect(cron.getJobs().length).toEqual(0);
+            expect(cron.jobs.length).toEqual(0);
 
-            await cron.registerCloseApplicationDeadline(moment().add(1, 'week').toDate(), position.id);
-            expect(cron.getJobs().length).toEqual(1);
+            await cron.addJob(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS, moment().add(1, 'week').toDate(), { id: position.id });
+            expect(cron.jobs.length).toEqual(1);
 
-            await cron.closeApplications(position.id);
-            expect(cron.getJobs().length).toEqual(0);
+            const job = cron.jobs.find(job => job.key === cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key)
+            await cron.executeJob(job.id);
+            expect(cron.jobs.length).toEqual(0);
         });
 
         test('should not close the deadline if not enough candidates', async () => {
@@ -360,10 +387,11 @@ describe('Cron testing', () => {
                 places: 1,
                 candidates: []
             }, event);
-            expect(cron.getJobs().length).toEqual(1); // closing deadline
+            expect(cron.jobs.length).toEqual(1); // closing deadline
 
-            await cron.closeApplications(position.id); // won't close it, too few people
-            expect(cron.getJobs().length).toEqual(0);
+            const job = cron.jobs.find(job => job.key === cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key)
+            await cron.executeJob(job.id); // won't close it, too few people
+            expect(cron.jobs.length).toEqual(0);
 
             const positionFromDb = await Position.findByPk(position.id);
             expect(positionFromDb.status).toEqual('open');
@@ -380,10 +408,11 @@ describe('Cron testing', () => {
                     generator.generateCandidate({ user_id: 2, status: 'approved' }), // so it would properly close
                 ]
             }, event);
-            expect(cron.getJobs().length).toEqual(1); // closing deadline
+            expect(cron.jobs.length).toEqual(1); // closing deadline
 
-            await cron.closeApplications(position.id);
-            expect(cron.getJobs().length).toEqual(0);
+            const job = cron.jobs.find(job => job.key === cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key)
+            await cron.executeJob(job.id);
+            expect(cron.jobs.length).toEqual(0);
 
             const positionFromDb = await Position.findByPk(position.id);
             expect(positionFromDb.status).toEqual('closed');
@@ -392,16 +421,11 @@ describe('Cron testing', () => {
 
     describe('executing close attendance deadlines', () => {
         test('should not close the attendances for non-existant plenary', async () => {
-            await cron.registerCloseAttendancesDeadline(moment().add(1, 'week').toDate(), 1337);
-            expect(cron.getJobs().length).toEqual(1);
+            await cron.addJob(cron.JOB_TYPES.CLOSE_ATTENDANCES, moment().add(1, 'week').toDate(), { id: 1337 });
+            expect(cron.jobs.length).toEqual(1);
 
-            await cron.closeAttendances(1337);
-            expect(cron.getJobs().length).toEqual(0);
-        });
-
-        test('should not register the closing attendances schedule if the ends date has passed', async () => {
-            await cron.registerCloseAttendancesDeadline(moment().subtract(1, 'week').toDate(), 1337);
-            expect(cron.getJobs().length).toEqual(0);
+            await cron.executeJob(cron.jobs[0].id);
+            expect(cron.jobs.length).toEqual(0);
         });
 
         test('should close attendances if everything\'s okay', async () => {
@@ -415,15 +439,17 @@ describe('Cron testing', () => {
                 application_id: application.id
             }, plenary);
 
-            await cron.registerCloseAttendancesDeadline(moment().add(1, 'week').toDate(), plenary.id);
-            await cron.closeAttendances(plenary.id);
+            await cron.addJob(cron.JOB_TYPES.CLOSE_ATTENDANCES, moment().add(1, 'week').toDate(), { id: plenary.id });
+            expect(cron.jobs.length).toEqual(1);
+
+            await cron.executeJob(cron.jobs[0].id);
 
             const attendanceFromDb = await Attendance.findByPk(attendance.id);
             expect(attendanceFromDb.ends).not.toEqual(null);
         });
 
         test('should register close attendances deadline on creating plenary', async () => {
-            await cron.clearAll();
+            cron.clearAll();
 
             const event = await generator.createEvent({ type: 'agora', applications: [] });
             const plenary = await generator.createPlenary({
@@ -431,8 +457,8 @@ describe('Cron testing', () => {
                 ends: moment().add(1, 'week').toDate()
             }, event);
 
-            expect(cron.getJobs().length).toEqual(1);
-            expect(cron.getJobs()[0].objectId).toEqual(plenary.id);
+            expect(cron.jobs.length).toEqual(1);
+            expect(cron.jobs[0].params.id).toEqual(plenary.id);
         });
 
         test('should register close attendances deadline on editing plenary', async () => {
@@ -442,11 +468,11 @@ describe('Cron testing', () => {
                 ends: moment().add(1, 'week').toDate()
             }, event);
 
-            await cron.clearAll();
+            cron.clearAll();
             await plenary.update({ ends: moment().add(2, 'weeks').toDate() });
 
-            expect(cron.getJobs().length).toEqual(1);
-            expect(cron.getJobs()[0].objectId).toEqual(plenary.id);
+            expect(cron.jobs.length).toEqual(1);
+            expect(cron.jobs[0].params.id).toEqual(plenary.id);
         });
 
         test('should execute the attendance closing', async () => {
@@ -460,7 +486,7 @@ describe('Cron testing', () => {
                 application_id: application.id
             }, plenary);
 
-            expect(cron.getJobs().length).toEqual(1);
+            expect(cron.jobs.length).toEqual(1);
 
             await sleep(4000);
 

@@ -70,7 +70,7 @@ Plenary.afterUpdate((plenary) => {
 
     // Clearing the deadlines and setting them again on afterSave() (just in case).
     // Only needed on update.
-    cron.clearDeadlinesForId(plenary.id);
+    cron.clearJobs(cron.JOB_TYPES.CLOSE_ATTENDANCES, { id: plenary.id });
 });
 
 Plenary.afterSave((plenary) => {
@@ -80,7 +80,7 @@ Plenary.afterSave((plenary) => {
 
     // Schedule a deadline for closing all attendances. If it's in the past, cron
     // will catch it.
-    cron.registerCloseAttendancesDeadline(plenary.ends, plenary.id);
+    cron.addJob(cron.JOB_TYPES.CLOSE_ATTENDANCES, plenary.ends, { id: plenary.id });
 });
 
 module.exports = Plenary;

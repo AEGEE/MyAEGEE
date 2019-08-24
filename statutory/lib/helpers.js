@@ -84,6 +84,9 @@ got participant type ${application.participant_order}`);
     }
 };
 
+// A helper to check if two objects are deep equal.
+exports.deepEqual = (first, second) => JSON.stringify(first) === JSON.stringify(second);
+
 // A helper to calculate fee for member of memberslist with given conversion rate to EUR.
 exports.calculateFeeForMember = (member, conversionRate) => {
     // According to Matis (FD):
