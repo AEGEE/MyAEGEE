@@ -1,3 +1,14 @@
+<a name="0.20.1"></a>
+## [0.20.1](https://github.com/AEGEE/oms-frontend/compare/0.20.0...0.20.1) (2019-08-24)
+
+
+### Bug Fixes
+
+* **statutory:** changed candidating application consent text. Fixes MEMB-600 ([64501fa](https://github.com/AEGEE/oms-frontend/commit/64501fa))
+* **statutory:** refactor tasks page. Fixes MEMB-601 ([f199aea](https://github.com/AEGEE/oms-frontend/commit/f199aea))
+
+
+
 <a name="0.20.0"></a>
 # [0.20.0](https://github.com/AEGEE/oms-frontend/compare/0.19.0...0.20.0) (2019-08-21)
 
