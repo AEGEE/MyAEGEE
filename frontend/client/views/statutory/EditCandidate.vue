@@ -238,10 +238,9 @@
 
         <div class="field">
           <label class="checkbox">
-            I agree to the storing and processing of my personal data provided
-            in the above form by AEGEE-Europe for evaluation purposes.
-            Additionally, AEGEE-Europe can publish the application
-            if requested, but ensuring the protection of personal data.
+            I agree for all my above mentioned personal data to be processed by AEGEE-Europe
+            for the purposes of candidature management and Agora organisation. It will be published
+            for internal purposes and stored until this consent is withdrawn.
             <input type="checkbox" required v-model="candidate.agreed_to_privacy_policy" />
           </label>
           <p class="help is-danger" v-if="errors.agreed_to_privacy_policy">{{ errors.agreed_to_privacy_policy.join(', ') }}</p>
