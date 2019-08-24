@@ -97,7 +97,8 @@ Position.afterUpdate((position) => {
 
     // Clearing the deadlines and setting them again on afterSave() (just in case).
     // Only needed on update.
-    cron.clearDeadlinesForId(position.id);
+    cron.clearJobs(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, { id: position.id });
+    cron.clearJobs(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS, { id: position.id });
 });
 
 Position.afterSave((position) => {
@@ -108,8 +109,8 @@ Position.afterSave((position) => {
     // Schedule 2 deadlines, one for opening and one for closing.
     // If there should be no deadline, cron will catch it.
     // Should be run on create and update.
-    cron.registerOpenApplicationDeadline(position.starts, position.id);
-    cron.registerCloseApplicationDeadline(position.ends, position.id);
+    cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, position.starts, { id: position.id });
+    cron.addJob(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS, position.ends, { id: position.id });
 });
 
 module.exports = Position;

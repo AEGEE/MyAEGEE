@@ -1,3 +1,13 @@
+## [0.16.2](https://github.com/AEGEE/oms-statutory/compare/0.16.1...0.16.2) (2019-08-24)
+
+
+### Bug Fixes
+
+* **cron:** refactor cron tasks. Fixes MEMB-601 ([ac073ae](https://github.com/AEGEE/oms-statutory/commit/ac073ae))
+* **deps:** fixed non-major semver security vulnerabilities ([5e03c53](https://github.com/AEGEE/oms-statutory/commit/5e03c53))
+
+
+
 ## [0.16.1](https://github.com/AEGEE/oms-statutory/compare/0.16.0...0.16.1) (2019-08-23)
 
 

@@ -190,7 +190,7 @@ exports.getTasksList = (req, res) => {
 
     return res.json({
         success: true,
-        data: cron.getJobs()
+        data: cron.jobs
     });
 };
 
