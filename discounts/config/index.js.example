@@ -7,7 +7,7 @@ const config = {
             host: process.env.DB_HOST || 'postgres-oms-discounts',
             port: parseInt(process.env.DB_PORT, 10) || 5432,
             username: process.env.USERNAME || 'postgres',
-            password: process.env.PASSWORD || 'postgres',
+            password: process.env.PG_PASSWORD || 'postgres',
             database: process.env.DB_DATABASE || 'discounts'
         },
         core: {
@@ -27,7 +27,8 @@ const config = {
         port: 8085,
         postgres: {
             host: 'localhost',
-            database: 'discounts-testing'
+            database: 'discounts-testing',
+            password: process.env.PG_PASSWORD || 'postgres',
         },
         bugsnagKey: 'CHANGEME'
     }
