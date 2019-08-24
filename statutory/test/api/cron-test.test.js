@@ -332,20 +332,20 @@ describe('Cron testing', () => {
             await cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, moment().add(1, 'week').toDate(), { id: position.id });
             expect(cron.jobs.length).toEqual(2);
 
-            const job = cron.jobs.find(job => job.key === cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key)
+            const job = cron.jobs.find(j => j.key === cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key);
             await cron.executeJob(job.id);
             expect(cron.jobs.length).toEqual(1); // closing deadline
         });
 
         test('should open the deadline if everything\'s okay', async () => {
             const event = await generator.createEvent({ type: 'agora', applications: [] });
-            const position = await generator.createPosition({
+            await generator.createPosition({
                 starts: moment().add(1, 'week').toDate(),
                 ends: moment().add(2, 'week').toDate(),
             }, event);
-            expect(cron.jobs.length).toEqual(2); // closing deadline
+            expect(cron.jobs.length).toEqual(2); // opening and closing deadline
 
-            const job = cron.jobs.find(job => job.key === cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key)
+            const job = cron.jobs.find(j => j.key === cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key);
             await cron.executeJob(job.id);
             expect(cron.jobs.length).toEqual(1); // closing deadline
         });
@@ -374,7 +374,7 @@ describe('Cron testing', () => {
             await cron.addJob(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS, moment().add(1, 'week').toDate(), { id: position.id });
             expect(cron.jobs.length).toEqual(1);
 
-            const job = cron.jobs.find(job => job.key === cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key)
+            const job = cron.jobs.find(j => j.key === cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key);
             await cron.executeJob(job.id);
             expect(cron.jobs.length).toEqual(0);
         });
@@ -389,7 +389,7 @@ describe('Cron testing', () => {
             }, event);
             expect(cron.jobs.length).toEqual(1); // closing deadline
 
-            const job = cron.jobs.find(job => job.key === cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key)
+            const job = cron.jobs.find(j => j.key === cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key);
             await cron.executeJob(job.id); // won't close it, too few people
             expect(cron.jobs.length).toEqual(0);
 
@@ -410,7 +410,7 @@ describe('Cron testing', () => {
             }, event);
             expect(cron.jobs.length).toEqual(1); // closing deadline
 
-            const job = cron.jobs.find(job => job.key === cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key)
+            const job = cron.jobs.find(j => j.key === cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key);
             await cron.executeJob(job.id);
             expect(cron.jobs.length).toEqual(0);
 

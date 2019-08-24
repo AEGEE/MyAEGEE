@@ -17,7 +17,7 @@ const JobCallbacks = {
         await plenary.closeAttendances();
         logger.info(`Closing attendances for plenary ${id}: Successfully closed attendances for plenary #${id} (${plenary.name})`);
     },
-    OPEN_POSITION_APPLICATIONS: async ({ id } ) => {
+    OPEN_POSITION_APPLICATIONS: async ({ id }) => {
         const position = await Position.findByPk(id);
         if (!position) {
             logger.warn(`Opening applications for position ${id}: Position is not found.`);
@@ -83,7 +83,7 @@ class JobManager {
                 description: 'Close position application deadline',
                 callback: JobCallbacks.CLOSE_POSITION_APPLICATIONS
             }
-        }
+        };
     }
 
     addJob(jobType, time, params) {
@@ -101,7 +101,7 @@ is in the past (${moment(time).format('YYYY-MM-DD HH:mm:SS')}), not scheduling.`
 
         const id = ++this.currentJob;
 
-        const job = scheduler.scheduleJob(time, async () => await this.executeJob(id));
+        const job = scheduler.scheduleJob(time, () => this.executeJob(id));
 
         this.jobs.push({
             key,
@@ -145,7 +145,7 @@ with the following params: %o`, params);
         this.jobs.splice(index, 1);
     }
 
-    async registerAllDeadlines () {
+    async registerAllDeadlines() {
         const positions = await Position.findAll({});
         logger.info(`Registering deadline for ${positions.length} positions...`);
         for (const position of positions) {
@@ -167,7 +167,7 @@ with the following params: %o`, params);
                 this.addJob(this.JOB_TYPES.CLOSE_ATTENDANCES, plenary.ends, { id: plenary.id });
             }
         }
-    };
+    }
 
     clearJobs(key, params) {
         for (let index = this.jobs.length - 1; index >= 0; index--) {
