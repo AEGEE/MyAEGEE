@@ -6,16 +6,20 @@
 
         <b-table :data="tasks" :loading="isLoading">
           <template slot-scope="props">
-            <b-table-column field="type" label="type" >
-              {{ props.row.type }}
+            <b-table-column field="id" label="ID" >
+              {{ props.row.id }}
             </b-table-column>
 
-            <b-table-column field="action" label="action" >
-              {{ props.row.action }}
+            <b-table-column field="key" label="key" >
+              {{ props.row.key }}
             </b-table-column>
 
-            <b-table-column field="objectId" label="objectId" >
-              {{ props.row.objectId }}
+            <b-table-column field="description" label="description" >
+              {{ props.row.description }}
+            </b-table-column>
+
+            <b-table-column field="params" label="params" >
+              <span class="has-text-pre-wrap">{{ JSON.stringify(props.row.params) }}</span>
             </b-table-column>
 
             <b-table-column field="time" label="time" >
