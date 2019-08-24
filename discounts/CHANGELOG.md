@@ -1,4 +1,17 @@
-## 0.5.1 (2019-08-11)
+## [0.5.2](https://github.com/AEGEE/oms-discounts/compare/0.5.1...0.5.2) (2019-08-24)
+
+
+### Bug Fixes
+
+* **deps:** fixed major semver security vulnerabilities ([28e7271](https://github.com/AEGEE/oms-discounts/commit/28e7271))
+* **deps:** fixed non-major semver security vulnerabilities ([18d5239](https://github.com/AEGEE/oms-discounts/commit/18d5239))
+* **deps:** updated Sequelize. Fixes MEMB-520 ([028983f](https://github.com/AEGEE/oms-discounts/commit/028983f))
+* **docker:** updated node to v12. Fixes MEMB-522 ([ffa1117](https://github.com/AEGEE/oms-discounts/commit/ffa1117))
+* **docker:** use separate postgres volume. Fixes MEMB-592 ([537031b](https://github.com/AEGEE/oms-discounts/commit/537031b))
+
+
+
+## [0.5.1](https://github.com/AEGEE/oms-discounts/compare/e2d8ccc...0.5.1) (2019-08-11)
 
 
 ### Bug Fixes
