@@ -394,6 +394,58 @@ const Application = sequelize.define('application', {
     }
 });
 
+Application.findWithParams = ({ where, attributes, query }) => {
+    const findAllObject = {
+        where
+    };
+
+    if (helpers.isDefined(attributes)) {
+        findAllObject.attributes = attributes;
+    }
+
+    // Trying to apply limit and offset.
+    for (const key of ['limit', 'offset']) {
+        // If not defined, ignoring it.
+        if (!helpers.isDefined(query[key])) {
+            continue;
+        }
+
+        findAllObject[key] = Number(query[key]);
+    }
+
+    // Sorting by ID desc by default.
+    const sorting = [['id', 'desc']];
+
+    // Trying to apply sorting fields.
+    if (helpers.isObject(query.sort)) {
+        if (helpers.isDefined(query.sort.field)) {
+            sorting[0][0] = query.sort.field;
+        }
+
+        if (helpers.isDefined(query.sort.order)) {
+            sorting[0][1] = query.sort.order;
+        }
+    }
+
+    // Tryint to apply filtering.
+    // Only filtering by first name, last name and email is supported.
+    if (query.query) {
+        findAllObject.where[Sequelize.Op.or] = {
+            first_name: { [Sequelize.Op.iLike]: '%' + query.query + '%' },
+            last_name: { [Sequelize.Op.iLike]: '%' + query.query + '%' },
+            email: { [Sequelize.Op.iLike]: '%' + query.query + '%' }
+        };
+    }
+
+    if (!query.displayCancelled) {
+        findAllObject.where.cancelled = false;
+    }
+
+    findAllObject.order = sorting;
+
+    return Application.findAndCountAll(findAllObject);
+};
+
 // Updating the users' inclusion in memberslist for this body.
 Application.afterValidate(async (application, options) => {
     // Skipping if not Agora.

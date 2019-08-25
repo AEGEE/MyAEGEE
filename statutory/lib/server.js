@@ -72,7 +72,7 @@ EventsRouter.put('/', events.editEvent);
 EventsRouter.put('/status', events.changeEventStatus);
 EventsRouter.post('/image', imageserv.uploadImage, events.updateEventImage);
 
-ApplicationsRouter.use(middlewares.authenticateUser, middlewares.fetchEventWithApplications);
+ApplicationsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
 ApplicationsRouter.post('/', applications.postApplication);
 ApplicationsRouter.get('/all', applications.listAllApplications);
 ApplicationsRouter.get('/accepted', applications.listAcceptedApplications);
@@ -108,7 +108,7 @@ MembersListsRouter.get('/:body_id', memberslists.getMemberslist);
 MembersListsRouter.put('/:body_id/fee_paid', memberslists.setMemberslistFeePaid);
 MembersListsRouter.post('/:body_id', memberslists.uploadMembersList);
 
-MassMailerRouter.use(middlewares.authenticateUser, middlewares.fetchEventWithApplications);
+MassMailerRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
 MassMailerRouter.post('/', massmailer.sendAll);
 
 VotesAmountRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora);
