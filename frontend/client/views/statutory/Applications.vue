@@ -133,6 +133,7 @@ export default {
       },
       query: '',
       limit: 50,
+      offset: 0,
       total: 0,
       sort: {
         field: 'id',

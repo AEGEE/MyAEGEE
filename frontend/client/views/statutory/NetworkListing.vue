@@ -94,6 +94,7 @@ export default {
       },
       query: '',
       limit: 50,
+      offset: 0,
       total: 0,
       isLoading: false,
       isSaving: false
