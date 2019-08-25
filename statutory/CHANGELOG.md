@@ -1,3 +1,12 @@
+## [0.16.3](https://github.com/AEGEE/oms-statutory/compare/0.16.2...0.16.3) (2019-08-25)
+
+
+### Bug Fixes
+
+* **application:** added application pagination, sorting and filtering. Fixes MEMB-599 ([b4b9d6e](https://github.com/AEGEE/oms-statutory/commit/b4b9d6e))
+
+
+
 ## [0.16.2](https://github.com/AEGEE/oms-statutory/compare/0.16.1...0.16.2) (2019-08-24)
 
 
