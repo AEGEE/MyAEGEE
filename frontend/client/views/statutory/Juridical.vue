@@ -13,15 +13,20 @@
           </div>
         </div>
 
-        <div>Total participants: {{ applications.length }}</div>
+        <div>Total participants: {{ total }}</div>
 
         <b-table
-          :data="filteredApplications"
+          :data="applications"
           :loading="isLoading"
           paginated
+          backend-pagination
+          :total="total"
           :per-page="limit"
+          @page-change="onPageChange"
+          backend-sorting
           default-sort="statutory_id"
-          default-sort-direction="desc">
+          default-sort-direction="desc"
+          @sort="onSort">
           <template slot-scope="props">
             <b-table-column field="statutory_id" label="#" numeric sortable>
               {{ props.row.statutory_id }}
@@ -92,6 +97,11 @@ export default {
       },
       query: '',
       limit: 50,
+      total: 0,
+      sort: {
+        field: 'id',
+        direction: 'desc'
+      },
       isLoading: false,
       isSaving: false
     }
@@ -101,11 +111,20 @@ export default {
       services: 'services',
       loginUser: 'user'
     }),
-    filteredApplications () {
-      const lowercaseQuery = this.query.toLowerCase()
+    queryObject () {
+      const queryObj = {
+        limit: this.limit,
+        offset: this.offset,
+        sort: this.sort
+      }
 
-      return this.applications.filter(app =>
-        ['first_name', 'last_name'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
+      if (this.query) queryObj.query = this.query
+      return queryObj
+    }
+  },
+  watch: {
+    query () {
+      this.loadApplications()
     }
   },
   methods: {
@@ -134,33 +153,45 @@ export default {
         pax.isSavingDeparted = false
         this.$root.showDanger('Could not update participant departion info: ' + err.message)
       })
+    },
+    onPageChange (page) {
+      this.offset = (page - 1) * this.limit
+      this.loadApplications()
+    },
+    onSort(field, order) {
+      this.sort = { field, order }
+      this.loadApplications()
+    },
+    loadApplications () {
+      this.isLoading = true
+
+      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
+        this.event = event.data.data
+
+        return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/juridical', { params: this.queryObject })
+      }).then((application) => {
+        this.applications = application.data.data
+        this.total = application.data.meta.count
+        this.isLoading = false
+
+        // Fetching users and bodies.
+        for (const pax of this.applications) {
+          this.$set(pax, 'newRegistered', pax.registered)
+          this.$set(pax, 'newDeparted', pax.departed)
+          this.$set(pax, 'isSavingRegistered', false)
+          this.$set(pax, 'isSavingDeparted', false)
+        }
+      }).catch((err) => {
+        this.isLoading = false
+        let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+
+        this.$root.showDanger(message)
+        this.$router.push({ name: 'oms.statutory.list' })
+      })
     }
   },
   mounted () {
-    this.isLoading = true
-
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
-      this.event = event.data.data
-
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/juridical')
-    }).then((application) => {
-      this.applications = application.data.data
-      this.isLoading = false
-
-      // Fetching users and bodies.
-      for (const pax of this.applications) {
-        this.$set(pax, 'newRegistered', pax.registered)
-        this.$set(pax, 'newDeparted', pax.departed)
-        this.$set(pax, 'isSavingRegistered', false)
-        this.$set(pax, 'isSavingDeparted', false)
-      }
-    }).catch((err) => {
-      this.isLoading = false
-      let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
-
-      this.$root.showDanger(message)
-      this.$router.push({ name: 'oms.statutory.list' })
-    })
+    this.loadApplications()
   }
 }
 </script>
