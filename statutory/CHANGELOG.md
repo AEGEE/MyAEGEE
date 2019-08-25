@@ -1,3 +1,12 @@
+## [0.16.4](https://github.com/AEGEE/oms-statutory/compare/0.16.3...0.16.4) (2019-08-25)
+
+
+### Bug Fixes
+
+* **docker:** updated Node to v12. Fixes MEMB-522 ([e777fa4](https://github.com/AEGEE/oms-statutory/commit/e777fa4))
+
+
+
 ## [0.16.3](https://github.com/AEGEE/oms-statutory/compare/0.16.2...0.16.3) (2019-08-25)
 
 
