@@ -433,4 +433,141 @@ describe('Applications listing', () => {
             expect(res.body.data[0].is_on_memberslist).toEqual(true);
         });
     });
+
+    describe('pagination', () => {
+        test('should use limit if provided', async () => {
+            const event = await generator.createEvent();
+            await generator.createApplication({ user_id: 1, first_name: 'first', last_name: 'last' }, event);
+            await generator.createApplication({ user_id: 2, first_name: 'first', last_name: 'last' }, event);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/all?limit=1',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+            expect(res.body).toHaveProperty('data');
+            expect(res.body.data.length).toEqual(1);
+            expect(res.body.meta.count).toEqual(2);
+        });
+
+        test('should use offset if provided', async () => {
+            const event = await generator.createEvent();
+            await generator.createApplication({ user_id: 1, first_name: 'first', last_name: 'last' }, event);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/all?offset=500',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+            expect(res.body).toHaveProperty('data');
+            expect(res.body.data.length).toEqual(0);
+            expect(res.body.meta.count).toEqual(1);
+        });
+    });
+
+    describe('sorting', () => {
+        test('should respect the sorting field', async () => {
+            const event = await generator.createEvent();
+            await generator.createApplication({ user_id: 1, first_name: 'first2' }, event);
+            await generator.createApplication({ user_id: 2, first_name: 'first1' }, event);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/all?sort[field]=first_name', // ORDER BY first_name DESC
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+            expect(res.body).toHaveProperty('data');
+            expect(res.body.data.length).toEqual(2);
+            expect(res.body.data[0].first_name).toEqual('first2');
+            expect(res.body.data[1].first_name).toEqual('first1');
+        });
+
+        test('should respect the sorting order', async () => {
+            const event = await generator.createEvent();
+            const first = await generator.createApplication({ user_id: 1, first_name: 'first2' }, event);
+            const second = await generator.createApplication({ user_id: 2, first_name: 'first1' }, event);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/all?sort[order]=asc', // ORDER BY id ASC
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+            expect(res.body).toHaveProperty('data');
+            expect(res.body.data.length).toEqual(2);
+            expect(res.body.data[0].id).toEqual(first.id);
+            expect(res.body.data[1].id).toEqual(second.id);
+        });
+    });
+
+    describe('filtering', () => {
+        test('should filter by name', async () => {
+            const event = await generator.createEvent();
+            await generator.createApplication({ user_id: 1, first_name: 'name name' }, event);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/all?query=name',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+            expect(res.body).toHaveProperty('data');
+            expect(res.body.data.length).toEqual(1);
+            expect(res.body.data[0].first_name).toEqual('name name');
+        });
+
+        test('should filter by surname', async () => {
+            const event = await generator.createEvent();
+            await generator.createApplication({ user_id: 1, last_name: 'surname surname' }, event);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/all?query=surname',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+            expect(res.body).toHaveProperty('data');
+            expect(res.body.data.length).toEqual(1);
+            expect(res.body.data[0].last_name).toEqual('surname surname');
+        });
+
+        test('should filter by email', async () => {
+            const event = await generator.createEvent();
+            await generator.createApplication({ user_id: 1, email: 'testtest@aegee.eu' }, event);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/all?query=testtest',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+            expect(res.body).toHaveProperty('data');
+            expect(res.body.data.length).toEqual(1);
+            expect(res.body.data[0].email).toEqual('testtest@aegee.eu');
+        });
+    });
 });

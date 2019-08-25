@@ -53,90 +53,85 @@ exports.authenticateUser = async (req, res, next) => {
     }
 };
 
-function fetchEvent(includeApplications) {
-    return async (req, res, next) => {
-        let query = {
+exports.fetchEvent = async (req, res, next) => {
+    let query = {
+        where: {
+            id: req.params.event_id,
+        }
+    };
+
+    // If event_id is not an integer, assuming it's the event URL.
+    // If it's latest, fetch latest published.
+    // If it's latest-agora, latest-epm or latest-spm, fetch latest Agora or EPM or SPM published.
+    if (req.params.event_id === 'latest-agora') {
+        query = {
             where: {
-                id: req.params.event_id,
+                type: 'agora',
+                status: 'published'
+            },
+            order: [['starts', 'DESC']]
+        };
+    } else if (req.params.event_id === 'latest-epm') {
+        query = {
+            where: {
+                type: 'epm',
+                status: 'published'
+            },
+            order: [['starts', 'DESC']]
+        };
+    } else if (req.params.event_id === 'latest-spm') {
+        query = {
+            where: {
+                type: 'spm',
+                status: 'published'
+            },
+            order: [['starts', 'DESC']]
+        };
+    } else if (req.params.event_id === 'latest') {
+        query = {
+            where: {
+                status: 'published'
+            },
+            order: [['starts', 'DESC']]
+        };
+    } else if (Number.isNaN(parseInt(req.params.event_id, 10))) {
+        query = {
+            where: {
+                url: { [Sequelize.Op.iLike]: req.params.event_id },
             }
         };
+    }
 
-        // If event_id is not an integer, assuming it's the event URL.
-        // If it's latest, fetch latest published.
-        // If it's latest-agora, latest-epm or latest-spm, fetch latest Agora or EPM or SPM published.
-        if (req.params.event_id === 'latest-agora') {
-            query = {
-                where: {
-                    type: 'agora',
-                    status: 'published'
-                },
-                order: [['starts', 'DESC']]
-            };
-        } else if (req.params.event_id === 'latest-epm') {
-            query = {
-                where: {
-                    type: 'epm',
-                    status: 'published'
-                },
-                order: [['starts', 'DESC']]
-            };
-        } else if (req.params.event_id === 'latest-spm') {
-            query = {
-                where: {
-                    type: 'spm',
-                    status: 'published'
-                },
-                order: [['starts', 'DESC']]
-            };
-        } else if (req.params.event_id === 'latest') {
-            query = {
-                where: {
-                    status: 'published'
-                },
-                order: [['starts', 'DESC']]
-            };
-        } else if (Number.isNaN(parseInt(req.params.event_id, 10))) {
-            query = {
-                where: {
-                    url: { [Sequelize.Op.iLike]: req.params.event_id },
-                }
-            };
+    query.include = [Image];
+    const event = await Event.findOne(query);
+
+    if (!event) {
+        return errors.makeNotFoundError(res, 'Event with such url or ID is not found.');
+    }
+
+    const approveRequest = await core.getApprovePermissions(req, event);
+
+    const myApplication = await Application.findOne({
+        where: {
+            user_id: req.user.id,
+            event_id: event.id
         }
+    });
 
-        query.include = includeApplications ? [Application, Image] : [Image];
-        const event = await Event.findOne(query);
+    req.event = event;
+    req.myApplication = myApplication;
+    req.approvePermissions = approveRequest;
+    req.permissions = helpers.getEventPermissions({
+        permissions: req.permissions,
+        corePermissions: req.corePermissions,
+        approvePermissions: req.approvePermissions,
+        user: req.user,
+        event,
+        myApplication
+    });
 
-        if (!event) {
-            return errors.makeNotFoundError(res, 'Event with such url or ID is not found.');
-        }
-
-        const approveRequest = await core.getApprovePermissions(req, event);
-
-        const myApplication = await Application.findOne({
-            where: {
-                user_id: req.user.id,
-                event_id: event.id
-            }
-        });
-
-        req.event = event;
-        req.myApplication = myApplication;
-        req.approvePermissions = approveRequest;
-        req.permissions = helpers.getEventPermissions({
-            permissions: req.permissions,
-            corePermissions: req.corePermissions,
-            approvePermissions: req.approvePermissions,
-            user: req.user,
-            event,
-            myApplication
-        });
-
-        return next();
-    };
-}
-
-exports.fetchEvent = fetchEvent(false);
-exports.fetchEventWithApplications = fetchEvent(true);
+    return next();
+};
 
 exports.fetchSingleApplication = async (req, res, next) => {
     const whereObj = { event_id: req.event.id };

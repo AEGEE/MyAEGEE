@@ -15,12 +15,17 @@ exports.listAllApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
     }
 
-    const applications = req.event.applications
-        .map(application => application.toJSON());
+    const applications = await Application.findWithParams({
+        where: { event_id: req.event.id },
+        query: req.query
+    });
 
     return res.json({
         success: true,
-        data: applications
+        data: applications.rows,
+        meta: {
+            count: applications.count
+        }
     });
 };
 
@@ -29,14 +34,18 @@ exports.listIncomingApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
     }
 
-    const applications = req.event.applications
-        .filter(application => helpers.filterObject(application, { cancelled: false, status: 'accepted' }))
-        .map(application => application.toJSON())
-        .map(application => helpers.whitelistObject(application, constants.ALLOWED_INCOMING_FIELDS));
+    const applications = await Application.findWithParams({
+        where: { event_id: req.event.id, cancelled: false, status: 'accepted' },
+        attributes: constants.ALLOWED_INCOMING_FIELDS,
+        query: req.query
+    });
 
     return res.json({
         success: true,
-        data: applications
+        data: applications.rows,
+        meta: {
+            count: applications.count
+        }
     });
 };
 
@@ -45,14 +54,18 @@ exports.listAcceptedApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
     }
 
-    const applications = req.event.applications
-        .filter(application => helpers.filterObject(application, { cancelled: false, status: 'accepted' }))
-        .map(application => application.toJSON())
-        .map(application => helpers.whitelistObject(application, constants.ALLOWED_PARTICIPANTS_LIST_FIELDS));
+    const applications = await Application.findWithParams({
+        where: { event_id: req.event.id, cancelled: false, status: 'accepted' },
+        attributes: constants.ALLOWED_PARTICIPANTS_LIST_FIELDS,
+        query: req.query
+    });
 
     return res.json({
         success: true,
-        data: applications
+        data: applications.rows,
+        meta: {
+            count: applications.count
+        }
     });
 };
 
@@ -61,15 +74,18 @@ exports.listJCApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
     }
 
-    const applications = req.event.applications
-        .filter(application => helpers.filterObject(application, { cancelled: false, status: 'accepted', paid_fee: true }))
-        .map(application => application.toJSON())
-        .map(application => helpers.whitelistObject(application, constants.ALLOWED_JURIDICAL_LIST_FIELDS));
-
+    const applications = await Application.findWithParams({
+        where: { event_id: req.event.id, cancelled: false, status: 'accepted', paid_fee: true },
+        attributes: constants.ALLOWED_JURIDICAL_LIST_FIELDS,
+        query: req.query
+    });
 
     return res.json({
         success: true,
-        data: applications
+        data: applications.rows,
+        meta: {
+            count: applications.count
+        }
     });
 };
 
@@ -78,15 +94,18 @@ exports.listNetworkApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
     }
 
-    const applications = req.event.applications
-        .filter(application => helpers.filterObject(application, { cancelled: false }))
-        .map(application => application.toJSON())
-        .map(application => helpers.whitelistObject(application, constants.ALLOWED_NETWORK_LIST_FIELDS));
-
+    const applications = await Application.findWithParams({
+        where: { event_id: req.event.id, cancelled: false },
+        attributes: constants.ALLOWED_NETWORK_LIST_FIELDS,
+        query: req.query
+    });
 
     return res.json({
         success: true,
-        data: applications
+        data: applications.rows,
+        meta: {
+            count: applications.count
+        }
     });
 };
 
@@ -98,22 +117,26 @@ exports.getStats = async (req, res) => {
         by_type: []
     };
 
+    const applications = await Application.findAll({
+        where: { event_id: req.event.id }
+    });
+
     statsObject.numbers = {
-        total: req.event.applications.filter(app => helpers.filterObject(app, { cancelled: false })).length,
-        accepted: req.event.applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'accepted' })).length,
-        rejected: req.event.applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'rejected' })).length,
-        pending: req.event.applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'pending' })).length,
-        paid_fee: req.event.applications.filter(app => helpers.filterObject(app, { paid_fee: true })).length,
-        registered: req.event.applications.filter(app => helpers.filterObject(app, { registered: true })).length,
-        attended: req.event.applications.filter(app => helpers.filterObject(app, { attended: true })).length,
-        departed: req.event.applications.filter(app => helpers.filterObject(app, { departed: true })).length
+        total: applications.filter(app => helpers.filterObject(app, { cancelled: false })).length,
+        accepted: applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'accepted' })).length,
+        rejected: applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'rejected' })).length,
+        pending: applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'pending' })).length,
+        paid_fee: applications.filter(app => helpers.filterObject(app, { paid_fee: true })).length,
+        registered: applications.filter(app => helpers.filterObject(app, { registered: true })).length,
+        attended: applications.filter(app => helpers.filterObject(app, { attended: true })).length,
+        departed: applications.filter(app => helpers.filterObject(app, { departed: true })).length
     };
 
     // Filtering out cancelled applications.
-    const applications = req.event.applications.filter(app => !app.cancelled);
+    const notCancelledApplications = applications.filter(app => !app.cancelled);
 
     // By date
-    const dates = applications.map(app => moment(app.created_at).format('YYYY-MM-DD'))
+    const dates = notCancelledApplications.map(app => moment(app.created_at).format('YYYY-MM-DD'))
         .filter((elt, index, array) => array.indexOf(elt) === index)
         .sort();
     const startDate = dates[0];
@@ -123,7 +146,7 @@ exports.getStats = async (req, res) => {
     // Iterating through dates from the first one to the last one incrementing by day.
     for (let date = moment(startDate, 'YYYY-MM-DD'); date.isSameOrBefore(moment(endDate, 'YYYY-MM-DD')); date = date.add(1, 'day')) {
         const dateFormatted = moment(date).format('YYYY-MM-DD');
-        const applicationsAmount = applications
+        const applicationsAmount = notCancelledApplications
             .filter(elt => moment(elt.created_at).format('YYYY-MM-DD') === dateFormatted)
             .length;
 
@@ -133,16 +156,16 @@ exports.getStats = async (req, res) => {
     }
 
     statsObject.by_gender = helpers
-        .countByField(applications, 'gender')
+        .countByField(notCancelledApplications, 'gender')
         .sort((a, b) => b.value - a.value); // sort descending by gender
     statsObject.by_type = helpers
-        .countByField(applications, 'participant_type')
+        .countByField(notCancelledApplications, 'participant_type')
         .sort((a, b) => b.value - a.value); // sort descending by participant type
     statsObject.by_body = helpers
-        .countByField(applications, 'body_id')
+        .countByField(notCancelledApplications, 'body_id')
         .sort((a, b) => b.value - a.value); // sort descending by pax amount
     statsObject.by_number_of_events_visited = helpers
-        .countByField(applications, 'number_of_events_visited')
+        .countByField(notCancelledApplications, 'number_of_events_visited')
         .sort((a, b) => a.type - b.type); // sort ascending by number of Agora/EPM visited
 
     return res.json({
@@ -161,21 +184,30 @@ exports.listBoardView = async (req, res) => {
     }
 
     // 'zzzzz' is used to be last, 'unset' won't do
-    const applications = req.event.applications
-        .map(application => application.toJSON())
-        .filter(application => application.body_id === parseInt(req.params.body_id, 10))
-        .sort((a, b) => {
-            const compareByType = (a.participant_type || 'zzzzzz').localeCompare(b.participant_type || 'zzzzzz');
-            if (compareByType !== 0) {
-                return compareByType;
-            }
+    const applications = await Application.findAll({
+        where: { event_id: req.event.id, body_id: parseInt(req.params.body_id, 10) },
+    });
 
-            return (a.participant_order || 999) - (b.participant_order || 999);
-        });
+    const sortedApplications = applications.sort((a, b) => {
+        // first, comparing by participant type
+        const compareByType = (a.participant_type || 'zzzzzz').localeCompare(b.participant_type || 'zzzzzz');
+        if (compareByType !== 0) {
+            return compareByType;
+        }
+
+        // then if participant type is the same, comparing by order
+        const compareByOrder = (a.participant_order || 999) - (b.participant_order || 999);
+        if (compareByOrder !== 0) {
+            return compareByOrder;
+        }
+
+        // this can happen when both participant type and order are null.
+        return a.id - b.id;
+    });
 
     return res.json({
         success: true,
-        data: applications
+        data: sortedApplications
     });
 };
 
@@ -593,7 +625,10 @@ exports.exportOpenslides = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see statistics.');
     }
 
-    const filtered = req.event.applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'accepted' }));
+    const applications = await Application.findAll({
+        where: { event_id: req.event.id, cancelled: false, status: 'accepted' },
+    });
+
     const wrap = string => '"' + string + '"';
 
     const headers = [
@@ -612,7 +647,7 @@ exports.exportOpenslides = async (req, res) => {
     ];
 
     // Returns a CSV string
-    const exportString = headers.map(wrap).join(',') + '\n' + filtered.map((application) => {
+    const exportString = headers.map(wrap).join(',') + '\n' + applications.map((application) => {
         // Generating random pw for a user.
         const password = crypto.randomBytes(5).toString('hex');
 
@@ -671,9 +706,10 @@ exports.exportAll = async (req, res) => {
     const headersNames = helpers.getApplicationFields(req.event);
     const headers = req.query.select.map(field => headersNames[field]);
 
-    const resultArray = req.event.applications
+    const applications = await Application.findAll({ where: { event_id: req.event.id, ...applicationsFilter } });
+
+    const resultArray = applications
         .map(application => application.toJSON())
-        .filter(application => helpers.filterObject(application, applicationsFilter))
         .map(application => helpers.flattenObject(application))
         .map((application) => {
             return req.query.select.map(field => helpers.beautify(application[field]));
@@ -688,7 +724,6 @@ exports.exportAll = async (req, res) => {
             ]
         }
     ]);
-
 
     res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-disposition', 'attachment; filename=stats.xlsx');

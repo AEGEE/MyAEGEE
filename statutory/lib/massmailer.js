@@ -1,7 +1,7 @@
 const errors = require('./errors');
 const mailer = require('./mailer');
-const helpers = require('./helpers');
 const logger = require('./logger');
+const { Application } = require('../models');
 
 exports.sendAll = async (req, res) => {
     if (!req.permissions.use_massmailer) {
@@ -28,7 +28,10 @@ exports.sendAll = async (req, res) => {
     const filterObject = Object.assign(baseObject, req.body.filter);
 
     // Then filter application based on that filter.
-    const applications = req.event.applications.filter(application => helpers.filterObject(application, filterObject));
+    const applications = await Application.findAll({
+        where: { event_id: req.event.id, ...filterObject }
+    });
+
     logger.info(`Sending mass mailer to ${applications.length} users`);
 
     if (applications.length === 0) {
