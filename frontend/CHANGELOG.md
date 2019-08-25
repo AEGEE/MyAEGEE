@@ -1,3 +1,13 @@
+<a name="0.20.3"></a>
+## [0.20.3](https://github.com/AEGEE/oms-frontend/compare/0.20.2...0.20.3) (2019-08-25)
+
+
+### Bug Fixes
+
+* **statutory:** fix pagination offset for applications listing ([fb5f7bc](https://github.com/AEGEE/oms-frontend/commit/fb5f7bc))
+
+
+
 <a name="0.20.2"></a>
 ## [0.20.2](https://github.com/AEGEE/oms-frontend/compare/0.20.1...0.20.2) (2019-08-25)
 
