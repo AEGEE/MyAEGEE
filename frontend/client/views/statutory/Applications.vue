@@ -16,7 +16,7 @@
               :options="fields"
               placeholder="Select application fields"
               track-by="name"
-              label="name" >
+              label="name">
               <template
                 slot="selection"
                 slot-scope="{ values, search, isOpen }">
@@ -39,22 +39,27 @@
           </div>
         </div>
 
-        <div>Total participants: {{ filteredApplications.length }}</div>
+        <div>Total participants: {{ total }}</div>
 
         <b-table
-          :data="filteredApplications"
+          :data="applications"
           :loading="isLoading"
           :row-class="row => calculateClassForApplication(row)"
           paginated
+          backend-pagination
+          :total="total"
           :per-page="limit"
+          @page-change="onPageChange"
+          backend-sorting
           default-sort="statutory_id"
-          default-sort-direction="desc">
+          default-sort-direction="desc"
+          @sort="onSort">
           <template slot-scope="props">
             <b-table-column field="statutory_id" label="#" numeric sortable>
               {{ props.row.statutory_id }}
             </b-table-column>
 
-            <b-table-column field="name" label="User ID" sortable>
+            <b-table-column field="user_id" label="User ID" sortable>
               {{ props.row.user_id }}
             </b-table-column>
 
@@ -76,15 +81,15 @@
               class="has-text-pre-wrap"
               :label="field.name">{{ field.get(props.row) | beautify }}</b-table-column>
 
-            <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled">
+            <b-table-column field="cancelled" label="Cancelled?" centered :visible="displayCancelled">
               {{ props.row.cancelled | beautify }}
             </b-table-column>
 
-            <b-table-column field="paid_fee" label="Confirmed?" centered sortable>
+            <b-table-column field="paid_fee" label="Confirmed?" centered>
               {{ props.row.paid_fee | beautify }}
             </b-table-column>
 
-            <b-table-column field="attended" label="Attended?" centered sortable>
+            <b-table-column field="attended" label="Attended?" centered>
               {{ props.row.attended | beautify }}
             </b-table-column>
 
@@ -128,6 +133,11 @@ export default {
       },
       query: '',
       limit: 50,
+      total: 0,
+      sort: {
+        field: 'id',
+        direction: 'desc'
+      },
       selectedFields: [
         { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
         { name: 'Board comment', get: (pax) => pax.board_comment },
@@ -170,15 +180,24 @@ export default {
       services: 'services',
       loginUser: 'user'
     }),
-    filteredApplications () {
-      const filterCancelled = this.displayCancelled
-        ? this.applications
-        : this.applications.filter(app => !app.cancelled)
+    queryObject () {
+      const queryObj = {
+        limit: this.limit,
+        offset: this.offset,
+        sort: this.sort
+      }
 
-      const lowercaseQuery = this.query.toLowerCase()
-
-      return filterCancelled.filter(app =>
-        ['first_name', 'last_name', 'email'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
+      if (this.query) queryObj.query = this.query
+      if (this.displayCancelled) queryObj.displayCancelled = true
+      return queryObj
+    }
+  },
+  watch: {
+    query () {
+      this.loadApplications()
+    },
+    displayCancelled () {
+      this.loadApplications()
     }
   },
   methods: {
@@ -209,37 +228,48 @@ export default {
         pax.isSaving = false
         this.$root.showDanger('Could not update participant status: ' + err.message)
       })
+    },
+    onPageChange (page) {
+      this.offset = (page - 1) * this.limit
+      this.loadApplications()
+    },
+    onSort(field, order) {
+      this.sort = { field, order }
+      this.loadApplications()
+    },
+    loadApplications () {
+      this.isLoading = true
+
+      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
+        this.event = event.data.data
+
+        for (const index in this.event.questions) {
+          this.fields.push({
+            name: this.event.questions[index].description,
+            get: pax => pax.answers[index]
+          })
+        }
+
+        return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/all', { params: this.queryObject})
+      }).then((application) => {
+        this.applications = application.data.data
+        this.total = application.data.meta.count
+        this.isLoading = false
+
+        for (const pax of this.applications) {
+          this.$set(pax, 'newStatus', pax.status)
+          this.$set(pax, 'isSaving', false)
+        }
+      }).catch((err) => {
+        this.isLoading = false
+        let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+
+        this.$root.showDanger(message)
+      })
     }
   },
   mounted () {
-    this.isLoading = true
-
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
-      this.event = event.data.data
-
-      for (const index in this.event.questions) {
-        this.fields.push({
-          name: this.event.questions[index].description,
-          get: pax => pax.answers[index]
-        })
-      }
-
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/all')
-    }).then((application) => {
-      this.applications = application.data.data
-      this.isLoading = false
-
-      for (const pax of this.applications) {
-        this.$set(pax, 'newStatus', pax.status)
-        this.$set(pax, 'isSaving', false)
-      }
-    }).catch((err) => {
-      this.isLoading = false
-      let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
-
-      this.$root.showDanger(message)
-      this.$router.push({ name: 'oms.statutory.list' })
-    })
+    this.loadApplications()
   }
 }
 </script>

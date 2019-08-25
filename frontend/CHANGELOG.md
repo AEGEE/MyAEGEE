@@ -1,3 +1,14 @@
+<a name="0.20.2"></a>
+## [0.20.2](https://github.com/AEGEE/oms-frontend/compare/0.20.1...0.20.2) (2019-08-25)
+
+
+### Bug Fixes
+
+* **deps:** fixed non-major semver security vulnerabilities ([da7dc20](https://github.com/AEGEE/oms-frontend/commit/da7dc20))
+* **statutory:** add statutory applications pagination. Fixes MEMB-599 ([eac2de4](https://github.com/AEGEE/oms-frontend/commit/eac2de4))
+
+
+
 <a name="0.20.1"></a>
 ## [0.20.1](https://github.com/AEGEE/oms-frontend/compare/0.20.0...0.20.1) (2019-08-24)
 
