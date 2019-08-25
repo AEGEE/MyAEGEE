@@ -437,6 +437,10 @@ Application.findWithParams = ({ where, attributes, query }) => {
         };
     }
 
+    if (!query.displayCancelled) {
+        findAllObject.where.cancelled = false;
+    }
+
     findAllObject.order = sorting;
 
     return Application.findAndCountAll(findAllObject);

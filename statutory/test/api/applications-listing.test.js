@@ -569,5 +569,22 @@ describe('Applications listing', () => {
             expect(res.body.data.length).toEqual(1);
             expect(res.body.data[0].email).toEqual('testtest@aegee.eu');
         });
+
+        test('should return cancelled applications on displayCancelled=true', async () => {
+            const event = await generator.createEvent();
+            await generator.createApplication({ cancelled: true }, event);
+
+            const res = await request({
+                uri: '/events/' + event.id + '/applications/all?displayCancelled=true',
+                method: 'GET',
+                headers: { 'X-Auth-Token': 'blablabla' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+            expect(res.body).toHaveProperty('data');
+            expect(res.body.data.length).toEqual(1);
+        });
     });
 });
