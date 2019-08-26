@@ -1,3 +1,13 @@
+<a name="0.21.0"></a>
+# [0.21.0](https://github.com/AEGEE/oms-frontend/compare/0.20.3...0.21.0) (2019-08-26)
+
+
+### Features
+
+* **statutory:** allow deleting question lines. Fixes MEMB-603 ([409be7a](https://github.com/AEGEE/oms-frontend/commit/409be7a))
+
+
+
 <a name="0.20.3"></a>
 ## [0.20.3](https://github.com/AEGEE/oms-frontend/compare/0.20.2...0.20.3) (2019-08-25)
 
