@@ -1,3 +1,17 @@
+# [0.17.0](https://github.com/AEGEE/oms-statutory/compare/0.16.4...0.17.0) (2019-08-26)
+
+
+### Bug Fixes
+
+* **statutory:** respect displaying all aoplications ([6bbc281](https://github.com/AEGEE/oms-statutory/commit/6bbc281))
+
+
+### Features
+
+* **questions:** added deleting question lines. Fixes MEMB-603 ([1c748aa](https://github.com/AEGEE/oms-statutory/commit/1c748aa))
+
+
+
 ## [0.16.4](https://github.com/AEGEE/oms-statutory/compare/0.16.3...0.16.4) (2019-08-25)
 
 
