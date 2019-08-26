@@ -130,6 +130,7 @@ QuestionLinesRouter.get('/', questionLines.listAllQuestionLines);
 QuestionLinesRouter.post('/', questionLines.createQuestionLine);
 QuestionLinesRouter.put('/:question_line_id/status', questionLines.findQuestionLine, questionLines.updateQuestionLineStatus);
 QuestionLinesRouter.put('/:question_line_id', questionLines.findQuestionLine, questionLines.editQuestionLine);
+QuestionLinesRouter.delete('/:question_line_id', questionLines.findQuestionLine, questionLines.deleteQuestionLine);
 
 QuestionsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, questionLines.findQuestionLine);
 QuestionsRouter.post('/', questions.submitQuestion);
