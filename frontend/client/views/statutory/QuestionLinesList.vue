@@ -39,6 +39,10 @@
               <a href="#" class="button is-warning is-small" @click.prevent="openEditQuestionLineModal(props.row)">Edit</a>
             </b-table-column>
 
+            <b-table-column label="Delete" centered v-if="can.manage_question_lines">
+              <a href="#" class="button is-danger is-small" @click.prevent="askDeleteQuestionLine(props.row, props.index)">Delete</a>
+            </b-table-column>
+
             <b-table-column label="Ask a question" centered>
               <button
                 class="button is-small"
@@ -127,6 +131,23 @@ export default {
     })
   },
   methods: {
+    askDeleteQuestionLine (questionLine, index) {
+      this.$dialog.confirm({
+        title: 'Deleting a question line',
+        message: 'Are you sure you want to <b>delete</b> this question line? This action cannot be undone.',
+        confirmText: 'Delete question line',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.deleteQuestionLine(questionLine, index)
+      })
+    },
+    deleteQuestionLine (questionLine, index) {
+      this.axios.delete(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/question-lines/' + questionLine.id).then((response) => {
+        this.$root.showSuccess('Question line is deleted.')
+        this.questionLines.splice(index, 1)
+        this.selectedQuestionLine = this.questionLines[index]
+      }).catch((err) => this.$root.showDanger('Could not delete question line: ' + err.message))
+    },
     askDeleteQuestion (questionLine, question, questionIndex) {
       this.$dialog.confirm({
         title: 'Deleting a question',
