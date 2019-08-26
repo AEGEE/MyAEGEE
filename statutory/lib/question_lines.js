@@ -89,3 +89,17 @@ exports.updateQuestionLineStatus = async (req, res) => {
         data: req.questionLine
     });
 };
+
+exports.deleteQuestionLine = async (req, res) => {
+    if (!req.permissions.manage_question_lines) {
+        return errors.makeForbiddenError(res, 'You cannot delete question lines.');
+    }
+
+    await Question.destroy({ where: { question_line_id: req.questionLine.id } });
+    await req.questionLine.destroy();
+
+    return res.json({
+        success: true,
+        message: 'The question line was deleted.'
+    });
+};
