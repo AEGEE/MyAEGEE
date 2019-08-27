@@ -1,3 +1,12 @@
+# [0.18.0](https://github.com/AEGEE/oms-statutory/compare/0.17.0...0.18.0) (2019-08-27)
+
+
+### Features
+
+* **test:** added CircleCI ([8d8a2a4](https://github.com/AEGEE/oms-statutory/commit/8d8a2a4))
+
+
+
 # [0.17.0](https://github.com/AEGEE/oms-statutory/compare/0.16.4...0.17.0) (2019-08-26)
 
 
