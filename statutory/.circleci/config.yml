@@ -1,0 +1,73 @@
+version: 2
+jobs:
+  test:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - checkout
+      - run: docker run --name postgres -p 5432:5432 -d postgres:10.6
+      - run:
+          name: Install Node
+          command: |
+            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
+            which node && node -v
+      - run: npm install
+      - run: cp config/index.js.example config/index.js
+      - run: mkdir -p ~/reports/jest
+      - run:
+          name: Run tests
+          command: JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm test -- --reporters=default --reporters=jest-junit
+      - run: ./node_modules/.bin/codecov
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  build:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - checkout
+      - run: docker-compose -f docker/docker-compose.yml build --no-cache oms-statutory
+  lint:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - checkout
+      - run:
+          name: Install Node
+          command: |
+            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
+            which node && node -v
+      - run: npm install
+      - run: mkdir -p ~/reports
+      - run: cp config/index.js.example config/index.js
+      - run: npm run lint -- --format junit --output-file ~/reports/eslint.xml
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  audit:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - checkout
+      - run: npm audit
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
+  lint:
+    jobs:
+      - lint
+  audit:
+    jobs:
+      - audit
+  build:
+    jobs:
+      - build

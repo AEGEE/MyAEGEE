@@ -1,5 +1,5 @@
 # OMS Statutory module
-[![Build Status](https://travis-ci.org/AEGEE/oms-statutory.svg)](https://travis-ci.org/AEGEE/oms-statutory)
+![CircleCI](https://img.shields.io/circleci/build/github/AEGEE/oms-statutory)
 ![Codecov branch for master](https://img.shields.io/codecov/c/github/AEGEE/oms-statutory.svg)
 
 
