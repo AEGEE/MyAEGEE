@@ -780,6 +780,14 @@ module.exports = [
       label: 'Create a integration'
     }
   },
+  {
+    name: 'oms.confluence',
+    path: '/pages/:page_id',
+    component: 'static/ConfluencePage',
+    meta: {
+      label: 'Display page'
+    }
+  },
   /* Alastair */
   /* Alastair organizer */
   {
