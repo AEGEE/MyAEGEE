@@ -1,3 +1,12 @@
+# [0.19.0](https://github.com/AEGEE/oms-statutory/compare/0.18.0...0.19.0) (2019-08-28)
+
+
+### Features
+
+* **docker:** tagging and pushing Docker image to Dockerhub. Fixes MEMB-550 ([6306723](https://github.com/AEGEE/oms-statutory/commit/6306723))
+
+
+
 # [0.18.0](https://github.com/AEGEE/oms-statutory/compare/0.17.0...0.18.0) (2019-08-27)
 
 
