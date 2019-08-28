@@ -56,6 +56,15 @@ jobs:
     steps:
       - checkout
       - run: npm audit
+  docker-build-and-push:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - checkout
+      - run: (cd docker/oms-statutory/ && docker build  --tag aegee/oms-statutory:$(node -p "require('../../package.json').version") --tag aegee/oms-statutory:latest -f Dockerfile.dev .)
+      - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+      - run: docker push aegee/oms-statutory:$(node -p "require('./package.json').version")
+      - run: docker push aegee/oms-statutory:latest
 
 workflows:
   version: 2
@@ -71,3 +80,9 @@ workflows:
   build:
     jobs:
       - build
+  docker-build-and-push:
+    jobs:
+      - docker-build-and-push:
+          filters:
+            branches:
+              only: master

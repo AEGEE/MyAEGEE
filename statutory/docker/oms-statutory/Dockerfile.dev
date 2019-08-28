@@ -8,7 +8,7 @@ RUN apt-get update
 RUN apt-get install netcat -y
 
 ADD ./bootstrap.sh /usr/app/scripts/bootstrap.sh
-ADD wait.sh /usr/app/scripts/wait.sh
+ADD ./wait.sh /usr/app/scripts/wait.sh
 
 RUN chown -R node:node /usr/app
 
