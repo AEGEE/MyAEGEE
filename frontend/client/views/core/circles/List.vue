@@ -27,11 +27,7 @@
           :data="circles"
           :loading="isLoading">
           <template slot-scope="props">
-            <b-table-column field="id" label="#" numeric sortable>
-              {{ props.row.id }}
-            </b-table-column>
-
-            <b-table-column field="name" label="Campaign name" sortable width="150">
+            <b-table-column field="name" label="Circle name" width="150">
               <router-link :to="{ name: 'oms.circles.view', params: { id: props.row.id } }">
                 {{ props.row.name }}
               </router-link>
