@@ -81,3 +81,17 @@ swarmmode = false
 #  cert = "/etc/ssl/docker.crt"
 #  key = "/etc/ssl/docker.key"
 #  insecureskipverify = true
+
+# CORS proxy pass for MyAEGEE confluence
+[file]
+[frontends]
+  [frontends.jira-cors-frontend]
+  backend = "jira-cors-backend"
+  priority = 20
+  [frontends.jira-cors-frontend.routes.main]
+    rule = "PathPrefixStrip:/services/jira-cors/;"
+
+[backends]
+  [backends.jira-cors-backend]
+    [backends.jira-cors-backend.servers.server1]
+    url = "https://oms-project.atlassian.net/"
