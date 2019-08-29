@@ -152,6 +152,30 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert_email_delivered_with(subject: "pirates")
   end
 
+  # Board statytory applied
+  test "POST / statutory board applied should work with questions and answers", %{conn: conn} do
+    question = %{"description" => "Phone number:", "required" => false, "type" => "string"}
+    body = %{"name" => "Test body"}
+    event = %{"name" =>  "test", "questions" => [question] }
+    application = %{answers: ["test"] }
+
+    conn = post conn, "/", %{template: "statutory_board_applied.html", parameters: %{ event: event, application: application, body: body }, to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(subject: "pirates")
+  end
+
+  # Board statutory edited
+  test "POST / statutory board edited should work with questions and answers", %{conn: conn} do
+    question = %{"description" => "Phone number:", "required" => false, "type" => "string"}
+    body = %{"name" => "Test body"}
+    event = %{"name" =>  "test", "questions" => [question] }
+    application = %{answers: ["test"] }
+
+    conn = post conn, "/", %{template: "statutory_board_edited.html", parameters: %{ event: event, application: application, body: body }, to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(subject: "pirates")
+  end
+
   # Member joined
   test "POST / member joined", %{conn: conn} do
     conn = post conn, "/", %{template: "member_joined.html", parameters: %{body_name: "AEGEE-Dresden", body_id: 1, member_firstname: "Test", member_lastname: "Member"}, to: "test@aegee.org", subject: "pirates"}
