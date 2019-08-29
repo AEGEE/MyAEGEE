@@ -1,3 +1,18 @@
+<a name="0.21.1"></a>
+## [0.21.1](https://github.com/AEGEE/oms-frontend/compare/0.21.0...0.21.1) (2019-08-29)
+
+
+### Bug Fixes
+
+* **core:** removed circle IDs from listing. Fixes HELP-625 ([0b2324d](https://github.com/AEGEE/oms-frontend/commit/0b2324d))
+
+
+### Features
+
+* **general:** visualizing Confluence pages. Fixes MEMB-540 ([12915a4](https://github.com/AEGEE/oms-frontend/commit/12915a4))
+
+
+
 <a name="0.21.0"></a>
 # [0.21.0](https://github.com/AEGEE/oms-frontend/compare/0.20.3...0.21.0) (2019-08-26)
 
