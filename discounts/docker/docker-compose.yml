@@ -26,9 +26,6 @@ services:
         environment:
             BUGSNAG_KEY: bbef84ab99c91665262f672ba6507a2d
             PG_PASSWORD: ${PW_POSTGRES}
-        secrets:
-            - mail_user
-            - mail_password
         labels:
             - "traefik.backend=oms-discounts"
             - "traefik.port=8084"
@@ -37,9 +34,6 @@ services:
             - "traefik.enable=true"
             - "registry.categories=(discounts, 10);(events, 10);(notifications, 10)"
             - "registry.servicename=oms-discounts"
-
-
-
 volumes:
     postgres-oms-discounts:
         driver: "local"
@@ -47,8 +41,3 @@ volumes:
         driver: "local"
     shared:
         driver: "local"
-
-networks:
-  default:
-    external:
-      name: OMS

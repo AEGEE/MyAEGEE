@@ -18,6 +18,10 @@ const config = {
             url: 'http://oms-mailer',
             port: 4000
         },
+        logger: {
+            silent: false,
+            level: process.env.LOGLEVEL || 'debug'
+        },
         bugsnagKey: process.env.BUGSNAG_KEY || ''
     },
     development: {
@@ -29,6 +33,9 @@ const config = {
             host: 'localhost',
             database: 'discounts-testing',
             password: process.env.PG_PASSWORD || 'postgres',
+        },
+        logger: {
+            silent: (typeof process.env.ENABLE_LOGGING !== 'undefined') ? (!process.env.ENABLE_LOGGING) : true
         },
         bugsnagKey: 'CHANGEME'
     }
