@@ -18,6 +18,13 @@ const config = {
             url: 'http://oms-mailer',
             port: 4000
         },
+        logger: {
+            silent: false,
+            level: process.env.LOGLEVEL || 'debug'
+        },
+        logger: {
+            silent: (typeof process.env.ENABLE_LOGGING !== 'undefined') ? (!process.env.ENABLE_LOGGING) : true
+        },
         bugsnagKey: process.env.BUGSNAG_KEY || '',
         media_dir: '/usr/app/media',
         media_url: '/frontend/media',
@@ -30,6 +37,9 @@ const config = {
         postgres: {
             host: 'localhost',
             database: 'statutory-testing'
+        },
+        logger: {
+            silent: (typeof process.env.ENABLE_LOGGING !== 'undefined') ? (!process.env.ENABLE_LOGGING) : true
         },
         bugsnagKey: 'CHANGEME',
         media_dir: './tmp_upload'
