@@ -22,9 +22,6 @@ const config = {
             silent: false,
             level: process.env.LOGLEVEL || 'debug'
         },
-        logger: {
-            silent: (typeof process.env.ENABLE_LOGGING !== 'undefined') ? (!process.env.ENABLE_LOGGING) : true
-        },
         bugsnagKey: process.env.BUGSNAG_KEY || '',
         media_dir: '/usr/app/media',
         media_url: '/frontend/media',
