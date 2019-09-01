@@ -1,3 +1,14 @@
+## [0.8.1](https://github.com/AEGEE/oms-events/compare/0.8.0...0.8.1) (2019-09-01)
+
+
+### Bug Fixes
+
+* **deps:** fixed non-major semver security vulnerabilities ([a64dcbf](https://github.com/AEGEE/oms-events/commit/a64dcbf))
+* **docker:** fixed Dockerfile ([d6e3def](https://github.com/AEGEE/oms-events/commit/d6e3def))
+* **general:** postgres password fix for config ([c24b872](https://github.com/AEGEE/oms-events/commit/c24b872))
+
+
+
 # [0.8.0](https://github.com/AEGEE/oms-events/compare/0.7.0...0.8.0) (2019-09-01)
 
 
