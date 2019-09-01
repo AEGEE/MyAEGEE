@@ -1,3 +1,18 @@
+# [0.6.0](https://github.com/AEGEE/oms-discounts/compare/0.5.2...0.6.0) (2019-09-01)
+
+
+### Bug Fixes
+
+* **deps:** fixed non-major semver security vulnerabilities ([e70b5f1](https://github.com/AEGEE/oms-discounts/commit/e70b5f1))
+* **general:** set config from logging. Fixes MEMB-547 ([cb97997](https://github.com/AEGEE/oms-discounts/commit/cb97997))
+
+
+### Features
+
+* **general:** added CircleCI. Fixes MEMB-602 ([bf4d113](https://github.com/AEGEE/oms-discounts/commit/bf4d113))
+
+
+
 ## [0.5.2](https://github.com/AEGEE/oms-discounts/compare/0.5.1...0.5.2) (2019-08-24)
 
 
