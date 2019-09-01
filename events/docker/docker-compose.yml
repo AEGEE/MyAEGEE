@@ -29,9 +29,7 @@ services:
             - 8084
         environment:
             BUGSNAG_KEY: 6f6a7c00507fceca0818c48405dbd2a6
-        secrets:
-            - mail_user
-            - mail_password
+            PW_POSTGRES: ${PW_POSTGRES}
         labels:
             - "traefik.backend=oms-events"
             - "traefik.port=8084"
@@ -46,8 +44,3 @@ volumes:
         driver: "local"
     shared:
         driver: "local"
-
-networks:
-  default:
-    external:
-      name: OMS

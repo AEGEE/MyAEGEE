@@ -1,3 +1,18 @@
+# [0.8.0](https://github.com/AEGEE/oms-events/compare/0.7.0...0.8.0) (2019-09-01)
+
+
+### Bug Fixes
+
+* **docker:** updated Node to v12. Fixes MEMB-522 ([68e723e](https://github.com/AEGEE/oms-events/commit/68e723e))
+* **general:** set config from logging. Fixes MEMB-547 ([b6d8328](https://github.com/AEGEE/oms-events/commit/b6d8328))
+
+
+### Features
+
+* **general:** added CircleCI. Fixes MEMB-602 ([829d3c1](https://github.com/AEGEE/oms-events/commit/829d3c1))
+
+
+
 # [0.7.0](https://github.com/AEGEE/oms-events/compare/0.6.2...0.7.0) (2019-08-14)
 
 
