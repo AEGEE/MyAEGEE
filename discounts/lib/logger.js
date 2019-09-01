@@ -1,10 +1,10 @@
 const winston = require('winston');
 
-// Setting logLevel to warn in case of testing, to display only errors and warnings.
-const logLevel = process.env.NODE_ENV === 'test' ? 'warn' : 'debug';
+const config = require('../config');
 
 const logger = winston.createLogger({
-    level: logLevel,
+    level: config.logger.level,
+    silent: config.logger.silent,
     format: winston.format.json(),
     transports: [
         new winston.transports.Console({
@@ -13,7 +13,7 @@ const logger = winston.createLogger({
                 winston.format.timestamp(),
                 winston.format.align(),
                 winston.format.splat(),
-                winston.format.printf((info) => `${info.timestamp} [${info.level}]: ${info.message}`),
+                winston.format.printf(info => `${info.timestamp} [${info.level}]: ${info.message}`),
             )
         })
     ]
