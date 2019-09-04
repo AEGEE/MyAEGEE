@@ -200,7 +200,7 @@ export default {
       this.$root.showInfo('This feature is not implemented yet, come join the OMS to help us implementing it ;)')
     },
     askDeleteUser () {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting a user',
         message: 'Are you sure you want to <b>delete</b> this user? This action cannot be undone.',
         confirmText: 'Delete user',
@@ -217,7 +217,7 @@ export default {
     },
     askToggleActive () {
       const active = this.user.user.active
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: active ? 'Suspend user' : 'Activate user',
         message: 'Are you sure you want to <b>' + (active ? 'suspend' : 'activate') + '</b> this user?',
         confirmText: active ? 'Suspend user' : 'Activate user',

@@ -74,7 +74,7 @@ export default {
   },
   methods: {
     askDeleteIngredient () {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting an ingredient',
         message: `Are you sure you want to <b>delete this ingredient</b>?`,
         confirmText: 'Delete ingredient',

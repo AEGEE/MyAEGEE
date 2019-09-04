@@ -82,7 +82,7 @@ export default {
           name: ''
         }
       }
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: EditPlenaryModal,
         hasModalCard: true,
         props: {

@@ -132,7 +132,7 @@ export default {
   },
   methods: {
     askDeleteQuestionLine (questionLine, index) {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting a question line',
         message: 'Are you sure you want to <b>delete</b> this question line? This action cannot be undone.',
         confirmText: 'Delete question line',
@@ -149,7 +149,7 @@ export default {
       }).catch((err) => this.$root.showDanger('Could not delete question line: ' + err.message))
     },
     askDeleteQuestion (questionLine, question, questionIndex) {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting a question',
         message: 'Are you sure you want to <b>delete</b> this question? This action cannot be undone.',
         confirmText: 'Delete question',
@@ -165,7 +165,7 @@ export default {
       }).catch((err) => this.$root.showDanger('Could not delete question: ' + err.message))
     },
     openCreateQuestionLineModal () {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: EditQuestionLineModal,
         hasModalCard: true,
         props: {
@@ -185,7 +185,7 @@ export default {
       })
     },
     openEditQuestionLineModal (questionLine) {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: EditQuestionLineModal,
         hasModalCard: true,
         props: {
@@ -203,7 +203,7 @@ export default {
       })
     },
     openCreateQuestionModal (questionLine) {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: EditQuestionModal,
         hasModalCard: true,
         props: {
@@ -224,7 +224,7 @@ export default {
       })
     },
     openEditQuestionModal (questionLine, question) {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: EditQuestionModal,
         hasModalCard: true,
         props: {

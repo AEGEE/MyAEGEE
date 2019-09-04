@@ -70,7 +70,7 @@ export default {
   },
   methods: {
     openChangeShopModal () {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: ChangeShopModal,
         hasModalCard: true,
         props: {
@@ -97,7 +97,7 @@ export default {
         isNewMeal = true
       }
 
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: EditMealModal,
         hasModalCard: true,
         props: {

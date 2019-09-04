@@ -191,7 +191,7 @@ export default {
       })
     },
     showDistribution (item) {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: ShoppingListDistributionModal,
         hasModalCard: true,
         props: {
@@ -202,7 +202,7 @@ export default {
       })
     },
     showAlternatives (item) {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: ShoppingListAlternativesModal,
         hasModalCard: true,
         props: {
@@ -216,7 +216,7 @@ export default {
       })
     },
     showUnmappedItems () {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: ShoppingListUnmappedModal,
         hasModalCard: true,
         props: {

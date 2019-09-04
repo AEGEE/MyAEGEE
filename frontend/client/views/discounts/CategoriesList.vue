@@ -60,7 +60,7 @@ export default {
   },
   methods: {
     askDeleteCategory (index) {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Delete a category',
         message: 'Are you sure you want to <b>delete</b> this category? This action cannot be undone.',
         confirmText: 'Delete category',

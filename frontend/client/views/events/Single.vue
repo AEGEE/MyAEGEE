@@ -200,7 +200,7 @@ export default {
   },
   methods: {
     askDeleteEvent () {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting an event',
         message: `Are you sure you want to <b>delete this event</b>?`,
         confirmText: 'Delete event',

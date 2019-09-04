@@ -279,7 +279,7 @@ export default {
   },
   methods: {
     askSwitchStatus (newStatus) {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Switching status',
         message: `Are you sure you want to <b>switch this event's status to "${newStatus}"</b>?`,
         confirmText: 'Switch status',

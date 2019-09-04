@@ -1,3 +1,14 @@
+<a name="0.21.2"></a>
+## [0.21.2](https://github.com/AEGEE/oms-frontend/compare/0.21.1...0.21.2) (2019-09-04)
+
+
+### Bug Fixes
+
+* **debug:** enable performance tracking ([0323abc](https://github.com/AEGEE/oms-frontend/commit/0323abc))
+* **deps:** updated buefy to 0.8.3. Fixes MEMB-610 ([c33c67c](https://github.com/AEGEE/oms-frontend/commit/c33c67c))
+
+
+
 <a name="0.21.1"></a>
 ## [0.21.1](https://github.com/AEGEE/oms-frontend/compare/0.21.0...0.21.1) (2019-08-29)
 

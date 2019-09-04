@@ -143,7 +143,7 @@ export default {
   },
   methods: {
     addMemberModal () {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: AddMemberModal,
         hasModalCard: true,
         props: {
@@ -159,7 +159,7 @@ export default {
       })
     },
     askDeleteCircle () {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting circle',
         message: 'Are you sure you want to <b>delete</b> this circle? This action cannot be undone.',
         confirmText: 'Delete circle',
@@ -193,7 +193,7 @@ export default {
       })
     },
     askLeaveCircle () {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Leave circle',
         message: 'Are you sure you want to <b>leave</b> this circle? You will probably not be able to join it later.',
         confirmText: 'Leave circle',

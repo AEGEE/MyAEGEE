@@ -104,7 +104,7 @@ export default {
   },
   methods: {
     editMemberModal (member) {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: EditMemberPositionModal,
         hasModalCard: true,
         props: {
@@ -126,7 +126,7 @@ export default {
         member.member.first_name + ' ' + member.member.last_name +
         ' from this circle? This action cannot be undone.'
 
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting a member',
         message,
         confirmText: 'Delete member',

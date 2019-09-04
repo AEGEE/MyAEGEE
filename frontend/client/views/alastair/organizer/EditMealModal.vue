@@ -128,7 +128,7 @@ export default {
   },
   methods: {
     askDeleteMeal () {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting a meal',
         message: `Are you sure you want to <b>delete this meal</b>?`,
         confirmText: 'Delete meal',

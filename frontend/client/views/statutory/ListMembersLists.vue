@@ -71,7 +71,7 @@ export default {
   computed: mapGetters(['services']),
   methods: {
     openMembersListModal (memberslist) {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: DisplayMembersListModal,
         hasModalCard: true,
         props: {
@@ -80,7 +80,7 @@ export default {
       })
     },
     askToSetFeePaid (memberslist) {
-      this.$dialog.prompt({
+      this.$buefy.dialog.prompt({
         message: 'Set fee paid',
         inputAttrs: {
           placeholder: 'Fee paid (in EUR)',

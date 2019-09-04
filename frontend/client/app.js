@@ -49,6 +49,7 @@ Vue.component('empty-table-stub', EmptyTableStub)
 
 // Enable devtools
 Vue.config.devtools = true
+Vue.config.performance = true
 
 sync(store, router)
 

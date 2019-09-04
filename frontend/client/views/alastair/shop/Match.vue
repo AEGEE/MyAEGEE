@@ -248,7 +248,7 @@ export default {
       })
     },
     askDeleteItem () {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting an item',
         message: `Are you sure you want to <b>delete this item</b>?`,
         confirmText: 'Delete item',
