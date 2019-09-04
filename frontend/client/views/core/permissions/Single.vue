@@ -85,7 +85,7 @@ export default {
   },
   methods: {
     askDeletePermission () {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting permission',
         message: 'Are you sure you want to <b>delete</b> this permission? This action cannot be undone.',
         confirmText: 'Delete permission',

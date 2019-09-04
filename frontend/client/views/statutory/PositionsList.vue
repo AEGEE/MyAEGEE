@@ -177,7 +177,7 @@ export default {
   },
   methods: {
     openCreatePositionModal () {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: EditPositionModal,
         hasModalCard: true,
         props: {
@@ -200,7 +200,7 @@ export default {
       })
     },
     openEditPositionModal (position) {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: EditPositionModal,
         hasModalCard: true,
         props: {
@@ -218,7 +218,7 @@ export default {
       })
     },
     openViewCandidateModal (candidate, position) {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: ViewCandidateModal,
         hasModalCard: true,
         props: {

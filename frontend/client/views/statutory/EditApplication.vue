@@ -433,7 +433,7 @@ export default {
       })
     },
     askSetCancelled (value) {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Cancel application',
         message: 'Are you sure you want to <b>cancel your application</b>? You can uncancel it only during application period.',
         confirmText: 'Cancel application',

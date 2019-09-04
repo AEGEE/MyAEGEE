@@ -122,7 +122,7 @@ export default {
   },
   methods: {
     openListFeePaymentsModal (member) {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: ListFeePaymentsModal,
         hasModalCard: true,
         props: {
@@ -131,7 +131,7 @@ export default {
       })
     },
     openAddFeePaymentModal (member) {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: AddFeePaymentModal,
         hasModalCard: true,
         props: {
@@ -153,7 +153,7 @@ export default {
         member.member.first_name + ' ' + member.member.last_name +
         ' from this body? This action cannot be undone.'
 
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting a member',
         message,
         confirmText: 'Delete member',
@@ -171,7 +171,7 @@ export default {
       }).catch((err) => this.$root.showDanger('Could not delete member: ' + err.message))
     },
     askToChangeComment (member) {
-      this.$dialog.prompt({
+      this.$buefy.dialog.prompt({
         message: 'Change comment',
         inputAttrs: {
           placeholder: 'Comment'

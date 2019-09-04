@@ -114,7 +114,7 @@ export default {
         member.member.first_name + ' ' + member.member.last_name + '?'
       const type = approved ? 'is-info' : 'is-danger'
 
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title,
         message,
         confirmText: title,

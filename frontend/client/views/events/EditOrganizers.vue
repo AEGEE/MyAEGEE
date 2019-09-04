@@ -244,7 +244,7 @@ export default {
       })
     },
     askDeleteOrganizer (index) {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting organizer',
         message: 'Are you sure you want to <b>delete</b> organizer from this event? This action cannot be undone.',
         confirmText: 'Delete organizer',
@@ -278,7 +278,7 @@ export default {
       })
     },
     askDeleteOrganizingLocal (index) {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting organizing body',
         message: 'Are you sure you want to <b>delete</b> organizing body from this event? This action cannot be undone.',
         confirmText: 'Delete organizing body',

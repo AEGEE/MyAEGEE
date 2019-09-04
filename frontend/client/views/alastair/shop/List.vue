@@ -113,7 +113,7 @@ export default {
         isNewShop = true
       }
 
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: ShopEditModal,
         hasModalCard: true,
         props: {

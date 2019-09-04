@@ -225,7 +225,7 @@ export default {
       return this.permissions.some(permission => permission.combined.endsWith(name))
     },
     openAddCircleModal () {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: AddBoundCircleModal,
         hasModalCard: true,
         props: {
@@ -241,7 +241,7 @@ export default {
       })
     },
     askDeleteBody () {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting a body',
         message: 'Are you sure you want to <b>delete</b> this body? This action cannot be undone.',
         confirmText: 'Delete body',
@@ -257,7 +257,7 @@ export default {
       }).catch((err) => this.$root.showDanger('Could not delete body: ' + err.message))
     },
     askToJoinBody () {
-      this.$dialog.prompt({
+      this.$buefy.dialog.prompt({
         message: 'Join body',
         inputAttrs: {
           placeholder: 'Motivation',
@@ -282,7 +282,7 @@ export default {
       })
     },
     askLeaveBody () {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Leaving a body',
         message: 'Are you sure you want to <b>leave</b> this body? You will probably not be able to join later.',
         confirmText: 'Leave body',

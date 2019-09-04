@@ -152,7 +152,7 @@ export default {
   },
   methods: {
     askDeleteCampaign () {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting a campaign',
         message: 'Are you sure you want to <b>delete</b> this campaign? This action cannot be undone.',
         confirmText: 'Delete campaign',

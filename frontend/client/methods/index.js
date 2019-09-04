@@ -3,7 +3,7 @@ export default {
     options.duration = options.duration || 3000
     options.type = options.type || 'is-success'
 
-    this.$toast.open(options)
+    this.$buefy.toast.open(options)
   },
   showDanger (message) {
     this.showNotification({

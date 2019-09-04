@@ -79,7 +79,7 @@ export default {
       })
     },
     showModal (participant) {
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: ViewParticipantModal,
         hasModalCard: true,
         props: {

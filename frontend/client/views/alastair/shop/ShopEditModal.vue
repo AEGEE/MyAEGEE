@@ -88,7 +88,7 @@ export default {
   },
   methods: {
     askDeleteShop () {
-      this.$dialog.confirm({
+      this.$buefy.dialog.confirm({
         title: 'Deleting an shop',
         message: `Are you sure you want to <b>delete this shop</b>?`,
         confirmText: 'Delete shop',

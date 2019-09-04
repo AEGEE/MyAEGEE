@@ -121,7 +121,7 @@ export default {
         isNewIngredient = true
       }
 
-      this.$modal.open({
+      this.$buefy.modal.open({
         component: IngredientEditModal,
         hasModalCard: true,
         props: {
