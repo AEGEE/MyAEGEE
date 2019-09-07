@@ -100,13 +100,20 @@
             "name": "oms.statutory.create",
             "label": "Create event",
             "permissions": ["global:manage_event:agora", "global:manage_event:epm", "global:manage_event:spm"]
-          },
-          {
-            "name": "oms.statutory.limits",
-            "label": "Participants types amount",
-            "permissions": ["global:manage_event:agora", "global:manage_event:epm", "global:manage_event:spm"]
           }
         ]
+      },
+      {
+        "name": "oms.statutory.limits",
+        "icon": "fa-users",
+        "label": "Participants types amount",
+        "permissions": ["global:manage_event:agora", "global:manage_event:epm", "global:manage_event:spm"]
+      },
+      {
+        "name": "oms.statutory.tasks",
+        "icon": "fa-tasks",
+        "label": "Background tasks",
+        "permissions": ["global:see_background_tasks:statutory"]
       }
     ]
   },
