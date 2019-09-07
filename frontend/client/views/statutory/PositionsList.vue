@@ -148,6 +148,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import moment from 'moment'
 import EditPositionModal from './EditPositionModal'
 import ViewCandidateModal from './ViewCandidateModal'
 
@@ -177,6 +178,11 @@ export default {
   },
   methods: {
     openCreatePositionModal () {
+      const forceCloseDeadline = moment(this.event.starts)
+        .subtract(2, 'week')
+        .endOf('day')
+        .toDate();
+
       this.$buefy.modal.open({
         component: EditPositionModal,
         hasModalCard: true,
@@ -188,6 +194,7 @@ export default {
           position: {
             starts: new Date(),
             ends: new Date(),
+            ends_force: forceCloseDeadline,
             name: '',
             places: 1
           },

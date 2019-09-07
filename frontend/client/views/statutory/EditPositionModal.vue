@@ -39,18 +39,24 @@
       </div>
 
       <div class="field">
+        <label class="label">Application period ends (force)</label>
+        <div class="control">
+        <flat-pickr
+            placeholder="Select date"
+            class="input"
+            :config="dateConfig"
+            v-model="dates.ends_force" />
+        </div>
+        <p class="help is-danger" v-if="errors.ends_force">{{ errors.ends_force.join(', ') }}</p>
+      </div>
+
+      <div class="field">
         <label class="label">Places available</label>
         <div class="control">
         <input type="number" class="input" v-model.number="position.places" min="1">
         </div>
         <p class="help is-danger" v-if="errors.places">{{ errors.places.join(', ') }}</p>
       </div>
-
-      <!-- <div class="field">
-        <label class="label">Joinable?
-          <input class="checkbox" type="checkbox" v-model="tmpCircle.joinable" />
-        </label>
-      </div> -->
     </section>
     <footer class="modal-card-foot">
       <button class="button is-primary" @click="savePosition()">Save changes</button>
@@ -72,7 +78,8 @@ export default {
       },
       dates: {
         starts: null,
-        ends: null
+        ends: null,
+        ends_force: null
       }
     }
   },
@@ -82,6 +89,9 @@ export default {
     },
     'dates.ends' (newDate) {
       this.position.ends = new Date(newDate)
+    },
+    'dates.ends_force' (newDate) {
+      this.position.ends_force = new Date(newDate)
     }
   },
   computed: {
@@ -114,6 +124,7 @@ export default {
   mounted () {
     this.dates.starts = this.position.starts = new Date(this.position.starts)
     this.dates.ends = this.position.ends = new Date(this.position.ends)
+    this.dates.ends_force = this.position.ends_force = new Date(this.position.ends_force)
   }
 }
 </script>
