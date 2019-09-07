@@ -55,7 +55,7 @@ describe('Export all', () => {
         expect(sheet.length).toEqual(1); // 1 string in sheet
     });
 
-    test.skip('should return nothing if only cancelled applications', async () => {
+    test('should return nothing if only cancelled applications', async () => {
         await generator.createApplication({
             cancelled: true,
             user_id: regularUser.id,
