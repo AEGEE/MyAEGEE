@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const errors = require('./errors');
 const { Candidate, Position, Image } = require('../models');
 
@@ -55,6 +57,12 @@ exports.submitYourCandidature = async (req, res) => {
     req.body.position_id = req.position.id;
 
     const newCandidate = await Candidate.create(req.body);
+
+    // Closing position immediately if enough candidates.
+    const candidatesCount = await Candidate.count({ where: { position_id: req.position.id } });
+    if (moment().isAfter(req.position.ends) && candidatesCount > req.position.places) {
+        await req.position.update({ status: 'closed' });
+    }
 
     return res.json({
         success: true,

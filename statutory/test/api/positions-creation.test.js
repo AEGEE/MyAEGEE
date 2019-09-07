@@ -116,6 +116,28 @@ describe('Positions creation', () => {
         expect(res.body.errors).toHaveProperty('ends');
     });
 
+    test('should fail if ends_force is earlier than ends', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        const position = generator.generatePosition({
+            starts: moment().add(1, 'week').toDate(),
+            ends: moment().add(3, 'week').toDate(),
+            ends_force: moment().add(2, 'week').toDate(),
+        });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/',
+            method: 'POST',
+            body: position,
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body.errors).toHaveProperty('ends_force');
+    });
+
     test('should fail if no permissions', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 

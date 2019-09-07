@@ -2,7 +2,6 @@ const scheduler = require('node-schedule');
 const moment = require('moment');
 
 const logger = require('./logger');
-const helpers = require('./helpers');
 const { Position, Candidate, Plenary } = require('../models');
 
 const JobCallbacks = {
@@ -32,7 +31,7 @@ const JobCallbacks = {
         await position.update({ status: 'open' }, { hooks: false });
         logger.info(`Opening applications for position ${id}: Successfully opened deadline for position #${id} (${position.name})`);
     },
-    CLOSE_POSITION_APPLICATIONS: async ({ id }) => {
+    CLOSE_POSITION_APPLICATIONS: async ({ id, force = false }) => {
         const position = await Position.findByPk(id, {
             include: [Candidate]
         });
@@ -52,7 +51,7 @@ const JobCallbacks = {
             .filter(candidate => candidate.status !== 'rejected')
             .length;
 
-        if (candidates <= position.places) {
+        if (candidates <= position.places && !force) {
             logger.warn(`Closing applications for position ${id}: not filled all the places (required ${position.places}, applied ${candidates})`);
             return;
         }
@@ -64,7 +63,7 @@ const JobCallbacks = {
 
 class JobManager {
     constructor() {
-        this.jobs = [];
+        this.jobs = {};
         this.currentJob = 0;
 
         this.JOB_TYPES = {
@@ -103,7 +102,7 @@ is in the past (${moment(time).format('YYYY-MM-DD HH:mm:SS')}), not scheduling.`
 
         const job = scheduler.scheduleJob(time, () => this.executeJob(id));
 
-        this.jobs.push({
+        this.jobs[id] = {
             key,
             description,
             time,
@@ -111,50 +110,46 @@ is in the past (${moment(time).format('YYYY-MM-DD HH:mm:SS')}), not scheduling.`
             id,
             callback,
             job
-        });
-        logger.info(`Added a job: "${description}", \
+        };
+        logger.info(`Added a job: "${description}" with id ${id}, \
 scheduled on ${moment(time).format('YYYY-MM-DD HH:mm:SS')}, \
 with the following params: %o`, params);
+        return id;
     }
 
     async executeJob(id) {
-        const jobIndex = this.jobs.findIndex(j => j.id === id);
-        if (jobIndex === -1) {
+        const job = this.jobs[id];
+        if (!job) {
             logger.warn(`Job with ID #${id} is not found.`);
             return;
         }
 
-        const job = this.jobs[jobIndex];
-
         logger.info(`Executing job #${job.id}: "${job.description}", scheduled on ${moment(job.time).format('YYYY-MM-DD HH:mm:SS')}.`);
         await job.callback(job.params);
         logger.info(`Executed job #${job.id}: "${job.description}", scheduled on ${moment(job.time).format('YYYY-MM-DD HH:mm:SS')}.`);
-        this.jobs.splice(jobIndex, 1);
+        delete this.jobs[id];
     }
 
-    cancelJobByIndex(index) {
-        const job = this.jobs[index];
-
+    cancelJob(id) {
+        const job = this.jobs[id];
         if (!job) {
-            logger.warn(`Job with index #${index} is not found.`);
+            logger.warn(`Job with ID #${id} is not found.`);
             return;
         }
 
         logger.info(`Cancelling job #${job.id}: "${job.description}", scheduled on ${moment(job.time).format('YYYY-MM-DD HH:mm:SS')}.`);
         scheduler.cancelJob(job.job);
-        this.jobs.splice(index, 1);
+        delete this.jobs[id];
     }
 
+    // eslint-disable-next-line class-methods-use-this
     async registerAllDeadlines() {
         const positions = await Position.findAll({});
         logger.info(`Registering deadline for ${positions.length} positions...`);
         for (const position of positions) {
-            // Re-saving the application to update status.
-            await position.update({ id: position.id }); // so there'd be at least 1 field
-
-            // Registering deadlines.
-            this.addJob(this.JOB_TYPES.OPEN_POSITION_APPLICATIONS, position.starts, { id: position.id });
-            this.addJob(this.JOB_TYPES.CLOSE_POSITION_APPLICATIONS, position.ends, { id: position.id });
+            // Triggering model update to run hooks to set deadlines.
+            position.changed('id', true);
+            await position.save();
         }
 
         const plenaries = await Plenary.findAll({});
@@ -163,31 +158,34 @@ with the following params: %o`, params);
             if (moment().isAfter(plenary.ends)) {
                 await plenary.closeAttendances();
             } else {
-                // Registering deadlines.
-                this.addJob(this.JOB_TYPES.CLOSE_ATTENDANCES, plenary.ends, { id: plenary.id });
+                // Triggering model update to run hooks to set deadlines.
+                plenary.changed('id', true);
+                await plenary.save();
             }
         }
     }
 
     clearJobs(key, params) {
-        for (let index = this.jobs.length - 1; index >= 0; index--) {
-            const job = this.jobs[index];
+        const ids = Object.keys(this.jobs);
+        for (const id of ids) {
+            const job = this.jobs[id];
 
             if (job.key !== key.key) {
                 continue;
             }
 
-            if (!helpers.deepEqual(params, job.params)) {
+            if (params.id !== job.params.id) {
                 continue;
             }
 
-            this.cancelJobByIndex(index);
+            this.cancelJob(id);
         }
     }
 
     clearAll() {
-        for (let index = this.jobs.length - 1; index >= 0; index--) {
-            this.cancelJobByIndex(index);
+        const ids = Object.keys(this.jobs);
+        for (const id of ids) {
+            this.cancelJob(id);
         }
     }
 }

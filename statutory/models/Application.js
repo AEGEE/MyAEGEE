@@ -395,9 +395,7 @@ const Application = sequelize.define('application', {
 });
 
 Application.findWithParams = ({ where, attributes, query }) => {
-    const findAllObject = {
-        where
-    };
+    const findAllObject = { where };
 
     if (helpers.isDefined(attributes)) {
         findAllObject.attributes = attributes;
@@ -427,7 +425,7 @@ Application.findWithParams = ({ where, attributes, query }) => {
         }
     }
 
-    // Tryint to apply filtering.
+    // Trying to apply filtering.
     // Only filtering by first name, last name and email is supported.
     if (query.query) {
         findAllObject.where[Sequelize.Op.or] = {

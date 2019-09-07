@@ -1,3 +1,18 @@
+# [0.20.0](https://github.com/AEGEE/oms-statutory/compare/0.19.0...0.20.0) (2019-09-07)
+
+
+### Bug Fixes
+
+* **application:** moved pax list sorting to backend. Fixes MEMB-605 ([aff43f0](https://github.com/AEGEE/oms-statutory/commit/aff43f0))
+* **test:** enabled one disabled test ([3ae3d9b](https://github.com/AEGEE/oms-statutory/commit/3ae3d9b))
+
+
+### Features
+
+* **positions:** updated positions aplications due to CIA changes. Fixes MEMB-595 ([172f470](https://github.com/AEGEE/oms-statutory/commit/172f470))
+
+
+
 # [0.19.0](https://github.com/AEGEE/oms-statutory/compare/0.18.0...0.19.0) (2019-08-28)
 
 
