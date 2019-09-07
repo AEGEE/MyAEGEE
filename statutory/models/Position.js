@@ -25,8 +25,8 @@ const Position = sequelize.define('Position', {
         allowNull: false,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Event start date should be set.' },
-            isDate: { msg: 'Event start date should be valid.' }
+            notEmpty: { msg: 'Position start date should be set.' },
+            isDate: { msg: 'Position start date should be valid.' }
         }
     },
     ends: {
@@ -34,11 +34,25 @@ const Position = sequelize.define('Position', {
         allowNull: false,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Event end date should be set.' },
-            isDate: { msg: 'Event end date should be valid.' },
+            notEmpty: { msg: 'Position end date should be set.' },
+            isDate: { msg: 'Position end date should be valid.' },
             laterThanStart(val) {
                 if (moment(val).isSameOrBefore(this.starts)) {
-                    throw new Error('Event cannot start after or at the same time it ends.');
+                    throw new Error('Position cannot start after or at the same time it ends.');
+                }
+            }
+        }
+    },
+    ends_force: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Position force close deadline should be set.' },
+            isDate: { msg: 'Position force close deadline should be valid.' },
+            laterThanEnd(val) {
+                if (moment(val).isSameOrBefore(this.ends)) {
+                    throw new Error('Position\'s force close deadline cannot be before the regular deadline.');
                 }
             }
         }
@@ -101,16 +115,18 @@ Position.afterUpdate((position) => {
     cron.clearJobs(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS, { id: position.id });
 });
 
-Position.afterSave((position) => {
+Position.afterSave(async (position) => {
     // Yeah, nasty, but prevents us from circular dependencies issues. Been there, done that.
     // eslint-disable-next-line global-require
     const cron = require('../lib/cron');
 
-    // Schedule 2 deadlines, one for opening and one for closing.
+    // Schedule 3 deadlines, one for opening and one for closing,
+    // and the 3rd one for closing position 2 weeks before Agora.
     // If there should be no deadline, cron will catch it.
     // Should be run on create and update.
     cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, position.starts, { id: position.id });
     cron.addJob(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS, position.ends, { id: position.id });
+    cron.addJob(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS, position.ends_force, { id: position.id, force: true });
 });
 
 module.exports = Position;

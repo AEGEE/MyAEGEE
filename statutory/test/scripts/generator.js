@@ -147,6 +147,8 @@ exports.generatePosition = (options = {}, event = null) => {
     if (notSet(options.places)) options.places = faker.random.number({ min: 1, max: 10 });
     if (notSet(options.starts)) options.starts = faker.date.past();
     if (notSet(options.ends)) options.ends = faker.date.future();
+    if (notSet(options.ends_force)) options.ends_force = faker.date.future(null, options.ends);
+
 
     if (event && event.id) {
         options.event_id = event.id;

@@ -2,7 +2,6 @@ const scheduler = require('node-schedule');
 const moment = require('moment');
 
 const logger = require('./logger');
-const helpers = require('./helpers');
 const { Position, Candidate, Plenary } = require('../models');
 
 const JobCallbacks = {
@@ -32,7 +31,7 @@ const JobCallbacks = {
         await position.update({ status: 'open' }, { hooks: false });
         logger.info(`Opening applications for position ${id}: Successfully opened deadline for position #${id} (${position.name})`);
     },
-    CLOSE_POSITION_APPLICATIONS: async ({ id }) => {
+    CLOSE_POSITION_APPLICATIONS: async ({ id, force = false }) => {
         const position = await Position.findByPk(id, {
             include: [Candidate]
         });
@@ -52,7 +51,7 @@ const JobCallbacks = {
             .filter(candidate => candidate.status !== 'rejected')
             .length;
 
-        if (candidates <= position.places) {
+        if (candidates <= position.places && !force) {
             logger.warn(`Closing applications for position ${id}: not filled all the places (required ${position.places}, applied ${candidates})`);
             return;
         }
@@ -132,7 +131,7 @@ with the following params: %o`, params);
     }
 
     cancelJob(id) {
-        const job = this.jobs[id]
+        const job = this.jobs[id];
         if (!job) {
             logger.warn(`Job with ID #${id} is not found.`);
             return;
@@ -143,6 +142,7 @@ with the following params: %o`, params);
         delete this.jobs[id];
     }
 
+    // eslint-disable-next-line class-methods-use-this
     async registerAllDeadlines() {
         const positions = await Position.findAll({});
         logger.info(`Registering deadline for ${positions.length} positions...`);
@@ -174,7 +174,7 @@ with the following params: %o`, params);
                 continue;
             }
 
-            if (!helpers.deepEqual(params, job.params)) {
+            if (params.id !== job.params.id) {
                 continue;
             }
 
