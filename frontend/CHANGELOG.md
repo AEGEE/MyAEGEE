@@ -1,3 +1,13 @@
+<a name="0.21.4"></a>
+## [0.21.4](https://github.com/AEGEE/oms-frontend/compare/0.21.3...0.21.4) (2019-09-07)
+
+
+### Bug Fixes
+
+* **statutory:** fixes links and tasks page ([07c6593](https://github.com/AEGEE/oms-frontend/commit/07c6593))
+
+
+
 <a name="0.21.3"></a>
 ## [0.21.3](https://github.com/AEGEE/oms-frontend/compare/0.21.2...0.21.3) (2019-09-07)
 
