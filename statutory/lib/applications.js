@@ -54,18 +54,19 @@ exports.listAcceptedApplications = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see applications.');
     }
 
-    const applications = await Application.findWithParams({
+    const applications = await Application.findAll({
         where: { event_id: req.event.id, cancelled: false, status: 'accepted' },
         attributes: constants.ALLOWED_PARTICIPANTS_LIST_FIELDS,
-        query: req.query
+        order: [
+            ['body_name', 'ASC'],
+            ['participant_type', 'ASC NULLS LAST'],
+            ['participant_order', 'ASC NULLS LAST']
+        ]
     });
 
     return res.json({
         success: true,
-        data: applications.rows,
-        meta: {
-            count: applications.count
-        }
+        data: applications
     });
 };
 

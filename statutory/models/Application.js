@@ -394,9 +394,10 @@ const Application = sequelize.define('application', {
     }
 });
 
-Application.findWithParams = ({ where, attributes, query }) => {
+Application.findWithParams = ({ where, attributes, query, order = [] }) => {
     const findAllObject = {
-        where
+        where,
+        order
     };
 
     if (helpers.isDefined(attributes)) {
@@ -441,7 +442,9 @@ Application.findWithParams = ({ where, attributes, query }) => {
         findAllObject.where.cancelled = false;
     }
 
-    findAllObject.order = sorting;
+    if (!findAllObject.order) {
+        findAllObject.order = sorting;
+    }
 
     return Application.findAndCountAll(findAllObject);
 };
