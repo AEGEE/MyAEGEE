@@ -1,3 +1,13 @@
+<a name="0.21.3"></a>
+## [0.21.3](https://github.com/AEGEE/oms-frontend/compare/0.21.2...0.21.3) (2019-09-07)
+
+
+### Bug Fixes
+
+* **statutory:** added force close deadline for positions. Fixes MEMB-595 ([0fd4c48](https://github.com/AEGEE/oms-frontend/commit/0fd4c48))
+
+
+
 <a name="0.21.2"></a>
 ## [0.21.2](https://github.com/AEGEE/oms-frontend/compare/0.21.1...0.21.2) (2019-09-04)
 
