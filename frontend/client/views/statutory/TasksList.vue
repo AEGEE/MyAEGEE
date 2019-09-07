@@ -57,7 +57,10 @@ export default {
     this.isLoading = true
 
     this.axios.get(this.services['oms-statutory'] + '/tasks/').then((event) => {
-      this.tasks = event.data.data
+      this.tasks = Object.keys(event.data.data).map(key => ({
+        id: key,
+        ...event.data.data[key]
+      }))
 
       this.isLoading = false
     }).catch((err) => {
