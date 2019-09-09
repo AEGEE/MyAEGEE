@@ -4,6 +4,7 @@ const bugsnag = require('bugsnag');
 const errors = require('./errors');
 const logger = require('./logger');
 const { Event, Application } = require('../models');
+const { Sequelize } = require('./sequelize');
 const helpers = require('./helpers');
 const config = require('../config');
 const packageInfo = require('../package');
@@ -78,11 +79,17 @@ exports.authenticateUser = async (req, res, next) => {
 
 exports.fetchSingleEvent = async (req, res, next) => {
     // Checking if the passed ID is a string or not.
-    // If it is a string, find the event by URL, if not, find it by ID.
+    // If it is a string, find the event by URL, if not, find it by ID or URL.
     let findObject = { url: req.params.event_id };
     if (!Number.isNaN(Number(req.params.event_id))) {
-        findObject = { id: Number(req.params.event_id) };
+        findObject = {
+            [Sequelize.Op.or]: {
+                id: Number(req.params.event_id),
+                url: req.params.event_id
+            }
+        };
     }
+
 
     const event = await Event.findOne({ where: findObject });
 
