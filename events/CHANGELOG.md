@@ -1,3 +1,19 @@
+# [0.9.0](https://github.com/AEGEE/oms-events/compare/0.8.1...0.9.0) (2019-09-09)
+
+
+### Bug Fixes
+
+* **event:** added european event type. Fixes HELP-629 ([669fc75](https://github.com/AEGEE/oms-events/commit/669fc75))
+* **event:** find event by numeric ID. Fixes MEMB-538 ([a7c83e3](https://github.com/AEGEE/oms-events/commit/a7c83e3))
+* **test:** fixed flapping tests ([21a5172](https://github.com/AEGEE/oms-events/commit/21a5172))
+
+
+### Features
+
+* **application:** add email to applications. Fixes MEMB-606 ([90ac31c](https://github.com/AEGEE/oms-events/commit/90ac31c))
+
+
+
 ## [0.8.1](https://github.com/AEGEE/oms-events/compare/0.8.0...0.8.1) (2019-09-01)
 
 

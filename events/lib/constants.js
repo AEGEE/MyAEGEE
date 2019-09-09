@@ -5,10 +5,11 @@ module.exports = {
         body_name: 'Body name',
         first_name: 'First name',
         last_name: 'Last name',
+        email: 'Email',
         status: 'Status',
         board_comment: 'Board comment',
         created_at: 'Created at',
         updated_at: 'Updated at'
     },
-    EVENT_TYPES: ['wu', 'es', 'nwm', 'ltc', 'rtc', 'local', 'other']
+    EVENT_TYPES: ['wu', 'es', 'nwm', 'ltc', 'rtc', 'european']
 };

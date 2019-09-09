@@ -140,11 +140,13 @@ describe('Events editing', () => {
     });
 
     it('should hide an event from / GET but keep it for /single GET after /single DELETE', async () => {
-        await request({
+        const deleteRequest = await request({
             uri: '/single/' + event.id,
             method: 'DELETE',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
+
+        expect(deleteRequest.statusCode).toEqual(200);
 
         const res = await request({
             uri: '/single/' + event.id,

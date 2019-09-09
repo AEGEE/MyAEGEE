@@ -12,7 +12,7 @@ exports.generateEvent = (options = {}) => {
     if (notSet(options.application_ends)) options.application_ends = faker.date.future(null, options.application_starts);
     if (notSet(options.starts)) options.starts = faker.date.future(null, options.application_ends);
     if (notSet(options.ends)) options.ends = faker.date.future(null, options.starts);
-    if (notSet(options.type)) options.type = faker.random.arrayElement(['wu', 'es', 'nwm', 'ltc', 'rtc', 'local', 'other']);
+    if (notSet(options.type)) options.type = faker.random.arrayElement(['wu', 'es', 'nwm', 'ltc', 'rtc', 'european']);
     if (notSet(options.fee)) options.fee = faker.random.number({ min: 0, max: 100 });
     if (notSet(options.organizing_bodies)) {
         options.organizing_bodies = [{
@@ -41,6 +41,7 @@ exports.generateApplication = (options = {}, event) => {
     if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
     if (notSet(options.last_name)) options.last_name = faker.lorem.sentence();
     if (notSet(options.body_name)) options.body_name = faker.lorem.sentence();
+    if (notSet(options.email)) options.email = faker.internet.email();
     if (notSet(options.agreed_to_privacy_policy)) options.agreed_to_privacy_policy = true;
 
     if (notSet(options.answers)) {

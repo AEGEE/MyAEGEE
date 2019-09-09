@@ -290,5 +290,25 @@
         "circles": null,
         "always_assigned": false,
         "action": "approve_event"
-      }]
+      }, {
+        "scope": "global",
+        "object": "european",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:european",
+        "circles": null,
+        "always_assigned": false,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "european",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:european",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_event"
+    }]
 }
