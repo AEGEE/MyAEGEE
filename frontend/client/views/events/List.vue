@@ -101,21 +101,20 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import constants from  '../../constants'
 
 export default {
   name: 'EventsList',
   data () {
+    const eventTypes = Object.entries(constants.EVENT_TYPES_NAMES).map(([value, name]) => ({
+      value,
+      name,
+      enabled: false
+    }))
+
     return {
       events: [],
-      eventTypes: [
-        { value: 'wu', name: 'New Year Event', enabled: false },
-        { value: 'es', name: 'ES', enabled: false },
-        { value: 'nwm', name: 'NWM', enabled: false },
-        { value: 'ltc', name: 'LTC', enabled: false },
-        { value: 'rtc', name: 'RTC', enabled: false },
-        { value: 'local', name: 'Local event', enabled: false },
-        { value: 'other', name: 'Other', enabled: false }
-      ],
+      eventTypes,
       isLoading: false,
       query: '',
       limit: 30,
