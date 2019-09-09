@@ -5,6 +5,7 @@ module.exports = {
         body_name: 'Body name',
         first_name: 'First name',
         last_name: 'Last name',
+        email: 'Email',
         status: 'Status',
         board_comment: 'Board comment',
         created_at: 'Created at',

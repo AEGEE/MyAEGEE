@@ -45,17 +45,17 @@ exports.setApplication = async (req, res) => {
     delete req.body.board_comment;
     delete req.body.status;
 
+    req.body.first_name = req.user.first_name;
+    req.body.last_name = req.user.last_name;
+    req.body.body_name = req.user.bodies.find((b) => b.id === req.body.body_id).name;
+    req.body.user_id = req.user.id;
+    req.body.event_id = req.event.id;
+    req.body.email = req.user.user.email;
 
     let application = await Application.findOne({ where: { event_id: req.event.id, user_id: req.user.id } });
     if (application) {
         await application.update(req.body);
     } else {
-        req.body.first_name = req.user.first_name;
-        req.body.last_name = req.user.last_name;
-        req.body.body_name = req.user.bodies.find((b) => b.id === req.body.body_id).name;
-        req.body.user_id = req.user.id;
-        req.body.event_id = req.event.id;
-
         application = await Application.create(req.body);
     }
 
