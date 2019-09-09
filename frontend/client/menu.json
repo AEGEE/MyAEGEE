@@ -138,10 +138,10 @@
       {
         "name": "oms.status",
         "label": "Status",
-        "icon": "fa-check"
+        "icon": "fa-check",
+        "permissions": ["global:access:admin"]
       }
-    ],
-    "permissions": ["global:access:admin"]
+    ]
   },
   {
     "categoryName": "Alastair",
