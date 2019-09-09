@@ -1,3 +1,18 @@
+<a name="0.22.0"></a>
+# [0.22.0](https://github.com/AEGEE/oms-frontend/compare/0.21.4...0.22.0) (2019-09-09)
+
+
+### Bug Fixes
+
+* **events:** changed event types. Fixes HELP-629 ([cfbec48](https://github.com/AEGEE/oms-frontend/commit/cfbec48))
+
+
+### Features
+
+* **general:** added status page menu entry ([cc58d2c](https://github.com/AEGEE/oms-frontend/commit/cc58d2c))
+
+
+
 <a name="0.21.4"></a>
 ## [0.21.4](https://github.com/AEGEE/oms-frontend/compare/0.21.3...0.21.4) (2019-09-07)
 
