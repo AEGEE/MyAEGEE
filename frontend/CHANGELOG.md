@@ -1,3 +1,13 @@
+<a name="0.22.1"></a>
+## [0.22.1](https://github.com/AEGEE/oms-frontend/compare/0.22.0...0.22.1) (2019-09-09)
+
+
+### Bug Fixes
+
+* **general:** fix status page menu permissions ([26d6fad](https://github.com/AEGEE/oms-frontend/commit/26d6fad))
+
+
+
 <a name="0.22.0"></a>
 # [0.22.0](https://github.com/AEGEE/oms-frontend/compare/0.21.4...0.22.0) (2019-09-09)
 
