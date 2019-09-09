@@ -133,6 +133,17 @@
     ]
   },
   {
+    "categoryName": "For admins",
+    "components": [
+      {
+        "name": "oms.status",
+        "label": "Status",
+        "icon": "fa-check"
+      }
+    ],
+    "permissions": ["global:access:admin"]
+  },
+  {
     "categoryName": "Alastair",
     "components": [
       {

@@ -99,7 +99,7 @@
                 </tr>
                 <tr>
                   <th>Type</th>
-                  <td>{{ event.type }}</td>
+                  <td>{{ eventTypes[event.type] }}</td>
                 </tr>
                 <tr>
                   <th>Fee</th>
@@ -158,6 +158,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { gmapApi } from 'vue2-google-maps'
+import constants from  '../../constants'
 
 export default {
   name: 'SingleEvent',
@@ -180,6 +181,7 @@ export default {
         head_image: null,
         status: 'Draft'
       },
+      eventTypes: constants.EVENT_TYPES_NAMES,
       map: {
         center: { lat: 50.8503396, lng: 4.3517103 },
         selectedMarkerIndex: null,

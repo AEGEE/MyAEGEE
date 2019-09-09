@@ -83,8 +83,7 @@ module.exports = [
     component: 'static/Status',
     meta: {
       label: 'Status of MyAEGEE services',
-      auth: false,
-      showSidebar: false
+      auth: false
     }
   },
   {

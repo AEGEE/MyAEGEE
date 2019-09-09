@@ -9,7 +9,7 @@
           :loading="isLoading">
           <template slot-scope="props">
             <b-table-column field="type" label="Event type" sortable>
-              {{ props.row.type }}
+              {{ eventTypes[props.row.type] }}
             </b-table-column>
 
             <b-table-column field="name" label="Event name" sortable>
@@ -46,6 +46,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import constants from  '../../constants'
 
 export default {
   name: 'ChangeEventsStatus',
@@ -53,7 +54,8 @@ export default {
     return {
       events: [],
       isLoading: false,
-      permissions: []
+      permissions: [],
+      eventTypes: constants.EVENT_TYPES_NAMES
     }
   },
   computed: mapGetters(['services']),

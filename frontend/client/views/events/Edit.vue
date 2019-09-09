@@ -154,13 +154,7 @@
           <label class="label">Event type</label>
           <div class="select">
             <select v-model="event.type">
-              <option value="wu">NYE</option>
-              <option value="es">European School</option>
-              <option value="nwm">NWM</option>
-              <option value="rtc">RTC</option>
-              <option value="ltc">LTC</option>
-              <option value="local">Local event</option>
-              <option value="other">Other</option>
+              <option v-for="(type, name) in eventTypes" v-bind:key="type" v-bind:value="type">{{ name }}</option>
             </select>
           </div>
           <p class="help is-danger" v-if="errors.type">{{ errors.type.join(', ') }}</p>
@@ -320,6 +314,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import constants from  '../../constants'
 
 export default {
   name: 'EditEvent',
@@ -351,10 +346,10 @@ export default {
         lat: 50.8503396,
         lng: 4.3517103
       },
+      eventTypes: constants.EVENT_TYPES_NAMES,
       file: null,
       autoComplete: {
-        bodies: { name: '' },
-        eventTypes: { name: '' }
+        bodies: { name: '' }
       },
       dateConfig: {
         enableTime: true,
