@@ -1,3 +1,13 @@
+<a name="0.22.2"></a>
+## [0.22.2](https://github.com/AEGEE/oms-frontend/compare/0.22.1...0.22.2) (2019-09-10)
+
+
+### Bug Fixes
+
+* **general:** fix login password placeholder. Fixes HELP-640 ([ebdd423](https://github.com/AEGEE/oms-frontend/commit/ebdd423))
+
+
+
 <a name="0.22.1"></a>
 ## [0.22.1](https://github.com/AEGEE/oms-frontend/compare/0.22.0...0.22.1) (2019-09-09)
 
