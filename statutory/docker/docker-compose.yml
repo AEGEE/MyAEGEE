@@ -15,8 +15,8 @@ services:
     oms-statutory:
         restart: always
         build:
-            context: ./$PATH_OMS_STATUTORY/oms-statutory
-            dockerfile: ./Dockerfile.dev
+            context: ./$PATH_OMS_STATUTORY/..
+            dockerfile: ./docker/oms-statutory/Dockerfile.dev
         image: aegee/oms-statutory:dev
         volumes:
             - oms-statutory-media:/usr/app/media

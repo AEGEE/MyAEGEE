@@ -1,3 +1,13 @@
+## [0.20.1](https://github.com/AEGEE/oms-statutory/compare/0.20.0...0.20.1) (2019-09-11)
+
+
+### Bug Fixes
+
+* **docker:** moved npm install to the docker build. Fixes MEMB-613 ([9c13713](https://github.com/AEGEE/oms-statutory/commit/9c13713))
+* include migration ([4d58963](https://github.com/AEGEE/oms-statutory/commit/4d58963))
+
+
+
 # [0.20.0](https://github.com/AEGEE/oms-statutory/compare/0.19.0...0.20.0) (2019-09-07)
 
 
