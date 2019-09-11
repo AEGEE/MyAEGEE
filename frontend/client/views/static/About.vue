@@ -86,11 +86,21 @@
           </div>
 
           <div class="images-block">
-            <img src="/images/partners-logos/docker.svg" alt="Docker" />
-            <img src="/images/partners-logos/git.png" alt="Git" />
-            <img src="/images/partners-logos/travis.svg" alt="Travis CI" />
-            <img src="/images/partners-logos/codecov.png" alt="Codecov" />
-            <img src="/images/partners-logos/slack.svg" alt="Slack" />
+            <a href="https://www.docker.com/" target="_blank">
+              <img src="/images/partners-logos/docker.svg" alt="Docker" />
+            </a>
+            <a href="https://git-scm.com/" target="_blank">
+              <img src="/images/partners-logos/git.png" alt="Git" />
+            </a>
+            <a href="https://travis-ci.org/" target="_blank">
+              <img src="/images/partners-logos/travis.svg" alt="Travis CI" />
+            </a>
+            <a href="https://codecov.io/" target="_blank">
+              <img src="/images/partners-logos/codecov.png" alt="Codecov" />
+            </a>
+            <a href="https://slack.com/intl/de-de/?eu_nc=1" target="_blank">
+              <img src="/images/partners-logos/slack.svg" alt="Slack" />
+            </a>
           </div>
 
           <div class="content">
@@ -98,16 +108,36 @@
           </div>
 
           <div class="images-block">
-            <img src="/images/partners-logos/auth0.svg" alt="Auth0" />
-            <img src="/images/partners-logos/1password.png" alt="1password" />
-            <img src="/images/partners-logos/azure.svg" alt="Microsoft Azure" />
-            <img src="/images/partners-logos/o365.svg" alt="Microsoft O365" />
-            <img src="/images/partners-logos/jira-core.svg" alt="Jira" />
-            <img src="/images/partners-logos/github.png" alt="GitHub" />
-            <img src="/images/partners-logos/jira-service-desk.svg" alt="Jira Service Desk" />
-            <img src="/images/partners-logos/bugsnag.png" alt="Bugsnag" />
-            <img src="/images/partners-logos/confluence.svg" alt="Confluence" />
-            <img src="/images/partners-logos/gsuite.svg" alt="GSuite" />
+            <a href="https://auth0.com/" target="_blank">
+              <img src="/images/partners-logos/auth0.svg" alt="Auth0" />
+            </a>
+            <a href="https://1password.com/" target="_blank">
+              <img src="/images/partners-logos/1password.png" alt="1password" />
+            </a>
+            <a href="https://azure.microsoft.com/en-us/" target="_blank">
+              <img src="/images/partners-logos/azure.svg" alt="Microsoft Azure" />
+            </a>
+            <a href="https://www.office.com/" target="_blank">
+              <img src="/images/partners-logos/o365.svg" alt="Microsoft O365" />
+            </a>
+            <a href="https://www.atlassian.com/software/jira" target="_blank">
+              <img src="/images/partners-logos/jira-core.svg" alt="Jira" />
+            </a>
+            <a href="https://github.com/" target="_blank">
+              <img src="/images/partners-logos/github.png" alt="GitHub" />
+            </a>
+            <a href="https://www.atlassian.com/software/jira/service-desk" target="_blank">
+              <img src="/images/partners-logos/jira-service-desk.svg" alt="Jira Service Desk" />
+            </a>
+            <a href="https://www.bugsnag.com/" target="_blank">
+              <img src="/images/partners-logos/bugsnag.png" alt="Bugsnag" />
+            </a>
+            <a href="https://www.atlassian.com/software/confluence" target="_blank">
+              <img src="/images/partners-logos/confluence.svg" alt="Confluence" />
+            </a>
+            <a href="https://gsuite.google.com/" target="_blank">
+              <img src="/images/partners-logos/gsuite.svg" alt="GSuite" />
+            </a>
           </div>
 
           <h2>Microservices</h2>
