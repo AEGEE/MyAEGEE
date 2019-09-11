@@ -1,3 +1,14 @@
+<a name="0.22.3"></a>
+## [0.22.3](https://github.com/AEGEE/oms-frontend/compare/0.22.2...0.22.3) (2019-09-11)
+
+
+### Bug Fixes
+
+* **events:** fix event type setting on creating/editing. Fixes HELP-648 ([37f6797](https://github.com/AEGEE/oms-frontend/commit/37f6797))
+* **general:** added links to services on /about page. Fixes HELP-643 ([3947723](https://github.com/AEGEE/oms-frontend/commit/3947723))
+
+
+
 <a name="0.22.2"></a>
 ## [0.22.2](https://github.com/AEGEE/oms-frontend/compare/0.22.1...0.22.2) (2019-09-10)
 

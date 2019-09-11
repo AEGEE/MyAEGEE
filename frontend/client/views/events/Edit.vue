@@ -154,7 +154,7 @@
           <label class="label">Event type</label>
           <div class="select">
             <select v-model="event.type">
-              <option v-for="(type, name) in eventTypes" v-bind:key="type" v-bind:value="type">{{ name }}</option>
+              <option v-for="(name, type) in eventTypes" v-bind:key="type" v-bind:value="type">{{ name }}</option>
             </select>
           </div>
           <p class="help is-danger" v-if="errors.type">{{ errors.type.join(', ') }}</p>
