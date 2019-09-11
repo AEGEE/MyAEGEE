@@ -61,7 +61,7 @@ jobs:
       image: ubuntu-1604:201903-01
     steps:
       - checkout
-      - run: (cd docker/oms-statutory/ && docker build  --tag aegee/oms-statutory:$(node -p "require('../../package.json').version") --tag aegee/oms-statutory:latest -f Dockerfile.dev .)
+      - run: docker build  --tag aegee/oms-statutory:$(node -p "require('./package.json').version") --tag aegee/oms-statutory:latest -f docker/oms-statutory/Dockerfile.dev .
       - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
       - run: docker push aegee/oms-statutory:$(node -p "require('./package.json').version")
       - run: docker push aegee/oms-statutory:latest
