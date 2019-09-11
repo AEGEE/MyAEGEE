@@ -1,3 +1,12 @@
+## [0.20.2](https://github.com/AEGEE/oms-statutory/compare/0.20.1...0.20.2) (2019-09-11)
+
+
+### Bug Fixes
+
+* **circleci:** fixed docker-build-and-push job ([6e70b5f](https://github.com/AEGEE/oms-statutory/commit/6e70b5f))
+
+
+
 ## [0.20.1](https://github.com/AEGEE/oms-statutory/compare/0.20.0...0.20.1) (2019-09-11)
 
 
