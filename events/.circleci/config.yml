@@ -61,7 +61,7 @@ jobs:
       image: ubuntu-1604:201903-01
     steps:
       - checkout
-      - run: (cd docker/oms-events/ && docker build  --tag aegee/oms-events:$(node -p "require('../../package.json').version") --tag aegee/oms-events:latest -f Dockerfile.dev .)
+      - run: docker build  --tag aegee/oms-events:$(node -p "require('./package.json').version") --tag aegee/oms-events:latest -f docker/oms-events/Dockerfile.dev .
       - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
       - run: docker push aegee/oms-events:$(node -p "require('./package.json').version")
       - run: docker push aegee/oms-events:latest
