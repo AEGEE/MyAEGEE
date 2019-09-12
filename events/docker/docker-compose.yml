@@ -8,7 +8,7 @@ services:
         volumes:
             - postgres-events:/var/lib/postgresql/data
         expose:
-            - 5432
+            - "5432"
         environment:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: ${PW_POSTGRES}
@@ -16,8 +16,8 @@ services:
     oms-events:
         restart: on-failure
         build:
-            context: ./$PATH_OMS_EVENTS/oms-events
-            dockerfile: ./Dockerfile.dev
+            context: ./$PATH_OMS_EVENTS/..
+            dockerfile: ./docker/oms-events/Dockerfile.dev
         image: aegee/oms-events:dev
         volumes:
             - oms-events-media:/usr/app/media
@@ -26,7 +26,7 @@ services:
         links:
             - postgres-oms-events
         expose:
-            - 8084
+            - "8084"
         environment:
             BUGSNAG_KEY: 6f6a7c00507fceca0818c48405dbd2a6
             PG_PASSWORD: ${PW_POSTGRES}

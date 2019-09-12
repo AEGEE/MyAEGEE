@@ -1,3 +1,14 @@
+## [0.9.1](https://github.com/AEGEE/oms-events/compare/0.9.0...0.9.1) (2019-09-12)
+
+
+### Bug Fixes
+
+* **docker:** added proper dockerfile and docker-compose. Fixes MEMB-613 ([96167d1](https://github.com/AEGEE/oms-events/commit/96167d1))
+* **test:** fixes tests ([b0363df](https://github.com/AEGEE/oms-events/commit/b0363df))
+* **tests:** fixed tests again ([2168cd0](https://github.com/AEGEE/oms-events/commit/2168cd0))
+
+
+
 # [0.9.0](https://github.com/AEGEE/oms-events/compare/0.8.1...0.9.0) (2019-09-09)
 
 
