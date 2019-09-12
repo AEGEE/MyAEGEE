@@ -1,3 +1,12 @@
+## [0.9.2](https://github.com/AEGEE/oms-events/compare/0.9.1...0.9.2) (2019-09-12)
+
+
+### Bug Fixes
+
+* **docker:** moved npm install from bootstrap to container build ([20a08e8](https://github.com/AEGEE/oms-events/commit/20a08e8))
+
+
+
 ## [0.9.1](https://github.com/AEGEE/oms-events/compare/0.9.0...0.9.1) (2019-09-12)
 
 
