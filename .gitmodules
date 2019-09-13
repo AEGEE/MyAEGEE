@@ -19,3 +19,6 @@
 [submodule "oms-elastic"]
 	path = oms-elastic
 	url = https://github.com/AEGEE/docker-elk.git
+[submodule "oms-discounts"]
+	path = oms-discounts
+	url = https://github.com/AEGEE/oms-discounts.git
