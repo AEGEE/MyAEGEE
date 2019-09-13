@@ -13,7 +13,7 @@ services:
     oms-discounts:
         build:
             context: ./$PATH_OMS_DISCOUNTS/..
-            dockerfile: .docker/oms-discounts/Dockerfile.dev
+            dockerfile: ./docker/oms-discounts/Dockerfile.dev
         image: aegee/oms-discounts:dev
         volumes:
             - oms-discounts-media:/usr/app/media
