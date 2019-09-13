@@ -1,3 +1,19 @@
+# [0.7.0](https://github.com/AEGEE/oms-discounts/compare/0.6.0...0.7.0) (2019-09-13)
+
+
+### Bug Fixes
+
+* **deps:** added jest-junit for tests ([8bf3d27](https://github.com/AEGEE/oms-discounts/commit/8bf3d27))
+* **docker:** fixed Dockerfile ([55f07a3](https://github.com/AEGEE/oms-discounts/commit/55f07a3))
+* **general:** removed Travis ([cf41ac6](https://github.com/AEGEE/oms-discounts/commit/cf41ac6))
+
+
+### Features
+
+* **docker:** added proper dockerfile. Fixes MEMB-613 ([b429928](https://github.com/AEGEE/oms-discounts/commit/b429928))
+
+
+
 # [0.6.0](https://github.com/AEGEE/oms-discounts/compare/0.5.2...0.6.0) (2019-09-01)
 
 
