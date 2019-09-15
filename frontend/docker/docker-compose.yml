@@ -8,3 +8,9 @@ services:
             dockerfile: ./docker/Dockerfile
         volumes:
             - "./$PATH_OMS_FRONTEND/../:/usr/app/src"
+        labels:
+            - "traefik.frontend.rule=HostRegexp:{domain:[a-z0-9.]+};PathPrefix:/"
+            - "traefik.frontend.priority=11"
+            - "traefik.port=80"
+            - "traefik.backend=oms-frontend"
+            - "traefik.enable=true"
