@@ -2,15 +2,10 @@ version: '3.2'
 
 services:
     oms-frontend:
+        restart: always
         build:
-            context: ./$PATH_OMS_FRONTEND/oms-frontend/
-            dockerfile: ./Dockerfile.dev
-        volumes:
-            - "./$PATH_OMS_FRONTEND/../:/usr/app/src"
-    oms-frontend-nginx:
-        build:
-            context: ./$PATH_OMS_FRONTEND/oms-frontend-nginx/
-            dockerfile: ./Dockerfile.dev
+            context: ./$PATH_OMS_FRONTEND/..
+            dockerfile: ./docker/Dockerfile
         volumes:
             - "./$PATH_OMS_FRONTEND/../:/usr/app/src"
         labels:
@@ -19,5 +14,3 @@ services:
             - "traefik.port=80"
             - "traefik.backend=oms-frontend"
             - "traefik.enable=true"
-            - "registry.status=status.json"
-            - "registry.modules=getModules.json"
