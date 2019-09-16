@@ -6,7 +6,6 @@ jobs:
     steps:
       - checkout
       - run: docker-compose -f docker/docker-compose.yml build --no-cache oms-frontend
-      - run: docker-compose -f docker/docker-compose.yml up oms-frontend
   lint:
     machine:
       image: ubuntu-1604:201903-01
