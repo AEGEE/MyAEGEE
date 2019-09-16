@@ -2,7 +2,7 @@ const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
 
-const Position = sequelize.define('Position', {
+const Position = sequelize.define('position', {
     event_id: {
         allowNull: false,
         type: Sequelize.INTEGER,

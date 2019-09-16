@@ -22,6 +22,7 @@ const plenaries = require('./plenaries');
 const bugsnag = require('./bugsnag');
 const cron = require('./cron');
 const imageserv = require('./imageserv');
+const metrics = require('./metrics');
 
 const GeneralRouter = router({ mergeParams: true });
 const PaxLimitsRouter = router({ mergeParams: true });
@@ -55,6 +56,7 @@ process.on('unhandledRejection', (err) => {
 ImagesRouter.use(express.static(config.images_dir)); // Serving images.
 
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
+GeneralRouter.get('/metrics', metrics.getMetrics);
 GeneralRouter.use(middlewares.authenticateUser);
 GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', events.addEvent);
