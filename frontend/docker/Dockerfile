@@ -23,4 +23,4 @@ RUN chown -R www-data:www-data /usr/app/
 WORKDIR /usr/app/src/dist
 
 EXPOSE 8083
-CMD nginx
+CMD ["nginx"]
