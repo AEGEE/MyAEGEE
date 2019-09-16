@@ -1,3 +1,12 @@
+# [0.21.0](https://github.com/AEGEE/oms-statutory/compare/0.20.2...0.21.0) (2019-09-16)
+
+
+### Features
+
+* **metrics:** added /metrics endpoints. Fixes MEMB-604 ([04f300c](https://github.com/AEGEE/oms-statutory/commit/04f300c))
+
+
+
 ## [0.20.2](https://github.com/AEGEE/oms-statutory/compare/0.20.1...0.20.2) (2019-09-11)
 
 

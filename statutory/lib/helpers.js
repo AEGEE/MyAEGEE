@@ -173,6 +173,54 @@ exports.countByField = (array, key) => {
     }, []);
 };
 
+// A helper to count objects by a set of fields.
+exports.countByFields = (array, keys) => {
+    const reduceFunc = (acc, val) => {
+        // finding element with such keys values
+        const accElement = acc.find((elementInAcc) => {
+            for (const key of keys) {
+                if (elementInAcc[key] !== val[key]) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        // if found, increment value, if not, adding another element
+        // to result array.
+        if (accElement) {
+            accElement.value += 1;
+        } else {
+            const elt = { value: 1 };
+            for (const key of keys) {
+                elt[key] = val[key];
+            }
+            acc.push(elt);
+        }
+
+        return acc;
+    };
+
+    return array.reduce(reduceFunc, []);
+};
+
+// A helper to add data to gauge Prometheus metric.
+exports.addGaugeData = (gauge, array) => {
+    // reset gauge...
+    gauge.reset();
+
+    // and set it with values
+    for (const element of array) {
+        const {
+            value,
+            ...data
+        } = element;
+
+        gauge.set(data, value);
+    }
+};
+
 // A helper to flatten the nested object. Copypasted from Google.
 exports.flattenObject = (obj, prefix = '') => {
     return Object.keys(obj).reduce((acc, k) => {
