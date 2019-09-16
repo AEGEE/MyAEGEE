@@ -1,3 +1,19 @@
+<a name="0.22.4"></a>
+## [0.22.4](https://github.com/AEGEE/oms-frontend/compare/0.22.3...0.22.4) (2019-09-16)
+
+
+### Bug Fixes
+
+* **docker:** added .dockerignore ([685706a](https://github.com/AEGEE/oms-frontend/commit/685706a))
+* **docker:** added traefik labels ([650f16a](https://github.com/AEGEE/oms-frontend/commit/650f16a))
+
+
+### Features
+
+* **docker:** added proper dockerfile. Fixes MEMB-613 ([bde907a](https://github.com/AEGEE/oms-frontend/commit/bde907a))
+
+
+
 <a name="0.22.3"></a>
 ## [0.22.3](https://github.com/AEGEE/oms-frontend/compare/0.22.2...0.22.3) (2019-09-11)
 
