@@ -2,7 +2,7 @@
   <div id="app" v-touch:swipe.left="swipeLeft" v-touch:swipe.right="swipeRight">
     <nprogress-container></nprogress-container>
     <navbar :show="true"></navbar>
-    <sidebar :show="sidebar.opened && !sidebar.hidden && $route.meta.showSidebar"></sidebar>
+    <sidebar :show="sidebar.opened"></sidebar>
     <app-main></app-main>
     <hr />
     <footer-bar></footer-bar>

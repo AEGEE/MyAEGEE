@@ -6,7 +6,6 @@
   - component: path to .vue component, located in client/views, without extension
   - meta.auth: if set to false, the user can go to this route unauthorized and the user fetching is skipped, defaults to true
   - meta.skipLazyLoad: if set to true, the item would be imported with 'require', not 'lazyLoading', loading it with all the bundle, defaults to false
-  - meta.showSidebar: if set to false, the sidebar would be hidden when this route is active, defaults to true
   - meta.label: label of the component
 */
 
@@ -19,8 +18,7 @@ module.exports = [
     meta: {
       label: 'Login',
       skipLazyLoad: true,
-      auth: false,
-      showSidebar: false
+      auth: false
     }
   },
   {
@@ -30,8 +28,7 @@ module.exports = [
     meta: {
       label: 'Register',
       skipLazyLoad: true,
-      auth: false,
-      showSidebar: false
+      auth: false
     }
   },
   {
@@ -41,8 +38,7 @@ module.exports = [
     meta: {
       label: 'Confirm your email',
       skipLazyLoad: true,
-      auth: false,
-      showSidebar: false
+      auth: false
     }
   },
   {
@@ -52,8 +48,7 @@ module.exports = [
     meta: {
       label: 'Reset your password',
       skipLazyLoad: true,
-      auth: false,
-      showSidebar: false
+      auth: false
     }
   },
   {
@@ -63,8 +58,7 @@ module.exports = [
     meta: {
       label: 'Confirm your password',
       skipLazyLoad: true,
-      auth: false,
-      showSidebar: false
+      auth: false
     }
   },
   {
@@ -73,8 +67,7 @@ module.exports = [
     component: 'static/BugReport',
     meta: {
       label: 'Report a bug in MyAEGEE',
-      auth: false,
-      showSidebar: false
+      auth: false
     }
   },
   {

@@ -1,6 +1,24 @@
 [
   {
+    "categoryName": "Authorization",
+    "auth": "not-logged-in",
+    "components": [
+      {
+        "name": "oms.login",
+        "label": "Login",
+        "icon": "fa-sign-in-alt"
+      },
+      {
+        "name": "oms.register",
+        "label": "Register",
+        "icon": "fa-user-plus",
+        "params": { "id": "default" }
+      }
+    ]
+  },
+  {
     "categoryName": "General",
+    "auth": "logged-in",
     "components": [
       {
         "name": "oms.dashboard",
@@ -11,6 +29,7 @@
   },
   {
     "categoryName": "Core",
+    "auth": "logged-in",
     "components": [
       {
         "name": "oms.members.list",
@@ -46,6 +65,7 @@
   },
   {
     "categoryName": "Events",
+    "auth": "logged-in",
     "components": [
       {
         "label": "Events admin",
@@ -87,6 +107,7 @@
   },
   {
     "categoryName": "Statutory events",
+    "auth": "logged-in",
     "components": [
       {
         "label": "Statutory listing",
@@ -119,6 +140,7 @@
   },
   {
     "categoryName": "Resources",
+    "auth": "logged-in",
     "components": [
       {
         "name": "oms.discounts",
@@ -134,6 +156,7 @@
   },
   {
     "categoryName": "For admins",
+    "auth": "logged-in",
     "components": [
       {
         "name": "oms.status",
@@ -145,6 +168,7 @@
   },
   {
     "categoryName": "Alastair",
+    "auth": "logged-in",
     "components": [
       {
         "label": "Organizers View",

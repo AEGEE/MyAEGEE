@@ -4,9 +4,12 @@ import categories from '../../menu'
 // menuModule.state.items (imported from '../../components' above) should be an array of elements containing these fields:
 //
 // categoryName: name of the category (for label in the sidebar)
+// auth: 'not-logged-in'|'logged-in'|null - displaying the entry if the user is not logged in, logged in or whatever.
 // components: array of components for vue-router having this structure:
 // -- name: component name
 // -- path: component path
+// -- params: params object.
+// -- auth: 'not-logged-in'|'logged-in'|null - displaying the entry if the user is not logged in, logged in or whatever.
 // -- component: the path to the component relative to client/views/ and without extension
 // -- children: the array of the child elements containing the same fields.
 // Children cannot have another children (because menu is only 2 levels deep).
@@ -21,6 +24,8 @@ const mapComponent = (component, nested = false) => ({
   name: component.name,
   path: component.path,
   label: component.label,
+  auth: component.auth,
+  params: component.params || '',
   icon: typeof component.icon !== 'undefined' ? component.icon : null,
   expanded: typeof component.expanded !== 'undefined' ? component.expanded : false,
   permissions: Array.isArray(component.permissions) ? component.permissions : null,
@@ -29,6 +34,7 @@ const mapComponent = (component, nested = false) => ({
 
 const mapCategory = category => ({
   categoryName: category.categoryName,
+  auth: category.auth,
   components: category.components.map(component => mapComponent(component))
 })
 
