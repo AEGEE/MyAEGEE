@@ -1,3 +1,13 @@
+<a name="0.23.2"></a>
+## [0.23.2](https://github.com/AEGEE/oms-frontend/compare/0.23.1...0.23.2) (2019-09-17)
+
+
+### Bug Fixes
+
+* **login:** fixed pre-fetching user on logging in ([45bc4fd](https://github.com/AEGEE/oms-frontend/commit/45bc4fd))
+
+
+
 <a name="0.23.1"></a>
 ## [0.23.1](https://github.com/AEGEE/oms-frontend/compare/0.23.0...0.23.1) (2019-09-17)
 

@@ -59,7 +59,7 @@ const { state } = store
 
 router.beforeEach((route, redirect, next) => {
   // Workaround to not go into endless fetching user cycle
-  if (redirect.name || route.name === 'oms.login') {
+  if ((redirect.name && redirect.name !== 'oms.login' ) || route.name === 'oms.login' ) {
     console.log('Skipping workaround for login...')
     return next()
   }
