@@ -7,7 +7,7 @@
         <div class="notification is-warning">
           <div class="content">
             <p>The positions will be closed on the deadline if there were (number of places + 1) applications at that moment.</p>
-            <p>If there's not enough applications, the position will stay open until it's manually closed by JC.</p>
+            <p>If there's not enough applications, the position will stay open until 2 weeks before the Agora.</p>
             <p>All dates are in your local time (which is not always CET).</p>
           </div>
         </div>

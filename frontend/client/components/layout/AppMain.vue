@@ -26,7 +26,7 @@ export default {
       navbar: 'navbar'
     }),
     hiddenSidebarStyle () {
-      return (this.sidebar.hidden || !this.$route.meta.showSidebar) ? { 'margin-left': 0 } : null
+      return this.sidebar.opened ? null : { 'margin-left': 0 }
     }
   },
   components: {
