@@ -1,3 +1,13 @@
+<a name="0.23.1"></a>
+## [0.23.1](https://github.com/AEGEE/oms-frontend/compare/0.23.0...0.23.1) (2019-09-17)
+
+
+### Bug Fixes
+
+* **login:** fetching user on unauthorized endpoints. Fixes HELP-627 ([ca23249](https://github.com/AEGEE/oms-frontend/commit/ca23249))
+
+
+
 <a name="0.23.0"></a>
 # [0.23.0](https://github.com/AEGEE/oms-frontend/compare/0.22.5...0.23.0) (2019-09-17)
 
