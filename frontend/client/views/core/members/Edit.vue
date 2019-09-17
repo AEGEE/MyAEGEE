@@ -25,7 +25,7 @@
               <div class="control">
                 <a class="button is-static">/members/</a>
               </div>
-              <div class="control">
+              <div class="control is-expanded">
                 <input class="input" type="text" required v-model="user.seo_url" />
               </div>
             </div>
