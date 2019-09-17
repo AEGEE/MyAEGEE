@@ -25,7 +25,7 @@
               <div class="control">
                 <a class="button is-static">/members/</a>
               </div>
-              <div class="control">
+              <div class="control is-expanded">
                 <input class="input" type="text" required v-model="user.seo_url" />
               </div>
             </div>
@@ -51,28 +51,11 @@
         <div class="field">
           <label class="label">Primary body</label>
           <p class="control">
-            <div class="field has-addons">
-              <b-autocomplete
-                v-model="autocompleteBody"
-                :data="user.bodies"
-                open-on-focus="true"
-                @select="body => { user.primary_body_id = body.id; user.primary_body = body } ">
-                <template slot-scope="props">
-                  <div class="media">
-                    <div class="media-content">
-                        {{ props.option.name }}
-                        <br>
-                        <small> {{ props.option.description }} </small>
-                    </div>
-                  </div>
-                </template>
-              </b-autocomplete>
-              <p class="control">
-                <a class="button is-danger"
-                  @click="user.primary_body_id = null; user.primary_body = null"
-                  v-if="user.primary_body">{{ user.primary_body.name }} (Click to unset)</a>
-                <a class="button is-static" v-if="!user.primary_body">Not set.</a>
-              </p>
+            <div class="field has-addons select is-fullwidth">
+              <select v-model="user.primary_body_id">
+                <option :value="null">Not set</option>
+                <option v-for="body in user.bodies" :key="body.id" :value="body.id">{{ body.name }}</option>
+              </select>
             </div>
           <p class="help is-danger" v-if="errors.primary_body_id">{{ errors.primary_body_id.join(', ')}}</p>
         </div>

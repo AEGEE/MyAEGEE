@@ -1,3 +1,15 @@
+<a name="0.23.3"></a>
+## [0.23.3](https://github.com/AEGEE/oms-frontend/compare/0.23.2...0.23.3) (2019-09-17)
+
+
+### Bug Fixes
+
+* **core:** expanded user profile edit input ([93781d0](https://github.com/AEGEE/oms-frontend/commit/93781d0))
+* **core:** using select instead of autocomplete for primary body. Fixes MEMB-616 ([f3e591c](https://github.com/AEGEE/oms-frontend/commit/f3e591c))
+* **login:** fix buttons layout on /login page ([551647d](https://github.com/AEGEE/oms-frontend/commit/551647d))
+
+
+
 <a name="0.23.2"></a>
 ## [0.23.2](https://github.com/AEGEE/oms-frontend/compare/0.23.1...0.23.2) (2019-09-17)
 
