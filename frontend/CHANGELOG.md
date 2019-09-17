@@ -1,3 +1,13 @@
+<a name="0.23.0"></a>
+# [0.23.0](https://github.com/AEGEE/oms-frontend/compare/0.22.5...0.23.0) (2019-09-17)
+
+
+### Features
+
+* **general:** refactor menu. Fixes MEMB-467 ([db2e0c2](https://github.com/AEGEE/oms-frontend/commit/db2e0c2))
+
+
+
 <a name="0.22.5"></a>
 ## [0.22.5](https://github.com/AEGEE/oms-frontend/compare/0.22.4...0.22.5) (2019-09-17)
 
