@@ -1,3 +1,15 @@
+<a name="0.22.5"></a>
+## [0.22.5](https://github.com/AEGEE/oms-frontend/compare/0.22.4...0.22.5) (2019-09-17)
+
+
+### Bug Fixes
+
+* **circleci:** fixed docker build task ([a05df7f](https://github.com/AEGEE/oms-frontend/commit/a05df7f))
+* **docker:** fixed Hadolint warnings ([e0d59a7](https://github.com/AEGEE/oms-frontend/commit/e0d59a7))
+* **statutory:** updated positions deadline clarification. Fixes MEMB-615 ([8e89291](https://github.com/AEGEE/oms-frontend/commit/8e89291))
+
+
+
 <a name="0.22.4"></a>
 ## [0.22.4](https://github.com/AEGEE/oms-frontend/compare/0.22.3...0.22.4) (2019-09-16)
 
