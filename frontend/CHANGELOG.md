@@ -1,3 +1,13 @@
+<a name="0.23.4"></a>
+## [0.23.4](https://github.com/AEGEE/oms-frontend/compare/0.23.3...0.23.4) (2019-09-18)
+
+
+### Bug Fixes
+
+* **general:** forward previous URL to /login and redirecting. Fixes MEMB-565 ([b2ec2a4](https://github.com/AEGEE/oms-frontend/commit/b2ec2a4))
+
+
+
 <a name="0.23.3"></a>
 ## [0.23.3](https://github.com/AEGEE/oms-frontend/compare/0.23.2...0.23.3) (2019-09-17)
 
