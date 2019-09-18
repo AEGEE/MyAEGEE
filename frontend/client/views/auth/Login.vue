@@ -42,7 +42,11 @@ export default {
     login () {
       this.error = null
       this.$auth.login(this.data).then((res) => {
-        this.$router.push('/dashboard')
+        if (this.$route.query.to) {
+          this.$router.push(decodeURI(this.$route.query.to))
+        } else {
+          this.$router.push('/dashboard')
+        }
       }).catch((err) => {
         if (err.response && err.response.data && err.response.data.message) {
           this.error = err.response.data.message
