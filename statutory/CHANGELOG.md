@@ -1,3 +1,12 @@
+## [0.21.2](https://github.com/AEGEE/oms-statutory/compare/0.21.1...0.21.2) (2019-09-18)
+
+
+### Bug Fixes
+
+* **event:** finding event by numeric URL. Fixes MEMB-538 ([0eee8d8](https://github.com/AEGEE/oms-statutory/commit/0eee8d8))
+
+
+
 ## [0.21.1](https://github.com/AEGEE/oms-statutory/compare/0.21.0...0.21.1) (2019-09-18)
 
 
