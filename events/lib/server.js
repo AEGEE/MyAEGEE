@@ -11,6 +11,7 @@ const applications = require('./applications'); // API middlewares for applicati
 const imageserv = require('./imageserv');
 const log = require('./logger');
 const middlewares = require('./middlewares');
+const metrics = require('./metrics');
 const config = require('../config');
 
 const EventsRouter = router({ mergeParams: true });
@@ -39,6 +40,7 @@ process.on('unhandledRejection', (err) => {
 ImagesRouter.use(express.static(config.media_dir)); // Serving images.
 
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
+GeneralRouter.get('/metrics', metrics.getMetrics);
 GeneralRouter.use(middlewares.authenticateUser);
 
 GeneralRouter.get('/', events.listEvents);
