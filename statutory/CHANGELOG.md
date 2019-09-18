@@ -1,3 +1,22 @@
+## [0.21.2](https://github.com/AEGEE/oms-statutory/compare/0.21.1...0.21.2) (2019-09-18)
+
+
+### Bug Fixes
+
+* **event:** finding event by numeric URL. Fixes MEMB-538 ([0eee8d8](https://github.com/AEGEE/oms-statutory/commit/0eee8d8))
+
+
+
+## [0.21.1](https://github.com/AEGEE/oms-statutory/compare/0.21.0...0.21.1) (2019-09-18)
+
+
+### Bug Fixes
+
+* **deps:** bumped Sequelize to latest to fix vulnerability ([3845716](https://github.com/AEGEE/oms-statutory/commit/3845716))
+* **metrics:** fixed metrics names ([8f70578](https://github.com/AEGEE/oms-statutory/commit/8f70578))
+
+
+
 # [0.21.0](https://github.com/AEGEE/oms-statutory/compare/0.20.2...0.21.0) (2019-09-16)
 
 

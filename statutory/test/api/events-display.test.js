@@ -61,6 +61,19 @@ describe('Events listing for single', () => {
         expect(res.body.data.name).toEqual(event.name);
     });
 
+    test('should find event by numeric url', async () => {
+        const event = await generator.createEvent({ url: '13371337' });
+        const res = await request({
+            uri: '/events/13371337',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.id).toEqual(event.id);
+    });
+
     test('should find latest event', async () => {
         await generator.createEvent({
             application_period_starts: moment().subtract(14, 'days'),

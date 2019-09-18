@@ -56,7 +56,10 @@ exports.authenticateUser = async (req, res, next) => {
 exports.fetchEvent = async (req, res, next) => {
     let query = {
         where: {
-            id: req.params.event_id,
+            [Sequelize.Op.or]: {
+                id: req.params.event_id,
+                url: { [Sequelize.Op.iLike]: req.params.event_id },
+            }
         }
     };
 
