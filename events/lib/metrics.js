@@ -16,13 +16,25 @@ const createGauge = (name, help, labels = []) => new Gauge({
 });
 
 const gaugesList = {
-    eventsTotal: createGauge('events_total', 'Total amount of events'),
-    eventsByType: createGauge('events_by_type', 'Amount of events by type', ['type']),
-    eventsByTypeAndStatus: createGauge('events_by_type_and_status', 'Amount of events by type and status', ['type', 'status']),
-    applicationsTotal: createGauge('applications_total', 'Total amount of applications'),
-    applicationsByEvent: createGauge('applications_by_event', 'Amount of applications by event', ['event_name']),
-    applicationsByEventAndStatus: createGauge('applications_by_event_and_status', 'Amount of applications by event and status', ['event_name', 'status']),
-    applicationsByEventAndBody: createGauge('applications_by_event_and_body', 'Amount of applications by event and body', ['event_name', 'body_name']),
+    eventsTotal: createGauge('events_events_total', 'Total amount of general events'),
+    eventsByType: createGauge('events_events_by_type', 'Amount of general events by type', ['type']),
+    eventsByTypeAndStatus: createGauge(
+        'events_events_by_type_and_status',
+        'Amount of general events by type and status',
+        ['type', 'status']
+    ),
+    applicationsTotal: createGauge('events_applications_total', 'Total amount of general events applications'),
+    applicationsByEvent: createGauge('events_applications_by_event', 'Amount of general events applications by event', ['event_name']),
+    applicationsByEventAndStatus: createGauge(
+        'events_applications_by_event_and_status',
+        'Amount of general events applications by event and status',
+        ['event_name', 'status']
+    ),
+    applicationsByEventAndBody: createGauge(
+        'events_applications_by_event_and_body',
+        'Amount of general events applications by event and body',
+        ['event_name', 'body_name']
+    ),
 };
 
 exports.getMetrics = async (req, res) => {
