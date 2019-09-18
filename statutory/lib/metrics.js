@@ -34,7 +34,7 @@ const gaugesList = {
         ['event_name', 'body_name']
     ),
     applicationsByEventAndPaxType: createGauge(
-        'applications_by_event_and_pax_type',
+        'statutory_applications_by_event_and_pax_type',
         'Amount of statutory applications by event and pax type',
         ['event_name', 'participant_type']
     ),
