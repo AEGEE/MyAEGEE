@@ -69,7 +69,7 @@ router.beforeEach((route, redirect, next) => {
     document.title = 'MyAEGEE | ' + route.meta.label
     return state.login.isLoggedIn
         ? next()
-        : next('/login')
+        : next('/login?to=' + encodeURI(route.fullPath))
   }
 
   // Fetching user if not fetched.
@@ -89,7 +89,7 @@ router.beforeEach((route, redirect, next) => {
       return next()
     }
 
-    return next('/login')
+    return next('/login?to=' + encodeURI(route.fullPath))
   })
 })
 
@@ -113,7 +113,7 @@ axios.interceptors.response.use(
     const refreshToken = window.localStorage.getItem('refresh-token')
     if (!refreshToken) {
       console.log('No refresh token provided')
-      router.push('/login')
+      router.push('/login?to=' + encodeURI(app.$route.fullPath))
       return Promise.reject(error)
     }
 
