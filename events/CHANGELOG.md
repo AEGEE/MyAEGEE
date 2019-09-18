@@ -1,3 +1,26 @@
+## [0.10.1](https://github.com/AEGEE/oms-events/compare/0.10.0...0.10.1) (2019-09-18)
+
+
+### Bug Fixes
+
+* **metrics:** added events_ prefix to metric names ([c2ee76f](https://github.com/AEGEE/oms-events/commit/c2ee76f))
+
+
+
+# [0.10.0](https://github.com/AEGEE/oms-events/compare/0.9.2...0.10.0) (2019-09-18)
+
+
+### Bug Fixes
+
+* **deps:** bumped Sequelize to latest to fix vulnerability ([2e633a0](https://github.com/AEGEE/oms-events/commit/2e633a0))
+
+
+### Features
+
+* **metrics:** added /metrics endpoint. Fixes MEMB-604 ([acfcfd9](https://github.com/AEGEE/oms-events/commit/acfcfd9))
+
+
+
 ## [0.9.2](https://github.com/AEGEE/oms-events/compare/0.9.1...0.9.2) (2019-09-12)
 
 
