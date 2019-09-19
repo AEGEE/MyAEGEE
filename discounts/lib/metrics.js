@@ -58,7 +58,7 @@ exports.getMetrics = async (req, res) => {
         integration_name: code.integration.name,
         claimed: code.claimed_by !== null
     }));
-    
+
     // setting gauges with real data
     helpers.addGaugeData(gaugesList.categoriesTotal, helpers.countByFields(categories));
     helpers.addGaugeData(gaugesList.partnersTotal, helpers.countByFields(partners, ['category_name']));

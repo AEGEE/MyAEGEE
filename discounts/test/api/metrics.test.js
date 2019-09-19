@@ -27,7 +27,6 @@ describe('Metrics requests', () => {
             json: false
         });
 
-        console.log(res.body)
         expect(res.statusCode).toEqual(200);
     });
 });
