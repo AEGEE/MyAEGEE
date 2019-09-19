@@ -1,3 +1,13 @@
+<a name="0.23.5"></a>
+## [0.23.5](https://github.com/AEGEE/oms-frontend/compare/0.23.4...0.23.5) (2019-09-19)
+
+
+### Bug Fixes
+
+* **general:** fixed routing for unauthorized users. Fixes HELP-653 ([7c9240e](https://github.com/AEGEE/oms-frontend/commit/7c9240e))
+
+
+
 <a name="0.23.4"></a>
 ## [0.23.4](https://github.com/AEGEE/oms-frontend/compare/0.23.3...0.23.4) (2019-09-18)
 
