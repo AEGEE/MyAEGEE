@@ -15,7 +15,9 @@ export default {
     }
 
     const fetchUser = async () => {
-      const result = await Vue.axios.get(services['oms-core-elixir'] + '/members/me')
+      const result = await Vue.axios.get(services['oms-core-elixir'] + '/members/me', {
+        headers: { 'X-For-Auth': 'true' }
+      })
 
       if (!result.data.success) {
         throw result.data

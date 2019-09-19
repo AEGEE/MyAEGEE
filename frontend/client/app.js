@@ -57,39 +57,41 @@ const nprogress = new NProgress({ parent: '.nprogress-container' })
 
 const { state } = store
 
-router.beforeEach((route, redirect, next) => {
+router.beforeEach((to, from, next) => {
+  const prefix = to.name === 'oms.login' ? '' : '?to=' + encodeURI(to.fullPath)
+
   // Workaround to not go into endless fetching user cycle
-  if ((redirect.name && redirect.name !== 'oms.login' ) || route.name === 'oms.login' ) {
+  if ((from.name && from.name !== 'oms.login' ) || to.name === 'oms.login' ) {
     console.log('Skipping workaround for login...')
     return next()
   }
 
+
   // If user if fetched, just redirect.
   if (state.login.user) {
-    document.title = 'MyAEGEE | ' + route.meta.label
+    document.title = 'MyAEGEE | ' + to.meta.label
     return state.login.isLoggedIn
         ? next()
-        : next('/login?to=' + encodeURI(route.fullPath))
+        : next('/login' + prefix)
   }
 
   // Fetching user if not fetched.
   return router.app.$auth.fetchUserWithExistingData().then(() => {
-    if (!state.login.isLoggedIn && route.meta.auth) {
+    if (!state.login.isLoggedIn && to.meta.auth) {
       throw new Error('Trying to access the auth-only page while being unauthorized.');
     }
 
-    document.title = 'MyAEGEE | ' + route.meta.label
+    document.title = 'MyAEGEE | ' + to.meta.label
     return next()
   }).catch((err) => {
-    console.log('Error fetching user, redirect to /login. Error: ' + err)
-
     // Allow unauthorized users to access if allowed.
-    if (!route.meta.auth) {
+    if (!to.meta.auth) {
       console.log('The endpoint is allowed by unauthorized user, not redirecting.')
       return next()
     }
 
-    return next('/login?to=' + encodeURI(route.fullPath))
+    console.log('Error fetching user, redirect to /login. Error: ' + err)
+    return next('/login' + prefix)
   })
 })
 
@@ -113,7 +115,12 @@ axios.interceptors.response.use(
     const refreshToken = window.localStorage.getItem('refresh-token')
     if (!refreshToken) {
       console.log('No refresh token provided')
-      router.push('/login?to=' + encodeURI(app.$route.fullPath))
+
+      // Workaround indicating that we don't need to redirect (it's an auth request)
+      if (!originalRequest.headers['X-For-Auth']) {
+        const prefix = app.$route.name === 'oms.login' ? '' : '?to=' + encodeURI(app.$route.fullPath)
+        router.push('/login' + prefix)
+      }
       return Promise.reject(error)
     }
 
