@@ -1,3 +1,12 @@
+## [0.10.2](https://github.com/AEGEE/oms-events/compare/0.10.1...0.10.2) (2019-09-19)
+
+
+### Bug Fixes
+
+* **metrics:** reduced metrics count and refactor ([6b906a8](https://github.com/AEGEE/oms-events/commit/6b906a8))
+
+
+
 ## [0.10.1](https://github.com/AEGEE/oms-events/compare/0.10.0...0.10.1) (2019-09-18)
 
 

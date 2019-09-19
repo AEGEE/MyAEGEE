@@ -19,6 +19,8 @@ describe('Metrics requests', () => {
         await generator.createApplication({ user_id: 1, status: 'accepted' }, event);
         await generator.createApplication({ user_id: 2, status: 'accepted' }, event);
         await generator.createApplication({ user_id: 3, status: 'pending' }, event);
+        await generator.createApplication({ user_id: 4, body_name: 1, status: 'pending' }, event);
+        await generator.createApplication({ user_id: 5, body_name: 1, status: 'pending' }, event);
 
 
         const res = await request({
