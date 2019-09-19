@@ -9,6 +9,7 @@ const morgan = require('./morgan');
 const middlewares = require('./middlewares');
 const integrations = require('./integrations');
 const categories = require('./categories');
+const metrics = require('./metrics');
 const db = require('./sequelize');
 
 const server = express();
@@ -27,6 +28,7 @@ process.on('unhandledRejection', (err) => {
 });
 
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
+GeneralRouter.get('/metrics', metrics.getMetrics);
 GeneralRouter.use(middlewares.authenticateUser);
 
 // integrations and codes
