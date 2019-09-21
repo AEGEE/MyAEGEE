@@ -1,3 +1,13 @@
+## [0.8.1](https://github.com/AEGEE/oms-discounts/compare/0.8.0...0.8.1) (2019-09-21)
+
+
+### Bug Fixes
+
+* **deps:** bumped Sequelize to latest to fix vulnerability ([c03c796](https://github.com/AEGEE/oms-discounts/commit/c03c796))
+* **metrics:** increased metrics performance ([6f78319](https://github.com/AEGEE/oms-discounts/commit/6f78319))
+
+
+
 # [0.8.0](https://github.com/AEGEE/oms-discounts/compare/0.6.0...0.8.0) (2019-09-19)
 
 
