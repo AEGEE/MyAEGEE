@@ -1,3 +1,12 @@
+## [0.10.3](https://github.com/AEGEE/oms-events/compare/0.10.2...0.10.3) (2019-09-21)
+
+
+### Bug Fixes
+
+* **metrics:** increased metrics performance ([cdce22e](https://github.com/AEGEE/oms-events/commit/cdce22e))
+
+
+
 ## [0.10.2](https://github.com/AEGEE/oms-events/compare/0.10.1...0.10.2) (2019-09-19)
 
 

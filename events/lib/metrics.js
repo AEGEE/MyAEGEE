@@ -8,6 +8,7 @@ const {
     Application
 } = require('../models');
 const helpers = require('./helpers');
+const { sequelize } = require('./sequelize');
 
 const gaugesList = {
     eventsTotal: new Gauge({
@@ -23,20 +24,38 @@ const gaugesList = {
 };
 
 exports.getMetrics = async (req, res) => {
-    let [
+    const [
         events,
         applications,
     ] = await Promise.all([
-        Event.findAll(),
-        Application.findAll({ include: [Event] }),
+        Event.findAll({
+            attributes: [
+                'type',
+                'status',
+                [sequelize.fn('COUNT', 'id'), 'value']
+            ],
+            group: ['type', 'status'],
+            raw: true
+        }),
+        Application.findAll({
+            attributes: [
+                'body_name',
+                'status',
+                [sequelize.col('event.name'), 'event_name'],
+                [sequelize.fn('COUNT', 'id'), 'value']
+            ],
+            group: ['event_name', 'body_name', 'application.status'],
+            include: [{
+                model: Event,
+                attributes: [],
+            }],
+            raw: true
+        }),
     ]);
 
-    events = events.map((event) => event.toJSON());
-    applications = applications.map((application) => Object.assign(application.toJSON(), { event_name: application.event.name }));
-
     // setting gauges with real data
-    helpers.addGaugeData(gaugesList.eventsTotal, helpers.countByFields(events, ['type', 'status']));
-    helpers.addGaugeData(gaugesList.applicationsTotal, helpers.countByFields(applications, ['event_name', 'body_name', 'status']));
+    helpers.addGaugeData(gaugesList.eventsTotal, events);
+    helpers.addGaugeData(gaugesList.applicationsTotal, applications);
 
     res.set('Content-Type', register.contentType);
     res.end(register.metrics());
