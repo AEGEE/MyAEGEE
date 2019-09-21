@@ -1,3 +1,5 @@
+require('pg').defaults.parseInt8 = true; // to return count() as int, not string
+
 const Sequelize = require('sequelize');
 
 const logger = require('./logger');

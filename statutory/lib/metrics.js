@@ -8,9 +8,9 @@ const {
     Application,
     MembersList,
     Position,
-    Candidate
 } = require('../models');
 const helpers = require('./helpers');
+const { sequelize } = require('./sequelize');
 
 const gaugesList = {
     eventsTotal: new Gauge({
@@ -46,45 +46,90 @@ const gaugesList = {
 };
 
 exports.getMetrics = async (req, res) => {
-    let [
+    const [
         events,
         applications,
         memberslists,
+        memberslistsByBody,
         positions,
         candidates
     ] = await Promise.all([
-        Event.findAll(),
-        Application.findAll({ include: [Event] }),
-        MembersList.findAll({ include: [Event] }),
-        Position.findAll({ include: [Event] }),
-        Candidate.findAll({ include: [{ model: Position, include: [Event] }] })
+        Event.findAll({
+            attributes: [
+                'type',
+                'status',
+                [sequelize.fn('COUNT', 'id'), 'value']
+            ],
+            group: ['type', 'status'],
+            raw: true
+        }),
+        Application.findAll({
+            attributes: [
+                'body_name',
+                'participant_type',
+                [sequelize.col('event.name'), 'event_name'],
+                [sequelize.fn('COUNT', 'id'), 'value']
+            ],
+            group: ['event_name', 'body_name', 'participant_type'],
+            include: [{
+                model: Event,
+                attributes: [],
+            }],
+            raw: true
+        }),
+        MembersList.findAll({
+            attributes: [
+                [sequelize.col('event.name'), 'event_name'],
+                [sequelize.fn('COUNT', 'id'), 'value']
+            ],
+            group: ['event_name'],
+            include: [{
+                model: Event,
+                attributes: [],
+            }],
+            raw: true
+        }),
+        MembersList.findAll({
+            attributes: [
+                'body_id',
+                [sequelize.col('event.name'), 'event_name'],
+                [sequelize.fn('jsonb_array_length', sequelize.col('members')), 'value']
+            ],
+            include: [{
+                model: Event,
+                attributes: [],
+            }],
+            raw: true
+        }),
+        Position.findAll({
+            attributes: [
+                [sequelize.col('event.name'), 'event_name'],
+                [sequelize.fn('COUNT', 'id'), 'value']
+            ],
+            group: ['event_name'],
+            include: [{
+                model: Event,
+                attributes: [],
+            }],
+            raw: true
+        }),
+        sequelize.query(
+            'SELECT positions.status AS status, positions.name AS position_name, events.name AS event_name, COUNT(candidates.id) AS value '
+            + 'FROM candidates, positions, events '
+            + 'WHERE positions.id = candidates.position_id '
+            + 'AND events.id = positions.event_id '
+            + 'GROUP BY position_name, event_name, positions.status',
+            { type: sequelize.QueryTypes.SELECT }
+        )
     ]);
 
-    events = events.map(event => event.toJSON());
-    applications = applications.map(application => Object.assign(application.toJSON(), { event_name: application.event.name }));
-    memberslists = memberslists.map(memberslist => Object.assign(memberslist.toJSON(), {
-        event_name: memberslist.event.name,
-        members_amount: memberslist.members.length
-    }));
-    positions = positions.map(position => Object.assign(position.toJSON(), { event_name: position.event.name }));
-    candidates = candidates.map(candidate => Object.assign(candidate.toJSON(), {
-        event_name: candidate.position.event.name,
-        position_name: candidate.position.name
-    }));
-
-    const memberslistsByBody = memberslists.map(memberslist => ({
-        event_name: memberslist.event_name,
-        body_id: memberslist.body_id,
-        value: memberslist.members_amount
-    }));
-
     // setting gauges with real data
-    helpers.addGaugeData(gaugesList.eventsTotal, helpers.countByFields(events, ['type', 'status']));
-    helpers.addGaugeData(gaugesList.applicationsTotal, helpers.countByFields(applications, ['event_name', 'body_name', 'participant_type']));
-    helpers.addGaugeData(gaugesList.memberslistsTotal, helpers.countByFields(memberslists, ['event_name']));
+    helpers.addGaugeData(gaugesList.eventsTotal, events);
+    helpers.addGaugeData(gaugesList.applicationsTotal, applications);
+    helpers.addGaugeData(gaugesList.memberslistsTotal, memberslists);
     helpers.addGaugeData(gaugesList.memberslistsByEventAndBody, memberslistsByBody);
-    helpers.addGaugeData(gaugesList.positionsTotal, helpers.countByFields(positions, ['event_name']));
-    helpers.addGaugeData(gaugesList.candidatesTotal, helpers.countByFields(candidates, ['status', 'position_name', 'event_name']));
+    helpers.addGaugeData(gaugesList.positionsTotal, positions);
+    helpers.addGaugeData(gaugesList.candidatesTotal, candidates);
 
     res.set('Content-Type', register.contentType);
     res.end(register.metrics());
