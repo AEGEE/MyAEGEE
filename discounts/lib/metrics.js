@@ -5,10 +5,10 @@ const {
 
 const {
     Integration,
-    Code,
     Category
 } = require('../models');
 const helpers = require('./helpers');
+const { sequelize } = require('./sequelize');
 
 const gaugesList = {
     categoriesTotal: new Gauge({
@@ -32,38 +32,44 @@ const gaugesList = {
 };
 
 exports.getMetrics = async (req, res) => {
-    let [
+    const [
         integrations,
         codes,
-        categories
+        categories,
+        partners
     ] = await Promise.all([
-        Integration.findAll(),
-        Code.findAll({ include: [Integration] }),
-        Category.findAll()
+        Integration.findAll({
+            attributes: [
+                [sequelize.fn('COUNT', 'id'), 'value']
+            ],
+            raw: true
+        }),
+        sequelize.query(
+            'SELECT COUNT(codes.id) AS value, (codes.claimed_by IS NOT NULL) AS claimed, integrations.name AS integration_name '
+            + 'FROM codes, integrations '
+            + 'WHERE codes.integration_id = integrations.id '
+            + 'GROUP BY claimed, integration_name',
+            { type: sequelize.QueryTypes.SELECT }
+        ),
+        Category.findAll({
+            attributes: [
+                [sequelize.fn('COUNT', 'id'), 'value']
+            ],
+            raw: true
+        }),
+        sequelize.query(
+            'SELECT categories.name AS category_name, COUNT(*) AS value '
+            + 'FROM categories, jsonb_array_elements(categories.discounts) AS partners '
+            + 'GROUP BY categories.id, categories.name',
+            { type: sequelize.QueryTypes.SELECT }
+        )
     ]);
 
-    const partners = categories
-        .map((category) => category.toJSON())
-        .map((category) => {
-            for (const discount of category.discounts) {
-                discount.category_name = category.name;
-            }
-
-            return category.discounts;
-        }).flat();
-
-    categories = categories.map((category) => category.toJSON());
-    integrations = integrations.map((integration) => integration.toJSON());
-    codes = codes.map((code) => Object.assign(code.toJSON(), {
-        integration_name: code.integration.name,
-        claimed: code.claimed_by !== null
-    }));
-
     // setting gauges with real data
-    helpers.addGaugeData(gaugesList.categoriesTotal, helpers.countByFields(categories));
-    helpers.addGaugeData(gaugesList.partnersTotal, helpers.countByFields(partners, ['category_name']));
-    helpers.addGaugeData(gaugesList.integrationsTotal, helpers.countByFields(integrations));
-    helpers.addGaugeData(gaugesList.codesTotal, helpers.countByFields(codes, ['integration_name', 'claimed']));
+    helpers.addGaugeData(gaugesList.categoriesTotal, categories);
+    helpers.addGaugeData(gaugesList.partnersTotal, partners);
+    helpers.addGaugeData(gaugesList.integrationsTotal, integrations);
+    helpers.addGaugeData(gaugesList.codesTotal, codes);
 
     res.set('Content-Type', register.contentType);
     res.end(register.metrics());
