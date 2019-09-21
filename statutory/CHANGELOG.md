@@ -1,3 +1,12 @@
+## [0.21.5](https://github.com/AEGEE/oms-statutory/compare/0.21.4...0.21.5) (2019-09-21)
+
+
+### Bug Fixes
+
+* **metrics:** increased metrics performance ([7b94540](https://github.com/AEGEE/oms-statutory/commit/7b94540))
+
+
+
 ## [0.21.4](https://github.com/AEGEE/oms-statutory/compare/0.21.3...0.21.4) (2019-09-19)
 
 
