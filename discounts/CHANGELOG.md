@@ -1,3 +1,12 @@
+# [0.9.0](https://github.com/AEGEE/oms-discounts/compare/0.8.1...0.9.0) (2019-09-22)
+
+
+### Bug Fixes
+
+* **metrics:** fix endpoint metric name ([841117a](https://github.com/AEGEE/oms-discounts/commit/841117a))
+
+
+
 ## [0.8.1](https://github.com/AEGEE/oms-discounts/compare/0.8.0...0.8.1) (2019-09-21)
 
 
