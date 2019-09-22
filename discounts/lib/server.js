@@ -10,6 +10,7 @@ const middlewares = require('./middlewares');
 const integrations = require('./integrations');
 const categories = require('./categories');
 const metrics = require('./metrics');
+const endpointsMetrics = require('./endpoints_metrics');
 const db = require('./sequelize');
 
 const server = express();
@@ -29,6 +30,7 @@ process.on('unhandledRejection', (err) => {
 
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
 GeneralRouter.get('/metrics', metrics.getMetrics);
+GeneralRouter.get('/metrics/requests', endpointsMetrics.getEndpointMetrics);
 GeneralRouter.use(middlewares.authenticateUser);
 
 // integrations and codes
@@ -49,6 +51,7 @@ GeneralRouter.get('/categories/:category_id', categories.findCategory, categorie
 GeneralRouter.put('/categories/:category_id', categories.findCategory, categories.updateCategory);
 GeneralRouter.delete('/categories/:category_id', categories.findCategory, categories.deleteCategory);
 
+server.use(endpointsMetrics.addEndpointMetrics);
 server.use('/', GeneralRouter);
 server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);
