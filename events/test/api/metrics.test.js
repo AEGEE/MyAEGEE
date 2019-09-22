@@ -14,7 +14,7 @@ describe('Metrics requests', () => {
         mock.cleanAll();
     });
 
-    test('should return data correctly', async () => {
+    test('should return data correctly on /metrics', async () => {
         const event = await generator.createEvent({});
         await generator.createApplication({ user_id: 1, status: 'accepted' }, event);
         await generator.createApplication({ user_id: 2, status: 'accepted' }, event);
@@ -25,6 +25,16 @@ describe('Metrics requests', () => {
 
         const res = await request({
             uri: '/metrics',
+            method: 'GET',
+            json: false
+        });
+
+        expect(res.statusCode).toEqual(200);
+    });
+
+    test('should return data correctly on /metrics/requests', async () => {
+        const res = await request({
+            uri: '/metrics/requests',
             method: 'GET',
             json: false
         });
