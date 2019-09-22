@@ -1,3 +1,12 @@
+## [0.11.1](https://github.com/AEGEE/oms-events/compare/0.11.0...0.11.1) (2019-09-22)
+
+
+### Bug Fixes
+
+* **metrics:** fix endpoint metric name ([cb9cdf2](https://github.com/AEGEE/oms-events/commit/cb9cdf2))
+
+
+
 # [0.11.0](https://github.com/AEGEE/oms-events/compare/0.10.3...0.11.0) (2019-09-22)
 
 
