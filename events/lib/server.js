@@ -12,6 +12,7 @@ const imageserv = require('./imageserv');
 const log = require('./logger');
 const middlewares = require('./middlewares');
 const metrics = require('./metrics');
+const endpointsMetrics = require('./endpoints_metrics');
 const config = require('../config');
 
 const EventsRouter = router({ mergeParams: true });
@@ -41,6 +42,7 @@ ImagesRouter.use(express.static(config.media_dir)); // Serving images.
 
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
 GeneralRouter.get('/metrics', metrics.getMetrics);
+GeneralRouter.get('/metrics/requests', endpointsMetrics.getEndpointMetrics);
 GeneralRouter.use(middlewares.authenticateUser);
 
 GeneralRouter.get('/', events.listEvents);
@@ -74,6 +76,7 @@ EventsRouter.delete('/organizers/:user_id', events.deleteOrganizer);
 EventsRouter.post('/bodies', events.addLocal);
 EventsRouter.delete('/bodies/:body_id', events.deleteLocal);
 
+server.use(endpointsMetrics.addEndpointMetrics);
 server.use(config.media_url, ImagesRouter);
 server.use('/', GeneralRouter);
 server.use('/single/:event_id', EventsRouter);

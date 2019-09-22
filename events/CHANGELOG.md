@@ -1,3 +1,12 @@
+# [0.11.0](https://github.com/AEGEE/oms-events/compare/0.10.3...0.11.0) (2019-09-22)
+
+
+### Features
+
+* **metrics:** added endpoint metrics. Fixes MEMB-619 ([e697fb9](https://github.com/AEGEE/oms-events/commit/e697fb9))
+
+
+
 ## [0.10.3](https://github.com/AEGEE/oms-events/compare/0.10.2...0.10.3) (2019-09-21)
 
 
