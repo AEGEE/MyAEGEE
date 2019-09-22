@@ -1,3 +1,12 @@
+# [0.22.0](https://github.com/AEGEE/oms-statutory/compare/0.21.5...0.22.0) (2019-09-22)
+
+
+### Features
+
+* **metrics:** added endpoint metrics. Fixes MEMB-619 ([4c4aa35](https://github.com/AEGEE/oms-statutory/commit/4c4aa35))
+
+
+
 ## [0.21.5](https://github.com/AEGEE/oms-statutory/compare/0.21.4...0.21.5) (2019-09-21)
 
 
