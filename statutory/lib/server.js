@@ -23,6 +23,7 @@ const bugsnag = require('./bugsnag');
 const cron = require('./cron');
 const imageserv = require('./imageserv');
 const metrics = require('./metrics');
+const endpointsMetrics = require('./endpoints_metrics');
 
 const GeneralRouter = router({ mergeParams: true });
 const PaxLimitsRouter = router({ mergeParams: true });
@@ -57,6 +58,7 @@ ImagesRouter.use(express.static(config.images_dir)); // Serving images.
 
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
 GeneralRouter.get('/metrics', metrics.getMetrics);
+GeneralRouter.get('/metrics/requests', endpointsMetrics.getEndpointMetrics);
 GeneralRouter.use(middlewares.authenticateUser);
 GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', events.addEvent);
@@ -155,6 +157,7 @@ PlenariesRouter.put('/:plenary_id', plenaries.findPlenary, plenaries.editPlenary
 PlenariesRouter.get('/:plenary_id', plenaries.findPlenaryWithAttendances);
 PlenariesRouter.post('/:plenary_id/attendance/mark', plenaries.findPlenary, plenaries.markPlenaryAttendance);
 
+server.use(endpointsMetrics.addEndpointMetrics);
 server.use('/events/:event_id/massmailer', MassMailerRouter);
 server.use('/events/:event_id/memberslists', MembersListsRouter);
 server.use('/events/:event_id/question-lines', QuestionLinesRouter);
