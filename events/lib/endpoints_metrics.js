@@ -6,7 +6,7 @@ const {
 
 const endpointsRegistry = new Registry();
 const responseCounter = new Counter({
-    name: 'statutory_requests_total',
+    name: 'events_requests_total',
     help: 'Amount of total HTTP requests',
     labelNames: ['status', 'endpoint', 'method'],
     registers: [endpointsRegistry]
