@@ -12,9 +12,11 @@ describe('Metrics requests', () => {
     afterEach(async () => {
         await stopServer();
         mock.cleanAll();
+
+        await generator.clearAll();
     });
 
-    test('should return data correctly', async () => {
+    test('should return data correctly on /metrics', async () => {
         await generator.createCategory({});
 
         const integration = await generator.createIntegration({});
@@ -23,6 +25,17 @@ describe('Metrics requests', () => {
 
         const res = await request({
             uri: '/metrics',
+            method: 'GET',
+            json: false
+        });
+
+        expect(res.statusCode).toEqual(200);
+    });
+
+
+    test('should return data correctly on /metrics/requests', async () => {
+        const res = await request({
+            uri: '/metrics/requests',
             method: 'GET',
             json: false
         });
