@@ -8,15 +8,16 @@ const endpointsRegistry = new Registry();
 const responseCounter = new Counter({
     name: 'statutory_requests_total',
     help: 'Amount of total HTTP requests',
-    labelNames: ['status', 'endpoint', 'method'],
+    labelNames: ['status', 'path', 'endpoint', 'method'],
     registers: [endpointsRegistry]
 });
 
 exports.addEndpointMetrics = async (req, res, next) => {
     const callbackOnFinished = () => {
         const labelsObject = {
+            endpoint: req.baseUrl + req.path,
             status: res.statusCode,
-            endpoint: req.originalUrl,
+            path: req.originalUrl,
             method: req.method
         };
 

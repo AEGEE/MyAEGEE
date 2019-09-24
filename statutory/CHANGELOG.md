@@ -1,3 +1,12 @@
+## [0.22.1](https://github.com/AEGEE/oms-statutory/compare/0.22.0...0.22.1) (2019-09-24)
+
+
+### Bug Fixes
+
+* **metrics:** added request metrics path ([8f64c34](https://github.com/AEGEE/oms-statutory/commit/8f64c34))
+
+
+
 # [0.22.0](https://github.com/AEGEE/oms-statutory/compare/0.21.5...0.22.0) (2019-09-22)
 
 
