@@ -1,3 +1,13 @@
+## [0.11.2](https://github.com/AEGEE/oms-events/compare/0.11.1...0.11.2) (2019-09-25)
+
+
+### Bug Fixes
+
+* **deps:** fix npm audit vulnerabilities report ([35a66ac](https://github.com/AEGEE/oms-events/commit/35a66ac))
+* **metrics:** added request metrics path ([2ac640c](https://github.com/AEGEE/oms-events/commit/2ac640c))
+
+
+
 ## [0.11.1](https://github.com/AEGEE/oms-events/compare/0.11.0...0.11.1) (2019-09-22)
 
 
