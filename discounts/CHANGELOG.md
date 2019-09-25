@@ -1,3 +1,14 @@
+## [0.9.1](https://github.com/AEGEE/oms-discounts/compare/0.9.0...0.9.1) (2019-09-25)
+
+
+### Bug Fixes
+
+* **deps:** fix npm audit vulnerabilities report ([d1607e3](https://github.com/AEGEE/oms-discounts/commit/d1607e3))
+* **metrics:** added request metrics path ([536f52e](https://github.com/AEGEE/oms-discounts/commit/536f52e))
+* **test:** fix flapping tests ([582171e](https://github.com/AEGEE/oms-discounts/commit/582171e))
+
+
+
 # [0.9.0](https://github.com/AEGEE/oms-discounts/compare/0.8.1...0.9.0) (2019-09-22)
 
 
