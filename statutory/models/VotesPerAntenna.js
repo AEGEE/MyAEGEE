@@ -82,7 +82,7 @@ VotesPerAntenna.recalculateVotesForAntenna = async function recalculateVotesForA
     if (memberslist && body.type === 'antenna') {
         const members = memberslist.members.length;
 
-        if (members >= 10 && members <= 20) votesAmount = 1;
+        if (members >= 1 && members <= 20) votesAmount = 1;
         else if (members >= 21 && members <= 50) votesAmount = 2;
         else if (members >= 51 && members <= 100) votesAmount = 3;
         else if (members >= 101 && members <= 150) votesAmount = 4;
@@ -95,7 +95,7 @@ VotesPerAntenna.recalculateVotesForAntenna = async function recalculateVotesForA
         else if (members >= 651 && members <= 750) votesAmount = 11;
         else if (members >= 751 && members <= 850) votesAmount = 12;
         else if (members >= 851 && members <= 950) votesAmount = 13;
-        else if (members >= 951) votesAmount = 14 + Math.floor((members - 950) / 250);
+        else votesAmount = 14 + Math.floor((members - 950) / 250);
     }
 
     // Upsert somehow doesn't work, so we're doing it with 2 requests.

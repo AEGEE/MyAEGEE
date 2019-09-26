@@ -9,6 +9,7 @@ const regularUser = require('../assets/oms-core-valid').data;
 
 describe('Votes per antenna calculation', () => {
     const amounts = [
+        { members: 1, votes: 1 },
         { members: 10, votes: 1 },
         { members: 15, votes: 1 },
         { members: 25, votes: 2 },
