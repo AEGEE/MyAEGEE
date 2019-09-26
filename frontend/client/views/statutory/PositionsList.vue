@@ -126,6 +126,13 @@
               </a>
             </b-table-column>
 
+            <b-table-column label="Edit" :visible="prefix === 'all'">
+              <router-link
+                :to="{ name: 'oms.statutory.candidates.edit', params: { id: $route.params.id, position_id: selectedPosition.id, candidate_id: props.row.id } }">
+                Edit
+              </router-link>
+            </b-table-column>
+
             <b-table-column label="Update status" :visible="prefix === 'all'">
               <div class="select is-small" :class="{ 'is-loading': props.row.isSaving }">
                 <select v-model="props.row.newStatus" @change="switchCandidateStatus(props.row, selectedPosition)">
