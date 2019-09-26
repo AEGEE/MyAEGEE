@@ -1,3 +1,13 @@
+## [0.22.2](https://github.com/AEGEE/oms-statutory/compare/0.22.1...0.22.2) (2019-09-26)
+
+
+### Bug Fixes
+
+* **deps:** fix npm audit vulnerabilities report ([824848c](https://github.com/AEGEE/oms-statutory/commit/824848c))
+* **votes:** fixed votes per antenna calculation. Fixes MEMB-625 ([d464c3e](https://github.com/AEGEE/oms-statutory/commit/d464c3e))
+
+
+
 ## [0.22.1](https://github.com/AEGEE/oms-statutory/compare/0.22.0...0.22.1) (2019-09-24)
 
 
