@@ -1,3 +1,13 @@
+<a name="0.23.6"></a>
+## [0.23.6](https://github.com/AEGEE/oms-frontend/compare/0.23.5...0.23.6) (2019-09-26)
+
+
+### Bug Fixes
+
+* **statutory:** allow editing applications for JC/admins. Fixes MEMB-626 ([15b6ca5](https://github.com/AEGEE/oms-frontend/commit/15b6ca5))
+
+
+
 <a name="0.23.5"></a>
 ## [0.23.5](https://github.com/AEGEE/oms-frontend/compare/0.23.4...0.23.5) (2019-09-19)
 
