@@ -1,6 +1,5 @@
-version: '3.2'
+version: "2.4"
 ### OMS STATUTORY     #######################################
-### mongodb Container #######################################
 services:
     postgres-oms-statutory:
         restart: always
@@ -8,27 +7,33 @@ services:
         volumes:
             - postgres-oms-statutory:/var/lib/postgresql/data
         expose:
-            - 5432
+            - "5432"
         environment:
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: ${PW_POSTGRES}
+            POSTGRES_USER: "postgres"
+            POSTGRES_PASSWORD: "${PW_POSTGRES}"
+
     oms-statutory:
         restart: always
-        build:
-            context: ./$PATH_OMS_STATUTORY/..
-            dockerfile: ./docker/oms-statutory/Dockerfile.dev
-        image: aegee/oms-statutory:dev
+        image: aegee/oms-statutory:stable
         volumes:
             - oms-statutory-media:/usr/app/media
-            - ./$PATH_OMS_STATUTORY/../:/usr/app/src
             - shared:/usr/app/shared:ro
-        links:
+        depends_on:
             - postgres-oms-statutory
         expose:
-            - 8084
+            - "8084"
         environment:
-            BUGSNAG_KEY: a7dfed96a71033eca7f4469e8f88878b
-            PG_PASSWORD: ${PW_POSTGRES}
+            BUGSNAG_KEY: "${BUGSNAG_KEY_STATUTORY}"
+            PG_PASSWORD: "${PW_POSTGRES}"
+            NODE_ENV: "${MYAEGEE_ENV}"
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8084/healthcheck"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+        cpu_count: 1
+        mem_limit: 900m
         labels:
             - "traefik.backend=oms-statutory"
             - "traefik.port=8084"
@@ -38,8 +43,13 @@ services:
 
 volumes:
     postgres-oms-statutory:
-        driver: "local"
+        driver: local
     oms-statutory-media:
-        driver: "local"
+        driver: local
     shared:
-        driver: "local"
+        driver: local
+
+networks:
+    default:
+        external:
+            name: OMS
