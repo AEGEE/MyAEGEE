@@ -1,4 +1,4 @@
-version: '3.2'
+version: "2.4"
 ### OMS DISCOUNTS     #######################################
 services:
     postgres-oms-discounts:
@@ -8,34 +8,46 @@ services:
         expose:
             - "5432"
         environment:
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: ${PW_POSTGRES}
+            POSTGRES_USER: "postgres"
+            POSTGRES_PASSWORD: "${PW_POSTGRES}"
+
     oms-discounts:
-        build:
-            context: ./$PATH_OMS_DISCOUNTS/..
-            dockerfile: ./docker/oms-discounts/Dockerfile.dev
-        image: aegee/oms-discounts:dev
+        image: aegee/oms-discounts:stable
         volumes:
             - oms-discounts-media:/usr/app/media
-            - ./$PATH_OMS_DISCOUNTS/../:/usr/app/src
             - shared:/usr/app/shared:ro
-        links:
+        depends_on:
             - postgres-oms-discounts
         expose:
             - "8084"
         environment:
-            BUGSNAG_KEY: bbef84ab99c91665262f672ba6507a2d
-            PG_PASSWORD: ${PW_POSTGRES}
+            BUGSNAG_KEY: "${BUGSNAG_KEY_DISCOUNTS}"
+            PG_PASSWORD: "${PW_POSTGRES}"
+            NODE_ENV: "${MYAEGEE_ENV}"
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8084/healthcheck"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+        cpu_count: 1
+        mem_limit: 900m
         labels:
             - "traefik.backend=oms-discounts"
             - "traefik.port=8084"
             - "traefik.frontend.rule=PathPrefix:/services/oms-discounts/api;PathPrefixStrip:/services/oms-discounts/api"
             - "traefik.frontend.priority=110"
             - "traefik.enable=true"
+
 volumes:
     postgres-oms-discounts:
-        driver: "local"
+        driver: local
     oms-discounts-media:
-        driver: "local"
+        driver: local
     shared:
-        driver: "local"
+        driver: local
+
+networks:
+    default:
+        external:
+            name: OMS

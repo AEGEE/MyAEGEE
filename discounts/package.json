@@ -5,6 +5,7 @@
   "main": "lib/run.js",
   "scripts": {
     "start": "nodemon -e 'js,json' lib/run.js",
+    "nodemon-start": "nodemon -e 'js,json' lib/run.js",
     "lint": "eslint .",
     "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
     "db:create": "sequelize db:create",

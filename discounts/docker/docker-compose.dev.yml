@@ -1,0 +1,11 @@
+version: "2.4"
+
+services:
+  oms-discounts:
+    build:
+      context: ./${PATH_OMS_DISCOUNTS}/..
+      dockerfile: ./docker/oms-discounts/Dockerfile.dev
+    image: aegee/oms-discounts:latest
+    volumes:
+      - ./${PATH_OMS_DISCOUNTS}/../:/usr/app/src
+    command: "sh /usr/app/scripts/bootstrap.sh && npm nodemon-start"
