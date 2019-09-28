@@ -1,0 +1,1 @@
+TODO: make the generation of the .env based on .env.example that puts the URL and the credentials of sendgrid

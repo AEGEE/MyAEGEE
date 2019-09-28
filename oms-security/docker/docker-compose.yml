@@ -1,0 +1,54 @@
+version: "2.4"
+
+services:
+
+  maria-bitwarden:
+    image: mariadb:10.4
+    restart: on-failure
+    environment:
+      MYSQL_DATABASE: "bitwarden"
+      MYSQL_USER: "warden"
+      MYSQL_PASSWORD: "${PW_BITWARDEN}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - maria-bitwarden:/var/lib/mysql
+
+  bitwarden:
+    image: aegee/bitwarden_rs-server:mysql
+    restart: on-failure
+    depends_on:
+      - maria-bitwarden
+    volumes:
+      - ./${PATH_OMS_SECURITY}/bw-data/:/data/
+    environment:
+      SIGNUPS_ALLOWED: "false"
+      ADMIN_TOKEN: "${PW_BITWARDEN_ADMINPANEL}"
+      DOMAIN: "https://${SUBDOMAIN_BITWARDEN}${BASE_URL}"
+      LOG_FILE: "/data/bitwarden.log"
+      ROCKET_LOG: "normal" #the only thing above this is "critical", no "warning"
+      SHOW_PASSWORD_HINT: "false"
+      SMTP_HOST: "smtp.sendgrid.net"
+      SMTP_FROM: "bitwarden@${BASE_URL}"
+      SMTP_FROM_NAME: "AEGEE pass manager"
+      SMTP_PORT: "587"
+      SMTP_SSL: "true"
+      SMTP_USERNAME: "${USER_SENDGRID}"
+      SMTP_PASSWORD: "${PW_SENDGRID}"
+      RUST_BACKTRACE: "1"
+      DATABASE_URL: "mysql://warden:${PW_BITWARDEN}@maria-bitwarden/bitwarden"
+      ENABLE_DB_WAL: "false"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=bitwarden"
+      - "traefik.port=80"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_BITWARDEN}${BASE_URL}"
+      - "traefik.frontend.priority=20"
+
+volumes:
+  maria-bitwarden:
+    driver: local
+
+networks:
+  default:
+    external:
+      name: OMS

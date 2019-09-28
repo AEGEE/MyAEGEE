@@ -1,0 +1,44 @@
+version: "2.4"
+
+services:
+
+  survey:
+    image: crramirez/limesurvey:3 # TODO change to martialblog/limesurvey
+    environment: # https://hub.docker.com/r/iteconomics/limesurvey a good explaantion of many env vars
+      LIMESURVEY_DB_USER: "postgres"
+      LIMESURVEY_DB_PASSWORD: "${PW_POSTGRES}"
+      LIMESURVEY_DB_HOST: "postgres-limesurvey"
+      LIMESURVEY_ADMIN_USER: "admin"
+      LIMESURVEY_ADMIN_PASSWORD: "${PW_ADMIN}"
+      LIMESURVEY_ADMIN_NAME: "Lime Administrator"
+      LIMESURVEY_ADMIN_EMAIL: "admin@aegee.eu"
+    volumes:
+      - upload:/app/upload
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=survey"
+      - "traefik.port=80"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_SURVEY}${BASE_URL}"
+      - "traefik.frontend.priority=20"
+
+  postgres-limesurvey:
+    restart: always
+    image: postgres:10.6
+    volumes:
+      - postgres-limesurvey:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "${PW_POSTGRES}"
+
+volumes:
+  postgres-limesurvey:
+    driver: local
+  upload:
+    driver: local
+
+networks:
+  default:
+    external:
+      name: OMS
