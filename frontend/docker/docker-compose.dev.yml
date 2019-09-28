@@ -1,0 +1,10 @@
+version: "2.4"
+
+services:
+    oms-frontend:
+        build:
+            context: ./${PATH_OMS_FRONTEND}/..
+            dockerfile: ./docker/Dockerfile
+        image: aegee/oms-frontend:latest
+        volumes:
+            - ./${PATH_OMS_FRONTEND}/../:/usr/app/src

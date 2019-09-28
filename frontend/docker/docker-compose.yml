@@ -1,16 +1,20 @@
-version: '3.2'
+version: "2.4"
 
 services:
     oms-frontend:
         restart: always
-        build:
-            context: ./$PATH_OMS_FRONTEND/..
-            dockerfile: ./docker/Dockerfile
-        volumes:
-            - "./$PATH_OMS_FRONTEND/../:/usr/app/src"
+        image: aegee/oms-frontend:stable
+        #healthcheck?
+        cpu_count: 1
+        mem_limit: 900m
         labels:
-            - "traefik.frontend.rule=HostRegexp:{domain:[a-z0-9.]+};PathPrefix:/"
+            - "traefik.frontend.rule=Host:${SUBDOMAIN_FRONTEND}${BASE_URL};PathPrefix:/"
             - "traefik.frontend.priority=11"
             - "traefik.port=80"
             - "traefik.backend=oms-frontend"
             - "traefik.enable=true"
+
+networks:
+    default:
+        external:
+            name: OMS
