@@ -1,5 +1,5 @@
 
-default:  
+default:
 	echo 'Most common options are bootstrap, start, monitor, live_refresh, restart, nuke_dev, clean (cleans untagged/unnamed images)'
 
 bump:
@@ -24,13 +24,17 @@ refresh:  build
 live_refresh:  # docker-compose up -d --build (CD TARGET)
 	./helper.sh --refresh
 
+debug:
+	./helper.sh -v --debug
+
+config: debug
 # stop: # docker-compose stop
 # 	./helper.sh --stop
 
 # down: # docker-compose down
 # 	./helper.sh --down
 
-restart: 
+restart:
 	./helper.sh --down
 
 hard_restart: nuke_dev restart
