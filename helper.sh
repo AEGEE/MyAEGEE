@@ -47,10 +47,14 @@ compose_wrapper ()
     services=(${service_string//:/ })
     command="docker-compose -f $DIR/base-docker-compose.yml"
     for s in "${services[@]}"; do
-        if [[ -f "$DIR/${s}/docker/docker-compose.yml" ]]; then
-            command="${command} -f $DIR/${s}/docker/docker-compose.yml"
+        if [[ -f "${DIR}/${s}/docker/docker-compose.yml" ]]; then
+            if [[ "${MYAEGEE_ENV}" == "production" ]]; then
+              command="${command} -f ${DIR}/${s}/docker/docker-compose.yml"
         else
-            echo -e "[OMS] WARNING: No docker file found for ${s} (full path $DIR/${s}/docker/docker-compose.yml)"
+              command="${command} -f ${DIR}/${s}/docker/docker-compose.yml -f ${DIR}/${s}/docker/docker-compose.dev.yml"
+            fi
+        else
+            echo -e "[OMS] WARNING: No docker file found for ${s} (full path ${DIR}/${s}/docker/docker-compose.yml)"
         fi
     done
     command="${command} ${@}"
