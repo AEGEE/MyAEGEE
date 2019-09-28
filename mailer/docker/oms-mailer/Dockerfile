@@ -8,12 +8,12 @@ RUN mkdir -p /usr/src/myapp \
 
 WORKDIR /usr/src/myapp
 
-ADD mix.exs /usr/src/myapp/mix.exs
+COPY mix.exs /usr/src/myapp/mix.exs
 RUN ["mix", "deps.get"]
 
-ADD config /usr/src/myapp/config
-ADD lib /usr/src/myapp/lib
-ADD test /usr/src/myapp/test
+COPY config /usr/src/myapp/config
+COPY lib /usr/src/myapp/lib
+COPY test /usr/src/myapp/test
 
 
 ENV MIX_ENV=prod
