@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#NEW structure: now eberything here will be a target of makefile.
-# Then helper.sh calls the target according to the parameter of the shell script 
+# NEW structure: now eberything here will be a target of makefile.
+# Then helper.sh calls the target according to the parameter of the shell script
 # (which could have -v for verbose.. so sergey is happy)
 #...... or at least I guess? Alternative is that you make shit loads of IFs like in deploy/oms.sh
 
@@ -14,15 +14,15 @@ bump_repo ()
     git submodule foreach "git checkout master && git pull"
     git add $(git submodule status | grep '^+' |  awk '{ print $2 }')
     #if something is staged, do the following two lines
-    git diff --cached --quiet 
-    if (( "$?" )); then 
+    git diff --cached --quiet
+    if (( "$?" )); then
         git checkout -b "bump-submodules-$(date '+%d-%m')-$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 4)"
         git commit -m "bump: Bump version of the submodules via make bump"
     fi
 }
 
 #CATEGORY: DEPLOY
-# create first secrets is in start.sh
+# 'create first secrets' is in start.sh
 # FIRST DEPLOYMENT
 init_boot ()
 {
@@ -37,7 +37,7 @@ init_boot ()
 pw_changer ()
 {
     echo -e "\n[Deployment] Setting passwords\n"
-    bash $DIR/password-setter.sh
+    bash ${DIR}/password-setter.sh
 }
 
 # wrapper for the compose mess (ACCEPTS PARAMETERS)
@@ -45,12 +45,12 @@ compose_wrapper ()
 { #TO DO: put hostname check and do not accept the nuke and stop in production
     service_string=$(printenv ENABLED_SERVICES)
     services=(${service_string//:/ })
-    command="docker-compose -f $DIR/base-docker-compose.yml"
+    command="docker-compose -f ${DIR}/base-docker-compose.yml"
     for s in "${services[@]}"; do
         if [[ -f "${DIR}/${s}/docker/docker-compose.yml" ]]; then
             if [[ "${MYAEGEE_ENV}" == "production" ]]; then
               command="${command} -f ${DIR}/${s}/docker/docker-compose.yml"
-        else
+            else
               command="${command} -f ${DIR}/${s}/docker/docker-compose.yml -f ${DIR}/${s}/docker/docker-compose.dev.yml"
             fi
         else
@@ -61,7 +61,7 @@ compose_wrapper ()
     if ( $verbose ); then
         echo -e "\n[OMS] Full command:\n${command}\n"
     fi
-    eval $command
+    eval ${command}
     return $?
 }
 
@@ -82,16 +82,16 @@ compose_wrapper ()
 edit_env_file ()
 {
     export EDITOR=$(env | grep EDITOR | grep -oe '[^=]*$');
-    if [ -z "$EDITOR" ]; then
+    if [ -z "${EDITOR}" ]; then
       echo "[Deployment] no EDITOR variable, setting it to vim"
       export EDITOR="vim";
     fi
-    if ( ! $NON_INTERACTIVE ); then
+    if ( ! ${NON_INTERACTIVE} ); then
         #Ask if one wants to tweak the .env before starting it up
         echo "Do you wish to edit .env file? (write the number)"
         select yn in "Yes" "No"; do
         case $yn in
-            Yes ) $EDITOR $DIR/.env; break;;
+            Yes ) ${EDITOR} ${DIR}/.env; break;;
             No ) break;;
         esac
         done
@@ -108,15 +108,15 @@ edit_env_file ()
 
 # execute command
 #compose_wrapper exec #and additional args: the name of the container and the command
-#FIXME: with the make target, arguments cannot be specified 
+#FIXME: with the make target, arguments cannot be specified
 
 # HUMAN INTERVENTION NEEDED: register in .env your services
 ## Export all environment variables from .env to this script in case we need them some time
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-if [ ! -f $DIR/.env ]; then
-    cp $DIR/.env.example $DIR/.env
+if [ ! -f ${DIR}/.env ]; then
+    cp ${DIR}/.env.example ${DIR}/.env
 fi
-export $(cat $DIR/.env | grep -v ^# | xargs)
+export $(cat ${DIR}/.env | grep -v ^# | xargs)
 
 # Entry: check if the number of arguments is max 2 (one for the target one for the verbose)
 init=false;
@@ -150,12 +150,12 @@ if [[ "$#" -ge 1 ]]; then
             --bump) bump=true; ((command_num++)); shift ;;
             --execute) execute=true; ((command_num++)); shift ;;
             --debug) debug=true; ((command_num++)); shift ;;
-            
+
             -v) verbose=true; shift ;;
 
             --) shift ; arguments+=$@; break ;;
 
-            -*) echo "unknown option: $1" 2>&1; 
+            -*) echo "unknown option: $1" 2>&1;
                 echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump} [-v]"; exit 1;;
             *) arguments+="$1 "; shift;;
         esac
@@ -205,7 +205,7 @@ if ( $debug ); then
     exit $?
 fi
 
-if ( $stop ); then 
+if ( $stop ); then
   if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
     compose_wrapper stop $arguments #TODO: improve robustness. if there is rubbish it is still not empty
     exit $?
@@ -214,7 +214,7 @@ if ( $stop ); then
   exit 0
 fi
 
-if ( $down ); then 
+if ( $down ); then
   if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
     compose_wrapper down $arguments #TODO: improve robustness. if there is rubbish it is still not empty
     exit $?
@@ -223,7 +223,7 @@ if ( $down ); then
   exit 0
 fi
 
-if ( $restart ); then 
+if ( $restart ); then
   if [[ ! -z $arguments ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
     compose_wrapper restart $arguments #TODO: improve robustness. if there is rubbish it is still not empty
     exit $?
@@ -234,14 +234,14 @@ fi
 
 if ( $nuke ); then
   if [[ "$(hostname)" == *prod* ]]; then
-    echo "DUUUDE you can't kill production" && exit 1; 
+    echo "DUUUDE you can't kill production" && exit 1;
   else if [[ "$(hostname)" == *OMS2* ]]; then
-      echo "DUUUDE you better do this manually, no script" && exit 2; 
+      echo "DUUUDE you better do this manually, no script" && exit 2;
     else
       compose_wrapper down -v
       exit $?
     fi
-  fi 
+  fi
 fi
 
 if ( $bump ); then
