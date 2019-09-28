@@ -1,4 +1,4 @@
-version: "3.2"
+version: "2.4"
 
 #This docker-compose file contains utility containers not vital for the working of the web application, such as an orchestrator manager (portainer) and a continuous integration app (drone)
 
@@ -13,9 +13,8 @@ services:
     image: portainer/portainer:1.15.5
     #image: portainer/portainer:1.19.2
     command: -H unix:///var/run/docker.sock --admin-password $PW_PORTAINER --logo $AEGEE_LOGO_B64
-    restart: on-failure
     expose:
-      - 9000
+      - "9000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
     labels:
@@ -45,7 +44,7 @@ services:
   #     - traefik.port=8000
   #     - traefik.frontend.rule=Host:${SUBDOMAIN_DRONE}${BASE_URL}
   #     - traefik.frontend.priority=10
-  # 
+  #
   # drone-agent:
   #   image: drone/drone:0.7
   #   command: agent
