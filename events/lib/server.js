@@ -64,10 +64,11 @@ EventsRouter.post('/upload', imageserv.uploadImage);
 
 EventsRouter.get('/applications', applications.listAllApplications);
 EventsRouter.get('/applications/export', applications.exportAll);
+EventsRouter.post('/applications', applications.createApplication);
+EventsRouter.get('/applications/:application_id', middlewares.fetchSingleApplication, applications.getApplication);
+EventsRouter.put('/applications/:application_id', middlewares.fetchSingleApplication, applications.updateApplication);
 EventsRouter.put('/applications/:application_id/status/', middlewares.fetchSingleApplication, applications.setApplicationStatus);
 EventsRouter.put('/applications/:application_id/comment/', middlewares.fetchSingleApplication, applications.setApplicationComment);
-EventsRouter.get('/applications/mine', applications.getApplication);
-EventsRouter.put('/applications/mine', applications.setApplication);
 
 EventsRouter.post('/organizers', events.addOrganizer);
 EventsRouter.put('/organizers/:user_id', events.editOrganizer);

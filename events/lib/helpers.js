@@ -62,6 +62,24 @@ exports.flattenObject = (obj, prefix = '') => {
     }, {});
 };
 
+// Figure out if the value is a number or a string containing only numbers
+exports.isNumber = (value) => {
+    /* istanbul ignore if */
+    if (typeof value === 'number') {
+        return true;
+    }
+
+    /* istanbul ignore else */
+    if (typeof value === 'string') {
+        const valueAsNumber = +value; // converts to number if it's all numbers or to NaN otherwise
+        return !Number.isNaN(valueAsNumber);
+    }
+
+    // Is not covered, probably will be in the future.
+    /* istanbul ignore next */
+    return false;
+};
+
 // A helper to add data to gauge Prometheus metric.
 exports.addGaugeData = (gauge, array) => {
     // reset gauge...
@@ -153,8 +171,8 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
 
     permissions.apply = event.application_status === 'open' && event.status === 'published';
 
-    permissions.approve_participants = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
     permissions.list_applications = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
+    permissions.approve_participants = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
     permissions.export = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
     permissions.set_status = permissions.approve_event[event.type];
 
@@ -164,7 +182,8 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
 exports.getApplicationPermissions = ({ permissions, user, application }) => {
     const isMine = application.user_id === user.id;
 
-    permissions.view_application = isMine || permissions.list_applications;
+    permissions.view_application = isMine || permissions.edit_event;
+    permissions.edit_application = (isMine && permissions.apply) || permissions.edit_event;
 
     return permissions;
 };

@@ -11,5 +11,6 @@ module.exports = {
         created_at: 'Created at',
         updated_at: 'Updated at'
     },
-    EVENT_TYPES: ['wu', 'es', 'nwm', 'ltc', 'rtc', 'european']
+    EVENT_TYPES: ['wu', 'es', 'nwm', 'ltc', 'rtc', 'european'],
+    CURRENT_USER_PREFIX: 'me'
 };

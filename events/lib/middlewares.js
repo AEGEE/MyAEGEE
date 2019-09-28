@@ -7,6 +7,8 @@ const { Event, Application } = require('../models');
 const { Sequelize } = require('./sequelize');
 const helpers = require('./helpers');
 const config = require('../config');
+const constants = require('./constants');
+
 const packageInfo = require('../package');
 
 exports.authenticateUser = async (req, res, next) => {
@@ -108,12 +110,17 @@ exports.fetchSingleEvent = async (req, res, next) => {
 };
 
 exports.fetchSingleApplication = async (req, res, next) => {
-    if (Number.isNaN(Number(req.params.application_id))) {
-        return errors.makeBadRequestError(res, 'application_id should be a number.');
+    const whereObj = { event_id: req.event.id };
+
+    if (req.params.application_id === constants.CURRENT_USER_PREFIX) { // / me, find by user_id
+        whereObj.user_id = req.user.id;
+    } else if (helpers.isNumber(req.params.application_id)) { // Find by application ID
+        whereObj.id = Number(req.params.application_id);
+    } else {
+        return errors.makeBadRequestError(res, `Application ID should be either a number or ${constants.CURRENT_USER_PREFIX}`);
     }
 
-    const application = await Application.findOne({ where: { id: Number(req.params.application_id) } });
-
+    const application = await Application.findOne({ where: whereObj });
     if (!application) {
         return errors.makeNotFoundError(res, `Application with id ${req.params.application_id} not found`);
     }
