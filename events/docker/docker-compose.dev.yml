@@ -1,0 +1,10 @@
+version: "2.4"
+### OMS EVENTS   #######################################
+services:
+    oms-events:
+        build:
+            context: ./${PATH_OMS_EVENTS}/..
+            dockerfile: ./docker/oms-events/Dockerfile.dev
+        image: aegee/oms-events:latest
+        volumes:
+            - ./${PATH_OMS_EVENTS}/../:/usr/app/src
