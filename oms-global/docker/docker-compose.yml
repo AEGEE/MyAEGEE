@@ -1,4 +1,5 @@
-version: "3.2"
+version: "2.4"
+
 #TODO make sure all services always have the appropriate
 #       restart: on-failure
 #TODO: maybe add also the web interfaces for postgre, mongo, whichever?
@@ -67,7 +68,7 @@ services:
           - traefik.frontend.auth.basic.users=admin:${PW_PGADMIN_BLOWF}
         environment:
           DEFAULT_USER: admin@aegee.org
-          DEFAULT_PASSWORD: ${PW_PGADMIN} 
+          DEFAULT_PASSWORD: ${PW_PGADMIN}
 
 ### mongoui Container #######################################
     # mongoui:
