@@ -1,4 +1,4 @@
-version: "2.4"
+version: "3.4"
 
 services:
     oms-mailer:
@@ -14,8 +14,8 @@ services:
         depends_on:
             - oms-mail-transfer-agent
         #healthcheck?
-        cpu_count: 1
-        mem_limit: 900m
+        # cpu_count: 1
+        # mem_limit: 900m
         # no traefik labels here, because we do not want
         # this API to be reachable from outside
 
@@ -31,8 +31,8 @@ services:
             - mail_password
             - mail_user
         #healthcheck?
-        cpu_count: 1
-        mem_limit: 900m
+        # cpu_count: 1
+        # mem_limit: 900m
 
 networks:
     default:
