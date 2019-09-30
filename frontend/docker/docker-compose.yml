@@ -1,12 +1,12 @@
-version: "2.4"
+version: "3.4"
 
 services:
     oms-frontend:
         restart: always
         image: aegee/oms-frontend:stable
         #healthcheck?
-        cpu_count: 1
-        mem_limit: 900m
+        # cpu_count: 1
+        # mem_limit: 900m
         labels:
             - "traefik.frontend.rule=Host:${SUBDOMAIN_FRONTEND}${BASE_URL};PathPrefix:/"
             - "traefik.frontend.priority=11"
