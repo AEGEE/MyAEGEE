@@ -1,4 +1,4 @@
-version: "2.4"
+version: "3.4"
 ### OMS STATUTORY     #######################################
 services:
     postgres-oms-statutory:
@@ -32,8 +32,8 @@ services:
             timeout: 10s
             retries: 3
             start_period: 40s
-        cpu_count: 1
-        mem_limit: 900m
+        # cpu_count: 1
+        # mem_limit: 900m
         labels:
             - "traefik.backend=oms-statutory"
             - "traefik.port=8084"
