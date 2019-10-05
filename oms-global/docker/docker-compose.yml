@@ -10,10 +10,7 @@ services:
 
     traefik:
         restart: unless-stopped
-        build:
-          context: ./$PATH_OMS_GLOBAL/traefik/
-          dockerfile: ./Dockerfile.dev
-        image: aegee/traefik:dev
+        image: traefik:v1.7.4-alpine
         restart: always
         ports:
           - 80:80
