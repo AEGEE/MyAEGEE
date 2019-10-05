@@ -1,4 +1,4 @@
-version: "2.4"
+version: "3.4"
 
 #This docker-compose file contains utility containers not vital for the working of the web application, such as an orchestrator manager (portainer) and a continuous integration app (drone)
 

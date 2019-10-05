@@ -19,13 +19,6 @@ if ! [[ -f "$CURDIR/../secrets/sendgrid_key" ]]; then
   cat /dev/random | head -c 256 | base64 > $CURDIR/../secrets/sendgrid_key
 fi
 
-## If no certificate is provided, use a self-signed one
-if ! [[ -f "$CURDIR/../secrets/cert.pem" ]]; then
-  mkdir -p $CURDIR/../secrets
-  echo -e "[OMS] Creating cert.pem"
-  openssl req -x509 -newkey rsa:4096 -keyout $CURDIR/../secrets/key.pem -out $CURDIR/../secrets/cert.pem -days 365 -nodes -batch
-fi
-
 ## If no acme.json is there, make it
 if ! [[ -f "$CURDIR/../secrets/acme.json" ]]; then
   mkdir -p $CURDIR/../secrets

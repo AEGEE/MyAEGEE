@@ -30,6 +30,8 @@ init_boot ()
     git submodule update --init
 
     docker network inspect OMS &>/dev/null || (echo -e "[OMS] Creating OMS docker network" && docker network create OMS)
+
+    envsubst < "${DIR}"/oms-global/traefik/traefik.toml.template > "${DIR}"/oms-global/traefik/traefik.toml
 }
 
 # change passwords (currently deploy.sh [calls an external script])
@@ -131,6 +133,7 @@ nuke=false;
 bump=false;
 execute=false;
 debug=false;
+list=false;
 verbose=true; #TODO put me to false default
 command_num=0;
 declare -a arguments # = EMPTY ARRAY
@@ -150,6 +153,7 @@ if [[ "$#" -ge 1 ]]; then
             --bump) bump=true; ((command_num++)); shift ;;
             --execute) execute=true; ((command_num++)); shift ;;
             --debug) debug=true; ((command_num++)); shift ;;
+            --list) list=true; ((command_num++)); shift ;;
 
             -v) verbose=true; shift ;;
 
@@ -202,6 +206,11 @@ fi
 
 if ( $debug ); then
     compose_wrapper config | tee would-be-config.yml
+    exit $?
+fi
+
+if ( $list ); then
+    compose_wrapper ps
     exit $?
 fi
 

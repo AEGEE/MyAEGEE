@@ -24,6 +24,9 @@ refresh:  build
 live_refresh:  # docker-compose up -d --build (CD TARGET)
 	./helper.sh --refresh
 
+list: #docker-compose ps
+	./helper.sh -v --list
+
 debug:
 	./helper.sh -v --debug
 
