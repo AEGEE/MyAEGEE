@@ -119,6 +119,10 @@ if [ ! -f ${DIR}/.env ]; then
     cp ${DIR}/.env.example ${DIR}/.env
 fi
 export $(cat ${DIR}/.env | grep -v ^# | xargs)
+if [[ "${MYAEGEE_ENV}" != "production" && "${MYAEGEE_ENV}" != "development" ]]; then
+  echo "Error: MYAEGEE_ENV can only be 'production' or 'development'"
+  exit 1
+fi
 
 # Entry: check if the number of arguments is max 2 (one for the target one for the verbose)
 init=false;
