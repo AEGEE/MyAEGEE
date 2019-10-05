@@ -30,6 +30,8 @@ init_boot ()
     git submodule update --init
 
     docker network inspect OMS &>/dev/null || (echo -e "[OMS] Creating OMS docker network" && docker network create OMS)
+
+    envsubst < "${DIR}"/oms-global/traefik/traefik.toml.template > "${DIR}"/oms-global/traefik/traefik.toml
 }
 
 # change passwords (currently deploy.sh [calls an external script])
