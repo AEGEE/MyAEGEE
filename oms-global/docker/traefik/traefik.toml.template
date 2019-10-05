@@ -16,7 +16,7 @@ defaultEntryPoints = ["http", "https"]
 
 
 ################################################################
-# HTTPS configuration 
+# HTTPS configuration
 ################################################################
 [acme]
 # Email address used for registration.
@@ -50,7 +50,7 @@ onDemand=true
 onHostRule=true
 
 #Alternatively, if we want the domains known in advance
-#(note: aegee.eu's DNS MUST point to the same IP where the 
+#(note: aegee.eu's DNS MUST point to the same IP where the
 #subdomains are pointing to)
 
 #[[acme.domains]]
@@ -96,7 +96,7 @@ endpoint = "unix:///var/run/docker.sock"
 #
 # Required
 #
-domain = "aegee.eu"
+domain = ${BASE_URL}
 
 
 # Enable watch docker changes

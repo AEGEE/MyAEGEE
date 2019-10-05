@@ -15,6 +15,9 @@ defaultEntryPoints = ["http"]
 [web]
 address = ":8080"
 
+[accessLog]
+filePath = "/var/log/traefik/traefik-access.log"
+
 ################################################################
 # Docker configuration backend
 ################################################################
