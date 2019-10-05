@@ -1,4 +1,4 @@
-version: "2.4"
+version: "3.4"
 
 #TODO make sure all services always have the appropriate
 #       restart: on-failure
@@ -20,8 +20,9 @@ services:
           - 443:443
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock:ro
-          - ./secrets/acme.json:/etc/acme.json #we have to mount it, so no secrets
-          - ./$PATH_OMS_GLOBAL/traefik/logs:/var/log/traefik/
+          - ./secrets/acme.json:/etc/acme.json #we have to mount it to preserve it on the host, so no secrets
+          - ./${PATH_OMS_GLOBAL}/traefik/traefik.toml:/etc/traefik/traefik.toml
+          - ./${PATH_OMS_GLOBAL}/traefik/logs:/var/log/traefik/
           #- shared_logs:/var/log/traefik/
 #        networks:
 #          - management
