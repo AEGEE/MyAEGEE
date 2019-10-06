@@ -3,9 +3,6 @@ version: "3.4"
 services:
     oms-mailer:
         restart: unless-stopped
-        build:
-            context: ./$PATH_OMS_MAILER/../
-            dockerfile: ./docker/oms-mailer/Dockerfile
         image: aegee/oms-mailer:stable
         expose:
             - "4000"
@@ -21,9 +18,6 @@ services:
 
     oms-mail-transfer-agent:
         restart: always
-        build:
-            context: ./$PATH_OMS_MAILER/mail_transfer_agent
-            dockerfile: Dockerfile
         image: aegee/oms-mail-transfer-agent:stable
         expose:
             - "25"

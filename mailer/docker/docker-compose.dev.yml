@@ -3,12 +3,16 @@ version: "3.4"
 services:
     oms-mailer:
         build:
-            context: ./$PATH_OMS_MAILER/../
+            context: ./${PATH_OMS_MAILER}/../
             dockerfile: ./docker/oms-mailer/Dockerfile
+            args: 
+                MIX_ENV: dev
         image: aegee/oms-mailer:latest
+        volumes:
+            - /usr/src/myapp/deps
 
     oms-mail-transfer-agent:
         build:
-            context: ./$PATH_OMS_MAILER/mail_transfer_agent
+            context: ./${PATH_OMS_MAILER}/mail_transfer_agent
             dockerfile: Dockerfile
         image: aegee/oms-mail-transfer-agent:latest

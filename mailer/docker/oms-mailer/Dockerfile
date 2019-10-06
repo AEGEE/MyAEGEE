@@ -15,11 +15,11 @@ COPY config /usr/src/myapp/config
 COPY lib /usr/src/myapp/lib
 COPY test /usr/src/myapp/test
 
-
-ENV MIX_ENV=prod
+ARG MIX_ENV=prod
+ENV MIX_ENV=${MIX_ENV}
 ENV PORT=4000
 RUN ["mix", "compile"]
 
-EXPOSE 4000
+EXPOSE ${PORT}
 
 CMD mix phx.server
