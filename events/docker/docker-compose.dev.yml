@@ -7,4 +7,5 @@ services:
             dockerfile: ./docker/oms-events/Dockerfile.dev
         image: aegee/oms-events:latest
         volumes:
+            - /usr/app/src/node_modules
             - ./${PATH_OMS_EVENTS}/../:/usr/app/src
