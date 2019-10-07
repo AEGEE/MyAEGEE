@@ -9,4 +9,4 @@ services:
         volumes:
             - /usr/app/src/node_modules
             - ./${PATH_OMS_FRONTEND}/../:/usr/app/src
-        command: npm install && npm run build && chmod 777 /usr/app/src && nginx
+        command: /bin/sh /usr/app/src/bootstrap-dev.sh
