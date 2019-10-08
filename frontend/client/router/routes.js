@@ -375,10 +375,10 @@ module.exports = [
   },
   {
     name: 'oms.events.apply',
-    path: '/events/:id/apply',
+    path: '/events/:id/application/:application_id',
     component: 'events/Apply',
     meta: {
-      label: 'Apply to event'
+      label: 'View/edit the event application'
     }
   },
   {

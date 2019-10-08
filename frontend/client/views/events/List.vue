@@ -65,7 +65,7 @@
                 </p>
                 <p class="control" v-if="event.application_status === 'open'">
                   <router-link
-                    :to="{ name: 'oms.events.apply', params: { id: event.url || event.id } }"
+                    :to="{ name: 'oms.events.apply', params: { id: event.url || event.id, application_id: 'me' } }"
                     class="button is-warning">
                     Manage my application
                   </router-link>
