@@ -89,7 +89,7 @@
     "jest": "^24.9.0",
     "jest-junit": "^8.0.0",
     "jest-teamcity-reporter": "^0.9.0",
-    "nock": "^10.0.4",
+    "nock": "^11.4.0",
     "nyc": "^14.1.1",
     "open-cli": "^5.0.0",
     "timekeeper": "^2.2.0"
