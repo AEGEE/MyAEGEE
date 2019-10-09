@@ -1,35 +1,39 @@
-version: '3.2'
-### OMS STATUTORY     #######################################
-### mongodb Container #######################################
+version: "3.4"
+### OMS EVENTS   #######################################
 services:
     postgres-oms-events:
         restart: always
         image: postgres:10
         volumes:
-            - postgres-events:/var/lib/postgresql/data
+            - postgres-oms-events:/var/lib/postgresql/data
         expose:
             - "5432"
         environment:
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: ${PW_POSTGRES}
+            POSTGRES_USER: "postgres"
+            POSTGRES_PASSWORD: "${PW_POSTGRES}"
 
     oms-events:
         restart: on-failure
-        build:
-            context: ./$PATH_OMS_EVENTS/..
-            dockerfile: ./docker/oms-events/Dockerfile.dev
-        image: aegee/oms-events:dev
+        image: aegee/oms-events:stable
         volumes:
             - oms-events-media:/usr/app/media
-            - ./$PATH_OMS_EVENTS/../:/usr/app/src
             - shared:/usr/app/shared:ro
-        links:
+        depends_on:
             - postgres-oms-events
         expose:
             - "8084"
         environment:
-            BUGSNAG_KEY: 6f6a7c00507fceca0818c48405dbd2a6
-            PG_PASSWORD: ${PW_POSTGRES}
+            BUGSNAG_KEY: "${BUGSNAG_KEY_EVENTS}"
+            PG_PASSWORD: "${PW_POSTGRES}"
+            NODE_ENV: "${MYAEGEE_ENV}"
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8084/healthcheck"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+        # cpu_count: 1
+        # mem_limit: 900m
         labels:
             - "traefik.backend=oms-events"
             - "traefik.port=8084"
@@ -38,9 +42,14 @@ services:
             - "traefik.enable=true"
 
 volumes:
-    postgres-events:
-        driver: "local"
+    postgres-oms-events:
+        driver: local
     oms-events-media:
-        driver: "local"
+        driver: local
     shared:
-        driver: "local"
+        driver: local
+
+networks:
+    default:
+        external:
+            name: OMS
