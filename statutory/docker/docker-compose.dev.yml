@@ -1,0 +1,11 @@
+version: "3.4"
+### OMS STATUTORY     #######################################
+services:
+  oms-statutory:
+    build:
+      context: ./${PATH_OMS_STATUTORY}/..
+      dockerfile: ./docker/oms-statutory/Dockerfile.dev
+    image: aegee/oms-statutory:latest
+    volumes:
+      - /usr/app/src/node_modules
+      - ./${PATH_OMS_STATUTORY}/../:/usr/app/src
