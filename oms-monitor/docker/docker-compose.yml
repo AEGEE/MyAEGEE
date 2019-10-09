@@ -1,0 +1,72 @@
+version: "3.4"
+services:
+
+  grafana:
+    restart: on-failure
+    image: grafana/grafana:6.4.1
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./${PATH_OMS_MONITOR}/gf-dashboards:/var/lib/grafana/dashboards
+      - ./${PATH_OMS_MONITOR}/config/gf-provisioning:/etc/grafana/provisioning
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "${PW_GRAFANA}"
+      GF_SERVER_ROOT_URL: "https://${SUBDOMAIN_GRAFANA}${BASE_URL}/"
+      GF_INSTALL_PLUGINS: "raintank-worldping-app,grafana-simple-json-datasource,grafana-clock-panel,grafana-piechart-panel"
+    labels:
+      - "traefik.backend=grafana"
+      - "traefik.port=3000"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_GRAFANA}${BASE_URL};PathPrefix:/"
+      - "traefik.frontend.priority=110"
+      - "traefik.enable=true"
+
+  prometheus:
+    restart: on-failure
+    image: prom/prometheus:v2.10.0
+    volumes:
+      - prometheus-storage:/prometheus
+      - ./${PATH_OMS_MONITOR}/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    labels:
+      - "traefik.backend=prometheus"
+      - "traefik.port=9090"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_PROMETHEUS}${BASE_URL};PathPrefix:/"
+      - "traefik.frontend.priority=110"
+      - "traefik.enable=true"
+      - "traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}"
+
+  cadvisor:
+    image: google/cadvisor:v0.33.0
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    # expose:
+    #   - 8080
+    # labels:
+    #   - "traefik.backend=cadvisor"
+    #   - "traefik.port=8080"
+    #   - "traefik.frontend.rule=Host:${SUBDOMAIN_KIBANA}${BASE_URL};PathPrefix:/"
+    #   - "traefik.frontend.priority=110"
+    #   - "traefik.enable=true"
+    # mem_limit: 250m
+
+  node-exporter:
+    image: prom/node-exporter:v0.18.1
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    #command: '--collector.procfs=/host/proc --collector.sysfs=/host/sys'
+    expose:
+      - "9100"
+
+volumes:
+  prometheus-storage:
+    driver: local
+  grafana-storage:
+    driver: local
+
+networks:
+  default:
+    external:
+      name: OMS
