@@ -58,8 +58,8 @@ config :logger, level: :info
 #     config :omsmailer, OmsmailerWeb.Endpoint, server: true
 #
 
-# Finally import the config/prod.secret.exs
+# Finally import the config/production.secret.exs
 # which should be versioned separately.
-#import_config "prod.secret.exs"
+#import_config "#{Mix.env}.secret.exs"
 config :omsmailer, OmsmailerWeb.Endpoint,
   secret_key_base: "HfzKwz+KEOwu1fGyMOtIYPRMVBmuYeIlnF6qRiuPC2kk9X6+APKGbNvLeBNPNwHt"

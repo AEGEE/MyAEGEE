@@ -6,7 +6,7 @@ services:
             context: ./${PATH_OMS_MAILER}/../
             dockerfile: ./docker/oms-mailer/Dockerfile
             args: 
-                MIX_ENV: dev
+                MIX_ENV: development
         image: aegee/oms-mailer:latest
         volumes:
             - /usr/src/myapp/deps

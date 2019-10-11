@@ -15,7 +15,7 @@ COPY config /usr/src/myapp/config
 COPY lib /usr/src/myapp/lib
 COPY test /usr/src/myapp/test
 
-ARG MIX_ENV=prod
+ARG MIX_ENV=production
 ENV MIX_ENV=${MIX_ENV}
 ENV PORT=4000
 RUN ["mix", "compile"]
