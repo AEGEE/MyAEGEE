@@ -1,23 +1,34 @@
-version: '3.2'
+version: "3.4"
 
 services:
     oms-mailer:
-        build:
-            context: ./$PATH_OMS_MAILER/../
-            dockerfile: ./docker/oms-mailer/Dockerfile
+        restart: unless-stopped
+        image: aegee/oms-mailer:stable
         expose:
             - "4000"
         environment:
-            MIX_ENV: prod
+            MIX_ENV: "${MYAEGEE_ENV}"
         depends_on:
             - oms-mail-transfer-agent
+        #healthcheck?
+        # cpu_count: 1
+        # mem_limit: 900m
+        # no traefik labels here, because we do not want
+        # this API to be reachable from outside
 
     oms-mail-transfer-agent:
-        build:
-            context: ./$PATH_OMS_MAILER/mail_transfer_agent
-            dockerfile: Dockerfile
+        restart: always
+        image: aegee/oms-mail-transfer-agent:stable
         expose:
             - "25"
         secrets:
             - mail_password
             - mail_user
+        #healthcheck?
+        # cpu_count: 1
+        # mem_limit: 900m
+
+networks:
+    default:
+        external:
+            name: OMS

@@ -7,7 +7,9 @@ services:
 
 before_script:
     - cd docker
-    - sudo docker-compose -f docker-compose-secrets.yml -f docker-compose.yml build
+    - sudo docker network create OMS
+    - export MYAEGEE_ENV=development; export PATH_OMS_MAILER=.
+    - sudo docker-compose -f docker-compose-secrets.yml -f docker-compose.yml -f docker-compose.dev.yml build
 
 script:
-    - sudo docker-compose -f docker-compose-secrets.yml -f docker-compose.yml run oms-mailer env MIX_ENV=test mix coveralls
+    - sudo docker-compose -f docker-compose-secrets.yml -f docker-compose.yml -f docker-compose.dev.yml run oms-mailer env MIX_ENV=test mix coveralls
