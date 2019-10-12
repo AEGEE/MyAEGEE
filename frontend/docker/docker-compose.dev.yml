@@ -9,4 +9,4 @@ services:
         volumes:
             - /usr/app/src/node_modules
             - ./${PATH_OMS_FRONTEND}/../:/usr/app/src
-        command: "/bin/sh /usr/app/scripts/bootstrap-dev.sh"
+        #command: "/bin/sh /usr/app/scripts/bootstrap-dev.sh" #FIXME: npm is not present in the final img
