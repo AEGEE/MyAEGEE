@@ -12,7 +12,7 @@ services:
             POSTGRES_PASSWORD: "${PW_POSTGRES}"
 
     oms-discounts:
-        image: aegee/oms-discounts:stable
+        image: aegee/oms-discounts:latest
         volumes:
             - oms-discounts-media:/usr/app/media
             - shared:/usr/app/shared:ro
