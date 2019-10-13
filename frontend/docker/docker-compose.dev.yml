@@ -5,7 +5,7 @@ services:
         build:
             context: ./${PATH_OMS_FRONTEND}/..
             dockerfile: ./docker/Dockerfile
-        image: aegee/oms-frontend:latest
+        image: aegee/oms-frontend:dev
         volumes:
             - /usr/app/src/node_modules
             - ./${PATH_OMS_FRONTEND}/../:/usr/app/src
