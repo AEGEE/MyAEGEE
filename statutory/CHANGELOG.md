@@ -1,3 +1,14 @@
+## [0.22.3](https://github.com/AEGEE/oms-statutory/compare/0.22.2...0.22.3) (2019-10-13)
+
+
+### Bug Fixes
+
+* **circleci:** added proper dev docker building ([3bf1e6c](https://github.com/AEGEE/oms-statutory/commit/3bf1e6c))
+* **docker:** do not overwrite important folder ([163cf28](https://github.com/AEGEE/oms-statutory/commit/163cf28))
+* **docker:** have to go around secrets ([1612884](https://github.com/AEGEE/oms-statutory/commit/1612884))
+
+
+
 ## [0.22.2](https://github.com/AEGEE/oms-statutory/compare/0.22.1...0.22.2) (2019-09-26)
 
 

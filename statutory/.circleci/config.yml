@@ -29,7 +29,7 @@ jobs:
       image: ubuntu-1604:201903-01
     steps:
       - checkout
-      - run: docker-compose -f docker/docker-compose.yml build --no-cache oms-statutory
+      - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache oms-statutory
   lint:
     machine:
       image: ubuntu-1604:201903-01
