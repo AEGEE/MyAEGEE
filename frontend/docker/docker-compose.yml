@@ -3,7 +3,7 @@ version: "3.4"
 services:
     oms-frontend:
         restart: always
-        image: aegee/oms-frontend:stable
+        image: aegee/oms-frontend:latest
         #healthcheck?
         # cpu_count: 1
         # mem_limit: 900m

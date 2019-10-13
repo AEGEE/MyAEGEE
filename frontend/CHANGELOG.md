@@ -1,3 +1,19 @@
+<a name="0.23.7"></a>
+## [0.23.7](https://github.com/AEGEE/oms-frontend/compare/0.23.6...0.23.7) (2019-10-13)
+
+
+### Bug Fixes
+
+* **circleci:** added proper dev docker building ([56ba057](https://github.com/AEGEE/oms-frontend/commit/56ba057))
+* **deps:** fix npm audit vulnerabilities report ([4b0ed4a](https://github.com/AEGEE/oms-frontend/commit/4b0ed4a))
+* **docker:** have to go around secrets ([f3ed7ab](https://github.com/AEGEE/oms-frontend/commit/f3ed7ab))
+* **docker:** in dev, the script was overwritten ([c0a7e9a](https://github.com/AEGEE/oms-frontend/commit/c0a7e9a))
+* **script:** permissions were bad ([b6af2ed](https://github.com/AEGEE/oms-frontend/commit/b6af2ed))
+* **startup:** chmod parent directory ([4f9072d](https://github.com/AEGEE/oms-frontend/commit/4f9072d))
+* very trashy but oh well.. ([b7cc89f](https://github.com/AEGEE/oms-frontend/commit/b7cc89f))
+
+
+
 <a name="0.23.6"></a>
 ## [0.23.6](https://github.com/AEGEE/oms-frontend/compare/0.23.5...0.23.6) (2019-09-26)
 
