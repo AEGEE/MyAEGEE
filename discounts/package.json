@@ -1,6 +1,6 @@
 {
   "name": "oms-discounts",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "Discounts module for OMS, for populating codes and for distributing them to AEGEE members.",
   "main": "lib/run.js",
   "scripts": {
