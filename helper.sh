@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#NEW structure: now eberything here will be a target of makefile.
+# NEW structure: now eberything here will be a target of makefile.
 # Then helper.sh calls the target according to the parameter of the shell script
 # (which could have -v for verbose.. so sergey is happy)
 #...... or at least I guess? Alternative is that you make shit loads of IFs like in deploy/oms.sh
@@ -22,7 +22,7 @@ bump_repo ()
 }
 
 #CATEGORY: DEPLOY
-# create first secrets is in start.sh
+# 'create first secrets' is in start.sh
 # FIRST DEPLOYMENT
 init_boot ()
 {
@@ -39,7 +39,7 @@ init_boot ()
 pw_changer ()
 {
     echo -e "\n[Deployment] Setting passwords\n"
-    bash $DIR/password-setter.sh
+    bash ${DIR}/password-setter.sh
 }
 
 # wrapper for the compose mess (ACCEPTS PARAMETERS)
@@ -47,19 +47,23 @@ compose_wrapper ()
 { #TO DO: put hostname check and do not accept the nuke and stop in production
     service_string=$(printenv ENABLED_SERVICES)
     services=(${service_string//:/ })
-    command="docker-compose -f $DIR/base-docker-compose.yml"
+    command="docker-compose -f ${DIR}/base-docker-compose.yml"
     for s in "${services[@]}"; do
-        if [[ -f "$DIR/${s}/docker/docker-compose.yml" ]]; then
-            command="${command} -f $DIR/${s}/docker/docker-compose.yml"
+        if [[ -f "${DIR}/${s}/docker/docker-compose.yml" ]]; then
+            if [[ "${MYAEGEE_ENV}" == "production" ]]; then
+              command="${command} -f ${DIR}/${s}/docker/docker-compose.yml"
+            else
+              command="${command} -f ${DIR}/${s}/docker/docker-compose.yml -f ${DIR}/${s}/docker/docker-compose.dev.yml"
+            fi
         else
-            echo -e "[OMS] WARNING: No docker file found for ${s} (full path $DIR/${s}/docker/docker-compose.yml)"
+            echo -e "[OMS] WARNING: No docker file found for ${s} (full path ${DIR}/${s}/docker/docker-compose.yml)"
         fi
     done
     command="${command} ${@}"
     if ( $verbose ); then
         echo -e "\n[OMS] Full command:\n${command}\n"
     fi
-    eval $command
+    eval ${command}
     return $?
 }
 
@@ -80,16 +84,16 @@ compose_wrapper ()
 edit_env_file ()
 {
     export EDITOR=$(env | grep EDITOR | grep -oe '[^=]*$');
-    if [ -z "$EDITOR" ]; then
+    if [ -z "${EDITOR}" ]; then
       echo "[Deployment] no EDITOR variable, setting it to vim"
       export EDITOR="vim";
     fi
-    if ( ! $NON_INTERACTIVE ); then
+    if ( ! ${NON_INTERACTIVE} ); then
         #Ask if one wants to tweak the .env before starting it up
         echo "Do you wish to edit .env file? (write the number)"
         select yn in "Yes" "No"; do
         case $yn in
-            Yes ) $EDITOR $DIR/.env; break;;
+            Yes ) ${EDITOR} ${DIR}/.env; break;;
             No ) break;;
         esac
         done
@@ -111,10 +115,14 @@ edit_env_file ()
 # HUMAN INTERVENTION NEEDED: register in .env your services
 ## Export all environment variables from .env to this script in case we need them some time
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-if [ ! -f $DIR/.env ]; then
-    cp $DIR/.env.example $DIR/.env
+if [ ! -f ${DIR}/.env ]; then
+    cp ${DIR}/.env.example ${DIR}/.env
 fi
-export $(cat $DIR/.env | grep -v ^# | xargs)
+export $(cat ${DIR}/.env | grep -v ^# | xargs)
+if [[ "${MYAEGEE_ENV}" != "production" && "${MYAEGEE_ENV}" != "development" ]]; then
+  echo "Error: MYAEGEE_ENV can only be 'production' or 'development'"
+  exit 1
+fi
 
 # Entry: check if the number of arguments is max 2 (one for the target one for the verbose)
 init=false;

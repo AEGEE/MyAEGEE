@@ -9,7 +9,7 @@ services:
   #to get the password (hashed): (also remember to escape $ with anotehr $)
   # docker run --rm httpd:2.4-alpine htpasswd -nbB admin 5ecr3t | cut -d ":" -f 2
   portainer:
-    restart: no
+    restart: "no"
     image: portainer/portainer:1.15.5
     #image: portainer/portainer:1.19.2
     command: -H unix:///var/run/docker.sock --admin-password $PW_PORTAINER --logo $AEGEE_LOGO_B64
@@ -68,6 +68,8 @@ secrets:
         file: secrets/sendgrid_key
     mail_password:
         file: secrets/sendgrid_key
+    db_password:
+        file: secrets/db_password
 
 networks:
   default:
