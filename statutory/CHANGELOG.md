@@ -1,3 +1,12 @@
+## [0.22.4](https://github.com/AEGEE/oms-statutory/compare/0.22.3...0.22.4) (2019-10-13)
+
+
+### Bug Fixes
+
+* **docker:** use latest tag for prod environment ([4bb2226](https://github.com/AEGEE/oms-statutory/commit/4bb2226))
+
+
+
 ## [0.22.3](https://github.com/AEGEE/oms-statutory/compare/0.22.2...0.22.3) (2019-10-13)
 
 

@@ -14,7 +14,7 @@ services:
 
     oms-statutory:
         restart: always
-        image: aegee/oms-statutory:stable
+        image: aegee/oms-statutory:latest
         volumes:
             - oms-statutory-media:/usr/app/media
             - shared:/usr/app/shared:ro
