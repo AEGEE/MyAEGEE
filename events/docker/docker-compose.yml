@@ -14,7 +14,7 @@ services:
 
     oms-events:
         restart: on-failure
-        image: aegee/oms-events:stable
+        image: aegee/oms-events:latest
         volumes:
             - oms-events-media:/usr/app/media
             - shared:/usr/app/shared:ro

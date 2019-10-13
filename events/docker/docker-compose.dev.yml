@@ -5,7 +5,7 @@ services:
         build:
             context: ./${PATH_OMS_EVENTS}/..
             dockerfile: ./docker/oms-events/Dockerfile.dev
-        image: aegee/oms-events:latest
+        image: aegee/oms-events:dev
         volumes:
             - /usr/app/src/node_modules
             - ./${PATH_OMS_EVENTS}/../:/usr/app/src

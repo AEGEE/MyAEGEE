@@ -1,3 +1,12 @@
+## [0.11.3](https://github.com/AEGEE/oms-events/compare/0.11.2...0.11.3) (2019-10-13)
+
+
+### Bug Fixes
+
+* **circleci:** added proper dev docker building ([38e599e](https://github.com/AEGEE/oms-events/commit/38e599e))
+
+
+
 ## [0.11.2](https://github.com/AEGEE/oms-events/compare/0.11.1...0.11.2) (2019-09-25)
 
 
