@@ -1,0 +1,18 @@
+notifiers:
+  - name: notification-channel-1
+    type: slack
+    uid: notifier1
+    org_id: 1
+    is_default: true
+    send_reminder: false
+    frequency: 1h
+    disable_resolve_message: false
+    # See `Supported Settings` section for settings supporter for each
+    # alert notification type.
+    settings:
+      recipient: "#----devops"
+      uploadImage: true
+      username: "Grafana"
+      iconUrl: "https://gitlab.com/uploads/-/system/project/avatar/928825/grafana_icon.png"
+      url: "${SLACK_URL}"
+

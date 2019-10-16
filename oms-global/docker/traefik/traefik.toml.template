@@ -23,7 +23,7 @@ defaultEntryPoints = ["http", "https"]
 #
 # Required
 #
-email = "myaegee@aegee.eu"
+email = "devs@${BASE_URL}"
 # File or key used for certificates storage.
 #
 # Required

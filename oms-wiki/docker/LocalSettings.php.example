@@ -44,8 +44,8 @@ $wgLogo = "$wgResourceBasePath/resources/assets/wiki.png";
 $wgEnableEmail = true;
 $wgEnableUserEmail = false; # UPO
 
-$wgEmergencyContact = "fabrizio@barnab.eu";
-$wgPasswordSender = "fabrizio@barnab.eu";
+$wgEmergencyContact = "wiki-team@aegee.dev";
+$wgPasswordSender = "wiki-team@aegee.dev";
 
 $wgEnotifUserTalk = false; # UPO
 $wgEnotifWatchlist = false; # UPO

@@ -18,18 +18,33 @@ rule_files:
 # Here it's Prometheus itself.
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
-  - job_name: 'base-metrics'
+  - job_name: 'local-diagnostics'
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
     static_configs:
-      - targets: ['traefik:8080', 'cadvisor:8080', 'node-exporter:9100']
-  - job_name: 'api-endpoints' #PRODUCTION CONFIG
-    # metrics_path defaults to '/metrics'
-    # scheme defaults to 'http'.
-    static_configs:
-        - targets: ['oms-core-elixir:4000', 'oms-events:8084', 'oms-statutory:8084']
+      - targets: ['traefik:8080', 'cadvisor:8080', 'node-exporter:9100', 'upmonitor']
 
-  # Scraping also production stuff (ONLY FROM STAGING --REMOVE ON PROD)
+  - job_name: 'staging-diagnostics'
+    static_configs:
+      - targets: ['staging.aegee.eu']
+    metrics_path: '/services/node-exporter/api/metrics'
+
+  - job_name: 'production-diagnostics'
+    static_configs:
+      - targets: ['my.aegee.eu']
+    metrics_path: '/services/node-exporter/api/metrics'
+
+  - job_name: 'commander-diagnostics'
+    static_configs:
+      - targets: ['commander.aegee.eu']
+    metrics_path: '/services/node-exporter/api/metrics'
+
+  - job_name: 'monitor2-diagnostics'
+    static_configs:
+      - targets: ['monitor2.aegee.eu']
+    metrics_path: '/services/node-exporter/api/metrics'
+
+  # Scraping also production stuff (ONLY FROM MONITORING HOST)
   - job_name: 'statutory-metrics'
     static_configs:
       - targets: ['my.aegee.eu']

@@ -33,32 +33,32 @@ services:
       - "traefik.enable=true"
       - "traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}"
 
-  cadvisor:
-    image: google/cadvisor:v0.33.0
+  upmonitor:
+    image: brotandgames/ciao:1.6.5
+    environment:
+      SECRET_KEY_BASE: "${PW_BITWARDEN_ADMINPANEL}"
+      SMTP_ADDRESS: smtp.sendgrid.net
+      SMTP_EMAIL_FROM: ciaohttp@${BASE_URL}
+      SMTP_EMAIL_TO: myaegee-admins@${BASE_URL}
+      SMTP_PORT: "587"
+      SMTP_AUTHENTICATION: plain
+      SMTP_DOMAIN: smtp.${BASE_URL}
+      SMTP_ENABLE_STARTTLS_AUTO: true
+      SMTP_USERNAME: "${USER_SENDGRID}"
+      SMTP_PASSWORD: "${PW_SENDGRID}"
+      CIAO_WEBHOOK_ENDPOINT_SLACK: "${SLACK_URL}"
+      CIAO_WEBHOOK_PAYLOAD_SLACK: "'{\"text\":\"[ciao] __name__: Status changed (__status_after__)\", \"icon_emoji\": \":ghost:\", \"username\": \"uptime-monitor\"}'"
+      PROMETHEUS_ENABLED: true
+      BASIC_AUTH_USERNAME: "ciao-admin"
+      BASIC_AUTH_PASSWORD: "${PW_ADMIN}"
     volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
-    # expose:
-    #   - 8080
-    # labels:
-    #   - "traefik.backend=cadvisor"
-    #   - "traefik.port=8080"
-    #   - "traefik.frontend.rule=Host:${SUBDOMAIN_KIBANA}${BASE_URL};PathPrefix:/"
-    #   - "traefik.frontend.priority=110"
-    #   - "traefik.enable=true"
-    # mem_limit: 250m
-
-  node-exporter:
-    image: prom/node-exporter:v0.18.1
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-    #command: '--collector.procfs=/host/proc --collector.sysfs=/host/sys'
-    expose:
-      - "9100"
+      - ciao-data:/app/db/sqlite/
+    labels:
+      - "traefik.backend=upmonitor"
+      - "traefik.port=3000"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_UPMONITOR}${BASE_URL};PathPrefix:/"
+      - "traefik.frontend.priority=110"
+      - "traefik.enable=true"
 
 volumes:
   prometheus-storage:
