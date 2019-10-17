@@ -1,3 +1,13 @@
+<a name="0.23.8"></a>
+## [0.23.8](https://github.com/AEGEE/oms-frontend/compare/0.23.7...0.23.8) (2019-10-17)
+
+
+### Bug Fixes
+
+* **statutory:** add question line indexes. Fixes MEMB-644 ([6f48102](https://github.com/AEGEE/oms-frontend/commit/6f48102))
+
+
+
 <a name="0.23.7"></a>
 ## [0.23.7](https://github.com/AEGEE/oms-frontend/compare/0.23.6...0.23.7) (2019-10-13)
 
