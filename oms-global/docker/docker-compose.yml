@@ -1,8 +1,5 @@
 version: "3.4"
 
-#TODO make sure all services always have the appropriate
-#       restart: on-failure
-#TODO: maybe add also the web interfaces for postgre, mongo, whichever?
 services:
 
 ### OMS TUNNEL        #######################################
@@ -30,58 +27,6 @@ services:
           - traefik.frontend.rule=Host:${SUBDOMAIN_TRAEFIK}${BASE_URL}
           - traefik.frontend.priority=20
           - traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}
-
-    portal:
-        restart: on-failure
-        build:
-          context: ./$PATH_OMS_GLOBAL/portal/
-          dockerfile: ./Dockerfile.dev
-        image: aegee/portal:dev
-        restart: always
-        expose:
-          - 80
-        labels:
-          - traefik.enable=true
-          - traefik.backend=portal
-          - traefik.port=80
-          - traefik.frontend.rule=Host:${SUBDOMAIN_PORTAL}${BASE_URL}
-          - traefik.frontend.priority=20
-
-### DB admin (UIs) Containers #######################################
-
-### pgAdmin Container #######################################
-
-    pgadmin:
-        image: fenglc/pgadmin4:2.0
-        restart: on-failure
-        expose:
-            - 5050
-        labels:
-          - traefik.enable=true
-          - traefik.backend=pgadmin
-          - traefik.port=5050
-          - traefik.frontend.rule=Host:${SUBDOMAIN_PGADMIN}${BASE_URL}
-          - traefik.frontend.priority=20
-          - traefik.frontend.auth.basic.users=admin:${PW_PGADMIN_BLOWF}
-        environment:
-          DEFAULT_USER: admin@aegee.org
-          DEFAULT_PASSWORD: ${PW_PGADMIN}
-
-### mongoui Container #######################################
-    # mongoui:
-    #     build:
-    #        context: ./oms-util/docker/mongoui
-    #        dockerfile: ./Dockerfile.dev
-    #     expose:
-    #         - 3000
-    #     labels:
-    #       - traefik.enable=true
-    #       - traefik.backend=mongoui
-    #       - traefik.port=3000
-    #       - traefik.frontend.rule=Host:${SUBDOMAIN_MONGOADMIN}${BASE_URL}
-    #       - traefik.frontend.priority=20
-    #       - traefik.frontend.auth.basic.users=admin:${PW_MONGO_BLOWF}
-
 
 #volumes:
 #   shared_logs:

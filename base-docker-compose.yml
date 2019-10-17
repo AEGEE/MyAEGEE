@@ -6,58 +6,22 @@ version: "3.4"
 #TODO: logging containers, consul...
 
 services:
-  #to get the password (hashed): (also remember to escape $ with anotehr $)
-  # docker run --rm httpd:2.4-alpine htpasswd -nbB admin 5ecr3t | cut -d ":" -f 2
-  portainer:
-    restart: "no"
-    image: portainer/portainer:1.15.5
-    #image: portainer/portainer:1.22.1
-    command: -H unix:///var/run/docker.sock --admin-password $PW_PORTAINER --logo $AEGEE_LOGO_B64
-    expose:
-      - "9000"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:rw
-    labels:
-      - traefik.enable=true
-      - traefik.backend=portainer
-      - traefik.port=9000
-      - traefik.frontend.rule=Host:${SUBDOMAIN_PORTAINER}${BASE_URL}
-      - traefik.frontend.priority=20
 
-  # drone-server:
-  #   image: drone/drone:0.7
-  #   ports:
-  #     - 8000
-  #   volumes:
-  #     - /var/lib/drone:/var/lib/drone/
-  #   restart: always
-  #   environment:
-  #     - DRONE_OPEN=true
-  #     - DRONE_HOST=appserver/drone
-  #     - DRONE_GITHUB=true
-  #     - DRONE_GITHUB_CLIENT=2205108af6d3aa0b1e3c
-  #     - DRONE_GITHUB_SECRET=0e84e258dd54d8b8d31fb889c01d5a7047f8db21
-  #     - DRONE_SECRET=HighWayMANN
-  #   labels:
-  #     - traefik.enable=true
-  #     - traefik.backend=drone-server
-  #     - traefik.port=8000
-  #     - traefik.frontend.rule=Host:${SUBDOMAIN_DRONE}${BASE_URL}
-  #     - traefik.frontend.priority=10
-  #
-  # drone-agent:
-  #   image: drone/drone:0.7
-  #   command: agent
-  #   restart: always
-  #   depends_on:
-  #     - drone-server
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #   environment:
-  #     - DRONE_SERVER=ws://drone-server:8000/ws/broker
-  #     - DRONE_SECRET=HighWayMANN
-  #   labels:
-  #     - traefik.enable=false
+  portal:
+    build:
+      context: ./$PATH_OMS_GLOBAL/portal/
+      dockerfile: ./Dockerfile.dev
+    image: aegee/portal:dev
+    restart: always
+    expose:
+      - 80
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=portal"
+      - "traefik.port=80"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_PORTAL}${BASE_URL}"
+      - "traefik.frontend.priority=20"
+
 
 secrets:
     jwt_key:
@@ -65,11 +29,11 @@ secrets:
     sendgrid_key:
         file: secrets/sendgrid_key
     mail_user:
-        file: secrets/sendgrid_key
+        file: secrets/mail_user
     mail_password:
-        file: secrets/sendgrid_key
+        file: secrets/mail_password
     db_password:
-        file: secrets/db_password
+        file: secrets/core-db_password
 
 networks:
   default:

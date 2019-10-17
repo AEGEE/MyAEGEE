@@ -1,0 +1,131 @@
+version: "3.4"
+
+services:
+
+### CI container #######################################
+
+  # drone-server:
+  #   image: drone/drone:0.7
+  #   ports:
+  #     - "8000"
+  #   volumes:
+  #     - drone-files:/var/lib/drone/
+  #   restart: always
+  #   environment:
+  #     - DRONE_OPEN=true
+  #     - DRONE_HOST=${SUBDOMAIN_DRONE}${BASE_URL}/drone
+  #     - DRONE_GITHUB=true
+  #     - DRONE_GITHUB_CLIENT=2205108af6d3aa0b1e3c
+  #     - DRONE_GITHUB_SECRET=0e84e258dd54d8b8d31fb889c01d5a7047f8db21
+  #     - DRONE_SECRET=HighWayMANN
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.backend=drone-server"
+  #     - "traefik.port=8000"
+  #     - "traefik.frontend.rule=Host:${SUBDOMAIN_DRONE}${BASE_URL}"
+  #     - "traefik.frontend.priority=10"
+
+  # drone-agent:
+  #   image: drone/drone:0.7
+  #   command: agent
+  #   restart: always
+  #   depends_on:
+  #     - drone-server
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #   environment:
+  #     - DRONE_SERVER=ws://drone-server:8000/ws/broker
+  #     - DRONE_SECRET=HighWayMANN
+  #   labels:
+  #     - traefik.enable=false
+
+### container administration helper Container #######################################
+  #to get the password (hashed): (also remember to escape $ with anotehr $)
+  # docker run --rm httpd:2.4-alpine htpasswd -nbB admin 5ecr3t | cut -d ":" -f 2
+  portainer:
+    restart: "no"
+    image: portainer/portainer:1.22.1
+    #image: portainer/portainer:1.15.5 #they broke the tag
+    command: -H unix:///var/run/docker.sock --admin-password ${PW_PORTAINER} --logo ${AEGEE_LOGO_B64}
+    expose:
+      - "9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=portainer"
+      - "traefik.port=9000"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_PORTAINER}${BASE_URL}"
+      - "traefik.frontend.priority=20"
+
+### DB admin (UIs) Containers #######################################
+
+### pgAdmin Container #######################################
+  pgadmin:
+    image: fenglc/pgadmin4:2.0
+    restart: on-failure
+    expose:
+      - "5050"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=pgadmin"
+      - "traefik.port=5050"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_PGADMIN}${BASE_URL}"
+      - "traefik.frontend.priority=20"
+      - "traefik.frontend.auth.basic.users=admin:${PW_PGADMIN_BLOWF}"
+    environment:
+      DEFAULT_USER: "admin@${BASE_URL}"
+      DEFAULT_PASSWORD: "${PW_PGADMIN}"
+
+### mongoui Container #######################################
+  # mongoui:
+  #   build:
+  #     context: ./${PATH_OMS_DEV}/mongoui
+  #     dockerfile: ./Dockerfile.dev
+  #   expose:
+  #     - "3000"
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.backend=mongoui"
+  #     - "traefik.port=3000"
+  #     - "traefik.frontend.rule=Host:${SUBDOMAIN_MONGOADMIN}${BASE_URL}"
+  #     - "traefik.frontend.priority=20"
+  #     - "traefik.frontend.auth.basic.users=admin:${PW_MONGO_BLOWF}"
+
+  redisadmin:
+    image: erikdubbelboer/phpredisadmin:v1.11.4
+    environment:
+      ADMIN_USER: admin
+      ADMIN_PASS: ${PW_REDIS_BLOWF}
+      REDIS_1_HOST: redis-oms-gsuite-wrapper
+      REDIS_1_PORT: 6379
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=redisadmin"
+      - "traefik.port=80"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_REDISADMIN}${BASE_URL}"
+      - "traefik.frontend.priority=20"
+      - "traefik.frontend.auth.basic.users=admin:${PW_REDIS_BLOWF}"
+
+
+
+### show api docs Container #######################################
+  # swagger:
+  #   image: swaggerapi/swagger-ui
+  #   environment:
+  #     API_URL: http://oms-events/api-docs.json
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.backend=swagger
+  #     - traefik.port=8080
+  #     - traefik.frontend.rule=Host:${SUBDOMAIN_APIDOCS}${BASE_URL}
+  #     - traefik.frontend.priority=20
+
+#volumes:
+#  drone-files:
+#    driver: local
+
+networks:
+  default:
+    external:
+      name: OMS
