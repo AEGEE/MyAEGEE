@@ -66,6 +66,10 @@
 
         <b-table :data.sync="selectedQuestionLine.questions" v-if="selectedQuestionLine" narrowed>
           <template slot-scope="props">
+            <b-table-column label="#">
+              {{ props.index + 1 }}
+            </b-table-column>
+
             <b-table-column field="participant" label="Participant">
               {{ props.row.application.first_name }} {{ props.row.application.last_name }}, {{ props.row.application.body_name }}
             </b-table-column>
