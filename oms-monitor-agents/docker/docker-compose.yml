@@ -15,7 +15,7 @@ services:
     labels:
       - "traefik.backend=cadvisor"
       - "traefik.port=8080"
-      - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/cadvisor/api;PathPrefixStrip:/services/cadvisor/api"
+      - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/cadvisor;PathPrefixStrip:/services/cadvisor"
       - "traefik.frontend.priority=110"
       - "traefik.enable=true"
 
@@ -33,14 +33,15 @@ services:
     labels:
       - "traefik.backend=node-exporter"
       - "traefik.port=9100"
-      - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/node-exporter/api;PathPrefixStrip:/services/node-exporter/api"
+      - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/node-exporter;PathPrefixStrip:/services/node-exporter"
       - "traefik.frontend.priority=110"
       - "traefik.enable=true"
 
   logstash-tunnel:
     image: kingsquare/tunnel:reverse
     command: "*:5000:127.0.0.1:5000 oms-service@monitor"
-    expose: "5000"
+    expose:
+      - "5000"
     volumes:
       - ${SSH_AUTH_SOCK}:/ssh-agent
 
@@ -48,7 +49,7 @@ services:
   #   image: kingsquare/tunnel:reverse
 
   logspout:
-    from: gliderlabs/logspout:v3.2.6
+    image: gliderlabs/logspout:v3.2.6
     volumes:
         - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:

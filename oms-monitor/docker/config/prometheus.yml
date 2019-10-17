@@ -22,53 +22,60 @@ scrape_configs:
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
     static_configs:
-      - targets: ['traefik:8080', 'cadvisor:8080', 'node-exporter:9100', 'upmonitor']
+      - targets: ['traefik:8080', 'cadvisor:8080', 'node-exporter:9100', 'upmonitor:3000']
 
   - job_name: 'staging-diagnostics'
     static_configs:
       - targets: ['staging.aegee.eu']
-    metrics_path: '/services/node-exporter/api/metrics'
+    metrics_path: '/services/node-exporter/metrics'
 
   - job_name: 'production-diagnostics'
     static_configs:
       - targets: ['my.aegee.eu']
-    metrics_path: '/services/node-exporter/api/metrics'
+    metrics_path: '/services/node-exporter/metrics'
 
   - job_name: 'commander-diagnostics'
     static_configs:
       - targets: ['commander.aegee.eu']
-    metrics_path: '/services/node-exporter/api/metrics'
+    metrics_path: '/services/node-exporter/metrics'
 
-  - job_name: 'monitor2-diagnostics'
-    static_configs:
-      - targets: ['monitor2.aegee.eu']
-    metrics_path: '/services/node-exporter/api/metrics'
+  # - job_name: 'monitor2-diagnostics'
+  #   static_configs:
+  #     - targets: ['monitor2.aegee.eu']
+  #   metrics_path: '/services/node-exporter/metrics'
 
   # Scraping also production stuff (ONLY FROM MONITORING HOST)
-  - job_name: 'statutory-metrics'
+  - job_name: 'statutory-statistics'
     static_configs:
       - targets: ['my.aegee.eu']
     metrics_path: '/services/oms-statutory/api/metrics'
-  - job_name: 'statutory-metrics-endpoints'
+  - job_name: 'statutory-metrics'
     static_configs:
       - targets: ['my.aegee.eu']
     scrape_interval: 10s
     metrics_path: '/services/oms-statutory/api/metrics/requests'
-  - job_name: 'events-metrics'
+  - job_name: 'events-statistics'
     static_configs:
       - targets: ['my.aegee.eu']
     metrics_path: '/services/oms-events/api/metrics'
-  - job_name: 'events-metrics-endpoints'
+  - job_name: 'events-metrics'
     static_configs:
       - targets: ['my.aegee.eu']
     scrape_interval: 10s
     metrics_path: '/services/oms-events/api/metrics/requests'
-  - job_name: 'discounts-metrics'
+  - job_name: 'discounts-statistics'
     static_configs:
       - targets: ['my.aegee.eu']
     metrics_path: '/services/oms-discounts/api/metrics'
-  - job_name: 'discounts-metrics-endpoints'
+  - job_name: 'discounts-metrics'
     static_configs:
       - targets: ['my.aegee.eu']
     scrape_interval: 10s
     metrics_path: '/services/oms-discounts/api/metrics/requests'
+
+#TODO: learn prometheus and put all in one, e.g.
+  # - job_name: 'discounts-metrics'
+  #     static_configs:
+  #       - targets: ['my.aegee.eu', 'my.staging.aegee.eu']
+  #     scrape_interval: 10s
+  #     metrics_path: '/services/oms-discounts/api/metrics/requests'

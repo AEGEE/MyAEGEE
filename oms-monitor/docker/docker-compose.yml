@@ -43,16 +43,16 @@ services:
       SMTP_PORT: "587"
       SMTP_AUTHENTICATION: plain
       SMTP_DOMAIN: smtp.${BASE_URL}
-      SMTP_ENABLE_STARTTLS_AUTO: true
+      SMTP_ENABLE_STARTTLS_AUTO: "true"
       SMTP_USERNAME: "${USER_SENDGRID}"
       SMTP_PASSWORD: "${PW_SENDGRID}"
       CIAO_WEBHOOK_ENDPOINT_SLACK: "${SLACK_URL}"
       CIAO_WEBHOOK_PAYLOAD_SLACK: "'{\"text\":\"[ciao] __name__: Status changed (__status_after__)\", \"icon_emoji\": \":ghost:\", \"username\": \"uptime-monitor\"}'"
-      PROMETHEUS_ENABLED: true
+      PROMETHEUS_ENABLED: "true"
       BASIC_AUTH_USERNAME: "ciao-admin"
       BASIC_AUTH_PASSWORD: "${PW_ADMIN}"
     volumes:
-      - ciao-data:/app/db/sqlite/
+      - ciao-storage:/app/db/sqlite/
     labels:
       - "traefik.backend=upmonitor"
       - "traefik.port=3000"
@@ -64,6 +64,8 @@ volumes:
   prometheus-storage:
     driver: local
   grafana-storage:
+    driver: local
+  ciao-storage:
     driver: local
 
 networks:
