@@ -27,7 +27,6 @@ services:
           - traefik.frontend.rule=Host:${SUBDOMAIN_TRAEFIK}${BASE_URL}
           - traefik.frontend.priority=20
           - traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}
-
 #volumes:
 #   shared_logs:
 #       driver: "local"
