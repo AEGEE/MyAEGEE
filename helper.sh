@@ -32,6 +32,7 @@ init_boot ()
     docker network inspect OMS &>/dev/null || (echo -e "[OMS] Creating OMS docker network" && docker network create OMS)
 
     touch "${DIR}"/secrets/acme.json # to avoid making it think it's a folder
+    chmod 600 "${DIR}"/secrets/acme.json # Traefik doesn't let ACME challenge go through otherwise
 
     envsubst < "${DIR}"/oms-global/traefik/traefik.toml.template > "${DIR}"/oms-global/traefik/traefik.toml
 }

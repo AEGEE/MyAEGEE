@@ -1,0 +1,8 @@
+backup:
+
+docker cp myaegee_upmonitor_1:/app/db/sqlite/production.sqlite3 upmonitor.sqlite3
+
+restore:
+
+docker cp upmonitor.sqlite3 myaegee_upmonitor_1:/app/db/sqlite/production.sqlite3
+docker restart myaegee_upmonitor_1

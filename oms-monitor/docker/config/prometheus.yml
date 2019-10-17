@@ -34,6 +34,10 @@ scrape_configs:
       - targets: ['my.aegee.eu']
     metrics_path: '/services/node-exporter/metrics'
 
+  # - job_name: 'production-traffic' # READ: https://docs.traefik.io/v1.7/configuration/api/#security
+  #   static_configs:
+  #     - targets: ['traefik.aegee.eu'] # it's better to put a /path instead of a subdomain
+
   - job_name: 'commander-diagnostics'
     static_configs:
       - targets: ['commander.aegee.eu']
