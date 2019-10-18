@@ -1,9 +1,26 @@
+# [0.12.0](https://github.com/AEGEE/oms-events/compare/0.11.3...0.12.0) (2019-10-18)
+
+
+### Bug Fixes
+
+* **docker:** use dev tag for dev environment ([435a0d5](https://github.com/AEGEE/oms-events/commit/435a0d5))
+* **docker:** use latest tag for prod environment ([8fa7124](https://github.com/AEGEE/oms-events/commit/8fa7124))
+
+
+### Features
+
+* **event:** events refactor. Fixes MEMB-620 ([f286a03](https://github.com/AEGEE/oms-events/commit/f286a03))
+
+
+
 ## [0.11.3](https://github.com/AEGEE/oms-events/compare/0.11.2...0.11.3) (2019-10-13)
 
 
 ### Bug Fixes
 
-* **circleci:** added proper dev docker building ([38e599e](https://github.com/AEGEE/oms-events/commit/38e599e))
+* **circleci:** added proper dev docker building ([ce4fbd6](https://github.com/AEGEE/oms-events/commit/ce4fbd6))
+* **docker:** do not overwrite important folder ([1c33467](https://github.com/AEGEE/oms-events/commit/1c33467))
+* **docker:** have to go around secrets ([8daf058](https://github.com/AEGEE/oms-events/commit/8daf058))
 
 
 

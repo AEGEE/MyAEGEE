@@ -21,21 +21,20 @@ exports.listAllApplications = async (req, res) => {
 };
 
 exports.getApplication = async (req, res) => {
-    const application = await Application.findOne({ where: { event_id: req.event.id, user_id: req.user.id } });
-    if (!application) {
-        return errors.makeNotFoundError(res, 'Application is not found.');
+    if (!req.permissions.view_application) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see this application.');
     }
 
     return res.json({
         success: true,
-        data: application,
+        data: req.application,
     });
 };
 
-exports.setApplication = async (req, res) => {
+exports.createApplication = async (req, res) => {
     // Check for permission
     if (!req.permissions.apply) {
-        return errors.makeForbiddenError(res, 'You cannot apply to this event or change your application');
+        return errors.makeForbiddenError(res, 'You cannot apply to this event.');
     }
 
     if (typeof req.body.body_id !== 'undefined' && !helpers.isMemberOf(req.user, req.body.body_id)) {
@@ -45,25 +44,50 @@ exports.setApplication = async (req, res) => {
     delete req.body.board_comment;
     delete req.body.status;
 
-    let application = await Application.findOne({ where: { event_id: req.event.id, user_id: req.user.id } });
-    if (application) {
-        await application.update(req.body);
-    } else {
-        req.body.first_name = req.user.first_name;
-        req.body.last_name = req.user.last_name;
-        req.body.body_name = req.user.bodies.find((b) => b.id === req.body.body_id).name;
-        req.body.user_id = req.user.id;
-        req.body.event_id = req.event.id;
-        req.body.email = req.user.user.email;
+    req.body.first_name = req.user.first_name;
+    req.body.last_name = req.user.last_name;
+    req.body.body_name = req.user.bodies.find((b) => b.id === req.body.body_id).name;
+    req.body.user_id = req.user.id;
+    req.body.event_id = req.event.id;
+    req.body.email = req.user.user.email;
 
-        application = await Application.create(req.body);
-    }
-
+    const application = await Application.create(req.body);
 
     return res.json({
         success: true,
-        message: 'Application saved',
+        message: 'Application is created.',
         data: application,
+    });
+};
+
+exports.updateApplication = async (req, res) => {
+    // Check for permission
+    if (!req.permissions.edit_application) {
+        return errors.makeForbiddenError(res, 'You cannot edit this application.');
+    }
+
+    if (typeof req.body.body_id !== 'undefined' && !helpers.isMemberOf(req.user, req.body.body_id)) {
+        return errors.makeForbiddenError(res, 'You are not a member of this body.');
+    }
+
+    delete req.body.board_comment;
+    delete req.body.status;
+
+    req.body.first_name = req.user.first_name;
+    req.body.last_name = req.user.last_name;
+    if (typeof req.body.body_id !== 'undefined') {
+        req.body.body_name = req.user.bodies.find((b) => b.id === req.body.body_id).name;
+    }
+    req.body.user_id = req.user.id;
+    req.body.event_id = req.event.id;
+    req.body.email = req.user.user.email;
+
+    await req.application.update(req.body);
+
+    return res.json({
+        success: true,
+        message: 'Application is updated',
+        data: req.application,
     });
 };
 
