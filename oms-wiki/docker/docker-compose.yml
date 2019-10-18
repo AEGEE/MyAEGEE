@@ -1,0 +1,46 @@
+version: "3.4"
+
+services:
+
+  maria-mediawiki:
+    image: mariadb:10.4
+    restart: always
+    environment:
+      MYSQL_DATABASE: "mediawiki"
+      MYSQL_USER: "wiki"
+      MYSQL_PASSWORD: "${PW_MEDIAWIKI}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - maria-mediawiki:/var/lib/mysql
+
+  mediawiki:
+    image: mediawiki:1.33
+    restart: always
+    expose:
+        - "80"
+    volumes:
+      - mediawiki-images:/var/www/html/images
+      # After initial setup, download LocalSettings.php to the same directory as
+      # this yaml and uncomment the following line and use compose to restart
+      # the mediawiki service. Do not use the example out of the box because as
+      # of now the db migration is not performed! Install it as written above
+      - ./${PATH_OMS_WIKI}/LocalSettings.php:/var/www/html/LocalSettings.php
+    # networks:
+    #   - management
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=wiki"
+      - "traefik.port=80"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_WIKI}${BASE_URL}"
+      - "traefik.frontend.priority=20"
+
+volumes:
+  mediawiki-images:
+    driver: local
+  maria-mediawiki:
+    driver: local
+
+networks:
+  default:
+    external:
+      name: OMS

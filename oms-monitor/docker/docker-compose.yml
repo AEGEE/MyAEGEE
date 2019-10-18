@@ -1,0 +1,74 @@
+version: "3.4"
+services:
+
+  grafana:
+    restart: on-failure
+    image: grafana/grafana:6.4.1
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./${PATH_OMS_MONITOR}/gf-dashboards:/var/lib/grafana/dashboards
+      - ./${PATH_OMS_MONITOR}/config/gf-provisioning:/etc/grafana/provisioning
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "${PW_GRAFANA}"
+      GF_SERVER_ROOT_URL: "https://${SUBDOMAIN_GRAFANA}${BASE_URL}/"
+      GF_INSTALL_PLUGINS: "raintank-worldping-app,grafana-simple-json-datasource,grafana-clock-panel,grafana-piechart-panel"
+    labels:
+      - "traefik.backend=grafana"
+      - "traefik.port=3000"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_GRAFANA}${BASE_URL};PathPrefix:/"
+      - "traefik.frontend.priority=110"
+      - "traefik.enable=true"
+
+  prometheus:
+    restart: on-failure
+    image: prom/prometheus:v2.10.0
+    volumes:
+      - prometheus-storage:/prometheus
+      - ./${PATH_OMS_MONITOR}/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    labels:
+      - "traefik.backend=prometheus"
+      - "traefik.port=9090"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_PROMETHEUS}${BASE_URL};PathPrefix:/"
+      - "traefik.frontend.priority=110"
+      - "traefik.enable=true"
+      - "traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}"
+
+  upmonitor:
+    image: brotandgames/ciao:1.6.5
+    environment:
+      SECRET_KEY_BASE: "${PW_BITWARDEN_ADMINPANEL}"
+      SMTP_ADDRESS: smtp.sendgrid.net
+      SMTP_EMAIL_FROM: ciaohttp@${BASE_URL}
+      SMTP_EMAIL_TO: myaegee-admins@${BASE_URL}
+      SMTP_PORT: "587"
+      SMTP_AUTHENTICATION: plain
+      SMTP_DOMAIN: smtp.${BASE_URL}
+      SMTP_ENABLE_STARTTLS_AUTO: "true"
+      SMTP_USERNAME: "${USER_SENDGRID}"
+      SMTP_PASSWORD: "${PW_SENDGRID}"
+      CIAO_WEBHOOK_ENDPOINT_SLACK: "${SLACK_URL}"
+      CIAO_WEBHOOK_PAYLOAD_SLACK: "'{\"text\":\"[ciao] __name__: Status changed (__status_after__)\", \"icon_emoji\": \":ghost:\", \"username\": \"uptime-monitor\"}'"
+      PROMETHEUS_ENABLED: "true"
+      BASIC_AUTH_USERNAME: "ciao-admin"
+      BASIC_AUTH_PASSWORD: "${PW_ADMIN}"
+    volumes:
+      - ciao-storage:/app/db/sqlite/
+    labels:
+      - "traefik.backend=upmonitor"
+      - "traefik.port=3000"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_UPMONITOR}${BASE_URL};PathPrefix:/"
+      - "traefik.frontend.priority=110"
+      - "traefik.enable=true"
+
+volumes:
+  prometheus-storage:
+    driver: local
+  grafana-storage:
+    driver: local
+  ciao-storage:
+    driver: local
+
+networks:
+  default:
+    external:
+      name: OMS
