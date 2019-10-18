@@ -76,7 +76,7 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^8.1.0",
+    "@commitlint/cli": "^8.2.0",
     "@commitlint/config-conventional": "^8.2.0",
     "codecov": "^3.5.0",
     "eslint": "^5.16.0",
