@@ -11,6 +11,11 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert json_response(conn, 200)
   end
 
+  test "GET /healthcheck", %{conn: conn} do
+    conn = get conn, "healthcheck"
+    assert json_response(conn, 200)
+  end
+
   # Tests test template
   test "POST / default template", %{conn: conn} do
     conn = post conn, "/", %{template: "index.html", parameters: %{heading: "pirates!"}, to: "test@aegee.org", subject: "pirates"}
