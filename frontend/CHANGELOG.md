@@ -1,3 +1,13 @@
+<a name="0.23.9"></a>
+## [0.23.9](https://github.com/AEGEE/oms-frontend/compare/0.23.8...0.23.9) (2019-10-18)
+
+
+### Features
+
+* **events:** events applications refactor. Fixes MEMB-620 ([0f6d5b1](https://github.com/AEGEE/oms-frontend/commit/0f6d5b1))
+
+
+
 <a name="0.23.8"></a>
 ## [0.23.8](https://github.com/AEGEE/oms-frontend/compare/0.23.7...0.23.8) (2019-10-17)
 
