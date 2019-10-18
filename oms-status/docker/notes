@@ -1,0 +1,18 @@
+Remember that the (default silly) password is in init.sql (read below)
+---
+you hve to run:
+
+ ./helper.sh -v --execute statuspage /bin/sh
+
+
+and in there:
+
+php artisan cachet:install
+
+before using it for the first time. This ONLY if the db isn;t initialised already
+(which it is). NOTE: the apikey for the user admin must be changed! and of course the pw, the usual "5ecr3t"
+---
+also the user of the environment file that is going to be mounted
+must be 82
+
+chown 82 <filename>

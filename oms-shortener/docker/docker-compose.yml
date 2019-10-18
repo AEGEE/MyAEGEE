@@ -1,0 +1,56 @@
+version: "3.4"
+services:
+  # nginx-yourls: #could be that it has some cachet bullshit still
+  #   image: aegee/nginx-webserver:latest
+  #   restart: always
+  #   environment:
+  #     PHPFPM_HOST: "yourls"
+  #   depends_on:
+  #     - yourls
+  #   labels:
+  #     - "traefik.backend=nginx-yourls"
+  #     - "traefik.port=8080"
+  #     - "traefik.domain=${SHORTENER_DOMAIN}"
+  #     - "traefik.frontend.rule=Host:${SUBDOMAIN_SHORTENER}${SHORTENER_DOMAIN};PathPrefix:/"
+  #     - "traefik.frontend.priority=110"
+  #     - "traefik.enable=true"
+
+  yourls:
+    restart: on-failure
+    image: yourls:1.7
+#       image: yourls:1.7-fpm-alpine
+    environment:
+      YOURLS_DB_HOST: "maria-yourls"
+      YOURLS_DB_USER: "yourls"
+      YOURLS_DB_PASS: "${PW_YOURLS}"
+      YOURLS_SITE: "https://${SUBDOMAIN_SHORTENER}${SHORTENER_DOMAIN}"
+      YOURLS_USER: "admin"
+      YOURLS_PASS: "${PW_YOURLS}"
+      YOURLS_PRIVATE: "true"
+    labels:
+      - "traefik.backend=yourls"
+      - "traefik.port=80"
+      - "traefik.domain=${SHORTENER_DOMAIN}"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_SHORTENER}${SHORTENER_DOMAIN};PathPrefix:/"
+      - "traefik.frontend.priority=110"
+      - "traefik.enable=true"
+
+  maria-yourls:
+    image: mariadb:10.4
+    restart: always
+    environment:
+      MYSQL_DATABASE: "yourls"
+      MYSQL_USER: "yourls"
+      MYSQL_PASSWORD: "${PW_YOURLS}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - maria-yourls:/var/lib/mysql
+
+volumes:
+  maria-yourls:
+    driver: local
+
+networks:
+  default:
+    external:
+      name: OMS

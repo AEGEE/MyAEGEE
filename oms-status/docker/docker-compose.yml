@@ -1,0 +1,56 @@
+version: "3.4"
+
+services:
+
+### Statuspage (Cachet) Container #######################################
+
+  maria-statuspage:
+    image: mariadb:10.4
+    restart: always
+    environment:
+      MYSQL_DATABASE: "cachet"
+      MYSQL_USER: "cachet"
+      MYSQL_PASSWORD: "${PW_STATUSPAGE}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - ./${PATH_OMS_STATUS}/maria-provision:/docker-entrypoint-initdb.d:ro
+      - maria-statuspage:/var/lib/mysql
+
+  statuspage:
+    restart: always
+    image: aegee/statuspage:sl
+    volumes:
+      - ./${PATH_OMS_STATUS}/cachet/.env:/app/.env:rw
+    depends_on:
+      - maria-statuspage
+      - redis-statuspage-cache
+
+  nginx-statuspage:
+    restart: always
+    image: aegee/nginx-webserver:latest
+    environment:
+        PHPFPM_HOST: "statuspage"
+    depends_on:
+      - statuspage
+    expose:
+      - "8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=nginx-statuspage"
+      - "traefik.port=8080"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_STATUSPAGE}${BASE_URL}"
+      - "traefik.frontend.priority=20"
+
+  redis-statuspage-cache:
+    restart: unless-stopped
+    image: redis:5-alpine
+
+volumes:
+  maria-statuspage:
+    driver: local
+
+networks:
+  default:
+    external:
+      name: OMS
+

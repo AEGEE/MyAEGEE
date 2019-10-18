@@ -1,5 +1,0 @@
-FROM mediawiki:1.30
-
-RUN apt-get install php-pgsql
-
-#failure :(
