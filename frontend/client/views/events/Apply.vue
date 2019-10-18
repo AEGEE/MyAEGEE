@@ -209,7 +209,11 @@ export default {
         agreed_to_privacy_policy: this.application.agreed_to_privacy_policy
       }
 
-      this.axios.put(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/mine', toServer).then(() => {
+      const request = this.isNew
+        ? this.axios.post(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications', toServer)
+        : this.axios.put(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/' + this.$route.params.application_id, toServer)
+
+      request.then(() => {
         this.$root.showSuccess('Your application was saved, you can still edit it until the application period ends')
 
         return this.$router.push({
@@ -263,7 +267,7 @@ export default {
         this.application.body_id = this.bodies[0].id
       }
 
-      return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/mine').then((application) => {
+      return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/' + this.$route.params.application_id).then((application) => {
         this.application = application.data.data
         this.application.body = this.bodies.find(body => body.id === this.application.body_id)
 
