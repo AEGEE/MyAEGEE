@@ -68,7 +68,7 @@
   "devDependencies": {
     "@commitlint/config-conventional": "^8.1.0",
     "codecov": "^3.5.0",
-    "commitlint": "^8.1.0",
+    "commitlint": "^8.2.0",
     "eslint": "^6.1.0",
     "eslint-config-airbnb": "^18.0.0",
     "eslint-plugin-import": "^2.18.2",
