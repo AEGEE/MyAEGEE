@@ -1,3 +1,13 @@
+<a name="0.23.10"></a>
+## [0.23.10](https://github.com/AEGEE/oms-frontend/compare/0.23.9...0.23.10) (2019-10-19)
+
+
+### Bug Fixes
+
+* **mailer:** added /healthcheck status for mailer ([ac755d4](https://github.com/AEGEE/oms-frontend/commit/ac755d4))
+
+
+
 <a name="0.23.9"></a>
 ## [0.23.9](https://github.com/AEGEE/oms-frontend/compare/0.23.8...0.23.9) (2019-10-18)
 
