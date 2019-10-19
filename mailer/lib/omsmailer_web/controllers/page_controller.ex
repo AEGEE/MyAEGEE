@@ -10,6 +10,9 @@ defmodule OmsmailerWeb.PageController do
     render conn, "success.json"
   end
 
+  def healthcheck(conn, _params) do
+    render conn, "success.json"
+  end
 
   def send_mail(conn, %{"template" => template, "parameters" => parameters, "to" => to, "subject" => subject} = body_params) do
     from = body_params["from"] || Application.get_env(:omsmailer, :from_address)
