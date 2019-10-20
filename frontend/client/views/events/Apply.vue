@@ -9,7 +9,7 @@
         <div class="subtitle" v-show="isNew && (event.application_status === 'closed')">You cannot apply anymore: the applications are closed.</div>
 
         <form @submit.prevent="saveApplication()">
-          <div class="tile is-parent" v-show="!(isNew && (event.application_status === 'closed'))">
+          <div class="tile is-parent" v-show="event.application_status === 'open'">
             <div class="tile is-child">
               <div class="field">
                 <label class="label">Body <span class="has-text-danger">*</span></label>
@@ -123,7 +123,7 @@
                 <tbody>
                   <tr v-for="(field, index) in event.questions" v-bind:key="index">
                     <td><b>{{ field.description }}</b><span class="is-danger" ng-show="field.required">*</span></td>
-                    <td>{{ field.answer | beautify }}</td>
+                    <td>{{ application.answers[index] | beautify }}</td>
                   </tr>
                   <tr>
                     <td>
