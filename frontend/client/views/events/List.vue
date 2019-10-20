@@ -52,8 +52,8 @@
                 <li><strong>Type:</strong> {{ event.type }} </li>
                 <li><strong>From:</strong> {{ event.starts | date }} </li>
                 <li><strong>To:</strong> {{ event.ends | date }} </li>
-                <li><strong>Application deadline:</strong>
-                  <span>{{ event.application_ends | date }}</span>
+                <li><strong>Application period:</strong>
+                  <span>{{ event.application_starts | date }} - {{ event.application_ends | date }}</span>
                 </li>
               </ul>
 
@@ -63,11 +63,11 @@
                     :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }"
                     class="button">Go to event page</router-link>
                 </p>
-                <p class="control" v-if="event.application_status === 'open'">
+                <p class="control">
                   <router-link
                     :to="{ name: 'oms.events.apply', params: { id: event.url || event.id, application_id: 'me' } }"
                     class="button is-warning">
-                    Manage my application
+                    My application
                   </router-link>
                 </p>
               </div>
