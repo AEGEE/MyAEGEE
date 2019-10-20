@@ -1,3 +1,14 @@
+<a name="0.23.11"></a>
+## [0.23.11](https://github.com/AEGEE/oms-frontend/compare/0.23.10...0.23.11) (2019-10-20)
+
+
+### Bug Fixes
+
+* **events:** allow seeing application when the application period is closed. Fixes HELP-623 ([9e14dcc](https://github.com/AEGEE/oms-frontend/commit/9e14dcc))
+* **events:** display application period instead of the deadline ([4773165](https://github.com/AEGEE/oms-frontend/commit/4773165))
+
+
+
 <a name="0.23.10"></a>
 ## [0.23.10](https://github.com/AEGEE/oms-frontend/compare/0.23.9...0.23.10) (2019-10-19)
 
