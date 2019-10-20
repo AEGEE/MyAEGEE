@@ -6,8 +6,10 @@
         <div class="title" v-show="!isNew && event.application_status === 'open'">Edit your application on {{ event.name }}</div>
         <div class="title" v-show="!isNew && event.application_status === 'closed'">See your application on {{ event.name }}</div>
 
+        <div class="subtitle" v-show="isNew && (event.application_status === 'closed')">You cannot apply anymore: the applications are closed.</div>
+
         <form @submit.prevent="saveApplication()">
-          <div class="tile is-parent" v-show="isNew || (event.application_status === 'open')">
+          <div class="tile is-parent" v-show="!(isNew && (event.application_status === 'closed'))">
             <div class="tile is-child">
               <div class="field">
                 <label class="label">Body <span class="has-text-danger">*</span></label>

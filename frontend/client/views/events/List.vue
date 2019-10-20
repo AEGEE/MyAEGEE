@@ -63,11 +63,11 @@
                     :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }"
                     class="button">Go to event page</router-link>
                 </p>
-                <p class="control" v-if="event.application_status === 'open'">
+                <p class="control">
                   <router-link
                     :to="{ name: 'oms.events.apply', params: { id: event.url || event.id, application_id: 'me' } }"
                     class="button is-warning">
-                    Manage my application
+                    My application
                   </router-link>
                 </p>
               </div>
