@@ -52,8 +52,8 @@
                 <li><strong>Type:</strong> {{ event.type }} </li>
                 <li><strong>From:</strong> {{ event.starts | date }} </li>
                 <li><strong>To:</strong> {{ event.ends | date }} </li>
-                <li><strong>Application deadline:</strong>
-                  <span>{{ event.application_ends | date }}</span>
+                <li><strong>Application period:</strong>
+                  <span>{{ event.application_starts | date }} - {{ event.application_ends | date }}</span>
                 </li>
               </ul>
 
