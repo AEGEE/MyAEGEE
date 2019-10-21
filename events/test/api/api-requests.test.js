@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
+const generator = require('../scripts/generator');
 
 describe('API requests', () => {
     beforeEach(async () => {
@@ -13,23 +14,18 @@ describe('API requests', () => {
         mock.cleanAll();
     });
 
-    it('should reject requests without X-Auth-Token', async () => {
-        const res = await request({
-            uri: '/',
-            method: 'GET'
-        });
-
-        expect(res.statusCode).toEqual(401);
-        expect(res.body.success).toEqual(false);
-    });
-
-    it('should fail if the user is unauthorized', async () => {
+    it('should fail if the user is unauthorized for autnorized-only endpoint', async () => {
         mock.mockAll({ core: { unauthorized: true } });
 
+        const event = await generator.createEvent({
+            questions: [
+                { type: 'checkbox', description: 'test', required: true },
+                { type: 'string', description: 'test', required: true }
+            ]
+        });
         const res = await request({
-            uri: '/',
-            method: 'GET',
-            headers: { 'X-Auth-Token': 'blablabla' }
+            uri: '/single/' + event.id + '/applications',
+            method: 'GET'
         });
 
         expect(res.statusCode).toEqual(401);
@@ -71,7 +67,7 @@ describe('API requests', () => {
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
-        expect(res.statusCode).toEqual(401);
+        expect(res.statusCode).toEqual(500);
         expect(res.body.success).toEqual(false);
     });
 

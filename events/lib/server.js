@@ -43,20 +43,26 @@ ImagesRouter.use(express.static(config.media_dir)); // Serving images.
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
 GeneralRouter.get('/metrics', metrics.getMetrics);
 GeneralRouter.get('/metrics/requests', endpointsMetrics.getEndpointMetrics);
+
+// For all the requests above these three, query the core for authorization data.
 GeneralRouter.use(middlewares.authenticateUser);
 
 GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', events.addEvent);
 
-GeneralRouter.get('/mine/organizing', events.listUserOrganizedEvents);
-GeneralRouter.get('/mine/participating', events.listUserAppliedEvents);
-GeneralRouter.get('/mine/approvable', events.listApprovableEvents);
-GeneralRouter.get('/boardview/:body_id', events.listBodyApplications);
+GeneralRouter.get('/mine/organizing', middlewares.ensureAuthorized, events.listUserOrganizedEvents);
+GeneralRouter.get('/mine/participating', middlewares.ensureAuthorized, events.listUserAppliedEvents);
+GeneralRouter.get('/mine/approvable', middlewares.ensureAuthorized, events.listApprovableEvents);
+GeneralRouter.get('/boardview/:body_id', middlewares.ensureAuthorized, events.listBodyApplications);
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
 EventsRouter.use(middlewares.fetchSingleEvent);
 
+// Getting the event details can be done without autorization.
 EventsRouter.get('/', events.eventDetails);
+
+// The next routes cannot.
+EventsRouter.use(middlewares.ensureAuthorized);
 EventsRouter.put('/', events.editEvent);
 EventsRouter.delete('/', events.deleteEvent);
 EventsRouter.put('/status', events.setApprovalStatus);
