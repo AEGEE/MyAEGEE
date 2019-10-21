@@ -44,14 +44,14 @@ exports.authenticateUser = async (req, res, next) => {
     });
 
     req.userRequest = userBody;
-    req.permissionsRequest = permissionsBody
+    req.permissionsRequest = permissionsBody;
     req.approveRequest = approveRequest;
 
     const errorObjectsMap = [
         { object: req.userRequest, name: 'user' },
         { object: req.permissionsRequest, name: 'permissions' },
         { object: req.approveRequest, name: 'permissions for approve' }
-    ]
+    ];
 
     // If the service returned faulty answer (either garbage, or HTTP code other than 401),
     // throw an error.
@@ -77,7 +77,7 @@ exports.authenticateUser = async (req, res, next) => {
 
 exports.ensureAuthorized = async (req, res, next) => {
     // If any of the services returned HTTP 401, then we are not authorized.
-    if (req.userRequest.statusCode === 401 || req.permissionsRequest.statusCode === 401  || req.approveRequest.statusCode === 401 ) {
+    if (req.userRequest.statusCode === 401 || req.permissionsRequest.statusCode === 401 || req.approveRequest.statusCode === 401) {
         return errors.makeUnauthorizedError(res, 'Error fetching data: user is not authenticated.');
     }
 

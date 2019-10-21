@@ -23,7 +23,8 @@ describe('Events listing', () => {
             core: { unauthorized: true },
             mainPermissions: { unauthorized: true },
             approvePermissions: { unauthorized: true }
-        })
+        });
+
         const event = await generator.createEvent({ status: 'published' });
         await generator.createEvent({ status: 'draft' });
 
