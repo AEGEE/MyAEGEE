@@ -124,6 +124,10 @@ exports.getApplicationFields = (event) => {
 
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
+    if (!Array.isArray(permissionsList)) {
+        return false;
+    }
+
     return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
 }
 
@@ -133,6 +137,10 @@ exports.isMemberOf = (user, bodyId) => user.bodies.map((body) => body.id).includ
 // A helper to get bodies list where I have some permission
 // from POST /my_permissions
 function getBodiesListFromPermissions(result) {
+    if (!Array.isArray(result)) {
+        return [];
+    }
+
     return result.reduce((acc, val) => acc.concat(val), [])
         .filter((elt) => elt.body_id)
         .map((elt) => elt.body_id)
@@ -140,7 +148,13 @@ function getBodiesListFromPermissions(result) {
 }
 
 // A helper to determine if user is an organizer.
-exports.isOrganizer = (event, user) => event.organizers.some((organizer) => organizer.user_id === user.id);
+exports.isOrganizer = (event, user) => {
+    if (!user) {
+        return false;
+    }
+
+    return event.organizers.some((organizer) => organizer.user_id === user.id);
+};
 
 exports.getPermissions = (user, corePermissions, approvePermissions) => {
     const permissions = {
@@ -157,7 +171,8 @@ exports.getPermissions = (user, corePermissions, approvePermissions) => {
     permissions.see_boardview = {};
 
     const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
-    for (const body of user.bodies) {
+    const userBodies = user && Array.isArray(user.bodies) ? user.bodies : [];
+    for (const body of userBodies) {
         permissions.set_board_comment[body.id] = approveBodiesList.includes(body.id);
         permissions.see_boardview[body.id] = approveBodiesList.includes(body.id);
     }

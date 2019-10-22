@@ -18,6 +18,40 @@ describe('Events listing', () => {
         await generator.clearAll();
     });
 
+    it('should work without authorization on / GET', async () => {
+        mock.mockAll({
+            core: { unauthorized: true },
+            mainPermissions: { unauthorized: true },
+            approvePermissions: { unauthorized: true }
+        });
+
+        const event = await generator.createEvent({ status: 'published' });
+        await generator.createEvent({ status: 'draft' });
+
+        const res = await request({
+            uri: '/',
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+
+        expect(res.body.data.length).toEqual(1);
+
+        expect(res.body.data[0]).toHaveProperty('id');
+        expect(res.body.data[0]).toHaveProperty('name');
+        expect(res.body.data[0]).toHaveProperty('starts');
+        expect(res.body.data[0]).toHaveProperty('ends');
+        expect(res.body.data[0]).toHaveProperty('application_status');
+        expect(res.body.data[0]).toHaveProperty('status');
+        expect(res.body.data[0]).toHaveProperty('type');
+        expect(res.body.data[0]).toHaveProperty('description');
+
+        expect(res.body.data[0].id).toEqual(event.id);
+    });
+
     it('should list all published on / GET', async () => {
         const event = await generator.createEvent({ status: 'published' });
         await generator.createEvent({ status: 'draft' });

@@ -4,7 +4,7 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const user = require('../assets/oms-core-valid').data;
 
-describe('Event organizing requests', () => {
+describe('Event organizing listing', () => {
     beforeEach(async () => {
         mock.mockAll();
         await startServer();

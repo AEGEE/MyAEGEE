@@ -12,11 +12,6 @@ const constants = require('./constants');
 const packageInfo = require('../package');
 
 exports.authenticateUser = async (req, res, next) => {
-    const token = req.header('x-auth-token');
-    if (!token) {
-        return errors.makeError(res, 401, 'No auth token provided');
-    }
-
     // Query the core for user and permissions.
     const [userBody, permissionsBody] = await Promise.all(['members/me', 'my_permissions'].map((endpoint) => request({
         url: config.core.url + ':' + config.core.port + '/' + endpoint,
@@ -27,24 +22,8 @@ exports.authenticateUser = async (req, res, next) => {
         },
         simple: false,
         json: true,
+        resolveWithFullResponse: true
     })));
-
-    if (typeof userBody !== 'object') {
-        throw new Error('Malformed response when fetching user: ' + userBody);
-    }
-
-    if (!userBody.success) {
-        // We are not authenticated
-        return errors.makeUnauthorizedError(res, 'Error fetching user: user is not authenticated.');
-    }
-
-    if (typeof permissionsBody !== 'object') {
-        throw new Error('Malformed response when fetching permissions: ' + JSON.stringify(permissionsBody));
-    }
-
-    if (!permissionsBody.success) {
-        throw new Error('Error fetching permissions: ' + JSON.stringify(permissionsBody));
-    }
 
     // Fetching permissions for members approval, the list of bodies
     // where do you have the 'approve_members:events' permission for it.
@@ -60,21 +39,47 @@ exports.authenticateUser = async (req, res, next) => {
         body: {
             action: 'approve_members',
             object: 'events'
-        }
+        },
+        resolveWithFullResponse: true
     });
 
-    if (typeof approveRequest !== 'object') {
-        throw new Error('Malformed response when fetching permissions for approve: ' + JSON.stringify(approveRequest));
+    req.userRequest = userBody;
+    req.permissionsRequest = permissionsBody;
+    req.approveRequest = approveRequest;
+
+    const errorObjectsMap = [
+        { object: req.userRequest, name: 'user' },
+        { object: req.permissionsRequest, name: 'permissions' },
+        { object: req.approveRequest, name: 'permissions for approve' }
+    ];
+
+    // If the service returned faulty answer (either garbage, or HTTP code other than 401),
+    // throw an error.
+    for (const errorObject of errorObjectsMap) {
+        if (typeof errorObject.object.body !== 'object') {
+            throw new Error(`Malformed response when fetching ${errorObject.name}: ${errorObject.object.body}`);
+        }
+
+        // skipping 401 there, will catch them later in ensureAuthorized
+        if (!errorObject.object.body.success && errorObject.object.statusCode !== 401) {
+            throw new Error(`Error fetching ${errorObject.name}: ${JSON.stringify(errorObject.object.body)}`);
+        }
     }
 
-    if (!approveRequest.success) {
-        throw new Error('Error fetching permissions for approve:' + JSON.stringify(approveRequest));
-    }
+    if (req.userRequest.body && req.userRequest.body.success) req.user = userBody.body.data;
+    if (req.permissionsRequest.body && req.permissionsRequest.body.success) req.corePermissions = permissionsBody.body.data;
+    if (req.approveRequest.body && req.approveRequest.body.success) req.approvePermissions = approveRequest.body.data;
 
-    req.user = userBody.data;
-    req.corePermissions = permissionsBody.data;
-    req.approvePermissions = approveRequest.data;
     req.permissions = helpers.getPermissions(req.user, req.corePermissions, req.approvePermissions);
+
+    return next();
+};
+
+exports.ensureAuthorized = async (req, res, next) => {
+    // If any of the services returned HTTP 401, then we are not authorized.
+    if (req.userRequest.statusCode === 401 || req.permissionsRequest.statusCode === 401 || req.approveRequest.statusCode === 401) {
+        return errors.makeUnauthorizedError(res, 'Error fetching data: user is not authenticated.');
+    }
 
     return next();
 };

@@ -32,7 +32,7 @@ exports.mockCore = (options) => {
         return nock(config.core.url + ':' + config.core.port)
             .persist()
             .get('/members/me')
-            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+            .replyWithFile(401, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
     }
 
     if (options.notSuperadmin) {
@@ -75,7 +75,7 @@ exports.mockCoreMainPermissions = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/my_permissions')
-            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+            .replyWithFile(401, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
     }
 
     if (options.noPermissions) {
@@ -118,7 +118,7 @@ exports.mockCoreApprovePermissions = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .post('/my_permissions')
-            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+            .replyWithFile(401, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
     }
 
     if (options.noPermissions) {
