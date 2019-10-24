@@ -1,3 +1,15 @@
+<a name="0.23.12"></a>
+## [0.23.12](https://github.com/AEGEE/oms-frontend/compare/0.23.11...0.23.12) (2019-10-24)
+
+
+### Bug Fixes
+
+* **events:** allow unauthorized events listing. Fixes MEMB-641 ([b63318f](https://github.com/AEGEE/oms-frontend/commit/b63318f))
+* **events:** small application fixes ([342fdef](https://github.com/AEGEE/oms-frontend/commit/342fdef))
+* **general:** fix events application route ([17d4bcb](https://github.com/AEGEE/oms-frontend/commit/17d4bcb))
+
+
+
 <a name="0.23.11"></a>
 ## [0.23.11](https://github.com/AEGEE/oms-frontend/compare/0.23.10...0.23.11) (2019-10-20)
 
@@ -45,13 +57,13 @@
 
 ### Bug Fixes
 
+* very trashy but oh well.. ([b7cc89f](https://github.com/AEGEE/oms-frontend/commit/b7cc89f))
 * **circleci:** added proper dev docker building ([56ba057](https://github.com/AEGEE/oms-frontend/commit/56ba057))
 * **deps:** fix npm audit vulnerabilities report ([4b0ed4a](https://github.com/AEGEE/oms-frontend/commit/4b0ed4a))
 * **docker:** have to go around secrets ([f3ed7ab](https://github.com/AEGEE/oms-frontend/commit/f3ed7ab))
 * **docker:** in dev, the script was overwritten ([c0a7e9a](https://github.com/AEGEE/oms-frontend/commit/c0a7e9a))
 * **script:** permissions were bad ([b6af2ed](https://github.com/AEGEE/oms-frontend/commit/b6af2ed))
 * **startup:** chmod parent directory ([4f9072d](https://github.com/AEGEE/oms-frontend/commit/4f9072d))
-* very trashy but oh well.. ([b7cc89f](https://github.com/AEGEE/oms-frontend/commit/b7cc89f))
 
 
 
@@ -128,25 +140,16 @@
 
 
 <a name="0.22.5"></a>
-## [0.22.5](https://github.com/AEGEE/oms-frontend/compare/0.22.4...0.22.5) (2019-09-17)
+## [0.22.5](https://github.com/AEGEE/oms-frontend/compare/0.22.3...0.22.5) (2019-09-17)
 
 
 ### Bug Fixes
 
 * **circleci:** fixed docker build task ([a05df7f](https://github.com/AEGEE/oms-frontend/commit/a05df7f))
-* **docker:** fixed Hadolint warnings ([e0d59a7](https://github.com/AEGEE/oms-frontend/commit/e0d59a7))
-* **statutory:** updated positions deadline clarification. Fixes MEMB-615 ([8e89291](https://github.com/AEGEE/oms-frontend/commit/8e89291))
-
-
-
-<a name="0.22.4"></a>
-## [0.22.4](https://github.com/AEGEE/oms-frontend/compare/0.22.3...0.22.4) (2019-09-16)
-
-
-### Bug Fixes
-
 * **docker:** added .dockerignore ([685706a](https://github.com/AEGEE/oms-frontend/commit/685706a))
 * **docker:** added traefik labels ([650f16a](https://github.com/AEGEE/oms-frontend/commit/650f16a))
+* **docker:** fixed Hadolint warnings ([e0d59a7](https://github.com/AEGEE/oms-frontend/commit/e0d59a7))
+* **statutory:** updated positions deadline clarification. Fixes MEMB-615 ([8e89291](https://github.com/AEGEE/oms-frontend/commit/8e89291))
 
 
 ### Features
@@ -1389,11 +1392,11 @@
 
 ### Bug Fixes
 
+* Homepage bulma version info. ([07bcdb5](https://github.com/AEGEE/oms-frontend/commit/07bcdb5))
+* l10n for Datepicker ([8ce8761](https://github.com/AEGEE/oms-frontend/commit/8ce8761))
 * **general:** display/hide menu on swipe. Fixes MEMB-426 ([1ba0837](https://github.com/AEGEE/oms-frontend/commit/1ba0837))
 * **statutory:** refactor massmailer. Fixes MEMB-389 ([f6e2989](https://github.com/AEGEE/oms-frontend/commit/f6e2989))
 * **statutory:** refactor statutory statistics. Fixes MEMB-437 ([c31336d](https://github.com/AEGEE/oms-frontend/commit/c31336d))
-* Homepage bulma version info. ([07bcdb5](https://github.com/AEGEE/oms-frontend/commit/07bcdb5))
-* l10n for Datepicker ([8ce8761](https://github.com/AEGEE/oms-frontend/commit/8ce8761))
 
 
 ### Features

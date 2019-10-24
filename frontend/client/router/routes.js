@@ -354,7 +354,8 @@ module.exports = [
     path: '/events',
     component: 'events/List',
     meta: {
-      label: 'List all events'
+      label: 'List all events',
+      auth: false
     }
   },
   {
@@ -427,6 +428,7 @@ module.exports = [
     component: 'events/Single',
     meta: {
       label: 'Display single event'
+      // auth: false // won't work, when the bodies are requested it'll return 401 so a redirect to /login
     }
   },
   /* Statutory events management. */
