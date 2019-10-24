@@ -65,11 +65,11 @@
   },
   {
     "categoryName": "Events",
-    "auth": "logged-in",
     "components": [
       {
         "label": "Events admin",
         "icon": "fa-wrench",
+        "auth": "logged-in",
         "children": [
           {
             "name": "oms.events.change_status",
@@ -91,14 +91,17 @@
           },
           {
             "name": "oms.events.list.participating",
+            "auth": "logged-in",
             "label": "Participating"
           },
           {
             "name": "oms.events.list.organizing",
+            "auth": "logged-in",
             "label": "Organizing"
           },
           {
             "name": "oms.events.create",
+            "auth": "logged-in",
             "label": "Create event"
           }
         ]
