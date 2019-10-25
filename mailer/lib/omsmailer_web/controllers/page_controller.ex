@@ -11,7 +11,19 @@ defmodule OmsmailerWeb.PageController do
   end
 
   def healthcheck(conn, _params) do
-    render conn, "success.json"
+    package_info = File.read!("package.json")
+    |> Poison.decode!()
+
+    conn
+    |> put_status(200)
+    |> json(%{
+      success: true,
+      data: %{
+        name: package_info["name"],
+        description: package_info["description"],
+        version: package_info["version"]
+      }
+    })
   end
 
   def send_mail(conn, %{"template" => template, "parameters" => parameters, "to" => to, "subject" => subject} = body_params) do

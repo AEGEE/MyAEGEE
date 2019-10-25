@@ -1,0 +1,21 @@
+{
+  "name": "oms-core-elixir",
+  "version": "0.1.0",
+  "description": "The internal mailer module of my.aegee.eu",
+  "keywords": [],
+  "author": "Nico Westerbeck",
+  "license": "ISC",
+  "devDependencies": {
+    "@commitlint/cli": "^8.2.0",
+    "@commitlint/config-conventional": "^8.2.0",
+    "husky": "^3.0.9"
+  },
+  "scripts": {
+    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
+}
