@@ -25,10 +25,12 @@ exports.listAllQuestionLines = async (req, res) => {
 
     const questionLines = await QuestionLine.findAll({
         where: { event_id: req.event.id },
-        order: [['created_at', 'ASC']],
+        order: [
+            ['created_at', 'ASC'],
+            [Question, 'created_at', 'ASC']
+        ],
         include: [{
             model: Question,
-            order: [['created_at', 'ASC']],
             include: [{
                 model: Application,
                 attributes: constants.ALLOWED_QUESTION_LINE_APPLICATION_FIELDS
