@@ -28,6 +28,7 @@ exports.listAllQuestionLines = async (req, res) => {
         order: [['created_at', 'ASC']],
         include: [{
             model: Question,
+            order: [['created_at', 'ASC']],
             include: [{
                 model: Application,
                 attributes: constants.ALLOWED_QUESTION_LINE_APPLICATION_FIELDS
