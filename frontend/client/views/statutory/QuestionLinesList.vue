@@ -20,6 +20,10 @@
               {{ props.row.name }}
             </b-table-column>
 
+            <b-table-column label="Questions" numeric>
+              {{ props.row.questions.length }}
+            </b-table-column>
+
             <b-table-column field="starts" label="Status" centered>
               <span
                 class="tag"
@@ -85,7 +89,7 @@
             <b-table-column label="">
               <button
                 class="button is-small is-warning"
-                v-show="loginUser.id === props.row.application.user_id || can.manage_question_lines"
+                v-show="(loginUser.id === props.row.application.user_id && selectedQuestionLine.status === 'open') || can.manage_question_lines"
                 @click="openEditQuestionModal(selectedQuestionLine, props.row)">
                 Edit
               </button>

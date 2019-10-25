@@ -1,3 +1,14 @@
+<a name="0.23.13"></a>
+## [0.23.13](https://github.com/AEGEE/oms-frontend/compare/0.23.12...0.23.13) (2019-10-25)
+
+
+### Bug Fixes
+
+* **statutory:** allow editing question only when the question line is open ([8fbe800](https://github.com/AEGEE/oms-frontend/commit/8fbe800))
+* **statutory:** display question numbers in question lines ([893419e](https://github.com/AEGEE/oms-frontend/commit/893419e))
+
+
+
 <a name="0.23.12"></a>
 ## [0.23.12](https://github.com/AEGEE/oms-frontend/compare/0.23.11...0.23.12) (2019-10-24)
 
