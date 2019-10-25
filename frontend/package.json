@@ -1,6 +1,6 @@
 {
   "name": "oms-frontend",
-  "version": "0.23.13",
+  "version": "0.24.0",
   "description": "OMS Frontend",
   "repository": "AEGEE/oms-frontend",
   "homepage": "https://my.aegee.eu",
@@ -42,6 +42,9 @@
     "last 3 versions"
   ],
   "dependencies": {
+    "@fullcalendar/core": "^4.3.1",
+    "@fullcalendar/daygrid": "^4.3.0",
+    "@fullcalendar/vue": "^4.3.1",
     "animate.css": "^3.7.2",
     "axios": "^0.19.0",
     "buefy": "^0.8.3",
