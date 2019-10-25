@@ -1,8 +1,9 @@
-## [0.22.5](https://github.com/AEGEE/oms-statutory/compare/0.22.4...0.22.5) (2019-10-25)
+## [0.22.6](https://github.com/AEGEE/oms-statutory/compare/0.22.4...0.22.6) (2019-10-25)
 
 
 ### Bug Fixes
 
+* **question:** fixed questions sorting again ([052690b](https://github.com/AEGEE/oms-statutory/commit/052690b))
 * **questions:** fixed questions sorting on question lines listing ([37fdc9e](https://github.com/AEGEE/oms-statutory/commit/37fdc9e))
 
 
