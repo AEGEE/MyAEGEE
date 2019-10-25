@@ -20,6 +20,10 @@
               {{ props.row.name }}
             </b-table-column>
 
+            <b-table-column label="Questions" numeric>
+              {{ props.row.questions.length }}
+            </b-table-column>
+
             <b-table-column field="starts" label="Status" centered>
               <span
                 class="tag"
