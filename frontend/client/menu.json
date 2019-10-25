@@ -18,12 +18,17 @@
   },
   {
     "categoryName": "General",
-    "auth": "logged-in",
     "components": [
       {
         "name": "oms.dashboard",
         "label": "Dashboard",
+        "auth": "logged-in",
         "icon": "fa-tachometer-alt"
+      },
+      {
+        "name": "oms.calendar",
+        "label": "Events calendar",
+        "icon": "fa-calendar"
       }
     ]
   },

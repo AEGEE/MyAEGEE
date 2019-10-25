@@ -87,6 +87,15 @@ module.exports = [
     },
     component: 'dashboard/index'
   },
+  {
+    name: 'oms.calendar',
+    path: '/calendar',
+    meta: {
+      label: 'Events calendar',
+      auth: false
+    },
+    component: 'dashboard/Calendar'
+  },
   /* Members management */
   {
     name: 'oms.members.list',
