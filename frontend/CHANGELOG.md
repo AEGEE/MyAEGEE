@@ -1,3 +1,18 @@
+<a name="0.24.0"></a>
+# [0.24.0](https://github.com/AEGEE/oms-frontend/compare/0.23.13...0.24.0) (2019-10-25)
+
+
+### Bug Fixes
+
+* **deps:** fixed audit vulnerability ([3d6bb45](https://github.com/AEGEE/oms-frontend/commit/3d6bb45))
+
+
+### Features
+
+* **general:** added events calendar. Fixes MEMB-313 ([7ea4943](https://github.com/AEGEE/oms-frontend/commit/7ea4943))
+
+
+
 <a name="0.23.13"></a>
 ## [0.23.13](https://github.com/AEGEE/oms-frontend/compare/0.23.12...0.23.13) (2019-10-25)
 
