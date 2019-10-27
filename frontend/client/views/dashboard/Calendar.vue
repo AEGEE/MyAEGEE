@@ -12,6 +12,7 @@
 
     <FullCalendar
       defaultView="dayGridMonth"
+      :firstDay="1"
       :plugins="calendarPlugins"
       :events="events"/>
   </div>
