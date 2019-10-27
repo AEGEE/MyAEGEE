@@ -1,3 +1,13 @@
+<a name="0.24.1"></a>
+## [0.24.1](https://github.com/AEGEE/oms-frontend/compare/0.24.0...0.24.1) (2019-10-27)
+
+
+### Bug Fixes
+
+* **calendar:** first day as Monday. Fixes MEMB-684 ([128c3d0](https://github.com/AEGEE/oms-frontend/commit/128c3d0))
+
+
+
 <a name="0.24.0"></a>
 # [0.24.0](https://github.com/AEGEE/oms-frontend/compare/0.23.13...0.24.0) (2019-10-25)
 
