@@ -143,6 +143,7 @@ execute=false;
 debug=false;
 list=false;
 verbose=true; #TODO put me to false default
+docker=false;
 command_num=0;
 declare -a arguments # = EMPTY ARRAY
 if [[ "$#" -ge 1 ]]; then
@@ -162,25 +163,25 @@ if [[ "$#" -ge 1 ]]; then
             --execute) execute=true; ((command_num++)); shift ;;
             --debug) debug=true; ((command_num++)); shift ;;
             --list) list=true; ((command_num++)); shift ;;
-
+            --docker) docker=true; ((command_num++)); shift ;;
             -v) verbose=true; shift ;;
 
             --) shift ; arguments+=$@; break ;;
 
             -*) echo "unknown option: $1" 2>&1;
-                echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump} [-v]"; exit 1;;
+                echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump|--docker} [-v]"; exit 1;;
             *) arguments+="$1 "; shift;;
         esac
     done
 
 else
     echo "Too few parameters"; exit 1
-    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump} [-v]"; exit 1
+    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump|--docker} [-v]"; exit 1
 fi
 
 if (( $command_num > 1 )); then
     echo "Too many commands! Only one command per time"
-    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump} [-v]"; exit 1
+    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump|--docker} [-v]"; exit 1
 fi
 
 if ( $init ); then
@@ -263,6 +264,11 @@ fi
 
 if ( $bump ); then
     bump_repo
+fi
+
+if ( $docker ); then
+    compose_wrapper $arguments
+    exit $?
 fi
 
 #return 0;
