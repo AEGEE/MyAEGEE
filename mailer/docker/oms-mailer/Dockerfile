@@ -14,6 +14,7 @@ RUN ["mix", "deps.get"]
 COPY config /usr/src/myapp/config
 COPY lib /usr/src/myapp/lib
 COPY test /usr/src/myapp/test
+COPY package.json /usr/src/myapp/package.json
 
 ARG MIX_ENV=production
 ENV MIX_ENV=${MIX_ENV}
