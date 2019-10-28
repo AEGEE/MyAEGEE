@@ -41,6 +41,27 @@ services:
             - "traefik.frontend.priority=110"
             - "traefik.enable=true"
 
+    oms-events-static:
+        restart: on-failure
+        image: aegee/oms-events-static:latest
+        volumes:
+            - oms-events-media:/usr/app/media
+            - shared:/usr/app/shared:ro
+        expose:
+            - "80"
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:80/healthcheck"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+        labels:
+            - "traefik.backend=oms-events-static"
+            - "traefik.port=80"
+            - "traefik.frontend.rule=PathPrefix:/services/oms-events/media;PathPrefixStrip:/services/oms-events/media"
+            - "traefik.frontend.priority=110"
+            - "traefik.enable=true"
+
 volumes:
     postgres-oms-events:
         driver: local

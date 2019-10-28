@@ -1,7 +1,7 @@
 FROM node:12
 
 RUN mkdir -p /usr/app/src \
-	&& mkdir -p /usr/app/media \
+	&& mkdir -p /usr/app/media/headimages \
 	&& mkdir -p /usr/app/scripts
 
 COPY ./docker/oms-events/bootstrap.sh /usr/app/scripts/bootstrap.sh
