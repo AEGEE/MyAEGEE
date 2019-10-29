@@ -1,6 +1,6 @@
 {
   "name": "oms-frontend",
-  "version": "0.24.1",
+  "version": "0.24.2",
   "description": "OMS Frontend",
   "repository": "AEGEE/oms-frontend",
   "homepage": "https://my.aegee.eu",
@@ -56,7 +56,6 @@
     "nprogress": "^0.2.0",
     "vue": "^2.6.10",
     "vue-axios": "^2.0.1",
-    "vue-bulma-breadcrumb": "^1.0.1",
     "vue-bulma-collapse": "1.0.3",
     "vue-chartjs": "^3.4.2",
     "vue-flatpickr-component": "^8.1.2",
