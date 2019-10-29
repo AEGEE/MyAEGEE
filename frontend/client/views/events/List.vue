@@ -49,7 +49,7 @@
             <div class="content">
               <span v-html="$options.filters.markdown(event.description)"></span>
               <ul>
-                <li><strong>Type:</strong> {{ event.type }} </li>
+                <li><strong>Type:</strong> {{ eventTypesNames[event.type] }} </li>
                 <li><strong>From:</strong> {{ event.starts | date }} </li>
                 <li><strong>To:</strong> {{ event.ends | date }} </li>
                 <li><strong>Application period:</strong>
@@ -115,6 +115,7 @@ export default {
     return {
       events: [],
       eventTypes,
+      eventTypesNames: constants.EVENT_TYPES_NAMES,
       isLoading: false,
       query: '',
       limit: 30,
