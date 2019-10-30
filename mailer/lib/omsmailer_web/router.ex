@@ -2,6 +2,7 @@ defmodule OmsmailerWeb.Router do
   use OmsmailerWeb, :router
 
   pipeline :api do
+    plug OmsmailerWeb.RequestLoggerPlug
     plug :accepts, ["json"]
   end
 
