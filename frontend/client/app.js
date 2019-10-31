@@ -60,19 +60,25 @@ const { state } = store
 router.beforeEach((to, from, next) => {
   const prefix = to.name === 'oms.login' ? '' : '?to=' + encodeURI(to.fullPath)
 
-  // Workaround to not go into endless fetching user cycle
-  if ((from.name && from.name !== 'oms.login' ) || to.name === 'oms.login' ) {
-    console.log('Skipping workaround for login...')
-    return next()
-  }
-
-
-  // If user if fetched, just redirect.
+  // Fuck my life.
   if (state.login.user) {
+    // First, checking if the user is fetched, if so, not fetching it again.
+    // For auth-only requests we'll catch it later in .catch() block
+    console.log('User is fetched, skipping.')
     document.title = 'MyAEGEE | ' + to.meta.label
-    return state.login.isLoggedIn
-        ? next()
-        : next('/login' + prefix)
+    return next()
+  } else if (!from.name) {
+    console.log('First time loading page, need to fetch user in any way.')
+  } else if (to.name === 'oms.login') {
+    console.log('Going to /login anyway, no need to fetch user.')
+    return next()
+  } else if (from.name === 'oms.login') {
+    console.log('Going from /login, need to fetch user.')
+  } else if (to.meta.auth) {
+    console.log('Going to auth only page without user fetched, need to fetch user.')
+  } else{
+    console.log('Going to page with unauthorized access, no need to fetch anything.')
+    return next()
   }
 
   // Fetching user if not fetched.

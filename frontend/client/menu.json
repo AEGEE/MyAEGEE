@@ -34,37 +34,39 @@
   },
   {
     "categoryName": "Core",
-    "auth": "logged-in",
     "components": [
       {
         "name": "oms.members.list",
         "label": "Members",
         "icon": "fa-user",
-        "permissions": ["global:view:member"]
+        "permissions": ["global:view:member"],
+        "auth": "logged-in"
       },
       {
         "name": "oms.bodies.list",
         "label": "Bodies",
-        "icon": "fa-flag",
-        "permissions": ["global:view:body"]
+        "icon": "fa-flag"
       },
       {
         "name": "oms.permissions.list",
         "label": "Permissions",
         "icon": "fa-key",
-        "permissions": ["global:update:permission", "global:create:permission"]
+        "permissions": ["global:update:permission", "global:create:permission"],
+        "auth": "logged-in"
       },
       {
         "name": "oms.circles.list",
         "label": "Circles",
         "icon": "fa-circle",
-        "permissions": ["global:view:circle"]
+        "permissions": ["global:view:circle"],
+        "auth": "logged-in"
       },
       {
         "name": "oms.campaigns.list",
         "label": "Campaigns",
         "icon": "fa-sign-in-alt",
-        "permissions": ["global:view:campaign"]
+        "permissions": ["global:view:campaign"],
+        "auth": "logged-in"
       }
     ]
   },
