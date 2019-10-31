@@ -135,15 +135,19 @@ export default {
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit
 
-        return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions')
-      }).then((response) => {
-        this.permissions = response.data.data
+        if (this.loginUser) {
+          return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions').then((response) => {
+            this.permissions = response.data.data
 
-        this.can.create = this.permissions.some(permission => permission.combined.endsWith('create:body'))
-        this.isLoading = false
+            this.can.create = this.permissions.some(permission => permission.combined.endsWith('create:body'))
+            this.isLoading = false
+          })
+        } else {
+          this.isLoading = false
+        }
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
-          return console.debug('Request cancelled.')
+          return
         }
 
         this.$root.showDanger('Could not fetch bodies list: ' + err.message)

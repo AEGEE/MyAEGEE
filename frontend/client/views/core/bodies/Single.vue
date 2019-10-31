@@ -257,6 +257,10 @@ export default {
       }).catch((err) => this.$root.showDanger('Could not delete body: ' + err.message))
     },
     askToJoinBody () {
+      if (!this.loginUser) {
+        return this.$router.push({ name: 'oms.login', query: { to: '/bodies/' + this.$route.params.id } })
+      }
+
       this.$buefy.dialog.prompt({
         message: 'Join body',
         inputAttrs: {
@@ -305,13 +309,18 @@ export default {
     this.isLoading = true
     this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
       this.body = response.data.data
-      this.isMember = this.loginUser.bodies.some(body => body.id === this.body.id)
-      this.isRequestingMembership = this.loginUser.join_requests.some(request => request.body_id === this.body.id)
 
-      return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
-    }).then((response) => {
-      this.permissions = response.data.data
-      this.isLoading = false
+      if (this.loginUser) {
+        this.isMember = this.loginUser.bodies.some(body => body.id === this.body.id)
+        this.isRequestingMembership = this.loginUser.join_requests.some(request => request.body_id === this.body.id)
+
+        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions').then((response) => {
+          this.permissions = response.data.data
+          this.isLoading = false
+        })
+      } else {
+        this.isLoading = false
+      }
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Body is not found' : 'Some error happened: ' + err.message
 

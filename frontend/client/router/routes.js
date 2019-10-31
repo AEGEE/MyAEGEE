@@ -135,7 +135,8 @@ module.exports = [
     path: '/bodies',
     component: 'core/bodies/List',
     meta: {
-      label: 'View bodies'
+      label: 'View bodies',
+      auth: false
     }
   },
   {
@@ -223,7 +224,8 @@ module.exports = [
     path: '/bodies/:id',
     component: 'core/bodies/Single',
     meta: {
-      label: 'View single body'
+      label: 'View single body',
+      auth: false
     }
   },
   /* Permissions management */
