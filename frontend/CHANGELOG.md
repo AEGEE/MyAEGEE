@@ -1,3 +1,13 @@
+<a name="0.24.3"></a>
+## [0.24.3](https://github.com/AEGEE/oms-frontend/compare/0.24.2...0.24.3) (2019-10-31)
+
+
+### Bug Fixes
+
+* **general:** allow unauthorized access for stuff. Fixes MEMB-680, HELP-720, HELP-719 ([d163683](https://github.com/AEGEE/oms-frontend/commit/d163683))
+
+
+
 <a name="0.24.2"></a>
 ## [0.24.2](https://github.com/AEGEE/oms-frontend/compare/0.24.1...0.24.2) (2019-10-29)
 
@@ -187,16 +197,25 @@
 
 
 <a name="0.22.5"></a>
-## [0.22.5](https://github.com/AEGEE/oms-frontend/compare/0.22.3...0.22.5) (2019-09-17)
+## [0.22.5](https://github.com/AEGEE/oms-frontend/compare/0.22.4...0.22.5) (2019-09-17)
 
 
 ### Bug Fixes
 
 * **circleci:** fixed docker build task ([a05df7f](https://github.com/AEGEE/oms-frontend/commit/a05df7f))
-* **docker:** added .dockerignore ([685706a](https://github.com/AEGEE/oms-frontend/commit/685706a))
-* **docker:** added traefik labels ([650f16a](https://github.com/AEGEE/oms-frontend/commit/650f16a))
 * **docker:** fixed Hadolint warnings ([e0d59a7](https://github.com/AEGEE/oms-frontend/commit/e0d59a7))
 * **statutory:** updated positions deadline clarification. Fixes MEMB-615 ([8e89291](https://github.com/AEGEE/oms-frontend/commit/8e89291))
+
+
+
+<a name="0.22.4"></a>
+## [0.22.4](https://github.com/AEGEE/oms-frontend/compare/0.22.3...0.22.4) (2019-09-16)
+
+
+### Bug Fixes
+
+* **docker:** added .dockerignore ([685706a](https://github.com/AEGEE/oms-frontend/commit/685706a))
+* **docker:** added traefik labels ([650f16a](https://github.com/AEGEE/oms-frontend/commit/650f16a))
 
 
 ### Features
