@@ -1,3 +1,14 @@
+<a name="0.24.4"></a>
+## [0.24.4](https://github.com/AEGEE/oms-frontend/compare/0.24.3...0.24.4) (2019-10-31)
+
+
+### Bug Fixes
+
+* **core:** allow unauthorized access for /bodies and /bodies/:id. Fixes MEMB-680 ([0e9d8d3](https://github.com/AEGEE/oms-frontend/commit/0e9d8d3))
+* **general:** fix authorization checking issues ([a406098](https://github.com/AEGEE/oms-frontend/commit/a406098))
+
+
+
 <a name="0.24.3"></a>
 ## [0.24.3](https://github.com/AEGEE/oms-frontend/compare/0.24.2...0.24.3) (2019-10-31)
 
