@@ -436,8 +436,8 @@ module.exports = [
     path: '/events/:id',
     component: 'events/Single',
     meta: {
-      label: 'Display single event'
-      // auth: false // won't work, when the bodies are requested it'll return 401 so a redirect to /login
+      label: 'Display single event',
+      auth: false
     }
   },
   /* Statutory events management. */
