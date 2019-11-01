@@ -194,6 +194,24 @@
 
         <div class="subtitle is-fullwidth has-text-centered">Questions</div>
 
+        <div class="notification">
+          <div class="content">
+            <p>Keep in mind that the only questions gathered from users by default are body name and application consent.</p>
+            <p>So, if you need some other fields in the application form (like motivation, visa fields etc.), you have to add them manually.</p>
+            <p>Some fields (specifically, the email) are copied from the profile when applying, so you don't need to ask for it.</p>
+            <p>Here are the question types that can be used:</p>
+            <ul>
+              <li><b>string</b> - short string value (like "Meals type")</li>
+              <li><b>text</b> - long string value (like "Why I'm a good participant")</li>
+              <li><b>number</b> - a number (like "How much events in AEGEE I've visited")</li>
+              <li><b>select</b> - predefined set of values (like "Vegan", "Vegetarian" and "Meat-eater" for meals type)</li>
+              <li><b>checkbox</b> - a Yes/No question (like "Do I need a visa?").
+                Combine it with "requred" field to only allow this to be checked to be apply (like "I give my consent to share my data with third parties"
+              </li>
+            </ul>
+          </div>
+        </div>
+
         <table class="table is-fullwidth is-narrowed">
           <thead>
             <tr>
