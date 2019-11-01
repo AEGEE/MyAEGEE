@@ -17,7 +17,6 @@ const config = require('../config');
 
 const EventsRouter = router({ mergeParams: true });
 const GeneralRouter = router({ mergeParams: true });
-const ImagesRouter = router({ mergeParams: true });
 
 /* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {
@@ -37,8 +36,6 @@ process.on('unhandledRejection', (err) => {
         bugsnag.notify(err);
     }
 });
-
-ImagesRouter.use(express.static(config.media_dir)); // Serving images.
 
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
 GeneralRouter.get('/metrics', metrics.getMetrics);
@@ -84,7 +81,6 @@ EventsRouter.post('/bodies', events.addLocal);
 EventsRouter.delete('/bodies/:body_id', events.deleteLocal);
 
 server.use(endpointsMetrics.addEndpointMetrics);
-server.use(config.media_url, ImagesRouter);
 server.use('/', GeneralRouter);
 server.use('/single/:event_id', EventsRouter);
 
