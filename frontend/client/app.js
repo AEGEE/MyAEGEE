@@ -3,7 +3,6 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import { sync } from 'vuex-router-sync'
 import Buefy from 'buefy'
-import * as VueGoogleMaps from 'vue2-google-maps'
 import flatPickr from 'vue-flatpickr-component'
 import Multiselect from 'vue-multiselect'
 import InputTag from 'vue-input-tag'
@@ -33,12 +32,6 @@ Vue.use(Auth)
 Vue.use(NProgress)
 Vue.use(Buefy, { defaultNoticeQueue: false, defaultIconPack: 'fa' })
 Vue.use(flatPickr)
-Vue.use(VueGoogleMaps, {
-  load: {
-    key: 'AIzaSyBbo9L1-AW0DSuo0IolsyZweKU9hX6lKE0',
-    libraries: 'places,drawing,visualization,geometry'
-  }
-})
 Vue.use(Vue2TouchEvents)
 Vue.component('multiselect', Multiselect)
 Vue.component('input-tag', InputTag)

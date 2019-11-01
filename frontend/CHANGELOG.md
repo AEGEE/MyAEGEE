@@ -1,3 +1,19 @@
+<a name="0.25.0"></a>
+# [0.25.0](https://github.com/AEGEE/oms-frontend/compare/0.24.4...0.25.0) (2019-11-01)
+
+
+### Bug Fixes
+
+* **events:** added disclaimer for events questions. Fixes MEMB-704 ([331ad4d](https://github.com/AEGEE/oms-frontend/commit/331ad4d))
+* **events:** requiring required checkbox on application page ([d373c84](https://github.com/AEGEE/oms-frontend/commit/d373c84))
+
+
+### Features
+
+* **general:** switched to Mapbox/Maptiler instead of gmaps. Fixes MEMB-640 ([ba272aa](https://github.com/AEGEE/oms-frontend/commit/ba272aa))
+
+
+
 <a name="0.24.4"></a>
 ## [0.24.4](https://github.com/AEGEE/oms-frontend/compare/0.24.3...0.24.4) (2019-10-31)
 

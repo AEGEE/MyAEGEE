@@ -63,6 +63,7 @@ h1, h2, h3, h4, h5, h6 {
 @import '~buefy/dist/buefy.css';
 @import '~@fullcalendar/core/main.css';
 @import '~@fullcalendar/daygrid/main.css';
+@import '~mapbox-gl/dist/mapbox-gl.css';
 
 @import '~nprogress/nprogress.css';
 
@@ -73,4 +74,10 @@ h1, h2, h3, h4, h5, h6 {
 /* for links breaking in markdown-formatted html */
 .markdown a {
 	word-break: break-all;
+}
+
+/* for MapBox popups */
+.mapbox-popup-custom {
+	width: 80px;
+	font-size: medium;
 }
