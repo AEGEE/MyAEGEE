@@ -259,18 +259,23 @@
         <hr/>
 
         <div class="subtitle is-fullwidth has-text-centered">Locations</div>
-        <GmapMap
-          :class="is-fullwidth"
-          :zoom="7"
-          :center="center"
-          style="height: 400px" >
-            <GmapMarker
-              :key="index"
-              v-for="(marker, index) in event.locations"
-              :position="marker.position"
+        <div class="tile" style="position: relative; height: 400px">
+          <MglMap
+            :accessToken="accessToken"
+            :mapStyle="map.style"
+            :zoom="map.zoom"
+            @load="onMapLoaded"
+            :center="map.center"
+            v-if="this.event.locations.length > 0">
+            <MglMarker
+              v-for="(location, index) in event.locations"
+              v-bind:key="index"
+              :coordinates="location.position"
+              color="red"
               :draggable="true"
-              @dragend="setMarkerPosition($event.latLng, index)" />
-        </GmapMap>
+              @dragend="setMarkerPosition($event, index)"/>
+          </MglMap>
+        </div>
 
         <table class="table is-narrowed is-stripped is-fullwidth">
           <thead>
@@ -278,6 +283,7 @@
               <th>Latitude</th>
               <th>Longitude</th>
               <th>Name</th>
+              <th>
             </tr>
           </thead>
           <tbody>
@@ -287,8 +293,11 @@
               <td>
                 <input type="text" class="input" required v-model="marker.name" />
               </td>
+              <td>
+                <button class="button is-danger" @click="deleteLocation(index)">Delete location</button>
+              </td>
             </tr>
-            <tr colspan="3" v-if="event.locations.length === 0">
+            <tr colspan="4" v-if="event.locations.length === 0">
               <td>No locations added.</td>
             </tr>
           </tbody>
@@ -314,9 +323,16 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import Mapbox from 'mapbox-gl'
+import { MglMap, MglMarker } from 'vue-mapbox'
 import constants from  '../../constants'
+import credentials from  '../../credentials'
 
 export default {
+  components: {
+    MglMap,
+    MglMarker
+  },
   name: 'EditEvent',
   data () {
     return {
@@ -342,9 +358,11 @@ export default {
         starts: null,
         ends: null
       },
-      center: {
-        lat: 50.8503396,
-        lng: 4.3517103
+      map: {
+        actions: null,
+        style: credentials.MAPS_API_TOKEN,
+        center: { lat: 50.8503396, lng: 4.3517103 },
+        zoom: 8
       },
       eventTypes: constants.EVENT_TYPES_NAMES,
       file: null,
@@ -396,14 +414,19 @@ export default {
       this.event.locations.push({
         name: '',
         position: {
-          lat: 50.8503396,
-          lng: 4.3517103
+          lat: this.map.center.lat,
+          lng: this.map.center.lng
         }
       })
     },
-    setMarkerPosition (position, index) {
-      this.event.locations[index].position.lat = position.lat()
-      this.event.locations[index].position.lng = position.lng()
+    deleteLocation(index) {
+      this.event.locations.splice(index, 1)
+    },
+    setMarkerPosition (event, index) {
+      const newCoords = event.marker.getLngLat()
+
+      this.event.locations[index].position.lat = newCoords.lat
+      this.event.locations[index].position.lng = newCoords.lng
     },
     saveEvent () {
       if (!this.event.application_starts) {
@@ -451,6 +474,29 @@ export default {
 
         this.$root.showDanger('Could not save event: ' + err.message)
       })
+    },
+    onMapLoaded (event) {
+      this.map.actions = event.component.actions
+
+      // waiting till the event is loaded.
+      if (!this.isLoading && this.event.id) {
+        this.centerMap()
+      }
+    },
+    centerMap () {
+      // we don't know, what'll happen first, the map will load or the event will load.
+      // and we need both to be loaded.
+      if (this.event.locations.length === 0) {
+        return
+      }
+
+      // if it's a single point, then just centering on it
+      if (this.event.locations.length === 1) {
+        this.map.actions.flyTo({ center: this.event.locations[0].position })
+        return
+      }
+
+      this.map.actions.fitBounds(this.event.locations.map(location => location.position), { padding: 50 })
     }
   },
   computed: mapGetters({

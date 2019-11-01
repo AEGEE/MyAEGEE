@@ -126,27 +126,26 @@
             </table>
           </div>
 
-          <GmapMap
-            v-if="event.locations.length > 0"
-            :zoom="7"
-            :class="is-fullwidth"
-            :center="map.center"
-            style="height: 400px"
-            ref="mapRef" >
-            <gmap-info-window
-              v-if="map.selectedMarkerIndex != null"
-              :position="event.locations[map.selectedMarkerIndex].position"
-              :options="map.infoOptions"
-              @closeclick="map.selectedMarkerIndex = null">
-              {{ event.locations[map.selectedMarkerIndex].name }}
-            </gmap-info-window>
-            <GmapMarker
-              :key="index"
-              v-for="(marker, index) in event.locations"
-              :position="marker.position"
-              @click="map.selectedMarkerIndex = index"
-              :draggable="false" />
-          </GmapMap>
+          <div class="tile" style="position: relative; height: 400px">
+            <MglMap
+              id="map"
+              :accessToken="accessToken"
+              :mapStyle="map.style"
+              :zoom="map.zoom"
+              @load="onMapLoaded"
+              :center="map.center"
+              v-if="this.event.locations.length > 0">
+              <MglMarker
+                v-for="(location, index) in event.locations"
+                v-bind:key="index"
+                :coordinates="location.position"
+                color="red">
+                <MglPopup>
+                  <div class="mapbox-popup-custom">{{ location.name }}</div>
+                </MglPopup>
+              </MglMarker>
+            </MglMap>
+          </div>
         </div>
       </article>
     </div>
@@ -157,10 +156,17 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { gmapApi } from 'vue2-google-maps'
+import Mapbox from 'mapbox-gl'
+import { MglMap, MglMarker, MglPopup } from 'vue-mapbox'
 import constants from  '../../constants'
+import credentials from  '../../credentials'
 
 export default {
+  components: {
+    MglMap,
+    MglMarker,
+    MglPopup
+  },
   name: 'SingleEvent',
   data () {
     return {
@@ -182,15 +188,12 @@ export default {
         status: 'Draft'
       },
       eventTypes: constants.EVENT_TYPES_NAMES,
+      accessToken: '',
       map: {
+        actions: null,
+        style: credentials.MAPS_API_TOKEN,
         center: { lat: 50.8503396, lng: 4.3517103 },
-        selectedMarkerIndex: null,
-        infoOptions: {
-          pixelOffset: {
-            width: 0,
-            height: -35
-          }
-        }
+        zoom: 8
       },
       isLoading: false,
       can: {
@@ -216,10 +219,35 @@ export default {
         this.$root.showInfo('Event is deleted.')
         this.$router.push({ name: 'oms.events.list.all' })
       }).catch((err) => this.$root.showDanger('Could not delete event: ' + err.message))
+    },
+    onMapLoaded (event) {
+      this.map.actions = event.component.actions
+
+      // waiting till the event is loaded.
+      if (!this.isLoading && this.event.id) {
+        this.centerMap()
+      }
+    },
+    centerMap () {
+      // we don't know, what'll happen first, the map will load or the event will load.
+      // and we need both to be loaded.
+      if (this.event.locations.length === 0) {
+        return
+      }
+
+      // if it's a single point, then just centering on it
+      if (this.event.locations.length === 1) {
+        this.map.actions.flyTo({ center: this.event.locations[0].position })
+        return
+      }
+
+      this.map.actions.fitBounds(this.event.locations.map(location => location.position), { padding: 50 })
     }
   },
   mounted () {
+    this.mapbox = Mapbox
     this.isLoading = true
+
     this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
       this.can = response.data.permissions
@@ -231,25 +259,8 @@ export default {
         }).catch(console.error)
       }
 
-      // loading map
-      if (this.event.locations.length > 0) {
-        this.$nextTick()
-          .then(() => this.$refs.mapRef.$mapPromise)
-          .then((map) => {
-            // if it's a single point, then just centering on it
-            if (this.event.locations.length === 1) {
-              this.$refs.mapRef.$mapObject.panTo(this.event.locations[0].position)
-              return
-            }
-
-            // if there are multiple points, then fit them into map.
-            const bounds = new this.google.maps.LatLngBounds()
-            for (const marker of this.event.locations) {
-              bounds.extend(marker.position)
-            }
-
-            this.$refs.mapRef.$mapObject.fitBounds(bounds)
-          })
+      if (this.map.actions) {
+        this.centerMap()
       }
     }).catch((err) => {
       this.isLoading = false
@@ -263,8 +274,7 @@ export default {
     ...mapGetters({
       loginUser: 'user',
       services: 'services'
-    }),
-    google: gmapApi
+    })
   }
 }
 </script>
