@@ -75,6 +75,7 @@
                   <input
                     class="checkbox"
                     type="checkbox"
+                    :required="question.required"
                     v-model="application.answers[index]" />
                 </div>
                 <div class="control" v-if="question.type === 'select'">
