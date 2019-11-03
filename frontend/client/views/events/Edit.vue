@@ -33,6 +33,18 @@
       </div>
 
       <form @submit.prevent="saveEvent()">
+        <div class="notification" v-if="!$route.params.id">
+          <div class="content">
+            <p>
+              Keep in mind that when creating event, the only organizer added is the person creating it.
+              So other people (even the board members) would not be able to see/approve applications.
+            </p>
+            <p>If you want to have other organizers, please add them after creating the event in the "Edit organizers" tab.</p>
+            <p>Also, <strong>once the event is published you won't be able to edit it.</strong> So please check everything twice.</p>
+            <p>If you will need the event info to be changed after publishing, please contact CD or EQAC.</p>
+          </div>
+        </div>
+
         <div class="field">
           <label class="label">Title</label>
           <div class="control">
@@ -160,12 +172,8 @@
           <p class="help is-danger" v-if="errors.type">{{ errors.type.join(', ') }}</p>
         </div>
 
-        <div class="tile is-parent" v-if="!$route.params.id">
-          <div class="tile is-child">
-            <div class="notification is-info">
-              Please select the event type wisely. <strong>It can't be changed later.</strong>
-            </div>
-          </div>
+        <div class="notification is-info" v-if="!$route.params.id">
+          Please select the event type wisely. <strong>It can't be changed later.</strong>
         </div>
 
         <div class="field">
@@ -196,8 +204,10 @@
 
         <div class="notification">
           <div class="content">
-            <p>Keep in mind that the only questions gathered from users by default are body name and application consent.</p>
-            <p>So, if you need some other fields in the application form (like motivation, visa fields etc.), you have to add them manually.</p>
+            <p>
+              Keep in mind that the only questions gathered from users by default are body name and application consent.
+              So, if you need some other fields in the application form (like motivation, visa fields etc.), you have to add them manually.
+            </p>
             <p>Some fields (specifically, the email) are copied from the profile when applying, so you don't need to ask for it.</p>
             <p>Here are the question types that can be used:</p>
             <ul>
@@ -205,8 +215,8 @@
               <li><b>text</b> - long string value (like "Why I'm a good participant")</li>
               <li><b>number</b> - a number (like "How much events in AEGEE I've visited")</li>
               <li><b>select</b> - predefined set of values (like "Vegan", "Vegetarian" and "Meat-eater" for meals type)</li>
-              <li><b>checkbox</b> - a Yes/No question (like "Do I need a visa?").
-                Combine it with "requred" field to only allow this to be checked to be apply (like "I give my consent to share my data with third parties"
+              <li><b>checkbox</b> - a yes/no question (like "Do I need a visa?").
+                Combine it with "requred" field to only allow this to be checked in order to to apply (like "I give my consent to share my data with third parties")
               </li>
             </ul>
           </div>

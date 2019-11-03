@@ -1,3 +1,14 @@
+<a name="0.25.1"></a>
+## [0.25.1](https://github.com/AEGEE/oms-frontend/compare/0.25.0...0.25.1) (2019-11-03)
+
+
+### Bug Fixes
+
+* **events:** added event creation disclaimer. Fixes MEMB-706 ([009ada8](https://github.com/AEGEE/oms-frontend/commit/009ada8))
+* **general:** add core and mailer changelogs to /status ([9e33417](https://github.com/AEGEE/oms-frontend/commit/9e33417))
+
+
+
 <a name="0.25.0"></a>
 # [0.25.0](https://github.com/AEGEE/oms-frontend/compare/0.24.4...0.25.0) (2019-11-01)
 
@@ -141,13 +152,13 @@
 
 ### Bug Fixes
 
+* very trashy but oh well.. ([b7cc89f](https://github.com/AEGEE/oms-frontend/commit/b7cc89f))
 * **circleci:** added proper dev docker building ([56ba057](https://github.com/AEGEE/oms-frontend/commit/56ba057))
 * **deps:** fix npm audit vulnerabilities report ([4b0ed4a](https://github.com/AEGEE/oms-frontend/commit/4b0ed4a))
 * **docker:** have to go around secrets ([f3ed7ab](https://github.com/AEGEE/oms-frontend/commit/f3ed7ab))
 * **docker:** in dev, the script was overwritten ([c0a7e9a](https://github.com/AEGEE/oms-frontend/commit/c0a7e9a))
 * **script:** permissions were bad ([b6af2ed](https://github.com/AEGEE/oms-frontend/commit/b6af2ed))
 * **startup:** chmod parent directory ([4f9072d](https://github.com/AEGEE/oms-frontend/commit/4f9072d))
-* very trashy but oh well.. ([b7cc89f](https://github.com/AEGEE/oms-frontend/commit/b7cc89f))
 
 
 
@@ -1485,11 +1496,11 @@
 
 ### Bug Fixes
 
+* Homepage bulma version info. ([07bcdb5](https://github.com/AEGEE/oms-frontend/commit/07bcdb5))
+* l10n for Datepicker ([8ce8761](https://github.com/AEGEE/oms-frontend/commit/8ce8761))
 * **general:** display/hide menu on swipe. Fixes MEMB-426 ([1ba0837](https://github.com/AEGEE/oms-frontend/commit/1ba0837))
 * **statutory:** refactor massmailer. Fixes MEMB-389 ([f6e2989](https://github.com/AEGEE/oms-frontend/commit/f6e2989))
 * **statutory:** refactor statutory statistics. Fixes MEMB-437 ([c31336d](https://github.com/AEGEE/oms-frontend/commit/c31336d))
-* Homepage bulma version info. ([07bcdb5](https://github.com/AEGEE/oms-frontend/commit/07bcdb5))
-* l10n for Datepicker ([8ce8761](https://github.com/AEGEE/oms-frontend/commit/8ce8761))
 
 
 ### Features

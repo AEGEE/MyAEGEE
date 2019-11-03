@@ -47,13 +47,13 @@ export default {
           roundTrip: null,
           version: '-',
           isAlive: 'Waiting...',
-          changelog: null
+          changelog: 'https://github.com/AEGEE/oms-core-elixir/blob/master/CHANGELOG.md'
         },
         'oms-mailer': {
           roundTrip: null,
           version: '-',
           isAlive: 'Waiting...',
-          changelog: null
+          changelog: 'https://github.com/AEGEE/oms-mailer/blob/master/CHANGELOG.md'
         },
         'oms-events': {
           roundTrip: null,
