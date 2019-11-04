@@ -1,3 +1,13 @@
+<a name="0.23.1"></a>
+## [0.23.1](https://github.com/AEGEE/oms-statutory/compare/0.23.0...0.23.1) (2019-11-04)
+
+
+### Bug Fixes
+
+* **general:** added host for config ([e9a3d74](https://github.com/AEGEE/oms-statutory/commit/e9a3d74))
+
+
+
 <a name="0.23.0"></a>
 # [0.23.0](https://github.com/AEGEE/oms-statutory/compare/0.22.6...0.23.0) (2019-11-04)
 
