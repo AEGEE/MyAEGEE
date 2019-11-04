@@ -9,9 +9,3 @@ services:
         volumes:
             - /usr/app/src/node_modules
             - ./${PATH_OMS_EVENTS}/../:/usr/app/src
-
-    oms-events-static:
-        build:
-            context: ./${PATH_OMS_EVENTS}/..
-            dockerfile: ./docker/oms-events-static/Dockerfile
-        image: aegee/oms-events-static:dev
