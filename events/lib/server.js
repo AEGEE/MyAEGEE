@@ -1,5 +1,4 @@
 const express = require('express');
-const bugsnag = require('bugsnag');
 const router = require('express-promise-router');
 const bodyParser = require('body-parser');
 const boolParser = require('express-query-boolean');
@@ -14,14 +13,10 @@ const middlewares = require('./middlewares');
 const metrics = require('./metrics');
 const endpointsMetrics = require('./endpoints_metrics');
 const config = require('../config');
+const bugsnag = require('./bugsnag');
 
 const EventsRouter = router({ mergeParams: true });
 const GeneralRouter = router({ mergeParams: true });
-
-/* istanbul ignore next */
-if (process.env.NODE_ENV !== 'test') {
-    bugsnag.register(config.bugsnagKey);
-}
 
 const server = express();
 server.use(bodyParser.json());
