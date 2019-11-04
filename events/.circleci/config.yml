@@ -14,7 +14,6 @@ jobs:
             echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
             which node && node -v
       - run: npm install
-      - run: cp config/index.js.example config/index.js
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run tests
@@ -44,7 +43,6 @@ jobs:
             which node && node -v
       - run: npm install
       - run: mkdir -p ~/reports
-      - run: cp config/index.js.example config/index.js
       - run: npm run lint -- --format junit --output-file ~/reports/eslint.xml
       - store_test_results:
           path: ~/reports
