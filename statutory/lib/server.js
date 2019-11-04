@@ -61,10 +61,11 @@ GeneralRouter.get('/metrics', metrics.getMetrics);
 GeneralRouter.get('/metrics/requests', endpointsMetrics.getEndpointMetrics);
 GeneralRouter.use(middlewares.authenticateUser);
 GeneralRouter.get('/', events.listEvents);
+GeneralRouter.use(middlewares.ensureAuthorized);
 GeneralRouter.post('/', events.addEvent);
 GeneralRouter.get('/tasks', middlewares.getTasksList);
 
-PaxLimitsRouter.use(middlewares.authenticateUser, paxLimits.checkEventType);
+PaxLimitsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, paxLimits.checkEventType);
 PaxLimitsRouter.get('/:body_id', paxLimits.getSingleLimit);
 PaxLimitsRouter.delete('/:body_id', paxLimits.deleteSingleLimit);
 PaxLimitsRouter.post('/', paxLimits.updateLimit);
@@ -72,11 +73,12 @@ PaxLimitsRouter.get('/', paxLimits.listAllLimits);
 
 EventsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
 EventsRouter.get('/', events.displayEvent);
+EventsRouter.use(middlewares.ensureAuthorized);
 EventsRouter.put('/', events.editEvent);
 EventsRouter.put('/status', events.changeEventStatus);
 EventsRouter.post('/image', imageserv.uploadImage, events.updateEventImage);
 
-ApplicationsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
+ApplicationsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent);
 ApplicationsRouter.post('/', applications.postApplication);
 ApplicationsRouter.get('/all', applications.listAllApplications);
 ApplicationsRouter.get('/accepted', applications.listAcceptedApplications);
@@ -89,7 +91,7 @@ ApplicationsRouter.get('/export/:prefix', applications.exportAll);
 ApplicationsRouter.get('/boardview/:body_id', applications.listBoardView);
 ApplicationsRouter.post('/boardview/:body_id', applications.setBoardForBody);
 
-SingleApplicationRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, middlewares.fetchSingleApplication);
+SingleApplicationRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent, middlewares.fetchSingleApplication);
 SingleApplicationRouter.put('/cancel', applications.setApplicationCancelled);
 SingleApplicationRouter.put('/attended', applications.setApplicationAttended);
 SingleApplicationRouter.put('/registered', applications.setApplicationRegistered);
@@ -101,26 +103,26 @@ SingleApplicationRouter.put('/board', applications.setApplicationBoard);
 SingleApplicationRouter.get('/', applications.getApplication);
 SingleApplicationRouter.put('/', applications.updateApplication);
 
-MembersListsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora);
+MembersListsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent, memberslists.checkIfAgora);
 MembersListsRouter.get('/', memberslists.getAllMemberslists);
 MembersListsRouter.get('/:body_id', memberslists.getMemberslist);
 MembersListsRouter.post('/:body_id', memberslists.uploadMembersList);
 
-MembersListsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
+MembersListsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent);
 MembersListsRouter.get('/', memberslists.getAllMemberslists);
 MembersListsRouter.get('/:body_id', memberslists.getMemberslist);
 MembersListsRouter.put('/:body_id/fee_paid', memberslists.setMemberslistFeePaid);
 MembersListsRouter.post('/:body_id', memberslists.uploadMembersList);
 
-MassMailerRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
+MassMailerRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent);
 MassMailerRouter.post('/', massmailer.sendAll);
 
-VotesAmountRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora);
+VotesAmountRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent, memberslists.checkIfAgora);
 VotesAmountRouter.get('/antenna', votesAmounts.getAllVotesPerAntenna);
 VotesAmountRouter.get('/delegate', votesAmounts.getAllVotesPerDelegate);
 VotesAmountRouter.get('/:body_id', votesAmounts.getVotesPerAntenna);
 
-PositionsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora);
+PositionsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent, memberslists.checkIfAgora);
 PositionsRouter.get('/', positions.listAllPositions);
 PositionsRouter.get('/all', positions.listPositionsWithAllCandidates);
 PositionsRouter.get('/approved', positions.listPositionsWithApprovedCandidates);
@@ -129,27 +131,27 @@ PositionsRouter.put('/:position_id/status', positions.findPosition, positions.up
 PositionsRouter.put('/:position_id', positions.findPosition, positions.editPosition);
 PositionsRouter.get('/candidates/mine', candidates.getMyCandidatures);
 
-QuestionLinesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
+QuestionLinesRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent);
 QuestionLinesRouter.get('/', questionLines.listAllQuestionLines);
 QuestionLinesRouter.post('/', questionLines.createQuestionLine);
 QuestionLinesRouter.put('/:question_line_id/status', questionLines.findQuestionLine, questionLines.updateQuestionLineStatus);
 QuestionLinesRouter.put('/:question_line_id', questionLines.findQuestionLine, questionLines.editQuestionLine);
 QuestionLinesRouter.delete('/:question_line_id', questionLines.findQuestionLine, questionLines.deleteQuestionLine);
 
-QuestionsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, questionLines.findQuestionLine);
+QuestionsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent, questionLines.findQuestionLine);
 QuestionsRouter.post('/', questions.submitQuestion);
 QuestionsRouter.get('/:question_id', questions.findQuestion, questions.getQuestion);
 QuestionsRouter.put('/:question_id', questions.findQuestion, questions.editQuestion);
 QuestionsRouter.delete('/:question_id', questions.findQuestion, questions.deleteQuestion);
 
-CandidatesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora, positions.findPosition);
+CandidatesRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent, memberslists.checkIfAgora, positions.findPosition);
 CandidatesRouter.post('/', candidates.submitYourCandidature);
 CandidatesRouter.get('/:candidate_id', candidates.findCandidate, candidates.getCandidature);
 CandidatesRouter.put('/:candidate_id', candidates.findCandidate, candidates.editCandidature);
 CandidatesRouter.post('/:candidate_id/:image', candidates.findCandidate, imageserv.uploadImage, candidates.updateCandidateImage);
 CandidatesRouter.put('/:candidate_id/status', candidates.findCandidate, candidates.setCandidatureStatus);
 
-PlenariesRouter.use(middlewares.authenticateUser, middlewares.fetchEvent, memberslists.checkIfAgora);
+PlenariesRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent, memberslists.checkIfAgora);
 PlenariesRouter.get('/', plenaries.listAllPlenaries);
 PlenariesRouter.post('/', plenaries.createPlenary);
 PlenariesRouter.get('/stats', plenaries.listPlenariesStats);

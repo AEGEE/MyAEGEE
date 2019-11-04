@@ -261,12 +261,20 @@ exports.getApplicationFields = (event) => {
 
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
+    if (!Array.isArray(permissionsList)) {
+        return false;
+    }
+
     return permissionsList.some(permission => permission.combined.endsWith(combinedPermission));
 }
 
 // A helper to get bodies list where I have some permission
 // from POST /my_permissions
 function getBodiesListFromPermissions(result) {
+    if (!Array.isArray(result)) {
+        return [];
+    }
+
     return result.reduce((acc, val) => acc.concat(val), [])
         .filter(elt => elt.body_id)
         .map(elt => elt.body_id)
@@ -349,7 +357,9 @@ exports.getEventPermissions = (data) => {
     permissions.mark_attendance = hasPermission(corePermissions, 'global:mark_attendance:agora');
 
     const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
-    for (const body of user.bodies) {
+    const bodies = user ? user.bodies : [];
+
+    for (const body of bodies) {
         permissions.set_board_comment_and_participant_type[body.id] = event.can_approve_members && approveBodiesList.includes(body.id);
         permissions.see_boardview[body.id] = approveBodiesList.includes(body.id);
         permissions.upload_memberslist[body.id] = event.can_upload_memberslist && approveBodiesList.includes(body.id) && exports.isLocal(body);
