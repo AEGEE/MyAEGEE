@@ -22,6 +22,7 @@ const config = {
             silent: false,
             level: process.env.LOGLEVEL || 'debug'
         },
+        host: process.env.HOST || 'localhost',
         bugsnagKey: process.env.BUGSNAG_KEY || ''
     },
     development: {
@@ -53,7 +54,7 @@ const env = process.env.NODE_ENV;
 // If both 'default' and environment fields are missing, than there's no config
 // and we throw an error.
 if (!config[env] && !config.default) {
-    throw new Error(`Both 'default' and '${process.env.NODE_ENV}' are not set in lib/config.json; \
+    throw new Error(`Both 'default' and '${process.env.NODE_ENV}' are not set in config/index.js; \
 cannot run without config.`);
 }
 
