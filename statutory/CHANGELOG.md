@@ -1,21 +1,25 @@
-<a name="0.23.1"></a>
-## [0.23.1](https://github.com/AEGEE/oms-statutory/compare/0.23.0...0.23.1) (2019-11-04)
+# [0.24.0](https://github.com/AEGEE/oms-statutory/compare/0.23.1...0.24.0) (2019-11-04)
 
 
 ### Bug Fixes
 
-* **general:** added host for config ([e9a3d74](https://github.com/AEGEE/oms-statutory/commit/e9a3d74))
+* **test:** fixed another flappy test ([4af6429](https://github.com/AEGEE/oms-statutory/commit/4af6429))
+
+
+### Features
+
+* **events:** add events filtering. Fixes MEMB-689, MEMB-623 ([164c8c1](https://github.com/AEGEE/oms-statutory/commit/164c8c1))
 
 
 
-<a name="0.23.0"></a>
-# [0.23.0](https://github.com/AEGEE/oms-statutory/compare/0.22.6...0.23.0) (2019-11-04)
+## [0.23.1](https://github.com/AEGEE/oms-statutory/compare/0.22.6...0.23.1) (2019-11-04)
 
 
 ### Bug Fixes
 
 * **bugsnag:** add bugsnag params. Fixes MEMB-642 ([788000a](https://github.com/AEGEE/oms-statutory/commit/788000a))
 * **docker:** renamed dockerfile ([3368a86](https://github.com/AEGEE/oms-statutory/commit/3368a86))
+* **general:** added host for config ([e9a3d74](https://github.com/AEGEE/oms-statutory/commit/e9a3d74))
 * **general:** removed config example. Fixes MEMB-687 ([81bde18](https://github.com/AEGEE/oms-statutory/commit/81bde18))
 
 
@@ -25,18 +29,24 @@
 
 
 
-<a name="0.22.6"></a>
-## [0.22.6](https://github.com/AEGEE/oms-statutory/compare/0.22.4...0.22.6) (2019-10-25)
+## [0.22.6](https://github.com/AEGEE/oms-statutory/compare/0.22.5...0.22.6) (2019-10-25)
 
 
 ### Bug Fixes
 
 * **question:** fixed questions sorting again ([052690b](https://github.com/AEGEE/oms-statutory/commit/052690b))
+
+
+
+## [0.22.5](https://github.com/AEGEE/oms-statutory/compare/0.22.4...0.22.5) (2019-10-25)
+
+
+### Bug Fixes
+
 * **questions:** fixed questions sorting on question lines listing ([37fdc9e](https://github.com/AEGEE/oms-statutory/commit/37fdc9e))
 
 
 
-<a name="0.22.4"></a>
 ## [0.22.4](https://github.com/AEGEE/oms-statutory/compare/0.22.3...0.22.4) (2019-10-13)
 
 
@@ -46,7 +56,6 @@
 
 
 
-<a name="0.22.3"></a>
 ## [0.22.3](https://github.com/AEGEE/oms-statutory/compare/0.22.2...0.22.3) (2019-10-13)
 
 
@@ -58,7 +67,6 @@
 
 
 
-<a name="0.22.2"></a>
 ## [0.22.2](https://github.com/AEGEE/oms-statutory/compare/0.22.1...0.22.2) (2019-09-26)
 
 
@@ -69,7 +77,6 @@
 
 
 
-<a name="0.22.1"></a>
 ## [0.22.1](https://github.com/AEGEE/oms-statutory/compare/0.22.0...0.22.1) (2019-09-24)
 
 
@@ -79,7 +86,6 @@
 
 
 
-<a name="0.22.0"></a>
 # [0.22.0](https://github.com/AEGEE/oms-statutory/compare/0.21.5...0.22.0) (2019-09-22)
 
 
@@ -89,7 +95,6 @@
 
 
 
-<a name="0.21.5"></a>
 ## [0.21.5](https://github.com/AEGEE/oms-statutory/compare/0.21.4...0.21.5) (2019-09-21)
 
 
@@ -99,7 +104,6 @@
 
 
 
-<a name="0.21.4"></a>
 ## [0.21.4](https://github.com/AEGEE/oms-statutory/compare/0.21.3...0.21.4) (2019-09-19)
 
 
@@ -109,7 +113,6 @@
 
 
 
-<a name="0.21.3"></a>
 ## [0.21.3](https://github.com/AEGEE/oms-statutory/compare/0.21.2...0.21.3) (2019-09-18)
 
 
@@ -119,7 +122,6 @@
 
 
 
-<a name="0.21.2"></a>
 ## [0.21.2](https://github.com/AEGEE/oms-statutory/compare/0.21.1...0.21.2) (2019-09-18)
 
 
@@ -129,7 +131,6 @@
 
 
 
-<a name="0.21.1"></a>
 ## [0.21.1](https://github.com/AEGEE/oms-statutory/compare/0.21.0...0.21.1) (2019-09-18)
 
 
@@ -140,7 +141,6 @@
 
 
 
-<a name="0.21.0"></a>
 # [0.21.0](https://github.com/AEGEE/oms-statutory/compare/0.20.2...0.21.0) (2019-09-16)
 
 
@@ -150,7 +150,6 @@
 
 
 
-<a name="0.20.2"></a>
 ## [0.20.2](https://github.com/AEGEE/oms-statutory/compare/0.20.1...0.20.2) (2019-09-11)
 
 
@@ -160,7 +159,6 @@
 
 
 
-<a name="0.20.1"></a>
 ## [0.20.1](https://github.com/AEGEE/oms-statutory/compare/0.20.0...0.20.1) (2019-09-11)
 
 
@@ -171,7 +169,6 @@
 
 
 
-<a name="0.20.0"></a>
 # [0.20.0](https://github.com/AEGEE/oms-statutory/compare/0.19.0...0.20.0) (2019-09-07)
 
 
@@ -187,7 +184,6 @@
 
 
 
-<a name="0.19.0"></a>
 # [0.19.0](https://github.com/AEGEE/oms-statutory/compare/0.18.0...0.19.0) (2019-08-28)
 
 
@@ -197,7 +193,6 @@
 
 
 
-<a name="0.18.0"></a>
 # [0.18.0](https://github.com/AEGEE/oms-statutory/compare/0.17.0...0.18.0) (2019-08-27)
 
 
@@ -207,7 +202,6 @@
 
 
 
-<a name="0.17.0"></a>
 # [0.17.0](https://github.com/AEGEE/oms-statutory/compare/0.16.4...0.17.0) (2019-08-26)
 
 
@@ -222,7 +216,6 @@
 
 
 
-<a name="0.16.4"></a>
 ## [0.16.4](https://github.com/AEGEE/oms-statutory/compare/0.16.3...0.16.4) (2019-08-25)
 
 
@@ -232,7 +225,6 @@
 
 
 
-<a name="0.16.3"></a>
 ## [0.16.3](https://github.com/AEGEE/oms-statutory/compare/0.16.2...0.16.3) (2019-08-25)
 
 
@@ -242,7 +234,6 @@
 
 
 
-<a name="0.16.2"></a>
 ## [0.16.2](https://github.com/AEGEE/oms-statutory/compare/0.16.1...0.16.2) (2019-08-24)
 
 
@@ -253,7 +244,6 @@
 
 
 
-<a name="0.16.1"></a>
 ## [0.16.1](https://github.com/AEGEE/oms-statutory/compare/0.16.0...0.16.1) (2019-08-23)
 
 
@@ -263,24 +253,34 @@
 
 
 
-<a name="0.16.0"></a>
-# [0.16.0](https://github.com/AEGEE/oms-statutory/compare/0.14.2...0.16.0) (2019-08-21)
+# [0.16.0](https://github.com/AEGEE/oms-statutory/compare/0.15.0...0.16.0) (2019-08-21)
 
 
 ### Bug Fixes
 
-* **deps:** updated Jest to the latest ([8ef6f55](https://github.com/AEGEE/oms-statutory/commit/8ef6f55))
 * **tests:** fix another flapping test ([359bb21](https://github.com/AEGEE/oms-statutory/commit/359bb21))
 
 
 ### Features
 
-* **question lines:** added question lines management. Fixes MEMB-590 ([7d11ef1](https://github.com/AEGEE/oms-statutory/commit/7d11ef1))
 * **statutory:** added /tasks endpoint. Fixes MEMB-594 ([460e00f](https://github.com/AEGEE/oms-statutory/commit/460e00f))
 
 
 
-<a name="0.14.2"></a>
+# [0.15.0](https://github.com/AEGEE/oms-statutory/compare/0.14.2...0.15.0) (2019-08-19)
+
+
+### Bug Fixes
+
+* **deps:** updated Jest to the latest ([8ef6f55](https://github.com/AEGEE/oms-statutory/commit/8ef6f55))
+
+
+### Features
+
+* **question lines:** added question lines management. Fixes MEMB-590 ([7d11ef1](https://github.com/AEGEE/oms-statutory/commit/7d11ef1))
+
+
+
 ## [0.14.2](https://github.com/AEGEE/oms-statutory/compare/0.14.1...0.14.2) (2019-08-17)
 
 
@@ -294,7 +294,6 @@
 
 
 
-<a name="0.14.1"></a>
 ## [0.14.1](https://github.com/AEGEE/oms-statutory/compare/0.14.0...0.14.1) (2019-08-10)
 
 
@@ -309,7 +308,6 @@
 
 
 
-<a name="0.14.0"></a>
 # [0.14.0](https://github.com/AEGEE/oms-statutory/compare/0.13.0...0.14.0) (2019-07-30)
 
 
@@ -333,7 +331,6 @@
 
 
 
-<a name="0.13.0"></a>
 # [0.13.0](https://github.com/AEGEE/oms-statutory/compare/0.12.1...0.13.0) (2019-06-02)
 
 
@@ -349,7 +346,6 @@
 
 
 
-<a name="0.12.1"></a>
 ## [0.12.1](https://github.com/AEGEE/oms-statutory/compare/0.12.0...0.12.1) (2019-05-26)
 
 
@@ -359,7 +355,6 @@
 
 
 
-<a name="0.12.0"></a>
 # [0.12.0](https://github.com/AEGEE/oms-statutory/compare/0.11.1...0.12.0) (2019-05-25)
 
 
@@ -375,7 +370,6 @@
 
 
 
-<a name="0.11.1"></a>
 ## [0.11.1](https://github.com/AEGEE/oms-statutory/compare/0.11.0...0.11.1) (2019-05-23)
 
 
@@ -385,7 +379,6 @@
 
 
 
-<a name="0.11.0"></a>
 # [0.11.0](https://github.com/AEGEE/oms-statutory/compare/0.10.8...0.11.0) (2019-05-21)
 
 
@@ -396,7 +389,6 @@
 
 
 
-<a name="0.10.8"></a>
 ## [0.10.8](https://github.com/AEGEE/oms-statutory/compare/0.10.7...0.10.8) (2019-05-19)
 
 
@@ -406,7 +398,6 @@
 
 
 
-<a name="0.10.7"></a>
 ## [0.10.7](https://github.com/AEGEE/oms-statutory/compare/0.10.6...0.10.7) (2019-05-19)
 
 
@@ -416,7 +407,6 @@
 
 
 
-<a name="0.10.6"></a>
 ## [0.10.6](https://github.com/AEGEE/oms-statutory/compare/0.10.5...0.10.6) (2019-05-19)
 
 
@@ -426,7 +416,6 @@
 
 
 
-<a name="0.10.5"></a>
 ## [0.10.5](https://github.com/AEGEE/oms-statutory/compare/0.10.4...0.10.5) (2019-04-29)
 
 
@@ -436,7 +425,6 @@
 
 
 
-<a name="0.10.4"></a>
 ## [0.10.4](https://github.com/AEGEE/oms-statutory/compare/0.10.3...0.10.4) (2019-04-29)
 
 
@@ -446,7 +434,6 @@
 
 
 
-<a name="0.10.3"></a>
 ## [0.10.3](https://github.com/AEGEE/oms-statutory/compare/0.10.2...0.10.3) (2019-04-29)
 
 
@@ -456,7 +443,6 @@
 
 
 
-<a name="0.10.2"></a>
 ## [0.10.2](https://github.com/AEGEE/oms-statutory/compare/0.10.1...0.10.2) (2019-04-28)
 
 
@@ -467,7 +453,6 @@
 
 
 
-<a name="0.10.1"></a>
 ## [0.10.1](https://github.com/AEGEE/oms-statutory/compare/0.10.0...0.10.1) (2019-04-28)
 
 
@@ -477,7 +462,6 @@
 
 
 
-<a name="0.10.0"></a>
 # [0.10.0](https://github.com/AEGEE/oms-statutory/compare/0.9.12...0.10.0) (2019-04-28)
 
 
@@ -487,7 +471,6 @@
 
 
 
-<a name="0.9.12"></a>
 ## [0.9.12](https://github.com/AEGEE/oms-statutory/compare/0.9.11...0.9.12) (2019-04-28)
 
 
@@ -497,7 +480,6 @@
 
 
 
-<a name="0.9.11"></a>
 ## [0.9.11](https://github.com/AEGEE/oms-statutory/compare/0.9.10...0.9.11) (2019-04-23)
 
 
@@ -507,7 +489,6 @@
 
 
 
-<a name="0.9.10"></a>
 ## [0.9.10](https://github.com/AEGEE/oms-statutory/compare/0.9.9...0.9.10) (2019-04-18)
 
 
@@ -517,7 +498,6 @@
 
 
 
-<a name="0.9.9"></a>
 ## [0.9.9](https://github.com/AEGEE/oms-statutory/compare/0.9.8...0.9.9) (2019-04-16)
 
 
@@ -528,7 +508,6 @@
 
 
 
-<a name="0.9.8"></a>
 ## [0.9.8](https://github.com/AEGEE/oms-statutory/compare/0.9.7...0.9.8) (2019-04-16)
 
 
@@ -540,7 +519,6 @@
 
 
 
-<a name="0.9.7"></a>
 ## [0.9.7](https://github.com/AEGEE/oms-statutory/compare/0.9.6...0.9.7) (2019-04-14)
 
 
@@ -556,7 +534,6 @@
 
 
 
-<a name="0.9.6"></a>
 ## [0.9.6](https://github.com/AEGEE/oms-statutory/compare/0.9.5...0.9.6) (2019-04-10)
 
 
@@ -566,7 +543,6 @@
 
 
 
-<a name="0.9.5"></a>
 ## [0.9.5](https://github.com/AEGEE/oms-statutory/compare/0.9.4...0.9.5) (2019-04-09)
 
 
@@ -577,7 +553,6 @@
 
 
 
-<a name="0.9.4"></a>
 ## [0.9.4](https://github.com/AEGEE/oms-statutory/compare/0.9.3...0.9.4) (2019-04-09)
 
 
@@ -592,7 +567,6 @@
 
 
 
-<a name="0.9.3"></a>
 ## [0.9.3](https://github.com/AEGEE/oms-statutory/compare/0.9.2...0.9.3) (2019-04-08)
 
 
@@ -602,7 +576,6 @@
 
 
 
-<a name="0.9.2"></a>
 ## [0.9.2](https://github.com/AEGEE/oms-statutory/compare/0.9.1...0.9.2) (2019-04-08)
 
 
@@ -612,7 +585,6 @@
 
 
 
-<a name="0.9.1"></a>
 ## [0.9.1](https://github.com/AEGEE/oms-statutory/compare/0.9.0...0.9.1) (2019-03-31)
 
 
@@ -622,7 +594,6 @@
 
 
 
-<a name="0.9.0"></a>
 # [0.9.0](https://github.com/AEGEE/oms-statutory/compare/0.8.0...0.9.0) (2019-03-30)
 
 
@@ -637,7 +608,6 @@
 
 
 
-<a name="0.8.0"></a>
 # [0.8.0](https://github.com/AEGEE/oms-statutory/compare/be680b8...0.8.0) (2019-03-24)
 
 

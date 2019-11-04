@@ -120,4 +120,141 @@ describe('Events listing', () => {
         expect(res.body.data[0].id).toEqual(second.id);
         expect(res.body.data[1].id).toEqual(first.id);
     });
+
+    test('should filter events by name or description', async () => {
+        const first = await generator.createEvent({ status: 'published', name: 'TEST' });
+        const second = await generator.createEvent({ status: 'published', description: 'TEST' });
+        await generator.createEvent({ status: 'published', name: 'other', description: 'other' });
+
+        const res = await request({
+            uri: '/?search=test',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(2);
+
+        const ids = res.body.data.map(e => e.id);
+        expect(ids).toContain(first.id);
+        expect(ids).toContain(second.id);
+    });
+
+    test('should filter events by start date', async () => {
+        const event = await generator.createEvent({
+            status: 'published',
+            application_period_starts: moment().subtract(7, 'week').toDate(),
+            application_period_ends: moment().subtract(6, 'week').toDate(),
+            board_approve_deadline: moment().subtract(5, 'week').toDate(),
+            participants_list_publish_deadline: moment().subtract(4, 'week').toDate(),
+            memberslist_submission_deadline: moment().subtract(3, 'week').toDate(),
+            starts: moment().subtract(2, 'week').toDate(),
+            ends: moment().add(2, 'week').toDate(),
+        });
+
+        await generator.createEvent({
+            status: 'published',
+            application_period_starts: moment().subtract(7, 'week').toDate(),
+            application_period_ends: moment().subtract(6, 'week').toDate(),
+            board_approve_deadline: moment().subtract(5, 'week').toDate(),
+            participants_list_publish_deadline: moment().subtract(4, 'week').toDate(),
+            memberslist_submission_deadline: moment().subtract(3, 'week').toDate(),
+            starts: moment().subtract(2, 'week').toDate(),
+            ends: moment().subtract(1, 'week').toDate()
+        });
+
+        const res = await request({
+            uri: '/?starts=' + moment().format('YYYY-MM-DD'),
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(event.id);
+    });
+
+    test('should filter events by end date', async () => {
+        const event = await generator.createEvent({
+            status: 'published',
+            application_period_starts: moment().subtract(7, 'week').toDate(),
+            application_period_ends: moment().subtract(6, 'week').toDate(),
+            board_approve_deadline: moment().subtract(5, 'week').toDate(),
+            participants_list_publish_deadline: moment().subtract(4, 'week').toDate(),
+            memberslist_submission_deadline: moment().subtract(3, 'week').toDate(),
+            starts: moment().subtract(2, 'week').toDate(),
+            ends: moment().add(2, 'week').toDate(),
+        });
+
+        await generator.createEvent({
+            status: 'published',
+            application_period_starts: moment().subtract(7, 'week').toDate(),
+            application_period_ends: moment().subtract(6, 'week').toDate(),
+            board_approve_deadline: moment().subtract(5, 'week').toDate(),
+            participants_list_publish_deadline: moment().subtract(4, 'week').toDate(),
+            memberslist_submission_deadline: moment().subtract(3, 'week').toDate(),
+            starts: moment().add(1, 'week').toDate(),
+            ends: moment().add(2, 'week').toDate()
+        });
+
+        const res = await request({
+            uri: '/?ends=' + moment().format('YYYY-MM-DD'),
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(event.id);
+    });
+
+    test('should filter by event type if single', async () => {
+        const event = await generator.createEvent({ status: 'published', type: 'agora' });
+        await generator.createEvent({ status: 'published', type: 'epm' });
+        await generator.createEvent({ status: 'published', type: 'spm' });
+
+        const res = await request({
+            uri: '/?type=agora',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(event.id);
+    });
+
+    test('should filter by event type if array', async () => {
+        const first = await generator.createEvent({ status: 'published', type: 'agora' });
+        const second = await generator.createEvent({ status: 'published', type: 'epm' });
+        await generator.createEvent({ status: 'published', type: 'spm' });
+
+        const res = await request({
+            uri: '/?type[]=agora&type[]=epm',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(2);
+
+        const ids = res.body.data.map(e => e.id);
+        expect(ids).toContain(first.id);
+        expect(ids).toContain(second.id);
+    });
 });
