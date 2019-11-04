@@ -4,7 +4,7 @@ services:
   oms-statutory:
     build:
       context: ./${PATH_OMS_STATUTORY}/..
-      dockerfile: ./docker/oms-statutory/Dockerfile.dev
+      dockerfile: ./docker/oms-statutory/Dockerfile
     image: aegee/oms-statutory:dev
     volumes:
       - /usr/app/src/node_modules

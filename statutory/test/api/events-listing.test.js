@@ -23,6 +23,29 @@ describe('Events listing', () => {
         await generator.clearAll();
     });
 
+    test('should work without authorization', async () => {
+        mock.mockAll({
+            core: { unauthorized: true },
+            mainPermissions: { unauthorized: true },
+            approvePermissions: { unauthorized: true },
+        });
+
+        const event = await generator.createEvent({ status: 'published' });
+
+        const res = await request({
+            uri: '/',
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+
+        const ids = res.body.data.map(e => e.id);
+        expect(ids).toContain(event.id);
+    });
+
     test('should display published event', async () => {
         const event = await generator.createEvent({ status: 'published' });
 

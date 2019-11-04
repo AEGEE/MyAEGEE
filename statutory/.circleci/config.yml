@@ -14,7 +14,6 @@ jobs:
             echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
             which node && node -v
       - run: npm install
-      - run: cp config/index.js.example config/index.js
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run tests
@@ -44,7 +43,6 @@ jobs:
             which node && node -v
       - run: npm install
       - run: mkdir -p ~/reports
-      - run: cp config/index.js.example config/index.js
       - run: npm run lint -- --format junit --output-file ~/reports/eslint.xml
       - store_test_results:
           path: ~/reports
@@ -61,7 +59,7 @@ jobs:
       image: ubuntu-1604:201903-01
     steps:
       - checkout
-      - run: docker build  --tag aegee/oms-statutory:$(node -p "require('./package.json').version") --tag aegee/oms-statutory:latest -f docker/oms-statutory/Dockerfile.dev .
+      - run: docker build  --tag aegee/oms-statutory:$(node -p "require('./package.json').version") --tag aegee/oms-statutory:latest -f docker/oms-statutory/Dockerfile .
       - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
       - run: docker push aegee/oms-statutory:$(node -p "require('./package.json').version")
       - run: docker push aegee/oms-statutory:latest

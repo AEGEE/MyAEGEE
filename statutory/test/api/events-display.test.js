@@ -35,6 +35,25 @@ describe('Events listing for single', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    test('should work for unauthorized user', async () => {
+        mock.mockAll({
+            core: { unauthorized: true },
+            mainPermissions: { unauthorized: true },
+            approvePermissions: { unauthorized: true },
+        });
+
+        const event = await generator.createEvent();
+
+        const res = await request({
+            uri: '/events/' + event.id,
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data.name).toEqual(event.name);
+    });
+
     test('should find event by url', async () => {
         const event = await generator.createEvent({ url: 'test-slug' });
         const res = await request({

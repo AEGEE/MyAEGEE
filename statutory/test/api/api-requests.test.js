@@ -14,16 +14,6 @@ describe('API requests', () => {
         mock.cleanAll();
     });
 
-    test('should fail if X-Auth-Token is not specified', async () => {
-        const res = await request({
-            uri: '/',
-            method: 'GET'
-        });
-
-        expect(res.statusCode).toEqual(401);
-        expect(res.body.success).toEqual(false);
-    });
-
     test('should fail if oms-core returns net error while fetching user', async () => {
         mock.mockAll({ core: { netError: true } });
 
@@ -51,21 +41,6 @@ describe('API requests', () => {
         });
 
         expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-    });
-
-    test('should fail if oms-core returns unsuccessful response while fetching user', async () => {
-        mock.mockAll({ core: { unauthorized: true } });
-
-        const res = await request({
-            uri: '/',
-            method: 'GET',
-            headers: {
-                'X-Auth-Token': 'blablabla'
-            }
-        });
-
-        expect(res.statusCode).toEqual(401);
         expect(res.body.success).toEqual(false);
     });
 
@@ -99,11 +74,98 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    test('should fail if oms-core returns unsuccessful response while fetching permissions', async () => {
-        mock.mockAll({ mainPermissions: { unauthorized: true } });
+    test('should return 500 if oms-core returned unsuccessful response', async () => {
+        mock.mockAll({ core: { unsuccessfulResponse: true } });
+
+        const event = await generator.createEvent();
 
         const res = await request({
-            uri: '/',
+            uri: '/events/' + event.id + '/applications',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should return 500 if oms-core returned unsuccessful response for permissions', async () => {
+        mock.mockAll({ mainPermissions: { unsuccessfulResponse: true } });
+
+        const event = await generator.createEvent();
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should return 500 if oms-core returned unsuccessful response for approve permissions', async () => {
+        mock.mockAll({ approvePermissions: { unsuccessfulResponse: true } });
+
+        const event = await generator.createEvent();
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should return 401 if the user request returned 401 for auth-only endpoint', async () => {
+        mock.mockAll({ core: { unauthorized: true } });
+
+        const event = await generator.createEvent();
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(401);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should return 401 if the permission request returned 401 for auth-only endpoint', async () => {
+        mock.mockAll({ mainPermissions: { unauthorized: true } });
+
+        const event = await generator.createEvent();
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'blablabla'
+            }
+        });
+
+        expect(res.statusCode).toEqual(401);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should return 401 if the approve permissions request returned 401 for auth-only endpoint', async () => {
+        mock.mockAll({ approvePermissions: { unauthorized: true } });
+
+        const event = await generator.createEvent();
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications',
             method: 'GET',
             headers: {
                 'X-Auth-Token': 'blablabla'
@@ -116,22 +178,6 @@ describe('API requests', () => {
 
     test('should fail if oms-core returns garbage while fetching approve permissions', async () => {
         mock.mockAll({ approvePermissions: { badResponse: true } });
-        const event = await generator.createEvent({});
-
-        const res = await request({
-            uri: '/events/' + event.id,
-            method: 'GET',
-            headers: {
-                'X-Auth-Token': 'blablabla'
-            }
-        });
-
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-    });
-
-    test('should fail if oms-core returns unsuccessful response while fetching approve permissions', async () => {
-        mock.mockAll({ approvePermissions: { unauthorized: true } });
         const event = await generator.createEvent({});
 
         const res = await request({

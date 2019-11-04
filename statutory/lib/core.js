@@ -14,14 +14,6 @@ module.exports.getMember = async (req, id) => {
         json: true
     });
 
-    if (typeof user !== 'object') {
-        throw new Error('Malformed response when fetching users: ' + user);
-    }
-
-    if (!user.success) {
-        throw new Error('Error fetching users: ' + JSON.stringify(user));
-    }
-
     return user.data;
 };
 
@@ -60,21 +52,14 @@ module.exports.getApprovePermissions = async (req, event) => {
         },
         simple: false,
         json: true,
+        resolveWithFullResponse: true,
         body: {
             action: 'approve_members',
             object: event.type
         }
     });
 
-    if (typeof approveRequest !== 'object') {
-        throw new Error('Malformed response when fetching permissions for approve: ' + approveRequest);
-    }
-
-    if (!approveRequest.success) {
-        throw new Error('Error fetching permissions for approve: ' + JSON.stringify(approveRequest));
-    }
-
-    return approveRequest.data;
+    return approveRequest;
 };
 
 module.exports.getBodies = async (req) => {
@@ -89,14 +74,6 @@ module.exports.getBodies = async (req) => {
         json: true
     });
 
-    if (typeof bodies !== 'object') {
-        throw new Error('Malformed response when fetching bodies: ' + bodies);
-    }
-
-    if (!bodies.success) {
-        throw new Error('Error fetching bodies: ' + JSON.stringify(bodies));
-    }
-
     return bodies.data;
 };
 
@@ -108,6 +85,7 @@ module.exports.getMyProfile = async (req) => {
             'X-Requested-With': 'XMLHttpRequest',
             'X-Auth-Token': req.headers['x-auth-token'],
         },
+        resolveWithFullResponse: true,
         simple: false,
         json: true,
     });
@@ -123,6 +101,7 @@ module.exports.getMyPermissions = async (req) => {
             'X-Requested-With': 'XMLHttpRequest',
             'X-Auth-Token': req.headers['x-auth-token'],
         },
+        resolveWithFullResponse: true,
         simple: false,
         json: true,
     });

@@ -33,7 +33,7 @@ exports.mockCore = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/members/me')
-            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+            .replyWithFile(401, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
@@ -68,49 +68,7 @@ exports.mockCoreMainPermissions = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/my_permissions')
-            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
-    }
-
-    if (options.noPermissions) {
-        return nock(`${config.core.url}:${config.core.port}`)
-            .persist()
-            .get('/my_permissions')
-            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
-    }
-
-    return nock(`${config.core.url}:${config.core.port}`)
-        .persist()
-        .get('/my_permissions')
-        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-full.json'));
-};
-
-exports.mockCoreMainPermissions = (options) => {
-    if (options.netError) {
-        return nock(`${config.core.url}:${config.core.port}`)
-            .persist()
-            .get('/my_permissions')
-            .replyWithError('Some random error.');
-    }
-
-    if (options.badResponse) {
-        return nock(`${config.core.url}:${config.core.port}`)
-            .persist()
-            .get('/my_permissions')
-            .reply(500, 'Some error happened.');
-    }
-
-    if (options.unsuccessfulResponse) {
-        return nock(`${config.core.url}:${config.core.port}`)
-            .persist()
-            .get('/my_permissions')
-            .reply(500, { success: false, message: 'Some error' });
-    }
-
-    if (options.unauthorized) {
-        return nock(`${config.core.url}:${config.core.port}`)
-            .persist()
-            .get('/my_permissions')
-            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+            .replyWithFile(401, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
     }
 
     if (options.noPermissions) {
@@ -152,7 +110,7 @@ exports.mockCoreApprovePermissions = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .post('/my_permissions')
-            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+            .replyWithFile(401, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
     }
 
     if (options.noPermissions) {

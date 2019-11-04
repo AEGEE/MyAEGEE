@@ -10,11 +10,6 @@ const packageInfo = require('../package');
 const cron = require('./cron');
 
 exports.authenticateUser = async (req, res, next) => {
-    const token = req.header('x-auth-token');
-    if (!token) {
-        return errors.makeError(res, 401, 'No auth token provided');
-    }
-
     try {
         // Query the core for user and permissions.
         const [userBody, permissionsBody] = await Promise.all([
@@ -22,35 +17,49 @@ exports.authenticateUser = async (req, res, next) => {
             core.getMyPermissions(req)
         ]);
 
-        if (typeof userBody !== 'object') {
-            throw new Error('Malformed response when fetching user: ' + userBody);
+        req.userRequest = userBody;
+        req.permissionsRequest = permissionsBody;
+
+        const errorObjectsMap = [
+            { object: req.userRequest, name: 'user' },
+            { object: req.permissionsRequest, name: 'permissions' }
+        ];
+
+        // If the service returned faulty answer (either garbage, or HTTP code other than 401),
+        // throw an error.
+        for (const errorObject of errorObjectsMap) {
+            if (typeof errorObject.object.body !== 'object') {
+                throw new Error(`Malformed response when fetching ${errorObject.name}: ${errorObject.object.body}`);
+            }
+
+            // skipping 401 there, will catch them later in ensureAuthorized
+            if (!errorObject.object.body.success && errorObject.object.statusCode !== 401) {
+                throw new Error(`Error fetching ${errorObject.name}: ${JSON.stringify(errorObject.object.body)}`);
+            }
         }
 
-        // We only check user body here and not in the core helper
-        // because if not authorized, we need to return 401.
-        if (!userBody.success) {
-            // We are not authenticated
-            return errors.makeUnauthorizedError(res, 'Error fetching user: user is not authenticated.');
-        }
+        if (req.userRequest.body && req.userRequest.body.success) req.user = userBody.body.data;
+        if (req.permissionsRequest.body && req.permissionsRequest.body.success) req.corePermissions = permissionsBody.body.data;
 
-        if (typeof permissionsBody !== 'object') {
-            throw new Error('Malformed response when fetching permissions: ' + permissionsBody);
-        }
-
-        // Same store as with user body request.
-        if (!permissionsBody.success) {
-            return errors.makeUnauthorizedError(res, 'Error fetching permissions: user is not authenticated.');
-        }
-
-        req.user = userBody.data;
-        req.corePermissions = permissionsBody.data;
         req.permissions = helpers.getPermissions(req.user, req.corePermissions);
-        req.user.special = ['Public']; // Everybody is included in 'Public', right?
 
         return next();
     } catch (err) {
         return errors.makeInternalError(res, err);
     }
+};
+
+exports.ensureAuthorized = async (req, res, next) => {
+    // If any of the services returned HTTP 401, then we are not authorized.
+    if (
+        req.userRequest.statusCode === 401
+        || req.permissionsRequest.statusCode === 401
+        || (req.approveRequest && req.approveRequest.statusCode === 401)
+    ) {
+        return errors.makeUnauthorizedError(res, 'Error fetching data: user is not authenticated.');
+    }
+
+    return next();
 };
 
 exports.fetchEvent = async (req, res, next) => {
@@ -114,16 +123,30 @@ exports.fetchEvent = async (req, res, next) => {
 
     const approveRequest = await core.getApprovePermissions(req, event);
 
-    const myApplication = await Application.findOne({
-        where: {
-            user_id: req.user.id,
-            event_id: event.id
-        }
-    });
+    if (typeof approveRequest.body !== 'object') {
+        throw new Error('Malformed response when fetching permissions for approve');
+    }
+
+    // skipping 401 there, will catch them later in ensureAuthorized
+    if (!approveRequest.body.success && approveRequest.statusCode !== 401) {
+        throw new Error(`Error fetching permissions for approve: ${JSON.stringify(approveRequest.body)}`);
+    }
+
+    let myApplication;
+    if (req.user) {
+        myApplication = await Application.findOne({
+            where: {
+                user_id: req.user.id,
+                event_id: event.id
+            }
+        });
+    }
 
     req.event = event;
     req.myApplication = myApplication;
-    req.approvePermissions = approveRequest;
+    req.approveRequest = approveRequest;
+    if (req.approveRequest.body && req.approveRequest.body.success) req.approvePermissions = approveRequest.body.data;
+
     req.permissions = helpers.getEventPermissions({
         permissions: req.permissions,
         corePermissions: req.corePermissions,
