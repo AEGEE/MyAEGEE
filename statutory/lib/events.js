@@ -1,4 +1,7 @@
+const moment = require('moment');
+
 const errors = require('./errors');
+const { Sequelize } = require('./sequelize');
 const { Event, Image } = require('../models');
 
 exports.addEvent = async (req, res) => {
@@ -17,11 +20,36 @@ exports.addEvent = async (req, res) => {
 };
 
 exports.listEvents = async (req, res) => {
-    const events = await Event.findAll({
+    const query = {
         where: { status: 'published' },
         order: [['starts', 'DESC']],
         include: [Image]
-    });
+    };
+
+    // If search is set, searching for event by name or description case-insensitive.
+    if (req.query.search) {
+        query.where[Sequelize.Op.or] = [
+            { name: { [Sequelize.Op.iLike]: '%' + req.query.search + '%' } },
+            { description: { [Sequelize.Op.iLike]: '%' + req.query.search + '%' } }
+        ];
+    }
+
+    // If event type is set, filter on it.
+    if (req.query.type) {
+        query.where.type = Array.isArray(req.query.type) ? { [Sequelize.Op.in]: req.query.type } : req.query.type;
+    }
+
+    // Filtering by event start and end dates.
+    // Why inverting: imagine the case when the event is from 2018-01-02 to 2018-01-21.
+    // When searching for events with start=2018-01-15 and end=2018-01-15, if using the direct approach,
+    // this event above won't be returned. So this is purely to return events that are ongoing.
+    const dateQuery = [];
+    if (req.query.starts) dateQuery.push({ ends: { [Sequelize.Op.gte]: moment(req.query.ends, 'YYYY-MM-DD').endOf('day').toDate() } });
+    if (req.query.ends) dateQuery.push({ starts: { [Sequelize.Op.lte]: moment(req.query.starts, 'YYYY-MM-DD').startOf('day').toDate() } });
+    query.where[Sequelize.Op.and] = dateQuery;
+
+    const events = await Event.findAll(query);
+
     return res.json({
         success: true,
         data: events
