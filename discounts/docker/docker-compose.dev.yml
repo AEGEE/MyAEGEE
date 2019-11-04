@@ -4,7 +4,7 @@ services:
   oms-discounts:
     build:
       context: ./${PATH_OMS_DISCOUNTS}/..
-      dockerfile: ./docker/oms-discounts/Dockerfile.dev
+      dockerfile: ./docker/oms-discounts/Dockerfile
     image: aegee/oms-discounts:dev
     volumes:
       - /usr/app/src/node_modules
