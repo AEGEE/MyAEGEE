@@ -1,3 +1,13 @@
+## [0.12.2](https://github.com/AEGEE/oms-events/compare/0.12.1...0.12.2) (2019-11-05)
+
+
+### Bug Fixes
+
+* **general:** fixed nginx for images, again ([4bc2e36](https://github.com/AEGEE/oms-events/commit/4bc2e36))
+* **general:** not allowing creating events while being unauthorized ([9fca323](https://github.com/AEGEE/oms-events/commit/9fca323))
+
+
+
 ## [0.12.1](https://github.com/AEGEE/oms-events/compare/0.12.0...0.12.1) (2019-11-04)
 
 
