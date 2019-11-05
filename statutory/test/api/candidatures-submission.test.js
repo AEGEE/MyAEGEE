@@ -258,10 +258,10 @@ describe('Candidates submission', () => {
             ends: moment().subtract(1, 'week').toDate(),
             places: 1,
             candidates: [
-                generator.generateCandidate({ status: 'approved' })
+                generator.generateCandidate({ status: 'approved', user_id: 1337 })
             ]
         }, event);
-        const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id });
+        const candidate = generator.generateCandidate({ body_id: regularUser.bodies[0].id, user_id: regularUser.id });
 
         const res = await request({
             uri: '/events/' + event.id + '/positions/' + position.id + '/candidates',

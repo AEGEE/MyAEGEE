@@ -151,7 +151,7 @@ describe('Events listing', () => {
             board_approve_deadline: moment().subtract(5, 'week').toDate(),
             participants_list_publish_deadline: moment().subtract(4, 'week').toDate(),
             memberslist_submission_deadline: moment().subtract(3, 'week').toDate(),
-            starts: moment().subtract(2, 'week').toDate(),
+            starts: moment().add(1, 'week').toDate(),
             ends: moment().add(2, 'week').toDate(),
         });
 
@@ -163,7 +163,7 @@ describe('Events listing', () => {
             participants_list_publish_deadline: moment().subtract(4, 'week').toDate(),
             memberslist_submission_deadline: moment().subtract(3, 'week').toDate(),
             starts: moment().subtract(2, 'week').toDate(),
-            ends: moment().subtract(1, 'week').toDate()
+            ends: moment().add(1, 'week').toDate()
         });
 
         const res = await request({
@@ -189,7 +189,7 @@ describe('Events listing', () => {
             participants_list_publish_deadline: moment().subtract(4, 'week').toDate(),
             memberslist_submission_deadline: moment().subtract(3, 'week').toDate(),
             starts: moment().subtract(2, 'week').toDate(),
-            ends: moment().add(2, 'week').toDate(),
+            ends: moment().subtract(1, 'week').toDate(),
         });
 
         await generator.createEvent({
