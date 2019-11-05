@@ -40,7 +40,7 @@ GeneralRouter.get('/metrics/requests', endpointsMetrics.getEndpointMetrics);
 GeneralRouter.use(middlewares.authenticateUser);
 
 GeneralRouter.get('/', events.listEvents);
-GeneralRouter.post('/', events.addEvent);
+GeneralRouter.post('/', middlewares.ensureAuthorized, events.addEvent);
 
 GeneralRouter.get('/mine/organizing', middlewares.ensureAuthorized, events.listUserOrganizedEvents);
 GeneralRouter.get('/mine/participating', middlewares.ensureAuthorized, events.listUserAppliedEvents);
