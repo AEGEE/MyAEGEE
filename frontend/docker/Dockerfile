@@ -20,6 +20,8 @@ COPY ./docker/bootstrap-dev.sh /usr/app/scripts/bootstrap-dev.sh
 RUN rm -rf /etc/nginx/conf.d \
       && chmod +x /usr/app/scripts/bootstrap-dev.sh
 
+RUN apk add curl
+
 RUN chown -R www-data:www-data /usr/app/
 
 WORKDIR /usr/app/src/dist

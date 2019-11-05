@@ -4,7 +4,11 @@ services:
     oms-frontend:
         restart: always
         image: aegee/oms-frontend:latest
-        #healthcheck?
+        healthcheck:
+            test: ["CMD", "curl", "--fail", "http://localhost/healthcheck"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
         # cpu_count: 1
         # mem_limit: 900m
         labels:
