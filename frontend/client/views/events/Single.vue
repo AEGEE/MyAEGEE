@@ -5,7 +5,7 @@
         <article class="tile is-child is-primary">
           <figure class="image is-1by1">
             <img v-if="!event.image" src="/images/logo.png">
-            <img v-if="event.image" :src="services['oms-events'] + '/frontend/media/headimages/' + event.image">
+            <img v-if="event.image" :src="services['oms-events-static'] + '/headimages/' + event.image">
           </figure>
         </article>
       </div>
