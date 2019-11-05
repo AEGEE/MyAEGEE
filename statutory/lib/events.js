@@ -40,12 +40,11 @@ exports.listEvents = async (req, res) => {
     }
 
     // Filtering by event start and end dates.
-    // Why inverting: imagine the case when the event is from 2018-01-02 to 2018-01-21.
-    // When searching for events with start=2018-01-15 and end=2018-01-15, if using the direct approach,
-    // this event above won't be returned. So this is purely to return events that are ongoing.
+    // The events are not inclusive, so when the event starts on 2018-01-02 and ends on 2018-01-17, querying
+    // from 2018-01-05 to 2018-01-10 won't return it.
     const dateQuery = [];
-    if (req.query.starts) dateQuery.push({ ends: { [Sequelize.Op.gte]: moment(req.query.ends, 'YYYY-MM-DD').endOf('day').toDate() } });
-    if (req.query.ends) dateQuery.push({ starts: { [Sequelize.Op.lte]: moment(req.query.starts, 'YYYY-MM-DD').startOf('day').toDate() } });
+    if (req.query.starts) dateQuery.push({ starts: { [Sequelize.Op.gte]: moment(req.query.starts, 'YYYY-MM-DD').startOf('day').toDate() } });
+    if (req.query.ends) dateQuery.push({ ends: { [Sequelize.Op.lte]: moment(req.query.ends, 'YYYY-MM-DD').endOf('day').toDate() } });
     query.where[Sequelize.Op.and] = dateQuery;
 
     const events = await Event.findAll(query);
