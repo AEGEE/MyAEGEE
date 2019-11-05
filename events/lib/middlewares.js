@@ -1,6 +1,6 @@
 const request = require('request-promise-native');
-const bugsnag = require('bugsnag');
 
+const bugsnag = require('./bugsnag');
 const errors = require('./errors');
 const logger = require('./logger');
 const { Event, Application } = require('../models');

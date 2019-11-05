@@ -22,8 +22,10 @@ const config = {
             silent: false,
             level: process.env.LOGLEVEL || 'debug'
         },
+        host: process.env.HOST || 'localhost',
         bugsnagKey: process.env.BUGSNAG_KEY || '',
-        media_dir: '/usr/app/media'
+        media_dir: '/usr/app/media',
+        media_url: '/frontend/media',
     },
     development: {
 

@@ -1,3 +1,24 @@
+## [0.12.1](https://github.com/AEGEE/oms-events/compare/0.12.0...0.12.1) (2019-11-04)
+
+
+### Bug Fixes
+
+* **bugsnag:** add bugsnag params. Fixes MEMB-642 ([a441845](https://github.com/AEGEE/oms-events/commit/a441845))
+* **circleci:** fixed docker build and push job ([0b154c9](https://github.com/AEGEE/oms-events/commit/0b154c9))
+* **deps:** added open-coverage command ([3c321de](https://github.com/AEGEE/oms-events/commit/3c321de))
+* **general:** fixed nginx for events images ([fc7ec13](https://github.com/AEGEE/oms-events/commit/fc7ec13))
+* **general:** removed config example. Fixes MEMB-687 ([3ebe637](https://github.com/AEGEE/oms-events/commit/3ebe637))
+* **test:** fixed possible flapping test ([dcd8cef](https://github.com/AEGEE/oms-events/commit/dcd8cef))
+* **test:** fixed test name ([d88c66a](https://github.com/AEGEE/oms-events/commit/d88c66a))
+
+
+### Features
+
+* **general:** added nginx container for static images ([519594a](https://github.com/AEGEE/oms-events/commit/519594a))
+* **general:** allow unauthorized events listing. Fixes MEMB-641 ([8874963](https://github.com/AEGEE/oms-events/commit/8874963))
+
+
+
 # [0.12.0](https://github.com/AEGEE/oms-events/compare/0.11.3...0.12.0) (2019-10-18)
 
 

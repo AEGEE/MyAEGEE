@@ -1,5 +1,4 @@
 const express = require('express');
-const bugsnag = require('bugsnag');
 const router = require('express-promise-router');
 const bodyParser = require('body-parser');
 const boolParser = require('express-query-boolean');
@@ -14,14 +13,10 @@ const middlewares = require('./middlewares');
 const metrics = require('./metrics');
 const endpointsMetrics = require('./endpoints_metrics');
 const config = require('../config');
+const bugsnag = require('./bugsnag');
 
 const EventsRouter = router({ mergeParams: true });
 const GeneralRouter = router({ mergeParams: true });
-
-/* istanbul ignore next */
-if (process.env.NODE_ENV !== 'test') {
-    bugsnag.register(config.bugsnagKey);
-}
 
 const server = express();
 server.use(bodyParser.json());
@@ -45,7 +40,7 @@ GeneralRouter.get('/metrics/requests', endpointsMetrics.getEndpointMetrics);
 GeneralRouter.use(middlewares.authenticateUser);
 
 GeneralRouter.get('/', events.listEvents);
-GeneralRouter.post('/', events.addEvent);
+GeneralRouter.post('/', middlewares.ensureAuthorized, events.addEvent);
 
 GeneralRouter.get('/mine/organizing', middlewares.ensureAuthorized, events.listUserOrganizedEvents);
 GeneralRouter.get('/mine/participating', middlewares.ensureAuthorized, events.listUserAppliedEvents);
