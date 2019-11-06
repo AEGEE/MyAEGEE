@@ -36,7 +36,8 @@
             <div class="media">
               <div class="media-left">
                 <figure class="image is-96x96">
-                  <img src="/images/logo.png">
+                  <img v-if="!event.image" src="/images/logo.png">
+                  <img v-if="event.image" :src="services['oms-events-static'] + '/headimages/' + event.image">
                 </figure>
               </div>
               <div class="media-content">
