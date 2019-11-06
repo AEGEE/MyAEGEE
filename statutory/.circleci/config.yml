@@ -1,4 +1,6 @@
-version: 2
+orbs:
+  slack: circleci/slack@3.4.1
+version: 2.1
 jobs:
   test:
     machine:
@@ -63,6 +65,9 @@ jobs:
       - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
       - run: docker push aegee/oms-statutory:$(node -p "require('./package.json').version")
       - run: docker push aegee/oms-statutory:latest
+      - slack/status:
+          success_message: The Docker image for \`$CIRCLE_PROJECT_REPONAME\` with tags \`$(node -p "require('./package.json').version")\` and \`latest\` has been pushed to Dockerhub.
+          failure_message: The Docker image for \`$CIRCLE_PROJECT_REPONAME\` build and push has failed.
 
 workflows:
   version: 2

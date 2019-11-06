@@ -1,3 +1,12 @@
+## [0.24.2](https://github.com/AEGEE/oms-statutory/compare/0.24.1...0.24.2) (2019-11-06)
+
+
+### Features
+
+* **general:** slack notifications on docker build & push. Fixes MEMB-671 ([12c6c75](https://github.com/AEGEE/oms-statutory/commit/12c6c75))
+
+
+
 ## [0.24.1](https://github.com/AEGEE/oms-statutory/compare/0.24.0...0.24.1) (2019-11-05)
 
 
