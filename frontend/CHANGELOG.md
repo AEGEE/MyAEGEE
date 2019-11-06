@@ -1,3 +1,13 @@
+<a name="0.25.4"></a>
+## [0.25.4](https://github.com/AEGEE/oms-frontend/compare/0.25.3...0.25.4) (2019-11-06)
+
+
+### Bug Fixes
+
+* **events:** display images on events listings. Fixes MEMB-711 ([10f19b3](https://github.com/AEGEE/oms-frontend/commit/10f19b3))
+
+
+
 <a name="0.25.3"></a>
 ## [0.25.3](https://github.com/AEGEE/oms-frontend/compare/0.25.2...0.25.3) (2019-11-06)
 
