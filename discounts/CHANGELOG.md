@@ -1,12 +1,19 @@
-## [0.9.3](https://github.com/AEGEE/oms-discounts/compare/0.9.2...0.9.3) (2019-11-04)
+## [0.9.4](https://github.com/AEGEE/oms-discounts/compare/0.9.2...0.9.4) (2019-11-06)
 
 
 ### Bug Fixes
 
 * **bugsnag:** add bugsnag params. Fixes MEMB-642 ([607d11a](https://github.com/AEGEE/oms-discounts/commit/607d11a))
+* **deps:** fixed npm audit vulnerability ([6801ad1](https://github.com/AEGEE/oms-discounts/commit/6801ad1))
+* **deps:** fixed security vulnerabilities ([f4f7b33](https://github.com/AEGEE/oms-discounts/commit/f4f7b33))
 * **docker:** use latest tag for prod environment ([991a60f](https://github.com/AEGEE/oms-discounts/commit/991a60f))
 * **general:** removed config example. Fixes MEMB-687 ([ba8f7b6](https://github.com/AEGEE/oms-discounts/commit/ba8f7b6))
 * **sequelize:** removed the deprecation warning ([7c12962](https://github.com/AEGEE/oms-discounts/commit/7c12962))
+
+
+### Features
+
+* **general:** slack notifications on docker build & push. Fixes MEMB-671 ([c892851](https://github.com/AEGEE/oms-discounts/commit/c892851))
 
 
 
