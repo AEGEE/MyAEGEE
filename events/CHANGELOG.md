@@ -1,3 +1,18 @@
+## [0.12.3](https://github.com/AEGEE/oms-events/compare/0.12.2...0.12.3) (2019-11-06)
+
+
+### Bug Fixes
+
+* **deps:** fixed security vulnerabilities ([e238afe](https://github.com/AEGEE/oms-events/commit/e238afe))
+* **lint:** allow longer commit names for commitlint ([cf1b49d](https://github.com/AEGEE/oms-events/commit/cf1b49d))
+
+
+### Features
+
+* **general:** slack notifications on docker build & push. Fixes MEMB-671 ([9ec3227](https://github.com/AEGEE/oms-events/commit/9ec3227))
+
+
+
 ## [0.12.2](https://github.com/AEGEE/oms-events/compare/0.12.1...0.12.2) (2019-11-05)
 
 
