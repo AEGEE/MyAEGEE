@@ -1,3 +1,20 @@
+<a name="0.25.3"></a>
+## [0.25.3](https://github.com/AEGEE/oms-frontend/compare/0.25.2...0.25.3) (2019-11-06)
+
+
+### Bug Fixes
+
+* **deps:** fixed security vulnerability so npm audit step will pass ([d008e09](https://github.com/AEGEE/oms-frontend/commit/d008e09))
+* **docker:** disabled healthcheck for now ([2ec4154](https://github.com/AEGEE/oms-frontend/commit/2ec4154))
+* **docker:** fixed nginx container + healthcheck ([79610f0](https://github.com/AEGEE/oms-frontend/commit/79610f0))
+
+
+### Features
+
+* **general:** slack notifications on docker build & push. Fixes MEMB-671 ([575ba10](https://github.com/AEGEE/oms-frontend/commit/575ba10))
+
+
+
 <a name="0.25.2"></a>
 ## [0.25.2](https://github.com/AEGEE/oms-frontend/compare/0.25.1...0.25.2) (2019-11-05)
 
