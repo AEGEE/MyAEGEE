@@ -1,6 +1,6 @@
 {
   "name": "oms-events",
-  "version": "0.12.3",
+  "version": "0.12.4",
   "description": "Events-module of the OMS",
   "main": "server.js",
   "directories": {
@@ -70,6 +70,7 @@
     "@commitlint/config-conventional": "^8.2.0",
     "codecov": "^3.6.1",
     "commitlint": "^8.2.0",
+    "conventional-changelog-cli": "^2.0.25",
     "eslint": "^6.1.0",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-plugin-import": "^2.18.2",
