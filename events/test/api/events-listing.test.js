@@ -222,7 +222,7 @@ describe('Events listing', () => {
         expect(res.body.data[0].id).toEqual(event.id);
     });
 
-    it('should not display past events if displayPast=false', async () => {
+    it('should filter by start date', async () => {
         await generator.createEvent({
             status: 'published',
             application_starts: moment().subtract(5, 'week').toDate(),
@@ -231,8 +231,16 @@ describe('Events listing', () => {
             ends: moment().subtract(2, 'week').toDate(),
         });
 
+        const event = await generator.createEvent({
+            status: 'published',
+            application_starts: moment().add(1, 'week').toDate(),
+            application_ends: moment().add(2, 'week').toDate(),
+            starts: moment().add(3, 'week').toDate(),
+            ends: moment().add(4, 'week').toDate(),
+        });
+
         const res = await request({
-            uri: '/?displayPast=false',
+            uri: '/?starts=' + moment().format('YYYY-MM-DD'),
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -241,30 +249,39 @@ describe('Events listing', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
 
-        expect(res.body.data.length).toEqual(0);
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(event.id);
     });
 
-    it('should display past events if displayPast=true', async () => {
+    it('should filter by end date', async () => {
         await generator.createEvent({
+            status: 'published',
+            application_starts: moment().add(1, 'week').toDate(),
+            application_ends: moment().add(2, 'week').toDate(),
+            starts: moment().add(3, 'week').toDate(),
+            ends: moment().add(4, 'week').toDate(),
+        });
+
+        const event = await generator.createEvent({
+            status: 'published',
             application_starts: moment().subtract(5, 'week').toDate(),
             application_ends: moment().subtract(4, 'week').toDate(),
             starts: moment().subtract(3, 'week').toDate(),
             ends: moment().subtract(2, 'week').toDate(),
-            status: 'published'
         });
 
         const res = await request({
-            uri: '/?displayPast=true',
+            uri: '/?ends=' + moment().format('YYYY-MM-DD'),
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 
         expect(res.statusCode).toEqual(200);
-
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
 
-        expect(res.body.data.length).not.toEqual(0);
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(event.id);
     });
 
     it('should filter by name case-insensitive', async () => {

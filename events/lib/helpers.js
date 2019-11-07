@@ -24,10 +24,13 @@ exports.getDefaultQuery = (req) => {
         queryObj.where.type = Array.isArray(req.query.type) ? { [Sequelize.Op.in]: req.query.type } : req.query.type;
     }
 
-    // If displayPast === true, display also past events.
-    if (req.query.displayPast !== true) {
-        queryObj.where.starts = { [Sequelize.Op.gte]: new Date() };
-    }
+    // Filtering by event start and end dates.
+    // The events are not inclusive, so when the event starts on 2018-01-02 and ends on 2018-01-17, querying
+    // from 2018-01-05 to 2018-01-10 won't return it.
+    const dateQuery = [];
+    if (req.query.starts) dateQuery.push({ starts: { [Sequelize.Op.gte]: moment(req.query.starts, 'YYYY-MM-DD').startOf('day').toDate() } });
+    if (req.query.ends) dateQuery.push({ ends: { [Sequelize.Op.lte]: moment(req.query.ends, 'YYYY-MM-DD').endOf('day').toDate() } });
+    queryObj.where[Sequelize.Op.and] = dateQuery;
 
     // If offset is set and is valid, use it.
     if (req.query.offset) {
