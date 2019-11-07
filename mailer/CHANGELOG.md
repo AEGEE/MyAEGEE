@@ -1,3 +1,12 @@
+# [0.3.0](https://github.com/AEGEE/oms-docker/compare/0.2.1...0.3.0) (2019-11-07)
+
+
+### Features
+
+* **general:** switched to CircleCI from Travis. Fixes MEMB-678 ([d9a13a7](https://github.com/AEGEE/oms-docker/commit/d9a13a7))
+
+
+
 ## [0.2.1](https://github.com/AEGEE/oms-docker/compare/0.2.0...0.2.1) (2019-10-30)
 
 
