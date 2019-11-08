@@ -6,6 +6,11 @@ const constants = {
     ltc: 'LTC',
     rtc: 'RTC',
     european: 'European event'
+  },
+  STATUTORY_TYPES_NAMES: {
+    agora: 'Agora',
+    spm: 'SPM',
+    epm: 'EPM'
   }
 }
 
