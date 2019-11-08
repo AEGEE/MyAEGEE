@@ -1,6 +1,6 @@
 {
   "name": "oms-core-elixir",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "The internal mailer module of my.aegee.eu",
   "keywords": [],
   "author": "Nico Westerbeck",

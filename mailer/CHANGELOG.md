@@ -1,3 +1,12 @@
+## [0.3.2](https://github.com/AEGEE/oms-docker/compare/0.3.1...0.3.2) (2019-11-08)
+
+
+### Bug Fixes
+
+* **docker:** fixed mail-transfer-agent building ([fae61c0](https://github.com/AEGEE/oms-docker/commit/fae61c0faa8880bb0a6c82fac726bb4fc8394f27))
+
+
+
 ## [0.3.1](https://github.com/AEGEE/oms-docker/compare/0.3.0...0.3.1) (2019-11-08)
 
 
