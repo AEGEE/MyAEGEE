@@ -1,3 +1,19 @@
+<a name="0.26.0"></a>
+# [0.26.0](https://github.com/AEGEE/oms-frontend/compare/0.25.4...0.26.0) (2019-11-08)
+
+
+### Bug Fixes
+
+* **events:** only requesting dispayed events ([c2eb6ca](https://github.com/AEGEE/oms-frontend/commit/c2eb6ca))
+* **events:** using starts= instead of displayPast= for listings ([3e62ceb](https://github.com/AEGEE/oms-frontend/commit/3e62ceb))
+
+
+### Features
+
+* **general:** added statutory events to calendar. Fixes MEMB-708 ([aafa843](https://github.com/AEGEE/oms-frontend/commit/aafa843))
+
+
+
 <a name="0.25.4"></a>
 ## [0.25.4](https://github.com/AEGEE/oms-frontend/compare/0.25.3...0.25.4) (2019-11-06)
 
