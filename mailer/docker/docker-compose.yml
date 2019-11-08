@@ -3,7 +3,7 @@ version: "3.4"
 services:
     oms-mailer:
         restart: unless-stopped
-        image: aegee/oms-mailer:stable
+        image: aegee/oms-mailer:latest
         expose:
             - "4000"
         environment:
@@ -28,7 +28,7 @@ services:
 
     oms-mail-transfer-agent:
         restart: always
-        image: aegee/oms-mail-transfer-agent:stable
+        image: aegee/oms-mail-transfer-agent:latest
         expose:
             - "25"
         secrets:

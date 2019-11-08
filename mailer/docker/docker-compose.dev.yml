@@ -7,7 +7,7 @@ services:
             dockerfile: ./docker/oms-mailer/Dockerfile
             args: 
                 MIX_ENV: development
-        image: aegee/oms-mailer:latest
+        image: aegee/oms-mailer:dev
         volumes:
             - /usr/src/myapp/deps
 
@@ -15,4 +15,4 @@ services:
         build:
             context: ./${PATH_OMS_MAILER}/mail_transfer_agent
             dockerfile: Dockerfile
-        image: aegee/oms-mail-transfer-agent:latest
+        image: aegee/oms-mail-transfer-agent:dev
