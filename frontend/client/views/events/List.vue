@@ -101,6 +101,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 import { mapGetters } from 'vuex'
 import constants from  '../../constants'
 
@@ -131,9 +132,10 @@ export default {
       const queryObj = {
         limit: this.limit,
         offset: this.offset,
-        type: this.eventTypes.filter(type => type.enabled).map(type => type.value),
-        displayPast: this.displayPast
+        type: this.eventTypes.filter(type => type.enabled).map(type => type.value)
       }
+
+      if (!this.displayPast) queryObj.starts = moment().format('YYYY-MM-DD')
 
       if (this.query) queryObj.search = this.query
       return queryObj
