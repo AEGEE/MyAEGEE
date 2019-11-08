@@ -13,6 +13,6 @@ services:
 
     oms-mail-transfer-agent:
         build:
-            context: ./${PATH_OMS_MAILER}/mail_transfer_agent
-            dockerfile: Dockerfile
+            context: ./${PATH_OMS_MAILER}/..
+            dockerfile: docker/mail_transfer_agent/Dockerfile
         image: aegee/oms-mail-transfer-agent:dev

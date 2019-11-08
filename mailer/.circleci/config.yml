@@ -37,13 +37,13 @@ jobs:
       image: ubuntu-1604:201903-01
     steps:
       - checkout
-      - run: docker build  --tag aegee/oms-mail-transfer-agent:$(node -p "require('./package.json').version") --tag aegee/oms-mail-transfer-agent:latest -f docker/mail-transfer-agent/Dockerfile .
+      - run: docker build  --tag aegee/oms-mail-transfer-agent:$(node -p "require('./package.json').version") --tag aegee/oms-mail-transfer-agent:latest -f docker/mail_transfer_agent/Dockerfile .
       - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
       - run: docker push aegee/oms-mail-transfer-agent:$(node -p "require('./package.json').version")
       - run: docker push aegee/oms-mail-transfer-agent:latest
       - slack/status:
-          success_message: The Docker image for `oms-mail-transfer-agent` with tags \`$(node -p "require('./package.json').version")\` and \`latest\` has been pushed to Dockerhub.
-          failure_message: The Docker image for `oms-mail-transfer-agent` build and push has failed.
+          success_message: The Docker image for \`oms-mail-transfer-agent\` with tags \`$(node -p "require('./package.json').version")\` and \`latest\` has been pushed to Dockerhub.
+          failure_message: The Docker image for \`oms-mail-transfer-agent\` build and push has failed.
 
 workflows:
   version: 2
