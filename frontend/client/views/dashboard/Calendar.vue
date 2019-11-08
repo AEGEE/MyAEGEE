@@ -17,7 +17,8 @@
       defaultView="dayGridMonth"
       :firstDay="1"
       :plugins="calendarPlugins"
-      :events="events"/>
+      :events="events"
+      @datesRender="updateStartDate" />
 
     <b-loading :is-full-page="true" :active.sync="isLoading"></b-loading>
   </div>
@@ -25,6 +26,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import moment from 'moment'
 import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import constants from '../../constants'
@@ -57,43 +59,62 @@ export default {
         es: '#000000',
         agora: '#FFFFFF',
         epm: '#FFFFFF',
-        spm: '#000000',
+        spm: '#FFFFFF',
       },
       constants,
       isLoading: false,
+      currentMonthStart: null,
+      currentMonthEnd: null,
       calendarPlugins: [ dayGridPlugin ]
     }
   },
+  methods: {
+    updateStartDate (arg) {
+      const currentStart = arg.view.currentStart
+      const currentEnd = arg.view.currentEnd
+      this.currentMonthStart = moment(currentStart)
+      this.currentMonthEnd = moment(currentEnd)
+      this.fetchEvents()
+    },
+    fetchEvents () {
+      this.isLoading = true
+
+      const startDate = this.currentMonthStart.subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
+      const endDate = this.currentMonthEnd.add(1, 'month').endOf('month').format('YYYY-MM-DD')
+
+      Promise.all([
+        this.axios.get(this.services['oms-events'], { params: { starts: startDate, ends: endDate } }),
+        this.axios.get(this.services['oms-statutory'], { params: { starts: startDate, ends: endDate } })
+      ]).then(([regularResponse, statutoryResponse]) => {
+        const regular = regularResponse.data.data.map((event) => ({
+          title: event.name,
+          start: new Date(event.starts),
+          end: new Date(event.ends),
+          backgroundColor: this.colors[event.type] || '#1468C5',
+          url: '/events/' + (event.url || event.id)
+        }))
+
+        const statutory = statutoryResponse.data.data.map((event) => ({
+          title: event.name,
+          start: new Date(event.starts),
+          end: new Date(event.ends),
+          backgroundColor: this.colors[event.type] || '#1468C5',
+          url: '/statutory/' + (event.url || event.id)
+        }))
+
+        this.events = [...regular, ...statutory]
+
+        this.isLoading = false
+      }).catch((err) => {
+        this.events = []
+        this.$root.showDanger('Could not fetch events list: ' + err.message)
+      })
+    }
+  },
   mounted () {
-    this.isLoading = true
-
-    Promise.all([
-      this.axios.get(this.services['oms-events']),
-      this.axios.get(this.services['oms-statutory'])
-    ]).then(([regularResponse, statutoryResponse]) => {
-      const regular = regularResponse.data.data.map((event) => ({
-        title: event.name,
-        start: new Date(event.starts),
-        end: new Date(event.ends),
-        backgroundColor: this.colors[event.type] || '#1468C5',
-        url: '/events/' + (event.url || event.id)
-      }))
-
-      const statutory = statutoryResponse.data.data.map((event) => ({
-        title: event.name,
-        start: new Date(event.starts),
-        end: new Date(event.ends),
-        backgroundColor: this.colors[event.type] || '#1468C5',
-        url: '/statutory/' + (event.url || event.id)
-      }))
-
-      this.events = [...regular, ...statutory]
-
-      this.isLoading = false
-    }).catch((err) => {
-      this.events = []
-      this.$root.showDanger('Could not fetch events list: ' + err.message)
-    })
+    this.currentMonthStart = moment()
+    this.currentMonthEnd = moment()
+    this.fetchEvents()
   },
   computed: {
     ...mapGetters({
