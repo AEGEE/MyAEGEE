@@ -1,3 +1,13 @@
+<a name="0.26.1"></a>
+## [0.26.1](https://github.com/AEGEE/oms-frontend/compare/0.26.0...0.26.1) (2019-11-09)
+
+
+### Bug Fixes
+
+* **events:** fix events prefixes on calendar ([731931e](https://github.com/AEGEE/oms-frontend/commit/731931e))
+
+
+
 <a name="0.26.0"></a>
 # [0.26.0](https://github.com/AEGEE/oms-frontend/compare/0.25.4...0.26.0) (2019-11-08)
 
