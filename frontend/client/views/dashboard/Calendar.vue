@@ -18,6 +18,7 @@
       :firstDay="1"
       :plugins="calendarPlugins"
       :events="events"
+      :displayEventTime="false"
       @datesRender="updateStartDate" />
 
     <b-loading :is-full-page="true" :active.sync="isLoading"></b-loading>
