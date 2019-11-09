@@ -52,7 +52,7 @@ export default {
         spm: '#434242'
       },
       textColors: {
-        wu: '#ffffff',
+        wu: '#000000',
         rtc: '#ffffff',
         nwm: '#000000',
         ltc: '#ffffff',
@@ -92,6 +92,7 @@ export default {
           start: new Date(event.starts),
           end: new Date(event.ends),
           backgroundColor: this.colors[event.type] || '#1468C5',
+          textColor: this.textColors[event.type] || '#FFFFFF',
           url: '/events/' + (event.url || event.id)
         }))
 
@@ -100,6 +101,7 @@ export default {
           start: new Date(event.starts),
           end: new Date(event.ends),
           backgroundColor: this.colors[event.type] || '#1468C5',
+          textColor: this.textColors[event.type] || '#FFFFFF',
           url: '/statutory/' + (event.url || event.id)
         }))
 
