@@ -40,6 +40,7 @@
               So other people (even the board members) would not be able to see/approve applications.
             </p>
             <p>If you want to have other organizers, please add them after creating the event in the "Edit organizers" tab.</p>
+            <p><strong>If the event is not published, people won't be able to see the event in the listing or apply to it.</strong></p>
             <p>Also, <strong>once the event is published you won't be able to edit it.</strong> So please check everything twice.</p>
             <p>If you will need the event info to be changed after publishing, please contact CD or EQAC.</p>
           </div>
