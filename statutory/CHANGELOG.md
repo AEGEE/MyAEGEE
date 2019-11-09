@@ -1,3 +1,12 @@
+# [0.25.0](https://github.com/AEGEE/oms-statutory/compare/0.24.2...0.25.0) (2019-11-09)
+
+
+### Bug Fixes
+
+* **docker:** add nginx for serving static. Fixes MEMB-714 ([ef9d9e2](https://github.com/AEGEE/oms-statutory/commit/ef9d9e2))
+
+
+
 ## [0.24.2](https://github.com/AEGEE/oms-statutory/compare/0.24.1...0.24.2) (2019-11-06)
 
 
