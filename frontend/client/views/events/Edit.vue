@@ -293,8 +293,7 @@
             :mapStyle="map.style"
             :zoom="map.zoom"
             @load="onMapLoaded"
-            :center="map.center"
-            v-if="this.event.locations.length > 0">
+            :center="map.center" >
             <MglMarker
               v-for="(location, index) in event.locations"
               v-bind:key="index"
