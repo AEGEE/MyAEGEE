@@ -36,7 +36,6 @@ const VotesAmountRouter = router({ mergeParams: true });
 const PositionsRouter = router({ mergeParams: true });
 const CandidatesRouter = router({ mergeParams: true });
 const PlenariesRouter = router({ mergeParams: true });
-const ImagesRouter = router({ mergeParams: true });
 const QuestionLinesRouter = router({ mergeParams: true });
 const QuestionsRouter = router({ mergeParams: true });
 
@@ -53,8 +52,6 @@ process.on('unhandledRejection', (err) => {
         bugsnag.notify(err);
     }
 });
-
-ImagesRouter.use(express.static(config.images_dir)); // Serving images.
 
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
 GeneralRouter.get('/metrics', metrics.getMetrics);
@@ -172,7 +169,6 @@ server.use('/events/:event_id/plenaries', PlenariesRouter);
 server.use('/events/:event_id/positions/:position_id/candidates', CandidatesRouter);
 server.use('/events/:event_id/positions', PositionsRouter);
 server.use('/limits/:event_type', PaxLimitsRouter);
-server.use(config.media_url, ImagesRouter);
 server.use('/', GeneralRouter);
 
 server.use(middlewares.notFound);
