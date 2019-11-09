@@ -25,7 +25,7 @@
             </router-link>
           </div>-->
 
-          <div class="field is-grouped">
+          <div class="field is-grouped" v-if="event.status === 'published'">
             <router-link :to="{ name: 'oms.events.apply', params: { id: event.url || event.id, application_id: 'me' } }" class="button is-warning is-fullwidth">
               <span>Manage my application</span>
               <span class="icon"><i class="fa fa-plus"></i></span>
