@@ -1,3 +1,13 @@
+<a name="0.26.3"></a>
+## [0.26.3](https://github.com/AEGEE/oms-frontend/compare/0.26.2...0.26.3) (2019-11-09)
+
+
+### Bug Fixes
+
+* **events:** fixed events applications permissions ([dd9b047](https://github.com/AEGEE/oms-frontend/commit/dd9b047))
+
+
+
 <a name="0.26.2"></a>
 ## [0.26.2](https://github.com/AEGEE/oms-frontend/compare/0.26.1...0.26.2) (2019-11-09)
 
