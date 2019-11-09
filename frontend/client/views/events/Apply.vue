@@ -3,13 +3,13 @@
     <div class="tile is-parent">
       <div class="tile is-child">
         <div class="title" v-show="isNew">Apply to {{ event.name }}</div>
-        <div class="title" v-show="!isNew && event.application_status === 'open'">Edit your application on {{ event.name }}</div>
-        <div class="title" v-show="!isNew && event.application_status === 'closed'">See your application on {{ event.name }}</div>
+        <div class="title" v-show="!isNew && this.can_apply">Edit your application on {{ event.name }}</div>
+        <div class="title" v-show="!isNew && !this.can_apply">See your application on {{ event.name }}</div>
 
-        <div class="subtitle" v-show="isNew && (event.application_status === 'closed')">You cannot apply anymore: the applications are closed.</div>
+        <div class="subtitle" v-show="isNew && !this.can_apply">You cannot apply: the applications are closed or the event is not published yet.</div>
 
         <form @submit.prevent="saveApplication()">
-          <div class="tile is-parent" v-show="event.application_status === 'open'">
+          <div class="tile is-parent" v-show="this.can_apply">
             <div class="tile is-child">
               <div class="field">
                 <label class="label">Body <span class="has-text-danger">*</span></label>
@@ -106,7 +106,7 @@
             </div>
           </div>
 
-          <div v-show="!isNew && event.application_status === 'closed'" class="tile is-parent">
+          <div v-show="!isNew && !this.can_apply" class="tile is-parent">
             <div class="tile is-child">
               <p>
                 <b>You applied from this body:</b>
@@ -148,7 +148,7 @@
             </div>
           </div>
 
-          <div class="tile is-parent" v-show="!isNew && event.application_status === 'closed'">
+          <div class="tile is-parent" v-show="!isNew && !this.can_apply">
             <div class="tile is-child">
               <div class="notification is-warning" v-if="application.status === 'pending'">
                 Your application is being processed, please wait for the organizers to evaluate your application. Unfortunately you can not edit it anymore.
@@ -191,6 +191,9 @@ export default {
         id: null,
         answers: [],
         agreed_to_privacy_policy: false
+      },
+      can: {
+        apply: false
       },
       errors: {},
       isLoading: false,
@@ -248,6 +251,8 @@ export default {
     this.isLoading = true
     this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
+
+      this.can.apply = this.event.application_status === 'open' && this.event.status === 'published'
 
       // Prefilling default values for application answers
       this.application.answers = Array.from({ length: this.event.questions.length }, (value, index) => {
