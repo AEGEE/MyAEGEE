@@ -1,3 +1,17 @@
+<a name="0.26.2"></a>
+## [0.26.2](https://github.com/AEGEE/oms-frontend/compare/0.26.1...0.26.2) (2019-11-09)
+
+
+### Bug Fixes
+
+* **events:** added disclaimer on applying to events page ([b1f343d](https://github.com/AEGEE/oms-frontend/commit/b1f343d))
+* **events:** always display map on event creation page ([1d68878](https://github.com/AEGEE/oms-frontend/commit/1d68878))
+* **events:** do not display application link if the event is not published ([8139c0b](https://github.com/AEGEE/oms-frontend/commit/8139c0b))
+* **events:** now allowing to apply when the event is not published ([d44aed4](https://github.com/AEGEE/oms-frontend/commit/d44aed4))
+* **general:** fixed events colors ([8d11175](https://github.com/AEGEE/oms-frontend/commit/8d11175))
+
+
+
 <a name="0.26.1"></a>
 ## [0.26.1](https://github.com/AEGEE/oms-frontend/compare/0.26.0...0.26.1) (2019-11-09)
 
