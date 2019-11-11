@@ -6,5 +6,6 @@
   "oms-discounts": "/services/oms-discounts/api",
   "alastair": "/services/alastair/api",
   "oms-frontend": "",
-  "oms-events-static": "/media/events"
+  "oms-events-static": "/media/events",
+  "oms-statutory-static": "/media/statutory"
 }
