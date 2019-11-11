@@ -24,7 +24,7 @@
               <div class="media-left">
                 <figure class="image image-96px">
                   <img v-if="!event.image" src="/images/logo.png">
-                  <img v-if="event.image" :src="services['oms-statutory'] + event.image.frontend_path">
+                  <img v-if="event.image" :src="services['oms-statutory-static'] + event.image.frontend_path">
                 </figure>
               </div>
               <div class="media-content">
