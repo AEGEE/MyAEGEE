@@ -2,7 +2,6 @@ node_modules/
 coverage*
 commitmsg
 log
-nginx.conf
 npm-debug.log
 frontend/
 .nyc_output/

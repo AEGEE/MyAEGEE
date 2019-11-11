@@ -24,8 +24,7 @@ const config = {
         },
         host: process.env.HOST || 'localhost',
         bugsnagKey: process.env.BUGSNAG_KEY || '',
-        images_dir: '/usr/app/media',
-        media_url: '/media/'
+        images_dir: '/usr/app/media'
     },
     development: {
 

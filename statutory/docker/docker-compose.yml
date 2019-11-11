@@ -41,6 +41,29 @@ services:
             - "traefik.frontend.rule=PathPrefix:/services/oms-statutory/api;PathPrefixStrip:/services/oms-statutory/api"
             - "traefik.frontend.priority=110"
             - "traefik.enable=true"
+    oms-statutory-static:
+        restart: on-failure
+        image: aegee/nginx-static:latest
+        volumes:
+            - oms-statutory-media:/usr/app/media:ro
+            - ./${PATH_OMS_STATUTORY}/oms-statutory-static/status.json:/usr/app/status.json:ro
+            - ./${PATH_OMS_STATUTORY}/oms-statutory-static/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./${PATH_OMS_STATUTORY}/oms-statutory-static/sites/default:/etc/nginx/sites-available/default:ro
+            - shared:/usr/app/shared:ro
+        expose:
+            - "80"
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:80/healthcheck"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+        labels:
+            - "traefik.backend=oms-statutory-static"
+            - "traefik.port=80"
+            - "traefik.frontend.rule=PathPrefix:/media/statutory;PathPrefixStrip:/media/statutory"
+            - "traefik.frontend.priority=110"
+            - "traefik.enable=true"
 
 volumes:
     postgres-oms-statutory:
