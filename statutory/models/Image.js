@@ -3,7 +3,6 @@ const path = require('path');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const fs = require('../lib/fs');
 const logger = require('../lib/logger');
-const config = require('../config');
 
 const Image = sequelize.define('image', {
     user_id: {
