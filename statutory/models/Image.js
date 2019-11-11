@@ -3,7 +3,6 @@ const path = require('path');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const fs = require('../lib/fs');
 const logger = require('../lib/logger');
-const config = require('../config');
 
 const Image = sequelize.define('image', {
     user_id: {
@@ -39,7 +38,7 @@ const Image = sequelize.define('image', {
     frontend_path: {
         type: Sequelize.VIRTUAL,
         get() {
-            return config.media_url + this.file_name;
+            return '/' + this.file_name;
         }
     },
 }, {

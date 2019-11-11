@@ -1,3 +1,13 @@
+## [0.25.1](https://github.com/AEGEE/oms-statutory/compare/0.25.0...0.25.1) (2019-11-11)
+
+
+### Bug Fixes
+
+* **docker:** forgot to commit nginx configs ([8c3042e](https://github.com/AEGEE/oms-statutory/commit/8c3042e))
+* **events:** fixed image frontend link ([6ab4624](https://github.com/AEGEE/oms-statutory/commit/6ab4624))
+
+
+
 # [0.25.0](https://github.com/AEGEE/oms-statutory/compare/0.24.2...0.25.0) (2019-11-09)
 
 
