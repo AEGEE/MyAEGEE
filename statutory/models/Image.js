@@ -39,7 +39,7 @@ const Image = sequelize.define('image', {
     frontend_path: {
         type: Sequelize.VIRTUAL,
         get() {
-            return config.media_url + this.file_name;
+            return '/' + this.file_name;
         }
     },
 }, {
