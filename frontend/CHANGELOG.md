@@ -1,3 +1,13 @@
+<a name="0.26.4"></a>
+## [0.26.4](https://github.com/AEGEE/oms-frontend/compare/0.26.3...0.26.4) (2019-11-11)
+
+
+### Bug Fixes
+
+* **statutory:** using new images schema ([e77df3b](https://github.com/AEGEE/oms-frontend/commit/e77df3b))
+
+
+
 <a name="0.26.3"></a>
 ## [0.26.3](https://github.com/AEGEE/oms-frontend/compare/0.26.2...0.26.3) (2019-11-09)
 
