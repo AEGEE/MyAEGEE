@@ -91,8 +91,7 @@ exports.fetchSingleEvent = async (req, res, next) => {
     if (!Number.isNaN(Number(req.params.event_id))) {
         findObject = {
             [Sequelize.Op.or]: {
-                id: Number(req.params.event_id),
-                url: req.params.event_id
+                id: Number(req.params.event_id)
             }
         };
     }
