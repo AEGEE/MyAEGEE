@@ -27,9 +27,10 @@ services:
     # https://quay.io/repository/prometheus/node-exporter?tab=info
     # https://hub.docker.com/r/prom/node-exporter/
     volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-    #command: '--collector.procfs=/host/proc --collector.sysfs=/host/sys'
+      - /:/host:ro,rslave
+    command: '--path.rootfs=/host'
+    network_mode: "host"
+    pid: "host"
     labels:
       - "traefik.backend=node-exporter"
       - "traefik.port=9100"
