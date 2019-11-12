@@ -1,4 +1,6 @@
 #!/bin/bash
+#THIS IS RUN ON THE MACHINE that you decided would run
+#the app: either the guest (with Vagrant) or your host machine
 
 # NEW structure: now eberything here will be a target of makefile.
 # Then helper.sh calls the target according to the parameter of the shell script
