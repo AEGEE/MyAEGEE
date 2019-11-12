@@ -21,11 +21,11 @@ const Event = sequelize.define('event', {
                 }
 
                 if (!value.match(/^[a-zA-Z0-9-]+$/)) {
-                    throw new Error( 'Event URL should only contain numbers, letters and dashes.');
+                    throw new Error('Event URL should only contain numbers, letters and dashes.');
                 }
 
                 if (value.match(/^[0-9-]+$/)) {
-                    throw new Error( 'Event URL cannot contain numbers only.');
+                    throw new Error('Event URL cannot contain numbers only.');
                 }
             }
         },
