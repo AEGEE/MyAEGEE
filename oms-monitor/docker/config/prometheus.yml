@@ -24,6 +24,11 @@ scrape_configs:
     static_configs:
       - targets: ['traefik:8080', 'cadvisor:8080', 'upmonitor:3000']
 
+  # - job_name: 'statping' #can't do up here because of the bearer token.
+  #   bearer_token: 'MY API SECRET HERE'
+  #   static_configs:
+  #     - targets: ['statping:8080']
+
   - job_name: 'local-node'
     # since we put the network_mode = host
     # we can't access directly anymore. Only through reverse proxy
