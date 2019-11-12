@@ -28,8 +28,25 @@ scrape_configs:
     # since we put the network_mode = host
     # we can't access directly anymore. Only through reverse proxy
     static_configs:
-      - targets: ['traefik:8080'] #???? 80 redirects to 443, 443 gets error. TODO: make special route on http
+      - targets: ['traefik:8080'] #???? 80 redirects to 443, 443 gets error, 8080??. TODO: make special route on http
     metrics_path: '/services/node-exporter/metrics'
+
+  # - job_name: 'blackbox'
+  #   metrics_path: /probe
+  #   params:
+  #     module: [http_2xx]  # Look for a HTTP 200 response.
+  #   static_configs:
+  #     - targets:
+  #       - http://my.staging.aegee.eu    # Target to probe with http.
+  #       - https://my.aegee.eu   # Target to probe with https.
+  #       - http://example.com:8080 # Target to probe with http on port 8080.
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       target_label: __param_target
+  #     - source_labels: [__param_target]
+  #       target_label: instance
+  #     - target_label: __address__
+  #       replacement: blackbox-exporter:9115  # The blackbox exporter's real hostname:port.
 
   - job_name: 'staging-diagnostics'
     static_configs:

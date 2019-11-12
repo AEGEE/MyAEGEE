@@ -96,18 +96,18 @@ services:
       - "traefik.enable=true"
       - "traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}"
 
-  #alternative to worldping
-  blackbox-exporter:
-    image: prom/blackbox-exporter:v0.16.0
-    volumes:
-      - ./${PATH_OMS_MONITOR}/config/blackbox.yml:/config/blackbox.yml
-    command: '--config.file=/config/blackbox.yml'
-    labels:
-      - "traefik.backend=blackbox-exporter"
-      - "traefik.port=9115"
-      - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/blackbox-exporter;PathPrefixStrip:/services/blackbox-exporter"
-      - "traefik.frontend.priority=110"
-      - "traefik.enable=true"
+  # #alternative to worldping
+  # blackbox-exporter:
+  #   image: prom/blackbox-exporter:v0.16.0
+  #   volumes:
+  #     - ./${PATH_OMS_MONITOR}/config/blackbox.yml:/config/blackbox.yml
+  #   command: '--config.file=/config/blackbox.yml'
+  #   labels:
+  #     - "traefik.backend=blackbox-exporter"
+  #     - "traefik.port=9115"
+  #     - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/blackbox-exporter;PathPrefixStrip:/services/blackbox-exporter"
+  #     - "traefik.frontend.priority=110"
+  #     - "traefik.enable=true"
 
 volumes:
   prometheus-storage:
