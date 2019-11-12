@@ -4,7 +4,6 @@ const bugsnag = require('./bugsnag');
 const errors = require('./errors');
 const logger = require('./logger');
 const { Event, Application } = require('../models');
-const { Sequelize } = require('./sequelize');
 const helpers = require('./helpers');
 const config = require('../config');
 const constants = require('./constants');
@@ -90,10 +89,7 @@ exports.fetchSingleEvent = async (req, res, next) => {
     let findObject = { url: req.params.event_id };
     if (!Number.isNaN(Number(req.params.event_id))) {
         findObject = {
-            [Sequelize.Op.or]: {
-                id: Number(req.params.event_id),
-                url: req.params.event_id
-            }
+            id: Number(req.params.event_id)
         };
     }
 

@@ -15,7 +15,19 @@ const Event = sequelize.define('event', {
         type: Sequelize.STRING,
         allowNull: true,
         validate: {
-            is: { args: [/^[a-zA-Z0-9-]+$/], msg: 'Event URL should only contain numbers, letters and dashes.' }
+            isValid(value) {
+                if (!value) {
+                    return;
+                }
+
+                if (!value.match(/^[a-zA-Z0-9-]+$/)) {
+                    throw new Error('Event URL should only contain numbers, letters and dashes.');
+                }
+
+                if (value.match(/^[0-9-]+$/)) {
+                    throw new Error('Event URL cannot contain numbers only.');
+                }
+            }
         },
         unique: true
     },

@@ -699,6 +699,25 @@ describe('Events creation', () => {
         expect(res.body.errors).toHaveProperty('url');
     });
 
+    it('should return 422 if URL contains numbers only', async () => {
+        const event = generator.generateEvent({
+            body_id: user.bodies[0].id,
+            url: '12345'
+        });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('url');
+    });
+
     it('should return 200 if URL is valid', async () => {
         const event = generator.generateEvent({
             body_id: user.bodies[0].id,
