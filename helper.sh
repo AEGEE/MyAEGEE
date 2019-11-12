@@ -35,7 +35,8 @@ init_boot ()
     touch "${DIR}"/secrets/acme.json # to avoid making it think it's a folder
     chmod 600 "${DIR}"/secrets/acme.json # Traefik doesn't let ACME challenge go through otherwise
 
-    envsubst < "${DIR}"/oms-global/traefik/traefik.toml.template > "${DIR}"/oms-global/traefik/traefik.toml
+    touch "${DIR}"/oms-global/docker/traefik/traefik.toml # to avoid making it think it's a folder
+    envsubst < "${DIR}"/oms-global/docker/traefik/traefik.toml.template > "${DIR}"/oms-global/docker/traefik/traefik.toml
 }
 
 # change passwords (currently deploy.sh [calls an external script])
