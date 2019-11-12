@@ -6,8 +6,9 @@ services:
     image: grafana/grafana:6.4.1
     volumes:
       - grafana-storage:/var/lib/grafana
-      - ./${PATH_OMS_MONITOR}/gf-dashboards:/var/lib/grafana/dashboards
       - ./${PATH_OMS_MONITOR}/config/gf-provisioning:/etc/grafana/provisioning
+      - ./${PATH_OMS_MONITOR}/gf-dashboards/metrics:/var/lib/grafana/dashboards/metrics
+      - ./${PATH_OMS_MONITOR}/gf-dashboards/statistics:/var/lib/grafana/dashboards/statistics
     environment:
       GF_SECURITY_ADMIN_PASSWORD: "${PW_GRAFANA}"
       GF_SERVER_ROOT_URL: "https://${SUBDOMAIN_GRAFANA}${BASE_URL}/"
