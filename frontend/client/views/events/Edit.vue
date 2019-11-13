@@ -532,6 +532,11 @@ export default {
     loginUser: 'user'
   }),
   watch: {
+    'event.name' (newName) {
+      if (!this.$route.params.id) {
+        this.event.url = this.$root.sluggify(newName)
+      }
+    },
     'dates.application_starts' (newDate) {
       this.event.application_starts = new Date(newDate)
     },

@@ -1,3 +1,5 @@
+import sluggify from './sluggify'
+
 export default {
   showNotification (options) {
     options.duration = options.duration || 3000
@@ -28,5 +30,6 @@ export default {
       type: 'is-info',
       message
     })
-  }
+  },
+  sluggify
 }

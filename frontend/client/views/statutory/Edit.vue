@@ -507,7 +507,7 @@ export default {
   watch: {
     'event.name' (newName) {
       if (!this.$route.params.id) {
-        this.event.url = newName.toLowerCase().replace(/ /g, '-')
+        this.event.url = this.$root.sluggify(newName)
       }
     },
     'dates.application_period_starts' (newDate) {
