@@ -1,3 +1,12 @@
+## [0.25.2](https://github.com/AEGEE/oms-statutory/compare/0.25.1...0.25.2) (2019-11-13)
+
+
+### Bug Fixes
+
+* **events:** disallow numeric URLs. Fixes MEMB-622 ([15c4a48](https://github.com/AEGEE/oms-statutory/commit/15c4a48))
+
+
+
 ## [0.25.1](https://github.com/AEGEE/oms-statutory/compare/0.25.0...0.25.1) (2019-11-11)
 
 
