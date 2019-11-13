@@ -1,3 +1,15 @@
+<a name="0.26.6"></a>
+## [0.26.6](https://github.com/AEGEE/oms-frontend/compare/0.26.5...0.26.6) (2019-11-13)
+
+
+### Bug Fixes
+
+* **events:** auto-generating event URLs. Fixes MEMB-622 ([92d60c5](https://github.com/AEGEE/oms-frontend/commit/92d60c5))
+* **events:** fixed events notifications ([816526e](https://github.com/AEGEE/oms-frontend/commit/816526e))
+* **maps:** disabled maps zoom scrolling. Fixes MEMB-732 ([1153105](https://github.com/AEGEE/oms-frontend/commit/1153105))
+
+
+
 <a name="0.26.5"></a>
 ## [0.26.5](https://github.com/AEGEE/oms-frontend/compare/0.26.4...0.26.5) (2019-11-13)
 
