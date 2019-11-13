@@ -1,3 +1,13 @@
+<a name="0.26.5"></a>
+## [0.26.5](https://github.com/AEGEE/oms-frontend/compare/0.26.4...0.26.5) (2019-11-13)
+
+
+### Bug Fixes
+
+* **core:** fixed permissions fetching on bodies listing. Fixes HELP-756 ([0a4b4a0](https://github.com/AEGEE/oms-frontend/commit/0a4b4a0))
+
+
+
 <a name="0.26.4"></a>
 ## [0.26.4](https://github.com/AEGEE/oms-frontend/compare/0.26.3...0.26.4) (2019-11-11)
 
