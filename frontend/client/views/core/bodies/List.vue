@@ -116,7 +116,10 @@ export default {
       if (this.type) queryObj.filter = { type: this.type }
       return queryObj
     },
-    ...mapGetters(['services'])
+    ...mapGetters({
+      services: 'services',
+      loginUser: 'user'
+    })
   },
   methods: {
     refetch () {
