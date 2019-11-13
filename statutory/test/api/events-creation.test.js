@@ -70,6 +70,38 @@ describe('Events creation', () => {
         }
     });
 
+    test('should fail if the event is invalid', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                url: 'not a valid url with spaces'
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('url');
+    });
+
+    test('should fail if the event is numbers only', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                url: '12345'
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('url');
+    });
+
     test('should fail if event ends before it starts', async () => {
         const res = await request({
             uri: '/',

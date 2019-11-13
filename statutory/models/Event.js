@@ -300,21 +300,27 @@ const Event = sequelize.define('event', {
     },
     url: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: false,
         unique: {
             args: true,
             msg: 'URL is already taken'
+        },
+        validate: {
+            isValid(value) {
+                if (!/^[a-zA-A0-9-]+$/.test(value)) {
+                    throw new Error('Event URL should only contain numbers, letters and dashes.');
+                }
+
+                if (/^[0-9-]+$/.test(value)) {
+                    throw new Error('Event URL cannot contain numbers only.');
+                }
+            }
         }
     }
 }, {
     underscored: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at'
-});
-
-Event.beforeValidate((event, options) => {
-    if (!event.url) event.setDataValue('url', event.name.toLowerCase().replace(/ /g, '-').replace(/[^a-zA-Z0-9-]/g, ''));
-    options.fields.push('url');
 });
 
 module.exports = Event;
