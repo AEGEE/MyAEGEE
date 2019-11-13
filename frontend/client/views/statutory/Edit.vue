@@ -31,12 +31,8 @@
 
         <hr />
       </div>
-      <div class="tile is-parent" v-else>
-        <div class="tile is-child">
-          <div class="notification is-info">
-            You can upload event image after saving it.
-          </div>
-        </div>
+      <div class="notification is-info" v-else>
+        You can upload event image after saving it.
       </div>
 
       <form @submit.prevent="saveEvent()">
@@ -75,13 +71,9 @@
           <p class="help is-danger" v-if="errors.url">{{ errors.url.join(', ') }}</p>
         </div>
 
-        <div class="tile is-parent">
-          <div class="tile is-child">
-            <div class="notification is-warning">
-              Please keep in mind that these dates are in your current timezone, <strong>which is not necessarily CET.</strong>
-              For example, if you are in Moscow and you set the date as 25th of November 2018 00:00, it'd be 24th of November 2018 22:00 CET.
-            </div>
-          </div>
+        <div class="notification is-warning">
+          Please keep in mind that these dates are in your current timezone, <strong>which is not necessarily CET.</strong>
+          For example, if you are in Moscow and you set the date as 25th of November 2018 00:00, it'd be 24th of November 2018 22:00 CET.
         </div>
 
         <div class="field">
@@ -222,12 +214,8 @@
           <p class="help is-danger" v-if="errors.type">{{ errors.type.join(', ')}}</p>
         </div>
 
-        <div class="tile is-parent" v-if="!$route.params.id">
-          <div class="tile is-child">
-            <div class="notification is-info">
-              Please select the event type wisely, as it will influence the event's workflow. <strong>It can't be changed later.</strong>
-            </div>
-          </div>
+        <div class="notification is-info" v-if="!$route.params.id">
+          Please select the event type wisely, as it will influence the event's workflow. <strong>It can't be changed later.</strong>
         </div>
 
         <div class="field">
@@ -507,7 +495,7 @@ export default {
   watch: {
     'event.name' (newName) {
       if (!this.$route.params.id) {
-        this.event.url = newName.toLowerCase().replace(/ /g, '-')
+        this.event.url = this.$root.sluggify(newName)
       }
     },
     'dates.application_period_starts' (newDate) {
