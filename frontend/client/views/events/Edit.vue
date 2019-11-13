@@ -310,8 +310,10 @@
             :accessToken="accessToken"
             :mapStyle="map.style"
             :zoom="map.zoom"
+            :scrollZoom="false"
             @load="onMapLoaded"
             :center="map.center" >
+            <MglNavigationControl position="top-right" />
             <MglMarker
               v-for="(location, index) in event.locations"
               v-bind:key="index"
@@ -369,14 +371,15 @@
 <script>
 import { mapGetters } from 'vuex'
 import Mapbox from 'mapbox-gl'
-import { MglMap, MglMarker } from 'vue-mapbox'
+import { MglMap, MglMarker, MglNavigationControl } from 'vue-mapbox'
 import constants from  '../../constants'
 import credentials from  '../../credentials'
 
 export default {
   components: {
     MglMap,
-    MglMarker
+    MglMarker,
+    MglNavigationControl
   },
   name: 'EditEvent',
   data () {
