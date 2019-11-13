@@ -35,6 +35,7 @@ const visaFields = [
 
 exports.generateEvent = (options = {}) => {
     if (notSet(options.name)) options.name = faker.lorem.sentence();
+    if (notSet(options.url)) options.url = options.name.toLowerCase().replace(/ /g, '-').replace(/[^a-zA-Z0-9-]/g, '');
     if (notSet(options.description)) options.description = faker.lorem.paragraph();
     if (notSet(options.application_period_starts)) options.application_period_starts = faker.date.future();
     if (notSet(options.application_period_ends)) options.application_period_ends = faker.date.future(null, options.application_period_starts);

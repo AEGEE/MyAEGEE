@@ -65,10 +65,7 @@ exports.ensureAuthorized = async (req, res, next) => {
 exports.fetchEvent = async (req, res, next) => {
     let query = {
         where: {
-            [Sequelize.Op.or]: {
-                id: req.params.event_id,
-                url: { [Sequelize.Op.iLike]: req.params.event_id },
-            }
+            url: { [Sequelize.Op.iLike]: req.params.event_id },
         }
     };
 
@@ -106,11 +103,9 @@ exports.fetchEvent = async (req, res, next) => {
             },
             order: [['starts', 'DESC']]
         };
-    } else if (Number.isNaN(parseInt(req.params.event_id, 10))) {
+    } else if (!Number.isNaN(Number(req.params.event_id))) {
         query = {
-            where: {
-                url: { [Sequelize.Op.iLike]: req.params.event_id },
-            }
+            where: { id: Number(req.params.event_id) }
         };
     }
 
