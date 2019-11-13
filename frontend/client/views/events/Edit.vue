@@ -33,7 +33,7 @@
       </div>
 
       <form @submit.prevent="saveEvent()">
-        <div class="notification" v-if="!$route.params.id">
+        <div class="notification is-info" v-if="!$route.params.id">
           <div class="content">
             <p>
               Keep in mind that when creating event, the only organizer added is the person creating it.
@@ -66,6 +66,18 @@
           <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ') }}</p>
         </div>
 
+        <div class="notification is-info" v-if="!$route.params.id">
+          <div class="content">
+            <p>
+              Event URL is the "short name of the event" and is the part of the address this event would be accessible at.
+              That can be handy for the generation of nice events URLs.
+            </p>
+            <p>For example, when set as <i>my-awesome-event</i>, the event would be accessible at <i>https://my.aegee.eu/events/my-awesome-event</i>.</p>
+            <p>It can contain only English letters, numbers and cannot have numbers only.</p>
+            <p><strong>Please don't put Facebook event link here, this is meant for another purpose described above</strong>.</p>
+          </div>
+        </div>
+
         <div class="field">
           <label class="label">Event URL</label>
           <div class="control">
@@ -79,6 +91,11 @@
             </div>
           </div>
           <p class="help is-danger" v-if="errors.url">{{ errors.url.join(', ') }}</p>
+        </div>
+
+        <div class="notification is-warning">
+          Please keep in mind that these dates are in your current timezone, <strong>which is not necessarily CET.</strong>
+          For example, if you are in Moscow and you set the date as 25th of November 2018 00:00, it'd be 24th of November 2018 22:00 CET.
         </div>
 
         <div class="field">
@@ -203,7 +220,7 @@
 
         <div class="subtitle is-fullwidth has-text-centered">Questions</div>
 
-        <div class="notification">
+        <div class="notification is-info">
           <div class="content">
             <p>
               Keep in mind that the only questions gathered from users by default are body name and application consent.
