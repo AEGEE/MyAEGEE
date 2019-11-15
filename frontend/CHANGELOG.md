@@ -1,3 +1,13 @@
+<a name="0.26.8"></a>
+## [0.26.8](https://github.com/AEGEE/oms-frontend/compare/0.26.7...0.26.8) (2019-11-15)
+
+
+### Bug Fixes
+
+* **general:** do not trigger touch events on desktop. Fixes MEMB-734 ([e64e130](https://github.com/AEGEE/oms-frontend/commit/e64e130))
+
+
+
 <a name="0.26.7"></a>
 ## [0.26.7](https://github.com/AEGEE/oms-frontend/compare/0.26.6...0.26.7) (2019-11-15)
 
