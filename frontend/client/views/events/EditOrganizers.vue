@@ -1,24 +1,7 @@
 <template>
   <div class="tile is-ancestor ">
     <div class="tile is-child">
-      <div class="tabs is-centered is-boxed">
-        <ul>
-          <li :class="{'is-active': scope === 'organizers' }" @click="scope = 'organizers'">
-            <a>
-              <span class="icon is-small"><i class="fa fa-users" aria-hidden="true"></i></span>
-              <span>Organizers</span>
-            </a>
-          </li>
-          <li :class="{'is-active': scope === 'locals' }" @click="scope = 'locals'">
-            <a>
-              <span class="icon is-small"><i class="fa fa-flag" aria-hidden="true"></i></span>
-              <span>Organizing bodies</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-
-      <div v-show="scope === 'organizers'">
+      <div>
         <b-table
           :data="event.organizers"
           :loading="isLoading">
@@ -80,44 +63,6 @@
           </div>
         </div>
       </div>
-
-      <div v-show="scope === 'locals'">
-        <ul>
-          <li v-for="(local, index) in event.organizing_bodies" v-bind:key="local.body_id">
-            <a class="tag is-danger is-medium" v-if="local.body">
-              {{ local.body.name }}
-              <button class="delete is-small" v-if="event.organizing_bodies.length > 1" @click="askDeleteOrganizingLocal(index)" />
-            </a>
-            <a v-if="!local.body" class="tag is-medium">Loading...</a>
-          </li>
-        </ul>
-
-
-        <div class="field">
-          <label class="label">Add organizing body</label>
-          <div class="control">
-            <div class="field has-addons">
-              <b-autocomplete
-                v-model="autoComplete.bodies.name"
-                :data="autoComplete.bodies.values"
-                open-on-focus="true"
-                :loading="autoComplete.bodies.loading"
-                @input="query => fetchBodies(query, 'bodies', 'bodies')"
-                @select="local => addOrganizingLocal(local)">
-                <template slot-scope="props">
-                  <div class="media">
-                    <div class="media-content">
-                        {{ props.option.name }}
-                        <br>
-                        <small> {{ props.option.description }} </small>
-                    </div>
-                  </div>
-                </template>
-              </b-autocomplete>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -130,12 +75,10 @@ export default {
   data () {
     return {
       event: {
-        organizers: [],
-        organizing_bodies: []
+        organizers: []
       },
       autoComplete: {
-        members: { name: '', values: [], loading: false },
-        bodies: { name: '', values: [], loading: false }
+        members: { name: '', values: [], loading: false }
       },
       can: {
         viewAllMembers: false
@@ -147,30 +90,6 @@ export default {
     }
   },
   methods: {
-    fetchBodies (query) {
-      if (!query) return
-
-      this.autoComplete.bodies.values = []
-      this.autoComplete.bodies.loading = true
-
-      if (this.token) this.token.cancel()
-      this.token = this.axios.CancelToken.source()
-
-      this.axios.get(this.services['oms-core-elixir'] + '/bodies', {
-        cancelToken: this.token.token,
-        params: { query }
-      }).then((response) => {
-        this.autoComplete.bodies.values = response.data.data
-        this.autoComplete.bodies.loading = false
-      }).catch((err) => {
-        if (this.axios.isCancel(err)) {
-          return
-        }
-
-        this.autoComplete.bodies.loading = false
-        this.$root.showDanger('Could not fetch bodies: ' + err.message)
-      })
-    },
     fetchMembers (query) {
       if (!query) return
 
@@ -261,40 +180,6 @@ export default {
       }).catch((err) => {
         this.$root.showDanger('Could not delete organizer: ' + err.message)
       })
-    },
-    addOrganizingLocal (local) {
-      const data = {
-        body_id: local.id
-      }
-      this.axios.post(this.services['oms-events'] + '/single/' + this.event.id + '/bodies', data).then((response) => {
-        this.$root.showSuccess('Organizing body is successfully added.')
-
-        this.event.organizing_bodies.push({
-          body_id: local.id,
-          body: local
-        })
-      }).catch((err) => {
-        this.$root.showDanger('Could not add organizing body: ' + err.message)
-      })
-    },
-    askDeleteOrganizingLocal (index) {
-      this.$buefy.dialog.confirm({
-        title: 'Deleting organizing body',
-        message: 'Are you sure you want to <b>delete</b> organizing body from this event? This action cannot be undone.',
-        confirmText: 'Delete organizing body',
-        type: 'is-danger',
-        hasIcon: true,
-        onConfirm: () => this.deleteOrganizingLocal(index)
-      })
-    },
-    deleteOrganizingLocal (index) {
-      const local = this.event.organizing_bodies[index]
-      this.axios.delete(this.services['oms-events'] + '/single/' + this.event.id + '/bodies/' + local.body_id).then((response) => {
-        this.$root.showSuccess('Organizing body is successfully deleted.')
-        this.event.organizing_bodies.splice(index, 1)
-      }).catch((err) => {
-        this.$root.showDanger('Could not delete organizing body: ' + err.message)
-      })
     }
   },
   computed: mapGetters({
@@ -308,13 +193,6 @@ export default {
       this.event.starts = new Date(this.event.starts)
       this.event.ends = new Date(this.event.ends)
       if (this.event.application_deadline) this.event.application_deadline = new Date(this.event.application_deadline)
-
-      // Loading bodies.
-      for (const body of this.event.organizing_bodies) {
-        this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + body.body_id).then((response) => {
-          this.$set(body, 'body', response.data.data)
-        }).catch(console.error)
-      }
 
       return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions/')
     }).then((response) => {

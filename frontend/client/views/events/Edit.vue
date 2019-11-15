@@ -46,6 +46,9 @@
           </div>
         </div>
 
+        <div class="subtitle is-fullwidth has-text-centered">Event details</div>
+        <hr />
+
         <div class="field">
           <label class="label">Title</label>
           <div class="control">
@@ -92,6 +95,9 @@
           </div>
           <p class="help is-danger" v-if="errors.url">{{ errors.url.join(', ') }}</p>
         </div>
+
+        <div class="subtitle is-fullwidth has-text-centered">Event dates</div>
+        <hr />
 
         <div class="notification is-warning">
           Please keep in mind that these dates are in your current timezone, <strong>which is not necessarily CET.</strong>
@@ -149,37 +155,6 @@
           <p class="help is-danger" v-if="errors.ends">{{ errors.ends.join(', ') }}</p>
         </div>
 
-        <div class="tile is-child" v-if="!$route.params.id">
-          <div class="field">
-            <label class="label">Organizing body</label>
-            <div class="control">
-              <div class="field has-addons">
-                <b-autocomplete
-                  v-model="autoComplete.bodies.name"
-                  :data="loginUser.bodies"
-                  open-on-focus="true"
-                  @select="body => { event.body_id = body.id; event.body = body }">
-                  <template slot-scope="props">
-                    <div class="media">
-                      <div class="media-content">
-                          {{ props.option.name }}
-                          <br>
-                          <small> {{ props.option.description }} </small>
-                      </div>
-                    </div>
-                  </template>
-                </b-autocomplete>
-                <p class="control">
-                  <a class="button is-danger"
-                    @click="body => { event.body_id = null; event.body = null }"
-                    v-if="event.body">{{ event.body.name }} (Click to unset)</a>
-                  <a class="button is-static" v-if="!event.body">Not set.</a>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div class="field" v-if="!$route.params.id">
           <label class="label">Event type</label>
           <div class="select">
@@ -211,14 +186,45 @@
         <div class="field">
           <label class="label">Max. participants</label>
           <div class="control">
-            <input class="input" type="number" v-model="event.max_participants" min="0" required />
+            <input class="input" type="number" v-model="event.max_participants" min="0" />
           </div>
           <p class="help is-danger" v-if="errors.max_participants">{{ errors.max_participants.join(', ') }}</p>
         </div>
 
-        <hr/>
+        <div class="subtitle is-fullwidth has-text-centered">Organizing bodies</div>
+        <hr />
+
+        <div class="tags">
+          <a class="tag is-primary is-medium"
+            v-for="(body, index) in event.organizing_bodies"
+            v-bind:key="body.body_id">
+            {{ body ? body.body.name : 'Loading...' }}
+            <button class="delete is-small" @click.prevent="body => event.organizing_bodies.splice(index, 1)" />
+          </a>
+          <a class="tag is-danger is-medium" v-if="event.organizing_bodies.length === 0">No organizing bodies.</a>
+        </div>
+
+        <div class="field">
+          <label class="label">Add organizing body</label>
+          <div class="control">
+            <div class="field has-addons">
+              <div class="control">
+                <div class="select">
+                  <select v-model="selectedBody">
+                    <option :value="null">--</option>
+                    <option v-for="body in bodies" v-bind:key="body.id" v-bind:value="body">{{ body.name }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="control">
+                <a class="button is-primary" @click="addOrganizingBody()">Add</a>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="subtitle is-fullwidth has-text-centered">Questions</div>
+        <hr />
 
         <div class="notification is-info">
           <div class="content">
@@ -302,9 +308,9 @@
 
         <p class="help is-danger" v-if="errors.fee">{{ errors.questions.message }}</p>
 
+        <div class="subtitle is-fullwidth has-text-centered">Locations</div>
         <hr/>
 
-        <div class="subtitle is-fullwidth has-text-centered">Locations</div>
         <div class="tile" style="position: relative; height: 400px">
           <MglMap
             :accessToken="accessToken"
@@ -390,6 +396,7 @@ export default {
         id: null,
         url: null,
         questions: [],
+        organizing_bodies: [],
         max_participants: null,
         locations: [],
         fee: null,
@@ -414,9 +421,8 @@ export default {
       },
       eventTypes: constants.EVENT_TYPES_NAMES,
       file: null,
-      autoComplete: {
-        bodies: { name: '' }
-      },
+      bodies: [],
+      selectedBody: null,
       dateConfig: {
         enableTime: true,
         time_24hr: true
@@ -476,6 +482,23 @@ export default {
       this.event.locations[index].position.lat = newCoords.lat
       this.event.locations[index].position.lng = newCoords.lng
     },
+    addOrganizingBody() {
+      if (!this.selectedBody) {
+        this.$root.showWarning('Please select a body.')
+        return
+      }
+
+      if (this.event.organizing_bodies.some(body => body.body_id === this.selectedBody.id)) {
+        this.$root.showWarning('This body is already presented in the organizing bodies list.')
+        return
+      }
+
+      this.event.organizing_bodies.push({
+        body: this.selectedBody,
+        body_id: this.selectedBody.id
+      })
+      this.selectedBody = null
+    },
     saveEvent () {
       if (!this.event.application_starts) {
         return this.$root.showDanger('Please set the date when applications period will start.')
@@ -493,16 +516,20 @@ export default {
         return this.$root.showDanger('Please set the date when the event will end.')
       }
 
-      if (!this.$route.params.id && !this.event.body_id) {
-        return this.$root.showDanger('Please select a body.')
+      if (this.event.organizing_bodies.length === 0) {
+        return this.$root.showDanger('Please select at least one organizing body.')
       }
 
       this.isSaving = true
       this.errors = {}
 
+      // we don't need to pass body objects there
+      const eventToSave = JSON.parse(JSON.stringify(this.event))
+      eventToSave.organizing_bodies = eventToSave.organizing_bodies.map(body => ({ body_id: body.body_id }))
+
       let promise = this.$route.params.id
-        ? this.axios.put(this.services['oms-events'] + '/single/' + this.$route.params.id, this.event)
-        : this.axios.post(this.services['oms-events'], this.event)
+        ? this.axios.put(this.services['oms-events'] + '/single/' + this.$route.params.id, eventToSave)
+        : this.axios.post(this.services['oms-events'], eventToSave)
 
       promise.then((response) => {
         this.isSaving = false
@@ -510,7 +537,7 @@ export default {
 
         return this.$router.push({
           name: 'oms.events.view',
-          params: { id: this.event.url || this.event.id }
+          params: { id: response.data.data.url || response.data.data.id }
         })
       }).catch((err) => {
         this.isSaving = false
@@ -571,20 +598,30 @@ export default {
     }
   },
   mounted () {
-    if (!this.$route.params.id) {
-      return
-    }
+    this.axios.get(this.services['oms-core-elixir'] + '/bodies/').then((response) => {
+      this.bodies = response.data.data
 
-    this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((response) => {
-      this.event = response.data.data
-      this.can = response.data.permissions
+      if (!this.$route.params.id) {
+        this.isLoading = false
+        return
+      }
 
-      this.dates.starts = this.event.starts = new Date(this.event.starts)
-      this.dates.ends = this.event.starts = new Date(this.event.ends)
-      this.dates.application_starts = this.event.application_starts = new Date(this.event.application_starts)
-      this.dates.application_ends = this.event.application_ends = new Date(this.event.application_ends)
+      return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((eventsResponse) => {
+        this.event = eventsResponse.data.data
+        this.can = eventsResponse.data.permissions
 
-      this.isLoading = false
+        this.dates.starts = this.event.starts = new Date(this.event.starts)
+        this.dates.ends = this.event.starts = new Date(this.event.ends)
+        this.dates.application_starts = this.event.application_starts = new Date(this.event.application_starts)
+        this.dates.application_ends = this.event.application_ends = new Date(this.event.application_ends)
+
+        for (const body of this.event.organizing_bodies) {
+          const foundBody = this.bodies.find(b => b.id === body.body_id)
+          this.$set(body, 'body', foundBody)
+        }
+
+        this.isLoading = false
+      })
     }).catch((err) => {
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
