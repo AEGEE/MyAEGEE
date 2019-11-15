@@ -1,3 +1,13 @@
+<a name="0.27.0"></a>
+# [0.27.0](https://github.com/AEGEE/oms-frontend/compare/0.26.8...0.27.0) (2019-11-15)
+
+
+### Bug Fixes
+
+* **events:** allow editing bodies together with the event. Fixes MEMB-691 ([c0563e9](https://github.com/AEGEE/oms-frontend/commit/c0563e9))
+
+
+
 <a name="0.26.8"></a>
 ## [0.26.8](https://github.com/AEGEE/oms-frontend/compare/0.26.7...0.26.8) (2019-11-15)
 
