@@ -72,9 +72,6 @@ EventsRouter.post('/organizers', events.addOrganizer);
 EventsRouter.put('/organizers/:user_id', events.editOrganizer);
 EventsRouter.delete('/organizers/:user_id', events.deleteOrganizer);
 
-EventsRouter.post('/bodies', events.addLocal);
-EventsRouter.delete('/bodies/:body_id', events.deleteLocal);
-
 server.use(endpointsMetrics.addEndpointMetrics);
 server.use('/', GeneralRouter);
 server.use('/single/:event_id', EventsRouter);
