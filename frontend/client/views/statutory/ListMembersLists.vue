@@ -8,7 +8,7 @@
           :data="memberslists"
           :loading="isLoading">
           <template slot-scope="props">
-            <b-table-column field="body" label="Body name" sortable>
+            <b-table-column field="body_name" label="Body name" sortable>
               <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
                 {{ props.row.body ?  props.row.body.name : 'Loading...' }}
               </router-link>
@@ -123,7 +123,10 @@ export default {
       for (const memberslist of memberslists) {
         const body = response.data.data.find(bodyFromList => bodyFromList.id === memberslist.body_id)
         memberslist.expanded = false
-        memberslist.body = body
+        if (body) {
+          memberslist.body = body
+          memberslist.body_name = body.name
+        }
       }
 
       this.memberslists = memberslists
