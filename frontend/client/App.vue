@@ -46,7 +46,8 @@ export default {
   },
 
   computed: mapGetters({
-    sidebar: 'sidebar'
+    sidebar: 'sidebar',
+    device: 'device',
   }),
 
   methods: {
@@ -56,12 +57,12 @@ export default {
     ]),
     ...methods,
     swipeLeft () {
-      if (this.sidebar.opened) {
+      if (this.sidebar.opened && this.device.isMobile) {
         this.toggleSidebar({ opened: false })
       }
     },
     swipeRight () {
-      if (!this.sidebar.opened) {
+      if (!this.sidebar.opened && this.device.isMobile) {
         this.toggleSidebar({ opened: true })
       }
     }
