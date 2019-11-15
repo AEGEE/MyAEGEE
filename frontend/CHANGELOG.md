@@ -1,3 +1,14 @@
+<a name="0.26.7"></a>
+## [0.26.7](https://github.com/AEGEE/oms-frontend/compare/0.26.6...0.26.7) (2019-11-15)
+
+
+### Bug Fixes
+
+* **deps:** fixed npm audit vulnerability ([5fc16fb](https://github.com/AEGEE/oms-frontend/commit/5fc16fb))
+* **statutory:** added memberslists list body name sorting. Fixes HELP-763 ([cbd3cce](https://github.com/AEGEE/oms-frontend/commit/cbd3cce))
+
+
+
 <a name="0.26.6"></a>
 ## [0.26.6](https://github.com/AEGEE/oms-frontend/compare/0.26.5...0.26.6) (2019-11-13)
 
