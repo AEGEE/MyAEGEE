@@ -19,54 +19,6 @@ describe('Events creation', () => {
         await generator.clearAll();
     });
 
-    it('should not create a new event if the is not a member of the body', async () => {
-        mock.mockAll({ core: { notSuperadmin: true } });
-
-        const res = await request({
-            uri: '/',
-            headers: { 'X-Auth-Token': 'foobar' },
-            method: 'POST',
-            body: {
-                name: 'Develop Yourself 4',
-                description: 'Test',
-                application_starts: '2017-12-05 15:00',
-                application_ends: '2017-12-05 15:00',
-                starts: '2017-12-11 15:00',
-                ends: '2017-12-14 12:00',
-                type: 'es',
-                body_id: 1337
-            }
-        });
-
-        expect(res.statusCode).toEqual(403);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-    });
-
-    it('should not create a new event if body_id is not provided', async () => {
-        mock.mockAll({ core: { notSuperadmin: true } });
-
-        const res = await request({
-            uri: '/',
-            headers: { 'X-Auth-Token': 'foobar' },
-            method: 'POST',
-            body: {
-                name: 'Develop Yourself 4',
-                description: 'Test',
-                application_starts: '2017-12-05 15:00',
-                application_ends: '2017-12-05 15:00',
-                starts: '2017-12-11 15:00',
-                ends: '2017-12-14 12:00',
-                type: 'es'
-            }
-        });
-
-        expect(res.statusCode).toEqual(403);
-
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-    });
-
     it('should create a new event on minimal sane / POST', async () => {
         const res = await request({
             uri: '/',
@@ -80,7 +32,7 @@ describe('Events creation', () => {
                 starts: '2017-12-11 15:00',
                 ends: '2017-12-14 12:00',
                 type: 'es',
-                body_id: user.bodies[0].id
+                organizing_bodies: [{ body_id: user.bodies[0].id }]
             }
         });
 
@@ -135,7 +87,7 @@ describe('Events creation', () => {
                         required: false
                     },
                 ],
-                body_id: user.bodies[0].id
+                organizing_bodies: [{ body_id: user.bodies[0].id }]
             }
         });
 
@@ -189,7 +141,7 @@ describe('Events creation', () => {
                         status: 'accepted',
                     },
                 ],
-                body_id: user.bodies[0].id
+                organizing_bodies: [{ body_id: user.bodies[0].id }]
             }
         });
 
@@ -208,7 +160,7 @@ describe('Events creation', () => {
                 starts: '2015-12-11 15:00',
                 ends: 'sometime, dunno yet',
                 type: 'non-statutory',
-                body_id: user.bodies[0].id,
+                organizing_bodies: [{ body_id: user.bodies[0].id }],
                 fee: -150
             }
         });
@@ -392,7 +344,7 @@ describe('Events creation', () => {
 
     it('should return 422 if application period ends after it starts', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             application_starts: moment().subtract(1, 'week').toDate(),
             application_ends: moment().subtract(2, 'week').toDate()
         });
@@ -412,7 +364,7 @@ describe('Events creation', () => {
 
     it('should return 422 if the event ends after it starts', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             application_starts: moment().subtract(4, 'week').toDate(),
             application_ends: moment().subtract(3, 'week').toDate(),
             starts: moment().subtract(1, 'week').toDate(),
@@ -434,7 +386,7 @@ describe('Events creation', () => {
 
     it('should return 422 if the event starts before application period ends', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             application_starts: moment().subtract(4, 'week').toDate(),
             application_ends: moment().subtract(2, 'week').toDate(),
             starts: moment().subtract(3, 'week').toDate(),
@@ -456,7 +408,7 @@ describe('Events creation', () => {
 
     it('should return 422 if questions is not an array', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             questions: false
         });
 
@@ -475,7 +427,7 @@ describe('Events creation', () => {
 
     it('should return 422 if question is not an object', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             questions: [false]
         });
 
@@ -494,7 +446,7 @@ describe('Events creation', () => {
 
     it('should return 422 if question.description is not a string', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             questions: [{ description: false }]
         });
 
@@ -513,7 +465,7 @@ describe('Events creation', () => {
 
     it('should return 422 if question.description is empty', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             questions: [{ description: '' }]
         });
 
@@ -532,7 +484,7 @@ describe('Events creation', () => {
 
     it('should return 422 if question.type is not a string', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             questions: [{ description: 'test', type: false }]
         });
 
@@ -551,7 +503,7 @@ describe('Events creation', () => {
 
     it('should return 422 if question.required is not a boolean', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             questions: [{ description: 'test', type: 'checkbox', required: 'test' }]
         });
 
@@ -570,7 +522,7 @@ describe('Events creation', () => {
 
     it('should return 422 if question.type = select and values is not an array', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             questions: [{ description: 'test', type: 'select', required: true, values: false }]
         });
 
@@ -589,7 +541,7 @@ describe('Events creation', () => {
 
     it('should return 422 if question.type = select and values has value that is not a string', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             questions: [{ description: 'test', type: 'select', required: true, values: [false] }]
         });
 
@@ -608,7 +560,7 @@ describe('Events creation', () => {
 
     it('should return 422 if question.type = select and values has value that is empty', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             questions: [{ description: 'test', type: 'select', required: true, values: [''] }]
         });
 
@@ -627,7 +579,7 @@ describe('Events creation', () => {
 
     it('should return 422 if question.type = select and values are okay', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             questions: [{ description: 'test', type: 'select', required: true, values: ['test'] }]
         });
 
@@ -646,7 +598,7 @@ describe('Events creation', () => {
 
     it('should return 422 if question.type is invalid', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             questions: [{ description: 'test', type: 'nonexistant', required: true }]
         });
 
@@ -682,7 +634,7 @@ describe('Events creation', () => {
 
     it('should return 422 if URL is invalid', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             url: 'http://test.eu hello'
         });
 
@@ -701,7 +653,7 @@ describe('Events creation', () => {
 
     it('should return 422 if URL contains numbers only', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             url: '12345'
         });
 
@@ -720,7 +672,7 @@ describe('Events creation', () => {
 
     it('should return 200 if URL is valid', async () => {
         const event = generator.generateEvent({
-            body_id: user.bodies[0].id,
+            organizing_bodies: [{ body_id: user.bodies[0].id }],
             url: 'some-valid-url'
         });
 
@@ -735,5 +687,77 @@ describe('Events creation', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
         expect(res.body).not.toHaveProperty('errors');
+    });
+
+    it('should return 422 if organizing_locals is not an array', async () => {
+        const event = generator.generateEvent({
+            organizing_bodies: false
+        });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('organizing_bodies');
+    });
+
+    it('should return 422 if organizing_locals is empty', async () => {
+        const event = generator.generateEvent({
+            organizing_bodies: []
+        });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('organizing_bodies');
+    });
+
+    it('should return 422 if organizing_locals.body is not an object', async () => {
+        const event = generator.generateEvent({
+            organizing_bodies: [false]
+        });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('organizing_bodies');
+    });
+
+    it('should return 422 if organizing_locals[].body_id is not a number', async () => {
+        const event = generator.generateEvent({
+            organizing_bodies: [{ body_id: false}]
+        });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('organizing_bodies');
     });
 });

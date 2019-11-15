@@ -121,14 +121,10 @@ exports.listApprovableEvents = async (req, res) => {
 
 exports.addEvent = async (req, res) => {
     // Make sure the user doesn't insert malicious stuff
-    // Fields with other names will be ommitted automatically by mongoose
     const data = req.body;
-    delete data._id;
+    delete data.id;
     delete data.status;
     delete data.organizers;
-    delete data.applications;
-    delete data.application_status;
-    delete data.organizing_locals;
     delete data.deleted;
 
     const newEvent = new Event(data);
@@ -141,12 +137,6 @@ exports.addEvent = async (req, res) => {
             last_name: req.user.last_name
         },
     ];
-
-    // Checking if the user IS the member of the body.
-    if (!data.body_id || !helpers.isMemberOf(req.user, data.body_id)) {
-        return errors.makeForbiddenError(res, 'You are not a member of this body and cannot create an event on behalf of it.');
-    }
-    newEvent.organizing_bodies = [{ body_id: data.body_id }];
 
     await newEvent.save();
 
@@ -177,10 +167,9 @@ exports.editEvent = async (req, res) => {
     const event = req.event;
 
     // Disallow changing applications and organizers, use separate requests for that
-    delete data.applications;
-    delete data.organizing_locals;
     delete data.organizers;
     delete data.status;
+    delete event.deleted;
 
     if (Object.keys(data).length === 0) {
         return errors.makeValidationError(res, 'No valid field changes requested');
@@ -213,7 +202,6 @@ exports.deleteEvent = async (req, res) => {
 };
 
 exports.setApprovalStatus = async (req, res) => {
-    // If there is no transition found, it's disallowed to everybody.
     if (!req.permissions.set_status) {
         return errors.makeForbiddenError(res, 'You are not allowed to change status.');
     }
@@ -321,55 +309,6 @@ exports.deleteOrganizer = async (req, res) => {
     await req.event.update({
         organizers
     });
-
-    return res.json({
-        success: true,
-        message: 'Organizer is deleted.'
-    });
-};
-
-exports.addLocal = async (req, res) => {
-    if (!req.permissions.edit_event) {
-        return errors.makeForbiddenError(res, 'You are not allowed to edit organizing bodies.');
-    }
-
-    const organizer = req.event.organizing_bodies.find((org) => org.body_id === req.body.body_id);
-    if (organizer) {
-        return errors.makeBadRequestError(res, 'Body with id ' + req.body.body_id + ' is already an organizing body of this event.');
-    }
-
-    const newBodies = req.event.organizing_bodies;
-    newBodies.push({
-        body_id: req.body.body_id,
-    });
-
-    await req.event.update({ organizing_bodies: newBodies });
-
-    return res.json({
-        success: true,
-        message: 'Organizing local is added.'
-    });
-};
-
-exports.deleteLocal = async (req, res) => {
-    if (!req.permissions.edit_event) {
-        return errors.makeForbiddenError(res, 'You are not allowed to edit organizing locals.');
-    }
-
-    const bodyId = parseInt(req.params.body_id, 10);
-    if (Number.isNaN(bodyId)) {
-        return errors.makeBadRequestError(res, 'bodyId is not a number.');
-    }
-
-    const localIndex = req.event.organizing_bodies.findIndex((org) => org.body_id === bodyId);
-    if (localIndex === -1) {
-        return errors.makeNotFoundError(res, 'Body with id ' + bodyId + ' is not an organizing local of this event.');
-    }
-
-    const newBodies = req.event.organizing_bodies;
-    newBodies.splice(localIndex, 1);
-
-    await req.event.update({ organizing_bodies: newBodies });
 
     return res.json({
         success: true,
