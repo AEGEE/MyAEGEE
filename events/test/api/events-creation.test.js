@@ -745,7 +745,7 @@ describe('Events creation', () => {
 
     it('should return 422 if organizing_locals[].body_id is not a number', async () => {
         const event = generator.generateEvent({
-            organizing_bodies: [{ body_id: false}]
+            organizing_bodies: [{ body_id: false }]
         });
 
         const res = await request({
