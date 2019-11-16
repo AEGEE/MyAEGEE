@@ -1,3 +1,13 @@
+<a name="0.27.1"></a>
+## [0.27.1](https://github.com/AEGEE/oms-frontend/compare/0.27.0...0.27.1) (2019-11-16)
+
+
+### Bug Fixes
+
+* **core:** added last payment sorting on members listing. Fixes MEMB-735 ([a855cf4](https://github.com/AEGEE/oms-frontend/commit/a855cf4))
+
+
+
 <a name="0.27.0"></a>
 # [0.27.0](https://github.com/AEGEE/oms-frontend/compare/0.26.8...0.27.0) (2019-11-15)
 
