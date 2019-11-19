@@ -126,11 +126,11 @@ exports.addEvent = async (req, res) => {
 
     const event = new Event(data);
 
-    if (!event.organizers.some(org => org.user_id === req.user.id)) {
+    if (!event.organizers.some((org) => org.user_id === req.user.id)) {
         return errors.makeForbiddenError(res, 'User creating the event should be the organizers.');
     }
 
-    event.organizers = await Promise.all(event.organizers.map(organizer => core.fetchUser(organizer, req.headers['x-auth-token'])));
+    event.organizers = await Promise.all(event.organizers.map((organizer) => core.fetchUser(organizer, req.headers['x-auth-token'])));
 
     await event.save();
 
@@ -167,7 +167,7 @@ exports.editEvent = async (req, res) => {
         return errors.makeValidationError(res, 'No valid field changes requested');
     }
 
-    event.organizers = await Promise.all(event.organizers.map(organizer => core.fetchUser(organizer, req.headers['x-auth-token'])));
+    event.organizers = await Promise.all(event.organizers.map((organizer) => core.fetchUser(organizer, req.headers['x-auth-token'])));
 
     await event.update(data);
 
