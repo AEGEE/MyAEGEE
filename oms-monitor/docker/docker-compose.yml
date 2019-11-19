@@ -44,7 +44,7 @@ services:
   upmonitor:
     image: brotandgames/ciao:1.6.5
     environment:
-      SECRET_KEY_BASE: "${PW_BITWARDEN_ADMINPANEL}"
+      SECRET_KEY_BASE: "${RUBY_APP_KEY}"
       SMTP_ADDRESS: smtp.sendgrid.net
       SMTP_EMAIL_FROM: ciaohttp@${BASE_URL}
       SMTP_EMAIL_TO: myaegee-admins@${BASE_URL}
