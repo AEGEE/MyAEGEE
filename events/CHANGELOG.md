@@ -1,4 +1,17 @@
-<a name="0.13.0"></a>
+# [0.14.0](https://github.com/AEGEE/oms-events/compare/0.13.0...0.14.0) (2019-11-19)
+
+
+### Bug Fixes
+
+* **deps:** fixed npm audit vulnerability ([731f56f](https://github.com/AEGEE/oms-events/commit/731f56f))
+
+
+### Features
+
+* **event:** allow editing event organizers together with the event. Fixes MEMB-710 ([d299d83](https://github.com/AEGEE/oms-events/commit/d299d83))
+
+
+
 # [0.13.0](https://github.com/AEGEE/oms-events/compare/0.12.5...0.13.0) (2019-11-15)
 
 
@@ -8,7 +21,6 @@
 
 
 
-<a name="0.12.5"></a>
 ## [0.12.5](https://github.com/AEGEE/oms-events/compare/0.12.4...0.12.5) (2019-11-12)
 
 
@@ -18,7 +30,6 @@
 
 
 
-<a name="0.12.4"></a>
 ## [0.12.4](https://github.com/AEGEE/oms-events/compare/0.12.3...0.12.4) (2019-11-07)
 
 
@@ -29,7 +40,6 @@
 
 
 
-<a name="0.12.3"></a>
 ## [0.12.3](https://github.com/AEGEE/oms-events/compare/0.12.2...0.12.3) (2019-11-06)
 
 
@@ -45,7 +55,6 @@
 
 
 
-<a name="0.12.2"></a>
 ## [0.12.2](https://github.com/AEGEE/oms-events/compare/0.12.1...0.12.2) (2019-11-05)
 
 
@@ -56,7 +65,6 @@
 
 
 
-<a name="0.12.1"></a>
 ## [0.12.1](https://github.com/AEGEE/oms-events/compare/0.12.0...0.12.1) (2019-11-04)
 
 
@@ -78,7 +86,6 @@
 
 
 
-<a name="0.12.0"></a>
 # [0.12.0](https://github.com/AEGEE/oms-events/compare/0.11.3...0.12.0) (2019-10-18)
 
 
@@ -94,7 +101,6 @@
 
 
 
-<a name="0.11.3"></a>
 ## [0.11.3](https://github.com/AEGEE/oms-events/compare/0.11.2...0.11.3) (2019-10-13)
 
 
@@ -106,7 +112,6 @@
 
 
 
-<a name="0.11.2"></a>
 ## [0.11.2](https://github.com/AEGEE/oms-events/compare/0.11.1...0.11.2) (2019-09-25)
 
 
@@ -117,7 +122,6 @@
 
 
 
-<a name="0.11.1"></a>
 ## [0.11.1](https://github.com/AEGEE/oms-events/compare/0.11.0...0.11.1) (2019-09-22)
 
 
@@ -127,7 +131,6 @@
 
 
 
-<a name="0.11.0"></a>
 # [0.11.0](https://github.com/AEGEE/oms-events/compare/0.10.3...0.11.0) (2019-09-22)
 
 
@@ -137,7 +140,6 @@
 
 
 
-<a name="0.10.3"></a>
 ## [0.10.3](https://github.com/AEGEE/oms-events/compare/0.10.2...0.10.3) (2019-09-21)
 
 
@@ -147,7 +149,6 @@
 
 
 
-<a name="0.10.2"></a>
 ## [0.10.2](https://github.com/AEGEE/oms-events/compare/0.10.1...0.10.2) (2019-09-19)
 
 
@@ -157,7 +158,6 @@
 
 
 
-<a name="0.10.1"></a>
 ## [0.10.1](https://github.com/AEGEE/oms-events/compare/0.10.0...0.10.1) (2019-09-18)
 
 
@@ -167,7 +167,6 @@
 
 
 
-<a name="0.10.0"></a>
 # [0.10.0](https://github.com/AEGEE/oms-events/compare/0.9.2...0.10.0) (2019-09-18)
 
 
@@ -182,7 +181,6 @@
 
 
 
-<a name="0.9.2"></a>
 ## [0.9.2](https://github.com/AEGEE/oms-events/compare/0.9.1...0.9.2) (2019-09-12)
 
 
@@ -192,7 +190,6 @@
 
 
 
-<a name="0.9.1"></a>
 ## [0.9.1](https://github.com/AEGEE/oms-events/compare/0.9.0...0.9.1) (2019-09-12)
 
 
@@ -204,7 +201,6 @@
 
 
 
-<a name="0.9.0"></a>
 # [0.9.0](https://github.com/AEGEE/oms-events/compare/0.8.1...0.9.0) (2019-09-09)
 
 
@@ -221,7 +217,6 @@
 
 
 
-<a name="0.8.1"></a>
 ## [0.8.1](https://github.com/AEGEE/oms-events/compare/0.8.0...0.8.1) (2019-09-01)
 
 
@@ -233,7 +228,6 @@
 
 
 
-<a name="0.8.0"></a>
 # [0.8.0](https://github.com/AEGEE/oms-events/compare/0.7.0...0.8.0) (2019-09-01)
 
 
@@ -249,7 +243,6 @@
 
 
 
-<a name="0.7.0"></a>
 # [0.7.0](https://github.com/AEGEE/oms-events/compare/0.6.2...0.7.0) (2019-08-14)
 
 
@@ -259,7 +252,6 @@
 
 
 
-<a name="0.6.2"></a>
 ## [0.6.2](https://github.com/AEGEE/oms-events/compare/0.6.1...0.6.2) (2019-08-11)
 
 
@@ -272,7 +264,6 @@
 
 
 
-<a name="0.6.1"></a>
 ## [0.6.1](https://github.com/AEGEE/oms-events/compare/0.6.0...0.6.1) (2019-08-11)
 
 
@@ -287,7 +278,6 @@
 
 
 
-<a name="0.6.0"></a>
 # [0.6.0](https://github.com/AEGEE/oms-events/compare/0.5.0...0.6.0) (2019-03-13)
 
 
@@ -297,7 +287,6 @@
 
 
 
-<a name="0.5.0"></a>
 # [0.5.0](https://github.com/AEGEE/oms-events/compare/0.4.3...0.5.0) (2019-03-11)
 
 
@@ -322,7 +311,6 @@
 
 
 
-<a name="0.4.3"></a>
 ## [0.4.3](https://github.com/AEGEE/oms-events/compare/0.4.2...0.4.3) (2019-03-01)
 
 
@@ -333,7 +321,6 @@
 
 
 
-<a name="0.4.2"></a>
 ## [0.4.2](https://github.com/AEGEE/oms-events/compare/0.4.1...0.4.2) (2019-03-01)
 
 
@@ -343,7 +330,6 @@
 
 
 
-<a name="0.4.1"></a>
 ## [0.4.1](https://github.com/AEGEE/oms-events/compare/0.4.0...0.4.1) (2019-02-24)
 
 
@@ -353,7 +339,6 @@
 
 
 
-<a name="0.4.0"></a>
 # [0.4.0](https://github.com/AEGEE/oms-events/compare/0.3.2...0.4.0) (2019-02-19)
 
 
@@ -363,7 +348,6 @@
 
 
 
-<a name="0.3.2"></a>
 ## [0.3.2](https://github.com/AEGEE/oms-events/compare/0.3.1...0.3.2) (2019-02-13)
 
 
@@ -373,7 +357,6 @@
 
 
 
-<a name="0.3.1"></a>
 ## [0.3.1](https://github.com/AEGEE/oms-events/compare/d10774f...0.3.1) (2019-02-12)
 
 
