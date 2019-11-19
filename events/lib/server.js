@@ -68,10 +68,6 @@ EventsRouter.put('/applications/:application_id', middlewares.fetchSingleApplica
 EventsRouter.put('/applications/:application_id/status/', middlewares.fetchSingleApplication, applications.setApplicationStatus);
 EventsRouter.put('/applications/:application_id/comment/', middlewares.fetchSingleApplication, applications.setApplicationComment);
 
-EventsRouter.post('/organizers', events.addOrganizer);
-EventsRouter.put('/organizers/:user_id', events.editOrganizer);
-EventsRouter.delete('/organizers/:user_id', events.deleteOrganizer);
-
 server.use(endpointsMetrics.addEndpointMetrics);
 server.use('/', GeneralRouter);
 server.use('/single/:event_id', EventsRouter);
