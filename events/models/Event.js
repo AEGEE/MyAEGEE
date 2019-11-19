@@ -302,8 +302,8 @@ const Event = sequelize.define('event', {
         allowNull: true,
         defaultValue: null,
         validate: {
-            isNumeric: { msg: 'Event fee should be valid.' },
-            min: { args: [0], msg: 'Event fee cannot be negative' }
+            isNumeric: { msg: 'Max amount of participants should be valid.' },
+            min: { args: [0], msg: 'Max amount of participants cannot be negative' }
         }
     },
     application_status: {
