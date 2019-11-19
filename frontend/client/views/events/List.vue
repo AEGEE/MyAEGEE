@@ -25,7 +25,7 @@
           </label>
         </div>
 
-        <div class="field">
+        <div class="field" v-if="can.createEvent">
           <div class="control">
             <router-link class="button is-primary" :to="{ name: 'oms.events.create' }">Create event</router-link>
           </div>
@@ -76,7 +76,7 @@
           </div>
         </div>
 
-        <div class="card" v-show="events.length === 0 && !isLoading">
+        <div class="card" v-show="events.length === 0 && !isLoadingSomething">
           <div class="card-content">
             <div class="media">
               <div class="media-content">
@@ -90,8 +90,8 @@
         <div class="field">
           <button
             class="button is-primary is-fullwidth"
-            :class="{ 'is-loading': isLoading }"
-            :disabled="isLoading"
+            :class="{ 'is-loading': isLoadingSomething }"
+            :disabled="isLoadingSomething"
             v-show="canLoadMore"
             @click="fetchData()">Load more events</button>
         </div>
@@ -118,13 +118,19 @@ export default {
       events: [],
       eventTypes,
       eventTypesNames: constants.EVENT_TYPES_NAMES,
-      isLoading: false,
+      isLoading: {
+        events: false,
+        permissions: false
+      },
       query: '',
       limit: 30,
       offset: 0,
       displayPast: false,
       canLoadMore: true,
-      source: null
+      source: null,
+      can: {
+        createEvent: false
+      }
     }
   },
   computed: {
@@ -147,6 +153,9 @@ export default {
 
       throw new Error('Unknown scope: ' + this.$route.name)
     },
+    isLoadingSomething () {
+      return this.isLoading.permissions || this.isLoading.events
+    },
     ...mapGetters(['services'])
   },
   methods: {
@@ -161,7 +170,7 @@ export default {
       this.fetchData()
     },
     fetchData (state) {
-      this.isLoading = true
+      this.isLoading.events = true
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
@@ -176,13 +185,28 @@ export default {
         this.offset += this.limit
         this.canLoadMore = this.scope === 'all' && response.data.data.length === this.limit
 
-        this.isLoading = false
+        this.isLoading.events = false
       }).catch((err) => {
+        this.isLoading.events = false
+
         if (this.axios.isCancel(err)) {
-          return console.debug('Request cancelled.')
+          return
         }
 
         this.$root.showDanger('Could not fetch events list: ' + err.message)
+      })
+    },
+    fetchPermissions () {
+      this.isLoading.permissions = true
+
+      this.axios.get(this.services['oms-core-elixir'] + '/my_permissions',).then((response) => {
+        this.can.createEvent = response.data.data.some(permission => permission.combined.endsWith('create:event'))
+
+        this.isLoading.permissions = false
+      }).catch((err) => {
+        this.isLoading.permissions = false
+
+        this.$root.showWarning('Could not fetch permissions')
       })
     }
   },
@@ -193,6 +217,7 @@ export default {
   },
   mounted () {
     this.refetch()
+    this.fetchPermissions()
   }
 }
 </script>

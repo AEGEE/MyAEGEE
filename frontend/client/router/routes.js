@@ -418,14 +418,6 @@ module.exports = [
     }
   },
   {
-    name: 'oms.events.edit_organizers',
-    path: '/events/:id/edit_organizers',
-    component: 'events/EditOrganizers',
-    meta: {
-      label: 'Edit organizers of the event'
-    }
-  },
-  {
     name: 'oms.events.create',
     path: '/events/new',
     component: 'events/Edit',

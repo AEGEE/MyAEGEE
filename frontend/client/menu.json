@@ -109,6 +109,7 @@
           {
             "name": "oms.events.create",
             "auth": "logged-in",
+            "permissions": ["global:create:event"],
             "label": "Create event"
           }
         ]

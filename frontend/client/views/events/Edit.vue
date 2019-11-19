@@ -35,11 +35,7 @@
       <form @submit.prevent="saveEvent()">
         <div class="notification is-info" v-if="!$route.params.id">
           <div class="content">
-            <p>
-              Keep in mind that when creating event, the only organizer added is the person creating it.
-              So other people (even the board members) would not be able to see/approve applications.
-            </p>
-            <p>If you want to have other organizers, please add them after creating the event in the "Edit organizers" tab.</p>
+            <p>If you want to upload the image, please add it after creating the event by going to "Edit event" and uploading it there.</p>
             <p><strong>If the event is not published, people won't be able to see the event in the listing or apply to it.</strong></p>
             <p>Also, <strong>once the event is published you won't be able to edit it.</strong> So please check everything twice.</p>
             <p>If you will need the event info to be changed after publishing, please contact CD or EQAC.</p>
@@ -94,6 +90,42 @@
             </div>
           </div>
           <p class="help is-danger" v-if="errors.url">{{ errors.url.join(', ') }}</p>
+        </div>
+
+        <div class="notification is-info" v-if="!$route.params.id">
+          Please select the event type wisely. <strong>It can't be changed later.</strong>
+        </div>
+
+        <div class="field" v-if="!$route.params.id">
+          <label class="label">Event type</label>
+          <div class="select">
+            <select v-model="event.type">
+              <option v-for="(name, type) in eventTypes" v-bind:key="type" v-bind:value="type">{{ name }}</option>
+            </select>
+          </div>
+          <p class="help is-danger" v-if="errors.type">{{ errors.type.join(', ') }}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Fee</label>
+          <div class="control">
+            <div class="field has-addons">
+              <div class="control">
+                <a class="button is-static">€</a>
+              </div>
+              <div class="control">
+                <input class="input" type="number" v-model="event.fee" min="0" required />
+              </div>
+            </div>
+          </div>
+          <p class="help is-danger" v-if="errors.fee">{{ errors.fee.join(', ') }}</p>
+        </div>
+        <div class="field">
+          <label class="label">Max. participants</label>
+          <div class="control">
+            <input class="input" type="number" v-model="event.max_participants" min="0" @input="if (event.max_participants === '') event.max_participants = null"/>
+          </div>
+          <p class="help is-danger" v-if="errors.max_participants">{{ errors.max_participants.join(', ') }}</p>
         </div>
 
         <div class="subtitle is-fullwidth has-text-centered">Event dates</div>
@@ -155,42 +187,6 @@
           <p class="help is-danger" v-if="errors.ends">{{ errors.ends.join(', ') }}</p>
         </div>
 
-        <div class="field" v-if="!$route.params.id">
-          <label class="label">Event type</label>
-          <div class="select">
-            <select v-model="event.type">
-              <option v-for="(name, type) in eventTypes" v-bind:key="type" v-bind:value="type">{{ name }}</option>
-            </select>
-          </div>
-          <p class="help is-danger" v-if="errors.type">{{ errors.type.join(', ') }}</p>
-        </div>
-
-        <div class="notification is-info" v-if="!$route.params.id">
-          Please select the event type wisely. <strong>It can't be changed later.</strong>
-        </div>
-
-        <div class="field">
-          <label class="label">Fee</label>
-          <div class="control">
-            <div class="field has-addons">
-              <div class="control">
-                <a class="button is-static">€</a>
-              </div>
-              <div class="control">
-                <input class="input" type="number" v-model="event.fee" min="0" required />
-              </div>
-            </div>
-          </div>
-          <p class="help is-danger" v-if="errors.fee">{{ errors.fee.join(', ') }}</p>
-        </div>
-        <div class="field">
-          <label class="label">Max. participants</label>
-          <div class="control">
-            <input class="input" type="number" v-model="event.max_participants" min="0" />
-          </div>
-          <p class="help is-danger" v-if="errors.max_participants">{{ errors.max_participants.join(', ') }}</p>
-        </div>
-
         <div class="subtitle is-fullwidth has-text-centered">Organizing bodies</div>
         <hr />
 
@@ -218,6 +214,77 @@
               </div>
               <div class="control">
                 <a class="button is-primary" @click="addOrganizingBody()">Add</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="subtitle is-fullwidth has-text-centered">Organizers</div>
+        <hr />
+
+        <div class="notification is-info">
+          <div class="content">
+            <p>The user creating the event automatically becomes the organizer.</p>
+            <p>People who are not listed as organizers won't be able to see and manage event manage applications, even if they are the board members.</p>
+            <p v-if="!can.viewAllMembers">
+              <strong>You can only add people from your bodies.</strong>
+              If a person from another body needs to be added as an organizer, you can temporarily join this body to get the permissions
+              to see members of this body, add required people, then leave it.
+            </p>
+            <p>Organizers list cannot be edited once the event is published, if you need to update it, please contact EQAC or CD.</p>
+          </div>
+        </div>
+
+        <div>
+          <b-table
+            :data="event.organizers"
+            :loading="isLoading">
+            <template slot-scope="props">
+               <b-table-column field="first_name" label="First and last name" sortable>
+                <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
+                  {{ props.row.first_name }} {{ props.row.last_name }}
+                </router-link>
+              </b-table-column>
+
+              <b-table-column field="comment" label="Comment">
+                <div class="control">
+                  <input class="input" type="text" v-model="props.row.comment"/>
+                </div>
+              </b-table-column>
+
+              <b-table-column label="Delete">
+                <button class="button is-small is-danger" v-if="!props.row.disableEdit" k="askDeleteOrganizer(props.index)">
+                  Delete
+                </button>
+              </b-table-column>
+            </template>
+
+            <template slot="empty">
+              <empty-table-stub />
+            </template>
+          </b-table>
+
+          <div class="field">
+            <label class="label">Add organizer</label>
+            <div class="control">
+              <div class="field has-addons">
+                <b-autocomplete
+                  v-model="autoComplete.members.name"
+                  :data="autoComplete.members.values"
+                  open-on-focus="true"
+                  :loading="autoComplete.members.loading"
+                  @input="query => fetchMembers(query)"
+                  @select="organizer => addOrganizer(organizer)">
+                  <template slot-scope="props">
+                    <div class="media">
+                      <div class="media-content">
+                          {{ props.option.first_name }}
+                          <br>
+                          <small> {{ props.option.last_name }} </small>
+                      </div>
+                    </div>
+                  </template>
+                </b-autocomplete>
               </div>
             </div>
           </div>
@@ -397,6 +464,7 @@ export default {
         url: null,
         questions: [],
         organizing_bodies: [],
+        organizers: [],
         max_participants: null,
         locations: [],
         fee: null,
@@ -406,6 +474,9 @@ export default {
         ends: null,
         body_id: null,
         body: null
+      },
+      autoComplete: {
+        members: { name: '', values: [], loading: false }
       },
       dates: {
         application_starts: null,
@@ -428,7 +499,8 @@ export default {
         time_24hr: true
       },
       can: {
-        edit_application_status: false
+        edit_application_status: false,
+        viewAllMembers: false
       },
       errors: {},
       isLoading: false,
@@ -452,6 +524,59 @@ export default {
         this.file = null
       }).catch((err) => {
         this.$root.showDanger('Could not update image: ' + err.message)
+      })
+    },
+    fetchMembers (query) {
+      if (!query) return
+
+      this.autoComplete.members.values = []
+      this.autoComplete.members.loading = true
+
+      if (this.token) this.token.cancel()
+      this.token = this.axios.CancelToken.source()
+
+      // If user has global permission, fetching global members list.
+      // Otherwise, fetch all of the members of the bodies this user is a member of.
+      const endpoints = this.can.viewAllMembers
+        ? [this.services['oms-core-elixir'] + '/members']
+        : this.loginUser.bodies.map(body => this.services['oms-core-elixir'] + '/bodies/' + body.id +  '/members')
+
+      Promise.all(endpoints.map(endpoint => {
+        // Ignoring the requests that failed (because of 403 most likely)
+        // since the user does not always has the permissions to see
+        // the members of the body.
+        return this.axios.get(endpoint, {
+          cancelToken: this.token.token,
+          params: { query }
+        }).then(res => res.data.data).catch(() => [])
+      })).then((responses) => {
+        // Merging all of the responses into one array.
+        // Then filtering out duplicate users.
+        // .map is there because the /bodies/:id/members returns users, not members.
+        this.autoComplete.members.values = responses
+          .reduce((acc, val) => acc.concat(val), [])
+          .map(value => this.can.viewAllMembers ? value : value.member)
+          .filter((elt, index, array) => array.findIndex(e => e.id === elt.id) === index)
+        this.autoComplete.members.loading = false
+      }).catch((err) => {
+        if (this.axios.isCancel(err)) {
+          return
+        }
+
+        this.autoComplete.members.loading = false
+        this.$root.showDanger('Could not fetch members: ' + err.message)
+      })
+    },
+    addOrganizer (organizer) {
+      if (this.event.organizers.some(org => org.user_id === organizer.id)) {
+        return this.$root.showWarning('This user is already an organizer.')
+      }
+
+      this.event.organizers.push({
+        user_id: organizer.id,
+        user: organizer,
+        first_name: organizer.first_name,
+        last_name: organizer.last_name
       })
     },
     addQuestion () {
@@ -520,12 +645,17 @@ export default {
         return this.$root.showDanger('Please select at least one organizing body.')
       }
 
+      if (this.event.organizers.length === 0) {
+        return this.$root.showDanger('Please add at least one organizer.')
+      }
+
       this.isSaving = true
       this.errors = {}
 
       // we don't need to pass body objects there
       const eventToSave = JSON.parse(JSON.stringify(this.event))
       eventToSave.organizing_bodies = eventToSave.organizing_bodies.map(body => ({ body_id: body.body_id }))
+      eventToSave.organizers = eventToSave.organizers.map(org => ({ user_id: org.user_id }))
 
       let promise = this.$route.params.id
         ? this.axios.put(this.services['oms-events'] + '/single/' + this.$route.params.id, eventToSave)
@@ -601,14 +731,26 @@ export default {
     this.axios.get(this.services['oms-core-elixir'] + '/bodies/').then((response) => {
       this.bodies = response.data.data
 
+      return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions/')
+    }).then((response) => {
+      this.can.viewAllMembers = response.data.data.some(permission => permission.combined.endsWith('global:view:member'))
+
       if (!this.$route.params.id) {
         this.isLoading = false
+        this.event.organizers.push({
+          user_id: this.loginUser.id,
+          first_name: this.loginUser.first_name,
+          last_name: this.loginUser.last_name,
+          comment: 'Event creator.',
+          disableEdit: true
+        })
         return
       }
 
       return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((eventsResponse) => {
         this.event = eventsResponse.data.data
         this.can = eventsResponse.data.permissions
+        this.can.viewAllMembers = response.data.data.some(permission => permission.combined.endsWith('global:view:member')) // override it
 
         this.dates.starts = this.event.starts = new Date(this.event.starts)
         this.dates.ends = this.event.starts = new Date(this.event.ends)
@@ -620,9 +762,17 @@ export default {
           this.$set(body, 'body', foundBody)
         }
 
+        for (const organizer of this.event.organizers) {
+          if (this.loginUser.id === organizer.user_id) {
+            this.$set(organizer, 'disableEdit', true)
+            break
+          }
+        }
+
         this.isLoading = false
       })
     }).catch((err) => {
+      this.isLoading = false
       let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
 
       this.$root.showDanger(message)
