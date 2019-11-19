@@ -68,7 +68,7 @@ services:
       - "traefik.frontend.priority=110"
       - "traefik.enable=true"
 
-  #alternative to ciao, but also integrates potentially with cachet
+  #alternative to ciao, but more similar to cachet
   statping:
     image: hunterlong/statping:v0.80.65
     environment:
@@ -83,8 +83,8 @@ services:
       DISABLE_LOGS: "false" # disable logs from appearing and writing to disk
       IS_DOCKER: "true"
       IS_AWS: "false"
-      CMD_FILE: /bin/bash #?
-      SASS: /usr/local/bin/sass #??
+      CMD_FILE: /bin/ash
+      SASS: /usr/local/bin/sass
     volumes:
       - statping-storage:/app
     labels:
