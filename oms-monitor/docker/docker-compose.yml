@@ -71,8 +71,6 @@ services:
   #alternative to ciao, but also integrates potentially with cachet
   statping:
     image: hunterlong/statping:v0.80.65
-    expose:
-      - 8080
     environment:
       DB_CONN: sqlite
       NAME: "MyAEGEE Statping"
@@ -81,14 +79,14 @@ services:
       ADMIN_USER: admin
       ADMIN_PASSWORD: ${PW_STATPING}
       ADMIN_EMAIL: "myaegee-admins@${BASE_URL}"
-      USE_CDN: true
-      DISABLE_LOGS: false # disable logs from appearing and writing to disk
-      IS_DOCKER: true
-      IS_AWS: false
+      USE_CDN: "true"
+      DISABLE_LOGS: "false" # disable logs from appearing and writing to disk
+      IS_DOCKER: "true"
+      IS_AWS: "false"
       CMD_FILE: /bin/bash #?
       SASS: /usr/local/bin/sass #??
     volumes:
-    - statping-storage:/app
+      - statping-storage:/app
     labels:
       - "traefik.backend=statping"
       - "traefik.port=8080"
@@ -111,13 +109,13 @@ services:
   #     - "traefik.enable=true"
 
 volumes:
-  prometheus-storage:
+  prometheus-storage: #TODO: set backup
     driver: local
   grafana-storage:
     driver: local
-  ciao-storage:
+  ciao-storage: #TODO: set backup
     driver: local
-  statping-storage:
+  statping-storage: #TODO: set backup
     driver: local
 
 networks:
