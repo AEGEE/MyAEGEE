@@ -105,24 +105,18 @@ describe('Events editing', () => {
         expect(res.body.errors).toHaveProperty('ends');
     });
 
-    it('should not update the organizers list with /single/<eventid> PUT', async () => {
-        await request({
+    it('should fail if no organizers are set', async () => {
+        const res = await request({
             uri: '/single/' + event.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
-                organizers: [
-                    {
-                        first_name: 'new',
-                        last_name: 'new',
-                        user_id: 1337
-                    },
-                ],
+                organizers: []
             }
         });
 
-        const newEvent = await Event.findByPk(event.id);
-        expect(newEvent.organizers.map((org) => org.user_id)).not.toContain(1337);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('organizers');
     });
 
     it('should disallow event deleting if the user doesn\'t have rights', async () => {

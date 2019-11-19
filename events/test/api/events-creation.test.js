@@ -32,7 +32,8 @@ describe('Events creation', () => {
                 starts: '2017-12-11 15:00',
                 ends: '2017-12-14 12:00',
                 type: 'es',
-                organizing_bodies: [{ body_id: user.bodies[0].id }]
+                organizing_bodies: [{ body_id: user.bodies[0].id }],
+                organizers: [{ user_id: user.id }]
             }
         });
 
@@ -87,6 +88,7 @@ describe('Events creation', () => {
                         required: false
                     },
                 ],
+                organizers: [{ user_id: user.id }],
                 organizing_bodies: [{ body_id: user.bodies[0].id }]
             }
         });
@@ -126,29 +128,15 @@ describe('Events creation', () => {
                 starts: '2017-12-11 15:00',
                 ends: '2017-12-14 12:00',
                 type: 'es',
-                organizers: [
-                    {
-                        user_id: 3,
-                        first_name: 'test',
-                        last_name: 'test',
-                        role: 'full',
-                    },
-                ],
-                applications: [
-                    {
-                        user_id: 5,
-                        body_id: 10,
-                        status: 'accepted',
-                    },
-                ],
-                organizing_bodies: [{ body_id: user.bodies[0].id }]
+                organizers: [{ user_id: user.id }],
+                organizing_bodies: [{ body_id: user.bodies[0].id }],
+                status: 'published'
             }
         });
 
         expect(res.statusCode).toEqual(201);
 
-        expect(res.body.data.organizers.length).toEqual(1);
-        expect(res.body.data.organizers[0].user_id).not.toEqual(3);
+        expect(res.body.data.status).not.toEqual('published');
     });
 
     it('should return validation errors on malformed / POST', async () => {
@@ -160,6 +148,7 @@ describe('Events creation', () => {
                 starts: '2015-12-11 15:00',
                 ends: 'sometime, dunno yet',
                 type: 'non-statutory',
+                organizers: [{ user_id: user.id }],
                 organizing_bodies: [{ body_id: user.bodies[0].id }],
                 fee: -150
             }
@@ -187,6 +176,73 @@ describe('Events creation', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('locations');
+    });
+
+    it('should fail is the event creator is not an organizer', async () => {
+        const event = generator.generateEvent({ organizers: [{ user_id: 1337 }] });
+        event.locations = false;
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
+    it('should fail is core request returns net error', async () => {
+        mock.mockAll({ member: { netError: true } });
+        const event = generator.generateEvent({ organizers: [{ user_id: user.id }] });
+        event.locations = false;
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
+    it('should fail is core request returns garbage', async () => {
+        mock.mockAll({ member: { badResponse: true } });
+        const event = generator.generateEvent({ organizers: [{ user_id: user.id }] });
+        event.locations = false;
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
+    it('should fail is core request returns unsuccessful response', async () => {
+        mock.mockAll({ member: { unsuccessfulResponse: true } });
+        const event = generator.generateEvent({ organizers: [{ user_id: user.id }] });
+        event.locations = false;
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
     });
 
     it('should return 422 if the location is not an object', async () => {

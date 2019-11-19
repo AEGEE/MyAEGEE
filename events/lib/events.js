@@ -1,11 +1,9 @@
-const request = require('request-promise-native');
-
 const errors = require('./errors');
-const config = require('../config');
 const merge = require('./merge');
 const helpers = require('./helpers');
 const { Event, Application } = require('../models');
 const { Sequelize } = require('./sequelize');
+const core = require('./core');
 
 exports.listEvents = async (req, res) => {
     // Get default query obj.
@@ -124,26 +122,22 @@ exports.addEvent = async (req, res) => {
     const data = req.body;
     delete data.id;
     delete data.status;
-    delete data.organizers;
     delete data.deleted;
 
-    const newEvent = new Event(data);
+    const event = new Event(data);
 
-    // Creating user automatically becomes organizer
-    newEvent.organizers = [
-        {
-            user_id: req.user.id,
-            first_name: req.user.first_name,
-            last_name: req.user.last_name
-        },
-    ];
+    if (!event.organizers.some(org => org.user_id === req.user.id)) {
+        return errors.makeForbiddenError(res, 'User creating the event should be the organizers.');
+    }
 
-    await newEvent.save();
+    event.organizers = await Promise.all(event.organizers.map(organizer => core.fetchUser(organizer, req.headers['x-auth-token'])));
+
+    await event.save();
 
     return res.status(201).json({
         success: true,
         message: 'Event successfully created',
-        data: newEvent,
+        data: event,
     });
 };
 
@@ -166,8 +160,6 @@ exports.editEvent = async (req, res) => {
     const data = req.body;
     const event = req.event;
 
-    // Disallow changing applications and organizers, use separate requests for that
-    delete data.organizers;
     delete data.status;
     delete event.deleted;
 
@@ -175,15 +167,13 @@ exports.editEvent = async (req, res) => {
         return errors.makeValidationError(res, 'No valid field changes requested');
     }
 
-    await event.update(data);
+    event.organizers = await Promise.all(event.organizers.map(organizer => core.fetchUser(organizer, req.headers['x-auth-token'])));
 
-    const retval = event.toJSON();
-    delete retval.applications;
-    delete retval.organizers;
+    await event.update(data);
 
     return res.json({
         success: true,
-        data: retval
+        data: event.toJSON()
     });
 };
 
@@ -211,107 +201,5 @@ exports.setApprovalStatus = async (req, res) => {
     return res.json({
         success: true,
         message: 'Successfully changed approval status',
-    });
-};
-
-exports.addOrganizer = async (req, res) => {
-    if (!req.permissions.edit_event) {
-        return errors.makeForbiddenError(res, 'You are not allowed to edit organizers.');
-    }
-
-    const organizer = req.event.organizers.find((org) => org.user_id === req.body.user_id);
-    if (organizer) {
-        return errors.makeBadRequestError(res, 'User with id ' + req.body.user_id + ' is already an organizer.');
-    }
-
-    // Fetching the organizer from core.
-    const user = await request({
-        url: config.core.url + ':' + config.core.port + '/members/' + req.body.user_id,
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
-        },
-        simple: false,
-        json: true
-    });
-
-    if (typeof user !== 'object') {
-        throw new Error('Malformed response when fetching user: ' + user);
-    }
-
-    if (!user.success) {
-        throw new Error('Error fetching user: ' + JSON.stringify(user));
-    }
-
-    const organizers = req.event.organizers;
-    organizers.push({
-        user_id: req.body.user_id,
-        comment: req.body.comment,
-        first_name: user.data.first_name,
-        last_name: user.data.last_name
-    });
-
-    await req.event.update({
-        organizers
-    });
-
-    return res.json({
-        success: true,
-        message: 'Organizer is added.'
-    });
-};
-
-exports.editOrganizer = async (req, res) => {
-    if (!req.permissions.edit_event) {
-        return errors.makeForbiddenError(res, 'You are not allowed to edit organizers.');
-    }
-
-    const userId = parseInt(req.params.user_id, 10);
-    if (Number.isNaN(userId)) {
-        return errors.makeBadRequestError(res, 'userId is not a number.');
-    }
-
-    const organizer = req.event.organizers.find((org) => org.user_id === userId);
-    if (!organizer) {
-        return errors.makeNotFoundError(res, 'Organizer with id ' + userId + ' is not found.');
-    }
-    organizer.comment = req.body.comment;
-
-    await req.event.update({
-        organizers: req.event.organizers
-    });
-
-    return res.json({
-        success: true,
-        message: 'Organizer is updated.'
-    });
-};
-
-exports.deleteOrganizer = async (req, res) => {
-    if (!req.permissions.edit_event) {
-        return errors.makeForbiddenError(res, 'You are not allowed to edit organizers.');
-    }
-
-    const userId = parseInt(req.params.user_id, 10);
-    if (Number.isNaN(userId)) {
-        return errors.makeBadRequestError(res, 'userId is not a number.');
-    }
-
-    const organizerIndex = req.event.organizers.findIndex((org) => org.user_id === userId);
-    if (organizerIndex === -1) {
-        return errors.makeNotFoundError(res, 'Organizer with id ' + userId + ' is not found.');
-    }
-
-    const organizers = JSON.parse(JSON.stringify(req.event.organizers));
-    organizers.splice(organizerIndex, 1);
-
-    await req.event.update({
-        organizers
-    });
-
-    return res.json({
-        success: true,
-        message: 'Organizer is deleted.'
     });
 };
