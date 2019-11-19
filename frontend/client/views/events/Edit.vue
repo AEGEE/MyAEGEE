@@ -123,7 +123,7 @@
         <div class="field">
           <label class="label">Max. participants</label>
           <div class="control">
-            <input class="input" type="number" v-model="event.max_participants" min="0" />
+            <input class="input" type="number" v-model="event.max_participants" min="0" @input="if (event.max_participants === '') event.max_participants = null"/>
           </div>
           <p class="help is-danger" v-if="errors.max_participants">{{ errors.max_participants.join(', ') }}</p>
         </div>
