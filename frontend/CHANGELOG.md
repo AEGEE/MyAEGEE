@@ -1,3 +1,15 @@
+<a name="0.28.0"></a>
+# [0.28.0](https://github.com/AEGEE/oms-frontend/compare/0.27.1...0.28.0) (2019-11-19)
+
+
+### Features
+
+* **event:** allow editing event organizers together with the event. Fixes MEMB-710 ([c13dd7a](https://github.com/AEGEE/oms-frontend/commit/c13dd7a))
+* **events:** only allowing members to create events ([fc073c9](https://github.com/AEGEE/oms-frontend/commit/fc073c9))
+* **events:** removed EditOrganizers component ([adfe224](https://github.com/AEGEE/oms-frontend/commit/adfe224))
+
+
+
 <a name="0.27.1"></a>
 ## [0.27.1](https://github.com/AEGEE/oms-frontend/compare/0.27.0...0.27.1) (2019-11-16)
 
