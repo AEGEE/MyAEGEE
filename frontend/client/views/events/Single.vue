@@ -39,13 +39,6 @@
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.edit_event">
-            <router-link :to="{ name: 'oms.events.edit_organizers', params: { id: event.url || event.id } }" class="button is-fullwidth is-warning">
-              <span>Edit organizers</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
-            </router-link>
-          </div>
-
           <div class="field is-grouped" v-if="can.delete_event">
             <a class="button is-fullwidth is-danger" @click="askDeleteEvent()">
               <span>Delete event</span>
