@@ -58,7 +58,7 @@ services:
       CIAO_WEBHOOK_PAYLOAD_SLACK: "{\"text\":\"[ciao-http-status] __name__: Status changed to __status_after__ (from __status_before__)\", \"icon_emoji\": \":up:\", \"username\": \"uptime-monitor\"}"
       PROMETHEUS_ENABLED: "true"
       BASIC_AUTH_USERNAME: "ciao-admin"
-      BASIC_AUTH_PASSWORD: "${PW_ADMIN}"
+      BASIC_AUTH_PASSWORD: "${PW_UPMONITOR}"
     volumes:
       - ciao-storage:/app/db/sqlite/
     labels:
