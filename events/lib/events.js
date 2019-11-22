@@ -169,8 +169,7 @@ exports.editEvent = async (req, res) => {
     }
 
     if (Array.isArray(data.organizers)) {
-        data.organizers = await Promise.all(data.organizers.map(
-            (organizer) => core.fetchUser(organizer, req.headers['x-auth-token'])));
+        data.organizers = await Promise.all(data.organizers.map((organizer) => core.fetchUser(organizer, req.headers['x-auth-token'])));
     }
 
     await event.update(data);
