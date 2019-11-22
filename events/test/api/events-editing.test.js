@@ -51,6 +51,19 @@ describe('Events editing', () => {
         expect(res.statusCode).toEqual(200);
     });
 
+    it('should update the organizers if requested', async () => {
+        const res = await request({
+            uri: '/single/' + event.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                organizers: [{ user_id: 1337 }],
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+    });
+
     it('should store the changes on update after a sane /single/<eventid> PUT', async () => {
         await request({
             uri: '/single/' + event.id,
