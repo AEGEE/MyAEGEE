@@ -160,14 +160,18 @@ exports.editEvent = async (req, res) => {
     const data = req.body;
     const event = req.event;
 
+    delete data.id;
     delete data.status;
-    delete event.deleted;
+    delete data.deleted;
 
     if (Object.keys(data).length === 0) {
         return errors.makeValidationError(res, 'No valid field changes requested');
     }
 
-    event.organizers = await Promise.all(event.organizers.map((organizer) => core.fetchUser(organizer, req.headers['x-auth-token'])));
+    if (Array.isArray(data.organizers)) {
+        data.organizers = await Promise.all(data.organizers.map(
+            (organizer) => core.fetchUser(organizer, req.headers['x-auth-token'])));
+    }
 
     await event.update(data);
 
