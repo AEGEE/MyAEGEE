@@ -21,15 +21,11 @@ services:
       - mediawiki-images:/var/www/html/images
       - ./${PATH_OMS_WIKI}/MyAEGEEAuth:/var/www/html/extensions/MyAEGEEAuth
       - ./${PATH_OMS_WIKI}/media/a-wiki.png:/var/www/html/resources/assets/a-wiki.png
-      # After initial setup, download LocalSettings.php to the same directory as
-      # this yaml and uncomment the following line and use compose to restart
-      # the mediawiki service. Do not use the example out of the box because as
-      # of now the db migration is not performed! Install it as written above
       - ./${PATH_OMS_WIKI}/LocalSettings.php:/var/www/html/LocalSettings.php
     environment:
-      URL: "${BASE_URL}"
-      SUBDOMAIN: "${SUBDOMAIN_WIKI}"
-      DB_PASS: "${PW_MEDIAWIKI}"
+      BASE_URL: "${BASE_URL}"
+      SUBDOMAIN_WIKI: "${SUBDOMAIN_WIKI}"
+      PW_MEDIAWIKI: "${PW_MEDIAWIKI}"
     labels:
       - "traefik.enable=true"
       - "traefik.backend=mediawiki"

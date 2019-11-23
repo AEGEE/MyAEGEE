@@ -1,1 +1,2 @@
 Remember that the pw in mariadb provisioning is weak
+Maybe also change the wgSecretKey in localsettings?

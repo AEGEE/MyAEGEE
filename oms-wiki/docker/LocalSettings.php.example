@@ -30,7 +30,7 @@ $wgMetaNamespace = "AEGEE_wiki";
 $wgScriptPath = "";
 
 ## The protocol and server name to use in fully-qualified URLs
-$wgServer = "https://".$_ENV["SUBDOMAIN"].$_ENV["URL"];
+$wgServer = "https://".$_ENV["SUBDOMAIN_WIKI"].$_ENV["BASE_URL"];
 
 ## The URL path to static resources (images, scripts, etc.)
 $wgResourceBasePath = $wgScriptPath;
@@ -44,8 +44,8 @@ $wgLogo = "$wgResourceBasePath/resources/assets/a-wiki.png";
 $wgEnableEmail = true;
 $wgEnableUserEmail = false; # UPO
 
-$wgEmergencyContact = "wiki-team@".$_ENV["SUBDOMAIN"].$_ENV["URL"];
-$wgPasswordSender = "wiki-team@".$_ENV["SUBDOMAIN"].$_ENV["URL"];
+$wgEmergencyContact = "wiki-team@".$_ENV["SUBDOMAIN_WIKI"].$_ENV["BASE_URL"];
+$wgPasswordSender = "wiki-team@".$_ENV["SUBDOMAIN_WIKI"].$_ENV["BASE_URL"];
 
 $wgEnotifUserTalk = true; # UPO
 $wgEnotifWatchlist = true; # UPO
@@ -56,7 +56,7 @@ $wgDBtype = "mysql";
 $wgDBserver = "maria-mediawiki";
 $wgDBname = "mediawiki";
 $wgDBuser = "wiki";
-$wgDBpassword = $_ENV["DB_PASS"];
+$wgDBpassword = $_ENV["PW_MEDIAWIKI"];
 
 # MySQL specific settings
 $wgDBprefix = "";
@@ -116,7 +116,7 @@ $wgRightsIcon = "$wgResourceBasePath/resources/assets/licenses/cc-by-nc-sa.png";
 $wgDiff3 = "/usr/bin/diff3";
 
 # The following permissions were set based on your choice in the installer
-$wgGroupPermissions['*']['createaccount'] = true;
+$wgGroupPermissions['*']['createaccount'] = false;
 $wgGroupPermissions['*']['edit'] = false;
 $wgGroupPermissions['*']['read'] = false;
 
