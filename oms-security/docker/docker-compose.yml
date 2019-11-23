@@ -25,7 +25,7 @@ services:
       ADMIN_TOKEN: "${PW_BITWARDEN_ADMINPANEL}"
       DOMAIN: "https://${SUBDOMAIN_BITWARDEN}${BASE_URL}"
       LOG_FILE: "/data/bitwarden.log"
-      ROCKET_LOG: "normal" #the only thing above this is "critical", no "warning"
+      ROCKET_LOG: "normal"  # the only thing above this is "critical", no "warning"
       SHOW_PASSWORD_HINT: "false"
       SMTP_HOST: "smtp.sendgrid.net"
       SMTP_FROM: "bitwarden@${BASE_URL}"
