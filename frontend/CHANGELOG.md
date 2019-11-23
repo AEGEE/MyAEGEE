@@ -1,3 +1,15 @@
+<a name="0.28.1"></a>
+## [0.28.1](https://github.com/AEGEE/oms-frontend/compare/0.28.0...0.28.1) (2019-11-23)
+
+
+### Bug Fixes
+
+* **deps:** fixed security vulnerabilities ([0532eab](https://github.com/AEGEE/oms-frontend/commit/0532eab))
+* **events:** fixed max participants validation ([4339f5f](https://github.com/AEGEE/oms-frontend/commit/4339f5f))
+* **events:** refactored notitications. Fixes MEMB-736 ([06ddf85](https://github.com/AEGEE/oms-frontend/commit/06ddf85))
+
+
+
 <a name="0.28.0"></a>
 # [0.28.0](https://github.com/AEGEE/oms-frontend/compare/0.27.1...0.28.0) (2019-11-19)
 

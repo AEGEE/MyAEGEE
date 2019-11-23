@@ -17,13 +17,7 @@
                 </div>
               </div>
 
-              <div class="notification is-danger" v-show="bodies.length == 0">
-                <div class="content">
-                  <p>You are not a member of any body, therefore you cannot apply.</p>
-                  <p>To apply to a statutory event, you need to be a member of at least one body.</p>
-                  <p>For that, go to Bodies, send a join request to the body you are in and wait for the board to approve it</p>
-                </div>
-              </div>
+              <event-no-body-notification v-show="bodies.length == 0" />
 
               <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender|| errors.date_of_birth">
                 <div class="content">
@@ -345,9 +339,13 @@
 <script>
 import { mapGetters } from 'vuex'
 import countries from '../../countries'
+import EventNoBodyNotification from '../../components/notifications/EventNoBodyNotification'
 
 export default {
   name: 'EditApplication',
+  components: {
+    EventNoBodyNotification
+  },
   data () {
     return {
       event: {
