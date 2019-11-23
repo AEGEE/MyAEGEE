@@ -29,7 +29,7 @@ services:
     restart: always
     image: aegee/nginx-webserver:latest
     environment:
-        PHPFPM_HOST: "statuspage"
+      PHPFPM_HOST: "statuspage"
     depends_on:
       - statuspage
     expose:
@@ -53,4 +53,3 @@ networks:
   default:
     external:
       name: OMS
-
