@@ -1,4 +1,5 @@
 #!/bin/bash
+#UTILITY script. To be run on the host/wherever the repos are
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export $(cat $DIR/.env | grep -v ^# | xargs)
