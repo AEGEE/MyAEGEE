@@ -30,33 +30,33 @@ $wgMetaNamespace = "AEGEE_wiki";
 $wgScriptPath = "";
 
 ## The protocol and server name to use in fully-qualified URLs
-$wgServer = "https://wiki.staging.barnab.eu";
+$wgServer = "https://".$_ENV["SUBDOMAIN_WIKI"].$_ENV["BASE_URL"];
 
 ## The URL path to static resources (images, scripts, etc.)
 $wgResourceBasePath = $wgScriptPath;
 
 ## The URL path to the logo.  Make sure you change this from the default,
 ## or else you'll overwrite your logo when you upgrade!
-$wgLogo = "$wgResourceBasePath/resources/assets/wiki.png";
+$wgLogo = "$wgResourceBasePath/resources/assets/a-wiki.png";
 
 ## UPO means: this is also a user preference option
 
 $wgEnableEmail = true;
 $wgEnableUserEmail = false; # UPO
 
-$wgEmergencyContact = "wiki-team@aegee.dev";
-$wgPasswordSender = "wiki-team@aegee.dev";
+$wgEmergencyContact = "wiki-team@".$_ENV["BASE_URL"];
+$wgPasswordSender = "wiki-team@".$_ENV["BASE_URL"];
 
-$wgEnotifUserTalk = false; # UPO
-$wgEnotifWatchlist = false; # UPO
-$wgEmailAuthentication = true;
+$wgEnotifUserTalk = true; # UPO
+$wgEnotifWatchlist = true; # UPO
+$wgEmailAuthentication = false;
 
 ## Database settings
 $wgDBtype = "mysql";
 $wgDBserver = "maria-mediawiki";
 $wgDBname = "mediawiki";
 $wgDBuser = "wiki";
-$wgDBpassword = "5ecr3t";
+$wgDBpassword = $_ENV["PW_MEDIAWIKI"];
 
 # MySQL specific settings
 $wgDBprefix = "";
@@ -75,7 +75,7 @@ $wgUseImageMagick = true;
 $wgImageMagickConvertCommand = "/usr/bin/convert";
 
 # InstantCommons allows wiki to use images from https://commons.wikimedia.org
-$wgUseInstantCommons = false;
+$wgUseInstantCommons = true;
 
 # Periodically send a pingback to https://www.mediawiki.org/ with basic data
 # about this MediaWiki instance. The Wikimedia Foundation shares this data
@@ -95,14 +95,14 @@ $wgShellLocale = "C.UTF-8";
 # Site language code, should be one of the list in ./languages/data/Names.php
 $wgLanguageCode = "en-gb";
 
-$wgSecretKey = "9487d3d6f81a4bba04bb7d9fa6c453436fa7be68f5df72ac7515dbd359f447f0";
+$wgSecretKey = $_ENV["WGSECRETKEY"];
 
 # Changing this will log out all existing sessions.
 $wgAuthenticationTokenVersion = "1";
 
 # Site upgrade key. Must be set to a string (default provided) to turn on the
 # web installer while LocalSettings.php is in place
-$wgUpgradeKey = "3828e526a7c2a38d";
+$wgUpgradeKey = $_ENV["WGUPGRADEKEY"];
 
 ## For attaching licensing metadata to pages, and displaying an
 ## appropriate copyright notice / icon. GNU Free Documentation
@@ -116,7 +116,7 @@ $wgRightsIcon = "$wgResourceBasePath/resources/assets/licenses/cc-by-nc-sa.png";
 $wgDiff3 = "/usr/bin/diff3";
 
 # The following permissions were set based on your choice in the installer
-$wgGroupPermissions['*']['createaccount'] = false;
+$wgGroupPermissions['*']['createaccount'] = true;
 $wgGroupPermissions['*']['edit'] = false;
 $wgGroupPermissions['*']['read'] = false;
 
@@ -135,12 +135,24 @@ wfLoadSkin( 'Vector' );
 # wfLoadExtensions('ExtensionName');
 # to LocalSettings.php. Check specific extension documentation for more details.
 # The following extensions were automatically enabled:
-wfLoadExtension( 'CodeEditor' );
+wfLoadExtension( 'CiteThisPage' );
+wfLoadExtension( 'Gadgets' );
+wfLoadExtension( 'LocalisationUpdate' );
+wfLoadExtension( 'MultimediaViewer' );
 wfLoadExtension( 'PdfHandler' );
+wfLoadExtension( 'ReplaceText' );
 wfLoadExtension( 'WikiEditor' );
 
 
 # End of automatically generated settings.
 # Add more configuration options below.
 
+wfLoadExtension( 'MyAEGEEAuth' );
 
+# Uncomment 4 lines below for displaying debug panel at the bottom of the screen
+# and debug/warning/errorr messages there.
+
+# $wgShowExceptionDetails = true;
+# $wgDebugToolbar = true;
+# $wgShowDebug = true;
+# $wgDevelopmentWarnings = true;
