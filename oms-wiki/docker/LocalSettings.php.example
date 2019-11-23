@@ -44,8 +44,8 @@ $wgLogo = "$wgResourceBasePath/resources/assets/a-wiki.png";
 $wgEnableEmail = true;
 $wgEnableUserEmail = false; # UPO
 
-$wgEmergencyContact = "wiki-team@".$_ENV["SUBDOMAIN_WIKI"].$_ENV["BASE_URL"];
-$wgPasswordSender = "wiki-team@".$_ENV["SUBDOMAIN_WIKI"].$_ENV["BASE_URL"];
+$wgEmergencyContact = "wiki-team@".$_ENV["BASE_URL"];
+$wgPasswordSender = "wiki-team@".$_ENV["BASE_URL"];
 
 $wgEnotifUserTalk = true; # UPO
 $wgEnotifWatchlist = true; # UPO
@@ -95,14 +95,14 @@ $wgShellLocale = "C.UTF-8";
 # Site language code, should be one of the list in ./languages/data/Names.php
 $wgLanguageCode = "en-gb";
 
-$wgSecretKey = "9487d3d6f81a4bba04bb7d9fa6c453436fa7be68f5df72ac7515dbd359f447f0";
+$wgSecretKey = $_ENV["WGSECRETKEY"];
 
 # Changing this will log out all existing sessions.
 $wgAuthenticationTokenVersion = "1";
 
 # Site upgrade key. Must be set to a string (default provided) to turn on the
 # web installer while LocalSettings.php is in place
-$wgUpgradeKey = "3828e526a7c2a38d";
+$wgUpgradeKey = $_ENV["WGUPGRADEKEY"];
 
 ## For attaching licensing metadata to pages, and displaying an
 ## appropriate copyright notice / icon. GNU Free Documentation
@@ -116,7 +116,7 @@ $wgRightsIcon = "$wgResourceBasePath/resources/assets/licenses/cc-by-nc-sa.png";
 $wgDiff3 = "/usr/bin/diff3";
 
 # The following permissions were set based on your choice in the installer
-$wgGroupPermissions['*']['createaccount'] = false;
+$wgGroupPermissions['*']['createaccount'] = true;
 $wgGroupPermissions['*']['edit'] = false;
 $wgGroupPermissions['*']['read'] = false;
 

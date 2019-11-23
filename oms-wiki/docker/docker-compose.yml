@@ -26,6 +26,8 @@ services:
       BASE_URL: "${BASE_URL}"
       SUBDOMAIN_WIKI: "${SUBDOMAIN_WIKI}"
       PW_MEDIAWIKI: "${PW_MEDIAWIKI}"
+      WGSECRETKEY: "${WIKI_SECRET_KEY}"
+      WGUPGRADEKEY: "${WIKI_UPGRADE_KEY}"
     labels:
       - "traefik.enable=true"
       - "traefik.backend=mediawiki"
