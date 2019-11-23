@@ -35,18 +35,13 @@ class MyAEGEEApiPrimaryAuthenticationProvider
 	extends AbstractPasswordPrimaryAuthenticationProvider
 {
 
-	/** @var bool If true, this instance is for legacy logins only. */
-	protected $loginOnly = false;
-
 	/**
 	 * @param array $params Settings
-	 *  - loginOnly: If true, the local passwords are for legacy logins only:
 	 *    the local password will be invalidated when authentication is changed
 	 *    and new users will not have a valid local password set.
 	 */
 	public function __construct( $params = [] ) {
 		parent::__construct( $params );
-		$this->loginOnly = !empty( $params['loginOnly'] );
 		$this->baseHost = 'https://my.aegee.eu';
 		$this->loginUrl = $this->baseHost.'/services/oms-core-elixir/api/login';
 		$this->getUserUrl = $this->baseHost.'/services/oms-core-elixir/api/members/me';
@@ -92,12 +87,12 @@ class MyAEGEEApiPrimaryAuthenticationProvider
         if (is_resource($ch)) {
             curl_close($ch);
 		}
-		
+
         if (0 !== $errno) {
 			wfDebugLog( 'MyAEGEEApi', 'Auth request returned error, failing.' );
             return null;
 		}
-		
+
 		$response_parsed = json_decode($response);
 		if (!$response_parsed->success) {
 			wfDebugLog( 'MyAEGEEApi', 'Auth request not successful, failing.' );
@@ -134,12 +129,12 @@ class MyAEGEEApiPrimaryAuthenticationProvider
         if (is_resource($ch)) {
             curl_close($ch);
 		}
-		
+
         if (0 !== $errno) {
 			wfDebugLog( 'MyAEGEEApi', 'User request returned error, failing.' );
             return null;
 		}
-		
+
 		$response_parsed = json_decode($response);
 		if (!$response_parsed->success) {
 			wfDebugLog( 'MyAEGEEApi', 'User request not successful, failing.' );
@@ -153,8 +148,6 @@ class MyAEGEEApiPrimaryAuthenticationProvider
 	 * All fun starts here.
 	 */
 	public function beginPrimaryAuthentication( array $reqs ) {
-		wfDebugLog( 'MyAEGEEApi', json_encode($reqs[0]) );
-
 		if ( !$reqs[0] ) {
 			wfDebugLog( 'MyAEGEEApi', 'No req, failing' );
 			return AuthenticationResponse::newAbstain();
@@ -175,7 +168,7 @@ class MyAEGEEApiPrimaryAuthenticationProvider
 		}
 
 		$access_token = $this->tryLogin($username, $password);
-		wfDebugLog( 'MyAEGEEApi', 'Refresh token: '.$refresh_token );
+		wfDebugLog( 'MyAEGEEApi', 'Got access token');
 
 		if (!$access_token) {
 			wfDebugLog( 'MyAEGEEApi', 'Access token failed, failing.');
@@ -203,7 +196,7 @@ class MyAEGEEApiPrimaryAuthenticationProvider
 
 	public function testUserExists( $username, $flags = User::READ_NORMAL ) {
 		wfDebugLog( 'MyAEGEEApi', 'testUserExists called');
-		return true;
+		return false;
 	}
 
 	/**
@@ -227,7 +220,8 @@ class MyAEGEEApiPrimaryAuthenticationProvider
 	 * A stub to just implement something.
 	 */
 	public function accountCreationType() {
-		return $this->loginOnly ? self::TYPE_NONE : self::TYPE_CREATE;
+		wfDebugLog( 'MyAEGEEApi', 'accountCreationType called start');
+		return self::TYPE_NONE;
 	}
 
 	/**
