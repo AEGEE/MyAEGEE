@@ -116,7 +116,8 @@ $wgRightsIcon = "$wgResourceBasePath/resources/assets/licenses/cc-by-nc-sa.png";
 $wgDiff3 = "/usr/bin/diff3";
 
 # The following permissions were set based on your choice in the installer
-$wgGroupPermissions['*']['createaccount'] = true;
+$wgGroupPermissions['*']['createaccount'] = false;
+$wgGroupPermissions['*']['autocreateaccount'] = true;
 $wgGroupPermissions['*']['edit'] = false;
 $wgGroupPermissions['*']['read'] = false;
 
@@ -152,7 +153,7 @@ wfLoadExtension( 'MyAEGEEAuth' );
 # Uncomment 4 lines below for displaying debug panel at the bottom of the screen
 # and debug/warning/errorr messages there.
 
-# $wgShowExceptionDetails = true;
-# $wgDebugToolbar = true;
-# $wgShowDebug = true;
-# $wgDevelopmentWarnings = true;
+$wgShowExceptionDetails = true;
+$wgDebugToolbar = true;
+$wgShowDebug = true;
+$wgDevelopmentWarnings = true;
