@@ -30,33 +30,33 @@ $wgMetaNamespace = "AEGEE_wiki";
 $wgScriptPath = "";
 
 ## The protocol and server name to use in fully-qualified URLs
-$wgServer = "https://wiki.${BASE_URL}";
+$wgServer = "https://".$_ENV["SUBDOMAIN"].$_ENV["URL"];
 
 ## The URL path to static resources (images, scripts, etc.)
 $wgResourceBasePath = $wgScriptPath;
 
 ## The URL path to the logo.  Make sure you change this from the default,
 ## or else you'll overwrite your logo when you upgrade!
-$wgLogo = "$wgResourceBasePath/resources/assets/wiki.png";
+$wgLogo = "$wgResourceBasePath/resources/assets/a-wiki.png";
 
 ## UPO means: this is also a user preference option
 
 $wgEnableEmail = true;
 $wgEnableUserEmail = false; # UPO
 
-$wgEmergencyContact = "wiki-team@${BASE_URL}";
-$wgPasswordSender = "wiki-team@${BASE_URL}";
+$wgEmergencyContact = "wiki-team@".$_ENV["SUBDOMAIN"].$_ENV["URL"];
+$wgPasswordSender = "wiki-team@".$_ENV["SUBDOMAIN"].$_ENV["URL"];
 
-$wgEnotifUserTalk = false; # UPO
-$wgEnotifWatchlist = false; # UPO
-$wgEmailAuthentication = true;
+$wgEnotifUserTalk = true; # UPO
+$wgEnotifWatchlist = true; # UPO
+$wgEmailAuthentication = false;
 
 ## Database settings
 $wgDBtype = "mysql";
 $wgDBserver = "maria-mediawiki";
 $wgDBname = "mediawiki";
 $wgDBuser = "wiki";
-$wgDBpassword = "${PW_MEDIAWIKI}";
+$wgDBpassword = $_ENV["DB_PASS"];
 
 # MySQL specific settings
 $wgDBprefix = "";
@@ -75,7 +75,7 @@ $wgUseImageMagick = true;
 $wgImageMagickConvertCommand = "/usr/bin/convert";
 
 # InstantCommons allows wiki to use images from https://commons.wikimedia.org
-$wgUseInstantCommons = false;
+$wgUseInstantCommons = true;
 
 # Periodically send a pingback to https://www.mediawiki.org/ with basic data
 # about this MediaWiki instance. The Wikimedia Foundation shares this data
@@ -116,7 +116,7 @@ $wgRightsIcon = "$wgResourceBasePath/resources/assets/licenses/cc-by-nc-sa.png";
 $wgDiff3 = "/usr/bin/diff3";
 
 # The following permissions were set based on your choice in the installer
-$wgGroupPermissions['*']['createaccount'] = false;
+$wgGroupPermissions['*']['createaccount'] = true;
 $wgGroupPermissions['*']['edit'] = false;
 $wgGroupPermissions['*']['read'] = false;
 
@@ -135,8 +135,12 @@ wfLoadSkin( 'Vector' );
 # wfLoadExtensions('ExtensionName');
 # to LocalSettings.php. Check specific extension documentation for more details.
 # The following extensions were automatically enabled:
-wfLoadExtension( 'CodeEditor' );
+wfLoadExtension( 'CiteThisPage' );
+wfLoadExtension( 'Gadgets' );
+wfLoadExtension( 'LocalisationUpdate' );
+wfLoadExtension( 'MultimediaViewer' );
 wfLoadExtension( 'PdfHandler' );
+wfLoadExtension( 'ReplaceText' );
 wfLoadExtension( 'WikiEditor' );
 
 
