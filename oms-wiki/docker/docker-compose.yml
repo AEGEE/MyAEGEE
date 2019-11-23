@@ -27,9 +27,9 @@ services:
       # of now the db migration is not performed! Install it as written above
       - ./${PATH_OMS_WIKI}/LocalSettings.php:/var/www/html/LocalSettings.php
     environment:
-      - URL: ${BASE_URL}
-      - SUBDOMAIN: ${SUBDOMAIN_WIKI}
-      - DB_PASS: ${PW_MEDIAWIKI}
+      - URL: "${BASE_URL}"
+      - SUBDOMAIN: "${SUBDOMAIN_WIKI}"
+      - DB_PASS: "${PW_MEDIAWIKI}"
     labels:
       - "traefik.enable=true"
       - "traefik.backend=mediawiki"
