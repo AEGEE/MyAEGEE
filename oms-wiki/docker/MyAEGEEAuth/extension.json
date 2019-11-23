@@ -1,0 +1,22 @@
+{
+	"name": "MyAEGEEAuth",
+	"version": "5.7",
+	"author": [
+		"[https://github.com/serge1peshcoff Sergey Peshkov]"
+	],
+	"url": "https://www.mediawiki.org/wiki/Extension:PluggableAuth",
+	"descriptionmsg": "MyAEGEE API auth",
+	"type": "other",
+	"license-name": "MIT",
+	"AutoloadClasses": {
+		"MyAEGEEApiPrimaryAuthenticationProvider": "includes/MyAEGEEApiPrimaryAuthenticationProvider.php"
+	},
+	"AuthManagerAutoConfig": {
+		"primaryauth": {
+			"MyAEGEEApiPrimaryAuthenticationProvider": {
+				"class": "MyAEGEEApiPrimaryAuthenticationProvider"
+			}
+		}
+	},
+	"manifest_version": 1
+}

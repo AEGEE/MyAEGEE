@@ -1,1 +1,3 @@
 generate LocalSettings.php from the values in the env file
+  --> (remember that envsubst would replace all php variables because
+  they start with $, so you have to tell the name of variables to replace)
