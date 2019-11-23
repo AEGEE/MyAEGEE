@@ -71,10 +71,7 @@
           <p class="help is-danger" v-if="errors.url">{{ errors.url.join(', ') }}</p>
         </div>
 
-        <div class="notification is-warning">
-          Please keep in mind that these dates are in your current timezone, <strong>which is not necessarily CET.</strong>
-          For example, if you are in Moscow and you set the date as 25th of November 2018 00:00, it'd be 24th of November 2018 22:00 CET.
-        </div>
+        <timezone-notification />
 
         <div class="field">
           <label class="label">Application period starts</label>
@@ -313,9 +310,14 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import TimezoneNotification from '../../components/notifications/TimezoneNotification'
+
 
 export default {
   name: 'EditStatutory',
+  components: {
+    TimezoneNotification
+  },
   data () {
     return {
       event: {
