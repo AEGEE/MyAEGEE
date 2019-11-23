@@ -3,12 +3,12 @@ version: "3.4"
 services:
 
 ### container administration helper Container #######################################
-  #to get the password (hashed): (also remember to escape $ with anotehr $)
-  # docker run --rm httpd:2.4-alpine htpasswd -nbB admin 5ecr3t | cut -d ":" -f 2
+  # to get the password (hashed): (also remember to escape $ with anotehr $)
+  #   docker run --rm httpd:2.4-alpine htpasswd -nbB admin 5ecr3t | cut -d ":" -f 2
   portainer:
     restart: "no"
     image: portainer/portainer:1.22.1
-    #image: portainer/portainer:1.15.5 #they broke the tag
+    # image: portainer/portainer:1.15.5 #they broke the tag
     command: -H unix:///var/run/docker.sock --admin-password ${PW_PORTAINER} --logo ${AEGEE_LOGO_B64}
     expose:
       - "9000"
@@ -54,7 +54,6 @@ services:
       - "traefik.frontend.rule=Host:${SUBDOMAIN_REDISADMIN}${BASE_URL}"
       - "traefik.frontend.priority=20"
       - "traefik.frontend.auth.basic.users=admin:${PW_REDIS_BLOWF}"
-
 
 
 ### show api docs Container #######################################

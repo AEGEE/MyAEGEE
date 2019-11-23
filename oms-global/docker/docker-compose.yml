@@ -5,39 +5,39 @@ services:
 ### OMS TUNNEL        #######################################
 ### Proxy container #######################################
 
-    traefik:
-        image: traefik:v1.7.4-alpine
-        restart: always
-        command: --web.metrics.prometheus
-        ports:
-          - 80:80
-          - 443:443
-        healthcheck:
-          test: ["CMD", "traefik", "healthcheck"]
-          interval: 30s
-          timeout: 10s
-          retries: 3
-          start_period: 40s
-        volumes:
-          - /var/run/docker.sock:/var/run/docker.sock:ro
-          - ./secrets/acme.json:/etc/acme.json #we have to mount it to preserve it on the host, so no secrets
-          - ./${PATH_OMS_GLOBAL}/traefik/traefik.toml:/etc/traefik/traefik.toml
-          - ./${PATH_OMS_GLOBAL}/traefik/logs:/var/log/traefik/
-          #- shared_logs:/var/log/traefik/
+  traefik:
+    image: traefik:v1.7.4-alpine
+    restart: always
+    command: --web.metrics.prometheus
+    ports:
+      - 80:80
+      - 443:443
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # below: we have to mount it to preserve it on the host, so no secrets
+      - ./secrets/acme.json:/etc/acme.json
+      - ./${PATH_OMS_GLOBAL}/traefik/traefik.toml:/etc/traefik/traefik.toml
+      - ./${PATH_OMS_GLOBAL}/traefik/logs:/var/log/traefik/
+      # - shared_logs:/var/log/traefik/
 #        networks:
 #          - management
-        labels:
-          - traefik.enable=true
-          - traefik.backend=traefik
-          - traefik.port=8080
-          - traefik.frontend.rule=Host:${SUBDOMAIN_TRAEFIK}${BASE_URL}
-          - traefik.frontend.priority=20
-          - traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}
-#volumes:
-#   shared_logs:
-#       driver: "local"
-#   upload:
-
+    labels:
+      - traefik.enable=true
+      - traefik.backend=traefik
+      - traefik.port=8080
+      - traefik.frontend.rule=Host:${SUBDOMAIN_TRAEFIK}${BASE_URL}
+      - traefik.frontend.priority=20
+      - traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}
+# volumes:
+#    shared_logs:
+#        driver: "local"
+#    upload:
 
 networks:
   default:

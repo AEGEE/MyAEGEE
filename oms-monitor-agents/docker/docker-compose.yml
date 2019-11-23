@@ -1,4 +1,5 @@
 version: "3.4"
+
 services:
 
   cadvisor:
@@ -21,7 +22,7 @@ services:
 
   node-exporter:
     image: prom/node-exporter:v0.18.1
-    #TODO use 'new' volumes (this is kinda how an old version was set up).
+    # TODO use 'new' volumes (this is kinda how an old version was set up).
     # NOTE there are different examples:
     # https://github.com/prometheus/node_exporter
     # https://quay.io/repository/prometheus/node-exporter?tab=info
@@ -68,7 +69,8 @@ services:
 #         - /proc/:/hostfs/proc:ro
 #         - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
 #         - /:/hostfs/:ro
-#     #- ./$PATH_OMS_ELASTIC/metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro # only for dev. do NOT override whole directory as the executable is there
+          # below is only for dev. do NOT override whole directory as the executable is there
+#         #- ./$PATH_OMS_ELASTIC/metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
 #     environment:
 #         - "WAIT_FOR_HOSTS=elasticsearch:9200 kibana:5601" # logstash:5044"
 #         - "HOST_ELASTICSEARCH=elasticsearch:9200"
@@ -91,8 +93,10 @@ services:
 #         - /opt/backups:/opt/backups:ro #MAKE A VOLUME SHARED AMONG CONTAINERS
 #           #- shared_logs:/var/log/traefik/ #not this way :/
 #         - ./$PATH_OMS_GLOBAL/traefik/logs:/var/log/traefik #not this way :/
-#         - ./$PATH_OMS_ELASTIC/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro # only for dev. do NOT override whole directory as the executable is there
-#           #- ./$PATH_OMS_ELASTIC/filebeat/jesus.yml:/usr/share/filebeat/jesus.yml #just to bring stuff from the container to the host
+          # below is only for dev. do NOT override whole directory as the executable is there
+#         - ./$PATH_OMS_ELASTIC/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+            # just to bring stuff from the container to the host
+#           #- ./$PATH_OMS_ELASTIC/filebeat/jesus.yml:/usr/share/filebeat/jesus.yml
 #           #- ./$PATH_OMS_ELASTIC/filebeat/fields.yml:/usr/share/filebeat/fields.yml
 #     environment:
 #         - "WAIT_FOR_HOSTS=elasticsearch:9200 kibana:5601"
@@ -107,7 +111,8 @@ services:
 #       dockerfile: ./Dockerfile-auth
 #     volumes:
 #         - /var/log/auth.log:/var/log/auth/auth.log:ro
-#           #- ./$PATH_OMS_ELASTIC/filebeat/filebeat-auth.yml:/usr/share/filebeat/filebeat.yml:ro # only for dev. do NOT override whole directory as the executable is there
+          # below is only for dev. do NOT override whole directory as the executable is there
+#         #- ./$PATH_OMS_ELASTIC/filebeat/filebeat-auth.yml:/usr/share/filebeat/filebeat.yml:ro
 #     environment:
 #         - "WAIT_FOR_HOSTS=elasticsearch:9200 kibana:5601"
 #         - "HOST_ELASTICSEARCH=elasticsearch:9200"
@@ -120,10 +125,10 @@ services:
 # tizio che ha ricreato docker-elk
 # https://github.com/elastic/beats/tree/v6.7.2
 
-#WITH VERSION 2.4
-#depends_on:
-# elasticsearch: { condition: service_healthy }
-# kibana: { condition: service_healthy }
+# WITH VERSION 2.4
+# depends_on:
+#   elasticsearch: { condition: service_healthy }
+#   kibana: { condition: service_healthy }
 
 networks:
   default:
