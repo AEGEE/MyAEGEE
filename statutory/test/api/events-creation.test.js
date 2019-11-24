@@ -523,4 +523,147 @@ describe('Events creation', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
     });
+
+    it('should return 422 if the locations is not an array', async () => {
+        const event = generator.generateEvent({ locations: false });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('locations');
+    });
+
+    it('should return 422 if the locations is not an array', async () => {
+        const event = generator.generateEvent({ locations: false });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('locations');
+    });
+
+    it('should return 422 if the locations.position is not an object', async () => {
+        const event = generator.generateEvent({ locations: [false] });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('locations');
+    });
+
+    it('should return 422 if the locations.position[].name is not a string', async () => {
+        const event = generator.generateEvent({ locations: [{ name: false }] });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('locations');
+    });
+
+    it('should return 422 if the locations.position[].name is empty', async () => {
+        const event = generator.generateEvent({ locations: [{ name: '       ' }] });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('locations');
+    });
+
+    it('should return 422 if the locations.position[].position is invalid', async () => {
+        const event = generator.generateEvent({ locations: [{ name: 'test', position: false }] });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('locations');
+    });
+
+    it('should return 422 if the locations.position[].position.lat is invalid', async () => {
+        const event = generator.generateEvent({ locations: [{ name: 'test', position: { lat: false, lng: 1 } }] });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('locations');
+    });
+
+    it('should return 422 if the locations.position[].position.lat is invalid', async () => {
+        const event = generator.generateEvent({ locations: [{ name: 'test', position: { lat: 1, lng: false } }] });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('locations');
+    });
+
+    it('should return 200 if locations is valid', async () => {
+        const event = generator.generateEvent({ locations: [{ name: 'test', position: { lat: 1, lng: 1 } }] });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+    });
 });

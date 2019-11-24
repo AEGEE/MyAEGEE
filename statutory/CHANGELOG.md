@@ -1,3 +1,17 @@
+# [0.26.0](https://github.com/AEGEE/oms-statutory/compare/0.25.3...0.26.0) (2019-11-24)
+
+
+### Bug Fixes
+
+* **deps:** fixed security vulnerabilities ([a5c8e2e](https://github.com/AEGEE/oms-statutory/commit/a5c8e2e))
+
+
+### Features
+
+* **event:** add events locations. Fixes MEMB-301 ([95db96e](https://github.com/AEGEE/oms-statutory/commit/95db96e))
+
+
+
 ## [0.25.3](https://github.com/AEGEE/oms-statutory/compare/0.25.2...0.25.3) (2019-11-24)
 
 

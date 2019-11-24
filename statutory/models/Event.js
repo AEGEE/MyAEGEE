@@ -159,6 +159,44 @@ const Event = sequelize.define('event', {
             }
         }
     },
+    locations: {
+        type: Sequelize.JSONB,
+        allowNull: false,
+        defaultValue: [],
+        validate: {
+            isValid(value) {
+                if (!Array.isArray(value)) {
+                    throw new Error('Locations should be an array.');
+                }
+
+                for (const position of value) {
+                    if (typeof position !== 'object' || position === null) {
+                        throw new Error('Position is malformed.');
+                    }
+
+                    if (typeof position.name !== 'string') {
+                        throw new Error('Name is invalid.');
+                    }
+
+                    if (position.name.trim().length === 0) {
+                        throw new Error('Name should be presented.');
+                    }
+
+                    if (typeof position.position !== 'object' || position.position === null) {
+                        throw new Error('Position.position is malformed.');
+                    }
+
+                    if (typeof position.position.lat !== 'number') {
+                        throw new Error('Latitude is malformed.');
+                    }
+
+                    if (typeof position.position.lng !== 'number') {
+                        throw new Error('Longitude is malformed.');
+                    }
+                }
+            }
+        }
+    },
     body_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
