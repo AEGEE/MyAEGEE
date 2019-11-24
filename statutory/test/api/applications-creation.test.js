@@ -254,7 +254,7 @@ describe('Applications creation', () => {
         application.participant_type = 'envoy';
         application.board_comment = 'Awesome guy, accept!';
         application.attended = true;
-        application.paid_fee = true;
+        application.confirmed = true;
         application.cancelled = true;
         application.arbitrary_field = 'some garbage';
 
@@ -279,7 +279,7 @@ describe('Applications creation', () => {
         expect(res.body.data.participant_type).not.toEqual(application.participant_type);
         expect(res.body.data.board_comment).not.toEqual(application.board_comment);
         expect(res.body.data.attended).not.toEqual(application.attended);
-        expect(res.body.data.paid_fee).not.toEqual(application.paid_fee);
+        expect(res.body.data.confirmed).not.toEqual(application.confirmed);
         expect(res.body.data.cancelled).not.toEqual(application.cancelled);
 
         expect(res.body.data).not.toHaveProperty('arbitrary_field');

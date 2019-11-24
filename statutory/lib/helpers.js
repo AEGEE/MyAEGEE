@@ -368,8 +368,8 @@ exports.getEventPermissions = (data) => {
     }
 
     permissions.manage_question_lines = hasPermission(corePermissions, 'global:manage_question_lines:' + event.type);
-    permissions.see_questions = permissions.manage_question_lines || (myApplication ? myApplication.paid_fee : false);
-    permissions.submit_questions = myApplication ? myApplication.paid_fee : false;
+    permissions.see_questions = permissions.manage_question_lines || (myApplication ? myApplication.confirmed : false);
+    permissions.submit_questions = myApplication ? myApplication.confirmed : false;
 
     return permissions;
 };
@@ -381,7 +381,7 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     // Basically do everything with applications.
     const canManage = hasPermission(corePermissions, 'manage_applications:' + event.type);
 
-    // See pax list and change 'paid_fee' and 'attended' attribute only.
+    // See pax list and change 'confirmed' and 'attended' attribute only.
     const isIncoming = hasPermission(corePermissions, 'manage_incoming:' + event.type);
 
     // See JC list and change 'registered' and 'departed' attributes only.
@@ -399,7 +399,7 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     permissions.set_application_cancelled = (mine && event.can_apply) || canManage;
 
     // For paid fee and cancelled and others, only if has permissions.
-    permissions.set_application_paid_fee = isIncoming || canManage;
+    permissions.set_application_confirmed = isIncoming || canManage;
     permissions.set_application_attended = isIncoming || canManage;
     permissions.set_application_registered = isJuridical || canManage;
     permissions.set_application_departed = isJuridical || canManage;

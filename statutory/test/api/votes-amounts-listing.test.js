@@ -63,7 +63,7 @@ describe('Votes amounts listing', () => {
             participant_order: 1,
             body_id: regularUser.bodies[0].id,
             cancelled: false,
-            paid_fee: true,
+            confirmed: true,
             registered: true
         }, event);
         await VotesPerAntenna.recalculateVotesForAntenna(regularUser.bodies[0], event);
@@ -103,7 +103,7 @@ describe('Votes amounts listing', () => {
             participant_order: 1,
             body_id: regularUser.bodies[0].id,
             cancelled: false,
-            paid_fee: true,
+            confirmed: true,
             registered: true
         }, event);
         await VotesPerAntenna.recalculateVotesForAntenna(regularUser.bodies[0], event);
@@ -134,7 +134,7 @@ describe('Votes amounts listing', () => {
             participant_order: 1,
             body_id: regularUser.bodies[0].id,
             cancelled: false,
-            paid_fee: true,
+            confirmed: true,
             registered: true
         }, event);
         await VotesPerAntenna.recalculateVotesForAntenna(regularUser.bodies[0], event);

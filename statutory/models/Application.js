@@ -151,7 +151,7 @@ const Application = sequelize.define('application', {
             isBoolean
         }
     },
-    paid_fee: {
+    confirmed: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
@@ -159,12 +159,12 @@ const Application = sequelize.define('application', {
             isBoolean,
             notAllowIfCancelled(value) {
                 if (this.cancelled && value) {
-                    throw new Error('This application is cancelled, you cannot mark it as paid fee.');
+                    throw new Error('This application is cancelled, you cannot mark it as confirmed.');
                 }
             },
             notAllowIfAttended(value) {
                 if (!value && this.attended) {
-                    throw new Error('This application is markedd as attended, you cannot mark it as not paid fee.');
+                    throw new Error('This application is markedd as attended, you cannot mark it as not confirmed.');
                 }
             }
         }
@@ -175,9 +175,9 @@ const Application = sequelize.define('application', {
         defaultValue: false,
         validate: {
             isBoolean,
-            notAllowIfNotPaidFee(value) {
-                if (!this.paid_fee && value) {
-                    throw new Error('You should set user as paid fee first.');
+            notAllowIfNotConfirmed(value) {
+                if (!this.confirmed && value) {
+                    throw new Error('You should set user as confirmed first.');
                 }
             }
         }
@@ -188,9 +188,9 @@ const Application = sequelize.define('application', {
         defaultValue: false,
         validate: {
             isBoolean,
-            notAllowIfNotPaidFee(value) {
-                if (!this.paid_fee && value) {
-                    throw new Error('You should set user as paid fee first.');
+            notAllowIfNotConfirmed(value) {
+                if (!this.confirmed && value) {
+                    throw new Error('You should set user as confirmed first.');
                 }
             },
             notAllowIfDeparted(value) {

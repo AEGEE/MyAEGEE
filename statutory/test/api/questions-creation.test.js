@@ -27,7 +27,7 @@ describe('Questions creation', () => {
         const questionLine = await generator.createQuestionLine({ status: 'open' }, event);
         await generator.createApplication({
             user_id: regularUser.id,
-            paid_fee: true
+            confirmed: true
         }, event);
 
         const res = await request({
@@ -67,7 +67,7 @@ describe('Questions creation', () => {
         const questionLine = await generator.createQuestionLine({ status: 'closed' }, event);
         await generator.createApplication({
             user_id: regularUser.id,
-            paid_fee: true
+            confirmed: true
         }, event);
 
         const res = await request({
@@ -126,7 +126,7 @@ describe('Questions creation', () => {
         const questionLine = await generator.createQuestionLine({ status: 'open' }, event);
         await generator.createApplication({
             user_id: regularUser.id,
-            paid_fee: true
+            confirmed: true
         }, event);
 
         const res = await request({

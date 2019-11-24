@@ -43,7 +43,7 @@ describe('Applications attendance', () => {
 
     test('should succeed for other user when the permissions are okay', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ paid_fee: true }, event);
+        const application = await generator.createApplication({ confirmed: true }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/attended',
@@ -60,9 +60,9 @@ describe('Applications attendance', () => {
         expect(res.body.data.attended).toEqual(true);
     });
 
-    test('should fail if the application is not marked as paid fee', async () => {
+    test('should fail if the application is not marked as confirmed', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ paid_fee: false }, event);
+        const application = await generator.createApplication({ confirmed: false }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/attended',
@@ -82,7 +82,7 @@ describe('Applications attendance', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ paid_fee: true }, event);
+        const application = await generator.createApplication({ confirmed: true }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/attended',
@@ -115,7 +115,7 @@ describe('Applications attendance', () => {
 
     test('should return 422 if attended is invalid', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ paid_fee: true }, event);
+        const application = await generator.createApplication({ confirmed: true }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/attended',

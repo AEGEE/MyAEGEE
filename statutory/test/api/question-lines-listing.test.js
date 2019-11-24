@@ -77,7 +77,7 @@ describe('Question lines listing', () => {
         await generator.createApplication({
             user_id: regularUser.id,
             status: 'accepted',
-            paid_fee: true
+            confirmed: true
         }, firstEvent);
 
         const res = await request({
