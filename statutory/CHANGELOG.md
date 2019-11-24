@@ -1,3 +1,12 @@
+## [0.25.3](https://github.com/AEGEE/oms-statutory/compare/0.25.2...0.25.3) (2019-11-24)
+
+
+### Bug Fixes
+
+* **application:** renamed paid_fee to confirmed. Fixes MEMB-545 ([dfb6078](https://github.com/AEGEE/oms-statutory/commit/dfb6078))
+
+
+
 ## [0.25.2](https://github.com/AEGEE/oms-statutory/compare/0.25.1...0.25.2) (2019-11-13)
 
 
@@ -35,7 +44,7 @@
 
 
 
-## [0.24.1](https://github.com/AEGEE/oms-statutory/compare/0.24.0...0.24.1) (2019-11-05)
+## [0.24.1](https://github.com/AEGEE/oms-statutory/compare/0.23.1...0.24.1) (2019-11-05)
 
 
 ### Bug Fixes
@@ -43,14 +52,6 @@
 * **deps:** fixed security vulnerabilities ([5bd52fc](https://github.com/AEGEE/oms-statutory/commit/5bd52fc))
 * **events:** fix events date filtering ([a0c4e3f](https://github.com/AEGEE/oms-statutory/commit/a0c4e3f))
 * **test:** fixed another flapping test ([7c22b24](https://github.com/AEGEE/oms-statutory/commit/7c22b24))
-
-
-
-# [0.24.0](https://github.com/AEGEE/oms-statutory/compare/0.23.1...0.24.0) (2019-11-04)
-
-
-### Bug Fixes
-
 * **test:** fixed another flappy test ([4af6429](https://github.com/AEGEE/oms-statutory/commit/4af6429))
 
 
