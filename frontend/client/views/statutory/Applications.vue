@@ -85,8 +85,8 @@
               {{ props.row.cancelled | beautify }}
             </b-table-column>
 
-            <b-table-column field="paid_fee" label="Confirmed?" centered>
-              {{ props.row.paid_fee | beautify }}
+            <b-table-column field="confirmed" label="Confirmed?" centered>
+              {{ props.row.confirmed | beautify }}
             </b-table-column>
 
             <b-table-column field="attended" label="Attended?" centered>

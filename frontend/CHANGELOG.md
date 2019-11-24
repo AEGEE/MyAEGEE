@@ -1,3 +1,13 @@
+<a name="0.28.2"></a>
+## [0.28.2](https://github.com/AEGEE/oms-frontend/compare/0.28.1...0.28.2) (2019-11-24)
+
+
+### Bug Fixes
+
+* **application:** renamed paid_fee to confirmed. Fixes MEMB-545 ([83b5f97](https://github.com/AEGEE/oms-frontend/commit/83b5f97))
+
+
+
 <a name="0.28.1"></a>
 ## [0.28.1](https://github.com/AEGEE/oms-frontend/compare/0.28.0...0.28.1) (2019-11-23)
 

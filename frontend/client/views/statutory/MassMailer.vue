@@ -24,7 +24,7 @@
               <div class="field is-fullwidth">
                 <label class="label">Filter on confirmation</label>
                 <div class="select">
-                  <select v-model="paid_fee">
+                  <select v-model="confirmed">
                     <option :value="null">Everybody</option>
                     <option :value="true">Confirmed participants</option>
                     <option :value="false">Not confirmed participants</option>
@@ -128,7 +128,7 @@ export default {
     return {
       text: '',
       status: null,
-      paid_fee: null,
+      confirmed: null,
       participant_type: null,
       subject: '',
       reply_to: 'chair@aegee.org',
@@ -160,7 +160,7 @@ export default {
       let filterObj = {}
 
       if (this.status !== null) filterObj.status = this.status
-      if (this.paid_fee !== null) filterObj.paid_fee = this.paid_fee
+      if (this.confirmed !== null) filterObj.confirmed = this.confirmed
       if (this.participant_type !== null) filterObj.participant_type = this.participant_type
 
       return filterObj
