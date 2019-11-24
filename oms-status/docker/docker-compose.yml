@@ -18,7 +18,8 @@ services:
 
   statuspage:
     restart: always
-    image: aegee/statuspage:sl
+    image: aegee/statuspage:2.4-dev-slack
+    env_file: ./${PATH_OMS_STATUS}/cachet/.env
     volumes:
       - ./${PATH_OMS_STATUS}/cachet/.env:/app/.env:rw
     depends_on:
