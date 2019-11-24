@@ -52,13 +52,13 @@
               {{ props.row.participant_type && `${props.row.participant_type} (${props.row.participant_order})` }}
             </b-table-column>
 
-            <b-table-column field="paid_fee" label="Confirmed" centered>
-              {{ props.row.paid_fee | beautify }}
+            <b-table-column field="confirmed" label="Confirmed" centered>
+              {{ props.row.confirmed | beautify }}
             </b-table-column>
 
             <b-table-column field="registered" label="JC registered?" centered sortable>
               <div class="select" :class="{ 'is-loading': props.row.isSavingRegistered }">
-                <select v-model="props.row.newRegistered" @change="switchPaxRegistered(props.row)" :disabled="props.row.departed || !props.row.paid_fee">
+                <select v-model="props.row.newRegistered" @change="switchPaxRegistered(props.row)" :disabled="props.row.departed || !props.row.confirmed">
                   <option :value="true">Yes</option>
                   <option :value="false">No</option>
                 </select>

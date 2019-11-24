@@ -24,7 +24,7 @@
             </tr>
             <tr>
               <th>Confirmed:</th>
-              <td>{{ stats.numbers.paid_fee }}</td>
+              <td>{{ stats.numbers.confirmed }}</td>
             </tr>
             <tr>
               <th>Arrived:</th>
@@ -128,7 +128,7 @@ export default {
           accepted: 0,
           rejected: 0,
           pending: 0,
-          paid_fee: 0,
+          confirmed: 0,
           attended: 0,
           registered: 0,
           departed: 0

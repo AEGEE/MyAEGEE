@@ -30,9 +30,9 @@
               {{ props.row.participant_type ? `${props.row.participant_type} (${props.row.participant_order})` : '' }}
             </b-table-column>
 
-            <b-table-column field="paid_fee" label="Confirmed?" centered>
-              <span :class="calculateClassForTag(props.row.paid_fee)">
-                {{ props.row.paid_fee | beautify }}
+            <b-table-column field="confirmed" label="Confirmed?" centered>
+              <span :class="calculateClassForTag(props.row.confirmed)">
+                {{ props.row.confirmed | beautify }}
               </span>
             </b-table-column>
 

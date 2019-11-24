@@ -58,9 +58,9 @@
               {{ props.row.allergies }}
             </b-table-column>
 
-            <b-table-column field="paid_fee" label="Confirmed?" centered sortable>
-              <div class="select" :class="{ 'is-loading': props.row.isSavingPaidFee }">
-                <select v-model="props.row.newPaidFee" @change="switchPaxPaidFee(props.row)" :disabled="props.row.attended">
+            <b-table-column field="confirmed" label="Confirmed?" centered sortable>
+              <div class="select" :class="{ 'is-loading': props.row.isSavingConfirmed }">
+                <select v-model="props.row.newConfirmed" @change="switchPaxConfirmed(props.row)" :disabled="props.row.attended">
                   <option :value="true">Yes</option>
                   <option :value="false">No</option>
                 </select>
@@ -69,7 +69,7 @@
 
             <b-table-column field="attended" label="Attended?" centered sortable>
               <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
-                <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.paid_fee">
+                <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.confirmed">
                   <option :value="true">Yes</option>
                   <option :value="false">No</option>
                 </select>
@@ -150,16 +150,16 @@ export default {
         this.$root.showDanger('Could not update participant attendance info: ' + err.message)
       })
     },
-    switchPaxPaidFee (pax) {
-      pax.isSavingPaidFee = true
-      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/paid_fee'
+    switchPaxConfirmed (pax) {
+      pax.isSavingConfirmed = true
+      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/confirmed'
 
-      this.axios.put(url, { paid_fee: pax.newPaidFee }).then(() => {
-        pax.paid_fee = pax.newPaidFee
-        pax.isSavingPaidFee = false
+      this.axios.put(url, { confirmed: pax.newConfirmed }).then(() => {
+        pax.confirmed = pax.newConfirmed
+        pax.isSavingConfirmed = false
         this.$root.showSuccess(`Successfully updated fee info of application for user #${pax.user_id}`)
       }).catch((err) => {
-        pax.isSavingPaidFee = false
+        pax.isSavingConfirmed = false
         this.$root.showDanger('Could not update participant fee info: ' + err.message)
       })
     },
@@ -185,9 +185,9 @@ export default {
 
         // Fetching users and bodies.
         for (const pax of this.applications) {
-          this.$set(pax, 'newPaidFee', pax.paid_fee)
+          this.$set(pax, 'newConfirmed', pax.confirmed)
           this.$set(pax, 'newAttended', pax.attended)
-          this.$set(pax, 'isSavingPaidFee', false)
+          this.$set(pax, 'isSavingConfirmed', false)
           this.$set(pax, 'isSavingAttended', false)
         }
       }).catch((err) => {

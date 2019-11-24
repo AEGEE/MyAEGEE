@@ -151,7 +151,7 @@
                 </tr>-->
                 <tr>
                   <th>Confirmed?</th>
-                  <td>{{ application.paid_fee | beautify }}</td>
+                  <td>{{ application.confirmed | beautify }}</td>
                 </tr>
                 <tr>
                   <th>Attended?</th>

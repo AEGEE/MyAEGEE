@@ -37,7 +37,7 @@
           <div class="field is-fullwidth">
             <label class="label">Filter on confirmation</label>
             <div class="select">
-              <select v-model="filter.paid_fee">
+              <select v-model="filter.confirmed">
                 <option :value="null">Everybody</option>
                 <option :value="true">Confirmed participants</option>
                 <option :value="false">Not confirmed participants</option>
@@ -106,7 +106,7 @@ export default {
         board_comment: 'Board comment',
         status: 'Status',
         cancelled: 'Cancelled?',
-        paid_fee: 'Confirmed?',
+        confirmed: 'Confirmed?',
         attended: 'Attended?',
         registered: 'JC registered?',
         departed: 'Departed?',
@@ -144,7 +144,7 @@ export default {
         board_comment: 'Board comment',
         status: 'Status',
         cancelled: 'Cancelled?',
-        paid_fee: 'Confirmed?',
+        confirmed: 'Confirmed?',
         attended: 'Attended?',
         registered: 'JC registered?',
         departed: 'Departed?',
@@ -175,7 +175,7 @@ export default {
       },
       filter: {
         status: null,
-        paid_fee: null
+        confirmed: null
       },
       can: {
         export: {
@@ -229,7 +229,7 @@ export default {
       const filter = {}
 
       if (this.filter.status !== null) filter.status = this.filter.status
-      if (this.filter.paid_fee !== null) filter.paid_fee = this.filter.paid_fee
+      if (this.filter.confirmed !== null) filter.confirmed = this.filter.confirmed
 
       return filter
     }
