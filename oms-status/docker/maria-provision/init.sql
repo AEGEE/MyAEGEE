@@ -777,13 +777,13 @@ UNLOCK TABLES;
 
 -- ACTUAL USER INPUTTED VALUES
 INSERT INTO cachet.component_groups (name,`order`,visible,collapsed,created_at,updated_at) VALUES
-('API',0,1,0,'2019-06-30 17:21:15.000','2019-06-30 17:21:15.000')
+ ('API',0,1,0,'2019-06-30 17:21:15.000','2019-06-30 17:21:15.000')
 ,('Other own services',0,1,0,'2019-06-30 17:21:32.000','2019-06-30 17:22:03.000')
 ,('Cloud services',0,1,0,'2019-06-30 17:22:18.000','2019-06-30 17:22:18.000')
 ;
 
 INSERT INTO cachet.components (name,description,link,status,`order`,group_id,enabled,meta,created_at,updated_at,deleted_at) VALUES
-('Core','The API providing members login and membership (in the future, only the membership)','',1,0,1,1,NULL,'2019-06-30 17:23:15.000','2019-06-30 17:23:15.000',NULL)
+ ('Core','The API providing members login and membership (in the future, only the membership)','',1,0,1,1,NULL,'2019-06-30 17:23:15.000','2019-06-30 17:23:15.000',NULL)
 ,('Events','The API providing members with events','',1,0,1,1,NULL,'2019-06-30 17:23:39.000','2019-06-30 17:23:39.000',NULL)
 ,('Statutory','The API providing members with the statutory events to apply to. In future, also voting','',1,0,1,1,NULL,'2019-06-30 17:24:16.000','2019-06-30 17:24:16.000',NULL)
 ,('Auth0','In the future, we will login through that','https://status.auth0.com/',0,0,3,1,NULL,'2019-06-30 17:24:34.000','2019-06-30 17:25:02.000',NULL)
@@ -795,7 +795,7 @@ INSERT INTO cachet.components (name,description,link,status,`order`,group_id,ena
 ,('Survey','Where members make surveys for impact management or anything','https://survey.aegee.eu',4,0,2,1,NULL,'2019-06-30 17:30:06.000','2019-06-30 17:33:30.000',NULL)
 ;
 INSERT INTO cachet.components (name,description,link,status,`order`,group_id,enabled,meta,created_at,updated_at,deleted_at) VALUES
-('Gsuite','The Gsuite API and services','https://www.google.com/appsstatus',1,0,3,1,NULL,'2019-06-30 17:31:21.000','2019-06-30 17:31:21.000',NULL)
+ ('Gsuite','The Gsuite API and services','https://www.google.com/appsstatus',1,0,3,1,NULL,'2019-06-30 17:31:21.000','2019-06-30 17:31:21.000',NULL)
 ,('Podio','We use it for too many things','https://status.podio.com/',1,0,3,1,NULL,'2019-06-30 17:32:01.000','2019-06-30 17:32:01.000',NULL)
 ,('Helpdesk','Where AEGEEans can ask their questions for support','https://status.atlassian.com/',1,0,3,1,NULL,'2019-06-30 17:33:04.000','2019-06-30 17:33:04.000',NULL)
 ,('Website','The AEGEE website','',4,0,2,1,NULL,'2019-06-30 17:24:16.000','2019-06-30 17:24:16.000',NULL)
@@ -803,7 +803,7 @@ INSERT INTO cachet.components (name,description,link,status,`order`,group_id,ena
 ;
 
 INSERT INTO cachet.settings (name,value,created_at,updated_at) VALUES
-('app_name','AEGEE Statuspage','2019-06-20 10:02:45.000','2019-06-21 11:50:52.000')
+ ('app_name','AEGEE Statuspage','2019-06-20 10:02:45.000','2019-06-21 11:50:52.000')
 ,('app_domain','https://status.monitor.barnab.eu','2019-06-20 10:02:45.000','2019-06-20 14:08:20.000')
 ,('app_timezone','UTC','2019-06-20 10:02:45.000','2019-06-21 13:36:52.000')
 ,('app_locale','en','2019-06-20 10:02:45.000','2019-06-20 10:02:45.000')
@@ -815,7 +815,7 @@ INSERT INTO cachet.settings (name,value,created_at,updated_at) VALUES
 ,('style_banner_background_color','','2019-06-20 10:03:22.000','2019-06-20 10:03:22.000')
 ;
 INSERT INTO cachet.settings (name,value,created_at,updated_at) VALUES
-('style_banner_padding','40px 0','2019-06-20 10:03:22.000','2019-06-20 10:03:22.000')
+ ('style_banner_padding','40px 0','2019-06-20 10:03:22.000','2019-06-20 10:03:22.000')
 ,('style_fullwidth_header','0','2019-06-20 10:03:22.000','2019-06-20 10:03:22.000')
 ,('style_reds','#ff6f6f','2019-06-20 10:03:22.000','2019-06-20 10:03:22.000')
 ,('style_blues','#3498db','2019-06-20 10:03:22.000','2019-06-20 10:03:22.000')
@@ -827,7 +827,7 @@ INSERT INTO cachet.settings (name,value,created_at,updated_at) VALUES
 ,('style_background_fills','#ffffff','2019-06-20 10:03:23.000','2019-06-20 10:03:23.000')
 ;
 INSERT INTO cachet.settings (name,value,created_at,updated_at) VALUES
-('dashboard_login_link','1','2019-06-20 10:03:23.000','2019-06-20 10:03:23.000')
+ ('dashboard_login_link','1','2019-06-20 10:03:23.000','2019-06-20 10:03:23.000')
 ,('app_about','This page provides status information on the services that are part of **AEGEE-Europe**''s infrastructure.','2019-06-20 10:08:20.000','2019-06-21 12:09:29.000')
 ,('major_outage_rate','50','2019-06-20 10:08:20.000','2019-06-20 10:08:20.000')
 ,('enable_subscribers','1','2019-06-20 10:08:20.000','2019-06-20 10:08:20.000')
@@ -839,7 +839,7 @@ INSERT INTO cachet.settings (name,value,created_at,updated_at) VALUES
 ,('show_timezone','1','2019-06-20 10:08:20.000','2019-06-20 10:08:20.000')
 ;
 INSERT INTO cachet.settings (name,value,created_at,updated_at) VALUES
-('only_disrupted_days','1','2019-06-20 10:08:20.000','2019-06-20 10:08:20.000')
+ ('only_disrupted_days','1','2019-06-20 10:08:20.000','2019-06-20 10:08:20.000')
 ,('always_authenticate','0','2019-06-20 13:53:34.000','2019-06-20 13:53:39.000')
 ,('allowed_domains','','2019-06-20 13:53:34.000','2019-06-20 13:53:34.000')
 ,('stylesheet','.banner-image {
@@ -860,5 +860,5 @@ body.tooltip {
 ;
 
 INSERT INTO cachet.users (username,password,remember_token,google_2fa_secret,email,api_key,active,`level`,welcomed,created_at,updated_at) VALUES
-('admin','$2y$10$/QBzoteG7cjYR4./LQCPeOzusOtJsthU7NXgfEKep6o..x1DGyS5i',NULL,NULL,'devs@aegee.eu','YiamoGVeQBI8xcNpG5FO',1,1,0,'2019-07-13 18:22:17.000','2019-07-13 18:22:17.000')
+ ('admin','$2y$10$/QBzoteG7cjYR4./LQCPeOzusOtJsthU7NXgfEKep6o..x1DGyS5i',NULL,NULL,'devs@aegee.eu','YiamoGVeQBI8xcNpG5FO',1,1,0,'2019-07-13 18:22:17.000','2019-07-13 18:22:17.000')
 ;
