@@ -1,3 +1,12 @@
+## [0.26.1](https://github.com/AEGEE/oms-statutory/compare/0.26.0...0.26.1) (2019-11-24)
+
+
+### Bug Fixes
+
+* **general:** fixed locations migration ([2c281f4](https://github.com/AEGEE/oms-statutory/commit/2c281f4))
+
+
+
 # [0.26.0](https://github.com/AEGEE/oms-statutory/compare/0.25.3...0.26.0) (2019-11-24)
 
 
