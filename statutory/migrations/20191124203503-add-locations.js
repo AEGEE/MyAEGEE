@@ -4,7 +4,8 @@ module.exports = {
         'locations',
         {
             type: Sequelize.JSONB,
-            allowNull: false
+            allowNull: false,
+            defaultValue: []
         }
     ),
     down: queryInterface => queryInterface.removeColumn('events', 'locations')
