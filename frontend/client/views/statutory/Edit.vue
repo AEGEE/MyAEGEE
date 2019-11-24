@@ -296,6 +296,61 @@
 
         <p class="help is-danger" v-if="errors.fee">{{ errors.questions.message }}</p>
 
+
+        <div class="subtitle is-fullwidth has-text-centered">Locations</div>
+        <hr/>
+
+        <div class="tile" style="position: relative; height: 400px">
+          <MglMap
+            :accessToken="accessToken"
+            :mapStyle="map.style"
+            :zoom="map.zoom"
+            :scrollZoom="false"
+            @load="onMapLoaded"
+            :center="map.center" >
+            <MglNavigationControl position="top-right" />
+            <MglMarker
+              v-for="(location, index) in event.locations"
+              v-bind:key="index"
+              :coordinates="location.position"
+              color="red"
+              :draggable="true"
+              @dragend="setMarkerPosition($event, index)"/>
+          </MglMap>
+        </div>
+
+        <table class="table is-narrowed is-stripped is-fullwidth">
+          <thead>
+            <tr>
+              <th>Latitude</th>
+              <th>Longitude</th>
+              <th>Name</th>
+              <th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(marker, index) in event.locations" v-bind:key="index">
+              <td>{{ marker.position.lat }}</td>
+              <td>{{ marker.position.lng }}</td>
+              <td>
+                <input type="text" class="input" required v-model="marker.name" />
+              </td>
+              <td>
+                <button class="button is-danger" @click="deleteLocation(index)">Delete location</button>
+              </td>
+            </tr>
+            <tr colspan="4" v-if="event.locations.length === 0">
+              <td>No locations added.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="field">
+          <div class="control">
+            <a class="button is-primary" @click="addLocation()">Add new location</a>
+          </div>
+        </div>
+
         <div class="field">
           <div class="control">
             <input type="submit" value="Save event" :disabled="isSaving" class="button is-primary is-fullwidth"/>
@@ -311,12 +366,17 @@
 <script>
 import { mapGetters } from 'vuex'
 import TimezoneNotification from '../../components/notifications/TimezoneNotification'
-
+import Mapbox from 'mapbox-gl'
+import { MglMap, MglMarker, MglNavigationControl } from 'vue-mapbox'
+import credentials from  '../../credentials'
 
 export default {
   name: 'EditStatutory',
   components: {
-    TimezoneNotification
+    TimezoneNotification,
+    MglMap,
+    MglMarker,
+    MglNavigationControl
   },
   data () {
     return {
@@ -333,6 +393,7 @@ export default {
         participants_list_publish_deadline: null,
         memberslist_submission_deadline: null,
         questions: [],
+        locations: [],
         fee: null,
         starts: null,
         ends: null
@@ -346,6 +407,12 @@ export default {
         memberslist_submission_deadline: null,
         starts: null,
         ends: null
+      },
+       map: {
+        actions: null,
+        style: credentials.MAPS_API_TOKEN,
+        center: { lat: 50.8503396, lng: 4.3517103 },
+        zoom: 8
       },
       newValue: '',
       autoComplete: {
@@ -419,6 +486,47 @@ export default {
     },
     deleteQuestion (index) {
       this.event.questions.splice(index, 1)
+    },
+    addLocation () {
+      this.event.locations.push({
+        name: '',
+        position: {
+          lat: this.map.center.lat,
+          lng: this.map.center.lng
+        }
+      })
+    },
+    deleteLocation(index) {
+      this.event.locations.splice(index, 1)
+    },
+    setMarkerPosition (event, index) {
+      const newCoords = event.marker.getLngLat()
+
+      this.event.locations[index].position.lat = newCoords.lat
+      this.event.locations[index].position.lng = newCoords.lng
+    },
+    onMapLoaded (event) {
+      this.map.actions = event.component.actions
+
+      // waiting till the event is loaded.
+      if (!this.isLoading && this.event.id) {
+        this.centerMap()
+      }
+    },
+    centerMap () {
+      // we don't know, what'll happen first, the map will load or the event will load.
+      // and we need both to be loaded.
+      if (this.event.locations.length === 0) {
+        return
+      }
+
+      // if it's a single point, then just centering on it
+      if (this.event.locations.length === 1) {
+        this.map.actions.flyTo({ center: this.event.locations[0].position })
+        return
+      }
+
+      this.map.actions.fitBounds(this.event.locations.map(location => location.position), { padding: 50 })
     },
     saveEvent () {
       if (this.event.questions.length === 0) {
@@ -545,6 +653,11 @@ export default {
       return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.event.body_id)
     }).then((response) => {
       this.$set(this.event, 'body', response.data.data)
+
+      if (this.map.actions) {
+        this.centerMap()
+      }
+
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false
