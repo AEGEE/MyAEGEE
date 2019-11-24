@@ -573,7 +573,7 @@ describe('Events creation', () => {
     });
 
     it('should return 422 if the locations.position[].name is not a string', async () => {
-        const event = generator.generateEvent({ locations: [{ name: false}] });
+        const event = generator.generateEvent({ locations: [{ name: false }] });
 
         const res = await request({
             uri: '/',
@@ -589,7 +589,7 @@ describe('Events creation', () => {
     });
 
     it('should return 422 if the locations.position[].name is empty', async () => {
-        const event = generator.generateEvent({ locations: [{ name: '       '}] });
+        const event = generator.generateEvent({ locations: [{ name: '       ' }] });
 
         const res = await request({
             uri: '/',
