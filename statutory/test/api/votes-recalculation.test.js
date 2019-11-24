@@ -90,7 +90,7 @@ describe('Votes per antenna/delegate recalculation', () => {
                 participant_order: 1,
                 body_id: regularUser.bodies[0].id,
                 cancelled: false,
-                paid_fee: true
+                confirmed: true
             }, event);
             await VotesPerAntenna.recalculateVotesForDelegates(event, regularUser.bodies[0].id);
 
@@ -136,7 +136,7 @@ describe('Votes per antenna/delegate recalculation', () => {
                 participant_order: 1,
                 body_id: regularUser.bodies[0].id,
                 cancelled: false,
-                paid_fee: true,
+                confirmed: true,
                 registered: true
             }, event);
             await VotesPerAntenna.recalculateVotesForDelegates(event, regularUser.bodies[0].id);
@@ -182,7 +182,7 @@ describe('Votes per antenna/delegate recalculation', () => {
                 participant_order: 1,
                 body_id: regularUser.bodies[0].id,
                 cancelled: false,
-                paid_fee: true
+                confirmed: true
             }, event);
             await VotesPerAntenna.recalculateVotesForDelegates(event, regularUser.bodies[0].id);
 
@@ -287,7 +287,7 @@ describe('Votes per antenna/delegate recalculation', () => {
                         participant_type: 'delegate',
                         participant_order: index + 1,
                         registered: true,
-                        paid_fee: true,
+                        confirmed: true,
                         departed: false
                     }, event);
                 }

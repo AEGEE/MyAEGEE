@@ -151,7 +151,7 @@ describe('Applications listing', () => {
     test('should return only required data on /juridical', async () => {
         const event = await generator.createEvent();
 
-        await generator.createApplication({ status: 'accepted', paid_fee: true, user_id: 1 }, event);
+        await generator.createApplication({ status: 'accepted', confirmed: true, user_id: 1 }, event);
         await generator.createApplication({ user_id: 2 }, event);
 
         const res = await request({
@@ -176,8 +176,8 @@ describe('Applications listing', () => {
     test('should not return not accepted, cancelled or not confirmed applications on /juridical', async () => {
         const event = await generator.createEvent();
 
-        await generator.createApplication({ status: 'rejected', paid_fee: true, cancelled: false, user_id: 1 }, event);
-        await generator.createApplication({ status: 'accepted', paid_fee: false, cancelled: false, user_id: 2 }, event);
+        await generator.createApplication({ status: 'rejected', confirmed: true, cancelled: false, user_id: 1 }, event);
+        await generator.createApplication({ status: 'accepted', confirmed: false, cancelled: false, user_id: 2 }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/juridical',
@@ -211,7 +211,7 @@ describe('Applications listing', () => {
     test('should return only required data on /incoming', async () => {
         const event = await generator.createEvent();
 
-        await generator.createApplication({ status: 'accepted', paid_fee: true, user_id: 1 }, event);
+        await generator.createApplication({ status: 'accepted', confirmed: true, user_id: 1 }, event);
         await generator.createApplication({ user_id: 2 }, event);
 
         const res = await request({
@@ -270,7 +270,7 @@ describe('Applications listing', () => {
     test('should return only required data on /network', async () => {
         const event = await generator.createEvent();
 
-        await generator.createApplication({ status: 'accepted', paid_fee: true, user_id: 1 }, event);
+        await generator.createApplication({ status: 'accepted', confirmed: true, user_id: 1 }, event);
         await generator.createApplication({ user_id: 2 }, event);
 
         const res = await request({

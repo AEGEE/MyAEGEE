@@ -93,7 +93,7 @@ SingleApplicationRouter.put('/cancel', applications.setApplicationCancelled);
 SingleApplicationRouter.put('/attended', applications.setApplicationAttended);
 SingleApplicationRouter.put('/registered', applications.setApplicationRegistered);
 SingleApplicationRouter.put('/departed', applications.setApplicationDeparted);
-SingleApplicationRouter.put('/paid_fee', applications.setApplicationPaidFee);
+SingleApplicationRouter.put('/confirmed', applications.setApplicationConfirmed);
 SingleApplicationRouter.put('/is_on_memberslist', applications.setApplicationIsOnMemberslist);
 SingleApplicationRouter.put('/status', applications.setApplicationStatus);
 SingleApplicationRouter.put('/board', applications.setApplicationBoard);

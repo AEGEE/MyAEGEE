@@ -4,7 +4,7 @@ const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const regularUser = require('../assets/oms-core-valid').data;
 
-describe('Applications paid fee', () => {
+describe('Applications confirmation', () => {
     beforeAll(async () => {
         await startServer();
     });
@@ -29,10 +29,10 @@ describe('Applications paid fee', () => {
         await generator.createApplication({ user_id: regularUser.id }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/me/paid_fee',
+            uri: '/events/' + event.id + '/applications/me/confirmed',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { paid_fee: true }
+            body: { confirmed: true }
         });
 
         expect(res.statusCode).toEqual(403);
@@ -46,10 +46,10 @@ describe('Applications paid fee', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/paid_fee',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/confirmed',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { paid_fee: true }
+            body: { confirmed: true }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -57,7 +57,7 @@ describe('Applications paid fee', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.id).toEqual(application.id);
-        expect(res.body.data.paid_fee).toEqual(true);
+        expect(res.body.data.confirmed).toEqual(true);
     });
 
     test('should fail if application is cancelled', async () => {
@@ -65,16 +65,16 @@ describe('Applications paid fee', () => {
         const application = await generator.createApplication({ cancelled: true }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/paid_fee',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/confirmed',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { paid_fee: true }
+            body: { confirmed: true }
         });
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('paid_fee');
+        expect(res.body.errors).toHaveProperty('confirmed');
         expect(res.body).not.toHaveProperty('data');
     });
 
@@ -85,10 +85,10 @@ describe('Applications paid fee', () => {
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/paid_fee',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/confirmed',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { paid_fee: true }
+            body: { confirmed: true }
         });
 
         expect(res.statusCode).toEqual(403);
@@ -101,10 +101,10 @@ describe('Applications paid fee', () => {
         const event = await generator.createEvent({ applications: [] });
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/333/paid_fee',
+            uri: '/events/' + event.id + '/applications/333/confirmed',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { paid_fee: true }
+            body: { confirmed: true }
         });
 
         expect(res.statusCode).toEqual(404);
@@ -113,15 +113,15 @@ describe('Applications paid fee', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should return 422 if paid_fee is invalid', async () => {
+    test('should return 422 if confirmed is invalid', async () => {
         const event = await generator.createEvent();
         const application = await generator.createApplication({}, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/paid_fee',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/confirmed',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { paid_fee: 'lalala' }
+            body: { confirmed: 'lalala' }
         });
 
 
@@ -131,15 +131,15 @@ describe('Applications paid fee', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should return 422 on unsetting paid_fee if attended is true', async () => {
+    test('should return 422 on unsetting confirmed if attended is true', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ paid_fee: true, attended: true }, event);
+        const application = await generator.createApplication({ confirmed: true, attended: true }, event);
 
         const res = await request({
-            uri: '/events/' + event.id + '/applications/' + application.id + '/paid_fee',
+            uri: '/events/' + event.id + '/applications/' + application.id + '/confirmed',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
-            body: { paid_fee: false }
+            body: { confirmed: false }
         });
 
         expect(res.statusCode).toEqual(422);

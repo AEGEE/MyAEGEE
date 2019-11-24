@@ -62,7 +62,7 @@ describe('Questions displaying', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const application = await generator.createApplication({
             user_id: 1337,
-            paid_fee: true
+            confirmed: true
         }, event);
 
         const questionLine = await generator.createQuestionLine({ status: 'closed' }, event);
@@ -86,7 +86,7 @@ describe('Questions displaying', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const application = await generator.createApplication({
             user_id: regularUser.id,
-            paid_fee: true
+            confirmed: true
         }, event);
 
         const questionLine = await generator.createQuestionLine({ status: 'closed' }, event);
@@ -110,7 +110,7 @@ describe('Questions displaying', () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         const application = await generator.createApplication({
             user_id: 1337,
-            paid_fee: true
+            confirmed: true
         }, event);
 
         const questionLine = await generator.createQuestionLine({ status: 'closed' }, event);

@@ -287,10 +287,10 @@ describe('Statistics testing', () => {
         await generator.createApplication({ user_id: 1, status: 'pending' }, event);
         await generator.createApplication({ user_id: 2, status: 'rejected' }, event);
         await generator.createApplication({ user_id: 3, status: 'accepted' }, event);
-        await generator.createApplication({ user_id: 4, status: 'accepted', paid_fee: true }, event);
-        await generator.createApplication({ user_id: 5, status: 'accepted', paid_fee: true, attended: true }, event);
-        await generator.createApplication({ user_id: 6, status: 'accepted', paid_fee: true, attended: true, registered: true }, event);
-        await generator.createApplication({ user_id: 7, status: 'accepted', paid_fee: true, attended: true, registered: true, departed: true }, event);
+        await generator.createApplication({ user_id: 4, status: 'accepted', confirmed: true }, event);
+        await generator.createApplication({ user_id: 5, status: 'accepted', confirmed: true, attended: true }, event);
+        await generator.createApplication({ user_id: 6, status: 'accepted', confirmed: true, attended: true, registered: true }, event);
+        await generator.createApplication({ user_id: 7, status: 'accepted', confirmed: true, attended: true, registered: true, departed: true }, event);
 
         // cancelled aplications shouldn't count
         await generator.createApplication({ user_id: 8, status: 'pending', cancelled: true }, event);
@@ -312,7 +312,7 @@ describe('Statistics testing', () => {
         expect(res.body.data.numbers.rejected).toEqual(1);
         expect(res.body.data.numbers.pending).toEqual(1);
         expect(res.body.data.numbers.accepted).toEqual(5);
-        expect(res.body.data.numbers.paid_fee).toEqual(4);
+        expect(res.body.data.numbers.confirmed).toEqual(4);
         expect(res.body.data.numbers.attended).toEqual(3);
         expect(res.body.data.numbers.registered).toEqual(2);
         expect(res.body.data.numbers.departed).toEqual(1);

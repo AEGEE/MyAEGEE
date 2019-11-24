@@ -252,7 +252,7 @@ describe('Massmailer', () => {
             body: {
                 subject: 'Testing',
                 text: 'Testing mail sending.',
-                filter: { status: 'accepted', paid_fee: true }
+                filter: { status: 'accepted', confirmed: true }
             }
         });
 

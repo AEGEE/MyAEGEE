@@ -76,7 +76,7 @@ exports.listJCApplications = async (req, res) => {
     }
 
     const applications = await Application.findWithParams({
-        where: { event_id: req.event.id, cancelled: false, status: 'accepted', paid_fee: true },
+        where: { event_id: req.event.id, cancelled: false, status: 'accepted', confirmed: true },
         attributes: constants.ALLOWED_JURIDICAL_LIST_FIELDS,
         query: req.query
     });
@@ -127,7 +127,7 @@ exports.getStats = async (req, res) => {
         accepted: applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'accepted' })).length,
         rejected: applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'rejected' })).length,
         pending: applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'pending' })).length,
-        paid_fee: applications.filter(app => helpers.filterObject(app, { paid_fee: true })).length,
+        confirmed: applications.filter(app => helpers.filterObject(app, { confirmed: true })).length,
         registered: applications.filter(app => helpers.filterObject(app, { registered: true })).length,
         attended: applications.filter(app => helpers.filterObject(app, { attended: true })).length,
         departed: applications.filter(app => helpers.filterObject(app, { departed: true })).length
@@ -244,7 +244,7 @@ exports.updateApplication = async (req, res) => {
     delete req.body.attended;
     delete req.body.departed;
     delete req.body.cancelled;
-    delete req.body.paid_fee;
+    delete req.body.confirmed;
     delete req.body.user_id;
 
     // Some fields are filled in from the user/body automatically.
@@ -334,7 +334,7 @@ function setApplicationBoolean(key) {
 
 exports.setApplicationCancelled = setApplicationBoolean('cancelled');
 exports.setApplicationAttended = setApplicationBoolean('attended');
-exports.setApplicationPaidFee = setApplicationBoolean('paid_fee');
+exports.setApplicationConfirmed = setApplicationBoolean('confirmed');
 exports.setApplicationRegistered = setApplicationBoolean('registered');
 exports.setApplicationDeparted = setApplicationBoolean('departed');
 exports.setApplicationIsOnMemberslist = setApplicationBoolean('is_on_memberslist');
@@ -574,7 +574,7 @@ exports.postApplication = async (req, res) => {
     delete req.body.attended;
     delete req.body.departed;
     delete req.body.cancelled;
-    delete req.body.paid_fee;
+    delete req.body.confirmed;
 
     req.body.event_id = req.event.id;
 

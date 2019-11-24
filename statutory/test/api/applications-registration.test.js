@@ -43,7 +43,7 @@ describe('Applications registration', () => {
 
     test('should succeed for other user when the permissions are okay', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ paid_fee: true }, event);
+        const application = await generator.createApplication({ confirmed: true }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/registered',
@@ -57,12 +57,12 @@ describe('Applications registration', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.id).toEqual(application.id);
-        expect(res.body.data.paid_fee).toEqual(true);
+        expect(res.body.data.confirmed).toEqual(true);
     });
 
     test('should fail if application is marked as departed', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ paid_fee: true, registered: true, departed: true }, event);
+        const application = await generator.createApplication({ confirmed: true, registered: true, departed: true }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/registered',
@@ -82,7 +82,7 @@ describe('Applications registration', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ paid_fee: true, attended: true }, event);
+        const application = await generator.createApplication({ confirmed: true, attended: true }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/registered',
@@ -115,7 +115,7 @@ describe('Applications registration', () => {
 
     test('should return 422 if registered is invalid', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ paid_fee: true, attended: true }, event);
+        const application = await generator.createApplication({ confirmed: true, attended: true }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/registered',
@@ -130,9 +130,9 @@ describe('Applications registration', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should fail if the application is not marked as paid fee', async () => {
+    test('should fail if the application is not marked as confirmed', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ paid_fee: false }, event);
+        const application = await generator.createApplication({ confirmed: false }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/registered',

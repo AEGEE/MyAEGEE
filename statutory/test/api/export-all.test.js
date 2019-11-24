@@ -95,7 +95,7 @@ describe('Export all', () => {
             participant_type: 'delegate',
             participant_order: 1,
             attended: true,
-            paid_fee: true,
+            confirmed: true,
             departed: true,
             registered: true,
             cancelled: false,
@@ -271,7 +271,7 @@ describe('Export all', () => {
             body_id: regularUser.bodies[0].id,
             answers: [true, 'string'],
             status: 'accepted',
-            paid_fee: true
+            confirmed: true
         }, event);
 
         await generator.createApplication({
@@ -289,7 +289,7 @@ describe('Export all', () => {
             headers: { 'X-Auth-Token': 'blablabla', 'Content-Type': 'application/json' },
             qs: {
                 select: Object.keys(helpers.getApplicationFields(event)),
-                filter: { status: 'accepted', paid_fee: true }
+                filter: { status: 'accepted', confirmed: true }
             }
         });
 
