@@ -236,6 +236,28 @@
               </tbody>
             </table>
           </div>
+
+          <div class="tile" style="position: relative; height: 400px" v-if="this.event.locations.length > 0">
+            <MglMap
+              id="map"
+              accessToken=""
+              :mapStyle="map.style"
+              :zoom="map.zoom"
+              :scrollZoom="false"
+              @load="onMapLoaded"
+              :center="map.center">
+              <MglNavigationControl position="top-right" />
+              <MglMarker
+                v-for="(location, index) in event.locations"
+                v-bind:key="index"
+                :coordinates="location.position"
+                color="red">
+                <MglPopup>
+                  <div class="mapbox-popup-custom">{{ location.name }}</div>
+                </MglPopup>
+              </MglMarker>
+            </MglMap>
+          </div>
         </div>
       </article>
     </div>
@@ -246,8 +268,17 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import Mapbox from 'mapbox-gl'
+import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
+import credentials from  '../../credentials'
 
 export default {
+  components: {
+    MglMap,
+    MglMarker,
+    MglPopup,
+    MglNavigationControl
+  },
   name: 'SingleStatutory',
   data () {
     return {
@@ -260,7 +291,14 @@ export default {
         body: null,
         status: null,
         type: '',
-        image: null
+        image: null,
+        locations: []
+      },
+      map: {
+        actions: null,
+        style: credentials.MAPS_API_TOKEN,
+        center: { lat: 50.8503396, lng: 4.3517103 },
+        zoom: 8
       },
       isLoading: false,
       can: {
@@ -293,6 +331,29 @@ export default {
         this.$root.showInfo('Status is updated.')
         this.event.status = newStatus
       }).catch((err) => this.$root.showDanger('Could not update status: ' + err.message))
+    },
+    onMapLoaded (event) {
+      this.map.actions = event.component.actions
+
+      // waiting till the event is loaded.
+      if (!this.isLoading && this.event.id) {
+        this.centerMap()
+      }
+    },
+    centerMap () {
+      // we don't know, what'll happen first, the map will load or the event will load.
+      // and we need both to be loaded.
+      if (this.event.locations.length === 0) {
+        return
+      }
+
+      // if it's a single point, then just centering on it
+      if (this.event.locations.length === 1) {
+        this.map.actions.flyTo({ center: this.event.locations[0].position })
+        return
+      }
+
+      this.map.actions.fitBounds(this.event.locations.map(location => location.position), { padding: 50 })
     }
   },
   mounted () {
@@ -304,6 +365,10 @@ export default {
       return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.event.body_id)
     }).then((response) => {
       this.event.body = response.data.data
+
+      if (this.map.actions) {
+        this.centerMap()
+      }
 
       this.isLoading = false
     }).catch((err) => {
