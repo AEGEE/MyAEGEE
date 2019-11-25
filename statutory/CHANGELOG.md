@@ -1,3 +1,12 @@
+## [0.26.2](https://github.com/AEGEE/oms-statutory/compare/0.26.1...0.26.2) (2019-11-25)
+
+
+### Bug Fixes
+
+* **events:** expose constants as endpoints. Fixes MEMB-627 ([ec63101](https://github.com/AEGEE/oms-statutory/commit/ec63101))
+
+
+
 ## [0.26.1](https://github.com/AEGEE/oms-statutory/compare/0.26.0...0.26.1) (2019-11-24)
 
 
