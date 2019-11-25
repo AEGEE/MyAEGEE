@@ -152,7 +152,6 @@ export default {
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
-      this.can.export.all = false
 
       const prefix = this.can.export.all
         ? 'all'
