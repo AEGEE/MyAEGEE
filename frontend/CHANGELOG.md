@@ -1,3 +1,13 @@
+<a name="0.29.1"></a>
+## [0.29.1](https://github.com/AEGEE/oms-frontend/compare/0.29.0...0.29.1) (2019-11-25)
+
+
+### Bug Fixes
+
+* **events:** expose constants as endpoints. Fixes MEMB-627 ([c5f911b](https://github.com/AEGEE/oms-frontend/commit/c5f911b))
+
+
+
 <a name="0.29.0"></a>
 # [0.29.0](https://github.com/AEGEE/oms-frontend/compare/0.28.2...0.29.0) (2019-11-24)
 
