@@ -132,14 +132,14 @@ exports.changeEventStatus = async (req, res) => {
     });
 };
 
-exports.getApplicationAllFields = async (req, res, next) => {
+exports.getApplicationAllFields = async (req, res) => {
     return res.json({
         success: true,
         data: helpers.getApplicationFields(req.event)
     });
-}
+};
 
-exports.getApplicationIncomingFields = async (req, res, next) => {
+exports.getApplicationIncomingFields = async (req, res) => {
     const incomingFields = {};
     for (const field of constants.ALLOWED_INCOMING_FIELDS) {
         incomingFields[field] = constants.APPLICATION_FIELD_NAMES[field];
@@ -149,4 +149,4 @@ exports.getApplicationIncomingFields = async (req, res, next) => {
         success: true,
         data: incomingFields
     });
-}
+};
