@@ -1,6 +1,8 @@
 const moment = require('moment');
 
 const errors = require('./errors');
+const constants = require('./constants');
+const helpers = require('./helpers');
 const { Sequelize } = require('./sequelize');
 const { Event, Image } = require('../models');
 
@@ -127,5 +129,24 @@ exports.changeEventStatus = async (req, res) => {
     return res.json({
         success: true,
         message: 'Event status was changed successfully.'
+    });
+};
+
+exports.getApplicationAllFields = async (req, res) => {
+    return res.json({
+        success: true,
+        data: helpers.getApplicationFields(req.event)
+    });
+};
+
+exports.getApplicationIncomingFields = async (req, res) => {
+    const incomingFields = {};
+    for (const field of constants.ALLOWED_INCOMING_FIELDS) {
+        incomingFields[field] = constants.APPLICATION_FIELD_NAMES[field];
+    }
+
+    return res.json({
+        success: true,
+        data: incomingFields
     });
 };

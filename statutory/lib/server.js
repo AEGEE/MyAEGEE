@@ -70,6 +70,8 @@ PaxLimitsRouter.get('/', paxLimits.listAllLimits);
 
 EventsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
 EventsRouter.get('/', events.displayEvent);
+EventsRouter.get('/fields/applications/all', events.getApplicationAllFields);
+EventsRouter.get('/fields/applications/incoming', events.getApplicationIncomingFields);
 EventsRouter.use(middlewares.ensureAuthorized);
 EventsRouter.put('/', events.editEvent);
 EventsRouter.put('/status', events.changeEventStatus);
