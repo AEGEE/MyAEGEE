@@ -1,3 +1,13 @@
+<a name="0.29.2"></a>
+## [0.29.2](https://github.com/AEGEE/oms-frontend/compare/0.29.1...0.29.2) (2019-11-25)
+
+
+### Bug Fixes
+
+* **statutory:** fixed exporting applications permissions ([40b47f7](https://github.com/AEGEE/oms-frontend/commit/40b47f7))
+
+
+
 <a name="0.29.1"></a>
 ## [0.29.1](https://github.com/AEGEE/oms-frontend/compare/0.29.0...0.29.1) (2019-11-25)
 
