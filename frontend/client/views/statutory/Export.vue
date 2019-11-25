@@ -45,24 +45,7 @@
             </div>
           </div>
 
-          <div v-if="!can.export.all">
-            <div class="field" v-for="(field, key) in incomingFields" v-bind:key="key">
-              <label class="checkbox">
-                <input type="checkbox" v-model="selectedFields[key]">
-                {{ incomingFields[key] }}
-              </label>
-            </div>
-
-            <div class="field">
-              <div class="control">
-                <button @click="exportAll('incoming')" class="button is-primary">
-                  Export incoming info
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="can.export.all">
+          <div>
             <div class="field" v-for="(field, key) in fields" v-bind:key="key">
               <label class="checkbox">
                 <input type="checkbox" v-model="selectedFields[key]">
@@ -73,7 +56,7 @@
 
             <div class="field">
               <div class="control">
-                <button @click="exportAll('all')" class="button is-primary">
+                <button @click="exportAll()" class="button is-primary">
                   Export participants data
                 </button>
               </div>
@@ -93,82 +76,7 @@ export default {
   data () {
     return {
       applications: [],
-      fields: {
-        id: 'ID',
-        statutory_id: 'Statutory ID',
-        user_id: 'User ID',
-        body_id: 'Body ID',
-        created_at: 'Applied on',
-        updated_at: 'Updated at',
-        visa_required: 'Visa required?',
-        participant_type: 'Participant type',
-        participant_order: 'Participant order',
-        board_comment: 'Board comment',
-        status: 'Status',
-        cancelled: 'Cancelled?',
-        confirmed: 'Confirmed?',
-        attended: 'Attended?',
-        registered: 'JC registered?',
-        departed: 'Departed?',
-        first_name: 'First name',
-        last_name: 'Last name',
-        email: 'Email',
-        gender: 'Gender',
-        body_name: 'Body name',
-        nationality: 'Nationality',
-        visa_place_of_birth: 'Visa: place of birth',
-        visa_passport_number: 'Visa: passport number',
-        visa_passport_issue_date: 'Visa: passport issue date',
-        visa_passport_expiration_date: 'Visa: passport expiration date',
-        visa_passport_issue_authority: 'Visa: passport issue authority',
-        visa_embassy: 'Visa: embassy',
-        visa_street_and_house: 'Visa: street and house number',
-        visa_postal_code: 'Visa: postal code',
-        visa_city: 'Visa: city',
-        visa_country: 'Visa: country',
-        date_of_birth: 'Date of birth',
-        number_of_events_visited: 'Number of Agora/EPM visited',
-        meals: 'Meals',
-        allergies: 'Allergies'
-      },
-      incomingFields: {
-        id: 'ID',
-        statutory_id: 'Statutory ID',
-        user_id: 'User ID',
-        body_id: 'Body ID',
-        created_at: 'Applied on',
-        updated_at: 'Updated at',
-        visa_required: 'Visa required?',
-        participant_type: 'Participant type',
-        participant_order: 'Participant order',
-        board_comment: 'Board comment',
-        status: 'Status',
-        cancelled: 'Cancelled?',
-        confirmed: 'Confirmed?',
-        attended: 'Attended?',
-        registered: 'JC registered?',
-        departed: 'Departed?',
-        first_name: 'First name',
-        last_name: 'Last name',
-        email: 'Email',
-        gender: 'Gender',
-        body_name: 'Body name',
-        nationality: 'Nationality',
-        visa_place_of_birth: 'Visa: place of birth',
-        visa_passport_number: 'Visa: passport number',
-        visa_passport_issue_date: 'Visa: passport issue date',
-        visa_passport_expiration_date: 'Visa: passport expiration date',
-        visa_passport_issue_authority: 'Visa: passport issue authority',
-        visa_embassy: 'Visa: embassy',
-        visa_street_and_house: 'Visa: street and house number',
-        visa_postal_code: 'Visa: postal code',
-        visa_city: 'Visa: city',
-        visa_country: 'Visa: country',
-        date_of_birth: 'Date of birth',
-        number_of_events_visited: 'Number of Agora/EPM visited',
-        meals: 'Meals',
-        allergies: 'Allergies'
-      },
+      fields: {},
       selectedFields: {},
       event: {
         name: ''
@@ -203,7 +111,11 @@ export default {
         link.click()
       })
     },
-    exportAll (prefix) {
+    exportAll () {
+      const prefix = this.can.export.all
+        ? 'all'
+        : 'incoming'
+
       const select = this.filterKeys()
       const filter = this.filterApplications()
 
@@ -240,19 +152,21 @@ export default {
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
+      this.can.export.all = false
 
+      const prefix = this.can.export.all
+        ? 'all'
+        : 'incoming'
+
+      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/fields/applications/' + prefix)
+    }).then((response) => {
+      this.fields = response.data.data
       this.isLoading = false
 
       // To not copypaste stuff.
       // Selecting all answers by default.
       for (const field in this.fields) {
-        const isIncomingField = (field in this.incomingFields)
-        this.$set(this.selectedFields, field, this.can.export.all || isIncomingField)
-      }
-
-      for (let index = 0; index < this.event.questions.length; index++) {
-        this.$set(this.fields, 'answers.' + index, `Answer ${index + 1}: ${this.event.questions[index].description}`)
-        this.$set(this.selectedFields, 'answers.' + index, this.can.export.all) // answers are only available to export.all
+        this.$set(this.selectedFields, field, true)
       }
     }).catch((err) => {
       this.isLoading = false
