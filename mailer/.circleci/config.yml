@@ -13,7 +13,7 @@ jobs:
       - run: MIX_ENV=test mix local.hex --force
       - run: MIX_ENV=test mix local.rebar --force
       - run: MIX_ENV=test mix deps.get
-      - run: MIX_ENV=test mix coveralls
+      - run: MIX_ENV=test SMTP_USER=mailer@aegee.eu mix coveralls
   build:
     machine:
       image: ubuntu-1604:201903-01
