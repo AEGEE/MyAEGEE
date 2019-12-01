@@ -1,3 +1,13 @@
+<a name="0.15.0"></a>
+# [0.15.0](https://github.com/AEGEE/oms-events/compare/0.14.1...0.15.0) (2019-12-01)
+
+
+### Features
+
+* **applications:** added confirmed and attended fields. Fixes MEMB-544, MEMB-118 ([f0f4f64](https://github.com/AEGEE/oms-events/commit/f0f4f64))
+
+
+
 <a name="0.14.1"></a>
 ## [0.14.1](https://github.com/AEGEE/oms-events/compare/0.14.0...0.14.1) (2019-11-22)
 
