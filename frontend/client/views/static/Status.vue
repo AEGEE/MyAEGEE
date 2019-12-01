@@ -9,6 +9,7 @@
             <tr>
               <th>Name</th>
               <th>Version</th>
+              <th>Latest version</th>
               <th>Changelog</th>
               <th>Round-trip time</th>
               <th>Is alive?</th>
@@ -18,6 +19,7 @@
             <tr v-for="(value, service) in statuses" v-bind:key="service">
               <td>{{ service }}</td>
               <td>{{ value.version }}</td>
+              <td>{{ value.latestVersion }}</td>
               <td v-if="value.changelog">
                 <a :href="value.changelog" target="_blank">{{ value.changelog }}</a>
               </td>
@@ -46,36 +48,42 @@ export default {
         'oms-core-elixir': {
           roundTrip: null,
           version: '-',
+          latestVersion: '-',
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/oms-core-elixir/blob/master/CHANGELOG.md'
         },
         'oms-mailer': {
           roundTrip: null,
           version: '-',
+          latestVersion: '-',
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/oms-mailer/blob/master/CHANGELOG.md'
         },
         'oms-events': {
           roundTrip: null,
           version: '-',
+          latestVersion: '-',
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/oms-events/blob/master/CHANGELOG.md'
         },
         'oms-statutory': {
           roundTrip: null,
           version: '-',
+          latestVersion: '-',
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/oms-statutory/blob/master/CHANGELOG.md'
         },
         'oms-discounts': {
           roundTrip: null,
           version: '-',
+          latestVersion: '-',
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/oms-discounts/blob/master/CHANGELOG.md'
         },
         'oms-frontend': {
           roundTrip: null,
           version: this.$store.state.pkg.version,
+          latestVersion: '-',
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/oms-frontend/blob/master/CHANGELOG.md'
         },
@@ -106,6 +114,18 @@ export default {
         this.statuses[service].roundTrip = Date.now() - timeStart
         this.statuses[service].isAlive = false
       })
+    },
+    fetchLatestVersionForService (service) {
+      fetch('https://api.github.com/repos/AEGEE/' + service + '/contents/package.json')
+        .then((res) => res.json())
+        .then((response) => {
+          const content = window.atob(response.content)
+          const jsonContent = JSON.parse(content)
+
+          this.statuses[service].latestVersion = jsonContent.version
+        }).catch((err) => {
+          console.log(err)
+        })
     }
   },
   computed: {
@@ -114,6 +134,7 @@ export default {
   mounted () {
     for (const service in this.statuses) {
       this.fetchHealthcheckForService(service)
+      this.fetchLatestVersionForService(service)
     }
   }
 }
