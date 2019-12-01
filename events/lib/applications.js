@@ -91,6 +91,38 @@ exports.updateApplication = async (req, res) => {
     });
 };
 
+exports.setApplicationConfirmed = async (req, res) => {
+    if (!req.permissions.set_participants_confirmed) {
+        return errors.makeForbiddenError(res, 'You don\'t have permissions to change this application.');
+    }
+
+    const dbResult = await req.application.update(
+        { confirmed: req.body.confirmed },
+        { returning: true }
+    );
+
+    return res.json({
+        success: true,
+        data: dbResult
+    });
+};
+
+exports.setApplicationAttended = async (req, res) => {
+    if (!req.permissions.set_participants_attended) {
+        return errors.makeForbiddenError(res, 'You don\'t have permissions to change this application.');
+    }
+
+    const dbResult = await req.application.update(
+        { attended: req.body.attended },
+        { returning: true }
+    );
+
+    return res.json({
+        success: true,
+        data: dbResult
+    });
+};
+
 exports.setApplicationStatus = async (req, res) => {
     // Check user permissions
     if (!req.permissions.approve_participants) {
