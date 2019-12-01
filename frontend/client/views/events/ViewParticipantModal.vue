@@ -47,7 +47,7 @@
 <script>
 export default {
   name: 'ViewParticipantModel',
-  props: ['participant'],
+  props: ['participant', 'event'],
   data () {
     return {}
   }

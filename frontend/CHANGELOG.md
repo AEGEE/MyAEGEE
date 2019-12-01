@@ -1,3 +1,13 @@
+<a name="0.30.1"></a>
+## [0.30.1](https://github.com/AEGEE/oms-frontend/compare/0.30.0...0.30.1) (2019-12-01)
+
+
+### Bug Fixes
+
+* **events:** fixed applications displaying ([7e43843](https://github.com/AEGEE/oms-frontend/commit/7e43843))
+
+
+
 <a name="0.30.0"></a>
 # [0.30.0](https://github.com/AEGEE/oms-frontend/compare/0.29.3...0.30.0) (2019-12-01)
 
