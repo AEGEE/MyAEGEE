@@ -1,3 +1,13 @@
+<a name="0.29.3"></a>
+## [0.29.3](https://github.com/AEGEE/oms-frontend/compare/0.29.2...0.29.3) (2019-12-01)
+
+
+### Bug Fixes
+
+* **general:** display latest versions of services on /status ([63fe958](https://github.com/AEGEE/oms-frontend/commit/63fe958))
+
+
+
 <a name="0.29.2"></a>
 ## [0.29.2](https://github.com/AEGEE/oms-frontend/compare/0.29.1...0.29.2) (2019-11-25)
 
