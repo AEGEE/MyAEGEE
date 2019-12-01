@@ -15,8 +15,8 @@
 
         <b-table
           :data="applications"
-          :loading="isLoading"
-          @click="showModal">
+          :row-class="row => calculateClassForApplication(row)"
+          :loading="isLoading">
           <template slot-scope="props">
             <b-table-column field="user_id" label="User ID" numeric sortable>
               {{ props.row.user_id }}
@@ -32,8 +32,36 @@
               </router-link>
             </b-table-column>
 
-            <b-table-column label="Status" :visible="can.approve_participants">
-              {{ props.row.status | capitalize }}
+            <b-table-column label="View">
+              <a href="#" @click.prevent="showModal(props.row)">View</a>
+            </b-table-column>
+
+            <b-table-column label="Manage status" field="status" centered sortable>
+              <div class="select" :class="{ 'is-loading': props.row.isSaving }">
+                <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)">
+                  <option value="pending">Pending</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+            </b-table-column>
+
+            <b-table-column label="Confirmed?" field="confirmed" centered sortable>
+              <div class="select" :class="{ 'is-loading': props.row.isSavingConfirmed }">
+                <select v-model="props.row.newConfirmed" @change="switchPaxConfirmed(props.row)" :disabled="props.row.attended">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+            </b-table-column>
+
+            <b-table-column label="Attended?" field="confirmed" centered sortable>
+              <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
+                <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.confirmed">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
             </b-table-column>
           </template>
 
@@ -78,6 +106,57 @@ export default {
         link.click()
       })
     },
+    calculateClassForApplication (pax) {
+      switch (pax.status) {
+        case 'accepted':
+          return 'has-background-success'
+        case 'rejected':
+          return 'has-background-danger'
+        case 'waiting_list':
+          return 'has-background-warning'
+        default:
+          return ''
+      }
+    },
+    switchPaxStatus (pax) {
+      pax.isSaving = true
+      const url = this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/' + pax.id + '/status'
+
+      this.axios.put(url, { status: pax.newStatus }).then(() => {
+        pax.status = pax.newStatus
+        pax.isSaving = false
+        this.$root.showSuccess(`Successfully updated status of application for user #${pax.user_id} to "${pax.status}"`)
+      }).catch((err) => {
+        pax.isSaving = false
+        this.$root.showDanger('Could not update participant status: ' + err.message)
+      })
+    },
+    switchPaxAttended (pax) {
+      pax.isSavingAttended = true
+      const url = this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/' + pax.id + '/attended'
+
+      this.axios.put(url, { attended: pax.newAttended }).then(() => {
+        pax.attended = pax.newAttended
+        pax.isSavingAttended = false
+        this.$root.showSuccess(`Successfully updated attendance info of application for user #${pax.user_id}`)
+      }).catch((err) => {
+        pax.isSavingAttended = false
+        this.$root.showDanger('Could not update participant attendance info: ' + err.message)
+      })
+    },
+    switchPaxConfirmed (pax) {
+      pax.isSavingConfirmed = true
+      const url = this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/' + pax.id + '/confirmed'
+
+      this.axios.put(url, { confirmed: pax.newConfirmed }).then(() => {
+        pax.confirmed = pax.newConfirmed
+        pax.isSavingConfirmed = false
+        this.$root.showSuccess(`Successfully updated fee info of application for user #${pax.user_id}`)
+      }).catch((err) => {
+        pax.isSavingConfirmed = false
+        this.$root.showDanger('Could not update participant fee info: ' + err.message)
+      })
+    },
     showModal (participant) {
       this.$buefy.modal.open({
         component: ViewParticipantModal,
@@ -88,10 +167,7 @@ export default {
           // I'm passing them as props.
           // More info: https://github.com/buefy/buefy/issues/55
           event: this.event,
-          participant,
-          services: this.services,
-          showDanger: this.$root.showDanger,
-          showSuccess: this.$root.showSuccess
+          participant
         }
       })
     }
@@ -114,6 +190,16 @@ export default {
       return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications')
     }).then((applications) => {
       this.applications = applications.data.data
+
+      for (const pax of this.applications) {
+        this.$set(pax, 'newStatus', pax.status)
+        this.$set(pax, 'newConfirmed', pax.confirmed)
+        this.$set(pax, 'newAttended', pax.attended)
+        this.$set(pax, 'isSaving', false)
+        this.$set(pax, 'isSavingConfirmed', false)
+        this.$set(pax, 'isSavingAttended', false)
+      }
+
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false

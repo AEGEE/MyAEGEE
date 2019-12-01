@@ -39,24 +39,7 @@
       </table>
     </section>
     <footer class="modal-card-foot">
-      <button class="button is-danger" @click="changeState('rejected')">
-        <span class="icon">
-          <i class="fa fa-minus-circle"></i>
-        </span>
-        <span>Reject</span>
-      </button>
-      <button class="button is-primary" @click="changeState('accepted')">
-        <span class="icon">
-          <i class="fa fa-plus-circle"></i>
-        </span>
-        <span>Accept</span>
-      </button>
-      <button class="button" @click="changeState('pending')">
-        <span class="icon">
-          <i class="fa fa-circle-notch"></i>
-        </span>
-        <span>Postpone</span>
-      </button>
+
     </footer>
   </div>
 </template>
@@ -64,27 +47,9 @@
 <script>
 export default {
   name: 'ViewParticipantModel',
-  props: ['participant', 'event', 'services', 'showSuccess', 'showDanger', 'route'],
+  props: ['participant'],
   data () {
     return {}
-  },
-  methods: {
-    changeState (newState) {
-      // Store the change
-      this.axios.put(this.services['oms-events'] + '/single/' + this.event.id + '/applications/' + this.participant.id + '/status/', {
-        status: newState
-      }).then(() => {
-        this.participant.status = newState
-
-        this.showSuccess('Participant status is updated.')
-        this.$parent.close()
-      }).catch((err) => {
-        this.showDanger('Could not update participant status: ' + err.message)
-      })
-    }
-  },
-  mounted () {
-
   }
 }
 </script>
