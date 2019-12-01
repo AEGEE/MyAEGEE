@@ -1,3 +1,13 @@
+<a name="0.30.0"></a>
+# [0.30.0](https://github.com/AEGEE/oms-frontend/compare/0.29.3...0.30.0) (2019-12-01)
+
+
+### Features
+
+* **applications:** added confirmed and attended fields. Fixes MEMB-544, MEMB-118 ([d959cc3](https://github.com/AEGEE/oms-frontend/commit/d959cc3))
+
+
+
 <a name="0.29.3"></a>
 ## [0.29.3](https://github.com/AEGEE/oms-frontend/compare/0.29.2...0.29.3) (2019-12-01)
 
