@@ -1,6 +1,12 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const Event = require('./Event');
 
+function isBoolean(val) {
+    if (typeof val !== 'boolean') {
+        throw new Error('The value should be true or false.');
+    }
+}
+
 const Application = sequelize.define('application', {
     user_id: {
         allowNull: false,
@@ -73,6 +79,32 @@ const Application = sequelize.define('application', {
             isIn: {
                 args: [['pending', 'accepted', 'rejected']],
                 msg: 'Participant status should be one of these: "pending", "accepted", "rejected".'
+            }
+        }
+    },
+    confirmed: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        validate: {
+            isBoolean,
+            notAllowIfAttended(value) {
+                if (!value && this.attended) {
+                    throw new Error('This application is marked as attended, you cannot mark it as not confirmed.');
+                }
+            }
+        }
+    },
+    attended: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        validate: {
+            isBoolean,
+            notAllowIfNotConfirmed(value) {
+                if (value && !this.confirmed) {
+                    throw new Error('This application is not marked as confirmed, you cannot mark it as attended.');
+                }
             }
         }
     },
