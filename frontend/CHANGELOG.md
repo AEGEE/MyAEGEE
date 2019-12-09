@@ -1,3 +1,13 @@
+<a name="0.30.2"></a>
+## [0.30.2](https://github.com/AEGEE/oms-frontend/compare/0.30.1...0.30.2) (2019-12-09)
+
+
+### Bug Fixes
+
+* **events:** fixed unauthorized access for /events. Fixes MEMB-745 ([ab654a0](https://github.com/AEGEE/oms-frontend/commit/ab654a0))
+
+
+
 <a name="0.30.1"></a>
 ## [0.30.1](https://github.com/AEGEE/oms-frontend/compare/0.30.0...0.30.1) (2019-12-01)
 
