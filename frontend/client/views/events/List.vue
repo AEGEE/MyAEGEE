@@ -156,7 +156,10 @@ export default {
     isLoadingSomething () {
       return this.isLoading.permissions || this.isLoading.events
     },
-    ...mapGetters(['services'])
+    ...mapGetters({
+      services: 'services',
+      loginUser: 'user'
+    })
   },
   methods: {
     toggleDisplayPast () {
@@ -197,6 +200,10 @@ export default {
       })
     },
     fetchPermissions () {
+      if (!this.loginUser) {
+        return
+      }
+
       this.isLoading.permissions = true
 
       this.axios.get(this.services['oms-core-elixir'] + '/my_permissions',).then((response) => {
