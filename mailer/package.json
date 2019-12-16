@@ -1,5 +1,5 @@
 {
-  "name": "oms-core-elixir",
+  "name": "oms-mailer",
   "version": "0.4.0",
   "description": "The internal mailer module of my.aegee.eu",
   "keywords": [],
