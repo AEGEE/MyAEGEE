@@ -612,6 +612,14 @@ module.exports = [
     }
   },
   {
+    name: 'oms.statutory.candidates.export',
+    path: '/statutory/:id/positions/export',
+    component: 'statutory/ExportCandidates',
+    meta: {
+      label: 'Export candidates for statutory event'
+    }
+  },
+  {
     name: 'oms.statutory.positions',
     path: '/statutory/:id/positions/:prefix',
     component: 'statutory/PositionsList',
