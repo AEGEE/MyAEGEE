@@ -72,6 +72,7 @@ EventsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
 EventsRouter.get('/', events.displayEvent);
 EventsRouter.get('/fields/applications/all', events.getApplicationAllFields);
 EventsRouter.get('/fields/applications/incoming', events.getApplicationIncomingFields);
+EventsRouter.get('/fields/candidates', events.getCandidatesFields);
 EventsRouter.use(middlewares.ensureAuthorized);
 EventsRouter.put('/', events.editEvent);
 EventsRouter.put('/status', events.changeEventStatus);
@@ -123,6 +124,7 @@ VotesAmountRouter.get('/:body_id', votesAmounts.getVotesPerAntenna);
 
 PositionsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent, memberslists.checkIfAgora);
 PositionsRouter.get('/', positions.listAllPositions);
+PositionsRouter.get('/export', positions.exportAll);
 PositionsRouter.get('/all', positions.listPositionsWithAllCandidates);
 PositionsRouter.get('/approved', positions.listPositionsWithApprovedCandidates);
 PositionsRouter.post('/', positions.createPosition);
