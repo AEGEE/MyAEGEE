@@ -13,8 +13,13 @@
         </div>
 
         <div class="field" v-if="can.manage_candidates">
-          <div class="control">
+          <div class="buttons">
             <button class="button is-primary" @click="openCreatePositionModal">Create a position</button>
+            <router-link
+              class="button is-primary"
+              :to="{ name: 'oms.statutory.candidates.export', params: { id: $route.params.id } }">
+              Export candidates
+            </router-link>
           </div>
         </div>
 

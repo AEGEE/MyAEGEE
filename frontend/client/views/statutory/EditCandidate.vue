@@ -2,40 +2,16 @@
   <div class="tile is-ancestor ">
     <div class="tile is-child">
       <form @submit.prevent="saveCandidate()">
-        <div class="field" v-show="autoComplete.bodies.values.length > 0">
-          <label class="label">Select body to apply from</label>
-          <div class="control">
-            <div class="field has-addons">
-              <b-autocomplete
-                v-model="autoComplete.bodies.name"
-                :data="autoComplete.bodies.values"
-                open-on-focus="true"
-                @select="body => { candidate.body_id = body.id; candidate.body = body }">
-                <template slot-scope="props">
-                  <div class="media">
-                    <div class="media-content">
-                      {{ props.option.name }}
-                    </div>
-                  </div>
-                </template>
-              </b-autocomplete>
-              <p class="control">
-                <a class="button is-danger"
-                  @click="body => { candidate.body_id = null; candidate.body = null }"
-                  v-if="candidate.body">{{ candidate.body.name }} (Click to unset)</a>
-                <a class="button is-static" v-if="!candidate.body">Not set.</a>
-              </p>
-            </div>
+        <div class="field">
+          <label class="label">Body <span class="has-text-danger">*</span></label>
+          <div class="select" v-show="bodies.length > 0">
+            <select v-model="candidate.body_id">
+              <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
+            </select>
           </div>
         </div>
 
-        <div class="notification is-danger" v-show="autoComplete.bodies.values.length == 0">
-          <div class="content">
-            <p>You are not a member of any local, therefore you cannot apply.</p>
-            <p>To apply to a statutory event, you need to be a member of at least one local.</p>
-            <p>For that, go to Bodies, send a join request to the local you are in and wait for the board to approve it</p>
-          </div>
-        </div>
+        <event-no-body-notification v-show="bodies.length == 0" />
 
         <div v-if="$route.params.id">
           <div class="subtitle">Update candidature image</div>
@@ -283,9 +259,7 @@ export default {
       dateConfig: {},
       options: [],
       newValue: '',
-      autoComplete: {
-        bodies: { name: '', values: [], loading: false }
-      },
+      bodies: [],
       file: null,
       errors: {},
       isLoading: false,
@@ -362,7 +336,7 @@ export default {
     loginUser: 'user'
   }),
   mounted () {
-    this.autoComplete.bodies.values = this.loginUser.bodies
+    this.bodies = this.loginUser.bodies
       .filter(body => ['contact', 'contact antenna', 'antenna'].includes(body.type))
 
     if (!this.$route.params.candidate_id) {
@@ -374,9 +348,9 @@ export default {
       this.candidate.date_of_birth = this.loginUser.date_of_birth
       this.candidate.member_since = moment(this.loginUser.user.inserted_at).format('YYYY-MM-DD')
 
-      if (this.autoComplete.bodies.values.length) {
-        this.candidate.body_id = this.autoComplete.bodies.values[0].id
-        this.candidate.body = this.autoComplete.bodies.values[0]
+      if (this.bodies.length) {
+        this.candidate.body_id = this.bodies[0].id
+        this.candidate.body = this.bodies[0]
       }
       return
     }
