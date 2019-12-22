@@ -26,13 +26,9 @@
           :loading="isLoading"
           paginated
           :per-page="limit"
-          default-sort="id"
+          default-sort="member.first_name"
           default-sort-direction="desc">
           <template slot-scope="props">
-            <b-table-column field="id" label="#" numeric sortable>
-              {{ props.row.id }}
-            </b-table-column>
-
             <b-table-column field="member.first_name" label="First and last name" sortable>
               <router-link :to="{ name: 'oms.members.view', params: { id: props.row.member_id } }" v-if="can.viewMember">
                 {{ props.row.member.first_name }} {{ props.row.member.last_name }}

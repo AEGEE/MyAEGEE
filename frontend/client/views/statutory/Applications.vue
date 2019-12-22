@@ -67,7 +67,7 @@
               {{ props.row.body_name }}
             </b-table-column>
 
-            <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable>
+            <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable :visible="event.type === 'agora'">
               <span :class="calculateClassForMemberslist(props.row)">
                 {{ props.row.is_on_memberslist | beautify }}
               </span>

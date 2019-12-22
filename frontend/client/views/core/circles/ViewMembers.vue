@@ -14,10 +14,6 @@
           :data="members"
           :loading="isLoading">
           <template slot-scope="props">
-            <b-table-column field="id" label="#" numeric sortable>
-              {{ props.row.member_id }}
-            </b-table-column>
-
             <b-table-column field="first_name" label="Name and surname" sortable>
               <router-link :to="{ name: 'oms.members.view', params: { id: props.row.member.seo_url || props.row.member.id } }">
                 {{ props.row.member.first_name }} {{ props.row.member.last_name }}

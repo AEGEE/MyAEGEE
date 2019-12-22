@@ -1,3 +1,14 @@
+<a name="0.30.3"></a>
+## [0.30.3](https://github.com/AEGEE/oms-frontend/compare/0.30.2...0.30.3) (2019-12-22)
+
+
+### Bug Fixes
+
+* **general:** hide members IDs. Fixes HELP-699 ([4edc6d8](https://github.com/AEGEE/oms-frontend/commit/4edc6d8))
+* **statutory:** hide memberslists fields for not Agora. Fixes HELP-825 ([5113ff2](https://github.com/AEGEE/oms-frontend/commit/5113ff2))
+
+
+
 <a name="0.30.2"></a>
 ## [0.30.2](https://github.com/AEGEE/oms-frontend/compare/0.30.1...0.30.2) (2019-12-09)
 

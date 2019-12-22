@@ -150,7 +150,7 @@
                 <span v-if="props.row.participant_type">{{ props.row.participant_type }} ({{ props.row.participant_order }})</span>
               </b-table-column>
 
-              <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered>
+              <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered :visible="event.type === 'agora'">
                 <span :class="calculateClassForMemberslist(props.row)">
                   {{ props.row.is_on_memberslist | beautify }}
                 </span>
