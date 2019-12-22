@@ -44,4 +44,16 @@ describe('Events fields', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
     });
+
+    test('should return candidates fields', async () => {
+        const event = await generator.createEvent();
+        const res = await request({
+            uri: '/events/' + event.id + '/fields/candidates',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+    });
 });

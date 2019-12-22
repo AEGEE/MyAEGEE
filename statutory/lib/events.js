@@ -150,3 +150,10 @@ exports.getApplicationIncomingFields = async (req, res) => {
         data: incomingFields
     });
 };
+
+exports.getCandidatesFields = async (req, res) => {
+    return res.json({
+        success: true,
+        data: constants.CANDIDATE_FIELDS
+    });
+};
