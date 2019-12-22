@@ -1,3 +1,13 @@
+<a name="0.31.0"></a>
+# [0.31.0](https://github.com/AEGEE/oms-frontend/compare/0.30.3...0.31.0) (2019-12-22)
+
+
+### Features
+
+* **statutory:** add candidates export. Fixes MEMB-499 ([ec96923](https://github.com/AEGEE/oms-frontend/commit/ec96923))
+
+
+
 <a name="0.30.3"></a>
 ## [0.30.3](https://github.com/AEGEE/oms-frontend/compare/0.30.2...0.30.3) (2019-12-22)
 
