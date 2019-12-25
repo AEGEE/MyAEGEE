@@ -1,3 +1,14 @@
+<a name="0.31.1"></a>
+## [0.31.1](https://github.com/AEGEE/oms-frontend/compare/0.31.0...0.31.1) (2019-12-25)
+
+
+### Bug Fixes
+
+* **general:** errors refactor. Fixes MEMB-693 ([a9ec31e](https://github.com/AEGEE/oms-frontend/commit/a9ec31e))
+* **statutory:** fixed statutory redirect ([b45da80](https://github.com/AEGEE/oms-frontend/commit/b45da80))
+
+
+
 <a name="0.31.0"></a>
 # [0.31.0](https://github.com/AEGEE/oms-frontend/compare/0.30.3...0.31.0) (2019-12-22)
 
