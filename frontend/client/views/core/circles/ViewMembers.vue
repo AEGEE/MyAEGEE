@@ -111,7 +111,7 @@ export default {
           circle: { id: this.$route.params.id },
           member,
           services: this.services,
-          showDanger: this.$root.showDanger,
+          showError: this.$root.showError,
           showSuccess: this.$root.showSuccess
         }
       })
@@ -137,7 +137,7 @@ export default {
 
         const index = this.members.findIndex(m => m.id === member.id)
         this.members.splice(index, 1)
-      }).catch((err) => this.$root.showDanger('Could not delete member: ' + err.message))
+      }).catch((err) => this.$root.showError('Could not delete member', err))
     },
     refetch () {
       this.members = []
@@ -167,10 +167,10 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
-          return console.debug('Request cancelled.')
+          return
         }
 
-        this.$root.showDanger('Could not fetch members: ' + err.message)
+        this.$root.showError('Could not fetch members', err)
       })
     }
   },

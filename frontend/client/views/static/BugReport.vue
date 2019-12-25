@@ -105,7 +105,7 @@ export default {
     sendBugReport () {
       for (const file of this.files) {
         if (!file) {
-          return this.$root.showDanger('Please select all the files.')
+          return this.$root.showError('Please select all the files.')
         }
       }
 
@@ -145,10 +145,10 @@ export default {
           return this.$root.showSuccess('Your issue is reported.')
         }
 
-        return this.$root.showDanger('There was an error reporting your issue.')
+        return this.$root.showError('There was an error reporting your issue.')
       }).catch((err) => {
         this.isSaving = false
-        return this.$root.showDanger('There was an error reporting your issue:' + err.message)
+        return this.$root.showError('There was an error reporting your issue', err)
       })
     }
   },

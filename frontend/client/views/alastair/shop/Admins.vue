@@ -55,7 +55,7 @@ export default {
         this.admins = response.data.data
         this.isLoading = false
       }).catch((err) => {
-        this.$root.showDanger('Could not fetch shop admin list: ' + err.message)
+        this.$root.showError('Could not fetch shop admin list', err)
       })
     }
   },

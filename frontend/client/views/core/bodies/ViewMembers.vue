@@ -139,7 +139,7 @@ export default {
           member,
           body: this.body,
           services: this.services,
-          showDanger: this.$root.showDanger,
+          showError: this.$root.showError,
           showSuccess: this.$root.showSuccess
         }
       })
@@ -165,7 +165,7 @@ export default {
 
         const index = this.members.findIndex(m => m.id === member.id)
         this.members.splice(index, 1)
-      }).catch((err) => this.$root.showDanger('Could not delete member: ' + err.message))
+      }).catch((err) => this.$root.showError('Could not delete member', err))
     },
     askToChangeComment (member) {
       this.$buefy.dialog.prompt({
@@ -187,7 +187,7 @@ export default {
       }).catch((err) => {
         this.isLoading = false
 
-        this.$root.showDanger('Error updating user comment: ' + err.message)
+        this.$root.showError('Error updating user comment', err)
       })
     },
     refetch () {
@@ -253,7 +253,7 @@ export default {
           return
         }
 
-        this.$root.showDanger('Could not fetch members: ' + err.message)
+        this.$root.showError('Could not fetch members', err)
       })
     }
   },

@@ -288,16 +288,11 @@ export default {
       ).then(() => {
         this.$root.showSuccess('Image is updated.')
         this.file = null
-      }).catch((err) => {
-        const message = err.response && err.response.data && err.response.data.message
-          ? err.response.data.message
-          : err.message
-        this.$root.showDanger('Could not update image: ' + message)
-      })
+      }).catch((err) => this.$root.showError('Could not update image', err))
     },
     saveCandidate () {
       if (!this.candidate.body_id) {
-        return this.$root.showDanger('Please select a body.')
+        return this.$root.showError('Please select a body.')
       }
 
       this.isSaving = true
@@ -320,14 +315,14 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           if (!err.response.data.errors) {
-            return this.$root.showDanger('Some of the candidate data is invalid: ' + err.response.data.message)
+            return this.$root.showError('Some of the candidate data is invalid', err)
           }
 
           this.$set(this, 'errors', err.response.data.errors)
-          return this.$root.showDanger('Some of the candidate data is invalid.')
+          return this.$root.showError('Some of the candidate data is invalid.')
         }
 
-        this.$root.showDanger('Could not save candidate: ' + err.message)
+        this.$root.showError('Could not save candidate', err)
       })
     }
   },
@@ -367,9 +362,12 @@ export default {
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false
-      let message = (err.response.status === 404) ? 'Candidature is not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('Candidature is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.statutory.view', params: { id: this.$route.params.id } })
     })
   }

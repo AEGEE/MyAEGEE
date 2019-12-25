@@ -184,11 +184,7 @@ export default {
         this.$root.showSuccess(`Mass mailer is sent successfully to ${response.data.meta.sent} participants.`)
       }).catch((err) => {
         this.isSending = false
-
-        const message = (err.response && err.response.data && err.response.data.message)
-          ? err.response.data.message
-          : err.message
-        this.$root.showDanger('Error using massmailer: ' + message)
+        this.$root.showError('Error using massmailer', err)
       })
     }
   },

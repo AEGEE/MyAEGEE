@@ -306,7 +306,7 @@ export default {
       }).then((response) => {
         this.application.cancelled = value
         this.$root.showInfo(value ? 'Application is cancelled.' : 'Application is uncancelled.')
-      }).catch((err) => this.$root.showDanger('Could not cancel application: ' + err.message))
+      }).catch((err) => this.$root.showError('Could not cancel application', err))
     }
   },
   mounted () {
@@ -330,9 +330,13 @@ export default {
         }
       })
     }).catch((err) => {
-      let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+      this.isLoading = false
+      if (err.response.status === 404) {
+        this.$root.showError('Event is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.statutory.list' })
     })
   }

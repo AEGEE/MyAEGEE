@@ -446,12 +446,7 @@ export default {
       this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/image', data).then(() => {
         this.$root.showSuccess('Event image is updated.')
         this.file = null
-      }).catch((err) => {
-        const message = err.response && err.response.data && err.response.data.message
-          ? err.response.data.message
-          : err.message
-        this.$root.showDanger('Could not update image: ' + message)
-      })
+      }).catch((err) => this.$root.showError('Could not update image', err))
     },
     fetchBodies (query) {
       if (!query) return
@@ -474,7 +469,7 @@ export default {
         }
 
         this.autoComplete.bodies.loading = false
-        this.$root.showDanger('Could not fetch bodies: ' + err.message)
+        this.$root.showError('Could not fetch bodies', err)
       })
     },
     addQuestion () {
@@ -530,41 +525,41 @@ export default {
     },
     saveEvent () {
       if (this.event.questions.length === 0) {
-        return this.$root.showDanger('Please set at least 1 application question.')
+        return this.$root.showError('Please set at least 1 application question.')
       }
 
       if (!this.event.application_period_starts) {
-        return this.$root.showDanger('Please set the date when applications period will start.')
+        return this.$root.showError('Please set the date when applications period will start.')
       }
 
       if (!this.event.application_period_ends) {
-        return this.$root.showDanger('Please set the date when applications period will end.')
+        return this.$root.showError('Please set the date when applications period will end.')
       }
 
       if (!this.event.board_approve_deadline) {
-        return this.$root.showDanger('Please set the board approve deadline.')
+        return this.$root.showError('Please set the board approve deadline.')
       }
 
       if (!this.event.participants_list_publish_deadline) {
-        return this.$root.showDanger('Please set the participants list publish deadline.')
+        return this.$root.showError('Please set the participants list publish deadline.')
       }
 
       if (this.event.type === 'agora' && !this.event.memberslist_submission_deadline) {
-        return this.$root.showDanger('Please set the members list submission deadline.')
+        return this.$root.showError('Please set the members list submission deadline.')
       } else if (this.event.type !== 'agora') {
         this.event.memberslist_submission_deadline = null
       }
 
       if (!this.event.starts) {
-        return this.$root.showDanger('Please set the date when the event will start.')
+        return this.$root.showError('Please set the date when the event will start.')
       }
 
       if (!this.event.ends) {
-        return this.$root.showDanger('Please set the date when the event will end.')
+        return this.$root.showError('Please set the date when the event will end.')
       }
 
       if (!this.event.body_id) {
-        return this.$root.showDanger('Please select a body.')
+        return this.$root.showError('Please select a body.')
       }
 
       this.isSaving = true
@@ -587,14 +582,14 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           if (!err.response.data.errors) {
-            return this.$root.showDanger('Some of the event data is invalid: ' + err.response.data.message)
+            return this.$root.showError('Some of the event data is invalid', err)
           }
 
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the event data is invalid.')
+          return this.$root.showError('Some of the event data is invalid.')
         }
 
-        this.$root.showDanger('Could not save event: ' + err.message)
+        this.$root.showError('Could not save event', err)
       })
     }
   },
@@ -661,9 +656,12 @@ export default {
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false
-      let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
-
-      this.$root.showDanger(message)
+      if (err.response.status === 404) {
+        this.$root.showError('Event is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
+      
       this.$router.push({ name: 'oms.statutory.list' })
     })
   }

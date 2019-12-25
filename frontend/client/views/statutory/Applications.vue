@@ -227,7 +227,7 @@ export default {
         this.$root.showSuccess(`Successfully updated status of application for user #${pax.user_id} to "${pax.status}"`)
       }).catch((err) => {
         pax.isSaving = false
-        this.$root.showDanger('Could not update participant status: ' + err.message)
+        this.$root.showError('Could not update participant status', err)
       })
     },
     onPageChange (page) {
@@ -263,9 +263,11 @@ export default {
         }
       }).catch((err) => {
         this.isLoading = false
-        let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
-
-        this.$root.showDanger(message)
+        if (err.response.status === 404) {
+          this.$root.showError('Event is not found')
+        } else {
+          this.$root.showError('Some error happened', err)
+        }
       })
     }
   },

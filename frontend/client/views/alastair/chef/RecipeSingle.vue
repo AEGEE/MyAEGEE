@@ -65,7 +65,7 @@ export default {
         this.permissions = response.data.meta.permissions
         this.isLoading = false
       }).catch((err) => {
-        this.$root.showDanger('Could not fetch recipe: ' + err.message)
+        this.$root.showError('Could not fetch recipe', err)
       })
     }
   },

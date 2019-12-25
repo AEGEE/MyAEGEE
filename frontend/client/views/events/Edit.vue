@@ -522,7 +522,7 @@ export default {
         this.$root.showSuccess('Event image is updated.')
         this.file = null
       }).catch((err) => {
-        this.$root.showDanger('Could not update image: ' + err.message)
+        this.$root.showError('Could not update image', err)
       })
     },
     fetchMembers (query) {
@@ -563,7 +563,7 @@ export default {
         }
 
         this.autoComplete.members.loading = false
-        this.$root.showDanger('Could not fetch members: ' + err.message)
+        this.$root.showError('Could not fetch members', err)
       })
     },
     addOrganizer (organizer) {
@@ -625,27 +625,27 @@ export default {
     },
     saveEvent () {
       if (!this.event.application_starts) {
-        return this.$root.showDanger('Please set the date when applications period will start.')
+        return this.$root.showError('Please set the date when applications period will start.')
       }
 
       if (!this.event.application_ends) {
-        return this.$root.showDanger('Please set the date when applications period will end.')
+        return this.$root.showError('Please set the date when applications period will end.')
       }
 
       if (!this.event.starts) {
-        return this.$root.showDanger('Please set the date when the event will start.')
+        return this.$root.showError('Please set the date when the event will start.')
       }
 
       if (!this.event.ends) {
-        return this.$root.showDanger('Please set the date when the event will end.')
+        return this.$root.showError('Please set the date when the event will end.')
       }
 
       if (this.event.organizing_bodies.length === 0) {
-        return this.$root.showDanger('Please select at least one organizing body.')
+        return this.$root.showError('Please select at least one organizing body.')
       }
 
       if (this.event.organizers.length === 0) {
-        return this.$root.showDanger('Please add at least one organizer.')
+        return this.$root.showError('Please add at least one organizer.')
       }
 
       this.isSaving = true
@@ -673,10 +673,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the event data is invalid.')
+          return this.$root.showError('Some of the event data is invalid.')
         }
 
-        this.$root.showDanger('Could not save event: ' + err.message)
+        this.$root.showError('Could not save event', err)
       })
     },
     onMapLoaded (event) {
@@ -772,9 +772,12 @@ export default {
       })
     }).catch((err) => {
       this.isLoading = false
-      let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('Event is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.events.list' })
     })
   }

@@ -66,7 +66,7 @@ export default {
     }).catch((err) => {
       this.isLoading = false
 
-      this.$root.showDanger('Some error happened: ' + err.message)
+      this.$root.showError('Some error happened', err)
     })
   }
 }

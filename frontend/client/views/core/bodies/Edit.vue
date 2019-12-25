@@ -201,10 +201,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the body data is invalid.')
+          return this.$root.showError('Some of the body data is invalid.')
         }
 
-        this.$root.showDanger('Could not save body: ' + err.message)
+        this.$root.showError('Could not save body', err)
       })
     }
   },
@@ -230,9 +230,12 @@ export default {
       this.can.editShadowCircle = editGlobalPermission
       this.can.editType = editGlobalPermission
     }).catch((err) => {
-      let message = (err.response.status === 404) ? 'Body is not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('Body is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.bodies.list' })
     })
   }

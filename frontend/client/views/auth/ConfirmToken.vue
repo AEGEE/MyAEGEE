@@ -45,10 +45,10 @@ export default {
         return this.$router.push({ name: 'oms.login' })
       }).catch((err) => {
         if (err.response.status === 404) { // validation errors
-          return this.$root.showDanger('The token is invalid.')
+          return this.$root.showError('The token is invalid.')
         }
 
-        this.$root.showDanger('Could not confirm email: ' + err.message)
+        this.$root.showError('Could not confirm email', err)
       })
     }
   },

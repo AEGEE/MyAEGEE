@@ -201,7 +201,7 @@ export default {
   methods: {
     saveApplication () {
       if (!this.application.body_id) {
-        return this.$root.showDanger('Please select a body.')
+        return this.$root.showError('Please select a body.')
       }
 
       // Copy data from the form into an object to submit it in the format the backend needs it
@@ -229,10 +229,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the application data is invalid.')
+          return this.$root.showError('Some of the application data is invalid.')
         }
 
-        this.$root.showDanger('Could not save application: ' + err.message)
+        this.$root.showError('Could not save application', err)
       })
     }
   },
@@ -286,9 +286,12 @@ export default {
         }
       })
     }).catch((err) => {
-      let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('Event is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.events.list' })
     })
   }

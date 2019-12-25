@@ -98,7 +98,7 @@ export default {
     },
     saveCategory () {
       if (this.category.discounts.length === 0) {
-        return this.$root.showDanger('Please add at least 1 discount for this category.')
+        return this.$root.showError('Please add at least 1 discount for this category.')
       }
 
       this.isSaving = true
@@ -119,10 +119,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the category data is invalid.')
+          return this.$root.showError('Some of the category data is invalid.')
         }
 
-        this.$root.showDanger('Could not save category: ' + err.message)
+        this.$root.showError('Could not save category', err)
       })
     }
   },
@@ -136,9 +136,12 @@ export default {
       this.category = response.data.data
       this.isLoading = false
     }).catch((err) => {
-      let message = (err.response.status === 404) ? 'Category is not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('Category is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.discounts.categories.list' })
     })
   }

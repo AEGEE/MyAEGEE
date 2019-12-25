@@ -101,7 +101,7 @@ export default {
         memberslist.fee_not_paid = memberslist.fee_to_aegee - newFee
       }).catch((err) => {
         this.isLoading = false
-        this.$root.showDanger('Could not set fee paid: ' + err.message)
+        this.$root.showError('Could not set fee paid', err)
       })
     },
   },
@@ -134,7 +134,7 @@ export default {
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false
-      this.$root.showDanger('Could not fetch members lists: ' + err.message)
+      this.$root.showError('Could not fetch members lists', err)
     })
   }
 }

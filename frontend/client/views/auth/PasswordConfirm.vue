@@ -71,14 +71,14 @@ export default {
       }).catch((err) => {
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the password data is invalid.')
+          return this.$root.showError('Some of the password data is invalid.')
         }
 
         if (err.response.status === 404) {
-          return this.$root.showDanger('Your token is invalid.')
+          return this.$root.showError('Your token is invalid.')
         }
 
-        this.$root.showDanger('Could not change password: ' + err.message)
+        this.$root.showError('Could not change password', err)
       })
     }
   },

@@ -152,10 +152,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the campaign data is invalid.')
+          return this.$root.showError('Some of the campaign data is invalid.')
         }
 
-        this.$root.showDanger('Could not save campaign: ' + err.message)
+        this.$root.showError('Could not save campaign', err)
       })
     }
   },
@@ -169,7 +169,7 @@ export default {
         this.campaign.autojoin_body = this.bodies.find(body => body.id === this.campaign.autojoin_body_id)
       }
     }).catch((err) => {
-      this.$root.showDanger('Could not fetch bodies list: ' + err.message)
+      this.$root.showError('Could not fetch bodies list', err)
     })
 
     if (!this.$route.params.id) {
@@ -181,9 +181,12 @@ export default {
       this.campaign = response.data.data
       this.isLoading = false
     }).catch((err) => {
-      let message = (err.response.status === 404) ? 'Campaign is not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('Campaign is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.campaigns.list' })
     })
   }

@@ -112,10 +112,10 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
-          return console.debug('Request cancelled.')
+          return
         }
 
-        this.$root.showDanger('Could not fetch permissions list: ' + err.message)
+        this.$root.showError('Could not fetch permissions list', err)
 
         this.isLoading = false
       })

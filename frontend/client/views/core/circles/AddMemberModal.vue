@@ -32,7 +32,7 @@
 <script>
 export default {
   name: 'AddMemberModal',
-  props: ['circle', 'services', 'showDanger', 'showSuccess'],
+  props: ['circle', 'services', 'showError', 'showSuccess'],
   data () {
     return {
       isLoadingMembers: false,
@@ -70,7 +70,7 @@ export default {
         }
 
         this.isLoadingMembers = false
-        this.showDanger('Could not fetch members: ' + err.message)
+        this.showError('Could not fetch members', err)
       })
     },
     addMember (member) {
@@ -80,12 +80,11 @@ export default {
         this.showSuccess('Member is added.')
         this.$parent.close()
       }).catch((err) => {
-        const message = 'Could not add member: ' +
-          (err.response.status === 422 && 'circle_membership_unique' in err.response.data.errors
-            ? 'This person is already a member of this circle.'
-            : err.message)
-
-        this.showDanger(message)
+        if (err.response.status === 422 && 'circle_membership_unique' in err.response.data.errors) {
+          this.showError('Could not add member: this person is already a member of this circle.')
+        } else {
+          this.showError('Could not add member', err)
+        }
       })
     }
   }

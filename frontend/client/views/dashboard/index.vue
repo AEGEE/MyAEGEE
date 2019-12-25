@@ -127,7 +127,7 @@ export default {
       this.isLoading.user = false
     }).catch((err) => {
       this.isLoading.user = false
-      this.$root.showDanger('Could not fetch user: ' + err.message)
+      this.$root.showError('Could not fetch user', err)
     })
 
     this.axios.get(this.services['oms-events'] + '/mine/participating').then((response) => {
@@ -135,7 +135,7 @@ export default {
       this.isLoading.events = false
     }).catch((err) => {
       this.isLoading.events = false
-      this.$root.showDanger('Could not fetch events list: ' + err.message)
+      this.$root.showError('Could not fetch events list', err)
     })
 
     this.axios.get(this.services['oms-statutory'] + '/events/latest').then((response) => {
@@ -144,7 +144,7 @@ export default {
     }).catch((err) => {
       this.isLoading.statutory = false
       if (err.response && err.response.status && err.response.status !== 404) {
-        this.$root.showDanger('Could not fetch latest statutory event: ' + err.message)
+        this.$root.showError('Could not fetch latest statutory event', err)
       }
     })
   },

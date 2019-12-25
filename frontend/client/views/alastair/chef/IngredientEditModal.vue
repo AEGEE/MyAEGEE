@@ -62,7 +62,7 @@
 <script>
 export default {
   name: 'IngredientEditModal',
-  props: ['ingredient', 'isNewIngredient', 'services', 'showSuccess', 'showDanger', 'reload'],
+  props: ['ingredient', 'isNewIngredient', 'services', 'showSuccess', 'showError', 'reload'],
   data () {
     return {
       ingredientErrors: {},
@@ -88,7 +88,7 @@ export default {
         this.showSuccess('Ingredient is deleted.')
         this.$parent.close()
         this.reload()
-      }).catch((err) => this.showDanger('Could not delete ingredient: ' + err.message))
+      }).catch((err) => this.showError('Could not delete ingredient', err))
     },
     selectMeasurement (option) {
       console.log(option)
@@ -115,7 +115,7 @@ export default {
         }
 
         this.isLoadingMeasurements = false
-        this.showDanger('Could not fetch measurements: ' + err.message)
+        this.showError('Could not fetch measurements', err)
       })
     },
     saveIngredient () {
@@ -135,10 +135,13 @@ export default {
         this.reload()
       }).catch((err) => {
         this.isLoading = false
-        let message = err.response && err.response.status === 422 ? 'Some fields were not set: ' : err.message
-        if (err.response && err.response.data && err.response.data.errors) this.ingredientErrors = err.response.data.errors
+        if (err.response && err.response.status === 422) {
+          this.showError('Some fields were not set')
+        } else {
+          this.showError('Some error happened', err)
+        }
 
-        this.showDanger(message)
+        if (err.response && err.response.data && err.response.data.errors) this.ingredientErrors = err.response.data.errors
       })
     }
   }

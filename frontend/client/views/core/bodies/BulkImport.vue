@@ -102,10 +102,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.$set(member, 'errors', err.response.data.errors)
-          return this.$root.showDanger('Some of the user data is invalid.')
+          return this.$root.showError('Some of the user data is invalid.')
         }
 
-        this.$root.showDanger('Could not create user: ' + err.message)
+        this.$root.showError('Could not create user', err)
       })
     },
     openFileDialog (event) {
@@ -119,7 +119,7 @@ export default {
         reader.readAsText(file, 'UTF-8')
         reader.onload = (evt) => this.processFileContent(evt.target.result)
         reader.onerror = (err) => {
-          this.$root.showDanger('Could not open file: ' + err.message)
+          this.$root.showError('Could not open file', err)
         }
       }
     },
@@ -134,7 +134,7 @@ export default {
 
       // Checking if each line has at least 3 columns.
       if (csvArray.some(elt => elt.length < 3)) {
-        return this.$root.showDanger('CSV is malformed.')
+        return this.$root.showError('CSV is malformed.')
       }
 
       this.members = csvArray.map((element) => {

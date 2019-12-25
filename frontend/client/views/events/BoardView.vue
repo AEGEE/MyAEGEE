@@ -88,7 +88,7 @@ export default {
         this.$root.showSuccess('Participant comment is updated.')
         application.clean = true
       }).catch((err) => {
-        this.$root.showDanger('Could not update participant comment: ' + err.message)
+        this.$root.showError('Could not update participant comment', err)
       })
     },
     fetchData () {
@@ -103,7 +103,7 @@ export default {
       }).catch((err) => {
         this.isLoading = false
 
-        this.$root.showDanger('Error fetching board view data: ' + err.message)
+        this.$root.showError('Error fetching board view data', err)
       })
     }
   },

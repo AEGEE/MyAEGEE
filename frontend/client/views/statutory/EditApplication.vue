@@ -380,7 +380,7 @@ export default {
   methods: {
     saveApplication () {
       if (!this.application.body_id) {
-        return this.$root.showDanger('Please select a body.')
+        return this.$root.showError('Please select a body.')
       }
 
       this.errors = {}
@@ -401,10 +401,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the application data is invalid.')
+          return this.$root.showError('Some of the application data is invalid.')
         }
 
-        this.$root.showDanger('Could not save application: ' + err.message)
+        this.$root.showError('Could not save application', err)
       })
     },
     saveBoard () {
@@ -424,10 +424,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the application data is invalid.')
+          return this.$root.showError('Some of the application data is invalid.')
         }
 
-        this.$root.showDanger('Could not save application: ' + err.message)
+        this.$root.showError('Could not save application', err)
       })
     },
     askSetCancelled (value) {
@@ -446,7 +446,7 @@ export default {
       }).then((response) => {
         this.application.cancelled = value
         this.$root.showInfo(value ? 'Application is cancelled.' : 'Application is uncancelled.')
-      }).catch((err) => this.$root.showDanger('Could not cancel application: ' + err.message))
+      }).catch((err) => this.$root.showError('Could not cancel application', err))
     }
   },
   computed: {
@@ -528,9 +528,12 @@ export default {
         }
       })
     }).catch((err) => {
-      let message = (err.response && err.response.status === 404) ? 'Application is not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('Application is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({
         name: 'oms.statutory.applications.view',
         params: { id: this.$route.params.id, application_id: this.$route.params.application_id }

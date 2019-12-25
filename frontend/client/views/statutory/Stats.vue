@@ -389,9 +389,12 @@ export default {
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false
-      let message = (err.response && err.response.status === 404) ? 'Application is not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('Application is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
     })
   }
 }

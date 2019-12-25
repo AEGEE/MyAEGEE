@@ -162,10 +162,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the user data is invalid.')
+          return this.$root.showError('Some of the user data is invalid.')
         }
 
-        this.$root.showDanger('Could not create user: ' + err.message)
+        this.$root.showError('Could not create user', err)
       })
     }
   }

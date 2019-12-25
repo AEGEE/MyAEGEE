@@ -124,10 +124,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the permission data is invalid.')
+          return this.$root.showError('Some of the permission data is invalid.')
         }
 
-        this.$root.showDanger('Could not save permission: ' + err.message)
+        this.$root.showError('Could not save permission', err)
       })
     },
     deleteFilter (index) {
@@ -149,9 +149,12 @@ export default {
       this.permission = response.data.data
       this.isLoading = false
     }).catch((err) => {
-      let message = (err.response.status === 404) ? 'Permission is not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('Permission is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.permissions.list' })
     })
   }

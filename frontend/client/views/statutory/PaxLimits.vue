@@ -116,7 +116,7 @@ export default {
         this.$set(limit, 'isEditing', false)
         this.$set(limit, 'default', false)
       }).catch((err) => {
-        this.$root.showDanger('Error saving limit:' + err.message)
+        this.$root.showError('Error saving limit', err)
       })
     },
     deleteLimit (limit, index) {
@@ -124,7 +124,7 @@ export default {
         this.$root.showSuccess('Limit is deleted.')
         window.location.reload()
       }).catch((err) => {
-        this.$root.showDanger('Error deleting limit:' + err.message)
+        this.$root.showError('Error deleting limit', err)
       })
     },
     fetchLimits () {
@@ -143,7 +143,7 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
-        this.$root.showDanger('Could not fetch participants limits: ' + err.message)
+        this.$root.showError('Could not fetch participants limits', err)
       })
     }
   },

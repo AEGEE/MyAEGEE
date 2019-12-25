@@ -186,7 +186,7 @@ export default {
       this.axios.put(this.services['alastair'] + '/events/' + this.$route.params.id + '/shopping_list/note/' + ingredient.ingredient_id, {note: ingredient.note}).then((response) => {
         ingredient.note_loading = false
       }).catch((err) => {
-        this.$root.showDanger('Could not tick ingredient: ' + err.message)
+        this.$root.showError('Could not tick ingredient', err)
         ingredient.note_loading = false
       })
     },
@@ -208,7 +208,7 @@ export default {
         props: {
           item: item,
           event: this.event,
-          showDanger: this.$root.showDanger,
+          showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
           services: this.services,
           reload: this.fetchData
@@ -235,7 +235,7 @@ export default {
         this.isLoadingEvent = false
         this.isLoading = this.isLoadingEvent || this.isLoadingShoppingList
       }).catch((err) => {
-        this.$root.showDanger('Could not load event details: ' + err.message)
+        this.$root.showError('Could not load event details', err)
       })
 
       this.axios.get(this.services['alastair'] + '/events/' + this.$route.params.id + '/shopping_list/', {params: this.queryObject}).then((response) => {
@@ -261,7 +261,7 @@ export default {
         this.isLoadingShoppingList = false
         this.isLoading = this.isLoadingEvent || this.isLoadingShoppingList
       }).catch((err) => {
-        this.$root.showDanger('Could not load shopping list: ' + err.message)
+        this.$root.showError('Could not load shopping list', err)
       })
     }
   },

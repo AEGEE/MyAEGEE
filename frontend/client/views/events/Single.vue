@@ -213,7 +213,7 @@ export default {
       this.axios.delete(this.services['oms-events'] + '/single/' + this.event.id).then((response) => {
         this.$root.showInfo('Event is deleted.')
         this.$router.push({ name: 'oms.events.list.all' })
-      }).catch((err) => this.$root.showDanger('Could not delete event: ' + err.message))
+      }).catch((err) => this.$root.showError('Could not delete event', err))
     },
     onMapLoaded (event) {
       this.map.actions = event.component.actions
@@ -259,9 +259,12 @@ export default {
       }
     }).catch((err) => {
       this.isLoading = false
-      let message = (err.response && err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+      if (err.response && err.response.status === 404) {
+        this.$root.showError('Event is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.events.list.all' })
     })
   },

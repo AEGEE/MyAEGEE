@@ -172,7 +172,7 @@ export default {
         }
 
         this.isLoadingIngredients = false
-        this.$root.showDanger('Could not fetch ingredients: ' + err.message)
+        this.$root.showError('Could not fetch ingredients', err)
       })
     },
     selectIngredient (ing) {
@@ -192,14 +192,16 @@ export default {
           this.isLoading = false
 
           if (!this.permissions.shop_admin) {
-            this.$root.showDanger('You don\'t have permission to edit match in this shop')
+            this.$root.showError('You don\'t have permission to edit match in this shop')
             this.$router.push({name: 'oms.alastair.shop.items', params: {id: this.$route.params.id}})
           }
         })
       }).catch((err) => {
-        let message = (err.response.status === 404) ? 'Shop not found' : 'Some error happened while fetching shop details: ' + err.message
-
-        this.$root.showDanger(message)
+        if (err.response.status === 404) {
+          this.$root.showError('Shop not found')
+        } else {
+          this.$root.showError('Some error happened while fetching shop details', err)
+        }
       })
     },
     fetchItem () {
@@ -209,7 +211,7 @@ export default {
           this.mappedIngredientName = this.item.mapped_ingredient.name
         }
       }).catch((err) => {
-        this.$root.showDanger('Could not fetch item ' + err.message)
+        this.$root.showError('Could not fetch item', err)
       })
     },
     saveMatch () {
@@ -241,10 +243,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the item data is invalid.')
+          return this.$root.showError('Some of the item data is invalid.')
         }
 
-        this.$root.showDanger('Could not save item: ' + err.message)
+        this.$root.showError('Could not save item', err)
       })
     },
     askDeleteItem () {
@@ -261,7 +263,7 @@ export default {
       this.axios.delete(this.services['alastair'] + '/shops/' + this.$route.params.id + '/shopping_items/' + this.item.id).then((response) => {
         this.$root.showInfo('Item is deleted.')
         this.$router.push({name: 'oms.alastair.shop.items', params: {id: this.$route.params.id}})
-      }).catch((err) => this.$root.showDanger('Could not delete item: ' + err.message))
+      }).catch((err) => this.$root.showError('Could not delete item', err))
     }
   },
   computed: mapGetters({services: 'services'}),
