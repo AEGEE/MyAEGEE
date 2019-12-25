@@ -190,7 +190,7 @@ export default {
           this.$root.showError('Some error happened', err)
         }
 
-        this.$router.push({ name: 'oms.statutory.list' })
+        this.$router.push({ name: 'oms.statutory.list.all' })
       })
     }
   },
