@@ -178,7 +178,7 @@ export default {
         }
 
         this.isLoadingIngredients = false
-        this.$root.showDanger('Could not fetch ingredients: ' + err.message)
+        this.$root.showError('Could not fetch ingredients', err)
       })
     },
     selectIngredient (ing) {
@@ -219,10 +219,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the recipe data is invalid.')
+          return this.$root.showError('Some of the recipe data is invalid.')
         }
 
-        this.$root.showDanger('Could not save recipe: ' + err.message)
+        this.$root.showError('Could not save recipe', err)
       })
     },
     askDeleteRecipe () {
@@ -239,7 +239,7 @@ export default {
       this.axios.delete(this.services['alastair'] + '/recipes/' + this.$route.params.id).then((response) => {
         this.$root.showInfo('Recipe is deleted.')
         this.$router.push({ name: 'oms.alastair.chef.recipe.list' })
-      }).catch((err) => this.$root.showDanger('Could not delete recipe: ' + err.message))
+      }).catch((err) => this.$root.showError('Could not delete recipe', err))
     }
   },
   computed: mapGetters({services: 'services'}),
@@ -254,15 +254,18 @@ export default {
       this.can = response.data.meta.permissions
 
       if (!this.can.edit_recipe) {
-        this.$root.showDanger('You don\'t have permission to edit this recipe')
+        this.$root.showError('You don\'t have permission to edit this recipe')
         this.$router.push({name: 'oms.alastair.chef.recipe.single', params: {id: this.recipe.id}})
       }
 
       this.isLoading = false
     }).catch((err) => {
-      let message = (err.response.status === 404) ? 'Recipe not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('Recipe not found')
+      } else {
+        this.$root.showError('Some error happened: ', err)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.alastair.chef.recipe.list' })
     })
   }

@@ -90,7 +90,7 @@ export default {
           this.isLoading = false
         })
       }).catch((err) => {
-        this.$root.showDanger('Could not fetch meal or event: ' + err.message)
+        this.$root.showError('Could not fetch meal or event', err)
       })
     }
   },

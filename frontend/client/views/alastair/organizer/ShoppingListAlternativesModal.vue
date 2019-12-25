@@ -36,7 +36,7 @@
 <script>
 export default {
   name: 'ShoppingListAlternativesModal',
-  props: ['item', 'event', 'services', 'showSuccess', 'showDanger', 'reload'],
+  props: ['item', 'event', 'services', 'showSuccess', 'showError', 'reload'],
   methods: {
     // I have not the slightest clue why direct binding to that value didn't work
     getMeasurement () {
@@ -50,7 +50,7 @@ export default {
         this.reload()
         this.$parent.close()
       }).catch((err) => {
-        this.showError('Could not save item choice: ' + err.message)
+        this.showError('Could not save item choice', err)
       })
     }
   }

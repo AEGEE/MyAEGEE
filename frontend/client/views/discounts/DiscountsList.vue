@@ -86,7 +86,7 @@ export default {
       this.can.create = this.permissions.some(permission => permission.combined.endsWith('manage:discounts'))
       this.isLoading = false
     }).catch((err) => {
-      this.$root.showDanger('Could not fetch categories list: ' + err.message)
+      this.$root.showError('Could not fetch categories list', err)
     })
   }
 }

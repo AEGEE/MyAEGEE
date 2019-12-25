@@ -44,7 +44,7 @@ export default {
         .then((response) => {
           this.fetchData()
         }).catch((err) => {
-          this.$root.showDanger('Could not create event: ' + err.message)
+          this.$root.showError('Could not create event', err)
         })
     },
     refetch () {
@@ -62,10 +62,10 @@ export default {
           this.events = response.data.data
         }).catch((err) => {
           if (this.axios.isCancel(err)) {
-            return console.debug('Request cancelled.')
+            return
           }
 
-          this.$root.showDanger('Could not fetch alastair events list: ' + err.message)
+          this.$root.showError('Could not fetch alastair events list', err)
         })
     }
   },

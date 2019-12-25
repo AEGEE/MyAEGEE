@@ -79,7 +79,7 @@ import currencies from '../../../currencies'
 
 export default {
   name: 'AddFeePaymentModal',
-  props: ['member', 'body', 'services', 'showSuccess', 'showDanger'],
+  props: ['member', 'body', 'services', 'showSuccess', 'showError'],
   data () {
     return {
       currencies,
@@ -131,10 +131,13 @@ export default {
         this.$parent.close()
       }).catch((err) => {
         this.isLoading = false
-        let message = err.response && err.response.status === 422 ? 'Some fields were not set: ' : err.message
-        if (err.response && err.response.data && err.response.data.errors) this.errors = err.response.data.errors
+        if (err.response && err.response.status === 422) {
+          this.showError('Some fields were not set')
+        } else {
+          this.showError('Some error happened', err)
+        }
 
-        this.showDanger(message)
+        if (err.response && err.response.data && err.response.data.errors) this.errors = err.response.data.errors
       })
     }
   },

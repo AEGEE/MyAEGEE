@@ -80,7 +80,7 @@ export default {
           // More info: https://github.com/buefy/buefy/issues/55
           event: this.event,
           services: this.services,
-          showDanger: this.$root.showDanger,
+          showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
           reload: this.refetch
         }
@@ -109,7 +109,7 @@ export default {
           event: this.event,
           isNewMeal: isNewMeal,
           services: this.services,
-          showDanger: this.$root.showDanger,
+          showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
           reload: this.refetch
         }
@@ -128,7 +128,7 @@ export default {
           this.isLoading = false
           this.event = response.data.data
         }).catch((err) => {
-          this.$root.showDanger('Could not fetch alastair event with id ' + this.$route.params.id + ': ' + err.message)
+          this.$root.showError('Could not fetch alastair event with id ' + this.$route.params.id, err)
         })
 
       // Fetch meals
@@ -136,7 +136,7 @@ export default {
         .then((response) => {
           this.meals = response.data.data
         }).catch((err) => {
-          this.$root.showDanger('Could not fetch alastair event meals: ' + err.message)
+          this.$root.showError('Could not fetch alastair event meals', err)
         })
     },
     deleteMeal (meal) {

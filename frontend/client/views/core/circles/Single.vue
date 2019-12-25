@@ -153,7 +153,7 @@ export default {
           // More info: https://github.com/buefy/buefy/issues/55
           circle: this.circle,
           services: this.services,
-          showDanger: this.$root.showDanger,
+          showError: this.$root.showError,
           showSuccess: this.$root.showSuccess
         }
       })
@@ -172,7 +172,7 @@ export default {
       this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.circle.id).then((response) => {
         this.$root.showInfo('Circle is deleted.')
         this.$router.push({ name: 'oms.circles.list' })
-      }).catch((err) => this.$root.showDanger('Could not delete circle: ' + err.message))
+      }).catch((err) => this.$root.showError('Could not delete circle', err))
     },
     joinCircle () {
       this.isLoading = true
@@ -184,12 +184,11 @@ export default {
       }).catch((err) => {
         this.isLoading = false
 
-        let message = 'Could not join circle: ' +
-          ((err.response.data.errors && 'circle_membership_unique' in err.response.data.errors)
-            ? 'You are already a member of this circle.'
-            : err.message)
-
-        this.$root.showDanger(message)
+        if (err.response && err.response.data && err.response.data.errors && 'circle_membership_unique' in err.response.data.errors) {
+          this.$root.showError('Could not join circle: you are already a member of this circle.')
+        } else {
+          this.$root.showError('Could not join circle', err)
+        }
       })
     },
     askLeaveCircle () {
@@ -211,7 +210,7 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
-        this.$root.showDanger('Could not leave circle: ' + err.message)
+        this.$root.showError('Could not leave circle', err)
       })
     },
     loadData (id) {
@@ -243,9 +242,12 @@ export default {
 
         this.isLoading = false
       }).catch((err) => {
-        let message = (err.response.status === 404) ? 'Circle is not found' : 'Some error happened: ' + err.message
+        if (err.response.status === 404) {
+          this.$root.showError('Circle is not found')
+        } else {
+          this.$root.showError('Some error happened', err)
+        }
 
-        this.$root.showDanger(message)
         this.$router.push({ name: 'oms.circles.list' })
       })
     }

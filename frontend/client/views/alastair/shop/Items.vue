@@ -128,7 +128,7 @@ export default {
           this.permissions = response.data.data
         })
       }).catch((err) => {
-        this.$root.showDanger('Could not fetch shop details: ' + err.message)
+        this.$root.showError('Could not fetch shop details', err)
       })
     },
     fetchItems (state) {
@@ -143,10 +143,10 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
-          return console.debug('Request cancelled.')
+          return
         }
 
-        this.$root.showDanger('Could not fetch items: ' + err.message)
+        this.$root.showError('Could not fetch items', err)
       })
     }
   },

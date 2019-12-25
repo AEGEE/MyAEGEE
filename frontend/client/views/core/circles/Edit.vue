@@ -203,7 +203,7 @@ export default {
 
         this.autoComplete[key].loading = false
 
-        this.$root.showDanger('Could not fetch ' + context + 's: ' + err.message)
+        this.$root.showError('Could not fetch ' + context + 's', err)
       })
     },
     setParentCircle (circle) {
@@ -221,10 +221,10 @@ export default {
 
         if (err.response.status === 422) {
           const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-          return this.$root.showDanger('Could not ' + (circle ? 'set' : 'unset') + ' parent circle: ' + errors)
+          return this.$root.showError('Could not ' + (circle ? 'set' : 'unset') + ' parent circle: ' + errors)
         }
 
-        this.$root.showDanger('Could not ' + (circle ? 'set' : 'unset') + ' parent circle: ' + err.message)
+        this.$root.showError('Could not ' + (circle ? 'set' : 'unset') + ' parent circle', err)
       })
     },
     togglePermission (permission, add) {
@@ -251,10 +251,10 @@ export default {
 
         if (err.response.status === 422) {
           const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-          return this.$root.showDanger('Could not ' + (add ? 'add' : 'remove') + ' permission: ' + errors)
+          return this.$root.showError('Could not ' + (add ? 'add' : 'remove') + ' permission: ' + errors)
         }
 
-        this.$root.showDanger('Could not ' + (add ? 'add' : 'remove') + ' permission: ' + err.message)
+        this.$root.showError('Could not ' + (add ? 'add' : 'remove') + ' permission', err)
       })
     },
     toggleChildCircle (circle, add) {
@@ -284,10 +284,10 @@ export default {
             err.response.data.errors
               ? Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
               : err.response.data.message
-          return this.$root.showDanger('Could not ' + (add ? 'add' : 'remove') + ' child circle: ' + errors)
+          return this.$root.showError('Could not ' + (add ? 'add' : 'remove') + ' child circle: ' + errors)
         }
 
-        this.$root.showDanger('Could not ' + (add ? 'add' : 'remove') + ' child circle: ' + err.message)
+        this.$root.showError('Could not ' + (add ? 'add' : 'remove') + ' child circle', err)
       })
     },
     saveCircle () {
@@ -312,10 +312,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the circle data is invalid.')
+          return this.$root.showError('Some of the circle data is invalid.')
         }
 
-        this.$root.showDanger('Could not save circle: ' + err.message)
+        this.$root.showError('Could not save circle', err)
       })
     },
     capitalize (value) {
@@ -334,9 +334,12 @@ export default {
       this.circle = response.data.data
       this.isLoading = false
     }).catch((err) => {
-      let message = (err.response.status === 404) ? 'Circle is not found' : 'Some error happened: ' + err.message
-
-      this.$root.showDanger(message)
+      if (err.response.status === 404) {
+        this.$root.showError('Circle is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
+      
       this.$router.push({ name: 'oms.circles.list' })
     })
   }

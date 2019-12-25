@@ -106,7 +106,7 @@ export default {
         }
         this.isLoading = false
 
-        this.$root.showDanger('Could not fetch user list: ' + err.message)
+        this.$root.showError('Could not fetch user list', err)
       })
     }
   },

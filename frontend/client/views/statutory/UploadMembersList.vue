@@ -181,7 +181,7 @@ export default {
         this.memberslist = null
 
         if (err.response && err.response.status !== 404) {
-          this.$root.showDanger('Could not fetch memberslist: ' + err.message)
+          this.$root.showError('Could not fetch memberslist', err)
         }
       })
     },
@@ -238,33 +238,33 @@ export default {
           });
       }).catch((err) => {
         this.isLoading = false
-        this.$root.showDanger('Some error happened: ' + err.message)
+        this.$root.showError('Some error happened', err)
       })
     },
     saveMembersList () {
       if (!this.memberslist.currency) {
-        return this.$root.showDanger('Please select a currency.')
+        return this.$root.showError('Please select a currency.')
       }
       if (!this.memberslist.members.length === 0) {
-        return this.$root.showDanger('Memberslist should contain at least 1 member.')
+        return this.$root.showError('Memberslist should contain at least 1 member.')
       }
 
       for (let index = 0; index < this.memberslist.members.length; index++) {
         const member = this.memberslist.members[index]
         if (typeof member.fee !== 'number') {
-          return this.$root.showDanger(`Please set the fee for member number ${index + 1}.`)
+          return this.$root.showError(`Please set the fee for member number ${index + 1}.`)
         }
 
         if (member.fee < 0) {
-          return this.$root.showDanger(`Fee for member number ${index + 1} cannot be negative.`)
+          return this.$root.showError(`Fee for member number ${index + 1} cannot be negative.`)
         }
 
         if (member.first_name.trim().length === 0) {
-          return this.$root.showDanger(`First name for member number ${index + 1} is not set.`)
+          return this.$root.showError(`First name for member number ${index + 1} is not set.`)
         }
 
         if (member.last_name.trim().length === 0) {
-          return this.$root.showDanger(`Last name for member number ${index + 1} is not set.`)
+          return this.$root.showError(`Last name for member number ${index + 1} is not set.`)
         }
       }
 
@@ -287,7 +287,7 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
-        this.$root.showDanger('Could not save memberslist: ' + err.message)
+        this.$root.showError('Could not save memberslist', err)
       })
     },
     openFileDialog (event) {
@@ -301,7 +301,7 @@ export default {
         reader.readAsText(file, 'UTF-8')
         reader.onload = (evt) => this.processFileContent(evt.target.result)
         reader.onerror = (err) => {
-          this.$root.showDanger('Could not open file: ' + err.message)
+          this.$root.showError('Could not open file', err)
         }
       }
     },
@@ -319,7 +319,7 @@ export default {
 
       // Checking if each line has at least 3 columns.
       if (csvArray.some(elt => elt.length < 3)) {
-        return this.$root.showDanger('CSV is malformed.')
+        return this.$root.showError('CSV is malformed.')
       }
 
       const members = csvArray.map((element) => {
@@ -380,9 +380,12 @@ export default {
       }
     }).catch((err) => {
       this.isLoading = false
-      let message = (err.response && err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('Event is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.statutory.single', params: { id: this.$route.params.id } })
     })
   }

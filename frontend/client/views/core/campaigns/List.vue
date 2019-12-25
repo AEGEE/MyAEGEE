@@ -114,10 +114,10 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
-          return console.debug('Request cancelled.')
+          return
         }
 
-        this.$root.showDanger('Could not fetch campaign list: ')
+        this.$root.showError('Could not fetch campaign list', err)
         this.isLoading = false
       })
     }

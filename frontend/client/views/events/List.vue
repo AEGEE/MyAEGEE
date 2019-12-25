@@ -196,7 +196,7 @@ export default {
           return
         }
 
-        this.$root.showDanger('Could not fetch events list: ' + err.message)
+        this.$root.showError('Could not fetch events list', err)
       })
     },
     fetchPermissions () {

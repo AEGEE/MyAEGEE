@@ -106,10 +106,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the integration data is invalid.')
+          return this.$root.showError('Some of the integration data is invalid.')
         }
 
-        this.$root.showDanger('Could not save integration: ' + err.message)
+        this.$root.showError('Could not save integration', err)
       })
     }
   },
@@ -123,9 +123,12 @@ export default {
       this.integration = response.data.data
       this.isLoading = false
     }).catch((err) => {
-      let message = (err.response.status === 404) ? 'Integration is not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('Integration is not found')
+      } else {
+        this.$root.showError('Some error happened', err.message)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.discounts.list' })
     })
   }

@@ -73,7 +73,7 @@ export default {
       this.axios.delete(this.services['oms-discounts'] + '/categories/' + this.categories[index].id).then((response) => {
         this.$root.showSuccess('Category is deleted.')
         this.categories.splice(index, 1)
-      }).catch((err) => this.$root.showDanger('Could not delete category: ' + err.message))
+      }).catch((err) => this.$root.showError('Could not delete category', err))
     },
     refetch () {
       this.integrations = []
@@ -92,7 +92,7 @@ export default {
         this.can.create = this.permissions.some(permission => permission.combined.endsWith('manage:discounts'))
         this.isLoading = false
       }).catch((err) => {
-        this.$root.showDanger('Could not fetch categories list: ' + err.message)
+        this.$root.showError('Could not fetch categories list', err)
       })
     }
   },

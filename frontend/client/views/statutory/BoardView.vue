@@ -274,7 +274,7 @@ export default {
 
       for (let index = 0; index < ids.length; index++) {
         if (ids[index] && ids.indexOf(ids[index]) !== index) {
-          return this.$root.showDanger('You\'ve specified one user multiple times, please remove any duplicate users and try again.')
+          return this.$root.showError('You\'ve specified one user multiple times, please remove any duplicate users and try again.')
         }
       }
 
@@ -293,12 +293,10 @@ export default {
       this.axios.post(url, body).then(() => {
         this.$root.showSuccess('Participants info is successfully updated.')
       }).catch((err) => {
-        if (err.response && err.response.data && err.response.data.message) {
-          this.$root.showDanger('Could not update participants info: ' + err.response.data.message)
-        } else if (err.response && err.response.data.errors) {
+        if (err.response && err.response.data.errors) {
           this.errors = err.response.data.errors
         } else {
-          this.$root.showDanger('Could not update participants info: ' + err.message)
+          this.$root.showError('Could not update participants info', err)
         }
       })
     },
@@ -344,7 +342,7 @@ export default {
       }).catch((err) => {
         this.isLoading = false
 
-        this.$root.showDanger('Could not fetch boardview: ' + err.message)
+        this.$root.showError('Could not fetch boardview', err)
       })
     }
   },
@@ -390,10 +388,13 @@ export default {
       }
     }).catch((err) => {
       this.isLoading = false
-      let message = (err.response && err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+      if (err.response && err.response.status === 404) {
+        this.$root.showError('Event is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
-      this.$router.push({ name: 'oms.statutory.list' })
+      this.$router.push({ name: 'oms.statutory.list.all' })
     })
   }
 }

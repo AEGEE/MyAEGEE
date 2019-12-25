@@ -132,14 +132,14 @@ export default {
       }).catch((err) => {
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the registration data is invalid.')
+          return this.$root.showError('Some of the registration data is invalid.')
         }
 
         if (err.response.status === 404) { // validation errors
-          return this.$root.showDanger('The registration campaign is not found.')
+          return this.$root.showError('The registration campaign is not found.')
         }
 
-        this.$root.showDanger('Could not register: ' + err.message)
+        this.$root.showError('Could not register', err)
       })
     }
   }

@@ -154,7 +154,7 @@ export default {
         this.$root.showSuccess('Question line is deleted.')
         this.questionLines.splice(index, 1)
         this.selectedQuestionLine = this.questionLines[index]
-      }).catch((err) => this.$root.showDanger('Could not delete question line: ' + err.message))
+      }).catch((err) => this.$root.showError('Could not delete question line', err))
     },
     askDeleteQuestion (questionLine, question, questionIndex) {
       this.$buefy.dialog.confirm({
@@ -170,7 +170,7 @@ export default {
       this.axios.delete(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/question-lines/' + questionLine.id + '/questions/' + question.id).then((response) => {
         this.$root.showSuccess('Question is deleted.')
         questionLine.questions.splice(questionIndex, 1)
-      }).catch((err) => this.$root.showDanger('Could not delete question: ' + err.message))
+      }).catch((err) => this.$root.showError('Could not delete question', err))
     },
     openCreateQuestionLineModal () {
       this.$buefy.modal.open({
@@ -186,7 +186,7 @@ export default {
           },
           event: this.event,
           services: this.services,
-          showDanger: this.$root.showDanger,
+          showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
           router: this.$router
         }
@@ -204,7 +204,7 @@ export default {
           questionLine,
           event: this.event,
           services: this.services,
-          showDanger: this.$root.showDanger,
+          showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
           router: this.$router
         }
@@ -225,7 +225,7 @@ export default {
           },
           event: this.event,
           services: this.services,
-          showDanger: this.$root.showDanger,
+          showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
           router: this.$router
         }
@@ -244,7 +244,7 @@ export default {
           question,
           event: this.event,
           services: this.services,
-          showDanger: this.$root.showDanger,
+          showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
           router: this.$router
         }
@@ -260,7 +260,7 @@ export default {
         this.$root.showSuccess(`Successfully updated status of application for question line "${questionLine.name}" to ${questionLine.status}.`)
       }).catch((err) => {
         questionLine.isSaving = false
-        this.$root.showDanger('Could not update question line status: ' + err.message)
+        this.$root.showError('Could not update question line status', err)
       })
     }
   },
@@ -282,10 +282,13 @@ export default {
       this.isLoading = false
     }).catch((err) => {
       this.isLoading = false
-      let message = (err.response && err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('Event is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
-      this.$router.push({ name: 'oms.statutory.list' })
+      this.$router.push({ name: 'oms.statutory.list.all' })
     })
   }
 }

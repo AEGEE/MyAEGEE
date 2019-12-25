@@ -69,7 +69,7 @@ export default {
   methods: {
     claimCode () {
       if (!this.selectedIntegration) {
-        return this.$root.showDanger('Please select a partner first.')
+        return this.$root.showError('Please select a partner first.')
       }
 
       this.axios.post(this.services['oms-discounts'] + '/integrations/' + this.selectedIntegration  + '/claim').then((response) => {
@@ -79,12 +79,7 @@ export default {
         const integration = this.integrations.find(int => int.id === this.selectedIntegration)
         response.data.data.integration = integration
         this.codes.unshift(response.data.data)
-      }).catch((err) => {
-        const msg = err.response && err.response.data && err.response.data.message
-          ? err.response.data.message
-          : err.message
-        this.$root.showDanger('Could not claim code: ' + msg)
-      })
+      }).catch((err) => this.$root.showError('Could not claim code', err))
     },
     refetch () {
       this.integrations = []
@@ -109,7 +104,7 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
-        this.$root.showDanger('Could not fetch discounts: ' + err.message)
+        this.$root.showError('Could not fetch discounts', err)
       })
     }
   },

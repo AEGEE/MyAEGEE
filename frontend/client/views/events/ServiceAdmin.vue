@@ -138,7 +138,7 @@ export default {
         this.axios.post(this.services['oms-events'], event).then((response) => {
           this.$root.showSuccess('Event "' + event.name + '" is successfully added.')
         }).catch((err) => {
-          this.$root.showDanger('Could not save event: ' + err.message)
+          this.$root.showError('Could not save event', err)
         })
       }
     }
@@ -152,7 +152,7 @@ export default {
       this.isLoading.user = false
     }).catch((err) => {
       this.isLoading.user = false
-      this.$root.showDanger('Could not fetch user: ' + err.message)
+      this.$root.showError('Could not fetch user', err)
     })
 
     const start2 = Date.now()
@@ -163,7 +163,7 @@ export default {
       this.isLoading.status = false
     }).catch((err) => {
       this.isLoading.status = false
-      this.$root.showDanger('Could not fetch status: ' + err.message)
+      this.$root.showError('Could not fetch status', err)
     })
   }
 }

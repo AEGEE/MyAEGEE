@@ -68,7 +68,7 @@ export default {
 
         this.events.splice(this.events.indexOf(event), 1)
       }).catch((err) => {
-        this.$root.showDanger('Could not update event status: ' + err.message)
+        this.$root.showError('Could not update event status', err)
       })
     },
     fetchData () {
@@ -79,7 +79,7 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
-        this.$root.showDanger('Could not fetch events list: ' + err.message)
+        this.$root.showError('Could not fetch events list', err)
       })
     }
   },

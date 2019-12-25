@@ -110,7 +110,7 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         this.events = []
-        this.$root.showDanger('Could not fetch events list: ' + err.message)
+        this.$root.showError('Could not fetch events list', err)
       })
     }
   },

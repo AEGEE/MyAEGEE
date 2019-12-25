@@ -153,7 +153,7 @@ export default {
           return
         }
 
-        this.$root.showDanger('Could not fetch bodies list: ' + err.message)
+        this.$root.showError('Could not fetch bodies list', err)
       })
     }
   },

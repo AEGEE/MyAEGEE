@@ -107,7 +107,7 @@
 <script>
 export default {
   name: 'EditMealModal',
-  props: ['event', 'meal', 'isNewMeal', 'services', 'showSuccess', 'showDanger', 'reload'],
+  props: ['event', 'meal', 'isNewMeal', 'services', 'showSuccess', 'showError', 'reload'],
   data () {
     return {
       errors: {},
@@ -142,7 +142,7 @@ export default {
         this.showSuccess('Meal is deleted.')
         this.$parent.close()
         this.reload()
-      }).catch((err) => this.showDanger('Could not delete meal: ' + err.message))
+      }).catch((err) => this.showError('Could not delete meal', err))
     },
     fetchRecipes () {
       this.isLoadingRecipes = true
@@ -164,7 +164,7 @@ export default {
         }
 
         this.isLoadingRecipes = false
-        this.showDanger('Could not fetch recipes: ' + err.message)
+        this.showError('Could not fetch recipes', err)
       })
     },
     selectRecipe (option) {
@@ -196,13 +196,15 @@ export default {
         this.reload()
       }).catch((err) => {
         this.isLoading = false
-        let message = err.response && err.response.status === 422 ? 'Some fields were not set: ' : err.message
-        if (err.response && err.response.data && err.response.data.errors) {
-          this.errors = err.response.data.errors
-          console.log(this.errors)
+        if (err.response && err.response.status === 422) {
+          this.showError('Some fields were not set')
+        } else {
+          this.showError('Some error happened', err)
         }
 
-        this.showDanger(message)
+        if (err.response && err.response.data && err.response.data.errors) {
+          this.errors = err.response.data.errors
+        }
       })
     }
   }

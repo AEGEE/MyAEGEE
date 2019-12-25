@@ -23,7 +23,7 @@
 <script>
 export default {
   name: 'EditQuestionModal',
-  props: ['event', 'questionLine', 'question', 'services', 'showSuccess', 'showDanger', 'router'],
+  props: ['event', 'questionLine', 'question', 'services', 'showSuccess', 'showError', 'router'],
   data () {
     return {
       errors: {}
@@ -49,10 +49,11 @@ export default {
         this.router.go(0) // Reloading the page.
       }).catch((err) => {
         this.isLoading = false
-        let message = err.response && err.response.status === 422 ? 'Some fields were not set: ' : err.message
-        if (err.response && err.response.data && err.response.data.errors) this.errors = err.response.data.errors
-
-        this.showDanger(message)
+        if (err.response && err.response.status === 422) {
+          this.showError('Some fields were not set')
+        } else {
+          this.showError('Some error happened', err)
+        }
       })
     }
   },

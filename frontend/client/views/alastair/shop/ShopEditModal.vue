@@ -73,7 +73,7 @@
 <script>
 export default {
   name: 'ShopEditModal',
-  props: ['shop', 'isNewShop', 'services', 'showSuccess', 'showDanger', 'reload'],
+  props: ['shop', 'isNewShop', 'services', 'showSuccess', 'showError', 'reload'],
   data () {
     return {
       shopErrors: {},
@@ -102,7 +102,7 @@ export default {
         this.showSuccess('Shop is deleted.')
         this.$parent.close()
         this.reload()
-      }).catch((err) => this.showDanger('Could not delete shop: ' + err.message))
+      }).catch((err) => this.showError('Could not delete shop', err))
     },
     selectCurrency (option) {
       console.log(option)
@@ -129,7 +129,7 @@ export default {
         }
 
         this.isLoadingCurrencies = false
-        this.showDanger('Could not fetch currencies: ' + err.message)
+        this.showError('Could not fetch currencies', err)
       })
     },
     saveShop () {
@@ -149,10 +149,13 @@ export default {
         this.reload()
       }).catch((err) => {
         this.isLoading = false
-        let message = err.response && err.response.status === 422 ? 'Some fields were not set: ' : err.message
-        if (err.response && err.response.data && err.response.data.errors) this.shopErrors = err.response.data.errors
+        if (err.response && err.response.status === 422) {
+          this.showError('Some fields were not set')
+        } else {
+          this.showError('Some error happened', err)
+        }
 
-        this.showDanger(message)
+        if (err.response && err.response.data && err.response.data.errors) this.shopErrors = err.response.data.errors
       })
     }
   },
@@ -164,7 +167,7 @@ export default {
     this.axios.get(this.services['alastair'] + '/shops/' + this.shop.id + '/user').then((response) => {
       this.permissions = response.data.data
     }).catch((err) => {
-      this.showDanger('Could not fetch shop details: ' + err.message)
+      this.showError('Could not fetch shop details', err)
     })
   }
 }

@@ -49,7 +49,7 @@ export default {
   methods: {
     addCodes () {
       if (!this.codes.length) {
-        return this.$root.showDanger('Please add at least 1 not empty code.');
+        return this.$root.showError('Please add at least 1 not empty code.');
       }
 
       this.isSaving = true
@@ -62,7 +62,7 @@ export default {
         return this.$router.push({ name: 'oms.discounts.list' })
       }).catch((err) => {
         this.isSaving = false
-        this.$root.showDanger('Could not add codes: ' + err.message)
+        this.$root.showError('Could not add codes', err)
       })
     }
   },
@@ -72,9 +72,12 @@ export default {
       this.integration = response.data.data
       this.isLoading = false
     }).catch((err) => {
-      let message = (err.response.status === 404) ? 'Integration is not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('Integration is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.discounts.list' })
     })
   }

@@ -132,7 +132,7 @@ export default {
           ingredient: ingredient,
           isNewIngredient: isNewIngredient,
           services: this.services,
-          showDanger: this.$root.showDanger,
+          showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
           reload: this.refetch
         }
@@ -148,7 +148,7 @@ export default {
       this.axios.get(this.services['alastair'] + '/user').then((response) => {
         this.permissions.superuser = response.data.data.superadmin
       }).catch((err) => {
-        this.$root.showDanger('Could not fetch user permissions from alastair: ' + err.message)
+        this.$root.showError('Could not fetch user permissions from alastair', err)
       })
     },
     fetchData (state) {
@@ -163,10 +163,10 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
-          return console.debug('Request cancelled.')
+          return
         }
 
-        this.$root.showDanger('Could not fetch ingredients list: ' + err.message)
+        this.$root.showError('Could not fetch ingredients list', err)
       })
     }
   },

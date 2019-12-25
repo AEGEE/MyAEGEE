@@ -30,7 +30,7 @@
 <script>
 export default {
   name: 'EditMemberPositionModal',
-  props: ['circle', 'member', 'services', 'showSuccess', 'showDanger'],
+  props: ['circle', 'member', 'services', 'showSuccess', 'showError'],
   data () {
     return {
       userErrors: {}
@@ -49,7 +49,7 @@ export default {
       }).catch((err) => {
         this.isLoading = false
 
-        this.showDanger('Error updating user membership: ' + err.message)
+        this.showError('Error updating user membership', err)
       })
     }
   }

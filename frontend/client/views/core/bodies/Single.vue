@@ -235,7 +235,7 @@ export default {
           // More info: https://github.com/buefy/buefy/issues/55
           body: this.body,
           services: this.services,
-          showDanger: this.$root.showDanger,
+          showError: this.$root.showError,
           showSuccess: this.$root.showSuccess
         }
       })
@@ -254,7 +254,7 @@ export default {
       this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
         this.$root.showSuccess('Body is deleted.')
         this.$router.push({ name: 'oms.bodies.list' })
-      }).catch((err) => this.$root.showDanger('Could not delete body: ' + err.message))
+      }).catch((err) => this.$root.showError('Could not delete body', err))
     },
     askToJoinBody () {
       if (!this.loginUser) {
@@ -280,9 +280,11 @@ export default {
         this.isRequestingMembership = true
       }).catch((err) => {
         this.isLoading = false
-        let message = err.response.status === 422 ? 'You\'ve already requested to join this body.' : err.message
-
-        this.$root.showDanger(message)
+        if (err.response.status === 422) {
+          this.$root.showError('You\'ve already requested to join this body.')
+        } else {
+          this.$root.showError('Could not sent join request', err)
+        }
       })
     },
     askLeaveBody () {
@@ -301,7 +303,7 @@ export default {
         this.isRequestingMembership = false
         this.$root.showSuccess('You are not the member anymore.')
       }).catch((err) => {
-        this.$root.showDanger('Could not delete body: ' + err.message)
+        this.$root.showError('Could not delete body', err)
       })
     }
   },
@@ -322,9 +324,12 @@ export default {
         this.isLoading = false
       }
     }).catch((err) => {
-      let message = (err.response.status === 404) ? 'Body is not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('Body is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.bodies.list' })
     })
   },

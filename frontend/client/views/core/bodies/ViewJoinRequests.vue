@@ -134,7 +134,7 @@ export default {
           const index = this.members.findIndex(m => m.id === member.id)
           this.members.splice(index, 1)
         }
-      }).catch((err) => this.$root.showDanger('Could not process join request: ' + err.message))
+      }).catch((err) => this.$root.showError('Could not process join request', err))
     },
     refetch () {
       this.members = []
@@ -160,7 +160,7 @@ export default {
 
         this.isLoading = false
       }).catch((err) => {
-        this.$root.showDanger('Could not fetch join requests: ' + err.message)
+        this.$root.showError('Could not fetch join requests', err)
       })
     }
   },

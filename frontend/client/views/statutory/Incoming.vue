@@ -147,7 +147,7 @@ export default {
         this.$root.showSuccess(`Successfully updated attendance info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingAttended = false
-        this.$root.showDanger('Could not update participant attendance info: ' + err.message)
+        this.$root.showError('Could not update participant attendance info', err)
       })
     },
     switchPaxConfirmed (pax) {
@@ -160,7 +160,7 @@ export default {
         this.$root.showSuccess(`Successfully updated fee info of application for user #${pax.user_id}`)
       }).catch((err) => {
         pax.isSavingConfirmed = false
-        this.$root.showDanger('Could not update participant fee info: ' + err.message)
+        this.$root.showError('Could not update participant fee info', err)
       })
     },
     onPageChange (page) {
@@ -192,10 +192,13 @@ export default {
         }
       }).catch((err) => {
         this.isLoading = false
-        let message = (err.response.status === 404) ? 'Event is not found' : 'Some error happened: ' + err.message
+        if (err.response.status === 404) {
+          this.$root.showError('Event is not found')
+        } else {
+          this.$root.showError('Some error happened', err)
+        }
 
-        this.$root.showDanger(message)
-        this.$router.push({ name: 'oms.statutory.list' })
+        this.$router.push({ name: 'oms.statutory.list.all' })
       })
     }
   },

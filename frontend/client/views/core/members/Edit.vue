@@ -150,10 +150,10 @@ export default {
 
         if (err.response.status === 422) { // validation errors
           this.errors = err.response.data.errors
-          return this.$root.showDanger('Some of the user data is invalid.')
+          return this.$root.showError('Some of the user data is invalid.')
         }
 
-        this.$root.showDanger('Could not save user: ' + err.message)
+        this.$root.showError('Could not save user', err)
       })
     }
   },
@@ -164,9 +164,12 @@ export default {
       this.birthday = response.data.data.date_of_birth ? moment(response.data.data.date_of_birth, 'YYYY-MM-DD').toDate() : null
       this.isLoading = false
     }).catch((err) => {
-      let message = (err.response.status === 404) ? 'User is not found' : 'Some error happened: ' + err.message
+      if (err.response.status === 404) {
+        this.$root.showError('User is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
 
-      this.$root.showDanger(message)
       this.$router.push({ name: 'oms.members.list' })
     })
   }

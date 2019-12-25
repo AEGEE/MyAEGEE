@@ -119,10 +119,10 @@ export default {
             this.errors = err.response.data.errors
           }
 
-          return this.$root.showDanger('Some of the user data is invalid.')
+          return this.$root.showError('Some of the user data is invalid.')
         }
 
-        this.$root.showDanger('Could not save user: ' + err.message)
+        this.$root.showError('Could not save user', err)
       })
     }
   },
@@ -133,7 +133,7 @@ export default {
       this.user.password = ''
       this.isLoading = false
     }).catch((err) => {
-      this.$root.showDanger('Some error happened: ' + err.message)
+      this.$root.showError('Some error happened', err)
       this.$router.push({ name: 'oms.members.list' })
     })
   }
