@@ -1,5 +1,6 @@
 const errors = require('./errors');
 const merge = require('./merge');
+const constants = require('./constants');
 const helpers = require('./helpers');
 const { Event, Application } = require('../models');
 const { Sequelize } = require('./sequelize');
@@ -152,7 +153,14 @@ exports.addEvent = async (req, res) => {
 };
 
 exports.eventDetails = async (req, res) => {
-    const event = req.event.toJSON();
+    let event = req.event.toJSON();
+
+    // Some fields shouldn't be public and only should be displayed to EQAC/CD/admins/organizers.
+    if (!helpers.isOrganizer(event, req.user)
+        && !req.permissions.manage_event[event.type]
+        && !req.permissions.approve_event[event.type]) {
+        event = helpers.whitelistObject(event, constants.EVENT_PUBLIC_FIELDS);
+    }
 
     return res.json({
         success: true,
