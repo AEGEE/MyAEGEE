@@ -1,3 +1,13 @@
+<a name="0.16.1"></a>
+## [0.16.1](https://github.com/AEGEE/oms-events/compare/0.16.0...0.16.1) (2019-12-26)
+
+
+### Bug Fixes
+
+* **general:** added cli command ([a2ba143](https://github.com/AEGEE/oms-events/commit/a2ba143))
+
+
+
 <a name="0.16.0"></a>
 # [0.16.0](https://github.com/AEGEE/oms-events/compare/0.15.0...0.16.0) (2019-12-26)
 
