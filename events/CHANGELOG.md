@@ -1,3 +1,13 @@
+<a name="0.16.0"></a>
+# [0.16.0](https://github.com/AEGEE/oms-events/compare/0.15.0...0.16.0) (2019-12-26)
+
+
+### Features
+
+* **events:** cache bodies names. Fixes MEMB-742 ([668fa16](https://github.com/AEGEE/oms-events/commit/668fa16))
+
+
+
 <a name="0.15.0"></a>
 # [0.15.0](https://github.com/AEGEE/oms-events/compare/0.14.1...0.15.0) (2019-12-01)
 

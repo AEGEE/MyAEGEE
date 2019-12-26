@@ -745,7 +745,7 @@ describe('Events creation', () => {
         expect(res.body).not.toHaveProperty('errors');
     });
 
-    it('should return 422 if organizing_locals is not an array', async () => {
+    it('should return 422 if organizing_bodies is not an array', async () => {
         const event = generator.generateEvent({
             organizing_bodies: false
         });
@@ -763,7 +763,7 @@ describe('Events creation', () => {
         expect(res.body.errors).toHaveProperty('organizing_bodies');
     });
 
-    it('should return 422 if organizing_locals is empty', async () => {
+    it('should return 422 if organizing_bodies is empty', async () => {
         const event = generator.generateEvent({
             organizing_bodies: []
         });
@@ -781,7 +781,7 @@ describe('Events creation', () => {
         expect(res.body.errors).toHaveProperty('organizing_bodies');
     });
 
-    it('should return 422 if organizing_locals.body is not an object', async () => {
+    it('should return 422 if organizing_bodies.body is not an object', async () => {
         const event = generator.generateEvent({
             organizing_bodies: [false]
         });
@@ -799,7 +799,7 @@ describe('Events creation', () => {
         expect(res.body.errors).toHaveProperty('organizing_bodies');
     });
 
-    it('should return 422 if organizing_locals[].body_id is not a number', async () => {
+    it('should return 422 if organizing_bodies[].body_id is not a number', async () => {
         const event = generator.generateEvent({
             organizing_bodies: [{ body_id: false }]
         });
@@ -815,5 +815,88 @@ describe('Events creation', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('organizing_bodies');
+    });
+
+    it('should fail if body request returns net error', async () => {
+        mock.mockAll({ body: { netError: true } });
+        const event = generator.generateEvent();
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    it('should fail if body request returns bad response', async () => {
+        mock.mockAll({ body: { badResponse: true } });
+        const event = generator.generateEvent();
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    it('should fail if body request returns unsuccessful response', async () => {
+        mock.mockAll({ body: { unsuccessfulResponse: true } });
+        const event = generator.generateEvent();
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+    });
+
+    it('should return an error if organizers is not an array', async () => {
+        const event = generator.generateEvent({ organizers: false });
+        event.locations = false;
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors).toHaveProperty('organizers');
+    });
+
+    it('should return an error if body name is not a string', async () => {
+        try {
+            await generator.createEvent({
+                organizing_bodies: [{ body_id: 3, body_name: false }]
+            });
+            expect(1).toEqual(0);
+        } catch (err) {
+            expect(1).toEqual(1);
+        }
+    });
+
+    it('should return an error if body name is empty', async () => {
+        try {
+            await generator.createEvent({
+                organizing_bodies: [{ body_id: 3, body_name: '\t\t  \t' }]
+            });
+            expect(1).toEqual(0);
+        } catch (err) {
+            expect(1).toEqual(1);
+        }
     });
 });

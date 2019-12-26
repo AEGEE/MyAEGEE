@@ -126,6 +126,14 @@ const Event = sequelize.define('event', {
                     if (typeof body.body_id !== 'number') {
                         throw new Error('body_id should be an integer.');
                     }
+
+                    if (typeof body.body_name !== 'string') {
+                        throw new Error('body_name should be a string.');
+                    }
+
+                    if (body.body_name.trim().length === 0) {
+                        throw new Error('body_name should not be empty.');
+                    }
                 }
             }
         }
