@@ -56,6 +56,15 @@
                 <li><strong>Application period:</strong>
                   <span>{{ event.application_starts | date }} - {{ event.application_ends | date }}</span>
                 </li>
+                <li>
+                  <strong>Organizing bodies: </strong>
+                    <router-link
+                      v-for="(body, index) in event.organizing_bodies"
+                      v-bind:key="index"
+                      :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }">
+                      {{ body.body_name }}
+                    </router-link>
+                </li>
               </ul>
 
               <div class="field is-grouped">
