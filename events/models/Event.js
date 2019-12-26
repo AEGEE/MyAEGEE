@@ -321,12 +321,48 @@ const Event = sequelize.define('event', {
                 ? 'open'
                 : 'closed'; // inclusive
         }
-    }
+    },
+    budget: {
+        type: Sequelize.TEXT,
+        allowNull: true
+    },
+    programme: {
+        type: Sequelize.TEXT,
+        allowNull: true
+    },
 }, {
     underscored: true,
     tableName: 'events',
     createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    updatedAt: 'updated_at',
+    validate: {
+        is_budget_set () {
+            if (this.status === 'draft') {
+                return
+            }
+
+            if (typeof this.budget !== 'string') {
+                throw new Error('Budget should be a string when the event status is not "draft".');
+            }
+
+            if (this.budget.trim().length === 0) {
+                throw new Error('Budget cannot be empty when the event status is not "draft".');
+            }
+        },
+        is_programme_set () {
+            if (this.status === 'draft') {
+                return
+            }
+
+            if (typeof this.programme !== 'string') {
+                throw new Error('Programme should be a string when the event status is not "draft".');
+            }
+
+            if (this.programme.trim().length === 0) {
+                throw new Error('Programme cannot be empty when the event status is not "draft".');
+            }
+        }
+    }
 });
 
 module.exports = Event;
