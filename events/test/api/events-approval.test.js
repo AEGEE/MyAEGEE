@@ -93,4 +93,80 @@ describe('Events approval', () => {
         const eventFromDb = await Event.findByPk(event.id);
         expect(eventFromDb.status).not.toEqual('published');
     });
+
+    it('should not allow changing status from draft if budget is null', async () => {
+        const event = await generator.createEvent({
+            status: 'draft',
+            budget: null
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/status',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: { status: 'published' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('is_budget_set');
+    });
+
+    it('should not allow changing status from draft if budget is empty', async () => {
+        const event = await generator.createEvent({
+            status: 'draft',
+            budget: '\t\t\t   \t \t'
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/status',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: { status: 'published' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('is_budget_set');
+    });
+
+    it('should not allow changing status from draft if programme is null', async () => {
+        const event = await generator.createEvent({
+            status: 'draft',
+            programme: null
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/status',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: { status: 'published' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('is_programme_set');
+    });
+
+    it('should not allow changing status from draft if programme is empty', async () => {
+        const event = await generator.createEvent({
+            status: 'draft',
+            programme: '\t\t\t   \t \t'
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/status',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'PUT',
+            body: { status: 'published' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('is_programme_set');
+    });
 });

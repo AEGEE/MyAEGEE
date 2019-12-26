@@ -8,7 +8,8 @@ exports.getDefaultQuery = (req) => {
     // Default filter is empty.
     const queryObj = {
         where: {},
-        order: [['starts', 'ASC']]
+        order: [['starts', 'ASC']],
+        select: constants.EVENT_PUBLIC_FIELDS
     };
 
     // If search is set, searching for event by name or description case-insensitive.
@@ -113,6 +114,16 @@ exports.beautify = (value) => {
 
     // Else, present it as it is.
     return value;
+};
+
+// A helper to whilelist object's properties.
+exports.whitelistObject = (object, allowedFields) => {
+    const newObject = {};
+    for (const field of allowedFields) {
+        newObject[field] = object[field];
+    }
+
+    return newObject;
 };
 
 // A helper to get the names for application fields. Useful for exporting for getting columns headers.
