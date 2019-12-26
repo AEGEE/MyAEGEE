@@ -49,7 +49,7 @@
     "express-promise-router": "^3.0.3",
     "express-query-boolean": "^2.0.0",
     "faker": "^4.1.0",
-    "file-type": "^12.3.0",
+    "file-type": "^12.4.2",
     "fs-extra": "^8.1.0",
     "moment": "^2.24.0",
     "morgan": "^1.9.1",
