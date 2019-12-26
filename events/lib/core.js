@@ -29,3 +29,34 @@ module.exports.fetchUser = async (user, token) => {
         last_name: userRequest.data.last_name
     };
 };
+
+module.exports.fetchBody = async (body, token) => {
+    // return invalid body as it is, will catch it in Event validation.
+    if (typeof body !== 'object' || typeof body.body_id !== 'number') {
+        return body;
+    }
+
+    const bodyRequest = await request({
+        url: config.core.url + ':' + config.core.port + '/bodies/' + body.body_id,
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Auth-Token': token,
+        },
+        simple: false,
+        json: true
+    });
+
+    if (typeof bodyRequest !== 'object') {
+        throw new Error('Malformed response when fetching body: ' + bodyRequest);
+    }
+
+    if (!bodyRequest.success) {
+        throw new Error('Error fetching body: ' + JSON.stringify(bodyRequest));
+    }
+
+    return {
+        body_id: bodyRequest.data.id,
+        body_name: bodyRequest.data.name
+    };
+};

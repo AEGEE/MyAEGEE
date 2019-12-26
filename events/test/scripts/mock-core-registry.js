@@ -3,6 +3,7 @@ const path = require('path');
 
 const config = require('../../config');
 const regularUser = require('../assets/oms-core-valid.json').data;
+const body = require('../assets/oms-core-body.json').data;
 
 exports.cleanAll = () => nock.cleanAll();
 
@@ -163,17 +164,47 @@ exports.mockCoreMember = (options) => {
         .reply(200, { success: true, data: regularUser });
 };
 
+exports.mockCoreBody = (options) => {
+    if (options.netError) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/bodies\/[0-9].*/)
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/bodies\/[0-9].*/)
+            .reply(500, 'Some error happened.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/bodies\/[0-9].*/)
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
+    return nock(`${config.core.url}:${config.core.port}`)
+        .persist()
+        .get(/\/bodies\/[0-9].*/)
+        .reply(200, { success: true, data: body });
+};
+
 exports.mockAll = (options = {}) => {
     nock.cleanAll();
     const omscoreStub = exports.mockCore(options.core || {});
     const omsMainPermissionsStub = exports.mockCoreMainPermissions(options.mainPermissions || {});
     const omsApprovePermissionsStub = exports.mockCoreApprovePermissions(options.approvePermissions || {});
     const omsCoreMemberStub = exports.mockCoreMember(options.member || {});
+    const omsCoreBodyStub = exports.mockCoreBody(options.body || {});
 
     return {
         omscoreStub,
         omsMainPermissionsStub,
         omsApprovePermissionsStub,
-        omsCoreMemberStub
+        omsCoreMemberStub,
+        omsCoreBodyStub
     };
 };

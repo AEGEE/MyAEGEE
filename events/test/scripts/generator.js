@@ -16,7 +16,8 @@ exports.generateEvent = (options = {}) => {
     if (notSet(options.fee)) options.fee = faker.random.number({ min: 0, max: 100 });
     if (notSet(options.organizing_bodies)) {
         options.organizing_bodies = [{
-            body_id: faker.random.number({ min: 0, max: 100 })
+            body_id: faker.random.number({ min: 0, max: 100 }),
+            body_name: faker.lorem.sentence()
         }];
     }
     if (notSet(options.organizers)) {

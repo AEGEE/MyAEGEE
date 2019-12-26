@@ -1,0 +1,55 @@
+{
+    "success": true,
+    "data": {
+        "type": "antenna",
+        "shadow_circle_id": 133,
+        "shadow_circle": {
+            "seo_url": 133,
+            "permissions": null,
+            "parent_circle_id": 6,
+            "parent_circle": null,
+            "name": "Members AEGEE-Alicante",
+            "joinable": true,
+            "id": 133,
+            "description": "Members circle for members of AEGEE-Alicante",
+            "child_circles": null,
+            "body_id": 34,
+            "body": null
+        },
+        "seo_url": 34,
+        "phone": null,
+        "pays_fees": true,
+        "name": "AEGEE-Alicante",
+        "legacy_key": "ALC",
+        "id": 34,
+        "founded_at": "2002-11-15",
+        "email": "junta@aegeealicante.org",
+        "description": "Local in Alicante. Take a look at our web page http://www.aegeealicante.org/ and our social media: https://www.facebook.com/AEGEEAlicante, https://twitter.com/AEGEEAlicante, https://www.instagram.com/aegeealicante/?hl=en \nIf you want to be part of our antenna, please fill our local form. You can find it here: http://aegeealicante.org/socio-nuevo/",
+        "circles": [{
+            "seo_url": 133,
+            "permissions": null,
+            "parent_circle_id": 6,
+            "parent_circle": null,
+            "name": "Members AEGEE-Alicante",
+            "joinable": true,
+            "id": 133,
+            "description": "Members circle for members of AEGEE-Alicante",
+            "child_circles": null,
+            "body_id": 34,
+            "body": null
+        }, {
+            "seo_url": 134,
+            "permissions": null,
+            "parent_circle_id": 2,
+            "parent_circle": null,
+            "name": "Board AEGEE-Alicante",
+            "joinable": false,
+            "id": 134,
+            "description": "Board circle of AEGEE-Alicante",
+            "child_circles": null,
+            "body_id": 34,
+            "body": null
+        }],
+        "address": "Universidad de Alicante, Consejo de Alumnos, Aulario 1, Despacho 3 del Hotel de Asociaciones  Carretera de San Vicente, s/n 03690  San Vicente del Raspeig (Alicante) Spain (Alicante, Spain)"
+    }
+}

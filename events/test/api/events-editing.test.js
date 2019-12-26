@@ -166,4 +166,25 @@ describe('Events editing', () => {
         expect(res.body.data.id).toEqual(event.id);
         expect(res.body.data.deleted).toEqual(true);
     });
+
+    it('should update the bodies if provided', async () => {
+        event = await generator.createEvent({
+            organizers: [{ first_name: 'test', last_name: 'test', user_id: user.id }],
+            organizing_bodies: [{ body_id: user.bodies[0].id, body_name: 'test' }]
+        });
+
+
+        const res = await request({
+            uri: '/single/' + event.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                organizing_bodies: [{ body_id: user.bodies[0].id }]
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.organizing_bodies[0].body_name).toEqual(user.bodies[0].name);
+    });
 });

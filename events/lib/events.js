@@ -87,7 +87,7 @@ exports.listUserAppliedEvents = async (req, res) => {
     });
 
     // The subQuery: false line is super important as if we'll remove it,
-    // the query fwill fail with `missing FROM-clause entry for table "applications"`
+    // the query will fail with `missing FROM-clause entry for table "applications"`
     // error. It's a regression bug in Sequelize, more info
     // here: https://github.com/sequelize/sequelize/issues/9869
 
@@ -126,11 +126,21 @@ exports.addEvent = async (req, res) => {
 
     const event = new Event(data);
 
-    if (!event.organizers.some((org) => org.user_id === req.user.id)) {
-        return errors.makeForbiddenError(res, 'User creating the event should be the organizers.');
+    // we'll catch these on validation inside the Event model.
+    if (Array.isArray(event.organizers)) {
+        if (!event.organizers.some((org) => org.user_id === req.user.id)) {
+            return errors.makeForbiddenError(res, 'User creating the event should be the organizers.');
+        }
+
+        event.organizers = await Promise.all(event.organizers.map((organizer) =>
+            core.fetchUser(organizer, req.headers['x-auth-token'])));
     }
 
-    event.organizers = await Promise.all(event.organizers.map((organizer) => core.fetchUser(organizer, req.headers['x-auth-token'])));
+    if (Array.isArray(event.organizing_bodies)) {
+        event.organizing_bodies = await Promise.all(event.organizing_bodies.map((body) =>
+            core.fetchBody(body, req.headers['x-auth-token'])));
+    }
+
 
     await event.save();
 
@@ -170,6 +180,11 @@ exports.editEvent = async (req, res) => {
 
     if (Array.isArray(data.organizers)) {
         data.organizers = await Promise.all(data.organizers.map((organizer) => core.fetchUser(organizer, req.headers['x-auth-token'])));
+    }
+
+    if (Array.isArray(data.organizing_bodies)) {
+        data.organizing_bodies = await Promise.all(data.organizing_bodies.map((body) =>
+            core.fetchBody(body, req.headers['x-auth-token'])));
     }
 
     await event.update(data);
