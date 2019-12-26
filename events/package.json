@@ -13,7 +13,8 @@
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
     "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
-    "open-coverage": "open-cli coverage/lcov-report/index.html"
+    "open-coverage": "open-cli coverage/lcov-report/index.html",
+    "cli": "node --experimental-repl-await -r ./cli.js"
   },
   "husky": {
     "hooks": {
