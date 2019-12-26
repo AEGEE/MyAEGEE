@@ -1,3 +1,13 @@
+<a name="0.31.2"></a>
+## [0.31.2](https://github.com/AEGEE/oms-frontend/compare/0.31.1...0.31.2) (2019-12-26)
+
+
+### Features
+
+* **events:** cache bodies names. Fixes MEMB-742 ([ab13c34](https://github.com/AEGEE/oms-frontend/commit/ab13c34))
+
+
+
 <a name="0.31.1"></a>
 ## [0.31.1](https://github.com/AEGEE/oms-frontend/compare/0.31.0...0.31.1) (2019-12-25)
 
