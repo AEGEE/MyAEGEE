@@ -59,18 +59,18 @@ describe('Events status chamge', () => {
                 status: 'draft',
                 organizers: [{ user_id: user.id, first_name: 'test', last_name: 'test' }]
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
             });
-    
+
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
             expect(res.body).toHaveProperty('message');
-    
+
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).toEqual('submitted');
         });
@@ -80,40 +80,40 @@ describe('Events status chamge', () => {
                 status: 'draft',
                 organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
             });
-    
+
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
             expect(res.body).toHaveProperty('message');
-    
+
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).toEqual('submitted');
         });
-    
+
         it('should not work otherwise', async () => {
             mock.mockAll({ mainPermissions: { noPermissions: true } });
             const event = await generator.createEvent({
                 status: 'draft',
                 organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
             });
-    
+
             expect(res.statusCode).toEqual(403);
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('message');
-    
+
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).not.toEqual('submitted');
         });
@@ -125,18 +125,18 @@ describe('Events status chamge', () => {
                 status: 'draft',
                 organizers: [{ user_id: user.id, first_name: 'test', last_name: 'test' }]
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'published' }
             });
-    
+
             expect(res.statusCode).toEqual(403);
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('message');
-    
+
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).not.toEqual('published');
         });
@@ -149,18 +149,18 @@ describe('Events status chamge', () => {
                 status: 'submitted',
                 organizers: [{ user_id: user.id, first_name: 'test', last_name: 'test' }]
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'published' }
             });
-    
+
             expect(res.statusCode).toEqual(403);
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('message');
-    
+
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).not.toEqual('published');
         });
@@ -170,40 +170,40 @@ describe('Events status chamge', () => {
                 status: 'submitted',
                 organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'published' }
             });
-    
+
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
             expect(res.body).toHaveProperty('message');
-    
+
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).toEqual('published');
         });
-    
+
         it('should not work otherwise', async () => {
             mock.mockAll({ mainPermissions: { noPermissions: true } });
             const event = await generator.createEvent({
                 status: 'submitted',
                 organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'published' }
             });
-    
+
             expect(res.statusCode).toEqual(403);
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('message');
-    
+
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).not.toEqual('published');
         });
@@ -216,18 +216,18 @@ describe('Events status chamge', () => {
                 status: 'submitted',
                 organizers: [{ user_id: user.id, first_name: 'test', last_name: 'test' }]
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'draft' }
             });
-    
+
             expect(res.statusCode).toEqual(403);
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('message');
-    
+
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).not.toEqual('draft');
         });
@@ -237,40 +237,40 @@ describe('Events status chamge', () => {
                 status: 'submitted',
                 organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'draft' }
             });
-    
+
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
             expect(res.body).toHaveProperty('message');
-    
+
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).toEqual('draft');
         });
-    
+
         it('should not work otherwise', async () => {
             mock.mockAll({ mainPermissions: { noPermissions: true } });
             const event = await generator.createEvent({
                 status: 'submitted',
                 organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'draft' }
             });
-    
+
             expect(res.statusCode).toEqual(403);
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('message');
-    
+
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).not.toEqual('draft');
         });
@@ -283,18 +283,18 @@ describe('Events status chamge', () => {
                 status: 'published',
                 organizers: [{ user_id: user.id, first_name: 'test', last_name: 'test' }]
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
             });
-    
+
             expect(res.statusCode).toEqual(403);
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('message');
-    
+
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).not.toEqual('submitted');
         });
@@ -304,40 +304,40 @@ describe('Events status chamge', () => {
                 status: 'published',
                 organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
             });
-    
+
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
             expect(res.body).toHaveProperty('message');
-    
+
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).toEqual('submitted');
         });
-    
+
         it('should not work otherwise', async () => {
             mock.mockAll({ mainPermissions: { noPermissions: true } });
             const event = await generator.createEvent({
                 status: 'published',
                 organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
             });
-    
+
             expect(res.statusCode).toEqual(403);
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('message');
-    
+
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).not.toEqual('submitted');
         });
@@ -349,18 +349,18 @@ describe('Events status chamge', () => {
                 status: 'published',
                 organizers: [{ user_id: user.id, first_name: 'test', last_name: 'test' }]
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'draft' }
             });
-    
+
             expect(res.statusCode).toEqual(403);
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('message');
-    
+
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).not.toEqual('draft');
         });
@@ -372,71 +372,71 @@ describe('Events status chamge', () => {
                 status: 'draft',
                 budget: null
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
             });
-    
+
             expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('errors');
             expect(res.body.errors).toHaveProperty('is_budget_set');
         });
-    
+
         it('should not allow changing status from draft if budget is empty', async () => {
             const event = await generator.createEvent({
                 status: 'draft',
                 budget: '\t\t\t   \t \t'
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
             });
-    
+
             expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('errors');
             expect(res.body.errors).toHaveProperty('is_budget_set');
         });
-    
+
         it('should not allow changing status from draft if programme is null', async () => {
             const event = await generator.createEvent({
                 status: 'draft',
                 programme: null
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
             });
-    
+
             expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('errors');
             expect(res.body.errors).toHaveProperty('is_programme_set');
         });
-    
+
         it('should not allow changing status from draft if programme is empty', async () => {
             const event = await generator.createEvent({
                 status: 'draft',
                 programme: '\t\t\t   \t \t'
             });
-    
+
             const res = await request({
                 uri: '/single/' + event.id + '/status',
                 headers: { 'X-Auth-Token': 'foobar' },
                 method: 'PUT',
                 body: { status: 'submitted' }
             });
-    
+
             expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('errors');

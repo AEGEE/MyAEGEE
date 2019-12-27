@@ -336,9 +336,9 @@ const Event = sequelize.define('event', {
     createdAt: 'created_at',
     updatedAt: 'updated_at',
     validate: {
-        is_budget_set () {
+        is_budget_set() {
             if (this.status === 'draft') {
-                return
+                return;
             }
 
             if (typeof this.budget !== 'string') {
@@ -349,9 +349,9 @@ const Event = sequelize.define('event', {
                 throw new Error('Budget cannot be empty when the event status is not "draft".');
             }
         },
-        is_programme_set () {
+        is_programme_set() {
             if (this.status === 'draft') {
-                return
+                return;
             }
 
             if (typeof this.programme !== 'string') {

@@ -210,17 +210,17 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
     const canApproveOrIsOrganizer = exports.isOrganizer(event, user) || canApprove;
 
     // Status transitions.
-    // draft -> submitted - by LOs or those who can approve (ask for approval)
-    // submitted -> draft - by those who can approve (reject approval)
-    // submitted -> published - by those who can approve (approve and publish)
-    // published -> submitted - by those who can approve (unpublish)
-    // draft -> published - no direct transition
-    // publoshed -> draft - no direct transition
+    // 1) draft -> submitted - by LOs or those who can approve (ask for approval)
+    // 2) submitted -> draft - by those who can approve (reject approval)
+    // 3) submitted -> published - by those who can approve (approve and publish)
+    // 4) published -> submitted - by those who can approve (unpublish)
+    // 5) draft -> published - no direct transition
+    // 6) published -> draft - no direct transition
     permissions.change_status = {
-        draft: event.status === 'submitted' && canApprove,
-        published: event.status === 'submitted' && canApprove,
-        submitted: (event.status === 'published' && canApprove)
-            || (event.status === 'draft' && canApproveOrIsOrganizer)
+        draft: event.status === 'submitted' && canApprove, // 2
+        published: event.status === 'submitted' && canApprove, // 3
+        submitted: (event.status === 'published' && canApprove) // 4
+            || (event.status === 'draft' && canApproveOrIsOrganizer) // 1
     };
 
     return permissions;
