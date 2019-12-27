@@ -218,7 +218,7 @@ exports.deleteEvent = async (req, res) => {
 };
 
 exports.setApprovalStatus = async (req, res) => {
-    if (!req.permissions.set_status) {
+    if (!req.permissions.change_status[req.body.status]) {
         return errors.makeForbiddenError(res, 'You are not allowed to change status.');
     }
 

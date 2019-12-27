@@ -189,13 +189,13 @@ const Event = sequelize.define('event', {
         }
     },
     status: {
-        type: Sequelize.ENUM('draft', 'requesting', 'published'),
+        type: Sequelize.ENUM('draft', 'submitted', 'published'),
         allowNull: false,
         defaultValue: 'draft',
         validate: {
             isIn: {
-                args: [['draft', 'requesting', 'published']],
-                msg: 'Event status should be one of these: "draft", "requesting", "published".'
+                args: [['draft', 'submitted', 'published']],
+                msg: 'Event status should be one of these: "draft", "submitted", "published".'
             }
         }
     },
