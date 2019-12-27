@@ -46,7 +46,7 @@
         <hr />
 
         <div class="field">
-          <label class="label">Title</label>
+          <label class="label">Title <span class="has-text-danger">*</span></label>
           <div class="control">
             <input class="input" type="text" v-model="event.name" />
           </div>
@@ -54,7 +54,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Description</label>
+          <label class="label">Description <span class="has-text-danger">*</span></label>
           <div class="control">
             <textarea class="textarea" placeholder="e.g. Hello world" required v-model="event.description"></textarea>
           </div>
@@ -78,7 +78,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Event URL</label>
+          <label class="label">Event URL <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
@@ -97,7 +97,7 @@
         </div>
 
         <div class="field" v-if="!$route.params.id">
-          <label class="label">Event type</label>
+          <label class="label">Event type <span class="has-text-danger">*</span></label>
           <div class="select">
             <select v-model="event.type">
               <option v-for="(name, type) in eventTypes" v-bind:key="type" v-bind:value="type">{{ name }}</option>
@@ -107,7 +107,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Fee</label>
+          <label class="label">Fee <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
@@ -134,7 +134,7 @@
         <timezone-notification />
 
         <div class="field">
-          <label class="label">Application period starts</label>
+          <label class="label">Application period starts <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
               placeholder="Select date"
@@ -147,7 +147,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Application period ends</label>
+          <label class="label">Application period ends <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
               placeholder="Select date"
@@ -160,7 +160,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Event start date</label>
+          <label class="label">Event start date <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
               placeholder="Select date"
@@ -173,7 +173,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Event end date</label>
+          <label class="label">Event end date <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
               placeholder="Select date"
@@ -184,7 +184,7 @@
           <p class="help is-danger" v-if="errors.ends">{{ errors.ends.join(', ') }}</p>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Organizing bodies</div>
+        <div class="subtitle is-fullwidth has-text-centered">Organizing bodies <span class="has-text-danger">*</span></div>
         <hr />
 
         <div class="tags">
@@ -216,7 +216,7 @@
           </div>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Organizers</div>
+        <div class="subtitle is-fullwidth has-text-centered">Organizers <span class="has-text-danger">*</span></div>
         <hr />
 
         <div class="notification is-info">
@@ -313,8 +313,8 @@
         <table class="table is-fullwidth is-narrowed">
           <thead>
             <tr>
-              <th>Description</th>
-              <th>Type</th>
+              <th>Description <span class="has-text-danger">*</span></th>
+              <th>Type <span class="has-text-danger">*</span></th>
               <th>Required (works for text and string)?</th>
               <th>Values (for select)</th>
               <th></th>
@@ -424,6 +424,36 @@
           <div class="control">
             <a class="button is-primary" @click="addLocation()">Add new location</a>
           </div>
+        </div>
+
+        <div class="subtitle is-fullwidth has-text-centered">EQAC approval fields</div>
+        <hr/>
+
+        <div class="notification is-info">
+          <div class="content">
+            <p>These fields are visible to EQAC only.</p>
+            <p>
+              You can omit specifying them when creating the event, but
+              <strong> you won't be able to submit event to EQAC if these fields are not set.</strong>
+            </p>
+            <p>Please provide the link to Google spreadsheets for the event program and budget.</p>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Link to event budget</label>
+          <div class="control">
+            <input class="input" type="text" v-model="event.budget" />
+          </div>
+          <p class="help is-danger" v-if="errors.is_budget_set">{{ errors.is_budget_set.join(', ') }}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Link to event program</label>
+          <div class="control">
+            <input class="input" type="text" v-model="event.programme" />
+          </div>
+          <p class="help is-danger" v-if="errors.is_programme_set">{{ errors.is_programme_set.join(', ') }}</p>
         </div>
 
         <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
