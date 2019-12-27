@@ -3,8 +3,9 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { Event } = require('../../models');
+const user = require('../assets/oms-core-valid').data;
 
-describe('Events approval', () => {
+describe('Events status chamge', () => {
     beforeEach(async () => {
         mock.mockAll();
         await startServer();
@@ -51,122 +52,395 @@ describe('Events approval', () => {
         expect(res.body.data.length).toEqual(0);
     });
 
-    it('should perform status change when it\'s allowed', async () => {
-        const event = await generator.createEvent({
-            status: 'draft'
+    describe('draft -> submitted', () => {
+        it('should work for LOs', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const event = await generator.createEvent({
+                status: 'draft',
+                organizers: [{ user_id: user.id, first_name: 'test', last_name: 'test' }]
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+    
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).toHaveProperty('message');
+    
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.status).toEqual('submitted');
         });
 
-        const res = await request({
-            uri: '/single/' + event.id + '/status',
-            headers: { 'X-Auth-Token': 'foobar' },
-            method: 'PUT',
-            body: { status: 'published' }
+        it('should work for those with permissions', async () => {
+            const event = await generator.createEvent({
+                status: 'draft',
+                organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+    
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).toHaveProperty('message');
+    
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.status).toEqual('submitted');
         });
-
-        expect(res.statusCode).toEqual(200);
-
-        expect(res.body.success).toEqual(true);
-        expect(res.body).toHaveProperty('message');
-
-        const eventFromDb = await Event.findByPk(event.id);
-        expect(eventFromDb.status).toEqual('published');
+    
+        it('should not work otherwise', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const event = await generator.createEvent({
+                status: 'draft',
+                organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+    
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+    
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.status).not.toEqual('submitted');
+        });
     });
 
-    it('should not perform status change when the user is not allowed to do it', async () => {
-        mock.mockAll({ mainPermissions: { noPermissions: true } });
-        const event = await generator.createEvent({
-            status: 'draft'
+    describe('draft -> published', () => {
+        it('should not work whatsoever', async () => {
+            const event = await generator.createEvent({
+                status: 'draft',
+                organizers: [{ user_id: user.id, first_name: 'test', last_name: 'test' }]
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'published' }
+            });
+    
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+    
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.status).not.toEqual('published');
         });
-
-        const res = await request({
-            uri: '/single/' + event.id + '/status',
-            headers: { 'X-Auth-Token': 'foobar' },
-            method: 'PUT',
-            body: { status: 'published' }
-        });
-
-        expect(res.statusCode).toEqual(403);
-
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-
-        const eventFromDb = await Event.findByPk(event.id);
-        expect(eventFromDb.status).not.toEqual('published');
     });
 
-    it('should not allow changing status from draft if budget is null', async () => {
-        const event = await generator.createEvent({
-            status: 'draft',
-            budget: null
+    describe('submitted -> published', () => {
+        it('should not work for LOs', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const event = await generator.createEvent({
+                status: 'submitted',
+                organizers: [{ user_id: user.id, first_name: 'test', last_name: 'test' }]
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'published' }
+            });
+    
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+    
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.status).not.toEqual('published');
         });
 
-        const res = await request({
-            uri: '/single/' + event.id + '/status',
-            headers: { 'X-Auth-Token': 'foobar' },
-            method: 'PUT',
-            body: { status: 'published' }
+        it('should work for those with permissions', async () => {
+            const event = await generator.createEvent({
+                status: 'submitted',
+                organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'published' }
+            });
+    
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).toHaveProperty('message');
+    
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.status).toEqual('published');
         });
-
-        expect(res.statusCode).toEqual(422);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('is_budget_set');
+    
+        it('should not work otherwise', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const event = await generator.createEvent({
+                status: 'submitted',
+                organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'published' }
+            });
+    
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+    
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.status).not.toEqual('published');
+        });
     });
 
-    it('should not allow changing status from draft if budget is empty', async () => {
-        const event = await generator.createEvent({
-            status: 'draft',
-            budget: '\t\t\t   \t \t'
+    describe('submitted -> draft', () => {
+        it('should not work for LOs', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const event = await generator.createEvent({
+                status: 'submitted',
+                organizers: [{ user_id: user.id, first_name: 'test', last_name: 'test' }]
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'draft' }
+            });
+    
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+    
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.status).not.toEqual('draft');
         });
 
-        const res = await request({
-            uri: '/single/' + event.id + '/status',
-            headers: { 'X-Auth-Token': 'foobar' },
-            method: 'PUT',
-            body: { status: 'published' }
+        it('should work for those with permissions', async () => {
+            const event = await generator.createEvent({
+                status: 'submitted',
+                organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'draft' }
+            });
+    
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).toHaveProperty('message');
+    
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.status).toEqual('draft');
         });
-
-        expect(res.statusCode).toEqual(422);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('is_budget_set');
+    
+        it('should not work otherwise', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const event = await generator.createEvent({
+                status: 'submitted',
+                organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'draft' }
+            });
+    
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+    
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.status).not.toEqual('draft');
+        });
     });
 
-    it('should not allow changing status from draft if programme is null', async () => {
-        const event = await generator.createEvent({
-            status: 'draft',
-            programme: null
+    describe('published -> submitted', () => {
+        it('should not work for LOs', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const event = await generator.createEvent({
+                status: 'published',
+                organizers: [{ user_id: user.id, first_name: 'test', last_name: 'test' }]
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+    
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+    
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.status).not.toEqual('submitted');
         });
 
-        const res = await request({
-            uri: '/single/' + event.id + '/status',
-            headers: { 'X-Auth-Token': 'foobar' },
-            method: 'PUT',
-            body: { status: 'published' }
+        it('should work for those with permissions', async () => {
+            const event = await generator.createEvent({
+                status: 'published',
+                organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+    
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).toHaveProperty('message');
+    
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.status).toEqual('submitted');
         });
-
-        expect(res.statusCode).toEqual(422);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('is_programme_set');
+    
+        it('should not work otherwise', async () => {
+            mock.mockAll({ mainPermissions: { noPermissions: true } });
+            const event = await generator.createEvent({
+                status: 'published',
+                organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+    
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+    
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.status).not.toEqual('submitted');
+        });
     });
 
-    it('should not allow changing status from draft if programme is empty', async () => {
-        const event = await generator.createEvent({
-            status: 'draft',
-            programme: '\t\t\t   \t \t'
+    describe('published -> draft', () => {
+        it('should not work whatsoever', async () => {
+            const event = await generator.createEvent({
+                status: 'published',
+                organizers: [{ user_id: user.id, first_name: 'test', last_name: 'test' }]
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'draft' }
+            });
+    
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+    
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.status).not.toEqual('draft');
         });
+    });
 
-        const res = await request({
-            uri: '/single/' + event.id + '/status',
-            headers: { 'X-Auth-Token': 'foobar' },
-            method: 'PUT',
-            body: { status: 'published' }
+    describe('setting approval fields', () => {
+        it('should not allow changing status from draft if budget is null', async () => {
+            const event = await generator.createEvent({
+                status: 'draft',
+                budget: null
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+    
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('errors');
+            expect(res.body.errors).toHaveProperty('is_budget_set');
         });
-
-        expect(res.statusCode).toEqual(422);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('is_programme_set');
+    
+        it('should not allow changing status from draft if budget is empty', async () => {
+            const event = await generator.createEvent({
+                status: 'draft',
+                budget: '\t\t\t   \t \t'
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+    
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('errors');
+            expect(res.body.errors).toHaveProperty('is_budget_set');
+        });
+    
+        it('should not allow changing status from draft if programme is null', async () => {
+            const event = await generator.createEvent({
+                status: 'draft',
+                programme: null
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+    
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('errors');
+            expect(res.body.errors).toHaveProperty('is_programme_set');
+        });
+    
+        it('should not allow changing status from draft if programme is empty', async () => {
+            const event = await generator.createEvent({
+                status: 'draft',
+                programme: '\t\t\t   \t \t'
+            });
+    
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+    
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('errors');
+            expect(res.body.errors).toHaveProperty('is_programme_set');
+        });
     });
 });
