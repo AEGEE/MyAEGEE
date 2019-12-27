@@ -107,7 +107,7 @@ exports.listApprovableEvents = async (req, res) => {
     const events = await Event.findAll({
         where: {
             deleted: false,
-            status: 'draft',
+            status: { [Sequelize.Op.ne]: 'published' },
             type: { [Sequelize.Op.in]: allowedEventTypes }
         }
     });
