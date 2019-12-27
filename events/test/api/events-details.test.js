@@ -84,6 +84,7 @@ describe('Events details', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
+            status: 'published',
             organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
         });
         const res = await request({
@@ -99,5 +100,43 @@ describe('Events details', () => {
         expect(res.body.data).not.toHaveProperty('programme');
         expect(res.body.data).not.toHaveProperty('status');
         expect(res.body.data).not.toHaveProperty('deleted');
+    });
+
+    it('should not return event if it\'s deleted', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            status: 'published',
+            deleted: true,
+            organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+        });
+        const res = await request({
+            uri: '/single/' + event.id,
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
+    it('should not return event if it\'s not published', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            status: 'draft',
+            deleted: false,
+            organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+        });
+        const res = await request({
+            uri: '/single/' + event.id,
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
     });
 });

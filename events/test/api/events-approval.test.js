@@ -5,7 +5,7 @@ const generator = require('../scripts/generator');
 const { Event } = require('../../models');
 const user = require('../assets/oms-core-valid').data;
 
-describe('Events status chamge', () => {
+describe('Events status change', () => {
     beforeEach(async () => {
         mock.mockAll();
         await startServer();

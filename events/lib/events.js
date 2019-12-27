@@ -153,6 +153,10 @@ exports.addEvent = async (req, res) => {
 };
 
 exports.eventDetails = async (req, res) => {
+    if (!req.permissions.see_event) {
+        return errors.makeForbiddenError(res, 'You cannot see this event.');
+    }
+
     let event = req.event.toJSON();
 
     // Some fields shouldn't be public and only should be displayed to EQAC/CD/admins/organizers.
