@@ -195,6 +195,15 @@ exports.getPermissions = (user, corePermissions, approvePermissions) => {
 };
 
 exports.getEventPermissions = ({ permissions, event, user }) => {
+    const canApprove = permissions.approve_event[event.type];
+    const canApproveOrIsOrganizer = exports.isOrganizer(event, user) || canApprove;
+
+    // The event can only be seen to public if it's published and not deleted.
+    // Otherwise (if it's deleted, submitted or draft) it should be accessible
+    // only to LOs and those who can approve it.
+    permissions.see_event = (event.status === 'published' && !event.deleted)
+        || canApproveOrIsOrganizer;
+
     permissions.edit_event = (event.status === 'draft' && exports.isOrganizer(event, user)) || permissions.manage_event[event.type];
     permissions.delete_event = permissions.manage_event[event.type];
 
@@ -205,9 +214,6 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
     permissions.set_participants_attended = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
     permissions.set_participants_confirmed = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
     permissions.export = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
-
-    const canApprove = permissions.approve_event[event.type];
-    const canApproveOrIsOrganizer = exports.isOrganizer(event, user) || canApprove;
 
     // Status transitions.
     // 1) draft -> submitted - by LOs or those who can approve (ask for approval)
