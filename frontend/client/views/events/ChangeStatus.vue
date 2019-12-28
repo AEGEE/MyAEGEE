@@ -30,8 +30,31 @@
               {{ props.row.status | capitalize }}
             </b-table-column>
 
-            <b-table-column field="status" label="Publish" sortable>
-              <button class="button is-small is-primary" @click="publishEvent(props.row)">Publish</button>
+            <b-table-column field="status" label="Change status" sortable>
+              <button
+                v-if="props.row.status === 'draft'"
+                class="button is-small is-warning"
+                @click="changeStatus(props.row, 'submitted')">
+                Request approval
+              </button>
+              <button
+                v-if="props.row.status === 'submitted'"
+                class="button is-small is-primary"
+                @click="changeStatus(props.row, 'published')">
+                Publish
+              </button>
+              <button
+                v-if="props.row.status === 'submitted'"
+                class="button is-small is-danger"
+                @click="changeStatus(props.row, 'draft')">
+                Request changes
+              </button>
+              <button
+                v-if="props.row.status === 'published'"
+                class="button is-small is-danger"
+                @click="changeStatus(props.row, 'submitted')">
+                Unpublish
+              </button>
             </b-table-column>
           </template>
 
@@ -60,13 +83,27 @@ export default {
   },
   computed: mapGetters(['services']),
   methods: {
-    publishEvent (event) {
-      this.axios.put(this.services['oms-events'] + '/single/' + event.id + '/status', {
-        status: 'published'
-      }).then(() => {
-        this.$root.showSuccess('Event status is now "published".')
+    changeStatus (event, newStatus) {
+      if (event.status === 'draft') {
+        if (!event.budget) {
+          this.$root.showError('The budget for the event is not set.')
+        }
 
-        this.events.splice(this.events.indexOf(event), 1)
+        if (!event.programme) {
+          this.$root.showError('The program for the event is not set.')
+        }
+
+        if (!event.budget || !event.programme) {
+          return
+        }
+      }
+
+      this.axios.put(this.services['oms-events'] + '/single/' + event.id + '/status', {
+        status: newStatus
+      }).then(() => {
+        this.$root.showSuccess(`Event status is now "${newStatus}".`)
+
+        event.status = newStatus
       }).catch((err) => {
         this.$root.showError('Could not update event status', err)
       })
