@@ -14,7 +14,7 @@ const gaugesList = {
     eventsTotal: new Gauge({
         name: 'events_events_total',
         help: 'Total amount of general events',
-        labelNames: ['type', 'status']
+        labelNames: ['type', 'status', 'deleted']
     }),
     applicationsTotal: new Gauge({
         name: 'events_applications_total',
@@ -32,9 +32,10 @@ exports.getMetrics = async (req, res) => {
             attributes: [
                 'type',
                 'status',
+                'deleted',
                 [sequelize.fn('COUNT', 'id'), 'value']
             ],
-            group: ['type', 'status'],
+            group: ['type', 'status', 'deleted'],
             raw: true
         }),
         Application.findAll({
