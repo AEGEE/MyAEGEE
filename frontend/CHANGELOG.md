@@ -1,3 +1,20 @@
+<a name="0.32.0"></a>
+# [0.32.0](https://github.com/AEGEE/oms-frontend/compare/0.31.2...0.32.0) (2019-12-30)
+
+
+### Bug Fixes
+
+* **circleci:** not build docker on master ([e84a160](https://github.com/AEGEE/oms-frontend/commit/e84a160))
+* **events:** added link to EQAC templates ([46d95e2](https://github.com/AEGEE/oms-frontend/commit/46d95e2))
+* **events:** new events approval workflow. Fixes MEMB-638 ([f03dace](https://github.com/AEGEE/oms-frontend/commit/f03dace))
+
+
+### Features
+
+* **events:** added additional fields for EQAC. Fixes MEMB-737 ([508d4c7](https://github.com/AEGEE/oms-frontend/commit/508d4c7))
+
+
+
 <a name="0.31.2"></a>
 ## [0.31.2](https://github.com/AEGEE/oms-frontend/compare/0.31.1...0.31.2) (2019-12-26)
 
