@@ -1,3 +1,13 @@
+<a name="0.17.1"></a>
+## [0.17.1](https://github.com/AEGEE/oms-events/compare/0.17.0...0.17.1) (2019-12-30)
+
+
+### Bug Fixes
+
+* **events:** added deleted to events metrics ([815eb36](https://github.com/AEGEE/oms-events/commit/815eb36))
+
+
+
 <a name="0.17.0"></a>
 # [0.17.0](https://github.com/AEGEE/oms-events/compare/0.16.1...0.17.0) (2019-12-30)
 
