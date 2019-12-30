@@ -440,6 +440,13 @@
             <p><a href="https://docs.google.com/spreadsheets/u/1/?ftv=1&tgif=d" target="_blank">
               You can take the template for the budget and the program here.
             </a></p>
+            <p><i>
+              Note: in case you cannot see AEGEE templates at the link above, try switching to AEGEE GSuite account.
+              In case you don't have one,
+              <a href="https://oms-project.atlassian.net/wiki/spaces/HEL/pages/248348673/Requesting+a+Gsuite+account+for+yourself" target="blank">
+                here's how to request it
+              </a>.
+            </i></p>
           </div>
         </div>
 
