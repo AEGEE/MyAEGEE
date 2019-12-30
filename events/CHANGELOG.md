@@ -1,3 +1,13 @@
+<a name="0.18.0"></a>
+# [0.18.0](https://github.com/AEGEE/oms-events/compare/0.17.1...0.18.0) (2019-12-30)
+
+
+### Features
+
+* **events:** caching organizers emails. Fixes MEMB-746 ([06f2cdb](https://github.com/AEGEE/oms-events/commit/06f2cdb))
+
+
+
 <a name="0.17.1"></a>
 ## [0.17.1](https://github.com/AEGEE/oms-events/compare/0.17.0...0.17.1) (2019-12-30)
 
