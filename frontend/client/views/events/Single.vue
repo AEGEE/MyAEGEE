@@ -39,6 +39,38 @@
             </router-link>
           </div>
 
+          <!-- For LOs/EQAC: ask for approval (draft -> submitted) -->
+          <div class="field is-grouped" v-if="can.change_status.submitted && event.status === 'draft'">
+            <a class="button is-fullwidth is-warning" @click="askChangeStatus('submitted')">
+              <span>Ask for approval</span>
+              <span class="icon"><i class="fa fa-sign-in-alt"></i></span>
+            </a>
+          </div>
+
+          <!-- For EQAC: unpublish event (published -> submitted)  -->
+          <div class="field is-grouped" v-if="can.change_status.submitted && event.status === 'published'">
+            <a class="button is-fullwidth is-danger" @click="askChangeStatus('submitted')">
+              <span>Unpublish</span>
+              <span class="icon"><i class="fa fa-times-circle"></i></span>
+            </a>
+          </div>
+
+          <!-- For EQAC: approve (submitted -> published) -->
+          <div class="field is-grouped" v-if="can.change_status.published && event.status === 'submitted'">
+            <a class="button is-fullwidth is-primary" @click="askChangeStatus('published')">
+              <span>Approve event</span>
+              <span class="icon"><i class="fa fa-check"></i></span>
+            </a>
+          </div>
+
+          <!-- For EQAC: reject/request for changes (submitted -> draft) -->
+          <div class="field is-grouped" v-if="can.change_status.draft && event.status === 'submitted'">
+            <a class="button is-fullwidth is-danger" @click="askChangeStatus('draft')">
+              <span>Request changes</span>
+              <span class="icon"><i class="fa fa-times-circle"></i></span>
+            </a>
+          </div>
+
           <div class="field is-grouped" v-if="can.delete_event">
             <a class="button is-fullwidth is-danger" @click="askDeleteEvent()">
               <span>Delete event</span>
@@ -99,7 +131,7 @@
                   <td v-if="event.fee">€{{ event.fee }}</td>
                   <td v-if="!event.fee"><i>Free</i></td>
                 </tr>
-                <tr>
+                <tr v-if="can.approve_event ">
                   <th>Status</th>
                   <td>{{ event.status | capitalize }}</td>
                 </tr>
@@ -117,6 +149,24 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <div class="notification is-info" v-if="event.status !== 'published'">
+            <p><strong>This event is visible to EQAC and organizers only because it's not approved yet.</strong></p>
+            <p>Once the event will be published, others would be able to access it.</p>
+          </div>
+
+          <div class="notification is-info" v-if="event.status === 'draft'">
+            <p>
+              This event is in the "draft" status. Once you'll fill all the fields in,
+              you can send it to EQAC approval.
+            </p>
+          </div>
+
+          <div class="notification is-info" v-if="event.status === 'submitted'">
+            <p>
+              This event is under approval. Wait a little till EQAC approves it.
+            </p>
           </div>
 
           <div class="tile" style="position: relative; height: 400px" v-if="this.event.locations.length > 0">
@@ -180,7 +230,7 @@ export default {
         ends: null,
         application_status: 'closed',
         head_image: null,
-        status: 'Draft'
+        status: 'published'
       },
       eventTypes: constants.EVENT_TYPES_NAMES,
       accessToken: '',
@@ -193,8 +243,14 @@ export default {
       isLoading: false,
       can: {
         edit_event: false,
+        approve_event: true,
         view_applications: false,
-        apply: false
+        apply: false,
+        change_status: {
+          draft: false,
+          submitted: false,
+          published: false
+        }
       }
     }
   },
@@ -214,6 +270,48 @@ export default {
         this.$root.showInfo('Event is deleted.')
         this.$router.push({ name: 'oms.events.list.all' })
       }).catch((err) => this.$root.showError('Could not delete event', err))
+    },
+    askChangeStatus (newStatus) {
+      if (this.event.status === 'draft') {
+        if (!this.event.budget) {
+          this.$root.showError('Please set the budget for the event in the event settings.')
+        }
+
+        if (!this.event.programme) {
+          this.$root.showError('Please set the program for the event in the event settings.')
+        }
+
+        if (!this.event.budget || !this.event.programme) {
+          return
+        }
+      }
+
+      this.$buefy.dialog.confirm({
+        title: 'Change status',
+        message: `Are you sure you want to <b>change this event status to "${newStatus}"</b>?`,
+        confirmText: 'Change status',
+        type: 'is-warning',
+        hasIcon: true,
+        onConfirm: () => this.changeStatus(newStatus)
+      })
+    },
+    changeStatus (newStatus) {
+      this.isLoading = true
+      const body = { status: newStatus }
+
+      this.axios.put(this.services['oms-events'] + '/single/' + this.event.id + '/status', body).then((response) => {
+        this.$root.showInfo(`Event is now ${newStatus}`)
+
+        // Refetching the event to renew the permissions.
+        return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id)
+      }).then((response) => {
+        this.event = response.data.data
+        this.can = response.data.permissions
+        this.isLoading = false
+      }).catch((err) => {
+        this.isLoading = false
+        this.$root.showError('Could not delete event', err)
+      })
     },
     onMapLoaded (event) {
       this.map.actions = event.component.actions
@@ -246,6 +344,7 @@ export default {
     this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
       this.can = response.data.permissions
+
       this.isLoading = false
 
       if (this.map.actions) {
@@ -266,7 +365,10 @@ export default {
     ...mapGetters({
       loginUser: 'user',
       services: 'services'
-    })
+    }),
+    isOrganizer () {
+      return this.event.organizers.some(org => org.user_id === this.loginUser.id)
+    }
   }
 }
 </script>
