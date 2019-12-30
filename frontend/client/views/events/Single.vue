@@ -149,6 +149,24 @@
                 </tr>
               </tbody>
             </table>
+
+
+            <table class="table is-narrow" v-if="event.budget || event.programme">
+              <tbody>
+                <tr>
+                  <th>Budget link</th>
+                  <td>
+                    <a v-if="event.budget" :href="event.budget" target="_blank">{{ event.budget }}</a>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Program link</th>
+                  <td>
+                    <a v-if="event.programme" :href="event.programme" target="_blank">{{ event.programme }}</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
           <div class="notification is-info" v-if="event.status !== 'published'">
