@@ -437,6 +437,9 @@
               <strong> you won't be able to submit event to EQAC if these fields are not set.</strong>
             </p>
             <p>Please provide the link to Google spreadsheets for the event program and budget.</p>
+            <p><a href="https://docs.google.com/spreadsheets/u/1/?ftv=1&tgif=d" target="_blank">
+              You can take the template for the budget and the program here.
+            </a></p>
           </div>
         </div>
 
