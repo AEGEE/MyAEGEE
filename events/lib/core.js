@@ -26,7 +26,8 @@ module.exports.fetchUser = async (user, token) => {
         user_id: user.user_id,
         comment: user.comment,
         first_name: userRequest.data.first_name,
-        last_name: userRequest.data.last_name
+        last_name: userRequest.data.last_name,
+        email: userRequest.data.user.email
     };
 };
 

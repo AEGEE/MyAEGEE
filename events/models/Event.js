@@ -240,6 +240,10 @@ const Event = sequelize.define('event', {
                     if (typeof organizer.comment !== 'undefined' && typeof organizer.comment !== 'string') {
                         throw new Error('comment is malformed.');
                     }
+
+                    if (typeof organizer.email !== 'undefined' && typeof organizer.email !== 'string') {
+                        throw new Error('email is malformed.');
+                    }
                 }
             }
         }
