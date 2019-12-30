@@ -1,3 +1,21 @@
+<a name="0.17.0"></a>
+# [0.17.0](https://github.com/AEGEE/oms-events/compare/0.16.1...0.17.0) (2019-12-30)
+
+
+### Bug Fixes
+
+* **events:** add submitted status and its workflow. Fixes MEMB-638 ([1200969](https://github.com/AEGEE/oms-events/commit/1200969))
+* **events:** display submitted events on events approval page ([3025d65](https://github.com/AEGEE/oms-events/commit/3025d65))
+* **events:** only returning special fields to those who have rights ([fa142b5](https://github.com/AEGEE/oms-events/commit/fa142b5))
+
+
+### Features
+
+* **events:** added additional fields for EQAC. Fixes MEMB-737 ([22c6a39](https://github.com/AEGEE/oms-events/commit/22c6a39))
+* **events:** only displaying deleted and not published events to orgs/EQAC. Fixes MEMB-730 ([3523d8d](https://github.com/AEGEE/oms-events/commit/3523d8d))
+
+
+
 <a name="0.16.1"></a>
 ## [0.16.1](https://github.com/AEGEE/oms-events/compare/0.16.0...0.16.1) (2019-12-26)
 

@@ -1,5 +1,6 @@
 const errors = require('./errors');
 const merge = require('./merge');
+const constants = require('./constants');
 const helpers = require('./helpers');
 const { Event, Application } = require('../models');
 const { Sequelize } = require('./sequelize');
@@ -106,7 +107,7 @@ exports.listApprovableEvents = async (req, res) => {
     const events = await Event.findAll({
         where: {
             deleted: false,
-            status: 'draft',
+            status: { [Sequelize.Op.ne]: 'published' },
             type: { [Sequelize.Op.in]: allowedEventTypes }
         }
     });
@@ -152,7 +153,18 @@ exports.addEvent = async (req, res) => {
 };
 
 exports.eventDetails = async (req, res) => {
-    const event = req.event.toJSON();
+    if (!req.permissions.see_event) {
+        return errors.makeForbiddenError(res, 'You cannot see this event.');
+    }
+
+    let event = req.event.toJSON();
+
+    // Some fields shouldn't be public and only should be displayed to EQAC/CD/admins/organizers.
+    if (!helpers.isOrganizer(event, req.user)
+        && !req.permissions.manage_event[event.type]
+        && !req.permissions.approve_event[event.type]) {
+        event = helpers.whitelistObject(event, constants.EVENT_PUBLIC_FIELDS);
+    }
 
     return res.json({
         success: true,
@@ -210,7 +222,7 @@ exports.deleteEvent = async (req, res) => {
 };
 
 exports.setApprovalStatus = async (req, res) => {
-    if (!req.permissions.set_status) {
+    if (!req.permissions.change_status[req.body.status]) {
         return errors.makeForbiddenError(res, 'You are not allowed to change status.');
     }
 

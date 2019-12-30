@@ -8,7 +8,8 @@ exports.getDefaultQuery = (req) => {
     // Default filter is empty.
     const queryObj = {
         where: {},
-        order: [['starts', 'ASC']]
+        order: [['starts', 'ASC']],
+        select: constants.EVENT_PUBLIC_FIELDS
     };
 
     // If search is set, searching for event by name or description case-insensitive.
@@ -115,6 +116,16 @@ exports.beautify = (value) => {
     return value;
 };
 
+// A helper to whilelist object's properties.
+exports.whitelistObject = (object, allowedFields) => {
+    const newObject = {};
+    for (const field of allowedFields) {
+        newObject[field] = object[field];
+    }
+
+    return newObject;
+};
+
 // A helper to get the names for application fields. Useful for exporting for getting columns headers.
 exports.getApplicationFields = (event) => {
     const fields = { ...constants.APPLICATION_FIELD_NAMES };
@@ -184,6 +195,15 @@ exports.getPermissions = (user, corePermissions, approvePermissions) => {
 };
 
 exports.getEventPermissions = ({ permissions, event, user }) => {
+    const canApprove = permissions.approve_event[event.type];
+    const canApproveOrIsOrganizer = exports.isOrganizer(event, user) || canApprove;
+
+    // The event can only be seen to public if it's published and not deleted.
+    // Otherwise (if it's deleted, submitted or draft) it should be accessible
+    // only to LOs and those who can approve it.
+    permissions.see_event = (event.status === 'published' && !event.deleted)
+        || canApproveOrIsOrganizer;
+
     permissions.edit_event = (event.status === 'draft' && exports.isOrganizer(event, user)) || permissions.manage_event[event.type];
     permissions.delete_event = permissions.manage_event[event.type];
 
@@ -194,7 +214,20 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
     permissions.set_participants_attended = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
     permissions.set_participants_confirmed = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
     permissions.export = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
-    permissions.set_status = permissions.approve_event[event.type];
+
+    // Status transitions.
+    // 1) draft -> submitted - by LOs or those who can approve (ask for approval)
+    // 2) submitted -> draft - by those who can approve (reject approval)
+    // 3) submitted -> published - by those who can approve (approve and publish)
+    // 4) published -> submitted - by those who can approve (unpublish)
+    // 5) draft -> published - no direct transition
+    // 6) published -> draft - no direct transition
+    permissions.change_status = {
+        draft: event.status === 'submitted' && canApprove, // 2
+        published: event.status === 'submitted' && canApprove, // 3
+        submitted: (event.status === 'published' && canApprove) // 4
+            || (event.status === 'draft' && canApproveOrIsOrganizer) // 1
+    };
 
     return permissions;
 };

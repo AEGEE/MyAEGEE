@@ -79,4 +79,64 @@ describe('Events details', () => {
 
         expect(res.statusCode).toEqual(404);
     });
+
+    it('should not return special fields if the user does not have rights', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            status: 'published',
+            organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+        });
+        const res = await request({
+            uri: '/single/' + event.id,
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data).not.toHaveProperty('organizers');
+        expect(res.body.data).not.toHaveProperty('budget');
+        expect(res.body.data).not.toHaveProperty('programme');
+        expect(res.body.data).not.toHaveProperty('status');
+        expect(res.body.data).not.toHaveProperty('deleted');
+    });
+
+    it('should not return event if it\'s deleted', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            status: 'published',
+            deleted: true,
+            organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+        });
+        const res = await request({
+            uri: '/single/' + event.id,
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
+    it('should not return event if it\'s not published', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            status: 'draft',
+            deleted: false,
+            organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+        });
+        const res = await request({
+            uri: '/single/' + event.id,
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
 });

@@ -11,6 +11,24 @@ module.exports = {
         created_at: 'Created at',
         updated_at: 'Updated at'
     },
+    EVENT_PUBLIC_FIELDS: [
+        'id',
+        'name',
+        'url',
+        'image',
+        'description',
+        'application_starts',
+        'application_ends',
+        'starts',
+        'ends',
+        'fee',
+        'organizing_bodies',
+        'locations',
+        'type',
+        'questions',
+        'max_participants',
+        'application_status'
+    ],
     EVENT_TYPES: ['wu', 'es', 'nwm', 'ltc', 'rtc', 'european'],
     CURRENT_USER_PREFIX: 'me'
 };
