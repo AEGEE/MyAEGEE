@@ -1,3 +1,15 @@
+<a name="0.32.1"></a>
+## [0.32.1](https://github.com/AEGEE/oms-frontend/compare/0.32.0...0.32.1) (2019-12-30)
+
+
+### Bug Fixes
+
+* **events:** added GSuite templates disclaimer ([ff70ab1](https://github.com/AEGEE/oms-frontend/commit/ff70ab1))
+* **events:** display EQAC approval fields on event page ([40fbdb3](https://github.com/AEGEE/oms-frontend/commit/40fbdb3))
+* **events:** fixed change status page word break ([9a93d48](https://github.com/AEGEE/oms-frontend/commit/9a93d48))
+
+
+
 <a name="0.32.0"></a>
 # [0.32.0](https://github.com/AEGEE/oms-frontend/compare/0.31.2...0.32.0) (2019-12-30)
 
