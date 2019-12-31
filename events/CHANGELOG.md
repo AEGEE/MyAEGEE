@@ -1,3 +1,13 @@
+<a name="0.18.1"></a>
+## [0.18.1](https://github.com/AEGEE/oms-events/compare/0.18.0...0.18.1) (2019-12-31)
+
+
+### Bug Fixes
+
+* **events:** return event status ([c7d5208](https://github.com/AEGEE/oms-events/commit/c7d5208))
+
+
+
 <a name="0.18.0"></a>
 # [0.18.0](https://github.com/AEGEE/oms-events/compare/0.17.1...0.18.0) (2019-12-30)
 
