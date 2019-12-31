@@ -27,7 +27,8 @@ module.exports = {
         'type',
         'questions',
         'max_participants',
-        'application_status'
+        'application_status',
+        'status'
     ],
     EVENT_TYPES: ['wu', 'es', 'nwm', 'ltc', 'rtc', 'european'],
     CURRENT_USER_PREFIX: 'me'

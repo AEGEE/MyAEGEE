@@ -98,7 +98,6 @@ describe('Events details', () => {
         expect(res.body.data).not.toHaveProperty('organizers');
         expect(res.body.data).not.toHaveProperty('budget');
         expect(res.body.data).not.toHaveProperty('programme');
-        expect(res.body.data).not.toHaveProperty('status');
         expect(res.body.data).not.toHaveProperty('deleted');
     });
 
