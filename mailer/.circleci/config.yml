@@ -5,24 +5,39 @@ jobs:
   test:
     machine:
       image: ubuntu-1604:201903-01
+    environment:
+      MIX_ENV: test
+      SMTP_USER: mailer@aegee.eu
+      SMTP_PASSWORD: 5ecr3t
+      SMTP_HOST: mail.aegee.eu
     steps:
       - checkout
       - run: wget https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb && sudo dpkg -i erlang-solutions_2.0_all.deb
       - run: sudo apt-get update
       - run: sudo apt-get install elixir esl-erlang
-      - run: MIX_ENV=test mix local.hex --force
-      - run: MIX_ENV=test mix local.rebar --force
-      - run: MIX_ENV=test mix deps.get
-      - run: MIX_ENV=test SMTP_USER=mailer@aegee.eu mix coveralls
+      - run: mix local.hex --force
+      - run: mix local.rebar --force
+      - run: mix deps.get
+      - run: SMTP_USER=mailer@aegee.eu mix coveralls
   build:
     machine:
       image: ubuntu-1604:201903-01
+    environment:
+      MIX_ENV: test
+      SMTP_USER: mailer@aegee.eu
+      SMTP_PASSWORD: 5ecr3t
+      SMTP_HOST: mail.aegee.eu
     steps:
       - checkout
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache oms-mailer
   docker-build-and-push-mailer:
     machine:
       image: ubuntu-1604:201903-01
+    environment:
+      MIX_ENV: test
+      SMTP_USER: mailer@aegee.eu
+      SMTP_PASSWORD: 5ecr3t
+      SMTP_HOST: mail.aegee.eu
     steps:
       - checkout
       - run: docker build  --tag aegee/oms-mailer:$(node -p "require('./package.json').version") --tag aegee/oms-mailer:latest -f docker/oms-mailer/Dockerfile .
