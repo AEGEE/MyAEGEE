@@ -1,29 +1,31 @@
 #!/bin/bash
 
-user=$(cat /run/secrets/mail_user)
-password=$(cat /run/secrets/mail_password)
-
-if [ -z "$user" ]
+if [ -z "$SMTP_USER" ]
 then
-  echo "Username secret not set"
+  echo '$SMTP_USER is not set'
   exit -1
 fi
 
-if [ -z "$password" ]
+if [ -z "$SMTP_PASSWORD" ]
 then
-  echo "Password secret not set"
+  echo '$SMTP_PASSWORD is not set'
   exit -1
 fi
 
+if [ -z "$SMTP_HOST" ]
+then
+  echo '$SMTP_HOST is not set'
+  exit -1
+fi
 
 #! /usr/bin/env ash
 set -e # exit on error
 
 # Variables
-export SMTP_LOGIN=${SMTP_LOGIN:-"$user"}
-export SMTP_PASSWORD=${SMTP_PASSWORD:-"$password"}
-export EXT_RELAY_HOST=${EXT_RELAY_HOST:-"mail.aegee.org"}
-export EXT_RELAY_PORT=${EXT_RELAY_PORT:-"587"}
+export SMTP_LOGIN=${SMTP_USER}
+export SMTP_PASSWORD=${SMTP_PASSWORD}
+export EXT_RELAY_HOST=${SMTP_HOST}
+export EXT_RELAY_PORT=${SMTP_PORT:-"587"}
 export RELAY_HOST_NAME=${RELAY_HOST_NAME:-"my.aegee.eu"}
 export ACCEPTED_NETWORKS=${ACCEPTED_NETWORKS:-"192.168.0.0/16 172.16.0.0/12 10.0.0.0/8"}
 export USE_TLS=${USE_TLS:-"yes"}

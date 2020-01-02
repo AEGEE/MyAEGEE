@@ -1,3 +1,24 @@
+## [0.4.1](https://github.com/AEGEE/oms-docker/compare/0.4.0...0.4.1) (2019-12-30)
+
+
+### Bug Fixes
+
+* **docker:** require env variables to be set ([84b080f](https://github.com/AEGEE/oms-docker/commit/84b080f25bb56ce8cf3462f92551513b2f3bdc6e))
+* **general:** forgot to change the project name in package.json ([599138e](https://github.com/AEGEE/oms-docker/commit/599138e126c908855e75eebaeeea6d93e689cffd))
+* **test:** fixed circleci ([0d9da43](https://github.com/AEGEE/oms-docker/commit/0d9da430a2e7fd83b62f498b2f5907fab361d0f3))
+* **test:** fixed travis ([9b8b0c3](https://github.com/AEGEE/oms-docker/commit/9b8b0c35a70e69d13e2293df6ec08caa5b06c647))
+
+
+
+# [0.4.0](https://github.com/AEGEE/oms-docker/compare/0.3.2...0.4.0) (2019-11-30)
+
+
+### Features
+
+* **general:** refactored env settings. Fixes MEMB-676 ([5dc4ab3](https://github.com/AEGEE/oms-docker/commit/5dc4ab35555e475d3aa0d5e09981fb1a5f319b15))
+
+
+
 ## [0.3.2](https://github.com/AEGEE/oms-docker/compare/0.3.1...0.3.2) (2019-11-08)
 
 

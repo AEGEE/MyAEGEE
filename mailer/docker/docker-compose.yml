@@ -8,6 +8,7 @@ services:
             - "4000"
         environment:
             MIX_ENV: "${MYAEGEE_ENV}"
+            SMTP_USER: ${SMTP_USER?The SMTP_USER variable is not set.}
         depends_on:
             - oms-mail-transfer-agent
         healthcheck:
@@ -31,9 +32,11 @@ services:
         image: aegee/oms-mail-transfer-agent:latest
         expose:
             - "25"
-        secrets:
-            - mail_password
-            - mail_user
+        environment:
+            SMTP_HOST: ${SMTP_HOST?The SMTP_HOST variable is not set.}
+            SMTP_PORT: 587
+            SMTP_USER: ${SMTP_USER?The SMTP_USER variable is not set.}
+            SMTP_PASSWORD: ${SMTP_PASSWORD?The SMTP_PASSWORD variable is not set.}
         #healthcheck?
         # cpu_count: 1
         # mem_limit: 900m
