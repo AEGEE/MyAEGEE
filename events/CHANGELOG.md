@@ -1,3 +1,13 @@
+<a name="0.20.0"></a>
+# [0.20.0](https://github.com/AEGEE/oms-events/compare/0.19.0...0.20.0) (2020-01-03)
+
+
+### Features
+
+* **application:** mail on application creating/editing. Fixes MEMB-752 ([2194a2e](https://github.com/AEGEE/oms-events/commit/2194a2e))
+
+
+
 <a name="0.19.0"></a>
 # [0.19.0](https://github.com/AEGEE/oms-events/compare/0.18.1...0.19.0) (2020-01-03)
 
