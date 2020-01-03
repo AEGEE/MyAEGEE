@@ -1,3 +1,12 @@
+# [0.5.0](https://github.com/AEGEE/oms-docker/compare/0.4.3...0.5.0) (2020-01-03)
+
+
+### Features
+
+* added statutory templates for board ([20320e0](https://github.com/AEGEE/oms-docker/commit/20320e0737aa3161b718e5150bddfec673040091))
+
+
+
 ## [0.4.3](https://github.com/AEGEE/oms-docker/compare/0.4.2...0.4.3) (2020-01-03)
 
 
