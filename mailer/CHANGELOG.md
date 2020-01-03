@@ -1,3 +1,12 @@
+## [0.4.3](https://github.com/AEGEE/oms-docker/compare/0.4.2...0.4.3) (2020-01-03)
+
+
+### Bug Fixes
+
+* **events:** fixed events status change text ([9a24e13](https://github.com/AEGEE/oms-docker/commit/9a24e1389cde6c43d97862a4cb5916e77c71b230))
+
+
+
 ## [0.4.2](https://github.com/AEGEE/oms-docker/compare/0.4.1...0.4.2) (2020-01-03)
 
 
