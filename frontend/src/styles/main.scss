@@ -1,0 +1,87 @@
+/* ------ VI colors, done by Philip ------------- */
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600');
+
+$blue-light:		#ced6ee;
+$blue-standard:		#1468b3;
+$blue-dark:			#204379;
+$red-light:			#e8bdbe;
+$red-standard:		#c94137;
+$red-dark:			#9f242f;
+$green-light:		#d8e4b9;
+$green-standard:	#a8c342;
+$green-dark:		#4f7536;
+$purple-light:		#e7c8de;
+$purple-standard:	#911b7d;
+$purple-dark:		#691150;
+$yellow-light:		#fceb8d;
+$yellow-standard:	#eab818;
+$yellow-dark:		#d4781c;
+$grey-light:		#e6e6e6;
+$grey-standard:		#c1c2c1;
+$grey-dark:			#383e42;
+$black:				#000000;
+$white:				#FFFFFF;
+
+$blue: 				$blue-standard;
+$red: 				$red-standard;
+$yellow: 			$yellow-standard;
+$purple: 			$purple-standard;
+$green: 			$green-standard;
+$cyan:				$blue-light;
+
+$family-sans-serif: 'Open Sans', sans-serif;
+
+$primary: $blue-standard;
+$link: $blue;
+$info: $cyan;
+$success: $green;
+$warning: $yellow;
+$danger: $red;
+$dark: $grey-dark;
+$text: $grey-dark;
+$background: $grey-light;
+$link: $blue;
+$family-primary: $family-sans-serif;
+
+$fa-font-path: "../fonts" !default;
+@import '~@fortawesome/fontawesome-free/scss/fontawesome.scss';
+
+// @import '~@fortawesome/fontawesome-free/css/v4-shims.css';
+
+
+/* * {
+	font-weight: 300;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-weight: 600;
+} */
+
+/* ------ end of VI colors ------------- */
+
+@import '~bulma';
+@import '~buefy/dist/buefy.min.css';
+@import '~@fullcalendar/core/main.min.css';
+@import '~@fullcalendar/daygrid/main.min.css';
+@import '~mapbox-gl/dist/mapbox-gl.css';
+
+@import '~nprogress/nprogress.css';
+
+.has-text-pre-wrap {
+	white-space: pre-wrap;
+}
+
+/* for links breaking in markdown-formatted html */
+.markdown a {
+	word-break: break-all;
+}
+
+.has-word-break {
+	word-break: break-all;
+}
+
+/* for MapBox popups */
+.mapbox-popup-custom {
+	width: 80px;
+	font-size: medium;
+}
