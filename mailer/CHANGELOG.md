@@ -1,3 +1,18 @@
+## [0.4.2](https://github.com/AEGEE/oms-docker/compare/0.4.1...0.4.2) (2020-01-03)
+
+
+### Bug Fixes
+
+* **ci:** fixed CircleCI ([0fbede1](https://github.com/AEGEE/oms-docker/commit/0fbede1345d14e6a89675d6b9f4a223bc94162b8))
+* **ci:** fixed travis ([5ebe4d3](https://github.com/AEGEE/oms-docker/commit/5ebe4d3941833b055ee16bc4eed4079ab5906164))
+
+
+### Features
+
+* **templates:** added events status changed template. Fixes MEMB-747 ([5cbce55](https://github.com/AEGEE/oms-docker/commit/5cbce55376833b3c1bdbb6134de281270bf107e9))
+
+
+
 ## [0.4.1](https://github.com/AEGEE/oms-docker/compare/0.4.0...0.4.1) (2019-12-30)
 
 
