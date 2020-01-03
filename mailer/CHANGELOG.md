@@ -1,3 +1,17 @@
+# [0.6.0](https://github.com/AEGEE/oms-docker/compare/0.5.0...0.6.0) (2020-01-03)
+
+
+### Bug Fixes
+
+* **general:** refactored statutory applications template ([b0337a7](https://github.com/AEGEE/oms-docker/commit/b0337a76237238acfbbf7e99666a04346ba0d0db))
+
+
+### Features
+
+* **general:** added events_applied and events_edited templates. Fixes MEMB-751 ([3f02ab6](https://github.com/AEGEE/oms-docker/commit/3f02ab61b0e5a0faf0c5705878bb923b24876198))
+
+
+
 # [0.5.0](https://github.com/AEGEE/oms-docker/compare/0.4.3...0.5.0) (2020-01-03)
 
 
