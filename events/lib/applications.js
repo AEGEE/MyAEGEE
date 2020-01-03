@@ -3,6 +3,8 @@ const xlsx = require('node-xlsx');
 const errors = require('./errors');
 const { Application } = require('../models');
 const helpers = require('./helpers');
+const mailer = require('./mailer');
+const { sequelize } = require('./sequelize');
 
 exports.listAllApplications = async (req, res) => {
     if (!req.permissions.list_applications) {
@@ -51,12 +53,30 @@ exports.createApplication = async (req, res) => {
     req.body.event_id = req.event.id;
     req.body.email = req.user.user.email;
 
-    const application = await Application.create(req.body);
+    let newApplication;
+
+    // Doing it inside of a transaction, so it'd fail and revert if mail was not sent.
+    await sequelize.transaction(async (t) => {
+        newApplication = await Application.create(req.body, { transaction: t });
+
+        // We don't need to recalculate the votes amount, as the pax type is not set here.
+
+        // Sending the mail to a user.
+        await mailer.sendMail({
+            to: newApplication.email,
+            subject: `You've successfully applied for ${req.event.name}`,
+            template: 'events_applied.html',
+            parameters: {
+                application: newApplication,
+                event: req.event
+            }
+        });
+    });
 
     return res.json({
         success: true,
         message: 'Application is created.',
-        data: application,
+        data: newApplication,
     });
 };
 
@@ -82,7 +102,21 @@ exports.updateApplication = async (req, res) => {
     req.body.event_id = req.event.id;
     req.body.email = req.user.user.email;
 
-    await req.application.update(req.body);
+    await sequelize.transaction(async (t) => {
+        // Updating application in a transaction, so if mail sending fails, the update would be reverted.
+        await req.application.update(req.body, { transaction: t });
+
+        // Sending the mail to a user.
+        await mailer.sendMail({
+            to: req.application.email,
+            subject: `Your application for ${req.event.name} was updated`,
+            template: 'events_edited.html',
+            parameters: {
+                application: req.application,
+                event: req.event
+            }
+        });
+    });
 
     return res.json({
         success: true,
