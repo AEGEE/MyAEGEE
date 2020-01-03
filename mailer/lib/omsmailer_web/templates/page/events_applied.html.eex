@@ -38,14 +38,14 @@
                       </tr>
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>Your application for <%= @parameters["event"]["name"] %> was successfully updated.</strong></div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>You've successfully applied to <%= @parameters["event"]["name"] %></strong></div>
                         </td>
                       </tr>
                       <tr>
                         <td style="padding: 0 56px 28px 56px;" valign="top">
                           <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">
                             Here are your application details:
-                            <%= render(OmsmailerWeb.SnippetsView, "statutory_application_info.html", parameters: @parameters ) %>
+                            <%= render(OmsmailerWeb.SnippetsView, "events_application_info.html", parameters: @parameters ) %>
                           </div>
                         </td>
                       </tr>
