@@ -1,3 +1,13 @@
+<a name="0.19.0"></a>
+# [0.19.0](https://github.com/AEGEE/oms-events/compare/0.18.1...0.19.0) (2020-01-03)
+
+
+### Features
+
+* **events:** mail organizers on event status change. Fixes MEMB-749 ([3bd0dac](https://github.com/AEGEE/oms-events/commit/3bd0dac))
+
+
+
 <a name="0.18.1"></a>
 ## [0.18.1](https://github.com/AEGEE/oms-events/compare/0.18.0...0.18.1) (2019-12-31)
 

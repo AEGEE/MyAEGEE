@@ -5,6 +5,8 @@ const helpers = require('./helpers');
 const { Event, Application } = require('../models');
 const { Sequelize } = require('./sequelize');
 const core = require('./core');
+const mailer = require('./mailer');
+
 
 exports.listEvents = async (req, res) => {
     // Get default query obj.
@@ -226,7 +228,20 @@ exports.setApprovalStatus = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to change status.');
     }
 
+    const oldStatus = req.event.status;
+
     await req.event.update({ status: req.body.status });
+
+    // Send email to all organizers.
+    await mailer.sendMail({
+        to: req.event.organizers.map((organizer) => organizer.email),
+        subject: 'Your event\'s status was changed',
+        template: 'events_status_changed.html',
+        parameters: {
+            event: req.event,
+            old_status: oldStatus
+        }
+    });
 
     return res.json({
         success: true,

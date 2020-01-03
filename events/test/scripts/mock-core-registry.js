@@ -192,6 +192,34 @@ exports.mockCoreBody = (options) => {
         .reply(200, { success: true, data: body });
 };
 
+exports.mockMailer = (options) => {
+    if (options.netError) {
+        return nock(`${config.mailer.url}:${config.mailer.port}`)
+            .persist()
+            .post('/')
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock(`${config.mailer.url}:${config.mailer.port}`)
+            .persist()
+            .post('/')
+            .reply(500, 'Some error happened.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock(`${config.mailer.url}:${config.mailer.port}`)
+            .persist()
+            .post('/')
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
+    return nock(`${config.mailer.url}:${config.mailer.port}`)
+        .persist()
+        .post('/')
+        .reply(200, { success: true });
+};
+
 exports.mockAll = (options = {}) => {
     nock.cleanAll();
     const omscoreStub = exports.mockCore(options.core || {});
@@ -199,12 +227,14 @@ exports.mockAll = (options = {}) => {
     const omsApprovePermissionsStub = exports.mockCoreApprovePermissions(options.approvePermissions || {});
     const omsCoreMemberStub = exports.mockCoreMember(options.member || {});
     const omsCoreBodyStub = exports.mockCoreBody(options.body || {});
+    const omsMailerStub = exports.mockMailer(options.mailer || {});
 
     return {
         omscoreStub,
         omsMainPermissionsStub,
         omsApprovePermissionsStub,
         omsCoreMemberStub,
-        omsCoreBodyStub
+        omsCoreBodyStub,
+        omsMailerStub
     };
 };

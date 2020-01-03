@@ -443,4 +443,57 @@ describe('Events status change', () => {
             expect(res.body.errors).toHaveProperty('is_programme_set');
         });
     });
+
+    describe('if mailer fails', () => {
+        it('should return 500 if mailer returns net error', async () => {
+            mock.mockAll({ mailer: { netError: true } });
+
+            const event = await generator.createEvent({ status: 'draft' });
+
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+
+        it('should return 500 if mailer returns bad response', async () => {
+            mock.mockAll({ mailer: { badResponse: true } });
+
+            const event = await generator.createEvent({ status: 'draft' });
+
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+
+        it('should return 500 if mailer returns unsuccessful response', async () => {
+            mock.mockAll({ mailer: { unsuccessfulResponse: true } });
+
+            const event = await generator.createEvent({ status: 'draft' });
+
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+    });
 });
