@@ -234,7 +234,7 @@ exports.setApprovalStatus = async (req, res) => {
 
     // Send email to all organizers.
     await mailer.sendMail({
-        to: req.event.organizers.map(organizer => organizer.email),
+        to: req.event.organizers.map((organizer) => organizer.email),
         subject: 'Your event\'s status was changed',
         template: 'events_status_changed.html',
         parameters: {
