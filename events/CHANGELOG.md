@@ -1,3 +1,13 @@
+<a name="0.21.0"></a>
+# [0.21.0](https://github.com/AEGEE/oms-events/compare/0.20.0...0.21.0) (2020-01-04)
+
+
+### Features
+
+* **events:** mail organizers on event create/update. Fixes MEMB-750 ([b315ffc](https://github.com/AEGEE/oms-events/commit/b315ffc))
+
+
+
 <a name="0.20.0"></a>
 # [0.20.0](https://github.com/AEGEE/oms-events/compare/0.19.0...0.20.0) (2020-01-03)
 
