@@ -3,10 +3,9 @@ const merge = require('./merge');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const { Event, Application } = require('../models');
-const { Sequelize } = require('./sequelize');
+const { Sequelize, sequelize } = require('./sequelize');
 const core = require('./core');
 const mailer = require('./mailer');
-
 
 exports.listEvents = async (req, res) => {
     // Get default query obj.
@@ -144,8 +143,20 @@ exports.addEvent = async (req, res) => {
             core.fetchBody(body, req.headers['x-auth-token'])));
     }
 
+    await sequelize.transaction(async (t) => {
+        // Creating the event in a transaction, so if mail sending fails, the update would be reverted.
+        await event.save({ transaction: t });
 
-    await event.save();
+        // Sending the mail to a user.
+        await mailer.sendMail({
+            to: event.organizers.map((organizer) => organizer.email),
+            subject: 'The event was created',
+            template: 'events_event_created.html',
+            parameters: {
+                event
+            }
+        });
+    });
 
     return res.status(201).json({
         success: true,
@@ -201,7 +212,21 @@ exports.editEvent = async (req, res) => {
             core.fetchBody(body, req.headers['x-auth-token'])));
     }
 
-    await event.update(data);
+    await sequelize.transaction(async (t) => {
+        // Updating the event in a transaction, so if mail sending fails, the update would be reverted.
+        await event.update(data, { transaction: t });
+
+        // Sending the mail to a user.
+        await mailer.sendMail({
+            to: event.organizers.map((organizer) => organizer.email),
+            subject: 'The event was updated',
+            template: 'events_event_updated.html',
+            parameters: {
+                event
+            }
+        });
+    });
+
 
     return res.json({
         success: true,
