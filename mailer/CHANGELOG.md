@@ -1,3 +1,12 @@
+# [0.7.0](https://github.com/AEGEE/oms-docker/compare/0.6.0...0.7.0) (2020-01-04)
+
+
+### Features
+
+* **general:** added events_event_created and events_event_updated templates. Fixes MEMB-748 ([3256b73](https://github.com/AEGEE/oms-docker/commit/3256b737900771de76498f6f8d14806bc8a71fc1))
+
+
+
 # [0.6.0](https://github.com/AEGEE/oms-docker/compare/0.5.0...0.6.0) (2020-01-03)
 
 
