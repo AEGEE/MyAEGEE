@@ -67,7 +67,6 @@ exports.sendAll = async (req, res) => {
     logger.info('Prepared letters: ' + bodies.length);
 
     await mailer.sendMail({
-        from: req.body.from,
         reply_to: req.body.reply_to,
         to,
         subject: req.body.subject,

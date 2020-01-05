@@ -12,7 +12,11 @@ const config = {
         },
         core: {
             url: 'http://oms-core-elixir',
-            port: 4000
+            port: 4000,
+            user: {
+                login: process.env.CORE_LOGIN || 'admin@aegee.org',
+                password: process.env.CORE_PASSWORD || 'admin1234'
+            }
         },
         mailer: {
             url: 'http://oms-mailer',

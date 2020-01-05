@@ -19,6 +19,10 @@ const makeRequest = (options) => {
         requestOptions.body = options.body;
     }
 
+    if (options.qs) {
+        requestOptions.qs = options.qs;
+    }
+
     return request(requestOptions);
 };
 
@@ -96,11 +100,35 @@ const getMyPermissions = async (req) => {
     return permissionsBody;
 };
 
+const getBodyUsersForPermission = async (permission, bodyId) => {
+    // Getting access and refresh token.
+    const authRequest = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/login',
+        method: 'POST',
+        body: {
+            username: config.core.user.login,
+            password: config.core.user.password
+        }
+    });
+
+    // Fetching members.
+    const response = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/bodies/' + bodyId + '/members',
+        token: authRequest.access_token,
+        qs: {
+            holds_permission: { action: permission.action, object: permission.object }
+        }
+    });
+
+    return response.data;
+};
+
 module.exports = {
     getMember,
     getBody,
     getApprovePermissions,
     getBodies,
     getMyProfile,
-    getMyPermissions
+    getMyPermissions,
+    getBodyUsersForPermission
 };

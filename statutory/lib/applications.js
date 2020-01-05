@@ -275,7 +275,6 @@ exports.updateApplication = async (req, res) => {
 
         // Sending the mail to a user.
         await mailer.sendMail({
-            from: 'oms-mailer@aegee.org',
             to: req.application.email,
             subject: `Your application for ${req.event.name} was updated`,
             template: 'statutory_edited.html',
@@ -596,10 +595,25 @@ exports.postApplication = async (req, res) => {
 
         // Sending the mail to a user.
         await mailer.sendMail({
-            from: 'oms-mailer@aegee.org',
             to: newApplication.email,
             subject: `You've successfully applied for ${req.event.name}`,
             template: 'statutory_applied.html',
+            parameters: {
+                application: newApplication,
+                event: req.event
+            }
+        });
+
+        // Sending emails to board members of this body.
+        const boardMembers = await core.getBodyUsersForPermission({
+            action: 'approve_members',
+            object: req.event.type
+        }, newApplication.body_id);
+
+        await mailer.sendMail({
+            to: boardMembers.map(member => member.member.user.email),
+            subject: `One of your body members has applied to ${req.event.name}`,
+            template: 'statutory_board_applied.html',
             parameters: {
                 application: newApplication,
                 event: req.event
