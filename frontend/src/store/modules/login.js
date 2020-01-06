@@ -7,19 +7,19 @@ const state = {
 }
 
 const mutations = {
-  [types.LOGIN] (state) {
-    state.isLoggedIn = true
+  [types.LOGIN] (newState) {
+    newState.isLoggedIn = true
   },
-  [types.SET_USER] (state, user) {
-    state.isLoggedIn = true
-    state.user = user
+  [types.SET_USER] (newState, user) {
+    newState.isLoggedIn = true
+    newState.user = user
   },
-  [types.SET_PERMISSIONS] (state, permissions) {
-    state.permissions = permissions
+  [types.SET_PERMISSIONS] (newState, permissions) {
+    newState.permissions = permissions
   },
-  [types.LOGOUT] (state) {
-    state.isLoggedIn = false
-    state.user = null
+  [types.LOGOUT] (newState) {
+    newState.isLoggedIn = false
+    newState.user = null
   }
 }
 

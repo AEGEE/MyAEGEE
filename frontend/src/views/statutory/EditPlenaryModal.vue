@@ -63,10 +63,10 @@ export default {
     }
   },
   watch: {
-    'dates.starts' (newDate) {
+    'dates.starts': function (newDate) {
       this.plenary.starts = new Date(newDate)
     },
-    'dates.ends' (newDate) {
+    'dates.ends': function (newDate) {
       this.plenary.ends = new Date(newDate)
     }
   },
@@ -83,7 +83,7 @@ export default {
         ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.event.id + '/plenaries/', this.plenary)
         : this.axios.put(this.services['oms-statutory'] + '/events/' + this.event.id + '/plenaries/' + this.plenary.id, this.plenary)
 
-      action.then((response) => {
+      action.then(() => {
         this.showSuccess('Plenary is created.')
 
         this.isLoading = false

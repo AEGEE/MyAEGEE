@@ -298,11 +298,11 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      let promise = this.$route.params.candidate_id
+      const promise = this.$route.params.candidate_id
         ? this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/' + this.$route.params.position_id + '/candidates/' + this.$route.params.candidate_id, this.candidate)
         : this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/' + this.$route.params.position_id + '/candidates/', this.candidate)
 
-      promise.then((response) => {
+      promise.then(() => {
         this.isSaving = false
         this.$root.showSuccess('Candidate is saved.')
 

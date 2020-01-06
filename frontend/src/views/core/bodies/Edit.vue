@@ -183,7 +183,7 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      let promise = this.$route.params.id
+      const promise = this.$route.params.id
         ? this.axios.put(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id, { body: this.body })
         : this.axios.post(this.services['oms-core-elixir'] + '/bodies/', { body: this.body })
 

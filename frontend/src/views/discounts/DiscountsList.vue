@@ -61,7 +61,7 @@ export default {
       can: {
         create: false
       },
-      categories: [],
+      categories: []
     }
   },
   computed: {

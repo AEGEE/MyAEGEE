@@ -45,7 +45,7 @@ export default {
     chooseAltItem (selectedItem) {
       this.item.note.shopping_item_id = selectedItem.shopping_item_id
 
-      this.axios.put(this.services['alastair'] + '/events/' + this.event.id + '/shopping_list/note/' + this.item.ingredient_id, {note: this.item.note}).then((response) => {
+      this.axios.put(this.services.alastair + '/events/' + this.event.id + '/shopping_list/note/' + this.item.ingredient_id, { note: this.item.note }).then(() => {
         this.showSuccess('Item saved')
         this.reload()
         this.$parent.close()

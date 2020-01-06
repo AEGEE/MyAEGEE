@@ -154,7 +154,7 @@ export default {
       },
       currenciesList,
       can: {
-        upload_memberslist: {},
+        upload_memberslist: {}
       },
       payments: [],
       tempFee: 0,
@@ -206,20 +206,19 @@ export default {
         }
 
         return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.selectedBody + '/payments')
-          .then((response) => {
-            this.payments = response.data.data
+          .then((paymentsResponse) => {
+            this.payments = paymentsResponse.data.data
 
             // getting last payment for each user, setting it as a members' fee on newly-created memberslist
             for (const member of this.memberslist.members) {
               // for old memberslists that were uploaded through CSV and do not have the user ID, do nothing
               if (!member.user_id) {
-                continue;
+                continue
               }
 
 
               // get member's current payment
-              const currentPayment = this.payments.find(payment =>
-                payment.member_id === member.user_id && moment().isBetween(payment.starts, payment.expires))
+              const currentPayment = this.payments.find(payment => payment.member_id === member.user_id && moment().isBetween(payment.starts, payment.expires))
 
               // if there's no payment, do nothing, so it'd default to zero
               // if there is one, setting it for the user.
@@ -235,7 +234,7 @@ export default {
             // not great, not terrible
             this.$root.showWarning('Could not fetch payments info: ' + err.message)
             this.isLoading = false
-          });
+          })
       }).catch((err) => {
         this.isLoading = false
         this.$root.showError('Some error happened', err)
@@ -297,7 +296,7 @@ export default {
       }
 
       if (file) {
-        var reader = new FileReader()
+        const reader = new FileReader()
         reader.readAsText(file, 'UTF-8')
         reader.onload = (evt) => this.processFileContent(evt.target.result)
         reader.onerror = (err) => {
@@ -306,7 +305,7 @@ export default {
       }
     },
     isLocal (body) {
-      return ['antenna', 'contact antenna', 'contact'].includes(body.type);
+      return ['antenna', 'contact antenna', 'contact'].includes(body.type)
     },
     processFileContent (input) {
       // CSV content: first_name,last_name,fee
@@ -325,7 +324,7 @@ export default {
       const members = csvArray.map((element) => {
         const firstName = element[0].trim()
         const lastName = element[1].trim()
-        const fee = parseInt(element[2].trim()) || 0
+        const fee = parseInt(element[2].trim(), 10) || 0
 
         return {
           first_name: firstName,
@@ -339,7 +338,7 @@ export default {
         members
       }
     },
-    canEditMemberslist(bodyId) {
+    canEditMemberslist (bodyId) {
       if (this.memberslist) {
         return this.can.edit_memberslist.global || this.can.edit_memberslist[bodyId]
       }
@@ -348,7 +347,7 @@ export default {
     }
   },
   watch: {
-    'selectedBody' () {
+    selectedBody () {
       this.fetchMembersList()
     }
   },

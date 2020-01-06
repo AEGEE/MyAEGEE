@@ -80,7 +80,7 @@ export default {
       this.canLoadMore = true
       this.fetchData()
     },
-    fetchData (state) {
+    fetchData () {
       this.isLoading = true
 
       this.axios.get(this.services['oms-discounts'] + '/integrations').then((response) => {

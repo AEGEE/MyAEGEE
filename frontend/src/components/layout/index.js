@@ -4,8 +4,8 @@ import AppMain from './AppMain'
 import FooterBar from './FooterBar'
 
 export {
-    Navbar,
-    Sidebar,
-    AppMain,
-    FooterBar
+  Navbar,
+  Sidebar,
+  AppMain,
+  FooterBar
 }

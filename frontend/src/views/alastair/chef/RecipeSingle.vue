@@ -4,8 +4,8 @@
       {{ recipe.name }}
     </div>
     <div class="subtitle">
-      for {{ recipe.person_count }} persons by 
-      <router-link :to="{name: 'oms.members.view', params: {id: recipe.created_by}}">this member</router-link> 
+      for {{ recipe.person_count }} persons by
+      <router-link :to="{name: 'oms.members.view', params: {id: recipe.created_by}}">this member</router-link>
       <span v-if="recipe.published">(published</span><span v-if="!recipe.published">(unpublished</span>
       , version {{ recipe.version }})
     </div>
@@ -48,7 +48,7 @@ export default {
   name: 'RecipeSingle',
   data () {
     return {
-      recipe: {recipes_ingredients: []},
+      recipe: { recipes_ingredients: [] },
       isLoading: false,
       permissions: {}
     }
@@ -57,10 +57,10 @@ export default {
     ...mapGetters(['services'])
   },
   methods: {
-    fetchData (state) {
+    fetchData () {
       this.isLoading = true
 
-      this.axios.get(this.services['alastair'] + '/recipes/' + this.$route.params.id).then((response) => {
+      this.axios.get(this.services.alastair + '/recipes/' + this.$route.params.id).then((response) => {
         this.recipe = response.data.data
         this.permissions = response.data.meta.permissions
         this.isLoading = false

@@ -40,8 +40,8 @@ export default {
   },
   methods: {
     createEvent () {
-      this.axios.post(this.services['alastair'] + '/events', {event: {name: this.newEventName}})
-        .then((response) => {
+      this.axios.post(this.services.alastair + '/events', { event: { name: this.newEventName } })
+        .then(() => {
           this.fetchData()
         }).catch((err) => {
           this.$root.showError('Could not create event', err)
@@ -56,7 +56,7 @@ export default {
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['alastair'] + '/events', { cancelToken: this.source.token })
+      this.axios.get(this.services.alastair + '/events', { cancelToken: this.source.token })
         .then((response) => {
           this.isLoading = false
           this.events = response.data.data
@@ -70,7 +70,7 @@ export default {
     }
   },
   watch: {
-    '$route.name' () {
+    '$route.name': function () {
       this.fetchData()
     }
   },

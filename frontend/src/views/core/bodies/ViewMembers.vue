@@ -145,10 +145,9 @@ export default {
       })
     },
     askDeleteMember (member) {
-      const message =
-        'Are you sure you want to <b>delete</b> ' +
-        member.member.first_name + ' ' + member.member.last_name +
-        ' from this body? This action cannot be undone.'
+      const message = 'Are you sure you want to <b>delete</b> '
+        + member.member.first_name + ' ' + member.member.last_name
+        + ' from this body? This action cannot be undone.'
 
       this.$buefy.dialog.confirm({
         title: 'Deleting a member',
@@ -160,7 +159,7 @@ export default {
       })
     },
     deleteMember (member) {
-      this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members/' + member.id).then((response) => {
+      this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members/' + member.id).then(() => {
         this.$root.showSuccess('Member is deleted.')
 
         const index = this.members.findIndex(m => m.id === member.id)
@@ -180,7 +179,7 @@ export default {
       this.isLoading = true
       this.axios.put(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members/' + member.id, {
         body_membership: { comment }
-      }).then((response) => {
+      }).then(() => {
         this.$root.showSuccess('Comment is set.')
         member.comment = comment
         this.isLoading = false
@@ -232,8 +231,8 @@ export default {
         // If you can see payments, fetch them.
         return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/payments', {
           cancelToken: this.source.token
-        }).then((response) => {
-          this.payments = response.data.data
+        }).then((paymentsResponse) => {
+          this.payments = paymentsResponse.data.data
 
           for (const member of this.members) {
             const paymentsForMember = this.payments
@@ -248,13 +247,14 @@ export default {
 
           this.isLoading = false
         })
-      }).catch((err) => {
-        if (this.axios.isCancel(err)) {
-          return
-        }
-
-        this.$root.showError('Could not fetch members', err)
       })
+        .catch((err) => {
+          if (this.axios.isCancel(err)) {
+            return
+          }
+
+          this.$root.showError('Could not fetch members', err)
+        })
     }
   },
   mounted () {

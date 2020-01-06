@@ -42,7 +42,7 @@ export default {
 
       this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members/' + this.member.id, {
         circle_membership: this.member
-      }).then((response) => {
+      }).then(() => {
         this.showSuccess('Membership is updated')
         this.isLoading = false
         this.$parent.close()

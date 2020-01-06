@@ -51,7 +51,7 @@ export default {
     fetchData () {
       this.isLoading = true
 
-      this.axios.get(this.services['alastair'] + '/shops/' + this.$route.params.id + '/admins').then((response) => {
+      this.axios.get(this.services.alastair + '/shops/' + this.$route.params.id + '/admins').then((response) => {
         this.admins = response.data.data
         this.isLoading = false
       }).catch((err) => {

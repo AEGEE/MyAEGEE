@@ -112,7 +112,7 @@ export default {
     loginUser: 'user'
   }),
   watch: {
-    'selectedBody' () {
+    selectedBody () {
       this.fetchData()
     }
   },

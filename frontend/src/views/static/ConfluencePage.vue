@@ -14,8 +14,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-
 export default {
   name: 'ConfluencePage',
   data () {
@@ -38,11 +36,11 @@ export default {
     fetch(pageUrl)
       .then(data => data.json())
       .then(data => {
-          this.title = data.title
-          this.text = data.body.export_view.value
+        this.title = data.title
+        this.text = data.body.export_view.value
       }).catch(err => {
         console.log(err)
-        this.error = true;
+        this.error = true
       })
   }
 }

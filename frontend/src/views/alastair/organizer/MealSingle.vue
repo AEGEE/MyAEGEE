@@ -5,8 +5,8 @@
         {{ meal.name }}
       </div>
       <div class="subtitle">
-        in event 
-        <router-link :to="{name: 'oms.alastair.organizer.event', params: {id: event.id}}">{{ event.name }}</router-link> 
+        in event
+        <router-link :to="{name: 'oms.alastair.organizer.event', params: {id: event.id}}">{{ event.name }}</router-link>
       </div>
 
       <div class="article">
@@ -78,14 +78,14 @@ export default {
     ...mapGetters(['services'])
   },
   methods: {
-    fetchData (state) {
+    fetchData () {
       this.isLoading = true
 
-      this.axios.get(this.services['alastair'] + '/events/' + this.$route.params.event_id).then((response) => {
+      this.axios.get(this.services.alastair + '/events/' + this.$route.params.event_id).then((response) => {
         this.event = response.data.data
 
-        this.axios.get(this.services['alastair'] + '/events/' + this.$route.params.event_id + '/meals/' + this.$route.params.id).then((response) => {
-          this.meal = response.data.data
+        this.axios.get(this.services.alastair + '/events/' + this.$route.params.event_id + '/meals/' + this.$route.params.id).then((mealResponse) => {
+          this.meal = mealResponse.data.data
 
           this.isLoading = false
         })

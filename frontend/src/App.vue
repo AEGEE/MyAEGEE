@@ -31,8 +31,8 @@ export default {
 
     const handler = () => {
       if (!document.hidden) {
-        let rect = body.getBoundingClientRect()
-        let isMobile = rect.width - RATIO < WIDTH
+        const rect = body.getBoundingClientRect()
+        const isMobile = rect.width - RATIO < WIDTH
         this.toggleDevice(isMobile ? 'mobile' : 'other')
         this.toggleSidebar({
           opened: !isMobile
@@ -47,7 +47,7 @@ export default {
 
   computed: mapGetters({
     sidebar: 'sidebar',
-    device: 'device',
+    device: 'device'
   }),
 
   methods: {

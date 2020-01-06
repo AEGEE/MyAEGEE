@@ -117,10 +117,9 @@ export default {
       })
     },
     askDeleteMember (member) {
-      const message =
-        'Are you sure you want to <b>delete</b> ' +
-        member.member.first_name + ' ' + member.member.last_name +
-        ' from this circle? This action cannot be undone.'
+      const message = 'Are you sure you want to <b>delete</b> '
+        + member.member.first_name + ' ' + member.member.last_name
+        + ' from this circle? This action cannot be undone.'
 
       this.$buefy.dialog.confirm({
         title: 'Deleting a member',
@@ -132,7 +131,7 @@ export default {
       })
     },
     deleteMember (member) {
-      this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/members/' + member.id).then((response) => {
+      this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/members/' + member.id).then(() => {
         this.$root.showSuccess('Member is deleted.')
 
         const index = this.members.findIndex(m => m.id === member.id)

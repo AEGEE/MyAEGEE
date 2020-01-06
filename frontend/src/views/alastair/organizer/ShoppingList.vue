@@ -45,7 +45,7 @@
                 </span>
               </td>
               <td>
-                {{ ingredient.chosen_item.item_buying_quantity }}{{ ingredient.ingredient.default_measurement.display_code }} 
+                {{ ingredient.chosen_item.item_buying_quantity }}{{ ingredient.ingredient.default_measurement.display_code }}
                 <span v-show="detailed_view">({{ ingredient.chosen_item.item_count }} items)</span>
               </td>
               <td>{{ ingredient.chosen_price }}{{ event.shop.currency.display_code }}</td>
@@ -117,28 +117,28 @@ export default {
         if (!str) {
           return ''
         }
-        var result = str.toString().replace(/"/g, '""')
+        let result = str.toString().replace(/"/g, '""')
         if (result.search(/("|,|\n)/g) >= 0) {
           result = '"' + result + '"'
         }
         return result
       }
 
-      var labels = []
+      const labels = []
       data.forEach((obj) => {
-        for (var key in obj) {
-          if (obj.hasOwnProperty(key) && !labels.find((label) => { return label === key })) {
+        for (const key in obj) {
+          if (obj.hasOwnProperty(key) && !labels.find((label) => label === key)) {
             labels.push(key)
           }
         }
       })
 
-      var csvContent = ''
+      let csvContent = ''
 
       csvContent += labels.map(escape).join(',') + '\n'
 
       csvContent += data.map((obj) => {
-        var tmp = []
+        const tmp = []
         labels.forEach((label) => {
           tmp.push(escape(obj[label]))
         })
@@ -147,8 +147,8 @@ export default {
       return csvContent
     },
     downloadCSV (data) {
-      var list = data.map((item) => {
-        var retval = {
+      const list = data.map((item) => {
+        const retval = {
           needed_quantity: item.calculated_quantity,
           ingredient_name: item.ingredient.name,
           measurement: item.ingredient.default_measurement.name,
@@ -170,8 +170,8 @@ export default {
         return retval
       })
 
-      var csvString = this.convertToCsv(list) // defined above
-      var a = document.createElement('a')
+      const csvString = this.convertToCsv(list) // defined above
+      const a = document.createElement('a')
       a.href = 'data:attachment/csv,' + encodeURIComponent(csvString)
       a.target = '_blank'
       a.download = 'shopping_list.csv'
@@ -183,7 +183,7 @@ export default {
     checkboxTicked (ingredient) {
       ingredient.note_loading = true
 
-      this.axios.put(this.services['alastair'] + '/events/' + this.$route.params.id + '/shopping_list/note/' + ingredient.ingredient_id, {note: ingredient.note}).then((response) => {
+      this.axios.put(this.services.alastair + '/events/' + this.$route.params.id + '/shopping_list/note/' + ingredient.ingredient_id, { note: ingredient.note }).then(() => {
         ingredient.note_loading = false
       }).catch((err) => {
         this.$root.showError('Could not tick ingredient', err)
@@ -195,7 +195,7 @@ export default {
         component: ShoppingListDistributionModal,
         hasModalCard: true,
         props: {
-          item: item,
+          item,
           event_id: this.$route.params.id,
           router: this.$router
         }
@@ -206,7 +206,7 @@ export default {
         component: ShoppingListAlternativesModal,
         hasModalCard: true,
         props: {
-          item: item,
+          item,
           event: this.event,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
@@ -225,12 +225,12 @@ export default {
         }
       })
     },
-    fetchData (state) {
+    fetchData () {
       this.isLoading = true
       this.isLoadingEvent = true
       this.isLoadingShoppingList = true
 
-      this.axios.get(this.services['alastair'] + '/events/' + this.$route.params.id).then((response) => {
+      this.axios.get(this.services.alastair + '/events/' + this.$route.params.id).then((response) => {
         this.event = response.data.data
         this.isLoadingEvent = false
         this.isLoading = this.isLoadingEvent || this.isLoadingShoppingList
@@ -238,12 +238,12 @@ export default {
         this.$root.showError('Could not load event details', err)
       })
 
-      this.axios.get(this.services['alastair'] + '/events/' + this.$route.params.id + '/shopping_list/', {params: this.queryObject}).then((response) => {
+      this.axios.get(this.services.alastair + '/events/' + this.$route.params.id + '/shopping_list/', { params: this.queryObject }).then((response) => {
         // Not every ingredient will have a note associated with it
         // Also round values to a sensible value
         this.ingredients = response.data.data.mapped.map((item) => {
           if (item.note === null) {
-            item.note = {ticked: false}
+            item.note = { ticked: false }
           }
           item.chosen_price = Math.round(item.chosen_price * 100) / 100
           item.calculated_quantity = Math.round(item.calculated_quantity * 1000) / 1000

@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('path')
 
 module.exports = {
   lintOnSave: true,
@@ -13,8 +13,8 @@ module.exports = {
         components: path.resolve(__dirname, 'src/components'),
         views: path.resolve(__dirname, 'src/views'),
         // vue-addon
-        'vuex-store': path.resolve(__dirname, 'src/store'),
-      },
+        'vuex-store': path.resolve(__dirname, 'src/store')
+      }
     }
-  },
-};
+  }
+}

@@ -31,14 +31,14 @@
 <script>
 import { mapGetters } from 'vuex'
 
-function flattenObj(obj, parent, res = {}) {
-  for(let key in obj) {
-      let propName = parent ? parent + '.' + key : key
-      if (typeof obj[key] == 'object') {
-          flattenObj(obj[key], propName, res)
-      } else {
-          res[propName] = obj[key]
-      }
+function flattenObj (obj, parent, res = {}) {
+  for (const key in obj) {
+    const propName = parent ? parent + '.' + key : key
+    if (typeof obj[key] === 'object') {
+      flattenObj(obj[key], propName, res)
+    } else {
+      res[propName] = obj[key]
+    }
   }
   return res
 }
@@ -59,7 +59,7 @@ export default {
       services: 'services',
       loginUser: 'user'
     }),
-    flattenedPermissions() {
+    flattenedPermissions () {
       const flattenedObj = flattenObj(this.permissions)
 
       return Object.keys(flattenedObj).map(key => ({
@@ -69,7 +69,7 @@ export default {
     }
   },
   methods: {
-    calculateForValue(value) {
+    calculateForValue (value) {
       return ['tag', 'is-small', value ? 'is-primary' : 'is-danger']
     }
   },

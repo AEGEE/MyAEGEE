@@ -1,5 +1,4 @@
 
-
 <template>
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
@@ -129,8 +128,8 @@ export default {
           // and therefore store, services and notifications functions. That's why
           // I'm passing them as props.
           // More info: https://github.com/buefy/buefy/issues/55
-          ingredient: ingredient,
-          isNewIngredient: isNewIngredient,
+          ingredient,
+          isNewIngredient,
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
@@ -145,18 +144,18 @@ export default {
       this.fetchData()
     },
     fetchPermissions () {
-      this.axios.get(this.services['alastair'] + '/user').then((response) => {
+      this.axios.get(this.services.alastair + '/user').then((response) => {
         this.permissions.superuser = response.data.data.superadmin
       }).catch((err) => {
         this.$root.showError('Could not fetch user permissions from alastair', err)
       })
     },
-    fetchData (state) {
+    fetchData () {
       this.isLoading = true
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['alastair'] + '/ingredients', { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
+      this.axios.get(this.services.alastair + '/ingredients', { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
         this.ingredients = this.ingredients.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit

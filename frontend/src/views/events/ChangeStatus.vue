@@ -73,7 +73,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import constants from  '../../constants'
+import constants from '../../constants'
 
 export default {
   name: 'ChangeEventsStatus',

@@ -43,10 +43,10 @@ const state = {
 }
 
 const mutations = {
-  [types.EXPAND_MENU] (state, menuItem) {
+  [types.EXPAND_MENU] (newState, menuItem) {
     if (menuItem.index > -1 && menuItem.categoryIndex > -1) {
-      if (state.items[menuItem.categoryIndex].components[menuItem.index]) {
-        state.items[menuItem.categoryIndex].components[menuItem.index].expanded = menuItem.expanded
+      if (newState.items[menuItem.categoryIndex].components[menuItem.index]) {
+        newState.items[menuItem.categoryIndex].components[menuItem.index].expanded = menuItem.expanded
       }
     } else if (menuItem.item && 'expanded' in menuItem.item) {
       menuItem.item.expanded = menuItem.expanded

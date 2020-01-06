@@ -72,7 +72,7 @@ export default {
         return this.$root.showError('Please select a partner first.')
       }
 
-      this.axios.post(this.services['oms-discounts'] + '/integrations/' + this.selectedIntegration  + '/claim').then((response) => {
+      this.axios.post(this.services['oms-discounts'] + '/integrations/' + this.selectedIntegration + '/claim').then((response) => {
         this.$root.showSuccess('Code is added.')
 
         // adding integration info
@@ -86,7 +86,7 @@ export default {
       this.canLoadMore = true
       this.fetchData()
     },
-    fetchData (state) {
+    fetchData () {
       this.isLoading = true
 
       this.axios.get(this.services['oms-discounts'] + '/codes/mine').then((response) => {

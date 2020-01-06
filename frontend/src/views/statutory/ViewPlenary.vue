@@ -93,13 +93,13 @@ export default {
   },
   methods: {
     addAttendance () {
-      this.isSaving = false;
+      this.isSaving = false
       this.axios.post(
         this.services['oms-statutory']
           + '/events/' + this.$route.params.id
           + '/plenaries/' + this.$route.params.plenary_id
           + '/attendance/mark',
-          { application_id: this.applicationId }
+        { application_id: this.applicationId }
       ).then((response) => {
         const existingAttendance = this.plenary.attendances.find(attendance => attendance.id === response.data.data.id)
 

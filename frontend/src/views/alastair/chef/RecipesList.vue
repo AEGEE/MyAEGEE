@@ -1,5 +1,4 @@
 
-
 <template>
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
@@ -109,12 +108,12 @@ export default {
       this.canLoadMore = true
       this.fetchData()
     },
-    fetchData (state) {
+    fetchData () {
       this.isLoading = true
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      let url = this.services['alastair'] + (this.$route.params.which === 'mine' ? '/my_recipes' : '/recipes')
+      const url = this.services.alastair + (this.$route.params.which === 'mine' ? '/my_recipes' : '/recipes')
 
       this.axios.get(url, { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
         this.recipes = this.recipes.concat(response.data.data)

@@ -9,9 +9,7 @@ const loggedIn = state => state.login.isLoggedIn
 const user = state => state.login.user
 const permissions = state => state.login.permissions
 const services = state => state.services
-const componententry = state => {
-  return state.menu.items.filter(c => c.meta && c.meta.label === 'Components')[0]
-}
+const componententry = state => state.menu.items.filter(c => c.meta && c.meta.label === 'Components')[0]
 
 export {
   pkg,

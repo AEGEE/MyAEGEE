@@ -365,10 +365,9 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import TimezoneNotification from '../../components/notifications/TimezoneNotification'
-import Mapbox from 'mapbox-gl'
 import { MglMap, MglMarker, MglNavigationControl } from 'vue-mapbox'
-import credentials from  '../../credentials'
+import TimezoneNotification from '../../components/notifications/TimezoneNotification'
+import credentials from '../../credentials'
 
 export default {
   name: 'EditStatutory',
@@ -408,7 +407,7 @@ export default {
         starts: null,
         ends: null
       },
-       map: {
+      map: {
         actions: null,
         style: credentials.MAPS_API_TOKEN,
         center: { lat: 50.8503396, lng: 4.3517103 },
@@ -498,7 +497,7 @@ export default {
         }
       })
     },
-    deleteLocation(index) {
+    deleteLocation (index) {
       this.event.locations.splice(index, 1)
     },
     setMarkerPosition (event, index) {
@@ -553,7 +552,7 @@ export default {
 
       if (this.event.type === 'agora' && !this.event.memberslist_submission_deadline) {
         return this.$root.showError('Please set the members list submission deadline.')
-      } else if (this.event.type !== 'agora') {
+      } if (this.event.type !== 'agora') {
         this.event.memberslist_submission_deadline = null
       }
 
@@ -572,11 +571,11 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      let promise = this.$route.params.id
+      const promise = this.$route.params.id
         ? this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id, this.event)
         : this.axios.post(this.services['oms-statutory'], this.event)
 
-      promise.then((response) => {
+      promise.then(() => {
         this.isSaving = false
         this.$root.showSuccess('Event is saved.')
 
@@ -605,30 +604,30 @@ export default {
     loginUser: 'user'
   }),
   watch: {
-    'event.name' (newName) {
+    'event.name': function (newName) {
       if (!this.$route.params.id) {
         this.event.url = this.$root.sluggify(newName)
       }
     },
-    'dates.application_period_starts' (newDate) {
+    'dates.application_period_starts': function (newDate) {
       this.event.application_period_starts = new Date(newDate)
     },
-    'dates.application_period_ends' (newDate) {
+    'dates.application_period_ends': function (newDate) {
       this.event.application_period_ends = new Date(newDate)
     },
-    'dates.board_approve_deadline' (newDate) {
+    'dates.board_approve_deadline': function (newDate) {
       this.event.board_approve_deadline = new Date(newDate)
     },
-    'dates.participants_list_publish_deadline' (newDate) {
+    'dates.participants_list_publish_deadline': function (newDate) {
       this.event.participants_list_publish_deadline = new Date(newDate)
     },
-    'dates.memberslist_submission_deadline' (newDate) {
+    'dates.memberslist_submission_deadline': function (newDate) {
       this.event.memberslist_submission_deadline = new Date(newDate)
     },
-    'dates.starts' (newDate) {
+    'dates.starts': function (newDate) {
       this.event.starts = new Date(newDate)
     },
-    'dates.ends' (newDate) {
+    'dates.ends': function (newDate) {
       this.event.ends = new Date(newDate)
     }
   },
@@ -668,7 +667,7 @@ export default {
       } else {
         this.$root.showError('Some error happened', err)
       }
-      
+
       this.$router.push({ name: 'oms.statutory.list.all' })
     })
   }

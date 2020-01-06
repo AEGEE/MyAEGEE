@@ -70,7 +70,7 @@ export default {
       })
     },
     deleteCategory (index) {
-      this.axios.delete(this.services['oms-discounts'] + '/categories/' + this.categories[index].id).then((response) => {
+      this.axios.delete(this.services['oms-discounts'] + '/categories/' + this.categories[index].id).then(() => {
         this.$root.showSuccess('Category is deleted.')
         this.categories.splice(index, 1)
       }).catch((err) => this.$root.showError('Could not delete category', err))
@@ -79,7 +79,7 @@ export default {
       this.integrations = []
       this.fetchData()
     },
-    fetchData (state) {
+    fetchData () {
       this.isLoading = true
 
       this.axios.get(this.services['oms-discounts'] + '/categories').then((response) => {

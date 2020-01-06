@@ -21,7 +21,7 @@
             <span v-html="$options.filters.markdown(recipe.description)" />
           </div>
           <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ') }}</p>
-        </div>        
+        </div>
 
         <div class="field">
           <label class="label">Instructions</label>
@@ -121,7 +121,7 @@
             <input type="button" value="Publish recipe" :disabled="isSaving || isLoading || !recipe.id" v-on:click="publishRecipe(true)" v-if="!recipe.published" class="button is-warning is-fullwidth" />
             <input type="button" value="Unpublish recipe" :disabled="isSaving || isLoading" v-on:click="publishRecipe(false)" v-if="recipe.published" class="button is-warning is-fullwidth" />
           </div>
-        </div> 
+        </div>
         <div class="field">
           <div class="control">
             <input type="button" value="Delete recipe" :disabled="isSaving || isLoading || !can.delete_recipe" v-on:click="askDeleteRecipe" class="button is-danger is-fullwidth"/>
@@ -165,7 +165,7 @@ export default {
       if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['alastair'] + '/ingredients', {
+      this.axios.get(this.services.alastair + '/ingredients', {
         cancelToken: this.token.token,
         params: { query: this.addedIngredientName, limit: 20 }
       }).then((response) => {
@@ -201,9 +201,9 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      let promise = this.$route.params.id
-        ? this.axios.put(this.services['alastair'] + '/recipes/' + this.$route.params.id, {recipe: this.recipe})
-        : this.axios.post(this.services['alastair'] + '/recipes/', {recipe: this.recipe})
+      const promise = this.$route.params.id
+        ? this.axios.put(this.services.alastair + '/recipes/' + this.$route.params.id, { recipe: this.recipe })
+        : this.axios.post(this.services.alastair + '/recipes/', { recipe: this.recipe })
 
       promise.then((response) => {
         this.isSaving = false
@@ -228,7 +228,7 @@ export default {
     askDeleteRecipe () {
       this.$buefy.dialog.confirm({
         title: 'Deleting an recipe',
-        message: `Are you sure you want to <b>delete this recipe</b>?`,
+        message: 'Are you sure you want to <b>delete this recipe</b>?',
         confirmText: 'Delete recipe',
         type: 'is-danger',
         hasIcon: true,
@@ -236,26 +236,26 @@ export default {
       })
     },
     deleteRecipe () {
-      this.axios.delete(this.services['alastair'] + '/recipes/' + this.$route.params.id).then((response) => {
+      this.axios.delete(this.services.alastair + '/recipes/' + this.$route.params.id).then(() => {
         this.$root.showInfo('Recipe is deleted.')
         this.$router.push({ name: 'oms.alastair.chef.recipe.list' })
       }).catch((err) => this.$root.showError('Could not delete recipe', err))
     }
   },
-  computed: mapGetters({services: 'services'}),
+  computed: mapGetters({ services: 'services' }),
   mounted () {
     if (!this.$route.params.id) {
       return
     }
 
     this.isLoading = true
-    this.axios.get(this.services['alastair'] + '/recipes/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services.alastair + '/recipes/' + this.$route.params.id).then((response) => {
       this.recipe = response.data.data
       this.can = response.data.meta.permissions
 
       if (!this.can.edit_recipe) {
         this.$root.showError('You don\'t have permission to edit this recipe')
-        this.$router.push({name: 'oms.alastair.chef.recipe.single', params: {id: this.recipe.id}})
+        this.$router.push({ name: 'oms.alastair.chef.recipe.single', params: { id: this.recipe.id } })
       }
 
       this.isLoading = false

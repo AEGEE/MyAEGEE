@@ -303,7 +303,7 @@ export default {
     setCancelled (value) {
       this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.application.id + '/cancel', {
         cancelled: value
-      }).then((response) => {
+      }).then(() => {
         this.application.cancelled = value
         this.$root.showInfo(value ? 'Application is cancelled.' : 'Application is uncancelled.')
       }).catch((err) => this.$root.showError('Could not cancel application', err))

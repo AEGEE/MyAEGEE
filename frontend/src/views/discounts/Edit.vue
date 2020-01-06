@@ -91,11 +91,11 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      let promise = this.$route.params.id
+      const promise = this.$route.params.id
         ? this.axios.put(this.services['oms-discounts'] + '/integrations/' + this.$route.params.id, this.integration)
         : this.axios.post(this.services['oms-discounts'] + '/integrations/', this.integration)
 
-      promise.then((response) => {
+      promise.then(() => {
         this.isSaving = false
 
         this.$root.showSuccess('Integration is saved.')

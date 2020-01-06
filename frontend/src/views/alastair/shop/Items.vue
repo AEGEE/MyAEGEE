@@ -121,22 +121,22 @@ export default {
       this.fetchItems()
     },
     fetchShop () {
-      this.axios.get(this.services['alastair'] + '/shops/' + this.$route.params.id).then((response) => {
+      this.axios.get(this.services.alastair + '/shops/' + this.$route.params.id).then((response) => {
         this.shop = response.data.data
 
-        return this.axios.get(this.services['alastair'] + '/shops/' + this.$route.params.id + '/user').then((response) => {
-          this.permissions = response.data.data
+        return this.axios.get(this.services.alastair + '/shops/' + this.$route.params.id + '/user').then((userResponse) => {
+          this.permissions = userResponse.data.data
         })
       }).catch((err) => {
         this.$root.showError('Could not fetch shop details', err)
       })
     },
-    fetchItems (state) {
+    fetchItems () {
       this.isLoading = true
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['alastair'] + '/shops/' + this.$route.params.id + '/shopping_items', { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
+      this.axios.get(this.services.alastair + '/shops/' + this.$route.params.id + '/shopping_items', { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
         this.items = this.items.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit

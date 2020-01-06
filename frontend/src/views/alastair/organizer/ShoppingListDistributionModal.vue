@@ -39,7 +39,7 @@ export default {
     // router-link doesn't work because the component has no access to this.$router, so we have to reimplement that functionality
     goToMeal (meal) {
       this.$parent.close()
-      this.router.push({name: 'oms.alastair.organizer.meal.single', params: {id: meal.id, event_id: this.event_id}})
+      this.router.push({ name: 'oms.alastair.organizer.meal.single', params: { id: meal.id, event_id: this.event_id } })
     }
   }
 }

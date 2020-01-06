@@ -36,7 +36,7 @@ export default {
       object[key] = null
     }
   },
-  showError(message, error) {
+  showError (message, error) {
     if (!error) {
       return this.showDanger(message)
     }

@@ -84,13 +84,13 @@ export default {
     }
   },
   watch: {
-    'dates.starts' (newDate) {
+    'dates.starts': function (newDate) {
       this.position.starts = new Date(newDate)
     },
-    'dates.ends' (newDate) {
+    'dates.ends': function (newDate) {
       this.position.ends = new Date(newDate)
     },
-    'dates.ends_force' (newDate) {
+    'dates.ends_force': function (newDate) {
       this.position.ends_force = new Date(newDate)
     }
   },
@@ -107,7 +107,7 @@ export default {
         ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.event.id + '/positions/', this.position)
         : this.axios.put(this.services['oms-statutory'] + '/events/' + this.event.id + '/positions/' + this.position.id, this.position)
 
-      action.then((response) => {
+      action.then(() => {
         this.showSuccess('Position is created.')
 
         this.isLoading = false
@@ -119,7 +119,7 @@ export default {
         } else {
           this.showError('Some error happened', err)
         }
-        
+
         if (err.response && err.response.data && err.response.data.errors) this.errors = err.response.data.errors
       })
     }

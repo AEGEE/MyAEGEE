@@ -91,7 +91,7 @@ export default {
         return
       }
 
-      let obj = { user: {} }
+      const obj = { user: {} }
       for (const key of Object.keys(this.user)) if (this.user[key]) obj.user[key] = this.user[key]
       if (this.user.password) {
         obj.old_password = this.old_password
@@ -100,7 +100,7 @@ export default {
       }
 
       this.isSaving = true
-      this.axios.put(this.services['oms-core-elixir'] + '/user/', obj).then((response) => {
+      this.axios.put(this.services['oms-core-elixir'] + '/user/', obj).then(() => {
         this.isSaving = false
 
         this.$root.showSuccess('User is saved.')

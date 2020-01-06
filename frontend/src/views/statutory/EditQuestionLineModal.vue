@@ -42,7 +42,7 @@ export default {
         ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.event.id + '/question-lines/', this.questionLine)
         : this.axios.put(this.services['oms-statutory'] + '/events/' + this.event.id + '/question-lines/' + this.questionLine.id, this.questionLine)
 
-      action.then((response) => {
+      action.then(() => {
         this.showSuccess('Question line is created.')
 
         this.isLoading = false
@@ -54,13 +54,13 @@ export default {
         } else {
           this.showError('Some error happened', err)
         }
-        
+
         if (err.response && err.response.data && err.response.data.errors) this.errors = err.response.data.errors
       })
     }
   },
   mounted () {
-    
+
   }
 }
 </script>

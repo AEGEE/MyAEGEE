@@ -16,11 +16,11 @@ function install (Vue, options = {}) {
     }
   })
 
-  options = Object.assign({}, defaults, options)
+  options = { ...defaults, ...options }
 
   Vue.mixin({
     beforeCreate () {
-      let np = this.$options.nprogress
+      const np = this.$options.nprogress
 
       if (!np) {
         return
@@ -28,7 +28,7 @@ function install (Vue, options = {}) {
 
       let requestsTotal = 0
       let requestsCompleted = 0
-      let { latencyThreshold, router: applyOnRouter, http: applyOnHttp } = options
+      const { latencyThreshold, router: applyOnRouter, http: applyOnHttp } = options
       let confirmed = true
 
       function setComplete () {
@@ -79,9 +79,7 @@ function install (Vue, options = {}) {
             if (!('showProgressBar' in request)) request.showProgressBar = applyOnHttp
             if (request.showProgressBar) initProgress()
             return request
-          }, (error) => {
-            return Promise.reject(error)
-          })
+          }, (error) => Promise.reject(error))
 
           axios.interceptors.response.use((response) => {
             if (response.config.showProgressBar) increase()

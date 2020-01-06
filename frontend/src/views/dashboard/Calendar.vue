@@ -60,13 +60,13 @@ export default {
         es: '#000000',
         agora: '#FFFFFF',
         epm: '#FFFFFF',
-        spm: '#FFFFFF',
+        spm: '#FFFFFF'
       },
       constants,
       isLoading: false,
       currentMonthStart: null,
       currentMonthEnd: null,
-      calendarPlugins: [ dayGridPlugin ]
+      calendarPlugins: [dayGridPlugin]
     }
   },
   methods: {
@@ -127,4 +127,3 @@ export default {
   }
 }
 </script>
-

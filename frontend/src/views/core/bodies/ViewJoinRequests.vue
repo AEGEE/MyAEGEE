@@ -108,10 +108,10 @@ export default {
   methods: {
     askSetMemberApproved (member, approved) {
       const title = (approved ? 'Approve' : 'Reject') + ' ' + member.member.first_name + ' ' + member.member.last_name
-      const message = 'Are you sure you want to <b>' +
-        (approved ? 'approve' : 'reject') +
-        '</b> ' +
-        member.member.first_name + ' ' + member.member.last_name + '?'
+      const message = 'Are you sure you want to <b>'
+        + (approved ? 'approve' : 'reject')
+        + '</b> '
+        + member.member.first_name + ' ' + member.member.last_name + '?'
       const type = approved ? 'is-info' : 'is-danger'
 
       this.$buefy.dialog.confirm({
@@ -126,7 +126,7 @@ export default {
     setMemberApproved (member, approved) {
       this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/join_requests/' + member.id, {
         approved
-      }).then((response) => {
+      }).then(() => {
         this.$root.showSuccess('Join request is ' + (approved ? 'approved' : 'rejected') + '.')
         if (approved) {
           member.approved = true

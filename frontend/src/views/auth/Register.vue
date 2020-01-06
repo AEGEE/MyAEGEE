@@ -126,7 +126,7 @@ export default {
 
       this.axios.post(this.services['oms-core-elixir'] + '/campaigns/' + this.$route.params.id, {
         submission: this.submission
-      }).then((res) => {
+      }).then(() => {
         this.$root.showSuccess('Your submission is registered.')
         return this.$router.push({ name: 'oms.confirm_token' })
       }).catch((err) => {

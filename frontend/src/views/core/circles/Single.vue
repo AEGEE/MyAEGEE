@@ -169,14 +169,14 @@ export default {
       })
     },
     deleteCircle () {
-      this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.circle.id).then((response) => {
+      this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.circle.id).then(() => {
         this.$root.showInfo('Circle is deleted.')
         this.$router.push({ name: 'oms.circles.list' })
       }).catch((err) => this.$root.showError('Could not delete circle', err))
     },
     joinCircle () {
       this.isLoading = true
-      this.axios.post(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members').then((response) => {
+      this.axios.post(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members').then(() => {
         this.$root.showSuccess('Successfully joined circle.')
         this.can.join = false
         this.isMember = true
@@ -203,7 +203,7 @@ export default {
     },
     leaveCircle () {
       this.isLoading = true
-      this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members').then((response) => {
+      this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members').then(() => {
         this.$root.showSuccess('Successfully left circle.')
         this.can.join = true
         this.isMember = false
@@ -241,22 +241,23 @@ export default {
         this.inheritedPermissions = response.data.data
 
         this.isLoading = false
-      }).catch((err) => {
-        if (err.response.status === 404) {
-          this.$root.showError('Circle is not found')
-        } else {
-          this.$root.showError('Some error happened', err)
-        }
-
-        this.$router.push({ name: 'oms.circles.list' })
       })
+        .catch((err) => {
+          if (err.response.status === 404) {
+            this.$root.showError('Circle is not found')
+          } else {
+            this.$root.showError('Some error happened', err)
+          }
+
+          this.$router.push({ name: 'oms.circles.list' })
+        })
     }
   },
   mounted () {
     this.loadData(this.$route.params.id)
   },
   watch: {
-    '$route.params.id' (newId, oldId) {
+    '$route.params.id': function (newId) {
       this.loadData(newId)
     }
   },

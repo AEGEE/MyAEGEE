@@ -96,7 +96,7 @@ export default {
       this.canLoadMore = true
       this.fetchData()
     },
-    fetchData (state) {
+    fetchData () {
       this.isLoading = true
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()

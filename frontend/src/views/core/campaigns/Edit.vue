@@ -134,7 +134,7 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      let promise = this.$route.params.id
+      const promise = this.$route.params.id
         ? this.axios.put(this.services['oms-core-elixir'] + '/backend_campaigns/' + this.$route.params.id, { campaign: this.campaign })
         : this.axios.post(this.services['oms-core-elixir'] + '/backend_campaigns/', { campaign: this.campaign })
 

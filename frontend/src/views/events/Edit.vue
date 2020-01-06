@@ -480,10 +480,9 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import Mapbox from 'mapbox-gl'
 import { MglMap, MglMarker, MglNavigationControl } from 'vue-mapbox'
-import constants from  '../../constants'
-import credentials from  '../../credentials'
+import constants from '../../constants'
+import credentials from '../../credentials'
 import TimezoneNotification from '../../components/notifications/TimezoneNotification'
 
 export default {
@@ -578,24 +577,26 @@ export default {
       // Otherwise, fetch all of the members of the bodies this user is a member of.
       const endpoints = this.can.viewAllMembers
         ? [this.services['oms-core-elixir'] + '/members']
-        : this.loginUser.bodies.map(body => this.services['oms-core-elixir'] + '/bodies/' + body.id +  '/members')
+        : this.loginUser.bodies.map(body => this.services['oms-core-elixir'] + '/bodies/' + body.id + '/members')
 
-      Promise.all(endpoints.map(endpoint => {
-        // Ignoring the requests that failed (because of 403 most likely)
-        // since the user does not always has the permissions to see
-        // the members of the body.
-        return this.axios.get(endpoint, {
-          cancelToken: this.token.token,
-          params: { query }
-        }).then(res => res.data.data).catch(() => [])
-      })).then((responses) => {
-        // Merging all of the responses into one array.
-        // Then filtering out duplicate users.
-        // .map is there because the /bodies/:id/members returns users, not members.
+      // Ignoring the requests that failed (because of 403 most likely)
+      // since the user does not always has the permissions to see
+      // the members of the body.
+      const fetchEndpoint = (endpoint) => this.axios.get(endpoint, {
+        cancelToken: this.token.token,
+        params: { query }
+      }).then(res => res.data.data).catch(() => [])
+
+
+      // Merging all of the responses into one array.
+      // Then filtering out duplicate users.
+      // .map is there because the /bodies/:id/members returns users, not members.
+      Promise.all(endpoints.map(fetchEndpoint)).then((responses) => {
         this.autoComplete.members.values = responses
           .reduce((acc, val) => acc.concat(val), [])
-          .map(value => this.can.viewAllMembers ? value : value.member)
+          .map(value => (this.can.viewAllMembers ? value : value.member))
           .filter((elt, index, array) => array.findIndex(e => e.id === elt.id) === index)
+
         this.autoComplete.members.loading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
@@ -644,7 +645,7 @@ export default {
         }
       })
     },
-    deleteLocation(index) {
+    deleteLocation (index) {
       this.event.locations.splice(index, 1)
     },
     setMarkerPosition (event, index) {
@@ -653,7 +654,7 @@ export default {
       this.event.locations[index].position.lat = newCoords.lat
       this.event.locations[index].position.lng = newCoords.lng
     },
-    addOrganizingBody() {
+    addOrganizingBody () {
       if (!this.selectedBody) {
         this.$root.showWarning('Please select a body.')
         return
@@ -703,7 +704,7 @@ export default {
       eventToSave.organizing_bodies = eventToSave.organizing_bodies.map(body => ({ body_id: body.body_id }))
       eventToSave.organizers = eventToSave.organizers.map(org => ({ user_id: org.user_id }))
 
-      let promise = this.$route.params.id
+      const promise = this.$route.params.id
         ? this.axios.put(this.services['oms-events'] + '/single/' + this.$route.params.id, eventToSave)
         : this.axios.post(this.services['oms-events'], eventToSave)
 
@@ -755,21 +756,21 @@ export default {
     loginUser: 'user'
   }),
   watch: {
-    'event.name' (newName) {
+    'event.name': function (newName) {
       if (!this.$route.params.id) {
         this.event.url = this.$root.sluggify(newName)
       }
     },
-    'dates.application_starts' (newDate) {
+    'dates.application_starts': function (newDate) {
       this.event.application_starts = new Date(newDate)
     },
-    'dates.application_ends' (newDate) {
+    'dates.application_ends': function (newDate) {
       this.event.application_ends = new Date(newDate)
     },
-    'dates.starts' (newDate) {
+    'dates.starts': function (newDate) {
       this.event.starts = new Date(newDate)
     },
-    'dates.ends' (newDate) {
+    'dates.ends': function (newDate) {
       this.event.ends = new Date(newDate)
     }
   },

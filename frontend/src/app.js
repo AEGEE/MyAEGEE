@@ -1,3 +1,5 @@
+/* eslint no-use-before-define: 0 */
+
 import Vue from 'vue'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
@@ -60,7 +62,9 @@ router.beforeEach((to, from, next) => {
     console.debug('User is fetched, skipping.')
     document.title = 'MyAEGEE | ' + to.meta.label
     return next()
-  } else if (!from.name) {
+  }
+
+  if (!from.name) {
     console.debug('First time loading page, need to fetch user in any way.')
   } else if (to.name === 'oms.login') {
     console.debug('Going to /login anyway, no need to fetch user.')
@@ -69,7 +73,7 @@ router.beforeEach((to, from, next) => {
     console.debug('Going from /login, need to fetch user.')
   } else if (to.meta.auth) {
     console.debug('Going to auth only page without user fetched, need to fetch user.')
-  } else{
+  } else {
     console.debug('Going to page with unauthorized access, no need to fetch anything.')
     return next()
   }
@@ -77,7 +81,7 @@ router.beforeEach((to, from, next) => {
   // Fetching user if not fetched.
   return router.app.$auth.fetchUserWithExistingData().then(() => {
     if (!state.login.isLoggedIn && to.meta.auth) {
-      throw new Error('Trying to access the auth-only page while being unauthorized.');
+      throw new Error('Trying to access the auth-only page while being unauthorized.')
     }
 
     document.title = 'MyAEGEE | ' + to.meta.label
@@ -103,7 +107,7 @@ axios.interceptors.request.use(config => {
 axios.interceptors.response.use(
   response => response, // success handler
   error => {
-    let originalRequest = error.config
+    const originalRequest = error.config
     if (axios.isCancel(error) || !error.response || error.response.status !== 401 || originalRequest._retry) {
       return Promise.reject(error)
     }

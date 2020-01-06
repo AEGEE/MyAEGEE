@@ -76,7 +76,7 @@ export default {
     askDeleteIngredient () {
       this.$buefy.dialog.confirm({
         title: 'Deleting an ingredient',
-        message: `Are you sure you want to <b>delete this ingredient</b>?`,
+        message: 'Are you sure you want to <b>delete this ingredient</b>?',
         confirmText: 'Delete ingredient',
         type: 'is-danger',
         hasIcon: true,
@@ -84,7 +84,7 @@ export default {
       })
     },
     deleteIngredient () {
-      this.axios.delete(this.services['alastair'] + '/ingredients/' + this.ingredient.id).then((response) => {
+      this.axios.delete(this.services.alastair + '/ingredients/' + this.ingredient.id).then(() => {
         this.showSuccess('Ingredient is deleted.')
         this.$parent.close()
         this.reload()
@@ -102,7 +102,7 @@ export default {
       if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['alastair'] + '/measurements', {
+      this.axios.get(this.services.alastair + '/measurements', {
         cancelToken: this.token.token,
         params: { query: this.addedMeasurementName, limit: 30 }
       }).then((response) => {
@@ -122,12 +122,12 @@ export default {
       this.isLoading = true
       let promise = null
       if (this.isNewIngredient) {
-        promise = this.axios.post(this.services['alastair'] + '/ingredients/', { ingredient: this.ingredient })
+        promise = this.axios.post(this.services.alastair + '/ingredients/', { ingredient: this.ingredient })
       } else {
-        promise = this.axios.put(this.services['alastair'] + '/ingredients/' + this.ingredient.id, { ingredient: this.ingredient })
+        promise = this.axios.put(this.services.alastair + '/ingredients/' + this.ingredient.id, { ingredient: this.ingredient })
       }
 
-      promise.then((response) => {
+      promise.then(() => {
         this.showSuccess('Ingredient was saved.')
 
         this.isLoading = false

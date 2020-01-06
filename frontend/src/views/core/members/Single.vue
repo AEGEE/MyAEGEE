@@ -210,7 +210,7 @@ export default {
       })
     },
     deleteUser () {
-      this.axios.delete(this.services['oms-core-elixir'] + '/user/' + this.user.user.id).then((response) => {
+      this.axios.delete(this.services['oms-core-elixir'] + '/user/' + this.user.user.id).then(() => {
         this.$root.showSuccess('User is deleted.')
         this.$router.push({ name: 'oms.members.list' })
       }).catch((err) => this.$root.showError('Could not delete user', err))
@@ -273,7 +273,7 @@ export default {
     }
   },
   watch: {
-    '$route.params.id' () {
+    '$route.params.id': function () {
       this.fetchUser()
     }
   },

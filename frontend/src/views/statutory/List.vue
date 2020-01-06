@@ -131,7 +131,7 @@ export default {
       this.canLoadMore = true
       this.fetchData()
     },
-    fetchData (state) {
+    fetchData () {
       this.isLoading = true
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
@@ -145,8 +145,7 @@ export default {
       }).then((response) => {
         this.permissions = response.data.data
 
-        this.can.create = this.permissions.some(permission =>
-          permission.combined.endsWith('manage_event:agora') || permission.combined.endsWith('manage_event:epm'))
+        this.can.create = this.permissions.some(permission => permission.combined.endsWith('manage_event:agora') || permission.combined.endsWith('manage_event:epm'))
         this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
@@ -158,7 +157,7 @@ export default {
     }
   },
   watch: {
-    '$route.name' () {
+    '$route.name': function () {
       this.fetchData()
     }
   },

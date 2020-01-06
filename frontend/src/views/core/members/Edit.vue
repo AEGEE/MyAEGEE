@@ -136,7 +136,7 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      this.axios.put(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id, { member: this.user }).then((response) => {
+      this.axios.put(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id, { member: this.user }).then(() => {
         this.isSaving = false
 
         this.$root.showSuccess('User is saved.')

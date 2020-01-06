@@ -100,7 +100,7 @@ export default {
       })
     },
     exportAll () {
-      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/plenaries/stats/' , {
+      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/plenaries/stats/', {
         responseType: 'blob'
       }).then(response => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
@@ -110,7 +110,7 @@ export default {
         document.body.appendChild(link)
         link.click()
       })
-    },
+    }
   },
   mounted () {
     this.isLoading = true
