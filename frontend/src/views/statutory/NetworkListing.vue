@@ -142,7 +142,7 @@ export default {
       this.offset = (page - 1) * this.limit
       this.loadApplications()
     },
-    onSort(field, order) {
+    onSort (field, order) {
       this.sort = { field, order }
       this.loadApplications()
     },
@@ -152,7 +152,7 @@ export default {
       this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
         this.event = event.data.data
 
-        return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/network', { params: this.queryObject})
+        return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/network', { params: this.queryObject })
       }).then((application) => {
         this.applications = application.data.data
         this.total = application.data.meta.count
@@ -170,7 +170,7 @@ export default {
         } else {
           this.$root.showError('Some error happened', err)
         }
-        
+
         this.$router.push({ name: 'oms.statutory.list.all' })
       })
     }

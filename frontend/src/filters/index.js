@@ -1,6 +1,6 @@
 import moment from 'moment'
 import marked from 'marked'
-import DOMPurify from 'dompurify';
+import DOMPurify from 'dompurify'
 
 export default {
   date (value) {

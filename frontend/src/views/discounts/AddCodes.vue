@@ -49,12 +49,12 @@ export default {
   methods: {
     addCodes () {
       if (!this.codes.length) {
-        return this.$root.showError('Please add at least 1 not empty code.');
+        return this.$root.showError('Please add at least 1 not empty code.')
       }
 
       this.isSaving = true
 
-      this.axios.post(this.services['oms-discounts'] + '/integrations/' + this.integration.id + '/codes', this.codes).then((response) => {
+      this.axios.post(this.services['oms-discounts'] + '/integrations/' + this.integration.id + '/codes', this.codes).then(() => {
         this.isSaving = false
 
         this.$root.showSuccess('Codes are added.')

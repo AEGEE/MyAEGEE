@@ -104,11 +104,11 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      let promise = this.$route.params.id
+      const promise = this.$route.params.id
         ? this.axios.put(this.services['oms-discounts'] + '/categories/' + this.$route.params.id, this.category)
         : this.axios.post(this.services['oms-discounts'] + '/categories/', this.category)
 
-      promise.then((response) => {
+      promise.then(() => {
         this.isSaving = false
 
         this.$root.showSuccess('Category is saved.')

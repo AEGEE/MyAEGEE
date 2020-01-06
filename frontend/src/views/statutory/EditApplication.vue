@@ -443,7 +443,7 @@ export default {
     setCancelled (value) {
       this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.application.id + '/cancel', {
         cancelled: value
-      }).then((response) => {
+      }).then(() => {
         this.application.cancelled = value
         this.$root.showInfo(value ? 'Application is cancelled.' : 'Application is uncancelled.')
       }).catch((err) => this.$root.showError('Could not cancel application', err))
@@ -459,7 +459,7 @@ export default {
     }
   },
   watch: {
-    'application.visa_required' (val) {
+    'application.visa_required': function (val) {
       if (!val) {
         this.application.visa_passport_number = ''
         this.application.visa_place_of_birth = ''
@@ -484,14 +484,14 @@ export default {
       // Prefilling default values for application answers
       this.application.answers = Array.from({ length: this.event.questions.length }, (value, index) => {
         switch (this.event.questions[index].type) {
-          case 'number':
-            return 0
-          case 'checkbox':
-            return false
-          case 'select':
-            return this.event.questions[index].values[0]
-          default:
-            return ''
+        case 'number':
+          return 0
+        case 'checkbox':
+          return false
+        case 'select':
+          return this.event.questions[index].values[0]
+        default:
+          return ''
         }
       })
 

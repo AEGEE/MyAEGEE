@@ -19,9 +19,25 @@ module.exports = {
     'semi': ['error', 'never'],
     'max-len': 'off',
     'comma-dangle': ['error', 'never'],
-    'prefer-template': 'off'
+    'prefer-template': 'off',
+    'object-curly-newline': 'off',
+    'arrow-parens': 'off',
+    'space-before-function-paren': ['error', 'always'],
+    'no-plusplus': 'off',
+    'consistent-return': 'off',
+    'no-continue': 'off',
+    'no-param-reassign': 'off',
+    'import/extensions': 'off',
+    'no-mixed-operators': 'off',
+    'no-multi-assign': 'off',
+    'func-names': 'off',
+    'guard-for-in': 'off',
+    'prefer-destructuring': 'off',
+    'no-underscore-dangle': 'off',
+    'no-await-in-loop': 'off',
+    'no-prototype-builtins': 'off'
   },
   parserOptions: {
     parser: 'babel-eslint',
-  },
-};
+  }
+}

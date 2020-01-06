@@ -112,7 +112,7 @@
 <script>
 import moment from 'moment'
 import { mapGetters } from 'vuex'
-import constants from  '../../constants'
+import constants from '../../constants'
 
 export default {
   name: 'EventsList',
@@ -181,7 +181,7 @@ export default {
       this.canLoadMore = true
       this.fetchData()
     },
-    fetchData (state) {
+    fetchData () {
       this.isLoading.events = true
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
@@ -215,19 +215,19 @@ export default {
 
       this.isLoading.permissions = true
 
-      this.axios.get(this.services['oms-core-elixir'] + '/my_permissions',).then((response) => {
+      this.axios.get(this.services['oms-core-elixir'] + '/my_permissions').then((response) => {
         this.can.createEvent = response.data.data.some(permission => permission.combined.endsWith('create:event'))
 
         this.isLoading.permissions = false
       }).catch((err) => {
         this.isLoading.permissions = false
 
-        this.$root.showWarning('Could not fetch permissions')
+        this.$root.showWarning('Could not fetch permissions', err)
       })
     }
   },
   watch: {
-    '$route.name' () {
+    '$route.name': function () {
       this.refetch()
     }
   },

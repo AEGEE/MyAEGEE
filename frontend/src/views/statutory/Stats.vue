@@ -274,7 +274,7 @@ export default {
         maintainAspectRatio: false,
         title: {
           display: true,
-          label: `Applications by number of ${this.eventTypePluralized} visited`,
+          label: `Applications by number of ${this.eventTypePluralized} visited`
         },
         legend: {
           position: 'right'
@@ -302,11 +302,11 @@ export default {
         }
       }
     },
-    eventTypePluralized() {
+    eventTypePluralized () {
       const eventTypePlural = {
         agora: 'Agorae',
         epm: 'EPMs',
-        spm: 'SPMs',
+        spm: 'SPMs'
       }
 
       return eventTypePlural[this.event.type]
@@ -315,9 +315,7 @@ export default {
   methods: {
     byBodyData () {
       return {
-        labels: this.stats.by_body.map(s => {
-          return `${s.body ? s.body.name : s.body_id} (${s.value})`
-        }),
+        labels: this.stats.by_body.map(s => `${s.body ? s.body.name : s.body_id} (${s.value})`),
         datasets: [{
           label: 'Applications by body',
           backgroundColor: this.colors,
@@ -380,22 +378,22 @@ export default {
     }).then((bodies) => {
       this.bodies = bodies.data.data
       for (const stat of this.stats.by_body) {
-        const body = this.bodies.find(body => stat.type === body.id)
+        const body = this.bodies.find(b => stat.type === b.id)
         if (body) {
           this.$set(stat, 'body', body)
         }
       }
 
       this.isLoading = false
-    }).catch((err) => {
-      this.isLoading = false
-      if (err.response.status === 404) {
-        this.$root.showError('Application is not found')
-      } else {
-        this.$root.showError('Some error happened', err)
-      }
-
     })
+      .catch((err) => {
+        this.isLoading = false
+        if (err.response.status === 404) {
+          this.$root.showError('Application is not found')
+        } else {
+          this.$root.showError('Some error happened', err)
+        }
+      })
   }
 }
 </script>

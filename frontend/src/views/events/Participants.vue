@@ -94,7 +94,7 @@ export default {
     }
   },
   methods: {
-    exportAll (prefix) {
+    exportAll () {
       this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/export/', {
         responseType: 'blob'
       }).then(response => {
@@ -108,14 +108,14 @@ export default {
     },
     calculateClassForApplication (pax) {
       switch (pax.status) {
-        case 'accepted':
-          return 'has-background-success'
-        case 'rejected':
-          return 'has-background-danger'
-        case 'waiting_list':
-          return 'has-background-warning'
-        default:
-          return ''
+      case 'accepted':
+        return 'has-background-success'
+      case 'rejected':
+        return 'has-background-danger'
+      case 'waiting_list':
+        return 'has-background-warning'
+      default:
+        return ''
       }
     },
     switchPaxStatus (pax) {

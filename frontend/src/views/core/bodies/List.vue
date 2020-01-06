@@ -128,7 +128,7 @@ export default {
       this.canLoadMore = true
       this.fetchData()
     },
-    fetchData (state) {
+    fetchData () {
       this.isLoading = true
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
@@ -139,15 +139,14 @@ export default {
         this.canLoadMore = response.data.data.length === this.limit
 
         if (this.loginUser) {
-          return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions').then((response) => {
-            this.permissions = response.data.data
+          return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions').then((permissionsResponse) => {
+            this.permissions = permissionsResponse.data.data
 
             this.can.create = this.permissions.some(permission => permission.combined.endsWith('create:body'))
             this.isLoading = false
           })
-        } else {
-          this.isLoading = false
         }
+        this.isLoading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {
           return

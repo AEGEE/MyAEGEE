@@ -255,14 +255,14 @@ export default {
       // Prefilling default values for application answers
       this.application.answers = Array.from({ length: this.event.questions.length }, (value, index) => {
         switch (this.event.questions[index].type) {
-          case 'number':
-            return 0
-          case 'checkbox':
-            return false
-          case 'select':
-            return this.event.questions[index].values[0]
-          default:
-            return ''
+        case 'number':
+          return 0
+        case 'checkbox':
+          return false
+        case 'select':
+          return this.event.questions[index].values[0]
+        default:
+          return ''
         }
       })
 

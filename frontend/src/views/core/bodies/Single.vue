@@ -10,15 +10,66 @@
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info">
-          <div v-for="(item, index) in actions" v-bind:key="index" class="field is-grouped" v-if="checkPermissions(item.permission)">
-            <a v-if="item.type !== 'link'" @click="item.action(item.name)" :class="['button', 'is-fullwidth', item.class]">
-              <span class="field-icon icon"><i :class="['fas fa-' + item.icon]"></i></span>
-              <span class="field-label">{{ item.label }}</span>
-            </a>
-            <router-link v-if="item.type === 'link'" :to="{ name: item.name, params: item.params() || {} }" :class="['button', 'is-fullwidth', item.class]">
-              <span class="field-icon icon"><i :class="['fas fa-' + item.icon]"></i></span>
-              <span class="field-label">{{ item.label }}</span>
+          <div class="field is-grouped" v-if="can.viewMembers">
+            <router-link :to="{ name: 'oms.bodies.members', params: { id: body.id } }" :class="['button', 'is-fullwidth']">
+              <span class="field-icon icon"><i :class="['fas fa-users']"></i></span>
+              <span class="field-label">Members</span>
             </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="can.viewJoinRequests">
+            <router-link :to="{ name: 'oms.bodies.join_requests', params: { id: body.id } }" :class="['button', 'is-fullwidth']">
+              <span class="field-icon icon"><i :class="['fas fa-users']"></i></span>
+              <span class="field-label">Join requests</span>
+            </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="can.viewCampaigns">
+            <router-link :to="{ name: 'oms.bodies.campaigns', params: { id: body.id } }" :class="['button', 'is-fullwidth']">
+              <span class="field-icon icon"><i :class="['fas fa-users']"></i></span>
+              <span class="field-label">Recruitment campaigns</span>
+            </router-link>
+          </div>
+
+
+          <div class="field is-grouped" v-if="!isMember">
+            <a @click="askToJoinBody()" v-if="!isRequestingMembership" :class="['button', 'is-fullwidth', 'is-info']">
+              <span class="field-icon icon"><i :class="['fas fa-user-plus']"></i></span>
+              <span class="field-label">Ask to join body</span>
+            </a>
+
+            <a v-if="isRequestingMembership" :class="['button', 'is-fullwidth', 'is-static']">
+              <span class="field-icon icon"><i :class="['fas fa-clock']"></i></span>
+              <span class="field-label">Join request sent</span>
+            </a>
+          </div>
+
+          <div class="field is-grouped" v-if="can.createBoundCircles">
+            <a @click="openAddCircleModal()" :class="['button', 'is-fullwidth', 'is-warning']">
+              <span class="field-icon icon"><i :class="['fas fa-edit']"></i></span>
+              <span class="field-label">Add bound circle</span>
+            </a>
+          </div>
+
+          <div class="field is-grouped" v-if="can.updateBody">
+            <router-link :to="{ name: 'oms.bodies.edit', params: { id: body.id } }" :class="['button', 'is-fullwidth', 'is-warning']">
+              <span class="field-icon icon"><i :class="['fas fa-edit']"></i></span>
+              <span class="field-label">Edit body details</span>
+            </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="isMember">
+            <a @click="askLeaveBody()" :class="['button', 'is-fullwidth', 'is-danger']">
+              <span class="field-icon icon"><i :class="['fas fa-sign-out-alt']"></i></span>
+              <span class="field-label">Leave body</span>
+            </a>
+          </div>
+
+          <div class="field is-grouped" v-if="can.deleteBody">
+            <a @click="askDeleteBody()" :class="['button', 'is-fullwidth', 'is-danger']">
+              <span class="field-icon icon"><i :class="['fas fa-times']"></i></span>
+              <span class="field-label">Delete body</span>
+            </a>
           </div>
         </article>
       </div>
@@ -128,102 +179,17 @@ export default {
       isMember: false,
       isRequestingMembership: false,
       permissions: [],
-      actions: [
-        {
-          name: 'oms.bodies.members',
-          params: () => ({ id: this.body.id }),
-          label: 'Members',
-          type: 'link',
-          class: '',
-          icon: 'users',
-          permission: 'view:member'
-        },
-        {
-          name: 'oms.bodies.join_requests',
-          params: () => ({ id: this.body.id }),
-          label: 'Join requests',
-          type: 'link',
-          class: '',
-          icon: 'users',
-          permission: 'view:join_request'
-        },
-        {
-          name: 'oms.bodies.campaigns',
-          params: () => ({ id: this.body.id }),
-          label: 'Recruitment campaigns',
-          type: 'link',
-          class: '',
-          icon: 'users',
-          permission: 'view:campaign'
-        },
-        {
-          name: 'requestToJoin',
-          label: 'Request to join',
-          action: this.askToJoinBody,
-          class: 'is-info',
-          icon: 'user-plus',
-          permission: 'join'
-        },
-        {
-          name: 'joinRequestPending',
-          label: 'Join request sent.',
-          action: () => {},
-          class: 'is-static',
-          icon: 'clock',
-          permission: 'joinRequestSent'
-        },
-        {
-          name: 'createBoundCircle',
-          label: 'Add bound circle',
-          action: this.openAddCircleModal,
-          class: 'is-warning',
-          icon: 'edit',
-          permission: 'create:bound_circle'
-        },
-        {
-          name: 'oms.bodies.edit',
-          params: () => ({ id: this.body.id }),
-          label: 'Edit body details',
-          type: 'link',
-          class: 'is-warning',
-          icon: 'edit',
-          permission: 'update:body'
-        },
-        {
-          name: 'leaveBody',
-          label: 'Leave body',
-          action: this.askLeaveBody,
-          class: 'is-danger',
-          icon: 'sign-out-alt',
-          permission: 'leave'
-        },
-        {
-          name: 'deleteBody',
-          label: 'Delete body',
-          action: this.askDeleteBody,
-          class: 'is-danger',
-          icon: 'times',
-          permission: 'delete:body'
-        }
-      ]
+      can: {
+        viewMembers: false,
+        viewJoinRequests: false,
+        viewCampaigns: false,
+        createBoundCircles: false,
+        updateBody: false,
+        deleteBody: false
+      }
     }
   },
   methods: {
-    checkPermissions (name) {
-      if (name === 'join') {
-        return !this.isMember && !this.isRequestingMembership
-      }
-
-      if (name === 'joinRequestSent') {
-        return !this.isMember && this.isRequestingMembership
-      }
-
-      if (name === 'leave') {
-        return this.isMember
-      }
-
-      return this.permissions.some(permission => permission.combined.endsWith(name))
-    },
     openAddCircleModal () {
       this.$buefy.modal.open({
         component: AddBoundCircleModal,
@@ -251,7 +217,7 @@ export default {
       })
     },
     deleteBody () {
-      this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
+      this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then(() => {
         this.$root.showSuccess('Body is deleted.')
         this.$router.push({ name: 'oms.bodies.list' })
       }).catch((err) => this.$root.showError('Could not delete body', err))
@@ -274,7 +240,7 @@ export default {
       this.isLoading = true
       this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members', {
         join_request: { motivation }
-      }).then((response) => {
+      }).then(() => {
         this.$root.showSuccess('Join request is sent.')
         this.isLoading = false
         this.isRequestingMembership = true
@@ -298,7 +264,7 @@ export default {
       })
     },
     leaveBody () {
-      this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members').then((response) => {
+      this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members').then(() => {
         this.isMember = false
         this.isRequestingMembership = false
         this.$root.showSuccess('You are not the member anymore.')
@@ -316,13 +282,20 @@ export default {
         this.isMember = this.loginUser.bodies.some(body => body.id === this.body.id)
         this.isRequestingMembership = this.loginUser.join_requests.some(request => request.body_id === this.body.id)
 
-        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions').then((response) => {
-          this.permissions = response.data.data
+        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions').then((permissionsResponse) => {
+          this.permissions = permissionsResponse.data.data
+          this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
+          this.can.viewJoinRequests = this.permissions.some(permission => permission.combined.endsWith('view:join_request'))
+          this.can.viewCampaigns = this.permissions.some(permission => permission.combined.endsWith('view:campaign'))
+          this.can.createBoundCircles = this.permissions.some(permission => permission.combined.endsWith('create:bound_circle'))
+          this.can.updateBody = this.permissions.some(permission => permission.combined.endsWith('update:body'))
+          this.can.deleteBody = this.permissions.some(permission => permission.combined.endsWith('delete:body'))
+
+
           this.isLoading = false
         })
-      } else {
-        this.isLoading = false
       }
+      this.isLoading = false
     }).catch((err) => {
       if (err.response.status === 404) {
         this.$root.showError('Body is not found')

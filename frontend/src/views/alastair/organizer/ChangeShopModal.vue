@@ -10,7 +10,7 @@
         When you change the shop you will loose all ticked items and item choices in the shopping list
       </div>
     </article>
-      
+
       <div class="field">
         <label class="label">Select Shop</label>
         <b-autocomplete
@@ -49,7 +49,7 @@ export default {
       addedShopName: '',
       shops: [],
       shop: {
-        name: '',
+        name: ''
       },
       token: null,
       isLoadingShops: false
@@ -66,7 +66,7 @@ export default {
       if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['alastair'] + '/shops', {
+      this.axios.get(this.services.alastair + '/shops', {
         cancelToken: this.token.token,
         params: { query: this.addedShopName, limit: 30 }
       }).then((response) => {
@@ -90,7 +90,7 @@ export default {
         this.event.shop_id = null
       }
 
-      this.axios.put(this.services['alastair'] + '/events/' + this.event.id, { event: this.event }).then((response) => {
+      this.axios.put(this.services.alastair + '/events/' + this.event.id, { event: this.event }).then(() => {
         this.showSuccess('Shop was saved.')
 
         this.isLoading = false
@@ -104,9 +104,9 @@ export default {
           this.showError('Some error happened', err)
         }
 
-        if (err.response && err.response.data && err.response.data.errors) this.ingredientErrors = err.response.data.errors
-
-        this.showError(message)
+        if (err.response && err.response.data && err.response.data.errors) {
+          this.ingredientErrors = err.response.data.errors
+        }
       })
     }
   }

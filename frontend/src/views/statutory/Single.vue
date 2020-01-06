@@ -268,9 +268,8 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import Mapbox from 'mapbox-gl'
 import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
-import credentials from  '../../credentials'
+import credentials from '../../credentials'
 
 export default {
   components: {
@@ -327,7 +326,7 @@ export default {
       })
     },
     switchStatus (newStatus) {
-      this.axios.put(this.services['oms-statutory'] + '/events/' + this.event.id + '/status', { status: newStatus }).then((response) => {
+      this.axios.put(this.services['oms-statutory'] + '/events/' + this.event.id + '/status', { status: newStatus }).then(() => {
         this.$root.showInfo('Status is updated.')
         this.event.status = newStatus
       }).catch((err) => this.$root.showError('Could not update status', err))

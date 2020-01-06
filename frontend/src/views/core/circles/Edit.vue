@@ -210,7 +210,7 @@ export default {
       this.autoComplete.parentCircle.loading = true
       this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/parent', {
         parent_circle_id: circle ? circle.id : null
-      }).then((response) => {
+      }).then(() => {
         this.autoComplete.parentCircle.loading = false
         this.circle.parent_circle = circle
         this.circle.parent_circle_id = circle ? circle.id : null
@@ -241,7 +241,7 @@ export default {
 
       this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/permissions', {
         permissions: this.circle.permissions
-      }).then((response) => {
+      }).then(() => {
         this.autoComplete.permissions.loading = false
 
         this.$root.showSuccess('Permission is ' + (add ? 'added. ' : 'removed.'))
@@ -271,7 +271,7 @@ export default {
 
       this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/children', {
         child_circles: this.circle.child_circles
-      }).then((response) => {
+      }).then(() => {
         this.autoComplete.childCircles.loading = false
 
         this.$root.showSuccess('Child circle is ' + (add ? 'added. ' : 'removed.'))
@@ -280,10 +280,9 @@ export default {
         this.circle.child_circles = circlesBefore // reverting children list
 
         if (err.response.status === 422) {
-          const errors =
-            err.response.data.errors
-              ? Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-              : err.response.data.message
+          const errors = err.response.data.errors
+            ? Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
+            : err.response.data.message
           return this.$root.showError('Could not ' + (add ? 'add' : 'remove') + ' child circle: ' + errors)
         }
 
@@ -294,7 +293,7 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      let promise = this.$route.params.id
+      const promise = this.$route.params.id
         ? this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id, { circle: this.circle })
         : this.axios.post(this.services['oms-core-elixir'] + '/circles/', { circle: this.circle })
 
@@ -339,7 +338,7 @@ export default {
       } else {
         this.$root.showError('Some error happened', err)
       }
-      
+
       this.$router.push({ name: 'oms.circles.list' })
     })
   }

@@ -167,7 +167,7 @@ export default {
       this.offset = (page - 1) * this.limit
       this.loadApplications()
     },
-    onSort(field, order) {
+    onSort (field, order) {
       this.sort = { field, order }
       this.loadApplications()
     },

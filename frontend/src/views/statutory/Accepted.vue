@@ -76,7 +76,7 @@ export default {
   methods: {
     calculateClassForTag (value) {
       return ['tag', 'is-small', value ? 'is-primary' : 'is-danger']
-    },
+    }
   },
   mounted () {
     this.isLoading = true

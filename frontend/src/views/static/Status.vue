@@ -86,19 +86,19 @@ export default {
           latestVersion: '-',
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/oms-frontend/blob/master/CHANGELOG.md'
-        },
+        }
       }
     }
   },
   methods: {
     calculateClassForService (isAlive) {
       switch (isAlive) {
-        case true:
-          return 'is-success'
-        case false:
-          return 'is-danger'
-        default:
-          return 'is-warning'
+      case true:
+        return 'is-success'
+      case false:
+        return 'is-danger'
+      default:
+        return 'is-warning'
       }
     },
     fetchHealthcheckForService (service) {

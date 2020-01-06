@@ -39,10 +39,10 @@ export default {
       this.isLoading = true
 
       const action = this.isNew
-        ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.event.id + '/question-lines/' +  this.questionLine.id + '/questions/', this.question)
+        ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.event.id + '/question-lines/' + this.questionLine.id + '/questions/', this.question)
         : this.axios.put(this.services['oms-statutory'] + '/events/' + this.event.id + '/question-lines/' + this.questionLine.id + '/questions/' + this.question.id, this.question)
 
-      action.then((response) => {
+      action.then(() => {
         this.showSuccess('Question is created.')
 
         this.isLoading = false
@@ -58,7 +58,7 @@ export default {
     }
   },
   mounted () {
-    
+
   }
 }
 </script>

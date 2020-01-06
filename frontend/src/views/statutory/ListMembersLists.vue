@@ -93,7 +93,7 @@ export default {
       this.isLoading = true
       this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + memberslist.body_id + '/fee_paid', {
         fee_paid: newFee
-      }).then((response) => {
+      }).then(() => {
         this.$root.showSuccess('Fee paid is set.')
         this.isLoading = false
 
@@ -103,12 +103,12 @@ export default {
         this.isLoading = false
         this.$root.showError('Could not set fee paid', err)
       })
-    },
+    }
   },
   mounted () {
     this.isLoading = true
 
-    let memberslists;
+    let memberslists
 
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
@@ -132,10 +132,11 @@ export default {
       this.memberslists = memberslists
 
       this.isLoading = false
-    }).catch((err) => {
-      this.isLoading = false
-      this.$root.showError('Could not fetch members lists', err)
     })
+      .catch((err) => {
+        this.isLoading = false
+        this.$root.showError('Could not fetch members lists', err)
+      })
   }
 }
 </script>

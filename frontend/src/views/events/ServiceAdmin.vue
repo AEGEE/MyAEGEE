@@ -135,7 +135,7 @@ export default {
           body_id: body
         }
 
-        this.axios.post(this.services['oms-events'], event).then((response) => {
+        this.axios.post(this.services['oms-events'], event).then(() => {
           this.$root.showSuccess('Event "' + event.name + '" is successfully added.')
         }).catch((err) => {
           this.$root.showError('Could not save event', err)

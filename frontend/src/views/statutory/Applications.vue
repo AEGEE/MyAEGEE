@@ -140,7 +140,7 @@ export default {
         direction: 'desc'
       },
       selectedFields: [
-        { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
+        { name: 'Participant type', get: (pax) => (pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '') },
         { name: 'Board comment', get: (pax) => pax.board_comment },
         { name: 'First name', get: (pax) => pax.first_name },
         { name: 'Last name', get: (pax) => pax.last_name }
@@ -168,7 +168,7 @@ export default {
         { name: 'Country', get: (pax) => pax.visa_country },
         { name: 'Created at', get: (pax) => pax.created_at },
         { name: 'Updated at', get: (pax) => pax.updated_at },
-        { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
+        { name: 'Participant type', get: (pax) => (pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '') },
         { name: 'Board comment', get: (pax) => pax.board_comment }
       ],
       displayCancelled: false,
@@ -204,14 +204,14 @@ export default {
   methods: {
     calculateClassForApplication (pax) {
       switch (pax.status) {
-        case 'accepted':
-          return 'has-background-success'
-        case 'rejected':
-          return 'has-background-danger'
-        case 'waiting_list':
-          return 'has-background-warning'
-        default:
-          return ''
+      case 'accepted':
+        return 'has-background-success'
+      case 'rejected':
+        return 'has-background-danger'
+      case 'waiting_list':
+        return 'has-background-warning'
+      default:
+        return ''
       }
     },
     calculateClassForMemberslist (pax) {
@@ -234,7 +234,7 @@ export default {
       this.offset = (page - 1) * this.limit
       this.loadApplications()
     },
-    onSort(field, order) {
+    onSort (field, order) {
       this.sort = { field, order }
       this.loadApplications()
     },
@@ -251,7 +251,7 @@ export default {
           })
         }
 
-        return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/all', { params: this.queryObject})
+        return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/all', { params: this.queryObject })
       }).then((application) => {
         this.applications = application.data.data
         this.total = application.data.meta.count

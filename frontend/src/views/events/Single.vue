@@ -220,8 +220,8 @@
 import { mapGetters } from 'vuex'
 import Mapbox from 'mapbox-gl'
 import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
-import constants from  '../../constants'
-import credentials from  '../../credentials'
+import constants from '../../constants'
+import credentials from '../../credentials'
 
 export default {
   components: {
@@ -276,7 +276,7 @@ export default {
     askDeleteEvent () {
       this.$buefy.dialog.confirm({
         title: 'Deleting an event',
-        message: `Are you sure you want to <b>delete this event</b>?`,
+        message: 'Are you sure you want to <b>delete this event</b>?',
         confirmText: 'Delete event',
         type: 'is-danger',
         hasIcon: true,
@@ -284,7 +284,7 @@ export default {
       })
     },
     deleteEvent () {
-      this.axios.delete(this.services['oms-events'] + '/single/' + this.event.id).then((response) => {
+      this.axios.delete(this.services['oms-events'] + '/single/' + this.event.id).then(() => {
         this.$root.showInfo('Event is deleted.')
         this.$router.push({ name: 'oms.events.list.all' })
       }).catch((err) => this.$root.showError('Could not delete event', err))
@@ -317,8 +317,8 @@ export default {
       this.isLoading = true
       const body = { status: newStatus }
 
-      this.axios.put(this.services['oms-events'] + '/single/' + this.event.id + '/status', body).then((response) => {
-        this.$root.showInfo(`Event is now ${newStatus}`)
+      this.axios.put(this.services['oms-events'] + '/single/' + this.event.id + '/status', body).then(() => {
+        this.$root.showInfo(`Event status is now ${newStatus}`)
 
         // Refetching the event to renew the permissions.
         return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id)

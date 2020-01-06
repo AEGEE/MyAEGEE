@@ -47,7 +47,7 @@
               v-if="shop.currency">{{ shop.currency.name }} (Click to unset)</a>
             <a class="button is-static" v-if="!shop.currency">Not set.</a>
           </p>
-          
+
           <p class="help is-danger" v-if="shopErrors.currency">{{ shopErrors.currency.join(', ')}}</p>
           <p class="help is-danger" v-if="shopErrors.currency_id">{{ shopErrors.currency_id.join(', ')}}</p>
         </div>
@@ -90,7 +90,7 @@ export default {
     askDeleteShop () {
       this.$buefy.dialog.confirm({
         title: 'Deleting an shop',
-        message: `Are you sure you want to <b>delete this shop</b>?`,
+        message: 'Are you sure you want to <b>delete this shop</b>?',
         confirmText: 'Delete shop',
         type: 'is-danger',
         hasIcon: true,
@@ -98,7 +98,7 @@ export default {
       })
     },
     deleteShop () {
-      this.axios.delete(this.services['alastair'] + '/shops/' + this.shop.id).then((response) => {
+      this.axios.delete(this.services.alastair + '/shops/' + this.shop.id).then(() => {
         this.showSuccess('Shop is deleted.')
         this.$parent.close()
         this.reload()
@@ -116,7 +116,7 @@ export default {
       if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['alastair'] + '/currencies', {
+      this.axios.get(this.services.alastair + '/currencies', {
         cancelToken: this.token.token,
         params: { query: this.addedCurrencyName }
       }).then((response) => {
@@ -136,12 +136,12 @@ export default {
       this.isLoading = true
       let promise = null
       if (this.isNewShop) {
-        promise = this.axios.post(this.services['alastair'] + '/shops/', { shop: this.shop })
+        promise = this.axios.post(this.services.alastair + '/shops/', { shop: this.shop })
       } else {
-        promise = this.axios.put(this.services['alastair'] + '/shops/' + this.shop.id, { shop: this.shop })
+        promise = this.axios.put(this.services.alastair + '/shops/' + this.shop.id, { shop: this.shop })
       }
 
-      promise.then((response) => {
+      promise.then(() => {
         this.showSuccess('Shop was saved.')
 
         this.isLoading = false
@@ -164,7 +164,7 @@ export default {
       return
     }
 
-    this.axios.get(this.services['alastair'] + '/shops/' + this.shop.id + '/user').then((response) => {
+    this.axios.get(this.services.alastair + '/shops/' + this.shop.id + '/user').then((response) => {
       this.permissions = response.data.data
     }).catch((err) => {
       this.showError('Could not fetch shop details', err)

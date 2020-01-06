@@ -94,7 +94,7 @@ export default {
       return this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/new_member', {
         member: member.member,
         user: member.user
-      }).then((response) => {
+      }).then(() => {
         this.$set(member, 'status', 'success')
 
         this.$root.showSuccess('User is created.')
@@ -116,7 +116,7 @@ export default {
       }
 
       if (file) {
-        var reader = new FileReader()
+        const reader = new FileReader()
         reader.readAsText(file, 'UTF-8')
         reader.onload = (evt) => this.processFileContent(evt.target.result)
         reader.onerror = (err) => {

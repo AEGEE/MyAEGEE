@@ -7,10 +7,10 @@
         Here you can see the events that you are organizing. Currently you can not share organization with others and also you have to manually create events, in the future we will try to import them from oms-events.
       </div>
     </article>
-   
+
     <article class="message is-info">
       <div class="message-body">
-        Per event you can see a shopping list and meals. Each meal accomodates an arbitrary number of recipes, so you can design a meal to fit guests with different preferences. Per recipe you can specify the number of people you want to feed with this part of the meal and Alastair will automatically calculate the amounts fitting to this. 
+        Per event you can see a shopping list and meals. Each meal accomodates an arbitrary number of recipes, so you can design a meal to fit guests with different preferences. Per recipe you can specify the number of people you want to feed with this part of the meal and Alastair will automatically calculate the amounts fitting to this.
       </div>
     </article>
 

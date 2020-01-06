@@ -16,8 +16,8 @@
 </template>
 
 <script>
-import Levelbar from './Levelbar'
 import { mapGetters } from 'vuex'
+import Levelbar from './Levelbar'
 
 export default {
   computed: {

@@ -232,7 +232,7 @@ export default {
         { name: 'Email', get: (pax) => pax.email },
         { name: 'Created at', get: (pax) => pax.created_at },
         { name: 'Updated at', get: (pax) => pax.updated_at },
-        { name: 'Participant type', get: (pax) => pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '' },
+        { name: 'Participant type', get: (pax) => (pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '') },
         { name: 'Board comment', get: (pax) => pax.board_comment }
       ],
       isLoading: false,
@@ -254,10 +254,9 @@ export default {
 
       const lowercaseQuery = this.query.toLowerCase()
 
-      return filterCancelled.filter(app =>
-        ['first_name', 'last_name', 'email'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
+      return filterCancelled.filter(app => ['first_name', 'last_name', 'email'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
     },
-    canEditSelectedBody() {
+    canEditSelectedBody () {
       return this.can.set_board_comment_and_participant_type.global
         || this.can.set_board_comment_and_participant_type[this.selectedBody]
     }
@@ -306,8 +305,8 @@ export default {
         this.applications = application.data.data
 
         return this.axios.get(this.services['oms-statutory'] + '/limits/' + this.event.type + '/' + this.selectedBody)
-      }).then((limit) => {
-        this.limits = limit.data.data
+      }).then((limitResponse) => {
+        this.limits = limitResponse.data.data
 
         // setting the selected body statuses to send to the endpoint
         this.bodyStatuses = []
@@ -352,7 +351,7 @@ export default {
     }
   },
   watch: {
-    'selectedBody' () {
+    selectedBody () {
       this.fetchBoardview()
     }
   },

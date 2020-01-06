@@ -162,7 +162,7 @@ export default {
       })
     },
     deleteCampaign () {
-      this.axios.delete(this.services['oms-core-elixir'] + '/backend_campaigns/' + this.$route.params.id).then((response) => {
+      this.axios.delete(this.services['oms-core-elixir'] + '/backend_campaigns/' + this.$route.params.id).then(() => {
         this.$root.showSuccess('Campaign is deleted.')
         this.$router.push({ name: 'oms.campaigns.list' })
       }).catch((err) => this.$root.showError('Could not delete campaign', err))
@@ -209,9 +209,7 @@ export default {
     filteredSubmissions () {
       const queryLowerCase = this.query.toLowerCase()
 
-      return this.campaign.submissions.filter(submission => {
-        return submission.first_name.toLowerCase().includes(queryLowerCase) || submission.last_name.toLowerCase().includes(queryLowerCase)
-      })
+      return this.campaign.submissions.filter(submission => submission.first_name.toLowerCase().includes(queryLowerCase) || submission.last_name.toLowerCase().includes(queryLowerCase))
     }
   }
 }

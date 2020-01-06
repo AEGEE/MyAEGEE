@@ -80,7 +80,7 @@
                     <button class="button is-small is-primary" v-if="limit.isEditing" @click="saveLimit(limit)">Save</button>
                 </td>
                 <td>
-                    <button class="button is-small is-danger" v-if="!limit.default" @click="deleteLimit(limit, index)">Use default</button>
+                    <button class="button is-small is-danger" v-if="!limit.default" @click="deleteLimit(limit)">Use default</button>
                 </td>
               </tr>
               <tr v-show="isLoading">
@@ -111,7 +111,7 @@ export default {
   computed: mapGetters(['services']),
   methods: {
     saveLimit (limit) {
-      this.axios.post(this.services['oms-statutory'] + '/limits/' + this.eventType, limit).then((response) => {
+      this.axios.post(this.services['oms-statutory'] + '/limits/' + this.eventType, limit).then(() => {
         this.$root.showSuccess('Limit is saved.')
         this.$set(limit, 'isEditing', false)
         this.$set(limit, 'default', false)
@@ -119,8 +119,8 @@ export default {
         this.$root.showError('Error saving limit', err)
       })
     },
-    deleteLimit (limit, index) {
-      this.axios.delete(this.services['oms-statutory'] + '/limits/' + this.eventType + '/' + limit.body_id).then((response) => {
+    deleteLimit (limit) {
+      this.axios.delete(this.services['oms-statutory'] + '/limits/' + this.eventType + '/' + limit.body_id).then(() => {
         this.$root.showSuccess('Limit is deleted.')
         window.location.reload()
       }).catch((err) => {

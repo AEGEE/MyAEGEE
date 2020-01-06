@@ -130,7 +130,7 @@ export default {
     askDeleteMeal () {
       this.$buefy.dialog.confirm({
         title: 'Deleting a meal',
-        message: `Are you sure you want to <b>delete this meal</b>?`,
+        message: 'Are you sure you want to <b>delete this meal</b>?',
         confirmText: 'Delete meal',
         type: 'is-danger',
         hasIcon: true,
@@ -138,7 +138,7 @@ export default {
       })
     },
     deleteMeal () {
-      this.axios.delete(this.services['alastair'] + '/events/' + this.event.id + '/meals/' + this.meal.id).then((response) => {
+      this.axios.delete(this.services.alastair + '/events/' + this.event.id + '/meals/' + this.meal.id).then(() => {
         this.showSuccess('Meal is deleted.')
         this.$parent.close()
         this.reload()
@@ -151,7 +151,7 @@ export default {
       if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['alastair'] + '/recipes', {
+      this.axios.get(this.services.alastair + '/recipes', {
         cancelToken: this.token.token,
         params: { query: this.addedRecipeName, limit: 20 }
       }).then((response) => {
@@ -183,12 +183,12 @@ export default {
       this.isLoading = true
       let promise = null
       if (this.isNewMeal) {
-        promise = this.axios.post(this.services['alastair'] + '/events/' + this.event.id + '/meals/', { meal: this.meal })
+        promise = this.axios.post(this.services.alastair + '/events/' + this.event.id + '/meals/', { meal: this.meal })
       } else {
-        promise = this.axios.put(this.services['alastair'] + '/events/' + this.event.id + '/meals/' + this.meal.id, { meal: this.meal })
+        promise = this.axios.put(this.services.alastair + '/events/' + this.event.id + '/meals/' + this.meal.id, { meal: this.meal })
       }
 
-      promise.then((response) => {
+      promise.then(() => {
         this.showSuccess('Meal was saved.')
 
         this.isLoading = false

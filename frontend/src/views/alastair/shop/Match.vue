@@ -2,7 +2,7 @@
   <div class="tile is-ancestor ">
     <div class="tile is-child">
       <div class="title">
-        Matching in 
+        Matching in
         <router-link :to="{name: 'oms.alastair.shop.items', params: {id: shop.id}}">{{ shop.name }}</router-link>
       </div>
       <div class="subtitle" v-if="item.mapped_ingredient && item.mapped_ingredient.name">
@@ -159,7 +159,7 @@ export default {
       if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['alastair'] + '/ingredients', {
+      this.axios.get(this.services.alastair + '/ingredients', {
         cancelToken: this.token.token,
         params: { query: this.mappedIngredientName, limit: 20 }
       }).then((response) => {
@@ -184,16 +184,16 @@ export default {
     },
     fetchShop () {
       this.isLoading = true
-      this.axios.get(this.services['alastair'] + '/shops/' + this.$route.params.id).then((response) => {
+      this.axios.get(this.services.alastair + '/shops/' + this.$route.params.id).then((response) => {
         this.shop = response.data.data
 
-        return this.axios.get(this.services['alastair'] + '/shops/' + this.$route.params.id + '/user').then((response) => {
-          this.permissions = response.data.data
+        return this.axios.get(this.services.alastair + '/shops/' + this.$route.params.id + '/user').then((userResponse) => {
+          this.permissions = userResponse.data.data
           this.isLoading = false
 
           if (!this.permissions.shop_admin) {
             this.$root.showError('You don\'t have permission to edit match in this shop')
-            this.$router.push({name: 'oms.alastair.shop.items', params: {id: this.$route.params.id}})
+            this.$router.push({ name: 'oms.alastair.shop.items', params: { id: this.$route.params.id } })
           }
         })
       }).catch((err) => {
@@ -205,7 +205,7 @@ export default {
       })
     },
     fetchItem () {
-      this.axios.get(this.services['alastair'] + '/shops/' + this.$route.params.id + '/shopping_items/' + this.$route.params.item).then((response) => {
+      this.axios.get(this.services.alastair + '/shops/' + this.$route.params.id + '/shopping_items/' + this.$route.params.item).then((response) => {
         this.item = response.data.data
         if (this.item.mapped_ingredient && this.item.mapped_ingredient.name) {
           this.mappedIngredientName = this.item.mapped_ingredient.name
@@ -218,15 +218,15 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      let promise = this.$route.params.item
-        ? this.axios.put(this.services['alastair'] + '/shops/' + this.$route.params.id + '/shopping_items/' + this.$route.params.item, {shopping_item: this.item})
-        : this.axios.post(this.services['alastair'] + '/shops/' + this.$route.params.id + '/shopping_items', {shopping_item: this.item})
+      const promise = this.$route.params.item
+        ? this.axios.put(this.services.alastair + '/shops/' + this.$route.params.id + '/shopping_items/' + this.$route.params.item, { shopping_item: this.item })
+        : this.axios.post(this.services.alastair + '/shops/' + this.$route.params.id + '/shopping_items', { shopping_item: this.item })
 
-      promise.then((response) => {
+      promise.then(() => {
         this.isSaving = false
 
         if (this.$route.params.item) {
-          this.$router.push({name: 'oms.alastair.shop.items', params: { id: this.$route.params.id }})
+          this.$router.push({ name: 'oms.alastair.shop.items', params: { id: this.$route.params.id } })
         } else {
           this.$root.showSuccess('Item is saved. You can match another item now')
           this.item = {
@@ -252,7 +252,7 @@ export default {
     askDeleteItem () {
       this.$buefy.dialog.confirm({
         title: 'Deleting an item',
-        message: `Are you sure you want to <b>delete this item</b>?`,
+        message: 'Are you sure you want to <b>delete this item</b>?',
         confirmText: 'Delete item',
         type: 'is-danger',
         hasIcon: true,
@@ -260,13 +260,13 @@ export default {
       })
     },
     deleteItem () {
-      this.axios.delete(this.services['alastair'] + '/shops/' + this.$route.params.id + '/shopping_items/' + this.item.id).then((response) => {
+      this.axios.delete(this.services.alastair + '/shops/' + this.$route.params.id + '/shopping_items/' + this.item.id).then(() => {
         this.$root.showInfo('Item is deleted.')
-        this.$router.push({name: 'oms.alastair.shop.items', params: {id: this.$route.params.id}})
+        this.$router.push({ name: 'oms.alastair.shop.items', params: { id: this.$route.params.id } })
       }).catch((err) => this.$root.showError('Could not delete item', err))
     }
   },
-  computed: mapGetters({services: 'services'}),
+  computed: mapGetters({ services: 'services' }),
   mounted () {
     this.fetchShop()
 

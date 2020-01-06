@@ -17,30 +17,30 @@ const state = {
 }
 
 const mutations = {
-  [types.TOGGLE_DEVICE] (state, device) {
-    state.device.isMobile = device === 'mobile'
-    state.device.isTablet = device === 'tablet'
+  [types.TOGGLE_DEVICE] (newState, device) {
+    newState.device.isMobile = device === 'mobile'
+    newState.device.isTablet = device === 'tablet'
   },
 
-  [types.TOGGLE_NAVBAR_MENU] (state, config) {
+  [types.TOGGLE_NAVBAR_MENU] (newState, config) {
     if (config.hasOwnProperty('opened')) {
-      state.navbar.menuOpened = config.opened
+      newState.navbar.menuOpened = config.opened
     } else {
-      state.navbar.menuOpened = false
+      newState.navbar.menuOpened = false
     }
   },
 
-  [types.TOGGLE_SIDEBAR] (state, config) {
+  [types.TOGGLE_SIDEBAR] (newState, config) {
     if (config.hasOwnProperty('opened')) {
-      state.sidebar.opened = config.opened
+      newState.sidebar.opened = config.opened
     } else {
-      state.sidebar.opened = true
+      newState.sidebar.opened = true
     }
   },
 
-  [types.SWITCH_EFFECT] (state, effectItem) {
-    for (let name in effectItem) {
-      state.effect[name] = effectItem[name]
+  [types.SWITCH_EFFECT] (newState, effectItem) {
+    for (const name in effectItem) {
+      newState.effect[name] = effectItem[name]
     }
   }
 }

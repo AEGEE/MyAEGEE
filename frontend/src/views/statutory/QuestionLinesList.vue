@@ -150,7 +150,7 @@ export default {
       })
     },
     deleteQuestionLine (questionLine, index) {
-      this.axios.delete(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/question-lines/' + questionLine.id).then((response) => {
+      this.axios.delete(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/question-lines/' + questionLine.id).then(() => {
         this.$root.showSuccess('Question line is deleted.')
         this.questionLines.splice(index, 1)
         this.selectedQuestionLine = this.questionLines[index]
@@ -167,7 +167,7 @@ export default {
       })
     },
     deleteQuestion (questionLine, question, questionIndex) {
-      this.axios.delete(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/question-lines/' + questionLine.id + '/questions/' + question.id).then((response) => {
+      this.axios.delete(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/question-lines/' + questionLine.id + '/questions/' + question.id).then(() => {
         this.$root.showSuccess('Question is deleted.')
         questionLine.questions.splice(questionIndex, 1)
       }).catch((err) => this.$root.showError('Could not delete question', err))
@@ -182,7 +182,7 @@ export default {
           // I'm passing them as props.
           // More info: https://github.com/buefy/buefy/issues/55
           questionLine: {
-            name: '',
+            name: ''
           },
           event: this.event,
           services: this.services,
@@ -221,7 +221,7 @@ export default {
           // More info: https://github.com/buefy/buefy/issues/55
           questionLine,
           question: {
-            name: '',
+            name: ''
           },
           event: this.event,
           services: this.services,

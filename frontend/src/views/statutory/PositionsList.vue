@@ -193,7 +193,7 @@ export default {
       const forceCloseDeadline = moment(this.event.starts)
         .subtract(2, 'week')
         .endOf('day')
-        .toDate();
+        .toDate()
 
       this.$buefy.modal.open({
         component: EditPositionModal,
@@ -287,8 +287,8 @@ export default {
       this.can = event.data.data.permissions
 
       return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/' + this.prefix)
-    }).then((position) => {
-      for (const position of position.data.data) {
+    }).then((positionResponse) => {
+      for (const position of positionResponse.data.data) {
         position.isSaving = false
         position.newStatus = position.status
 
@@ -298,7 +298,7 @@ export default {
         }
       }
 
-      this.positions = position.data.data
+      this.positions = positionResponse.data.data
 
       return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/candidates/mine')
     }).then((myCandidates) => {
@@ -312,16 +312,17 @@ export default {
       }
 
       this.isLoading = false
-    }).catch((err) => {
-      this.isLoading = false
-      if (err.response.status === 404) {
-        this.$root.showError('Event is not found')
-      } else {
-        this.$root.showError('Some error happened', err)
-      }
-
-      this.$router.push({ name: 'oms.statutory.list.all' })
     })
+      .catch((err) => {
+        this.isLoading = false
+        if (err.response.status === 404) {
+          this.$root.showError('Event is not found')
+        } else {
+          this.$root.showError('Some error happened', err)
+        }
+
+        this.$router.push({ name: 'oms.statutory.list.all' })
+      })
   }
 }
 </script>

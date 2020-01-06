@@ -157,7 +157,7 @@ export default {
         .replace(/\{body_name\}/ig, this.stabBody.name)
     },
     filter () {
-      let filterObj = {}
+      const filterObj = {}
 
       if (this.status !== null) filterObj.status = this.status
       if (this.confirmed !== null) filterObj.confirmed = this.confirmed

@@ -41,7 +41,7 @@ export default {
   methods: {
     login () {
       this.error = null
-      this.$auth.login(this.data).then((res) => {
+      this.$auth.login(this.data).then(() => {
         if (this.$route.query.to) {
           this.$router.push(decodeURI(this.$route.query.to))
         } else {

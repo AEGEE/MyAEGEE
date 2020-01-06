@@ -43,7 +43,7 @@ export default {
 
       this.axios.post(this.services['oms-core-elixir'] + '/password_reset/', {
         email: this.email
-      }).then((res) => {
+      }).then(() => {
         this.$root.showSuccess('Password reset triggered. Check your email.')
         this.$router.push({ name: 'oms.password_confirm' })
       }).catch((err) => {

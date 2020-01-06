@@ -31,7 +31,7 @@
                 <ul>
                   <li v-for="(mr, mrIndex) in meal.meals_recipes"  v-bind:key="mrIndex">
                     {{ mr.person_count }} ppl <router-link :to="{name: 'oms.alastair.chef.recipe.single', params: { id: mr.recipe.id }}">{{ mr.recipe.name }}</router-link>
-                  </li> 
+                  </li>
                 </ul>
               </td>
               <td>{{ meal.time | date:'hh:mm'}}</td>
@@ -105,9 +105,9 @@ export default {
           // and therefore store, services and notifications functions. That's why
           // I'm passing them as props.
           // More info: https://github.com/buefy/buefy/issues/55
-          meal: meal,
+          meal,
           event: this.event,
-          isNewMeal: isNewMeal,
+          isNewMeal,
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
@@ -123,7 +123,7 @@ export default {
       this.isLoading = true
 
       // Fetch event itself
-      this.axios.get(this.services['alastair'] + '/events/' + this.$route.params.id)
+      this.axios.get(this.services.alastair + '/events/' + this.$route.params.id)
         .then((response) => {
           this.isLoading = false
           this.event = response.data.data
@@ -132,7 +132,7 @@ export default {
         })
 
       // Fetch meals
-      this.axios.get(this.services['alastair'] + '/events/' + this.$route.params.id + '/meals')
+      this.axios.get(this.services.alastair + '/events/' + this.$route.params.id + '/meals')
         .then((response) => {
           this.meals = response.data.data
         }).catch((err) => {
@@ -145,7 +145,7 @@ export default {
     }
   },
   watch: {
-    '$route.name' () {
+    '$route.name': function () {
       this.fetchData()
     }
   },

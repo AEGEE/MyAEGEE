@@ -62,7 +62,7 @@ export default {
   data () {
     return {
       resources: {
-        'External': [
+        External: [
           {
             url: 'http://aegee.org',
             title: 'AEGEE website',
@@ -92,7 +92,7 @@ export default {
             color: '#1468C5'
           }
         ],
-        'Members': [
+        Members: [
           {
             url: 'http://intranet.aegee.org',
             title: 'Intranet',
@@ -150,7 +150,7 @@ export default {
             color: '#FBBA00'
           }
         ],
-        'Statutory': [
+        Statutory: [
           {
             url: 'https://www.zeus.aegee.org/statutoryvote/jc/',
             title: 'Online voting',

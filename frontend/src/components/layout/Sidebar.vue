@@ -47,7 +47,7 @@ export default {
     }
   },
   mounted () {
-    let route = this.$route
+    const route = this.$route
     if (route.name) {
       this.isReady = true
       this.shouldExpandMatchItem(route)
@@ -69,7 +69,7 @@ export default {
         return item
       }
 
-      let newMenu = JSON.parse(JSON.stringify(this.menu));
+      let newMenu = JSON.parse(JSON.stringify(this.menu))
 
       // structure: menu => array of categories => array of components => (probably) array of children
       for (const category of newMenu) {
@@ -105,18 +105,18 @@ export default {
       'toggleSidebar',
       'toggleNavbarMenu'
     ]),
-    canAccessUnauthorized(item) {
+    canAccessUnauthorized (item) {
       // Do not show menu entry for authorized-only pages when not logged in.
       if (!this.loginUser && item.auth === 'logged-in') {
-        return false;
+        return false
       }
 
       // Do not show menu entry for unauthorized-only pages when logged in.
       if (this.loginUser && item.auth === 'not-logged-in') {
-          return false;
+        return false
       }
 
-      return true;
+      return true
     },
     userHasPermissions (item) {
       // If item has no permissions attribute, show it.
@@ -125,26 +125,25 @@ export default {
       }
 
       // Otherwise, check if user has such a permission.
-      return item.permissions.some(itemPermission =>
-        this.permissions.find(userPermission => userPermission.combined.includes(itemPermission)))
+      return item.permissions.some(itemPermission => this.permissions.find(userPermission => userPermission.combined.includes(itemPermission)))
     },
     isExpanded (item) {
       return item.expanded
     },
     toggle (index, categoryIndex, item) {
       this.expandMenu({
-        index: index,
-        categoryIndex: categoryIndex,
+        index,
+        categoryIndex,
         expanded: !item.expanded
       })
     },
     shouldExpandMatchItem (route) {
-      let matched = route.matched
+      const matched = route.matched
       if (matched.length === 0) {
         return
       }
 
-      let lastMatched = matched[matched.length - 1]
+      const lastMatched = matched[matched.length - 1]
       let parent = lastMatched.parent || lastMatched
       const isParent = parent === lastMatched
 
