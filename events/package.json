@@ -68,7 +68,7 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "@commitlint/config-conventional": "^8.2.0",
+    "@commitlint/config-conventional": "^8.3.4",
     "codecov": "^3.6.1",
     "commitlint": "^8.2.0",
     "conventional-changelog-cli": "^2.0.25",
