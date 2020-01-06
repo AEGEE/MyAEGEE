@@ -1,3 +1,12 @@
+## [0.33.1](https://github.com/AEGEE/oms-frontend/compare/0.33.0...0.33.1) (2020-01-06)
+
+
+### Bug Fixes
+
+* **general:** fixed linting errors. Fixes MEMB-757 ([db00dcc](https://github.com/AEGEE/oms-frontend/commit/db00dccc5b9b527ddf953273296c65c8c9054741))
+
+
+
 # [0.33.0](https://github.com/AEGEE/oms-frontend/compare/0.32.1...0.33.0) (2020-01-03)
 
 
