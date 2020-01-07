@@ -34,7 +34,7 @@
 
             <b-table-column label="Delete user">
               <a v-if="!props.row.status" @click="members.splice(props.index, 1)" class="button is-danger is-small">
-                <span class="icon"><i class="fa fa-minus"></i></span>
+                <span class="icon"><font-awesome-icon icon="minus" /></span>
                 <span>Delete user</span>
               </a>
             </b-table-column>

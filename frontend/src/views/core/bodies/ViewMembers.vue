@@ -48,28 +48,28 @@
 
             <b-table-column label="View payments" centered :visible="(can.viewPayment || can.createPayment) && body.pays_fees">
               <a class="button is-small is-primary" @click="openListFeePaymentsModal(props.row)" >
-                <span class="icon"><i class="fa fa-dollar-sign"></i></span>
+                <span class="icon"><font-awesome-icon icon="dollar-sign" /></span>
                 <span>View or manage payments</span>
               </a>
             </b-table-column>
 
             <b-table-column label="Add payment" centered :visible="can.createPayment && body.pays_fees">
               <a class="button is-small is-primary" @click="openAddFeePaymentModal(props.row)">
-                <span class="icon"><i class="fa fa-dollar-sign"></i></span>
+                <span class="icon"><font-awesome-icon icon="dollar-sign" /></span>
                 <span>Add fee payment</span>
               </a>
             </b-table-column>
 
             <b-table-column label="Edit" centered :visible="can.edit">
               <a class="button is-small is-warning" @click="askToChangeComment(props.row)">
-                <span class="icon"><i class="fa fa-edit"></i></span>
+                <span class="icon"><font-awesome-icon icon="edit" /></span>
                 <span>Edit</span>
               </a>
             </b-table-column>
 
             <b-table-column label="Delete" centered :visible="can.delete">
               <a class="button is-small is-danger" @click="askDeleteMember(props.row, false)">
-                <span class="icon"><i class="fa fa-minus"></i></span>
+                <span class="icon"><font-awesome-icon icon="minus" /></span>
                 <span>Delete</span>
               </a>
             </b-table-column>

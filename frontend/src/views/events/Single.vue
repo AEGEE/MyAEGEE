@@ -14,28 +14,28 @@
           <div class="field is-grouped" v-if="can.list_applications">
             <router-link :to="{ name: 'oms.events.participants', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>View applications</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
+              <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <!--<div class="field is-grouped" v-if="can.view_applications">
             <router-link :to="{ name: 'oms.events.accepted', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>View participants</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
+              <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>-->
 
           <div class="field is-grouped" v-if="event.status === 'published'">
             <router-link :to="{ name: 'oms.events.apply', params: { id: event.url || event.id, application_id: 'me' } }" class="button is-warning is-fullwidth">
               <span>Manage my application</span>
-              <span class="icon"><i class="fa fa-plus"></i></span>
+              <span class="icon"><font-awesome-icon icon="plus" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.edit_event">
             <router-link :to="{ name: 'oms.events.edit', params: { id: event.url || event.id } }" class="button is-fullwidth is-warning">
               <span>Edit event</span>
-              <span class="icon"><i class="fa fa-edit"></i></span>
+              <span class="icon"><font-awesome-icon icon="edit" /></span>
             </router-link>
           </div>
 
@@ -43,7 +43,7 @@
           <div class="field is-grouped" v-if="can.change_status.submitted && event.status === 'draft'">
             <a class="button is-fullwidth is-warning" @click="askChangeStatus('submitted')">
               <span>Ask for approval</span>
-              <span class="icon"><i class="fa fa-sign-in-alt"></i></span>
+              <span class="icon"><font-awesome-icon icon="sign-in-alt" /></span>
             </a>
           </div>
 
@@ -51,7 +51,7 @@
           <div class="field is-grouped" v-if="can.change_status.submitted && event.status === 'published'">
             <a class="button is-fullwidth is-danger" @click="askChangeStatus('submitted')">
               <span>Unpublish</span>
-              <span class="icon"><i class="fa fa-times-circle"></i></span>
+              <span class="icon"><font-awesome-icon icon="times-circle" /></span>
             </a>
           </div>
 
@@ -59,7 +59,7 @@
           <div class="field is-grouped" v-if="can.change_status.published && event.status === 'submitted'">
             <a class="button is-fullwidth is-primary" @click="askChangeStatus('published')">
               <span>Approve event</span>
-              <span class="icon"><i class="fa fa-check"></i></span>
+              <span class="icon"><font-awesome-icon icon="check" /></span>
             </a>
           </div>
 
@@ -67,14 +67,14 @@
           <div class="field is-grouped" v-if="can.change_status.draft && event.status === 'submitted'">
             <a class="button is-fullwidth is-danger" @click="askChangeStatus('draft')">
               <span>Request changes</span>
-              <span class="icon"><i class="fa fa-times-circle"></i></span>
+              <span class="icon"><font-awesome-icon icon="times-circle" /></span>
             </a>
           </div>
 
           <div class="field is-grouped" v-if="can.delete_event">
             <a class="button is-fullwidth is-danger" @click="askDeleteEvent()">
               <span>Delete event</span>
-              <span class="icon"><i class="fa fa-times"></i></span>
+              <span class="icon"><font-awesome-icon icon="times" /></span>
             </a>
           </div>
         </article>

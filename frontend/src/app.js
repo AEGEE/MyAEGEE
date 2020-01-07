@@ -10,9 +10,10 @@ import Multiselect from 'vue-multiselect'
 import InputTag from 'vue-input-tag'
 import qs from 'qs'
 import Vue2TouchEvents from 'vue2-touch-events'
-import '@fortawesome/fontawesome-free/js/all.min.js'
+
 
 import App from './App.vue'
+import FontAwesomeIcon from './fontawesome'
 import NProgress from './scripts/vue-nprogress'
 import router from './router'
 import store from './store'
@@ -40,7 +41,7 @@ Vue.component('input-tag', InputTag)
 Vue.component('select-or-custom', SelectOrCustom)
 Vue.component('password-toggle', PasswordToggle)
 Vue.component('empty-table-stub', EmptyTableStub)
-
+Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 // Enable devtools
 Vue.config.devtools = true

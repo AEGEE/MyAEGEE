@@ -84,7 +84,9 @@
                 </td>
               </tr>
               <tr v-show="isLoading">
-                <td colspan="8" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
+                <td colspan="8" class="has-text-centered">
+                  <font-awesome-icon style="font-size:24px" :icon="['spinner', 'spin']" />
+                </td>
               </tr>
             </tbody>
           </table>

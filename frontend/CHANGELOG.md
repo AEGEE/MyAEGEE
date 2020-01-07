@@ -1,3 +1,12 @@
+## [0.33.2](https://github.com/AEGEE/oms-frontend/compare/0.33.1...0.33.2) (2020-01-07)
+
+
+### Bug Fixes
+
+* **general:** refactored fontawesome. Fixes MEMB-758 ([e88669b](https://github.com/AEGEE/oms-frontend/commit/e88669b575b603841db3638c0f2dfad867fb3521))
+
+
+
 ## [0.33.1](https://github.com/AEGEE/oms-frontend/compare/0.33.0...0.33.1) (2020-01-06)
 
 

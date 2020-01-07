@@ -41,7 +41,7 @@
         <div class="field">
           <label class="label">Phone</label>
           <div class="control has-icons-left">
-            <span class="icon is-small is-left"><i class="fa fa-phone"></i></span>
+            <span class="icon is-small is-left"><font-awesome-icon icon="phone" /></span>
             <input class="input" type="text" v-model="user.phone" />
           </div>
           <p class="help is-danger" v-if="errors.phone">{{ errors.phone.join(', ')}}</p>
@@ -82,7 +82,7 @@
         <div class="field">
           <label class="label">Email</label>
           <div class="control has-icons-left">
-            <span class="icon is-small is-left"><i class="fa fa-envelope"></i></span>
+            <span class="icon is-small is-left"><font-awesome-icon icon="envelope" /></span>
             <input class="input" type="text" required v-model="user.user.email" />
           </div>
           <p class="help is-danger" v-if="errors.email">{{ errors.email.join(', ')}}</p>
@@ -91,7 +91,7 @@
         <div class="field">
           <label class="label">Username</label>
           <div class="control has-icons-left">
-            <span class="icon is-small is-left"><i class="fa fa-envelope"></i></span>
+            <span class="icon is-small is-left"><font-awesome-icon icon="fa envelope" /></span>
             <input class="input" type="text" required v-model="user.user.name" />
           </div>
           <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>

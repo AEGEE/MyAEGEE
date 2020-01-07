@@ -30,7 +30,7 @@
     </div>
 
     <div>
-      <router-link type="button" class="button is-warning" :to="{name: 'oms.alastair.chef.recipe.edit', params: {id: recipe.id, recipe: recipe}}" v-show="permissions.edit_recipe"><i class="fa-pencil"></i>&nbsp;Edit</router-link>
+      <router-link type="button" class="button is-warning" :to="{name: 'oms.alastair.chef.recipe.edit', params: {id: recipe.id, recipe: recipe}}" v-show="permissions.edit_recipe"><font-awesome-icon icon="pencil" />&nbsp;Edit</router-link>
     </div>
 
     <!-- TODO: Review mechanism -->

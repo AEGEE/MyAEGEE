@@ -32,14 +32,14 @@
 
             <b-table-column label="Edit" :visible="can.edit" centered>
               <a class="button is-small is-warning" @click="editMemberModal(props.row)">
-                <span class="icon"><i class="fa fa-edit"></i></span>
+                <span class="icon"><font-awesome-icon icon="edit" /></span>
                 <span>Edit</span>
               </a>
             </b-table-column>
 
             <b-table-column label="Delete" :visible="can.delete" centered>
               <a class="button is-small is-danger" @click="askDeleteMember(props.row, false)">
-                <span class="icon"><i class="fa fa-minus"></i></span>
+                <span class="icon"><font-awesome-icon icon="minus" /></span>
                 <span>Delete</span>
               </a>
             </b-table-column>

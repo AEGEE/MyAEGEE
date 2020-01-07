@@ -5,12 +5,12 @@
 
       <h5 v-if="event.shop">Assigned shop: <router-link :to="{name: 'oms.alastair.shopping.items', params: {id: event.shop.id}}">{{ event.shop.name }}</router-link> ({{ event.shop.location }}, currency {{ event.shop.currency.name }})</h5>
       <h5 v-if="!event.shop">Assign a shop to enjoy the full shopping list feature</h5>
-      <button type="button" @click="openChangeShopModal" class="button is-warning"><i class="fa fa-pencil"></i>Change shop</button>
-      <router-link :to="{name: 'oms.alastair.organizer.shopping_list', params: {id: event.id}}" class="button is-primary"><i class="fa fa-shopping-cart"></i> Shopping list</router-link>
+      <button type="button" @click="openChangeShopModal" class="button is-warning"><font-awesome-icon icon="pencil" />Change shop</button>
+      <router-link :to="{name: 'oms.alastair.organizer.shopping_list', params: {id: event.id}}" class="button is-primary"><font-awesome-icon icon="shopping-cart" /> Shopping list</router-link>
 
 
       <hr>
-      <h2>Meals  <button class="button is-primary" @click="openEditMealModal(null)"><i class="fa fa-plus"></i> New</button>
+      <h2>Meals  <button class="button is-primary" @click="openEditMealModal(null)"><font-awesome-icon icon="plus" /> New</button>
       </h2>
 
       <div class="table-responsive">
@@ -36,8 +36,8 @@
               </td>
               <td>{{ meal.time | date:'hh:mm'}}</td>
               <td>
-                <router-link class="button is-primary" :to="{name: 'oms.alastair.organizer.meal.single', params: {event_id: event.id, id: meal.id}}"><i class="fa fa-list"></i> Show</router-link>
-                <button type="button" class="button is-warning" @click="openEditMealModal(meal)"><i class="fa fa-pencil"></i> Edit</button>
+                <router-link class="button is-primary" :to="{name: 'oms.alastair.organizer.meal.single', params: {event_id: event.id, id: meal.id}}"><font-awesome-icon icon="list" /> Show</router-link>
+                <button type="button" class="button is-warning" @click="openEditMealModal(meal)"><font-awesome-icon icon="pencil" /> Edit</button>
               </td>
             </tr>
           </tbody>

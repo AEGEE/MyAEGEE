@@ -1,6 +1,6 @@
 {
   "name": "oms-frontend",
-  "version": "0.33.1",
+  "version": "0.33.2",
   "description": "OMS Frontend",
   "repository": "AEGEE/oms-frontend",
   "homepage": "https://my.aegee.eu",
@@ -23,6 +23,9 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.12.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.26",
+    "@fortawesome/free-solid-svg-icons": "^5.12.0",
+    "@fortawesome/vue-fontawesome": "^0.1.9",
     "@fullcalendar/core": "^4.3.1",
     "@fullcalendar/daygrid": "^4.3.0",
     "@fullcalendar/vue": "^4.3.1",

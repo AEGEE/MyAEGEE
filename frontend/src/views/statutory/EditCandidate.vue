@@ -23,7 +23,7 @@
                   <input class="file-input" type="file" name="resume" @change="setFile($event)">
                   <span class="file-cta">
                     <span class="file-icon">
-                      <i class="fa fa-upload"></i>
+                      <font-awesome-icon icon="upload" />
                     </span>
                     <span class="file-label">
                       Choose a file

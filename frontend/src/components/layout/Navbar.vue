@@ -2,12 +2,12 @@
   <nav class="navbar is-fixed-top" :class="{ slideInDown: show, slideOutDown: !show }">
     <div class="navbar-brand">
       <a class="navbar-item is-hidden-tablet" @click="toggleSidebar({opened: !sidebar.opened})">
-        <i class="fa fa-bars" aria-hidden="true" v-show="!sidebar.hidden"></i>
+        <font-awesome-icon icon="bars" aria-hidden="true" v-show="!sidebar.hidden" />
       </a>
       <!-- AEGEE logo would be here -->
       <a role="button" class="navbar-burger burger" @click="toggleNavbarMenu({opened: !navbar.menuOpened})">
         <span aria-hidden="true">
-          <i class="fas fa-user"></i>
+          <font-awesome-icon icon="user" />
         </span>
       </a>
     </div>

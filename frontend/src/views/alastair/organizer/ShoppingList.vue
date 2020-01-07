@@ -29,7 +29,7 @@
             <tr v-for="(ingredient, index) in ingredients" v-bind:key="index">
               <td>
                 <input type="checkbox" @change="checkboxTicked(ingredient)" v-model="ingredient.note.ticked">
-                <i class="fa fa-hourglass-start" v-show="ingredient.note_loading">...</i>
+                <font-awesome-icon icon="hourglass-start" v-show="ingredient.note_loading">...</font-awesome-icon>
                 {{ ingredient.chosen_item.shopping_item.name }}
                 <span v-shop="detailed_view">
                   <br>

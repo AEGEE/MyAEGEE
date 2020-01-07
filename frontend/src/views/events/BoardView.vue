@@ -14,7 +14,7 @@
                 </select>
               </div>
               <div class="icon is-small is-left">
-                <i class="fa fa-globe"></i>
+                <font-awesome-icon icon="globe" />
               </div>
             </div>
           </div>
@@ -52,7 +52,7 @@
 
             <b-table-column label="Save">
               <button type="button" class="button is-primary" @click="submitComment(props.row)">
-                <span class="icon"><i class="fa fa-save"></i></span>
+                <span class="icon"><font-awesome-icon icon="save" /></span>
                 <span>Save</span>
               </button>
             </b-table-column>

@@ -9,14 +9,13 @@
             <div class="card collapse-item" :class="{ 'is-active' : discount.expanded }">
               <header role="tab" class="card-header touchable" @click="discount.expanded = !discount.expanded">
                 <div class="card-header-icon">
-                  <i class="fa" :class="discount.icon" />
+                  <font-awesome-icon :icon="['fa', discount.icon]" />
                 </div>
                 <div class="card-header-title">
                   <span> {{ discount.name }}: <span class="not-bold">{{ discount.shortDescription }}</span></span>
                 </div>
                 <span class="card-header-icon">
-                  <i class="fa fa-angle-down" v-show="discount.expanded"></i>
-                  <i class="fa fa-angle-up" v-show="!discount.expanded"></i>
+                  <font-awesome-icon :icon="['fa', discount.expanded ? 'angle-down' : 'angle-up']" />
                 </span>
               </header>
               <div class="card-content" v-show="discount.expanded">
@@ -27,7 +26,7 @@
         </div>
       </section>
 
-      <section>
+      <section class="buttons">
         <router-link class="button is-primary" :to="{ name: 'oms.discounts.my_discounts' }">My codes</router-link>
         <router-link  v-if="can.create" class="button is-primary" :to="{ name: 'oms.discounts.categories.list' }">Manage</router-link>
       </section>

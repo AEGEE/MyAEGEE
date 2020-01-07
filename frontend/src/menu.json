@@ -6,12 +6,12 @@
       {
         "name": "oms.login",
         "label": "Login",
-        "icon": "fa-sign-in-alt"
+        "icon": "sign-in-alt"
       },
       {
         "name": "oms.register",
         "label": "Register",
-        "icon": "fa-user-plus",
+        "icon": "user-plus",
         "params": { "id": "default" }
       }
     ]
@@ -23,12 +23,12 @@
         "name": "oms.dashboard",
         "label": "Dashboard",
         "auth": "logged-in",
-        "icon": "fa-tachometer-alt"
+        "icon": "tachometer-alt"
       },
       {
         "name": "oms.calendar",
         "label": "Events calendar",
-        "icon": "fa-calendar"
+        "icon": "calendar"
       }
     ]
   },
@@ -38,33 +38,33 @@
       {
         "name": "oms.members.list",
         "label": "Members",
-        "icon": "fa-user",
+        "icon": "user",
         "permissions": ["global:view:member"],
         "auth": "logged-in"
       },
       {
         "name": "oms.bodies.list",
         "label": "Bodies",
-        "icon": "fa-flag"
+        "icon": "flag"
       },
       {
         "name": "oms.permissions.list",
         "label": "Permissions",
-        "icon": "fa-key",
+        "icon": "key",
         "permissions": ["global:update:permission", "global:create:permission"],
         "auth": "logged-in"
       },
       {
         "name": "oms.circles.list",
         "label": "Circles",
-        "icon": "fa-circle",
+        "icon": "circle",
         "permissions": ["global:view:circle"],
         "auth": "logged-in"
       },
       {
         "name": "oms.campaigns.list",
         "label": "Campaigns",
-        "icon": "fa-sign-in-alt",
+        "icon": "sign-in-alt",
         "permissions": ["global:view:campaign"],
         "auth": "logged-in"
       }
@@ -75,7 +75,7 @@
     "components": [
       {
         "label": "Events admin",
-        "icon": "fa-wrench",
+        "icon": "wrench",
         "auth": "logged-in",
         "children": [
           {
@@ -90,7 +90,7 @@
       },
       {
         "label": "Events listing",
-        "icon": "fa-calendar",
+        "icon": "calendar",
         "children": [
           {
             "name": "oms.events.list.all",
@@ -122,7 +122,7 @@
     "components": [
       {
         "label": "Statutory listing",
-        "icon": "fa-calendar",
+        "icon": "calendar",
         "children": [
           {
             "name": "oms.statutory.list.all",
@@ -137,13 +137,13 @@
       },
       {
         "name": "oms.statutory.limits",
-        "icon": "fa-users",
+        "icon": "users",
         "label": "Participants types amount",
         "permissions": ["global:manage_event:agora", "global:manage_event:epm", "global:manage_event:spm"]
       },
       {
         "name": "oms.statutory.tasks",
-        "icon": "fa-tasks",
+        "icon": "tasks",
         "label": "Background tasks",
         "permissions": ["global:see_background_tasks:statutory"]
       }
@@ -156,12 +156,12 @@
       {
         "name": "oms.discounts",
         "label": "Discounts",
-        "icon": "fa-percent"
+        "icon": "percent"
       },
       {
         "name": "oms.resources",
         "label": "Resources",
-        "icon": "fa-external-link-alt"
+        "icon": "external-link-alt"
       }
     ]
   },
@@ -172,7 +172,7 @@
       {
         "name": "oms.status",
         "label": "Status",
-        "icon": "fa-check",
+        "icon": "check",
         "permissions": ["global:access:admin"]
       }
     ]
@@ -183,7 +183,7 @@
     "components": [
       {
         "label": "Organizers View",
-        "icon": "fa-id-badge",
+        "icon": "id-badge",
         "permissions": ["global:use:alastair"],
         "children": [
           {
@@ -198,7 +198,7 @@
       },
       {
         "label": "Chef View",
-        "icon": "fa-utensils",
+        "icon": "utensils",
         "permissions": ["global:use:alastair"],
         "children": [
           {
@@ -217,7 +217,7 @@
       },
       {
         "label": "Shop View",
-        "icon": "fa-shopping-cart",
+        "icon": "shopping-cart",
         "permissions": ["global:use:alastair"],
         "children": [
           {

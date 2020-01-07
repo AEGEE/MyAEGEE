@@ -12,21 +12,21 @@
         <article class="tile is-child is-info">
           <div class="field is-grouped" v-if="can.viewMembers">
             <router-link :to="{ name: 'oms.bodies.members', params: { id: body.id } }" :class="['button', 'is-fullwidth']">
-              <span class="field-icon icon"><i :class="['fas fa-users']"></i></span>
+              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'users']" /></span>
               <span class="field-label">Members</span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.viewJoinRequests">
             <router-link :to="{ name: 'oms.bodies.join_requests', params: { id: body.id } }" :class="['button', 'is-fullwidth']">
-              <span class="field-icon icon"><i :class="['fas fa-users']"></i></span>
+              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'users']" /></span>
               <span class="field-label">Join requests</span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.viewCampaigns">
             <router-link :to="{ name: 'oms.bodies.campaigns', params: { id: body.id } }" :class="['button', 'is-fullwidth']">
-              <span class="field-icon icon"><i :class="['fas fa-users']"></i></span>
+              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'users']" /></span>
               <span class="field-label">Recruitment campaigns</span>
             </router-link>
           </div>
@@ -34,40 +34,40 @@
 
           <div class="field is-grouped" v-if="!isMember">
             <a @click="askToJoinBody()" v-if="!isRequestingMembership" :class="['button', 'is-fullwidth', 'is-info']">
-              <span class="field-icon icon"><i :class="['fas fa-user-plus']"></i></span>
+              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'user-plus']" /></span>
               <span class="field-label">Ask to join body</span>
             </a>
 
             <a v-if="isRequestingMembership" :class="['button', 'is-fullwidth', 'is-static']">
-              <span class="field-icon icon"><i :class="['fas fa-clock']"></i></span>
+              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'clock']" /></span>
               <span class="field-label">Join request sent</span>
             </a>
           </div>
 
           <div class="field is-grouped" v-if="can.createBoundCircles">
             <a @click="openAddCircleModal()" :class="['button', 'is-fullwidth', 'is-warning']">
-              <span class="field-icon icon"><i :class="['fas fa-edit']"></i></span>
+              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'edit']" /></span>
               <span class="field-label">Add bound circle</span>
             </a>
           </div>
 
           <div class="field is-grouped" v-if="can.updateBody">
             <router-link :to="{ name: 'oms.bodies.edit', params: { id: body.id } }" :class="['button', 'is-fullwidth', 'is-warning']">
-              <span class="field-icon icon"><i :class="['fas fa-edit']"></i></span>
+              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'edit']" /></span>
               <span class="field-label">Edit body details</span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="isMember">
             <a @click="askLeaveBody()" :class="['button', 'is-fullwidth', 'is-danger']">
-              <span class="field-icon icon"><i :class="['fas fa-sign-out-alt']"></i></span>
+              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'sign-out-alt']" /></span>
               <span class="field-label">Leave body</span>
             </a>
           </div>
 
           <div class="field is-grouped" v-if="can.deleteBody">
             <a @click="askDeleteBody()" :class="['button', 'is-fullwidth', 'is-danger']">
-              <span class="field-icon icon"><i :class="['fas fa-times']"></i></span>
+              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'times']" /></span>
               <span class="field-label">Delete body</span>
             </a>
           </div>

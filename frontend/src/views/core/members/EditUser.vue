@@ -20,7 +20,7 @@
         <div class="field">
           <label class="label">Email</label>
           <div class="control has-icons-left">
-            <span class="icon is-small is-left"><i class="fa fa-envelope"></i></span>
+            <span class="icon is-small is-left"><font-awesome-icon icon="envelope" /></span>
             <input class="input" type="email" v-model="user.email" />
           </div>
           <p class="help is-danger" v-if="errors.email">{{ errors.email.join(', ')}}</p>
