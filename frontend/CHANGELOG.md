@@ -1,3 +1,12 @@
+## [0.33.3](https://github.com/AEGEE/oms-frontend/compare/0.33.2...0.33.3) (2020-01-07)
+
+
+### Bug Fixes
+
+* **discounts:** added FontAwesome icons for discounts ([a78ab97](https://github.com/AEGEE/oms-frontend/commit/a78ab97bdea8e397414a5610d087a36ad5bc56f7))
+
+
+
 ## [0.33.2](https://github.com/AEGEE/oms-frontend/compare/0.33.1...0.33.2) (2020-01-07)
 
 
