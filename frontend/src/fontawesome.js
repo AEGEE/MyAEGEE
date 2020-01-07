@@ -46,6 +46,15 @@ import { faTable } from '@fortawesome/free-solid-svg-icons/faTable'
 import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
 import { faCamera } from '@fortawesome/free-solid-svg-icons/faCamera'
 import { faPen } from '@fortawesome/free-solid-svg-icons/faPen'
+import { faMicrophone } from '@fortawesome/free-solid-svg-icons/faMicrophone'
+import { faBus } from '@fortawesome/free-solid-svg-icons/faBus'
+import { faTruck } from '@fortawesome/free-solid-svg-icons/faTruck'
+import { faBed } from '@fortawesome/free-solid-svg-icons/faBed'
+import { faHotel } from '@fortawesome/free-solid-svg-icons/faHotel'
+import { faDoorClosed } from '@fortawesome/free-solid-svg-icons/faDoorClosed'
+import { faGraduationCap } from '@fortawesome/free-solid-svg-icons/faGraduationCap'
+import { faUniversity } from '@fortawesome/free-solid-svg-icons/faUniversity'
+import { faCommentAlt } from '@fortawesome/free-solid-svg-icons/faCommentAlt'
 
 
 library.add(faTimesCircle)
@@ -92,5 +101,14 @@ library.add(faTable)
 library.add(faUsers)
 library.add(faCamera)
 library.add(faPen)
+library.add(faMicrophone)
+library.add(faBus)
+library.add(faTruck)
+library.add(faBed)
+library.add(faHotel)
+library.add(faDoorClosed)
+library.add(faGraduationCap)
+library.add(faUniversity)
+library.add(faCommentAlt)
 
 export default FontAwesomeIcon
