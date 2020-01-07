@@ -14,7 +14,7 @@
                 </select>
               </div>
               <div class="icon is-small is-left">
-                <i class="fa fa-globe"></i>
+                <font-awesome-icon icon="globe" />
               </div>
             </div>
           </div>
@@ -38,13 +38,13 @@
           <ul>
             <li :class="{'is-active': scope === 'edit' }" @click="scope = 'edit'" v-show="bodyStatuses.length > 0 && canEditSelectedBody">
               <a>
-                <span class="icon is-small"><i class="fa fa-pen" aria-hidden="true"></i></span>
+                <span class="icon is-small"><font-awesome-icon icon="pen" aria-hidden="true" /></span>
                 <span>Edit boardview</span>
               </a>
             </li>
             <li :class="{'is-active': scope === 'view' }" @click="scope = 'view'">
               <a>
-                <span class="icon is-small"><i class="fa fa-users" aria-hidden="true"></i></span>
+                <span class="icon is-small"><font-awesome-icon icon="users" aria-hidden="true" /></span>
                 <span>View applications</span>
               </a>
             </li>

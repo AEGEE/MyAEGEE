@@ -67,7 +67,7 @@
               </p>
             </td>
             <td>
-              <button type="button" class="btn btn-warn" v-on:click="removeRecipe(index)"><i class="fa-minus"></i> Del</button>
+              <button type="button" class="btn btn-warn" v-on:click="removeRecipe(index)"><font-awesome-icon icon="fa minus" /> Del</button>
             </td>
           </tr>
           <tr>

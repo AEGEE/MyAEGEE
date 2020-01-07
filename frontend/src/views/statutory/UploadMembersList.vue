@@ -14,7 +14,7 @@
                 </select>
               </div>
               <div class="icon is-small is-left">
-                <i class="fa fa-globe"></i>
+                <font-awesome-icon icon="globe" />
               </div>
             </div>
           </div>
@@ -35,7 +35,7 @@
                   <input class="file-input" type="file" name="resume" @change="openFileDialog($event)">
                   <span class="file-cta">
                     <span class="file-icon">
-                      <i class="fa fa-upload"></i>
+                      <font-awesome-icon icon="upload" />
                     </span>
                     <span class="file-label">
                       Fetch members list from CSV

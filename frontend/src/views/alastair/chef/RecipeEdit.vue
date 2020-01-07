@@ -81,7 +81,7 @@
                 <input class="input" v-model="ri.comment" />
               </td>
               <td>
-                <button type="button" class="btn btn-warn" v-on:click="removeIngredient(index)"><i class="fa-minus"></i> Del</button>
+                <button type="button" class="btn btn-warn" v-on:click="removeIngredient(index)"><font-awesome-icon icon="minus" />Del</button>
               </td>
             </tr>
             <tr>

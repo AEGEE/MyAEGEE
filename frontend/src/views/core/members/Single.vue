@@ -13,40 +13,40 @@
           <div class="field is-grouped">
             <a class="button is-fullwidth is-primary" @click="updatePicture()">
               <span>Change picture</span>
-              <span class="icon"><i class="fa fa-camera"></i></span>
+              <span class="icon"><font-awesome-icon icon="camera" /></span>
             </a>
           </div>
 
           <div class="field is-grouped" v-if="can.edit">
             <router-link :to="{ name: 'oms.members.edit', params: { id: user.seo_url || user.id } }" class="button is-fullwidth is-warning">
               <span>Edit profile</span>
-              <span class="icon"><i class="fa fa-edit"></i></span>
+              <span class="icon"><font-awesome-icon icon="edit" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="isOwnProfile">
             <router-link :to="{ name: 'oms.members.edituser', params: { id: user.seo_url || user.id } }" class="button is-fullwidth is-warning">
               <span>Change email or password</span>
-              <span class="icon"><i class="fa fa-edit"></i></span>
+              <span class="icon"><font-awesome-icon icon="edit" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.setActive">
             <a v-if="user.user.active" class="button is-fullwidth is-danger" :class="{'is-loading': isSwitchingStatus }" @click="askToggleActive()">
               <span>Suspend user</span>
-              <span class="icon"><i class="fa fa-minus"></i></span>
+              <span class="icon"><font-awesome-icon icon="minus" /></span>
             </a>
 
             <a v-if="!user.user.active" class="button is-fullwidth is-success" :class="{'is-loading': isSwitchingStatus }" @click="askToggleActive()">
               <span>Activate user</span>
-              <span class="icon"><i class="fa fa-plus"></i></span>
+              <span class="icon"><font-awesome-icon icon="plus" /></span>
             </a>
           </div>
 
           <div class="field is-grouped" v-if="can.delete">
             <a class="button is-fullwidth is-danger" @click="askDeleteUser()">
               <span>Delete profile</span>
-              <span class="icon"><i class="fa fa-times"></i></span>
+              <span class="icon"><font-awesome-icon icon="times" /></span>
             </a>
           </div>
 

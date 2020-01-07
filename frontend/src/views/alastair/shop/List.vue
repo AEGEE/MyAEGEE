@@ -11,7 +11,7 @@
         </div>
 
         <div class="control">
-          <button type="button" class="button is-primary" @click="openShopEditModal()"><i class="fa-plus"></i>New</button>
+          <button type="button" class="button is-primary" @click="openShopEditModal()"><font-awesome-icon icon="plus" />New</button>
         </div>
 
         <div class="table-responsive">
@@ -38,9 +38,9 @@
                 <td>{{ shop.location }}</td>
                 <td>{{ shop.currency.name }}</td>
                 <td>
-                  <router-link :to="{name: 'oms.alastair.shop.items', params: {id: shop.id}}" class="button is-primary"><i class="fa-list"></i> Items</router-link>
-                  <router-link :to="{name: 'oms.alastair.shop.admins', params: {id: shop.id}}" class="button is-primary"><i class="fa-user"></i> Admins</router-link>
-                  <button type="button" v-on:click="openShopEditModal(shop)" class="button is-warning"><i class="fa-pencil"></i> Edit</button>
+                  <router-link :to="{name: 'oms.alastair.shop.items', params: {id: shop.id}}" class="button is-primary"><font-awesome-icon icon="list" /> Items</router-link>
+                  <router-link :to="{name: 'oms.alastair.shop.admins', params: {id: shop.id}}" class="button is-primary"><font-awesome-icon icon="user" /> Admins</router-link>
+                  <button type="button" v-on:click="openShopEditModal(shop)" class="button is-warning"><font-awesome-icon icon="pencil" /> Edit</button>
                 </td>
               </tr>
 
@@ -48,7 +48,7 @@
                 <td colspan="4" class="has-text-centered">Shop list is empty</td>
               </tr>
               <tr v-show="isLoading">
-                <td colspan="4" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
+                <td colspan="4" class="has-text-centered"><font-awesome-icon style="font-size:24px" :icon="['spinner', 'spin']" /></td>
               </tr>
             </tbody>
           </table>

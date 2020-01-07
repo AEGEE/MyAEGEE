@@ -50,7 +50,9 @@
                 <td>{{ item.mapped_ingredient.name }}</td>
                 <td><i><small>{{ item.comment }}</small></i></td>
                 <td v-show="permissions.shop_admin">
-                  <router-link class="button is-warning" :to="{name: 'oms.alastair.shop.match', params: {id: shop.id, item: item.id}}"><i class="fa fa-pencil"></i> Edit</router-link>
+                  <router-link class="button is-warning" :to="{name: 'oms.alastair.shop.match', params: {id: shop.id, item: item.id}}">
+                    <font-awesome-icon icon="pencil" /> Edit
+                  </router-link>
                 </td>
               </tr>
 
@@ -58,7 +60,9 @@
                 <td colspan="4" class="has-text-centered">Item list is empty</td>
               </tr>
               <tr v-show="isLoading">
-                <td colspan="4" class="has-text-centered"><i style="font-size:24px" class="fa fa-spinner fa-spin"></i></td>
+                <td colspan="4" class="has-text-centered">
+                  <font-awesome-icon style="font-size:24px" :icon="['spinner', 'spin']" />
+                </td>
               </tr>
             </tbody>
           </table>

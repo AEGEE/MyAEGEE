@@ -52,17 +52,17 @@
             <div class="buttons">
               <router-link  v-if="can.edit && !$route.params.body_id" :to="{ name: 'oms.campaigns.edit', params: { id: campaign.id } }" class="button is-warning">
                 <span>Edit campaign details</span>
-                <span class="icon"><i class="fa fa-edit"></i></span>
+                <span class="icon"><font-awesome-icon icon="edit" /></span>
               </router-link>
 
               <router-link  v-if="can.edit && $route.params.body_id" :to="{ name: 'oms.bodies.campaigns.edit', params: { body_id: campaign.autojoin_body_id, id: campaign.id } }" class="button is-warning">
                 <span>Edit campaign details</span>
-                <span class="icon"><i class="fa fa-edit"></i></span>
+                <span class="icon"><font-awesome-icon icon="edit" /></span>
               </router-link>
 
               <button v-if="can.delete" class="button is-danger" @click="askDeleteCampaign()">
                 <span>Delete campaign</span>
-                <span class="icon"><i class="fa fa-times"></i></span>
+                <span class="icon"><font-awesome-icon icon="times" /></span>
               </button>
             </div>
           </article>

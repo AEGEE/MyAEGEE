@@ -10,7 +10,7 @@
         <div class="control">
           <a class="button is-primary" @click="displayPassword = !displayPassword">
             <span class="icon is-small">
-              <i class="fas fa-eye"></i>
+              <font-awesome-icon icon="eye" />
             </span>
           </a>
         </div>

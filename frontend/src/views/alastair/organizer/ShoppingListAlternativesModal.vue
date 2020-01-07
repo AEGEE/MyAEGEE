@@ -24,7 +24,7 @@
             <td>{{ item.item_buying_quantity  }}{{ getMeasurement() }} ({{ item.item_count }} items)</td>
             <td>{{ item.item_price }}{{ event.shop.currency.display_code }}</td>
             <td>
-              <button type="button" class="button is-primary" @click="chooseAltItem(item)"><i class="fa fa-check-circle"></i> Choose</button>
+              <button type="button" class="button is-primary" @click="chooseAltItem(item)"><font-awesome-icon icon="check-circle" /> Choose</button>
             </td>
           </tr>
         </tbody>

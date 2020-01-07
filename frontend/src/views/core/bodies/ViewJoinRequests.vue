@@ -37,7 +37,7 @@
               <div class="field" v-if="!props.row.approved">
                 <div class="control">
                   <a class="button is-small is-info" @click="askSetMemberApproved(props.row, true)">
-                    <span class="icon"><i class="fa fa-plus"></i></span>
+                    <span class="icon"><font-awesome-icon icon="plus" /></span>
                     <span>Approve</span>
                   </a>
                 </div>
@@ -48,7 +48,7 @@
               <div class="field" v-if="!props.row.approved">
                 <div class="control">
                   <a class="button is-small is-danger" @click="askSetMemberApproved(props.row, false)">
-                    <span class="icon"><i class="fa fa-minus"></i></span>
+                    <span class="icon"><font-awesome-icon icon="minus" /></span>
                     <span>Reject</span>
                   </a>
                 </div>

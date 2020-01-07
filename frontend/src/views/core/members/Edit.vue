@@ -36,7 +36,7 @@
         <div class="field">
           <label class="label">Phone</label>
           <div class="control has-icons-left">
-            <span class="icon is-small is-left"><i class="fa fa-phone"></i></span>
+            <span class="icon is-small is-left"><font-awesome-icon icon="phone" /></span>
             <input class="input" type="text" v-model="user.phone" />
           </div>
           <p class="help is-danger" v-if="errors.phone">{{ errors.phone.join(', ')}}</p>

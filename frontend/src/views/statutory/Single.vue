@@ -14,131 +14,131 @@
           <div class="field is-grouped" v-if="can.see_applications">
             <router-link :to="{ name: 'oms.statutory.applications', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>View applications</span>
-              <span class="icon"><i class="fas fa-users"></i></span>
+              <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.see_applications_incoming">
             <router-link :to="{ name: 'oms.statutory.incoming', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Manage incoming info</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
+              <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.see_applications_juridical">
             <router-link :to="{ name: 'oms.statutory.juridical', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Manage juridical info</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
+              <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.see_applications_network">
             <router-link :to="{ name: 'oms.statutory.network', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Manage members list status</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
+              <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.export.all || can.export.incoming || can.export.openslides">
             <router-link :to="{ name: 'oms.statutory.applications.export', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Export participants info</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
+              <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.see_plenaries || can.manage_plenaries">
             <router-link :to="{ name: 'oms.statutory.plenaries', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Manage/view plenaries</span>
-              <span class="icon"><i class="fa fa-check"></i></span>
+              <span class="icon"><font-awesome-icon icon="check" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.see_participants_list">
             <router-link :to="{ name: 'oms.statutory.accepted', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Participants list</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
+              <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="canAccessBoardview">
             <router-link :to="{ name: 'oms.statutory.boardview', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Board view</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
+              <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="canAccessMembersLists && this.event.type === 'agora'">
             <router-link :to="{ name: 'oms.statutory.memberslist.upload', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Manage members list</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
+              <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.see_memberslist.global && this.event.type === 'agora'">
             <router-link :to="{ name: 'oms.statutory.memberslist.list', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>See members lists</span>
-              <span class="icon"><i class="fa fa-users"></i></span>
+              <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.use_massmailer">
             <router-link :to="{ name: 'oms.statutory.massmailer', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Mass mailer</span>
-              <span class="icon"><i class="fa fa-envelope"></i></span>
+              <span class="icon"><font-awesome-icon icon="envelope" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.manage_candidates && this.event.type === 'agora'">
             <router-link :to="{ name: 'oms.statutory.positions', params: { id: event.url || event.id, prefix: 'all' } }" class="button is-fullwidth">
               <span>Manage candidates</span>
-              <span class="icon"><i class="fa fa-vote-yea"></i></span>
+              <span class="icon"><font-awesome-icon icon="vote-yea" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="this.event.type === 'agora'">
             <router-link :to="{ name: 'oms.statutory.positions', params: { id: event.url || event.id, prefix: 'approved' } }" class="button is-fullwidth">
               <span>View candidates</span>
-              <span class="icon"><i class="fa fa-vote-yea"></i></span>
+              <span class="icon"><font-awesome-icon icon="vote-yea" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.see_questions || can.manage_question_lines">
             <router-link :to="{ name: 'oms.statutory.question_lines', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Question lines</span>
-              <span class="icon"><i class="fa fa-question"></i></span>
+              <span class="icon"><font-awesome-icon icon="question" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped">
             <router-link :to="{ name: 'oms.statutory.applications.stats', params: { id: event.url || event.id} }" class="button is-fullwidth">
               <span>Applications stats</span>
-              <span class="icon"><i class="fa fa-table"></i></span>
+              <span class="icon"><font-awesome-icon icon="table" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped">
             <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: 'me' } }" class="button is-warning is-fullwidth">
               <span>My application</span>
-              <span class="icon"><i class="fa fa-plus"></i></span>
+              <span class="icon"><font-awesome-icon icon="plus" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.edit_event">
             <router-link :to="{ name: 'oms.statutory.edit', params: { id: event.url || event.id } }" class="button is-fullwidth is-warning">
               <span>Edit event</span>
-              <span class="icon"><i class="fa fa-edit"></i></span>
+              <span class="icon"><font-awesome-icon icon="edit" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.edit_event">
             <a @click="askSwitchStatus('draft')" v-if="event.status === 'published'" class="button is-danger is-fullwidth">
               <span>Unpublish</span>
-              <span class="icon"><i class="fa fa-pen"></i></span>
+              <span class="icon"><font-awesome-icon icon="pen" /></span>
             </a>
 
             <a @click="askSwitchStatus('published')" v-if="event.status === 'draft'" class="button is-info is-fullwidth">
               <span>Publish</span>
-              <span class="icon"><i class="fa fa-globe"></i></span>
+              <span class="icon"><font-awesome-icon icon="globe" /></span>
             </a>
           </div>
         </article>

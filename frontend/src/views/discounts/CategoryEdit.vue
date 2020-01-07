@@ -23,7 +23,7 @@
           </div>
 
           <div class="field">
-            <label class="label">Icon (fa-something, check out <a href="https://fontawesome.com/icons">this list</a> for icons)</label>
+            <label class="label">Icon (fa-something without the fa- prefix, check out <a href="https://fontawesome.com/icons">this list</a> for icons)</label>
             <div class="control">
               <input class="input" type="text" required v-model="discount.icon" />
             </div>
