@@ -15,7 +15,7 @@ const config = {
             port: 4000,
             user: {
                 login: process.env.CORE_LOGIN || 'admin@aegee.org',
-                password: process.env.CORE_PASSWORD || 'admin1234'
+                password: process.env.CORE_PASSWORD || '5ecr3t'
             }
         },
         mailer: {
