@@ -37,7 +37,7 @@
                       </tr>
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>A member of your body (<%= @parameters["body"]["name"] %>) edited the application for <%= @parameters["event"]["name"] %></strong></div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>A member of your body (<%= @parameters["application"]["body_name"] %>) edited the application for <%= @parameters["event"]["name"] %></strong></div>
                         </td>
                       </tr>
                       <tr>

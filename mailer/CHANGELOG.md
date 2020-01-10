@@ -1,3 +1,12 @@
+## [0.7.1](https://github.com/AEGEE/oms-docker/compare/0.7.0...0.7.1) (2020-01-10)
+
+
+### Bug Fixes
+
+* **general:** fixed statutory board applied/edited template ([afa85ad](https://github.com/AEGEE/oms-docker/commit/afa85ad130949ff4d1207e55dba11b782745e357))
+
+
+
 # [0.7.0](https://github.com/AEGEE/oms-docker/compare/0.6.0...0.7.0) (2020-01-04)
 
 
