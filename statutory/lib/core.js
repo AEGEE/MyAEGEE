@@ -2,31 +2,43 @@ const request = require('request-promise-native');
 
 const config = require('../config');
 
-module.exports.getMember = async (req, id) => {
-    const user = await request({
-        url: config.core.url + ':' + config.core.port + '/members/' + id,
-        method: 'GET',
+const makeRequest = (options) => {
+    const requestOptions = {
+        url: options.url,
+        method: options.method || 'GET',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
+            'X-Auth-Token': options.token,
         },
         simple: false,
-        json: true
+        json: true,
+        resolveWithFullResponse: options.resolveWithFullResponse || false
+    };
+
+    if (options.body) {
+        requestOptions.body = options.body;
+    }
+
+    if (options.qs) {
+        requestOptions.qs = options.qs;
+    }
+
+    return request(requestOptions);
+};
+
+const getMember = async (req, id) => {
+    const user = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/members/' + id,
+        token: req.headers['x-auth-token']
     });
 
     return user.data;
 };
 
-module.exports.getBody = async (req, id) => {
-    const body = await request({
+const getBody = async (req, id) => {
+    const body = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/bodies/' + id,
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
-        },
-        simple: false,
-        json: true
+        token: req.headers['x-auth-token']
     });
 
     if (typeof body !== 'object') {
@@ -40,18 +52,13 @@ module.exports.getBody = async (req, id) => {
     return body.data;
 };
 
-module.exports.getApprovePermissions = async (req, event) => {
+const getApprovePermissions = async (req, event) => {
     // Fetching permissions for members approval, the list of bodies
     // where do you have the 'approve_members:<event_type>' permission for it.
-    const approveRequest = await request({
+    const approveRequest = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/my_permissions',
         method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
-        },
-        simple: false,
-        json: true,
+        token: req.headers['x-auth-token'],
         resolveWithFullResponse: true,
         body: {
             action: 'approve_members',
@@ -62,49 +69,66 @@ module.exports.getApprovePermissions = async (req, event) => {
     return approveRequest;
 };
 
-module.exports.getBodies = async (req) => {
-    const bodies = await request({
+const getBodies = async (req) => {
+    const bodies = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/bodies',
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
-        },
-        simple: false,
-        json: true
+        token: req.headers['x-auth-token']
     });
 
     return bodies.data;
 };
 
-module.exports.getMyProfile = async (req) => {
-    const myProfileBody = await request({
+const getMyProfile = async (req) => {
+    const myProfileBody = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/members/me',
         method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
-        },
-        resolveWithFullResponse: true,
-        simple: false,
-        json: true,
+        token: req.headers['x-auth-token'],
+        resolveWithFullResponse: true
     });
 
     return myProfileBody;
 };
 
-module.exports.getMyPermissions = async (req) => {
-    const permissionsBody = await request({
+const getMyPermissions = async (req) => {
+    const permissionsBody = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/my_permissions',
         method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Auth-Token': req.headers['x-auth-token'],
-        },
-        resolveWithFullResponse: true,
-        simple: false,
-        json: true,
+        token: req.headers['x-auth-token'],
+        resolveWithFullResponse: true
     });
 
     return permissionsBody;
+};
+
+const getBodyUsersForPermission = async (permission, bodyId) => {
+    // Getting access and refresh token.
+    const authRequest = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/login',
+        method: 'POST',
+        body: {
+            username: config.core.user.login,
+            password: config.core.user.password
+        }
+    });
+
+    // Fetching members.
+    const response = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/bodies/' + bodyId + '/members',
+        token: authRequest.access_token,
+        qs: {
+            holds_permission: { action: permission.action, object: permission.object }
+        }
+    });
+
+    return response.data;
+};
+
+module.exports = {
+    getMember,
+    getBody,
+    getApprovePermissions,
+    getBodies,
+    getMyProfile,
+    getMyPermissions,
+    getBodyUsersForPermission
 };

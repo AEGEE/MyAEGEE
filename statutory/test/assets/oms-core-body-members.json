@@ -1,0 +1,42 @@
+{
+    "success": true,
+    "data": [
+        {
+            "member_id": 4,
+            "member": {
+                "user_id": 9,
+                "user": {
+                    "superadmin": false,
+                    "name": "paul.smits",
+                    "member_id": 4,
+                    "inserted_at": "2018-05-04T11:16:50.531076",
+                    "id": 9,
+                    "email": "paul.l.smits@gmail.com",
+                    "active": true
+                },
+                "seo_url": "36125407_",
+                "primary_body_id": null,
+                "primary_body": null,
+                "phone": "+31649936487",
+                "last_name": "Smits",
+                "join_requests": null,
+                "id": 4,
+                "gender": "None",
+                "first_name": "Paul",
+                "date_of_birth": "1990-10-17",
+                "circles": null,
+                "circle_memberships": null,
+                "body_memberships": null,
+                "bodies": null,
+                "address": "Bunschoterplein 10, 6711CC Ede, Netherlands",
+                "about_me": "I am a not a microservice."
+            },
+            "inserted_at": "2018-05-04T21:04:15.243761",
+            "id": 1,
+            "has_expired": true,
+            "comment": null,
+            "body_id": 12,
+            "body": null
+        }
+    ]
+}

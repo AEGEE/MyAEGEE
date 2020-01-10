@@ -325,15 +325,80 @@ exports.mockConversionApi = (options) => {
         .replyWithFile(200, path.join(__dirname, '..', 'assets', 'conversion-rates-api.json'));
 };
 
+exports.mockCoreLogin = (options) => {
+    if (options.netError) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .post('/login')
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .post('/login')
+            .reply(500, 'Some error happened.');
+    }
+
+    return nock(`${config.core.url}:${config.core.port}`)
+        .persist()
+        .post('/login')
+        .reply(200, { success: true, access_token: '1', refresh_token: '1' });
+};
+
+exports.mockCoreBodyMembers = (options) => {
+    if (options.netError) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/bodies\/[0-9].*\/members/)
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/bodies\/[0-9].*\/members/)
+            .reply(500, 'Some error happened.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/bodies\/[0-9].*\/members/)
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
+    if (options.unauthorized) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/bodies\/[0-9].*\/members/)
+            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+    }
+
+    if (options.empty) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/bodies\/[0-9].*\/members/)
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
+    }
+
+    return nock(`${config.core.url}:${config.core.port}`)
+        .persist()
+        .get(/\/bodies\/[0-9].*\/members/)
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-body-members.json'));
+};
+
 exports.mockAll = (options = {}) => {
     nock.cleanAll();
     const omsCoreStub = exports.mockCore(options.core || {});
     const omsMainPermissionsStub = exports.mockCoreMainPermissions(options.mainPermissions || {});
     const omsApprovePermissionsStub = exports.mockCoreApprovePermissions(options.approvePermissions || {});
     const omsCoreMembersStub = exports.mockCoreMembers(options.members || {});
+    const omsCoreBodyMembersStub = exports.mockCoreBodyMembers(options.bodyMembers || {});
     const omsCoreBodiesStub = exports.mockCoreBodies(options.bodies || {});
     const omsCoreBodyStub = exports.mockCoreBody(options.body || {});
     const omsCoreMemberStub = exports.mockCoreMember(options.member || {});
+    const omsCoreLoginStub = exports.mockCoreLogin(options.login || {});
     const omsMailerStub = exports.mockCoreMailer(options.mailer || {});
     const conversionRatesStub = exports.mockConversionApi(options.conversion || {});
 
@@ -345,6 +410,8 @@ exports.mockAll = (options = {}) => {
         omsCoreBodiesStub,
         omsCoreBodyStub,
         omsCoreMemberStub,
+        omsCoreLoginStub,
+        omsCoreBodyMembersStub,
         omsMailerStub,
         conversionRatesStub
     };
