@@ -283,6 +283,22 @@ exports.updateApplication = async (req, res) => {
                 event: req.event
             }
         });
+
+        // Sending emails to board members of this body.
+        const boardMembers = await core.getBodyUsersForPermission({
+            action: 'approve_members',
+            object: req.event.type
+        }, req.application.body_id);
+
+        await mailer.sendMail({
+            to: boardMembers.map(member => member.member.user.email),
+            subject: `One of your body members changed the application to ${req.event.name}`,
+            template: 'statutory_board_edited.html',
+            parameters: {
+                application: req.application,
+                event: req.event
+            }
+        });
     });
 
     // Recalculating votes per delegate for this antenna, if user changed the body.

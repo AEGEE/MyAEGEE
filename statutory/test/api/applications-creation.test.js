@@ -894,7 +894,7 @@ describe('Applications creation', () => {
         });
     }
 
-    test('should return 500 and not save application if mailer is returns net error', async () => {
+    test('should return 500 and not save application if mailer returns net error', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true }, mailer: { netError: true } });
 
         const event = await generator.createEvent({
@@ -926,7 +926,7 @@ describe('Applications creation', () => {
         expect(applications.length).toEqual(0);
     });
 
-    test('should return 500 and not save application if mailer is returns bad response', async () => {
+    test('should return 500 and not save application if mailer returns bad response', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true }, mailer: { badResponse: true } });
 
         const event = await generator.createEvent({
@@ -958,8 +958,200 @@ describe('Applications creation', () => {
         expect(applications.length).toEqual(0);
     });
 
-    test('should return 500 and not save application if mailer is returns unsuccessful response', async () => {
+    test('should return 500 and not save application if mailer returns unsuccessful response', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true }, mailer: { unsuccessfulResponse: true } });
+
+        const event = await generator.createEvent({
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
+            applications: []
+        });
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id,
+            answers: [true]
+        });
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+
+        const applications = await Application.findAll({ where: { event_id: event.id } });
+        expect(applications.length).toEqual(0);
+    });
+
+    test('should return 500 and not save application if core login returns net error', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true }, login: { netError: true } });
+
+        const event = await generator.createEvent({
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
+            applications: []
+        });
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id,
+            answers: [true]
+        });
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+
+        const applications = await Application.findAll({ where: { event_id: event.id } });
+        expect(applications.length).toEqual(0);
+    });
+
+    test('should return 500 and not save application if core login returns bad response', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true }, login: { badResponse: true } });
+
+        const event = await generator.createEvent({
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
+            applications: []
+        });
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id,
+            answers: [true]
+        });
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+
+        const applications = await Application.findAll({ where: { event_id: event.id } });
+        expect(applications.length).toEqual(0);
+    });
+
+    test('should return 500 and not save application if core login returns unsuccessful response', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true }, login: { unsuccessfulResponse: true } });
+
+        const event = await generator.createEvent({
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
+            applications: []
+        });
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id,
+            answers: [true]
+        });
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+
+        const applications = await Application.findAll({ where: { event_id: event.id } });
+        expect(applications.length).toEqual(0);
+    });
+
+    test('should return 500 and not save application if core bodies members list returns net error', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true }, bodyMembers: { netError: true } });
+
+        const event = await generator.createEvent({
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
+            applications: []
+        });
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id,
+            answers: [true]
+        });
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+
+        const applications = await Application.findAll({ where: { event_id: event.id } });
+        expect(applications.length).toEqual(0);
+    });
+
+    test('should return 500 and not save application if core bodies members list returns bad response', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true }, bodyMembers: { badResponse: true } });
+
+        const event = await generator.createEvent({
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
+            applications: []
+        });
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id,
+            answers: [true]
+        });
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+
+        const applications = await Application.findAll({ where: { event_id: event.id } });
+        expect(applications.length).toEqual(0);
+    });
+
+    test('should return 500 and not save application if core bodies members list returns unsuccessful response', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true }, bodyMembers: { unsuccessfulResponse: true } });
 
         const event = await generator.createEvent({
             questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],

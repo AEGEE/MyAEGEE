@@ -340,6 +340,13 @@ exports.mockCoreLogin = (options) => {
             .reply(500, 'Some error happened.');
     }
 
+    if (options.unsuccessfulResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .post('/login')
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .post('/login')

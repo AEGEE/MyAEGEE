@@ -111,8 +111,16 @@ const getBodyUsersForPermission = async (permission, bodyId) => {
         }
     });
 
+    if (typeof authRequest !== 'object') {
+        throw new Error('Malformed response when fetching auth request: ' + authRequest);
+    }
+
+    if (!authRequest.success) {
+        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
+    }
+
     // Fetching members.
-    const response = await makeRequest({
+    const membersResponse = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/bodies/' + bodyId + '/members',
         token: authRequest.access_token,
         qs: {
@@ -120,7 +128,15 @@ const getBodyUsersForPermission = async (permission, bodyId) => {
         }
     });
 
-    return response.data;
+    if (typeof membersResponse !== 'object') {
+        throw new Error('Malformed response when fetching members for permission: ' + membersResponse);
+    }
+
+    if (!membersResponse.success) {
+        throw new Error('Error fetching members for permission: ' + JSON.stringify(membersResponse));
+    }
+
+    return membersResponse.data;
 };
 
 module.exports = {
