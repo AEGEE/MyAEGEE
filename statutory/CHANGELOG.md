@@ -1,3 +1,19 @@
+<a name="0.28.0"></a>
+# [0.28.0](https://github.com/AEGEE/oms-statutory/compare/0.27.0...0.28.0) (2020-01-11)
+
+
+### Bug Fixes
+
+* **config:** updated the default core pw ([fb8296d](https://github.com/AEGEE/oms-statutory/commit/fb8296d))
+
+
+### Features
+
+* **general:** board mail for application changes ([3348bd9](https://github.com/AEGEE/oms-statutory/commit/3348bd9))
+* **general:** mail board when somebody applies. Fixes MEMB-311 ([5f02de6](https://github.com/AEGEE/oms-statutory/commit/5f02de6))
+
+
+
 <a name="0.27.0"></a>
 # [0.27.0](https://github.com/AEGEE/oms-statutory/compare/0.26.2...0.27.0) (2019-12-22)
 
