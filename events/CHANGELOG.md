@@ -1,3 +1,13 @@
+<a name="0.22.1"></a>
+## [0.22.1](https://github.com/AEGEE/oms-events/compare/0.22.0...0.22.1) (2020-01-12)
+
+
+### Bug Fixes
+
+* **events:** fixed body passing for core login ([96f6516](https://github.com/AEGEE/oms-events/commit/96f6516))
+
+
+
 <a name="0.22.0"></a>
 # [0.22.0](https://github.com/AEGEE/oms-events/compare/0.21.0...0.22.0) (2020-01-12)
 
