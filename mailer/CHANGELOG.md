@@ -1,3 +1,12 @@
+# [0.8.0](https://github.com/AEGEE/oms-docker/compare/0.7.1...0.8.0) (2020-01-12)
+
+
+### Features
+
+* **general:** event submitted template for EQAC. Fixes MEMB-759 ([2c45cbc](https://github.com/AEGEE/oms-docker/commit/2c45cbc3e37f9f47ca4e12d44fdbff793d7f7350))
+
+
+
 ## [0.7.1](https://github.com/AEGEE/oms-docker/compare/0.7.0...0.7.1) (2020-01-10)
 
 
