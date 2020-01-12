@@ -255,17 +255,42 @@ exports.setApprovalStatus = async (req, res) => {
 
     const oldStatus = req.event.status;
 
-    await req.event.update({ status: req.body.status });
+    await sequelize.transaction(async (t) => {
+        await req.event.update({ status: req.body.status }, { transaction: t });
 
-    // Send email to all organizers.
-    await mailer.sendMail({
-        to: req.event.organizers.map((organizer) => organizer.email),
-        subject: 'Your event\'s status was changed',
-        template: 'events_status_changed.html',
-        parameters: {
-            event: req.event,
-            old_status: oldStatus
+        // Send email to all organizers.
+        await mailer.sendMail({
+            to: req.event.organizers.map((organizer) => organizer.email),
+            subject: 'Your event\'s status was changed',
+            template: 'events_status_changed.html',
+            parameters: {
+                event: req.event,
+                old_status: oldStatus
+            }
+        });
+
+        // If the new status is submitted and the old status is draft, send a mail
+        // to those who have permissions (EQAC/CD)
+        if (oldStatus !== 'draft' || req.event.status !== 'submitted') {
+            return;
         }
+
+        // GET /permissions/:id/members can return the same user multiple times (I suppose
+        // if a user is a member of multiple bodies which have this permission), so we need
+        // to filter it so emails list won't contain duplicates.
+        const membersWthPermissions = await core.fetchUsersWithPermission('approve_event:' + req.event.type);
+        const emails = membersWthPermissions
+            .map(member => member.user.email)
+            .filter((elt, index, array) => array.indexOf(elt) === index);
+
+        await mailer.sendMail({
+            to: emails,
+            subject: 'A new event was submitted.',
+            template: 'events_submitted.html',
+            parameters: {
+                event: req.event
+            }
+        });
     });
 
     return res.json({
