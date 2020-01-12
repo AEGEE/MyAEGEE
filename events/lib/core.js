@@ -15,6 +15,10 @@ const makeRequest = (options) => {
         resolveWithFullResponse: options.resolveWithFullResponse || false
     };
 
+    if (options.body) {
+        requestOptions.body = options.body;
+    }
+
     return request(requestOptions);
 };
 
