@@ -27,6 +27,8 @@ services:
             PG_PASSWORD: "${PW_POSTGRES}"
             NODE_ENV: "${MYAEGEE_ENV}"
             HOST: "${SUBDOMAIN_FRONTEND}${BASE_URL}"
+            CORE_LOGIN: "${CORE_LOGIN}"
+            CORE_PASSWORD: "${CORE_PASSWORD}"
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:8084/healthcheck"]
             interval: 30s
