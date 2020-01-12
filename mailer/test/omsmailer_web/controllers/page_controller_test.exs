@@ -222,5 +222,12 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert json_response(conn, 200)
     assert_email_delivered_with(subject: "pirates")
   end
+
+  # Event submitted
+  test "POST / event submitted should work", %{conn: conn} do
+    conn = post conn, "/", %{template: "events_submitted.html", parameters: %{event: %{name: "test", url: "test" } }, to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(subject: "pirates")
+  end
 end
  
