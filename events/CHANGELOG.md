@@ -1,3 +1,18 @@
+<a name="0.22.0"></a>
+# [0.22.0](https://github.com/AEGEE/oms-events/compare/0.21.0...0.22.0) (2020-01-12)
+
+
+### Bug Fixes
+
+* **docker:** added docker-compose env fields for core login ([c24e171](https://github.com/AEGEE/oms-events/commit/c24e171))
+
+
+### Features
+
+* **general:** mail EQAC on new events approved. Fixes MEMB-760 ([d2bff3a](https://github.com/AEGEE/oms-events/commit/d2bff3a))
+
+
+
 <a name="0.21.0"></a>
 # [0.21.0](https://github.com/AEGEE/oms-events/compare/0.20.0...0.21.0) (2020-01-04)
 
@@ -358,24 +373,15 @@
 
 
 <a name="0.8.1"></a>
-## [0.8.1](https://github.com/AEGEE/oms-events/compare/0.8.0...0.8.1) (2019-09-01)
+## [0.8.1](https://github.com/AEGEE/oms-events/compare/0.7.0...0.8.1) (2019-09-01)
 
 
 ### Bug Fixes
 
 * **deps:** fixed non-major semver security vulnerabilities ([a64dcbf](https://github.com/AEGEE/oms-events/commit/a64dcbf))
 * **docker:** fixed Dockerfile ([d6e3def](https://github.com/AEGEE/oms-events/commit/d6e3def))
-* **general:** postgres password fix for config ([c24b872](https://github.com/AEGEE/oms-events/commit/c24b872))
-
-
-
-<a name="0.8.0"></a>
-# [0.8.0](https://github.com/AEGEE/oms-events/compare/0.7.0...0.8.0) (2019-09-01)
-
-
-### Bug Fixes
-
 * **docker:** updated Node to v12. Fixes MEMB-522 ([68e723e](https://github.com/AEGEE/oms-events/commit/68e723e))
+* **general:** postgres password fix for config ([c24b872](https://github.com/AEGEE/oms-events/commit/c24b872))
 * **general:** set config from logging. Fixes MEMB-547 ([b6d8328](https://github.com/AEGEE/oms-events/commit/b6d8328))
 
 
