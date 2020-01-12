@@ -616,7 +616,7 @@ describe('Events status change', () => {
             expect(res.body.success).toEqual(false);
             expect(res.body).toHaveProperty('message');
         });
-        
+
         it('should return 500 if core permission members returns net error', async () => {
             mock.mockAll({ permissionMembers: { netError: true } });
 

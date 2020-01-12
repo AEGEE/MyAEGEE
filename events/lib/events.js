@@ -280,7 +280,7 @@ exports.setApprovalStatus = async (req, res) => {
         // to filter it so emails list won't contain duplicates.
         const membersWthPermissions = await core.fetchUsersWithPermission('approve_event:' + req.event.type);
         const emails = membersWthPermissions
-            .map(member => member.user.email)
+            .map((member) => member.user.email)
             .filter((elt, index, array) => array.indexOf(elt) === index);
 
         await mailer.sendMail({

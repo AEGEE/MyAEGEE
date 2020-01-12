@@ -1,8 +1,6 @@
 const request = require('request-promise-native');
 
 const config = require('../config');
-const logger = require('./logger');
-
 
 const makeRequest = (options) => {
     const requestOptions = {
@@ -102,7 +100,7 @@ const fetchUsersWithPermission = async (permission) => {
     }
 
     // Finding a permission.
-    const permissionToFind = permissionsResponse.data.find(elt => elt.combined.includes(permission));
+    const permissionToFind = permissionsResponse.data.find((elt) => elt.combined.includes(permission));
     if (!permissionToFind) {
         throw new Error(`No permission found: "${permission}".`);
     }
