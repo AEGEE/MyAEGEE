@@ -496,4 +496,176 @@ describe('Events status change', () => {
             expect(res.body).toHaveProperty('message');
         });
     });
+
+    describe('if core fails', () => {
+        it('should return 500 if core login returns net error', async () => {
+            mock.mockAll({ login: { netError: true } });
+
+            const event = await generator.createEvent({ status: 'draft' });
+
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+
+        it('should return 500 if core login returns bad response', async () => {
+            mock.mockAll({ login: { badResponse: true } });
+
+            const event = await generator.createEvent({ status: 'draft' });
+
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+
+        it('should return 500 if core login returns unsuccessful response', async () => {
+            mock.mockAll({ login: { unsuccessfulResponse: true } });
+
+            const event = await generator.createEvent({ status: 'draft' });
+
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+
+        it('should return 500 if core permissions returns net error', async () => {
+            mock.mockAll({ permissions: { netError: true } });
+
+            const event = await generator.createEvent({ status: 'draft' });
+
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+
+        it('should return 500 if core permissions returns bad response', async () => {
+            mock.mockAll({ permissions: { badResponse: true } });
+
+            const event = await generator.createEvent({ status: 'draft' });
+
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+
+        it('should return 500 if core permissions returns unsuccessful response', async () => {
+            mock.mockAll({ permissions: { unsuccessfulResponse: true } });
+
+            const event = await generator.createEvent({ status: 'draft' });
+
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+
+        it('should return 500 if core permissions returns empty response', async () => {
+            mock.mockAll({ permissions: { noPermissions: true } });
+
+            const event = await generator.createEvent({ status: 'draft' });
+
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+
+        it('should return 500 if core permission members returns net error', async () => {
+            mock.mockAll({ permissionMembers: { netError: true } });
+
+            const event = await generator.createEvent({ status: 'draft' });
+
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+
+        it('should return 500 if core permission members returns bad response', async () => {
+            mock.mockAll({ permissionMembers: { badResponse: true } });
+
+            const event = await generator.createEvent({ status: 'draft' });
+
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+
+        it('should return 500 if core permission members returns unsuccessful response', async () => {
+            mock.mockAll({ permissionMembers: { unsuccessfulResponse: true } });
+
+            const event = await generator.createEvent({ status: 'draft' });
+
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).toHaveProperty('message');
+        });
+    });
 });
