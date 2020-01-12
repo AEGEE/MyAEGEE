@@ -83,7 +83,7 @@
     "jest-junit": "^10.0.0",
     "mocha-lcov-reporter": "^1.3.0",
     "nock": "^11.7.2",
-    "nyc": "^14.1.1",
+    "nyc": "^15.0.0",
     "opn-cli": "^5.0.0",
     "timekeeper": "^2.2.0"
   }
