@@ -1,3 +1,18 @@
+# [0.34.0](https://github.com/AEGEE/oms-frontend/compare/0.33.3...0.34.0) (2020-01-14)
+
+
+### Bug Fixes
+
+* **dashboard:** display seconds on statutory events. Fixes HELP-835 ([98da47b](https://github.com/AEGEE/oms-frontend/commit/98da47b113628759393b24e3b8f9cd4775e34be7))
+* **general:** added events locations disclaimer. Fixes HELP-839 ([5683a18](https://github.com/AEGEE/oms-frontend/commit/5683a18946d48accf867015aff7a980143c30b42))
+
+
+### Features
+
+* **general:** added members permissions page. Fixes MEMB-768 ([e37621a](https://github.com/AEGEE/oms-frontend/commit/e37621a6688208af99dece48871fb787a30b3fab))
+
+
+
 ## [0.33.3](https://github.com/AEGEE/oms-frontend/compare/0.33.2...0.33.3) (2020-01-07)
 
 
