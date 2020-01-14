@@ -69,7 +69,7 @@
                   </li>
                   <li>
                     <strong>Application period: </strong>
-                    {{ statutory.application_period_starts | date }} - {{ statutory.application_period_ends | date }}
+                    {{ statutory.application_period_starts | datetime }} - {{ statutory.application_period_ends | datetime }}
                   </li>
                   <li v-show="statutory.can_apply && new Date() > new Date(statutory.application_period_starts)">
                     <strong>
