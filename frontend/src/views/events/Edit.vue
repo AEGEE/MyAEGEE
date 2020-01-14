@@ -375,6 +375,13 @@
         <div class="subtitle is-fullwidth has-text-centered">Locations</div>
         <hr/>
 
+        <div class="notification is-info">
+          <div class="content">
+            <p>You can add a location and drag it on the map to the desired point.</p>
+            <p>The location name would be displayed as a map marker popup.</p>
+          </div>
+        </div>
+
         <div class="tile" style="position: relative; height: 400px">
           <MglMap
             :accessToken="accessToken"
