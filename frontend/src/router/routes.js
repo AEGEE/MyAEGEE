@@ -246,6 +246,14 @@ module.exports = [
     }
   },
   {
+    name: 'oms.permissions.members',
+    path: '/permissions/:id/members',
+    component: 'core/permissions/ViewMembers',
+    meta: {
+      label: 'View members with permission'
+    }
+  },
+  {
     name: 'oms.permissions.create',
     path: '/permissions/new',
     component: 'core/permissions/Edit',

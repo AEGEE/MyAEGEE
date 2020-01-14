@@ -45,7 +45,11 @@
         </div>
       </article>
 
-      <article class="tile is-child">
+      <article class="buttons">
+        <router-link class="button" :to="{ name: 'oms.permissions.members', params: { id: permission.id } }" v-if="can.viewMembers">
+          View members
+        </router-link>
+
         <router-link class="button is-warning" :to="{ name: 'oms.permissions.edit', params: { id: permission.id } }" v-if="can.edit">
           Edit permission
         </router-link>
@@ -79,7 +83,8 @@ export default {
       permissions: [],
       can: {
         edit: false,
-        delete: false
+        delete: false,
+        viewMembers: false
       }
     }
   },
@@ -112,6 +117,8 @@ export default {
 
       this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:permission'))
       this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:permission'))
+      this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
+
       this.isLoading = false
     }).catch((err) => {
       if (err.response.status === 404) {
