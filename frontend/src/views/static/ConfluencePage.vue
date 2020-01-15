@@ -22,7 +22,8 @@ export default {
       text: '',
       error: false,
       namesMap: {
-        'myaegee-how-to': '240615425'
+        'myaegee-how-to': '240615425',
+        'terms-of-service': '327057442'
       }
     }
   },
