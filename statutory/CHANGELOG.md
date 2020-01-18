@@ -1,3 +1,13 @@
+<a name="0.29.1"></a>
+## [0.29.1](https://github.com/AEGEE/oms-statutory/compare/0.29.0...0.29.1) (2020-01-18)
+
+
+### Bug Fixes
+
+* **general:** add cancelled to stats. Fixes HELP-855 ([77ca63f](https://github.com/AEGEE/oms-statutory/commit/77ca63f))
+
+
+
 <a name="0.29.0"></a>
 # [0.29.0](https://github.com/AEGEE/oms-statutory/compare/0.28.0...0.29.0) (2020-01-18)
 
