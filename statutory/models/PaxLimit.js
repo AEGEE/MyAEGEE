@@ -141,4 +141,13 @@ PaxLimit.fetchOrUseDefaultForBody = async function fetchOrUseDefaultForBody(body
     return this.getDefaultForBody(body, eventType);
 };
 
+
+PaxLimit.prototype.hasAnyLimits = function hasAnyLimits() {
+    return !(this.delegate === 0
+        && this.visitor === 0
+        && this.envoy === 0
+        && this.observer === 0);
+};
+
+
 module.exports = PaxLimit;

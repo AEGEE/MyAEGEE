@@ -1273,4 +1273,32 @@ describe('Applications creation', () => {
         expect(firstApplication.statutory_id).toEqual(event.id.toString().padStart(3, '0') + '-0001');
         expect(res.body.data.statutory_id).toEqual(event.id.toString().padStart(3, '0') + '-0002');
     });
+
+    test('should prevent applying if cannot assign pax type', async () => {
+        const event = await generator.createEvent({ applications: [] });
+        await generator.createPaxLimit({
+            event_type: event.type,
+            body_id: regularUser.bodies[0].id,
+            delegate: 0,
+            observer: 0,
+            visitor: 0,
+            envoy: 0
+        });
+
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id,
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
 });

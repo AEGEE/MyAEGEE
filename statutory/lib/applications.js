@@ -5,7 +5,7 @@ const xlsx = require('node-xlsx').default;
 const errors = require('./errors');
 const core = require('./core');
 const mailer = require('./mailer');
-const { Application, VotesPerAntenna } = require('../models');
+const { Application, VotesPerAntenna, PaxLimit } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const { sequelize } = require('./sequelize');
@@ -579,6 +579,15 @@ exports.postApplication = async (req, res) => {
     req.body.user_id = req.user.id;
     if (!helpers.isMemberOf(req.user, req.body.body_id)) {
         return errors.makeForbiddenError(res, 'You cannot apply on behalf of the body you are not a member of.');
+    }
+
+    // need to fetch body to get its body type
+    const body = await core.getBody(req, req.body.body_id);
+
+    // Do not allow applying if the limit for a body is not set.
+    const limit = await PaxLimit.fetchOrUseDefaultForBody(body, req.event.type);
+    if (!limit.hasAnyLimits()) {
+        return errors.makeForbiddenError(res, 'You cannot apply as this body cannot send any participants.');
     }
 
     delete req.body.statutory_id;

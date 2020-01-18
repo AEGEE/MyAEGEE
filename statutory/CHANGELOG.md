@@ -1,3 +1,13 @@
+<a name="0.29.0"></a>
+# [0.29.0](https://github.com/AEGEE/oms-statutory/compare/0.28.0...0.29.0) (2020-01-18)
+
+
+### Features
+
+* **applications:** do not allow applying if pax type cannot be assigned. Fixes HELP-786 ([82985cd](https://github.com/AEGEE/oms-statutory/commit/82985cd))
+
+
+
 <a name="0.28.0"></a>
 # [0.28.0](https://github.com/AEGEE/oms-statutory/compare/0.27.0...0.28.0) (2020-01-11)
 
