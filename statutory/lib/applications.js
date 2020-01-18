@@ -127,6 +127,7 @@ exports.getStats = async (req, res) => {
         accepted: applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'accepted' })).length,
         rejected: applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'rejected' })).length,
         pending: applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'pending' })).length,
+        cancelled: applications.filter(app => helpers.filterObject(app, { cancelled: true })).length,
         confirmed: applications.filter(app => helpers.filterObject(app, { confirmed: true })).length,
         registered: applications.filter(app => helpers.filterObject(app, { registered: true })).length,
         attended: applications.filter(app => helpers.filterObject(app, { attended: true })).length,

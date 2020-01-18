@@ -316,5 +316,6 @@ describe('Statistics testing', () => {
         expect(res.body.data.numbers.attended).toEqual(3);
         expect(res.body.data.numbers.registered).toEqual(2);
         expect(res.body.data.numbers.departed).toEqual(1);
+        expect(res.body.data.numbers.cancelled).toEqual(3);
     });
 });
