@@ -1,3 +1,12 @@
+## [0.34.1](https://github.com/AEGEE/oms-frontend/compare/0.34.0...0.34.1) (2020-01-18)
+
+
+### Bug Fixes
+
+* **statutory:** add applications to stats. Fixes HELP-855 ([b076e70](https://github.com/AEGEE/oms-frontend/commit/b076e704516385f6f3d2f93c83632a696e20d923))
+
+
+
 # [0.34.0](https://github.com/AEGEE/oms-frontend/compare/0.33.3...0.34.0) (2020-01-14)
 
 
