@@ -11,6 +11,10 @@
               <td>{{ stats.numbers.total }}</td>
             </tr>
             <tr>
+              <th>Cancelled applications:</th>
+              <td>{{ stats.numbers.cancelled }}</td>
+            </tr>
+            <tr>
               <th>Pending applications:</th>
               <td>{{ stats.numbers.pending }}</td>
             </tr>
@@ -131,7 +135,8 @@ export default {
           confirmed: 0,
           attended: 0,
           registered: 0,
-          departed: 0
+          departed: 0,
+          cancelled: 0
         }
       },
       colors: [
