@@ -1182,6 +1182,38 @@ describe('Applications creation', () => {
         expect(applications.length).toEqual(0);
     });
 
+    test('should skip sending mails to board if there is no board', async () => {
+        mock.mockAll({
+            mainPermissions: { noPermissions: true },
+            bodyMembers: { empty: true },
+        });
+
+        const event = await generator.createEvent({
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
+            applications: []
+        });
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id,
+            answers: [true]
+        });
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+    });
+
     describe('should update is_on_memberslist for user', () => {
         test('should set is_on_memberslist = true if there\'s an ID match', async () => {
             const event = await generator.createEvent({ type: 'agora' });

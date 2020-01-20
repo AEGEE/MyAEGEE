@@ -488,4 +488,27 @@ describe('Applications editing', () => {
         const applicationFromDb = await Application.findByPk(application.id);
         expect(applicationFromDb.visa_required).not.toEqual(false);
     });
+
+    test('should skip mailing the board if no board', async () => {
+        mock.mockAll({ bodyMembers: { empty: true } });
+
+        const event = await generator.createEvent({ questions: [generator.generateQuestionForEvent()] });
+        const application = await generator.createApplication({ answers: ['Test answer'] }, event);
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { answers: ['Another test answer'] }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+    });
 });

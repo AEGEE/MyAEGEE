@@ -1,3 +1,13 @@
+<a name="0.29.2"></a>
+## [0.29.2](https://github.com/AEGEE/oms-statutory/compare/0.29.1...0.29.2) (2020-01-20)
+
+
+### Bug Fixes
+
+* **applications:** do not mail board if there is no board. Fixes HELP-879 ([e4bf1e1](https://github.com/AEGEE/oms-statutory/commit/e4bf1e1))
+
+
+
 <a name="0.29.1"></a>
 ## [0.29.1](https://github.com/AEGEE/oms-statutory/compare/0.29.0...0.29.1) (2020-01-18)
 
