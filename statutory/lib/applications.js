@@ -291,15 +291,17 @@ exports.updateApplication = async (req, res) => {
             object: req.event.type
         }, req.application.body_id);
 
-        await mailer.sendMail({
-            to: boardMembers.map(member => member.member.user.email),
-            subject: `One of your body members changed the application to ${req.event.name}`,
-            template: 'statutory_board_edited.html',
-            parameters: {
-                application: req.application,
-                event: req.event
-            }
-        });
+        if (boardMembers.length > 0) {
+            await mailer.sendMail({
+                to: boardMembers.map(member => member.member.user.email),
+                subject: `One of your body members changed the application to ${req.event.name}`,
+                template: 'statutory_board_edited.html',
+                parameters: {
+                    application: req.application,
+                    event: req.event
+                }
+            });
+        }
     });
 
     // Recalculating votes per delegate for this antenna, if user changed the body.
@@ -636,15 +638,17 @@ exports.postApplication = async (req, res) => {
             object: req.event.type
         }, newApplication.body_id);
 
-        await mailer.sendMail({
-            to: boardMembers.map(member => member.member.user.email),
-            subject: `One of your body members has applied to ${req.event.name}`,
-            template: 'statutory_board_applied.html',
-            parameters: {
-                application: newApplication,
-                event: req.event
-            }
-        });
+        if (boardMembers.length > 0) {
+            await mailer.sendMail({
+                to: boardMembers.map(member => member.member.user.email),
+                subject: `One of your body members has applied to ${req.event.name}`,
+                template: 'statutory_board_applied.html',
+                parameters: {
+                    application: newApplication,
+                    event: req.event
+                }
+            });
+        }
     });
 
     return res.json({
