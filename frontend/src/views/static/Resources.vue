@@ -94,13 +94,6 @@ export default {
         ],
         Members: [
           {
-            url: 'http://intranet.aegee.org',
-            title: 'Intranet',
-            description: 'The system that was used before MyAEGEE and is still used for some old things.',
-            img: 'default-yellow.png',
-            color: '#FBBA00'
-          },
-          {
             url: 'http://www.zeus.aegee.org/portal/',
             title: 'Internal news',
             description: 'Open calls and news from European Bodies',
@@ -146,6 +139,13 @@ export default {
             url: 'https://www.facebook.com/groups/aegeeans/',
             title: 'Facebook group',
             description: 'AEGEE\'s official group on Facebook',
+            img: 'facebook.png',
+            color: '#FBBA00'
+          },
+          {
+            url: 'https://site.aegee.org/wp-content/uploads/AEGEE-StrategicPlan-2020-2023.pdf',
+            title: 'Strategic Plan',
+            description: 'Strategic Plan of AEGEE-Europe 2020-2023',
             img: 'facebook.png',
             color: '#FBBA00'
           }
