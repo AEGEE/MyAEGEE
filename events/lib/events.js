@@ -6,6 +6,7 @@ const { Event, Application } = require('../models');
 const { Sequelize, sequelize } = require('./sequelize');
 const core = require('./core');
 const mailer = require('./mailer');
+const config = require('../config');
 
 exports.listEvents = async (req, res) => {
     // Get default query obj.
@@ -275,16 +276,8 @@ exports.setApprovalStatus = async (req, res) => {
             return;
         }
 
-        // GET /permissions/:id/members can return the same user multiple times (I suppose
-        // if a user is a member of multiple bodies which have this permission), so we need
-        // to filter it so emails list won't contain duplicates.
-        const membersWthPermissions = await core.fetchUsersWithPermission('approve_event:' + req.event.type);
-        const emails = membersWthPermissions
-            .map((member) => member.user.email)
-            .filter((elt, index, array) => array.indexOf(elt) === index);
-
         await mailer.sendMail({
-            to: emails,
+            to: config.new_event_notifications,
             subject: 'A new event was submitted.',
             template: 'events_submitted.html',
             parameters: {

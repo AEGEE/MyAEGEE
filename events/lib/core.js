@@ -15,10 +15,6 @@ const makeRequest = (options) => {
         resolveWithFullResponse: options.resolveWithFullResponse || false
     };
 
-    if (options.body) {
-        requestOptions.body = options.body;
-    }
-
     return request(requestOptions);
 };
 
@@ -70,64 +66,7 @@ const fetchBody = async (body, token) => {
     };
 };
 
-const fetchUsersWithPermission = async (permission) => {
-    // Getting access and refresh token.
-    const authRequest = await makeRequest({
-        url: config.core.url + ':' + config.core.port + '/login',
-        method: 'POST',
-        body: {
-            username: config.core.user.login,
-            password: config.core.user.password
-        }
-    });
-
-    if (typeof authRequest !== 'object') {
-        throw new Error('Malformed response when fetching auth: ' + authRequest);
-    }
-
-    if (!authRequest.success) {
-        throw new Error('Error fetching auth: ' + JSON.stringify(authRequest));
-    }
-
-    // Fetching permissions.
-    const permissionsResponse = await makeRequest({
-        url: config.core.url + ':' + config.core.port + '/permissions',
-        token: authRequest.access_token
-    });
-
-    if (typeof permissionsResponse !== 'object') {
-        throw new Error('Malformed response when fetching permissions: ' + permissionsResponse);
-    }
-
-    if (!permissionsResponse.success) {
-        throw new Error('Error fetching permissions: ' + JSON.stringify(permissionsResponse));
-    }
-
-    // Finding a permission.
-    const permissionToFind = permissionsResponse.data.find((elt) => elt.combined.includes(permission));
-    if (!permissionToFind) {
-        throw new Error(`No permission found: "${permission}".`);
-    }
-
-    // Fetching permissions users.
-    const permissionsMembersResponse = await makeRequest({
-        url: config.core.url + ':' + config.core.port + '/permissions/' + permissionToFind.id + '/members',
-        token: authRequest.access_token
-    });
-
-    if (typeof permissionsMembersResponse !== 'object') {
-        throw new Error('Malformed response when fetching permission members: ' + permissionsMembersResponse);
-    }
-
-    if (!permissionsMembersResponse.success) {
-        throw new Error('Error fetching permission members: ' + JSON.stringify(permissionsMembersResponse));
-    }
-
-    return permissionsMembersResponse.data;
-};
-
 module.exports = {
     fetchUser,
-    fetchBody,
-    fetchUsersWithPermission
+    fetchBody
 };

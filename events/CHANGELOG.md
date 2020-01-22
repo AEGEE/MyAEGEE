@@ -1,3 +1,13 @@
+<a name="0.22.2"></a>
+## [0.22.2](https://github.com/AEGEE/oms-events/compare/0.22.1...0.22.2) (2020-01-22)
+
+
+### Bug Fixes
+
+* **events:** send emails to addresses specified. Fixes MEMB-774 ([0da7f7f](https://github.com/AEGEE/oms-events/commit/0da7f7f))
+
+
+
 <a name="0.22.1"></a>
 ## [0.22.1](https://github.com/AEGEE/oms-events/compare/0.22.0...0.22.1) (2020-01-12)
 
