@@ -1,3 +1,12 @@
+## [0.34.2](https://github.com/AEGEE/oms-frontend/compare/0.34.1...0.34.2) (2020-01-22)
+
+
+### Bug Fixes
+
+* **resources:** added strategic plan to resources. Fixes MEMB-776 ([87c817f](https://github.com/AEGEE/oms-frontend/commit/87c817fc98e34afe50af586f31ae65e091215b9a))
+
+
+
 ## [0.34.1](https://github.com/AEGEE/oms-frontend/compare/0.34.0...0.34.1) (2020-01-18)
 
 
