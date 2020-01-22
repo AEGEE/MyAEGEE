@@ -22,6 +22,9 @@ const config = {
             url: 'http://oms-mailer',
             port: 4000
         },
+        new_event_notifications: [
+            'events-approval@aegee.eu'
+        ],
         logger: {
             silent: false,
             level: process.env.LOGLEVEL || 'debug'
