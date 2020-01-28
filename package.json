@@ -1,0 +1,21 @@
+{
+  "name": "oms-core-js",
+  "version": "0.1.0",
+  "description": "The core module of my.aegee.eu",
+  "keywords": [],
+  "author": "Sergey Peshkov",
+  "license": "ISC",
+  "devDependencies": {
+    "@commitlint/cli": "^8.1.0",
+    "@commitlint/config-conventional": "^8.1.0",
+    "husky": "^3.0.4"
+  },
+  "scripts": {
+    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
+}
