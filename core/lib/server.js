@@ -7,9 +7,12 @@ const morgan = require('./morgan');
 const helpers = require('./helpers');
 const db = require('./sequelize');
 const log = require('./logger');
-const middlewares = require('../middlewares/generic');
 const config = require('../config');
 const bugsnag = require('./bugsnag');
+const cron = require('./cron');
+
+const middlewares = require('../middlewares/generic');
+const campaigns = require('../middlewares/campaigns');
 
 const GeneralRouter = router({ mergeParams: true });
 
@@ -28,6 +31,7 @@ process.on('unhandledRejection', (err) => {
 });
 
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
+GeneralRouter.post('/signup/:campaign_id', campaigns.registerUser);
 
 server.use('/', GeneralRouter);
 
@@ -42,6 +46,9 @@ async function startServer() {
             app = localApp;
             log.info('Up and running, listening on http://localhost:%d', config.port);
             await db.authenticate();
+            log.info('DB connection is successful.');
+            await cron.registerAllTasks();
+            log.info('All cron tasks are registered.');
             return res();
         });
         /* istanbul ignore next */
