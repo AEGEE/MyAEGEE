@@ -100,7 +100,7 @@ const User = sequelize.define('user', {
             attributes: { exclude: [] }
         },
         noExtraFields: {
-            attributes: { exclude: ['password', 'superadmin', 'active', 'mail_confirmed_at'] }
+            attributes: { exclude: ['id', 'superadmin', 'active', 'mail_confirmed_at'] }
         }
     }
 });

@@ -1,5 +1,4 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
-const config = require('../config');
 
 const Campaign = sequelize.define('campaign', {
     name: {
