@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const boolParser = require('express-query-boolean');
 
 const morgan = require('./morgan');
+const helpers = require('./helpers');
 const db = require('./sequelize');
 const log = require('./logger');
 const middlewares = require('../middlewares/generic');
@@ -36,7 +37,7 @@ server.use(middlewares.errorHandler);
 let app;
 async function startServer() {
     return new Promise((res, rej) => {
-        log.info('Starting server with the following config: %o', config);
+        log.info('Starting server with the following config: %o', helpers.filterFields(config, config.filter_fields));
         const localApp = server.listen(config.port, async () => {
             app = localApp;
             log.info('Up and running, listening on http://localhost:%d', config.port);
