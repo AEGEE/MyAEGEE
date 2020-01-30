@@ -23,7 +23,10 @@ const config = {
         },
         filter_fields: [
             'token',
-            'password'
+            'password',
+            'postgres.password',
+            'access_token',
+            'refresh_token'
         ],
         bugsnagKey: process.env.BUGSNAG_KEY_CORE || 'CHANGEME'
     },
