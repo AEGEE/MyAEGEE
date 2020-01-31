@@ -13,6 +13,7 @@ const cron = require('./cron');
 
 const middlewares = require('../middlewares/generic');
 const campaigns = require('../middlewares/campaigns');
+const register = require('../middlewares/register');
 
 const GeneralRouter = router({ mergeParams: true });
 
@@ -32,6 +33,7 @@ process.on('unhandledRejection', (err) => {
 
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
 GeneralRouter.post('/signup/:campaign_id', campaigns.registerUser);
+GeneralRouter.post('/confirm-email', register.confirmEmail);
 
 server.use('/', GeneralRouter);
 

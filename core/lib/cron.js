@@ -9,7 +9,7 @@ const { Sequelize } = require('./sequelize');
 
 
 const JobCallbacks = {
-    DELETE_NOT_CONFIRMED_USERS: async ({ id }) => {
+    DELETE_NOT_CONFIRMED_USERS: async () => {
         const confirmations = await MailConfirmation.findAll({
             where: {
                 expires_at: { [Sequelize.Op.lt]: new Date() }
@@ -46,7 +46,7 @@ class JobManager {
             DELETE_NOT_CONFIRMED_USERS: {
                 key: 'DELETE_NOT_CONFIRMED_USERS',
                 description: 'Deleting mail confirmations and their users.',
-                rule: '*/10 * * * *',
+                rule: '*/1 * * * *',
                 callback: JobCallbacks.DELETE_NOT_CONFIRMED_USERS
             }
         };

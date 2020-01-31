@@ -27,7 +27,13 @@ const MailConfirmation = sequelize.define('mail_confirmation', {
         validate: {
             notEmpty: { msg: 'Expires should be set.' },
         }
-    }
+    },
+    is_expired: {
+        type: Sequelize.VIRTUAL,
+        get() {
+            return moment().isAfter(this.expires_at);
+        }
+    },
 }, {
     underscored: true,
     tableName: 'mail_confirmations',
