@@ -1,46 +1,46 @@
 const errors = require('../lib/errors');
 const logger = require('../lib/logger');
-// const { User, AccessToken } = require('../models');
+const { User, AccessToken } = require('../models');
 
 const packageInfo = require('../package');
 
-// exports.maybeAuthorize = async (req, res, next) => {
-//     const authToken = req.headers['x-auth-token'];
-//     if (!authToken) {
-//         return next();
-//     }
+exports.maybeAuthorize = async (req, res, next) => {
+    const authToken = req.headers['x-auth-token'];
+    if (!authToken) {
+        return next();
+    }
 
-//     const accessToken = await AccessToken.findOne({
-//         where: {
-//             value: authToken,
-//         },
-//         include: [User]
-//     });
+    const accessToken = await AccessToken.findOne({
+        where: {
+            value: authToken,
+        },
+        include: [User]
+    });
 
-//     if (!accessToken) {
-//         return next();
-//     }
+    if (!accessToken) {
+        return next();
+    }
 
-//     if (moment(accessToken.expires_at).isBefore(moment())) {
-//         logger.debug('Access token is expired');
-//         return next();
-//     }
+    if (moment(accessToken.expires_at).isBefore(moment())) {
+        logger.debug('Access token is expired');
+        return next();
+    }
 
-//     req.user = accessToken.user;
+    req.user = accessToken.user;
 
-//     return next();
-// };
+    return next();
+};
 
-// exports.ensureAuthorized = async (req, res, next) => {
-//     if (!req.user) {
-//         return res.status(401).json({
-//             success: false,
-//             message: 'You are not authorized.'
-//         });
-//     }
+exports.ensureAuthorized = async (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).json({
+            success: false,
+            message: 'You are not authorized.'
+        });
+    }
 
-//     return next();
-// };
+    return next();
+};
 
 /* istanbul ignore next */
 exports.healthcheck = (req, res) => {

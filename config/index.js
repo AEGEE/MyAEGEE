@@ -19,7 +19,8 @@ const config = {
         media_url: '/frontend/media',
         salt_rounds: 12,
         ttl: {
-            access_token: 10 * 60 // 10 minutes
+            access_token: 10 * 60, // 10 minutes
+            mail_confirmation: 48 * 60 * 60 // 48 hours
         },
         filter_fields: [
             'token',

@@ -22,9 +22,9 @@ module.exports.registerUser = async (req, res) => {
 
     return res.json({
         success: true,
-        data:  {
+        data: {
             user,
             confirmation
         }
-    })
+    });
 };
