@@ -2,6 +2,7 @@ const moment = require('moment');
 
 const errors = require('../lib/errors');
 const logger = require('../lib/logger');
+const helpers = require('../lib/helpers');
 const { User, AccessToken } = require('../models');
 
 const packageInfo = require('../package');
@@ -40,6 +41,40 @@ exports.ensureAuthorized = async (req, res, next) => {
             message: 'You are not authorized.'
         });
     }
+
+    return next();
+};
+
+exports.getMyGlobalPermissions = async (req, res) => {
+    // TODO: return real permissions.
+    return res.json({
+        success: true,
+        data: []
+    });
+};
+
+exports.fetchUser = async (req, res, next) => {
+    if (req.params.user_id === 'me') {
+        req.currentUser = req.user;
+        return next();
+    }
+
+    // searching the user by url
+    let where = { url: req.params.user_id };
+
+    // searching the user by id if it's numeric
+    if (helpers.isNumber(req.params.user_id)) {
+        where = { id: Number (req.params.user_id) };
+    }
+
+    const user = await User.findOne({ where });
+    if (!user) {
+        return errors.makeNotFoundError(req, 'User is not found.');
+    }
+
+    req.currentUser = user;
+
+    // TODO: fetch permissions
 
     return next();
 };
