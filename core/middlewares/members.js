@@ -10,6 +10,6 @@ module.exports.getUser = async (req, res) => {
     // TODO: check permissions
     return res.json({
         success: true,
-        data: req.user
+        data: req.currentUser
     });
 };
