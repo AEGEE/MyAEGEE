@@ -46,7 +46,7 @@ class JobManager {
             DELETE_NOT_CONFIRMED_USERS: {
                 key: 'DELETE_NOT_CONFIRMED_USERS',
                 description: 'Deleting mail confirmations and their users.',
-                rule: '*/1 * * * *',
+                rule: '*/10 * * * *',
                 callback: JobCallbacks.DELETE_NOT_CONFIRMED_USERS
             }
         };
