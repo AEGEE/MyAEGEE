@@ -35,8 +35,27 @@ function filterFields(body, fieldsToFilter) {
     return unflattenObject(flatten);
 }
 
+// Figure out if the value is a number or a string containing only numbers
+function isNumber (value) {
+    /* istanbul ignore if */
+    if (typeof value === 'number') {
+        return true;
+    }
+
+    /* istanbul ignore else */
+    if (typeof value === 'string') {
+        const valueAsNumber = +value; // converts to number if it's all numbers or to NaN otherwise
+        return !Number.isNaN(valueAsNumber);
+    }
+
+    // Is not covered, probably will be in the future.
+    /* istanbul ignore next */
+    return false;
+};
+
 module.exports = {
     filterFields,
     flattenObject,
-    unflattenObject
+    unflattenObject,
+    isNumber
 };
