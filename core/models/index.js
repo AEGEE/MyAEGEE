@@ -3,6 +3,7 @@ const Campaign = require('./Campaign');
 const MailConfirmation = require('./MailConfirmation');
 const AccessToken = require('./AccessToken');
 const RefreshToken = require('./RefreshToken');
+const Body = require('./Body');
 
 Campaign.hasMany(User, { foreignKey: 'campaign_id' });
 User.belongsTo(Campaign, { foreignKey: 'campaign_id' });
@@ -21,5 +22,6 @@ module.exports = {
     Campaign,
     MailConfirmation,
     AccessToken,
-    RefreshToken
+    RefreshToken,
+    Body
 };

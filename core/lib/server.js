@@ -16,9 +16,11 @@ const campaigns = require('../middlewares/campaigns');
 const register = require('../middlewares/register');
 const login = require('../middlewares/login');
 const members = require('../middlewares/members');
+const bodies = require('../middlewares/bodies');
 
 const GeneralRouter = router({ mergeParams: true });
 const MemberRouter = router({ mergeParams: true });
+const BodiesRouter = router({ mergeParams: true });
 
 const server = express();
 server.use(bodyParser.json());
@@ -43,16 +45,30 @@ GeneralRouter.post('/renew', login.renew);
 
 // Endpoints allowing unauthorized and authorized access.
 GeneralRouter.use(middlewares.maybeAuthorize);
+GeneralRouter.get('/bodies', bodies.listAllBodies);
 
 // Endpoints not allowing unauthorized access.
 GeneralRouter.use(middlewares.ensureAuthorized);
 GeneralRouter.get('/my_permissions', middlewares.getMyGlobalPermissions);
+GeneralRouter.get('/members', members.listAllUsers);
+GeneralRouter.post('/bodies', bodies.createBody);
 
 // Everything related to a specific (maybe logged in) user. Auth only.
 MemberRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, middlewares.fetchUser);
+MemberRouter.put('/active', members.setUserActive);
 MemberRouter.get('/', members.getUser);
+MemberRouter.put('/', members.updateUser);
+MemberRouter.delete('/', members.deleteUser);
+
+// Everything related to a specific body. Auth only (except for body details).
+BodiesRouter.use(middlewares.fetchBody);
+BodiesRouter.get('/', bodies.getBody);
+BodiesRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized);
+BodiesRouter.put('/status', bodies.setBodyStatus);
+BodiesRouter.put('/', bodies.updateBody);
 
 server.use('/members/:user_id', MemberRouter);
+server.use('/bodies/:body_id', BodiesRouter);
 server.use('/', GeneralRouter);
 
 server.use(middlewares.notFound);

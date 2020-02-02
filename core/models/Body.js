@@ -1,0 +1,86 @@
+const { Sequelize, sequelize } = require('../lib/sequelize');
+
+const Body = sequelize.define('body', {
+    name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Name should be set.' },
+        }
+    },
+    code: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Code should be set.' },
+        },
+        unique: true
+    },
+    email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Email should be set.' },
+            isEmail: { msg: 'Email should be valid.' }
+        },
+        unique: true
+    },
+    phone: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Phone should be set.' },
+        }
+    },
+    address: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Phone should be set.' },
+        }
+    },
+    type: {
+        type: Sequelize.ENUM('antenna', 'contact antenna', 'contact', 'interest group', 'working group', 'commission', 'committee', 'project', 'partner', 'other'),
+        allowNull: false,
+        defaultValue: 'antenna',
+        validate: {
+            isIn: {
+                args: [['antenna', 'contact antenna', 'contact', 'interest group', 'working group', 'commission', 'committee', 'project', 'partner', 'other']],
+                msg: 'Type should be one of these: "antenna", "contact antenna", "contact", "interest group", "working group", "commission", "committee", "project", "partner", "other".'
+            }
+        }
+    },
+    pays_fees: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true
+    },
+    founded_at: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.fn('NOW')
+    },
+    status: {
+        type: Sequelize.ENUM('active', 'deleted'),
+        allowNull: false,
+        defaultValue: 'active',
+        validate: {
+            isIn: {
+                args: [['active', 'deleted']],
+                msg: 'Ttatus should be one of these: "active", "deleted".'
+            }
+        }
+    },
+}, {
+    underscored: true,
+    tableName: 'bodies',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+});
+
+module.exports = Body;
