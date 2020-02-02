@@ -4,6 +4,7 @@ const MailConfirmation = require('./MailConfirmation');
 const AccessToken = require('./AccessToken');
 const RefreshToken = require('./RefreshToken');
 const Body = require('./Body');
+const Circle = require('./Circle');
 
 Campaign.hasMany(User, { foreignKey: 'campaign_id' });
 User.belongsTo(Campaign, { foreignKey: 'campaign_id' });
@@ -17,11 +18,18 @@ AccessToken.belongsTo(User, { foreignKey: 'user_id' });
 User.hasMany(RefreshToken, { foreignKey: 'user_id' });
 RefreshToken.belongsTo(User, { foreignKey: 'user_id' });
 
+Body.hasMany(Circle, { foreignKey: 'body_id' });
+Circle.belongsTo(Body, { foreignKey: 'body_id' });
+
+Circle.hasMany(Circle, { foreignKey: 'parent_circle_id', as: 'child_circles' });
+Circle.belongsTo(Circle, { foreignKey: 'parent_circle_id', as: 'parent_circle' });
+
 module.exports = {
     User,
     Campaign,
     MailConfirmation,
     AccessToken,
     RefreshToken,
-    Body
+    Body,
+    Circle
 };

@@ -6,6 +6,7 @@ const helpers = require('../lib/helpers');
 const {
     User,
     Body,
+    Circle,
     AccessToken
 } = require('../models');
 
@@ -87,7 +88,7 @@ exports.fetchBody = async (req, res, next) => {
     // searching the body by code
     let where = { code: req.params.body_id };
 
-    // searching the user by id if it's numeric
+    // searching the body by id if it's numeric
     if (helpers.isNumber(req.params.body_id)) {
         where = { id: Number (req.params.body_id) };
     }
@@ -98,6 +99,30 @@ exports.fetchBody = async (req, res, next) => {
     }
 
     req.currentBody = body;
+
+    // TODO: fetch permissions
+
+    return next();
+};
+
+exports.fetchCircle = async (req, res, next) => {
+    // searching the circle by id if it's numeric
+    if (!helpers.isNumber(req.params.circle_id)) {
+        return errors.makeBadRequestError(res, 'Circle ID is invalid.');
+    }
+
+    const circle = await Circle.findOne({
+        where: { id: Number (req.params.circle_id) },
+        include: [
+            { model: Circle, as: 'child_circles' },
+            { model: Circle, as: 'parent_circle' }
+        ]
+    });
+    if (!circle) {
+        return errors.makeNotFoundError(req, 'Circle is not found.');
+    }
+
+    req.currentCircle = circle;
 
     // TODO: fetch permissions
 

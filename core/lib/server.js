@@ -17,10 +17,12 @@ const register = require('../middlewares/register');
 const login = require('../middlewares/login');
 const members = require('../middlewares/members');
 const bodies = require('../middlewares/bodies');
+const circles = require('../middlewares/circles');
 
 const GeneralRouter = router({ mergeParams: true });
 const MemberRouter = router({ mergeParams: true });
 const BodiesRouter = router({ mergeParams: true });
+const CirclesRouter = router({ mergeParams: true });
 
 const server = express();
 server.use(bodyParser.json());
@@ -52,6 +54,8 @@ GeneralRouter.use(middlewares.ensureAuthorized);
 GeneralRouter.get('/my_permissions', middlewares.getMyGlobalPermissions);
 GeneralRouter.get('/members', members.listAllUsers);
 GeneralRouter.post('/bodies', bodies.createBody);
+GeneralRouter.get('/circles', circles.listAllCircles);
+GeneralRouter.post('/circles', circles.createCircle);
 
 // Everything related to a specific (maybe logged in) user. Auth only.
 MemberRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, middlewares.fetchUser);
@@ -67,8 +71,16 @@ BodiesRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized);
 BodiesRouter.put('/status', bodies.setBodyStatus);
 BodiesRouter.put('/', bodies.updateBody);
 
+// Everything related to a specific circle. Auth only.
+CirclesRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, middlewares.fetchCircle);
+CirclesRouter.get('/', circles.getCircle);
+CirclesRouter.put('/parent', circles.setParentCircle);
+CirclesRouter.put('/', circles.updateCircle);
+CirclesRouter.delete('/', circles.deleteCircle);
+
 server.use('/members/:user_id', MemberRouter);
 server.use('/bodies/:body_id', BodiesRouter);
+server.use('/circles/:circle_id', CirclesRouter);
 server.use('/', GeneralRouter);
 
 server.use(middlewares.notFound);
