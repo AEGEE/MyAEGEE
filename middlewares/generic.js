@@ -3,7 +3,11 @@ const moment = require('moment');
 const errors = require('../lib/errors');
 const logger = require('../lib/logger');
 const helpers = require('../lib/helpers');
-const { User, AccessToken } = require('../models');
+const {
+    User,
+    Body,
+    AccessToken
+} = require('../models');
 
 const packageInfo = require('../package');
 
@@ -73,6 +77,27 @@ exports.fetchUser = async (req, res, next) => {
     }
 
     req.currentUser = user;
+
+    // TODO: fetch permissions
+
+    return next();
+};
+
+exports.fetchBody = async (req, res, next) => {
+    // searching the body by code
+    let where = { code: req.params.body_id };
+
+    // searching the user by id if it's numeric
+    if (helpers.isNumber(req.params.body_id)) {
+        where = { id: Number (req.params.body_id) };
+    }
+
+    const body = await Body.findOne({ where });
+    if (!body) {
+        return errors.makeNotFoundError(req, 'Body is not found.');
+    }
+
+    req.currentBody = body;
 
     // TODO: fetch permissions
 
