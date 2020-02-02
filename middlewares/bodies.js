@@ -23,7 +23,7 @@ exports.createBody = async (req, res) => {
     const body = await Body.create(req.body);
     return res.json({
         success: true,
-        data: req.body
+        data: body
     });
 };
 
