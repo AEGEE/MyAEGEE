@@ -5,6 +5,8 @@ const AccessToken = require('./AccessToken');
 const RefreshToken = require('./RefreshToken');
 const Body = require('./Body');
 const Circle = require('./Circle');
+const Permission = require('./Permission');
+const CirclePermission = require('./CirclePermission');
 
 Campaign.hasMany(User, { foreignKey: 'campaign_id' });
 User.belongsTo(Campaign, { foreignKey: 'campaign_id' });
@@ -24,6 +26,9 @@ Circle.belongsTo(Body, { foreignKey: 'body_id' });
 Circle.hasMany(Circle, { foreignKey: 'parent_circle_id', as: 'child_circles' });
 Circle.belongsTo(Circle, { foreignKey: 'parent_circle_id', as: 'parent_circle' });
 
+Circle.belongsToMany(Permission, { through: CirclePermission, foreignKey: 'circle_id', as: 'permissions' });
+Permission.belongsToMany(Circle, { through: CirclePermission, foreignKey: 'permission_id', as: 'circles' });
+
 module.exports = {
     User,
     Campaign,
@@ -31,5 +36,6 @@ module.exports = {
     AccessToken,
     RefreshToken,
     Body,
-    Circle
+    Circle,
+    Permission
 };
