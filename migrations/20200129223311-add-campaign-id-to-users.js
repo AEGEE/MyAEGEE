@@ -4,7 +4,7 @@ module.exports = {
         'campaign_id',
         {
             type: Sequelize.INTEGER,
-            allowNull: false,
+            allowNull: true,
             references: {
                 model: 'campaigns',
                 key: 'id'
