@@ -10,6 +10,11 @@ const User = sequelize.define('user', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Username should be set.' },
+            isValid(value) {
+                if (!/^[a-zA-Z0-9\._-]*$/.test(value)) {
+                    throw new Error('Username should only contain letters, numbers, dots, underscores and dashes.');
+                }
+            }
         },
         unique: true
     },
@@ -53,6 +58,11 @@ const User = sequelize.define('user', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'First name should be set.' },
+            isValid(value) {
+                if (!new RegExp('^[\\p{L} -]*$', 'u').test(value)) {
+                    throw new Error('First name should only contain letters, spaces and dashes.');
+                }
+            }
         }
     },
     last_name: {
@@ -61,6 +71,11 @@ const User = sequelize.define('user', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Last name should be set.' },
+            isValid(value) {
+                if (!new RegExp('^[\\p{L} -]*$', 'u').test(value)) {
+                    throw new Error('Last name should only contain letters, spaces and dashes.');
+                }
+            }
         }
     },
     date_of_birth: {
@@ -103,6 +118,16 @@ const User = sequelize.define('user', {
             attributes: { exclude: ['id', 'superadmin', 'active', 'mail_confirmed_at'] }
         }
     }
+});
+
+User.beforeValidate(async (user) => {
+    if (user.changed('password')) {
+        user.password = await bcrypt.hash(user.password, config.salt_rounds);
+    }
+
+    // skipping these fields if they are unset, will catch it later.
+    if (typeof user.email === 'string') user.email = user.email.toLowerCase().trim();
+    if (typeof user.username === 'string') user.username = user.username.toLowerCase().trim();
 });
 
 User.afterValidate(async (user) => {
