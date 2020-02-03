@@ -145,6 +145,7 @@ bump=false;
 execute=false;
 debug=false;
 list=false;
+pull=false;
 verbose=true; #TODO put me to false default
 docker=false;
 command_num=0;
@@ -166,6 +167,7 @@ if [[ "$#" -ge 1 ]]; then
             --execute) execute=true; ((command_num++)); shift ;;
             --debug) debug=true; ((command_num++)); shift ;;
             --list) list=true; ((command_num++)); shift ;;
+            --pull) pull=true; ((command_num++)); shift ;;
             --docker) docker=true; ((command_num++)); shift ;;
             -v) verbose=true; shift ;;
 
@@ -213,6 +215,11 @@ fi
 
 if ( $execute ); then
     compose_wrapper exec $arguments
+    exit $?
+fi
+
+if ( $pull ); then
+    compose_wrapper pull $arguments
     exit $?
 fi
 
