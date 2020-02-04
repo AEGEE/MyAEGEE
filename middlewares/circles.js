@@ -52,7 +52,7 @@ exports.setParentCircle = async (req, res) => {
     // TODO: check permissions
     const parentCircle = await Circle.findByPk(req.body.id);
     if (!parentCircle) {
-        return errors.makeNotFoundError(circle, 'No parent circle found.');
+        return errors.makeNotFoundError(res, 'No parent circle found.');
     }
 
     await req.currentCircle.update({ parent_circle_id: parentCircle.id });
