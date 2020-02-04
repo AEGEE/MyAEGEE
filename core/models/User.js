@@ -11,7 +11,7 @@ const User = sequelize.define('user', {
         validate: {
             notEmpty: { msg: 'Username should be set.' },
             isValid(value) {
-                if (!/^[a-zA-Z0-9\._-]*$/.test(value)) {
+                if (!/^[a-zA-Z0-9._-]*$/.test(value)) {
                     throw new Error('Username should only contain letters, numbers, dots, underscores and dashes.');
                 }
             }
@@ -138,6 +138,17 @@ User.afterValidate(async (user) => {
 
 User.prototype.checkPassword = async function checkPassword(password) {
     return bcrypt.compare(password, this.password);
+};
+
+User.prototype.notValidFields = function notValidFields() {
+    const missingFields = [];
+    for (const field of ['date_of_birth', 'gender']) {
+        if (!this[field]) {
+            missingFields.push(field);
+        }
+    }
+
+    return { missingFields };
 };
 
 module.exports = User;

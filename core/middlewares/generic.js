@@ -69,7 +69,7 @@ exports.fetchUser = async (req, res, next) => {
 
     // searching the user by id if it's numeric
     if (helpers.isNumber(req.params.user_id)) {
-        where = { id: Number (req.params.user_id) };
+        where = { id: Number(req.params.user_id) };
     }
 
     const user = await User.findOne({ where });
@@ -90,7 +90,7 @@ exports.fetchBody = async (req, res, next) => {
 
     // searching the body by id if it's numeric
     if (helpers.isNumber(req.params.body_id)) {
-        where = { id: Number (req.params.body_id) };
+        where = { id: Number(req.params.body_id) };
     }
 
     const body = await Body.findOne({ where });
@@ -112,7 +112,7 @@ exports.fetchCircle = async (req, res, next) => {
     }
 
     const circle = await Circle.findOne({
-        where: { id: Number (req.params.circle_id) },
+        where: { id: Number(req.params.circle_id) },
         include: [
             { model: Circle, as: 'child_circles' },
             { model: Circle, as: 'parent_circle' }

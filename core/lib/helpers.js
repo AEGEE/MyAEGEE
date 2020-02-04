@@ -12,6 +12,7 @@ function flattenObject(obj, prefix = '') {
     }, {});
 }
 
+/* eslint-disable */
 function unflattenObject(data) {
     const result = {};
 
@@ -23,6 +24,7 @@ function unflattenObject(data) {
     }
     return result;
 }
+/* eslint-enable */
 
 function filterFields(body, fieldsToFilter) {
     const flatten = flattenObject(body);

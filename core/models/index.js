@@ -48,5 +48,6 @@ module.exports = {
     Body,
     Circle,
     Permission,
+    CirclePermission,
     CircleMembership
 };
