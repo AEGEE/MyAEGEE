@@ -4,8 +4,8 @@ services:
   oms-core-js:
     build:
       context: ./${PATH_OMS_CORE_JS}/..
-      dockerfile: ./docker/oms-statutory/Dockerfile
-    image: aegee/oms-statutory:dev
+      dockerfile: ./docker/oms-core-js/Dockerfile
+    image: aegee/oms-core-js:dev
     volumes:
       - /usr/app/src/node_modules
       - ./${PATH_OMS_CORE_JS}/../:/usr/app/src
