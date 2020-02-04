@@ -1,6 +1,6 @@
 const faker = require('faker');
 
-const { User, Campaign } = require('../../models');
+const { User, Campaign, MailConfirmation } = require('../../models');
 
 const notSet = (field) => typeof field === 'undefined';
 
@@ -36,6 +36,7 @@ exports.createCampaign = (options = {}) => {
 };
 
 exports.clearAll = async () => {
+    await MailConfirmation.destroy({ where: {}, truncate: { cascade: true } });
     await User.destroy({ where: {}, truncate: { cascade: true } });
     await Campaign.destroy({ where: {}, truncate: { cascade: true } });
 };
