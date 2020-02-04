@@ -36,6 +36,6 @@ exports.createCampaign = (options = {}) => {
 };
 
 exports.clearAll = async () => {
-    await Campaign.destroy({ where: {}, truncate: { cascade: true } });
     await User.destroy({ where: {}, truncate: { cascade: true } });
+    await Campaign.destroy({ where: {}, truncate: { cascade: true } });
 };
