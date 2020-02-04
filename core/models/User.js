@@ -34,8 +34,7 @@ const User = sequelize.define('user', {
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Password should be set.' },
-        },
-        unique: true
+        }
     },
     mail_confirmed_at: {
         type: Sequelize.DATE,
@@ -121,10 +120,6 @@ const User = sequelize.define('user', {
 });
 
 User.beforeValidate(async (user) => {
-    if (user.changed('password')) {
-        user.password = await bcrypt.hash(user.password, config.salt_rounds);
-    }
-
     // skipping these fields if they are unset, will catch it later.
     if (typeof user.email === 'string') user.email = user.email.toLowerCase().trim();
     if (typeof user.username === 'string') user.username = user.username.toLowerCase().trim();
