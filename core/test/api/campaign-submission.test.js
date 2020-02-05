@@ -86,7 +86,7 @@ describe('Campaign submission', () => {
 
     test('should fail if the last name is invalid', async () => {
         const campaign = await generator.createCampaign();
-        const user = generator.generateUser({ last_name: '!@#!@#D'});
+        const user = generator.generateUser({ last_name: '!@#!@#D' });
 
         const res = await request({
             uri: '/campaigns/' + campaign.url,
@@ -131,8 +131,6 @@ describe('Campaign submission', () => {
             body: user
         });
 
-        console.log(res.body);
-
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
@@ -150,8 +148,6 @@ describe('Campaign submission', () => {
             headers: { 'X-Auth-Token': 'blablabla' },
             body: user
         });
-
-        console.log(res.body);
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
