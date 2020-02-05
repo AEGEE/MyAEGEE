@@ -23,8 +23,7 @@ module.exports = {
         },
         mail_confirmed_at: {
             type: Sequelize.DATE,
-            allowNull: true,
-            defaultValue: Sequelize.NOW
+            allowNull: true
         },
         active: {
             type: Sequelize.BOOLEAN,

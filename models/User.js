@@ -38,8 +38,7 @@ const User = sequelize.define('user', {
     },
     mail_confirmed_at: {
         type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.NOW
+        allowNull: true
     },
     active: {
         type: Sequelize.BOOLEAN,
