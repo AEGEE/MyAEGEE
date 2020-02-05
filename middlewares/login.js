@@ -38,7 +38,7 @@ module.exports.login = async (req, res) => {
 
 module.exports.renew = async (req, res) => {
     const token = await RefreshToken.findOne({
-        value: req.body.token
+        where: { value: req.body.token }
     });
 
     if (!token) {

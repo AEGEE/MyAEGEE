@@ -33,7 +33,7 @@ describe('Authorization', () => {
     });
 
     test('should fail if the password is wrong', async () => {
-        const user = await generator.createUser({ password: 'test' })
+        const user = await generator.createUser({ password: 'test' });
         const res = await request({
             uri: '/login/',
             method: 'POST',
@@ -51,7 +51,7 @@ describe('Authorization', () => {
     });
 
     test('should fail if the email is not confirmed', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: null })
+        const user = await generator.createUser({ password: 'test', mail_confirmed_at: null });
         const res = await request({
             uri: '/login/',
             method: 'POST',
@@ -69,7 +69,7 @@ describe('Authorization', () => {
     });
 
     test('should succeed if everything is okay', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() })
+        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
         const res = await request({
             uri: '/login/',
             method: 'POST',
