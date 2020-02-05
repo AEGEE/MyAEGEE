@@ -19,6 +19,7 @@
     "jest": "^25.1.0",
     "jest-junit": "^10.0.0",
     "nyc": "^15.0.0",
+    "open-cli": "^5.0.0",
     "request-promise-native": "^1.0.8"
   },
   "scripts": {
@@ -28,7 +29,8 @@
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
     "cli": "node --experimental-repl-await -r ./cli.js",
-    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
+    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
+    "open-coverage": "open-cli coverage/lcov-report/index.html"
   },
   "husky": {
     "hooks": {
