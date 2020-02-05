@@ -50,7 +50,7 @@ describe('Campaign submission', () => {
 
     test('should fail if the username is invalid', async () => {
         const campaign = await generator.createCampaign();
-        const user = generator.generateUser({ username: 'not valid username '});
+        const user = generator.generateUser({ username: 'not valid username ' });
 
         const res = await request({
             uri: '/campaigns/' + campaign.url,
@@ -68,7 +68,7 @@ describe('Campaign submission', () => {
 
     test('should fail if the first name is invalid', async () => {
         const campaign = await generator.createCampaign();
-        const user = generator.generateUser({ first_name: '!@#!@#D'});
+        const user = generator.generateUser({ first_name: '!@#!@#D' });
 
         const res = await request({
             uri: '/campaigns/' + campaign.url,

@@ -37,8 +37,21 @@ exports.generateCampaign = (options = {}) => {
     return options;
 };
 
+
 exports.createCampaign = (options = {}) => {
     return Campaign.create(exports.generateCampaign(options));
+};
+
+exports.generateRefreshToken = (options = {}, user) => {
+    if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
+    if (user) options.user_id = user.id;
+
+    return options;
+};
+
+
+exports.createRefreshToken = (options = {}, user = null) => {
+    return RefreshToken.create(exports.generateRefreshToken(options, user));
 };
 
 exports.clearAll = async () => {
