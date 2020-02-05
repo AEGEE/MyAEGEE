@@ -13,7 +13,7 @@ module.exports.login = async (req, res) => {
     });
 
     if (!user) {
-        return errors.makeNotFoundError(res, 'User is not found.');
+        return errors.makeUnauthorizedError(res, 'User is not found.');
     }
 
     if (!await user.checkPassword(req.body.password)) {
