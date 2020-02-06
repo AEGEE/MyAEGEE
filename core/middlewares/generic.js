@@ -9,7 +9,7 @@ const {
     Circle,
     AccessToken
 } = require('../models');
-
+const { Sequelize } = require('../lib/sequelize');
 const packageInfo = require('../package');
 
 exports.maybeAuthorize = async (req, res, next) => {
@@ -65,7 +65,7 @@ exports.fetchUser = async (req, res, next) => {
     }
 
     // searching the user by url
-    let where = { url: req.params.user_id };
+    let where = { username: { [Sequelize.Op.iLike]: req.params.user_id } };
 
     // searching the user by id if it's numeric
     if (helpers.isNumber(req.params.user_id)) {
@@ -74,7 +74,7 @@ exports.fetchUser = async (req, res, next) => {
 
     const user = await User.findOne({ where });
     if (!user) {
-        return errors.makeNotFoundError(req, 'User is not found.');
+        return errors.makeNotFoundError(res, 'User is not found.');
     }
 
     req.currentUser = user;
