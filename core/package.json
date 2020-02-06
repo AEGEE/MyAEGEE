@@ -48,7 +48,9 @@
       "!lib/run.js",
       "!lib/sequelize.js",
       "!lib/logger.js",
-      "!lib/fs.js"
+      "!lib/fs.js",
+      "!lib/merge.js",
+      "!lib/errors.js"
     ],
     "reporters": [
       "default",
