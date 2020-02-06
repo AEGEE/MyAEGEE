@@ -27,20 +27,21 @@ exports.updateUser = async (req, res) => {
     });
 };
 
-exports.deleteUser = async (req, res) => {
-    // TODO: check permissions
-    await req.currentUser.destroy();
-    return res.json({
-        success: true,
-        message: 'User is deleted.'
-    });
-};
+// TODO: reimplement by not deleting, but anonymizing a user.
+// exports.deleteUser = async (req, res) => {
+//     // TODO: check permissions
+//     await req.currentUser.destroy();
+//     return res.json({
+//         success: true,
+//         data: 'User is deleted.'
+//     });
+// };
 
 exports.setUserActive = async (req, res) => {
     // TODO: check permissions
     await req.currentUser.update({ active: req.body.active });
     return res.json({
         success: true,
-        message: req.currentUser
+        data: req.currentUser
     });
 };
