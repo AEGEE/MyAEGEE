@@ -43,7 +43,10 @@ const User = sequelize.define('user', {
     active: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: true
+        defaultValue: true,
+        validate: {
+            isBoolean: { msg: 'Active should be valid.' }
+        }
     },
     superadmin: {
         type: Sequelize.BOOLEAN,

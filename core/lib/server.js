@@ -62,7 +62,7 @@ MemberRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, middl
 MemberRouter.put('/active', members.setUserActive);
 MemberRouter.get('/', members.getUser);
 MemberRouter.put('/', members.updateUser);
-MemberRouter.delete('/', members.deleteUser);
+// MemberRouter.delete('/', members.deleteUser);
 
 // Everything related to a specific body. Auth only (except for body details).
 BodiesRouter.use(middlewares.fetchBody);
