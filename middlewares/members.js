@@ -1,4 +1,5 @@
 const { User } = require('../models');
+const constants = require('../lib/constants');
 
 exports.listAllUsers = async (req, res) => {
     const users = await User.findAll({});
@@ -19,8 +20,7 @@ exports.getUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
     // TODO: check permissions
-    // TODO: filter out fields that are changed in the other way
-    await req.currentUser.update(req.body);
+    await req.currentUser.update(req.body, { fields: constants.FIELDS_TO_UPDATE.USER });
     return res.json({
         success: true,
         data: req.currentUser
