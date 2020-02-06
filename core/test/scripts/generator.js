@@ -49,9 +49,20 @@ exports.generateRefreshToken = (options = {}, user) => {
     return options;
 };
 
-
 exports.createRefreshToken = (options = {}, user = null) => {
     return RefreshToken.create(exports.generateRefreshToken(options, user));
+};
+
+exports.generateAccessToken = (options = {}, user) => {
+    if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
+    if (notSet(options.expires_at)) options.expires_at = faker.date.future();
+    if (user) options.user_id = user.id;
+
+    return options;
+};
+
+exports.createAccessToken = (options = {}, user = null) => {
+    return AccessToken.create(exports.generateAccessToken(options, user));
 };
 
 exports.clearAll = async () => {
