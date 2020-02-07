@@ -2,7 +2,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 
-describe('User editing', () => {
+describe('Bodies status', () => {
     beforeAll(async () => {
         await startServer();
     });
@@ -15,15 +15,15 @@ describe('User editing', () => {
         await generator.clearAll();
     });
 
-    test('should return 404 if the user is not found', async () => {
-        const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
+    test('should return 404 if the body is not found', async () => {
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
         const res = await request({
-            uri: '/members/1337',
+            uri: '/bodies/1337/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { username: 'test2' }
+            body: { active: false }
         });
 
         expect(res.statusCode).toEqual(404);
@@ -33,56 +33,42 @@ describe('User editing', () => {
     });
 
     test('should fail if there are validation errors', async () => {
-        const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
+        const body = await generator.createBody();
+
         const res = await request({
-            uri: '/members/' + user.id,
+            uri: '/bodies/' + body.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { username: 'username with spaces' }
+            body: { status: 'aaa' }
         });
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('username')
+        expect(res.body.errors).toHaveProperty('status')
     });
 
     test('should succeed if everything is okay', async () => {
-        const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
-        const res = await request({
-            uri: '/members/' + user.id,
-            method: 'PUT',
-            headers: { 'X-Auth-Token': token.value },
-            body: { username: 'test2' }
-        });
-
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        expect(res.body).not.toHaveProperty('errors');
-        expect(res.body).toHaveProperty('data');
-        expect(res.body.data.username).toEqual('test2')
-    });
-
-    test('should discard fields edited in other endpoints', async () => {
-        const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
-        const token = await generator.createAccessToken({}, user);
+        const body = await generator.createBody();
 
         const res = await request({
-            uri: '/members/' + user.id,
+            uri: '/bodies/' + body.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { email: 'test@test.io' }
+            body: { status: 'deleted' }
         });
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errrors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.email).not.toEqual('test@test.io')
+        expect(res.body.data.status).toEqual('deleted')
     });
 });

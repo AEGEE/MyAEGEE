@@ -86,7 +86,7 @@ exports.fetchUser = async (req, res, next) => {
 
 exports.fetchBody = async (req, res, next) => {
     // searching the body by code
-    let where = { code: req.params.body_id };
+    let where = { code: { [Sequelize.Op.iLike]: req.params.body_id } };
 
     // searching the body by id if it's numeric
     if (helpers.isNumber(req.params.body_id)) {
@@ -95,7 +95,7 @@ exports.fetchBody = async (req, res, next) => {
 
     const body = await Body.findOne({ where });
     if (!body) {
-        return errors.makeNotFoundError(req, 'Body is not found.');
+        return errors.makeNotFoundError(res, 'Body is not found.');
     }
 
     req.currentBody = body;
@@ -119,7 +119,7 @@ exports.fetchCircle = async (req, res, next) => {
         ]
     });
     if (!circle) {
-        return errors.makeNotFoundError(req, 'Circle is not found.');
+        return errors.makeNotFoundError(res, 'Circle is not found.');
     }
 
     req.currentCircle = circle;
