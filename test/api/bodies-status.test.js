@@ -49,7 +49,7 @@ describe('Bodies status', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('status')
+        expect(res.body.errors).toHaveProperty('status');
     });
 
     test('should succeed if everything is okay', async () => {
@@ -69,6 +69,6 @@ describe('Bodies status', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errrors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.status).toEqual('deleted')
+        expect(res.body.data.status).toEqual('deleted');
     });
 });
