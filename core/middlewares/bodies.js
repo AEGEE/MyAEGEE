@@ -42,6 +42,6 @@ exports.setBodyStatus = async (req, res) => {
     await req.currentBody.update({ status: req.body.status });
     return res.json({
         success: true,
-        message: 'Body status is updated.'
+        data: req.currentBody
     });
 };
