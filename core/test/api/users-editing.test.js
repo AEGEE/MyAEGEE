@@ -47,7 +47,7 @@ describe('User editing', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('username')
+        expect(res.body.errors).toHaveProperty('username');
     });
 
     test('should succeed if everything is okay', async () => {
@@ -65,7 +65,7 @@ describe('User editing', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.username).toEqual('test2')
+        expect(res.body.data.username).toEqual('test2');
     });
 
     test('should discard fields edited in other endpoints', async () => {
@@ -83,6 +83,6 @@ describe('User editing', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errrors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.email).not.toEqual('test@test.io')
+        expect(res.body.data.email).not.toEqual('test@test.io');
     });
 });

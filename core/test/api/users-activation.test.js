@@ -47,7 +47,7 @@ describe('User activation', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('active')
+        expect(res.body.errors).toHaveProperty('active');
     });
 
     test('should succeed if everything is okay', async () => {
@@ -65,6 +65,6 @@ describe('User activation', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
-        expect(res.body.data.active).toEqual(false)
+        expect(res.body.data.active).toEqual(false);
     });
 });
