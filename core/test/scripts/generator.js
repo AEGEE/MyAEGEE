@@ -7,7 +7,10 @@ const {
     AccessToken,
     RefreshToken,
     Body,
-    Circle
+    Circle,
+    Permission,
+    CirclePermission,
+    CircleMembership
 } = require('../../models');
 
 const notSet = (field) => typeof field === 'undefined';
@@ -80,9 +83,21 @@ exports.generateCampaign = (options = {}) => {
     return options;
 };
 
-
 exports.createCampaign = (options = {}) => {
     return Campaign.create(exports.generateCampaign(options));
+};
+
+exports.generatePermission = (options = {}) => {
+    if (notSet(options.scope)) options.scope = 'global';
+    if (notSet(options.action)) options.action = faker.random.alphaNumeric(16);
+    if (notSet(options.object)) options.object = faker.random.alphaNumeric(16);
+    if (notSet(options.description)) options.description = faker.lorem.paragraph();
+
+    return options;
+};
+
+exports.createPermission = (options = {}) => {
+    return Permission.create(exports.generatePermission(options));
 };
 
 exports.generateRefreshToken = (options = {}, user) => {
@@ -109,6 +124,9 @@ exports.createAccessToken = (options = {}, user = null) => {
 };
 
 exports.clearAll = async () => {
+    await Permission.destroy({ where: {}, truncate: { cascade: true } });
+    await CirclePermission.destroy({ where: {}, truncate: { cascade: true } });
+    await CircleMembership.destroy({ where: {}, truncate: { cascade: true } });
     await Circle.destroy({ where: {}, truncate: { cascade: true } });
     await Body.destroy({ where: {}, truncate: { cascade: true } });
     await AccessToken.destroy({ where: {}, truncate: { cascade: true } });

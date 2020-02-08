@@ -18,11 +18,13 @@ const login = require('../middlewares/login');
 const members = require('../middlewares/members');
 const bodies = require('../middlewares/bodies');
 const circles = require('../middlewares/circles');
+const permissions = require('../middlewares/permissions');
 
 const GeneralRouter = router({ mergeParams: true });
 const MemberRouter = router({ mergeParams: true });
 const BodiesRouter = router({ mergeParams: true });
 const CirclesRouter = router({ mergeParams: true });
+const PermissionsRouter = router({ mergeParams: true });
 
 const server = express();
 server.use(bodyParser.json());
@@ -58,6 +60,8 @@ GeneralRouter.get('/members', middlewares.ensureAuthorized, members.listAllUsers
 GeneralRouter.post('/bodies', middlewares.ensureAuthorized, bodies.createBody);
 GeneralRouter.get('/circles', middlewares.ensureAuthorized, circles.listAllCircles);
 GeneralRouter.post('/circles', middlewares.ensureAuthorized, circles.createCircle);
+GeneralRouter.get('/permissions', permissions.listAllPermissions);
+GeneralRouter.post('/permissions', permissions.createPermission);
 
 // Everything related to a specific (maybe logged in) user. Auth only.
 MemberRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, middlewares.fetchUser);
@@ -80,9 +84,16 @@ CirclesRouter.put('/parent', circles.setParentCircle);
 CirclesRouter.put('/', circles.updateCircle);
 CirclesRouter.delete('/', circles.deleteCircle);
 
+// Everything related to a specific permission. Auth only.
+PermissionsRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, middlewares.fetchPermission);
+PermissionsRouter.get('/', permissions.getPermission);
+PermissionsRouter.put('/', permissions.updatePermission);
+PermissionsRouter.delete('/', permissions.deletePermission);
+
 server.use('/members/:user_id', MemberRouter);
 server.use('/bodies/:body_id', BodiesRouter);
 server.use('/circles/:circle_id', CirclesRouter);
+server.use('/permissions/:permission_id', PermissionsRouter);
 server.use('/', GeneralRouter);
 
 server.use(middlewares.notFound);

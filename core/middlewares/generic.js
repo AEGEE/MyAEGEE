@@ -7,6 +7,7 @@ const {
     User,
     Body,
     Circle,
+    Permission,
     AccessToken
 } = require('../models');
 const { Sequelize } = require('../lib/sequelize');
@@ -123,6 +124,29 @@ exports.fetchCircle = async (req, res, next) => {
     }
 
     req.currentCircle = circle;
+
+    // TODO: fetch permissions
+
+    return next();
+};
+
+exports.fetchPermission = async (req, res, next) => {
+    // searching the circle by id if it's numeric
+    if (!helpers.isNumber(req.params.permission_id)) {
+        return errors.makeBadRequestError(res, 'Permission ID is invalid.');
+    }
+
+    const permission = await Permission.findOne({
+        where: { id: Number(req.params.permission_id) },
+        include: [
+            { model: Circle, as: 'circles' },
+        ]
+    });
+    if (!permission) {
+        return errors.makeNotFoundError(res, 'Permission is not found.');
+    }
+
+    req.currentPermission = permission;
 
     // TODO: fetch permissions
 
