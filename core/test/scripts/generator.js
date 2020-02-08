@@ -30,6 +30,18 @@ exports.createUser = (options = {}) => {
     return User.create(exports.generateUser(options));
 };
 
+exports.generateMailConfirmation = (options = {}, user) => {
+    if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
+    if (notSet(options.expires_at)) options.expires_at = faker.date.future();
+    if (user) options.user_id = user.id;
+
+    return options;
+};
+
+exports.createMailConfirmation = (options = {}, user = null) => {
+    return MailConfirmation.create(exports.generateMailConfirmation(options, user));
+};
+
 exports.generateBody = (options = {}) => {
     if (notSet(options.name)) options.name = faker.name.firstName();
     if (notSet(options.description)) options.description = faker.lorem.paragraph();
