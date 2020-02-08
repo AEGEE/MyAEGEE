@@ -1,5 +1,7 @@
 const { Circle } = require('../models');
 const errors = require('../lib/errors');
+const helpers = require('../lib/helpers');
+const { Sequelize, sequelize } = require('../lib/sequelize');
 
 exports.listAllCircles = async (req, res) => {
     const circle = await Circle.findAll({});
@@ -49,15 +51,25 @@ exports.deleteCircle = async (req, res) => {
 };
 
 exports.setParentCircle = async (req, res) => {
+    if (!helpers.isNumber(req.body.parent_circle)) {
+        return errors.makeBadRequestError(res, 'The circle ID is not valid.');
+    }
+
     // TODO: check permissions
-    const parentCircle = await Circle.findByPk(req.body.id);
+    const parentCircle = await Circle.findByPk(req.body.parent_circle);
     if (!parentCircle) {
         return errors.makeNotFoundError(res, 'No parent circle found.');
     }
 
-    await req.currentCircle.update({ parent_circle_id: parentCircle.id });
-
-    // TODO: check if there are any loops in the chain.
+    try {
+        // need to check after the update if there are any loops
+        await sequelize.transaction(async (t) => {
+            await req.currentCircle.update({ parent_circle_id: parentCircle.id }, { transaction: t });
+            await Circle.throwIfAnyLoops(t);
+        });
+    } catch (err) {
+        return errors.makeValidationError(res, err);
+    }
 
     return res.json({
         success: true,
