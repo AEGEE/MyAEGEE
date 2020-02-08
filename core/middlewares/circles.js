@@ -1,7 +1,7 @@
 const { Circle } = require('../models');
 const errors = require('../lib/errors');
 const helpers = require('../lib/helpers');
-const { Sequelize, sequelize } = require('../lib/sequelize');
+const { sequelize } = require('../lib/sequelize');
 
 exports.listAllCircles = async (req, res) => {
     const circle = await Circle.findAll({});

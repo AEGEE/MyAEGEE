@@ -28,7 +28,7 @@ const Circle = sequelize.define('circle', {
 Circle.throwIfAnyLoops = async function throwIfAnyLoops(transaction) {
     // Firstly, loading all bound circles.
     const circles = await Circle.findAll({ transaction });
-    const boundCircles = circles.filter(circle => circle.parent_circle_id !== null);
+    const boundCircles = circles.filter((circle) => circle.parent_circle_id !== null);
 
     // Secondly, creating a map of circles visited.
     let visibleCircles = {};
@@ -47,9 +47,9 @@ Circle.throwIfAnyLoops = async function throwIfAnyLoops(transaction) {
             return;
         }
 
-        const parentCircle = circles.find(c => c.id === circle.parent_circle_id);
+        const parentCircle = circles.find((c) => c.id === circle.parent_circle_id);
         markCircleAsVisible(parentCircle);
-    }
+    };
 
     // Lastly, call this function for all circles.
     for (const circle of boundCircles) {
