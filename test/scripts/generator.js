@@ -7,6 +7,7 @@ const {
     AccessToken,
     RefreshToken,
     Body,
+    Circle
 } = require('../../models');
 
 const notSet = (field) => typeof field === 'undefined';
@@ -57,6 +58,19 @@ exports.createBody = (options = {}) => {
     return Body.create(exports.generateBody(options));
 };
 
+exports.generateCircle = (options = {}, circle = null) => {
+    if (notSet(options.name)) options.name = faker.name.firstName();
+    if (notSet(options.description)) options.description = faker.lorem.paragraph();
+    if (notSet(options.joinable)) options.joinable = true;
+    if (circle) options.parent_circle_id = circle.id;
+
+    return options;
+};
+
+exports.createCircle = (options = {}, circle = null) => {
+    return Circle.create(exports.generateCircle(options, circle));
+};
+
 exports.generateCampaign = (options = {}) => {
     if (notSet(options.name)) options.name = faker.random.alphaNumeric(16);
     if (notSet(options.url)) options.url = faker.random.alphaNumeric(16);
@@ -95,6 +109,7 @@ exports.createAccessToken = (options = {}, user = null) => {
 };
 
 exports.clearAll = async () => {
+    await Circle.destroy({ where: {}, truncate: { cascade: true } });
     await Body.destroy({ where: {}, truncate: { cascade: true } });
     await AccessToken.destroy({ where: {}, truncate: { cascade: true } });
     await RefreshToken.destroy({ where: {}, truncate: { cascade: true } });
