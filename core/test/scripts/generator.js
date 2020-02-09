@@ -123,6 +123,20 @@ exports.createAccessToken = (options = {}, user = null) => {
     return AccessToken.create(exports.generateAccessToken(options, user));
 };
 
+exports.createCircleMembership = (circle, user) => {
+    return CircleMembership.create({
+        circle_id: circle.id,
+        user_id: user.id
+    });
+};
+
+exports.createCirclePermission = (circle, permission) => {
+    return CirclePermission.create({
+        circle_id: circle.id,
+        permission_id: permission.id
+    });
+};
+
 exports.clearAll = async () => {
     await Permission.destroy({ where: {}, truncate: { cascade: true } });
     await CirclePermission.destroy({ where: {}, truncate: { cascade: true } });
