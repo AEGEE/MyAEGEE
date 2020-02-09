@@ -24,6 +24,9 @@ RefreshToken.belongsTo(User, { foreignKey: 'user_id' });
 Body.hasMany(Circle, { foreignKey: 'body_id' });
 Circle.belongsTo(Body, { foreignKey: 'body_id' });
 
+Circle.hasOne(Body, { foreignKey: 'shadow_circle_id', as: 'shadow_circle' });
+Body.belongsTo(Circle, { foreignKey: 'shadow_circle_id', as: 'shadow_circle' });
+
 Circle.hasMany(Circle, { foreignKey: 'parent_circle_id', as: 'child_circles' });
 Circle.belongsTo(Circle, { foreignKey: 'parent_circle_id', as: 'parent_circle' });
 
