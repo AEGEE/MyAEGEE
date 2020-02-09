@@ -20,14 +20,14 @@ describe('Cron testing', () => {
     });
 
     test('should add job', async () => {
-        expect(Object.keys(cron.jobs).length).toEqual(0);;
+        expect(Object.keys(cron.jobs).length).toEqual(0);
 
         cron.addJob(cron.JOB_TYPES.DELETE_NOT_CONFIRMED_USERS);
         expect(Object.keys(cron.jobs).length).toEqual(1);
     });
 
     test('should execute job', async () => {
-        expect(Object.keys(cron.jobs).length).toEqual(0);;
+        expect(Object.keys(cron.jobs).length).toEqual(0);
 
         cron.addJob(cron.JOB_TYPES.DELETE_NOT_CONFIRMED_USERS);
         expect(Object.keys(cron.jobs).length).toEqual(1);
@@ -37,12 +37,12 @@ describe('Cron testing', () => {
     });
 
     test('should not execute a job if it\'s not found', async () => {
-        expect(Object.keys(cron.jobs).length).toEqual(0);;
+        expect(Object.keys(cron.jobs).length).toEqual(0);
         await cron.executeJob(1337);
     });
 
     test('should register all tasks', async () => {
-        expect(Object.keys(cron.jobs).length).toEqual(0);;
+        expect(Object.keys(cron.jobs).length).toEqual(0);
 
         cron.registerAllTasks();
         expect(Object.keys(cron.jobs).length).toEqual(1);
@@ -54,8 +54,8 @@ describe('Cron testing', () => {
             const userWithValidConfirmation = await generator.createUser();
             const userWithoutValidConfirmation = await generator.createUser();
 
-            await generator.createMailConfirmation({ expires_at: moment().add(1, 'day' ) }, userWithValidConfirmation);
-            await generator.createMailConfirmation({ expires_at: moment().subtract(1, 'day' ) }, userWithoutValidConfirmation);
+            await generator.createMailConfirmation({ expires_at: moment().add(1, 'day') }, userWithValidConfirmation);
+            await generator.createMailConfirmation({ expires_at: moment().subtract(1, 'day') }, userWithoutValidConfirmation);
 
             cron.addJob(cron.JOB_TYPES.DELETE_NOT_CONFIRMED_USERS);
             expect(Object.keys(cron.jobs).length).toEqual(1);
@@ -67,7 +67,7 @@ describe('Cron testing', () => {
             const usersFromDb = await User.findAll();
             expect(usersFromDb.length).toEqual(2);
 
-            const ids = usersFromDb.map(u => u.id);
+            const ids = usersFromDb.map((u) => u.id);
             expect(ids).toContain(userActivated.id);
             expect(ids).toContain(userWithValidConfirmation.id);
         });
