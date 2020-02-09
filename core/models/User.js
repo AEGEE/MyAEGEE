@@ -137,6 +137,7 @@ User.prototype.checkPassword = async function checkPassword(password) {
     return bcrypt.compare(password, this.password);
 };
 
+/* istanbul ignore next */
 User.prototype.notValidFields = function notValidFields() {
     const missingFields = [];
     for (const field of ['date_of_birth', 'gender']) {

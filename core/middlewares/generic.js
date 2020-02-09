@@ -51,6 +51,7 @@ exports.ensureAuthorized = async (req, res, next) => {
     return next();
 };
 
+/* istanbul ignore next */
 exports.getMyGlobalPermissions = async (req, res) => {
     // TODO: return real permissions.
     return res.json({
@@ -176,6 +177,7 @@ exports.errorHandler = (err, req, res, next) => {
     }
 
     // Handling validation errors
+    /* istanbul ignore else */
     if (err.name && ['SequelizeValidationError', 'SequelizeUniqueConstraintError'].includes(err.name)) {
         return errors.makeValidationError(res, err);
     }
