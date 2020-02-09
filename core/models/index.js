@@ -30,6 +30,12 @@ Circle.belongsTo(Circle, { foreignKey: 'parent_circle_id', as: 'parent_circle' }
 Circle.belongsToMany(Permission, { through: CirclePermission, foreignKey: 'circle_id', as: 'permissions' });
 Permission.belongsToMany(Circle, { through: CirclePermission, foreignKey: 'permission_id', as: 'circles' });
 
+CirclePermission.belongsTo(Permission, { foreignKey: 'permission_id' });
+Permission.hasMany(CirclePermission, { foreignKey: 'permission_id' });
+
+CirclePermission.belongsTo(Circle, { foreignKey: 'circle_id' });
+Circle.hasMany(CirclePermission, { foreignKey: 'circle_id' });
+
 Circle.belongsToMany(User, { through: CircleMembership, foreignKey: 'circle_id', as: 'users' });
 User.belongsToMany(Circle, { through: CircleMembership, foreignKey: 'user_id', as: 'circles' });
 

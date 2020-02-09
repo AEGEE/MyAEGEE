@@ -12,7 +12,8 @@ module.exports = {
             references: {
                 model: 'circles',
                 key: 'id'
-            }
+            },
+            onDelete: 'CASCADE'
         },
         permission_id: {
             type: Sequelize.INTEGER,
@@ -20,7 +21,8 @@ module.exports = {
             references: {
                 model: 'permissions',
                 key: 'id'
-            }
+            },
+            onDelete: 'CASCADE'
         },
         created_at: {
             allowNull: false,

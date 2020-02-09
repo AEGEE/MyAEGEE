@@ -8,7 +8,8 @@ module.exports = {
             references: {
                 model: 'campaigns',
                 key: 'id'
-            }
+            },
+            onDelete: 'SET NULL'
         },
     ),
     down: (queryInterface) => queryInterface.removeColumn('users', 'campaign_id')
