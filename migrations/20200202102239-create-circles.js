@@ -25,7 +25,8 @@ module.exports = {
             references: {
                 model: 'bodies',
                 key: 'id'
-            }
+            },
+            onDelete: 'SET NULL'
         },
         parent_circle_id: {
             type: Sequelize.INTEGER,
@@ -33,7 +34,8 @@ module.exports = {
             references: {
                 model: 'circles',
                 key: 'id'
-            }
+            },
+            onDelete: 'SET NULL'
         },
         created_at: {
             allowNull: false,

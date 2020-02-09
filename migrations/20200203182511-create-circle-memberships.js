@@ -12,7 +12,8 @@ module.exports = {
             references: {
                 model: 'circles',
                 key: 'id'
-            }
+            },
+            onDelete: 'CASCADE'
         },
         user_id: {
             type: Sequelize.INTEGER,
@@ -20,7 +21,8 @@ module.exports = {
             references: {
                 model: 'users',
                 key: 'id'
-            }
+            },
+            onDelete: 'CASCADE'
         },
         position: {
             type: Sequelize.TEXT,
