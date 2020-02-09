@@ -37,6 +37,30 @@ function filterFields(body, fieldsToFilter) {
     return unflattenObject(flatten);
 }
 
+// A helper to traverse indirect circles (so if a person is a member
+// of a circle which is a child circle, it should return both of the circles.)
+// Required for recursive circles schema.
+// Accepts 2 params, all circles map (with key as ID and value as circle)
+// and circlesIds (array of ids), returns array of ids to be consumed
+// by Sequelize.Op.in
+function traverseIndirectCircles(allCirclesMap, circlesIds) {
+    const indirectCircles = {};
+    const traverseIndirectCirclesRecursive = (circleId) => {
+        indirectCircles[circleId] = true;
+        if (!allCirclesMap[circleId].parent_circle_id) {
+            return;
+        }
+
+        return traverseIndirectCirclesRecursive(allCirclesMap[circleId].parent_circle_id);
+    };
+
+    for (const id of circlesIds) {
+        traverseIndirectCirclesRecursive(id);
+    }
+
+    return Object.keys(indirectCircles);
+}
+
 // Figure out if the value is a number or a string containing only numbers
 function isNumber(value) {
     /* istanbul ignore if */
@@ -59,5 +83,6 @@ module.exports = {
     filterFields,
     flattenObject,
     unflattenObject,
-    isNumber
+    isNumber,
+    traverseIndirectCircles
 };
