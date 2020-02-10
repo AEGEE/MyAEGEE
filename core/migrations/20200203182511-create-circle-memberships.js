@@ -36,6 +36,12 @@ module.exports = {
             allowNull: false,
             type: Sequelize.DATE
         }
+    }, {
+        uniqueKeys: {
+            circle_user_unique: {
+                fields: ['circle_id', 'user_id']
+            }
+        }
     }),
     down: (queryInterface) => queryInterface.dropTable('circle_memberships')
 };

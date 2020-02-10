@@ -8,6 +8,7 @@ const Circle = require('./Circle');
 const Permission = require('./Permission');
 const CirclePermission = require('./CirclePermission');
 const CircleMembership = require('./CircleMembership');
+const BodyMembership = require('./BodyMembership');
 
 Campaign.hasMany(User, { foreignKey: 'campaign_id' });
 User.belongsTo(Campaign, { foreignKey: 'campaign_id' });
@@ -48,6 +49,15 @@ User.hasMany(CircleMembership, { foreignKey: 'user_id' });
 CircleMembership.belongsTo(Circle, { foreignKey: 'circle_id' });
 Circle.hasMany(CircleMembership, { foreignKey: 'circle_id' });
 
+Body.belongsToMany(User, { through: BodyMembership, foreignKey: 'body_id', as: 'users' });
+User.belongsToMany(Body, { through: BodyMembership, foreignKey: 'user_id', as: 'bodies' });
+
+BodyMembership.belongsTo(User, { foreignKey: 'user_id' });
+User.hasMany(BodyMembership, { foreignKey: 'user_id' });
+
+BodyMembership.belongsTo(Body, { foreignKey: 'body_id' });
+Body.hasMany(BodyMembership, { foreignKey: 'body_id' });
+
 module.exports = {
     User,
     Campaign,
@@ -58,5 +68,6 @@ module.exports = {
     Circle,
     Permission,
     CirclePermission,
-    CircleMembership
+    CircleMembership,
+    BodyMembership
 };

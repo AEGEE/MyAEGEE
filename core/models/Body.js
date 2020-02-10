@@ -20,8 +20,7 @@ const Body = sequelize.define('body', {
     },
     email: {
         type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: '',
+        allowNull: true,
         validate: {
             notEmpty: { msg: 'Email should be set.' },
             isEmail: { msg: 'Email should be valid.' }
@@ -81,6 +80,12 @@ const Body = sequelize.define('body', {
     tableName: 'bodies',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
+});
+
+Body.beforeValidate(async (body) => {
+    // skipping these fields if they are unset, will catch it later.
+    if (typeof body.code === 'string') body.code = body.code.toUpperCase().trim();
+    if (typeof body.email === 'string') body.email = body.email.toLowerCase().trim();
 });
 
 module.exports = Body;

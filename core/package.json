@@ -23,7 +23,7 @@
     "request-promise-native": "^1.0.8"
   },
   "scripts": {
-    "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
+    "test": "NODE_ENV=test npm run db:setup && jest test/**/*.test.js --runInBand --forceExit",
     "lint": "node_modules/.bin/eslint .",
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",

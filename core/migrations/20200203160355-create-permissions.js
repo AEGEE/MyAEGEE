@@ -39,6 +39,12 @@ module.exports = {
             allowNull: false,
             type: Sequelize.DATE
         }
+    }, {
+        uniqueKeys: {
+            permission_scope_action_object_unique: {
+                fields: ['scope', 'action', 'object']
+            }
+        }
     }),
     down: (queryInterface) => queryInterface.dropTable('permissions')
 };
