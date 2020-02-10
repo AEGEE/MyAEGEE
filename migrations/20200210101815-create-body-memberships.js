@@ -1,10 +1,19 @@
 module.exports = {
-    up: (queryInterface, Sequelize) => queryInterface.createTable('mail_confirmations', {
+    up: (queryInterface, Sequelize) => queryInterface.createTable('body_memberships', {
         id: {
             allowNull: false,
             autoIncrement: true,
             primaryKey: true,
             type: Sequelize.INTEGER
+        },
+        body_id: {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'bodies',
+                key: 'id'
+            },
+            onDelete: 'CASCADE'
         },
         user_id: {
             type: Sequelize.INTEGER,
@@ -15,14 +24,9 @@ module.exports = {
             },
             onDelete: 'CASCADE'
         },
-        value: {
+        comment: {
             type: Sequelize.TEXT,
-            allowNull: false,
-            unique: true
-        },
-        expires_at: {
-            allowNull: false,
-            type: Sequelize.DATE
+            allowNull: true
         },
         created_at: {
             allowNull: false,
@@ -32,8 +36,12 @@ module.exports = {
             allowNull: false,
             type: Sequelize.DATE
         }
+    }, {
+        uniqueKeys: {
+            circle_permission_unique: {
+                fields: ['body_id', 'user_id']
+            }
+        }
     }),
-    down: (queryInterface) => {
-        return queryInterface.dropTable('mail_confirmations');
-    }
+    down: (queryInterface) => queryInterface.dropTable('body_memberships')
 };

@@ -10,7 +10,8 @@ const {
     Circle,
     Permission,
     CirclePermission,
-    CircleMembership
+    CircleMembership,
+    BodyMembership
 } = require('../../models');
 
 const notSet = (field) => typeof field === 'undefined';
@@ -137,7 +138,15 @@ exports.createCirclePermission = (circle, permission) => {
     });
 };
 
+exports.createBodyMembership = (body, user) => {
+    return BodyMembership.create({
+        body_id: body.id,
+        user_id: user.id
+    });
+};
+
 exports.clearAll = async () => {
+    await BodyMembership.destroy({ where: {}, truncate: { cascade: true } });
     await Permission.destroy({ where: {}, truncate: { cascade: true } });
     await CirclePermission.destroy({ where: {}, truncate: { cascade: true } });
     await CircleMembership.destroy({ where: {}, truncate: { cascade: true } });
