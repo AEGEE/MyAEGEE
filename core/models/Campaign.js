@@ -4,17 +4,17 @@ const Campaign = sequelize.define('campaign', {
     name: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: '',
         validate: {
             notEmpty: { msg: 'Name should be set.' },
+            notNull: { msg: 'Name should be set.' }
         }
     },
     url: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Name should be set.' },
+            notEmpty: { msg: 'URL should be set.' },
+            notNull: { msg: 'URL should be set.' }
         },
         unique: true
     },
@@ -26,17 +26,17 @@ const Campaign = sequelize.define('campaign', {
     description_short: {
         type: Sequelize.TEXT,
         allowNull: false,
-        defaultValue: '',
         validate: {
             notEmpty: { msg: 'Description should be set.' },
+            notNull: { msg: 'Description should be set.' }
         }
     },
     description_long: {
         type: Sequelize.TEXT,
         allowNull: false,
-        defaultValue: '',
         validate: {
             notEmpty: { msg: 'Description should be set.' },
+            notNull: { msg: 'Description should be set.' }
         }
     },
     activate_user: {
@@ -50,5 +50,14 @@ const Campaign = sequelize.define('campaign', {
     createdAt: 'created_at',
     updatedAt: 'updated_at',
 });
+
+Campaign.beforeValidate(async (campaign) => {
+    // skipping these fields if they are unset, will catch it later.
+    if (typeof campaign.name === 'string') campaign.name = campaign.name.trim();
+    if (typeof campaign.url === 'string') campaign.url = campaign.url.toLowerCase().trim();
+    if (typeof campaign.description_short === 'string') campaign.description_short = campaign.description_short.trim();
+    if (typeof campaign.description_long === 'string') campaign.description_long = campaign.description_long.trim();
+});
+
 
 module.exports = Campaign;

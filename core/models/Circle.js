@@ -24,6 +24,12 @@ const Circle = sequelize.define('circle', {
     updatedAt: 'updated_at',
 });
 
+Circle.beforeValidate(async (circle) => {
+    // skipping these fields if they are unset, will catch it later.
+    if (typeof circle.name === 'string') circle.name = circle.name.trim();
+    if (typeof circle.description === 'string') circle.description = circle.description.trim();
+});
+
 // Checking if there isn't a loop inside circles (so no circle1 -> circle2 -> circle1).
 Circle.throwIfAnyLoops = async function throwIfAnyLoops(transaction) {
     // Firstly, loading all bound circles.
