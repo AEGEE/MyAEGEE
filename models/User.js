@@ -7,9 +7,9 @@ const User = sequelize.define('user', {
     username: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: '',
         validate: {
             notEmpty: { msg: 'Username should be set.' },
+            notNull: { msg: 'Username should be set.' },
             isValid(value) {
                 if (!/^[a-zA-Z0-9._-]*$/.test(value)) {
                     throw new Error('Username should only contain letters, numbers, dots, underscores and dashes.');
@@ -21,9 +21,9 @@ const User = sequelize.define('user', {
     email: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: '',
         validate: {
             notEmpty: { msg: 'Email should be set.' },
+            notNull: { msg: 'Email should be set.' },
             isEmail: { msg: 'Email should be valid.' }
         },
         unique: true
@@ -31,8 +31,8 @@ const User = sequelize.define('user', {
     password: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: '',
         validate: {
+            notNull: { msg: 'Password should be set.' },
             notEmpty: { msg: 'Password should be set.' },
         }
     },
@@ -56,12 +56,12 @@ const User = sequelize.define('user', {
     first_name: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: '',
         validate: {
             notEmpty: { msg: 'First name should be set.' },
+            notNull: { msg: 'First name should be set.' },
             isValid(value) {
                 if (!new RegExp('^[\\p{L} -]*$', 'u').test(value)) {
-                    throw new Error('First name should only contain letters, spaces and dashes.');
+                    throw new Error(`First name should only contain letters, spaces and dashes, got "${value}".`);
                 }
             }
         }
@@ -69,12 +69,12 @@ const User = sequelize.define('user', {
     last_name: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: '',
         validate: {
             notEmpty: { msg: 'Last name should be set.' },
+            notNull: { msg: 'Last name should be set.' },
             isValid(value) {
                 if (!new RegExp('^[\\p{L} -\']*$', 'u').test(value)) {
-                    throw new Error('Last name should only contain letters, spaces and dashes.');
+                    throw new Error(`Last name should only contain letters, spaces and dashes, got "${value}".`);
                 }
             }
         }
@@ -125,6 +125,13 @@ User.beforeValidate(async (user) => {
     // skipping these fields if they are unset, will catch it later.
     if (typeof user.email === 'string') user.email = user.email.toLowerCase().trim();
     if (typeof user.username === 'string') user.username = user.username.toLowerCase().trim();
+
+    if (typeof user.first_name === 'string') user.first_name = user.first_name.trim();
+    if (typeof user.last_name === 'string') user.last_name = user.last_name.trim();
+    if (typeof user.gender === 'string') user.gender = user.gender.trim();
+    if (typeof user.phone === 'string') user.phone = user.phone.trim();
+    if (typeof user.address === 'string') user.address = user.address.trim();
+    if (typeof user.about_me === 'string') user.about_me = user.about_me.trim();
 });
 
 User.afterValidate(async (user) => {
