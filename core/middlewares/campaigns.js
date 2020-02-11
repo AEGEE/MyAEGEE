@@ -5,7 +5,7 @@ const {
 } = require('../models');
 const errors = require('../lib/errors');
 
-module.exports.registerUser = async (req, res) => {
+exports.registerUser = async (req, res) => {
     const campaign = await Campaign.findOne({ where: { url: req.params.campaign_id } });
     if (!campaign) {
         return errors.makeNotFoundError(res, 'Campaign is not found.');

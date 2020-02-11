@@ -12,6 +12,7 @@ const bugsnag = require('./bugsnag');
 const cron = require('./cron');
 
 const middlewares = require('../middlewares/generic');
+const fetch = require('../middlewares/fetch');
 const campaigns = require('../middlewares/campaigns');
 const register = require('../middlewares/register');
 const login = require('../middlewares/login');
@@ -64,28 +65,28 @@ GeneralRouter.get('/permissions', permissions.listAllPermissions);
 GeneralRouter.post('/permissions', permissions.createPermission);
 
 // Everything related to a specific (maybe logged in) user. Auth only.
-MemberRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, middlewares.fetchUser);
+MemberRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchUser);
 MemberRouter.put('/active', members.setUserActive);
 MemberRouter.get('/', members.getUser);
 MemberRouter.put('/', members.updateUser);
 // MemberRouter.delete('/', members.deleteUser);
 
 // Everything related to a specific body. Auth only (except for body details).
-BodiesRouter.use(middlewares.fetchBody);
+BodiesRouter.use(fetch.fetchBody);
 BodiesRouter.get('/', bodies.getBody);
 BodiesRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized);
 BodiesRouter.put('/status', bodies.setBodyStatus);
 BodiesRouter.put('/', bodies.updateBody);
 
 // Everything related to a specific circle. Auth only.
-CirclesRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, middlewares.fetchCircle);
+CirclesRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchCircle);
 CirclesRouter.get('/', circles.getCircle);
 CirclesRouter.put('/parent', circles.setParentCircle);
 CirclesRouter.put('/', circles.updateCircle);
 CirclesRouter.delete('/', circles.deleteCircle);
 
 // Everything related to a specific permission. Auth only.
-PermissionsRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, middlewares.fetchPermission);
+PermissionsRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchPermission);
 PermissionsRouter.get('/', permissions.getPermission);
 PermissionsRouter.put('/', permissions.updatePermission);
 PermissionsRouter.delete('/', permissions.deletePermission);
