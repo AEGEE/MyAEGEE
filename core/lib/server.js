@@ -27,6 +27,7 @@ const MemberRouter = router({ mergeParams: true });
 const BodiesRouter = router({ mergeParams: true });
 const CirclesRouter = router({ mergeParams: true });
 const PermissionsRouter = router({ mergeParams: true });
+const CampaignsRouter = router({ mergeParams: true });
 
 const server = express();
 server.use(bodyParser.json());
@@ -44,13 +45,13 @@ process.on('unhandledRejection', (err) => {
 
 // Endpoints not requiring authorization.
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
-GeneralRouter.post('/campaigns/:campaign_id', campaigns.registerUser);
+GeneralRouter.post('/signup/:campaign_id', campaigns.registerUser);
 GeneralRouter.post('/confirm-email', register.confirmEmail);
 GeneralRouter.post('/login', login.login);
 GeneralRouter.post('/renew', login.renew);
 
 // Endpoints allowing unauthorized and authorized access.
-GeneralRouter.use(middlewares.maybeAuthorize);
+GeneralRouter.use(middlewares.maybeAuthorize, myPermissions.loadMyGlobalPermissions);
 GeneralRouter.get('/bodies', bodies.listAllBodies);
 
 // Endpoints not allowing unauthorized access.
@@ -62,8 +63,10 @@ GeneralRouter.get('/members', middlewares.ensureAuthorized, members.listAllUsers
 GeneralRouter.post('/bodies', middlewares.ensureAuthorized, bodies.createBody);
 GeneralRouter.get('/circles', middlewares.ensureAuthorized, circles.listAllCircles);
 GeneralRouter.post('/circles', middlewares.ensureAuthorized, circles.createCircle);
-GeneralRouter.get('/permissions', permissions.listAllPermissions);
-GeneralRouter.post('/permissions', permissions.createPermission);
+GeneralRouter.get('/permissions', middlewares.ensureAuthorized, permissions.listAllPermissions);
+GeneralRouter.post('/permissions', middlewares.ensureAuthorized, permissions.createPermission);
+GeneralRouter.get('/campaigns', middlewares.ensureAuthorized, campaigns.listAllCampaigns);
+GeneralRouter.post('/campaigns', middlewares.ensureAuthorized, campaigns.createCampaign);
 
 // Everything related to a specific (maybe logged in) user. Auth only.
 MemberRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchUser);
@@ -92,10 +95,17 @@ PermissionsRouter.get('/', permissions.getPermission);
 PermissionsRouter.put('/', permissions.updatePermission);
 PermissionsRouter.delete('/', permissions.deletePermission);
 
+// Everything related to a specific campaign. Auth only.
+CampaignsRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchCampaign);
+CampaignsRouter.get('/', campaigns.getCampaign);
+CampaignsRouter.put('/', campaigns.updateCampaign);
+CampaignsRouter.delete('/', campaigns.deleteCampaign);
+
 server.use('/members/:user_id', MemberRouter);
 server.use('/bodies/:body_id', BodiesRouter);
 server.use('/circles/:circle_id', CirclesRouter);
 server.use('/permissions/:permission_id', PermissionsRouter);
+server.use('/campaigns/:campaign_id', CampaignsRouter);
 server.use('/', GeneralRouter);
 
 server.use(middlewares.notFound);

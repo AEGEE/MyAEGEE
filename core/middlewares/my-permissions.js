@@ -9,7 +9,11 @@ const {
 } = require('../models');
 const { Sequelize } = require('../lib/sequelize');
 
-exports.getMyGlobalPermissions = async (req, res, next) => {
+exports.loadMyGlobalPermissions = async (req, res, next) => {
+    if (!req.user) {
+        return next();
+    }
+
     // Fetching permissions.
     // 1) get the list of the circles user's in.
     const directCircleMemberships = await CircleMembership.findAll({
@@ -38,4 +42,11 @@ exports.getMyGlobalPermissions = async (req, res, next) => {
         .value();
 
     return next();
+};
+
+exports.getMyGlobalPermissions = async (req, res) => {
+    return res.json({
+        success: true,
+        data: req.permissions
+    });
 };
