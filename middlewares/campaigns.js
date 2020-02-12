@@ -28,3 +28,49 @@ exports.registerUser = async (req, res) => {
         }
     });
 };
+
+exports.listAllCampaigns = async (req, res) => {
+    const circle = await Campaign.findAll({});
+
+    return res.json({
+        success: true,
+        data: circle
+    });
+};
+
+exports.getCampaign = async (req, res) => {
+    // TODO: check permissions
+    return res.json({
+        success: true,
+        data: req.currentCampaign
+    });
+};
+
+exports.createCampaign = async (req, res) => {
+    // TODO: check permissions
+    // TODO: filter out fields that are changed in the other way
+    const circle = await Campaign.create(req.body);
+    return res.json({
+        success: true,
+        data: circle
+    });
+};
+
+exports.updateCampaign = async (req, res) => {
+    // TODO: check permissions
+    // TODO: filter out fields that are changed in the other way
+    await req.currentCampaign.update(req.body);
+    return res.json({
+        success: true,
+        data: req.currentCampaign
+    });
+};
+
+exports.deleteCampaign = async (req, res) => {
+    // TODO: check permissions
+    await req.currentCampaign.destroy();
+    return res.json({
+        success: true,
+        message: 'Campaign is deleted.'
+    });
+};

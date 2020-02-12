@@ -111,7 +111,7 @@ exports.fetchCampaign = async (req, res, next) => {
     }
 
     const campaign = await Campaign.findOne({
-        where: { id: Number(req.params.circle_id) }
+        where: { id: Number(req.params.campaign_id) }
     });
     if (!campaign) {
         return errors.makeNotFoundError(res, 'Campaign is not found.');

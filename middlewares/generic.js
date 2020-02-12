@@ -1,18 +1,11 @@
 const moment = require('moment');
-const _ = require('lodash');
 
 const errors = require('../lib/errors');
 const logger = require('../lib/logger');
-const helpers = require('../lib/helpers');
 const {
     User,
-    Circle,
-    CircleMembership,
-    CirclePermission,
-    Permission,
     AccessToken
 } = require('../models');
-const { Sequelize } = require('../lib/sequelize');
 const packageInfo = require('../package');
 
 exports.maybeAuthorize = async (req, res, next) => {
@@ -51,13 +44,6 @@ exports.ensureAuthorized = async (req, res, next) => {
     }
 
     return next();
-};
-
-exports.getMyGlobalPermissions = async (req, res) => {
-    return res.json({
-        success: true,
-        data: req.permissions
-    });
 };
 
 /* istanbul ignore next */
