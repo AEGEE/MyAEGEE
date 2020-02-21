@@ -106,4 +106,26 @@ describe('My permissions global', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.length).toEqual(0);
     });
+
+    test('should list all permissions if a user is superadmin', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        const permission = await generator.createPermission({ scope: 'global', action: 'action', object: 'object' });
+        const circle = await generator.createCircle();
+        await generator.createCirclePermission(circle, permission);
+
+        const res = await request({
+            uri: '/my_permissions',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].combined).toEqual('global:action:object');
+    });
 });

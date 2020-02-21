@@ -1,45 +1,17 @@
-const _ = require('lodash');
-
-const helpers = require('../lib/helpers');
-const {
-    Circle,
-    CircleMembership,
-    CirclePermission,
-    Permission,
-} = require('../models');
-const { Sequelize } = require('../lib/sequelize');
+const { Circle, } = require('../models');
+const PermissionManager = require('../lib/permissions-manager');
 
 exports.loadMyGlobalPermissions = async (req, res, next) => {
     if (!req.user) {
         return next();
     }
 
-    // Fetching permissions.
-    // 1) get the list of the circles user's in.
-    const directCircleMemberships = await CircleMembership.findAll({
-        where: { user_id: req.user.id }
-    });
+    const circles = await Circle.findAll({ fields: ['id', 'parent_circle_id'] });
 
-    // 2) get the list of all circles with only id and parent_circle_id
-    // and converting it to a map to not look over the whole
-    // array each time.
-    req.allCircles = await Circle.findAll({ fields: ['id', 'parent_circle_id'] });
-    req.allCirclesMap = _.keyBy(req.allCircles, 'id');
+    req.permissions = new PermissionManager({ user: req.user });
+    req.permissions.addCircles(circles);
 
-    // 3) fetch all the permissions
-    const indirectCirclesArray = helpers.traverseIndirectCircles(req.allCirclesMap, directCircleMemberships.map((membership) => membership.circle_id));
-    req.permissions = await Permission.findAll({
-        where: {
-            '$circle_permissions.circle_id$': { [Sequelize.Op.in]: indirectCirclesArray },
-            scope: 'global'
-        },
-        include: [CirclePermission]
-    });
-
-    req.permissionsMap = _(req.permissions)
-        .map((elt) => [elt, 1])
-        .unzipWith()
-        .value();
+    await req.permissions.fetchUserPermissions();
 
     return next();
 };
@@ -47,6 +19,6 @@ exports.loadMyGlobalPermissions = async (req, res, next) => {
 exports.getMyGlobalPermissions = async (req, res) => {
     return res.json({
         success: true,
-        data: req.permissions
+        data: req.permissions.permissions
     });
 };
