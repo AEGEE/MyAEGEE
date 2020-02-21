@@ -25,6 +25,7 @@ const permissions = require('../middlewares/permissions');
 const GeneralRouter = router({ mergeParams: true });
 const MemberRouter = router({ mergeParams: true });
 const BodiesRouter = router({ mergeParams: true });
+const MembershipsRouter = router({ mergeParams: true });
 const CirclesRouter = router({ mergeParams: true });
 const PermissionsRouter = router({ mergeParams: true });
 const CampaignsRouter = router({ mergeParams: true });
@@ -77,10 +78,16 @@ MemberRouter.put('/', members.updateUser);
 
 // Everything related to a specific body. Auth only (except for body details).
 BodiesRouter.use(fetch.fetchBody);
+BodiesRouter.get('/members', bodies.listAllMemberships);
 BodiesRouter.get('/', bodies.getBody);
 BodiesRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized);
 BodiesRouter.put('/status', bodies.setBodyStatus);
 BodiesRouter.put('/', bodies.updateBody);
+
+// Everything related to a specific body membership. Auth only.
+MembershipsRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchBody, fetch.fetchMembership);
+MembershipsRouter.put('/', bodies.updateMembership);
+MembershipsRouter.delete('/', bodies.deleteMembership);
 
 // Everything related to a specific circle. Auth only.
 CirclesRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchCircle);
@@ -102,6 +109,7 @@ CampaignsRouter.put('/', campaigns.updateCampaign);
 CampaignsRouter.delete('/', campaigns.deleteCampaign);
 
 server.use('/members/:user_id', MemberRouter);
+server.use('/bodies/:body_id/members/:membership_id', MembershipsRouter);
 server.use('/bodies/:body_id', BodiesRouter);
 server.use('/circles/:circle_id', CirclesRouter);
 server.use('/permissions/:permission_id', PermissionsRouter);

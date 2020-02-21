@@ -1,4 +1,4 @@
-const { Body } = require('../models');
+const { Body, BodyMembership, User } = require('../models');
 
 exports.listAllBodies = async (req, res) => {
     const bodies = await Body.findAll({});
@@ -43,5 +43,35 @@ exports.setBodyStatus = async (req, res) => {
     return res.json({
         success: true,
         data: req.currentBody
+    });
+};
+
+exports.listAllMemberships = async (req, res) => {
+    // TODO: check permissions
+    // TOOD: add pagination
+    const members = await BodyMembership.findAll({
+        where: { body_id: req.currentBody.id },
+        include: [User]
+    });
+
+    return res.json({
+        success: true,
+        data: members
+    });
+};
+
+exports.updateMembership = async (req, res) => {
+    await req.currentBodyMembership.update({ comment: req.body.comment });
+    return res.json({
+        success: true,
+        data: req.currentBodyMembership
+    });
+};
+
+exports.deleteMembership = async (req, res) => {
+    await req.currentBodyMembership.destroy();
+    return res.json({
+        success: true,
+        message: 'Membership is deleted.'
     });
 };
