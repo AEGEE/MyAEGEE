@@ -5,7 +5,8 @@ const {
     Body,
     Circle,
     Permission,
-    Campaign
+    Campaign,
+    BodyMembership
 } = require('../models');
 
 const { Sequelize } = require('../lib/sequelize');
@@ -121,5 +122,25 @@ exports.fetchCampaign = async (req, res, next) => {
 
     // TODO: fetch permissions
 
+    return next();
+};
+
+exports.fetchMembership = async (req, res, next) => {
+    // searching the campaign by id if it's numeric
+    if (!helpers.isNumber(req.params.membership_id)) {
+        return errors.makeBadRequestError(res, 'Membership ID is invalid.');
+    }
+
+    const membership = await BodyMembership.findOne({
+        where: {
+            id: Number(req.params.membership_id),
+            body_id: Number(req.params.body_id)
+        }
+    });
+    if (!membership) {
+        return errors.makeNotFoundError(res, 'Membership is not found.');
+    }
+
+    req.currentBodyMembership = membership;
     return next();
 };

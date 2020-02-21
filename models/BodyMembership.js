@@ -1,6 +1,12 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 
 const BodyMembership = sequelize.define('body_membership', {
+    id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+    },
     comment: {
         type: Sequelize.TEXT,
         allowNull: true

@@ -60,7 +60,7 @@ const User = sequelize.define('user', {
             notEmpty: { msg: 'First name should be set.' },
             notNull: { msg: 'First name should be set.' },
             isValid(value) {
-                if (!new RegExp('^[\\p{L} -]*$', 'u').test(value)) {
+                if (!new RegExp('^[\\p{L} -\']*$', 'u').test(value)) {
                     throw new Error(`First name should only contain letters, spaces and dashes, got "${value}".`);
                 }
             }
