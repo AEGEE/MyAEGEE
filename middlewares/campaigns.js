@@ -4,6 +4,7 @@ const {
     Campaign
 } = require('../models');
 const errors = require('../lib/errors');
+const helpers = require('../lib/helpers');
 
 exports.registerUser = async (req, res) => {
     const campaign = await Campaign.findOne({ where: { url: req.params.campaign_id } });
@@ -30,11 +31,15 @@ exports.registerUser = async (req, res) => {
 };
 
 exports.listAllCampaigns = async (req, res) => {
-    const circle = await Campaign.findAll({});
+    const result = await Campaign.findAndCountAll({
+        ...helpers.getPagination(req.query),
+        order: helpers.getSorting(req.query)
+    });
 
     return res.json({
         success: true,
-        data: circle
+        data: result.rows,
+        meta: { count: result.count }
     });
 };
 

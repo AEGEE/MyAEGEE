@@ -3,18 +3,21 @@ const {
     JoinRequest,
     User
 } = require('../models');
+const helpers = require('../lib/helpers');
 
 exports.listAllMemberships = async (req, res) => {
     // TODO: check permissions
-    // TOOD: add pagination
-    const members = await BodyMembership.findAll({
+    const result = await BodyMembership.findAndCountAll({
         where: { body_id: req.currentBody.id },
+        ...helpers.getPagination(req.query),
+        order: helpers.getSorting(req.query),
         include: [User]
     });
 
     return res.json({
         success: true,
-        data: members
+        data: result.rows,
+        meta: { count: result.count }
     });
 };
 

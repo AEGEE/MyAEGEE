@@ -2,7 +2,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 
-describe('Campaigns list', () => {
+describe('Users list', () => {
     beforeAll(async () => {
         await startServer();
     });
@@ -15,15 +15,12 @@ describe('Campaigns list', () => {
         await generator.clearAll();
     });
 
-
     test('should succeed when everything is okay', async () => {
         const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
         const token = await generator.createAccessToken({}, user);
 
-        const campaign = await generator.createCampaign();
-
         const res = await request({
-            uri: '/campaigns',
+            uri: '/members',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -34,19 +31,18 @@ describe('Campaigns list', () => {
         expect(res.body).not.toHaveProperty('errors');
 
         expect(res.body.data.length).toEqual(1);
-        expect(res.body.data[0].id).toEqual(campaign.id);
+        expect(res.body.data[0].id).toEqual(user.id);
     });
 
     test('should respect limit and offset', async () => {
         const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
         const token = await generator.createAccessToken({}, user);
 
-        await generator.createCampaign();
-        const campaign = await generator.createCampaign();
-        await generator.createCampaign();
+        const member = await generator.createUser();
+        await generator.createUser();
 
         const res = await request({
-            uri: '/campaigns?limit=1&offset=1', // second one should be returned
+            uri: '/members?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -58,20 +54,19 @@ describe('Campaigns list', () => {
         expect(res.body).not.toHaveProperty('errors');
 
         expect(res.body.data.length).toEqual(1);
-        expect(res.body.data[0].id).toEqual(campaign.id);
+        expect(res.body.data[0].id).toEqual(member.id);
 
         expect(res.body.meta.count).toEqual(3);
     });
 
     test('should respect sorting', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
-        const token = await generator.createAccessToken({}, user);
+        const firstUser = await generator.createUser({ first_name: 'aaa', password: 'test', mail_confirmed_at: new Date() });
+        const token = await generator.createAccessToken({}, firstUser);
 
-        const firstCampaign = await generator.createCampaign({ url: 'aaa' });
-        const secondCampaign = await generator.createCampaign({ url: 'bbb' });
+        const secondUser = await generator.createUser({ first_name: 'bbb' });
 
         const res = await request({
-            uri: '/campaigns?sort=url&direction=desc', // second one should be returned
+            uri: '/members?sort=first_name&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -83,7 +78,7 @@ describe('Campaigns list', () => {
         expect(res.body).not.toHaveProperty('errors');
 
         expect(res.body.data.length).toEqual(2);
-        expect(res.body.data[0].id).toEqual(secondCampaign.id);
-        expect(res.body.data[1].id).toEqual(firstCampaign.id);
+        expect(res.body.data[0].id).toEqual(secondUser.id);
+        expect(res.body.data[1].id).toEqual(firstUser.id);
     });
 });

@@ -1,12 +1,18 @@
 const { User } = require('../models');
 const constants = require('../lib/constants');
+const helpers = require('../lib/helpers');
 
 exports.listAllUsers = async (req, res) => {
-    const users = await User.findAll({});
+    // TODO: check permissions
+    const result = await User.findAndCountAll({
+        ...helpers.getPagination(req.query),
+        order: helpers.getSorting(req.query)
+    });
 
     return res.json({
         success: true,
-        data: users
+        data: result.rows,
+        meta: { count: result.count }
     });
 };
 

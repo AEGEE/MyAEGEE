@@ -1,11 +1,16 @@
 const { Permission } = require('../models');
+const helpers = require('../lib/helpers');
 
 exports.listAllPermissions = async (req, res) => {
-    const permissions = await Permission.findAll({});
+    const result = await Permission.findAndCountAll({
+        ...helpers.getPagination(req.query),
+        order: helpers.getSorting(req.query)
+    });
 
     return res.json({
         success: true,
-        data: permissions
+        data: result.rows,
+        meta: { count: result.count }
     });
 };
 

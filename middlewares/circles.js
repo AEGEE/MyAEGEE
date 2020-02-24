@@ -4,11 +4,15 @@ const helpers = require('../lib/helpers');
 const { sequelize } = require('../lib/sequelize');
 
 exports.listAllCircles = async (req, res) => {
-    const circle = await Circle.findAll({});
+    const result = await Circle.findAndCountAll({
+        ...helpers.getPagination(req.query),
+        order: helpers.getSorting(req.query)
+    });
 
     return res.json({
         success: true,
-        data: circle
+        data: result.rows,
+        meta: { count: result.count }
     });
 };
 

@@ -2,7 +2,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 
-describe('Campaigns list', () => {
+describe('Join requests list', () => {
     beforeAll(async () => {
         await startServer();
     });
@@ -15,15 +15,15 @@ describe('Campaigns list', () => {
         await generator.clearAll();
     });
 
-
     test('should succeed when everything is okay', async () => {
         const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
         const token = await generator.createAccessToken({}, user);
 
-        const campaign = await generator.createCampaign();
+        const body = await generator.createBody();
+        const joinRequest = await generator.createJoinRequest(body, user);
 
         const res = await request({
-            uri: '/campaigns',
+            uri: '/bodies/' + body.id + '/join-requests',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -34,19 +34,24 @@ describe('Campaigns list', () => {
         expect(res.body).not.toHaveProperty('errors');
 
         expect(res.body.data.length).toEqual(1);
-        expect(res.body.data[0].id).toEqual(campaign.id);
+        expect(res.body.data[0].id).toEqual(joinRequest.id);
     });
 
     test('should respect limit and offset', async () => {
         const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
         const token = await generator.createAccessToken({}, user);
+        const body = await generator.createBody();
 
-        await generator.createCampaign();
-        const campaign = await generator.createCampaign();
-        await generator.createCampaign();
+        const firstUser = await generator.createUser();
+        await generator.createJoinRequest(body, firstUser);
+
+        const joinRequest = await generator.createJoinRequest(body, user);
+
+        const thirdUser = await generator.createUser();
+        await generator.createJoinRequest(body, thirdUser);
 
         const res = await request({
-            uri: '/campaigns?limit=1&offset=1', // second one should be returned
+            uri: '/bodies/' + body.id + '/join-requests?limit=1&offset=1', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -58,7 +63,7 @@ describe('Campaigns list', () => {
         expect(res.body).not.toHaveProperty('errors');
 
         expect(res.body.data.length).toEqual(1);
-        expect(res.body.data[0].id).toEqual(campaign.id);
+        expect(res.body.data[0].id).toEqual(joinRequest.id);
 
         expect(res.body.meta.count).toEqual(3);
     });
@@ -66,12 +71,16 @@ describe('Campaigns list', () => {
     test('should respect sorting', async () => {
         const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
         const token = await generator.createAccessToken({}, user);
+        const body = await generator.createBody();
 
-        const firstCampaign = await generator.createCampaign({ url: 'aaa' });
-        const secondCampaign = await generator.createCampaign({ url: 'bbb' });
+        const firstUser = await generator.createUser();
+        const firstJoinRequest = await generator.createJoinRequest(body, firstUser);
+
+        const secondUser = await generator.createUser();
+        const secondJoinRequest = await generator.createJoinRequest(body, secondUser);
 
         const res = await request({
-            uri: '/campaigns?sort=url&direction=desc', // second one should be returned
+            uri: '/bodies/' + body.id + '/join-requests?sort=id&direction=desc', // second one should be returned
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -83,7 +92,7 @@ describe('Campaigns list', () => {
         expect(res.body).not.toHaveProperty('errors');
 
         expect(res.body.data.length).toEqual(2);
-        expect(res.body.data[0].id).toEqual(secondCampaign.id);
-        expect(res.body.data[1].id).toEqual(firstCampaign.id);
+        expect(res.body.data[0].id).toEqual(secondJoinRequest.id);
+        expect(res.body.data[1].id).toEqual(firstJoinRequest.id);
     });
 });

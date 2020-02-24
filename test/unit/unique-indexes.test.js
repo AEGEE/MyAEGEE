@@ -351,4 +351,25 @@ describe('Unique indexes', () => {
             }
         });
     });
+
+    describe('Join requests', () => {
+        test('should be unique', async () => {
+            const body = await generator.createBody();
+            const user = await generator.createUser();
+            await generator.createJoinRequest(body, user);
+            try {
+                await generator.createJoinRequest(body, user);
+                expect(1).toEqual(0);
+            } catch (err) {
+                expect(err).toHaveProperty('errors');
+                expect(err.errors.length).toEqual(2);
+                expect(err.errors[0].type).toEqual('unique violation');
+                expect(err.errors[1].type).toEqual('unique violation');
+
+                const paths = err.errors.map((error) => error.path);
+                expect(paths).toContain('body_id');
+                expect(paths).toContain('user_id');
+            }
+        });
+    });
 });
