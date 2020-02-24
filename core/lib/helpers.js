@@ -79,10 +79,40 @@ function isNumber(value) {
     return false;
 }
 
+function getPagination(query) {
+    const result = {};
+
+    if (query.limit && isNumber(query.limit) && query.limit > 0) {
+        result.limit = +query.limit;
+    }
+
+    if (query.offset && isNumber(query.offset) && query.offset > 0) {
+        result.offset = +query.offset;
+    }
+
+    return result;
+}
+
+function getSorting(query) {
+    const result = [['id', 'ASC']];
+
+    if (typeof query.sort === 'string') {
+        result[0][0] = query.sort;
+    }
+
+    if (typeof query.direction === 'string' && ['desc', 'asc'].includes(query.direction)) {
+        result[0][1] = query.direction;
+    }
+
+    return result;
+}
+
 module.exports = {
     filterFields,
     flattenObject,
     unflattenObject,
     isNumber,
-    traverseIndirectCircles
+    traverseIndirectCircles,
+    getPagination,
+    getSorting
 };

@@ -1,11 +1,16 @@
 const { Body } = require('../models');
+const helpers = require('../lib/helpers');
 
 exports.listAllBodies = async (req, res) => {
-    const bodies = await Body.findAll({});
+    const result = await Body.findAndCountAll({
+        ...helpers.getPagination(req.query),
+        order: helpers.getSorting(req.query)
+    });
 
     return res.json({
         success: true,
-        data: bodies
+        data: result.rows,
+        meta: { count: result.count }
     });
 };
 

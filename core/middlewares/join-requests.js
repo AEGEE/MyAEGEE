@@ -1,16 +1,20 @@
 const { JoinRequest, BodyMembership } = require('../models');
 const errors = require('../lib/errors');
+const helpers = require('../lib/helpers');
 const { sequelize } = require('../lib/sequelize');
 
 exports.listAllJoinRequests = async (req, res) => {
     // TODO: check permissions
-    const requests = await JoinRequest.findAll({
-        where: { body_id: req.currentBody.id }
+    const result = await JoinRequest.findAndCountAll({
+        where: { body_id: req.currentBody.id },
+        ...helpers.getPagination(req.query),
+        order: helpers.getSorting(req.query)
     });
 
     return res.json({
         success: true,
-        data: requests
+        data: result.rows,
+        meta: { count: result.count }
     });
 };
 
