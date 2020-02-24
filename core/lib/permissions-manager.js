@@ -33,6 +33,12 @@ class PermissionsManager {
         }
     }
 
+    // This function should be called with a string, which is the `combined` field
+    // of a permission, either with a scope (like `global:edit:user`) or without it
+    // (like `edit:user`). If scope is provided, only permission with scope is searched
+    // for, if it's not provided, all scopes are iterated through, with the following
+    // priority: global, local, join_request (so if a person has both `global:edit:user` and
+    // `local:edit:user` permissions, the first one would be chosen.
     static getPermissionKeys(combined) {
         const combinedSplit = combined.split(':');
         if (combinedSplit.length === 2) {
@@ -51,7 +57,7 @@ class PermissionsManager {
         return keys.some((key) => this.permissionsMap[key]);
     }
 
-    getPermissionFilter(permission) {
+    getPermissionFilters(permission) {
         const keys = this.getPermissionKeys(permission);
         for (const key of keys) {
             if (this.permissionsMap[key]) {
