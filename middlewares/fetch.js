@@ -6,7 +6,8 @@ const {
     Circle,
     Permission,
     Campaign,
-    BodyMembership
+    BodyMembership,
+    JoinRequest
 } = require('../models');
 
 const { Sequelize } = require('../lib/sequelize');
@@ -142,5 +143,25 @@ exports.fetchMembership = async (req, res, next) => {
     }
 
     req.currentBodyMembership = membership;
+    return next();
+};
+
+exports.fetchJoinRequest = async (req, res, next) => {
+    // searching the campaign by id if it's numeric
+    if (!helpers.isNumber(req.params.request_id)) {
+        return errors.makeBadRequestError(res, 'Join request ID is invalid.');
+    }
+
+    const request = await JoinRequest.findOne({
+        where: {
+            id: Number(req.params.request_id),
+            body_id: Number(req.params.body_id)
+        }
+    });
+    if (!request) {
+        return errors.makeNotFoundError(res, 'Join request is not found.');
+    }
+
+    req.currentJoinRequest = request;
     return next();
 };
