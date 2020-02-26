@@ -14,6 +14,9 @@ const JoinRequest = require('./JoinRequest');
 Campaign.hasMany(User, { foreignKey: 'campaign_id' });
 User.belongsTo(Campaign, { foreignKey: 'campaign_id' });
 
+Body.hasOne(Campaign, { foreignKey: 'autojoin_body_id', as: 'autojoin_body' });
+Campaign.belongsTo(Body, { foreignKey: 'autojoin_body_id', as: 'autojoin_body' });
+
 User.hasMany(MailConfirmation, { foreignKey: 'user_id' });
 MailConfirmation.belongsTo(User, { foreignKey: 'user_id' });
 

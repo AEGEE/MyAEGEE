@@ -2,7 +2,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 
-describe('Campaign editing', () => {
+describe('Body campaign editing', () => {
     beforeAll(async () => {
         await startServer();
     });
@@ -18,9 +18,10 @@ describe('Campaign editing', () => {
     test('should return 404 if the campaign is not found', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
+        const body = await generator.createBody();
 
         const res = await request({
-            uri: '/campaigns/1337',
+            uri: '/bodies/' + body.id + '/campaigns/1337',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }
@@ -35,11 +36,12 @@ describe('Campaign editing', () => {
     test('should fail if there are validation errors', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
+        const body = await generator.createBody();
 
-        const campaign = await generator.createCampaign();
+        const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/campaigns/' + campaign.id,
+            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: '' }
@@ -55,11 +57,12 @@ describe('Campaign editing', () => {
     test('should succeed if everything is okay', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
+        const body = await generator.createBody();
 
-        const campaign = await generator.createCampaign();
+        const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
         const res = await request({
-            uri: '/campaigns/' + campaign.id,
+            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
             body: { name: 'New name' }
