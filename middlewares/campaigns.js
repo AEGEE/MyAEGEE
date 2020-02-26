@@ -1,6 +1,7 @@
 const {
     User,
     MailConfirmation,
+    BodyMembership,
     Campaign
 } = require('../models');
 const errors = require('../lib/errors');
@@ -19,6 +20,15 @@ exports.registerUser = async (req, res) => {
         ...req.body,
         campaign_id: campaign.id
     });
+
+    // Adding a person to a body if campaign has the autojoin body.
+    if (campaign.autojoin_body_id) {
+        await BodyMembership.create({
+            user_id: user.id,
+            body_id: campaign.autojoin_body_id
+        });
+    }
+
     const confirmation = await MailConfirmation.createForUser(user.id);
 
     return res.json({
