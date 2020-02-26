@@ -43,7 +43,7 @@ const Campaign = sequelize.define('campaign', {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: true
-    },
+    }
 }, {
     underscored: true,
     tableName: 'campaigns',

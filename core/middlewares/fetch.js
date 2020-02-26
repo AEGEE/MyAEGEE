@@ -100,9 +100,6 @@ exports.fetchPermission = async (req, res, next) => {
     }
 
     req.currentPermission = permission;
-
-    // TODO: fetch permissions
-
     return next();
 };
 
@@ -120,9 +117,6 @@ exports.fetchCampaign = async (req, res, next) => {
     }
 
     req.currentCampaign = campaign;
-
-    // TODO: fetch permissions
-
     return next();
 };
 
@@ -163,5 +157,26 @@ exports.fetchJoinRequest = async (req, res, next) => {
     }
 
     req.currentJoinRequest = request;
+    return next();
+};
+
+exports.fetchBodyCampaign = async (req, res, next) => {
+    // searching the campaign by id if it's numeric
+    if (!helpers.isNumber(req.params.campaign_id)) {
+        return errors.makeBadRequestError(res, 'Campaign ID is invalid.');
+    }
+
+    const campaign = await Campaign.findOne({
+        where: {
+            id: Number(req.params.campaign_id),
+            autojoin_body_id: req.currentBody.id
+        }
+    });
+
+    if (!campaign) {
+        return errors.makeNotFoundError(res, 'Campaign is not found.');
+    }
+
+    req.currentBodyCampaign = campaign;
     return next();
 };
