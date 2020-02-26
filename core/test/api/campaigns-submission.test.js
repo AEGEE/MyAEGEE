@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { BodyMembership } = require('../../models');
 
 describe('Campaign submission', () => {
     beforeAll(async () => {
@@ -171,5 +172,32 @@ describe('Campaign submission', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
         expect(res.body).not.toHaveProperty('errors');
+    });
+
+    test('should create a body membership if autojoin_body_id is provided', async () => {
+        const body = await generator.createBody();
+        const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
+        const user = generator.generateUser();
+
+        const res = await request({
+            uri: '/signup/' + campaign.url,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: user
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        const membershipFromDb = await BodyMembership.findOne({
+            where: {
+                body_id: body.id,
+                user_id: res.body.data.user.id
+            }
+        });
+
+        expect(membershipFromDb).not.toEqual(null);
     });
 });
