@@ -18,6 +18,7 @@
     "husky": "^3.0.4",
     "jest": "^25.1.0",
     "jest-junit": "^10.0.0",
+    "lint-staged": "^10.0.8",
     "nyc": "^15.0.0",
     "open-cli": "^5.0.0",
     "request-promise-native": "^1.0.8"
@@ -25,6 +26,7 @@
   "scripts": {
     "test": "NODE_ENV=test npm run db:setup && jest test/**/*.test.js --runInBand --forceExit",
     "lint": "node_modules/.bin/eslint .",
+    "lint-staged": "lint-staged",
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
@@ -34,8 +36,12 @@
   },
   "husky": {
     "hooks": {
+      "pre-commit": "lint-staged",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
+  },
+  "lint-staged": {
+    "*.{js,jsx}": "eslint"
   },
   "jest": {
     "testEnvironment": "node",
