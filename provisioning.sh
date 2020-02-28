@@ -1,4 +1,6 @@
 #!/bin/bash
+#THIS IS RUN ON THE GUEST MACHINE
+# By Vagrant
 
 #usage: provision.sh will call deploy.sh (but it is safer to deploy manually! so this is just for when I have a brand new server and want to bootstrap it from remote) which will update the git repo on the host, call a password setter, and run it
 

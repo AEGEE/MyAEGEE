@@ -1,4 +1,6 @@
 #!/bin/bash
+#THIS IS RUN ON THE GUEST MACHINE
+# By Vagrant
 
 echo "[pw set] not yet implemented"
 exit 0

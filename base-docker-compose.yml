@@ -1,10 +1,5 @@
 version: "3.4"
 
-#This docker-compose file contains utility containers not vital for the working of the web application, such as an orchestrator manager (portainer) and a continuous integration app (drone)
-
-#TODO: maybe add also the swagger-editor and swaggerapi visualiser
-#TODO: logging containers, consul...
-
 services:
 
   portal:

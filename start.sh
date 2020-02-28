@@ -1,5 +1,6 @@
 #!/bin/bash
-
+#THIS IS RUN ON THE HOST MACHINE
+# It will also start vagrant (or not)
 
 #check how to bootstrap
 novagrant=false
@@ -26,10 +27,10 @@ bash ./vagrant-post-script/generate_secrets.sh
 
 #run accordingly
 if ( $novagrant ); then
-  check_etc_hosts "127.0.0.1" "localhost" 
-  make bootstrap 
+  check_etc_hosts "127.0.0.1" "localhost"
+  make bootstrap
 else
-  check_etc_hosts "192.168.168.168" "appserver"
+  check_etc_hosts "192.168.168.168" "appserver.test"
   sed 's/localhost/appserver/' .env.example > .env
   vagrant up
 fi

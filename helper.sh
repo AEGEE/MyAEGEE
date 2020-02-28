@@ -1,4 +1,6 @@
 #!/bin/bash
+#THIS IS RUN ON THE MACHINE that you decided would run
+#the app: either the guest (with Vagrant) or your host machine
 
 # NEW structure: now eberything here will be a target of makefile.
 # Then helper.sh calls the target according to the parameter of the shell script
@@ -35,7 +37,8 @@ init_boot ()
     touch "${DIR}"/secrets/acme.json # to avoid making it think it's a folder
     chmod 600 "${DIR}"/secrets/acme.json # Traefik doesn't let ACME challenge go through otherwise
 
-    envsubst < "${DIR}"/oms-global/traefik/traefik.toml.template > "${DIR}"/oms-global/traefik/traefik.toml
+    touch "${DIR}"/oms-global/docker/traefik/traefik.toml # to avoid making it think it's a folder
+    envsubst < "${DIR}"/oms-global/docker/traefik/traefik.toml.template > "${DIR}"/oms-global/docker/traefik/traefik.toml
 }
 
 # change passwords (currently deploy.sh [calls an external script])
@@ -142,6 +145,7 @@ bump=false;
 execute=false;
 debug=false;
 list=false;
+pull=false;
 verbose=true; #TODO put me to false default
 docker=false;
 command_num=0;
@@ -163,6 +167,7 @@ if [[ "$#" -ge 1 ]]; then
             --execute) execute=true; ((command_num++)); shift ;;
             --debug) debug=true; ((command_num++)); shift ;;
             --list) list=true; ((command_num++)); shift ;;
+            --pull) pull=true; ((command_num++)); shift ;;
             --docker) docker=true; ((command_num++)); shift ;;
             -v) verbose=true; shift ;;
 
@@ -210,6 +215,11 @@ fi
 
 if ( $execute ); then
     compose_wrapper exec $arguments
+    exit $?
+fi
+
+if ( $pull ); then
+    compose_wrapper pull $arguments
     exit $?
 fi
 
