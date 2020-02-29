@@ -263,12 +263,9 @@ fi
 if ( $nuke ); then
   if [[ "$(hostname)" == *prod* ]]; then
     echo "DUUUDE you can't kill production" && exit 1;
-  elif [[ "$(hostname)" == *OMS2* ]]; then
-      echo "DUUUDE you better do this manually, no script" && exit 2;
-    else
+  else
       compose_wrapper down -v
       exit $?
-    fi
   fi
 fi
 
