@@ -6,3 +6,5 @@ restore:
 
 docker cp upmonitor.sqlite3 myaegee_upmonitor_1:/app/db/sqlite/production.sqlite3
 docker restart myaegee_upmonitor_1
+
+TODO: update the sqlite with the rest of the checks

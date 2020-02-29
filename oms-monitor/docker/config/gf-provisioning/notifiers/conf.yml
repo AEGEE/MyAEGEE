@@ -14,6 +14,6 @@ notifiers:
       uploadImage: true
       username: "Grafana"
       iconUrl: "https://gitlab.com/uploads/-/system/project/avatar/928825/grafana_icon.png"
-      url: "${SLACK_URL}"
+      url: "${SLACK_WEBHOOK_GRAFANA}"
       token: "${SLACK_TOKEN}"
       # SLACK_URL, SLACK_TOKEN are on 1password
