@@ -9,7 +9,7 @@ services:
     restart: "no"
     image: portainer/portainer:1.22.1
     # image: portainer/portainer:1.15.5 #they broke the tag
-    command: -H unix:///var/run/docker.sock --admin-password ${PW_PORTAINER} --logo ${AEGEE_LOGO_B64}
+    command: -H unix:///var/run/docker.sock --admin-password ${PW_PORTAINER} --logo ${AEGEE_LOGO_B64}  # yamllint disable-line rule:line-length
     expose:
       - "9000"
     volumes:

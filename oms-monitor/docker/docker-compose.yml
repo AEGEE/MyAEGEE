@@ -12,7 +12,7 @@ services:
     environment:
       GF_SECURITY_ADMIN_PASSWORD: "${PW_GRAFANA}"
       GF_SERVER_ROOT_URL: "https://${SUBDOMAIN_GRAFANA}${BASE_URL}/"
-      GF_INSTALL_PLUGINS: "raintank-worldping-app,grafana-simple-json-datasource,grafana-clock-panel,grafana-piechart-panel"
+      GF_INSTALL_PLUGINS: "raintank-worldping-app,grafana-simple-json-datasource,grafana-clock-panel,grafana-piechart-panel"  # yamllint disable-line rule:line-length
       GF_SMTP_ENABLED: "true"
       GF_SMTP_HOST: "smtp.sendgrid.net:587"
       GF_SMTP_USER: "${USER_SENDGRID}"
@@ -40,7 +40,7 @@ services:
       - "traefik.enable=true"
       - "traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}"
 
-  #could be deprecated according to how statping works
+  # could be deprecated according to how statping works
   upmonitor:
     image: brotandgames/ciao:1.6.5
     environment:
@@ -55,7 +55,7 @@ services:
       SMTP_USERNAME: "${USER_SENDGRID}"
       SMTP_PASSWORD: "${PW_SENDGRID}"
       CIAO_WEBHOOK_ENDPOINT_SLACK: "${SLACK_URL}"
-      CIAO_WEBHOOK_PAYLOAD_SLACK: "{\"text\":\"[ciao-http-status] __name__: Status changed to __status_after__ (from __status_before__)\", \"icon_emoji\": \":up:\", \"username\": \"uptime-monitor\"}"
+      CIAO_WEBHOOK_PAYLOAD_SLACK: "{\"text\":\"[ciao-http-status] __name__: Status changed to __status_after__ (from __status_before__)\", \"icon_emoji\": \":up:\", \"username\": \"uptime-monitor\"}"  # yamllint disable-line rule:line-length
       PROMETHEUS_ENABLED: "true"
       BASIC_AUTH_USERNAME: "ciao-admin"
       BASIC_AUTH_PASSWORD: "${PW_UPMONITOR}"
@@ -68,7 +68,7 @@ services:
       - "traefik.frontend.priority=110"
       - "traefik.enable=true"
 
-  #alternative to ciao, but more similar to cachet
+  # alternative to ciao, but more similar to cachet
   statping:
     image: hunterlong/statping:v0.80.65
     environment:
@@ -80,7 +80,7 @@ services:
       ADMIN_PASSWORD: ${PW_STATPING}
       ADMIN_EMAIL: "myaegee-admins@${BASE_URL}"
       USE_CDN: "true"
-      DISABLE_LOGS: "false" # disable logs from appearing and writing to disk
+      DISABLE_LOGS: "false"  # disable logs from appearing and writing to disk
       IS_DOCKER: "true"
       IS_AWS: "false"
       CMD_FILE: /bin/ash
@@ -103,18 +103,18 @@ services:
   #   labels:
   #     - "traefik.backend=blackbox-exporter"
   #     - "traefik.port=9115"
-  #     - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/blackbox-exporter;PathPrefixStrip:/services/blackbox-exporter"
+  #     - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/blackbox-exporter;PathPrefixStrip:/services/blackbox-exporter"  # yamllint disable-line rule:line-length
   #     - "traefik.frontend.priority=110"
   #     - "traefik.enable=true"
 
 volumes:
-  prometheus-storage: #TODO: set backup
+  prometheus-storage:  # TODO: set backup
     driver: local
   grafana-storage:
     driver: local
-  ciao-storage: #TODO: set backup
+  ciao-storage:  # TODO: set backup
     driver: local
-  statping-storage: #TODO: set backup
+  statping-storage:  # TODO: set backup
     driver: local
 
 networks:
