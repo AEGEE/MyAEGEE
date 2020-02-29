@@ -9,7 +9,7 @@ services=(${service_string//:/ })
 
 for s in "${services[@]}"; do
     cd ${DIR}/${s}/docker/
-    for file in "$(ls dock*.yml)"; do
+    for file in $(ls dock*.yml); do
         #example command:
         #sed -i 's/version: "2.4"/version: "3.4"/' ${file}
         echo "hello"
