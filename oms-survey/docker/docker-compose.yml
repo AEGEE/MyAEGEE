@@ -3,8 +3,9 @@ version: "3.4"
 services:
 
   survey:
-    image: crramirez/limesurvey:3 # TODO change to martialblog/limesurvey
-    environment: # https://hub.docker.com/r/iteconomics/limesurvey a good explaantion of many env vars
+    image: crramirez/limesurvey:3  # TODO change to martialblog/limesurvey
+    environment:
+    # https://hub.docker.com/r/iteconomics/limesurvey a good explaantion of many env vars
       LIMESURVEY_DB_USER: "postgres"
       LIMESURVEY_DB_PASSWORD: "${PW_POSTGRES}"
       LIMESURVEY_DB_HOST: "postgres-limesurvey"

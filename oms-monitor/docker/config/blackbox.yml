@@ -8,64 +8,83 @@ modules:
 
     http:
       # Accepted status codes for this probe. Defaults to 2xx.
+      # yamllint disable-line rule:comments
       #[ valid_status_codes: <int>, ... | default = 2xx ]
 
       # Accepted HTTP versions for this probe.
+      # yamllint disable-line rule:comments
       #[ valid_http_versions: <string>, ... ]
 
       # The HTTP method the probe will use.
+      # yamllint disable-line rule:comments
       #[ method: <string> | default = "GET" ]
 
       # The HTTP headers set for the probe.
+      # yamllint disable-line rule:comments
       #headers:
       #  [ <string>: <string> ... ]
 
       # Whether or not the probe will follow any redirects.
+      # yamllint disable-line rule:comments
       #[ no_follow_redirects: <boolean> | default = false ]
 
       # Probe fails if SSL is present.
+      # yamllint disable-line rule:comments
       #[ fail_if_ssl: <boolean> | default = false ]
 
       # Probe fails if SSL is not present.
+      # yamllint disable-line rule:comments
       #[ fail_if_not_ssl: <boolean> | default = false ]
 
       # Probe fails if response body matches regex.
+      # yamllint disable-line rule:comments
       #fail_if_body_matches_regexp:
       #  [ - <regex>, ... ]
 
       # Probe fails if response body does not match regex.
+      # yamllint disable-line rule:comments
       #fail_if_body_not_matches_regexp:
       #  [ - <regex>, ... ]
 
+      # yamllint disable-line rule:line-length
       # Probe fails if response header matches regex. For headers with multiple values, fails if *at least one* matches.
+      # yamllint disable-line rule:comments
       #fail_if_header_matches:
       #  [ - <http_header_match_spec>, ... ]
 
+      # yamllint disable-line rule:line-length
       # Probe fails if response header does not match regex. For headers with multiple values, fails if *none* match.
+      # yamllint disable-line rule:comments
       #fail_if_header_not_matches:
       #  [ - <http_header_match_spec>, ... ]
 
       # Configuration for TLS protocol of HTTP probe.
+      # yamllint disable-line rule:comments
       #tls_config:
       #  [ <tls_config> ]
 
       # The HTTP basic authentication credentials for the targets.
+      # yamllint disable-line rule:comments
       #basic_auth:
       #  [ username: <string> ]
       #  [ password: <secret> ]
 
       # The bearer token for the targets.
+      # yamllint disable-line rule:comments
       #[ bearer_token: <secret> ]
 
       # The bearer token file for the targets.
+      # yamllint disable-line rule:comments
       #[ bearer_token_file: <filename> ]
 
       # HTTP proxy server to use to connect to the targets.
+      # yamllint disable-line rule:comments
       #[ proxy_url: <string> ]
 
       # The IP protocol of the HTTP probe (ip4, ip6).
-      preferred_ip_protocol: "ip4" # defaults to "ip6"
+      preferred_ip_protocol: "ip4"  # defaults to "ip6"
       ip_protocol_fallback: false  # no fallback to "ip6"
 
       # The body of the HTTP request used in probe.
+      # yamllint disable-line rule:comments
       #body: [ <string> ]

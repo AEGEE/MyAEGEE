@@ -15,7 +15,7 @@ fi
 strict="true"
 if [ $# -eq 2 ]; then
   if [ "$1" == "--loose" ]; then
-    $strict="false"
+    strict="false"
   fi
 else
   echo -e "Usage: password-setter.sh [--loose], assuming strict"
