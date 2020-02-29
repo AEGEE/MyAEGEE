@@ -18,7 +18,7 @@ services:
 
   statuspage:
     restart: always
-    image: aegee/statuspage:2.4-dev-slack
+    image: aegee/statuspage:2.4-dev-cool
     env_file: ./${PATH_OMS_STATUS}/cachet/.env
     volumes:
       - ./${PATH_OMS_STATUS}/cachet/.env:/app/.env:rw
@@ -28,7 +28,7 @@ services:
 
   nginx-statuspage:
     restart: always
-    image: aegee/nginx-webserver:latest
+    image: aegee/statuspage-nginx:2.4-dev-cool
     environment:
         PHPFPM_HOST: "statuspage"
     depends_on:
@@ -43,8 +43,8 @@ services:
       - "traefik.frontend.priority=20"
 
   redis-statuspage-cache:
-    restart: unless-stopped
     image: redis:5-alpine
+    restart: unless-stopped
 
 volumes:
   maria-statuspage:
