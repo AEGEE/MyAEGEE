@@ -39,6 +39,10 @@ init_boot ()
 
     touch "${DIR}"/oms-global/docker/traefik/traefik.toml # to avoid making it think it's a folder
     envsubst < "${DIR}"/oms-global/docker/traefik/traefik.toml.template > "${DIR}"/oms-global/docker/traefik/traefik.toml
+
+    echo "manual things still to do (if applicable use-case): "
+    echo "  init cachet files (oms-status/docker/setup.sh)"
+    echo "  init grafana config with the slack token (vim oms-monitor/docker/config/gf-provisioning/notifiers/conf.yml)"
 }
 
 # change passwords (currently deploy.sh [calls an external script])
@@ -130,6 +134,7 @@ if [[ "${MYAEGEE_ENV}" != "production" && "${MYAEGEE_ENV}" != "development" ]]; 
   echo "Error: MYAEGEE_ENV can only be 'production' or 'development'"
   exit 1
 fi
+export HOSTNAME="$(hostname)"
 
 # Entry: check if the number of arguments is max 2 (one for the target one for the verbose)
 init=false;

@@ -22,20 +22,59 @@ scrape_configs:
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
     static_configs:
-      - targets: ['traefik:8080', 'cadvisor:8080', 'upmonitor:3000']
+      - targets:
+          - 'traefik:8080'
+          - 'cadvisor:8080'
+          - 'node-exporter-tunnel:5001'
+          #- 'statping:3000'
+          - 'upmonitor:3000'
 
   # - job_name: 'statping' #can't do up here because of the bearer token.
   #   bearer_token: 'MY API SECRET HERE'
   #   static_configs:
   #     - targets: ['statping:8080']
 
-  - job_name: 'local-node'
-    # since we put the network_mode = host
-    # we can't access directly anymore. Only through reverse proxy
+  - job_name: 'staging-diagnostics-node'
     static_configs:
-      - targets: ['traefik:8080']
-      # ^^^^^ ???? 80 redirects to 443, 443 gets error, 8080??. TODO: make special route on http
-    metrics_path: '/services/node-exporter/metrics'
+      - targets: ['my.staging.aegee.eu']
+    metrics_path: '/ext-metrics/node-exporter/metrics'
+  - job_name: 'staging-diagnostics-cadvisor'
+    static_configs:
+      - targets: ['my.staging.aegee.eu']
+    metrics_path: '/ext-metrics/cadvisor/metrics'
+  - job_name: 'staging-diagnostics-traefik'
+    static_configs:
+      - targets: ['traefik.staging.aegee.eu']
+    metrics_path: '/metrics'
+
+  - job_name: 'production-diagnostics-node'
+    static_configs:
+      - targets: ['my.aegee.eu']
+    metrics_path: '/ext-metrics/node-exporter/metrics'
+  - job_name: 'production-diagnostics-cadvisor'
+    static_configs:
+      - targets: ['my.aegee.eu']
+    metrics_path: '/ext-metrics/cadvisor/metrics'
+  - job_name: 'production-diagnostics-traefik'
+    static_configs:
+      - targets: ['traefik.aegee.eu']
+    metrics_path: '/metrics'
+
+  # READ: https://docs.traefik.io/v1.7/configuration/api/#security
+  # - job_name: 'production-traefik'
+  #   static_configs:
+  #     - targets: ['traefik.aegee.eu']
+  # ^^^ it's better to put a /path instead of a subdomain because we don't have access to AEGEE DNS
+
+  - job_name: 'commander-diagnostics'
+    static_configs:
+      - targets: ['commander.aegee.eu']
+    metrics_path: '/ext-metrics/node-exporter/metrics'
+
+  # - job_name: 'monitor2-diagnostics'
+  #   static_configs:
+  #     - targets: ['monitor2.aegee.eu']
+  #   metrics_path: '/services/node-exporter/metrics'
 
   # - job_name: 'blackbox'
   #   metrics_path: /probe
@@ -54,31 +93,6 @@ scrape_configs:
   #     - target_label: __address__
   #       replacement: blackbox-exporter:9115  # The blackbox exporter's real hostname:port.
 
-  - job_name: 'staging-diagnostics'
-    static_configs:
-      - targets: ['my.staging.aegee.eu']
-    metrics_path: '/services/node-exporter/metrics'
-
-  - job_name: 'production-diagnostics'
-    static_configs:
-      - targets: ['my.aegee.eu']
-    metrics_path: '/services/node-exporter/metrics'
-
-  # READ: https://docs.traefik.io/v1.7/configuration/api/#security
-  # - job_name: 'production-traefik'
-  #   static_configs:
-  #     - targets: ['traefik.aegee.eu']
-  # ^^^ it's better to put a /path instead of a subdomain because we don't have access to AEGEE DNS
-
-  - job_name: 'commander-diagnostics'
-    static_configs:
-      - targets: ['commander.aegee.eu']
-    metrics_path: '/services/node-exporter/metrics'
-
-  # - job_name: 'monitor2-diagnostics'
-  #   static_configs:
-  #     - targets: ['monitor2.aegee.eu']
-  #   metrics_path: '/services/node-exporter/metrics'
 
   # Scraping also production stuff (ONLY FROM MONITORING HOST)
   - job_name: 'statutory-statistics'
