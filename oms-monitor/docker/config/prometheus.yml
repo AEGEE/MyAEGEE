@@ -26,7 +26,7 @@ scrape_configs:
           - 'traefik:8080'
           - 'cadvisor:8080'
           - 'node-exporter-tunnel:5001'
-          #- 'statping:3000'
+          #  - 'statping:3000'
           - 'upmonitor:3000'
 
   # - job_name: 'statping' #can't do up here because of the bearer token.

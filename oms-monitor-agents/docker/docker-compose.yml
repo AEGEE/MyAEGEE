@@ -35,6 +35,7 @@ services:
     # labels:
     #   - "traefik.backend=node-exporter"
     #   - "traefik.port=9100"
+    # yamllint disable-line rule:line-length
     #   - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/node-exporter;PathPrefixStrip:/services/node-exporter"
     #   - "traefik.frontend.priority=110"
     #   - "traefik.enable=true"
@@ -63,6 +64,7 @@ services:
   #   labels:
   #     - "traefik.backend=node-exporter-tunnel"
   #     - "traefik.port=5001"
+  # yamllint disable-line rule:line-length
   #     - "traefik.frontend.rule=Host:${SUBDOMAIN_TRAEFIK}${BASE_URL};PathPrefix:/ext-metrics/node-exporter;PathPrefixStrip:/ext-metrics/node-exporter"
   #     - "traefik.frontend.priority=110"
   #     - "traefik.enable=true"
