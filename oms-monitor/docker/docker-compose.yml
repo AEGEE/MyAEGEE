@@ -12,7 +12,8 @@ services:
     environment:
       GF_SECURITY_ADMIN_PASSWORD: "${PW_GRAFANA}"
       GF_SERVER_ROOT_URL: "https://${SUBDOMAIN_GRAFANA}${BASE_URL}/"
-      GF_INSTALL_PLUGINS: "raintank-worldping-app,grafana-simple-json-datasource,grafana-clock-panel,grafana-piechart-panel"  # yamllint disable-line rule:line-length
+      # yamllint disable-line rule:line-length
+      GF_INSTALL_PLUGINS: "raintank-worldping-app,grafana-simple-json-datasource,grafana-clock-panel,grafana-piechart-panel"
       GF_SMTP_ENABLED: "true"
       GF_SMTP_HOST: "smtp.sendgrid.net:587"
       GF_SMTP_USER: "${USER_SENDGRID}"
@@ -55,7 +56,8 @@ services:
       SMTP_USERNAME: "${USER_SENDGRID}"
       SMTP_PASSWORD: "${PW_SENDGRID}"
       CIAO_WEBHOOK_ENDPOINT_SLACK: "${SLACK_URL}"
-      CIAO_WEBHOOK_PAYLOAD_SLACK: "{\"text\":\"[ciao-http-status] __name__: Status changed to __status_after__ (from __status_before__)\", \"icon_emoji\": \":up:\", \"username\": \"uptime-monitor\"}"  # yamllint disable-line rule:line-length
+      # yamllint disable-line rule:line-length
+      CIAO_WEBHOOK_PAYLOAD_SLACK: "{\"text\":\"[ciao-http-status] __name__: Status changed to __status_after__ (from __status_before__)\", \"icon_emoji\": \":up:\", \"username\": \"uptime-monitor\"}"
       PROMETHEUS_ENABLED: "true"
       BASIC_AUTH_USERNAME: "ciao-admin"
       BASIC_AUTH_PASSWORD: "${PW_UPMONITOR}"
@@ -103,7 +105,8 @@ services:
   #   labels:
   #     - "traefik.backend=blackbox-exporter"
   #     - "traefik.port=9115"
-  #     - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/blackbox-exporter;PathPrefixStrip:/services/blackbox-exporter"  # yamllint disable-line rule:line-length
+  # yamllint disable-line rule:line-length
+  #     - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/blackbox-exporter;PathPrefixStrip:/services/blackbox-exporter"
   #     - "traefik.frontend.priority=110"
   #     - "traefik.enable=true"
 
