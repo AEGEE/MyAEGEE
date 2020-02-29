@@ -6,12 +6,19 @@ services:
     image: grafana/grafana:6.4.1
     volumes:
       - grafana-storage:/var/lib/grafana
-      - ./${PATH_OMS_MONITOR}/gf-dashboards:/var/lib/grafana/dashboards
       - ./${PATH_OMS_MONITOR}/config/gf-provisioning:/etc/grafana/provisioning
+      - ./${PATH_OMS_MONITOR}/gf-dashboards/metrics:/var/lib/grafana/dashboards/metrics
+      - ./${PATH_OMS_MONITOR}/gf-dashboards/statistics:/var/lib/grafana/dashboards/statistics
     environment:
       GF_SECURITY_ADMIN_PASSWORD: "${PW_GRAFANA}"
       GF_SERVER_ROOT_URL: "https://${SUBDOMAIN_GRAFANA}${BASE_URL}/"
       GF_INSTALL_PLUGINS: "raintank-worldping-app,grafana-simple-json-datasource,grafana-clock-panel,grafana-piechart-panel"
+      GF_SMTP_ENABLED: "true"
+      GF_SMTP_HOST: "smtp.sendgrid.net:587"
+      GF_SMTP_USER: "${USER_SENDGRID}"
+      GF_SMTP_PASSWORD: "${PW_SENDGRID}"
+      GF_SMTP_FROM_ADDRESS: "grafana@${BASE_URL}"
+      GF_SMTP_FROM_NAME: "AEGEE Dashboards"
     labels:
       - "traefik.backend=grafana"
       - "traefik.port=3000"
@@ -33,10 +40,11 @@ services:
       - "traefik.enable=true"
       - "traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}"
 
+  #could be deprecated according to how statping works
   upmonitor:
     image: brotandgames/ciao:1.6.5
     environment:
-      SECRET_KEY_BASE: "${PW_BITWARDEN_ADMINPANEL}"
+      SECRET_KEY_BASE: "${RUBY_APP_KEY}"
       SMTP_ADDRESS: smtp.sendgrid.net
       SMTP_EMAIL_FROM: ciaohttp@${BASE_URL}
       SMTP_EMAIL_TO: myaegee-admins@${BASE_URL}
@@ -47,10 +55,10 @@ services:
       SMTP_USERNAME: "${USER_SENDGRID}"
       SMTP_PASSWORD: "${PW_SENDGRID}"
       CIAO_WEBHOOK_ENDPOINT_SLACK: "${SLACK_URL}"
-      CIAO_WEBHOOK_PAYLOAD_SLACK: "'{\"text\":\"[ciao] __name__: Status changed (__status_after__)\", \"icon_emoji\": \":ghost:\", \"username\": \"uptime-monitor\"}'"
+      CIAO_WEBHOOK_PAYLOAD_SLACK: "{\"text\":\"[ciao-http-status] __name__: Status changed to __status_after__ (from __status_before__)\", \"icon_emoji\": \":up:\", \"username\": \"uptime-monitor\"}"
       PROMETHEUS_ENABLED: "true"
       BASIC_AUTH_USERNAME: "ciao-admin"
-      BASIC_AUTH_PASSWORD: "${PW_ADMIN}"
+      BASIC_AUTH_PASSWORD: "${PW_UPMONITOR}"
     volumes:
       - ciao-storage:/app/db/sqlite/
     labels:
@@ -60,12 +68,53 @@ services:
       - "traefik.frontend.priority=110"
       - "traefik.enable=true"
 
+  #alternative to ciao, but more similar to cachet
+  statping:
+    image: hunterlong/statping:v0.80.65
+    environment:
+      DB_CONN: sqlite
+      NAME: "MyAEGEE Statping"
+      DESCRIPTION: "Statping to check on AEGEE IT services"
+      DOMAIN: "https://${SUBDOMAIN_STATPING}${BASE_URL}"
+      ADMIN_USER: admin
+      ADMIN_PASSWORD: ${PW_STATPING}
+      ADMIN_EMAIL: "myaegee-admins@${BASE_URL}"
+      USE_CDN: "true"
+      DISABLE_LOGS: "false" # disable logs from appearing and writing to disk
+      IS_DOCKER: "true"
+      IS_AWS: "false"
+      CMD_FILE: /bin/ash
+      SASS: /usr/local/bin/sass
+    volumes:
+      - statping-storage:/app
+    labels:
+      - "traefik.backend=statping"
+      - "traefik.port=8080"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_STATPING}${BASE_URL};PathPrefix:/"
+      - "traefik.frontend.priority=110"
+      - "traefik.enable=true"
+
+  # #alternative to worldping
+  # blackbox-exporter:
+  #   image: prom/blackbox-exporter:v0.16.0
+  #   volumes:
+  #     - ./${PATH_OMS_MONITOR}/config/blackbox.yml:/config/blackbox.yml
+  #   command: '--config.file=/config/blackbox.yml'
+  #   labels:
+  #     - "traefik.backend=blackbox-exporter"
+  #     - "traefik.port=9115"
+  #     - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/blackbox-exporter;PathPrefixStrip:/services/blackbox-exporter"
+  #     - "traefik.frontend.priority=110"
+  #     - "traefik.enable=true"
+
 volumes:
-  prometheus-storage:
+  prometheus-storage: #TODO: set backup
     driver: local
   grafana-storage:
     driver: local
-  ciao-storage:
+  ciao-storage: #TODO: set backup
+    driver: local
+  statping-storage: #TODO: set backup
     driver: local
 
 networks:

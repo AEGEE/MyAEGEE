@@ -1,0 +1,3 @@
+docker cp to backup dbs (ciao, statping, prometheus)
+
+(check if prometheus has a sqlite, actually)

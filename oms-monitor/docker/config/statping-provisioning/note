@@ -1,0 +1,10 @@
+backup:
+
+docker cp myaegee_statping_1:/app/statup.db statup.db
+
+restore:
+
+docker cp statup.db myaegee_statping_1:/app/statup.db
+docker restart myaegee_statping_1
+
+!! CAREFUL !! API keys are in the db. When you provision it, change them on the interface

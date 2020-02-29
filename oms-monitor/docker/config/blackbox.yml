@@ -1,0 +1,71 @@
+modules:
+  http_stuff:
+    # The protocol over which the probe will take place (http, tcp, dns, icmp).
+    prober: http
+
+    # How long the probe will wait before giving up.
+    timeout: 30s
+
+    http:
+      # Accepted status codes for this probe. Defaults to 2xx.
+      #[ valid_status_codes: <int>, ... | default = 2xx ]
+
+      # Accepted HTTP versions for this probe.
+      #[ valid_http_versions: <string>, ... ]
+
+      # The HTTP method the probe will use.
+      #[ method: <string> | default = "GET" ]
+
+      # The HTTP headers set for the probe.
+      #headers:
+      #  [ <string>: <string> ... ]
+
+      # Whether or not the probe will follow any redirects.
+      #[ no_follow_redirects: <boolean> | default = false ]
+
+      # Probe fails if SSL is present.
+      #[ fail_if_ssl: <boolean> | default = false ]
+
+      # Probe fails if SSL is not present.
+      #[ fail_if_not_ssl: <boolean> | default = false ]
+
+      # Probe fails if response body matches regex.
+      #fail_if_body_matches_regexp:
+      #  [ - <regex>, ... ]
+
+      # Probe fails if response body does not match regex.
+      #fail_if_body_not_matches_regexp:
+      #  [ - <regex>, ... ]
+
+      # Probe fails if response header matches regex. For headers with multiple values, fails if *at least one* matches.
+      #fail_if_header_matches:
+      #  [ - <http_header_match_spec>, ... ]
+
+      # Probe fails if response header does not match regex. For headers with multiple values, fails if *none* match.
+      #fail_if_header_not_matches:
+      #  [ - <http_header_match_spec>, ... ]
+
+      # Configuration for TLS protocol of HTTP probe.
+      #tls_config:
+      #  [ <tls_config> ]
+
+      # The HTTP basic authentication credentials for the targets.
+      #basic_auth:
+      #  [ username: <string> ]
+      #  [ password: <secret> ]
+
+      # The bearer token for the targets.
+      #[ bearer_token: <secret> ]
+
+      # The bearer token file for the targets.
+      #[ bearer_token_file: <filename> ]
+
+      # HTTP proxy server to use to connect to the targets.
+      #[ proxy_url: <string> ]
+
+      # The IP protocol of the HTTP probe (ip4, ip6).
+      preferred_ip_protocol: "ip4" # defaults to "ip6"
+      ip_protocol_fallback: false  # no fallback to "ip6"
+
+      # The body of the HTTP request used in probe.
+      #body: [ <string> ]

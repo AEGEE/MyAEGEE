@@ -1,0 +1,3 @@
+generate LocalSettings.php from the values in the env file
+
+make a .sql that will provision maria, or injecting LocalSettings at the beginning won't work

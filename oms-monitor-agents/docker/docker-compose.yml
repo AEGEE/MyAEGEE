@@ -27,9 +27,10 @@ services:
     # https://quay.io/repository/prometheus/node-exporter?tab=info
     # https://hub.docker.com/r/prom/node-exporter/
     volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-    #command: '--collector.procfs=/host/proc --collector.sysfs=/host/sys'
+      - /:/host:ro,rslave
+    command: '--path.rootfs=/host'
+    network_mode: "host"
+    pid: "host"
     labels:
       - "traefik.backend=node-exporter"
       - "traefik.port=9100"
@@ -37,26 +38,26 @@ services:
       - "traefik.frontend.priority=110"
       - "traefik.enable=true"
 
-  logstash-tunnel:
-    image: kingsquare/tunnel:reverse
-    command: "*:5000:127.0.0.1:5000 oms-service@monitor"
-    expose:
-      - "5000"
-    volumes:
-      - ${SSH_AUTH_SOCK}:/ssh-agent
+  # logstash-tunnel:
+  #   image: kingsquare/tunnel:reverse
+  #   command: "*:5000:127.0.0.1:5000 oms-service@monitor"
+  #   expose:
+  #     - "5000"
+  #   volumes:
+  #     - ${SSH_AUTH_SOCK}:/ssh-agent
 
   # elasticsearch-tunnel:
   #   image: kingsquare/tunnel:reverse
 
-  logspout:
-    image: gliderlabs/logspout:v3.2.6
-    volumes:
-        - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-        ROUTE_URIS: "logstash://logstash-tunnel:5000"
-    depends_on:
-      - logstash-tunnel
-    restart: on-failure
+  # logspout:
+  #   image: gliderlabs/logspout:v3.2.6
+  #   volumes:
+  #       - /var/run/docker.sock:/var/run/docker.sock:ro
+  #   environment:
+  #       ROUTE_URIS: "logstash://logstash-tunnel:5000"
+  #   depends_on:
+  #     - logstash-tunnel
+  #   restart: on-failure
 
 #   metricbeat:
 #     #image: docker.elastic.co/beats/metricbeat:6.4.2
