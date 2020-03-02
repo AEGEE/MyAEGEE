@@ -1,4 +1,4 @@
-const { Circle } = require('../models');
+const { Circle, User, CircleMembership, BodyMembership } = require('../models');
 const errors = require('../lib/errors');
 const helpers = require('../lib/helpers');
 const { sequelize } = require('../lib/sequelize');
@@ -78,5 +78,39 @@ exports.setParentCircle = async (req, res) => {
     return res.json({
         success: true,
         message: 'Circle parent is updated.'
+    });
+};
+
+exports.createCircleMembership = async (req, res) => {
+    if (!helpers.isNumber(req.params.user_id)) {
+        return errors.makeBadRequestError(res, 'The user ID is not valid.');
+    }
+
+    const user = await User.findByPk(req.params.user_id);
+    if (!user) {
+        return errors.makeNotFoundError(res, 'The user is not found.');
+    }
+
+    // if a circle is bound, checking if a person is a member
+    if (req.currentCircle.body_id) {
+        const membership = await BodyMembership.findOne({
+            where: {
+                body_id: req.currentCircle.body_id,
+                user_id: req.params.user_id
+            }
+        });
+        if (!membership) {
+            return errors.makeForbiddenError(res, 'The user is not a member of the body circle is bound to.');
+        }
+    }
+
+    const circleMembership = await CircleMembership.create({
+        circle_id: req.currentCircle.id,
+        user_id: user.id
+    });
+
+    return res.json({
+        success: true,
+        data: circleMembership
     });
 };
