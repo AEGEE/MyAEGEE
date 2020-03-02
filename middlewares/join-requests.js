@@ -56,6 +56,6 @@ exports.changeRequestStatus = async (req, res) => {
 
     return res.json({
         success: true,
-        message: `The join request was ${req.body.status}.`
+        message: `The join request was changed to "${req.body.status}".`
     });
 };
