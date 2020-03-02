@@ -7,7 +7,7 @@ Vagrant.configure("2") do |config|
     vb.customize [
       "modifyvm", :id,
       "--name", "appserver-docker-AEGEE",
-      "--memory", "3076",
+      "--memory", "2048",
     ]
   end
 
