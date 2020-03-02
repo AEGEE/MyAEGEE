@@ -1,7 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
-const { JoinRequest, BodyMembership } = require('../../models');
+const { JoinRequest, BodyMembership, CircleMembership } = require('../../models');
 
 describe('Join request status', () => {
     beforeAll(async () => {
@@ -145,6 +145,35 @@ describe('Join request status', () => {
             where: {
                 user_id: user.id,
                 body_id: body.id
+            }
+        });
+        expect(membershipFromDb).not.toEqual(null);
+    });
+
+    test('should add the person to a shadow circle', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken({}, user);
+
+        const circle = await generator.createCircle();
+        const body = await generator.createBody({ shadow_circle_id: circle.id });
+        const joinRequest = await generator.createJoinRequest(body, user);
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { status: 'accepted' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('message');
+
+        const membershipFromDb = await CircleMembership.findOne({
+            where: {
+                circle_id: circle.id,
+                user_id: user.id
             }
         });
         expect(membershipFromDb).not.toEqual(null);
