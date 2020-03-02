@@ -32,13 +32,6 @@ services:
     command: '--path.rootfs=/host'
     network_mode: "host"
     pid: "host"
-    # labels:
-    #   - "traefik.backend=node-exporter"
-    #   - "traefik.port=9100"
-    # yamllint disable-line rule:line-length
-    #   - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/node-exporter;PathPrefixStrip:/services/node-exporter"
-    #   - "traefik.frontend.priority=110"
-    #   - "traefik.enable=true"
 
   node-exporter-tunnel:
     image: kingsquare/tunnel:forward
