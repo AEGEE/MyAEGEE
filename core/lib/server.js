@@ -106,6 +106,7 @@ JoinRequestsRouter.put('/status', joinRequests.changeRequestStatus);
 CirclesRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchCircle);
 CirclesRouter.get('/', circles.getCircle);
 CirclesRouter.put('/parent', circles.setParentCircle);
+CirclesRouter.post('/members/:user_id', circles.createCircleMembership);
 CirclesRouter.put('/', circles.updateCircle);
 CirclesRouter.delete('/', circles.deleteCircle);
 
