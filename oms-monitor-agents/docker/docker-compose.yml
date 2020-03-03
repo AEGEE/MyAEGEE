@@ -16,7 +16,7 @@ services:
     labels:
       - "traefik.backend=cadvisor"
       - "traefik.port=8080"
-      - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/cadvisor;PathPrefixStrip:/services/cadvisor"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_TRAEFIK}${BASE_URL};PathPrefix:/ext-metrics/cadvisor;PathPrefixStrip:/ext-metrics/cadvisor"
       - "traefik.frontend.priority=110"
       - "traefik.enable=true"
 
@@ -32,20 +32,35 @@ services:
     command: '--path.rootfs=/host'
     network_mode: "host"
     pid: "host"
+
+  node-exporter-tunnel:
+    image: kingsquare/tunnel:forward
+    command: "*:5001:127.0.0.1:9100 oms-service@${HOSTNAME} -p 3022"
+    expose:
+      - "5001"
+    volumes:
+      - /"home/oms-service/.ssh/:/ssh-agent:ro"
     labels:
-      - "traefik.backend=node-exporter"
-      - "traefik.port=9100"
-      - "traefik.frontend.rule=Host:${BASE_URL};PathPrefix:/services/node-exporter;PathPrefixStrip:/services/node-exporter"
+      - "traefik.backend=node-exporter-tunnel"
+      - "traefik.port=5001"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_TRAEFIK}${BASE_URL};PathPrefix:/ext-metrics/node-exporter;PathPrefixStrip:/ext-metrics/node-exporter"
       - "traefik.frontend.priority=110"
       - "traefik.enable=true"
 
   # logstash-tunnel:
-  #   image: kingsquare/tunnel:reverse
+  #   image: kingsquare/tunnel:forward
   #   command: "*:5000:127.0.0.1:5000 oms-service@monitor"
   #   expose:
   #     - "5000"
   #   volumes:
-  #     - ${SSH_AUTH_SOCK}:/ssh-agent
+  #     - /"home/oms-service/.ssh/:/ssh-agent:ro"
+  #   labels:
+  #     - "traefik.backend=node-exporter-tunnel"
+  #     - "traefik.port=5001"
+  # yamllint disable-line rule:line-length
+  #     - "traefik.frontend.rule=Host:${SUBDOMAIN_TRAEFIK}${BASE_URL};PathPrefix:/ext-metrics/node-exporter;PathPrefixStrip:/ext-metrics/node-exporter"
+  #     - "traefik.frontend.priority=110"
+  #     - "traefik.enable=true"
 
   # elasticsearch-tunnel:
   #   image: kingsquare/tunnel:reverse
