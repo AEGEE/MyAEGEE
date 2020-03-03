@@ -1,5 +1,6 @@
-const { Body } = require('../models');
+const { Body, User, BodyMembership } = require('../models');
 const helpers = require('../lib/helpers');
+const constants = require('../lib/constants');
 
 exports.listAllBodies = async (req, res) => {
     const result = await Body.findAndCountAll({
@@ -48,5 +49,28 @@ exports.setBodyStatus = async (req, res) => {
     return res.json({
         success: true,
         data: req.currentBody
+    });
+};
+
+exports.createMember = async (req, res) => {
+    // TODO: check permissions
+    // TODD: send mail to a user
+
+    // Confirming user by default
+    const password = await helpers.getRandomBytes(constants.TOKEN_LENGTH.PASSWORD);
+    const user = await User.create({
+        ...req.body,
+        password,
+        mail_confirmed_at: new Date()
+    }, { fields: constants.FIELDS_TO_UPDATE.USER.CREATE });
+
+    const membership = await BodyMembership.create({
+        user_id: user.id,
+        body_id: req.currentBody.id
+    });
+
+    return res.json({
+        success: true,
+        data: membership
     });
 };
