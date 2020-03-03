@@ -66,7 +66,7 @@ class PermissionsManager {
         }
     }
 
-    async fetchUserPermissions() {
+    async fetchCurrentUserPermissions() {
         // for superadmin, just assign all the permissions.
         if (this.user.superadmin) {
             const permissions = await Permission.findAll();
@@ -86,6 +86,29 @@ class PermissionsManager {
             where: {
                 '$circle_permissions.circle_id$': { [Sequelize.Op.in]: indirectCirclesArray },
                 scope: 'global'
+            },
+            include: [CirclePermission]
+        });
+
+        this.addPermissions(permissions);
+    }
+
+    // Get permissions for body
+    async fetchBodyPermissions(body) {
+        // 1. Get list of circles bound to a body.
+        const circleIds = body.circles.map((circle) => circle.id);
+
+        // 2. Get the circle memberships of the body's bound circles for the logged in user.
+        const directCircleMemberships = await CircleMembership.findAll({
+            where: { circle_id: { [Sequelize.Op.in]: circleIds }, user_id: this.user.id }
+        });
+
+        // 3. Fetch all the local permissions.
+        const indirectCirclesArray = helpers.traverseIndirectCircles(this.circlesMap, directCircleMemberships.map((membership) => membership.circle_id));
+        const permissions = await Permission.findAll({
+            where: {
+                '$circle_permissions.circle_id$': { [Sequelize.Op.in]: indirectCirclesArray },
+                scope: 'local'
             },
             include: [CirclePermission]
         });

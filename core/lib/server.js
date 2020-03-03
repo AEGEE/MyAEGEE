@@ -57,14 +57,14 @@ GeneralRouter.post('/login', login.login);
 GeneralRouter.post('/renew', login.renew);
 
 // Endpoints allowing unauthorized and authorized access.
-GeneralRouter.use(middlewares.maybeAuthorize, myPermissions.loadMyGlobalPermissions);
+GeneralRouter.use(middlewares.maybeAuthorize);
 GeneralRouter.get('/bodies', bodies.listAllBodies);
 
 // Endpoints not allowing unauthorized access.
 // Not using this line here:
 // GeneralRouter.use(middlewares.ensureAuthorized);
 // because it'll also affect the middlewares for 404 and 500 errors.
-GeneralRouter.get('/my_permissions', middlewares.ensureAuthorized, myPermissions.getMyGlobalPermissions);
+GeneralRouter.get('/my_permissions', middlewares.ensureAuthorized, myPermissions.getMyPermissions);
 GeneralRouter.get('/members', middlewares.ensureAuthorized, members.listAllUsers);
 GeneralRouter.post('/bodies', middlewares.ensureAuthorized, bodies.createBody);
 GeneralRouter.get('/circles', middlewares.ensureAuthorized, circles.listAllCircles);
@@ -82,9 +82,10 @@ MemberRouter.put('/', members.updateUser);
 // MemberRouter.delete('/', members.deleteUser);
 
 // Everything related to a specific body. Auth only (except for body details).
-BodiesRouter.use(fetch.fetchBody);
+BodiesRouter.use(middlewares.maybeAuthorize, fetch.fetchBody);
 BodiesRouter.get('/', bodies.getBody);
-BodiesRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized);
+BodiesRouter.use(middlewares.ensureAuthorized);
+BodiesRouter.get('/my_permissions', myPermissions.getMyPermissions);
 BodiesRouter.get('/campaigns', bodyCampaigns.listAllCampaigns);
 BodiesRouter.post('/campaigns', bodyCampaigns.createCampaign);
 BodiesRouter.get('/members', memberships.listAllMemberships);

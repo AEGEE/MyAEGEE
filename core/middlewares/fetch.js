@@ -47,14 +47,16 @@ exports.fetchBody = async (req, res, next) => {
         where = { id: Number(req.params.body_id) };
     }
 
-    const body = await Body.findOne({ where });
+    const body = await Body.findOne({
+        where,
+        include: [Circle]
+    });
     if (!body) {
         return errors.makeNotFoundError(res, 'Body is not found.');
     }
 
     req.currentBody = body;
-
-    // TODO: fetch permissions
+    await req.permissions.fetchBodyPermissions(body);
 
     return next();
 };
