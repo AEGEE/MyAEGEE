@@ -1,11 +1,10 @@
-const crypto = require('crypto');
 const moment = require('moment');
-const util = require('util');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
-const config = require('../config');
+const helpers = require('../lib/helpers');
+const constants = require('../lib/constants');
 
-const randomBytes = util.promisify(crypto.randomBytes);
+const config = require('../config');
 
 const MailConfirmation = sequelize.define('mail_confirmation', {
     user_id: {
@@ -42,7 +41,7 @@ const MailConfirmation = sequelize.define('mail_confirmation', {
 });
 
 MailConfirmation.createForUser = async function createForUser(userId) {
-    const value = (await randomBytes(128)).toString('hex');
+    const value = await helpers.getRandomBytes(constants.TOKEN_LENGTH.MAIL_CONFIRMATION);
     return MailConfirmation.create({
         user_id: userId,
         expires_at: moment().add(config.ttl.mail_confirmation, 'seconds').toDate(),

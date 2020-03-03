@@ -1,9 +1,6 @@
-const crypto = require('crypto');
-const util = require('util');
-
 const { Sequelize, sequelize } = require('../lib/sequelize');
-
-const randomBytes = util.promisify(crypto.randomBytes);
+const helpers = require('../lib/helpers');
+const constants = require('../lib/constants');
 
 const RefreshToken = sequelize.define('refresh_token', {
     user_id: {
@@ -27,7 +24,7 @@ const RefreshToken = sequelize.define('refresh_token', {
 });
 
 RefreshToken.createForUser = async function createForUser(userId) {
-    const value = (await randomBytes(256)).toString('hex');
+    const value = await helpers.getRandomBytes(constants.TOKEN_LENGTH.REFRESH_TOKEN);
     return RefreshToken.create({
         user_id: userId,
         value

@@ -1,11 +1,9 @@
-const crypto = require('crypto');
-const util = require('util');
 const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const helpers = require('../lib/helpers');
+const constants = require('../lib/constants');
 const config = require('../config');
-
-const randomBytes = util.promisify(crypto.randomBytes);
 
 const AccessToken = sequelize.define('access_token', {
     user_id: {
@@ -33,7 +31,7 @@ const AccessToken = sequelize.define('access_token', {
 });
 
 AccessToken.createForUser = async function createForUser(userId) {
-    const value = (await randomBytes(64)).toString('hex');
+    const value = await helpers.getRandomBytes(constants.TOKEN_LENGTH.ACCESS_TOKEN);
     const expiresAt = moment().add(config.ttl.access_token, 'seconds');
 
     return AccessToken.create({
