@@ -4,9 +4,11 @@ const errors = require('../lib/errors');
 const logger = require('../lib/logger');
 const {
     User,
-    AccessToken
+    AccessToken,
+    Circle
 } = require('../models');
 const packageInfo = require('../package');
+const PermissionManager = require('../lib/permissions-manager');
 
 exports.maybeAuthorize = async (req, res, next) => {
     const authToken = req.headers['x-auth-token'];
@@ -31,6 +33,13 @@ exports.maybeAuthorize = async (req, res, next) => {
     }
 
     req.user = accessToken.user;
+
+    const circles = await Circle.findAll({ fields: ['id', 'parent_circle_id'] });
+
+    req.permissions = new PermissionManager({ user: req.user });
+    req.permissions.addCircles(circles);
+
+    await req.permissions.fetchCurrentUserPermissions();
 
     return next();
 };
