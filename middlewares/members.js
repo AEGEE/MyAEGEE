@@ -26,7 +26,7 @@ exports.getUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
     // TODO: check permissions
-    await req.currentUser.update(req.body, { fields: constants.FIELDS_TO_UPDATE.USER });
+    await req.currentUser.update(req.body, { fields: constants.FIELDS_TO_UPDATE.USER.UPDATE });
     return res.json({
         success: true,
         data: req.currentUser

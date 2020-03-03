@@ -200,4 +200,22 @@ describe('Campaign submission', () => {
 
         expect(membershipFromDb).not.toEqual(null);
     });
+
+    test('should remove extra fields', async () => {
+        const campaign = await generator.createCampaign({});
+        const user = generator.generateUser({ superadmin: true });
+
+        const res = await request({
+            uri: '/signup/' + campaign.url,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: user
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body.superadmin).not.toEqual(true);
+    });
 });

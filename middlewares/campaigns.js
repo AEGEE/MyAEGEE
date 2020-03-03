@@ -6,6 +6,7 @@ const {
 } = require('../models');
 const errors = require('../lib/errors');
 const helpers = require('../lib/helpers');
+const constants = require('../lib/constants');
 
 exports.registerUser = async (req, res) => {
     const campaign = await Campaign.findOne({ where: { url: req.params.campaign_id } });
@@ -19,7 +20,7 @@ exports.registerUser = async (req, res) => {
     const user = await User.scope('noExtraFields').create({
         ...req.body,
         campaign_id: campaign.id
-    });
+    }, { fields: constants.FIELDS_TO_UPDATE.USER.CREATE });
 
     // Adding a person to a body if campaign has the autojoin body.
     if (campaign.autojoin_body_id) {
