@@ -63,7 +63,10 @@ exports.setBodyStatus = async (req, res) => {
 };
 
 exports.createMember = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('create_member:body')) {
+        return errors.makeForbiddenError(res, 'Permission create_member:body is required, but not present.');
+    }
+
     // TODD: send mail to a user
 
     // Confirming user by default
