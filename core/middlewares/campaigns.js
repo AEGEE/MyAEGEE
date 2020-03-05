@@ -42,6 +42,10 @@ exports.registerUser = async (req, res) => {
 };
 
 exports.listAllCampaigns = async (req, res) => {
+    if (!req.permissions.hasPermission('global:view:campaign')) {
+        return errors.makeForbiddenError(res, 'Permission global:view:campaign is required, but not present.');
+    }
+
     const result = await Campaign.findAndCountAll({
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query)
@@ -55,7 +59,10 @@ exports.listAllCampaigns = async (req, res) => {
 };
 
 exports.getCampaign = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('global:view:campaign')) {
+        return errors.makeForbiddenError(res, 'Permission global:view:campaign is required, but not present.');
+    }
+
     return res.json({
         success: true,
         data: req.currentCampaign
@@ -63,7 +70,10 @@ exports.getCampaign = async (req, res) => {
 };
 
 exports.createCampaign = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('global:create:campaign')) {
+        return errors.makeForbiddenError(res, 'Permission global:create:campaign is required, but not present.');
+    }
+
     // TODO: filter out fields that are changed in the other way
     const circle = await Campaign.create(req.body);
     return res.json({
@@ -73,7 +83,10 @@ exports.createCampaign = async (req, res) => {
 };
 
 exports.updateCampaign = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('global:update:campaign')) {
+        return errors.makeForbiddenError(res, 'Permission global:update:campaign is required, but not present.');
+    }
+
     // TODO: filter out fields that are changed in the other way
     await req.currentCampaign.update(req.body);
     return res.json({
@@ -83,7 +96,10 @@ exports.updateCampaign = async (req, res) => {
 };
 
 exports.deleteCampaign = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('global:delete:campaign')) {
+        return errors.makeForbiddenError(res, 'Permission global:delete:campaign is required, but not present.');
+    }
+
     await req.currentCampaign.destroy();
     return res.json({
         success: true,

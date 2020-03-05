@@ -16,8 +16,10 @@ describe('Campaign editing', () => {
     });
 
     test('should return 404 if the campaign is not found', async () => {
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
 
         const res = await request({
             uri: '/campaigns/1337',
@@ -33,8 +35,10 @@ describe('Campaign editing', () => {
     });
 
     test('should fail if there are validation errors', async () => {
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
 
         const campaign = await generator.createCampaign();
 
@@ -52,9 +56,30 @@ describe('Campaign editing', () => {
         expect(res.body.errors).toHaveProperty('name');
     });
 
-    test('should succeed if everything is okay', async () => {
+    test('should fail if no permission', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
+
+        const campaign = await generator.createCampaign();
+
+        const res = await request({
+            uri: '/campaigns/' + campaign.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { name: 'New name' }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should succeed if everything is okay', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
 
         const campaign = await generator.createCampaign();
 

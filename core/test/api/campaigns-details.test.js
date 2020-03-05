@@ -16,8 +16,10 @@ describe('Campaign details', () => {
     });
 
     test('should return 404 if the campaign is not found', async () => {
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
         const res = await request({
             uri: '/campaigns/1337',
@@ -32,8 +34,10 @@ describe('Campaign details', () => {
     });
 
     test('should return 400 if id is not a number', async () => {
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
         const res = await request({
             uri: '/campaigns/xxx',
@@ -47,9 +51,29 @@ describe('Campaign details', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should find the campaign by id', async () => {
+    test('should fail if no permission', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
+
+        const campaign = await generator.createCampaign();
+
+        const res = await request({
+            uri: '/campaigns/' + campaign.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should find the campaign by id', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
         const campaign = await generator.createCampaign();
 
