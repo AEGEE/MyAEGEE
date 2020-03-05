@@ -1,6 +1,7 @@
 const { Body, User, BodyMembership } = require('../models');
 const helpers = require('../lib/helpers');
 const constants = require('../lib/constants');
+const errors = require('../lib/errors');
 
 exports.listAllBodies = async (req, res) => {
     const result = await Body.findAndCountAll({
@@ -16,7 +17,6 @@ exports.listAllBodies = async (req, res) => {
 };
 
 exports.getBody = async (req, res) => {
-    // TODO: check permissions
     return res.json({
         success: true,
         data: req.currentBody
@@ -24,7 +24,10 @@ exports.getBody = async (req, res) => {
 };
 
 exports.createBody = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('global:create:body')) {
+        return errors.makeForbiddenError(res, 'Permission global:create:body is required, but not present.');
+    }
+
     // TODO: filter out fields that are changed in the other way
     const body = await Body.create(req.body);
     return res.json({
@@ -34,9 +37,11 @@ exports.createBody = async (req, res) => {
 };
 
 exports.updateBody = async (req, res) => {
-    // TODO: check permissions
-    // TODO: filter out fields that are changed in the other way
-    await req.currentBody.update(req.body);
+    if (!req.permissions.hasPermission('update:body')) {
+        return errors.makeForbiddenError(res, 'Permission update:body is required, but not present.');
+    }
+
+    await req.currentBody.update(req.body, { fields: req.permissions.getPermissionFilters('update:body') });
     return res.json({
         success: true,
         data: req.currentBody
@@ -44,7 +49,12 @@ exports.updateBody = async (req, res) => {
 };
 
 exports.setBodyStatus = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('global:delete:body')) {
+        return errors.makeForbiddenError(res, 'Permission global:delete:body is required, but not present.');
+    }
+
+    // TODO: delete all the join requests, payments, body memberships and circle memberships
+    // if the body is deleted.
     await req.currentBody.update({ status: req.body.status });
     return res.json({
         success: true,
