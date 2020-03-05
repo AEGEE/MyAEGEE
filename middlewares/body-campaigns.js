@@ -1,7 +1,12 @@
 const { Campaign } = require('../models');
 const helpers = require('../lib/helpers');
+const errors = require('../lib/errors');
 
 exports.listAllCampaigns = async (req, res) => {
+    if (!req.permissions.hasPermission('view:campaign')) {
+        return errors.makeForbiddenError(res, 'Permission view:campaign is required, but not present.');
+    }
+
     const result = await Campaign.findAndCountAll({
         where: { autojoin_body_id: req.currentBody.id },
         ...helpers.getPagination(req.query),
@@ -16,7 +21,10 @@ exports.listAllCampaigns = async (req, res) => {
 };
 
 exports.getCampaign = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('view:campaign')) {
+        return errors.makeForbiddenError(res, 'Permission view:campaign is required, but not present.');
+    }
+
     return res.json({
         success: true,
         data: req.currentBodyCampaign
@@ -24,7 +32,10 @@ exports.getCampaign = async (req, res) => {
 };
 
 exports.createCampaign = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('create:campaign')) {
+        return errors.makeForbiddenError(res, 'Permission create:campaign is required, but not present.');
+    }
+
     // TODO: filter out fields that are changed in the other way
     const circle = await Campaign.create({
         ...req.body,
@@ -38,7 +49,10 @@ exports.createCampaign = async (req, res) => {
 };
 
 exports.updateCampaign = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('update:campaign')) {
+        return errors.makeForbiddenError(res, 'Permission update:campaign is required, but not present.');
+    }
+
     // TODO: filter out fields that are changed in the other way
     await req.currentBodyCampaign.update(req.body);
     return res.json({
@@ -48,7 +62,10 @@ exports.updateCampaign = async (req, res) => {
 };
 
 exports.deleteCampaign = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('delete:campaign')) {
+        return errors.makeForbiddenError(res, 'Permission delete:campaign is required, but not present.');
+    }
+
     await req.currentBodyCampaign.destroy();
     return res.json({
         success: true,

@@ -69,10 +69,12 @@ describe('Body campaign details', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should find the campaign by id', async () => {
-        const user = await generator.createUser();
+    test('should succeed on global permission', async () => {
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
         const body = await generator.createBody();
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
 
@@ -87,5 +89,49 @@ describe('Body campaign details', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body.data.id).toEqual(campaign.id);
+    });
+
+    test('should succeed on local permission', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+        const body = await generator.createBody();
+        const circle = await generator.createCircle({ body_id: body.id });
+        const permission = await generator.createPermission({ scope: 'local', action: 'view', object: 'campaign' });
+
+        await generator.createCircleMembership(circle, user);
+        await generator.createCirclePermission(circle, permission);
+
+        const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body.data.id).toEqual(campaign.id);
+    });
+
+    test('should fail if no permission', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+        const body = await generator.createBody();
+
+        const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/campaigns/' + campaign.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
     });
 });
