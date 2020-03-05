@@ -15,10 +15,29 @@ describe('Campaigns list', () => {
         await generator.clearAll();
     });
 
+    test('should fail if no permission', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createCampaign();
+
+        const res = await request({
+            uri: '/campaigns',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
 
     test('should succeed when everything is okay', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
         const campaign = await generator.createCampaign();
 
@@ -38,8 +57,10 @@ describe('Campaigns list', () => {
     });
 
     test('should respect limit and offset', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
         await generator.createCampaign();
         const campaign = await generator.createCampaign();
@@ -64,8 +85,10 @@ describe('Campaigns list', () => {
     });
 
     test('should respect sorting', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
         const firstCampaign = await generator.createCampaign({ url: 'aaa' });
         const secondCampaign = await generator.createCampaign({ url: 'bbb' });
