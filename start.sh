@@ -22,8 +22,8 @@ check_etc_hosts () {
   fi
 }
 
-#make secrets on host anyway
-bash ./vagrant-post-script/generate_secrets.sh
+# #make secrets on host anyway
+# bash ./vagrant-post-script/generate_secrets.sh
 
 #run accordingly
 if ( $novagrant ); then
