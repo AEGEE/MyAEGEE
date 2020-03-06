@@ -39,7 +39,7 @@ services:
     expose:
       - "5001"
     volumes:
-      - "/home/oms-service/.ssh/:/ssh-agent:ro"
+      - "/home/oms-service/.ssh:/root/.ssh:ro"
     labels:
       - "traefik.backend=node-exporter-tunnel"
       - "traefik.port=5001"
