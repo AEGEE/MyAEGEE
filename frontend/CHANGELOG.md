@@ -1,3 +1,12 @@
+## [0.34.3](https://github.com/AEGEE/oms-frontend/compare/0.34.2...0.34.3) (2020-03-06)
+
+
+### Bug Fixes
+
+* **docker:** fix boostrapping in dev mode ([7bc05a7](https://github.com/AEGEE/oms-frontend/commit/7bc05a7b2167676b042b97cb793a12f8ca399399))
+
+
+
 ## [0.34.2](https://github.com/AEGEE/oms-frontend/compare/0.34.1...0.34.2) (2020-01-22)
 
 
