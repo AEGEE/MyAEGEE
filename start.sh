@@ -22,9 +22,6 @@ check_etc_hosts () {
   fi
 }
 
-# #make secrets on host anyway
-# bash ./vagrant-post-script/generate_secrets.sh
-
 #run accordingly
 if ( $novagrant ); then
   check_etc_hosts "127.0.0.1" "localhost"

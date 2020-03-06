@@ -43,7 +43,7 @@ init_boot ()
     #always check if the repo is "complete"
     git submodule update --init
 
-    docker network inspect OMS &>/dev/null || (echo -e "[OMS] Creating OMS docker network" && docker network create OMS)
+    docker network inspect OMS &>/dev/null || (echo -e "[MyAEGEE] Creating 'OMS' docker network" && docker network create OMS)
 
 
     touch "${DIR}"/secrets/acme.json # to avoid making it think it's a folder
@@ -82,12 +82,12 @@ compose_wrapper ()
               command="${command} -f ${DIR}/${s}/docker/docker-compose.yml -f ${DIR}/${s}/docker/docker-compose.dev.yml"
             fi
         else
-            echo -e "[OMS] WARNING: No docker file found for ${s} (full path ${DIR}/${s}/docker/docker-compose.yml)"
+            echo -e "[MyAEGEE] WARNING: No docker file found for ${s} (full path ${DIR}/${s}/docker/docker-compose.yml)"
         fi
     done
     command="${command} ${@}"
     if ( $verbose ); then
-        echo -e "\n[OMS] Full command:\n${command}\n"
+        echo -e "\n[MyAEGEE] Full command:\n${command}\n"
     fi
     eval ${command}
     return $?
