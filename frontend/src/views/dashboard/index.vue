@@ -7,8 +7,8 @@
             <article class="tile is-child box">
               <p class="title">{{ user.first_name }} {{ user.last_name }}</p>
               <div class="content">
-                <p v-show="user.bodies.length > 0">You are member of these bodies:</p>
-                <ul v-show="user.bodies.length > 0">
+                <p v-if="hasAnyBodies">You are member of these bodies:</p>
+                <ul v-if="hasAnyBodies">
                   <li v-if="user.primary_body">
                     <strong>
                       <router-link :to="{ name: 'oms.bodies.view', params: { id: user.primary_body.id} }">{{ user.primary_body.name }}</router-link>
@@ -18,7 +18,7 @@
                     <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id} }">{{ body.name }}</router-link>
                   </li>
                 </ul>
-                <p v-show="user.bodies.length === 0"><i>You are currently not a member of any body.</i></p>
+                <p v-else="!hasAnyBodies"><i>You are currently not a member of any body.</i></p>
 
                 <p v-show="user.circles.length > 0">You are member of these circles:</p>
                 <ul v-show="user.circles.length > 0">
@@ -164,6 +164,20 @@ export default {
     }),
     isAnythingLoading () {
       return Object.keys(this.isLoading).some(key => this.isLoading[key])
+    },
+    hasAnyBodies() {
+      return this.user.primary_body || this.user.bodies.length > 0
+    }
+  },
+  methods: {
+    removeElement (array, primaryBody) {
+      if (!primaryBody) {
+        return
+      }
+      const index = array.findIndex((element) => element.id === primaryBody.id)
+      if (index > -1) {
+        array.splice(index, 1)
+      }
     }
   },
   methods: {
