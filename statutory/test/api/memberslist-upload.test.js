@@ -212,37 +212,6 @@ describe('Memberslist uploading', () => {
         expect(res.body.data.fee_to_aegee).not.toEqual(0);
     });
 
-    test('should set fee_to_aegee to 0 if the fee is 0', async () => {
-        mock.mockAll({ approvePermissions: { noPermissions: true } });
-
-        const event = await generator.createEvent({
-            type: 'agora',
-            application_period_starts: moment().subtract(1, 'week').toDate(),
-            application_period_ends: moment().add(1, 'week').toDate()
-        });
-
-        const body = generator.generateMembersList({
-            currency: 'EU', // conversion rate == 1
-            fee_to_aegee: 0,
-            members: [
-                generator.generateMembersListMember({ fee: 0 })
-            ]
-        });
-
-        const res = await request({
-            uri: '/events/' + event.id + '/memberslists/1337',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body
-        });
-
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        expect(res.body).toHaveProperty('data');
-
-        expect(res.body.data.fee_to_aegee).toEqual(0);
-    });
-
     test('should set fee_to_aegee to 2 if the fee to AEGEE-Europe is less than 2 EUR', async () => {
         mock.mockAll({ approvePermissions: { noPermissions: true } });
 
