@@ -18,7 +18,7 @@
                     <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id} }">{{ body.name }}</router-link>
                   </li>
                 </ul>
-                <p v-else="!hasAnyBodies"><i>You are currently not a member of any body.</i></p>
+                <p v-if="!hasAnyBodies"><i>You are currently not a member of any body.</i></p>
 
                 <p v-show="user.circles.length > 0">You are member of these circles:</p>
                 <ul v-show="user.circles.length > 0">
@@ -165,19 +165,8 @@ export default {
     isAnythingLoading () {
       return Object.keys(this.isLoading).some(key => this.isLoading[key])
     },
-    hasAnyBodies() {
+    hasAnyBodies () {
       return this.user.primary_body || this.user.bodies.length > 0
-    }
-  },
-  methods: {
-    removeElement (array, primaryBody) {
-      if (!primaryBody) {
-        return
-      }
-      const index = array.findIndex((element) => element.id === primaryBody.id)
-      if (index > -1) {
-        array.splice(index, 1)
-      }
     }
   },
   methods: {
