@@ -95,11 +95,6 @@ exports.calculateFeeForMember = (member, conversionRate) => {
     // Dividing these numbers by 2 as there's 2 Agorae and locals pay fee for their
     // members at each of them.
 
-    // If the fee is 0, the member doesn't pay anything to AEGEE-Europe.
-    if (member.fee === 0) {
-        return 0;
-    }
-
     // First, converting to EUR.
     const feeInEuro = member.fee / conversionRate;
 
