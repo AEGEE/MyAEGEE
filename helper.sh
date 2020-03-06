@@ -53,7 +53,7 @@ init_boot ()
     envsubst < "${DIR}"/oms-global/docker/traefik/traefik.toml.template > "${DIR}"/oms-global/docker/traefik/traefik.toml
 
     echo -e "\n[Deployment] Setting secrets\n"
-    bash "${DIR}/generate_secrets.sh"
+    bash "${DIR}/vagrant-post-script/generate_secrets.sh
 
     echo "manual things still to do (if applicable use-case): "
     echo "  init cachet files (oms-status/docker/setup.sh)"
