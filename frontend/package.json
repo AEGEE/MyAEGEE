@@ -1,6 +1,6 @@
 {
   "name": "oms-frontend",
-  "version": "0.35.0",
+  "version": "0.35.1",
   "description": "OMS Frontend",
   "repository": "AEGEE/oms-frontend",
   "homepage": "https://my.aegee.eu",
@@ -60,7 +60,7 @@
     "@vue/cli-plugin-eslint": "^4.1.0",
     "@vue/cli-plugin-router": "^4.1.0",
     "@vue/cli-plugin-vuex": "^4.1.0",
-    "@vue/cli-service": "^4.1.0",
+    "@vue/cli-service": "^4.2.3",
     "@vue/eslint-config-airbnb": "^5.0.0",
     "babel-eslint": "^10.0.3",
     "commitlint": "^8.2.0",
