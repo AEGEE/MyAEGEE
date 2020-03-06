@@ -23,6 +23,18 @@ bump_repo ()
     fi
 }
 
+# bump the version of the oms submodules and commit (currently not there)
+bump_nocommit ()
+{
+    git submodule foreach "git checkout master && git pull"
+    git add $(git submodule status | grep '^+' |  awk '{ print $2 }')
+    #if something is staged, do the following two lines
+    git diff --cached --quiet
+    if (( "$?" )); then
+        echo "all right"
+    fi
+}
+
 #CATEGORY: DEPLOY
 # 'create first secrets' is in start.sh
 # FIRST DEPLOYMENT
@@ -31,7 +43,7 @@ init_boot ()
     #always check if the repo is "complete"
     git submodule update --init
 
-    docker network inspect OMS &>/dev/null || (echo -e "[OMS] Creating OMS docker network" && docker network create OMS)
+    docker network inspect OMS &>/dev/null || (echo -e "[MyAEGEE] Creating 'OMS' docker network" && docker network create OMS)
 
 
     touch "${DIR}"/secrets/acme.json # to avoid making it think it's a folder
@@ -39,6 +51,9 @@ init_boot ()
 
     touch "${DIR}"/oms-global/docker/traefik/traefik.toml # to avoid making it think it's a folder
     envsubst < "${DIR}"/oms-global/docker/traefik/traefik.toml.template > "${DIR}"/oms-global/docker/traefik/traefik.toml
+
+    echo -e "\n[Deployment] Setting secrets\n"
+    bash "${DIR}/generate_secrets.sh"
 
     echo "manual things still to do (if applicable use-case): "
     echo "  init cachet files (oms-status/docker/setup.sh)"
@@ -67,12 +82,12 @@ compose_wrapper ()
               command="${command} -f ${DIR}/${s}/docker/docker-compose.yml -f ${DIR}/${s}/docker/docker-compose.dev.yml"
             fi
         else
-            echo -e "[OMS] WARNING: No docker file found for ${s} (full path ${DIR}/${s}/docker/docker-compose.yml)"
+            echo -e "[MyAEGEE] WARNING: No docker file found for ${s} (full path ${DIR}/${s}/docker/docker-compose.yml)"
         fi
     done
     command="${command} ${@}"
     if ( $verbose ); then
-        echo -e "\n[OMS] Full command:\n${command}\n"
+        echo -e "\n[MyAEGEE] Full command:\n${command}\n"
     fi
     eval ${command}
     return $?
@@ -147,6 +162,7 @@ down=false;
 restart=false;
 nuke=false;
 bump=false;
+bumpmodules=false;
 execute=false;
 debug=false;
 list=false;
@@ -169,6 +185,7 @@ if [[ "$#" -ge 1 ]]; then
             --restart) restart=true; ((command_num++)); shift ;;
             --nuke) nuke=true; ((command_num++)); shift ;;
             --bump) bump=true; ((command_num++)); shift ;;
+            --bumpmodules) bumpmodules=true; ((command_num++)); shift ;;
             --execute) execute=true; ((command_num++)); shift ;;
             --debug) debug=true; ((command_num++)); shift ;;
             --list) list=true; ((command_num++)); shift ;;
@@ -276,6 +293,10 @@ fi
 
 if ( $bump ); then
     bump_repo
+fi
+
+if ( $bumpmodules ); then
+    bump_nocommit
 fi
 
 if ( $docker ); then
