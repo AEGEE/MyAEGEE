@@ -133,6 +133,7 @@ export default {
       this.user = response.data.data
       this.user.bodies.sort((b1, b2) => ((b1.name > b2.name) ? 1 : -1))
       this.removeElement(this.user.bodies, this.user.primary_body)
+      this.user.circles.sort((b1, b2) => ((b1.name > b2.name) ? 1 : -1))
       this.isLoading.user = false
     }).catch((err) => {
       this.isLoading.user = false
