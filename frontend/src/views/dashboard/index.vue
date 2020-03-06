@@ -9,6 +9,11 @@
               <div class="content">
                 <p v-show="user.bodies.length > 0">You are member of these bodies:</p>
                 <ul v-show="user.bodies.length > 0">
+                  <li v-if="user.primary_body">
+                    <strong>
+                      <router-link :to="{ name: 'oms.bodies.view', params: { id: user.primary_body.id} }">{{ user.primary_body.name }}</router-link>
+                    </strong>
+                  </li>
                   <li v-for="body in user.bodies" v-bind:key="body.id">
                     <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id} }">{{ body.name }}</router-link>
                   </li>
@@ -106,6 +111,7 @@ export default {
       user: {
         first_name: '',
         last_name: '',
+        primary_body: null,
         bodies: [],
         circles: []
       },
@@ -125,6 +131,8 @@ export default {
 
     this.axios.get(this.services['oms-core-elixir'] + '/members/me').then((response) => {
       this.user = response.data.data
+      this.user.bodies.sort((b1, b2) => ((b1.name > b2.name) ? 1 : -1))
+      this.removeElement(this.user.bodies, this.user.primary_body)
       this.isLoading.user = false
     }).catch((err) => {
       this.isLoading.user = false
@@ -156,6 +164,17 @@ export default {
     }),
     isAnythingLoading () {
       return Object.keys(this.isLoading).some(key => this.isLoading[key])
+    }
+  },
+  methods: {
+    removeElement (array, primaryBody) {
+      if (!primaryBody) {
+        return
+      }
+      const index = array.findIndex((element) => element.id === primaryBody.id)
+      if (index > -1) {
+        array.splice(index, 1)
+      }
     }
   }
 }
