@@ -7,8 +7,8 @@ const Permission = sequelize.define('permission', {
         validate: {
             notEmpty: { msg: 'Scope should be set.' },
             isIn: {
-                args: [['global', 'local']],
-                msg: 'Permission scope should be one of these: "global", "local".'
+                args: [['global', 'local', 'join_request']],
+                msg: 'Permission scope should be one of these: "global", "local", "join_request.'
             }
         },
         unique: { args: true, msg: 'There\'s already a permission with such scope, action and object.' }
