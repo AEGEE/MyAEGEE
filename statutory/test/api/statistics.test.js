@@ -308,7 +308,7 @@ describe('Statistics testing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
 
-        expect(res.body.data.numbers.total).toEqual(7);
+        expect(res.body.data.numbers.total).toEqual(10);
         expect(res.body.data.numbers.rejected).toEqual(1);
         expect(res.body.data.numbers.pending).toEqual(1);
         expect(res.body.data.numbers.accepted).toEqual(5);

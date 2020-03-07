@@ -123,7 +123,7 @@ exports.getStats = async (req, res) => {
     });
 
     statsObject.numbers = {
-        total: applications.filter(app => helpers.filterObject(app, { cancelled: false })).length,
+        total: applications.length,
         accepted: applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'accepted' })).length,
         rejected: applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'rejected' })).length,
         pending: applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'pending' })).length,
