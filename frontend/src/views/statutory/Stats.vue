@@ -71,6 +71,9 @@
         <div class="subtitle">By gender</div>
         <pie-chart class="chart" :chart-data="byGenderData()" :options="byGenderOptions"></pie-chart>
 
+        <div class="subtitle">By meal preference</div>
+        <pie-chart class="chart" :chart-data="byMealData()" :options="byMealOptions"></pie-chart>
+
         <div class="subtitle">By number of {{ eventTypePluralized }} visited</div>
         <pie-chart class="chart" :chart-data="byNumOfEventsData()" :options="byNumOfEventsOptions"></pie-chart>
 
@@ -126,6 +129,7 @@ export default {
         by_body: [],
         by_type: [],
         by_gender: [],
+        by_meal: [],
         by_number_of_events_visited: [],
         numbers: {
           total: 0,
@@ -140,7 +144,7 @@ export default {
         }
       },
       colors: [
-        '#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850',
+        '#3E95CD', '#8E5EA2', '#3CBA9F', '#E8C3B9', '#C45850',
         '#FFB6B2', '#E5E6BB', '#E6BDE5', '#FFF0B2', '#B2D6FF',
         '#FF5543', '#C2DE5D', '#C44BC2', '#FFDB4C', '#4CA0FF',
         '#C51C13', '#A0C514', '#931991', '#FBBA00', '#1468C5',
@@ -153,6 +157,11 @@ export default {
         '#000000', '#000000', '#FFFFFF', '#000000', '#FFFFFF',
         '#FFFFFF', '#FFFFFF', '#FFFFFF', '#000000', '#FFFFFF'
       ],
+      mealColorsMap: {
+        'Meat-eater': '#C45850',
+        'Vegetarian': '#C2DE5D',
+        'Vegan': '#A0C514'
+      },
       can: {
         apply: false
       },
@@ -236,10 +245,6 @@ export default {
       return {
         responsive: true,
         maintainAspectRatio: false,
-        title: {
-          display: true,
-          text: 'Applications by participant type'
-        },
         legend: {
           position: 'right',
           onClick: (e) => e.stopPropagation()
@@ -250,10 +255,6 @@ export default {
       return {
         responsive: true,
         maintainAspectRatio: false,
-        title: {
-          display: true,
-          text: 'Applications by body'
-        },
         legend: {
           display: false,
           position: 'right'
@@ -264,10 +265,15 @@ export default {
       return {
         responsive: true,
         maintainAspectRatio: false,
-        title: {
-          display: true,
-          text: 'Applications by gender'
-        },
+        legend: {
+          position: 'right'
+        }
+      }
+    },
+    byMealOptions () {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
         legend: {
           position: 'right'
         }
@@ -335,6 +341,17 @@ export default {
           label: 'Applications by gender',
           backgroundColor: this.colors,
           data: this.stats.by_gender.map(s => s.value)
+        }]
+      }
+    },
+    byMealData () {
+      const mealColors = this.stats.by_meal.map(s => this.mealColorsMap[s.type] || '#E5E5E5')
+      return {
+        labels: this.stats.by_meal.map(s => `${s.type} (${s.value})`),
+        datasets: [{
+          label: 'Applications by meal preference',
+          backgroundColor: mealColors,
+          data: this.stats.by_meal.map(s => s.value)
         }]
       }
     },
