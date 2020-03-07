@@ -168,10 +168,10 @@ describe('Statistics testing', () => {
     });
 
     test('should work in a proper way by meal preference', async () => {
-        await generator.createApplication({ user_id: 1, meal: 'Vegetarian' }, event);
-        await generator.createApplication({ user_id: 2, meal: 'Meat-eater' }, event);
-        await generator.createApplication({ user_id: 3, meal: 'Vegetarian' }, event);
-        await generator.createApplication({ user_id: 4, meal: 'Nothing' }, event);
+        await generator.createApplication({ user_id: 1, meals: 'Vegetarian' }, event);
+        await generator.createApplication({ user_id: 2, meals: 'Meat-eater' }, event);
+        await generator.createApplication({ user_id: 3, meals: 'Vegetarian' }, event);
+        await generator.createApplication({ user_id: 4, meals: 'Nothing' }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/stats',
