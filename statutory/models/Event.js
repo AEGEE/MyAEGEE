@@ -119,12 +119,12 @@ const Event = sequelize.define('event', {
             isDate: { msg: 'Participants list publish deadline should be set.' },
             laterThanBoardApproveDeadline(val) {
                 if (moment(val).isSameOrBefore(this.board_approve_deadline)) {
-                    throw new Error('Participants list publish deadline cannot be after or at the same time the board approve deadline ends.');
+                    throw new Error('Participants list publish deadline cannot be before or at the same time the board approve deadline ends.');
                 }
             },
             beforeEventStart(val) {
                 if (moment(val).isSameOrAfter(this.starts)) {
-                    throw new Error('Participants list publish deadline cannot be before or at the same time the event starts.');
+                    throw new Error('Participants list publish deadline cannot be after or at the same time the event starts.');
                 }
             }
         }
