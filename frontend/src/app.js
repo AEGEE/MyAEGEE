@@ -10,6 +10,7 @@ import Multiselect from 'vue-multiselect'
 import InputTag from 'vue-input-tag'
 import qs from 'qs'
 import Vue2TouchEvents from 'vue2-touch-events'
+import VTooltip from 'v-tooltip'
 
 
 import App from './App.vue'
@@ -22,6 +23,7 @@ import Auth from './auth'
 import SelectOrCustom from './components/SelectOrCustom'
 import PasswordToggle from './components/PasswordToggle'
 import EmptyTableStub from './components/EmptyTableStub'
+import Tooltip from './components/Tooltip'
 
 axios.defaults.paramsSerializer = params => qs.stringify(params, {
   arrayFormat: 'brackets',
@@ -36,12 +38,14 @@ Vue.use(NProgress)
 Vue.use(Buefy, { defaultNoticeQueue: false, defaultIconPack: 'fa' })
 Vue.use(flatPickr)
 Vue.use(Vue2TouchEvents)
+Vue.use(VTooltip)
 Vue.component('multiselect', Multiselect)
 Vue.component('input-tag', InputTag)
 Vue.component('select-or-custom', SelectOrCustom)
 Vue.component('password-toggle', PasswordToggle)
 Vue.component('empty-table-stub', EmptyTableStub)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
+Vue.component('tooltip', Tooltip)
 
 // Enable devtools
 Vue.config.devtools = true
