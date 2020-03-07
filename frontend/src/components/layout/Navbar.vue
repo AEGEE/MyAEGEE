@@ -5,6 +5,7 @@
         <font-awesome-icon icon="bars" aria-hidden="true" v-show="!sidebar.hidden" />
       </a>
       <!-- AEGEE logo would be here -->
+      <p><a href="https://aegee.blogactiv.eu/2020/03/07/international-womens-day-2020-8th-of-march/">Read AEGEE's statement for the International Women's Day</a></p>
       <a role="button" class="navbar-burger burger" @click="toggleNavbarMenu({opened: !navbar.menuOpened})">
         <span aria-hidden="true">
           <font-awesome-icon icon="user" />
@@ -92,5 +93,10 @@ export default {
   .admin {
     color: #28374B;
   }
+}
+
+.navbar-brand {
+  padding: 20px 20px;
+  font-weight: 600;
 }
 </style>
