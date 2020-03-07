@@ -9,7 +9,7 @@
               <div class="content">
                 <p v-if="hasAnyBodies">You are member of these bodies:</p>
                 <ul v-if="hasAnyBodies">
-                  <li v-for="body in addStyle">
+                  <li v-for="body in addStyle" v-bind:key="body.id">
                     <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id} }" :class="body.class">{{ body.name }}</router-link>
                   </li>
                 </ul>
@@ -165,10 +165,10 @@ export default {
     },
     addStyle () {
       for (const item of this.user.bodies) {
-        if (item.name == this.user.primary_body.name) {
-          item.class = "bold"
-        } else if (item.name == "Information Technology Committee") {
-          item.class = "rainbow-text"
+        if (item.name === this.user.primary_body.name) {
+          item.class = 'bold'
+        } else if (item.name === "Information Technology Committee") {
+          item.class = 'rainbow-text'
         }
       }
       return this.user.bodies
