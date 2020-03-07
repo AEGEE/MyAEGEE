@@ -20,6 +20,7 @@
         "object-curly-newline": "off",
         "no-await-in-loop": "off",
         "no-continue": "off",
-        "consistent-return": "off"
+        "consistent-return": "off",
+        "quote-props": "off"
     }
 }
