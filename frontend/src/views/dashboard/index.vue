@@ -167,7 +167,7 @@ export default {
       for (const item of this.user.bodies) {
         if (item.name === this.user.primary_body.name) {
           item.class = 'bold'
-        } else if (item.name === "Information Technology Committee") {
+        } else if (item.name === 'Information Technology Committee') {
           item.class = 'rainbow-text'
         }
       }
