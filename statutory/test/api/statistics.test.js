@@ -167,6 +167,30 @@ describe('Statistics testing', () => {
         expect(res.body.data.by_gender.find(t => t.type === 'female').value).toEqual(1);
     });
 
+    test('should work in a proper way by meal preference', async () => {
+        await generator.createApplication({ user_id: 1, meals: 'Vegetarian' }, event);
+        await generator.createApplication({ user_id: 2, meals: 'Meat-eater' }, event);
+        await generator.createApplication({ user_id: 3, meals: 'Vegetarian' }, event);
+        await generator.createApplication({ user_id: 4, meals: 'Nothing' }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/stats',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(Object.keys(res.body.data.by_meal).length).toEqual(3);
+        expect(res.body.data.by_meal[0].type).toEqual('Vegetarian');
+        expect(res.body.data.by_meal[0].value).toEqual(2);
+        expect(res.body.data.by_meal[1].type).toEqual('Meat-eater');
+        expect(res.body.data.by_meal[1].value).toEqual(1);
+        expect(res.body.data.by_meal[2].value).toEqual(1);
+    });
+
     test('should work in a proper way by number of events visited', async () => {
         await generator.createApplication({ user_id: 1, number_of_events_visited: 0 }, event);
         await generator.createApplication({ user_id: 2, number_of_events_visited: 0 }, event);

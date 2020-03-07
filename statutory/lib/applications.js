@@ -160,6 +160,9 @@ exports.getStats = async (req, res) => {
     statsObject.by_gender = helpers
         .countByField(notCancelledApplications, 'gender')
         .sort((a, b) => b.value - a.value); // sort descending by gender
+    statsObject.by_meal = helpers
+        .countByField(notCancelledApplications, 'meals')
+        .sort((a, b) => b.value - a.value); // sort descending by dietary type
     statsObject.by_type = helpers
         .countByField(notCancelledApplications, 'participant_type')
         .sort((a, b) => b.value - a.value); // sort descending by participant type
