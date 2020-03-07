@@ -345,7 +345,7 @@ export default {
       }
     },
     byMealData () {
-      const mealColors = this.stats.by_meal.map((elt, index) => this.mealColorsMap[elt.type] || '#E5E5E5')
+      const mealColors = this.stats.by_meal.map(s => this.mealColorsMap[s.type] || '#E5E5E5')
       return {
         labels: this.stats.by_meal.map(s => `${s.type} (${s.value})`),
         datasets: [{
