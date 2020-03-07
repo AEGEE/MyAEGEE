@@ -165,7 +165,7 @@ export default {
     },
     addStyle () {
       for (const item of this.user.bodies) {
-        item.class = [];
+        item.class = []
         if (item.name === this.user.primary_body.name) {
           item.class.push('bold')
         }
