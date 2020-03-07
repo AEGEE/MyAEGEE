@@ -165,10 +165,12 @@ export default {
     },
     addStyle () {
       for (const item of this.user.bodies) {
+        item.class = [];
         if (item.name === this.user.primary_body.name) {
-          item.class = 'bold'
-        } else if (item.name === 'Information Technology Committee') {
-          item.class = 'rainbow-text'
+          item.class.push('bold')
+        }
+        if (item.name === 'Information Technology Committee') {
+          item.class.push('rainbow-text')
         }
       }
       return this.user.bodies
