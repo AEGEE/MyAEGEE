@@ -241,7 +241,7 @@ export default {
   .menu-list {
     li a {
       &.is-active {
-        background-color: #e6bde5;
+        background-color: #E6BDE5;
       }
       &[aria-expanded="true"] {
         .is-angle {
