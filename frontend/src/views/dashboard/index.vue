@@ -9,13 +9,8 @@
               <div class="content">
                 <p v-if="hasAnyBodies">You are member of these bodies:</p>
                 <ul v-if="hasAnyBodies">
-                  <li v-if="user.primary_body">
-                    <strong>
-                      <router-link :to="{ name: 'oms.bodies.view', params: { id: user.primary_body.id} }">{{ user.primary_body.name }}</router-link>
-                    </strong>
-                  </li>
-                  <li v-for="body in user.bodies" v-bind:key="body.id">
-                    <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id} }">{{ body.name }}</router-link>
+                  <li v-for="body in addStyle" v-bind:key="body.id">
+                    <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id} }" :class="body.class">{{ body.name }}</router-link>
                   </li>
                 </ul>
                 <p v-if="!hasAnyBodies"><i>You are currently not a member of any body.</i></p>
@@ -132,7 +127,6 @@ export default {
     this.axios.get(this.services['oms-core-elixir'] + '/members/me').then((response) => {
       this.user = response.data.data
       this.user.bodies.sort((b1, b2) => ((b1.name > b2.name) ? 1 : -1))
-      this.removeElement(this.user.bodies, this.user.primary_body)
       this.user.circles.sort((b1, b2) => ((b1.name > b2.name) ? 1 : -1))
       this.isLoading.user = false
     }).catch((err) => {
@@ -168,17 +162,18 @@ export default {
     },
     hasAnyBodies () {
       return this.user.primary_body || this.user.bodies.length > 0
-    }
-  },
-  methods: {
-    removeElement (array, primaryBody) {
-      if (!primaryBody) {
-        return
+    },
+    addStyle () {
+      for (const item of this.user.bodies) {
+        item.class = []
+        if (item.name === this.user.primary_body.name) {
+          item.class.push('bold')
+        }
+        if (item.name === 'Information Technology Committee') {
+          item.class.push('rainbow-text')
+        }
       }
-      const index = array.findIndex((element) => element.id === primaryBody.id)
-      if (index > -1) {
-        array.splice(index, 1)
-      }
+      return this.user.bodies
     }
   }
 }
