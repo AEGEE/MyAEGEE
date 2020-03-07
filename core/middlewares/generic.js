@@ -34,7 +34,7 @@ exports.maybeAuthorize = async (req, res, next) => {
 
     req.user = accessToken.user;
 
-    const circles = await Circle.findAll({ fields: ['id', 'parent_circle_id'] });
+    const circles = await Circle.findAll({ fields: ['id', 'parent_circle_id', 'body_id'] });
 
     req.permissions = new PermissionManager({ user: req.user });
     req.permissions.addCircles(circles);

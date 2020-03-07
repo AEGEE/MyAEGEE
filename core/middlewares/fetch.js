@@ -26,14 +26,20 @@ exports.fetchUser = async (req, res, next) => {
         where = { id: Number(req.params.user_id) };
     }
 
-    const user = await User.findOne({ where });
+    const user = await User.findOne({
+        where,
+        include: [
+            { model: Body, as: 'bodies' },
+            { model: BodyMembership, as: 'body_memberships' },
+            { model: JoinRequest, as: 'join_requests' }
+        ]
+    });
     if (!user) {
         return errors.makeNotFoundError(res, 'User is not found.');
     }
 
     req.currentUser = user;
-
-    // TODO: fetch permissions
+    await req.permissions.fetchUserPermissions(user);
 
     return next();
 };
