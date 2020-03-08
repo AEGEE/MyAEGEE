@@ -1,11 +1,9 @@
 const constants = {
   EVENT_TYPES_NAMES: {
-    wu: 'New Year Event',
-    es: 'ES',
-    nwm: 'NWM',
-    ltc: 'LTC',
-    rtc: 'RTC',
-    european: 'European event'
+    training: 'Training event',
+    nwm: 'Network meeting',
+    conference: 'Conference',
+    cultural: 'Cultural event'
   },
   STATUTORY_TYPES_NAMES: {
     agora: 'Agora',
