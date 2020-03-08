@@ -249,26 +249,18 @@ h1, h2, h3, h4, h5, h6 {
   animation: rainbow-text 1s infinite;
 }
 
-a {
-	color: #931991 !important;
-}
-
-.button.is-primary {
-	background-color: #E6BDE5 !important;
-}
-
 /* for tooltips */
 .tooltip {
 	display: block !important;
 	z-index: 10000;
-  
+
 	.tooltip-inner {
 	  background: $blue-standard;
 	  color: $white;
 	  border-radius: 10px;
 	  padding: 5px 10px 4px;
 	}
-  
+
 	.tooltip-arrow {
 	  width: 0;
 	  height: 0;
@@ -278,10 +270,10 @@ a {
 	  border-color: $blue-standard;
 	  z-index: 1;
 	}
-  
+
 	&[x-placement^="top"] {
 	  margin-bottom: 5px;
-  
+
 	  .tooltip-arrow {
 		border-width: 5px 5px 0 5px;
 		border-left-color: transparent !important;
@@ -293,10 +285,10 @@ a {
 		margin-bottom: 0;
 	  }
 	}
-  
+
 	&[x-placement^="bottom"] {
 	  margin-top: 5px;
-  
+
 	  .tooltip-arrow {
 		border-width: 0 5px 5px 5px;
 		border-left-color: transparent !important;
@@ -308,10 +300,10 @@ a {
 		margin-bottom: 0;
 	  }
 	}
-  
+
 	&[x-placement^="right"] {
 	  margin-left: 5px;
-  
+
 	  .tooltip-arrow {
 		border-width: 5px 5px 5px 0;
 		border-left-color: transparent !important;
@@ -323,10 +315,10 @@ a {
 		margin-right: 0;
 	  }
 	}
-  
+
 	&[x-placement^="left"] {
 	  margin-right: 5px;
-  
+
 	  .tooltip-arrow {
 		border-width: 5px 0 5px 5px;
 		border-top-color: transparent !important;
@@ -338,13 +330,13 @@ a {
 		margin-right: 0;
 	  }
 	}
-  
+
 	&[aria-hidden='true'] {
 	  visibility: hidden;
 	  opacity: 0;
 	  transition: opacity .15s, visibility .15s;
 	}
-  
+
 	&[aria-hidden='false'] {
 	  visibility: visible;
 	  opacity: 1;
