@@ -160,17 +160,7 @@
         "circles": null,
         "always_assigned": false,
         "action": "manage_event"
-      }, {
-        "scope": "global",
-        "object": "ltc",
-        "id": 71,
-        "filters": [],
-        "description": "Manage event",
-        "combined": "global:manage_event:ltc",
-        "circles": null,
-        "always_assigned": false,
-        "action": "manage_event"
-      }, {
+      },  {
         "scope": "global",
         "object": "rtc",
         "id": 71,
@@ -227,16 +217,6 @@
         "filters": [],
         "description": "Approve event",
         "combined": "global:approve_event:nwm",
-        "circles": null,
-        "always_assigned": false,
-        "action": "approve_event"
-      }, {
-        "scope": "global",
-        "object": "ltc",
-        "id": 71,
-        "filters": [],
-        "description": "Approve event",
-        "combined": "global:approve_event:ltc",
         "circles": null,
         "always_assigned": false,
         "action": "approve_event"
@@ -310,5 +290,65 @@
         "circles": null,
         "always_assigned": false,
         "action": "manage_event"
-    }]
+      }, {
+        "scope": "global",
+        "object": "training",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:training",
+        "circles": null,
+        "always_assigned": false,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "training",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:training",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "conference",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:conference",
+        "circles": null,
+        "always_assigned": false,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "conference",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:conference",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "cultural",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:cultural",
+        "circles": null,
+        "always_assigned": false,
+        "action": "approve_event"
+      },{
+        "scope": "global",
+        "object": "cultural",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:cultural",
+        "circles": null,
+        "always_assigned": false,
+        "action": "manage_event"
+}]
 }

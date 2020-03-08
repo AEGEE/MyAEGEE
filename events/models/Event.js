@@ -177,14 +177,14 @@ const Event = sequelize.define('event', {
         }
     },
     type: {
-        type: Sequelize.ENUM('wu', 'es', 'nwm', 'ltc', 'rtc', 'european'),
+        type: Sequelize.ENUM('training', 'nwm', 'conference', 'cultural'),
         allowNull: false,
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Event type should be set.' },
             isIn: {
-                args: [['wu', 'es', 'nwm', 'ltc', 'rtc', 'european']],
-                msg: 'Event type should be one of these: "wu", "es", "nwm", "ltc", "rtc", "european".'
+                args: [['training', 'nwm', 'conference', 'cultural']],
+                msg: 'Event type should be one of these: training, nwm, conference, cultural.'
             }
         }
     },
