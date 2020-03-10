@@ -1,15 +1,25 @@
-## [0.35.1](https://github.com/AEGEE/oms-frontend/compare/0.34.3...0.35.1) (2020-03-06)
+## [0.35.2](https://github.com/AEGEE/oms-frontend/compare/0.34.3...0.35.2) (2020-03-10)
 
 
 ### Bug Fixes
 
+* **components:** update package.json ([cf7fdc5](https://github.com/AEGEE/oms-frontend/commit/cf7fdc599a2201f4bdfba12296482e6d9fbd7d30))
+* **docker:** remove old file in dockerfile ([bb3598f](https://github.com/AEGEE/oms-frontend/commit/bb3598fd227b0bc0ca2fe236aae6803b18d2aef4))
+* **docker:** remove useless mount ([9e4ff27](https://github.com/AEGEE/oms-frontend/commit/9e4ff27eb8c2394c495edc8956815e507eaebf8b))
 * show primary body when is the only one existing ([2925e30](https://github.com/AEGEE/oms-frontend/commit/2925e303955287c2caaa367065b38ec897b911d6))
 * **deps:** fixed npm audit vulnerability ([4670aed](https://github.com/AEGEE/oms-frontend/commit/4670aed139e5907cf6c7c374082b9c69cb1ad1bb))
 
 
 ### Features
 
+* **dashboard:** fixed requests if no primary body. Fixes HELP-959 ([6913f53](https://github.com/AEGEE/oms-frontend/commit/6913f5361eddca95f31b74b1508880963a1e47b6))
+* remove purple-ish from frontend ([525f229](https://github.com/AEGEE/oms-frontend/commit/525f229b5890bd21764f77be2328276ba7b364e2))
+* **component:** add tooltip ([ffe0e1d](https://github.com/AEGEE/oms-frontend/commit/ffe0e1dae868736f02772b3d8b8ca866a2f95d5e))
+* add meal preference chart, remove title ([e9603fc](https://github.com/AEGEE/oms-frontend/commit/e9603fc1f0cf5530fba8bc95fd19e1a1750f0a0c))
+* add style bodies dashboard ([b10b2e1](https://github.com/AEGEE/oms-frontend/commit/b10b2e1aa79ce1d4e3a2f1fbbd035767565ce0a6))
 * list bodies alphab. in dashboard ([389aceb](https://github.com/AEGEE/oms-frontend/commit/389aceb915c3efbe87709b30531dcfc3ba39fa1c))
+* list circles alphabetically in dashboard ([3f346ed](https://github.com/AEGEE/oms-frontend/commit/3f346eddec319e1ce949911e3e1fe8c3cb16e694))
+* make design purple-ish for IWD2020 ([9e69267](https://github.com/AEGEE/oms-frontend/commit/9e69267452d5824cac89ebf7b9e445424f543849))
 
 
 
