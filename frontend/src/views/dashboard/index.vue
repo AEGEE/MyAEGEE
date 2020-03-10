@@ -166,7 +166,7 @@ export default {
     addStyle () {
       for (const item of this.user.bodies) {
         item.class = []
-        if (item.name === this.user.primary_body.name) {
+        if (this.user.primary_body && item.name === this.user.primary_body.name) {
           item.class.push('bold')
         }
         if (item.name === 'Information Technology Committee') {
