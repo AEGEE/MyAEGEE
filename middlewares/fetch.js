@@ -77,7 +77,8 @@ exports.fetchCircle = async (req, res, next) => {
         where: { id: Number(req.params.circle_id) },
         include: [
             { model: Circle, as: 'child_circles' },
-            { model: Circle, as: 'parent_circle' }
+            { model: Circle, as: 'parent_circle' },
+            { model: Body }
         ]
     });
     if (!circle) {
@@ -85,8 +86,7 @@ exports.fetchCircle = async (req, res, next) => {
     }
 
     req.currentCircle = circle;
-
-    // TODO: fetch permissions
+    await req.permissions.fetchCirclePermissions(circle);
 
     return next();
 };
