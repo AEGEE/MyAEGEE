@@ -3,6 +3,9 @@ module.exports = {
         USER: {
             CREATE: ['username', 'email', 'password', 'first_name', 'last_name', 'date_of_birth', 'gender', 'phone', 'address', 'about_me'],
             UPDATE: ['username', 'first_name', 'last_name', 'date_of_birth', 'gender', 'phone', 'address', 'about_me']
+        },
+        CIRCLE: {
+            CREATE: ['name', 'description']
         }
     },
     TOKEN_LENGTH: {

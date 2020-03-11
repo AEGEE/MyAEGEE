@@ -1,4 +1,4 @@
-const { CircleMembership, CirclePermission, Permission } = require('../models');
+const { CircleMembership, CirclePermission, Permission, Body, Circle } = require('../models');
 const helpers = require('./helpers');
 const { Sequelize } = require('./sequelize');
 
@@ -162,6 +162,20 @@ class PermissionsManager {
         });
 
         this.addPermissions(joinRequestPermissions);
+    }
+
+    async fetchCirclePermissions(circle) {
+        // Do nothing if circle is free and not bound to a body.
+        if (!circle.body_id) {
+            return;
+        }
+
+        // If circle is bound, do the same workflow as we do for a body.
+        const body = await Body.findOne({
+            where: { id: circle.body_id },
+            include: [Circle]
+        });
+        return this.fetchBodyPermissions(body);
     }
 }
 

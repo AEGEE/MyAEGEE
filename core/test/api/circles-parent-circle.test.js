@@ -17,9 +17,11 @@ describe('Circle setting parent circle', () => {
     });
 
     test('should return 404 if the parent circle is not found', async () => {
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
         const circle = await generator.createCircle();
+
+        await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
 
         const res = await request({
             uri: '/circles/' + circle.id + '/parent',
@@ -35,9 +37,11 @@ describe('Circle setting parent circle', () => {
     });
 
     test('should return 400 if the parent circle id is not valid', async () => {
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
         const circle = await generator.createCircle();
+
+        await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
 
         const res = await request({
             uri: '/circles/' + circle.id + '/parent',
@@ -53,9 +57,11 @@ describe('Circle setting parent circle', () => {
     });
 
     test('should fail if the circle links to itself', async () => {
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
         const circle = await generator.createCircle();
+
+        await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
 
         const res = await request({
             uri: '/circles/' + circle.id + '/parent',
@@ -74,12 +80,14 @@ describe('Circle setting parent circle', () => {
     });
 
     test('should fail if there are loops', async () => {
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
 
         const circle1 = await generator.createCircle();
         const circle2 = await generator.createCircle({}, circle1);
         const circle3 = await generator.createCircle({}, circle2);
+
+        await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
 
         const res = await request({
             uri: '/circles/' + circle1.id + '/parent',
@@ -98,11 +106,13 @@ describe('Circle setting parent circle', () => {
     });
 
     test('should succeed if everything is okay', async () => {
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
 
         const circle = await generator.createCircle();
         const otherCircle = await generator.createCircle();
+
+        await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
 
         const res = await request({
             uri: '/circles/' + circle.id + '/parent',
@@ -121,12 +131,14 @@ describe('Circle setting parent circle', () => {
     });
 
     test('should not fail if there are not any loops', async () => {
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
 
         const circle1 = await generator.createCircle();
         const circle2 = await generator.createCircle({}, circle1);
         const circle3 = await generator.createCircle({});
+
+        await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
 
         const res = await request({
             uri: '/circles/' + circle3.id + '/parent',
@@ -142,5 +154,26 @@ describe('Circle setting parent circle', () => {
 
         const circleFromDb = await Circle.findByPk(circle3.id);
         expect(circleFromDb.parent_circle_id).toEqual(circle2.id);
+    });
+
+    test('should fail if no permissions', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken({}, user);
+
+        const circle1 = await generator.createCircle();
+        const circle2 = await generator.createCircle({}, circle1);
+        const circle3 = await generator.createCircle({});
+
+        const res = await request({
+            uri: '/circles/' + circle3.id + '/parent',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { parent_circle: circle2.id }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
     });
 });
