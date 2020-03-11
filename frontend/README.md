@@ -42,6 +42,3 @@ This project is a fork and rewrite of the [vue-admin project](https://github.com
 This project is maintained and developed by Sergey Peshkov (https://github.com/serge1peshcoff).
 
 Also this project wouldn't be done without the vue-admin authors, which are [Fangdun Cai](https://twitter.com/_fundon) and [other contributors](https://github.com/vue-bulma/vue-admin/graphs/contributors)
-
-
-
