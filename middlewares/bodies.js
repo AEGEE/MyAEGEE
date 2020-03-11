@@ -1,7 +1,9 @@
-const { Body, User, BodyMembership } = require('../models');
+const { Body, User, BodyMembership, JoinRequest, Circle } = require('../models');
 const helpers = require('../lib/helpers');
 const constants = require('../lib/constants');
 const errors = require('../lib/errors');
+const { sequelize } = require('../lib/sequelize');
+
 
 exports.listAllBodies = async (req, res) => {
     const result = await Body.findAndCountAll({
@@ -53,9 +55,18 @@ exports.setBodyStatus = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:delete:body is required, but not present.');
     }
 
-    // TODO: delete all the join requests, payments, body memberships and circle memberships
-    // if the body is deleted.
-    await req.currentBody.update({ status: req.body.status });
+    // TODO: delete all the payments if the body is deleted.
+    await sequelize.transaction(async (t) => {
+        await req.currentBody.update({ status: req.body.status }, { transaction: t });
+        if (req.currentBody.status !== 'deleted') {
+            return;
+        }
+
+        // Deleting all the stuff related to body.
+        await JoinRequest.destroy({ where: { body_id: req.currentBody.id } }, { transaction: t });
+        await BodyMembership.destroy({ where: { body_id: req.currentBody.id } }, { transaction: t });
+        await Circle.destroy({ where: { body_id: req.currentBody.id } }, { transaction: t });
+    });
     return res.json({
         success: true,
         data: req.currentBody
