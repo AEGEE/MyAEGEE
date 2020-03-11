@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const { Circle, BodyMembership, JoinRequest } = require('../../models');
 
 describe('Bodies status', () => {
     beforeAll(async () => {
@@ -75,7 +76,7 @@ describe('Bodies status', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should succeed if everything is okay', async () => {
+    test('should succeed if new status is deleted', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
 
@@ -92,8 +93,61 @@ describe('Bodies status', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
-        expect(res.body).not.toHaveProperty('errrors');
+        expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.status).toEqual('deleted');
+    });
+
+    test('should succeed if new status is active', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'delete', object: 'body' });
+
+        const body = await generator.createBody({ status: 'deleted' });
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { status: 'active' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.status).toEqual('active');
+    });
+
+    test('should remove all stuff from body once deleted', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'delete', object: 'body' });
+
+        const body = await generator.createBody();
+        const circle = await generator.createCircle({ body_id: body.id });
+
+        await generator.createJoinRequest(body, user);
+        await generator.createCircleMembership(circle, user);
+        await generator.createBodyMembership(body, user);
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { status: 'deleted' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.status).toEqual('deleted');
+
+        expect(await Circle.count({ where: { body_id: body.id } })).toEqual(0);
+        expect(await BodyMembership.count({ where: { body_id: body.id } })).toEqual(0);
+        expect(await JoinRequest.count({ where: { body_id: body.id } })).toEqual(0);
     });
 });
