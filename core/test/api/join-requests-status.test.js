@@ -18,8 +18,10 @@ describe('Join request status', () => {
 
     test('should return 400 if the request_id is invalid', async () => {
         const body = await generator.createBody();
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'process', object: 'join_request' });
 
         const res = await request({
             uri: '/bodies/' + body.id + '/join-requests/lalala/status',
@@ -36,8 +38,10 @@ describe('Join request status', () => {
 
     test('should return 404 if the join request is not found', async () => {
         const body = await generator.createBody();
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'process', object: 'join_request' });
 
         const res = await request({
             uri: '/bodies/' + body.id + '/join-requests/1337/status',
@@ -53,11 +57,13 @@ describe('Join request status', () => {
     });
 
     test('should fail if the status is invalid', async () => {
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
 
         const body = await generator.createBody();
         const joinRequest = await generator.createJoinRequest(body, user);
+
+        await generator.createPermission({ scope: 'global', action: 'process', object: 'join_request' });
 
         const res = await request({
             uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
@@ -73,8 +79,10 @@ describe('Join request status', () => {
     });
 
     test('should fail if the status is not pending', async () => {
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'process', object: 'join_request' });
 
         const body = await generator.createBody();
         const joinRequest = await JoinRequest.create({
@@ -97,11 +105,13 @@ describe('Join request status', () => {
     });
 
     test('should succeed if everything is okay and the status is rejected', async () => {
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
 
         const body = await generator.createBody();
         const joinRequest = await generator.createJoinRequest(body, user);
+
+        await generator.createPermission({ scope: 'global', action: 'process', object: 'join_request' });
 
         const res = await request({
             uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
@@ -120,11 +130,13 @@ describe('Join request status', () => {
     });
 
     test('should succeed if everything is okay and the status is accepted', async () => {
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
 
         const body = await generator.createBody();
         const joinRequest = await generator.createJoinRequest(body, user);
+
+        await generator.createPermission({ scope: 'global', action: 'process', object: 'join_request' });
 
         const res = await request({
             uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
@@ -151,12 +163,14 @@ describe('Join request status', () => {
     });
 
     test('should add the person to a shadow circle', async () => {
-        const user = await generator.createUser();
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
 
         const circle = await generator.createCircle();
         const body = await generator.createBody({ shadow_circle_id: circle.id });
         const joinRequest = await generator.createJoinRequest(body, user);
+
+        await generator.createPermission({ scope: 'global', action: 'process', object: 'join_request' });
 
         const res = await request({
             uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
@@ -177,5 +191,50 @@ describe('Join request status', () => {
             }
         });
         expect(membershipFromDb).not.toEqual(null);
+    });
+
+    test('should work with local permission', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken({}, user);
+
+        const body = await generator.createBody();
+        const joinRequest = await generator.createJoinRequest(body, user);
+
+        const circle = await generator.createCircle({ body_id: body.id });
+        const permission = await generator.createPermission({ scope: 'local', action: 'process', object: 'join_request' });
+        await generator.createCircleMembership(circle, user);
+        await generator.createCirclePermission(circle, permission);
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { status: 'accepted' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should fail if no permission', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken({}, user);
+
+        const body = await generator.createBody();
+        const joinRequest = await generator.createJoinRequest(body, user);
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { status: 'accepted' }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
     });
 });

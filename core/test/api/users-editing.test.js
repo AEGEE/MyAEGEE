@@ -81,7 +81,7 @@ describe('User editing', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
-        expect(res.body).not.toHaveProperty('errrors');
+        expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.email).not.toEqual('test@test.io');
     });
