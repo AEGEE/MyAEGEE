@@ -22,6 +22,7 @@ exports.listAllMemberships = async (req, res) => {
 };
 
 exports.updateMembership = async (req, res) => {
+    // TODO: check permissions
     await req.currentBodyMembership.update({ comment: req.body.comment });
     return res.json({
         success: true,
@@ -30,6 +31,7 @@ exports.updateMembership = async (req, res) => {
 };
 
 exports.deleteMembership = async (req, res) => {
+    // TODO: check permissions
     // delete all join requests if any, so a person can reapply
     await JoinRequest.destroy({
         where: {

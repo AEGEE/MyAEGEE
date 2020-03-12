@@ -4,7 +4,10 @@ const helpers = require('../lib/helpers');
 const { sequelize } = require('../lib/sequelize');
 
 exports.listAllJoinRequests = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('view:join_request')) {
+        return errors.makeForbiddenError(res, 'Permission view:join_request is required, but not present.');
+    }
+
     const result = await JoinRequest.findAndCountAll({
         where: { body_id: req.currentBody.id },
         ...helpers.getPagination(req.query),
@@ -31,7 +34,10 @@ exports.createJoinRequest = async (req, res) => {
 };
 
 exports.changeRequestStatus = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('process:join_request')) {
+        return errors.makeForbiddenError(res, 'Permission process:join_request is required, but not present.');
+    }
+
     if (!['accepted', 'rejected'].includes(req.body.status)) {
         return errors.makeBadRequestError(res, 'The status is invalid.');
     }
