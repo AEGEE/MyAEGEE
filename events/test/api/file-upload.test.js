@@ -1,7 +1,7 @@
-const fs = require('fs-extra');
 const path = require('path');
 
 const { startServer, stopServer } = require('../../lib/server.js');
+const fs = require('../../lib/fs');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
@@ -23,11 +23,11 @@ describe('File upload', () => {
         mock.cleanAll();
 
         await generator.clearAll();
-        fs.removeSync(config.media_dir);
+        fs.rimraf(config.media_dir);
     });
 
     it('should create an upload folder if it doesn\'t exist', async () => {
-        fs.removeSync(config.media_dir);
+        fs.rimraf(config.media_dir);
 
         await request({
             uri: '/single/' + event.id + '/upload',

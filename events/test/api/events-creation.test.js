@@ -31,7 +31,7 @@ describe('Events creation', () => {
                 application_ends: '2017-12-05 15:00',
                 starts: '2017-12-11 15:00',
                 ends: '2017-12-14 12:00',
-                type: 'es',
+                type: 'cultural',
                 organizing_bodies: [{ body_id: user.bodies[0].id }],
                 organizers: [{ user_id: user.id }]
             }
@@ -71,7 +71,7 @@ describe('Events creation', () => {
                 application_ends: '2017-12-05 15:00',
                 starts: '2017-12-11 15:00',
                 ends: '2017-12-14 12:00',
-                type: 'es',
+                type: 'cultural',
                 description: 'A training event to boost your self-confidence and teamworking skills',
                 max_participants: 22,
                 questions: [
@@ -127,7 +127,7 @@ describe('Events creation', () => {
                 application_ends: '2017-12-05 15:00',
                 starts: '2017-12-11 15:00',
                 ends: '2017-12-14 12:00',
-                type: 'es',
+                type: 'cultural',
                 organizers: [{ user_id: user.id }],
                 organizing_bodies: [{ body_id: user.bodies[0].id }],
                 status: 'published'

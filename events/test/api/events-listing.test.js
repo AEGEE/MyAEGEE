@@ -192,7 +192,7 @@ describe('Events listing', () => {
         const event = await generator.createEvent({ status: 'published', type: 'training' });
 
         const res = await request({
-            uri: '/?type[]=es',
+            uri: '/?type[]=training',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -210,7 +210,7 @@ describe('Events listing', () => {
         const event = await generator.createEvent({ status: 'published', type: 'training' });
 
         const res = await request({
-            uri: '/?type=es',
+            uri: '/?type=training',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
