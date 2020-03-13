@@ -33,7 +33,7 @@
               <p class="title">Upcoming events you’ve applied to</p>
               <div class="content" v-show="events.future.length > 0">
                 <ul>
-                  <li v-for="event in events.future" v-bind:key="events.future.id">
+                  <li v-for="event in events.future" v-bind:key="event.id">
                     <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }">
                       {{ event.name }} - {{ event.starts | date }}
                     </router-link>
@@ -49,7 +49,7 @@
               <p class="title">Past events you've applied to</p>
               <div class="content" v-show="events.past.length > 0">
                 <ul>
-                <li v-for="event in events.past" v-bind:key="events.past.id">
+                <li v-for="event in events.past" v-bind:key="event.id">
                   <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }">
                     {{ event.name }}
                   </router-link>
