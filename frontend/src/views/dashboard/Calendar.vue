@@ -5,8 +5,8 @@
         <span class="tag" v-for="(type, key) in constants.EVENT_TYPES_NAMES" :key="key" :style="{ 'background-color': colors[key], 'color': textColors[key] }">
           {{ type }}
         </span>
-        <span class="tag" v-for="(type, key) in constants.STATUTORY_TYPES_NAMES" :key="key" :style="{ 'background-color': colors[key], 'color': textColors[key] }">
-          {{ type }}
+        <span class="tag" style="background-color: #1468C5; color: #FFFFFF">
+          Statutory
         </span>
       </div>
     </div>
@@ -41,26 +41,16 @@ export default {
     return {
       events: [],
       colors: {
-        wu: '#CF9800',
-        rtc: '#1468C5',
+        training: '#A0C514',
+        conference: '#931991',
         nwm: '#FBBA00',
-        ltc: '#931991',
-        european: '#C51C13',
-        es: '#a0c514',
-        agora: '#434242',
-        epm: '#898989',
-        spm: '#434242'
+        cultural: '#C51C13'
       },
       textColors: {
-        wu: '#000000',
-        rtc: '#ffffff',
-        nwm: '#000000',
-        ltc: '#ffffff',
-        european: '#ffffff',
-        es: '#000000',
-        agora: '#FFFFFF',
-        epm: '#FFFFFF',
-        spm: '#FFFFFF'
+        training: '#FFFFFF',
+        conference: '#FFFFFF',
+        nwm: '#FFFFFF',
+        cultural: '#FFFFFF'
       },
       constants,
       isLoading: false,
@@ -100,8 +90,8 @@ export default {
           title: event.name,
           start: new Date(event.starts),
           end: new Date(event.ends),
-          backgroundColor: this.colors[event.type] || '#1468C5',
-          textColor: this.textColors[event.type] || '#FFFFFF',
+          backgroundColor: '#1468C5',
+          textColor: '#FFFFFF',
           url: '/statutory/' + (event.url || event.id)
         }))
 
