@@ -30,6 +30,6 @@ module.exports = {
         'application_status',
         'status'
     ],
-    EVENT_TYPES: ['wu', 'es', 'nwm', 'ltc', 'rtc', 'european'],
+    EVENT_TYPES: ['training', 'nwm', 'conference', 'cultural'],
     CURRENT_USER_PREFIX: 'me'
 };

@@ -188,8 +188,8 @@ describe('Events listing', () => {
     });
 
     it('should display only specified event types if specified and if multiple types are specified', async () => {
-        await generator.createEvent({ status: 'published', type: 'ltc' });
-        const event = await generator.createEvent({ status: 'published', type: 'es' });
+        await generator.createEvent({ status: 'published', type: 'cultural' });
+        const event = await generator.createEvent({ status: 'published', type: 'training' });
 
         const res = await request({
             uri: '/?type[]=es',
@@ -206,8 +206,8 @@ describe('Events listing', () => {
     });
 
     it('should display only specified event types if specified and if single type is specified', async () => {
-        await generator.createEvent({ status: 'published', type: 'ltc' });
-        const event = await generator.createEvent({ status: 'published', type: 'es' });
+        await generator.createEvent({ status: 'published', type: 'cultural' });
+        const event = await generator.createEvent({ status: 'published', type: 'training' });
 
         const res = await request({
             uri: '/?type=es',

@@ -12,7 +12,7 @@ exports.generateEvent = (options = {}) => {
     if (notSet(options.application_ends)) options.application_ends = faker.date.future(null, options.application_starts);
     if (notSet(options.starts)) options.starts = faker.date.future(null, options.application_ends);
     if (notSet(options.ends)) options.ends = faker.date.future(null, options.starts);
-    if (notSet(options.type)) options.type = faker.random.arrayElement(['wu', 'es', 'nwm', 'ltc', 'rtc', 'european']);
+    if (notSet(options.type)) options.type = faker.random.arrayElement(['training', 'nwm', 'conference', 'cultural']);
     if (notSet(options.fee)) options.fee = faker.random.number({ min: 0, max: 100 });
     if (notSet(options.organizing_bodies)) {
         options.organizing_bodies = [{
