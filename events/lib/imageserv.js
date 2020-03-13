@@ -1,4 +1,3 @@
-const fs = require('fs-extra');
 const path = require('path');
 const multer = require('multer');
 const readChunk = require('read-chunk');
@@ -8,6 +7,7 @@ const util = require('util');
 const errors = require('./errors');
 const log = require('./logger');
 const config = require('../config');
+const fs = require('./fs');
 
 const uploadFolderName = `${config.media_dir}/headimages`;
 const allowedExtensions = ['.png', '.jpg', '.jpeg'];
@@ -45,8 +45,8 @@ exports.uploadImage = async (req, res) => {
     const oldimg = req.event.image;
 
     // If upload folder doesn't exists, create it.
-    if (!await fs.exists(uploadFolderName)) {
-        await fs.mkdirp(uploadFolderName);
+    if (!await fs.existsSync(uploadFolderName)) {
+        await fs.mkdir(uploadFolderName, { recursive: true });
     }
 
     try {
