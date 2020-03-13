@@ -192,18 +192,17 @@ export default {
       return this.user.bodies
     },
     eventsOld () {
-      var eventsOld = []
+      let eventsOld = []
 
-      var today = new Date()
-      var dd = String(today.getDate()).padStart(2, '0')
-      var mm = String(today.getMonth() + 1).padStart(2, '0')
-      var yyyy = today.getFullYear()
-      today = yyyy + "-" + mm + "-" + dd
+      let today = new Date()
+      let dd = String(today.getDate()).padStart(2, '0')
+      let mm = String(today.getMonth() + 1).padStart(2, '0')
+      let yyyy = today.getFullYear()
+      today = yyyy + '-' + mm + '-' + dd
 
       for (const event of this.events.concat(this.statutory)) {
         if (event != null) {
           if (event.starts < today) {
-            console.log("adding " + event + " to pastEvents")
             eventsOld.push(event)
           }
         }
@@ -212,18 +211,17 @@ export default {
       return eventsOld
     },
     eventsUpcoming () {
-      var eventsUpcoming = []
+      let eventsUpcoming = []
 
-      var today = new Date()
-      var dd = String(today.getDate()).padStart(2, '0')
-      var mm = String(today.getMonth() + 1).padStart(2, '0')
-      var yyyy = today.getFullYear()
-      today = yyyy + "-" + mm + "-" + dd
+      let today = new Date()
+      let dd = String(today.getDate()).padStart(2, '0')
+      let mm = String(today.getMonth() + 1).padStart(2, '0')
+      let yyyy = today.getFullYear()
+      today = yyyy + '-' + mm + '-' + dd
 
       for (const event of this.events.concat(this.statutory)) {
         if (event != null) {
           if (event.starts >= today) {
-            console.log("adding " + event + " to upcomingEvents")
             eventsUpcoming.push(event)
           }
         }
