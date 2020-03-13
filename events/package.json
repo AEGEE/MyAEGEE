@@ -1,6 +1,6 @@
 {
   "name": "oms-events",
-  "version": "0.22.2",
+  "version": "0.23.0",
   "description": "Events-module of the OMS",
   "main": "server.js",
   "directories": {
