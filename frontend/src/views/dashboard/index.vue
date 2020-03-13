@@ -192,12 +192,12 @@ export default {
       return this.user.bodies
     },
     eventsOld () {
-      let eventsOld = []
+      const eventsOld = []
 
       let today = new Date()
-      let dd = String(today.getDate()).padStart(2, '0')
-      let mm = String(today.getMonth() + 1).padStart(2, '0')
-      let yyyy = today.getFullYear()
+      const dd = String(today.getDate()).padStart(2, '0')
+      const mm = String(today.getMonth() + 1).padStart(2, '0')
+      const yyyy = today.getFullYear()
       today = yyyy + '-' + mm + '-' + dd
 
       for (const event of this.events.concat(this.statutory)) {
@@ -211,12 +211,12 @@ export default {
       return eventsOld
     },
     eventsUpcoming () {
-      let eventsUpcoming = []
+      const eventsUpcoming = []
 
       let today = new Date()
-      let dd = String(today.getDate()).padStart(2, '0')
-      let mm = String(today.getMonth() + 1).padStart(2, '0')
-      let yyyy = today.getFullYear()
+      const dd = String(today.getDate()).padStart(2, '0')
+      const mm = String(today.getMonth() + 1).padStart(2, '0')
+      const yyyy = today.getFullYear()
       today = yyyy + '-' + mm + '-' + dd
 
       for (const event of this.events.concat(this.statutory)) {
