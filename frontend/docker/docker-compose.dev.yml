@@ -7,4 +7,5 @@ services:
             dockerfile: ./docker/Dockerfile
         image: aegee/oms-frontend:dev
         volumes:
+            - ./${PATH_OMS_FRONTEND}/../:/usr/app/src
             - /usr/app/src/node_modules
