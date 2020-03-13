@@ -28,20 +28,36 @@
             </article>
           </div>
 
-          <div class="tile is-4 is-parent">
+          <div class="tile is-4 is-parent is-vertical">
             <article class="tile is-child box">
-              <p class="title">Events you’ve applied to</p>
-              <div class="content" v-show="events.length > 0">
+              <p class="title">Upcoming events you’ve applied to</p>
+              <div class="content" v-show="events.future.length > 0">
                 <ul>
-                  <li v-for="event in events" v-bind:key="event.id">
+                  <li v-for="event in events.future" v-bind:key="event.id">
                     <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }">
                       {{ event.name }} - {{ event.starts | date }}
                     </router-link>
                   </li>
                 </ul>
               </div>
-              <div class="content" v-show="events.length === 0">
-                <p><i>You haven't applied to any event yet.</i></p>
+              <div class="content" v-show="events.future.length === 0">
+                <p><i>You haven't applied to any upcoming events yet.</i></p>
+              </div>
+            </article>
+
+            <article class="tile is-child box">
+              <p class="title">Past events you've applied to</p>
+              <div class="content" v-show="events.past.length > 0">
+                <ul>
+                <li v-for="event in events.past" v-bind:key="event.id">
+                  <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }">
+                    {{ event.name }}
+                  </router-link>
+                </li>
+                </ul>
+              </div>
+              <div class="content" v-show="events.past.length === 0">
+                <p><i>You haven't applied to any past events yet.</i></p>
               </div>
               <b-loading :is-full-page="false" :active.sync="isLoading.events"></b-loading>
             </article>
@@ -98,6 +114,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import moment from 'moment'
 
 export default {
   name: 'Dashboard',
@@ -110,7 +127,10 @@ export default {
         bodies: [],
         circles: []
       },
-      events: [],
+      events: {
+        past: [],
+        future: []
+      },
       statutory: null,
       isLoading: {
         user: false,
@@ -127,7 +147,7 @@ export default {
     this.axios.get(this.services['oms-core-elixir'] + '/members/me').then((response) => {
       this.user = response.data.data
       this.user.bodies.sort((b1, b2) => ((b1.name > b2.name) ? 1 : -1))
-      this.user.circles.sort((b1, b2) => ((b1.name > b2.name) ? 1 : -1))
+      this.user.circles.sort((c1, c2) => ((c1.name > c2.name) ? 1 : -1))
       this.isLoading.user = false
     }).catch((err) => {
       this.isLoading.user = false
@@ -135,7 +155,15 @@ export default {
     })
 
     this.axios.get(this.services['oms-events'] + '/mine/participating').then((response) => {
-      this.events = response.data.data
+      for (const event of response.data.data) {
+        if (moment().isSameOrBefore(event.starts)) {
+          this.events.future.push(event)
+        } else {
+          this.events.past.push(event)
+        }
+      }
+      this.events.past.sort((e1, e2) => ((e1.name > e2.name) ? 1 : -1))
+      this.events.future.sort((e1, e2) => ((e1.name > e2.name) ? 1 : -1))
       this.isLoading.events = false
     }).catch((err) => {
       this.isLoading.events = false
