@@ -6,7 +6,7 @@
           {{ type }}
         </span>
         <span class="tag" style="background-color: #1468C5; color: #FFFFFF">
-          Statutory 
+          Statutory
         </span>
       </div>
     </div>
@@ -44,15 +44,13 @@ export default {
         training: '#A0C514',
         conference: '#931991',
         nwm: '#FBBA00',
-        cultural: '#C51C13',
-        
+        cultural: '#C51C13'
       },
       textColors: {
         training: '#FFFFFF',
         conference: '#FFFFFF',
         nwm: '#FFFFFF',
-        cultural: '#FFFFFF',
-     
+        cultural: '#FFFFFF'
       },
       constants,
       isLoading: false,
