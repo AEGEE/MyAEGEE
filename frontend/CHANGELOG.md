@@ -1,3 +1,17 @@
+# [0.36.0](https://github.com/AEGEE/oms-frontend/compare/0.35.2...0.36.0) (2020-03-14)
+
+
+### Bug Fixes
+
+* **bootstrap:** add mounted folder ([d996ef2](https://github.com/AEGEE/oms-frontend/commit/d996ef2e1cc2e02f249cd5f2f671da2c1704968d))
+* **deps:** fixed npm audit vulnerability ([ff30b95](https://github.com/AEGEE/oms-frontend/commit/ff30b958a2260f7146e35e711a41b97b991bdcc4))
+
+
+### Features
+
+* **release:** added semantic-release. Fixes MEMB-643 ([2d3b3ad](https://github.com/AEGEE/oms-frontend/commit/2d3b3adadc758d43b9a6639bc796f58e59faabd6))
+* split events in past and upcoming - dashboard ([fb48b32](https://github.com/AEGEE/oms-frontend/commit/fb48b3277ff0b65302283e87bc26356c93ffbe8d))
+
 ## [0.35.2](https://github.com/AEGEE/oms-frontend/compare/0.34.3...0.35.2) (2020-03-10)
 
 
@@ -1837,6 +1851,3 @@
 
 
 # 0.1.0 (2016-09-26)
-
-
-
