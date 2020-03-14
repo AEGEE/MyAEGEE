@@ -4,9 +4,13 @@ const {
     User
 } = require('../models');
 const helpers = require('../lib/helpers');
+const errors = require('../lib/errors');
 
 exports.listAllMemberships = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('view_member:body')) {
+        return errors.makeForbiddenError(res, 'Permission view_member:body is required, but not present.');
+    }
+
     const result = await BodyMembership.findAndCountAll({
         where: { body_id: req.currentBody.id },
         ...helpers.getPagination(req.query),
@@ -22,7 +26,10 @@ exports.listAllMemberships = async (req, res) => {
 };
 
 exports.updateMembership = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('update_member:body')) {
+        return errors.makeForbiddenError(res, 'Permission update_member:body is required, but not present.');
+    }
+
     await req.currentBodyMembership.update({ comment: req.body.comment });
     return res.json({
         success: true,
@@ -31,7 +38,10 @@ exports.updateMembership = async (req, res) => {
 };
 
 exports.deleteMembership = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('delete_member:body')) {
+        return errors.makeForbiddenError(res, 'Permission delete_member:body is required, but not present.');
+    }
+
     // delete all join requests if any, so a person can reapply
     await JoinRequest.destroy({
         where: {
