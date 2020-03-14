@@ -107,19 +107,19 @@
                   <td>{{ event.application_status | capitalize }}</td>
                 </tr>
                 <tr>
-                  <th>Application period starts</th>
+                  <th>Application period starts <timezone-tooltip /></th>
                   <td>{{ event.application_starts | datetime }}</td>
                 </tr>
                 <tr>
-                  <th>Application period ends</th>
+                  <th>Application period ends <timezone-tooltip /></th>
                   <td>{{ event.application_ends | datetime }}</td>
                 </tr>
                 <tr>
-                  <th>Starts</th>
+                  <th>Starts <timezone-tooltip /></th>
                   <td>{{ event.starts | datetime }}</td>
                 </tr>
                 <tr>
-                  <th>Ends</th>
+                  <th>Ends <timezone-tooltip /></th>
                   <td>{{ event.ends | datetime }}</td>
                 </tr>
                 <tr>
@@ -222,13 +222,15 @@ import Mapbox from 'mapbox-gl'
 import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
 import constants from '../../constants'
 import credentials from '../../credentials'
+import TimezoneTooltip from '../../components/tooltips/TimezoneTooltip'
 
 export default {
   components: {
     MglMap,
     MglMarker,
     MglPopup,
-    MglNavigationControl
+    MglNavigationControl,
+    TimezoneTooltip
   },
   name: 'SingleEvent',
   data () {
