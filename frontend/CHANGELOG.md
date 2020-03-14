@@ -1,3 +1,10 @@
+# [0.37.0](https://github.com/AEGEE/oms-frontend/compare/0.36.0...0.37.0) (2020-03-14)
+
+
+### Features
+
+* **events:** add timezone tooltip. Clarifies HELP-968 ([#277](https://github.com/AEGEE/oms-frontend/issues/277)) ([5620eab](https://github.com/AEGEE/oms-frontend/commit/5620eab4929831047a43fc82a77bd1fc25f4b9fd))
+
 # [0.36.0](https://github.com/AEGEE/oms-frontend/compare/0.35.2...0.36.0) (2020-03-14)
 
 
