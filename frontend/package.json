@@ -2,7 +2,6 @@
   "name": "oms-frontend",
   "version": "0.35.2",
   "description": "OMS Frontend",
-  "repository": "AEGEE/oms-frontend",
   "homepage": "https://my.aegee.eu",
   "license": "MIT",
   "author": {
@@ -13,8 +12,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint --no-fix",
-    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
+    "lint": "vue-cli-service lint --no-fix"
   },
   "husky": {
     "hooks": {
@@ -57,6 +55,8 @@
   "devDependencies": {
     "@babel/types": "^7.7.4",
     "@commitlint/config-conventional": "^8.2.0",
+    "@semantic-release/changelog": "^5.0.0",
+    "@semantic-release/git": "^9.0.0",
     "@vue/cli-plugin-babel": "^4.1.0",
     "@vue/cli-plugin-eslint": "^4.1.0",
     "@vue/cli-plugin-router": "^4.1.0",
@@ -65,12 +65,14 @@
     "@vue/eslint-config-airbnb": "^5.0.0",
     "babel-eslint": "^10.0.3",
     "commitlint": "^8.2.0",
+    "conventional-changelog": "^3.1.18",
     "css-loader": "^3.4.0",
     "eslint": "^6.8.0",
     "eslint-plugin-vue": "^6.1.2",
     "husky": "^3.1.0",
     "node-sass": "^4.13.1",
     "sass-loader": "^8.0.0",
+    "semantic-release": "^17.0.4",
     "vue-loader": "^15.8.3",
     "vue-template-compiler": "^2.6.10"
   }
