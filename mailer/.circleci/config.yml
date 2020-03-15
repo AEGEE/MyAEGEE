@@ -30,7 +30,7 @@ jobs:
     steps:
       - checkout
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache oms-mailer
-  docker-build-and-push-mailer:
+  docker-build-and-push:
     machine:
       image: ubuntu-1604:201903-01
     environment:
@@ -53,21 +53,13 @@ jobs:
       - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
       - run: docker push aegee/oms-mailer:$(node -p "require('./package.json').version")
       - run: docker push aegee/oms-mailer:latest
-      - slack/status:
-          success_message: The Docker image for \`$CIRCLE_PROJECT_REPONAME\` with tags \`$(node -p "require('./package.json').version")\` and \`latest\` has been pushed to Dockerhub.
-          failure_message: The Docker image for \`$CIRCLE_PROJECT_REPONAME\` build and push has failed.
-  docker-build-and-push-agent:
-    machine:
-      image: ubuntu-1604:201903-01
-    steps:
-      - checkout
       - run: docker build  --tag aegee/oms-mail-transfer-agent:$(node -p "require('./package.json').version") --tag aegee/oms-mail-transfer-agent:latest -f docker/mail_transfer_agent/Dockerfile .
       - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
       - run: docker push aegee/oms-mail-transfer-agent:$(node -p "require('./package.json').version")
       - run: docker push aegee/oms-mail-transfer-agent:latest
       - slack/status:
-          success_message: The Docker image for \`oms-mail-transfer-agent\` with tags \`$(node -p "require('./package.json').version")\` and \`latest\` has been pushed to Dockerhub.
-          failure_message: The Docker image for \`oms-mail-transfer-agent\` build and push has failed.
+          success_message: The Docker image for \`$CIRCLE_PROJECT_REPONAME\` with tags \`$(node -p "require('./package.json').version")\` and \`latest\` has been pushed to Dockerhub.
+          failure_message: The Docker image for \`$CIRCLE_PROJECT_REPONAME\` build and push has failed.
 
 workflows:
   version: 2
@@ -77,15 +69,9 @@ workflows:
   build:
     jobs:
       - build
-  docker-build-and-push-mailer:
+  docker-build-and-push:
     jobs:
-      - docker-build-and-push-mailer:
-          filters:
-            branches:
-              only: master
-  docker-build-and-push-agent:
-    jobs:
-      - docker-build-and-push-agent:
+      - docker-build-and-push:
           filters:
             branches:
               only: master
