@@ -14,9 +14,7 @@
     "husky": "^3.0.9",
     "semantic-release": "^17.0.4"
   },
-  "scripts": {
-    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
-  },
+  "scripts": {},
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
