@@ -78,7 +78,10 @@
   "devDependencies": {
     "@commitlint/cli": "^8.2.0",
     "@commitlint/config-conventional": "^8.2.0",
+    "@semantic-release/changelog": "^5.0.0",
+    "@semantic-release/git": "^9.0.0",
     "codecov": "^3.6.1",
+    "conventional-changelog": "^3.1.18",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.18.2",
@@ -92,6 +95,7 @@
     "nock": "^11.4.0",
     "nyc": "^14.1.1",
     "open-cli": "^5.0.0",
+    "semantic-release": "^17.0.4",
     "timekeeper": "^2.2.0"
   }
 }
