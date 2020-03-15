@@ -1,3 +1,19 @@
+# [0.30.0](https://github.com/AEGEE/oms-statutory/compare/0.29.2...0.30.0) (2020-03-15)
+
+
+### Bug Fixes
+
+* **memberslists:** fixing zero fee payments. Fixes MEMB-795 ([69139d8](https://github.com/AEGEE/oms-statutory/commit/69139d873f941f3705e0084df97615e4b0d53283))
+* **stats:** fixed statutory total count ([128dd1c](https://github.com/AEGEE/oms-statutory/commit/128dd1c9784feeadfa14c6cab5d24d3129f9e157))
+* **test:** removed unused test ([d091d14](https://github.com/AEGEE/oms-statutory/commit/d091d14fb56d0de74bc67fd4181e88421c0edf7e))
+
+
+### Features
+
+* **release:** added semantic-release. Fixes MEMB-831 ([ff70322](https://github.com/AEGEE/oms-statutory/commit/ff70322eddc3717a077200e2462e2ac3485e6bbc))
+* add meal pref. data ([5d47561](https://github.com/AEGEE/oms-statutory/commit/5d475618983f9bd94f8fed1e31fa95bea3b6a98c))
+* add test for meal pref. ([dc3036d](https://github.com/AEGEE/oms-statutory/commit/dc3036d3ed139f84e044f95909ffd662b4801e82))
+
 ## [0.29.3](https://github.com/AEGEE/oms-statutory/compare/0.29.2...0.29.3) (2020-03-06)
 
 
@@ -821,6 +837,3 @@
 * **style:** added ESLint checking for Travis. Fixes MEMB-459 ([ff0359a](https://github.com/AEGEE/oms-statutory/commit/ff0359a0bab741212024f3d92c5e3d884dca0ac8))
 * **test:** add attendance management testing ([2bf6f3c](https://github.com/AEGEE/oms-statutory/commit/2bf6f3cf0a71b21927582a22149610cdfa2c2ced))
 * **test:** add plenaries management testing ([ded41b5](https://github.com/AEGEE/oms-statutory/commit/ded41b53a5fb7b1993c6e2c5cf7105c5ab4bff81))
-
-
-
