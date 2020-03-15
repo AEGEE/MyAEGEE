@@ -40,6 +40,15 @@ jobs:
       SMTP_HOST: mail.aegee.eu
     steps:
       - checkout
+      - run:
+          name: Install Node
+          command: |
+            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
+            which node && node -v
+      - run: npm install
+      - run: npx semantic-release
       - run: docker build  --tag aegee/oms-mailer:$(node -p "require('./package.json').version") --tag aegee/oms-mailer:latest -f docker/oms-mailer/Dockerfile .
       - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
       - run: docker push aegee/oms-mailer:$(node -p "require('./package.json').version")
