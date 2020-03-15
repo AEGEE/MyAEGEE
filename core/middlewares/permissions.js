@@ -1,7 +1,9 @@
 const { Permission } = require('../models');
 const helpers = require('../lib/helpers');
+const errors = require('../lib/errors');
 
 exports.listAllPermissions = async (req, res) => {
+    // TODO: add filtering
     const result = await Permission.findAndCountAll({
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query)
@@ -15,7 +17,6 @@ exports.listAllPermissions = async (req, res) => {
 };
 
 exports.getPermission = async (req, res) => {
-    // TODO: check permissions
     return res.json({
         success: true,
         data: req.currentPermission
@@ -23,7 +24,10 @@ exports.getPermission = async (req, res) => {
 };
 
 exports.createPermission = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('global:create:permission')) {
+        return errors.makeForbiddenError(res, 'Permission global:create:permission is required, but not present.');
+    }
+
     const permission = await Permission.create(req.body);
     return res.json({
         success: true,
@@ -32,7 +36,10 @@ exports.createPermission = async (req, res) => {
 };
 
 exports.updatePermission = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('global:update:permission')) {
+        return errors.makeForbiddenError(res, 'Permission global:update:permission is required, but not present.');
+    }
+
     // TODO: filter out fields that are changed in the other way
     await req.currentPermission.update(req.body);
     return res.json({
@@ -42,7 +49,10 @@ exports.updatePermission = async (req, res) => {
 };
 
 exports.deletePermission = async (req, res) => {
-    // TODO: check permissions
+    if (!req.permissions.hasPermission('global:delete:permission')) {
+        return errors.makeForbiddenError(res, 'Permission global:delete:permission is required, but not present.');
+    }
+
     await req.currentPermission.destroy();
     return res.json({
         success: true,
