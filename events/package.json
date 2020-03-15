@@ -12,7 +12,6 @@
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
-    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
     "open-coverage": "open-cli coverage/lcov-report/index.html",
     "cli": "node --experimental-repl-await -r ./cli.js"
   },
@@ -36,10 +35,6 @@
       "!lib/sequelize.js",
       "!lib/logger.js"
     ]
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/AEGEE/oms-events.git"
   },
   "author": "Nico Westerbeck",
   "license": "ISC",
@@ -73,8 +68,11 @@
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^8.3.4",
+    "@semantic-release/changelog": "^5.0.0",
+    "@semantic-release/git": "^9.0.0",
     "codecov": "^3.6.5",
     "commitlint": "^8.3.4",
+    "conventional-changelog": "^3.1.18",
     "conventional-changelog-cli": "^2.0.31",
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^18.0.1",
@@ -90,6 +88,7 @@
     "nock": "^11.7.2",
     "nyc": "^15.0.0",
     "opn-cli": "^5.0.0",
+    "semantic-release": "^17.0.4",
     "timekeeper": "^2.2.0"
   }
 }
