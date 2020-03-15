@@ -1,3 +1,16 @@
+# [0.24.0](https://github.com/AEGEE/oms-events/compare/0.23.0...0.24.0) (2020-03-15)
+
+
+### Bug Fixes
+
+* **test:** fixed tests ([3efb490](https://github.com/AEGEE/oms-events/commit/3efb490f908dc107c51bfe0aebb81b48533a7b0f))
+
+
+### Features
+
+* **lint:** added lint-staged ([b0825e7](https://github.com/AEGEE/oms-events/commit/b0825e7fc060ca86f5a99a7bd1d664da738ebc69))
+* **release:** added semantic-release. Fixes MEMB-830 ([3ebb755](https://github.com/AEGEE/oms-events/commit/3ebb7554c012a6bd1c0ff18717a6341de5d30ecb))
+
 <a name="0.23.0"></a>
 # [0.23.0](https://github.com/AEGEE/oms-events/compare/0.22.2...0.23.0) (2020-03-13)
 
@@ -582,6 +595,3 @@
 ### BREAKING CHANGES
 
 * **endpoints:** removed some endpoints
-
-
-
