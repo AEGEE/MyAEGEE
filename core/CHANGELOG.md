@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/AEGEE/oms-core-js/compare/1.0.0...1.1.0) (2020-03-15)
+
+
+### Features
+
+* **general:** checking permissions for permissions ([6da0349](https://github.com/AEGEE/oms-core-js/commit/6da03493b6276e3916b8dd623889a80ca8a07d8f))
+
 # 1.0.0 (2020-03-15)
 
 
