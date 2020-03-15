@@ -1,3 +1,10 @@
+# [0.9.0](https://github.com/AEGEE/oms-mailer/compare/0.8.0...0.9.0) (2020-03-15)
+
+
+### Features
+
+* **release:** added semantic-release. Fixes MEMB-829 ([cc349b8](https://github.com/AEGEE/oms-mailer/commit/cc349b8a20bd7ebdfc95f6579c960fa860604274))
+
 # [0.8.0](https://github.com/AEGEE/oms-docker/compare/0.7.1...0.8.0) (2020-01-12)
 
 
@@ -145,6 +152,3 @@
 
 * **general:** added conventional commits. Fixes MEMB-555 ([3fda935](https://github.com/AEGEE/oms-docker/commit/3fda935a8c1135f4ea897296f3020a27ab57049e))
 * **general:** added healthcheck. Fixes MEMB-646 ([89e1a0e](https://github.com/AEGEE/oms-docker/commit/89e1a0eee5ded4c0a5286de02da7c8cb326ff0fe))
-
-
-

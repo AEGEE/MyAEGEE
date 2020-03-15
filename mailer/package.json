@@ -1,6 +1,6 @@
 {
   "name": "oms-mailer",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "The internal mailer module of my.aegee.eu",
   "keywords": [],
   "author": "Nico Westerbeck",
