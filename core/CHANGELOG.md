@@ -1,3 +1,11 @@
+# [1.2.0](https://github.com/AEGEE/oms-core-js/compare/1.1.0...1.2.0) (2020-03-15)
+
+
+### Features
+
+* **general:** add bound circles creation ([d8758cd](https://github.com/AEGEE/oms-core-js/commit/d8758cdf9fd8306da6104e0a227e1508dfbfb251))
+* **general:** checking permissions for members ([cc69272](https://github.com/AEGEE/oms-core-js/commit/cc692727d58be0161be0dded1611a920d46a29c1))
+
 # [1.1.0](https://github.com/AEGEE/oms-core-js/compare/1.0.0...1.1.0) (2020-03-15)
 
 
