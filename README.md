@@ -62,6 +62,8 @@ Everything related to the behaviour of the app is defined in the top-most `.env`
 
 `<servicename>_SUBDOMAIN`: telling how to access a specific service
 
+See [below](#moving-parts) for more info.
+
 # Usage
 
 ## Accessing it
