@@ -39,6 +39,9 @@ rebuild_events:
 rebuild_statutory:
 	./helper.sh --docker -- up -d --build --force-recreate oms-statutory
 
+rebuild_mailer:
+	./helper.sh --docker -- up -d --build --force-recreate oms-mailer
+
 list: #docker-compose ps
 	./helper.sh -v --list
 
