@@ -1,3 +1,10 @@
+# [0.10.0](https://github.com/AEGEE/oms-discounts/compare/0.9.4...0.10.0) (2020-03-15)
+
+
+### Features
+
+* **release:** added semantic-release. Fixes MEMB-833 ([afd3d43](https://github.com/AEGEE/oms-discounts/commit/afd3d4362b98dc9e25c119f005608119fc347493))
+
 ## [0.9.4](https://github.com/AEGEE/oms-discounts/compare/0.9.2...0.9.4) (2019-11-06)
 
 
@@ -150,6 +157,3 @@
 * **test:** testing codes claiming and displaying ([bb3b649](https://github.com/AEGEE/oms-discounts/commit/bb3b649))
 * **test:** tests refactor ([3e665ef](https://github.com/AEGEE/oms-discounts/commit/3e665ef))
 * **test:** travis integration ([5acac0a](https://github.com/AEGEE/oms-discounts/commit/5acac0a))
-
-
-
