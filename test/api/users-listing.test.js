@@ -16,8 +16,26 @@ describe('Users list', () => {
     });
 
     test('should succeed when everything is okay', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
+
+        const res = await request({
+            uri: '/members',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should succeed when everything is okay', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
         const res = await request({
             uri: '/members',
@@ -35,11 +53,13 @@ describe('Users list', () => {
     });
 
     test('should respect limit and offset', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
 
         const member = await generator.createUser();
         await generator.createUser();
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
         const res = await request({
             uri: '/members?limit=1&offset=1', // second one should be returned
@@ -60,8 +80,15 @@ describe('Users list', () => {
     });
 
     test('should respect sorting', async () => {
-        const firstUser = await generator.createUser({ first_name: 'aaa', password: 'test', mail_confirmed_at: new Date() });
+        const firstUser = await generator.createUser({
+            first_name: 'aaa',
+            password: 'test',
+            mail_confirmed_at: new Date(),
+            superadmin: true
+        });
         const token = await generator.createAccessToken({}, firstUser);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
         const secondUser = await generator.createUser({ first_name: 'bbb' });
 
