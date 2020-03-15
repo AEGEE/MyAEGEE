@@ -10,7 +10,6 @@
     "db:migrate": "sequelize db:migrate",
     "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
     "cli": "node --experimental-repl-await -r ./cli.js",
-    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
     "open-coverage": "open-cli coverage/lcov-report/index.html"
   },
   "jest": {
@@ -39,10 +38,6 @@
   "keywords": [],
   "author": "Sergey Peshkov <github.com/serge1peshcoff>",
   "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/AEGEE/oms-statutory.git"
-  },
   "bugs": {
     "url": "https://github.com/AEGEE/oms-statutory/issues"
   },
@@ -78,7 +73,10 @@
   "devDependencies": {
     "@commitlint/cli": "^8.2.0",
     "@commitlint/config-conventional": "^8.2.0",
-    "codecov": "^3.6.1",
+    "@semantic-release/changelog": "^5.0.0",
+    "@semantic-release/git": "^9.0.0",
+    "codecov": "^3.6.5",
+    "conventional-changelog": "^3.1.18",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.18.2",
@@ -86,12 +84,13 @@
     "eslint-plugin-react": "^7.16.0",
     "faker": "^4.1.0",
     "husky": "^3.0.9",
-    "jest": "^24.9.0",
+    "jest": "^25.1.0",
     "jest-junit": "^8.0.0",
     "jest-teamcity-reporter": "^0.9.0",
     "nock": "^11.4.0",
     "nyc": "^14.1.1",
     "open-cli": "^5.0.0",
+    "semantic-release": "^17.0.4",
     "timekeeper": "^2.2.0"
   }
 }

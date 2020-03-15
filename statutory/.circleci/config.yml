@@ -61,6 +61,15 @@ jobs:
       image: ubuntu-1604:201903-01
     steps:
       - checkout
+      - run:
+          name: Install Node
+          command: |
+            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
+            which node && node -v
+      - run: npm install
+      - run: npx semantic-release
       - run: docker build  --tag aegee/oms-statutory:$(node -p "require('./package.json').version") --tag aegee/oms-statutory:latest -f docker/oms-statutory/Dockerfile .
       - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
       - run: docker push aegee/oms-statutory:$(node -p "require('./package.json').version")
