@@ -10,7 +10,6 @@
     "db:migrate": "sequelize db:migrate",
     "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
     "cli": "node --experimental-repl-await -r ./cli.js",
-    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
     "open-coverage": "open-cli coverage/lcov-report/index.html"
   },
   "jest": {
@@ -39,10 +38,6 @@
   "keywords": [],
   "author": "Sergey Peshkov <github.com/serge1peshcoff>",
   "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/AEGEE/oms-statutory.git"
-  },
   "bugs": {
     "url": "https://github.com/AEGEE/oms-statutory/issues"
   },
