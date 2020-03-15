@@ -7,7 +7,6 @@
     "start": "nodemon -e 'js,json' lib/run.js",
     "nodemon-start": "nodemon -e 'js,json' lib/run.js",
     "lint": "eslint .",
-    "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
@@ -17,10 +16,6 @@
   "keywords": [],
   "author": "Sergey Peshkov <github.com/serge1peshcoff>",
   "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/AEGEE/oms-discounts.git"
-  },
   "bugs": {
     "url": "https://github.com/AEGEE/oms-discounts/issues"
   },
@@ -45,7 +40,10 @@
   "devDependencies": {
     "@commitlint/cli": "^8.1.0",
     "@commitlint/config-conventional": "^8.1.0",
+    "@semantic-release/changelog": "^5.0.0",
+    "@semantic-release/git": "^9.0.0",
     "codecov": "^3.6.1",
+    "conventional-changelog": "^3.1.18",
     "eslint": "^6.1.0",
     "eslint-config-airbnb": "^18.0.0",
     "eslint-plugin-import": "^2.18.2",
@@ -57,7 +55,8 @@
     "jest-junit": "^8.0.0",
     "nock": "^10.0.6",
     "nyc": "^14.1.1",
-    "opn-cli": "^5.0.0"
+    "opn-cli": "^5.0.0",
+    "semantic-release": "^17.0.4"
   },
   "dependencies": {
     "@bugsnag/js": "^6.3.2",
