@@ -35,4 +35,5 @@ if ! [[ -f "${CURDIR}/../secrets/db_password" ]]; then
   mkdir -p ${CURDIR}/../secrets
   echo -e "[MyAEGEE] Creating db_password"
   echo "5ecr3t" > ${CURDIR}/../secrets/db_password
+  echo "5ecr3t" > ${CURDIR}/../secrets/core-db_password
 fi

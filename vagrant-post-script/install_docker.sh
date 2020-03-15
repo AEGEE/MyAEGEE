@@ -16,3 +16,4 @@ sudo apt-get update > /dev/null
 sudo apt-get install -qq -y docker-ce=5:18.09.4~3-0~ubuntu-bionic || { echo "[Vagrant] ###################     Installation error, exiting"; exit; }
 
 echo "[Vagrant] ###################     Installation complete"
+usermod -aG docker vagrant

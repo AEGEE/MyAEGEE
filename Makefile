@@ -24,6 +24,21 @@ refresh:  build
 live_refresh:  # docker-compose up -d --build (CD TARGET)
 	./helper.sh --refresh
 
+listen_frontend:
+	cd oms-frontend && npm run build -- --watch
+
+rebuild_frontend:
+	sudo ./helper.sh --docker -- up -d --build --force-recreate oms-frontend
+
+rebuild_core:
+	sudo ./helper.sh --docker -- up -d --build --force-recreate oms-core-elixir
+
+rebuild_events:
+	sudo ./helper.sh --docker -- up -d --build --force-recreate oms-events
+
+rebuild_statutory:
+	sudo ./helper.sh --docker -- up -d --build --force-recreate oms-statutory
+
 list: #docker-compose ps
 	./helper.sh -v --list
 
