@@ -16,7 +16,7 @@ Explanation of the installation are here. Explanation of why we're doing it this
 install [Virtualbox](https://www.virtualbox.org/wiki/Downloads) first, then [Vagrant](https://www.vagrantup.com/downloads.html). Even if you have a linux box, this is **very** recommended.
 If you decide to not do it, *sigh...* but don't come to cry to us.
 
-If you decide you know better than us, [install docker and docker-compose](https://docs.docker.com/compose/install/) on your Windows machine, instead of Virtualbox and Vagrant. (Make sure you install the correct versions: tested with Docker CE 19.03.1 and docker-compose 1.24.1)
+If you decide you know better than us, [install docker and docker-compose](https://docs.docker.com/compose/install/) on your Windows/Linux/Mac machine, instead of Virtualbox and Vagrant. (Make sure you install the correct versions: tested with Docker CE 19.03.1 and docker-compose 1.24.1)
 
 Note: if you use Vagrant, Docker will be already automatically on the virtual machine.
 
@@ -26,7 +26,7 @@ Memory requirements for the VM bootstrapped with Vagrant: 2GB (i.e. you need a m
 
 You are encouraged to edit the `/etc/hosts` file (on windows: `C:\Windows\system32\drivers\etc\hosts`) to add the entry:
 
-Pure docker case: `localhost appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test kibana.appserver.test`
+Pure docker case: `127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test kibana.appserver.test`
 
 Vagrant case: `192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test kibana.appserver.test`
 
@@ -62,6 +62,8 @@ Everything related to the behaviour of the app is defined in the top-most `.env`
 
 `<servicename>_SUBDOMAIN`: telling how to access a specific service
 
+See [below](#moving-parts) for more info.
+
 # Usage
 
 ## Accessing it
@@ -71,9 +73,8 @@ For accessing it, it becomes:
 
 | Case | URL |
 |---|---|
-| Pure docker | http://my.localhost, with the possibility of going to http://portainer.localhost or http://traefik.localhost |
+| Pure docker | http://my.appserver.test, with the possibility of going to http://portainer.appserver.test or http://traefik.appserver.test |
 | Vagrant | http://my.appserver.test, with the possibility of going to http://portainer.appserver.test or http://traefik.appserver.test |
-| Vagrant (alternative) | http://localhost:8888 |
 
 ### Subdomains registered on traefik
 read "_subdomain_.appserver.test"; e.g. you put in your browser `http://traefik.appserver.test`
@@ -152,3 +153,29 @@ For prerequisites and installation of individual containers, see their `docker`(
 
 For more detailed info, we hoped to have a better knowledge base [here](https://oms-project.atlassian.net/wiki/spaces/GENERAL/pages/224231425/Microservices+information), it's not great right now but it's a something `¯\_(ツ)_/¯`
 
+## Moving parts
+
+### .env
+The file contains variables where e.g. you define the base url (`aegee.test`) and where will various app be reachable (e.g. `my.` for `my.aegee.test` to reach the frontend).
+
+List of defined variables:
+- base url
+- subdomain urls
+- activated services
+- runtime environment
+- some default passwords
+- SMTP user/pass/server for mailer
+- Sendgrid user/pass
+- Superadmin credentials (for other services to read; it does not set them in the system)
+- folder locations
+
+so for instance...
+
+*Example 1*: you would use this file if you had a problem with 1 microservice and wanted to remove it from the setup. Note: the removal of the ms would not stop a container if there was one running already, so make sure you cleanup
+
+*Example 2*: you would use this file if you wrote a new microservice and wanted to add it from the setup.
+
+### docker-compose.yml
+In the docker-compose files there are the definitions of where an app should be reached.
+
+Docker-compose will use the variables defined above, and put them under the `labels` section of a container (if a container needs it). The `labels` section is parsed by traefik to route all the HTTP calls to the correct containers.

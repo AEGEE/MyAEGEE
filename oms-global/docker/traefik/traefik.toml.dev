@@ -39,7 +39,7 @@ endpoint = "unix:///var/run/docker.sock"
 #
 # Required
 #
-domain = "localhost.test"
+domain = "appserver.test"
 
 
 # Enable watch docker changes

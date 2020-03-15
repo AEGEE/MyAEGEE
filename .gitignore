@@ -5,7 +5,9 @@
 current-config.yml
 would-be-config.yml
 
+oms-global/docker/traefik/traefik.toml
+
 secrets/*
 
 # exception to the rule
-!secrets/.gitkeep 
+!secrets/.gitkeep

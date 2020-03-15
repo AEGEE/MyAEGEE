@@ -50,7 +50,11 @@ init_boot ()
     chmod 600 "${DIR}"/secrets/acme.json # Traefik doesn't let ACME challenge go through otherwise
 
     touch "${DIR}"/oms-global/docker/traefik/traefik.toml # to avoid making it think it's a folder
-    envsubst < "${DIR}"/oms-global/docker/traefik/traefik.toml.template > "${DIR}"/oms-global/docker/traefik/traefik.toml
+    if [[ "${MYAEGEE_ENV}" != "development" ]]; then
+      envsubst < "${DIR}"/oms-global/docker/traefik/traefik.toml.template > "${DIR}"/oms-global/docker/traefik/traefik.toml
+    else
+      cat "${DIR}"/oms-global/docker/traefik/traefik.toml.dev > "${DIR}"/oms-global/docker/traefik/traefik.toml
+    fi
 
     echo -e "\n[Deployment] Setting secrets\n"
     bash "${DIR}"/vagrant-post-script/generate_secrets.sh
