@@ -69,6 +69,7 @@ jobs:
             echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
             which node && node -v
       - run: npm install
+      - run: npx semantic-release
       - run: docker build  --tag aegee/oms-discounts:$(node -p "require('./package.json').version") --tag aegee/oms-discounts:latest -f ./docker/oms-discounts/Dockerfile .
       - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
       - run: docker push aegee/oms-discounts:$(node -p "require('./package.json').version")
