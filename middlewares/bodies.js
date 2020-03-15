@@ -98,3 +98,21 @@ exports.createMember = async (req, res) => {
         data: membership
     });
 };
+
+// This endpoint is for creating bound circles only.
+exports.createBoundCircle = async (req, res) => {
+    if (!req.permissions.hasPermission('create:circle')) {
+        return errors.makeForbiddenError(res, 'Permission create:circle is required, but not present.');
+    }
+
+    req.body.body_id = req.currentBody.id;
+
+    const circle = await Circle.create(req.body, {
+        fields: constants.FIELDS_TO_UPDATE.CIRCLE.CREATE
+    });
+
+    return res.json({
+        success: true,
+        data: circle
+    });
+};
