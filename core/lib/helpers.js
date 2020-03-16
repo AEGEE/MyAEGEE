@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const { Sequelize } = require('./sequelize');
 
 // A helper to flatten the nested object. Copypasted from Google.
 function flattenObject(obj, prefix = '') {
@@ -109,6 +110,32 @@ function getSorting(query) {
     return result;
 }
 
+/*
+    Given a string like 'query' and fields like ['field1', 'field2'...]
+    returns an array like following:
+
+    [
+        { field1: { [Sequelize.Op.iLike]: '%query%' } },
+        { field2: { [Sequelize.Op.iLike]: '%query%' } },
+        ...
+    ]
+
+    Required for filtering stuff.
+*/
+function filterBy(query, fields) {
+    if (typeof query !== 'string' || query.trim().length === 0) {
+        return;
+    }
+
+    return {
+        [Sequelize.Op.or]: fields.map((field) => {
+            return {
+                [field]: { [Sequelize.Op.iLike]: '%' + query + '%' }
+            };
+        })
+    };
+}
+
 function getRandomBytes(length) {
     return new Promise((resolve, reject) => {
         crypto.randomBytes(length / 2, (err, res) => {
@@ -130,5 +157,6 @@ module.exports = {
     traverseIndirectCircles,
     getPagination,
     getSorting,
+    filterBy,
     getRandomBytes
 };
