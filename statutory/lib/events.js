@@ -1,10 +1,11 @@
 const moment = require('moment');
+const deepAssign = require('deep-assign');
 
 const errors = require('./errors');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const { Sequelize } = require('./sequelize');
-const { Event, Image } = require('../models');
+const { Event, Image, Application } = require('../models');
 
 exports.addEvent = async (req, res) => {
     if (!req.permissions.create_event[req.body.type]) {
@@ -155,5 +156,32 @@ exports.getCandidatesFields = async (req, res) => {
     return res.json({
         success: true,
         data: constants.CANDIDATE_FIELDS
+    });
+};
+
+exports.listUserAppliedEvents = async (req, res) => {
+    const defaultQueryObj = {
+        where: {},
+        order: [['starts', 'ASC']],
+        select: constants.EVENT_PUBLIC_FIELDS
+    };
+
+    const queryObj = deepAssign(defaultQueryObj, {
+        where: {
+            '$applications.user_id$': req.user.id
+        },
+        subQuery: false,
+        include: [{
+            model: Application,
+            attributes: ['user_id'], // we only need user_id here
+            required: true
+        }]
+    });
+
+    const events = await Event.findAll(queryObj);
+
+    return res.json({
+        success: true,
+        data: events,
     });
 };

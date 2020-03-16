@@ -61,6 +61,7 @@ GeneralRouter.get('/', events.listEvents);
 GeneralRouter.use(middlewares.ensureAuthorized);
 GeneralRouter.post('/', events.addEvent);
 GeneralRouter.get('/tasks', middlewares.getTasksList);
+GeneralRouter.get('/mine', events.listUserAppliedEvents);
 
 PaxLimitsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, paxLimits.checkEventType);
 PaxLimitsRouter.get('/:body_id', paxLimits.getSingleLimit);
