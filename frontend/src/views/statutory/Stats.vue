@@ -293,13 +293,25 @@ export default {
       }
     },
     byQuorumData () {
-      const present = this.stats.by_body.length * 100 / this.bodies.length
+      const localsMap = {}
+      for (const body of this.bodies) {
+        if (['antenna', 'contact antenna', 'partner'].includes(body.type)) {
+          localsMap[body.id] = true
+        }
+      }
+
+      const total = Object.keys(localsMap).length
+      const present = this.stats.by_body
+        .filter((body) => body.type in localsMap)
+        .length
+
+      const quorum = present * 100 / total
       return {
-        labels: [`Present (${present.toFixed(2)}%)`, `Not present (${(100 - present).toFixed(2)}%)`],
+        labels: [`Present (${quorum.toFixed(2)}%)`, `Not present (${(100 - quorum).toFixed(2)}%)`],
         datasets: [{
           label: 'Quorum',
-          backgroundColor: this.colors,
-          data: [this.stats.by_body.length, this.bodies.length - this.stats.by_body.length]
+          backgroundColor: ['#C2DE5D', '#C45850'],
+          data: [present, total - present]
         }]
       }
     },
