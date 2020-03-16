@@ -34,7 +34,10 @@
               <div class="content" v-show="events.future.length > 0">
                 <ul>
                   <li v-for="event in events.future" v-bind:key="event.id">
-                    <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }">
+                    <router-link :to="{ name: 'oms.statutory.view', params: { id: event.url || event.id } }" v-if="constants.STATUTORY_TYPES_NAMES[event.type]">
+                      {{ event.name }} - {{ event.starts | date }}
+                    </router-link>
+                    <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }" v-else>
                       {{ event.name }} - {{ event.starts | date }}
                     </router-link>
                   </li>
@@ -50,7 +53,10 @@
               <div class="content" v-show="events.past.length > 0">
                 <ul>
                 <li v-for="event in events.past" v-bind:key="event.id">
-                  <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }">
+                  <router-link :to="{ name: 'oms.statutory.view', params: { id: event.url || event.id } }" v-if="constants.STATUTORY_TYPES_NAMES[event.type]">
+                    {{ event.name }}
+                  </router-link>
+                  <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }" v-else>
                     {{ event.name }}
                   </router-link>
                 </li>
@@ -115,11 +121,13 @@
 <script>
 import { mapGetters } from 'vuex'
 import moment from 'moment'
+import constants from '../../constants.js'
 
 export default {
   name: 'Dashboard',
   data () {
     return {
+      constants,
       user: {
         first_name: '',
         last_name: '',
@@ -154,17 +162,23 @@ export default {
       this.$root.showError('Could not fetch user', err)
     })
 
-    this.axios.get(this.services['oms-events'] + '/mine/participating').then((response) => {
-      for (const event of response.data.data) {
-        if (moment().isSameOrBefore(event.starts)) {
-          this.events.future.push(event)
-        } else {
-          this.events.past.push(event)
+    this.axios.get(this.services['oms-events'] + '/mine/participating').then((eventsResponse) => {
+      this.axios.get(this.services['oms-statutory'] + '/mine').then((statutoryResponse) => {
+        const input = eventsResponse.data.data.concat(statutoryResponse.data.data)
+        for (const event of input) {
+          if (moment().isSameOrBefore(event.starts)) {
+            this.events.future.push(event)
+          } else {
+            this.events.past.push(event)
+          }
         }
-      }
-      this.events.past.sort((e1, e2) => ((e1.name > e2.name) ? 1 : -1))
-      this.events.future.sort((e1, e2) => ((e1.name > e2.name) ? 1 : -1))
-      this.isLoading.events = false
+        this.events.past.sort((e1, e2) => ((e1.name > e2.name) ? 1 : -1))
+        this.events.future.sort((e1, e2) => ((e1.name > e2.name) ? 1 : -1))
+        this.isLoading.events = false
+      }).catch((err) => {
+        this.isLoading.events = false
+        this.$root.showError('Could not fetch statutory events list', err)
+      })
     }).catch((err) => {
       this.isLoading.events = false
       this.$root.showError('Could not fetch events list', err)
