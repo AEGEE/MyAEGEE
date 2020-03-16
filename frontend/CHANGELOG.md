@@ -1,3 +1,10 @@
+## [0.37.1](https://github.com/AEGEE/oms-frontend/compare/0.37.0...0.37.1) (2020-03-16)
+
+
+### Bug Fixes
+
+* **statutory:** fix quorum data ([30e4e90](https://github.com/AEGEE/oms-frontend/commit/30e4e9031ae379d6813199a4242ebc44a0c50580))
+
 # [0.37.0](https://github.com/AEGEE/oms-frontend/compare/0.36.0...0.37.0) (2020-03-14)
 
 
