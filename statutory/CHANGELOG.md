@@ -1,3 +1,10 @@
+# [0.31.0](https://github.com/AEGEE/oms-statutory/compare/0.30.0...0.31.0) (2020-03-16)
+
+
+### Features
+
+* **stats:** add participating info statutory ([#226](https://github.com/AEGEE/oms-statutory/issues/226)) ([7fe5bd0](https://github.com/AEGEE/oms-statutory/commit/7fe5bd0a6cf38ac1bf05a541d737ccda57e32d49))
+
 # [0.30.0](https://github.com/AEGEE/oms-statutory/compare/0.29.2...0.30.0) (2020-03-15)
 
 
