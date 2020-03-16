@@ -1,3 +1,10 @@
+# [0.38.0](https://github.com/AEGEE/oms-frontend/compare/0.37.1...0.38.0) (2020-03-16)
+
+
+### Features
+
+* add statutory events on dashboard ([#279](https://github.com/AEGEE/oms-frontend/issues/279)) ([afaccea](https://github.com/AEGEE/oms-frontend/commit/afaccea61fc641fe3982dcfdc3e0ece939397ff8))
+
 ## [0.37.1](https://github.com/AEGEE/oms-frontend/compare/0.37.0...0.37.1) (2020-03-16)
 
 
