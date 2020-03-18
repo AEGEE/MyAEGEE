@@ -49,10 +49,10 @@ debug:
 	./helper.sh -v --debug
 
 install-agents:
-	docker-compose -f oms-global/docker/docker-compose.yml -f oms-monitor-agents/docker/docker-compose.yml up -d
+	docker-compose -f oms-monitor-agents/docker/docker-compose.yml up -d
 
 remove-agents:
-	docker-compose -f oms-global/docker/docker-compose.yml -f oms-monitor-agents/docker/docker-compose.yml down
+	docker-compose -f oms-monitor-agents/docker/docker-compose.yml down
 
 config: debug
 # stop: # docker-compose stop
