@@ -18,63 +18,69 @@ rule_files:
 # Here it's Prometheus itself.
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
-  - job_name: 'local-diagnostics'
+  - job_name: 'scrape-app-diagnostics'
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
     static_configs:
       - targets:
-          - 'traefik:8080'
-          - 'cadvisor:8080'
-          - 'node-exporter-tunnel:5001'
           #  - 'statping:3000'
           - 'upmonitor:3000'
+          - 'prometheus:9090'
+          - 'grafana:3000'
 
   # - job_name: 'statping' #can't do up here because of the bearer token.
   #   bearer_token: 'MY API SECRET HERE'
   #   static_configs:
   #     - targets: ['statping:8080']
 
-  - job_name: 'staging-diagnostics-node'
+  - job_name: 'node-diagnostics'
+    basic_auth:
+      username: ${TRAEFIK_USERNAME}
+      password: ${TRAEFIK_PASSWORD}
     static_configs:
-      - targets: ['my.staging.aegee.eu']
+      - targets:
+          - 'traefik.aegee.eu'
+          - 'traefik.staging.aegee.eu'
+          - 'traefik.services.aegee.eu'
+          - 'traefik.commander.aegee.eu'
+          - 'traefik.monitor1.aegee.eu'
+          - 'traefik.monitor2.aegee.eu'
     metrics_path: '/ext-metrics/node-exporter/metrics'
-  - job_name: 'staging-diagnostics-cadvisor'
-    static_configs:
-      - targets: ['my.staging.aegee.eu']
-    metrics_path: '/ext-metrics/cadvisor/metrics'
-  - job_name: 'staging-diagnostics-traefik'
-    static_configs:
-      - targets: ['traefik.staging.aegee.eu']
-    metrics_path: '/metrics'
 
-  - job_name: 'production-diagnostics-node'
+  - job_name: 'container-diagnostics'
+    basic_auth:
+      username: ${TRAEFIK_USERNAME}
+      password: ${TRAEFIK_PASSWORD}
     static_configs:
-      - targets: ['my.aegee.eu']
-    metrics_path: '/ext-metrics/node-exporter/metrics'
-  - job_name: 'production-diagnostics-cadvisor'
-    static_configs:
-      - targets: ['my.aegee.eu']
+      - targets:
+          - 'traefik.aegee.eu'
+          - 'traefik.staging.aegee.eu'
+          - 'traefik.services.aegee.eu'
+          - 'traefik.commander.aegee.eu'
+          - 'traefik.monitor1.aegee.eu'
+          - 'traefik.monitor2.aegee.eu'
     metrics_path: '/ext-metrics/cadvisor/metrics'
-  - job_name: 'production-diagnostics-traefik'
-    static_configs:
-      - targets: ['traefik.aegee.eu']
-    metrics_path: '/metrics'
 
+  - job_name: 'traefik-diagnostics'
   # READ: https://docs.traefik.io/v1.7/configuration/api/#security
-  # - job_name: 'production-traefik'
-  #   static_configs:
-  #     - targets: ['traefik.aegee.eu']
-  # ^^^ it's better to put a /path instead of a subdomain because we don't have access to AEGEE DNS
-
-  - job_name: 'commander-diagnostics'
+    basic_auth:
+      username: ${TRAEFIK_USERNAME}
+      password: ${TRAEFIK_PASSWORD}
     static_configs:
-      - targets: ['commander.aegee.eu']
-    metrics_path: '/ext-metrics/node-exporter/metrics'
+      - targets:
+          - 'traefik.aegee.eu'
+          - 'traefik.staging.aegee.eu'
+          - 'traefik.services.aegee.eu'
+        labels:
+          group: 'applications'
+      - targets:
+          - 'traefik.commander.aegee.eu'
+          - 'traefik.monitor1.aegee.eu'
+          - 'traefik.monitor2.aegee.eu'
+        labels:
+          group: 'diagnostics'
+    metrics_path: '/metrics'
 
-  # - job_name: 'monitor2-diagnostics'
-  #   static_configs:
-  #     - targets: ['monitor2.aegee.eu']
-  #   metrics_path: '/services/node-exporter/metrics'
 
   # - job_name: 'blackbox'
   #   metrics_path: /probe
@@ -104,6 +110,7 @@ scrape_configs:
       - targets: ['my.aegee.eu']
     scrape_interval: 10s
     metrics_path: '/services/oms-statutory/api/metrics/requests'
+
   - job_name: 'events-statistics'
     static_configs:
       - targets: ['my.aegee.eu']
@@ -113,6 +120,7 @@ scrape_configs:
       - targets: ['my.aegee.eu']
     scrape_interval: 10s
     metrics_path: '/services/oms-events/api/metrics/requests'
+
   - job_name: 'discounts-statistics'
     static_configs:
       - targets: ['my.aegee.eu']
@@ -122,10 +130,3 @@ scrape_configs:
       - targets: ['my.aegee.eu']
     scrape_interval: 10s
     metrics_path: '/services/oms-discounts/api/metrics/requests'
-
-  # TODO: learn prometheus and put all in one, e.g.
-  # - job_name: 'discounts-metrics'
-  #     static_configs:
-  #       - targets: ['my.aegee.eu', 'my.staging.aegee.eu']
-  #     scrape_interval: 10s
-  #     metrics_path: '/services/oms-discounts/api/metrics/requests'

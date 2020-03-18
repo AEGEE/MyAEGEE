@@ -62,6 +62,7 @@ init_boot ()
     echo "manual things still to do (if applicable use-case): "
     echo "  init cachet files (oms-status/docker/setup.sh)"
     echo "  init grafana config with the slack token (vim oms-monitor/docker/config/gf-provisioning/notifiers/conf.yml)"
+    echo "  init prometheus scraping config with the basic auth (vim oms-monitor/docker/config/prometheus.yml)"
 }
 
 # change passwords (currently deploy.sh [calls an external script])
