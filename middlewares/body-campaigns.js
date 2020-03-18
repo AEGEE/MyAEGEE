@@ -8,7 +8,10 @@ exports.listAllCampaigns = async (req, res) => {
     }
 
     const result = await Campaign.findAndCountAll({
-        where: { autojoin_body_id: req.currentBody.id },
+        where: {
+            autojoin_body_id: req.currentBody.id,
+            ...helpers.filterBy(req.query.query, ['name', 'url', 'description_short', 'description_long'])
+        },
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query)
     });
