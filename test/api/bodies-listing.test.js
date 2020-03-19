@@ -93,8 +93,8 @@ describe('Bodies list', () => {
         const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
         const token = await generator.createAccessToken({}, user);
 
-        const firstBody = await generator.createBody({ name: 'AAA', code: 'ZZZ' });
-        await generator.createBody({ name: 'BBB', code: 'ZZZ' });
+        const firstBody = await generator.createBody({ name: 'AAA', code: 'ZZZ1' });
+        await generator.createBody({ name: 'BBB', code: 'ZZZ2' });
 
         const res = await request({
             uri: '/bodies?query=AAA', // first one should be returned
@@ -116,8 +116,8 @@ describe('Bodies list', () => {
         const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
         const token = await generator.createAccessToken({}, user);
 
-        const firstBody = await generator.createBody({ name: 'AAA', code: 'ZZZ' });
-        await generator.createBody({ name: 'BBB', code: 'ZZZ' });
+        const firstBody = await generator.createBody({ name: 'AAA', code: 'ZZZ1' });
+        await generator.createBody({ name: 'BBB', code: 'ZZZ2' });
 
         const res = await request({
             uri: '/bodies?query=aaa', // first one should be returned
