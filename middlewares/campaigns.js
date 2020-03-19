@@ -47,6 +47,7 @@ exports.listAllCampaigns = async (req, res) => {
     }
 
     const result = await Campaign.findAndCountAll({
+        where: helpers.filterBy(req.query.query, ['name', 'url', 'description_short', 'description_long']),
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query)
     });
