@@ -1,3 +1,11 @@
+# [1.4.0](https://github.com/AEGEE/oms-core-js/compare/1.3.0...1.4.0) (2020-03-19)
+
+
+### Features
+
+* **general:** campaigns filtering ([c40036b](https://github.com/AEGEE/oms-core-js/commit/c40036bbae95ad973eb347752a1f6ee90ab1a781))
+* **general:** fixed bodies listing tests ([e08e9c0](https://github.com/AEGEE/oms-core-js/commit/e08e9c040c71d09b2eed91bd8cd9fc9570ff801f))
+
 # [1.3.0](https://github.com/AEGEE/oms-core-js/compare/1.2.0...1.3.0) (2020-03-18)
 
 
