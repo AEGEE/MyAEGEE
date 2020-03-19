@@ -109,4 +109,284 @@ describe('Campaigns list', () => {
         expect(res.body.data[0].id).toEqual(secondCampaign.id);
         expect(res.body.data[1].id).toEqual(firstCampaign.id);
     });
+
+    test('should find by name case-sensitive', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
+
+        const campaign = await generator.createCampaign({
+            name: 'AAA',
+            url: 'url1',
+            description_short: 'TEST1',
+            description_long: 'ZZZ'
+        });
+
+        await generator.createCampaign({
+            name: 'BBB',
+            url: 'url2',
+            description_short: 'TEST1',
+            description_long: 'ZZZ'
+        });
+
+        const res = await request({
+            uri: '/campaigns?query=AAA',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(campaign.id);
+    });
+
+    test('should find by name case-insensitive', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
+
+        const campaign = await generator.createCampaign({
+            name: 'aaa',
+            url: 'url1',
+            description_short: 'TEST1',
+            description_long: 'ZZZ'
+        });
+
+        await generator.createCampaign({
+            name: 'BBB',
+            url: 'url2',
+            description_short: 'TEST1',
+            description_long: 'ZZZ'
+        });
+
+        const res = await request({
+            uri: '/campaigns?query=AAA',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(campaign.id);
+    });
+
+    test('should find by url case-sensitive', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
+
+        const campaign = await generator.createCampaign({
+            name: 'test',
+            url: 'AAA',
+            description_short: 'TEST1',
+            description_long: 'ZZZ'
+        });
+
+        await generator.createCampaign({
+            name: 'test',
+            url: 'BBB',
+            description_short: 'TEST1',
+            description_long: 'ZZZ'
+        });
+
+        const res = await request({
+            uri: '/campaigns?query=AAA',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(campaign.id);
+    });
+
+    test('should find by url case-insensitive', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
+
+        const campaign = await generator.createCampaign({
+            name: 'test',
+            url: 'aaa',
+            description_short: 'TEST1',
+            description_long: 'ZZZ'
+        });
+
+        await generator.createCampaign({
+            name: 'test',
+            url: 'bbb',
+            description_short: 'TEST1',
+            description_long: 'ZZZ'
+        });
+
+        const res = await request({
+            uri: '/campaigns?query=AAA',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(campaign.id);
+    });
+
+    test('should find by description_short case-sensitive', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
+
+        const campaign = await generator.createCampaign({
+            name: 'test',
+            url: 'test1',
+            description_short: 'AAA',
+            description_long: 'ZZZ'
+        });
+
+        await generator.createCampaign({
+            name: 'test',
+            url: 'test2',
+            description_short: 'BBB',
+            description_long: 'ZZZ'
+        });
+
+        const res = await request({
+            uri: '/campaigns?query=AAA',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(campaign.id);
+    });
+
+    test('should find by description_short case-insensitive', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
+
+        const campaign = await generator.createCampaign({
+            name: 'test1',
+            url: 'test1',
+            description_short: 'aaa',
+            description_long: 'ZZZ'
+        });
+
+        await generator.createCampaign({
+            name: 'test2',
+            url: 'test2',
+            description_short: 'bbb',
+            description_long: 'ZZZ'
+        });
+
+        const res = await request({
+            uri: '/campaigns?query=AAA',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(campaign.id);
+    });
+
+    test('should find by description_long case-sensitive', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
+
+        const campaign = await generator.createCampaign({
+            name: 'test',
+            url: 'test1',
+            description_short: 'test',
+            description_long: 'AAA'
+        });
+
+        await generator.createCampaign({
+            name: 'test',
+            url: 'test2',
+            description_short: 'test',
+            description_long: 'ZZZ'
+        });
+
+        const res = await request({
+            uri: '/campaigns?query=AAA',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(campaign.id);
+    });
+
+    test('should find by description_long case-insensitive', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
+
+        const campaign = await generator.createCampaign({
+            name: 'test1',
+            url: 'test1',
+            description_short: 'test',
+            description_long: 'aaa'
+        });
+
+        await generator.createCampaign({
+            name: 'test2',
+            url: 'test2',
+            description_short: 'test',
+            description_long: 'bbb'
+        });
+
+        const res = await request({
+            uri: '/campaigns?query=AAA',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(campaign.id);
+    });
 });
