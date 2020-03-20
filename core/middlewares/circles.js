@@ -6,6 +6,7 @@ const { sequelize } = require('../lib/sequelize');
 
 exports.listAllCircles = async (req, res) => {
     const result = await Circle.findAndCountAll({
+        where: helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.CIRCLE),
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query)
     });
