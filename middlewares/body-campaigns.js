@@ -1,6 +1,7 @@
 const { Campaign } = require('../models');
 const helpers = require('../lib/helpers');
 const errors = require('../lib/errors');
+const constants = require('../lib/constants');
 
 exports.listAllCampaigns = async (req, res) => {
     if (!req.permissions.hasPermission('view:campaign')) {
@@ -10,7 +11,7 @@ exports.listAllCampaigns = async (req, res) => {
     const result = await Campaign.findAndCountAll({
         where: {
             autojoin_body_id: req.currentBody.id,
-            ...helpers.filterBy(req.query.query, ['name', 'url', 'description_short', 'description_long'])
+            ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.CAMPAIGNS)
         },
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query)
