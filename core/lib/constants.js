@@ -6,7 +6,11 @@ module.exports = {
         },
         CIRCLE: {
             CREATE: ['name', 'description']
-        }
+        },
+    },
+    FIELDS_TO_QUERY: {
+        BODY: ['code', 'name'],
+        CAMPAIGNS: ['name', 'url', 'description_short', 'description_long']
     },
     TOKEN_LENGTH: {
         MAIL_CONFIRMATION: 128,
