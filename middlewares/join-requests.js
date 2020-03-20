@@ -1,6 +1,7 @@
-const { JoinRequest, BodyMembership } = require('../models');
+const { JoinRequest, BodyMembership, User } = require('../models');
 const errors = require('../lib/errors');
 const helpers = require('../lib/helpers');
+const constants = require('../lib/constants');
 const { sequelize } = require('../lib/sequelize');
 
 exports.listAllJoinRequests = async (req, res) => {
@@ -9,9 +10,13 @@ exports.listAllJoinRequests = async (req, res) => {
     }
 
     const result = await JoinRequest.findAndCountAll({
-        where: { body_id: req.currentBody.id },
+        where: {
+            ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.JOIN_REQUEST),
+            body_id: req.currentBody.id,
+        },
         ...helpers.getPagination(req.query),
-        order: helpers.getSorting(req.query)
+        order: helpers.getSorting(req.query),
+        include: [User]
     });
 
     return res.json({

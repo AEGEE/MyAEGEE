@@ -146,4 +146,94 @@ describe('Join requests list', () => {
         expect(res.body).toHaveProperty('message');
         expect(res.body).not.toHaveProperty('data');
     });
+
+    test('should find by user first name', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        const body = await generator.createBody();
+
+
+        const user1 = await generator.createUser({ first_name: 'aaa', last_name: 'zzz', email: 'zzz@test.io' });
+        const joinRequest = await generator.createJoinRequest(body, user1);
+
+        const user2 = await generator.createUser({ first_name: 'bbb', last_name: 'zzz', email: 'zzz2@test.io' });
+        await generator.createJoinRequest(body, user2);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'join_request' });
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/join-requests?query=aaa',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(joinRequest.id);
+    });
+
+    test('should find by user last name', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        const body = await generator.createBody();
+
+
+        const user1 = await generator.createUser({ first_name: 'zzz', last_name: 'aaa', email: 'zzz@test.io' });
+        const joinRequest = await generator.createJoinRequest(body, user1);
+
+        const user2 = await generator.createUser({ first_name: 'zzz', last_name: 'bbb', email: 'zzz2@test.io' });
+        await generator.createJoinRequest(body, user2);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'join_request' });
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/join-requests?query=aaa',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(joinRequest.id);
+    });
+
+    test('should find by user email', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        const body = await generator.createBody();
+
+
+        const user1 = await generator.createUser({ first_name: 'zzz', last_name: 'zzz', email: 'aaa@test.io' });
+        const joinRequest = await generator.createJoinRequest(body, user1);
+
+        const user2 = await generator.createUser({ first_name: 'zzz', last_name: 'zzz', email: 'bbb@test.io' });
+        await generator.createJoinRequest(body, user2);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'join_request' });
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/join-requests?query=aaa',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(joinRequest.id);
+    });
 });
