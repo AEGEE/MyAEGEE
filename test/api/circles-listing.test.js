@@ -85,4 +85,48 @@ describe('Circles list', () => {
         expect(res.body.data[0].id).toEqual(secondCircle.id);
         expect(res.body.data[1].id).toEqual(firstCircle.id);
     });
+
+    test('should find by name', async () => {
+        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const token = await generator.createAccessToken({}, user);
+
+        const circle = await generator.createCircle({ name: 'aaa', description: 'zzz' });
+        await generator.createCircle({ name: 'bbb', description: 'zzz' });
+
+        const res = await request({
+            uri: '/circles?query=aaa',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(circle.id);
+    });
+
+    test('should find by description', async () => {
+        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const token = await generator.createAccessToken({}, user);
+
+        const circle = await generator.createCircle({ name: 'zzz', description: 'aaa' });
+        await generator.createCircle({ name: 'zzz', description: 'bbb' });
+
+        const res = await request({
+            uri: '/circles?query=aaa',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(circle.id);
+    });
 });
