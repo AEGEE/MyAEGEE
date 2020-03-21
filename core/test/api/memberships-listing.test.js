@@ -144,4 +144,112 @@ describe('Memberships list', () => {
         expect(res.body).toHaveProperty('message');
         expect(res.body).not.toHaveProperty('data');
     });
+
+    test('should find by user first name', async () => {
+        const user = await generator.createUser({
+            superadmin: true,
+            first_name: 'aaa',
+            last_name: 'zzz',
+            email: 'test@test.io'
+        });
+        const token = await generator.createAccessToken({}, user);
+
+        const body = await generator.createBody();
+        const membership = await generator.createBodyMembership(body, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view_member', object: 'body' });
+
+        await generator.createUser({
+            superadmin: true,
+            first_name: 'zzz',
+            last_name: 'zzz',
+            email: 'test2@test.io'
+        });
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/members?query=aaa',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(membership.id);
+    });
+
+    test('should find by user last name', async () => {
+        const user = await generator.createUser({
+            superadmin: true,
+            first_name: 'zzz',
+            last_name: 'aaa',
+            email: 'test@test.io'
+        });
+        const token = await generator.createAccessToken({}, user);
+
+        const body = await generator.createBody();
+        const membership = await generator.createBodyMembership(body, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view_member', object: 'body' });
+
+        await generator.createUser({
+            superadmin: true,
+            first_name: 'zzz',
+            last_name: 'zzz',
+            email: 'test2@test.io'
+        });
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/members?query=aaa',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(membership.id);
+    });
+
+    test('should find by user email', async () => {
+        const user = await generator.createUser({
+            superadmin: true,
+            first_name: 'zzz',
+            last_name: 'zzz',
+            email: 'aaa@test.io'
+        });
+        const token = await generator.createAccessToken({}, user);
+
+        const body = await generator.createBody();
+        const membership = await generator.createBodyMembership(body, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view_member', object: 'body' });
+
+        await generator.createUser({
+            superadmin: true,
+            first_name: 'zzz',
+            last_name: 'zzz',
+            email: 'test@test.io'
+        });
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/members?query=aaa',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(membership.id);
+    });
 });
