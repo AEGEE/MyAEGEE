@@ -108,4 +108,71 @@ describe('Users list', () => {
         expect(res.body.data[0].id).toEqual(secondUser.id);
         expect(res.body.data[1].id).toEqual(firstUser.id);
     });
+
+
+    test('should find by first_name', async () => {
+        const user = await generator.createUser({ superadmin: true, first_name: 'aaa', last_name: 'bbb', email: 'ccc@test.io' });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
+        await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'zzz', email: 'zzz@test.io' });
+
+        const res = await request({
+            uri: '/members?query=aaa',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(user.id);
+    });
+
+    test('should find by last_name', async () => {
+        const user = await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'aaa', email: 'ccc@test.io' });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
+        await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'zzz', email: 'zzz@test.io' });
+
+        const res = await request({
+            uri: '/members?query=aaa',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(user.id);
+    });
+
+    test('should find by email', async () => {
+        const user = await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'zzz', email: 'aaa@test.io' });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
+        await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'zzz', email: 'zzz@test.io' });
+
+        const res = await request({
+            uri: '/members?query=aaa',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(user.id);
+    });
 });
