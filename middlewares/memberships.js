@@ -4,6 +4,7 @@ const {
     User
 } = require('../models');
 const helpers = require('../lib/helpers');
+const constants = require('../lib/constants');
 const errors = require('../lib/errors');
 
 exports.listAllMemberships = async (req, res) => {
@@ -12,7 +13,10 @@ exports.listAllMemberships = async (req, res) => {
     }
 
     const result = await BodyMembership.findAndCountAll({
-        where: { body_id: req.currentBody.id },
+        where: {
+            body_id: req.currentBody.id,
+            ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.BODY_MEMBERSHIP)
+        },
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query),
         include: [User]
