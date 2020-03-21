@@ -5,8 +5,10 @@ docker cp to backup dbs (ciao, statping, prometheus)
 put the prometheus.yml and the
   gf-provisioning/notifiers/conf.yml after envsubst
 
+Also the logstash conf
+
 
 https://grafana.com/grafana/dashboards/4271
 
 (future) aggregate all metrics of apis in one endpoint (a specific rewrite url rule in traefik label wont work)
-(future) aggregate all metrics of apis in one endpoint
+(future) aggregate all statistics of apis in one endpoint
