@@ -16,7 +16,14 @@ module.exports = {
             '$user.first_name$',
             '$user.last_name$',
             '$user.email$',
-        ]
+        ],
+        BODY_MEMBERSHIP: [
+            '$user.first_name$',
+            '$user.last_name$',
+            '$user.email$',
+        ],
+        MEMBER: ['first_name', 'last_name', 'email'],
+        PERMISSION: ['combined', 'description']
     },
     TOKEN_LENGTH: {
         MAIL_CONFIRMATION: 128,
