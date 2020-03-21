@@ -85,4 +85,48 @@ describe('Permission list', () => {
         expect(res.body.data[0].id).toEqual(secondPermission.id);
         expect(res.body.data[1].id).toEqual(firstPermission.id);
     });
+
+    test('should find by combined', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken({}, user);
+
+        const permission = await generator.createPermission({ scope: 'global', action: 'action', object: 'object' });
+        await generator.createPermission({ scope: 'global', action: 'action2', object: 'object2' });
+
+        const res = await request({
+            uri: '/permissions?query=global:action:object',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(permission.id);
+    });
+
+    test('should find by description', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken({}, user);
+
+        const permission = await generator.createPermission({ description: 'test' });
+        await generator.createPermission({ description: 'zzz' });
+
+        const res = await request({
+            uri: '/permissions?query=test',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(permission.id);
+    });
 });
