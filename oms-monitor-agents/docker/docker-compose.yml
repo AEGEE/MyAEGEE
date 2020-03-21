@@ -19,6 +19,7 @@ services:
       - "traefik.frontend.rule=Host:${SUBDOMAIN_TRAEFIK}${BASE_URL};PathPrefix:/ext-metrics/cadvisor;PathPrefixStrip:/ext-metrics/cadvisor"
       - "traefik.frontend.priority=110"
       - "traefik.enable=true"
+      - traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}
 
   node-exporter:
     image: prom/node-exporter:v0.18.1
@@ -35,7 +36,7 @@ services:
 
   node-exporter-tunnel:
     image: kingsquare/tunnel:forward
-    command: "*:5001:127.0.0.1:9100 oms-service@${HOSTNAME}.${BASE_URL} -p 3022"
+    command: "*:5001:127.0.0.1:9100 oms-service@${HOSTNAME}.${BASE_URL} -p ${SSH_PORT:-3322}"
     expose:
       - "5001"
     volumes:
@@ -46,24 +47,27 @@ services:
       - "traefik.frontend.rule=Host:${SUBDOMAIN_TRAEFIK}${BASE_URL};PathPrefix:/ext-metrics/node-exporter;PathPrefixStrip:/ext-metrics/node-exporter"
       - "traefik.frontend.priority=110"
       - "traefik.enable=true"
+      - traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}
 
-  # logstash-tunnel:
-  #   image: kingsquare/tunnel:forward
-  #   command: "*:5000:127.0.0.1:5000 oms-service@monitor.${BASE_URL}"
-  #   expose:
-  #     - "5000"
-  #   volumes:
-  #     - /"home/oms-service/.ssh/:/ssh-agent:ro"
+  logstash-tunnel:
+    image: kingsquare/tunnel:forward
+    #monitorhost below is an alias that is in the ssh config file
+    command: "*:5000:127.0.0.1:5000 oms-service@monitorhost -p ${SSH_PORT:-3322}"
+    expose:
+      - "5000"
+    volumes:
+      - "/home/oms-service/.ssh/:/root/.ssh:ro"
 
-  # logspout:
-  #   image: gliderlabs/logspout:v3.2.6
-  #   volumes:
-  #       - /var/run/docker.sock:/var/run/docker.sock:ro
-  #   environment:
-  #       ROUTE_URIS: "logstash://logstash-tunnel:5000"
-  #   depends_on:
-  #     - logstash-tunnel
-  #   restart: on-failure
+  logspout:
+    image: aegee/logspout-logstash:v3.2.6
+    volumes:
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+        ROUTE_URIS: "logstash+tcp://logstash-tunnel:5000"
+        LOGSTASH_TAGS: "${HOSTNAME}"
+    depends_on:
+      - logstash-tunnel
+    restart: on-failure
 
 #   metricbeat:
 #     #image: docker.elastic.co/beats/metricbeat:6.4.2
