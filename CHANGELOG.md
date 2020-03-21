@@ -1,3 +1,14 @@
+# [1.5.0](https://github.com/AEGEE/oms-core-js/compare/1.4.0...1.5.0) (2020-03-21)
+
+
+### Features
+
+* **general:** circles filtering ([9563f90](https://github.com/AEGEE/oms-core-js/commit/9563f90a6c60c97fee3ce6901e133979308ec03f))
+* **general:** join requests filtering ([218a2a1](https://github.com/AEGEE/oms-core-js/commit/218a2a18da352be52e4def8c96568df438110ee6))
+* **general:** members filtering ([aac2a27](https://github.com/AEGEE/oms-core-js/commit/aac2a27e6ed5a4fad67982e65cfbb730a9cd7a45))
+* **general:** memberships filtering ([2d64fa6](https://github.com/AEGEE/oms-core-js/commit/2d64fa635cce50274b71e0f732752c814f5814ec))
+* **general:** permissions filtering ([a6bdbb4](https://github.com/AEGEE/oms-core-js/commit/a6bdbb451f4ff0f1ccaabb6e4dac67fc039e3dfa))
+
 # [1.4.0](https://github.com/AEGEE/oms-core-js/compare/1.3.0...1.4.0) (2020-03-19)
 
 
