@@ -1,10 +1,12 @@
 const { Permission } = require('../models');
 const helpers = require('../lib/helpers');
 const errors = require('../lib/errors');
+const constants = require('../lib/constants');
 
 exports.listAllPermissions = async (req, res) => {
     // TODO: add filtering
     const result = await Permission.findAndCountAll({
+        where: helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.PERMISSION),
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query)
     });
