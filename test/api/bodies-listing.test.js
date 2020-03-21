@@ -203,4 +203,24 @@ describe('Bodies list', () => {
         expect(res.body.data.length).toEqual(1);
         expect(res.body.data[0].id).toEqual(firstBody.id);
     });
+
+    test('should filter deleted bodies', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createBody({ status: 'deleted' });
+
+        const res = await request({
+            uri: '/bodies',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).toHaveProperty('meta');
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body.data.length).toEqual(0);
+    });
 });

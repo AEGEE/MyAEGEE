@@ -7,7 +7,7 @@ const { sequelize } = require('../lib/sequelize');
 
 exports.listAllBodies = async (req, res) => {
     const result = await Body.findAndCountAll({
-        where: helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.BODY),
+        where: { status: 'active' },
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query)
     });
