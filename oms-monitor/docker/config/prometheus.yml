@@ -7,7 +7,7 @@ global:
   # Attach these labels to any time series or alerts when communicating with
   # external systems (federation, remote storage, Alertmanager).
   external_labels:
-    monitor: 'oms-monitor'
+    monitor: 'monitor-from-${HOSTNAME}'
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
@@ -23,15 +23,11 @@ scrape_configs:
     # scheme defaults to 'http'.
     static_configs:
       - targets:
-          #  - 'statping:3000'
+          - 'statping:8080'
           - 'upmonitor:3000'
           - 'prometheus:9090'
           - 'grafana:3000'
-
-  # - job_name: 'statping' #can't do up here because of the bearer token.
-  #   bearer_token: 'MY API SECRET HERE'
-  #   static_configs:
-  #     - targets: ['statping:8080']
+    bearer_token: ${STATPING_TOKEN} # I presume this header is ignored by other services
 
   - job_name: 'node-diagnostics'
     basic_auth:
@@ -42,9 +38,14 @@ scrape_configs:
           - 'traefik.aegee.eu'
           - 'traefik.staging.aegee.eu'
           - 'traefik.services.aegee.eu'
+        labels:
+          group: 'applications'
+      - targets:
           - 'traefik.commander.aegee.eu'
           - 'traefik.monitor1.aegee.eu'
           - 'traefik.monitor2.aegee.eu'
+        labels:
+          group: 'diagnostics'
     metrics_path: '/ext-metrics/node-exporter/metrics'
 
   - job_name: 'container-diagnostics'
@@ -56,9 +57,14 @@ scrape_configs:
           - 'traefik.aegee.eu'
           - 'traefik.staging.aegee.eu'
           - 'traefik.services.aegee.eu'
+        labels:
+          group: 'applications'
+      - targets:
           - 'traefik.commander.aegee.eu'
           - 'traefik.monitor1.aegee.eu'
           - 'traefik.monitor2.aegee.eu'
+        labels:
+          group: 'diagnostics'
     metrics_path: '/ext-metrics/cadvisor/metrics'
 
   - job_name: 'traefik-diagnostics'
