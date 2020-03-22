@@ -1,3 +1,10 @@
+# [0.32.0](https://github.com/AEGEE/oms-statutory/compare/0.31.0...0.32.0) (2020-03-22)
+
+
+### Features
+
+* **logging:** switched to Bunyan, log json in production ([28a29af](https://github.com/AEGEE/oms-statutory/commit/28a29affb886c8ae785a115bbc7869f93fe7d659))
+
 # [0.31.0](https://github.com/AEGEE/oms-statutory/compare/0.30.0...0.31.0) (2020-03-16)
 
 
