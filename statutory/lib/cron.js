@@ -9,27 +9,27 @@ const JobCallbacks = {
         const plenary = await Plenary.findByPk(id);
 
         if (!plenary) {
-            logger.warn(`Closing attendances for plenary ${id}: Plenary is not found.`);
+            logger.warn({ id }, 'Closing attendances for plenary: Plenary is not found.');
             return;
         }
 
         await plenary.closeAttendances();
-        logger.info(`Closing attendances for plenary ${id}: Successfully closed attendances for plenary #${id} (${plenary.name})`);
+        logger.info({ plenary }, 'Closing attendances for plenary: Successfully closed attendances for plenary');
     },
     OPEN_POSITION_APPLICATIONS: async ({ id }) => {
         const position = await Position.findByPk(id);
         if (!position) {
-            logger.warn(`Opening applications for position ${id}: Position is not found.`);
+            logger.warn({ id }, 'Opening applications for position: Position is not found.');
             return;
         }
 
         if (position.status !== 'closed') {
-            logger.warn(`Opening applications for position ${id}: Position status is not closed.`);
+            logger.warn({ position }, 'Opening applications for position: Position status is not closed.');
             return;
         }
 
         await position.update({ status: 'open' }, { hooks: false });
-        logger.info(`Opening applications for position ${id}: Successfully opened deadline for position #${id} (${position.name})`);
+        logger.info({ position }, 'Opening applications for position: Successfully opened deadline for position');
     },
     CLOSE_POSITION_APPLICATIONS: async ({ id, force = false }) => {
         const position = await Position.findByPk(id, {
@@ -37,12 +37,12 @@ const JobCallbacks = {
         });
 
         if (!position) {
-            logger.warn(`Closing applications for position ${id}: Position is not found.`);
+            logger.warn({ id }, 'Closing applications for position: Position is not found.');
             return;
         }
 
         if (position.status === 'closed') {
-            logger.warn(`Closing applications for position ${id}: Position status is not open.`);
+            logger.warn({ position }, 'Closing applications for position: Position status is not open.');
             return;
         }
 
@@ -52,12 +52,16 @@ const JobCallbacks = {
             .length;
 
         if (candidates <= position.places && !force) {
-            logger.warn(`Closing applications for position ${id}: not filled all the places (required ${position.places}, applied ${candidates})`);
+            logger.warn({
+                position,
+                places: position.places,
+                candidates,
+            }, 'Closing applications for position: not filled all the places');
             return;
         }
 
         await position.update({ status: 'closed' }, { hooks: false });
-        logger.info(`Closing applications for position ${id}: Successfully closed deadline for position #${id} (${position.name})`);
+        logger.info({ position }, 'Closing applications for position: Successfully closed deadline for position');
     }
 };
 
@@ -93,8 +97,11 @@ class JobManager {
         } = jobType;
 
         if (moment().isAfter(time)) {
-            logger.warn(`Job "${description}" with params %o is not added: \
-is in the past (${moment(time).format('YYYY-MM-DD HH:mm:SS')}), not scheduling.`, params);
+            logger.warn({
+                description,
+                scheduled_on: moment(time).format('YYYY-MM-DD HH:mm:SS'),
+                params
+            }, 'Job is not added: is in the past, not scheduling.');
             return;
         }
 
@@ -111,33 +118,36 @@ is in the past (${moment(time).format('YYYY-MM-DD HH:mm:SS')}), not scheduling.`
             callback,
             job
         };
-        logger.info(`Added a job: "${description}" with id ${id}, \
-scheduled on ${moment(time).format('YYYY-MM-DD HH:mm:SS')}, \
-with the following params: %o`, params);
+        logger.info({
+            id,
+            description,
+            scheduled_on: moment(time).format('YYYY-MM-DD HH:mm:SS'),
+            params
+        }, 'Added a job');
         return id;
     }
 
     async executeJob(id) {
         const job = this.jobs[id];
         if (!job) {
-            logger.warn(`Job with ID #${id} is not found.`);
+            logger.warn({ id }, 'Job is not found.');
             return;
         }
 
-        logger.info(`Executing job #${job.id}: "${job.description}", scheduled on ${moment(job.time).format('YYYY-MM-DD HH:mm:SS')}.`);
+        logger.info({ job }, 'Executing job');
         await job.callback(job.params);
-        logger.info(`Executed job #${job.id}: "${job.description}", scheduled on ${moment(job.time).format('YYYY-MM-DD HH:mm:SS')}.`);
+        logger.info({ job }, 'Executed job');
         delete this.jobs[id];
     }
 
     cancelJob(id) {
         const job = this.jobs[id];
         if (!job) {
-            logger.warn(`Job with ID #${id} is not found.`);
+            logger.warn({ id }, 'Job is not found.');
             return;
         }
 
-        logger.info(`Cancelling job #${job.id}: "${job.description}", scheduled on ${moment(job.time).format('YYYY-MM-DD HH:mm:SS')}.`);
+        logger.info({ job }, 'Cancelling job');
         scheduler.cancelJob(job.job);
         delete this.jobs[id];
     }
@@ -145,7 +155,7 @@ with the following params: %o`, params);
     // eslint-disable-next-line class-methods-use-this
     async registerAllDeadlines() {
         const positions = await Position.findAll({});
-        logger.info(`Registering deadline for ${positions.length} positions...`);
+        logger.info({ count: positions.length }, 'Registering deadline for positions...');
         for (const position of positions) {
             // Triggering model update to run hooks to set deadlines.
             position.changed('id', true);
@@ -153,7 +163,7 @@ with the following params: %o`, params);
         }
 
         const plenaries = await Plenary.findAll({});
-        logger.info(`Registering deadline for ${plenaries.length} plenaries...`);
+        logger.info({ count: plenaries.length }, 'Registering deadline for plenaries...');
         for (const plenary of plenaries) {
             if (moment().isAfter(plenary.ends)) {
                 await plenary.closeAttendances();

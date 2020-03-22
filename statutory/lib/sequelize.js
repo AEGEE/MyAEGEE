@@ -9,7 +9,7 @@ const config = require('../config');
 const requiredFields = ['database', 'username', 'password', 'host', 'port'];
 for (const field of requiredFields) {
     if (typeof config.postgres[field] === 'undefined') { // if var is set
-        logger.error('Missing config field: config.postgres.%s', field);
+        logger.error({ field: 'config.postgres.' + field }, 'Missing config field');
         process.exit(1);
     }
 }
@@ -20,7 +20,7 @@ const getSequelize = () => new Sequelize(config.postgres.database, config.postgr
     host: config.postgres.host,
     port: config.postgres.port,
     dialect: 'postgres',
-    logging: sql => logger.debug(sql),
+    logging: query => logger.debug({ query }, 'DB request'),
 });
 
 let sequelize = getSequelize();
@@ -35,14 +35,11 @@ exports.authenticate = async () => {
 
     try {
         await sequelize.authenticate();
-        logger.info(
-            'Connected to PostgreSQL at postgres://%s:%s/%s',
-            config.postgres.host,
-            config.postgres.port,
-            config.postgres.database
-        );
+        logger.info({
+            host: `postgres://${config.postgres.host}:${config.postgres.port}/${config.postgres.database}`
+        }, 'Connected to PostgreSQL');
     } catch (err) {
-        logger.error('Unable to connect to the database: %s', err);
+        logger.error({ err }, 'Unable to connect to the database');
         process.exit(1);
     }
 };

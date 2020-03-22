@@ -32,7 +32,7 @@ exports.sendAll = async (req, res) => {
         where: { event_id: req.event.id, ...filterObject }
     });
 
-    logger.info(`Sending mass mailer to ${applications.length} users`);
+    logger.info({ count: applications.length }, 'Sending mass mailer to users');
 
     if (applications.length === 0) {
         return errors.makeBadRequestError(res, 'No users match this filter.');
@@ -61,10 +61,10 @@ exports.sendAll = async (req, res) => {
         to.push(email);
         bodies.push({ body: text });
 
-        logger.info('Prepared email to ' + email + '...');
+        logger.info({ email }, 'Prepared email');
     }
 
-    logger.info('Prepared letters: ' + bodies.length);
+    logger.info({ count: bodies.length }, 'Prepared letters');
 
     await mailer.sendMail({
         reply_to: req.body.reply_to,

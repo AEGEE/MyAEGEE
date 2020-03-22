@@ -1,28 +1,11 @@
-const winston = require('winston');
+const bunyan = require('bunyan');
 
 const config = require('../config');
+const packageInfo = require('../package');
 
-const logger = winston.createLogger({
-    level: config.logger.level,
-    silent: config.logger.silent,
-    format: winston.format.json(),
-    transports: [
-        new winston.transports.Console({
-            format: winston.format.combine(
-                winston.format.colorize(),
-                winston.format.timestamp(),
-                winston.format.align(),
-                winston.format.splat(),
-                winston.format.printf(info => `${info.timestamp} [${info.level}]: ${info.message}`),
-            )
-        })
-    ]
+const logger = bunyan.createLogger({
+    name: packageInfo.name,
+    level: config.logger.silent ? bunyan.FATAL + 1 : config.logger.level
 });
-
-logger.stream = {
-    write(message) {
-        logger.info(message.substring(0, message.lastIndexOf('\n')));
-    }
-};
 
 module.exports = logger;

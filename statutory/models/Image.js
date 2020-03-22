@@ -54,7 +54,7 @@ Image.afterDestroy(async (image) => {
     try {
         await fs.remove(fileName);
     } catch (err) {
-        logger.warn(`Could not remove file ${fileName} when deleting image: ${err}`);
+        logger.warn({ err }, `Could not remove file ${fileName} when deleting image`);
     }
 });
 

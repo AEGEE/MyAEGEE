@@ -182,10 +182,10 @@ server.use(middlewares.errorHandler);
 let app;
 async function startServer() {
     return new Promise((res, rej) => {
-        log.info('Starting server with the following config: %o', config);
+        log.info({ config }, 'Starting server with the following config');
         const localApp = server.listen(config.port, async () => {
             app = localApp;
-            log.info('Up and running, listening on http://localhost:%d', config.port);
+            log.info({ host: 'http://localhost:' + config.port }, 'Up and running, listening');
             await db.authenticate();
             await cron.registerAllDeadlines();
             return res();

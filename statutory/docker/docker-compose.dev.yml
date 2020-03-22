@@ -6,6 +6,7 @@ services:
       context: ./${PATH_OMS_STATUTORY}/..
       dockerfile: ./docker/oms-statutory/Dockerfile
     image: aegee/oms-statutory:dev
+    command: sh -c "sh /usr/app/scripts/bootstrap.sh && nodemon -e 'js,json' lib/run.js | bunyan"
     volumes:
       - /usr/app/src/node_modules
       - ./${PATH_OMS_STATUTORY}/../:/usr/app/src

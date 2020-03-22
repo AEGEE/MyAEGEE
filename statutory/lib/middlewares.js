@@ -231,7 +231,7 @@ exports.errorHandler = (err, req, res, next) => {
     }
 
     /* istanbul ignore next */
-    logger.error(err.stack);
+    logger.error({ err });
     /* istanbul ignore next */
     return errors.makeInternalError(res, err);
 };
