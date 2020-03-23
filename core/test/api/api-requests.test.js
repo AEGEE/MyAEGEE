@@ -29,7 +29,7 @@ describe('API requests', () => {
     });
 
     test('should fail if the request is not JSON', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
         const res = await request({

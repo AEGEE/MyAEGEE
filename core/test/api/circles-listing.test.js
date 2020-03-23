@@ -16,7 +16,7 @@ describe('Circles list', () => {
     });
 
     test('should succeed when everything is okay', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
         const circle = await generator.createCircle();
@@ -37,7 +37,7 @@ describe('Circles list', () => {
     });
 
     test('should respect limit and offset', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
         await generator.createCircle();
@@ -63,7 +63,7 @@ describe('Circles list', () => {
     });
 
     test('should respect sorting', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
         const firstCircle = await generator.createCircle({ name: 'aaa' });
@@ -87,7 +87,7 @@ describe('Circles list', () => {
     });
 
     test('should find by name', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
         const circle = await generator.createCircle({ name: 'aaa', description: 'zzz' });
@@ -109,7 +109,7 @@ describe('Circles list', () => {
     });
 
     test('should find by description', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
         const circle = await generator.createCircle({ name: 'zzz', description: 'aaa' });
@@ -131,7 +131,7 @@ describe('Circles list', () => {
     });
 
     test('should not return bound circles without ?all=true', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
         const body = await generator.createBody();
@@ -151,7 +151,7 @@ describe('Circles list', () => {
     });
 
     test('should return bound circles with ?all=true', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
         const body = await generator.createBody();

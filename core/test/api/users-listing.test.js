@@ -82,7 +82,6 @@ describe('Users list', () => {
     test('should respect sorting', async () => {
         const firstUser = await generator.createUser({
             first_name: 'aaa',
-            password: 'test',
             mail_confirmed_at: new Date(),
             superadmin: true
         });
