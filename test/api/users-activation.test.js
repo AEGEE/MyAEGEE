@@ -19,7 +19,7 @@ describe('User activation', () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
 
-        await generator.createPermission({ scope: 'local', action: 'update_active', object: 'member' });
+        await generator.createPermission({ scope: 'global', action: 'update_active', object: 'member' });
 
         const res = await request({
             uri: '/members/1337/active',

@@ -135,11 +135,15 @@ User.beforeValidate(async (user) => {
     if (typeof user.about_me === 'string') user.about_me = user.about_me.trim();
 });
 
-User.afterValidate(async (user) => {
+async function encryptPassword(user) {
     if (user.changed('password')) {
-        user.password = await bcrypt.hash(user.password, config.salt_rounds);
+        user.setDataValue('password', await bcrypt.hash(user.password, config.salt_rounds));
     }
-});
+}
+
+User.beforeCreate(encryptPassword);
+User.beforeUpdate(encryptPassword);
+
 
 User.prototype.checkPassword = async function checkPassword(password) {
     return bcrypt.compare(password, this.password);
