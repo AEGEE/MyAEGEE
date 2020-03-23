@@ -34,6 +34,7 @@ const User = sequelize.define('user', {
         validate: {
             notNull: { msg: 'Password should be set.' },
             notEmpty: { msg: 'Password should be set.' },
+            len: { args: [8], msg: 'Password should be at least 8 characters long.' }
         }
     },
     mail_confirmed_at: {

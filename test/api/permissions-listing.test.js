@@ -37,7 +37,7 @@ describe('Permission list', () => {
     });
 
     test('should respect limit and offset', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
         await generator.createPermission();
@@ -63,7 +63,7 @@ describe('Permission list', () => {
     });
 
     test('should respect sorting', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
         const firstPermission = await generator.createPermission({ action: 'aaa' });

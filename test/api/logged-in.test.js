@@ -41,7 +41,7 @@ describe('Logged in middleware', () => {
     });
 
     test('should fail if the token expires', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: null });
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({ expires_at: new Date() }, user);
         const res = await request({
             uri: '/members/me',
@@ -56,7 +56,7 @@ describe('Logged in middleware', () => {
     });
 
     test('should succeed if everything is okay', async () => {
-        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
         const res = await request({
