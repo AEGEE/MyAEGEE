@@ -129,4 +129,45 @@ describe('Circles list', () => {
         expect(res.body.data.length).toEqual(1);
         expect(res.body.data[0].id).toEqual(circle.id);
     });
+
+    test('should not return bound circles without ?all=true', async () => {
+        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const token = await generator.createAccessToken({}, user);
+
+        const body = await generator.createBody();
+        await generator.createCircle({ body_id: body.id });
+
+        const res = await request({
+            uri: '/circles',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body.data.length).toEqual(0);
+    });
+
+    test('should return bound circles with ?all=true', async () => {
+        const user = await generator.createUser({ password: 'test', mail_confirmed_at: new Date() });
+        const token = await generator.createAccessToken({}, user);
+
+        const body = await generator.createBody();
+        const circle = await generator.createCircle({ body_id: body.id });
+
+        const res = await request({
+            uri: '/circles?all=true',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(circle.id);
+    });
 });

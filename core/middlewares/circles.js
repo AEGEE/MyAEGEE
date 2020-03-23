@@ -5,8 +5,15 @@ const constants = require('../lib/constants');
 const { sequelize } = require('../lib/sequelize');
 
 exports.listAllCircles = async (req, res) => {
+    const where = helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.CIRCLE);
+
+    // filter out bound circles
+    if (!req.query.all) {
+        where.body_id = null;
+    }
+
     const result = await Circle.findAndCountAll({
-        where: helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.CIRCLE),
+        where,
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query)
     });

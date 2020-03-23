@@ -12,6 +12,7 @@ exports.listAllJoinRequests = async (req, res) => {
     const result = await JoinRequest.findAndCountAll({
         where: {
             ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.JOIN_REQUEST),
+            ...helpers.findBy(req.query, constants.FIELDS_TO_FIND.JOIN_REQUEST),
             body_id: req.currentBody.id,
         },
         ...helpers.getPagination(req.query),

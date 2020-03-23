@@ -1,4 +1,5 @@
 const { startServer, stopServer } = require('../../lib/server.js');
+const { JoinRequest } = require('../../models');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 
@@ -224,6 +225,44 @@ describe('Join requests list', () => {
 
         const res = await request({
             uri: '/bodies/' + body.id + '/join-requests?query=aaa',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(joinRequest.id);
+    });
+
+
+    test('should filter by status', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        const body = await generator.createBody();
+
+
+        const user1 = await generator.createUser();
+        const joinRequest = await JoinRequest.create({
+            body_id: body.id,
+            user_id: user1.id,
+            status: 'accepted'
+        });
+
+        const user2 = await generator.createUser();
+        await JoinRequest.create({
+            body_id: body.id,
+            user_id: user2.id
+        });
+
+        await generator.createPermission({ scope: 'global', action: 'view', object: 'join_request' });
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/join-requests?status=accepted',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
