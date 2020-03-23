@@ -1,3 +1,17 @@
+# [1.6.0](https://github.com/AEGEE/oms-core-js/compare/1.5.0...1.6.0) (2020-03-23)
+
+
+### Bug Fixes
+
+* **bodies:** not listing deleted bodies ([ed18ebe](https://github.com/AEGEE/oms-core-js/commit/ed18ebebac514594ebd3a654a8686f8066b80051))
+* **member:** validating password length ([b3e0428](https://github.com/AEGEE/oms-core-js/commit/b3e0428ae53246ab7ea4abfc945596dd27bb5a92))
+
+
+### Features
+
+* **general:** join requests filtering by status ([dcba08b](https://github.com/AEGEE/oms-core-js/commit/dcba08b3d57344277d86259dd4386550333410a9))
+* **member:** changing password endpoint ([d23ea10](https://github.com/AEGEE/oms-core-js/commit/d23ea1003f5e590cb7329b72e80df4124a2eb6c2))
+
 # [1.5.0](https://github.com/AEGEE/oms-core-js/compare/1.4.0...1.5.0) (2020-03-21)
 
 
