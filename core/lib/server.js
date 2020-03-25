@@ -54,6 +54,7 @@ GeneralRouter.get('/healthcheck', middlewares.healthcheck);
 GeneralRouter.post('/signup/:campaign_id', campaigns.registerUser);
 GeneralRouter.post('/confirm-email', register.confirmEmail);
 GeneralRouter.post('/login', login.login);
+GeneralRouter.post('/password_reset', login.passwordReset);
 GeneralRouter.post('/renew', login.renew);
 
 // Endpoints allowing unauthorized and authorized access.

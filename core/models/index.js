@@ -3,6 +3,7 @@ const Campaign = require('./Campaign');
 const MailConfirmation = require('./MailConfirmation');
 const AccessToken = require('./AccessToken');
 const RefreshToken = require('./RefreshToken');
+const PasswordReset = require('./PasswordReset');
 const Body = require('./Body');
 const Circle = require('./Circle');
 const Permission = require('./Permission');
@@ -25,6 +26,9 @@ AccessToken.belongsTo(User, { foreignKey: 'user_id' });
 
 User.hasMany(RefreshToken, { foreignKey: 'user_id' });
 RefreshToken.belongsTo(User, { foreignKey: 'user_id' });
+
+User.hasMany(PasswordReset, { foreignKey: 'user_id' });
+PasswordReset.belongsTo(User, { foreignKey: 'user_id' });
 
 Body.hasMany(Circle, { foreignKey: 'body_id' });
 Circle.belongsTo(Body, { foreignKey: 'body_id' });
@@ -74,6 +78,7 @@ module.exports = {
     MailConfirmation,
     AccessToken,
     RefreshToken,
+    PasswordReset,
     Body,
     Circle,
     Permission,

@@ -1,4 +1,4 @@
-const { User, AccessToken, RefreshToken } = require('../models');
+const { User, AccessToken, RefreshToken, PasswordReset } = require('../models');
 const { Sequelize } = require('../lib/sequelize');
 const errors = require('../lib/errors');
 
@@ -55,5 +55,24 @@ module.exports.renew = async (req, res) => {
         data: {
             access_token: accessToken.value,
         }
+    });
+};
+
+module.exports.passwordReset = async (req, res) => {
+    const user = await User.findOne({
+        where: { email: (req.body.email || '').trim() }
+    });
+
+    if (!user) {
+        return errors.makeNotFoundError(res, 'User is not found.');
+    }
+
+    await PasswordReset.createForUser(user.id);
+
+    // TODO: send a password reset to user.
+
+    return res.json({
+        success: true,
+        message: 'The password reset was triggered.'
     });
 };

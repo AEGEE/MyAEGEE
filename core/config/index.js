@@ -20,7 +20,8 @@ const config = {
         salt_rounds: 12,
         ttl: {
             access_token: 10 * 60, // 10 minutes
-            mail_confirmation: 48 * 60 * 60 // 48 hours
+            mail_confirmation: 48 * 60 * 60, // 48 hours,
+            password_reset: 24 * 60 * 60 // 24 hours
         },
         filter_fields: [
             'token',
