@@ -30,6 +30,7 @@
   "scripts": {
     "test": "NODE_ENV=test npm run db:setup && jest test/**/*.test.js --runInBand --forceExit",
     "lint": "node_modules/.bin/eslint .",
+    "lint:fix": "node_modules/.bin/eslint --fix .",
     "lint-staged": "lint-staged",
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
