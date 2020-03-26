@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const { User, AccessToken, RefreshToken, PasswordReset } = require('../models');
 const { Sequelize } = require('../lib/sequelize');
 const errors = require('../lib/errors');
@@ -75,5 +77,32 @@ module.exports.passwordReset = async (req, res) => {
     return res.json({
         success: true,
         message: 'The password reset was triggered.'
+    });
+};
+
+module.exports.passwordConfirm = async (req, res) => {
+    const token = await PasswordReset.findOne({
+        where: { value: (req.body.token || '').trim() },
+        include: [User]
+    });
+
+    if (!token) {
+        return errors.makeNotFoundError(res, 'Token is invalid.');
+    }
+
+    if (moment(token.expires_at).isBefore(moment())) {
+        return errors.makeNotFoundError(res, 'Token is expired.');
+    }
+
+    await token.user.update({ password: req.body.password || '' });
+    await AccessToken.destroy({ where: { user_id: token.user.id } });
+    await RefreshToken.destroy({ where: { user_id: token.user.id } });
+    await token.destroy();
+
+    // TODO: notify user on changed password.
+
+    return res.json({
+        success: true,
+        message: 'Password was changed successfully.'
     });
 };
