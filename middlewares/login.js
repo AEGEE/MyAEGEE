@@ -67,6 +67,7 @@ module.exports.passwordReset = async (req, res) => {
         return errors.makeNotFoundError(res, 'User is not found.');
     }
 
+    await PasswordReset.destroy({ where: { user_id: user.id } });
     await PasswordReset.createForUser(user.id);
 
     // TODO: send a password reset to user.

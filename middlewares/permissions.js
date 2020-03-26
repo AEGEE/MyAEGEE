@@ -4,7 +4,6 @@ const errors = require('../lib/errors');
 const constants = require('../lib/constants');
 
 exports.listAllPermissions = async (req, res) => {
-    // TODO: add filtering
     const result = await Permission.findAndCountAll({
         where: helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.PERMISSION),
         ...helpers.getPagination(req.query),
@@ -42,7 +41,6 @@ exports.updatePermission = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:update:permission is required, but not present.');
     }
 
-    // TODO: filter out fields that are changed in the other way
     await req.currentPermission.update(req.body);
     return res.json({
         success: true,

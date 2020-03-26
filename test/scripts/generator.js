@@ -6,6 +6,7 @@ const {
     MailConfirmation,
     AccessToken,
     RefreshToken,
+    PasswordReset,
     Body,
     Circle,
     Permission,
@@ -123,6 +124,18 @@ exports.generateAccessToken = (options = {}, user) => {
 
 exports.createAccessToken = (options = {}, user = null) => {
     return AccessToken.create(exports.generateAccessToken(options, user));
+};
+
+exports.generatePasswordReset = (options = {}, user) => {
+    if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
+    if (notSet(options.expires_at)) options.expires_at = faker.date.future();
+    if (user) options.user_id = user.id;
+
+    return options;
+};
+
+exports.createPasswordReset = (options = {}, user = null) => {
+    return PasswordReset.create(exports.generatePasswordReset(options, user));
 };
 
 exports.createCircleMembership = (circle, user) => {
