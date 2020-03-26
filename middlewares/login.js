@@ -5,11 +5,13 @@ const { Sequelize } = require('../lib/sequelize');
 const errors = require('../lib/errors');
 
 module.exports.login = async (req, res) => {
+    const username = (req.body.username || '').trim();
+
     const user = await User.scope('withPassword').findOne({
         where: {
             [Sequelize.Op.or]: {
-                email: req.body.username,
-                username: req.body.username
+                email: username,
+                username
             }
         }
     });
