@@ -1,3 +1,18 @@
+# [1.7.0](https://github.com/AEGEE/oms-core-js/compare/1.6.0...1.7.0) (2020-03-26)
+
+
+### Bug Fixes
+
+* **password:** deleting password resets on password reset ([9ec7971](https://github.com/AEGEE/oms-core-js/commit/9ec79716dd70155a25ae6111cd637d2854a9673a))
+
+
+### Features
+
+* **general:** added lint:fix script ([49d403e](https://github.com/AEGEE/oms-core-js/commit/49d403e60e95f969cf114a0e77e08402c9c5eef9))
+* **login:** trim email on login ([fee9268](https://github.com/AEGEE/oms-core-js/commit/fee92689de8ab3b932dea9102f57d0a445a82003))
+* **member:** password reset ([5ad07f7](https://github.com/AEGEE/oms-core-js/commit/5ad07f7a29a6c076e4feb6ceba0847efb16b5ac6))
+* **password:** password confirm ([14f55e5](https://github.com/AEGEE/oms-core-js/commit/14f55e50397fb87344416d09969e3bc087eb6691))
+
 # [1.6.0](https://github.com/AEGEE/oms-core-js/compare/1.5.0...1.6.0) (2020-03-23)
 
 
