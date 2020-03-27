@@ -1,3 +1,10 @@
+# [0.39.0](https://github.com/AEGEE/oms-frontend/compare/0.38.0...0.39.0) (2020-03-27)
+
+
+### Features
+
+* add logo to navbar ([#280](https://github.com/AEGEE/oms-frontend/issues/280)) ([a9d93cd](https://github.com/AEGEE/oms-frontend/commit/a9d93cdd8663efea8192a5ce4644703ce44ef369))
+
 # [0.38.0](https://github.com/AEGEE/oms-frontend/compare/0.37.1...0.38.0) (2020-03-16)
 
 
