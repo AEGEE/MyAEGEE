@@ -4,7 +4,9 @@
       <a class="navbar-item is-hidden-tablet" @click="toggleSidebar({opened: !sidebar.opened})">
         <font-awesome-icon icon="bars" aria-hidden="true" v-show="!sidebar.hidden" />
       </a>
-      <!-- AEGEE logo would be here -->
+      <a href="/" class="logo">
+        <img src="../../images/AEGEE_logo.svg" class="image">
+      </a>
       <a role="button" class="navbar-burger burger" @click="toggleNavbarMenu({opened: !navbar.menuOpened})">
         <span aria-hidden="true">
           <font-awesome-icon icon="user" />
@@ -71,6 +73,15 @@ export default {
 
   .container {
     margin: auto 10px;
+  }
+
+  /* for the logo in the navbar */
+  .logo {
+    .image {
+      height: 52px;
+      padding: 3px;
+      padding-left: 10px;
+    }
   }
 
   .navbar-burger {
