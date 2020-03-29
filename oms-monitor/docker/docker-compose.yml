@@ -114,7 +114,7 @@ services:
     build:
       context: ./${PATH_OMS_MONITOR}/logstash/
       args:
-        ELK_VERSION: ${ELK_VERSION:-7.4.0}
+        ELK_VERSION: ${ELK_VERSION:-7.6.0}
     volumes:
       - ./${PATH_OMS_MONITOR}/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
       - ./${PATH_OMS_MONITOR}/logstash/pipeline:/usr/share/logstash/pipeline:ro
