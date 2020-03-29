@@ -7,8 +7,6 @@ put the prometheus.yml and the
 
 Also the logstash conf
 
-take main dashboard from monitor1
-
 https://grafana.com/grafana/dashboards/4271
 
 (future) aggregate all metrics of apis in one endpoint (a specific rewrite url rule in traefik label wont work)
