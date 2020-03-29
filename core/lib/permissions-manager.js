@@ -66,6 +66,42 @@ class PermissionsManager {
         }
     }
 
+    getIndirectChildCircles(circleId) {
+        const directChildCirclesIds = this.circles
+            .filter((circle) => circle.parent_circle_id === circleId)
+            .map((circle) => circle.id);
+
+        if (!directChildCirclesIds.length) {
+            return [];
+        }
+
+        for (const id of directChildCirclesIds) {
+            directChildCirclesIds.push(...this.getIndirectChildCircles(id));
+        }
+
+        return directChildCirclesIds;
+    }
+
+    async fetchPermissionCircles(permission) {
+        // 1) get all CirclePermission for this permission
+        const circlePermissions = await CirclePermission.findAll({
+            where: { permission_id: permission.id }
+        });
+
+        // 2) for all the circlePermissions, get their circle
+        // and their child circles recursively and push it into map
+        const circlesIds = circlePermissions
+            .map((circlePermission) => this.getIndirectChildCircles(circlePermission.circle_id))
+            .concat(circlePermissions.map((circlePermission) => circlePermission.circle_id))
+            .flat();
+
+        const circles = await Circle.findAll({
+            where: { id: { [Sequelize.Op.in]: circlesIds } }
+        });
+
+        return circles;
+    }
+
     async fetchCurrentUserPermissions() {
         // for superadmin, just assign all the permissions.
         if (this.user.superadmin) {

@@ -120,6 +120,7 @@ CirclesRouter.delete('/', circles.deleteCircle);
 // Everything related to a specific permission. Auth only.
 PermissionsRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchPermission);
 PermissionsRouter.get('/', permissions.getPermission);
+PermissionsRouter.get('/members', permissions.getPermissionMembers);
 PermissionsRouter.put('/', permissions.updatePermission);
 PermissionsRouter.delete('/', permissions.deletePermission);
 
