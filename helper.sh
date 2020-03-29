@@ -149,7 +149,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [ ! -f ${DIR}/.env ]; then
     cp ${DIR}/.env.example ${DIR}/.env
 fi
-export $(cat ${DIR}/.env | grep -v ^# | xargs)
+# https://stackoverflow.com/questions/19331497/set-environment-variables-from-file-of-key-value-pairs
+export $(grep -v '^#' ${DIR}/.env | xargs -d '\n')
 if [[ "${MYAEGEE_ENV}" != "production" && "${MYAEGEE_ENV}" != "development" ]]; then
   echo "Error: MYAEGEE_ENV can only be 'production' or 'development'"
   exit 1

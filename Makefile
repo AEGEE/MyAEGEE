@@ -1,4 +1,7 @@
 
+include .env
+export $(shell sed 's/=.*//' .env)
+
 default:
 	echo 'Most common options are bootstrap, start, monitor, live_refresh, restart, nuke_dev, clean (cleans untagged/unnamed images)'
 
@@ -86,4 +89,16 @@ clean: clean_docker_images clean_docker_dangling_images
 ###How to remove all images:
 #  docker rmi $(docker images -q)
 
-# ARE ALL COMMANDS IDEMPOTENT???
+# ARE ALL COMMANDS IDEMPOTENT??? do i want them to be?
+
+backup_core:
+	bash ./helper.sh --execute postgres-oms-core-elixir -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/omscore_dev' --inserts > oms_core.backup.$(date)
+
+backup_events:
+	bash ./helper.sh --execute postgres-oms-events -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/events' --inserts > oms_events.backup.$(date)
+
+backup_statutory:
+	bash ./helper.sh --execute postgres-oms-statutory -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/statutory' --inserts > oms_statutory.backup.$(date)
+
+backup_discounts:
+	bash ./helper.sh --execute postgres-oms-discounts -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/discounts' --inserts > oms_discounts.backup.$(date)
