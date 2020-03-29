@@ -1,7 +1,8 @@
-const { Permission } = require('../models');
+const { Permission, CircleMembership, Circle, User } = require('../models');
 const helpers = require('../lib/helpers');
 const errors = require('../lib/errors');
 const constants = require('../lib/constants');
+const { Sequelize } = require('../lib/sequelize');
 
 exports.listAllPermissions = async (req, res) => {
     const result = await Permission.findAndCountAll({
@@ -57,5 +58,43 @@ exports.deletePermission = async (req, res) => {
     return res.json({
         success: true,
         message: 'Permission is deleted.'
+    });
+};
+
+exports.getPermissionMembers = async (req, res) => {
+    if (!req.permissions.hasPermission('global:view:member')) {
+        return errors.makeForbiddenError(res, 'Permission global:view:member is required, but not present.');
+    }
+
+    const permissionCircles = await req.permissions.fetchPermissionCircles(req.currentPermission);
+
+    // oh boy.
+    // 2 cases: when a person is member of one of the circles
+    // that has this permission directly or indirectly,
+    // and superadmins.
+    const result = await User.findAndCountAll({
+        where: {
+            [Sequelize.Op.or]: [
+                {
+                    '$circle_memberships.circle_id$': {
+                        [Sequelize.Op.in]: permissionCircles.map((circle) => circle.id)
+                    }
+                },
+                { superadmin: true }
+            ],
+            ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.MEMBER)
+        },
+        ...helpers.getPagination(req.query),
+        order: helpers.getSorting(req.query),
+        include: [
+            CircleMembership,
+            { model: Circle, as: 'circles' }
+        ]
+    });
+
+    return res.json({
+        success: true,
+        data: result.rows,
+        meta: { count: result.count }
     });
 };
