@@ -3,7 +3,7 @@ services:
 
   grafana:
     restart: on-failure
-    image: grafana/grafana:6.4.1
+    image: grafana/grafana:6.7.1
     volumes:
       - grafana-storage:/var/lib/grafana
       - ./${PATH_OMS_MONITOR}/config/gf-provisioning:/etc/grafana/provisioning
@@ -13,7 +13,7 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: "${PW_GRAFANA}"
       GF_SERVER_ROOT_URL: "https://${SUBDOMAIN_GRAFANA}${BASE_URL}/"
       # yamllint disable-line rule:line-length
-      GF_INSTALL_PLUGINS: "raintank-worldping-app,grafana-simple-json-datasource,grafana-clock-panel,grafana-piechart-panel"
+      GF_INSTALL_PLUGINS: "grafana-googlesheets-datasource,raintank-worldping-app,grafana-simple-json-datasource,grafana-clock-panel,grafana-piechart-panel"
       GF_SMTP_ENABLED: "true"
       GF_SMTP_HOST: "smtp.sendgrid.net:587"
       GF_SMTP_USER: "${USER_SENDGRID}"
