@@ -51,8 +51,8 @@ services:
 
   logstash-tunnel:
     image: kingsquare/tunnel:forward
-    #monitorhost below is an alias that is in the ssh config file
-    command: "*:5000:127.0.0.1:5000 oms-service@monitorhost -p ${SSH_PORT:-3322}"
+    #backup1 below is an alias that is in the ssh config file
+    command: "*:5000:127.0.0.1:5000 oms-service@backup1 -p ${SSH_PORT:-3322}"
     expose:
       - "5000"
     volumes:
