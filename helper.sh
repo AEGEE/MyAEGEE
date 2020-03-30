@@ -23,7 +23,7 @@ bump_repo ()
     fi
 }
 
-# bump the version of the oms submodules and commit (currently not there)
+# bump the version of the oms submodules and do not commit
 bump_nocommit ()
 {
     git submodule foreach "git checkout master && git pull"
