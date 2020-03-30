@@ -57,7 +57,7 @@ clean_docker_images:
 clean: clean_docker_images clean_docker_dangling_images
 
 prune: clean
-	docker system prune -y
+	docker system prune
 
 ###How to remove all containers:
 #  docker rm $(docker ps -aq)
