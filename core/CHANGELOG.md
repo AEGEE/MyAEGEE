@@ -1,3 +1,12 @@
+# [1.8.0](https://github.com/AEGEE/oms-core-js/compare/1.7.0...1.8.0) (2020-03-31)
+
+
+### Features
+
+* **permission:** list permission members ([4da4d20](https://github.com/AEGEE/oms-core-js/commit/4da4d20d9c9fb64156de41d8ef95b7dfc0c1e253))
+* **permissions:** list body members with permission ([4988337](https://github.com/AEGEE/oms-core-js/commit/49883372d730a2d9084e9db11352678fa3afe689))
+* **permissions:** list circles with permissions ([cbd2eb1](https://github.com/AEGEE/oms-core-js/commit/cbd2eb161bb746a77146b88ff7108b02bf8660bf))
+
 # [1.7.0](https://github.com/AEGEE/oms-core-js/compare/1.6.0...1.7.0) (2020-03-26)
 
 
