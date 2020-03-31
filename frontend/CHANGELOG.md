@@ -1,3 +1,10 @@
+## [0.39.1](https://github.com/AEGEE/oms-frontend/compare/0.39.0...0.39.1) (2020-03-31)
+
+
+### Bug Fixes
+
+* **images:** optimize pngfiles with 'zopflipng -m'([#281](https://github.com/AEGEE/oms-frontend/issues/281)) ([5cb7ef2](https://github.com/AEGEE/oms-frontend/commit/5cb7ef2e32ac69b18cf8c50e3470a52e70e460b7))
+
 # [0.39.0](https://github.com/AEGEE/oms-frontend/compare/0.38.0...0.39.0) (2020-03-27)
 
 
