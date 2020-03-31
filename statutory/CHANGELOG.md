@@ -1,3 +1,10 @@
+## [0.32.1](https://github.com/AEGEE/oms-statutory/compare/0.32.0...0.32.1) (2020-03-31)
+
+
+### Bug Fixes
+
+* **images:** optimize pngfiles with 'zopflipng -m'  ([#242](https://github.com/AEGEE/oms-statutory/issues/242)) ([da1046c](https://github.com/AEGEE/oms-statutory/commit/da1046caa12420c4befb2f4e6a18e43382fde06b))
+
 # [0.32.0](https://github.com/AEGEE/oms-statutory/compare/0.31.0...0.32.0) (2020-03-22)
 
 
