@@ -1,3 +1,10 @@
+## [0.24.1](https://github.com/AEGEE/oms-events/compare/0.24.0...0.24.1) (2020-03-31)
+
+
+### Bug Fixes
+
+* **images:** optimize pngfiles with 'zopflipng -m'  ([#192](https://github.com/AEGEE/oms-events/issues/192)) ([8d42510](https://github.com/AEGEE/oms-events/commit/8d42510222b4e126b783da444ad6249d5134c215))
+
 # [0.24.0](https://github.com/AEGEE/oms-events/compare/0.23.0...0.24.0) (2020-03-15)
 
 
