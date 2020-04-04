@@ -1,4 +1,4 @@
-const { Body, User, BodyMembership, JoinRequest, Circle } = require('../models');
+const { Body, User, BodyMembership, JoinRequest, Circle, Payment } = require('../models');
 const helpers = require('../lib/helpers');
 const constants = require('../lib/constants');
 const errors = require('../lib/errors');
@@ -70,6 +70,7 @@ exports.setBodyStatus = async (req, res) => {
         await JoinRequest.destroy({ where: { body_id: req.currentBody.id } }, { transaction: t });
         await BodyMembership.destroy({ where: { body_id: req.currentBody.id } }, { transaction: t });
         await Circle.destroy({ where: { body_id: req.currentBody.id } }, { transaction: t });
+        await Payment.destroy({ where: { body_id: req.currentBody.id } }, { transaction: t });
     });
     return res.json({
         success: true,

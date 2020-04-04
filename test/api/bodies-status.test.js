@@ -1,7 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
-const { Circle, BodyMembership, JoinRequest } = require('../../models');
+const { Circle, BodyMembership, JoinRequest, Payment } = require('../../models');
 
 describe('Bodies status', () => {
     beforeAll(async () => {
@@ -132,6 +132,7 @@ describe('Bodies status', () => {
         await generator.createJoinRequest(body, user);
         await generator.createCircleMembership(circle, user);
         await generator.createBodyMembership(body, user);
+        await generator.createPayment(body, user);
 
         const res = await request({
             uri: '/bodies/' + body.id + '/status',
@@ -149,5 +150,6 @@ describe('Bodies status', () => {
         expect(await Circle.count({ where: { body_id: body.id } })).toEqual(0);
         expect(await BodyMembership.count({ where: { body_id: body.id } })).toEqual(0);
         expect(await JoinRequest.count({ where: { body_id: body.id } })).toEqual(0);
+        expect(await Payment.count({ where: { body_id: body.id } })).toEqual(0);
     });
 });

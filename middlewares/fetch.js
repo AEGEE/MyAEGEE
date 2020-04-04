@@ -7,7 +7,8 @@ const {
     Permission,
     Campaign,
     BodyMembership,
-    JoinRequest
+    JoinRequest,
+    Payment
 } = require('../models');
 
 const { Sequelize } = require('../lib/sequelize');
@@ -186,5 +187,26 @@ exports.fetchBodyCampaign = async (req, res, next) => {
     }
 
     req.currentBodyCampaign = campaign;
+    return next();
+};
+
+exports.fetchPayment = async (req, res, next) => {
+    // searching the payment by id if it's numeric
+    if (!helpers.isNumber(req.params.payment_id)) {
+        return errors.makeBadRequestError(res, 'Payment ID is invalid.');
+    }
+
+    const payment = await Payment.findOne({
+        where: {
+            id: Number(req.params.payment_id),
+            body_id: req.currentBody.id
+        }
+    });
+
+    if (!payment) {
+        return errors.makeNotFoundError(res, 'Payment is not found.');
+    }
+
+    req.currentPayment = payment;
     return next();
 };
