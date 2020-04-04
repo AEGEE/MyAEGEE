@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/AEGEE/oms-core-js/compare/1.8.0...1.9.0) (2020-04-04)
+
+
+### Features
+
+* **payments:** body payments + testing ([5d14e76](https://github.com/AEGEE/oms-core-js/commit/5d14e76d57938e191827fc328d6e211f1500ef96))
+
 # [1.8.0](https://github.com/AEGEE/oms-core-js/compare/1.7.0...1.8.0) (2020-03-31)
 
 
