@@ -13,7 +13,8 @@ const {
     CirclePermission,
     CircleMembership,
     BodyMembership,
-    JoinRequest
+    JoinRequest,
+    Payment
 } = require('../../models');
 
 const notSet = (field) => typeof field === 'undefined';
@@ -166,7 +167,24 @@ exports.createJoinRequest = (body, user) => {
     });
 };
 
+exports.createPayment = (body, user, options = {}) => {
+    return Payment.create(exports.generatePayment(body, user, options));
+};
+
+exports.generatePayment = (body, user, options = {}) => {
+    if (body && body.id) options.body_id = body.id;
+    if (user && user.id) options.user_id = user.id;
+
+    if (notSet(options.starts)) options.starts = faker.date.past();
+    if (notSet(options.expires)) options.expires = faker.date.future();
+    if (notSet(options.amount)) options.amount = faker.random.number({ min: 1 });
+    if (notSet(options.currency)) options.currency = faker.random.alphaNumeric(3);
+
+    return options;
+};
+
 exports.clearAll = async () => {
+    await Payment.destroy({ where: {}, truncate: { cascade: true } });
     await JoinRequest.destroy({ where: {}, truncate: { cascade: true } });
     await BodyMembership.destroy({ where: {}, truncate: { cascade: true } });
     await Permission.destroy({ where: {}, truncate: { cascade: true } });

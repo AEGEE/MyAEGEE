@@ -1,12 +1,35 @@
 module.exports = {
     FIELDS_TO_UPDATE: {
         USER: {
-            CREATE: ['username', 'email', 'password', 'first_name', 'last_name', 'date_of_birth', 'gender', 'phone', 'address', 'about_me'],
-            UPDATE: ['username', 'first_name', 'last_name', 'date_of_birth', 'gender', 'phone', 'address', 'about_me']
+            CREATE: [
+                'username',
+                'email',
+                'password',
+                'first_name',
+                'last_name',
+                'date_of_birth',
+                'gender',
+                'phone',
+                'address',
+                'about_me'
+            ],
+            UPDATE: [
+                'username',
+                'first_name',
+                'last_name',
+                'date_of_birth',
+                'gender',
+                'phone',
+                'address',
+                'about_me'
+            ]
         },
         CIRCLE: {
             CREATE: ['name', 'description']
         },
+        PAYMENT: {
+            UPDATE: ['starts', 'expires', 'amount', 'currency', 'comment', 'invoice_name', 'invoice_address']
+        }
     },
     FIELDS_TO_QUERY: {
         BODY: ['code', 'name'],

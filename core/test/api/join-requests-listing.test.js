@@ -130,7 +130,7 @@ describe('Join requests list', () => {
         expect(res.body.data[0].id).toEqual(joinRequest.id);
     });
 
-    test('should succeed when everything is okay', async () => {
+    test('should fail if no permission', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
