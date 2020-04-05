@@ -28,7 +28,7 @@ exports.mockMailer = (options) => {
 
     return nock(`${config.mailer.url}:${config.mailer.port}`)
         .persist()
-        .post('/')
+        .post('/', options.body)
         .reply(200, { success: true });
 };
 
