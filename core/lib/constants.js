@@ -59,5 +59,8 @@ module.exports = {
         REFRESH_TOKEN: 128,
         PASSWORD: 10,
         PASSWORD_RESET: 128
+    },
+    MAIL_SUBJECTS: {
+        MAIL_CONFIRMATION: 'Please confirm your MyAEGEE account'
     }
 };

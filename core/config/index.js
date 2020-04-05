@@ -10,6 +10,10 @@ const config = {
             password: process.env.PG_PASSWORD || '5ecr3t',
             database: process.env.DB_DATABASE || 'core'
         },
+        mailer: {
+            url: 'http://oms-mailer',
+            port: 4000
+        },
         logger: {
             silent: false,
             level: process.env.LOGLEVEL || 'debug'
