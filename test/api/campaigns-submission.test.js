@@ -1,6 +1,7 @@
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const mock = require('../scripts/mock');
 const { BodyMembership } = require('../../models');
 
 describe('Campaign submission', () => {
@@ -12,8 +13,13 @@ describe('Campaign submission', () => {
         await stopServer();
     });
 
+    beforeEach(async () => {
+        await mock.mockAll();
+    });
+
     afterEach(async () => {
         await generator.clearAll();
+        await mock.cleanAll();
     });
 
     test('should fail if the campaign is not found', async () => {
@@ -194,7 +200,7 @@ describe('Campaign submission', () => {
         const membershipFromDb = await BodyMembership.findOne({
             where: {
                 body_id: body.id,
-                user_id: res.body.data.user.id
+                user_id: res.body.data.id
             }
         });
 
@@ -217,5 +223,62 @@ describe('Campaign submission', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body.superadmin).not.toEqual(true);
+    });
+
+    test('should fail when mailer returns net error', async () => {
+        mock.mockAll({ mailer: { netError: true } });
+
+        const campaign = await generator.createCampaign({});
+        const user = generator.generateUser();
+
+        const res = await request({
+            uri: '/signup/' + campaign.url,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: user
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should fail when mailer returns bad response', async () => {
+        mock.mockAll({ mailer: { badResponse: true } });
+
+        const campaign = await generator.createCampaign({});
+        const user = generator.generateUser();
+
+        const res = await request({
+            uri: '/signup/' + campaign.url,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: user
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should fail when mailer returns unsuccessful response', async () => {
+        mock.mockAll({ mailer: { unsuccessfulResponse: true } });
+
+        const campaign = await generator.createCampaign({});
+        const user = generator.generateUser();
+
+        const res = await request({
+            uri: '/signup/' + campaign.url,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: user
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
     });
 });

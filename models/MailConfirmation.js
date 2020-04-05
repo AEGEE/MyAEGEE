@@ -40,13 +40,13 @@ const MailConfirmation = sequelize.define('mail_confirmation', {
     updatedAt: 'updated_at',
 });
 
-MailConfirmation.createForUser = async function createForUser(userId) {
+MailConfirmation.createForUser = async function createForUser(userId, transaction) {
     const value = await helpers.getRandomBytes(constants.TOKEN_LENGTH.MAIL_CONFIRMATION);
     return MailConfirmation.create({
         user_id: userId,
         expires_at: moment().add(config.ttl.mail_confirmation, 'seconds').toDate(),
         value
-    });
+    }, { transaction });
 };
 
 

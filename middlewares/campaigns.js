@@ -7,6 +7,8 @@ const {
 const errors = require('../lib/errors');
 const helpers = require('../lib/helpers');
 const constants = require('../lib/constants');
+const { sequelize } = require('../lib/sequelize');
+const mailer = require('../lib/mailer');
 
 exports.registerUser = async (req, res) => {
     const campaign = await Campaign.findOne({ where: { url: req.params.campaign_id } });
@@ -17,27 +19,39 @@ exports.registerUser = async (req, res) => {
         return errors.makeForbiddenError(res, 'Campaign is not active.');
     }
 
-    const user = await User.scope('noExtraFields').create({
-        ...req.body,
-        campaign_id: campaign.id
-    }, { fields: constants.FIELDS_TO_UPDATE.USER.CREATE });
+    let user;
 
-    // Adding a person to a body if campaign has the autojoin body.
-    if (campaign.autojoin_body_id) {
-        await BodyMembership.create({
-            user_id: user.id,
-            body_id: campaign.autojoin_body_id
+    await sequelize.transaction(async (t) => {
+        user = await User.scope('noExtraFields').create({
+            ...req.body,
+            campaign_id: campaign.id
+        }, { fields: constants.FIELDS_TO_UPDATE.USER.CREATE, transaction: t });
+
+        // Adding a person to a body if campaign has the autojoin body.
+        if (campaign.autojoin_body_id) {
+            await BodyMembership.create({
+                user_id: user.id,
+                body_id: campaign.autojoin_body_id
+            }, { transaction: t });
+        }
+
+        const confirmation = await MailConfirmation.createForUser(user.id, t);
+
+        await mailer.sendMail({
+            to: user.email,
+            subject: constants.MAIL_SUBJECTS.MAIL_CONFIRMATION,
+            template: 'confirm_email.html',
+            parameters: {
+                name: user.first_name,
+                surname: user.last_name,
+                token: confirmation.value
+            }
         });
-    }
-
-    const confirmation = await MailConfirmation.createForUser(user.id);
+    });
 
     return res.json({
         success: true,
-        data: {
-            user,
-            confirmation
-        }
+        data: user
     });
 };
 
