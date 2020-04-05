@@ -225,6 +225,31 @@ describe('Campaign submission', () => {
         expect(res.body.superadmin).not.toEqual(true);
     });
 
+    test('should send a mail to user', async () => {
+        const campaign = await generator.createCampaign({});
+        const user = generator.generateUser();
+
+        const requestsMock = mock.mockAll({
+            mailer: {
+                body: (body) => body.to === user.email.toLowerCase()
+            }
+        });
+
+        const res = await request({
+            uri: '/signup/' + campaign.url,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: user
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(requestsMock.mailer.isDone()).toEqual(true);
+    });
+
     test('should fail when mailer returns net error', async () => {
         mock.mockAll({ mailer: { netError: true } });
 
