@@ -2,9 +2,14 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Board-view</div>
+        <div class="title">Board view</div>
 
-        <div class="field" v-if="boardBodies.length > 0">
+        <div class="field" v-if="boardBodies.length === 1">
+          <label>You are currently viewing applications from </label>
+          <strong>{{ boardBodies[0].name }}</strong>.
+        </div>
+
+        <div class="field" v-if="boardBodies.length > 1">
           <label>Select the body to view application from:</label>
           <div class="field">
             <div class="control has-icons-left">
@@ -92,6 +97,10 @@ export default {
       })
     },
     fetchData () {
+      if (this.boardBodies.length === 1) {
+        this.selectedBody = this.boardBodies[0].id
+      }
+
       if (!this.selectedBody) {
         return
       }
