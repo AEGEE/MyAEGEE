@@ -1,3 +1,10 @@
+# [0.40.0](https://github.com/AEGEE/oms-frontend/compare/0.39.1...0.40.0) (2020-04-06)
+
+
+### Features
+
+* compress the output using gz/zopfli and brotli ([#282](https://github.com/AEGEE/oms-frontend/issues/282)) ([e9c09a9](https://github.com/AEGEE/oms-frontend/commit/e9c09a9f4bb8f6d1c3d4145141abed5163316047))
+
 ## [0.39.1](https://github.com/AEGEE/oms-frontend/compare/0.39.0...0.39.1) (2020-03-31)
 
 
