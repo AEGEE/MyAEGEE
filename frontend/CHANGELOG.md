@@ -1,3 +1,10 @@
+# [0.41.0](https://github.com/AEGEE/oms-frontend/compare/0.40.0...0.41.0) (2020-04-06)
+
+
+### Features
+
+* auto select board in board view ([#283](https://github.com/AEGEE/oms-frontend/issues/283)) ([bb4a478](https://github.com/AEGEE/oms-frontend/commit/bb4a478f86839408229064e60154f18d6eb831e6))
+
 # [0.40.0](https://github.com/AEGEE/oms-frontend/compare/0.39.1...0.40.0) (2020-04-06)
 
 
