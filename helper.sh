@@ -226,7 +226,7 @@ if ( $build ); then
 fi
 
 if ( $start ); then
-    compose_wrapper config > current-config.yml && compose_wrapper up -d
+    compose_wrapper config > current-config.yml && compose_wrapper up -d $arguments
     exit $?
 fi
 
