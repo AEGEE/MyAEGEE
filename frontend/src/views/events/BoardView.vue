@@ -137,6 +137,10 @@ export default {
         .filter((elt, index, array) => array.indexOf(elt) === index)
 
       this.boardBodies = this.loginUser.bodies.filter((body) => boardIds.includes(body.id))
+
+      if (this.boardBodies.length === 1) {
+        this.selectedBody = this.boardBodies[0].id
+      }
     })
   }
 }
