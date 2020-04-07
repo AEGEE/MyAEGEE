@@ -30,7 +30,7 @@ const PasswordReset = sequelize.define('password_reset', {
     updatedAt: 'updated_at'
 });
 
-PasswordReset.createForUser = async function createForUser(userId) {
+PasswordReset.createForUser = async function createForUser(userId, transaction) {
     const value = await helpers.getRandomBytes(constants.TOKEN_LENGTH.PASSWORD_RESET);
     const expiresAt = moment().add(config.ttl.password_reset, 'seconds');
 
@@ -38,7 +38,7 @@ PasswordReset.createForUser = async function createForUser(userId) {
         user_id: userId,
         value,
         expires_at: expiresAt
-    });
+    }, { transaction });
 };
 
 module.exports = PasswordReset;

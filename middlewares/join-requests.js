@@ -1,8 +1,10 @@
-const { JoinRequest, BodyMembership, User } = require('../models');
+const { JoinRequest, BodyMembership, User, CircleMembership, Permission } = require('../models');
 const errors = require('../lib/errors');
 const helpers = require('../lib/helpers');
 const constants = require('../lib/constants');
-const { sequelize } = require('../lib/sequelize');
+const logger = require('../lib/logger');
+const mailer = require('../lib/mailer');
+const { Sequelize, sequelize } = require('../lib/sequelize');
 
 exports.listAllJoinRequests = async (req, res) => {
     if (!req.permissions.hasPermission('view:join_request')) {
@@ -28,11 +30,59 @@ exports.listAllJoinRequests = async (req, res) => {
 };
 
 exports.createJoinRequest = async (req, res) => {
-    const request = await JoinRequest.create({
-        user_id: req.user.id,
-        body_id: req.currentBody.id,
-        motivation: req.body.motivation
+    let request;
+    await sequelize.transaction(async (t) => {
+        request = await JoinRequest.create({
+            user_id: req.user.id,
+            body_id: req.currentBody.id,
+            motivation: req.body.motivation
+        }, { transaction: t });
+
+        // Fetching a permission.
+        const permission = await Permission.findOne({
+            where: {
+                scope: 'local',
+                action: 'process',
+                object: 'join_request'
+            }
+        });
+
+        if (!permission) {
+            logger.warn('No local:process:join_request permission, not sending mails to board.');
+            return;
+        }
+
+        const circles = await req.permissions.fetchPermissionCircles(permission);
+        const localCircles = circles.filter((circle) => circle.body_id === req.currentBody.id);
+
+        if (!localCircles.length) {
+            logger.debug('No local circles, not sending mails to user.');
+            return;
+        }
+
+        const members = await User.findAll({
+            where: { '$circle_memberships.circle_id$': { [Sequelize.Op.in]: localCircles.map((circle) => circle.id) } },
+            include: [CircleMembership]
+        });
+
+        if (!members.length) {
+            logger.debug('No members with local:process:join_request permission, not sending mails to board.');
+            return;
+        }
+
+        await mailer.sendMail({
+            to: members.map((member) => member.email),
+            subject: constants.MAIL_SUBJECTS.NEW_JOIN_REQUEST,
+            template: 'member-joined.html',
+            parameters: {
+                member_firstname: req.user.first_name,
+                member_lastname: req.user.last_name,
+                body_name: req.currentBody.name,
+                body_id: req.currentBody.id
+            }
+        });
     });
+
     return res.json({
         success: true,
         data: request
