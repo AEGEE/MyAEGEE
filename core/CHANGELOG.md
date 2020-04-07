@@ -1,3 +1,17 @@
+# [1.10.0](https://github.com/AEGEE/oms-core-js/compare/1.9.0...1.10.0) (2020-04-07)
+
+
+### Bug Fixes
+
+* **test:** testing mail sending to a user when registering ([127146d](https://github.com/AEGEE/oms-core-js/commit/127146d067675f216a93ad824a1fc1360845d0e6))
+
+
+### Features
+
+* **general:** mailer integration for password reset ([67ed6dd](https://github.com/AEGEE/oms-core-js/commit/67ed6dd2bb11679968a62ab9f6040c259c268485))
+* **mailer:** mailer integration ([9e3fb59](https://github.com/AEGEE/oms-core-js/commit/9e3fb59c7b664e87e8ddab6f06bd9623f90b2fd5))
+* **seed:** add seeding ([ba3e581](https://github.com/AEGEE/oms-core-js/commit/ba3e58191c4b6fc7c6a78a9ff7ddf2475190524e))
+
 # [1.9.0](https://github.com/AEGEE/oms-core-js/compare/1.8.0...1.9.0) (2020-04-04)
 
 
