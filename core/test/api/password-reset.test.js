@@ -3,6 +3,7 @@ const { PasswordReset } = require('../../models');
 
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const mock = require('../scripts/mock');
 
 describe('Password reset', () => {
     beforeAll(async () => {
@@ -13,8 +14,13 @@ describe('Password reset', () => {
         await stopServer();
     });
 
+    beforeEach(async () => {
+        await mock.mockAll();
+    });
+
     afterEach(async () => {
         await generator.clearAll();
+        await mock.cleanAll();
     });
 
     test('should return 404 if the user is not found', async () => {
@@ -97,5 +103,76 @@ describe('Password reset', () => {
         const resets = await PasswordReset.findAll({ where: { user_id: user.id } });
         expect(resets.length).toEqual(1);
         expect(resets[0].id).not.toEqual(existingReset.id);
+    });
+
+    test('should send the mail to a user', async () => {
+        const user = await generator.createUser();
+
+        const requestsMock = mock.mockAll({
+            mailer: {
+                body: (body) => body.to === user.email.toLowerCase()
+            }
+        });
+
+        const res = await request({
+            uri: '/password_reset',
+            method: 'POST',
+            body: { email: user.email }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('message');
+
+        expect(requestsMock.mailer.isDone()).toEqual(true);
+    });
+
+    test('should fail if mailer returns net error', async () => {
+        mock.mockAll({ mailer: { netError: true } });
+        const user = await generator.createUser();
+
+        const res = await request({
+            uri: '/password_reset',
+            method: 'POST',
+            body: { email: user.email }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should fail if mailer returns bad response', async () => {
+        mock.mockAll({ mailer: { badResponse: true } });
+        const user = await generator.createUser();
+
+        const res = await request({
+            uri: '/password_reset',
+            method: 'POST',
+            body: { email: user.email }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should fail if mailer returns unsuccessful response', async () => {
+        mock.mockAll({ mailer: { unsuccessfulResponse: true } });
+        const user = await generator.createUser();
+
+        const res = await request({
+            uri: '/password_reset',
+            method: 'POST',
+            body: { email: user.email }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
     });
 });

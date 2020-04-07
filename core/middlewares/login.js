@@ -1,8 +1,10 @@
 const moment = require('moment');
 
 const { User, AccessToken, RefreshToken, PasswordReset } = require('../models');
-const { Sequelize } = require('../lib/sequelize');
+const { Sequelize, sequelize } = require('../lib/sequelize');
 const errors = require('../lib/errors');
+const mailer = require('../lib/mailer');
+const constants = require('../lib/constants');
 
 module.exports.login = async (req, res) => {
     const username = (req.body.username || '').trim();
@@ -71,10 +73,19 @@ module.exports.passwordReset = async (req, res) => {
         return errors.makeNotFoundError(res, 'User is not found.');
     }
 
-    await PasswordReset.destroy({ where: { user_id: user.id } });
-    await PasswordReset.createForUser(user.id);
+    await sequelize.transaction(async (t) => {
+        await PasswordReset.destroy({ where: { user_id: user.id }, transaction: t });
+        const currentReset = await PasswordReset.createForUser(user.id, t);
 
-    // TODO: send a password reset to user.
+        await mailer.sendMail({
+            to: user.email,
+            subject: constants.MAIL_SUBJECTS.PASSWORD_RESET,
+            template: 'password_reset.html',
+            parameters: {
+                token: currentReset.value
+            }
+        });
+    });
 
     return res.json({
         success: true,
