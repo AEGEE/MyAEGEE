@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/AEGEE/oms-core-js/compare/1.10.0...1.11.0) (2020-04-08)
+
+
+### Features
+
+* **bodies:** allow setting primary body ([90d5fe2](https://github.com/AEGEE/oms-core-js/commit/90d5fe2c022816ca16f03f7c211848cf018a8efb))
+
 # [1.10.0](https://github.com/AEGEE/oms-core-js/compare/1.9.0...1.10.0) (2020-04-07)
 
 
