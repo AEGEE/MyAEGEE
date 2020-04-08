@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User, Body } = require('../models');
 const constants = require('../lib/constants');
 const helpers = require('../lib/helpers');
 const errors = require('../lib/errors');
@@ -81,6 +81,32 @@ exports.setUserActive = async (req, res) => {
     }
 
     await req.currentUser.update({ active: req.body.active });
+    return res.json({
+        success: true,
+        data: req.currentUser
+    });
+};
+
+exports.setPrimaryBody = async (req, res) => {
+    if (!req.permissions.hasPermission('update:member')) {
+        return errors.makeForbiddenError(res, 'Permission update:member is required, but not present.');
+    }
+
+    if (req.body.primary_body_id) {
+        const body = await Body.findByPk(req.body.primary_body_id);
+        if (!body) {
+            return errors.makeNotFoundError(res, 'Body is not found.');
+        }
+
+        if (!req.currentUser.bodies.some((b) => b.id === body.id)) {
+            return errors.makeForbiddenError(res, 'User is not a member of this body.');
+        }
+
+        await req.currentUser.update({ primary_body_id: body.id });
+    } else {
+        await req.currentUser.update({ primary_body_id: null });
+    }
+
     return res.json({
         success: true,
         data: req.currentUser

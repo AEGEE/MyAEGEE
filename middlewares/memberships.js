@@ -106,7 +106,41 @@ exports.deleteMembership = async (req, res) => {
             body_id: req.currentBody.id
         }
     });
+
+    if (req.currentBodyMembership.user.primary_body_id === req.currentBody.id) {
+        await req.currentBodyMembership.user.update({ primary_body_id: null });
+    }
+
     await req.currentBodyMembership.destroy();
+
+    return res.json({
+        success: true,
+        message: 'Membership is deleted.'
+    });
+};
+
+exports.deleteOwnMembership = async (req, res) => {
+    const bodyMembership = await BodyMembership.findOne({
+        where: { user_id: req.user.id, body_id: req.currentBody.id }
+    });
+
+    if (!bodyMembership) {
+        return errors.makeNotFoundError(res, 'You are not a member.');
+    }
+
+    // delete all join requests if any, so a person can reapply
+    await JoinRequest.destroy({
+        where: {
+            user_id: req.user.id,
+            body_id: req.currentBody.id
+        }
+    });
+
+    if (req.user.primary_body_id === req.currentBody.id) {
+        await req.user.update({ primary_body_id: null });
+    }
+
+    await bodyMembership.destroy();
 
     return res.json({
         success: true,

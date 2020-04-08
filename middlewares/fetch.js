@@ -31,8 +31,10 @@ exports.fetchUser = async (req, res, next) => {
         where,
         include: [
             { model: Body, as: 'bodies' },
+            { model: Body, as: 'primary_body' },
             { model: BodyMembership, as: 'body_memberships' },
-            { model: JoinRequest, as: 'join_requests' }
+            { model: JoinRequest, as: 'join_requests' },
+            { model: Circle, as: 'circles' }
         ]
     });
     if (!user) {
@@ -139,7 +141,8 @@ exports.fetchMembership = async (req, res, next) => {
         where: {
             id: Number(req.params.membership_id),
             body_id: Number(req.params.body_id)
-        }
+        },
+        include: [User]
     });
     if (!membership) {
         return errors.makeNotFoundError(res, 'Membership is not found.');

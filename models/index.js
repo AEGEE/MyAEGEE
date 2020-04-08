@@ -16,6 +16,9 @@ const Payment = require('./Payment');
 Campaign.hasMany(User, { foreignKey: 'campaign_id' });
 User.belongsTo(Campaign, { foreignKey: 'campaign_id' });
 
+Body.hasMany(User, { foreignKey: 'primary_body_id', as: 'primary_body' });
+User.belongsTo(Body, { foreignKey: 'primary_body_id', as: 'primary_body' });
+
 Body.hasOne(Campaign, { foreignKey: 'autojoin_body_id', as: 'autojoin_body' });
 Campaign.belongsTo(Body, { foreignKey: 'autojoin_body_id', as: 'autojoin_body' });
 
