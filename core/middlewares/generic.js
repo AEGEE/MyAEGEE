@@ -5,7 +5,10 @@ const logger = require('../lib/logger');
 const {
     User,
     AccessToken,
-    Circle
+    Circle,
+    Body,
+    BodyMembership,
+    JoinRequest,
 } = require('../models');
 const packageInfo = require('../package');
 const PermissionManager = require('../lib/permissions-manager');
@@ -20,7 +23,16 @@ exports.maybeAuthorize = async (req, res, next) => {
         where: {
             value: authToken,
         },
-        include: [User]
+        include: [{
+            model: User,
+            include: [
+                { model: Body, as: 'bodies' },
+                { model: Body, as: 'primary_body' },
+                { model: BodyMembership, as: 'body_memberships' },
+                { model: JoinRequest, as: 'join_requests' },
+                { model: Circle, as: 'circles' }
+            ]
+        }]
     });
 
     if (!accessToken) {

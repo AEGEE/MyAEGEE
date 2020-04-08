@@ -83,6 +83,7 @@ GeneralRouter.post('/campaigns', middlewares.ensureAuthorized, campaigns.createC
 MemberRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchUser);
 MemberRouter.get('/my_permissions', myPermissions.getMyPermissions);
 MemberRouter.put('/active', members.setUserActive);
+MemberRouter.put('/primary-body', members.setPrimaryBody);
 MemberRouter.put('/password', members.setUserPassword);
 MemberRouter.get('/', members.getUser);
 MemberRouter.put('/', members.updateUser);
@@ -97,6 +98,7 @@ BodiesRouter.get('/campaigns', bodyCampaigns.listAllCampaigns);
 BodiesRouter.post('/campaigns', bodyCampaigns.createCampaign);
 BodiesRouter.post('/circles', bodies.createBoundCircle);
 BodiesRouter.get('/members', memberships.listAllMemberships);
+BodiesRouter.delete('/members', memberships.deleteOwnMembership);
 BodiesRouter.post('/create-member', bodies.createMember);
 BodiesRouter.get('/join-requests', joinRequests.listAllJoinRequests);
 BodiesRouter.post('/join-requests', joinRequests.createJoinRequest);
