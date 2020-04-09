@@ -2,7 +2,6 @@ const {
     Permission,
     BodyMembership,
     CircleMembership,
-    JoinRequest,
     User
 } = require('../models');
 const helpers = require('../lib/helpers');
@@ -99,18 +98,6 @@ exports.deleteMembership = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission delete_member:body is required, but not present.');
     }
 
-    // delete all join requests if any, so a person can reapply
-    await JoinRequest.destroy({
-        where: {
-            user_id: req.currentBodyMembership.user_id,
-            body_id: req.currentBody.id
-        }
-    });
-
-    if (req.currentBodyMembership.user.primary_body_id === req.currentBody.id) {
-        await req.currentBodyMembership.user.update({ primary_body_id: null });
-    }
-
     await req.currentBodyMembership.destroy();
 
     return res.json({
@@ -126,18 +113,6 @@ exports.deleteOwnMembership = async (req, res) => {
 
     if (!bodyMembership) {
         return errors.makeNotFoundError(res, 'You are not a member.');
-    }
-
-    // delete all join requests if any, so a person can reapply
-    await JoinRequest.destroy({
-        where: {
-            user_id: req.user.id,
-            body_id: req.currentBody.id
-        }
-    });
-
-    if (req.user.primary_body_id === req.currentBody.id) {
-        await req.user.update({ primary_body_id: null });
     }
 
     await bodyMembership.destroy();
