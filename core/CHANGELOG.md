@@ -1,3 +1,10 @@
+## [1.11.1](https://github.com/AEGEE/oms-core-js/compare/1.11.0...1.11.1) (2020-04-09)
+
+
+### Bug Fixes
+
+* refactor body memberships logic ([94c30fe](https://github.com/AEGEE/oms-core-js/commit/94c30fe03ca7811cec87dffdc1db5ea7de82356a))
+
 # [1.11.0](https://github.com/AEGEE/oms-core-js/compare/1.10.0...1.11.0) (2020-04-08)
 
 
