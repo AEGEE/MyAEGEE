@@ -402,6 +402,12 @@ async function createPermissions() {
             description: 'Change the data attached to a body membership in any body in the system'
         },
         {
+            action: 'add_member',
+            object: 'body',
+            scope: 'global',
+            description: 'Add member to any body'
+        },
+        {
             action: 'view',
             object: 'body',
             scope: 'global',
