@@ -1,7 +1,9 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const logger = require('../lib/logger');
 const Body = require('./Body');
+const User = require('./User');
 const Circle = require('./Circle');
+const JoinRequest = require('./JoinRequest');
 const CircleMembership = require('./CircleMembership');
 
 const BodyMembership = sequelize.define('body_membership', {
@@ -55,5 +57,25 @@ BodyMembership.afterDestroy(async (membership) => {
         }
     });
 });
+
+// Deleting all the join requests after leaving the body.
+BodyMembership.afterDestroy(async (membership) => {
+    await JoinRequest.destroy({
+        where: {
+            user_id: membership.user_id,
+            body_id: membership.body_id
+        }
+    });
+});
+
+// Unsetting primary body for user if needed.
+BodyMembership.afterDestroy(async (membership) => {
+    const user = await User.findByPk(membership.user_id);
+
+    if (user.primary_body_id === membership.body_id) {
+        await user.update({ primary_body_id: null });
+    }
+});
+
 
 module.exports = BodyMembership;
