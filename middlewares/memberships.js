@@ -80,6 +80,26 @@ exports.listAllMembershipsWithPermission = async (req, res) => {
     });
 };
 
+exports.createMembership = async (req, res) => {
+    if (!req.permissions.hasPermission('add_member:body')) {
+        return errors.makeForbiddenError(res, 'Permission add_member:body is required, but not present.');
+    }
+
+    const user = await User.findByPk(req.body.user_id);
+    if (!user) {
+        return errors.makeNotFoundError(res, 'User is not found');
+    }
+
+    const membership = await BodyMembership.create({
+        body_id: req.currentBody.id,
+        user_id: user.id
+    });
+
+    return res.json({
+        success: true,
+        data: membership
+    });
+};
 
 exports.updateMembership = async (req, res) => {
     if (!req.permissions.hasPermission('update_member:body')) {
