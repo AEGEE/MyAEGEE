@@ -289,6 +289,22 @@ describe('Unique indexes', () => {
         });
     });
 
+    describe('Mail change', () => {
+        test('should be unique', async () => {
+            const user = await generator.createUser();
+            await generator.createMailChange({ value: 'test' }, user);
+            try {
+                await generator.createMailChange({ value: 'test' }, user);
+                expect(1).toEqual(0);
+            } catch (err) {
+                expect(err).toHaveProperty('errors');
+                expect(err.errors.length).toEqual(1);
+                expect(err.errors[0].type).toEqual('unique violation');
+                expect(err.errors[0].path).toContain('value');
+            }
+        });
+    });
+
     describe('Circle permissions', () => {
         test('should be unique', async () => {
             const circle = await generator.createCircle();
