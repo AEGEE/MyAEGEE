@@ -250,46 +250,8 @@ describe('Campaign submission', () => {
         expect(requestsMock.mailer.isDone()).toEqual(true);
     });
 
-    test('should fail when mailer returns net error', async () => {
+    test('should fail when mailer fails', async () => {
         mock.mockAll({ mailer: { netError: true } });
-
-        const campaign = await generator.createCampaign({});
-        const user = generator.generateUser();
-
-        const res = await request({
-            uri: '/signup/' + campaign.url,
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: user
-        });
-
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-        expect(res.body).not.toHaveProperty('data');
-    });
-
-    test('should fail when mailer returns bad response', async () => {
-        mock.mockAll({ mailer: { badResponse: true } });
-
-        const campaign = await generator.createCampaign({});
-        const user = generator.generateUser();
-
-        const res = await request({
-            uri: '/signup/' + campaign.url,
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: user
-        });
-
-        expect(res.statusCode).toEqual(500);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
-        expect(res.body).not.toHaveProperty('data');
-    });
-
-    test('should fail when mailer returns unsuccessful response', async () => {
-        mock.mockAll({ mailer: { unsuccessfulResponse: true } });
 
         const campaign = await generator.createCampaign({});
         const user = generator.generateUser();
