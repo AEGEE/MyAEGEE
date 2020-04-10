@@ -30,6 +30,14 @@ module.exports.login = async (req, res) => {
         return errors.makeUnauthorizedError(res, 'Please confirm your mail first.');
     }
 
+    // Some fields can be empty while registering, but we shouldn't allow login for such users.
+    // TODO: think about how to make it work.
+    // const notValidFields = user.notValidFields();
+    // if (Object.keys(notValidFields).length !== 0) {
+    //     return errors.makeValidationError(res, notValidFields);
+    // }
+
+
     const accessToken = await AccessToken.createForUser(user.id);
     const refreshToken = await RefreshToken.createForUser(user.id);
 
@@ -41,6 +49,60 @@ module.exports.login = async (req, res) => {
         }
     });
 };
+
+// module.exports.getUserUnauthorized = async (req, res) => {
+//     const username = (req.body.username || '').trim();
+
+//     const user = await User.scope('withPassword').findOne({
+//         where: {
+//             [Sequelize.Op.or]: {
+//                 email: username,
+//                 username
+//             }
+//         }
+//     });
+
+//     if (!user) {
+//         return errors.makeUnauthorizedError(res, 'User is not found.');
+//     }
+
+//     if (!await user.checkPassword(req.body.password)) {
+//         return errors.makeUnauthorizedError(res, 'Password is not valid.');
+//     }
+
+//     return res.json({
+//         success: true,
+//         data: user
+//     });
+// };
+
+// module.exports.updateUserUnauthorized = async (req, res) => {
+//     const username = (req.body.username || '').trim();
+
+//     const user = await User.scope('withPassword').findOne({
+//         where: {
+//             [Sequelize.Op.or]: {
+//                 email: username,
+//                 username
+//             }
+//         }
+//     });
+
+//     if (!user) {
+//         return errors.makeUnauthorizedError(res, 'User is not found.');
+//     }
+
+//     if (!await user.checkPassword(req.body.password)) {
+//         return errors.makeUnauthorizedError(res, 'Password is not valid.');
+//     }
+
+//     await user.update(req.body);
+
+//     return res.json({
+//         success: true,
+//         data: user
+//     });
+// };
 
 module.exports.renew = async (req, res) => {
     const token = await RefreshToken.findOne({

@@ -28,6 +28,7 @@ exports.generateUser = (options = {}) => {
     if (notSet(options.phone)) options.phone = faker.phone.phoneNumber();
     if (notSet(options.date_of_birth)) options.date_of_birth = faker.date.past();
     if (notSet(options.about_me)) options.about_me = faker.lorem.paragraph();
+    if (notSet(options.address)) options.address = faker.lorem.paragraph();
     if (notSet(options.password)) options.password = faker.random.alphaNumeric(16);
     if (notSet(options.mail_confirmed_at)) options.mail_confirmed_at = new Date();
 

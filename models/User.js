@@ -151,14 +151,14 @@ User.prototype.checkPassword = async function checkPassword(password) {
 
 /* istanbul ignore next */
 User.prototype.notValidFields = function notValidFields() {
-    const missingFields = [];
-    for (const field of ['date_of_birth', 'gender']) {
-        if (!this[field]) {
-            missingFields.push(field);
-        }
-    }
+    const errors = {};
 
-    return { missingFields };
+    if (!this.gender) errors.gender = ['Gender should be set.'];
+    if (!this.date_of_birth) errors.date_of_birth = ['Date of birth should be set.'];
+    if (!this.phone) errors.phone = ['Phone should be set.'];
+    if (!this.address) errors.address = ['Address should be set.'];
+
+    return errors;
 };
 
 module.exports = User;
