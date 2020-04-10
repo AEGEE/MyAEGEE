@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const { User, Body, MailChange } = require('../models');
 const constants = require('../lib/constants');
 const helpers = require('../lib/helpers');
@@ -137,5 +139,30 @@ exports.triggerEmailChange = async (req, res) => {
     return res.json({
         success: true,
         message: 'The mail change was triggered. Check your email.'
+    });
+};
+
+exports.confirmEmailChange = async (req, res) => {
+    const mailChange = await MailChange.findOne({
+        where: { value: (req.body.token || '').trim() },
+        include: [User]
+    });
+
+    if (!mailChange) {
+        return errors.makeNotFoundError(res, 'Token is invalid.');
+    }
+
+    if (moment(mailChange.expires_at).isBefore(moment())) {
+        return errors.makeNotFoundError(res, 'Token is expired.');
+    }
+
+    await sequelize.transaction(async (t) => {
+        await mailChange.user.update({ email: mailChange.new_email }, { transaction: t });
+        await mailChange.destroy({ transaction: t });
+    });
+
+    return res.json({
+        success: true,
+        message: 'Mail was changed successfully.'
     });
 };

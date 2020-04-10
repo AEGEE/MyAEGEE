@@ -55,6 +55,7 @@ process.on('unhandledRejection', (err) => {
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
 GeneralRouter.post('/signup/:campaign_id', campaigns.registerUser);
 GeneralRouter.post('/confirm-email', register.confirmEmail);
+GeneralRouter.post('/confirm-email-change', members.confirmEmailChange);
 GeneralRouter.post('/login', login.login);
 GeneralRouter.post('/password_reset', login.passwordReset);
 GeneralRouter.post('/password_confirm', login.passwordConfirm);
