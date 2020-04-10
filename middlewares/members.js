@@ -1,7 +1,10 @@
-const { User, Body } = require('../models');
+const { User, Body, MailChange } = require('../models');
 const constants = require('../lib/constants');
 const helpers = require('../lib/helpers');
 const errors = require('../lib/errors');
+const mailer = require('../lib/mailer');
+const { sequelize } = require('../lib/sequelize');
+
 
 exports.listAllUsers = async (req, res) => {
     if (!req.permissions.hasPermission('global:view:member')) {
@@ -110,5 +113,29 @@ exports.setPrimaryBody = async (req, res) => {
     return res.json({
         success: true,
         data: req.currentUser
+    });
+};
+
+exports.triggerEmailChange = async (req, res) => {
+    if (!req.permissions.hasPermission('update:member') && req.user.id !== req.currentUser.id) {
+        return errors.makeForbiddenError(res, 'Permission update:member is required, but not present.');
+    }
+
+    await sequelize.transaction(async (t) => {
+        const mailChange = await MailChange.createForUser(req.currentUser, req.body.new_email, t);
+
+        await mailer.sendMail({
+            to: req.body.new_email,
+            subject: constants.MAIL_SUBJECTS.PASSWORD_RESET,
+            template: 'mail-change.html',
+            parameters: {
+                token: mailChange.value
+            }
+        });
+    });
+
+    return res.json({
+        success: true,
+        message: 'The mail change was triggered. Check your email.'
     });
 };

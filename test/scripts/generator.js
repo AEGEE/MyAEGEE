@@ -4,6 +4,7 @@ const {
     User,
     Campaign,
     MailConfirmation,
+    MailChange,
     AccessToken,
     RefreshToken,
     PasswordReset,
@@ -184,7 +185,21 @@ exports.generatePayment = (body, user, options = {}) => {
     return options;
 };
 
+exports.generateMailChange = (options = {}, user) => {
+    if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
+    if (notSet(options.expires_at)) options.expires_at = faker.date.future();
+    if (notSet(options.new_email)) options.new_email = faker.internet.email();
+    if (user) options.user_id = user.id;
+
+    return options;
+};
+
+exports.createMailChange = (options = {}, user = null) => {
+    return MailChange.create(exports.generateMailChange(options, user));
+};
+
 exports.clearAll = async () => {
+    await MailChange.destroy({ where: {}, truncate: { cascade: true } });
     await Payment.destroy({ where: {}, truncate: { cascade: true } });
     await JoinRequest.destroy({ where: {}, truncate: { cascade: true } });
     await BodyMembership.destroy({ where: {}, truncate: { cascade: true } });

@@ -1,8 +1,10 @@
 const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const mock = require('../scripts/mock');
+const { MailChange } = require('../../models');
 
-describe('User editing', () => {
+describe('User mail change', () => {
     beforeAll(async () => {
         await startServer();
     });
@@ -11,8 +13,13 @@ describe('User editing', () => {
         await stopServer();
     });
 
+    beforeEach(async () => {
+        await mock.mockAll();
+    });
+
     afterEach(async () => {
         await generator.clearAll();
+        await mock.cleanAll();
     });
 
     test('should return 404 if the user is not found', async () => {
@@ -22,10 +29,10 @@ describe('User editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/1337',
+            uri: '/members/1337/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { username: 'test2' }
+            body: { new_email: 'test@test.io' }
         });
 
         expect(res.statusCode).toEqual(404);
@@ -41,17 +48,38 @@ describe('User editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id,
+            uri: '/members/' + user.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { username: 'username with spaces' }
+            body: { new_email: 'not-valid' }
         });
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('username');
+        expect(res.body.errors).toHaveProperty('new_email');
+    });
+
+    test('should fail if mailer fails', async () => {
+        mock.mockAll({ mailer: { netError: true } });
+
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
+
+        const res = await request({
+            uri: '/members/' + user.id + '/email',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { new_email: 'test@test.io' }
+        });
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
     });
 
     test('should succeed if everything is okay', async () => {
@@ -61,37 +89,19 @@ describe('User editing', () => {
         await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
 
         const res = await request({
-            uri: '/members/' + user.id,
+            uri: '/members/' + user.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { username: 'test2' }
+            body: { new_email: 'test@test.io' }
         });
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
-        expect(res.body).toHaveProperty('data');
-        expect(res.body.data.username).toEqual('test2');
-    });
+        expect(res.body).toHaveProperty('message');
 
-    test('should discard fields edited in other endpoints', async () => {
-        const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
-
-        await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
-
-        const res = await request({
-            uri: '/members/' + user.id,
-            method: 'PUT',
-            headers: { 'X-Auth-Token': token.value },
-            body: { email: 'test@test.io' }
-        });
-
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        expect(res.body).not.toHaveProperty('errors');
-        expect(res.body).toHaveProperty('data');
-        expect(res.body.data.email).not.toEqual('test@test.io');
+        const changeFromDb = await MailChange.findOne({ where: { user_id: user.id } });
+        expect(changeFromDb).not.toEqual(null);
     });
 
     test('should work for current user for /me without permission', async () => {
@@ -99,17 +109,16 @@ describe('User editing', () => {
         const token = await generator.createAccessToken({}, user);
 
         const res = await request({
-            uri: '/members/' + user.id,
+            uri: '/members/' + user.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { username: 'test2' }
+            body: { new_email: 'test@test.io' }
         });
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
-        expect(res.body).toHaveProperty('data');
-        expect(res.body.data.username).toEqual('test2');
+        expect(res.body).toHaveProperty('message');
     });
 
     test('should work for current user for /:user_id without permission', async () => {
@@ -117,17 +126,16 @@ describe('User editing', () => {
         const token = await generator.createAccessToken({}, user);
 
         const res = await request({
-            uri: '/members/' + user.id,
+            uri: '/members/' + user.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { username: 'test2' }
+            body: { new_email: 'test@test.io' }
         });
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
-        expect(res.body).toHaveProperty('data');
-        expect(res.body.data.username).toEqual('test2');
+        expect(res.body).toHaveProperty('message');
     });
 
     test('should work with local permission', async () => {
@@ -143,17 +151,16 @@ describe('User editing', () => {
         await generator.createBodyMembership(body, otherUser);
 
         const res = await request({
-            uri: '/members/' + otherUser.id,
+            uri: '/members/' + otherUser.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { username: 'test2' }
+            body: { new_email: 'test@test.io' }
         });
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');
-        expect(res.body).toHaveProperty('data');
-        expect(res.body.data.username).toEqual('test2');
+        expect(res.body).toHaveProperty('message');
     });
 
     test('should fail if no permission', async () => {
@@ -163,10 +170,10 @@ describe('User editing', () => {
         const otherUser = await generator.createUser();
 
         const res = await request({
-            uri: '/members/' + otherUser.id,
+            uri: '/members/' + otherUser.id + '/email',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { username: 'test2' }
+            body: { new_email: 'test@test.io' }
         });
 
         expect(res.statusCode).toEqual(403);
