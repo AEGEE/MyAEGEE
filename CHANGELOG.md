@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/AEGEE/oms-core-js/compare/1.12.0...1.12.1) (2020-04-11)
+
+
+### Bug Fixes
+
+* added clear script ([2a5e838](https://github.com/AEGEE/oms-core-js/commit/2a5e8385da0ee3a9e496db0872cb6d2d7a18d096))
+
 # [1.12.0](https://github.com/AEGEE/oms-core-js/compare/1.11.1...1.12.0) (2020-04-11)
 
 
