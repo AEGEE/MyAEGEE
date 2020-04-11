@@ -1,3 +1,19 @@
+# [1.12.0](https://github.com/AEGEE/oms-core-js/compare/1.11.1...1.12.0) (2020-04-11)
+
+
+### Bug Fixes
+
+* **body:** added fee currency ([e82005f](https://github.com/AEGEE/oms-core-js/commit/e82005f9921819e2608be7442b5ba12f0020e9f8))
+* **login:** return data in the old format, no breaking change ([5c02325](https://github.com/AEGEE/oms-core-js/commit/5c023257b67a138b8b7e06a6a9c71ea4c872c60a))
+
+
+### Features
+
+* **authorizing:** new invalid login base ([bebc261](https://github.com/AEGEE/oms-core-js/commit/bebc261b953ffb47a97237a0831f466023513a6a))
+* **members:** mail change confirm ([cdb900c](https://github.com/AEGEE/oms-core-js/commit/cdb900c82431b7c03561152384ef26ed1795d479))
+* **members:** mail change trigger ([29fea0a](https://github.com/AEGEE/oms-core-js/commit/29fea0a88c87a748fa61bf1459667b4899de14d5))
+* **memberships:** adding member to body ([a8de599](https://github.com/AEGEE/oms-core-js/commit/a8de599517d05c49a7b76e7820c45c3bc4df4dd5))
+
 ## [1.11.1](https://github.com/AEGEE/oms-core-js/compare/1.11.0...1.11.1) (2020-04-09)
 
 
