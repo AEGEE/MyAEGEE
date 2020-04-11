@@ -26,7 +26,7 @@ describe('Authorization', () => {
             }
         });
 
-        expect(res.statusCode).toEqual(401);
+        expect(res.statusCode).toEqual(403);
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
@@ -44,7 +44,7 @@ describe('Authorization', () => {
             }
         });
 
-        expect(res.statusCode).toEqual(401);
+        expect(res.statusCode).toEqual(403);
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
@@ -62,7 +62,7 @@ describe('Authorization', () => {
             }
         });
 
-        expect(res.statusCode).toEqual(401);
+        expect(res.statusCode).toEqual(403);
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
@@ -80,7 +80,7 @@ describe('Authorization', () => {
             }
         });
 
-        expect(res.statusCode).toEqual(401);
+        expect(res.statusCode).toEqual(403);
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
@@ -120,7 +120,8 @@ describe('Authorization', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
-        expect(res.body).toHaveProperty('data');
+        expect(res.body).toHaveProperty('access_token');
+        expect(res.body).toHaveProperty('refresh_token');
         expect(res.body).not.toHaveProperty('errors');
     });
 
@@ -138,7 +139,8 @@ describe('Authorization', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
-        expect(res.body).toHaveProperty('data');
+        expect(res.body).toHaveProperty('access_token');
+        expect(res.body).toHaveProperty('refresh_token');
         expect(res.body).not.toHaveProperty('errors');
     });
 
@@ -156,7 +158,8 @@ describe('Authorization', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
-        expect(res.body).toHaveProperty('data');
+        expect(res.body).toHaveProperty('access_token');
+        expect(res.body).toHaveProperty('refresh_token');
         expect(res.body).not.toHaveProperty('errors');
     });
 });

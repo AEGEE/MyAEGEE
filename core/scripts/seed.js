@@ -22,7 +22,7 @@ async function createAdmin() {
         last_name: 'Admin',
         username: 'admin',
         email: 'admin@example.com',
-        password: '5ecret5ecret',
+        password: '5ecr3t5ecr3t',
         about_me: 'I\'m the superadmin of the system, please do not remove me.',
         date_of_birth: '1970-01-01',
         gender: 'machine',
