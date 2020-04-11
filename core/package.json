@@ -36,6 +36,7 @@
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate; rm -f .seed-executed",
     "db:migrate": "sequelize db:migrate",
     "db:seed": "LOGLEVEL=info node --experimental-repl-await scripts/seed.js && touch .seed-executed",
+    "db:clear": "LOGLEVEL=info node  --experimental-repl-await scripts/clear.js; rm -f .seed-executed",
     "cli": "node --experimental-repl-await -r ./cli.js",
     "open-coverage": "open-cli coverage/lcov-report/index.html"
   },
