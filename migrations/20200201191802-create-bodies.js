@@ -37,6 +37,10 @@ module.exports = {
             allowNull: false,
             defaultValue: true
         },
+        fee_currency: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
         founded_at: {
             allowNull: false,
             type: Sequelize.DATE,

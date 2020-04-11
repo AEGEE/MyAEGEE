@@ -54,6 +54,10 @@ const Body = sequelize.define('body', {
             }
         }
     },
+    fee_currency: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
     pays_fees: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
