@@ -19,15 +19,15 @@ module.exports.login = async (req, res) => {
     });
 
     if (!user) {
-        return errors.makeUnauthorizedError(res, 'User is not found.');
+        return errors.makeForbiddenError(res, 'User is not found.');
     }
 
     if (!await user.checkPassword(req.body.password)) {
-        return errors.makeUnauthorizedError(res, 'Password is not valid.');
+        return errors.makeForbiddenError(res, 'Password is not valid.');
     }
 
     if (!user.mail_confirmed_at) {
-        return errors.makeUnauthorizedError(res, 'Please confirm your mail first.');
+        return errors.makeForbiddenError(res, 'Please confirm your mail first.');
     }
 
     // Some fields can be empty while registering, but we shouldn't allow login for such users.
@@ -43,10 +43,8 @@ module.exports.login = async (req, res) => {
 
     return res.json({
         success: true,
-        data: {
-            access_token: accessToken.value,
-            refresh_token: refreshToken.value
-        }
+        access_token: accessToken.value,
+        refresh_token: refreshToken.value
     });
 };
 
@@ -110,7 +108,7 @@ module.exports.renew = async (req, res) => {
     });
 
     if (!token) {
-        return res.status(401).json({
+        return res.status(403).json({
             success: false,
             message: 'Token is not found.'
         });
