@@ -1,3 +1,10 @@
+## [1.12.3](https://github.com/AEGEE/oms-core-js/compare/1.12.2...1.12.3) (2020-04-12)
+
+
+### Bug Fixes
+
+* **login:** using old format for /renew ([b986f1e](https://github.com/AEGEE/oms-core-js/commit/b986f1e24740018df4107ecf3d8e049f866ad96a))
+
 ## [1.12.2](https://github.com/AEGEE/oms-core-js/compare/1.12.1...1.12.2) (2020-04-12)
 
 
