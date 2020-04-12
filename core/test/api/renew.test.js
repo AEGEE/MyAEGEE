@@ -21,7 +21,7 @@ describe('Tokens renewal', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
-                token: '123'
+                refresh_token: '123'
             }
         });
 
@@ -40,7 +40,7 @@ describe('Tokens renewal', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: {
-                token: refreshToken.value
+                refresh_token: refreshToken.value
             }
         });
 
