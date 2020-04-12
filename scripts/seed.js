@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const moment = require('moment');
 
 const { authenticate, close } = require('../lib/sequelize');
 const logger = require('../lib/logger');
@@ -11,7 +12,8 @@ const {
     CircleMembership,
     CirclePermission,
     BodyMembership,
-    Campaign
+    Campaign,
+    MailConfirmation
 } = require('../models');
 
 const data = {};
@@ -852,7 +854,7 @@ async function createMembers() {
         first_name: 'Not A',
         last_name: 'Member',
         username: 'not-member',
-        email: 'not_member@example.com',
+        email: 'not-member@example.com',
         password: '5ecret5ecret',
         about_me: 'Imma no member',
         date_of_birth: '1970-01-01',
@@ -861,10 +863,30 @@ async function createMembers() {
         mail_confirmed_at: new Date()
     });
 
+    const notConfirmedMember = await User.create({
+        first_name: 'Not Confirmed',
+        last_name: 'Member',
+        username: 'not-confirmed',
+        email: 'not-confirmed@example.com',
+        password: '5ecret5ecret',
+        about_me: 'I\'m not a confirrmed member',
+        date_of_birth: '1970-01-01',
+        gender: 'techno',
+        address: 'Somewhere in Europe',
+        mail_confirmed_at: null
+    });
+
+    await MailConfirmation.create({
+        user_id: notConfirmedMember.id,
+        value: '5ecr3t',
+        expires_at: moment().add(10, 'year').toDate()
+    });
+
     return {
         member,
         boardMember,
-        notMember
+        notMember,
+        notConfirmedMember
     };
 }
 
