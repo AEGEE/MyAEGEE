@@ -1,3 +1,10 @@
+## [1.12.2](https://github.com/AEGEE/oms-core-js/compare/1.12.1...1.12.2) (2020-04-12)
+
+
+### Bug Fixes
+
+* **provisioning:** not confirmed member seed ([61dcd9f](https://github.com/AEGEE/oms-core-js/commit/61dcd9f3408f4f8f4954a91251dd7653b1dd1d57))
+
 ## [1.12.1](https://github.com/AEGEE/oms-core-js/compare/1.12.0...1.12.1) (2020-04-11)
 
 
