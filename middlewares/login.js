@@ -118,9 +118,7 @@ module.exports.renew = async (req, res) => {
 
     return res.json({
         success: true,
-        data: {
-            access_token: accessToken.value,
-        }
+        access_token: accessToken.value
     });
 };
 
