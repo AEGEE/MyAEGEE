@@ -1,3 +1,10 @@
+## [1.12.4](https://github.com/AEGEE/oms-core-js/compare/1.12.3...1.12.4) (2020-04-14)
+
+
+### Bug Fixes
+
+* **renew:** return values in new format ([dbdc938](https://github.com/AEGEE/oms-core-js/commit/dbdc9384d883bb71d85870a4a3b04dad82107c30))
+
 ## [1.12.3](https://github.com/AEGEE/oms-core-js/compare/1.12.2...1.12.3) (2020-04-12)
 
 
