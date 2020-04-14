@@ -41,6 +41,43 @@ Another implementation of oms-core, the main part of MyAEGEE, this time in JS.
 - **...contribute to this repo?**
 - Contributions are always welcome! Just contact somebody from maintainers, we'll help you figuring things out.
 
+## Test users
+
+All users have `5ecr3t5ecret` as password.
+
+- `admin@example.com` - admin
+- `board@example.com` - board member of antenna
+- `member@example.com` - regular member of antenna
+- `not-confirmed@example.com` - member who is not confirmed
+- `password-reset@example.com` - member who requested a password reset
+- `suspended@example.com` - a suspended member
+
+You can use `5ecr3t` for a password reset token (for a member with email `suspended@example.com`) and `5ecr3t` for a mail confirmation (for a member with email `not-confirmed@example.com`).
+
+Easy way to recreate user session as admin: run this in the DevTools console with localhost opened:
+
+```js
+// replace admin@example.com with other email for other account
+fetch('/api/core/login', {
+    method: 'POST',
+    body: JSON.stringify({ username: 'admin@example.com', password: '5ecr3t5ecr3t'}),
+    headers: { 'Content-Type': 'application/json' }
+})
+.then(res => res.json())
+.then(res => {
+    console.log(res)
+    window.localStorage.setItem('access-token', res.access_token)
+    window.localStorage.setItem('refresh-token', res.refresh_token)
+    window.location = '/dashboard'
+})
+```
+
+Easy way to recreate all data in the system:
+```sh
+./helper.sh --execute -- oms-core-js npm run db:clear # or db:setup to drop the db schema and create it again
+./helper.sh --execute -- oms-core-js npm run db:seed
+```
+
 ## LICENSE
 
 Copyright 2020 Sergey Peshkov (AEGEE-Europe) and contributors.
