@@ -13,7 +13,8 @@ const {
     CirclePermission,
     BodyMembership,
     Campaign,
-    MailConfirmation
+    MailConfirmation,
+    PasswordReset
 } = require('../models');
 
 const data = {};
@@ -777,13 +778,13 @@ async function createPermissions() {
         },
         {
             action: 'update_active',
-            object: 'user',
+            object: 'member',
             scope: 'global',
             description: 'Allows to suspend or activate any user in the system'
         },
         {
             action: 'update_active',
-            object: 'user',
+            object: 'member',
             scope: 'local',
             description: 'Allows to suspend or activate users that are member in the body that you got this permission from'
         }
@@ -882,11 +883,46 @@ async function createMembers() {
         expires_at: moment().add(10, 'year').toDate()
     });
 
+    const passwordResetMember = await User.create({
+        first_name: 'Password Reset',
+        last_name: 'Member',
+        username: 'password-reset',
+        email: 'password-reset@example.com',
+        password: '5ecret5ecret',
+        about_me: 'I\'m a member who requested a password reset',
+        date_of_birth: '1970-01-01',
+        gender: 'earth',
+        address: 'Somewhere in Europe',
+        mail_confirmed_at: new Date()
+    });
+
+    await PasswordReset.create({
+        user_id: passwordResetMember.id,
+        expires_at: moment().add(10, 'year').toDate(),
+        value: '5ecr3t'
+    });
+
+    const suspendedMember = await User.create({
+        first_name: 'Suspended',
+        last_name: 'Member',
+        username: 'suspended',
+        email: 'suspended@example.com',
+        password: '5ecret5ecret',
+        about_me: 'I\'m a member who is suspended',
+        date_of_birth: '1970-01-01',
+        gender: 'earth',
+        address: 'Somewhere in Europe',
+        mail_confirmed_at: new Date(),
+        active: false
+    });
+
     return {
         member,
         boardMember,
         notMember,
-        notConfirmedMember
+        notConfirmedMember,
+        passwordResetMember,
+        suspendedMember
     };
 }
 
