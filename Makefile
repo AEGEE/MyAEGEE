@@ -109,23 +109,14 @@ backup_discounts:
 backup_gsuite-wrapper:
 	echo "TODO: redis"
 
-backup_upmonitor:
-	docker run --volumes-from=myaegee_upmonitor_1 --entrypoint=/bin/bash nouchka/sqlite3 sqlite3 /app/db/sqlite/production.sqlite3 ".backup '/app/db/sqlite/production.sqlite3.backup'" && docker cp myaegee_upmonitor_1:/app/db/sqlite/production.sqlite3.backup "/opt/MyAEGEE/upmonitor.sqlite3.backup-$$(date +%Y-%m-%dT%H:%M)"
-
 backup_statping:
 	docker run --volumes-from=myaegee_statping_1 --entrypoint=/bin/bash nouchka/sqlite3 sqlite3 /app/statup.db ".backup '/app/statup.db.backup'" && docker cp myaegee_statping_1:/app/statup.db.backup "/opt/MyAEGEE/statup.db.backup-$$(date +%Y-%m-%dT%H:%M)"
-
-backup_statuspage:
-	echo "who cares"
 
 backup_statistics:
 	echo "TODO: prometheus volume (not all of the data is important!)"
 
 backup_security:
 	bash ./helper.sh --execute maria-bitwarden -- mysqldump -h"localhost" -u"warden" -p"$${PW_BITWARDEN}" bitwarden' > bitwarden_dump.sql.backup-$$(date +%Y-%m-%dT%H:%M)
-
-backup_wiki:
-	bash ./helper.sh --execute maria-mediawiki -- mysqldump -h"localhost" -u"wiki" -p"$${PW_MEDIAWIKI}" mediawiki' > mediawiki_dump.sql.backup-$$(date +%Y-%m-%dT%H:%M)
 
 backup_shortener:
 	bash ./helper.sh --execute maria-yourls -- mysqldump -h"localhost" -u"yourls" -p"$${PW_YOURLS}" yourls' > yourls_dump.sql.backup-$$(date +%Y-%m-%dT%H:%M)
