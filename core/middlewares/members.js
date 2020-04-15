@@ -67,7 +67,7 @@ exports.setUserPassword = async (req, res) => {
     const userWithPassword = await User.scope('withPassword').findByPk(req.currentUser.id);
 
     if (!await userWithPassword.checkPassword(req.body.old_password)) {
-        return errors.makeForbiddenError(res, 'The old password is invalid.');
+        return errors.makeValidationError(res, 'The old password is invalid.');
     }
 
     await userWithPassword.update({ password: req.body.password });
