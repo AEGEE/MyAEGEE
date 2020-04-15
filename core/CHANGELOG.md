@@ -1,3 +1,10 @@
+## [1.12.5](https://github.com/AEGEE/oms-core-js/compare/1.12.4...1.12.5) (2020-04-15)
+
+
+### Bug Fixes
+
+* **password:** return 422 instead of 403 on invalid password change ([6589474](https://github.com/AEGEE/oms-core-js/commit/65894741193ac1444ffc847c5dd1d65bbb8051ff))
+
 ## [1.12.4](https://github.com/AEGEE/oms-core-js/compare/1.12.3...1.12.4) (2020-04-14)
 
 
