@@ -9,7 +9,7 @@ services:
     restart: "no"
     image: portainer/portainer:1.22.1
     # image: portainer/portainer:1.15.5 #they broke the tag
-    command: -H unix:///var/run/docker.sock --admin-password ${PW_PORTAINER} --logo ${AEGEE_LOGO_B64}  # yamllint disable-line rule:line-length
+    command: -H unix:///var/run/docker.sock --admin-password ${PW_TRAEFIK} --logo ${AEGEE_LOGO_B64}  # yamllint disable-line rule:line-length
     expose:
       - "9000"
     volumes:
@@ -35,7 +35,7 @@ services:
       - "traefik.port=5050"
       - "traefik.frontend.rule=Host:${SUBDOMAIN_PGADMIN}${BASE_URL}"
       - "traefik.frontend.priority=20"
-      - "traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK_BLOWF}"
+      - "traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}"
     environment:
       DEFAULT_USER: "myaegee-admins@${EMAIL_DOMAIN}"
       DEFAULT_PASSWORD: "${PW_PGADMIN}"
@@ -44,7 +44,7 @@ services:
     image: erikdubbelboer/phpredisadmin:v1.11.4
     environment:
       ADMIN_USER: admin
-      ADMIN_PASS: ${PW_REDIS_BLOWF}
+      ADMIN_PASS: ${PW_TRAEFIK}
       REDIS_1_HOST: redis-oms-gsuite-wrapper
       REDIS_1_PORT: 6379
     labels:
@@ -53,7 +53,7 @@ services:
       - "traefik.port=80"
       - "traefik.frontend.rule=Host:${SUBDOMAIN_REDISADMIN}${BASE_URL}"
       - "traefik.frontend.priority=20"
-      - "traefik.frontend.auth.basic.users=admin:${PW_REDIS_BLOWF}"
+      - "traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}"
 
 
 ### show api docs Container #######################################
