@@ -12,7 +12,7 @@ services:
       LIMESURVEY_ADMIN_USER: "admin"
       LIMESURVEY_ADMIN_PASSWORD: "${PW_ADMIN}"
       LIMESURVEY_ADMIN_NAME: "Lime Administrator"
-      LIMESURVEY_ADMIN_EMAIL: "admin@${BASE_URL}"
+      LIMESURVEY_ADMIN_EMAIL: "myaegee-admins@${EMAIL_DOMAIN}"
     volumes:
       - upload:/app/upload
     labels:

@@ -28,7 +28,7 @@ services:
       ROCKET_LOG: "normal"  # the only thing above this is "critical", no "warning"
       SHOW_PASSWORD_HINT: "false"
       SMTP_HOST: "smtp.sendgrid.net"
-      SMTP_FROM: "bitwarden@${BASE_URL}"
+      SMTP_FROM: "bitwarden@${EMAIL_DOMAIN}"
       SMTP_FROM_NAME: "AEGEE pass manager"
       SMTP_PORT: "587"
       SMTP_SSL: "true"

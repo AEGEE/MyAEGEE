@@ -10,7 +10,7 @@ notifiers:
     # See `Supported Settings` section for settings supporter for each
     # alert notification type.
     settings:
-      recipient: "#----devops"
+      recipient: "#----monitoring"
       uploadImage: true
       username: "Grafana"
       iconUrl: "https://gitlab.com/uploads/-/system/project/avatar/928825/grafana_icon.png"

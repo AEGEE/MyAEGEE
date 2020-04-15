@@ -48,14 +48,14 @@ services:
       SECRET_KEY_BASE: "${RUBY_APP_KEY}"
       SMTP_ADDRESS: smtp.sendgrid.net
       SMTP_EMAIL_FROM: ciaohttp@${BASE_URL}
-      SMTP_EMAIL_TO: myaegee-admins@${BASE_URL}
+      SMTP_EMAIL_TO: myaegee-admins@${EMAIL_DOMAIN}
       SMTP_PORT: "587"
       SMTP_AUTHENTICATION: plain
       SMTP_DOMAIN: smtp.${BASE_URL}
       SMTP_ENABLE_STARTTLS_AUTO: "true"
       SMTP_USERNAME: "${USER_SENDGRID}"
       SMTP_PASSWORD: "${PW_SENDGRID}"
-      CIAO_WEBHOOK_ENDPOINT_SLACK: "${SLACK_URL}"
+      CIAO_WEBHOOK_ENDPOINT_SLACK: "${SLACK_WEBHOOK_CIAO}"
       # yamllint disable-line rule:line-length
       CIAO_WEBHOOK_PAYLOAD_SLACK: "{\"text\":\"[ciao-http-status] __name__: Status changed to __status_after__ (from __status_before__)\", \"icon_emoji\": \":up:\", \"username\": \"uptime-monitor\"}"
       PROMETHEUS_ENABLED: "true"
@@ -80,7 +80,7 @@ services:
       DOMAIN: "https://${SUBDOMAIN_STATPING}${BASE_URL}"
       ADMIN_USER: admin
       ADMIN_PASSWORD: ${PW_STATPING}
-      ADMIN_EMAIL: "myaegee-admins@${BASE_URL}"
+      ADMIN_EMAIL: "myaegee-admins@${EMAIL_DOMAIN}"
       USE_CDN: "true"
       DISABLE_LOGS: "false"  # disable logs from appearing and writing to disk
       IS_DOCKER: "true"
