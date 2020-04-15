@@ -43,7 +43,7 @@ Another implementation of oms-core, the main part of MyAEGEE, this time in JS.
 
 ## Test users
 
-All users have `5ecr3t5ecret` as password.
+All users have `5ecr3t5ecr3t` as password.
 
 - `admin@example.com` - admin
 - `board@example.com` - board member of antenna
@@ -57,10 +57,13 @@ You can use `5ecr3t` for a password reset token (for a member with email `suspen
 Easy way to recreate user session as admin: run this in the DevTools console with localhost opened:
 
 ```js
-// replace admin@example.com with other email for other account
-fetch('/api/core/login', {
+// replace 'admin@example.com' with other email for other account
+// replace '5ecr3t5ecr3t' with password if you want another password
+// replace 'http://localhost' with other URL if you want to try it on other domain
+
+fetch(`http://localhost/api/core/login`, {
     method: 'POST',
-    body: JSON.stringify({ username: 'admin@example.com', password: '5ecr3t5ecr3t'}),
+    body: JSON.stringify({ username: 'admin@example.com', password: '5ecr3t5ecr3t' }),
     headers: { 'Content-Type': 'application/json' }
 })
 .then(res => res.json())
@@ -68,7 +71,7 @@ fetch('/api/core/login', {
     console.log(res)
     window.localStorage.setItem('access-token', res.access_token)
     window.localStorage.setItem('refresh-token', res.refresh_token)
-    window.location = '/dashboard'
+    window.location = `http://localhost/dashboard`
 })
 ```
 
