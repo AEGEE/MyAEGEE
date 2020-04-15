@@ -95,25 +95,25 @@ remove-agents:
 
 # Backups
 backup_core:
-	bash ./helper.sh --execute postgres-oms-core-elixir -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/omscore_dev' --inserts > oms_core.sql.backup-$(date)
+	bash ./helper.sh --execute postgres-oms-core-elixir -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/omscore_dev' --inserts > oms_core.sql.backup-$(date +%Y-%m-%dT%H:%M)
 
 backup_events:
-	bash ./helper.sh --execute postgres-oms-events -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/events' --inserts > oms_events.sql.backup-$(date)
+	bash ./helper.sh --execute postgres-oms-events -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/events' --inserts > oms_events.sql.backup-$(date +%Y-%m-%dT%H:%M)
 
 backup_statutory:
-	bash ./helper.sh --execute postgres-oms-statutory -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/statutory' --inserts > oms_statutory.sql.backup-$(date)
+	bash ./helper.sh --execute postgres-oms-statutory -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/statutory' --inserts > oms_statutory.sql.backup-$(date +%Y-%m-%dT%H:%M)
 
 backup_discounts:
-	bash ./helper.sh --execute postgres-oms-discounts -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/discounts' --inserts > oms_discounts.sql.backup-$(date)
+	bash ./helper.sh --execute postgres-oms-discounts -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/discounts' --inserts > oms_discounts.sql.backup-$(date +%Y-%m-%dT%H:%M)
 
 backup_gsuite-wrapper:
 	echo "TODO: redis"
 
 backup_upmonitor:
-	bash ./helper.sh --execute upmonitor -- sqlite3 /app/db/sqlite/production.sqlite3 ".backup '/app/db/sqlite/production.sqlite3.backup'" && docker cp myaegee_upmonitor_1:/app/db/sqlite/production.sqlite3.backup upmonitor.sqlite3.backup-$(date)
+	docker run --volumes-from=myaegee_upmonitor_1 --entrypoint=/bin/bash nouchka/sqlite3 sqlite3 /app/db/sqlite/production.sqlite3 ".backup '/app/db/sqlite/production.sqlite3.backup'" && docker cp myaegee_upmonitor_1:/app/db/sqlite/production.sqlite3.backup "/opt/MyAEGEE/upmonitor.sqlite3.backup-$(date +%Y-%m-%dT%H:%M)"
 
 backup_statping:
-	bash ./helper.sh --execute statping -- sqlite3 /app/statup.db ".backup '/app/statup.db.backup'" && docker cp myaegee_statping_1:/app/statup.db.backup statup.db.backup-$(date)
+	docker run --volumes-from=myaegee_statping_1 --entrypoint=/bin/bash nouchka/sqlite3 sqlite3 /app/statup.db ".backup '/app/statup.db.backup'" && docker cp myaegee_statping_1:/app/statup.db.backup "/opt/MyAEGEE/statup.db.backup-$(date +%Y-%m-%dT%H:%M)"
 
 backup_statuspage:
 	echo "who cares"
@@ -122,13 +122,13 @@ backup_statistics:
 	echo "TODO: prometheus volume (not all of the data is important!)"
 
 backup_security:
-	bash ./helper.sh --execute maria-bitwarden -- mysqldump -h"localhost" -u"warden" -p"$${PW_BITWARDEN}" bitwarden' > bitwarden_dump.sql.backup-$(date)
+	bash ./helper.sh --execute maria-bitwarden -- mysqldump -h"localhost" -u"warden" -p"$${PW_BITWARDEN}" bitwarden' > bitwarden_dump.sql.backup-$(date +%Y-%m-%dT%H:%M)
 
 backup_wiki:
-	bash ./helper.sh --execute maria-mediawiki -- mysqldump -h"localhost" -u"wiki" -p"$${PW_MEDIAWIKI}" mediawiki' > mediawiki_dump.sql.backup-$(date)
+	bash ./helper.sh --execute maria-mediawiki -- mysqldump -h"localhost" -u"wiki" -p"$${PW_MEDIAWIKI}" mediawiki' > mediawiki_dump.sql.backup-$(date +%Y-%m-%dT%H:%M)
 
 backup_shortener:
-	bash ./helper.sh --execute maria-yourls -- mysqldump -h"localhost" -u"yourls" -p"$${PW_YOURLS}" yourls' > yourls_dump.sql.backup-$(date)
+	bash ./helper.sh --execute maria-yourls -- mysqldump -h"localhost" -u"yourls" -p"$${PW_YOURLS}" yourls' > yourls_dump.sql.backup-$(date +%Y-%m-%dT%H:%M)
 
 backup_survey:
-	bash ./helper.sh --execute postgres-limesurvey -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/limesurvey' --inserts > limesurvey.sql.backup-$(date)
+	bash ./helper.sh --execute postgres-limesurvey -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/limesurvey' --inserts > limesurvey.sql.backup-$(date +%Y-%m-%dT%H:%M)
