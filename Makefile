@@ -118,9 +118,6 @@ backup_statistics:
 backup_security:
 	bash ./helper.sh --execute maria-bitwarden -- mysqldump -h"localhost" -u"warden" -p"$${PW_BITWARDEN}" bitwarden' > bitwarden_dump.sql.backup-$$(date +%Y-%m-%dT%H:%M)
 
-backup_wiki:
-	bash ./helper.sh --execute maria-mediawiki -- mysqldump -h"localhost" -u"wiki" -p"$${PW_MEDIAWIKI}" mediawiki' > mediawiki_dump.sql.backup-$$(date +%Y-%m-%dT%H:%M)
-
 backup_shortener:
 	bash ./helper.sh --execute maria-yourls -- mysqldump -h"localhost" -u"yourls" -p"$${PW_YOURLS}" yourls' > yourls_dump.sql.backup-$$(date +%Y-%m-%dT%H:%M)
 
