@@ -49,7 +49,7 @@ describe('User activation', () => {
             body: { old_password: 'not right', password: 'short' }
         });
 
-        expect(res.statusCode).toEqual(403);
+        expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
