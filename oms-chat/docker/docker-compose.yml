@@ -1,0 +1,52 @@
+version: "3.4"
+
+services:
+
+  postgres-mattermost:
+    image: aegee/mattermost-db:5.21.0
+    restart: unless-stopped
+    volumes:
+      - postgres_mattermost:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - POSTGRES_USER=${MM_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=mattermost
+
+  mattermost:
+    image: aegee/mattermost-team:5.21.0
+    restart: unless-stopped
+    depends_on:
+      - postgres-mattermost
+    volumes:
+      - ./${PATH_OMS_CHAT}/volumes/app/mattermost/config:/mattermost/config:rw
+      - ./${PATH_OMS_CHAT}/volumes/app/mattermost/data:/mattermost/data:rw
+      - ./${PATH_OMS_CHAT}/volumes/app/mattermost/logs:/mattermost/logs:rw
+      - ./${PATH_OMS_CHAT}/volumes/app/mattermost/plugins:/mattermost/plugins:rw
+      - ./${PATH_OMS_CHAT}/volumes/app/mattermost/client-plugins:/mattermost/client/plugins:rw
+
+      #- mattermost_data:/mattermost
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - MM_USERNAME=${MM_USERNAME}
+      - MM_PASSWORD=${POSTGRES_PASSWORD}
+      - MM_DBNAME=mattermost
+      - MM_SQLSETTINGS_DATASOURCE=postgres://${MM_USERNAME}:${POSTGRES_PASSWORD}@postgres-mattermost:5432/mattermost?sslmode=disable&connect_timeout=10
+      #- MM_CONFIG=/mattermost/config/config.json # in case your config is not in default location
+    labels:
+      - "traefik.backend=mattermost"
+      - "traefik.port=8000"
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_CHAT}${BASE_URL};PathPrefix:/"
+      - "traefik.frontend.priority=110"
+      - "traefik.enable=true"
+
+volumes:
+  postgres_mattermost:
+    driver: local
+  mattermost_data:
+    driver: local
+
+networks:
+  default:
+    external:
+      name: OMS
