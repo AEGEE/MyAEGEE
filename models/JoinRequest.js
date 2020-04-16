@@ -12,13 +12,13 @@ const JoinRequest = sequelize.define('join_request', {
         allowNull: true
     },
     status: {
-        type: Sequelize.ENUM('pending', 'accepted'),
+        type: Sequelize.ENUM('pending', 'approved'),
         allowNull: false,
         defaultValue: 'pending',
         validate: {
             isIn: {
-                args: [['pending', 'accepted']],
-                msg: 'Status should be one of these: "pending", "accepted".'
+                args: [['pending', 'approved']],
+                msg: 'Status should be one of these: "pending", "approved".'
             }
         }
     },
