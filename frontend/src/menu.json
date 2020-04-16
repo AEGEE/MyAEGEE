@@ -29,6 +29,11 @@
         "name": "oms.calendar",
         "label": "Events calendar",
         "icon": "calendar"
+      },
+      {
+        "name": "oms.online",
+        "label": "Online events",
+        "icon": "calendar"
       }
     ]
   },
