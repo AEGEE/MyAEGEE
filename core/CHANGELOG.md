@@ -1,3 +1,10 @@
+## [1.12.6](https://github.com/AEGEE/oms-core-js/compare/1.12.5...1.12.6) (2020-04-16)
+
+
+### Bug Fixes
+
+* **join requests:** backwards compatible status ([e359c47](https://github.com/AEGEE/oms-core-js/commit/e359c478e291276ed6316e89f07208a0ff18759c))
+
 ## [1.12.5](https://github.com/AEGEE/oms-core-js/compare/1.12.4...1.12.5) (2020-04-15)
 
 
