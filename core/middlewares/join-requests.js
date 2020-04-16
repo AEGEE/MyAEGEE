@@ -94,7 +94,7 @@ exports.changeRequestStatus = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission process:join_request is required, but not present.');
     }
 
-    if (!['accepted', 'rejected'].includes(req.body.status)) {
+    if (!['approved', 'rejected'].includes(req.body.status)) {
         return errors.makeBadRequestError(res, 'The status is invalid.');
     }
 
@@ -103,14 +103,15 @@ exports.changeRequestStatus = async (req, res) => {
     }
 
     await sequelize.transaction(async (t) => {
-        // if a join request is accepted, then create a new body membership
+        // if a join request is approved, then create a new body membership
         // but store the join request (for history)
         // if a join request is rejected, just delete it so a person can reapply.
-        if (req.body.status === 'accepted') {
+        if (req.body.status === 'approved') {
             await BodyMembership.create({
                 user_id: req.currentJoinRequest.user_id,
                 body_id: req.currentBody.id
             }, { transaction: t });
+            await req.currentJoinRequest.update({ status: req.body.status });
         } else {
             await req.currentJoinRequest.destroy();
         }
