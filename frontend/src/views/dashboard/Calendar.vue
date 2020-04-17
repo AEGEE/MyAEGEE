@@ -2,11 +2,14 @@
   <div>
     <div class="content">
       <div class="tags">
-        <span class="tag" v-for="(type, key) in constants.EVENT_TYPES_NAMES" :key="key" :style="{ 'background-color': colors[key], 'color': textColors[key] }">
+        <span class="tag" v-for="(type, key) in constants.EVENT_TYPES_NAMES" :key="key" :style="{ 'background-color': colors[key], 'color': '#FFFFFF' }">
           {{ type }}
         </span>
         <span class="tag" style="background-color: #1468C5; color: #FFFFFF">
           Statutory
+        </span>
+        <span class="tag" style="background-color: #898989; color: #FFFFFF">
+          Online event
         </span>
       </div>
     </div>
@@ -47,14 +50,6 @@ export default {
         conference: '#931991',
         nwm: '#FBBA00',
         cultural: '#C51C13',
-        online: '#898989'
-      },
-      textColors: {
-        training: '#FFFFFF',
-        conference: '#FFFFFF',
-        nwm: '#FFFFFF',
-        cultural: '#FFFFFF',
-        online: '#FFFFFF'
       },
       constants,
       isLoading: false,
@@ -72,11 +67,10 @@ export default {
       this.fetchEvents()
     },
     eventClick (info) {
-      info.jsEvent.preventDefault(); // don't let the browser navigate
-
       if (info.event.url) {
-        window.open(info.event.url)
+        return
       } else {
+        info.jsEvent.preventDefault() // don't let the browser navigate
         this.$buefy.dialog.alert({
           title: info.event.title,
           message: info.event.extendedProps.description,
@@ -102,7 +96,7 @@ export default {
           start: new Date(event.starts),
           end: new Date(event.ends),
           backgroundColor: this.colors[event.type] || '#1468C5',
-          textColor: this.textColors[event.type] || '#FFFFFF',
+          textColor: '#FFFFFF',
           url: '/events/' + (event.url || event.id)
         }))
       }).catch((err) => {
@@ -110,7 +104,7 @@ export default {
         return []
       })
 
-      const statutoryPromise = this.axios.get(this.services['oms-events'], query).then((result) => {
+      const statutoryPromise = this.axios.get(this.services['oms-statutory'], query).then((result) => {
         return result.data.data.map((event) => ({
           title: event.name,
           start: new Date(event.starts),
@@ -128,7 +122,6 @@ export default {
         /* Loading the online events Google calendar */
         const onlineEventsData = Object.values(ical.parseICS(result))
         onlineEventsData.shift() // remove the timezone object. Alternative: drop object where "onlineEventsData.type != 'VEVENT'"
-        console.log(onlineEventsData)
         return onlineEventsData.map((event) => ({
           title: event.summary,
           start: new Date(event.start),

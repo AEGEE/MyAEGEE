@@ -3,8 +3,7 @@ const constants = {
     training: 'Training event',
     nwm: 'Network meeting',
     conference: 'Conference',
-    cultural: 'Cultural event',
-    online: 'Online event'
+    cultural: 'Cultural event'
   },
   STATUTORY_TYPES_NAMES: {
     agora: 'Agora',
