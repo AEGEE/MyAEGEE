@@ -19,6 +19,7 @@
       :plugins="calendarPlugins"
       :events="events"
       :displayEventTime="false"
+      @eventClick="eventClick"
       @datesRender="updateStartDate" />
 
     <b-loading :is-full-page="true" :active.sync="isLoading"></b-loading>
@@ -28,6 +29,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import moment from 'moment'
+import ical from 'ical'
 import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import constants from '../../constants'
@@ -44,13 +46,15 @@ export default {
         training: '#A0C514',
         conference: '#931991',
         nwm: '#FBBA00',
-        cultural: '#C51C13'
+        cultural: '#C51C13',
+        online: '#898989'
       },
       textColors: {
         training: '#FFFFFF',
         conference: '#FFFFFF',
         nwm: '#FFFFFF',
-        cultural: '#FFFFFF'
+        cultural: '#FFFFFF',
+        online: '#FFFFFF'
       },
       constants,
       isLoading: false,
@@ -67,16 +71,32 @@ export default {
       this.currentMonthEnd = moment(currentEnd)
       this.fetchEvents()
     },
+    eventClick (info) {
+      console.log(info)
+      console.log(info.event.extendedProps.description)
+    },
     fetchEvents () {
       this.isLoading = true
 
       const startDate = this.currentMonthStart.subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
       const endDate = this.currentMonthEnd.add(1, 'month').endOf('month').format('YYYY-MM-DD')
 
+      const query = { params: { starts: startDate, ends: endDate } }
+
+      const onlineEventsUrl = '/services/calendar-cors/calendar/ical/'
+        + 'aegee.eu_v5mn651imeqpvs87v4ln7hr1f4@group.calendar.google.com' // ID of the online calendar
+        + '/public/basic.ics'
+
+      const wrapWithError = (promise, message) => promise.catch((error) => {
+        this.$root.showError(message, error)
+        return {}
+      })
+
       Promise.all([
-        this.axios.get(this.services['oms-events'], { params: { starts: startDate, ends: endDate } }),
-        this.axios.get(this.services['oms-statutory'], { params: { starts: startDate, ends: endDate } })
-      ]).then(([regularResponse, statutoryResponse]) => {
+        wrapWithError(this.axios.get(this.services['oms-events'], query), 'Could not load events'),
+        wrapWithError(this.axios.get(this.services['oms-statutory'], query), 'Could not load statutory events'),
+        wrapWithError(fetch(onlineEventsUrl).then(res => res.text()), 'Could not load online events')
+      ]).then(([regularResponse, statutoryResponse, onlineResponse]) => {
         const regular = regularResponse.data.data.map((event) => ({
           title: event.name,
           start: new Date(event.starts),
@@ -86,21 +106,35 @@ export default {
           url: '/events/' + (event.url || event.id)
         }))
 
-        const statutory = statutoryResponse.data.data.map((event) => ({
-          title: event.name,
-          start: new Date(event.starts),
-          end: new Date(event.ends),
-          backgroundColor: '#1468C5',
+        if (statutoryResponse.data != null) {
+          const statutory = statutoryResponse.data.data.map((event) => ({
+            title: event.name,
+            start: new Date(event.starts),
+            end: new Date(event.ends),
+            backgroundColor: '#1468C5',
+            textColor: '#FFFFFF',
+            url: '/statutory/' + (event.url || event.id)
+          }))
+        } else {
+          console.log("Hey")
+          return statutory = []
+        }
+
+        /* Loading the online events Google calendar */
+        const onlineEventsData = Object.values(ical.parseICS(onlineResponse))
+        onlineEventsData.shift() // remove the timezone object. Alternative: drop object where "onlineEventsData.type != 'VEVENT'"
+        const online = onlineEventsData.map((event) => ({
+          title: event.summary,
+          start: new Date(event.start),
+          end: new Date(event.end),
+          backgroundColor: '#898989',
           textColor: '#FFFFFF',
-          url: '/statutory/' + (event.url || event.id)
+          description: event.description
         }))
 
-        this.events = [...regular, ...statutory]
+        this.events = [...regular, ...statutory, ...online]
 
         this.isLoading = false
-      }).catch((err) => {
-        this.events = []
-        this.$root.showError('Could not fetch events list', err)
       })
     }
   },
