@@ -36,7 +36,8 @@ module.exports = {
     'no-underscore-dangle': 'off',
     'no-await-in-loop': 'off',
     'no-prototype-builtins': 'off',
-    'quote-props': 'off'
+    'quote-props': 'off',
+    'arrow-body-style': 'off'
   },
   parserOptions: {
     parser: 'babel-eslint',
