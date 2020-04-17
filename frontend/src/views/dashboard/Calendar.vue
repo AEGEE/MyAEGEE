@@ -72,7 +72,17 @@ export default {
       this.fetchEvents()
     },
     eventClick (info) {
-      console.log(info.event.extendedProps.description)
+      info.jsEvent.preventDefault(); // don't let the browser navigate
+
+      if (info.event.url) {
+        window.open(info.event.url)
+      } else {
+        this.$buefy.dialog.alert({
+          title: info.event.title,
+          message: info.event.extendedProps.description,
+          canCancel: '[escape, outside]'
+        })
+      }
     },
     fetchEvents () {
       this.isLoading = true
@@ -118,6 +128,7 @@ export default {
         /* Loading the online events Google calendar */
         const onlineEventsData = Object.values(ical.parseICS(result))
         onlineEventsData.shift() // remove the timezone object. Alternative: drop object where "onlineEventsData.type != 'VEVENT'"
+        console.log(onlineEventsData)
         return onlineEventsData.map((event) => ({
           title: event.summary,
           start: new Date(event.start),
