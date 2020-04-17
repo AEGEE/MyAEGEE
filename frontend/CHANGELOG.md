@@ -1,3 +1,10 @@
+## [0.41.3](https://github.com/AEGEE/oms-frontend/compare/0.41.2...0.41.3) (2020-04-17)
+
+
+### Bug Fixes
+
+* **.browserslist:** don't generate code for IE mobile 10 ([#287](https://github.com/AEGEE/oms-frontend/issues/287)) ([c968d76](https://github.com/AEGEE/oms-frontend/commit/c968d76a14afe06c94d2923e558c9ab69e5e810c))
+
 ## [0.41.2](https://github.com/AEGEE/oms-frontend/compare/0.41.1...0.41.2) (2020-04-17)
 
 
