@@ -1,3 +1,10 @@
+## [0.41.2](https://github.com/AEGEE/oms-frontend/compare/0.41.1...0.41.2) (2020-04-17)
+
+
+### Bug Fixes
+
+* **svg:** compress .svg with svgo --multipass ([#288](https://github.com/AEGEE/oms-frontend/issues/288)) ([8dce5cc](https://github.com/AEGEE/oms-frontend/commit/8dce5ccabafb5636de2343f9a38ba68e209b6db8))
+
 ## [0.41.1](https://github.com/AEGEE/oms-frontend/compare/0.41.0...0.41.1) (2020-04-17)
 
 
