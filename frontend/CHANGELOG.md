@@ -1,3 +1,10 @@
+# [0.42.0](https://github.com/AEGEE/oms-frontend/compare/0.41.3...0.42.0) (2020-04-17)
+
+
+### Features
+
+* add Google calendar online events ([#286](https://github.com/AEGEE/oms-frontend/issues/286)) ([86d652a](https://github.com/AEGEE/oms-frontend/commit/86d652a2b7c26b1eedb944fdf0f6d5e8fa35fa05))
+
 ## [0.41.3](https://github.com/AEGEE/oms-frontend/compare/0.41.2...0.41.3) (2020-04-17)
 
 
