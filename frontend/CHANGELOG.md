@@ -1,3 +1,10 @@
+## [0.41.1](https://github.com/AEGEE/oms-frontend/compare/0.41.0...0.41.1) (2020-04-17)
+
+
+### Bug Fixes
+
+* replace uncompressed PNG wrapped in SVG with unwrapped compressed PNG ([#289](https://github.com/AEGEE/oms-frontend/issues/289)) ([f2d3949](https://github.com/AEGEE/oms-frontend/commit/f2d39491482a57601453fab865b7aacea320daf8))
+
 # [0.41.0](https://github.com/AEGEE/oms-frontend/compare/0.40.0...0.41.0) (2020-04-06)
 
 
