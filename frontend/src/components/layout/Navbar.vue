@@ -5,7 +5,7 @@
         <font-awesome-icon icon="bars" aria-hidden="true" v-show="!sidebar.hidden" />
       </a>
       <a href="/" class="logo">
-        <img src="../../images/AEGEE_logo.svg" class="image">
+        <img src="../../images/AEGEE_logo.png" class="image">
       </a>
       <a role="button" class="navbar-burger burger" @click="toggleNavbarMenu({opened: !navbar.menuOpened})">
         <span aria-hidden="true">
