@@ -2,11 +2,14 @@
   <div>
     <div class="content">
       <div class="tags">
-        <span class="tag" v-for="(type, key) in constants.EVENT_TYPES_NAMES" :key="key" :style="{ 'background-color': colors[key], 'color': textColors[key] }">
+        <span class="tag" v-for="(type, key) in constants.EVENT_TYPES_NAMES" :key="key" :style="{ 'background-color': colors[key], 'color': '#FFFFFF' }">
           {{ type }}
         </span>
         <span class="tag" style="background-color: #1468C5; color: #FFFFFF">
           Statutory
+        </span>
+        <span class="tag" style="background-color: #898989; color: #FFFFFF">
+          Online event
         </span>
       </div>
     </div>
@@ -19,6 +22,7 @@
       :plugins="calendarPlugins"
       :events="events"
       :displayEventTime="false"
+      @eventClick="eventClick"
       @datesRender="updateStartDate" />
 
     <b-loading :is-full-page="true" :active.sync="isLoading"></b-loading>
@@ -28,6 +32,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import moment from 'moment'
+import ical from 'ical'
 import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import constants from '../../constants'
@@ -46,12 +51,6 @@ export default {
         nwm: '#FBBA00',
         cultural: '#C51C13'
       },
-      textColors: {
-        training: '#FFFFFF',
-        conference: '#FFFFFF',
-        nwm: '#FFFFFF',
-        cultural: '#FFFFFF'
-      },
       constants,
       isLoading: false,
       currentMonthStart: null,
@@ -67,26 +66,46 @@ export default {
       this.currentMonthEnd = moment(currentEnd)
       this.fetchEvents()
     },
+    eventClick (info) {
+      if (info.event.url) {
+        return
+      }
+
+      info.jsEvent.preventDefault() // don't let the browser navigate
+      this.$buefy.dialog.alert({
+        title: info.event.title,
+        message: info.event.extendedProps.description,
+        canCancel: '[escape, outside]'
+      })
+    },
     fetchEvents () {
       this.isLoading = true
 
       const startDate = this.currentMonthStart.subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
       const endDate = this.currentMonthEnd.add(1, 'month').endOf('month').format('YYYY-MM-DD')
 
-      Promise.all([
-        this.axios.get(this.services['oms-events'], { params: { starts: startDate, ends: endDate } }),
-        this.axios.get(this.services['oms-statutory'], { params: { starts: startDate, ends: endDate } })
-      ]).then(([regularResponse, statutoryResponse]) => {
-        const regular = regularResponse.data.data.map((event) => ({
+      const query = { params: { starts: startDate, ends: endDate } }
+
+      const onlineEventsUrl = '/services/calendar-cors/calendar/ical/'
+        + 'aegee.eu_v5mn651imeqpvs87v4ln7hr1f4@group.calendar.google.com' // ID of the online calendar
+        + '/public/basic.ics'
+
+      const eventsPromise = this.axios.get(this.services['oms-events'], query).then((result) => {
+        return result.data.data.map((event) => ({
           title: event.name,
           start: new Date(event.starts),
           end: new Date(event.ends),
           backgroundColor: this.colors[event.type] || '#1468C5',
-          textColor: this.textColors[event.type] || '#FFFFFF',
+          textColor: '#FFFFFF',
           url: '/events/' + (event.url || event.id)
         }))
+      }).catch((err) => {
+        this.$root.showError('Could not load events list', err)
+        return []
+      })
 
-        const statutory = statutoryResponse.data.data.map((event) => ({
+      const statutoryPromise = this.axios.get(this.services['oms-statutory'], query).then((result) => {
+        return result.data.data.map((event) => ({
           title: event.name,
           start: new Date(event.starts),
           end: new Date(event.ends),
@@ -94,13 +113,35 @@ export default {
           textColor: '#FFFFFF',
           url: '/statutory/' + (event.url || event.id)
         }))
-
-        this.events = [...regular, ...statutory]
-
-        this.isLoading = false
       }).catch((err) => {
-        this.events = []
-        this.$root.showError('Could not fetch events list', err)
+        this.$root.showError('Could not load statutory events list', err)
+        return []
+      })
+
+      const onlinePromise = fetch(onlineEventsUrl).then(res => res.text()).then((result) => {
+        /* Loading the online events Google calendar */
+        const onlineEventsData = Object.values(ical.parseICS(result))
+        onlineEventsData.shift() // remove the timezone object. Alternative: drop object where "onlineEventsData.type != 'VEVENT'"
+        return onlineEventsData.map((event) => ({
+          title: event.summary,
+          start: new Date(event.start),
+          end: new Date(event.end),
+          backgroundColor: '#898989',
+          textColor: '#FFFFFF',
+          description: event.description
+        }))
+      }).catch((err) => {
+        this.$root.showError('Could not load online events list', err)
+        return []
+      })
+
+      Promise.all([
+        eventsPromise,
+        statutoryPromise,
+        onlinePromise
+      ]).then(([regular, statutory, online]) => {
+        this.events = [...regular, ...statutory, ...online]
+        this.isLoading = false
       })
     }
   },
