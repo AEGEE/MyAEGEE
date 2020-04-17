@@ -96,15 +96,6 @@ module.exports = [
     },
     component: 'dashboard/Calendar'
   },
-  {
-    name: 'oms.online',
-    path: '/online/events',
-    meta: {
-      label: 'Online events',
-      auth: false
-    },
-    component: 'dashboard/OnlineEvents'
-  },
   /* Members management */
   {
     name: 'oms.members.list',
