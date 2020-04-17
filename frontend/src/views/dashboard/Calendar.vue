@@ -72,7 +72,6 @@ export default {
       this.fetchEvents()
     },
     eventClick (info) {
-      console.log(info)
       console.log(info.event.extendedProps.description)
     },
     fetchEvents () {
@@ -87,17 +86,8 @@ export default {
         + 'aegee.eu_v5mn651imeqpvs87v4ln7hr1f4@group.calendar.google.com' // ID of the online calendar
         + '/public/basic.ics'
 
-      const wrapWithError = (promise, message) => promise.catch((error) => {
-        this.$root.showError(message, error)
-        return {}
-      })
-
-      Promise.all([
-        wrapWithError(this.axios.get(this.services['oms-events'], query), 'Could not load events'),
-        wrapWithError(this.axios.get(this.services['oms-statutory'], query), 'Could not load statutory events'),
-        wrapWithError(fetch(onlineEventsUrl).then(res => res.text()), 'Could not load online events')
-      ]).then(([regularResponse, statutoryResponse, onlineResponse]) => {
-        const regular = regularResponse.data.data.map((event) => ({
+      const eventsPromise = this.axios.get(this.services['oms-events'], query).then((result) => {
+        return result.data.data.map((event) => ({
           title: event.name,
           start: new Date(event.starts),
           end: new Date(event.ends),
@@ -105,35 +95,48 @@ export default {
           textColor: this.textColors[event.type] || '#FFFFFF',
           url: '/events/' + (event.url || event.id)
         }))
+      }).catch((err) => {
+        this.$root.showError('Could not load events list')
+        return []
+      })
 
-        if (statutoryResponse.data != null) {
-          const statutory = statutoryResponse.data.data.map((event) => ({
-            title: event.name,
-            start: new Date(event.starts),
-            end: new Date(event.ends),
-            backgroundColor: '#1468C5',
-            textColor: '#FFFFFF',
-            url: '/statutory/' + (event.url || event.id)
-          }))
-        } else {
-          console.log("Hey")
-          return statutory = []
-        }
+      const statutoryPromise = this.axios.get(this.services['oms-events'], query).then((result) => {
+        return result.data.data.map((event) => ({
+          title: event.name,
+          start: new Date(event.starts),
+          end: new Date(event.ends),
+          backgroundColor: '#1468C5',
+          textColor: '#FFFFFF',
+          url: '/statutory/' + (event.url || event.id)
+        }))
+      }).catch((err) => {
+        this.$root.showError('Could not load statutory events list')
+        return []
+      })
 
+      const onlinePromise = fetch(onlineEventsUrl).then(res => res.text()).then((result) => {
         /* Loading the online events Google calendar */
-        const onlineEventsData = Object.values(ical.parseICS(onlineResponse))
+        const onlineEventsData = Object.values(ical.parseICS(result))
         onlineEventsData.shift() // remove the timezone object. Alternative: drop object where "onlineEventsData.type != 'VEVENT'"
-        const online = onlineEventsData.map((event) => ({
+        return onlineEventsData.map((event) => ({
           title: event.summary,
           start: new Date(event.start),
           end: new Date(event.end),
           backgroundColor: '#898989',
           textColor: '#FFFFFF',
           description: event.description
-        }))
+        }));
+      }).catch((err) => {
+        this.$root.showError('Could not load online events list')
+        return []
+      })
 
+      Promise.all([
+        eventsPromise,
+        statutoryPromise,
+        onlinePromise
+      ]).then(([regular, statutory, online]) => {
         this.events = [...regular, ...statutory, ...online]
-
         this.isLoading = false
       })
     }
