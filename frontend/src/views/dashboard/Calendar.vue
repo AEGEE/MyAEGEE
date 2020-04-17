@@ -96,7 +96,7 @@ export default {
           url: '/events/' + (event.url || event.id)
         }))
       }).catch((err) => {
-        this.$root.showError('Could not load events list')
+        this.$root.showError('Could not load events list', err)
         return []
       })
 
@@ -110,7 +110,7 @@ export default {
           url: '/statutory/' + (event.url || event.id)
         }))
       }).catch((err) => {
-        this.$root.showError('Could not load statutory events list')
+        this.$root.showError('Could not load statutory events list', err)
         return []
       })
 
@@ -125,9 +125,9 @@ export default {
           backgroundColor: '#898989',
           textColor: '#FFFFFF',
           description: event.description
-        }));
+        }))
       }).catch((err) => {
-        this.$root.showError('Could not load online events list')
+        this.$root.showError('Could not load online events list', err)
         return []
       })
 
