@@ -49,7 +49,7 @@ export default {
         training: '#A0C514',
         conference: '#931991',
         nwm: '#FBBA00',
-        cultural: '#C51C13',
+        cultural: '#C51C13'
       },
       constants,
       isLoading: false,
@@ -69,14 +69,14 @@ export default {
     eventClick (info) {
       if (info.event.url) {
         return
-      } else {
-        info.jsEvent.preventDefault() // don't let the browser navigate
-        this.$buefy.dialog.alert({
-          title: info.event.title,
-          message: info.event.extendedProps.description,
-          canCancel: '[escape, outside]'
-        })
       }
+
+      info.jsEvent.preventDefault() // don't let the browser navigate
+      this.$buefy.dialog.alert({
+        title: info.event.title,
+        message: info.event.extendedProps.description,
+        canCancel: '[escape, outside]'
+      })
     },
     fetchEvents () {
       this.isLoading = true
