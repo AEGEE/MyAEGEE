@@ -74,8 +74,9 @@ export default {
       info.jsEvent.preventDefault() // don't let the browser navigate
       this.$buefy.dialog.alert({
         title: info.event.title,
-        message: '<strong>Starts: </strong>' + moment(info.event.start).format('D MMMM Y H:mm') +
-          '</br><strong>Ends: </strong>' + moment(info.event.end).format('D MMMM Y H:mm') + '<hr>' + info.event.extendedProps.description,
+        message: '<strong>Starts: </strong>' + moment(info.event.start).format('D MMMM Y H:mm')
+          + '</br><strong>Ends: </strong>' + moment(info.event.end).format('D MMMM Y H:mm')
+          + '<hr>' + info.event.extendedProps.description,
         canCancel: '[escape, outside]'
       })
     },
