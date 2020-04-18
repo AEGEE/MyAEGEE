@@ -1,3 +1,19 @@
+# [0.43.0](https://github.com/AEGEE/oms-frontend/compare/0.42.1...0.43.0) (2020-04-18)
+
+
+### Bug Fixes
+
+* add times and break title ([8126f06](https://github.com/AEGEE/oms-frontend/commit/8126f060a1e446666ed5f9f7c4834d4f7e4aee49))
+* add times and break title online events calendar ([b2c3438](https://github.com/AEGEE/oms-frontend/commit/b2c3438d573b1e8e6af147175ce74535a1f6f1f0))
+* make different event types load separate ([1e27a4d](https://github.com/AEGEE/oms-frontend/commit/1e27a4d8470120303112df492bd1ba1c0645dcd4))
+
+
+### Features
+
+* add Google calendar events in event calendar ([e4e42ac](https://github.com/AEGEE/oms-frontend/commit/e4e42ac0b52300ab4b91d475ee9078d95d67a14f))
+* add Google calendar online events ([5cbf268](https://github.com/AEGEE/oms-frontend/commit/5cbf26840905ae7dfeac39f0c793cb1375fe8565))
+* add pop-up on event click ([29de365](https://github.com/AEGEE/oms-frontend/commit/29de365ebfb7834eec238a9ff550b80bfa5353ae))
+
 ## [0.42.1](https://github.com/AEGEE/oms-frontend/compare/0.42.0...0.42.1) (2020-04-18)
 
 
