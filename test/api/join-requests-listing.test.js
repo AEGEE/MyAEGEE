@@ -250,7 +250,7 @@ describe('Join requests list', () => {
         const joinRequest = await JoinRequest.create({
             body_id: body.id,
             user_id: user1.id,
-            status: 'accepted'
+            status: 'approved'
         });
 
         const user2 = await generator.createUser();
@@ -262,7 +262,7 @@ describe('Join requests list', () => {
         await generator.createPermission({ scope: 'global', action: 'view', object: 'join_request' });
 
         const res = await request({
-            uri: '/bodies/' + body.id + '/join-requests?status=accepted',
+            uri: '/bodies/' + body.id + '/join-requests?status=approved',
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

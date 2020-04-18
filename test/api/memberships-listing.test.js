@@ -22,7 +22,7 @@ describe('Memberships list', () => {
         const body = await generator.createBody();
         const membership = await generator.createBodyMembership(body, user);
 
-        await generator.createPermission({ scope: 'global', action: 'view_member', object: 'body' });
+        await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const res = await request({
             uri: '/bodies/' + body.id + '/members',
@@ -44,7 +44,7 @@ describe('Memberships list', () => {
         const token = await generator.createAccessToken({}, user);
         const body = await generator.createBody();
 
-        await generator.createPermission({ scope: 'global', action: 'view_member', object: 'body' });
+        await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const firstUser = await generator.createUser();
         await generator.createBodyMembership(body, firstUser);
@@ -83,7 +83,7 @@ describe('Memberships list', () => {
         const secondUser = await generator.createUser();
         const secondMembership = await generator.createBodyMembership(body, secondUser);
 
-        await generator.createPermission({ scope: 'global', action: 'view_member', object: 'body' });
+        await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const res = await request({
             uri: '/bodies/' + body.id + '/members?sort=id&direction=desc', // second one should be returned
@@ -109,7 +109,7 @@ describe('Memberships list', () => {
         const body = await generator.createBody();
         await generator.createBodyMembership(body, user);
 
-        const permission = await generator.createPermission({ scope: 'local', action: 'view_member', object: 'body' });
+        const permission = await generator.createPermission({ scope: 'local', action: 'view_members', object: 'body' });
         const circle = await generator.createCircle({ body_id: body.id });
         await generator.createCircleMembership(circle, user);
         await generator.createCirclePermission(circle, permission);
@@ -157,7 +157,7 @@ describe('Memberships list', () => {
         const body = await generator.createBody();
         const membership = await generator.createBodyMembership(body, user);
 
-        await generator.createPermission({ scope: 'global', action: 'view_member', object: 'body' });
+        await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         await generator.createUser({
             superadmin: true,
@@ -193,7 +193,7 @@ describe('Memberships list', () => {
         const body = await generator.createBody();
         const membership = await generator.createBodyMembership(body, user);
 
-        await generator.createPermission({ scope: 'global', action: 'view_member', object: 'body' });
+        await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         await generator.createUser({
             superadmin: true,
@@ -229,7 +229,7 @@ describe('Memberships list', () => {
         const body = await generator.createBody();
         const membership = await generator.createBodyMembership(body, user);
 
-        await generator.createPermission({ scope: 'global', action: 'view_member', object: 'body' });
+        await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         await generator.createUser({
             superadmin: true,
