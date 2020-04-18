@@ -1,3 +1,10 @@
+## [0.42.1](https://github.com/AEGEE/oms-frontend/compare/0.42.0...0.42.1) (2020-04-18)
+
+
+### Bug Fixes
+
+* **.browserslist:** do not generate code for dead browsers ([#291](https://github.com/AEGEE/oms-frontend/issues/291)) ([c4e84d9](https://github.com/AEGEE/oms-frontend/commit/c4e84d96949d1a558d6874305358345de818b1ea))
+
 # [0.42.0](https://github.com/AEGEE/oms-frontend/compare/0.41.3...0.42.0) (2020-04-17)
 
 
