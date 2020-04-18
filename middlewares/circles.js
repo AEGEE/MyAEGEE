@@ -1,8 +1,8 @@
-const { Circle, User, CircleMembership, BodyMembership } = require('../models');
+const { Circle, Permission, CirclePermission, User, CircleMembership, BodyMembership } = require('../models');
 const errors = require('../lib/errors');
 const helpers = require('../lib/helpers');
 const constants = require('../lib/constants');
-const { sequelize } = require('../lib/sequelize');
+const { Sequelize, sequelize } = require('../lib/sequelize');
 
 exports.listAllCircles = async (req, res) => {
     const where = helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.CIRCLE);
@@ -31,6 +31,21 @@ exports.getCircle = async (req, res) => {
         data: req.currentCircle
     });
 };
+
+exports.getCirclePermissions = async (req, res) => {
+    const indirectChildCircles = req.permissions.getIndirectParentCircles(req.currentCircle.id);
+    const result = await Permission.findAndCountAll({
+        where: { '$circle_permissions.circle_id$': { [Sequelize.Op.in]: indirectChildCircles } },
+        include: [CirclePermission]
+    });
+
+    return res.json({
+        success: true,
+        data: result.rows,
+        meta: { count: result.count }
+    });
+};
+
 
 // This endpoint is for creating free circles only.
 exports.createCircle = async (req, res) => {
