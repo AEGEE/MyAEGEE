@@ -1,5 +1,3 @@
 > 1%
 last 2 versions
-not IE 10     # Per https://www.ssllabs.com/ssltest/analyze.html?d=my.aegee.eu
-not IE_Mob 11 # Internet Explorer Desktop 10, IE Mobile 10 and IE Mobile 11
-not IE_Mob 10 # cannot connect to https://my.aegee.eu .
+not dead
