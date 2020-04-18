@@ -42,7 +42,7 @@ describe('Memberships list wth permission', () => {
         const body = await generator.createBody();
         await generator.createBodyMembership(body, user);
 
-        await generator.createPermission({ scope: 'global', action: 'view_member', object: 'body' });
+        await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const res = await request({
             uri: '/bodies/' + body.id + '/members',
@@ -64,7 +64,7 @@ describe('Memberships list wth permission', () => {
         const body = await generator.createBody();
         await generator.createBodyMembership(body, user);
 
-        await generator.createPermission({ scope: 'global', action: 'view_member', object: 'body' });
+        await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const res = await request({
             uri: '/bodies/' + body.id + '/members',
@@ -86,7 +86,7 @@ describe('Memberships list wth permission', () => {
         const body = await generator.createBody();
         await generator.createBodyMembership(body, user);
 
-        await generator.createPermission({ scope: 'global', action: 'view_member', object: 'body' });
+        await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const res = await request({
             uri: '/bodies/' + body.id + '/members',
@@ -105,7 +105,7 @@ describe('Memberships list wth permission', () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
 
-        await generator.createPermission({ scope: 'global', action: 'view_member', object: 'body' });
+        await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const body = await generator.createBody();
         const permission = await generator.createPermission({ scope: 'local', action: 'action', object: 'object' });
@@ -135,7 +135,7 @@ describe('Memberships list wth permission', () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
 
-        await generator.createPermission({ scope: 'global', action: 'view_member', object: 'body' });
+        await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
         const body = await generator.createBody();
         const permission = await generator.createPermission({ scope: 'local', action: 'action', object: 'object' });

@@ -27,7 +27,7 @@ describe('Join request status', () => {
             uri: '/bodies/' + body.id + '/join-requests/lalala/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { status: 'accepted' }
+            body: { status: 'approved' }
         });
 
         expect(res.statusCode).toEqual(400);
@@ -47,7 +47,7 @@ describe('Join request status', () => {
             uri: '/bodies/' + body.id + '/join-requests/1337/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { status: 'accepted' }
+            body: { status: 'approved' }
         });
 
         expect(res.statusCode).toEqual(404);
@@ -88,7 +88,7 @@ describe('Join request status', () => {
         const joinRequest = await JoinRequest.create({
             body_id: body.id,
             user_id: user.id,
-            status: 'accepted'
+            status: 'approved'
         });
 
         const res = await request({
@@ -142,7 +142,7 @@ describe('Join request status', () => {
             uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { status: 'accepted' }
+            body: { status: 'approved' }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -176,7 +176,7 @@ describe('Join request status', () => {
             uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { status: 'accepted' }
+            body: { status: 'approved' }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -209,7 +209,7 @@ describe('Join request status', () => {
             uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { status: 'accepted' }
+            body: { status: 'approved' }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -229,7 +229,7 @@ describe('Join request status', () => {
             uri: '/bodies/' + body.id + '/join-requests/' + joinRequest.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { status: 'accepted' }
+            body: { status: 'approved' }
         });
 
         expect(res.statusCode).toEqual(403);

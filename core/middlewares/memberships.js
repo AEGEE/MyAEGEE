@@ -14,8 +14,8 @@ exports.listAllMemberships = async (req, res) => {
         return exports.listAllMembershipsWithPermission(req, res);
     }
 
-    if (!req.permissions.hasPermission('view_member:body')) {
-        return errors.makeForbiddenError(res, 'Permission view_member:body is required, but not present.');
+    if (!req.permissions.hasPermission('view_members:body')) {
+        return errors.makeForbiddenError(res, 'Permission view_members:body is required, but not present.');
     }
 
     const result = await BodyMembership.findAndCountAll({
@@ -36,8 +36,8 @@ exports.listAllMemberships = async (req, res) => {
 };
 
 exports.listAllMembershipsWithPermission = async (req, res) => {
-    if (!req.permissions.hasPermission('view_member:body')) {
-        return errors.makeForbiddenError(res, 'Permission view_member:body is required, but not present.');
+    if (!req.permissions.hasPermission('view_members:body')) {
+        return errors.makeForbiddenError(res, 'Permission view_members:body is required, but not present.');
     }
 
     if (!req.query.holds_permission.action || !req.query.holds_permission.object) {

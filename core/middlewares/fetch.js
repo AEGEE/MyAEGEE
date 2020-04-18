@@ -81,7 +81,8 @@ exports.fetchCircle = async (req, res, next) => {
         include: [
             { model: Circle, as: 'child_circles' },
             { model: Circle, as: 'parent_circle' },
-            { model: Body }
+            { model: Body },
+            { model: Permission, as: 'permissions' }
         ]
     });
     if (!circle) {

@@ -111,7 +111,7 @@ exports.changeRequestStatus = async (req, res) => {
                 user_id: req.currentJoinRequest.user_id,
                 body_id: req.currentBody.id
             }, { transaction: t });
-            await req.currentJoinRequest.update({ status: req.body.status });
+            await req.currentJoinRequest.update({ status: req.body.status }, { transaction: t });
         } else {
             await req.currentJoinRequest.destroy();
         }
