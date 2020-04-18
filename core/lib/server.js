@@ -121,6 +121,8 @@ JoinRequestsRouter.put('/status', joinRequests.changeRequestStatus);
 
 // Everything related to a specific circle. Auth only.
 CirclesRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchCircle);
+CirclesRouter.get('/my_permissions', myPermissions.getMyPermissions);
+CirclesRouter.get('/permissions', circles.getCirclePermissions);
 CirclesRouter.get('/', circles.getCircle);
 CirclesRouter.put('/parent', circles.setParentCircle);
 CirclesRouter.post('/members/:user_id', circles.createCircleMembership);

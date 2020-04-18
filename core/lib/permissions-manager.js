@@ -82,6 +82,19 @@ class PermissionsManager {
         return directChildCirclesIds;
     }
 
+    getIndirectParentCircles(circleId) {
+        const circlesArray = [circleId];
+        let currentCircleId = circleId;
+
+
+        while (this.circlesMap[currentCircleId].parent_circle_id) {
+            currentCircleId = this.circlesMap[currentCircleId].parent_circle_id;
+            circlesArray.push(currentCircleId);
+        }
+
+        return circlesArray;
+    }
+
     async fetchPermissionCircles(permission) {
         // 1) get all CirclePermission for this permission
         const circlePermissions = await CirclePermission.findAll({
