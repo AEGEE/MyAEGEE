@@ -1,3 +1,10 @@
+## [1.13.2](https://github.com/AEGEE/oms-core-js/compare/1.13.1...1.13.2) (2020-04-19)
+
+
+### Bug Fixes
+
+* **circles:** changed endpoint for adding members to circle ([a0c021b](https://github.com/AEGEE/oms-core-js/commit/a0c021bf988bdeb77d1b3f10d16211101e1d79e5))
+
 ## [1.13.1](https://github.com/AEGEE/oms-core-js/compare/1.13.0...1.13.1) (2020-04-19)
 
 
