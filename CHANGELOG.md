@@ -1,3 +1,11 @@
+# [1.13.0](https://github.com/AEGEE/oms-core-js/compare/1.12.6...1.13.0) (2020-04-19)
+
+
+### Features
+
+* **circles:** adding and deleting permissions ([f95f47b](https://github.com/AEGEE/oms-core-js/commit/f95f47b22318890b6acd06e48ce99e83b4272155))
+* **permissions:** circle permissions and my circle permissions ([b40e240](https://github.com/AEGEE/oms-core-js/commit/b40e240424850e744760f23f6eaf5c3e50dad75f))
+
 ## [1.12.6](https://github.com/AEGEE/oms-core-js/compare/1.12.5...1.12.6) (2020-04-16)
 
 
