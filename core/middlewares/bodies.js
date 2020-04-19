@@ -112,9 +112,7 @@ exports.createBoundCircle = async (req, res) => {
 
     req.body.body_id = req.currentBody.id;
 
-    const circle = await Circle.create(req.body, {
-        fields: constants.FIELDS_TO_UPDATE.CIRCLE.CREATE
-    });
+    const circle = await Circle.create(req.body);
 
     return res.json({
         success: true,

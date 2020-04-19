@@ -131,11 +131,11 @@ exports.createCircleMembership = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission add_member:circle is required, but not present.');
     }
 
-    if (!helpers.isNumber(req.params.user_id)) {
+    if (!helpers.isNumber(req.body.user_id)) {
         return errors.makeBadRequestError(res, 'The user ID is not valid.');
     }
 
-    const user = await User.findByPk(req.params.user_id);
+    const user = await User.findByPk(req.body.user_id);
     if (!user) {
         return errors.makeNotFoundError(res, 'The user is not found.');
     }
@@ -145,7 +145,7 @@ exports.createCircleMembership = async (req, res) => {
         const membership = await BodyMembership.findOne({
             where: {
                 body_id: req.currentCircle.body_id,
-                user_id: req.params.user_id
+                user_id: req.body.user_id
             }
         });
         if (!membership) {

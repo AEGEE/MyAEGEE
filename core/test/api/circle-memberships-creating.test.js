@@ -24,10 +24,10 @@ describe('Circle memberships creating', () => {
         const circle = await generator.createCircle();
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members/lalala',
+            uri: '/circles/' + circle.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            body: circle
+            body: { user_id: 'lalala' }
         });
 
         expect(res.statusCode).toEqual(400);
@@ -45,10 +45,10 @@ describe('Circle memberships creating', () => {
         const circle = await generator.createCircle();
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members/1337',
+            uri: '/circles/' + circle.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            body: circle
+            body: { user_id: 1337 }
         });
 
         expect(res.statusCode).toEqual(404);
@@ -68,10 +68,10 @@ describe('Circle memberships creating', () => {
         const user = await generator.createUser();
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members/' + user.id,
+            uri: '/circles/' + circle.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            body: circle
+            body: { user_id: user.id }
         });
 
         expect(res.statusCode).toEqual(403);
@@ -92,10 +92,10 @@ describe('Circle memberships creating', () => {
         await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members/' + user.id,
+            uri: '/circles/' + circle.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            body: circle
+            body: { user_id: user.id }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -112,10 +112,10 @@ describe('Circle memberships creating', () => {
         const user = await generator.createUser();
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members/' + user.id,
+            uri: '/circles/' + circle.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            body: circle
+            body: { user_id: user.id }
         });
 
         expect(res.statusCode).toEqual(403);
@@ -134,10 +134,10 @@ describe('Circle memberships creating', () => {
         const user = await generator.createUser();
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members/' + user.id,
+            uri: '/circles/' + circle.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            body: circle
+            body: { user_id: user.id }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -163,10 +163,10 @@ describe('Circle memberships creating', () => {
         await generator.createBodyMembership(body, user);
 
         const res = await request({
-            uri: '/circles/' + circle.id + '/members/' + user.id,
+            uri: '/circles/' + circle.id + '/members',
             method: 'POST',
             headers: { 'X-Auth-Token': token.value },
-            body: circle
+            body: { user_id: user.id }
         });
 
         expect(res.statusCode).toEqual(200);
