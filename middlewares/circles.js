@@ -91,11 +91,21 @@ exports.setParentCircle = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:put_parent:circle is required, but not present.');
     }
 
-    if (!helpers.isNumber(req.body.parent_circle)) {
+    // unsetting parent circle
+    if (req.body.parent_circle_id === null) {
+        await req.currentCircle.update({ parent_circle_id: null });
+        return res.json({
+            success: true,
+            message: 'Circle parent is unset.'
+        });
+    }
+
+    // setting parent circle
+    if (!helpers.isNumber(req.body.parent_circle_id)) {
         return errors.makeBadRequestError(res, 'The circle ID is not valid.');
     }
 
-    const parentCircle = await Circle.findByPk(req.body.parent_circle);
+    const parentCircle = await Circle.findByPk(req.body.parent_circle_id);
     if (!parentCircle) {
         return errors.makeNotFoundError(res, 'No parent circle found.');
     }
