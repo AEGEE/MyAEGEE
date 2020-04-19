@@ -27,7 +27,7 @@ describe('Circle setting parent circle', () => {
             uri: '/circles/' + circle.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { parent_circle: 1337 }
+            body: { parent_circle_id: 1337 }
         });
 
         expect(res.statusCode).toEqual(404);
@@ -47,7 +47,7 @@ describe('Circle setting parent circle', () => {
             uri: '/circles/' + circle.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { parent_circle: 'nan' }
+            body: { parent_circle_id: 'nan' }
         });
 
         expect(res.statusCode).toEqual(400);
@@ -67,7 +67,7 @@ describe('Circle setting parent circle', () => {
             uri: '/circles/' + circle.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { parent_circle: circle.id }
+            body: { parent_circle_id: circle.id }
         });
 
         expect(res.statusCode).toEqual(422);
@@ -93,7 +93,7 @@ describe('Circle setting parent circle', () => {
             uri: '/circles/' + circle1.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { parent_circle: circle3.id }
+            body: { parent_circle_id: circle3.id }
         });
 
         expect(res.statusCode).toEqual(422);
@@ -118,7 +118,7 @@ describe('Circle setting parent circle', () => {
             uri: '/circles/' + circle.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { parent_circle: otherCircle.id }
+            body: { parent_circle_id: otherCircle.id }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -144,7 +144,7 @@ describe('Circle setting parent circle', () => {
             uri: '/circles/' + circle3.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { parent_circle: circle2.id }
+            body: { parent_circle_id: circle2.id }
         });
 
         expect(res.statusCode).toEqual(200);
@@ -168,12 +168,37 @@ describe('Circle setting parent circle', () => {
             uri: '/circles/' + circle3.id + '/parent',
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { parent_circle: circle2.id }
+            body: { parent_circle_id: circle2.id }
         });
 
         expect(res.statusCode).toEqual(403);
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('message');
+    });
+
+    test('should allow unsetting parent circle', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        const circle = await generator.createCircle();
+        const otherCircle = await generator.createCircle({ parent_circle_id: circle.id });
+
+        await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
+
+        const res = await request({
+            uri: '/circles/' + otherCircle.id + '/parent',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { parent_circle_id: null }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('message');
+
+        const circleFromDb = await Circle.findByPk(otherCircle.id);
+        expect(circleFromDb.parent_circle_id).toEqual(null);
     });
 });
