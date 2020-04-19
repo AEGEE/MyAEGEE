@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/AEGEE/oms-core-js/compare/1.13.0...1.13.1) (2020-04-19)
+
+
+### Bug Fixes
+
+* **circles:** allow unsetting a parent circle ([9032b05](https://github.com/AEGEE/oms-core-js/commit/9032b05b0361b21cb89376e71dd7732b610e5a60))
+
 # [1.13.0](https://github.com/AEGEE/oms-core-js/compare/1.12.6...1.13.0) (2020-04-19)
 
 
