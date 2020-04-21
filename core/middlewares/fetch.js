@@ -8,7 +8,8 @@ const {
     Campaign,
     BodyMembership,
     JoinRequest,
-    Payment
+    Payment,
+    CircleMembership
 } = require('../models');
 
 const { Sequelize } = require('../lib/sequelize');
@@ -212,5 +213,25 @@ exports.fetchPayment = async (req, res, next) => {
     }
 
     req.currentPayment = payment;
+    return next();
+};
+
+exports.fetchCircleMembership = async (req, res, next) => {
+    // searching the circle membership by id if it's numeric
+    if (!helpers.isNumber(req.params.membership_id)) {
+        return errors.makeBadRequestError(res, 'Membership ID is invalid.');
+    }
+
+    const membership = await CircleMembership.findOne({
+        where: {
+            id: Number(req.params.membership_id),
+            circle_id: Number(req.params.circle_id)
+        }
+    });
+    if (!membership) {
+        return errors.makeNotFoundError(res, 'Membership is not found.');
+    }
+
+    req.currentCircleMembership = membership;
     return next();
 };

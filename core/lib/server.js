@@ -21,21 +21,23 @@ const members = require('../middlewares/members');
 const bodies = require('../middlewares/bodies');
 const circles = require('../middlewares/circles');
 const permissions = require('../middlewares/permissions');
-const memberships = require('../middlewares/memberships');
+const bodyMemberships = require('../middlewares/body-memberships');
 const joinRequests = require('../middlewares/join-requests');
 const bodyCampaigns = require('../middlewares/body-campaigns');
 const payments = require('../middlewares/payments');
+const circleMemberships = require('../middlewares/circle-memberships');
 
 const GeneralRouter = router({ mergeParams: true });
 const MemberRouter = router({ mergeParams: true });
 const BodiesRouter = router({ mergeParams: true });
-const MembershipsRouter = router({ mergeParams: true });
+const BodyMembershipsRouter = router({ mergeParams: true });
 const JoinRequestsRouter = router({ mergeParams: true });
 const CirclesRouter = router({ mergeParams: true });
 const PermissionsRouter = router({ mergeParams: true });
 const CampaignsRouter = router({ mergeParams: true });
 const BodyCampaignsRouter = router({ mergeParams: true });
 const PaymentsRouter = router({ mergeParams: true });
+const CircleMembershipsRouter = router({ mergeParams: true });
 
 const server = express();
 server.use(bodyParser.json());
@@ -99,9 +101,9 @@ BodiesRouter.get('/my_permissions', myPermissions.getMyPermissions);
 BodiesRouter.get('/campaigns', bodyCampaigns.listAllCampaigns);
 BodiesRouter.post('/campaigns', bodyCampaigns.createCampaign);
 BodiesRouter.post('/circles', bodies.createBoundCircle);
-BodiesRouter.get('/members', memberships.listAllMemberships);
-BodiesRouter.post('/members', memberships.createMembership);
-BodiesRouter.delete('/members', memberships.deleteOwnMembership);
+BodiesRouter.get('/members', bodyMemberships.listAllMemberships);
+BodiesRouter.post('/members', bodyMemberships.createMembership);
+BodiesRouter.delete('/members', bodyMemberships.deleteOwnMembership);
 BodiesRouter.post('/create-member', bodies.createMember);
 BodiesRouter.get('/join-requests', joinRequests.listAllJoinRequests);
 BodiesRouter.post('/join-requests', joinRequests.createJoinRequest);
@@ -111,9 +113,9 @@ BodiesRouter.put('/status', bodies.setBodyStatus);
 BodiesRouter.put('/', bodies.updateBody);
 
 // Everything related to a specific body membership. Auth only.
-MembershipsRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchBody, fetch.fetchMembership);
-MembershipsRouter.put('/', memberships.updateMembership);
-MembershipsRouter.delete('/', memberships.deleteMembership);
+BodyMembershipsRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchBody, fetch.fetchMembership);
+BodyMembershipsRouter.put('/', bodyMemberships.updateMembership);
+BodyMembershipsRouter.delete('/', bodyMemberships.deleteMembership);
 
 // Everything related to a specific body membership. Auth only.
 JoinRequestsRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchBody, fetch.fetchJoinRequest);
@@ -127,9 +129,16 @@ CirclesRouter.post('/permissions', circles.addPermission);
 CirclesRouter.delete('/permissions/:permission_id', circles.deletePermission);
 CirclesRouter.get('/', circles.getCircle);
 CirclesRouter.put('/parent', circles.setParentCircle);
-CirclesRouter.post('/members', circles.createCircleMembership);
+CirclesRouter.get('/members', circleMemberships.listCircleMembers);
+CirclesRouter.post('/members', circleMemberships.createMembership);
+CirclesRouter.delete('/members', circleMemberships.deleteOwnMembership);
 CirclesRouter.put('/', circles.updateCircle);
 CirclesRouter.delete('/', circles.deleteCircle);
+
+// Everything related to a specific circle membership. Auth only.
+CircleMembershipsRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchCircle, fetch.fetchCircleMembership);
+CircleMembershipsRouter.put('/', circleMemberships.updateMembership);
+CircleMembershipsRouter.delete('/', circleMemberships.deleteMembership);
 
 // Everything related to a specific permission. Auth only.
 PermissionsRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchPermission);
@@ -156,11 +165,12 @@ PaymentsRouter.put('/', payments.updatePayment);
 PaymentsRouter.delete('/', payments.deletePayment);
 
 server.use('/members/:user_id', MemberRouter);
-server.use('/bodies/:body_id/members/:membership_id', MembershipsRouter);
+server.use('/bodies/:body_id/members/:membership_id', BodyMembershipsRouter);
 server.use('/bodies/:body_id/join-requests/:request_id', JoinRequestsRouter);
 server.use('/bodies/:body_id/campaigns/:campaign_id', BodyCampaignsRouter);
 server.use('/bodies/:body_id/payments/:payment_id', PaymentsRouter);
 server.use('/bodies/:body_id', BodiesRouter);
+server.use('/circles/:circle_id/members/:membership_id', CircleMembershipsRouter);
 server.use('/circles/:circle_id', CirclesRouter);
 server.use('/permissions/:permission_id', PermissionsRouter);
 server.use('/campaigns/:campaign_id', CampaignsRouter);

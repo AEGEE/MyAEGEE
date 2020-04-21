@@ -1,4 +1,4 @@
-const { Circle, Permission, CirclePermission, User, CircleMembership, BodyMembership } = require('../models');
+const { Circle, Permission, CirclePermission } = require('../models');
 const errors = require('../lib/errors');
 const helpers = require('../lib/helpers');
 const constants = require('../lib/constants');
@@ -123,44 +123,6 @@ exports.setParentCircle = async (req, res) => {
     return res.json({
         success: true,
         message: 'Circle parent is updated.'
-    });
-};
-
-exports.createCircleMembership = async (req, res) => {
-    if (!req.permissions.hasPermission('add_member:circle')) {
-        return errors.makeForbiddenError(res, 'Permission add_member:circle is required, but not present.');
-    }
-
-    if (!helpers.isNumber(req.body.user_id)) {
-        return errors.makeBadRequestError(res, 'The user ID is not valid.');
-    }
-
-    const user = await User.findByPk(req.body.user_id);
-    if (!user) {
-        return errors.makeNotFoundError(res, 'The user is not found.');
-    }
-
-    // if a circle is bound, checking if a person is a member
-    if (req.currentCircle.body_id) {
-        const membership = await BodyMembership.findOne({
-            where: {
-                body_id: req.currentCircle.body_id,
-                user_id: req.body.user_id
-            }
-        });
-        if (!membership) {
-            return errors.makeForbiddenError(res, 'The user is not a member of the body circle is bound to.');
-        }
-    }
-
-    const circleMembership = await CircleMembership.create({
-        circle_id: req.currentCircle.id,
-        user_id: user.id
-    });
-
-    return res.json({
-        success: true,
-        data: circleMembership
     });
 };
 
