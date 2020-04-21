@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/AEGEE/oms-core-js/compare/1.13.2...1.14.0) (2020-04-21)
+
+
+### Features
+
+* **circles:** circles memberships crud + refactor ([c8801ad](https://github.com/AEGEE/oms-core-js/commit/c8801ada3c6c313eb1183b14899f79360d6bfa2e))
+
 ## [1.13.2](https://github.com/AEGEE/oms-core-js/compare/1.13.1...1.13.2) (2020-04-19)
 
 
