@@ -54,7 +54,7 @@
     "vuex-router-sync": "^5.0.0"
   },
   "devDependencies": {
-    "@babel/types": "^7.7.4",
+    "@babel/types": "^7.9.5",
     "@commitlint/config-conventional": "^8.3.4",
     "@gfx/zopfli": "^1.0.14",
     "@semantic-release/changelog": "^5.0.1",
