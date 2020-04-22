@@ -3,7 +3,7 @@ const { CircleMembership } = require('../../models');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 
-describe('Membership creating', () => {
+describe('Body membership creating', () => {
     beforeAll(async () => {
         await startServer();
     });

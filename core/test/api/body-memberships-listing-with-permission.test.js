@@ -2,7 +2,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 
-describe('Memberships list wth permission', () => {
+describe('Body memberships list wth permission', () => {
     beforeAll(async () => {
         await startServer();
     });

@@ -3,7 +3,7 @@ const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const { BodyMembership, CircleMembership, User } = require('../../models');
 
-describe('Memberships deleting own', () => {
+describe('Body memberships deleting own', () => {
     beforeAll(async () => {
         await startServer();
     });
