@@ -33,7 +33,7 @@
     "chart.js": "^2.9.3",
     "dompurify": "^2.0.7",
     "ical": "^0.8.0",
-    "mapbox-gl": "^1.6.1",
+    "mapbox-gl": "^1.9.1",
     "marked": "^0.8.0",
     "moment": "^2.24.0",
     "nprogress": "^0.2.0",
