@@ -17,7 +17,7 @@ check_etc_hosts () {
   if [[ ! $(grep -q 'traefik' /etc/hosts) ]]; then
     #modify the hosts file
     echo 'modifying the hosts file'
-    sudo bash -c 'echo "$1" "$2" "portainer.$2" "my.$2" "traefik.$2" >> /etc/hosts' -- $1 $2
+    sudo bash -c 'echo "$1" "$2" "portainer.$2" "my.$2" "traefik.$2" >> /etc/hosts' -- "${1}" "${2}"
   fi
 }
 
