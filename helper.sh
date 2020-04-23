@@ -121,8 +121,7 @@ function retry {
     # shellcheck disable=SC2015
     {
       docker inspect --format '{{json .State.Health.Status }}' "${1}" | grep 'healthy'
-    } \
-    && break || {
+    } && break || {
       if [[ ${n} -lt ${max} ]]; then
         ((n++))
         echo "Command failed. Attempt ${n}/${max}."
