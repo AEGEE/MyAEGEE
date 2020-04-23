@@ -29,7 +29,7 @@
     "@fullcalendar/vue": "^4.4.0",
     "animate.css": "^3.7.2",
     "axios": "^0.19.0",
-    "buefy": "^0.8.15",
+    "buefy": "^0.8.16",
     "chart.js": "^2.9.3",
     "dompurify": "^2.0.9",
     "ical": "^0.8.0",
