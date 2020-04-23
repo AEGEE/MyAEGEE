@@ -189,40 +189,68 @@ if (( ${command_num} > 1 )); then
     echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump|--docker} [-v]"; exit 1
 fi
 
+# FIRST DEPLOYMENT
+#TODO: implement the interactive part
 if ( $init ); then
     init_boot && NON_INTERACTIVE=true; edit_env_file && pw_changer
 fi
 
+# build it for the first time
+# FIRST DEPLOYMENT
 if ( $build ); then
     compose_wrapper config > current-config.yml && compose_wrapper build
     exit $?
 fi
 
+#pull all, or pull single container
+if ( $pull ); then
+    compose_wrapper pull "${arguments[@]}"
+    exit $?
+fi
+
+#start all, or start single container
 if ( $start ); then
     compose_wrapper config > current-config.yml && compose_wrapper up -d "${arguments[@]}"
     exit $?
 fi
 
+#rebuild all, or rebuild single container
 if ( $refresh ); then #THIS IS AN UPGRADING, i.e. CD pipeline target
-    compose_wrapper config > current-config.yml && compose_wrapper up -d --build
+    compose_wrapper config > current-config.yml && compose_wrapper up -d --build "${arguments[@]}"
     exit $?
 fi
 
-if ( $monitor ); then
-    compose_wrapper logs -f --tail=100 "${arguments[@]}"
-    exit $?
-fi
+
+# execute command
+#compose_wrapper exec #and additional args: the name of the container and the command
+#FIXME: with the make target, arguments cannot be specified via cli
 
 if ( $execute ); then
     compose_wrapper exec "${arguments[@]}"
     exit $?
 fi
 
-if ( $pull ); then
-    compose_wrapper pull "${arguments[@]}"
+# cheap way to bypass all the safety introduced till now...
+if ( $docker ); then
+    compose_wrapper "${arguments[@]}"
     exit $?
 fi
 
+#
+#DEV/UTILS
+#
+
+#Brings the submodules to master and commits
+if ( $bump ); then
+    bump_repo
+fi
+
+#Brings the submodules to master, no commit
+if ( $bumpmodules ); then
+    bump_nocommit
+fi
+
+#Shows compiled docker-compose manifests
 if ( $debug ); then
     compose_wrapper config | tee would-be-config.yml
     exit $?
@@ -232,6 +260,18 @@ if ( $list ); then
     compose_wrapper ps
     exit $?
 fi
+
+#You can see everything, or pass a container name and monitors only that
+#FIXME: with the make target, it cannot follow specific logs (passed as
+#  arg to make; only possible via direct invoking of ./helper.sh)
+if ( $monitor ); then
+    compose_wrapper logs -f --tail=100 "${arguments[@]}"
+    exit $?
+fi
+
+#
+# DANGER ZONE
+#
 
 if ( $stop ); then
   if [[ -n "${arguments[*]}" ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
@@ -267,19 +307,6 @@ if ( $nuke ); then
       compose_wrapper down -v
       exit $?
   fi
-fi
-
-if ( $bump ); then
-    bump_repo
-fi
-
-if ( $bumpmodules ); then
-    bump_nocommit
-fi
-
-if ( $docker ); then
-    compose_wrapper "${arguments[@]}"
-    exit $?
 fi
 
 #return 0;
