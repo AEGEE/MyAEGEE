@@ -34,7 +34,7 @@
     "dompurify": "^2.0.9",
     "ical": "^0.8.0",
     "mapbox-gl": "^1.9.1",
-    "marked": "^0.8.0",
+    "marked": "^0.8.2",
     "moment": "^2.24.0",
     "nprogress": "^0.2.0",
     "qs": "^6.9.3",
