@@ -1,3 +1,10 @@
+## [0.43.1](https://github.com/AEGEE/oms-frontend/compare/0.43.0...0.43.1) (2020-04-23)
+
+
+### Bug Fixes
+
+* small qol improvements ([#326](https://github.com/AEGEE/oms-frontend/issues/326)) ([f6c80d6](https://github.com/AEGEE/oms-frontend/commit/f6c80d6bf3b163c94fd46e6ea5d8bbf9e6bbca33))
+
 # [0.43.0](https://github.com/AEGEE/oms-frontend/compare/0.42.1...0.43.0) (2020-04-18)
 
 
