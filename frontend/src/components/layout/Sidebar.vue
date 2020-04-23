@@ -5,7 +5,7 @@
         {{ category.categoryName }}
       </p>
       <ul class="menu-list">
-        <li v-for="item in category.components" exact="true" v-bind:key="item.name">
+        <li v-for="item in category.components" exact v-bind:key="item.name">
           <router-link :to="{ name: item.name, params: item.params }" v-if="item.name" :aria-expanded="isExpanded(item) ? 'true' : 'false'" @click.native="toggle(item.index, category.index, item)">
             <span><font-awesome-icon :icon="['fas', item.icon]" /></span>
             {{ item.label }}
@@ -23,7 +23,7 @@
 
           <ul v-show="isExpanded(item)">
             <li v-for="subItem in item.children" v-bind:key="subItem.name">
-              <router-link :to="{ name: subItem.name }" exact="true">
+              <router-link :to="{ name: subItem.name }" exact>
                 {{ subItem.label }}
               </router-link>
             </li>

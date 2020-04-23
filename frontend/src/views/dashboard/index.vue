@@ -172,8 +172,8 @@ export default {
             this.events.past.push(event)
           }
         }
-        this.events.past.sort((e1, e2) => ((e1.name > e2.name) ? 1 : -1))
-        this.events.future.sort((e1, e2) => ((e1.name > e2.name) ? 1 : -1))
+        this.events.past.sort((e1, e2) => ((e1.starts < e2.starts) ? 1 : -1))
+        this.events.future.sort((e1, e2) => ((e1.starts > e2.starts) ? 1 : -1))
         this.isLoading.events = false
       }).catch((err) => {
         this.isLoading.events = false

@@ -114,7 +114,7 @@
           <div class="control">
             <div class="select">
               <select v-model="candidate.nationality">
-                <option v-for="(country, index) in countries" v-bind:key="index">{{ country }}</option>
+                <option v-for="(nationality, index) in nationalities" v-bind:key="index">{{ nationality }}</option>
               </select>
             </div>
           </div>
@@ -238,7 +238,7 @@
 import { mapGetters } from 'vuex'
 import moment from 'moment'
 
-import countries from '../../countries'
+import nationalities from '../../nationalities'
 
 export default {
   name: 'EditCandidate',
@@ -255,7 +255,7 @@ export default {
         languages: [],
         agreed_to_privacy_policy: false
       },
-      countries,
+      nationalities,
       dateConfig: {},
       options: [],
       newValue: '',

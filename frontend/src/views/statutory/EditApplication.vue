@@ -42,7 +42,7 @@
                 <div class="control">
                   <div class="select">
                     <select v-model="application.nationality">
-                      <option v-for="(country, index) in countries" v-bind:key="index">{{ country }}</option>
+                      <option v-for="(nationality, index) in nationalities" v-bind:key="index">{{ nationality }}</option>
                     </select>
                   </div>
                 </div>
@@ -338,7 +338,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import countries from '../../countries'
+import nationalities from '../../nationalities'
 import EventNoBodyNotification from '../../components/notifications/EventNoBodyNotification'
 
 export default {
@@ -368,7 +368,7 @@ export default {
         allergies: '',
         number_of_events_visited: 0
       },
-      countries,
+      nationalities,
       can: {
         apply: false
       },

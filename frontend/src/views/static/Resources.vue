@@ -159,7 +159,7 @@ export default {
             color: '#A0C514'
           },
           {
-            url: 'https://www.zeus.aegee.org/portal/new-cia-29-1/',
+            url: 'https://www.zeus.aegee.org/portal/cia-v-30-1/',
             title: 'CIA',
             description: 'Statutes, regulation, working formats and motions',
             img: 'none.png',
