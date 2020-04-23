@@ -184,6 +184,7 @@ else
     echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump|--docker} [-v]"; exit 1
 fi
 
+# shellcheck disable=SC2004
 if (( ${command_num} > 1 )); then
     echo "Too many commands! Only one command per time"
     echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump|--docker} [-v]"; exit 1
