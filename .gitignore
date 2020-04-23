@@ -11,3 +11,6 @@ secrets/*
 
 # exception to the rule
 !secrets/.gitkeep
+
+.firstbootstrap
+

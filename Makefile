@@ -3,8 +3,13 @@
 include .env
 export $(shell sed 's/=.*//' .env)
 
+.PHONY: default init build start bootstrap refresh live_refresh list debug config monitor stop down restart hard_restart \
+          nuke_dev clean_docker_dangling_images clean_docker_images clean prune listen_frontend rebuild_frontend rebuild_core \
+	  rebuild_events rebuild_statutory rebuild_mailer bump install-agents remove-agents backup_core backup_events \
+	  backup_discounts backup_gsuite-wrapper backup_statping backup_statistics backup_security backup_shortener backup_survey
+
 default:
-	echo 'Most common options are bootstrap, start, monitor, live_refresh, restart, nuke_dev, clean (cleans untagged/unnamed images)'
+	@echo 'Most common options are bootstrap, start, monitor, live_refresh, restart, nuke_dev, clean (cleans untagged/unnamed images)'
 
 init: #check recursive & make secrets, change pw, change .env file
 	./helper.sh -v --init
@@ -49,10 +54,10 @@ nuke_dev:   #docker-compose down -v #TODO if needed: make this nuke take into ac
 
 # Cleanup
 clean_docker_dangling_images:
-	docker rmi $(docker images -qf "dangling=true")
+	docker rmi $(shell docker images -qf "dangling=true")
 
 clean_docker_images:
-	docker rmi $(docker images -q)
+	docker rmi $(shell docker images -q)
 
 clean: clean_docker_images clean_docker_dangling_images
 
@@ -95,31 +100,31 @@ remove-agents:
 
 # Backups
 backup_core:
-	bash ./helper.sh --execute postgres-oms-core-elixir -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/omscore_dev' --inserts > oms_core.sql.backup-$$(date +%Y-%m-%dT%H:%M)
+	./helper.sh --execute postgres-oms-core-elixir -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/omscore_dev' --inserts > oms_core.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
 
 backup_events:
-	bash ./helper.sh --execute postgres-oms-events -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/events' --inserts > oms_events.sql.backup-$$(date +%Y-%m-%dT%H:%M)
+	./helper.sh --execute postgres-oms-events -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/events' --inserts > oms_events.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
 
 backup_statutory:
-	bash ./helper.sh --execute postgres-oms-statutory -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/statutory' --inserts > oms_statutory.sql.backup-$$(date +%Y-%m-%dT%H:%M)
+	./helper.sh --execute postgres-oms-statutory -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/statutory' --inserts > oms_statutory.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
 
 backup_discounts:
-	bash ./helper.sh --execute postgres-oms-discounts -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/discounts' --inserts > oms_discounts.sql.backup-$$(date +%Y-%m-%dT%H:%M)
+	./helper.sh --execute postgres-oms-discounts -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/discounts' --inserts > oms_discounts.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
 
 backup_gsuite-wrapper:
 	echo "TODO: redis"
 
 backup_statping:
-	docker run --volumes-from=myaegee_statping_1 --entrypoint=/bin/bash nouchka/sqlite3 sqlite3 /app/statup.db ".backup '/app/statup.db.backup'" && docker cp myaegee_statping_1:/app/statup.db.backup "/opt/MyAEGEE/statup.db.backup-$$(date +%Y-%m-%dT%H:%M)"
+	docker run --volumes-from=myaegee_statping_1 --entrypoint=/bin/bash nouchka/sqlite3 sqlite3 /app/statup.db ".backup '/app/statup.db.backup'" && docker cp myaegee_statping_1:/app/statup.db.backup "/opt/MyAEGEE/statup.db.backup-$(shell date +%Y-%m-%dT%H:%M)"
 
 backup_statistics:
 	echo "TODO: prometheus volume (not all of the data is important!)"
 
 backup_security:
-	bash ./helper.sh --execute maria-bitwarden -- mysqldump -h"localhost" -u"warden" -p"$${PW_BITWARDEN}" bitwarden' > bitwarden_dump.sql.backup-$$(date +%Y-%m-%dT%H:%M)
+	./helper.sh --execute maria-bitwarden -- mysqldump -h"localhost" -u"warden" -p"$${PW_BITWARDEN}" bitwarden' > bitwarden_dump.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
 
 backup_shortener:
-	bash ./helper.sh --execute maria-yourls -- mysqldump -h"localhost" -u"yourls" -p"$${PW_YOURLS}" yourls' > yourls_dump.sql.backup-$$(date +%Y-%m-%dT%H:%M)
+	./helper.sh --execute maria-yourls -- mysqldump -h"localhost" -u"yourls" -p"$${PW_YOURLS}" yourls' > yourls_dump.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
 
 backup_survey:
-	bash ./helper.sh --execute postgres-limesurvey -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/limesurvey' --inserts > limesurvey.sql.backup-$$(date +%Y-%m-%dT%H:%M)
+	./helper.sh --execute postgres-limesurvey -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/limesurvey' --inserts > limesurvey.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
