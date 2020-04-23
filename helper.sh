@@ -131,6 +131,25 @@ edit_env_file ()
     fi
 }
 
+# Copypasted from here:
+# https://unix.stackexchange.com/questions/82598/how-do-i-write-a-retry-logic-in-script-to-keep-retrying-to-run-it-upto-5-times
+function retry {
+  local n=1
+  local max=120
+  local delay=1
+  while true; do
+    "$@" && break || {
+      if [[ $n -lt $max ]]; then
+        ((n++))
+        echo "Command failed. Attempt $n/$max."
+        sleep $delay;
+      else
+        fail "The command has failed after $n attempts."
+      fi
+    }
+  done
+}
+
 # nuke the installation (currently both deploy AND makefile launching both oms.sh [nuke])
 # (has a security check, near the end)
 # compose_wrapper down -v
@@ -172,7 +191,8 @@ execute=false;
 debug=false;
 list=false;
 pull=false;
-verbose=true; #TODO put me to false default
+wait_until_healthy=false;
+verbose=false;
 docker=false;
 command_num=0;
 declare -a arguments # = EMPTY ARRAY
@@ -195,13 +215,14 @@ if [[ "$#" -ge 1 ]]; then
             --debug) debug=true; ((command_num++)); shift ;;
             --list) list=true; ((command_num++)); shift ;;
             --pull) pull=true; ((command_num++)); shift ;;
+            --wait-until-healthy) wait_until_healthy=true; ((command_num++)); shift ;;
             --docker) docker=true; ((command_num++)); shift ;;
             -v) verbose=true; shift ;;
 
             --) shift ; arguments+=$@; break ;;
 
             -*) echo "unknown option: $1" 2>&1;
-                echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump|--docker} [-v]"; exit 1;;
+                echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump|--pull|--wait-until-healthy|--docker} [-v]"; exit 1;;
             *) arguments+="$1 "; shift;;
         esac
     done
@@ -302,6 +323,12 @@ fi
 
 if ( $bumpmodules ); then
     bump_nocommit
+fi
+
+if ( $wait_until_healthy ); then
+    CONTAINER_ID=$(compose_wrapper ps -q $arguments)
+    echo "Container ID: $CONTAINER_ID"
+    retry sh -c "docker inspect --format '{{json .State.Health.Status }}' $CONTAINER_ID | grep 'healthy'"
 fi
 
 if ( $docker ); then
