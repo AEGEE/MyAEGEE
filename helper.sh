@@ -112,24 +112,28 @@ edit_env_file ()
     fi
 }
 
-# Copypasted from here:
 # https://unix.stackexchange.com/questions/82598/how-do-i-write-a-retry-logic-in-script-to-keep-retrying-to-run-it-upto-5-times
 function retry {
   local n=1
   local max=120
   local delay=1
   while true; do
-    "$@" && break || {
-      if [[ $n -lt $max ]]; then
+    # shellcheck disable=SC2015
+    {
+      docker inspect --format '{{json .State.Health.Status }}' "${1}" | grep 'healthy'
+    } \
+    && break || {
+      if [[ ${n} -lt ${max} ]]; then
         ((n++))
-        echo "Command failed. Attempt $n/$max."
-        sleep $delay;
+        echo "Command failed. Attempt ${n}/${max}."
+        sleep ${delay};
       else
-        fail "The command has failed after $n attempts."
+        fail "The command has failed after ${n} attempts."
       fi
     }
   done
 }
+
 # HUMAN INTERVENTION NEEDED: register in .env your services
 ## Export all environment variables from .env to this script in case we need them some time
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -291,6 +295,12 @@ if ( $monitor ); then
     exit $?
 fi
 
+if ( $wait_until_healthy ); then
+    CONTAINER_ID=$(compose_wrapper ps -q "${arguments[@]}")
+    echo "Container ID: ${CONTAINER_ID}"
+    retry "${CONTAINER_ID}"
+fi
+
 #
 # DANGER ZONE
 #
@@ -329,12 +339,6 @@ if ( $nuke ); then
       compose_wrapper down -v
       exit $?
   fi
-fi
-
-if ( $wait_until_healthy ); then
-    CONTAINER_ID=$(compose_wrapper ps -q $arguments)
-    echo "Container ID: $CONTAINER_ID"
-    retry sh -c "docker inspect --format '{{json .State.Health.Status }}' $CONTAINER_ID | grep 'healthy'"
 fi
 
 #return 0;
