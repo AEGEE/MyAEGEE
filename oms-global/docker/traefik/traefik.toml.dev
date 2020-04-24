@@ -103,7 +103,7 @@ swarmmode = false
 [backends]
   [backends.jira-cors-backend]
     [backends.jira-cors-backend.servers.server1]
-    url = "https://oms-project.atlassian.net/"
+    url = "https://myaegee.atlassian.net/"
 
   [backends.calendar-cors-backend]
     [backends.calendar-cors-backend.servers.server1]
