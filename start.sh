@@ -14,10 +14,11 @@ while [ "$#" -gt 0 ]; do
 done
 
 check_etc_hosts () {
+  # shellcheck disable=SC2143
   if [[ ! $(grep -q 'traefik' /etc/hosts) ]]; then
-    #modify the hosts file
     echo 'modifying the hosts file'
-    sudo bash -c 'echo "$1" "$2" "portainer.$2" "my.$2" "traefik.$2" >> /etc/hosts' -- $1 $2
+    # shellcheck disable=SC2016
+    sudo bash -c 'echo "$1" "$2" "portainer.$2" "my.$2" "traefik.$2" >> /etc/hosts' -- "${1}" "${2}"
   fi
 }
 
