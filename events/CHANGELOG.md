@@ -1,3 +1,10 @@
+# [0.25.0](https://github.com/AEGEE/oms-events/compare/0.24.1...0.25.0) (2020-04-25)
+
+
+### Features
+
+* switch to bunyan ([#213](https://github.com/AEGEE/oms-events/issues/213)) ([1ac6d65](https://github.com/AEGEE/oms-events/commit/1ac6d659a93eae7e37535fbccea1e555dee2083f))
+
 ## [0.24.1](https://github.com/AEGEE/oms-events/compare/0.24.0...0.24.1) (2020-03-31)
 
 
