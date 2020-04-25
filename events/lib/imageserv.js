@@ -52,7 +52,7 @@ exports.uploadImage = async (req, res) => {
     try {
         await uploadAsync(req, res);
     } catch (err) {
-        log.error('Could not store image', err);
+        log.error({ err }, 'Could not store image');
         return errors.makeValidationError(res, err);
     }
 
