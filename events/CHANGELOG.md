@@ -1,3 +1,10 @@
+# [0.26.0](https://github.com/AEGEE/oms-events/compare/0.25.0...0.26.0) (2020-04-26)
+
+
+### Features
+
+* **nginx:** log real user IP ([#214](https://github.com/AEGEE/oms-events/issues/214)) ([6f181d9](https://github.com/AEGEE/oms-events/commit/6f181d982471a2591de99513fb126f3c7c328a09))
+
 # [0.25.0](https://github.com/AEGEE/oms-events/compare/0.24.1...0.25.0) (2020-04-25)
 
 
