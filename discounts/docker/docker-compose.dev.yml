@@ -6,6 +6,7 @@ services:
       context: ./${PATH_OMS_DISCOUNTS}/..
       dockerfile: ./docker/oms-discounts/Dockerfile
     image: aegee/oms-discounts:dev
+    command: sh -c "sh /usr/app/scripts/bootstrap.sh && nodemon -e 'js,json' lib/run.js | bunyan"
     volumes:
       - /usr/app/src/node_modules
       - ./${PATH_OMS_DISCOUNTS}/../:/usr/app/src

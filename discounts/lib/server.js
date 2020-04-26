@@ -21,7 +21,7 @@ const GeneralRouter = router({ mergeParams: true });
 
 /* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
-    log.error('Unhandled rejection: %s', err.stack);
+    log.error({ err }, 'Unhandled rejection');
 
     if (process.env.NODE_ENV !== 'test') {
         bugsnag.notify(err);
@@ -59,10 +59,10 @@ server.use(middlewares.errorHandler);
 let app;
 async function startServer() {
     return new Promise((res, rej) => {
-        log.info('Starting server with the following config: %o', config);
+        log.info({ config }, 'Starting server with the following config');
         const localApp = server.listen(config.port, async () => {
             app = localApp;
-            log.info('Up and running, listening on http://localhost:%d', config.port);
+            log.info({ host: 'http://localhost:' + config.port }, 'Up and running, listening');
             await db.authenticate();
             return res();
         });
