@@ -1,3 +1,10 @@
+# [0.33.0](https://github.com/AEGEE/oms-statutory/compare/0.32.1...0.33.0) (2020-04-26)
+
+
+### Features
+
+* **nginx:** log real user IP ([#257](https://github.com/AEGEE/oms-statutory/issues/257)) ([bf977d0](https://github.com/AEGEE/oms-statutory/commit/bf977d0cadb34c6a28f11e908ceaacdc66eee759))
+
 ## [0.32.1](https://github.com/AEGEE/oms-statutory/compare/0.32.0...0.32.1) (2020-03-31)
 
 
