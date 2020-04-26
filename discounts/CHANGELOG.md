@@ -1,3 +1,10 @@
+# [0.11.0](https://github.com/AEGEE/oms-discounts/compare/0.10.0...0.11.0) (2020-04-26)
+
+
+### Features
+
+* **logging:** switch to bunyan, log as json ([#47](https://github.com/AEGEE/oms-discounts/issues/47)) ([b8e4b96](https://github.com/AEGEE/oms-discounts/commit/b8e4b965394ef5e31209291c0c26e4bcbe685896))
+
 # [0.10.0](https://github.com/AEGEE/oms-discounts/compare/0.9.4...0.10.0) (2020-03-15)
 
 
