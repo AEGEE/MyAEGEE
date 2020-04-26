@@ -1,3 +1,10 @@
+# [0.44.0](https://github.com/AEGEE/oms-frontend/compare/0.43.1...0.44.0) (2020-04-26)
+
+
+### Features
+
+* **nginx:** log real user IP ([#335](https://github.com/AEGEE/oms-frontend/issues/335)) ([d3697f7](https://github.com/AEGEE/oms-frontend/commit/d3697f782c98169dc3f07e841c6833e9c82fadf1))
+
 ## [0.43.1](https://github.com/AEGEE/oms-frontend/compare/0.43.0...0.43.1) (2020-04-23)
 
 
