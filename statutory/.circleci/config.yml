@@ -91,7 +91,10 @@ workflows:
       - audit
   build:
     jobs:
-      - build
+      - build:
+          filters:
+            branches:
+              ignore: master
   docker-build-and-push:
     jobs:
       - docker-build-and-push:
