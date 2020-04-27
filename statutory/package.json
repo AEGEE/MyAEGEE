@@ -90,7 +90,7 @@
     "nock": "^11.4.0",
     "nyc": "^14.1.1",
     "open-cli": "^5.0.0",
-    "semantic-release": "^17.0.4",
+    "semantic-release": "^17.0.7",
     "timekeeper": "^2.2.0"
   }
 }
