@@ -1,3 +1,10 @@
+# [0.34.0](https://github.com/AEGEE/oms-statutory/compare/0.33.0...0.34.0) (2020-04-30)
+
+
+### Features
+
+* update candidature ([#259](https://github.com/AEGEE/oms-statutory/issues/259)) ([b3cbe44](https://github.com/AEGEE/oms-statutory/commit/b3cbe4419749b4c20002d5bae879b4f9a90dc87f))
+
 # [0.33.0](https://github.com/AEGEE/oms-statutory/compare/0.32.1...0.33.0) (2020-04-26)
 
 
