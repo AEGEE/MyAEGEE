@@ -149,6 +149,7 @@ exports.generatePosition = (options = {}, event = null) => {
     if (notSet(options.starts)) options.starts = faker.date.past();
     if (notSet(options.ends)) options.ends = faker.date.future();
     if (notSet(options.ends_force)) options.ends_force = faker.date.future(null, options.ends);
+    if (notSet(options.deleted)) options.deleted = false;
 
 
     if (event && event.id) {

@@ -170,6 +170,25 @@ describe('Positions listing', () => {
         expect(res.body.data[1].id).toEqual(secondPosition.id);
     });
 
+    test('should not list any deleted positions', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        await generator.createPosition({
+            deleted: true
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/positions/all',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(0);
+    });
+
     test('should list all applications on /all', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         await generator.createPosition({

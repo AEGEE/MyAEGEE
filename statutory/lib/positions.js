@@ -10,7 +10,13 @@ exports.findPosition = async (req, res, next) => {
         return errors.makeBadRequestError(res, 'The position ID is invalid.');
     }
 
-    const position = await Position.findByPk(Number(req.params.position_id));
+    const position = await Position.findOne({
+        where: {
+            id: Number(req.params.position_id),
+            deleted: false
+        }
+    });
+
     if (!position) {
         return errors.makeNotFoundError(res, 'Position is not found.');
     }
@@ -24,10 +30,9 @@ exports.findPosition = async (req, res, next) => {
     return next();
 };
 
-
 exports.listAllPositions = async (req, res) => {
     const positions = await Position.findAll({
-        where: { event_id: req.event.id },
+        where: { event_id: req.event.id, deleted: false },
         order: [['created_at', 'ASC']]
     });
     return res.json({
@@ -42,7 +47,7 @@ exports.listPositionsWithAllCandidates = async (req, res) => {
     }
 
     const positions = await Position.findAll({
-        where: { event_id: req.event.id },
+        where: { event_id: req.event.id, deleted: false },
         order: [
             ['created_at', 'ASC'],
             [Candidate, 'created_at', 'ASC']
@@ -61,7 +66,7 @@ exports.listPositionsWithAllCandidates = async (req, res) => {
 
 exports.listPositionsWithApprovedCandidates = async (req, res) => {
     const positions = await Position.findAll({
-        where: { event_id: req.event.id },
+        where: { event_id: req.event.id, deleted: false },
         order: [
             ['created_at', 'ASC'],
             [Candidate, 'created_at', 'ASC']
@@ -131,6 +136,18 @@ exports.editPosition = async (req, res) => {
     });
 };
 
+exports.deletePosition = async (req, res) => {
+    if (!req.permissions.manage_candidates) {
+        return errors.makeForbiddenError(res, 'You cannot manage positions.');
+    }
+
+    await req.position.update({ deleted: true });
+
+    return res.json({
+        success: true,
+        message: 'The position was deleted.'
+    });
+};
 
 exports.updatePositionStatus = async (req, res) => {
     if (!req.permissions.manage_candidates) {
@@ -173,10 +190,11 @@ exports.exportAll = async (req, res) => {
     const applications = await Candidate.findAll({
         where: {
             '$position.event_id$': req.event.id,
-            ...applicationsFilter
+            ...applicationsFilter,
+            '$position.deleted$': false
         },
         include: [{
-            model: Position, select: ['name', 'id']
+            model: Position, select: ['name', 'id', 'deleted']
         }]
     });
 

@@ -12,6 +12,14 @@ const Position = sequelize.define('position', {
             isInt: { msg: 'Event ID should be a number.' }
         },
     },
+    deleted: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        validate: {
+            notEmpty: { msg: 'Deleted should be set.' }
+        },
+    },
     name: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -19,6 +27,10 @@ const Position = sequelize.define('position', {
         validate: {
             notEmpty: { msg: 'Position name should be set.' },
         }
+    },
+    body_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true
     },
     starts: {
         type: Sequelize.DATE,
