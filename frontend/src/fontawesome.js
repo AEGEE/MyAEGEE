@@ -56,6 +56,7 @@ import { faGraduationCap } from '@fortawesome/free-solid-svg-icons/faGraduationC
 import { faUniversity } from '@fortawesome/free-solid-svg-icons/faUniversity'
 import { faCommentAlt } from '@fortawesome/free-solid-svg-icons/faCommentAlt'
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle'
+import { faTrashAlt } from '@fortawesome/free-solid-svg-icons/faTrashAlt'
 
 
 library.add(faTimesCircle)
@@ -112,5 +113,6 @@ library.add(faGraduationCap)
 library.add(faUniversity)
 library.add(faCommentAlt)
 library.add(faInfoCircle)
+library.add(faTrashAlt)
 
 export default FontAwesomeIcon

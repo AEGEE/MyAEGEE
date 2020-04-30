@@ -4,6 +4,7 @@
       <p class="modal-card-title">Add position</p>
       <button class="delete" aria-label="close" @click="$parent.close()"></button>
     </header>
+
     <section class="modal-card-body">
       <div class="field">
         <label class="label">Name</label>
@@ -57,7 +58,17 @@
         </div>
         <p class="help is-danger" v-if="errors.places">{{ errors.places.join(', ') }}</p>
       </div>
+
+      <div class="field">
+        <label class="label">Associated body</label>
+        <div class="select">
+          <select v-model="position.body_id">
+            <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
+          </select>
+        </div>
+      </div>
     </section>
+
     <footer class="modal-card-foot">
       <button class="button is-primary" @click="savePosition()">Save changes</button>
       <button class="button" @click="$parent.close()">Cancel</button>
@@ -68,7 +79,7 @@
 <script>
 export default {
   name: 'EditPositionModal',
-  props: ['event', 'position', 'services', 'showSuccess', 'showError', 'router'],
+  props: ['event', 'position', 'services', 'showSuccess', 'showError', 'router', 'bodies'],
   data () {
     return {
       errors: {},

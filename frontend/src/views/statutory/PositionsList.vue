@@ -7,7 +7,7 @@
         <div class="notification is-warning">
           <div class="content">
             <p>The positions will be closed on the deadline if there were (number of places + 1) applications at that moment.</p>
-            <p>If there's not enough applications, the position will stay open until 2 weeks before the Agora.</p>
+            <p>If there are not enough applications, the position will stay open until 2 weeks before the Agora.</p>
             <p>All dates are in your local time (which is not always CET).</p>
           </div>
         </div>
@@ -85,6 +85,12 @@
               </router-link>
               <span v-if="props.row.myCandidate && props.row.myCandidate.status !== 'pending'">You cannot edit your application.</span>
             </b-table-column>
+
+            <b-table-column label="" centered v-if="can.manage_candidates">
+              <a href="#" class="button is-danger is-small" @click.prevent="askDeletePosition(props.row)">
+                <span class="white"><font-awesome-icon :icon="['fa', 'trash-alt']" /></span>
+              </a>
+            </b-table-column>
           </template>
 
           <template slot="empty">
@@ -93,6 +99,9 @@
         </b-table>
 
         <hr />
+
+        <div class="subtitle" v-if="selectedPosition">Description of selected position</div>
+        <p class="content" v-if="selectedPosition">{{ description }}</p>
 
         <div class="subtitle" v-if="selectedPosition">Applications for selected position</div>
 
@@ -176,6 +185,7 @@ export default {
       can: {
         manage_candidates: false
       },
+      bodies: [],
       isLoading: false
     }
   },
@@ -186,6 +196,13 @@ export default {
     }),
     prefix () {
       return this.$route.params.prefix
+    },
+    description () {
+      if (!this.selectedPosition.body_id) {
+        return 'A description for this position has not been set.'
+      }
+      const body = this.bodies.find(bod => bod.id === this.selectedPosition.body_id)
+      return body.description
     }
   },
   methods: {
@@ -214,7 +231,8 @@ export default {
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
-          router: this.$router
+          router: this.$router,
+          bodies: this.bodies
         }
       })
     },
@@ -232,7 +250,8 @@ export default {
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
-          router: this.$router
+          router: this.$router,
+          bodies: this.bodies
         }
       })
     },
@@ -250,6 +269,31 @@ export default {
           event: this.event,
           services: this.services
         }
+      })
+    },
+    deletePosition (position) {
+      this.isLoading = true
+      this.axios.delete(
+        this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/' + position.id
+      ).then(() => {
+        const index = this.positions.indexOf(position)
+        this.positions.splice(index, 1)
+        this.selectedPosition = null
+        this.isLoading = false
+        this.$root.showSuccess('Position is removed.')
+      }).catch((err) => {
+        this.isLoading = false
+        this.$root.showError('Could not remove position', err)
+      })
+    },
+    askDeletePosition (position) {
+      this.$buefy.dialog.confirm({
+        title: 'Removing position',
+        message: 'Are you sure you want to remove the position for <b>' + position.name + '</b>? This action cannot be undone.',
+        confirmText: 'Remove position',
+        type: 'is-danger',
+        hasIcon: false,
+        onConfirm: () => this.deletePosition(position)
       })
     },
     switchCandidateStatus (candidate, position) {
@@ -281,6 +325,10 @@ export default {
   },
   mounted () {
     this.isLoading = true
+
+    this.axios.get(this.services['oms-core-elixir'] + '/bodies').then((bodiesResponse) => {
+      this.bodies = bodiesResponse.data.data
+    })
 
     this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
@@ -333,5 +381,9 @@ export default {
 }
 .table-wrapper .table .is-selected .button, .table-wrapper .table .is-selected .tag {
   border: 1px solid white;
+}
+
+.white {
+  color: white;
 }
 </style>
