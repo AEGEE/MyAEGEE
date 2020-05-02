@@ -7,5 +7,10 @@ services:
       dockerfile: ./docker/oms-core-js/Dockerfile
     image: aegee/oms-core-js:dev
     volumes:
-      - /usr/app/src/node_modules
-      - ./${PATH_OMS_CORE_JS}/../:/usr/app/src
+      - ./${PATH_OMS_CORE_JS}/../config/:/usr/app/src/config
+      - ./${PATH_OMS_CORE_JS}/../lib/:/usr/app/src/lib
+      - ./${PATH_OMS_CORE_JS}/../middlewares/:/usr/app/src/middlewares
+      - ./${PATH_OMS_CORE_JS}/../migrations/:/usr/app/src/migrations
+      - ./${PATH_OMS_CORE_JS}/../models/:/usr/app/src/models
+      - ./${PATH_OMS_CORE_JS}/../scripts/:/usr/app/src/scripts
+      - ./${PATH_OMS_CORE_JS}/../cli.js/:/usr/app/src/cli.js
