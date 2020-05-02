@@ -25,7 +25,13 @@ exports.registerUser = async (req, res) => {
         user = await User.scope('noExtraFields').create({
             ...req.body,
             campaign_id: campaign.id
-        }, { fields: constants.FIELDS_TO_UPDATE.USER.CREATE, transaction: t });
+        }, {
+            fields: [
+                ...constants.FIELDS_TO_UPDATE.USER.CREATE,
+                'campaign_id'
+            ],
+            transaction: t
+        });
 
         // Adding a person to a body if campaign has the autojoin body.
         if (campaign.autojoin_body_id) {
