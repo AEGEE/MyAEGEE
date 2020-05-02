@@ -123,7 +123,8 @@ exports.fetchCampaign = async (req, res, next) => {
     }
 
     const campaign = await Campaign.findOne({
-        where: { id: Number(req.params.campaign_id) }
+        where: { id: Number(req.params.campaign_id) },
+        include: [{ model: Body, as: 'autojoin_body' }]
     });
     if (!campaign) {
         return errors.makeNotFoundError(res, 'Campaign is not found.');
@@ -184,7 +185,8 @@ exports.fetchBodyCampaign = async (req, res, next) => {
         where: {
             id: Number(req.params.campaign_id),
             autojoin_body_id: req.currentBody.id
-        }
+        },
+        include: [{ model: Body, as: 'autojoin_body' }]
     });
 
     if (!campaign) {
