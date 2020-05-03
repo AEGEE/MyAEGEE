@@ -1,3 +1,18 @@
+# [1.15.0](https://github.com/AEGEE/oms-core-js/compare/1.14.0...1.15.0) (2020-05-03)
+
+
+### Bug Fixes
+
+* **campaigns:** preload autojoin_body ([c6d88df](https://github.com/AEGEE/oms-core-js/commit/c6d88df2cead09683314a2856222deff260d4051))
+* **docker:** mount only folders necessary ([97043b7](https://github.com/AEGEE/oms-core-js/commit/97043b7e2c50185db5903488d283718f3f019ba3))
+* **members:** adding campaign_id on registering ([8a374fa](https://github.com/AEGEE/oms-core-js/commit/8a374fa4e6efce32cda28c7c73f463964f66a6c1))
+
+
+### Features
+
+* **campaigns:** list body campaign members ([8c265a3](https://github.com/AEGEE/oms-core-js/commit/8c265a32a5d2bbc28d2aa029f238187a6bfc8b00))
+* **campaigns:** list campaign members ([2384274](https://github.com/AEGEE/oms-core-js/commit/2384274883ddb9f8532bcac264ddfb1fecac5d71))
+
 # [1.14.0](https://github.com/AEGEE/oms-core-js/compare/1.13.2...1.14.0) (2020-04-21)
 
 
