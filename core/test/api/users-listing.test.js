@@ -15,7 +15,7 @@ describe('Users list', () => {
         await generator.clearAll();
     });
 
-    test('should succeed when everything is okay', async () => {
+    test('should fail if no permission', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 

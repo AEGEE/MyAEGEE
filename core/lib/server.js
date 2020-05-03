@@ -150,6 +150,7 @@ PermissionsRouter.delete('/', permissions.deletePermission);
 
 // Everything related to a specific campaign. Auth only.
 CampaignsRouter.use(middlewares.maybeAuthorize, middlewares.ensureAuthorized, fetch.fetchCampaign);
+CampaignsRouter.get('/members', campaigns.listCampaignMembers);
 CampaignsRouter.get('/', campaigns.getCampaign);
 CampaignsRouter.put('/', campaigns.updateCampaign);
 CampaignsRouter.delete('/', campaigns.deleteCampaign);

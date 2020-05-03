@@ -127,3 +127,24 @@ exports.deleteCampaign = async (req, res) => {
         message: 'Campaign is deleted.'
     });
 };
+
+exports.listCampaignMembers = async (req, res) => {
+    if (!req.permissions.hasPermission('global:view:member')) {
+        return errors.makeForbiddenError(res, 'Permission global:view:member is required, but not present.');
+    }
+
+    const result = await User.findAndCountAll({
+        where: {
+            ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.MEMBER),
+            campaign_id: req.currentCampaign.id
+        },
+        ...helpers.getPagination(req.query),
+        order: helpers.getSorting(req.query)
+    });
+
+    return res.json({
+        success: true,
+        data: result.rows,
+        meta: { count: result.count }
+    });
+};
