@@ -1,3 +1,10 @@
+## [0.26.1](https://github.com/AEGEE/oms-events/compare/0.26.0...0.26.1) (2020-05-06)
+
+
+### Bug Fixes
+
+* **docker:** mount only required folders ([#222](https://github.com/AEGEE/oms-events/issues/222)) ([94d42dd](https://github.com/AEGEE/oms-events/commit/94d42dd3b3364c795d574eb6392834fcd47e652b))
+
 # [0.26.0](https://github.com/AEGEE/oms-events/compare/0.25.0...0.26.0) (2020-04-26)
 
 
