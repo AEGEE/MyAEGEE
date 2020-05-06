@@ -13,7 +13,7 @@
 
         <event-no-body-notification v-show="bodies.length == 0" />
 
-        <div v-if="$route.params.id">
+        <div v-if="$route.params.candidate_id">
           <div class="subtitle">Update candidature image</div>
 
           <div class="field is-grouped">
