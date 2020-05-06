@@ -1,3 +1,10 @@
+## [0.45.1](https://github.com/AEGEE/oms-frontend/compare/0.45.0...0.45.1) (2020-05-06)
+
+
+### Bug Fixes
+
+* **statutory:** fix images upload for candidates. Fixes MA-18 [#347](https://github.com/AEGEE/oms-frontend/issues/347) ([d1e0d5d](https://github.com/AEGEE/oms-frontend/commit/d1e0d5d48064caf724e305f388dd011688180f0c))
+
 # [0.45.0](https://github.com/AEGEE/oms-frontend/compare/0.44.0...0.45.0) (2020-04-30)
 
 
