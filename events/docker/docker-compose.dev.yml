@@ -8,5 +8,8 @@ services:
         image: aegee/oms-events:dev
         command: sh -c "sh /usr/app/scripts/bootstrap.sh && nodemon -e 'js,json' lib/run.js | bunyan"
         volumes:
-            - /usr/app/src/node_modules
-            - ./${PATH_OMS_EVENTS}/../:/usr/app/src
+            - ./${PATH_OMS_EVENTS}/../config:/usr/app/src/config
+            - ./${PATH_OMS_EVENTS}/../lib:/usr/app/src/lib
+            - ./${PATH_OMS_EVENTS}/../migrations:/usr/app/src/migrations
+            - ./${PATH_OMS_EVENTS}/../models:/usr/app/src/models
+            - ./${PATH_OMS_EVENTS}/../cli.js:/usr/app/src/cli.js
