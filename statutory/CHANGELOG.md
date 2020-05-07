@@ -1,3 +1,10 @@
+## [0.34.1](https://github.com/AEGEE/oms-statutory/compare/0.34.0...0.34.1) (2020-05-07)
+
+
+### Bug Fixes
+
+* **docker:** only mount required folders ([#270](https://github.com/AEGEE/oms-statutory/issues/270)) ([57db138](https://github.com/AEGEE/oms-statutory/commit/57db1389bb11fe173c68bca8bd94174ed7fc1535))
+
 # [0.34.0](https://github.com/AEGEE/oms-statutory/compare/0.33.0...0.34.0) (2020-04-30)
 
 
