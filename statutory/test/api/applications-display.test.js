@@ -101,9 +101,8 @@ describe('Applications displaying', () => {
     test('should return the error for those who does not have permissions to see applications', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-        const userId = Math.floor(Math.random() * 100 * 50); // from 50 to 150
         const event = await generator.createEvent({ applications: [] });
-        const application = await generator.createApplication({ user_id: userId }, event);
+        const application = await generator.createApplication({ user_id: 1337 }, event);
 
 
         const res = await request({
