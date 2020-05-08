@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export $(grep -v '^#' ".env" | gxargs -d '\n')
+export "$(grep -v '^#' ".env" | gxargs -d '\n')"
 
 if [[ "$#" -lt 1 ]]; then
     echo "Usage: ./deploy.sh <service-name>"
@@ -10,13 +10,15 @@ fi
 SERVICE_NAME=$1
 
 echo "Pulling $SERVICE_NAME..."
+# shellcheck disable=SC2029
 ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "cd $DEPLOY_FOLDER && ./helper.sh --pull $SERVICE_NAME"
 
 echo "(Re)starting $SERVICE_NAME..."
+# shellcheck disable=SC2029
 ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "cd $DEPLOY_FOLDER && ./helper.sh --start $SERVICE_NAME"
 
 echo "Sending a Slack notice..."
-curl $DEPLOY_TOKEN -X POST -H 'Content-Type: application/json' --data-binary @- << EOF
+curl "$DEPLOY_TOKEN" -X POST -H 'Content-Type: application/json' --data-binary @- << EOF
 {
     "attachments": [
         {
