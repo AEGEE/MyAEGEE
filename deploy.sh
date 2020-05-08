@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export "$(grep -v '^#' ".env" | gxargs -d '\n')"
+export $(grep -v '^#' ".env" | gxargs -d '\n')
 
 if [[ "$#" -lt 1 ]]; then
     echo "Usage: ./deploy.sh <service-name>"
