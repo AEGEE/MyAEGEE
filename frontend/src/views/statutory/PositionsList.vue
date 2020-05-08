@@ -101,7 +101,7 @@
         <hr />
 
         <div class="subtitle" v-if="selectedPosition">Description of selected position</div>
-        <p class="content" v-if="selectedPosition">{{ description }}</p>
+        <span class="content" v-if="selectedPosition" v-html="$options.filters.markdown(description)"></span>
 
         <div class="subtitle" v-if="selectedPosition">Applications for selected position</div>
 
