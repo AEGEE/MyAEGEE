@@ -1,3 +1,10 @@
+## [0.45.2](https://github.com/AEGEE/oms-frontend/compare/0.45.1...0.45.2) (2020-05-08)
+
+
+### Bug Fixes
+
+* **statutory:** fixed candidates links. Fixes MA-18 ([#350](https://github.com/AEGEE/oms-frontend/issues/350)) ([9976172](https://github.com/AEGEE/oms-frontend/commit/9976172fa11c71b144c1e813d43f94edc5b6d8cd))
+
 ## [0.45.1](https://github.com/AEGEE/oms-frontend/compare/0.45.0...0.45.1) (2020-05-06)
 
 
