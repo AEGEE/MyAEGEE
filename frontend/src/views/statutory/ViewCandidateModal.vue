@@ -9,7 +9,7 @@
         <article class="tile is-child is-primary">
           <figure class="image">
             <img v-if="!candidate.image" src="/images/logo.png">
-            <img v-if="candidate.image" :src="services['oms-statutory'] + candidate.image.frontend_path">
+            <img v-if="candidate.image" :src="services['oms-statutory-static'] + candidate.image.frontend_path">
           </figure>
         </article>
       </div>
