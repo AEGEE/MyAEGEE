@@ -98,10 +98,12 @@
           </template>
         </b-table>
 
-        <hr />
+        <hr v-if="selectedPosition"/>
 
         <div class="subtitle" v-if="selectedPosition">Description of selected position</div>
-        <span class="content" v-if="selectedPosition" v-html="$options.filters.markdown(description)"></span>
+        <p class="content" v-if="selectedPosition" v-html="$options.filters.markdown(description)"></p>
+
+        <hr v-if="selectedPosition"/>
 
         <div class="subtitle" v-if="selectedPosition">Applications for selected position</div>
 
