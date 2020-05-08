@@ -1,3 +1,10 @@
+## [0.45.4](https://github.com/AEGEE/oms-frontend/compare/0.45.3...0.45.4) (2020-05-08)
+
+
+### Bug Fixes
+
+* formatted body description positions nicer ([#352](https://github.com/AEGEE/oms-frontend/issues/352)) ([35c1207](https://github.com/AEGEE/oms-frontend/commit/35c1207e9f6d1229b712222e182b3a42016a2d49))
+
 ## [0.45.3](https://github.com/AEGEE/oms-frontend/compare/0.45.2...0.45.3) (2020-05-08)
 
 
