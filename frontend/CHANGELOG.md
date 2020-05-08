@@ -1,3 +1,10 @@
+## [0.45.3](https://github.com/AEGEE/oms-frontend/compare/0.45.2...0.45.3) (2020-05-08)
+
+
+### Bug Fixes
+
+* add HTML markdown position description ([#351](https://github.com/AEGEE/oms-frontend/issues/351)) ([1dfedc8](https://github.com/AEGEE/oms-frontend/commit/1dfedc8e42c0c962c94b596d2a5d354fa176ab48))
+
 ## [0.45.2](https://github.com/AEGEE/oms-frontend/compare/0.45.1...0.45.2) (2020-05-08)
 
 
