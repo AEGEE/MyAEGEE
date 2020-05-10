@@ -1,3 +1,10 @@
+## [0.45.5](https://github.com/AEGEE/oms-frontend/compare/0.45.4...0.45.5) (2020-05-10)
+
+
+### Bug Fixes
+
+* **resources:** changed colours to light and removed images. Fixes HELP-512 ([#353](https://github.com/AEGEE/oms-frontend/issues/353)) ([28cc8b3](https://github.com/AEGEE/oms-frontend/commit/28cc8b3306d1a090d59dfe86b856b14b6432410f))
+
 ## [0.45.4](https://github.com/AEGEE/oms-frontend/compare/0.45.3...0.45.4) (2020-05-08)
 
 
