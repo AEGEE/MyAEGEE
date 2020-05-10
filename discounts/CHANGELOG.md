@@ -1,3 +1,10 @@
+## [0.11.1](https://github.com/AEGEE/oms-discounts/compare/0.11.0...0.11.1) (2020-05-10)
+
+
+### Bug Fixes
+
+* **docker:** mount only required folders ([#58](https://github.com/AEGEE/oms-discounts/issues/58)) ([0e8a147](https://github.com/AEGEE/oms-discounts/commit/0e8a1474deff73476d2b39249c8470492273ceb7))
+
 # [0.11.0](https://github.com/AEGEE/oms-discounts/compare/0.10.0...0.11.0) (2020-04-26)
 
 
