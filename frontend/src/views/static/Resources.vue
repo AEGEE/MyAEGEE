@@ -62,7 +62,7 @@ export default {
   data () {
     return {
       resources: {
-        External: [
+        'External': [
           {
             url: 'http://aegee.org',
             title: 'AEGEE website',
@@ -88,7 +88,7 @@ export default {
             color: '#4CA0FF'
           }
         ],
-        Members: [
+        'Members': [
           {
             url: 'http://www.zeus.aegee.org/portal/',
             title: 'Internal news',
@@ -138,7 +138,7 @@ export default {
             color: '#FFDB4C'
           }
         ],
-        Statutory: [
+        'Statutory': [
           {
             url: 'https://www.zeus.aegee.org/statutoryvote/jc/',
             title: 'Online voting',
@@ -146,7 +146,7 @@ export default {
             color: '#C44BC2'
           },
           {
-            url: 'https://www.zeus.aegee.org/portal/cia-v-30-1/',
+            url: 'https://www.zeus.aegee.org/portal/category/jc/',
             title: 'CIA',
             description: 'Statutes, regulation, working formats and motions',
             color: '#C44BC2'
