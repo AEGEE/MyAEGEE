@@ -43,7 +43,7 @@ module.exports = {
         },
         founded_at: {
             allowNull: false,
-            type: Sequelize.DATE,
+            type: Sequelize.DATEONLY,
             defaultValue: Sequelize.fn('NOW')
         },
         status: {

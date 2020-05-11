@@ -64,7 +64,7 @@ const Body = sequelize.define('body', {
         defaultValue: true
     },
     founded_at: {
-        type: Sequelize.DATE,
+        type: Sequelize.DATEONLY,
         allowNull: false,
         defaultValue: Sequelize.fn('NOW')
     },
