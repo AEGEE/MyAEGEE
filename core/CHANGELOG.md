@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/AEGEE/oms-core-js/compare/1.15.1...1.16.0) (2020-05-11)
+
+
+### Features
+
+* **logging:** switched to bunyan ([19f47eb](https://github.com/AEGEE/oms-core-js/commit/19f47eb390605a8190159d4b3e8a5841abfac067))
+
 ## [1.15.1](https://github.com/AEGEE/oms-core-js/compare/1.15.0...1.15.1) (2020-05-11)
 
 
