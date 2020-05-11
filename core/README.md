@@ -52,7 +52,7 @@ All users have `5ecr3t5ecr3t` as password.
 - `password-reset@example.com` - member who requested a password reset
 - `suspended@example.com` - a suspended member
 
-You can use `5ecr3t` for a password reset token (for a member with email `suspended@example.com`) and `5ecr3t` for a mail confirmation (for a member with email `not-confirmed@example.com`).
+You can use `5ecr3t` for a password reset token (for a member with email `password-reset@example.com`) and `5ecr3t` for a mail confirmation (for a member with email `not-confirmed@example.com`).
 
 Easy way to recreate user session as admin: run this in the DevTools console with localhost opened:
 
@@ -68,7 +68,6 @@ fetch(`http://localhost/api/core/login`, {
 })
 .then(res => res.json())
 .then(res => {
-    console.log(res)
     window.localStorage.setItem('access-token', res.access_token)
     window.localStorage.setItem('refresh-token', res.refresh_token)
     window.location = `http://localhost/dashboard`
