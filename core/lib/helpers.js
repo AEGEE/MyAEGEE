@@ -176,6 +176,16 @@ function findBy(query, fields) {
             throw new Error(`The "${field}" value should be string, but received "${queryField}`);
         }
 
+        /* istanbul ignore next */
+        if (type === 'array') {
+            if (typeof queryField !== 'string' || queryField.trim().length === 0) {
+                throw new Error(`The "${field}" value should be string, but received "${queryField}`);
+            }
+
+            whereObject[field] = { [Sequelize.Op.in]: queryField.split(',') };
+            continue;
+        }
+
         whereObject[field] = queryField;
     }
 
