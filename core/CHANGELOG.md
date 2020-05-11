@@ -1,3 +1,11 @@
+## [1.15.1](https://github.com/AEGEE/oms-core-js/compare/1.15.0...1.15.1) (2020-05-11)
+
+
+### Bug Fixes
+
+* **bodies:** search by multiple body types ([fa92b2c](https://github.com/AEGEE/oms-core-js/commit/fa92b2c235e1809bf00f830d681c3182f93f7889))
+* **users:** disallow setting date_of_birth from a future ([f6b3e9a](https://github.com/AEGEE/oms-core-js/commit/f6b3e9a6134f2b6e3051aa053de14bd475867cbf))
+
 # [1.15.0](https://github.com/AEGEE/oms-core-js/compare/1.14.0...1.15.0) (2020-05-03)
 
 
