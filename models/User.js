@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const config = require('../config');
@@ -82,7 +83,14 @@ const User = sequelize.define('user', {
     },
     date_of_birth: {
         type: Sequelize.DATEONLY,
-        allowNull: true
+        allowNull: true,
+        validate: {
+            isPast(value) {
+                if (moment().isSameOrBefore(value)) {
+                    throw new Error('Birthday should be in the past.');
+                }
+            }
+        }
     },
     gender: {
         type: Sequelize.STRING,
