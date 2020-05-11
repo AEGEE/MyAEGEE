@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const { startServer, stopServer } = require('../../lib/server.js');
 const generator = require('../scripts/generator');
 const { User } = require('../../models');
@@ -92,6 +94,22 @@ describe('Users testing', () => {
             expect(err.errors.length).toEqual(1);
             expect(err.errors[0].type).toEqual('notNull Violation');
             expect(err.errors[0].path).toEqual('last_name');
+        }
+    });
+
+    test('should fail with date_of_birth in the future', async () => {
+        try {
+            const user = generator.generateUser({
+                date_of_birth: moment().add(1, 'year').toDate()
+            });
+            await User.create(user);
+
+            expect(1).toEqual(0);
+        } catch (err) {
+            expect(err).toHaveProperty('errors');
+            expect(err.errors.length).toEqual(1);
+            expect(err.errors[0].type).toEqual('Validation error');
+            expect(err.errors[0].path).toEqual('date_of_birth');
         }
     });
 
