@@ -1,3 +1,10 @@
+## [0.45.6](https://github.com/AEGEE/oms-frontend/compare/0.45.5...0.45.6) (2020-05-11)
+
+
+### Bug Fixes
+
+* **resources:** CIA link to category. Fixes HELP-671 ([#355](https://github.com/AEGEE/oms-frontend/issues/355)) ([889ab94](https://github.com/AEGEE/oms-frontend/commit/889ab94cd63424c88885049e2d7040e431450756))
+
 ## [0.45.5](https://github.com/AEGEE/oms-frontend/compare/0.45.4...0.45.5) (2020-05-10)
 
 
