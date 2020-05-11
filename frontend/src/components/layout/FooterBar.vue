@@ -2,14 +2,13 @@
   <footer class="footer">
     <div class="container">
       <div class="content has-text-centered">
-        <p>© 2017-{{ year }} AEGEE - Frontend version {{ pkg.version }}</p>
-        <p>Powered by <a href="//myaegee.atlassian.net/wiki/spaces/GENERAL">Online membership system</a></p>
         <p>
-          <router-link :to="{ name: 'oms.confluence', params: { id: 'terms-of-service' } }">Legal info (simple)</router-link> &bull;
-          <!--<router-link :to="{ name: 'oms.legal.full' }">(complex)</router-link> &bull;-->
+          <router-link :to="{ name: 'oms.confluence', params: { page_id: 'terms-of-service' } }">Legal info</router-link> &bull;
           <router-link :to="{ name: 'oms.about' }">About MyAEGEE</router-link> &bull;
           <router-link :to="{ name: 'oms.bug_report' }">Report a bug!</router-link>
         </p>
+        <p>© 2017-{{ year }} <a href="//aegee.org" target="_blank">AEGEE-Europe</a> &bull;
+        Powered by <a href="//myaegee.atlassian.net/wiki/spaces/GENERAL" target="_blank">Online Membership System</a></p>
       </div>
 
       <article class="footer-message message is-danger">
@@ -44,6 +43,7 @@ export default {
 
 .footer {
   margin-left: 180px;
+  padding: 1rem 1.5rem 1rem !important;
 
   @include mobile() {
     margin-left: 0;
