@@ -20,7 +20,7 @@ USER node
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
 ENV PATH="/home/node/.npm-global/bin:${PATH}"
 
-RUN npm install -g --loglevel warn nodemon && npm cache clean --force
+RUN npm install -g --loglevel warn nodemon bunyan && npm cache clean --force
 RUN npm install --loglevel warn
 
 CMD sh /usr/app/scripts/bootstrap.sh && nodemon -e "js,json" lib/run.js
