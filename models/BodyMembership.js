@@ -38,7 +38,11 @@ BodyMembership.afterCreate(async (membership) => {
         return;
     }
 
-    logger.info(`Adding person ${membership.id} to shadow circle ${body.shadow_circle_id} of body ${body.id}`);
+    logger.info({
+        membership_id: membership.id,
+        shadow_circle_id: body.shadow_circle_id,
+        body_id: body.id
+    }, 'Adding person to shadow circle of body');
     await CircleMembership.create({
         circle_id: body.shadow_circle_id,
         user_id: membership.user_id
