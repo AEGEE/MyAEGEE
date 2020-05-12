@@ -97,6 +97,13 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert_email_delivered_with(subject: "pirates")
   end
 
+  # Password reset works
+  test "POST / mail change", %{conn: conn} do
+    conn = post conn, "/", %{template: "mail_change.html", parameters: %{token: "astdefern1234", first_name: "Name"}, to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(subject: "pirates")
+  end
+
   test "POST / allows for several recipients", %{conn: conn} do
     conn = post conn, "/", %{template: "custom.html", parameters: %{body: "huhu"}, to: ["test1@aegee.org", "test2@aegee.org", "test3@aegee.org"], subject: "pirates"}
     assert json_response(conn, 200)
@@ -152,7 +159,7 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert_email_delivered_with(subject: "pirates")
   end
 
-  # Board statytory applied
+  # Board statutory applied
   test "POST / statutory board applied should work with questions and answers", %{conn: conn} do
     question = %{"description" => "Phone number:", "required" => false, "type" => "string"}
     event = %{"name" =>  "test", "questions" => [question] }
