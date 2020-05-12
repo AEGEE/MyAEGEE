@@ -1,3 +1,10 @@
+# [0.10.0](https://github.com/AEGEE/oms-mailer/compare/0.9.0...0.10.0) (2020-05-12)
+
+
+### Features
+
+* **general:** mail change template ([#33](https://github.com/AEGEE/oms-mailer/issues/33)) ([090fbd5](https://github.com/AEGEE/oms-mailer/commit/090fbd5d1e0331f026ed3a870b53a0b141d9dfe1))
+
 # [0.9.0](https://github.com/AEGEE/oms-mailer/compare/0.8.0...0.9.0) (2020-03-15)
 
 
