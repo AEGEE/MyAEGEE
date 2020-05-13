@@ -1,3 +1,11 @@
+## [1.16.1](https://github.com/AEGEE/oms-core-js/compare/1.16.0...1.16.1) (2020-05-13)
+
+
+### Bug Fixes
+
+* **bodies:** remove email uniqueness and validation ([971d8dc](https://github.com/AEGEE/oms-core-js/commit/971d8dce38a6169e47fab75565a787d994a81f48))
+* **users:** fixed members name validation ([6179601](https://github.com/AEGEE/oms-core-js/commit/6179601216c64f887836c540b1953e6404cd3342))
+
 # [1.16.0](https://github.com/AEGEE/oms-core-js/compare/1.15.1...1.16.0) (2020-05-11)
 
 
