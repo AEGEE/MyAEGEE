@@ -22,10 +22,8 @@ const Body = sequelize.define('body', {
         type: Sequelize.STRING,
         allowNull: true,
         validate: {
-            notEmpty: { msg: 'Email should be set.' },
-            isEmail: { msg: 'Email should be valid.' }
-        },
-        unique: true
+            notEmpty: { msg: 'Email should be set.' }
+        }
     },
     phone: {
         type: Sequelize.STRING,
