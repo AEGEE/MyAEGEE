@@ -4,6 +4,8 @@ const moment = require('moment');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const config = require('../config');
 
+const NAME_REGEX = new RegExp('^[\\p{L} \\-\']*$', 'u');
+
 const User = sequelize.define('user', {
     username: {
         type: Sequelize.STRING,
@@ -62,7 +64,7 @@ const User = sequelize.define('user', {
             notEmpty: { msg: 'First name should be set.' },
             notNull: { msg: 'First name should be set.' },
             isValid(value) {
-                if (!new RegExp('^[\\p{L} -\']*$', 'u').test(value)) {
+                if (!NAME_REGEX.test(value)) {
                     throw new Error(`First name should only contain letters, spaces and dashes, got "${value}".`);
                 }
             }
@@ -75,7 +77,7 @@ const User = sequelize.define('user', {
             notEmpty: { msg: 'Last name should be set.' },
             notNull: { msg: 'Last name should be set.' },
             isValid(value) {
-                if (!new RegExp('^[\\p{L} -\']*$', 'u').test(value)) {
+                if (!NAME_REGEX.test(value)) {
                     throw new Error(`Last name should only contain letters, spaces and dashes, got "${value}".`);
                 }
             }
