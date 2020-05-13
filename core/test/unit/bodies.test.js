@@ -15,17 +15,6 @@ describe('Bodies testing', () => {
         await generator.clearAll();
     });
 
-    test('should fail with invalid email', async () => {
-        try {
-            await generator.createBody({ email: 'not-valid' });
-            expect(1).toEqual(0);
-        } catch (err) {
-            expect(err).toHaveProperty('errors');
-            expect(err.errors.length).toEqual(1);
-            expect(err.errors[0].path).toEqual('email');
-        }
-    });
-
     test('should fail with null body_code', async () => {
         try {
             await generator.createBody({ code: null });

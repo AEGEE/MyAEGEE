@@ -47,14 +47,14 @@ describe('Bodies editing', () => {
             uri: '/bodies/' + body.id,
             method: 'PUT',
             headers: { 'X-Auth-Token': token.value },
-            body: { email: 'invalid' }
+            body: { code: null }
         });
 
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('errors');
-        expect(res.body.errors).toHaveProperty('email');
+        expect(res.body.errors).toHaveProperty('code');
     });
 
     test('should fail if no permissions', async () => {

@@ -139,47 +139,6 @@ describe('Unique indexes', () => {
                 }
             });
         });
-
-        describe('Email', () => {
-            test('should be unique', async () => {
-                await generator.createBody({ email: 'test@test.io' });
-                try {
-                    await generator.createBody({ email: 'test@test.io' });
-                    expect(1).toEqual(0);
-                } catch (err) {
-                    expect(err).toHaveProperty('errors');
-                    expect(err.errors.length).toEqual(1);
-                    expect(err.errors[0].type).toEqual('unique violation');
-                    expect(err.errors[0].path).toEqual('email');
-                }
-            });
-
-            test('should be unique case-insensitive', async () => {
-                await generator.createBody({ email: 'test@test.io' });
-                try {
-                    await generator.createBody({ email: 'TEST@test.io' });
-                    expect(1).toEqual(0);
-                } catch (err) {
-                    expect(err).toHaveProperty('errors');
-                    expect(err.errors.length).toEqual(1);
-                    expect(err.errors[0].type).toEqual('unique violation');
-                    expect(err.errors[0].path).toEqual('email');
-                }
-            });
-
-            test('should be unique with spaces/tabs', async () => {
-                await generator.createBody({ email: '\t test@test.io\t' });
-                try {
-                    await generator.createBody({ email: 'test@test.io' });
-                    expect(1).toEqual(0);
-                } catch (err) {
-                    expect(err).toHaveProperty('errors');
-                    expect(err.errors.length).toEqual(1);
-                    expect(err.errors[0].type).toEqual('unique violation');
-                    expect(err.errors[0].path).toEqual('email');
-                }
-            });
-        });
     });
 
     describe('Permissions', () => {

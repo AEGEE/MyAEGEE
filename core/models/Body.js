@@ -73,7 +73,7 @@ const Body = sequelize.define('body', {
         validate: {
             isIn: {
                 args: [['active', 'deleted']],
-                msg: 'Ttatus should be one of these: "active", "deleted".'
+                msg: 'Status should be one of these: "active", "deleted".'
             }
         }
     },
