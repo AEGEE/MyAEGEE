@@ -1,3 +1,10 @@
+## [0.45.8](https://github.com/AEGEE/oms-frontend/compare/0.45.7...0.45.8) (2020-05-17)
+
+
+### Bug Fixes
+
+* **sidebar:** fix sidebar being stuck for mobile, again ([#363](https://github.com/AEGEE/oms-frontend/issues/363)) ([746f54e](https://github.com/AEGEE/oms-frontend/commit/746f54e4ca2ba7a72c55c44cdb4afe6c46d37df2))
+
 ## [0.45.7](https://github.com/AEGEE/oms-frontend/compare/0.45.6...0.45.7) (2020-05-17)
 
 
