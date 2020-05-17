@@ -1,5 +1,5 @@
 <template>
-  <aside class="menu app-sidebar animated" :class="{ slideInLeft: show, slideOutLeft: !show, 'is-menu-opened': navbar.menuOpened }">
+  <aside class="menu app-sidebar animate__animated" :class="{ animate__slideInLeft: show, animate__slideOutLeft: !show, 'is-menu-opened': navbar.menuOpened }">
     <div v-for="category in filteredMenu" v-bind:key="category.categoryName">
       <p class="menu-label">
         {{ category.categoryName }}
