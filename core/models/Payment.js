@@ -27,12 +27,12 @@ const Payment = sequelize.define('payment', {
         }
     },
     amount: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DECIMAL,
         allowNull: false,
         defaultValue: '',
         validate: {
             notEmpty: { msg: 'Amount should be set.' },
-            isInt: { msg: 'Amount should be valid.' },
+            isDecimal: { msg: 'Amount should be valid.' },
             min: { args: [0], msg: 'Amount cannot be negative.' }
         }
     },
