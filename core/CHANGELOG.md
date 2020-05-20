@@ -1,3 +1,15 @@
+# [1.17.0](https://github.com/AEGEE/oms-core-js/compare/1.16.1...1.17.0) (2020-05-20)
+
+
+### Bug Fixes
+
+* **bodies:** allow floats as payments amounts ([421da2a](https://github.com/AEGEE/oms-core-js/commit/421da2a829788e1446deaa2d936759a8748fd608))
+
+
+### Features
+
+* **scripts:** add migrate script ([54f0ffb](https://github.com/AEGEE/oms-core-js/commit/54f0ffb9bc6c107f2d0e9195e91b52e6100f18bc))
+
 ## [1.16.1](https://github.com/AEGEE/oms-core-js/compare/1.16.0...1.16.1) (2020-05-13)
 
 
