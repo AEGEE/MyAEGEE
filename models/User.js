@@ -4,7 +4,8 @@ const moment = require('moment');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const config = require('../config');
 
-const NAME_REGEX = new RegExp('^[\\p{L} \\-\']*$', 'u');
+const NAME_REGEX = new RegExp('^[\\p{L}. \\-\']*$', 'u');
+const USERNAME_REGEX = new RegExp('^[a-zA-Z0-9._-]*$');
 
 const User = sequelize.define('user', {
     username: {
@@ -14,7 +15,7 @@ const User = sequelize.define('user', {
             notEmpty: { msg: 'Username should be set.' },
             notNull: { msg: 'Username should be set.' },
             isValid(value) {
-                if (!/^[a-zA-Z0-9._-]*$/.test(value)) {
+                if (!USERNAME_REGEX.test(value)) {
                     throw new Error('Username should only contain letters, numbers, dots, underscores and dashes.');
                 }
             }

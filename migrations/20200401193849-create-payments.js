@@ -33,7 +33,7 @@ module.exports = {
             allowNull: false,
         },
         amount: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.DECIMAL,
             allowNull: false,
         },
         currency: {
