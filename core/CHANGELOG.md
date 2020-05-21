@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/AEGEE/oms-core-js/compare/1.17.0...1.18.0) (2020-05-21)
+
+
+### Features
+
+* **users:** log last logged in and last active ([c09c92f](https://github.com/AEGEE/oms-core-js/commit/c09c92fb0e90c36e615d76b49b239d510d97964e))
+
 # [1.17.0](https://github.com/AEGEE/oms-core-js/compare/1.16.1...1.17.0) (2020-05-20)
 
 
