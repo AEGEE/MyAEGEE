@@ -53,6 +53,8 @@ exports.maybeAuthorize = async (req, res, next) => {
 
     await req.permissions.fetchCurrentUserPermissions();
 
+    await req.user.update({ last_active: new Date() });
+
     return next();
 };
 
