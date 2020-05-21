@@ -41,6 +41,11 @@ module.exports.login = async (req, res) => {
     const accessToken = await AccessToken.createForUser(user.id);
     const refreshToken = await RefreshToken.createForUser(user.id);
 
+    await user.update({
+        last_logged_in: new Date(),
+        last_active: new Date()
+    });
+
     return res.json({
         success: true,
         access_token: accessToken.value,

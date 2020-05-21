@@ -114,6 +114,14 @@ const User = sequelize.define('user', {
         type: Sequelize.TEXT,
         allowNull: true,
         defaultValue: ''
+    },
+    last_logged_in: {
+        type: Sequelize.DATE,
+        allowNull: true
+    },
+    last_active: {
+        type: Sequelize.DATE,
+        allowNull: true
     }
 }, {
     underscored: true,
