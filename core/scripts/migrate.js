@@ -986,7 +986,8 @@ async function migrateUsers() {
                 first_name: firstName,
                 last_name: lastName,
                 email,
-                created_at: user.inserted_at
+                created_at: user.inserted_at,
+                mail_confirmed_at: new Date()
             });
             if (index % 100 === 0) {
                 logger.info(`Created user, index ${index}/${users.rows.length}`);
@@ -1186,7 +1187,8 @@ async function migratePayments() {
     const payments = await client.query('select * from payments');
     logger.info('Creating payments');
     logger.info(`Length: ${payments.rows.length}`);
-    for (const payment of payments.rows) {
+    for (const index in payments.rows) {
+        const payment = payments.rows[index];
         if (!payment.member_id) {
             continue;
         }
@@ -1194,6 +1196,10 @@ async function migratePayments() {
             await Payment.create({ ...payment, user_id: payment.member_id });
         } catch (err) {
             logger.error({ payment, err }, 'Payment creating error');
+        }
+
+        if (index % 100 === 0) {
+            logger.info(`Created payment, index ${index}/${payments.rows.length}`);
         }
     }
 }
@@ -1217,6 +1223,8 @@ async function migratePayments() {
     await migrateCirclePermissions();
     await migrateJoinRequests();
     await migratePayments();
+
+    logger.info('All done');
 
     await client.end();
     process.exit(0);
