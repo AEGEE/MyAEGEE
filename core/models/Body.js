@@ -9,6 +9,14 @@ const Body = sequelize.define('body', {
             notEmpty: { msg: 'Name should be set.' },
         }
     },
+    description: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Description should be set.' },
+        }
+    },
     code: {
         type: Sequelize.STRING,
         allowNull: false,
