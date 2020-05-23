@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const boolParser = require('express-query-boolean');
 
 const morgan = require('./morgan');
-const helpers = require('./helpers');
 const db = require('./sequelize');
 const log = require('./logger');
 const config = require('../config');
@@ -185,12 +184,10 @@ server.use(middlewares.errorHandler);
 let app;
 async function startServer() {
     return new Promise((res, rej) => {
-        log.info({
-            config: helpers.filterFields(config, config.filter_fields)
-        }, 'Starting server with the following config');
+        log.info({ config }, 'Starting server with the following config');
         const localApp = server.listen(config.port, async () => {
             app = localApp;
-            log.info({ host: 'http://localhost: + config.port' }, 'Up and running, listening');
+            log.info({ host: 'http://localhost:' + config.port }, 'Up and running, listening');
             await db.authenticate();
             log.info('DB connection is successful.');
 
