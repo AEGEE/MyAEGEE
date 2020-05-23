@@ -36,7 +36,8 @@ services:
 
   node-exporter-tunnel:
     image: kingsquare/tunnel:forward
-    command: "*:5001:127.0.0.1:9100 oms-service@${HOSTNAME}.${BASE_URL} -p ${SSH_PORT:-3322}"
+    #my own hostname is an alias that is in the ssh config file
+    command: "*:5001:127.0.0.1:9100 oms-service@${HOSTNAME} -p ${SSH_PORT:-3322}"
     expose:
       - "5001"
     volumes:
