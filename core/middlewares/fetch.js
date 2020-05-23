@@ -66,7 +66,10 @@ exports.fetchBody = async (req, res, next) => {
     }
 
     req.currentBody = body;
-    await req.permissions.fetchBodyPermissions(body);
+
+    if (req.user) {
+        await req.permissions.fetchBodyPermissions(body);
+    }
 
     return next();
 };
