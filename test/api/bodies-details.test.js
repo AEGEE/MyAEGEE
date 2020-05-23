@@ -88,4 +88,19 @@ describe('Body details', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body.data.id).toEqual(body.id);
     });
+
+    test('should work for unauthorized user', async () => {
+        const body = await generator.createBody();
+
+        const res = await request({
+            uri: '/bodies/' + body.id,
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body.data.id).toEqual(body.id);
+    });
 });
