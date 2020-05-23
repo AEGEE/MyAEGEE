@@ -1,3 +1,11 @@
+## [1.18.1](https://github.com/AEGEE/oms-core-js/compare/1.18.0...1.18.1) (2020-05-23)
+
+
+### Bug Fixes
+
+* **bodies:** add description ([cc782c9](https://github.com/AEGEE/oms-core-js/commit/cc782c9c1a2897c7b7df468fbcc2e8e5b10d1c1f))
+* **bodies:** not fail for body details for unauthorized user ([d310e3a](https://github.com/AEGEE/oms-core-js/commit/d310e3af918d5243209278cf24d083039541eb83))
+
 # [1.18.0](https://github.com/AEGEE/oms-core-js/compare/1.17.0...1.18.0) (2020-05-21)
 
 
