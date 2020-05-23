@@ -1,3 +1,11 @@
+## [1.18.2](https://github.com/AEGEE/oms-core-js/compare/1.18.1...1.18.2) (2020-05-23)
+
+
+### Bug Fixes
+
+* **docker:** using legacy-watch for dev to listen for file changes in container properly ([0d1adf5](https://github.com/AEGEE/oms-core-js/commit/0d1adf5116b039eeb33d831a1f044371ac604e36))
+* **logger:** filter out sensitive data, use serializers ([b4dd5c5](https://github.com/AEGEE/oms-core-js/commit/b4dd5c5dd4826ab7b66e7838bb856646ecf5f283))
+
 ## [1.18.1](https://github.com/AEGEE/oms-core-js/compare/1.18.0...1.18.1) (2020-05-23)
 
 
