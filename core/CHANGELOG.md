@@ -1,3 +1,10 @@
+## [1.18.3](https://github.com/AEGEE/oms-core-js/compare/1.18.2...1.18.3) (2020-05-24)
+
+
+### Bug Fixes
+
+* **config:** filter out bugsnag key ([90030cb](https://github.com/AEGEE/oms-core-js/commit/90030cb68d5d049e7f8bf62e2e6e4904f18e8476))
+
 ## [1.18.2](https://github.com/AEGEE/oms-core-js/compare/1.18.1...1.18.2) (2020-05-23)
 
 
