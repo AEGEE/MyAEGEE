@@ -5,7 +5,7 @@ const logger = require('./logger');
 const packageInfo = require('../package.json');
 
 const bugsnagClient = bugsnag({
-    apiKey: config.bugsnagKey,
+    apiKey: config.bugsnag_key,
     logger,
     appVersion: packageInfo.version,
     hostname: config.host,
