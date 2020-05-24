@@ -1,3 +1,10 @@
+# [1.19.0](https://github.com/AEGEE/oms-core-js/compare/1.18.3...1.19.0) (2020-05-24)
+
+
+### Features
+
+* **metrics:** add /metrics/requests endpoint ([e0ef569](https://github.com/AEGEE/oms-core-js/commit/e0ef56940f0216e4ce2d6f199aa281ff9b4c897a))
+
 ## [1.18.3](https://github.com/AEGEE/oms-core-js/compare/1.18.2...1.18.3) (2020-05-24)
 
 
