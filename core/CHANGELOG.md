@@ -1,3 +1,15 @@
+# [1.20.0](https://github.com/AEGEE/oms-core-js/compare/1.19.0...1.20.0) (2020-05-24)
+
+
+### Bug Fixes
+
+* **logging:** use default bunyan serializers ([4eb58ce](https://github.com/AEGEE/oms-core-js/commit/4eb58ce7845442bfd6b9824296b767250d6ce003))
+
+
+### Features
+
+* **metrics:** exposing Grafana metrics ([4f03946](https://github.com/AEGEE/oms-core-js/commit/4f0394649b656978b406d0c549e18dec358adfba))
+
 # [1.19.0](https://github.com/AEGEE/oms-core-js/compare/1.18.3...1.19.0) (2020-05-24)
 
 
