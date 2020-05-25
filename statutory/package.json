@@ -84,7 +84,7 @@
     "eslint-plugin-react": "^7.19.0",
     "faker": "^4.1.0",
     "husky": "^4.2.5",
-    "jest": "^25.5.2",
+    "jest": "^26.0.1",
     "jest-junit": "^10.0.0",
     "jest-teamcity-reporter": "^0.9.0",
     "nock": "^12.0.3",
