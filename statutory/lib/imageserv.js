@@ -1,7 +1,7 @@
 const path = require('path');
 const multer = require('multer');
 const readChunk = require('read-chunk');
-const fileType = require('file-type');
+const FileType = require('file-type');
 const util = require('util');
 
 const errors = require('./errors');
@@ -62,7 +62,7 @@ exports.uploadImage = async (req, res, next) => {
 
     // If the file's content is malformed, don't save it.
     const buffer = readChunk.sync(req.file.path, 0, 4100);
-    const type = fileType(buffer);
+    const type = await FileType.fromBuffer(buffer);
 
     const originalExtension = path.extname(req.file.originalname);
     const determinedExtension = (type && type.ext ? `.${type.ext}` : 'unknown');
