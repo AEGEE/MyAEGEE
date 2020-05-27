@@ -2,13 +2,10 @@
 ## Default Logstash configuration from logstash-docker.
 ## from https://github.com/elastic/logstash-docker/blob/master/build/logstash/config/logstash-oss.yml
 #
-# http.host: "0.0.0.0"
-# path.config: /usr/share/logstash/pipeline
+http.host: "0.0.0.0"
+path.config: /usr/share/logstash/pipeline
 
 # As per https://www.elastic.co/guide/en/cloud/current/ec-cloud-id.html
 # "options valid only when a module is enabled" (?)
 # cloud.id: "staging:dXMtZWFzdC0xLmF3cy5mb3VuZC5pbyRub3RhcmVhbCRpZGVudGlmaWVy"
 # cloud.auth: "elastic:YOUR_PASSWORD"
-
-cloud.id: "${ELASTIC_CLOUD_ID}"
-cloud.auth: "${ELASTIC_CLOUD_USER}:${ELASTIC_CLOUD_PASSWORD}"
