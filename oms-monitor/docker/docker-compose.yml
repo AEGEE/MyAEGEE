@@ -94,6 +94,9 @@ services:
       - "9600:9600"
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_HOST: "${ELASTIC_HOST}"
+      ELASTIC_USER: "${ELASTIC_USER}"
+      ELASTIC_PASSWORD: "${ELASTIC_PASSWORD}"
 
 volumes:
   prometheus-storage:  # TODO: set backup
