@@ -1,3 +1,10 @@
+## [0.45.9](https://github.com/AEGEE/oms-frontend/compare/0.45.8...0.45.9) (2020-06-02)
+
+
+### Bug Fixes
+
+* **question line:** Updated ID of question line ([#387](https://github.com/AEGEE/oms-frontend/issues/387)) ([5fb9e3c](https://github.com/AEGEE/oms-frontend/commit/5fb9e3c9b811b1da1cabf2ed9afa382484e195c6))
+
 ## [0.45.8](https://github.com/AEGEE/oms-frontend/compare/0.45.7...0.45.8) (2020-05-17)
 
 
