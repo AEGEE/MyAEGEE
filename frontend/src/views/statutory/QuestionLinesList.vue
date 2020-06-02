@@ -13,7 +13,7 @@
         <b-table :data="questionLines" :loading="isLoading" :selected.sync="selectedQuestionLine" narrowed>
           <template slot-scope="props">
             <b-table-column field="id" label="#" numeric>
-              {{ props.row.id }}
+              {{ props.index + 1 }}
             </b-table-column>
 
             <b-table-column field="name" label="Name">
