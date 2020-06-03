@@ -5,7 +5,7 @@
         <div class="field">
           <label class="label">First name</label>
           <div class="control">
-            <input class="input" type="text" required v-model="user.first_name" placeholder="Type your first name..." />
+            <input class="input" data-cy="first_name" type="text" required v-model="user.first_name" placeholder="Type your first name..." />
           </div>
           <p class="help is-danger" v-if="errors.first_name">{{ errors.first_name.join(', ')}}</p>
         </div>
@@ -13,7 +13,7 @@
         <div class="field">
           <label class="label">Last name</label>
           <div class="control">
-            <input class="input" type="text" required v-model="user.last_name" placeholder="Type your last name..." />
+            <input class="input" data-cy="last_name" type="text" required v-model="user.last_name" placeholder="Type your last name..." />
           </div>
           <p class="help is-danger" v-if="errors.last_name">{{ errors.last_name.join(', ')}}</p>
         </div>
@@ -37,15 +37,15 @@
           <label class="label">Phone</label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><font-awesome-icon icon="phone" /></span>
-            <input class="input" type="text" v-model="user.phone" />
+            <input class="input" data-cy="phone" type="text" v-model="user.phone" />
           </div>
           <p class="help is-danger" v-if="errors.phone">{{ errors.phone.join(', ')}}</p>
         </div>
 
-        <div class="field">
+        <div class="field" data-cy="date_of_birth">
           <label class="label">Birthday</label>
           <b-datepicker :date-formatter="formatDate" :date-parser="parseDate" v-model="birthday" @input="transformBirthday()" />
-          <p class="help is-danger" v-if="errors.birthday">{{ errors.birthday.join(', ')}}</p>
+          <p class="help is-danger" v-if="errors.date_of_birth">{{ errors.date_of_birth.join(', ')}}</p>
         </div>
 
         <div class="field">
@@ -60,7 +60,7 @@
           <p class="help is-danger" v-if="errors.primary_body_id">{{ errors.primary_body_id.join(', ')}}</p>
         </div>
 
-        <select-or-custom v-model="user.gender" :values="['Male', 'Female']" label="Gender">
+        <select-or-custom v-model="user.gender" data-cy="gender" :values="['Male', 'Female']" label="Gender">
           <template slot="errors-slot">
             <p class="help is-danger" v-if="errors.gender">{{ errors.gender.join(', ')}}</p>
           </template>
@@ -69,7 +69,7 @@
         <div class="field">
           <label class="label">Address</label>
           <div class="control">
-            <input class="input" type="text" v-model="user.address" />
+            <input class="input" data-cy="address" type="text" v-model="user.address" />
           </div>
           <p class="help is-danger" v-if="errors.address">{{ errors.address.join(', ')}}</p>
         </div>
@@ -77,12 +77,12 @@
         <div class="field">
           <label class="label">About me</label>
           <div class="control">
-            <input class="input" type="text" v-model="user.about_me" />
+            <input class="input" data-cy="about_me" type="text" v-model="user.about_me" />
           </div>
           <p class="help is-danger" v-if="errors.about_me">{{ errors.about_me.join(', ')}}</p>
         </div>
 
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+        <b-loading :is-full-page="false" :active.sync="isLoading"></b-loading>
 
         <div class="field">
           <div class="control">

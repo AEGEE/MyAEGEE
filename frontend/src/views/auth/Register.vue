@@ -13,6 +13,7 @@
                 class="input"
                 type="text"
                 pattern="^[a-zA-Z0-9\.\-].*$"
+                data-cy="username"
                 title="Username can only contain English letters, numbers, dots and dashes."
                 placeholder="You will be able to login with it." />
             </div>
@@ -22,7 +23,13 @@
           <div class="field">
             <label class="label">Email</label>
             <div class="control">
-              <input v-model="submission.email" required class="input" type="email" placeholder="Email address the system will send letters to.">
+              <input
+                v-model="submission.email"
+                required
+                class="input"
+                type="email"
+                data-cy="email"
+                placeholder="Email address the system will send letters to.">
             </div>
              <p class="help is-danger" v-if="errors.email">{{ errors.email.join(', ')}}</p>
           </div>
@@ -30,7 +37,7 @@
           <div class="field">
             <label class="label">Password</label>
             <div class="control">
-              <input v-model="submission.password" required class="input" type="password" minlength="8" placeholder="Type a secure password.">
+              <input v-model="submission.password" data-cy="password" required class="input" type="password" minlength="8" placeholder="Type a secure password.">
             </div>
              <p class="help is-danger" v-if="errors.password">{{ errors.password.join(', ')}}</p>
           </div>
@@ -38,7 +45,7 @@
           <div class="field">
             <label class="label">Password confirmation</label>
             <div class="control">
-              <input v-model="submission.password_copy" required class="input" type="password" minlength="8" placeholder="Repeat your password.">
+              <input v-model="submission.password_copy" required data-cy="password-confirmation" class="input" type="password" minlength="8" placeholder="Repeat your password.">
             </div>
              <p class="help is-danger" v-if="errors.password_copy">{{ errors.password_copy.join(', ')}}</p>
           </div>
@@ -48,7 +55,7 @@
           <div class="field">
             <label class="label">First name</label>
             <div class="control">
-              <input v-model="submission.first_name" required class="input" type="text" placeholder="E.g. Stephen">
+              <input v-model="submission.first_name" required data-cy="first-name" class="input" type="text" placeholder="E.g. Stephen">
             </div>
              <p class="help is-danger" v-if="errors.first_name">{{ errors.first_name.join(', ')}}</p>
           </div>
@@ -56,7 +63,7 @@
           <div class="field">
             <label class="label">Last name</label>
             <div class="control">
-              <input v-model="submission.last_name" required class="input" type="text" placeholder="E.g. Hawking">
+              <input v-model="submission.last_name" required data-cy="last-name" class="input" type="text" placeholder="E.g. Hawking">
             </div>
              <p class="help is-danger" v-if="errors.last_name">{{ errors.last_name.join(', ')}}</p>
           </div>
@@ -71,7 +78,7 @@
 
           <div class="field">
             <label class="label">I agree to the <router-link :to="{ name: 'oms.legal.simple' }">Privacy Policy</router-link>
-              <input type="checkbox" class="checkbox" v-model="agreedToPrivacyPolicy" />
+              <input type="checkbox" class="checkbox" data-cy="agree-to-privacy-policy" v-model="agreedToPrivacyPolicy" />
             </label>
              <p class="help is-danger" v-if="errors.agreedToPrivacyPolicy">{{ errors.agreedToPrivacyPolicy.join(', ')}}</p>
           </div>

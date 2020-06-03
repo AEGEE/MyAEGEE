@@ -12,6 +12,7 @@
       </div>
       <div class="control is-expanded" v-show="selectValue === 'custom'">
         <input
+          :data-cy="dataCy"
           class="input"
           type="text"
           :required="required"
@@ -25,7 +26,7 @@
 <script>
 export default {
   name: 'SelectOrCustom',
-  props: ['value', 'label', 'values', 'required'],
+  props: ['value', 'label', 'values', 'required', 'data-cy'],
   data () {
     return {
       selectValue: '',

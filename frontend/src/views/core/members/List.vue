@@ -6,7 +6,7 @@
         <div class="field">
           <label class="label">Search by name or surname</label>
           <div class="control">
-            <input class="input" type="text" v-model="query" placeholder="Search by name or surname" @input="refetch()">
+            <input class="input" type="text" data-cy="query" v-model="query" placeholder="Search by name or surname" @input="refetch()">
           </div>
         </div>
 

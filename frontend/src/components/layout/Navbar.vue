@@ -7,7 +7,7 @@
       <a href="/" class="logo">
         <img src="../../images/AEGEE_logo.png" class="image">
       </a>
-      <a role="button" class="navbar-burger burger" @click="toggleNavbarMenu({opened: !navbar.menuOpened})">
+      <a role="button" class="navbar-burger burger" data-cy="navbar-menu" @click="toggleNavbarMenu({opened: !navbar.menuOpened})">
         <span aria-hidden="true">
           <font-awesome-icon icon="user" />
         </span>
@@ -21,7 +21,7 @@
           </a>
 
           <div class="navbar-dropdown is-right">
-            <router-link to="/members/me" class="navbar-item">See my account</router-link>
+            <router-link to="/members/me" class="navbar-item" data-cy="navbar-my-account-link">See my account</router-link>
             <hr class="navbar-divider" />
             <a class="navbar-item" @click="logout">Logout</a>
           </div>

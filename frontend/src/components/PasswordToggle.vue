@@ -5,7 +5,7 @@
 
       <div class="field has-addons">
         <div class="control is-expanded">
-          <input class="input" :type="displayPassword ? 'text' : 'password'" minlength="8" :placeholder="placeholder" :required="required" v-model="value">
+          <input class="input" :data-cy="dataCy" :type="displayPassword ? 'text' : 'password'" minlength="8" :placeholder="placeholder" :required="required" v-model="value">
         </div>
         <div class="control">
           <a class="button is-primary" @click="displayPassword = !displayPassword">
@@ -23,7 +23,7 @@
 <script>
 export default {
   name: 'PasswordToggle',
-  props: ['value', 'label', 'placeholder', 'required'],
+  props: ['value', 'label', 'placeholder', 'required', 'data-cy'],
   data () {
     return {
       displayPassword: false

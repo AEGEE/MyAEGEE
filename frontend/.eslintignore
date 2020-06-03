@@ -1,1 +1,6 @@
 vue.config.js
+dist
+node_modules
+public
+coverage
+.nyc_output

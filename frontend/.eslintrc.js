@@ -6,6 +6,7 @@ module.exports = {
   },
   extends: [
     'plugin:vue/essential',
+    'plugin:cypress/recommended',
     '@vue/airbnb',
   ],
   rules: {
@@ -37,7 +38,8 @@ module.exports = {
     'no-await-in-loop': 'off',
     'no-prototype-builtins': 'off',
     'quote-props': 'off',
-    'arrow-body-style': 'off'
+    'arrow-body-style': 'off',
+    'import/no-extraneous-dependencies': 'off'
   },
   parserOptions: {
     parser: 'babel-eslint',

@@ -1,5 +1,5 @@
 <template>
-  <section class="app-main" :style="[hiddenSidebarStyle]" :class="{ 'is-menu-opened': navbar.menuOpened }">
+  <section class="app-main" data-cy="app-main" :style="[hiddenSidebarStyle]" :class="{ 'is-menu-opened': navbar.menuOpened }">
     <div class="container is-fluid is-marginless app-content">
       <levelbar></levelbar>
       <transition

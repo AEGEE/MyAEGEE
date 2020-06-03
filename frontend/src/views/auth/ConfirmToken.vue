@@ -7,7 +7,7 @@
           <div class="field">
             <label class="label">Token</label>
             <div class="control">
-              <input v-model="token" required class="input" type="text" placeholder="Type the token you've received at your mailbox here.">
+              <input v-model="token" data-cy="token" required class="input" type="text" placeholder="Type the token you've received at your mailbox here.">
             </div>
              <p class="help is-danger" v-if="error">{{ error }}</p>
           </div>

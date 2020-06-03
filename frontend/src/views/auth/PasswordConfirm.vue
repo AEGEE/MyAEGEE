@@ -7,18 +7,18 @@
           <div class="field">
             <label class="label">Token</label>
             <div class="control">
-              <input v-model="token" required class="input" type="text" placeholder="Type the token you've received by your email.">
+              <input v-model="token" data-cy="token" required class="input" type="text" placeholder="Type the token you've received by your email.">
             </div>
              <p class="help is-danger" v-if="errors.token">{{ errors.token.join(', ') }}</p>
           </div>
 
-          <password-toggle v-model="password" requiired placeholder="Type your new password." label="Password">
+          <password-toggle v-model="password" data-cy="password" required placeholder="Type your new password." label="Password">
             <template slot="errors-slot">
               <p class="help is-danger" v-if="errors.password">{{ errors.password.join(', ')}}</p>
             </template>
           </password-toggle>
 
-          <password-toggle v-model="password_confirmation" requiired placeholder="Confirm your password." label="Password confirmation" />
+          <password-toggle v-model="password_confirmation" data-cy="password-confirmation" required placeholder="Confirm your password." label="Password confirmation" />
 
           <hr />
           <p class="control">

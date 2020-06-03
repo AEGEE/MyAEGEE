@@ -46,7 +46,7 @@
           </template>
         </password-toggle>
 
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+        <b-loading :is-full-page="false" :active.sync="isLoading"></b-loading>
 
         <div class="field">
           <div class="control">

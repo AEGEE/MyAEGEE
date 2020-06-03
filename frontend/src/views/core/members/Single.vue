@@ -56,14 +56,14 @@
     <div class="tile is-vertical is-parent">
       <article class="tile is-child">
         <div class="content">
-          <p class="title">{{ user.first_name }}</p>
-          <p class="subtitle">{{ user.last_name }}</p>
+          <p class="title" data-cy="first_name">{{ user.first_name }}</p>
+          <p class="subtitle" data-cy="last_name">{{ user.last_name }}</p>
           <div class="content">
             <table class="table is-narrow">
               <tbody>
                 <tr>
                   <th>Profile link</th>
-                  <td>/members/{{ user.seo_url || user.id }}</td>
+                   <td>/members/{{ user.seo_url || user.id }}</td>
                 </tr>
                 <tr>
                   <th>Primary body</th>
@@ -72,23 +72,23 @@
                 </tr>
                 <tr>
                   <th>Phone</th>
-                  <td>{{ user.phone }}</td>
+                  <td data-cy="phone">{{ user.phone }}</td>
                 </tr>
                 <tr>
                   <th>Date of birth</th>
-                  <td>{{ user.date_of_birth }}</td>
+                  <td data-cy="date_of_birth">{{ user.date_of_birth }}</td>
                 </tr>
                 <tr>
                   <th>Gender</th>
-                  <td>{{ user.gender }}</td>
+                  <td data-cy="gender">{{ user.gender }}</td>
                 </tr>
                 <tr>
                   <th>Address</th>
-                  <td>{{ user.address }}</td>
+                  <td data-cy="address">{{ user.address }}</td>
                 </tr>
                 <tr>
                   <th>About me</th>
-                  <td>{{ user.about_me }}</td>
+                  <td data-cy="about_me">{{ user.about_me }}</td>
                 </tr>
                 <tr>
                   <th>Is superadmin?</th>
