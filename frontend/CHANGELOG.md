@@ -1,3 +1,10 @@
+# [0.46.0](https://github.com/AEGEE/oms-frontend/compare/0.45.9...0.46.0) (2020-06-03)
+
+
+### Features
+
+* **test:** added cypress tests ([#392](https://github.com/AEGEE/oms-frontend/issues/392)) ([81131e6](https://github.com/AEGEE/oms-frontend/commit/81131e6e8bce8b3c90611aefa8d1ef94c979306a))
+
 ## [0.45.9](https://github.com/AEGEE/oms-frontend/compare/0.45.8...0.45.9) (2020-06-02)
 
 
