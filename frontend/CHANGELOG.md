@@ -1,3 +1,10 @@
+## [0.46.1](https://github.com/AEGEE/oms-frontend/compare/0.46.0...0.46.1) (2020-06-06)
+
+
+### Bug Fixes
+
+* **icons:** Include coins icon. Fixes HELP-1108 ([#393](https://github.com/AEGEE/oms-frontend/issues/393)) ([6ac38ac](https://github.com/AEGEE/oms-frontend/commit/6ac38aca5912e7fd75d63150710bcee79f8c8b60))
+
 # [0.46.0](https://github.com/AEGEE/oms-frontend/compare/0.45.9...0.46.0) (2020-06-03)
 
 
