@@ -5,8 +5,6 @@ jobs:
       image: ubuntu-1604:201903-01
     steps:
       - checkout
-      - run: git submodule sync --recursive
-      - run: git submodule update --recursive --init
       - run: wget https://github.com/hadolint/hadolint/releases/download/v1.17.2/hadolint-Linux-x86_64 -O hadolint  # yamllint disable-line rule:line-length
       - run: chmod +x hadolint
       - run: ./hadolint $(find . -name '*Dockerfile*')
