@@ -50,12 +50,6 @@ jobs:
           path: ~/reports
       - store_artifacts:
           path: ~/reports
-  audit:
-    machine:
-      image: ubuntu-1604:201903-01
-    steps:
-      - checkout
-      - run: npm audit
   docker-build-and-push:
     machine:
       image: ubuntu-1604:201903-01
@@ -86,9 +80,6 @@ workflows:
   lint:
     jobs:
       - lint
-  audit:
-    jobs:
-      - audit
   build:
     jobs:
       - build:
