@@ -1,3 +1,10 @@
+# [0.12.0](https://github.com/AEGEE/oms-discounts/compare/0.11.2...0.12.0) (2020-06-08)
+
+
+### Features
+
+* **ci:** added yamllint check ([#79](https://github.com/AEGEE/oms-discounts/issues/79)) ([60db8e2](https://github.com/AEGEE/oms-discounts/commit/60db8e21ce1c33d3a5feb0408ced0907df387356))
+
 ## [0.11.2](https://github.com/AEGEE/oms-discounts/compare/0.11.1...0.11.2) (2020-06-08)
 
 
