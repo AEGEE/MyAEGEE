@@ -31,7 +31,7 @@ jobs:
     steps:
       - checkout
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache oms-statutory
-  lint:
+  eslint:
     machine:
       image: ubuntu-1604:201903-01
     steps:
@@ -50,6 +50,13 @@ jobs:
           path: ~/reports
       - store_artifacts:
           path: ~/reports
+  yamllint:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - checkout
+      - run: pip install yamllint
+      - run: yamllint -d .yamllint.yml .
   docker-build-and-push:
     machine:
       image: ubuntu-1604:201903-01
@@ -77,9 +84,12 @@ workflows:
   test:
     jobs:
       - test
-  lint:
+  eslint:
     jobs:
-      - lint
+      - eslint
+  yamllint:
+    jobs:
+      - yamllint
   build:
     jobs:
       - build:
