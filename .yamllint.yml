@@ -1,0 +1,12 @@
+# Disabling some rules for yamllint
+
+extends: default
+
+ignore: |
+  **/node_modules/**
+
+rules:
+  document-start: disable
+  line-length: disable
+  truthy: disable
+  comments-indentation: disable
