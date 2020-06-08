@@ -1,3 +1,10 @@
+## [0.46.2](https://github.com/AEGEE/oms-frontend/compare/0.46.1...0.46.2) (2020-06-08)
+
+
+### Bug Fixes
+
+* **ci:** remove audit check ([#394](https://github.com/AEGEE/oms-frontend/issues/394)) ([5301bbc](https://github.com/AEGEE/oms-frontend/commit/5301bbc1664b087866517eb8eef0be6b11288d16))
+
 ## [0.46.1](https://github.com/AEGEE/oms-frontend/compare/0.46.0...0.46.1) (2020-06-06)
 
 
