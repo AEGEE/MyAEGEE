@@ -1,3 +1,10 @@
+## [0.11.2](https://github.com/AEGEE/oms-discounts/compare/0.11.1...0.11.2) (2020-06-08)
+
+
+### Bug Fixes
+
+* **ci:** remove audit check ([#77](https://github.com/AEGEE/oms-discounts/issues/77)) ([99f1293](https://github.com/AEGEE/oms-discounts/commit/99f12938baa0aa09ac1fa9d41db8738938127719))
+
 ## [0.11.1](https://github.com/AEGEE/oms-discounts/compare/0.11.0...0.11.1) (2020-05-10)
 
 
