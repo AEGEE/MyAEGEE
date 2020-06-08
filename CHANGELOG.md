@@ -1,3 +1,10 @@
+## [1.20.1](https://github.com/AEGEE/oms-core-js/compare/1.20.0...1.20.1) (2020-06-08)
+
+
+### Bug Fixes
+
+* **ci:** remove audit check ([#15](https://github.com/AEGEE/oms-core-js/issues/15)) ([f381951](https://github.com/AEGEE/oms-core-js/commit/f3819514e1b7cdeaeee609869320d0b5da66ff43))
+
 # [1.20.0](https://github.com/AEGEE/oms-core-js/compare/1.19.0...1.20.0) (2020-05-24)
 
 
