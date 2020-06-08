@@ -1,3 +1,10 @@
+# [0.35.0](https://github.com/AEGEE/oms-statutory/compare/0.34.2...0.35.0) (2020-06-08)
+
+
+### Features
+
+* **ci:** added yamllint check ([#298](https://github.com/AEGEE/oms-statutory/issues/298)) ([74cbdb6](https://github.com/AEGEE/oms-statutory/commit/74cbdb6396cf062a0b015821803d7df91298dc9c))
+
 ## [0.34.2](https://github.com/AEGEE/oms-statutory/compare/0.34.1...0.34.2) (2020-06-08)
 
 
