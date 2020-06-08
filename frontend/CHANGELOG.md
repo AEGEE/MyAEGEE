@@ -1,3 +1,10 @@
+# [0.47.0](https://github.com/AEGEE/oms-frontend/compare/0.46.2...0.47.0) (2020-06-08)
+
+
+### Features
+
+* **ci:** added yamllint check ([#395](https://github.com/AEGEE/oms-frontend/issues/395)) ([cbf15f4](https://github.com/AEGEE/oms-frontend/commit/cbf15f4b0f26e394589d47835ee3ad0ab6e7eefe))
+
 ## [0.46.2](https://github.com/AEGEE/oms-frontend/compare/0.46.1...0.46.2) (2020-06-08)
 
 
