@@ -1,3 +1,10 @@
+# [0.27.0](https://github.com/AEGEE/oms-events/compare/0.26.2...0.27.0) (2020-06-08)
+
+
+### Features
+
+* **ci:** added yamllint check ([#260](https://github.com/AEGEE/oms-events/issues/260)) ([2542402](https://github.com/AEGEE/oms-events/commit/25424020046d8c8ce815c4a5e29eb31daed69818))
+
 ## [0.26.2](https://github.com/AEGEE/oms-events/compare/0.26.1...0.26.2) (2020-06-08)
 
 
