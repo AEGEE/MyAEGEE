@@ -36,7 +36,7 @@ services:
 
   node-exporter-tunnel:
     image: kingsquare/tunnel:forward
-    #my own hostname is an alias that is in the ssh config file
+    # my own hostname is an alias that is in the ssh config file
     command: "*:5001:127.0.0.1:9100 oms-service@${HOSTNAME} -p ${SSH_PORT:-3322}"
     expose:
       - "5001"
@@ -52,7 +52,7 @@ services:
 
   logstash-tunnel:
     image: kingsquare/tunnel:forward
-    #backup1 below is an alias that is in the ssh config file
+    # backup1 below is an alias that is in the ssh config file
     command: "*:5000:127.0.0.1:5000 oms-service@backup1 -p ${SSH_PORT:-3322}"
     expose:
       - "5000"
@@ -62,10 +62,10 @@ services:
   logspout:
     image: aegee/logspout-logstash:v3.2.6
     volumes:
-        - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-        ROUTE_URIS: "logstash+tcp://logstash-tunnel:5000"
-        LOGSTASH_TAGS: "${HOSTNAME}"
+      ROUTE_URIS: "logstash+tcp://logstash-tunnel:5000"
+      LOGSTASH_TAGS: "${HOSTNAME}"
     depends_on:
       - logstash-tunnel
     restart: on-failure

@@ -27,7 +27,7 @@ scrape_configs:
           - 'upmonitor:3000'
           - 'prometheus:9090'
           - 'grafana:3000'
-    bearer_token: ${STATPING_TOKEN} # I presume this header is ignored by other services
+    bearer_token: ${STATPING_TOKEN}  # I presume this header is ignored by other services
 
   - job_name: 'node-diagnostics'
     basic_auth:

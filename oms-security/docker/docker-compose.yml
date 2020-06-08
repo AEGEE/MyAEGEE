@@ -24,7 +24,7 @@ services:
       SIGNUPS_ALLOWED: "false"
       ADMIN_TOKEN: "${PW_BITWARDEN_ADMINPANEL}"
       DOMAIN: "https://${SUBDOMAIN_BITWARDEN}${BASE_URL}"
-      LOG_FILE: "/data/bitwarden.log" #FILEBEAT
+      LOG_FILE: "/data/bitwarden.log"  # FILEBEAT
       ROCKET_LOG: "normal"  # the only thing above this is "critical", no "warning"
       SHOW_PASSWORD_HINT: "false"
       SMTP_HOST: "${SENDGRID_SMTP_HOST}"

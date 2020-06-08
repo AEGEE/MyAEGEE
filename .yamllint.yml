@@ -4,10 +4,11 @@ extends: default
 
 ignore: |
   **/node_modules/**
+  current-config.yml
+  would-be-config.yml
 
 rules:
   document-start: disable
-  line-length:
-    max: 100
+  line-length: disable
   truthy: disable
   comments-indentation: disable
