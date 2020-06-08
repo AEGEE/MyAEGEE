@@ -8,7 +8,7 @@ jobs:
     steps:
       - checkout
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache oms-frontend
-  lint:
+  eslint:
     machine:
       image: ubuntu-1604:201903-01
     steps:
@@ -21,7 +21,19 @@ jobs:
             echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
             which node && node -v
       - run: npm install
-      - run: npm run lint
+      - run: mkdir -p ~/reports
+      - run: npm run lint -- --format junit --output-file ~/reports/eslint.xml
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  yamllint:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - checkout
+      - run: pip install yamllint
+      - run: yamllint -d .yamllint.yml .
   docker-build-and-push:
     machine:
       image: ubuntu-1604:201903-01
@@ -52,9 +64,12 @@ workflows:
           filters:
             branches:
               ignore: master
-  lint:
+  eslint:
     jobs:
-      - lint
+      - eslint
+  yamllint:
+    jobs:
+      - yamllint
   docker-build-and-push:
     jobs:
       - docker-build-and-push:
