@@ -22,12 +22,6 @@ jobs:
             which node && node -v
       - run: npm install
       - run: npm run lint
-  audit:
-    machine:
-      image: ubuntu-1604:201903-01
-    steps:
-      - checkout
-      - run: npm audit
   docker-build-and-push:
     machine:
       image: ubuntu-1604:201903-01
@@ -61,9 +55,6 @@ workflows:
   lint:
     jobs:
       - lint
-  audit:
-    jobs:
-      - audit
   docker-build-and-push:
     jobs:
       - docker-build-and-push:
