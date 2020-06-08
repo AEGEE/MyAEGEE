@@ -1,3 +1,10 @@
+# [1.21.0](https://github.com/AEGEE/oms-core-js/compare/1.20.1...1.21.0) (2020-06-08)
+
+
+### Features
+
+* **ci:** added yamllint check ([#17](https://github.com/AEGEE/oms-core-js/issues/17)) ([cd632b8](https://github.com/AEGEE/oms-core-js/commit/cd632b8bb1ea1b2338dde5242a535e59c1922e7c))
+
 ## [1.20.1](https://github.com/AEGEE/oms-core-js/compare/1.20.0...1.20.1) (2020-06-08)
 
 
