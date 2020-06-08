@@ -1,3 +1,10 @@
+## [0.26.2](https://github.com/AEGEE/oms-events/compare/0.26.1...0.26.2) (2020-06-08)
+
+
+### Bug Fixes
+
+* **ci:** remove audit check ([#257](https://github.com/AEGEE/oms-events/issues/257)) ([75f8983](https://github.com/AEGEE/oms-events/commit/75f8983787c1ac9f4eb0175aa6e3b63ea7de46d7))
+
 ## [0.26.1](https://github.com/AEGEE/oms-events/compare/0.26.0...0.26.1) (2020-05-06)
 
 
