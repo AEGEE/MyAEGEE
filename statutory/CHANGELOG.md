@@ -1,3 +1,10 @@
+## [0.34.2](https://github.com/AEGEE/oms-statutory/compare/0.34.1...0.34.2) (2020-06-08)
+
+
+### Bug Fixes
+
+* **ci:** remove audit check ([#297](https://github.com/AEGEE/oms-statutory/issues/297)) ([b3e918e](https://github.com/AEGEE/oms-statutory/commit/b3e918e3ecca6bafcc0515c6667660ea77117dba))
+
 ## [0.34.1](https://github.com/AEGEE/oms-statutory/compare/0.34.0...0.34.1) (2020-05-07)
 
 
