@@ -34,18 +34,8 @@
               </tr>
 
               <tr>
-                <td><a href="https://www.mongodb.com/">MongoDB</a></td>
-                <td>Database used by oms-events module.</td>
-              </tr>
-
-              <tr>
                 <td><a href="https://www.postgresql.org/">PostgreSQL</a></td>
                 <td>Database used by oms-core and oms-statutory modules.</td>
-              </tr>
-
-              <tr>
-                <td><a href="http://mongoosejs.com/">Mongoose</a></td>
-                <td>ORM for oms-events module for interacting with MongoDB.</td>
               </tr>
 
               <tr>
@@ -92,8 +82,8 @@
             <a href="https://git-scm.com/" target="_blank">
               <img src="/images/partners-logos/git.png" alt="Git" />
             </a>
-            <a href="https://travis-ci.org/" target="_blank">
-              <img src="/images/partners-logos/travis.svg" alt="Travis CI" />
+            <a href="https://circleci.com/" target="_blank">
+              <img src="/images/partners-logos/circle.svg" alt="Circle CI" />
             </a>
             <a href="https://codecov.io/" target="_blank">
               <img src="/images/partners-logos/codecov.png" alt="Codecov" />
@@ -138,6 +128,12 @@
             <a href="https://gsuite.google.com/" target="_blank">
               <img src="/images/partners-logos/gsuite.svg" alt="GSuite" />
             </a>
+            <a href="https://dependabot.com/" target="_blank">
+              <img src="/images/partners-logos/dependabot.png" alt="Dependabot" />
+            </a>
+            <a href="https://www.elastic.co/" target="_blank">
+              <img src="/images/partners-logos/elastic.svg" alt="Elastic" />
+            </a>
           </div>
 
           <h2>Microservices</h2>
@@ -170,6 +166,11 @@
                 <td><a href="https://github.com/AEGEE/oms-mailer">oms-mailer</a></td>
                 <td>Internal mailer (every email sent from our system is going through it).</td>
               </tr>
+
+              <tr>
+                <td><a href="https://github.com/AEGEE/oms-discounts">oms-discounts</a></td>
+                <td>Discount code storage and retrieval.</td>
+              </tr>
             </tbody>
           </table>
 
@@ -193,17 +194,13 @@
                 <td><a href="https://github.com/serge1peshcoff">Sergey Peshkov</a></td>
                 <td>Maintainer of oms-events and oms-statutory modules and the frontend</td>
               </tr>
-
-              <tr>
-                <td><a href="https://github.com/blacksph3re">Nico Westerbeck</a></td>
-                <td>Maintainer of oms-core module, developed deployment scripts.</td>
-              </tr>
             </tbody>
           </table>
 
           <div class="content">
             <p>Also this website wouldn't exist without these people:</p>
             <ul>
+              <li><strong>Nico Westerbeck</strong> - deployment scripts and previous system of the core module</li>
               <li><strong>Derk Snijders</strong> - deployment scripts and frontend</li>
               <li><strong>Flaviu Porutiu</strong> - development of the previous system of the core module</li>
               <li><strong>Dilyan Palauzov</strong> - helping integrating MyAEGEE with the mail server</li>
