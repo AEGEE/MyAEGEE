@@ -45,12 +45,12 @@ export default {
   data () {
     return {
       statuses: {
-        'oms-core-elixir': {
+        'oms-core-js': {
           roundTrip: null,
           version: '-',
           latestVersion: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/oms-core-elixir/blob/master/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/oms-core-js/blob/master/CHANGELOG.md'
         },
         'oms-mailer': {
           roundTrip: null,
