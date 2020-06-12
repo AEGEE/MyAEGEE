@@ -163,4 +163,34 @@ describe('Listing my circles for permission', () => {
         expect(res.body.data.length).toEqual(1);
         expect(res.body.data[0].id).toEqual(thirdCircle.id);
     });
+
+    test('should not return a circle you are not a member of', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken({}, user);
+
+        const permission = await generator.createPermission({ scope: 'local', action: 'action', object: 'object' });
+        const parentCircle = await generator.createCircle();
+        const childCircle = await generator.createCircle({ parent_circle_id: parentCircle.id });
+        const otherChildCircle = await generator.createCircle({ parent_circle_id: parentCircle.id });
+
+        const otherUser = await generator.createUser();
+
+        await generator.createCirclePermission(parentCircle, permission);
+        await generator.createCircleMembership(childCircle, user);
+        await generator.createCircleMembership(otherChildCircle, otherUser);
+
+        const res = await request({
+            uri: '/my_permissions',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: { action: 'action', object: 'object' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(childCircle.id);
+    });
 });

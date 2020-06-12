@@ -37,6 +37,7 @@ exports.getMyCirclesWithPermission = async (req, res) => {
 
     const result = await Circle.findAndCountAll({
         where: {
+            '$circle_memberships.user_id$': req.user.id,
             '$circle_memberships.circle_id$': { [Sequelize.Op.in]: circleIds },
             ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.CIRCLE)
         },
