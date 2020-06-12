@@ -1,17 +1,13 @@
 {
     "success": true,
     "data": {
-        "user_id": 1,
-        "user": {
-            "superadmin": true,
-            "name": "admin",
-            "member_id": null,
-            "inserted_at": "2018-05-03T23:12:01.111566",
-            "id": 1,
-            "email": "admin@aegee.org",
-            "active": true
-        },
-        "seo_url": "microservice",
+        "superadmin": true,
+        "username": "admin",
+        "member_id": null,
+        "inserted_at": "2018-05-03T23:12:01.111566",
+        "id": 1,
+        "email": "admin@aegee.org",
+        "active": true,
         "primary_body_id": null,
         "primary_body": null,
         "phone": "+123456789",
@@ -62,7 +58,6 @@
                 "approved": true
             }
         ],
-        "id": 1,
         "gender": "machine",
         "first_name": "Microservice",
         "date_of_birth": "2010-04-17",

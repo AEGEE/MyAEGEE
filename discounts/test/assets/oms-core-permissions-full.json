@@ -8,7 +8,6 @@
       "description": "Manage discounts",
       "combined": "global:manage:discounts",
       "circles": null,
-      "always_assigned": false,
       "action": "manage"
     }]
 }

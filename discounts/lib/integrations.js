@@ -140,8 +140,7 @@ exports.claimCode = async (req, res) => {
     await codeToClaim.update({ claimed_by: req.user.id });
 
     await mailer.sendMail({
-        from: 'oms-mailer@aegee.org',
-        to: req.user.user.email,
+        to: req.user.email,
         subject: `Your ${req.integration.name} discount code`,
         template: 'custom.html',
         parameters: {

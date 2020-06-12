@@ -11,8 +11,8 @@ const config = {
             database: process.env.DB_DATABASE || 'discounts'
         },
         core: {
-            url: 'http://oms-core-elixir',
-            port: 4000
+            url: 'http://oms-core-js',
+            port: 8084
         },
         mailer: {
             url: 'http://oms-mailer',
