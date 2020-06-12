@@ -1,3 +1,15 @@
+# [1.0.0](https://github.com/AEGEE/oms-events/compare/0.27.0...1.0.0) (2020-06-12)
+
+
+### Features
+
+* **general:** new core refactor ([#262](https://github.com/AEGEE/oms-events/issues/262)) ([e9c0381](https://github.com/AEGEE/oms-events/commit/e9c038116e08d749550750985b172dbb02a6346d))
+
+
+### BREAKING CHANGES
+
+* **general:** new core refactor
+
 # [0.27.0](https://github.com/AEGEE/oms-events/compare/0.26.2...0.27.0) (2020-06-08)
 
 
