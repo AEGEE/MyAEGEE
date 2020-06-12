@@ -1,3 +1,10 @@
+# [0.48.0](https://github.com/AEGEE/oms-frontend/compare/0.47.0...0.48.0) (2020-06-12)
+
+
+### Features
+
+* **general:** new core refactor ([#285](https://github.com/AEGEE/oms-frontend/issues/285)) ([5520e24](https://github.com/AEGEE/oms-frontend/commit/5520e24a1154b64fe62698093609927765c508e8))
+
 # [0.47.0](https://github.com/AEGEE/oms-frontend/compare/0.46.2...0.47.0) (2020-06-08)
 
 
