@@ -51,7 +51,7 @@ exports.createApplication = async (req, res) => {
     req.body.body_name = req.user.bodies.find((b) => b.id === req.body.body_id).name;
     req.body.user_id = req.user.id;
     req.body.event_id = req.event.id;
-    req.body.email = req.user.user.email;
+    req.body.email = req.user.email;
 
     let newApplication;
 
@@ -100,7 +100,7 @@ exports.updateApplication = async (req, res) => {
     }
     req.body.user_id = req.user.id;
     req.body.event_id = req.event.id;
-    req.body.email = req.user.user.email;
+    req.body.email = req.user.email;
 
     await sequelize.transaction(async (t) => {
         // Updating application in a transaction, so if mail sending fails, the update would be reverted.
