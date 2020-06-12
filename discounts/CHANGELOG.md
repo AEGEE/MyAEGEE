@@ -1,3 +1,15 @@
+# [1.0.0](https://github.com/AEGEE/oms-discounts/compare/0.12.0...1.0.0) (2020-06-12)
+
+
+### Features
+
+* **general:** new core refactor ([#59](https://github.com/AEGEE/oms-discounts/issues/59)) ([60e5658](https://github.com/AEGEE/oms-discounts/commit/60e5658f8350d5443d06c2d7f3185acbccda1144))
+
+
+### BREAKING CHANGES
+
+* **general:** new core refactor
+
 # [0.12.0](https://github.com/AEGEE/oms-discounts/compare/0.11.2...0.12.0) (2020-06-08)
 
 
