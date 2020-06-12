@@ -15,8 +15,8 @@
           :loading="isLoading">
           <template slot-scope="props">
             <b-table-column field="first_name" label="Name and surname" sortable>
-              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.member.seo_url || props.row.member.id } }">
-                {{ props.row.member.first_name }} {{ props.row.member.last_name }}
+              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user.username || props.row.user.id } }">
+                {{ props.row.user.first_name }} {{ props.row.user.last_name }}
               </router-link>
             </b-table-column>
 
@@ -24,11 +24,11 @@
               {{ props.row.position }}
             </b-table-column>
 
-            <b-table-column field="circle_admin" label="Is circle admin?">
+            <!-- <b-table-column field="circle_admin" label="Is circle admin?">
               <span :class="{ 'tag': props.row.circle_admin, 'is-primary': props.row.circle_admin, 'is-small': props.row.circle_admin }">
                 {{ props.row.circle_admin | beautify}}
               </span>
-            </b-table-column>
+            </b-table-column> -->
 
             <b-table-column label="Edit" :visible="can.edit" centered>
               <a class="button is-small is-warning" @click="editMemberModal(props.row)">
@@ -99,7 +99,7 @@ export default {
     ...mapGetters(['services'])
   },
   methods: {
-    editMemberModal (member) {
+    editMemberModal (membership) {
       this.$buefy.modal.open({
         component: EditMemberPositionModal,
         hasModalCard: true,
@@ -109,16 +109,16 @@ export default {
           // I'm passing them as props.
           // More info: https://github.com/buefy/buefy/issues/55
           circle: { id: this.$route.params.id },
-          member,
+          membership,
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess
         }
       })
     },
-    askDeleteMember (member) {
+    askDeleteMember (membership) {
       const message = 'Are you sure you want to <b>delete</b> '
-        + member.member.first_name + ' ' + member.member.last_name
+        + membership.user.first_name + ' ' + membership.user.last_name
         + ' from this circle? This action cannot be undone.'
 
       this.$buefy.dialog.confirm({
@@ -127,14 +127,14 @@ export default {
         confirmText: 'Delete member',
         type: 'is-danger',
         hasIcon: true,
-        onConfirm: () => this.deleteMember(member)
+        onConfirm: () => this.deleteMember(membership)
       })
     },
-    deleteMember (member) {
-      this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/members/' + member.id).then(() => {
+    deleteMember (membership) {
+      this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/members/' + membership.id).then(() => {
         this.$root.showSuccess('Member is deleted.')
 
-        const index = this.members.findIndex(m => m.id === member.id)
+        const index = this.members.findIndex(m => m.id === membership.id)
         this.members.splice(index, 1)
       }).catch((err) => this.$root.showError('Could not delete member', err))
     },

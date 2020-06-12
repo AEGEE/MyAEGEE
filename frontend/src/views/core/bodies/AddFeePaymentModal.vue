@@ -104,16 +104,14 @@ export default {
       this.isLoading = true
 
       this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.body.id + '/payments', {
-        payment: {
-          starts: this.tmpPayment.starts,
-          expires: this.tmpPayment.expires,
-          currency: this.tmpPayment.currency,
-          amount: this.tmpPayment.amount,
-          invoice_address: this.tmpPayment.invoice_address,
-          invoice_name: this.tmpPayment.invoice_name,
-          member_id: this.member.member_id,
-          body_id: this.body.id
-        }
+        starts: this.tmpPayment.starts,
+        expires: this.tmpPayment.expires,
+        currency: this.tmpPayment.currency,
+        amount: this.tmpPayment.amount,
+        invoice_address: this.tmpPayment.invoice_address,
+        invoice_name: this.tmpPayment.invoice_name,
+        user_id: this.member.user_id,
+        body_id: this.body.id
       }).then((response) => {
         this.showSuccess('Payment is added.')
 

@@ -30,11 +30,11 @@
           default-sort-direction="desc">
           <template slot-scope="props">
             <b-table-column field="member.first_name" label="First and last name" sortable>
-              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.member_id } }" v-if="can.viewMember">
-                {{ props.row.member.first_name }} {{ props.row.member.last_name }}
+              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }" v-if="can.viewMember">
+                {{ props.row.user.first_name }} {{ props.row.user.last_name }}
               </router-link>
               <span v-if="!can.viewMember">
-                {{ props.row.member.first_name }} {{ props.row.member.last_name }}
+                {{ props.row.user.first_name }} {{ props.row.user.last_name }}
               </span>
             </b-table-column>
 
@@ -146,7 +146,7 @@ export default {
     },
     askDeleteMember (member) {
       const message = 'Are you sure you want to <b>delete</b> '
-        + member.member.first_name + ' ' + member.member.last_name
+        + member.user.first_name + ' ' + member.user.last_name
         + ' from this body? This action cannot be undone.'
 
       this.$buefy.dialog.confirm({
@@ -178,7 +178,7 @@ export default {
     changeComment (member, comment) {
       this.isLoading = true
       this.axios.put(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members/' + member.id, {
-        body_membership: { comment }
+        comment
       }).then(() => {
         this.$root.showSuccess('Comment is set.')
         member.comment = comment
@@ -236,7 +236,7 @@ export default {
 
           for (const member of this.members) {
             const paymentsForMember = this.payments
-              .filter(payment => payment.member_id === member.member_id)
+              .filter(payment => payment.user_id === member.user_id)
               .sort((a, b) => a.expires.localeCompare(b.expires))
             this.$set(member, 'payments', paymentsForMember)
             this.$set(member, 'lastPayment', paymentsForMember.length >= 1 ? paymentsForMember[paymentsForMember.length - 1] : null)

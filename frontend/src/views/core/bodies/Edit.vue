@@ -46,9 +46,9 @@
         <div class="field">
           <label class="label">Body code</label>
           <div class="control">
-            <input class="input" type="text" required :disabled="!can.editCode" v-model="body.legacy_key" />
+            <input class="input" type="text" required :disabled="!can.editCode" v-model="body.code" />
           </div>
-          <p class="help is-danger" v-if="errors.legacy_key">{{ errors.legacy_key.join(', ')}}</p>
+          <p class="help is-danger" v-if="errors.code">{{ errors.code.join(', ')}}</p>
         </div>
 
         <div class="field">
@@ -141,7 +141,7 @@ export default {
         name: '',
         description: '',
         id: null,
-        legacy_key: null,
+        code: null,
         email: null,
         phone: null,
         address: null,
@@ -184,8 +184,8 @@ export default {
       this.errors = {}
 
       const promise = this.$route.params.id
-        ? this.axios.put(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id, { body: this.body })
-        : this.axios.post(this.services['oms-core-elixir'] + '/bodies/', { body: this.body })
+        ? this.axios.put(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id, this.body)
+        : this.axios.post(this.services['oms-core-elixir'] + '/bodies/', this.body)
 
       promise.then((response) => {
         this.isSaving = false

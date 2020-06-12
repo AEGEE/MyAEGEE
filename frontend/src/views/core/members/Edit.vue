@@ -19,18 +19,12 @@
         </div>
 
         <div class="field">
-          <label class="label">Profile URL</label>
+          <label class="label">Username</label>
           <div class="control">
-            <div class="field has-addons">
-              <div class="control">
-                <a class="button is-static">/members/</a>
-              </div>
-              <div class="control is-expanded">
-                <input class="input" type="text" required v-model="user.seo_url" />
-              </div>
-            </div>
+            <input class="input" data-cy="username" type="text" required v-model="user.username" placeholder="Type your username..." />
+
           </div>
-          <p class="help is-danger" v-if="errors.seo_url">{{ errors.seo_url.join(', ')}}</p>
+          <p class="help is-danger" v-if="errors.username">{{ errors.username.join(', ')}}</p>
         </div>
 
         <div class="field">
@@ -48,7 +42,7 @@
           <p class="help is-danger" v-if="errors.date_of_birth">{{ errors.date_of_birth.join(', ')}}</p>
         </div>
 
-        <div class="field">
+        <!-- <div class="field">
           <label class="label">Primary body</label>
           <p class="control">
             <div class="field has-addons select is-fullwidth">
@@ -58,7 +52,7 @@
               </select>
             </div>
           <p class="help is-danger" v-if="errors.primary_body_id">{{ errors.primary_body_id.join(', ')}}</p>
-        </div>
+        </div> -->
 
         <select-or-custom v-model="user.gender" data-cy="gender" :values="['Male', 'Female']" label="Gender">
           <template slot="errors-slot">
@@ -96,6 +90,7 @@
 
 <script>
 import moment from 'moment'
+import _ from 'lodash'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -103,10 +98,10 @@ export default {
   data () {
     return {
       user: {
-        name: '',
-        surname: '',
+        first_name: '',
+        last_name: '',
         id: null,
-        seo_url: null,
+        username: null,
         primary_body_id: null,
         primary_body: null,
         circles: null,
@@ -123,6 +118,7 @@ export default {
     }
   },
   methods: {
+    /* istanbul ignore next */
     parseDate (date) {
       return moment(date, 'YYYY-MM-DD').toDate()
     },
@@ -136,14 +132,27 @@ export default {
       this.isSaving = true
       this.errors = {}
 
-      this.axios.put(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id, { member: this.user }).then(() => {
+      const body = _.pick(this.user, [
+        'id',
+        'first_name',
+        'last_name',
+        'username',
+        'gender',
+        'about_me',
+        'address',
+        'phone',
+        'date_of_birth'
+      ])
+
+      this.axios.put(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id, body).then(() => {
         this.isSaving = false
 
         this.$root.showSuccess('User is saved.')
 
+        /* istanbul ignore next */
         return this.$router.push({
           name: 'oms.members.view',
-          params: { id: this.user.seo_url || this.user.id }
+          params: { id: this.user.username || this.user.id }
         })
       }).catch((err) => {
         this.isSaving = false
@@ -161,6 +170,8 @@ export default {
   mounted () {
     this.axios.get(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id).then((response) => {
       this.user = response.data.data
+
+      /* istanbul ignore next */
       this.birthday = response.data.data.date_of_birth ? moment(response.data.data.date_of_birth, 'YYYY-MM-DD').toDate() : null
       this.isLoading = false
     }).catch((err) => {

@@ -21,11 +21,11 @@
         <p class="help is-danger" v-if="circleErrors.description">{{ circleErrors.description.join(', ')}}</p>
       </div>
 
-      <div class="field">
+      <!-- <div class="field">
         <label class="label">Joinable?
           <input class="checkbox" type="checkbox" v-model="tmpCircle.joinable" />
         </label>
-      </div>
+      </div> -->
     </section>
     <footer class="modal-card-foot">
       <button class="button is-primary" @click="saveBoundCircle()">Save changes</button>
@@ -52,7 +52,8 @@ export default {
     saveBoundCircle () {
       this.isLoading = true
       this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.body.id + '/circles', {
-        circle: this.tmpCircle
+        name: this.tmpCircle.name,
+        description: this.tmpCircle.description
       }).then((response) => {
         this.showSuccess('Bound circle is created.')
 

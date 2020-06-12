@@ -60,7 +60,7 @@ export default {
       }).then((response) => {
         // Transform members if the circle is bound (there's another API response format)
         this.members = this.circle.body_id
-          ? response.data.data.map(entry => entry.member)
+          ? response.data.data.map(entry => entry.user)
           : response.data.data
 
         this.isLoadingMembers = false
@@ -74,13 +74,13 @@ export default {
       })
     },
     addMember (member) {
-      this.axios.post(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/add_member', {
-        member_id: member.id
+      this.axios.post(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members', {
+        user_id: member.id
       }).then(() => {
         this.showSuccess('Member is added.')
         this.$parent.close()
       }).catch((err) => {
-        if (err.response.status === 422 && 'circle_membership_unique' in err.response.data.errors) {
+        if (err.response.status === 422) {
           this.showError('Could not add member: this person is already a member of this circle.')
         } else {
           this.showError('Could not add member', err)

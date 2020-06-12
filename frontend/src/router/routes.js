@@ -156,6 +156,14 @@ module.exports = [
     }
   },
   {
+    name: 'oms.bodies.campaigns.members',
+    path: '/bodies/:body_id/campaigns/:id/members',
+    component: 'core/campaigns/ViewMembers',
+    meta: {
+      label: 'View members of a body campaign'
+    }
+  },
+  {
     name: 'oms.bodies.campaigns.edit',
     path: '/bodies/:body_id/campaigns/:id/edit',
     component: 'core/campaigns/Edit',
@@ -279,6 +287,14 @@ module.exports = [
     }
   },
   {
+    name: 'oms.circles.create',
+    path: '/circles/new',
+    component: 'core/circles/Edit',
+    meta: {
+      label: 'Create a circle'
+    }
+  },
+  {
     name: 'oms.circles.view',
     path: '/circles/:id',
     component: 'core/circles/Single',
@@ -302,14 +318,6 @@ module.exports = [
       label: 'Edit single circle'
     }
   },
-  {
-    name: 'oms.circles.create',
-    path: '/circles/new',
-    component: 'core/circles/Edit',
-    meta: {
-      label: 'Create a circle'
-    }
-  },
   /* Campaigns management. */
   {
     name: 'oms.campaigns.list',
@@ -317,6 +325,14 @@ module.exports = [
     component: 'core/campaigns/List',
     meta: {
       label: 'View campaigns'
+    }
+  },
+  {
+    name: 'oms.campaigns.members',
+    path: '/campaigns/:id/members',
+    component: 'core/campaigns/ViewMembers',
+    meta: {
+      label: 'View campaign members'
     }
   },
   {

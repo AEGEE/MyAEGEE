@@ -24,6 +24,10 @@
               </router-link>
             </b-table-column>
 
+            <b-table-column field="email" label="Email">
+              {{ props.row.email }}
+            </b-table-column>
+
             <b-table-column field="birthday" label="Birthday" sortable width="150">
               {{ props.row.date_of_birth }}
             </b-table-column>

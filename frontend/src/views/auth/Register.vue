@@ -8,7 +8,7 @@
             <label class="label">Username</label>
             <div class="control">
               <input
-                v-model="submission.name"
+                v-model="submission.username"
                 required
                 class="input"
                 type="text"
@@ -69,14 +69,6 @@
           </div>
 
           <div class="field">
-            <label class="label">Motivation</label>
-            <div class="control">
-              <input v-model="submission.motivation" class="input" type="text" placeholder="Why you want to be a member.">
-            </div>
-             <p class="help is-danger" v-if="errors.motivation">{{ errors.motivation.join(', ')}}</p>
-          </div>
-
-          <div class="field">
             <label class="label">I agree to the <router-link :to="{ name: 'oms.legal.simple' }">Privacy Policy</router-link>
               <input type="checkbox" class="checkbox" data-cy="agree-to-privacy-policy" v-model="agreedToPrivacyPolicy" />
             </label>
@@ -104,13 +96,11 @@ export default {
   data () {
     return {
       submission: {
-        name: '',
+        username: '',
         password: '',
-        password_copy: '',
         first_name: '',
         last_name: '',
-        email: '',
-        motivation: ''
+        email: ''
       },
       agreedToPrivacyPolicy: false,
       errors: {}
@@ -127,13 +117,11 @@ export default {
       }
 
       if (this.submission.password !== this.submission.password_copy) {
-        this.errors.password = ['The passwords do not match.']
+        this.errors.password = ['Passwords do not match.']
         return
       }
 
-      this.axios.post(this.services['oms-core-elixir'] + '/campaigns/' + this.$route.params.id, {
-        submission: this.submission
-      }).then(() => {
+      this.axios.post(this.services['oms-core-elixir'] + '/signup/' + this.$route.params.id, this.submission).then(() => {
         this.$root.showSuccess('Your submission is registered.')
         return this.$router.push({ name: 'oms.confirm_token' })
       }).catch((err) => {
@@ -142,7 +130,7 @@ export default {
           return this.$root.showError('Some of the registration data is invalid.')
         }
 
-        if (err.response.status === 404) { // validation errors
+        if (err.response.status === 404) {
           return this.$root.showError('The registration campaign is not found.')
         }
 

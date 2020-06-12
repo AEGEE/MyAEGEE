@@ -63,7 +63,8 @@ export default {
         return
       }
 
-      this.axios.post(this.services['oms-core-elixir'] + '/confirm_reset_password/' + this.token, {
+      this.axios.post(this.services['oms-core-elixir'] + '/password_confirm', {
+        token: this.token,
         password: this.password
       }).then(() => {
         this.$root.showSuccess('Password is changed.')

@@ -218,7 +218,7 @@ export default {
       this.axios.get(this.services['oms-core-elixir'] + '/circles/' + id).then((response) => {
         this.circle = response.data.data
 
-        this.isMember = this.loginUser.circle_memberships.some(membership => membership.circle.id === this.circle.id)
+        this.isMember = this.loginUser.circles.some(circle => circle.id === this.circle.id)
 
         return this.axios.get(this.services['oms-core-elixir'] + '/circles/' + id + '/my_permissions')
       }).then((response) => {
@@ -231,7 +231,7 @@ export default {
 
         // A person has the right to add members in 2 cases: this person has add_member:circle permission and
         // 1) the circle is bound to a body
-        // 2) the circle is unbound and the person has view:member permission (to search globall for users)
+        // 2) the circle is unbound and the person has view:member permission (to search globally for users)
         const hasPermissionToAdd = this.permissions.some(permission => permission.combined.endsWith('add_member:circle'))
         const hasPermissionToViewMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
         this.can.addMembers = hasPermissionToAdd && (this.circle.body_id || hasPermissionToViewMembers)
@@ -243,7 +243,7 @@ export default {
         this.isLoading = false
       })
         .catch((err) => {
-          if (err.response.status === 404) {
+          if (err.response && err.response.status && err.response.status === 404) {
             this.$root.showError('Circle is not found')
           } else {
             this.$root.showError('Some error happened', err)

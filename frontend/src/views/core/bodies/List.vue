@@ -13,21 +13,23 @@
         <div class="field">
           <label class="label">Filter on body type</label>
           <div class="control">
-            <div class="select">
-              <select v-model="type" @change="refetch()">
-                <option :value="null">Don't filter on body type</option>
-                <option value="antenna">Antenna</option>
-                <option value="contact antenna">Contact antenna</option>
-                <option value="contact">Contact</option>
-                <option value="interest group">Interest group</option>
-                <option value="working group">Working group</option>
-                <option value="commission">Commission</option>
-                <option value="committee">Committee</option>
-                <option value="project">Project</option>
-                <option value="partner">Partner association</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
+            <multiselect
+              v-model="selectedTypes"
+              :multiple="true"
+              :searchable="false"
+              :close-on-select="false"
+              :clear-on-select="false"
+              :preserve-search="true"
+              :options="types"
+              placeholder="Select application fields"
+              track-by="value"
+              label="name">
+              <template
+                slot="selection"
+                slot-scope="{ values, search, isOpen }">
+                <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} fields selected</span>
+              </template>
+            </multiselect>
           </div>
         </div>
 
@@ -39,8 +41,8 @@
 
         <b-table :data="bodies" :loading="isLoading" narrowed>
           <template slot-scope="props">
-            <b-table-column field="legacy_key" label="Body code">
-              {{ props.row.legacy_key }}
+            <b-table-column field="code" label="Body code">
+              {{ props.row.code }}
             </b-table-column>
 
             <b-table-column field="name" label="Body name">
@@ -92,6 +94,19 @@ export default {
   data () {
     return {
       bodies: [],
+      types: [
+        { value: 'antenna', name: 'Antenna' },
+        { value: 'contact antenna', name: 'Contact antenna' },
+        { value: 'contact', name: 'Contact' },
+        { value: 'interest group', name: 'Interest group' },
+        { value: 'working group', name: 'Working group' },
+        { value: 'commission', name: 'Commission' },
+        { value: 'committee', name: 'Committee' },
+        { value: 'project', name: 'Project' },
+        { value: 'partner', name: 'Partner' },
+        { value: 'other', name: 'Other' }
+      ],
+      selectedTypes: [],
       isLoading: false,
       query: '',
       limit: 30,
@@ -113,13 +128,22 @@ export default {
       }
 
       if (this.query) queryObj.query = this.query
-      if (this.type) queryObj.filter = { type: this.type }
+      if (this.selectedTypes) {
+        queryObj.type = this.selectedTypes
+          .map((type) => type.value)
+          .join(',')
+      }
       return queryObj
     },
     ...mapGetters({
       services: 'services',
       loginUser: 'user'
     })
+  },
+  watch: {
+    selectedTypes () {
+      this.refetch()
+    }
   },
   methods: {
     refetch () {

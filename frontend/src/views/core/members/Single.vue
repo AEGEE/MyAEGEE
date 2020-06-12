@@ -11,44 +11,51 @@
       <div class="tile is-parent">
         <article class="tile is-child is-info" v-if="can.edit">
           <div class="field is-grouped">
-            <a class="button is-fullwidth is-primary" @click="updatePicture()">
+            <a class="button is-fullwidth is-primary" data-cy="picture-change-link" @click="updatePicture()">
               <span>Change picture</span>
               <span class="icon"><font-awesome-icon icon="camera" /></span>
             </a>
           </div>
 
           <div class="field is-grouped" v-if="can.edit">
-            <router-link :to="{ name: 'oms.members.edit', params: { id: user.seo_url || user.id } }" class="button is-fullwidth is-warning">
+            <router-link :to="{ name: 'oms.members.edit', params: { id: user.username || user.id } }" class="button is-fullwidth is-warning">
               <span>Edit profile</span>
               <span class="icon"><font-awesome-icon icon="edit" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="isOwnProfile">
-            <router-link :to="{ name: 'oms.members.edituser', params: { id: user.seo_url || user.id } }" class="button is-fullwidth is-warning">
-              <span>Change email or password</span>
+            <router-link :to="{ name: 'oms.members.edituser', params: { id: user.username || user.id } }" class="button is-fullwidth is-warning">
+              <span>Change password</span>
               <span class="icon"><font-awesome-icon icon="edit" /></span>
             </router-link>
           </div>
 
+          <div class="field is-grouped" v-if="can.edit">
+            <button class="button is-fullwidth is-warning" @click="editPrimaryBodyModal()">
+              <span>Set primary body</span>
+              <span class="icon"><font-awesome-icon icon="edit" /></span>
+            </button>
+          </div>
+
           <div class="field is-grouped" v-if="can.setActive">
-            <a v-if="user.user.active" class="button is-fullwidth is-danger" :class="{'is-loading': isSwitchingStatus }" @click="askToggleActive()">
+            <a v-if="user.active" class="button is-fullwidth is-danger" :class="{'is-loading': isSwitchingStatus }" @click="askToggleActive()" data-cy="suspend-user-link">
               <span>Suspend user</span>
               <span class="icon"><font-awesome-icon icon="minus" /></span>
             </a>
 
-            <a v-if="!user.user.active" class="button is-fullwidth is-success" :class="{'is-loading': isSwitchingStatus }" @click="askToggleActive()">
+            <a v-if="!user.active" class="button is-fullwidth is-primary" :class="{'is-loading': isSwitchingStatus }" @click="askToggleActive()" data-cy="activate-user-link">
               <span>Activate user</span>
               <span class="icon"><font-awesome-icon icon="plus" /></span>
             </a>
           </div>
 
-          <div class="field is-grouped" v-if="can.delete">
+          <!-- <div class="field is-grouped" v-if="can.delete">
             <a class="button is-fullwidth is-danger" @click="askDeleteUser()">
               <span>Delete profile</span>
               <span class="icon"><font-awesome-icon icon="times" /></span>
             </a>
-          </div>
+          </div> -->
 
         </article>
       </div>
@@ -63,7 +70,7 @@
               <tbody>
                 <tr>
                   <th>Profile link</th>
-                   <td>/members/{{ user.seo_url || user.id }}</td>
+                  <td>/members/<span data-cy="username">{{ user.username || user.id }}</span></td>
                 </tr>
                 <tr>
                   <th>Primary body</th>
@@ -92,19 +99,15 @@
                 </tr>
                 <tr>
                   <th>Is superadmin?</th>
-                  <td>{{ (user.user && user.user.superadmin) ? 'Yes' : 'No' }}</td>
+                  <td data-cy="superadmin">{{ (user.superadmin) ? 'Yes' : 'No' }}</td>
                 </tr>
                 <tr>
-                  <th>Email</th><td v-if="user.user.email"><a :href="'mailto:' + user.user.email">{{ user.user.email }}</a></td>
-                  <td v-if="!user.user.email"><i>Not set.</i></td>
-                </tr>
-                <tr>
-                  <th>Username</th>
-                  <td>{{ user.user.name }}</td>
+                  <th>Email</th>
+                  <td><a :href="'mailto:' + user.email" data-cy="email">{{ user.email }}</a></td>
                 </tr>
                 <tr>
                   <th>Login suspended?</th>
-                  <td>{{ user.user.active ? 'No' : 'Yes' }}</td>
+                  <td data-cy="active">{{ user.active ? 'No' : 'Yes' }}</td>
                 </tr>
               </tbody>
             </table>
@@ -124,7 +127,7 @@
                   <th>Description</th>
                 </tr>
                 <tr v-for="body in user.bodies" v-bind:key="body.id">
-                  <td><router-link :to="{ name: 'oms.bodies.view', params: { id: body.id } }">{{ body.legacy_key }}</router-link></td>
+                  <td><router-link :to="{ name: 'oms.bodies.view', params: { id: body.id } }">{{ body.code }}</router-link></td>
                   <td>{{ body.name }}</td>
                   <td>{{ body.description }}</td>
                 </tr>
@@ -155,12 +158,13 @@
       </article>
     </div>
 
-    <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+    <b-loading :is-full-page="false" :active.sync="isLoading"></b-loading>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import EditPrimaryBodyModal from './EditPrimaryBodyModal.vue'
 
 export default {
   name: 'SingleUser',
@@ -170,19 +174,16 @@ export default {
         name: '',
         surname: '',
         id: null,
-        seo_url: null,
         primary_body: null,
         bodies: [],
         circles: [],
         date_of_birth: null,
         gender: null,
         phone: null,
-        user: {
-          email: null,
-          active: null,
-          superadmin: null,
-          name: null
-        }
+        email: null,
+        active: null,
+        superadmin: null,
+        username: null
       },
       isOwnProfile: false,
       isLoading: false,
@@ -197,26 +198,42 @@ export default {
   },
   methods: {
     updatePicture () {
-      this.$root.showInfo('This feature is not implemented yet, come join the OMS to help us implementing it ;)')
+      this.$root.showInfo('This feature is not implemented yet, come join MyAEGEE to help us implementing it ;)')
     },
-    askDeleteUser () {
-      this.$buefy.dialog.confirm({
-        title: 'Deleting a user',
-        message: 'Are you sure you want to <b>delete</b> this user? This action cannot be undone.',
-        confirmText: 'Delete user',
-        type: 'is-danger',
-        hasIcon: true,
-        onConfirm: () => this.deleteUser()
+    // askDeleteUser () {
+    //   this.$buefy.dialog.confirm({
+    //     title: 'Deleting a user',
+    //     message: 'Are you sure you want to <b>delete</b> this user? This action cannot be undone.',
+    //     confirmText: 'Delete user',
+    //     type: 'is-danger',
+    //     hasIcon: true,
+    //     onConfirm: () => this.deleteUser()
+    //   })
+    // },
+    // deleteUser () {
+    //   this.axios.delete(this.services['oms-core-elixir'] + '/user/' + this.user.id).then(() => {
+    //     this.$root.showSuccess('User is deleted.')
+    //     this.$router.push({ name: 'oms.members.list' })
+    //   }).catch((err) => this.$root.showError('Could not delete user', err))
+    // },
+    editPrimaryBodyModal () {
+      this.$buefy.modal.open({
+        component: EditPrimaryBodyModal,
+        hasModalCard: true,
+        props: {
+          // When programmatically opening a modal, it doesn't have access to Vue instance
+          // and therefore store, services and notifications functions. That's why
+          // I'm passing them as props.
+          // More info: https://github.com/buefy/buefy/issues/55
+          member: this.user,
+          services: this.services,
+          showError: this.$root.showError,
+          showSuccess: this.$root.showSuccess
+        }
       })
     },
-    deleteUser () {
-      this.axios.delete(this.services['oms-core-elixir'] + '/user/' + this.user.user.id).then(() => {
-        this.$root.showSuccess('User is deleted.')
-        this.$router.push({ name: 'oms.members.list' })
-      }).catch((err) => this.$root.showError('Could not delete user', err))
-    },
     askToggleActive () {
-      const active = this.user.user.active
+      const active = this.user.active
       this.$buefy.dialog.confirm({
         title: active ? 'Suspend user' : 'Activate user',
         message: 'Are you sure you want to <b>' + (active ? 'suspend' : 'activate') + '</b> this user?',
@@ -229,8 +246,10 @@ export default {
     },
     toggleActive () {
       this.isSwitchingStatus = true
-      this.axios.put(this.services['oms-core-elixir'] + '/user/' + this.user.user.id, { active: !this.user.user.active }).then((response) => {
-        this.user.user.active = response.data.data.active
+      this.axios.put(this.services['oms-core-elixir'] + '/members/' + this.user.id + '/active', { active: !this.user.active }).then((response) => {
+        console.log('response', response)
+        this.user.active = response.data.data.active
+        this.$root.showSuccess('User is ' + (this.user.active ? 'activated.' : 'suspended.'))
         this.isSwitchingStatus = false
       }).catch((err) => {
         this.$root.showError('Error changing user status', err)
@@ -256,7 +275,7 @@ export default {
         // for global and local permissions for users' bodies check the following:
         // set the permission to true if at least one set of permissions have
         // the required permission (either first for global, or others for local).
-        this.can.setActive = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('update_active:user')))
+        this.can.setActive = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('update_active:member')))
         this.can.edit = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('update:member')))
         this.can.delete = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('delete:user')))
 

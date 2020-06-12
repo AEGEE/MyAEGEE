@@ -2,32 +2,6 @@
   <div class="tile is-ancestor ">
     <div class="tile is-child">
       <form @submit.prevent="saveUser()">
-        <div class="field">
-          <label class="label">Username</label>
-          <div class="control">
-            <input
-              class="input"
-              type="text"
-              required
-              v-model="user.name"
-              pattern="^[a-zA-Z0-9\.\-]*$"
-              title="Username can only contain English letters, numbers, dots and dashes."
-              placeholder="You will be able to login with it." />
-          </div>
-          <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
-        </div>
-
-        <div class="field">
-          <label class="label">Email</label>
-          <div class="control has-icons-left">
-            <span class="icon is-small is-left"><font-awesome-icon icon="envelope" /></span>
-            <input class="input" type="email" v-model="user.email" />
-          </div>
-          <p class="help is-danger" v-if="errors.email">{{ errors.email.join(', ')}}</p>
-        </div>
-
-        <hr />
-
         <password-toggle v-model="old_password" :required="false" placeholder="Your old password." label="Old password">
           <template slot="errors-slot">
             <p class="help is-danger" v-if="errors.old_password">{{ errors.old_password.join(', ')}}</p>
@@ -66,8 +40,6 @@ export default {
   data () {
     return {
       user: {
-        name: '',
-        email: '',
         password: ''
       },
       errors: {},
@@ -91,19 +63,16 @@ export default {
         return
       }
 
-      const obj = { user: {} }
-      for (const key of Object.keys(this.user)) if (this.user[key]) obj.user[key] = this.user[key]
-      if (this.user.password) {
-        obj.old_password = this.old_password
-        obj.user.old_password = this.old_password
-        obj.user.password_copy = this.password_confirmation
+      const body = {
+        old_password: this.old_password,
+        password: this.user.password
       }
 
       this.isSaving = true
-      this.axios.put(this.services['oms-core-elixir'] + '/user/', obj).then(() => {
+      this.axios.put(this.services['oms-core-elixir'] + '/members/me/password', body).then(() => {
         this.isSaving = false
 
-        this.$root.showSuccess('User is saved.')
+        this.$root.showSuccess('Password is updated.')
 
         return this.$router.push({
           name: 'oms.members.view',
@@ -129,7 +98,7 @@ export default {
   computed: mapGetters(['services']),
   mounted () {
     this.axios.get(this.services['oms-core-elixir'] + '/members/me').then((response) => {
-      this.user = response.data.data.user
+      this.user = response.data.data
       this.user.password = ''
       this.isLoading = false
     }).catch((err) => {

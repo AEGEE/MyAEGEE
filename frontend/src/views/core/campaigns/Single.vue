@@ -60,6 +60,16 @@
                 <span class="icon"><font-awesome-icon icon="edit" /></span>
               </router-link>
 
+              <router-link  v-if="can.viewMembers && !$route.params.body_id" :to="{ name: 'oms.campaigns.members', params: { id: campaign.id } }" class="button">
+                <span>View members</span>
+                <span class="icon"><font-awesome-icon icon="users" /></span>
+              </router-link>
+
+              <router-link  v-if="can.viewMembers && $route.params.body_id" :to="{ name: 'oms.bodies.campaigns.members', params: { body_id: campaign.autojoin_body_id, id: campaign.id } }" class="button">
+                <span>View members</span>
+                <span class="icon"><font-awesome-icon icon="users" /></span>
+              </router-link>
+
               <button v-if="can.delete" class="button is-danger" @click="askDeleteCampaign()">
                 <span>Delete campaign</span>
                 <span class="icon"><font-awesome-icon icon="times" /></span>
@@ -68,53 +78,6 @@
           </article>
         </div>
       </article>
-
-      <p class="subtitle">Submissions</p>
-
-      <div class="field">
-        <label class="label">Search by name or surname</label>
-        <div class="field has-addons">
-          <div class="control is-expanded">
-            <input class="input" type="text" v-model="query" placeholder="Search by name or surname" />
-          </div>
-        </div>
-      </div>
-
-      <b-table
-        :data="filteredSubmissions"
-        paginated
-        :per-page="limit"
-        default-sort="id"
-        default-sort-direction="desc">
-        <template slot-scope="props">
-          <b-table-column field="user.member_id" label="#" numeric sortable>
-            {{ props.row.user.member_id }}
-          </b-table-column>
-
-          <b-table-column field="first_name" label="User" sortable>
-            <router-link v-if="can.viewMember && props.row.mail_confirmed" :to="{ name: 'oms.members.view', params: { id: props.row.user.member_id } }">
-              {{ props.row.first_name }} {{ props.row.last_name }}
-            </router-link>
-            <span v-else>
-              {{ props.row.first_name }} {{ props.row.last_name }}
-            </span>
-          </b-table-column>
-
-          <b-table-column field="motivation" label="Motivation">
-            {{ props.row.motivation }}
-          </b-table-column>
-
-          <b-table-column field="mail_confirmed" label="Email confirmed?" sortable>
-            <span class="tag is-small" :class="props.row.mail_confirmed ? 'is-primary' : 'is-danger'">
-              {{ props.row.mail_confirmed | beautify }}
-            </span>
-          </b-table-column>
-        </template>
-
-        <template slot="empty">
-          <empty-table-stub />
-        </template>
-      </b-table>
     </div>
 
     <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
@@ -134,7 +97,6 @@ export default {
         description_long: '',
         id: null,
         url: null,
-        submissions: [],
         autojoin_body_id: null,
         autojoin_body: null,
         active: null
@@ -146,7 +108,7 @@ export default {
       can: {
         edit: false,
         delete: false,
-        viewMember: false
+        viewMembers: false
       }
     }
   },
@@ -162,7 +124,7 @@ export default {
       })
     },
     deleteCampaign () {
-      this.axios.delete(this.services['oms-core-elixir'] + '/backend_campaigns/' + this.$route.params.id).then(() => {
+      this.axios.delete(this.services['oms-core-elixir'] + '/campaigns/' + this.$route.params.id).then(() => {
         this.$root.showSuccess('Campaign is deleted.')
         this.$router.push({ name: 'oms.campaigns.list' })
       }).catch((err) => this.$root.showError('Could not delete campaign', err))
@@ -170,7 +132,7 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(this.services['oms-core-elixir'] + '/backend_campaigns/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['oms-core-elixir'] + '/campaigns/' + this.$route.params.id).then((response) => {
       this.campaign = response.data.data
 
       const requests = [
@@ -184,11 +146,13 @@ export default {
 
       return Promise.all(requests)
     }).then((responses) => {
-      this.permissions = responses[0].data.data
+      this.permissions = responses
+        .map((response) => response.data.data)
+        .flat()
 
-      this.can.viewMember = responses.some(responseList => responseList.data.data.some(permission => permission.combined.endsWith('view:member')))
-      this.can.edit = responses.some(responseList => responseList.data.data.some(permission => permission.combined.endsWith('update:campaign')))
-      this.can.delete = responses.some(responseList => responseList.data.data.some(permission => permission.combined.endsWith('delete:campaign')))
+      this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
+      this.can.edit = this.permissions.some(permission => permission.combined.endsWith('update:campaign'))
+      this.can.delete = this.permissions.some(permission => permission.combined.endsWith('delete:campaign'))
 
       this.isLoading = false
     }).catch((err) => {
@@ -205,12 +169,7 @@ export default {
     ...mapGetters({
       loginUser: 'user',
       services: 'services'
-    }),
-    filteredSubmissions () {
-      const queryLowerCase = this.query.toLowerCase()
-
-      return this.campaign.submissions.filter(submission => submission.first_name.toLowerCase().includes(queryLowerCase) || submission.last_name.toLowerCase().includes(queryLowerCase))
-    }
+    })
   }
 }
 </script>

@@ -8,17 +8,17 @@
       <div class="field">
         <label class="label">Position</label>
         <div class="control">
-          <input class="input" type="text" v-model="member.position" />
+          <input class="input" type="text" v-model="membership.position" />
         </div>
         <p class="help is-danger" v-if="userErrors.position">{{ userErrors.position.join(', ')}}</p>
       </div>
 
-      <div class="field">
+      <!-- <div class="field">
         <label class="label">Circle admin?
-          <input class="checkbox" type="checkbox" v-model="member.circle_admin" />
+          <input class="checkbox" type="checkbox" v-model="user.circle_admin" />
         </label>
         <p class="help is-danger" v-if="userErrors.circle_admin">{{ userErrors.circle_admin.join(', ')}}</p>
-      </div>
+      </div> -->
     </section>
     <footer class="modal-card-foot">
       <button class="button is-primary" @click="updateMembership()">Save changes</button>
@@ -30,7 +30,7 @@
 <script>
 export default {
   name: 'EditMemberPositionModal',
-  props: ['circle', 'member', 'services', 'showSuccess', 'showError'],
+  props: ['circle', 'membership', 'services', 'showSuccess', 'showError'],
   data () {
     return {
       userErrors: {}
@@ -40,8 +40,8 @@ export default {
     updateMembership () {
       this.isLoading = true
 
-      this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members/' + this.member.id, {
-        circle_membership: this.member
+      this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members/' + this.membership.id, {
+        position: this.membership.position
       }).then(() => {
         this.showSuccess('Membership is updated')
         this.isLoading = false

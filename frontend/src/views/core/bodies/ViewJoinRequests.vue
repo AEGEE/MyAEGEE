@@ -20,8 +20,8 @@
         <b-table :data="members" :loading="isLoading" narrowed>
           <template slot-scope="props">
             <b-table-column field="first_name" label="Name and surname" sortable>
-              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.member_id } }">
-                {{ props.row.member.first_name }} {{ props.row.member.last_name }}
+              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
+                {{ props.row.user.first_name }} {{ props.row.user.last_name }}
               </router-link>
             </b-table-column>
 
@@ -34,7 +34,7 @@
             </b-table-column>
 
             <b-table-column label="Approve">
-              <div class="field" v-if="!props.row.approved">
+              <div class="field" v-if="props.row.status === 'pending'">
                 <div class="control">
                   <a class="button is-small is-info" @click="askSetMemberApproved(props.row, true)">
                     <span class="icon"><font-awesome-icon icon="plus" /></span>
@@ -45,7 +45,7 @@
             </b-table-column>
 
             <b-table-column label="Reject">
-              <div class="field" v-if="!props.row.approved">
+              <div class="field" v-if="props.row.status === 'pending'">
                 <div class="control">
                   <a class="button is-small is-danger" @click="askSetMemberApproved(props.row, false)">
                     <span class="icon"><font-awesome-icon icon="minus" /></span>
@@ -100,18 +100,18 @@ export default {
       }
 
       if (this.query) queryObj.query = this.query
-      if (!this.displayAccepted) queryObj.filter = { approved: false }
+      if (!this.displayAccepted) queryObj.status = 'pending'
       return queryObj
     },
     ...mapGetters(['services'])
   },
   methods: {
     askSetMemberApproved (member, approved) {
-      const title = (approved ? 'Approve' : 'Reject') + ' ' + member.member.first_name + ' ' + member.member.last_name
+      const title = (approved ? 'Approve' : 'Reject') + ' ' + member.user.first_name + ' ' + member.user.last_name
       const message = 'Are you sure you want to <b>'
         + (approved ? 'approve' : 'reject')
         + '</b> '
-        + member.member.first_name + ' ' + member.member.last_name + '?'
+        + member.user.first_name + ' ' + member.user.last_name + '?'
       const type = approved ? 'is-info' : 'is-danger'
 
       this.$buefy.dialog.confirm({
@@ -124,8 +124,8 @@ export default {
       })
     },
     setMemberApproved (member, approved) {
-      this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/join_requests/' + member.id, {
-        approved
+      this.axios.put(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/join-requests/' + member.id + '/status', {
+        status: (approved ? 'approved' : 'rejected')
       }).then(() => {
         this.$root.showSuccess('Join request is ' + (approved ? 'approved' : 'rejected') + '.')
         if (approved) {
@@ -147,7 +147,7 @@ export default {
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/join_requests', {
+      this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/join-requests', {
         params: this.queryObject, cancelToken: this.source.token
       }).then((response) => {
         this.members = this.members.concat(response.data.data)

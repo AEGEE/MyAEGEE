@@ -74,7 +74,7 @@
         <ul>
           <li v-for="childCircle in circle.child_circles" v-bind:key="childCircle.id">
             <span class="tag is-danger">{{ childCircle.name }}
-              <button class="delete is-small" @click="toggleChildCircle(childCircle, false)"></button>
+              <button class="delete is-small" @click="unsetAsParentCircle(childCircle)"></button>
             </span>
           </li>
           <li v-if="circle.child_circles.length === 0">
@@ -93,7 +93,7 @@
               open-on-focus="true"
               :loading="autoComplete.childCircles.loading"
               @input="query => fetchSomething(query, 'childCircles', 'circles')"
-              @select="childCircle => toggleChildCircle(childCircle, true)">
+              @select="childCircle => setAsParentCircle(childCircle)">
               <template slot-scope="props">
                 <div class="media">
                   <div class="media-content">
@@ -113,7 +113,7 @@
         <ul>
           <li v-for="permission in circle.permissions" v-bind:key="permission.id">
             <span class="tag is-danger">{{ permission.combined }}
-              <button class="delete is-small" @click="togglePermission(permission, false)"></button>
+              <button class="delete is-small" @click="deletePermission(permission)"></button>
             </span>
           </li>
           <li v-if="circle.permissions.length === 0">
@@ -132,7 +132,7 @@
               open-on-focus="true"
               :loading="autoComplete.permissions.loading"
               @input="query => fetchSomething(query, 'permissions', 'permissions')"
-              @select="permission => togglePermission(permission, true)">
+              @select="permission => addPermission(permission)">
               <template slot-scope="props">
                 <div class="media">
                   <div class="media-content">
@@ -152,6 +152,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import _ from 'lodash'
 
 export default {
   name: 'EditCircle',
@@ -227,75 +228,106 @@ export default {
         this.$root.showError('Could not ' + (circle ? 'set' : 'unset') + ' parent circle', err)
       })
     },
-    togglePermission (permission, add) {
+    addPermission (permission) {
       this.autoComplete.permissions.loading = true
 
-      const permissionsBefore = JSON.parse(JSON.stringify(this.circle.permissions))
-
-      if (add) {
-        this.circle.permissions.push(permission)
-      } else {
-        const index = this.circle.permissions.findIndex(perm => perm.id === permission.id)
-        this.circle.permissions.splice(index, 1)
-      }
-
-      this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/permissions', {
-        permissions: this.circle.permissions
+      this.axios.post(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/permissions', {
+        permission_id: permission.id
       }).then(() => {
         this.autoComplete.permissions.loading = false
+        this.circle.permissions.push(permission)
 
-        this.$root.showSuccess('Permission is ' + (add ? 'added. ' : 'removed.'))
+        this.$root.showSuccess('Permission is added.')
       }).catch((err) => {
         this.autoComplete.permissions.loading = false
-        this.circle.permissions = permissionsBefore // reverting permissions list
 
         if (err.response.status === 422) {
           const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
-          return this.$root.showError('Could not ' + (add ? 'add' : 'remove') + ' permission: ' + errors)
+          return this.$root.showError('Could not add permission: ' + errors)
         }
 
-        this.$root.showError('Could not ' + (add ? 'add' : 'remove') + ' permission', err)
+        this.$root.showError('Could not add permission', err)
       })
     },
-    toggleChildCircle (circle, add) {
+    deletePermission (permission) {
+      this.autoComplete.permissions.loading = true
+
+      this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/permissions/' + permission.id).then(() => {
+        this.autoComplete.permissions.loading = false
+        const index = this.circle.permissions.findIndex(perm => perm.id === permission.id)
+        this.circle.permissions.splice(index, 1)
+
+        this.$root.showSuccess('Permission is deleted.')
+      }).catch((err) => {
+        this.autoComplete.permissions.loading = false
+
+        if (err.response.status === 422) {
+          const errors = Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
+          return this.$root.showError('Could not delete permission: ' + errors)
+        }
+
+        this.$root.showError('Could not delete permission', err)
+      })
+    },
+    setAsParentCircle (circle) {
       this.autoComplete.childCircles.loading = true
 
-      const circlesBefore = JSON.parse(JSON.stringify(this.circle.child_circles))
-
-      if (add) {
+      this.axios.put(this.services['oms-core-elixir'] + '/circles/' + circle.id + '/parent', {
+        parent_circle_id: this.circle.id
+      }).then(() => {
+        this.autoComplete.childCircles.loading = false
         this.circle.child_circles.push(circle)
-      } else {
-        const index = this.circle.child_circles.findIndex(newCircle => newCircle.id === circle.id)
-        this.circle.child_circles.splice(index, 1)
-      }
 
-      this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/children', {
-        child_circles: this.circle.child_circles
+        this.$root.showSuccess('Child circle is added.')
+      }).catch((err) => {
+        this.autoComplete.childCircles.loading = false
+        if (err.response.status === 422) {
+          const errors = err.response.data.errors
+            ? Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
+            : err.response.data.message
+          return this.$root.showError('Could not add child circle: ' + errors)
+        }
+
+        this.$root.showError('Could not add child circle', err)
+      })
+    },
+    unsetAsParentCircle (circle) {
+      this.autoComplete.childCircles.loading = true
+
+      this.axios.put(this.services['oms-core-elixir'] + '/circles/' + circle.id + '/parent', {
+        parent_circle_id: null
       }).then(() => {
         this.autoComplete.childCircles.loading = false
 
-        this.$root.showSuccess('Child circle is ' + (add ? 'added. ' : 'removed.'))
+        const index = this.circle.child_circles.findIndex(newCircle => newCircle.id === circle.id)
+        this.circle.child_circles.splice(index, 1)
+
+        this.$root.showSuccess('Child circle is removed')
       }).catch((err) => {
         this.autoComplete.childCircles.loading = false
-        this.circle.child_circles = circlesBefore // reverting children list
 
         if (err.response.status === 422) {
           const errors = err.response.data.errors
             ? Object.keys(err.response.data.errors).map(key => err.response.data.errors[key].join(',')).join(',')
             : err.response.data.message
-          return this.$root.showError('Could not ' + (add ? 'add' : 'remove') + ' child circle: ' + errors)
+          return this.$root.showError('Could not remove child circle: ' + errors)
         }
 
-        this.$root.showError('Could not ' + (add ? 'add' : 'remove') + ' child circle', err)
+        this.$root.showError('Could not remove child circle', err)
       })
     },
     saveCircle () {
       this.isSaving = true
       this.errors = {}
 
+      const body = _.pick(this.circle, [
+        'name',
+        'description'
+      ])
+
       const promise = this.$route.params.id
-        ? this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id, { circle: this.circle })
-        : this.axios.post(this.services['oms-core-elixir'] + '/circles/', { circle: this.circle })
+        ? this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id, body)
+        : this.axios.post(this.services['oms-core-elixir'] + '/circles/', body)
 
       promise.then((response) => {
         this.isSaving = false
@@ -316,11 +348,6 @@ export default {
 
         this.$root.showError('Could not save circle', err)
       })
-    },
-    capitalize (value) {
-      if (!value) return ''
-      value = value.toString()
-      return value.charAt(0).toUpperCase() + value.slice(1)
     }
   },
   mounted () {
