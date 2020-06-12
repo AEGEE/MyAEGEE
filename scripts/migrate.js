@@ -1204,6 +1204,33 @@ async function migratePayments() {
     }
 }
 
+async function migrateSubmissionIds() {
+    const submissions = await client.query(`
+select users.id as user_id, members.id as member_id, submissions.campaign_id as campaign_id
+from users
+inner join members on users.id = members.user_id
+inner join submissions on submissions.user_id = users.id`);
+    logger.info('Creating submissions ids');
+    logger.info(`Length: ${submissions.rows.length}`);
+
+    for (const index in submissions.rows) {
+        const submission = submissions.rows[index];
+        if (!submission.member_id) {
+            continue;
+        }
+        try {
+            const userFromDb = await User.findByPk(submission.member_id);
+            await userFromDb.update({ campaign_id: submission.campaign_id });
+        } catch (err) {
+            logger.error({ submission, err }, 'Submission id creating error');
+        }
+
+        if (index % 100 === 0) {
+            logger.info(`Created submission id, index ${index}/${submissions.rows.length}`);
+        }
+    }
+}
+
 (async () => {
     client = new Client({
         connectionString: `postgres://postgres:${process.env.PG_PASSWORD}@postgres-oms-core-elixir:5432/omscore_dev`
@@ -1223,6 +1250,7 @@ async function migratePayments() {
     await migrateCirclePermissions();
     await migrateJoinRequests();
     await migratePayments();
+    await migrateSubmissionIds();
 
     logger.info('All done');
 
