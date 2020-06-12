@@ -270,7 +270,7 @@ function getBodiesListFromPermissions(result) {
         return [];
     }
 
-    return result.reduce((acc, val) => acc.concat(val), [])
+    return result
         .filter(elt => elt.body_id)
         .map(elt => elt.body_id)
         .filter((elt, index, array) => array.indexOf(elt) === index);

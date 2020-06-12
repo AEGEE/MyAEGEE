@@ -1,7 +1,11 @@
 {
     "success": true,
     "data": [{
-        "seo_url": "microservice",
+        "superadmin": true,
+        "name": "admin",
+        "inserted_at": "2018-05-03T23:12:01.111566",
+        "email": "admin@aegee.org",
+        "active": true,
         "primary_body_id": null,
         "primary_body": null,
         "phone": "+123456789",
@@ -12,17 +16,21 @@
         "date_of_birth": "2010-04-17",
         "address": "Europe",
         "about_me": "I am a microservice. I have a user account so the system can access itself from within, don't delete me."
-    }, {
-        "seo_url": "microservice",
+    },{
+        "superadmin": false,
+        "name": "not_admin",
+        "inserted_at": "2018-05-03T23:12:01.111566",
+        "email": "test@aegee.org",
+        "active": true,
         "primary_body_id": null,
         "primary_body": null,
         "phone": "+123456789",
-        "last_name": "Microservice 2",
+        "last_name": "random",
         "id": 2,
-        "gender": "machine",
-        "first_name": "Microservice",
+        "gender": "random",
+        "first_name": "random",
         "date_of_birth": "2010-04-17",
         "address": "Europe",
-        "about_me": "I am a microservice. I have a user account so the system can access itself from within, don't delete me."
+        "about_me": "random"
     }]
 }

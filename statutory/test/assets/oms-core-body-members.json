@@ -2,25 +2,20 @@
     "success": true,
     "data": [
         {
-            "member_id": 4,
-            "member": {
-                "user_id": 9,
-                "user": {
-                    "superadmin": false,
-                    "name": "paul.smits",
-                    "member_id": 4,
-                    "inserted_at": "2018-05-04T11:16:50.531076",
-                    "id": 9,
-                    "email": "paul.l.smits@gmail.com",
-                    "active": true
-                },
+            "user_id": 4,
+            "user": {
+                "superadmin": false,
+                "name": "paul.smits",
+                "inserted_at": "2018-05-04T11:16:50.531076",
+                "id": 9,
+                "email": "paul.l.smits@gmail.com",
+                "active": true,
                 "seo_url": "36125407_",
                 "primary_body_id": null,
                 "primary_body": null,
                 "phone": "+31649936487",
                 "last_name": "Smits",
                 "join_requests": null,
-                "id": 4,
                 "gender": "None",
                 "first_name": "Paul",
                 "date_of_birth": "1990-10-17",

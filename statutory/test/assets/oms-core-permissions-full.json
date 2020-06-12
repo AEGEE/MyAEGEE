@@ -8,7 +8,6 @@
         "description": "Set paid, cancelled or attended status for EPM statutory events. Would be useful for incoming organizers.",
         "combined": "global:manage_applications:epm",
         "circles": null,
-        "always_assigned": false,
         "action": "manage_applications"
     }, {
         "scope": "global",
@@ -18,7 +17,6 @@
         "description": "Create, edit and delete Agora statutory events.",
         "combined": "global:manage_event:agora",
         "circles": null,
-        "always_assigned": false,
         "action": "manage_event"
     }, {
         "scope": "global",
@@ -28,7 +26,6 @@
         "description": "See all applications for EPM statutory events.",
         "combined": "global:see_applications:epm",
         "circles": null,
-        "always_assigned": false,
         "action": "see_applications"
     }, {
         "scope": "global",
@@ -38,7 +35,6 @@
         "description": "Accept or reject applications for Agora statutory events. Would be useful for Chair Team.",
         "combined": "global:accept_applications:agora",
         "circles": null,
-        "always_assigned": false,
         "action": "accept_applications"
     }, {
         "scope": "global",
@@ -48,7 +44,6 @@
         "description": "See all applications for Agora statutory events.",
         "combined": "global:see_applications:agora",
         "circles": null,
-        "always_assigned": false,
         "action": "see_applications"
     }, {
         "scope": "global",
@@ -58,7 +53,6 @@
         "description": "Accept or reject applications for EPM statutory events. Would be useful for CD.",
         "combined": "global:accept_applications:epm",
         "circles": null,
-        "always_assigned": false,
         "action": "accept_applications"
     }, {
         "scope": "global",
@@ -68,7 +62,6 @@
         "description": "Set paid, cancelled or attended status for Agora statutory events. Would be useful for incoming organizers.",
         "combined": "global:manage_applications:agora",
         "circles": null,
-        "always_assigned": false,
         "action": "manage_applications"
     }, {
         "scope": "global",
@@ -78,7 +71,6 @@
         "description": "Create, edit and delete EPM statutory events.",
         "combined": "global:manage_event:epm",
         "circles": null,
-        "always_assigned": false,
         "action": "manage_event"
     }, {
       "scope": "global",
@@ -128,7 +120,6 @@
         "description": "Use massmailer.",
         "combined": "global:use_massmailer:agora",
         "circles": null,
-        "always_assigned": false,
         "action": "use_massmailer"
       }, {
         "scope": "global",
@@ -138,7 +129,6 @@
         "description": "Use massmailer.",
         "combined": "global:use_massmailer:epm",
         "circles": null,
-        "always_assigned": false,
         "action": "use_massmailer"
       }, {
         "scope": "global",
@@ -148,7 +138,6 @@
         "description": "Manage candidates",
         "combined": "global:manage_candidates:agora",
         "circles": null,
-        "always_assigned": false,
         "action": "manage_candidates"
       }, {
         "scope": "global",
@@ -158,7 +147,6 @@
         "description": "Update memberslist status",
         "combined": "global:update_memberslist_status:agora",
         "circles": null,
-        "always_assigned": false,
         "action": "update_memberslist_status"
       }, {
         "scope": "global",
@@ -168,7 +156,6 @@
         "description": "Manage plenaries",
         "combined": "global:manage_plenaries:agora",
         "circles": null,
-        "always_assigned": false,
         "action": "manage_plenaries"
       }, {
         "scope": "global",
@@ -178,7 +165,6 @@
         "description": "See plenaries",
         "combined": "global:see_plenaries:agora",
         "circles": null,
-        "always_assigned": false,
         "action": "see_plenaries"
       }, {
         "scope": "global",
@@ -188,7 +174,6 @@
         "description": "Mark plenary attendance",
         "combined": "global:mark_attendance:agora",
         "circles": null,
-        "always_assigned": false,
         "action": "mark_attendance"
       }, {
         "scope": "global",
@@ -198,7 +183,6 @@
         "description": "Mark fee_paid for memberslists",
         "combined": "global:set_memberslists_fee_paid:agora",
         "circles": null,
-        "always_assigned": false,
         "action": "set_memberslists_fee_paid"
       }, {
         "scope": "global",
@@ -208,7 +192,6 @@
         "description": "Mark fee_paid for memberslists",
         "combined": "global:manage_question_lines:agora",
         "circles": null,
-        "always_assigned": false,
         "action": "manage_question_lines"
       }]
 }

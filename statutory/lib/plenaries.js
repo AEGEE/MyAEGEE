@@ -224,7 +224,7 @@ exports.listPlenariesStats = async (req, res) => {
 
                     return [
                         body.id,
-                        body.legacy_key,
+                        body.code,
                         body.name,
                         body.type,
                         applicationsForBody.length,

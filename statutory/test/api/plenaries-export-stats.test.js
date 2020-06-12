@@ -482,7 +482,7 @@ describe('Plenaries exports', () => {
         expect(row.length).toEqual(9); // body ID, code, name, type, delegates count, avg%, 3 delegates %
 
         expect(row[0]).toEqual(regularUser.bodies[0].id);
-        expect(row[1]).toEqual(regularUser.bodies[0].legacy_key);
+        expect(row[1]).toEqual(regularUser.bodies[0].code);
         expect(row[2]).toEqual(regularUser.bodies[0].name);
         expect(row[3]).toEqual(regularUser.bodies[0].type);
         expect(row[4]).toEqual(3); // 3 delegates
@@ -542,7 +542,7 @@ describe('Plenaries exports', () => {
         expect(row.length).toEqual(6); // body ID, code, name, type, delegates count, avg%, 0 delegates %
 
         expect(row[0]).toEqual(regularUser.bodies[0].id);
-        expect(row[1]).toEqual(regularUser.bodies[0].legacy_key);
+        expect(row[1]).toEqual(regularUser.bodies[0].code);
         expect(row[2]).toEqual(regularUser.bodies[0].name);
         expect(row[3]).toEqual(regularUser.bodies[0].type);
         expect(row[4]).toEqual(0); // 3 delegates

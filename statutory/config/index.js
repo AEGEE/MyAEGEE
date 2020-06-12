@@ -11,11 +11,11 @@ const config = {
             database: process.env.DB_DATABASE || 'statutory',
         },
         core: {
-            url: 'http://oms-core-elixir',
-            port: 4000,
+            url: 'http://oms-core-js',
+            port: 8084,
             user: {
-                login: process.env.CORE_LOGIN || 'admin@aegee.org',
-                password: process.env.CORE_PASSWORD || '5ecr3t'
+                login: process.env.CORE_LOGIN || 'admin@example.com',
+                password: process.env.CORE_PASSWORD || '5ecr3t5ecr3t'
             }
         },
         mailer: {
