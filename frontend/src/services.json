@@ -1,5 +1,5 @@
 {
-  "oms-core-elixir": "/api/core",
+  "oms-core-elixir": "/services/oms-core-elixir/api",
   "oms-mailer": "/services/oms-mailer/api",
   "oms-events": "/services/oms-events/api",
   "oms-statutory": "/services/oms-statutory/api",
