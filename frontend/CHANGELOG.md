@@ -1,3 +1,15 @@
+# [1.0.0](https://github.com/AEGEE/oms-frontend/compare/0.48.0...1.0.0) (2020-06-12)
+
+
+### Features
+
+* **general:** bump version to 1.x.x ([#404](https://github.com/AEGEE/oms-frontend/issues/404)) ([4940376](https://github.com/AEGEE/oms-frontend/commit/494037685845c6569f66f49c13db3f3962e765e0))
+
+
+### BREAKING CHANGES
+
+* **general:** bump version to 1.x.x
+
 # [0.48.0](https://github.com/AEGEE/oms-frontend/compare/0.47.0...0.48.0) (2020-06-12)
 
 
