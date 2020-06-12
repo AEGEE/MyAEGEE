@@ -1,3 +1,15 @@
+# [1.0.0](https://github.com/AEGEE/oms-statutory/compare/0.35.0...1.0.0) (2020-06-12)
+
+
+### Features
+
+* **general:** new core refactor ([#271](https://github.com/AEGEE/oms-statutory/issues/271)) ([1f89d80](https://github.com/AEGEE/oms-statutory/commit/1f89d80c473b63bd1d7bf017d41f25358fa9cbd8))
+
+
+### BREAKING CHANGES
+
+* **general:** new core refactor
+
 # [0.35.0](https://github.com/AEGEE/oms-statutory/compare/0.34.2...0.35.0) (2020-06-08)
 
 
