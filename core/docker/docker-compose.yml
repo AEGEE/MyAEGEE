@@ -38,8 +38,8 @@ services:
         labels:
             - "traefik.backend=oms-core-js"
             - "traefik.port=8084"
-            - "traefik.frontend.rule=PathPrefix:/api/core;PathPrefixStrip:/api/core"
-            - "traefik.frontend.priority=110"
+            - "traefik.frontend.rule=PathPrefixStripRegex:/services/oms-core-elixir/api;"
+            - "traefik.frontend.priority=200"
             - "traefik.enable=true"
 
 volumes:
