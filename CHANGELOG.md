@@ -1,3 +1,10 @@
+## [1.21.1](https://github.com/AEGEE/oms-core-js/compare/1.21.0...1.21.1) (2020-06-12)
+
+
+### Bug Fixes
+
+* **permissions:** fix POST /my_permissions endpoint ([#20](https://github.com/AEGEE/oms-core-js/issues/20)) ([5479906](https://github.com/AEGEE/oms-core-js/commit/5479906ef026e07610bc55df6cb6ecf8450799f3))
+
 # [1.21.0](https://github.com/AEGEE/oms-core-js/compare/1.20.1...1.21.0) (2020-06-08)
 
 
