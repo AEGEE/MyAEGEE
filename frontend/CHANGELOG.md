@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/AEGEE/oms-frontend/compare/1.0.0...1.0.1) (2020-06-13)
+
+
+### Bug Fixes
+
+* **general:** fix join request date + status page ([#407](https://github.com/AEGEE/oms-frontend/issues/407)) ([2f47fbc](https://github.com/AEGEE/oms-frontend/commit/2f47fbcfd54654cde70f0d711197f771ed1fada9))
+
 # [1.0.0](https://github.com/AEGEE/oms-frontend/compare/0.48.0...1.0.0) (2020-06-12)
 
 
