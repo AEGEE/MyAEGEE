@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/AEGEE/oms-events/compare/1.0.0...1.0.1) (2020-06-13)
+
+
+### Bug Fixes
+
+* **logging:** write only specific fields for user logging ([#264](https://github.com/AEGEE/oms-events/issues/264)) ([7c024cd](https://github.com/AEGEE/oms-events/commit/7c024cdd730b6aa6a7689fa46450d54dd2b21650))
+
 # [1.0.0](https://github.com/AEGEE/oms-events/compare/0.27.0...1.0.0) (2020-06-12)
 
 
