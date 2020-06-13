@@ -17,7 +17,7 @@
           </thead>
           <tbody>
             <tr v-for="(value, service) in statuses" v-bind:key="service">
-              <td>{{ service }}</td>
+              <td>{{ value.name || service }}</td>
               <td>{{ value.version }}</td>
               <td>{{ value.latestVersion }}</td>
               <td v-if="value.changelog">
@@ -45,12 +45,15 @@ export default {
   data () {
     return {
       statuses: {
-        'oms-core-js': {
+        'oms-core-elixir': {
+          name: 'oms-core-js',
           roundTrip: null,
           version: '-',
           latestVersion: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/oms-core-js/blob/master/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/oms-core-js/blob/master/CHANGELOG.md',
+          healthcheckLink: '/services/oms-core-elixir/api/healthcheck',
+          githubLink: 'https://api.github.com/repos/AEGEE/oms-core-js/contents/package.json'
         },
         'oms-mailer': {
           roundTrip: null,
@@ -103,7 +106,10 @@ export default {
     },
     fetchHealthcheckForService (service) {
       const timeStart = Date.now()
-      this.axios.get(this.services[service] + '/healthcheck').then((response) => {
+
+      const healthcheckUrl = this.statuses[service].healthcheckLink || (this.services[service] + '/healthcheck')
+
+      this.axios.get(healthcheckUrl).then((response) => {
         this.statuses[service].roundTrip = Date.now() - timeStart
         this.statuses[service].isAlive = true
         if (response.data && response.data.data && response.data.data.version) {
@@ -116,7 +122,9 @@ export default {
       })
     },
     fetchLatestVersionForService (service) {
-      fetch('https://api.github.com/repos/AEGEE/' + service + '/contents/package.json')
+      const githubLink = this.statuses[service].githubLink || ('https://api.github.com/repos/AEGEE/' + service + '/contents/package.json')
+
+      fetch(githubLink)
         .then((res) => res.json())
         .then((response) => {
           const content = window.atob(response.content)

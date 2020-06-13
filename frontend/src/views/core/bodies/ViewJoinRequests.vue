@@ -29,8 +29,8 @@
               {{ props.row.motivation }}
             </b-table-column>
 
-            <b-table-column field="inserted_at" label="Date" sortable>
-              {{ props.row.inserted_at | datetime }}
+            <b-table-column field="created_at" label="Date" sortable>
+              {{ props.row.created_at | datetime }}
             </b-table-column>
 
             <b-table-column label="Approve">
