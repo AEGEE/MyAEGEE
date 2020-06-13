@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/AEGEE/oms-statutory/compare/1.0.0...1.0.1) (2020-06-13)
+
+
+### Bug Fixes
+
+* **logging:** write only specific fields for user logging ([#300](https://github.com/AEGEE/oms-statutory/issues/300)) ([e419e91](https://github.com/AEGEE/oms-statutory/commit/e419e91b9d43ed929cd953dc9f7175dc672c5791))
+
 # [1.0.0](https://github.com/AEGEE/oms-statutory/compare/0.35.0...1.0.0) (2020-06-12)
 
 
