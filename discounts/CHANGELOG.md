@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/AEGEE/oms-discounts/compare/1.0.0...1.0.1) (2020-06-13)
+
+
+### Bug Fixes
+
+* **logging:** write only specific fields for user logging ([#81](https://github.com/AEGEE/oms-discounts/issues/81)) ([a2b0116](https://github.com/AEGEE/oms-discounts/commit/a2b01163edcc4de167f8e8ad884652f43cf5ad8d))
+
 # [1.0.0](https://github.com/AEGEE/oms-discounts/compare/0.12.0...1.0.0) (2020-06-12)
 
 
