@@ -12,8 +12,8 @@ module.exports.login = async (req, res) => {
     const user = await User.scope('withPassword').findOne({
         where: {
             [Sequelize.Op.or]: {
-                email: username,
-                username
+                email: { [Sequelize.Op.iLike]: username },
+                username: { [Sequelize.Op.iLike]: username }
             }
         }
     });
