@@ -108,6 +108,8 @@ export default {
         date_of_birth: null,
         gender: null,
         phone: null,
+        address: null,
+        about_me: null,
         user: {},
         bodies: []
       },

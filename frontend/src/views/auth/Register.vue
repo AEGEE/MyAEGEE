@@ -8,7 +8,7 @@
             <label class="label">Username</label>
             <div class="control">
               <input
-                v-model="submission.username"
+                v-model="user.username"
                 required
                 class="input"
                 type="text"
@@ -17,14 +17,14 @@
                 title="Username can only contain English letters, numbers, dots and dashes."
                 placeholder="You will be able to login with it." />
             </div>
-             <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
+             <p class="help is-danger" v-if="errors.username">{{ errors.username.join(', ')}}</p>
           </div>
 
           <div class="field">
             <label class="label">Email</label>
             <div class="control">
               <input
-                v-model="submission.email"
+                v-model="user.email"
                 required
                 class="input"
                 type="email"
@@ -37,7 +37,7 @@
           <div class="field">
             <label class="label">Password</label>
             <div class="control">
-              <input v-model="submission.password" data-cy="password" required class="input" type="password" minlength="8" placeholder="Type a secure password.">
+              <input v-model="user.password" data-cy="password" required class="input" type="password" minlength="8" placeholder="Type a secure password.">
             </div>
              <p class="help is-danger" v-if="errors.password">{{ errors.password.join(', ')}}</p>
           </div>
@@ -45,7 +45,7 @@
           <div class="field">
             <label class="label">Password confirmation</label>
             <div class="control">
-              <input v-model="submission.password_copy" required data-cy="password-confirmation" class="input" type="password" minlength="8" placeholder="Repeat your password.">
+              <input v-model="user.password_copy" required data-cy="password-confirmation" class="input" type="password" minlength="8" placeholder="Repeat your password.">
             </div>
              <p class="help is-danger" v-if="errors.password_copy">{{ errors.password_copy.join(', ')}}</p>
           </div>
@@ -55,7 +55,7 @@
           <div class="field">
             <label class="label">First name</label>
             <div class="control">
-              <input v-model="submission.first_name" required data-cy="first-name" class="input" type="text" placeholder="E.g. Stephen">
+              <input v-model="user.first_name" required data-cy="first-name" class="input" type="text" placeholder="E.g. Stephen">
             </div>
              <p class="help is-danger" v-if="errors.first_name">{{ errors.first_name.join(', ')}}</p>
           </div>
@@ -63,9 +63,46 @@
           <div class="field">
             <label class="label">Last name</label>
             <div class="control">
-              <input v-model="submission.last_name" required data-cy="last-name" class="input" type="text" placeholder="E.g. Hawking">
+              <input v-model="user.last_name" required data-cy="last-name" class="input" type="text" placeholder="E.g. Hawking">
             </div>
              <p class="help is-danger" v-if="errors.last_name">{{ errors.last_name.join(', ')}}</p>
+          </div>
+
+          <div class="field">
+            <label class="label">Phone</label>
+            <div class="control has-icons-left">
+              <span class="icon is-small is-left"><font-awesome-icon icon="phone" /></span>
+              <input class="input" data-cy="phone" type="text" v-model="user.phone" required/>
+            </div>
+            <p class="help is-danger" v-if="errors.phone">{{ errors.phone.join(', ')}}</p>
+          </div>
+
+          <div class="field" data-cy="date_of_birth">
+            <label class="label">Birthday</label>
+            <b-datepicker :date-formatter="formatDate" :date-parser="parseDate" v-model="birthday" @input="transformBirthday()" />
+            <p class="help is-danger" v-if="errors.date_of_birth">{{ errors.date_of_birth.join(', ')}}</p>
+          </div>
+
+          <select-or-custom v-model="user.gender" data-cy="gender" :values="['Male', 'Female']" label="Gender" required>
+            <template slot="errors-slot">
+              <p class="help is-danger" v-if="errors.gender">{{ errors.gender.join(', ')}}</p>
+            </template>
+          </select-or-custom>
+
+          <div class="field">
+            <label class="label">Address</label>
+            <div class="control">
+              <input class="input" data-cy="address" type="text" v-model="user.address" required/>
+            </div>
+            <p class="help is-danger" v-if="errors.address">{{ errors.address.join(', ')}}</p>
+          </div>
+
+          <div class="field">
+            <label class="label">About me</label>
+            <div class="control">
+              <input class="input" data-cy="about_me" type="text" v-model="user.about_me"/>
+            </div>
+            <p class="help is-danger" v-if="errors.about_me">{{ errors.about_me.join(', ')}}</p>
           </div>
 
           <div class="field">
@@ -90,24 +127,40 @@
 <script>
 
 import { mapGetters } from 'vuex'
+import moment from 'moment'
+import _ from 'lodash'
 
 export default {
   name: 'Register',
   data () {
     return {
-      submission: {
+      user: {
         username: '',
         password: '',
         first_name: '',
         last_name: '',
-        email: ''
+        email: '',
+        date_of_birth: null,
+        gender: null,
+        phone: null
       },
+      birthday: null,
       agreedToPrivacyPolicy: false,
       errors: {}
     }
   },
   computed: mapGetters(['services']),
   methods: {
+    /* istanbul ignore next */
+    parseDate (date) {
+      return moment(date, 'YYYY-MM-DD').toDate()
+    },
+    formatDate (date) {
+      return moment(date).format('YYYY-MM-DD')
+    },
+    transformBirthday () {
+      this.user.date_of_birth = moment(this.birthday).format('YYYY-MM-DD')
+    },
     register () {
       this.errors = {}
 
@@ -116,12 +169,28 @@ export default {
         return
       }
 
-      if (this.submission.password !== this.submission.password_copy) {
+      if (!this.user.date_of_birth) {
+        this.errors.date_of_birth = ['Please enter your date of birth.']
+        return
+      }
+
+      if (this.user.password !== this.user.password_copy) {
         this.errors.password = ['Passwords do not match.']
         return
       }
 
-      this.axios.post(this.services['oms-core-elixir'] + '/signup/' + this.$route.params.id, this.submission).then(() => {
+      const body = _.pick(this.user, [
+        'username',
+        'password',
+        'first_name',
+        'last_name',
+        'email',
+        'date_of_birth',
+        'gender',
+        'phone'
+      ])
+
+      this.axios.post(this.services['oms-core-elixir'] + '/signup/' + this.$route.params.id, body).then(() => {
         this.$root.showSuccess('Your submission is registered.')
         return this.$router.push({ name: 'oms.confirm_token' })
       }).catch((err) => {
