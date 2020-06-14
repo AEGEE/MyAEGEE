@@ -1,3 +1,10 @@
+## [1.21.2](https://github.com/AEGEE/oms-core-js/compare/1.21.1...1.21.2) (2020-06-14)
+
+
+### Bug Fixes
+
+* **login:** allow case-insensitive login ([#22](https://github.com/AEGEE/oms-core-js/issues/22)) ([2348e4a](https://github.com/AEGEE/oms-core-js/commit/2348e4acabb757157e6c26910157a9c3f843a589))
+
 ## [1.21.1](https://github.com/AEGEE/oms-core-js/compare/1.21.0...1.21.1) (2020-06-12)
 
 
