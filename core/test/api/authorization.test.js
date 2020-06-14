@@ -162,4 +162,42 @@ describe('Authorization', () => {
         expect(res.body).toHaveProperty('refresh_token');
         expect(res.body).not.toHaveProperty('errors');
     });
+
+    test('should find by email case-insensitive', async () => {
+        await generator.createUser({ password: 'testtest', email: 'admin@example.com' });
+        const res = await request({
+            uri: '/login/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                username: 'ADMIN@EXAMPLE.COM',
+                password: 'testtest'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('access_token');
+        expect(res.body).toHaveProperty('refresh_token');
+        expect(res.body).not.toHaveProperty('errors');
+    });
+
+    test('should find by username case-insensitive', async () => {
+        await generator.createUser({ password: 'testtest', username: 'admin' });
+        const res = await request({
+            uri: '/login/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                username: 'ADMIN',
+                password: 'testtest'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('access_token');
+        expect(res.body).toHaveProperty('refresh_token');
+        expect(res.body).not.toHaveProperty('errors');
+    });
 });
