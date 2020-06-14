@@ -58,6 +58,7 @@ import { faCommentAlt } from '@fortawesome/free-solid-svg-icons/faCommentAlt'
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle'
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons/faTrashAlt'
 import { faCoins } from '@fortawesome/free-solid-svg-icons/faCoins'
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle'
 
 
 library.add(faTimesCircle)
@@ -116,5 +117,6 @@ library.add(faCommentAlt)
 library.add(faInfoCircle)
 library.add(faTrashAlt)
 library.add(faCoins)
+library.add(faExclamationCircle)
 
 export default FontAwesomeIcon

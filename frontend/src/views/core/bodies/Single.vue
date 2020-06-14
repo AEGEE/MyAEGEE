@@ -217,7 +217,7 @@ export default {
       })
     },
     deleteBody () {
-      this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then(() => {
+      this.axios.put(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/status', { status: 'deleted' }).then(() => {
         this.$root.showSuccess('Body is deleted.')
         this.$router.push({ name: 'oms.bodies.list' })
       }).catch((err) => this.$root.showError('Could not delete body', err))
