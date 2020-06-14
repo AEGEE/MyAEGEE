@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/AEGEE/oms-frontend/compare/1.0.1...1.0.2) (2020-06-14)
+
+
+### Bug Fixes
+
+* **bodies:** allow setting bodies as deleted ([#408](https://github.com/AEGEE/oms-frontend/issues/408)) ([84227e4](https://github.com/AEGEE/oms-frontend/commit/84227e4c7e330ed82df39065cae39735e7a241a0))
+
 ## [1.0.1](https://github.com/AEGEE/oms-frontend/compare/1.0.0...1.0.1) (2020-06-13)
 
 
