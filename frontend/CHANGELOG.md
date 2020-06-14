@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/AEGEE/oms-frontend/compare/1.0.2...1.0.3) (2020-06-14)
+
+
+### Bug Fixes
+
+* **register:** fix registering ([#409](https://github.com/AEGEE/oms-frontend/issues/409)) ([7f64c21](https://github.com/AEGEE/oms-frontend/commit/7f64c21d59f6a8c0a769d9862c31d30711834ec5))
+
 ## [1.0.2](https://github.com/AEGEE/oms-frontend/compare/1.0.1...1.0.2) (2020-06-14)
 
 
