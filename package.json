@@ -33,10 +33,10 @@
     "lint:fix": "node_modules/.bin/eslint --fix .",
     "lint-staged": "lint-staged",
     "db:create": "sequelize db:create",
-    "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate; rm -f .seed-executed",
+    "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate; rm -f state/.seed-executed-$NODE_ENV",
     "db:migrate": "sequelize db:migrate",
-    "db:seed": "LOGLEVEL=info node --experimental-repl-await scripts/seed.js && touch .seed-executed",
-    "db:clear": "LOGLEVEL=info node  --experimental-repl-await scripts/clear.js; rm -f .seed-executed",
+    "db:seed": "LOGLEVEL=info node --experimental-repl-await scripts/seed.js && touch state/.seed-executed-$NODE_ENV",
+    "db:clear": "LOGLEVEL=info node  --experimental-repl-await scripts/clear.js; rm -f state/.seed-executed-$NODE_ENV",
     "cli": "node --experimental-repl-await -r ./cli.js",
     "open-coverage": "open-cli coverage/lcov-report/index.html"
   },

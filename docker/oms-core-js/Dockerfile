@@ -10,6 +10,7 @@ RUN apt-get install netcat -y
 COPY ./docker/oms-core-js/bootstrap.sh /usr/app/scripts/bootstrap.sh
 COPY ./docker/oms-core-js/wait.sh /usr/app/scripts/wait.sh
 COPY . /usr/app/src
+RUN mkdir /usr/app/src/state
 
 RUN chown -R node:node /usr/app
 

@@ -17,6 +17,8 @@ const {
     PasswordReset
 } = require('../models');
 
+const seedStatePath = path.resolve(__dirname, '../state/.seed-executed-' + (process.env.NODE_ENV || 'development'));
+
 const data = {};
 
 async function createAdmin() {
@@ -936,7 +938,7 @@ async function createCampaign() {
     });
 }
 
-if (fs.existsSync(path.resolve(__dirname, '../.seed-executed'))) {
+if (fs.existsSync(seedStatePath)) {
     logger.info('[seeds         ]: Seed was executed already, no need to run it again.');
     process.exit(0);
 }
