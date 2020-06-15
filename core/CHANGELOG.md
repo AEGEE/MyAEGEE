@@ -1,3 +1,10 @@
+## [1.21.3](https://github.com/AEGEE/oms-core-js/compare/1.21.2...1.21.3) (2020-06-15)
+
+
+### Bug Fixes
+
+* **environment:** store seed data. Fixes MEMB-854 ([#21](https://github.com/AEGEE/oms-core-js/issues/21)) ([8fac626](https://github.com/AEGEE/oms-core-js/commit/8fac6260a7b8499beb5fc3cb34bf61c103392f37))
+
 ## [1.21.2](https://github.com/AEGEE/oms-core-js/compare/1.21.1...1.21.2) (2020-06-14)
 
 
