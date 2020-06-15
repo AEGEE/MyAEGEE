@@ -1,3 +1,10 @@
+## [1.21.4](https://github.com/AEGEE/oms-core-js/compare/1.21.3...1.21.4) (2020-06-15)
+
+
+### Bug Fixes
+
+* **logging:** hide more sensitive stuff ([#23](https://github.com/AEGEE/oms-core-js/issues/23)) ([c76e9f4](https://github.com/AEGEE/oms-core-js/commit/c76e9f49d4ac561f255c613e189497c1980df693))
+
 ## [1.21.3](https://github.com/AEGEE/oms-core-js/compare/1.21.2...1.21.3) (2020-06-15)
 
 
