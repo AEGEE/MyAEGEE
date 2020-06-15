@@ -18,6 +18,7 @@ services:
         volumes:
             - oms-core-js-media:/usr/app/media
             - shared:/usr/app/shared:ro
+            - oms-core-js-state:/usr/app/src/state:rw
         depends_on:
             - postgres-oms-core-js
         expose:
@@ -48,6 +49,8 @@ volumes:
     oms-core-js-media:
         driver: local
     shared:
+        driver: local
+    oms-core-js-state:
         driver: local
 
 networks:
