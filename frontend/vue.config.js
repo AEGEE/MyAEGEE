@@ -18,6 +18,36 @@ module.exports = {
         'vuex-store': path.resolve(__dirname, 'src/store')
       }
     },
+    // https://stackoverflow.com/a/55372086/1206421
+    optimization: {
+      splitChunks: {
+        cacheGroups: {
+          app: {
+            chunks: 'all',
+            name: 'all',
+            test: /[\\/]src[\\/](.*)[\\/]/,
+          },
+          vendor: {
+            chunks: 'all',
+            name: 'vendor',
+            test: /[\\/]node_modules[\\/](.*)[\\/]/,
+          },
+          styles: {
+            name: 'styles',
+            test: /\.s?css$/,
+            chunks: 'all',
+            minChunks: 1,
+            reuseExistingChunk: true,
+            enforce: true,
+          }
+        }
+      }
+    },
+    // so it'd work with Webpack 4, which doesn't like [contenthash], which is there by default
+    output: {
+      filename: '[name].[hash].js',
+      chunkFilename: '[name].[hash].js'
+    }
   },
   chainWebpack: (config) => {
     if (process.env.NODE_ENV === 'test') {
