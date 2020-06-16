@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/AEGEE/oms-frontend/compare/1.0.3...1.0.4) (2020-06-16)
+
+
+### Bug Fixes
+
+* **webpack:** optimize bundle size. Fixes MEMB-758 ([#417](https://github.com/AEGEE/oms-frontend/issues/417)) ([c98127e](https://github.com/AEGEE/oms-frontend/commit/c98127e27d982c5390afa9f1496a9000e8d76c33))
+
 ## [1.0.3](https://github.com/AEGEE/oms-frontend/compare/1.0.2...1.0.3) (2020-06-14)
 
 
