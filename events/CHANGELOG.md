@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/AEGEE/events/compare/1.0.1...1.1.0) (2020-06-18)
+
+
+### Features
+
+* **docker:** use shorter prefix ([#265](https://github.com/AEGEE/events/issues/265)) ([e1b70bc](https://github.com/AEGEE/events/commit/e1b70bc200b16e673d90102a64ff9a79ce04f324))
+
 ## [1.0.1](https://github.com/AEGEE/oms-events/compare/1.0.0...1.0.1) (2020-06-13)
 
 
