@@ -1,7 +1,7 @@
 {
-  "name": "oms-events",
+  "name": "events",
   "version": "1.0.1",
-  "description": "Events-module of the OMS",
+  "description": "Events module of MyAEGEE",
   "main": "server.js",
   "directories": {
     "test": "test"
@@ -39,9 +39,9 @@
   "author": "Nico Westerbeck",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/AEGEE/oms-events/issues"
+    "url": "https://github.com/AEGEE/events/issues"
   },
-  "homepage": "https://github.com/AEGEE/oms-events#readme",
+  "homepage": "https://github.com/AEGEE/events#readme",
   "dependencies": {
     "@bugsnag/js": "^6.5.0",
     "body-parser": "^1.19.0",

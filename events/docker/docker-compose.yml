@@ -1,25 +1,24 @@
 version: "3.4"
-### OMS EVENTS   #######################################
 services:
-    postgres-oms-events:
+    postgres-events:
         restart: always
         image: postgres:10
         volumes:
-            - postgres-oms-events:/var/lib/postgresql/data
+            - postgres-events:/var/lib/postgresql/data
         expose:
             - "5432"
         environment:
             POSTGRES_USER: "postgres"
             POSTGRES_PASSWORD: "${PW_POSTGRES}"
 
-    oms-events:
+    events:
         restart: on-failure
-        image: aegee/oms-events:latest
+        image: aegee/events:latest
         volumes:
-            - oms-events-media:/usr/app/media
+            - events-media:/usr/app/media
             - shared:/usr/app/shared:ro
         depends_on:
-            - postgres-oms-events
+            - postgres-events
         expose:
             - "8084"
         environment:
@@ -38,20 +37,20 @@ services:
         # cpu_count: 1
         # mem_limit: 900m
         labels:
-            - "traefik.backend=oms-events"
+            - "traefik.backend=events"
             - "traefik.port=8084"
-            - "traefik.frontend.rule=PathPrefix:/services/oms-events/api;PathPrefixStrip:/services/oms-events/api"
+            - "traefik.frontend.rule=PathPrefixStrip:/api/events"
             - "traefik.frontend.priority=110"
             - "traefik.enable=true"
 
-    oms-events-static:
+    events-static:
         restart: on-failure
         image: aegee/nginx-static:latest
         volumes:
-            - oms-events-media:/usr/app/media:ro
-            - ./${PATH_OMS_EVENTS}/oms-events-static/status.json:/usr/app/status.json:ro
-            - ./${PATH_OMS_EVENTS}/oms-events-static/nginx.conf:/etc/nginx/nginx.conf:ro
-            - ./${PATH_OMS_EVENTS}/oms-events-static/sites/default:/etc/nginx/sites-available/default:ro
+            - events-media:/usr/app/media:ro
+            - ./${PATH_EVENTS}/events-static/status.json:/usr/app/status.json:ro
+            - ./${PATH_EVENTS}/events-static/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./${PATH_EVENTS}/events-static/sites/default:/etc/nginx/sites-available/default:ro
             - shared:/usr/app/shared:ro
         expose:
             - "80"
@@ -62,16 +61,16 @@ services:
             retries: 3
             start_period: 40s
         labels:
-            - "traefik.backend=oms-events-static"
+            - "traefik.backend=events-static"
             - "traefik.port=80"
             - "traefik.frontend.rule=PathPrefix:/media/events;PathPrefixStrip:/media/events"
             - "traefik.frontend.priority=110"
             - "traefik.enable=true"
 
 volumes:
-    postgres-oms-events:
+    postgres-events:
         driver: local
-    oms-events-media:
+    events-media:
         driver: local
     shared:
         driver: local

@@ -1,15 +1,14 @@
 version: "3.4"
-### OMS EVENTS   #######################################
 services:
-    oms-events:
+    events:
         build:
-            context: ./${PATH_OMS_EVENTS}/..
-            dockerfile: ./docker/oms-events/Dockerfile
-        image: aegee/oms-events:dev
+            context: ./${PATH_EVENTS}/..
+            dockerfile: ./docker/events/Dockerfile
+        image: aegee/events:dev
         command: sh -c "sh /usr/app/scripts/bootstrap.sh && nodemon -e 'js,json' lib/run.js | bunyan"
         volumes:
-            - ./${PATH_OMS_EVENTS}/../config:/usr/app/src/config
-            - ./${PATH_OMS_EVENTS}/../lib:/usr/app/src/lib
-            - ./${PATH_OMS_EVENTS}/../migrations:/usr/app/src/migrations
-            - ./${PATH_OMS_EVENTS}/../models:/usr/app/src/models
-            - ./${PATH_OMS_EVENTS}/../cli.js:/usr/app/src/cli.js
+            - ./${PATH_EVENTS}/../config:/usr/app/src/config
+            - ./${PATH_EVENTS}/../lib:/usr/app/src/lib
+            - ./${PATH_EVENTS}/../migrations:/usr/app/src/migrations
+            - ./${PATH_EVENTS}/../models:/usr/app/src/models
+            - ./${PATH_EVENTS}/../cli.js:/usr/app/src/cli.js
