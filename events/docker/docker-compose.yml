@@ -39,8 +39,10 @@ services:
         labels:
             - "traefik.backend=events"
             - "traefik.port=8084"
-            - "traefik.frontend.rule=PathPrefixStrip:/api/events"
-            - "traefik.frontend.priority=110"
+            - "traefik.old.frontend.rule=PathPrefixStrip:/services/oms-events/api;"
+            - "traefik.new.frontend.rule=PathPrefixStrip:/api/events;"
+            - "traefik.old.frontend.priority=110"
+            - "traefik.new.frontend.priority=110"
             - "traefik.enable=true"
 
     events-static:
