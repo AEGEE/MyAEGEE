@@ -87,7 +87,7 @@
     "lint-staged": "^10.1.7",
     "mocha-lcov-reporter": "^1.3.0",
     "nock": "^12.0.3",
-    "nyc": "^15.0.0",
+    "nyc": "^15.1.0",
     "opn-cli": "^5.0.0",
     "semantic-release": "^17.0.4",
     "timekeeper": "^2.2.0"
