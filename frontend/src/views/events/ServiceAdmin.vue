@@ -135,7 +135,7 @@ export default {
           body_id: body
         }
 
-        this.axios.post(this.services['oms-events'], event).then(() => {
+        this.axios.post(this.services['events'], event).then(() => {
           this.$root.showSuccess('Event "' + event.name + '" is successfully added.')
         }).catch((err) => {
           this.$root.showError('Could not save event', err)
@@ -146,7 +146,7 @@ export default {
   mounted () {
     const start1 = Date.now()
     this.isLoading.user = true
-    this.axios.get(this.services['oms-events'] + '/getUser').then((response) => {
+    this.axios.get(this.services['events'] + '/getUser').then((response) => {
       this.user = response.data.data
       this.roundtrip.user = Date.now() - start1
       this.isLoading.user = false
@@ -157,7 +157,7 @@ export default {
 
     const start2 = Date.now()
     this.isLoading.status = true
-    this.axios.get(this.services['oms-events'] + '/status').then((response) => {
+    this.axios.get(this.services['events'] + '/status').then((response) => {
       this.status = response.data.data
       this.roundtrip.status = Date.now() - start2
       this.isLoading.status = false

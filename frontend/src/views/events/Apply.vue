@@ -214,8 +214,8 @@ export default {
       }
 
       const request = this.isNew
-        ? this.axios.post(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications', toServer)
-        : this.axios.put(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/' + this.$route.params.application_id, toServer)
+        ? this.axios.post(this.services['events'] + '/single/' + this.$route.params.id + '/applications', toServer)
+        : this.axios.put(this.services['events'] + '/single/' + this.$route.params.id + '/applications/' + this.$route.params.application_id, toServer)
 
       request.then(() => {
         this.$root.showSuccess('Your application was saved, you can still edit it until the application period ends')
@@ -247,7 +247,7 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['events'] + '/single/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
 
       this.can.apply = this.event.application_status === 'open' && this.event.status === 'published'
@@ -273,7 +273,7 @@ export default {
         this.application.body_id = this.bodies[0].id
       }
 
-      return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/' + this.$route.params.application_id).then((application) => {
+      return this.axios.get(this.services['events'] + '/single/' + this.$route.params.id + '/applications/' + this.$route.params.application_id).then((application) => {
         this.application = application.data.data
         this.application.body = this.bodies.find(body => body.id === this.application.body_id)
 

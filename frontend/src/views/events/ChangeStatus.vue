@@ -102,7 +102,7 @@ export default {
         }
       }
 
-      this.axios.put(this.services['oms-events'] + '/single/' + event.id + '/status', {
+      this.axios.put(this.services['events'] + '/single/' + event.id + '/status', {
         status: newStatus
       }).then(() => {
         this.$root.showSuccess(`Event status is now "${newStatus}".`)
@@ -115,7 +115,7 @@ export default {
     fetchData () {
       this.isLoading = true
 
-      this.axios.get(this.services['oms-events'] + '/mine/approvable').then((response) => {
+      this.axios.get(this.services['events'] + '/mine/approvable').then((response) => {
         this.events = response.data.data
         this.isLoading = false
       }).catch((err) => {

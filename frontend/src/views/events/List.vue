@@ -37,7 +37,7 @@
               <div class="media-left">
                 <figure class="image is-96x96">
                   <img v-if="!event.image" src="/images/logo.png">
-                  <img v-if="event.image" :src="services['oms-events-static'] + '/headimages/' + event.image">
+                  <img v-if="event.image" :src="services['events-static'] + '/headimages/' + event.image">
                 </figure>
               </div>
               <div class="media-content">
@@ -187,9 +187,9 @@ export default {
       this.source = this.axios.CancelToken.source()
 
       const urls = {
-        all: this.services['oms-events'],
-        organizing: this.services['oms-events'] + '/mine/organizing',
-        participating: this.services['oms-events'] + '/mine/participating'
+        all: this.services['events'],
+        organizing: this.services['events'] + '/mine/organizing',
+        participating: this.services['events'] + '/mine/participating'
       }
 
       this.axios.get(urls[this.scope], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {

@@ -62,12 +62,12 @@ export default {
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/oms-mailer/blob/master/CHANGELOG.md'
         },
-        'oms-events': {
+        'events': {
           roundTrip: null,
           version: '-',
           latestVersion: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/oms-events/blob/master/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/events/blob/master/CHANGELOG.md'
         },
         'oms-statutory': {
           roundTrip: null,

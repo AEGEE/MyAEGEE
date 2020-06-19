@@ -95,7 +95,7 @@ export default {
   },
   methods: {
     exportAll () {
-      this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/export/', {
+      this.axios.get(this.services['events'] + '/single/' + this.$route.params.id + '/applications/export/', {
         responseType: 'blob'
       }).then(response => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
@@ -120,7 +120,7 @@ export default {
     },
     switchPaxStatus (pax) {
       pax.isSaving = true
-      const url = this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/' + pax.id + '/status'
+      const url = this.services['events'] + '/single/' + this.$route.params.id + '/applications/' + pax.id + '/status'
 
       this.axios.put(url, { status: pax.newStatus }).then(() => {
         pax.status = pax.newStatus
@@ -133,7 +133,7 @@ export default {
     },
     switchPaxAttended (pax) {
       pax.isSavingAttended = true
-      const url = this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/' + pax.id + '/attended'
+      const url = this.services['events'] + '/single/' + this.$route.params.id + '/applications/' + pax.id + '/attended'
 
       this.axios.put(url, { attended: pax.newAttended }).then(() => {
         pax.attended = pax.newAttended
@@ -146,7 +146,7 @@ export default {
     },
     switchPaxConfirmed (pax) {
       pax.isSavingConfirmed = true
-      const url = this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications/' + pax.id + '/confirmed'
+      const url = this.services['events'] + '/single/' + this.$route.params.id + '/applications/' + pax.id + '/confirmed'
 
       this.axios.put(url, { confirmed: pax.newConfirmed }).then(() => {
         pax.confirmed = pax.newConfirmed
@@ -183,11 +183,11 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['events'] + '/single/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
       this.can = response.data.permissions
 
-      return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id + '/applications')
+      return this.axios.get(this.services['events'] + '/single/' + this.$route.params.id + '/applications')
     }).then((applications) => {
       this.applications = applications.data.data
 

@@ -92,7 +92,7 @@ export default {
         + 'aegee.eu_v5mn651imeqpvs87v4ln7hr1f4@group.calendar.google.com' // ID of the online calendar
         + '/public/basic.ics'
 
-      const eventsPromise = this.axios.get(this.services['oms-events'], query).then((result) => {
+      const eventsPromise = this.axios.get(this.services['events'], query).then((result) => {
         return result.data.data.map((event) => ({
           title: event.name,
           start: new Date(event.starts),

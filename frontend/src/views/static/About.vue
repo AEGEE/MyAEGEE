@@ -158,7 +158,7 @@
               </tr>
 
               <tr>
-                <td><a href="https://github.com/AEGEE/oms-events">oms-events</a></td>
+                <td><a href="https://github.com/AEGEE/events">events</a></td>
                 <td>Events (not statutory and SU) and their application procedure.</td>
               </tr>
 
@@ -192,7 +192,7 @@
 
               <tr>
                 <td><a href="https://github.com/serge1peshcoff">Sergey Peshkov</a></td>
-                <td>Maintainer of oms-events and oms-statutory modules and the frontend</td>
+                <td>Maintainer of events and oms-statutory modules and the frontend</td>
               </tr>
             </tbody>
           </table>

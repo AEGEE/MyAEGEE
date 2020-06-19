@@ -62,7 +62,7 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id + '/participants?status=accepted').then((applicationResponse) => {
+    this.axios.get(this.services['events'] + '/single/' + this.$route.params.id + '/participants?status=accepted').then((applicationResponse) => {
       this.applications = applicationResponse.data.data
       this.isLoading = false
 

@@ -1,10 +1,10 @@
 {
   "oms-core-elixir": "/services/oms-core-elixir/api",
   "oms-mailer": "/services/oms-mailer/api",
-  "oms-events": "/services/oms-events/api",
+  "events": "/api/events",
   "oms-statutory": "/services/oms-statutory/api",
   "oms-discounts": "/services/oms-discounts/api",
   "oms-frontend": "",
-  "oms-events-static": "/media/events",
+  "events-static": "/media/events",
   "oms-statutory-static": "/media/statutory"
 }

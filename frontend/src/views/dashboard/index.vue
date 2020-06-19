@@ -162,7 +162,7 @@ export default {
       this.$root.showError('Could not fetch user', err)
     })
 
-    this.axios.get(this.services['oms-events'] + '/mine/participating').then((eventsResponse) => {
+    this.axios.get(this.services['events'] + '/mine/participating').then((eventsResponse) => {
       this.axios.get(this.services['oms-statutory'] + '/mine').then((statutoryResponse) => {
         const input = eventsResponse.data.data.concat(statutoryResponse.data.data)
         for (const event of input) {

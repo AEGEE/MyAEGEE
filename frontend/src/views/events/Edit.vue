@@ -565,7 +565,7 @@ export default {
       const data = new FormData()
       data.append('head_image', this.file)
 
-      this.axios.post(this.services['oms-events'] + '/single/' + this.$route.params.id + '/upload', data).then(() => {
+      this.axios.post(this.services['events'] + '/single/' + this.$route.params.id + '/upload', data).then(() => {
         this.$root.showSuccess('Event image is updated.')
         this.file = null
       }).catch((err) => {
@@ -713,8 +713,8 @@ export default {
       eventToSave.organizers = eventToSave.organizers.map(org => ({ user_id: org.user_id }))
 
       const promise = this.$route.params.id
-        ? this.axios.put(this.services['oms-events'] + '/single/' + this.$route.params.id, eventToSave)
-        : this.axios.post(this.services['oms-events'], eventToSave)
+        ? this.axios.put(this.services['events'] + '/single/' + this.$route.params.id, eventToSave)
+        : this.axios.post(this.services['events'], eventToSave)
 
       promise.then((response) => {
         this.isSaving = false
@@ -802,7 +802,7 @@ export default {
         return
       }
 
-      return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((eventsResponse) => {
+      return this.axios.get(this.services['events'] + '/single/' + this.$route.params.id).then((eventsResponse) => {
         this.event = eventsResponse.data.data
         this.can = eventsResponse.data.permissions
         this.can.viewAllMembers = response.data.data.some(permission => permission.combined.endsWith('global:view:member')) // override it

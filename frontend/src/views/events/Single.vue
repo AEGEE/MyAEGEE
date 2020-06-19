@@ -5,7 +5,7 @@
         <article class="tile is-child is-primary">
           <figure class="image is-1by1">
             <img v-if="!event.image" src="/images/logo.png">
-            <img v-if="event.image" :src="services['oms-events-static'] + '/headimages/' + event.image">
+            <img v-if="event.image" :src="services['events-static'] + '/headimages/' + event.image">
           </figure>
         </article>
       </div>
@@ -286,7 +286,7 @@ export default {
       })
     },
     deleteEvent () {
-      this.axios.delete(this.services['oms-events'] + '/single/' + this.event.id).then(() => {
+      this.axios.delete(this.services['events'] + '/single/' + this.event.id).then(() => {
         this.$root.showInfo('Event is deleted.')
         this.$router.push({ name: 'oms.events.list.all' })
       }).catch((err) => this.$root.showError('Could not delete event', err))
@@ -319,11 +319,11 @@ export default {
       this.isLoading = true
       const body = { status: newStatus }
 
-      this.axios.put(this.services['oms-events'] + '/single/' + this.event.id + '/status', body).then(() => {
+      this.axios.put(this.services['events'] + '/single/' + this.event.id + '/status', body).then(() => {
         this.$root.showInfo(`Event status is now ${newStatus}`)
 
         // Refetching the event to renew the permissions.
-        return this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id)
+        return this.axios.get(this.services['events'] + '/single/' + this.$route.params.id)
       }).then((response) => {
         this.event = response.data.data
         this.can = response.data.permissions
@@ -361,7 +361,7 @@ export default {
     this.mapbox = Mapbox
     this.isLoading = true
 
-    this.axios.get(this.services['oms-events'] + '/single/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['events'] + '/single/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
       this.can = response.data.permissions
 

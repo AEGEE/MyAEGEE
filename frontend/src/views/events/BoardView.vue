@@ -87,7 +87,7 @@ export default {
   },
   methods: {
     submitComment (application) {
-      this.axios.put(this.services['oms-events'] + '/single/' + application.event.id + '/applications/' + application.id + '/comment/', {
+      this.axios.put(this.services['events'] + '/single/' + application.event.id + '/applications/' + application.id + '/comment/', {
         board_comment: application.board_comment
       }).then(() => {
         this.$root.showSuccess('Participant comment is updated.')
@@ -106,7 +106,7 @@ export default {
       }
 
       this.isLoading = true
-      this.axios.get(this.services['oms-events'] + '/boardview/' + this.selectedBody).then((response) => {
+      this.axios.get(this.services['events'] + '/boardview/' + this.selectedBody).then((response) => {
         this.applications = response.data.data
         this.isLoading = false
       }).catch((err) => {
