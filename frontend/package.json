@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.13.1",
-    "@fortawesome/fontawesome-svg-core": "^1.2.28",
+    "@fortawesome/fontawesome-svg-core": "^1.2.29",
     "@fortawesome/free-solid-svg-icons": "^5.13.1",
     "@fortawesome/vue-fontawesome": "^0.1.10",
     "@fullcalendar/core": "^4.4.0",
