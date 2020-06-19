@@ -1,3 +1,10 @@
+## [1.0.5](https://github.com/AEGEE/oms-frontend/compare/1.0.4...1.0.5) (2020-06-19)
+
+
+### Bug Fixes
+
+* **events:** use shorter prefix ([#425](https://github.com/AEGEE/oms-frontend/issues/425)) ([8610419](https://github.com/AEGEE/oms-frontend/commit/86104191a92334de979e28ba2b69f49e9051cd11))
+
 ## [1.0.4](https://github.com/AEGEE/oms-frontend/compare/1.0.3...1.0.4) (2020-06-16)
 
 
