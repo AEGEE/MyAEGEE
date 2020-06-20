@@ -11,11 +11,11 @@ const config = {
             database: process.env.DB_DATABASE || 'discounts'
         },
         core: {
-            url: 'http://oms-core-js',
+            url: 'http://core',
             port: 8084
         },
         mailer: {
-            url: 'http://oms-mailer',
+            url: 'http://mailer',
             port: 4000
         },
         logger: {
