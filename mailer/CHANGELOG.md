@@ -1,3 +1,10 @@
+# [0.11.0](https://github.com/AEGEE/mailer/compare/0.10.0...0.11.0) (2020-06-20)
+
+
+### Features
+
+* **docker:** use shorter prefix ([#34](https://github.com/AEGEE/mailer/issues/34)) ([fe434a8](https://github.com/AEGEE/mailer/commit/fe434a8473ba92d155d9f158310bb1869494efb7))
+
 # [0.10.0](https://github.com/AEGEE/oms-mailer/compare/0.9.0...0.10.0) (2020-05-12)
 
 
