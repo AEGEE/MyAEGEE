@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/AEGEE/events/compare/1.1.0...1.1.1) (2020-06-20)
+
+
+### Bug Fixes
+
+* **docker:** update core and mailer hosts ([#271](https://github.com/AEGEE/events/issues/271)) ([4f62aee](https://github.com/AEGEE/events/commit/4f62aee7ebc70d547c8643957fb02388763d9fd4))
+
 # [1.1.0](https://github.com/AEGEE/events/compare/1.0.1...1.1.0) (2020-06-18)
 
 
