@@ -4,14 +4,14 @@ const config = {
     default: {
         port: 8084,
         postgres: {
-            host: process.env.DB_HOST || 'postgres-oms-core-js',
+            host: process.env.DB_HOST || 'postgres-core',
             port: parseInt(process.env.DB_PORT, 10) || 5432,
             username: process.env.USERNAME || 'postgres',
             password: process.env.PG_PASSWORD || '5ecr3t',
             database: process.env.DB_DATABASE || 'core'
         },
         mailer: {
-            url: 'http://oms-mailer',
+            url: 'http://mailer',
             port: 4000
         },
         logger: {
