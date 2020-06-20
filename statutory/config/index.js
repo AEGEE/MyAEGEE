@@ -11,7 +11,7 @@ const config = {
             database: process.env.DB_DATABASE || 'statutory',
         },
         core: {
-            url: 'http://oms-core-js',
+            url: 'http://core',
             port: 8084,
             user: {
                 login: process.env.CORE_LOGIN || 'admin@example.com',
@@ -19,7 +19,7 @@ const config = {
             }
         },
         mailer: {
-            url: 'http://oms-mailer',
+            url: 'http://mailer',
             port: 4000
         },
         logger: {
