@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/AEGEE/oms-statutory/compare/1.0.1...1.0.2) (2020-06-20)
+
+
+### Bug Fixes
+
+* **docker:** update core and mailer hosts ([#304](https://github.com/AEGEE/oms-statutory/issues/304)) ([0e01c1d](https://github.com/AEGEE/oms-statutory/commit/0e01c1db4b0e70a0aae481a8b5bb56b7d77963eb))
+
 ## [1.0.1](https://github.com/AEGEE/oms-statutory/compare/1.0.0...1.0.1) (2020-06-13)
 
 
