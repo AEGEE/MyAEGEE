@@ -1,3 +1,10 @@
+# [1.22.0](https://github.com/AEGEE/core/compare/1.21.4...1.22.0) (2020-06-20)
+
+
+### Features
+
+* **docker:** use shorter prefix ([#28](https://github.com/AEGEE/core/issues/28)) ([8446497](https://github.com/AEGEE/core/commit/8446497f55cfb632715918a7c05adbc4820f19c0))
+
 ## [1.21.4](https://github.com/AEGEE/oms-core-js/compare/1.21.3...1.21.4) (2020-06-15)
 
 
