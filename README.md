@@ -1,7 +1,7 @@
-# oms-core-js
+# core
 
-![CircleCI](https://img.shields.io/circleci/build/github/AEGEE/oms-core-js)
-![Codecov branch for master](https://img.shields.io/codecov/c/github/AEGEE/oms-core-js.svg)
+![CircleCI](https://img.shields.io/circleci/build/github/AEGEE/core)
+![Codecov branch for master](https://img.shields.io/codecov/c/github/AEGEE/core.svg)
 
 Another implementation of oms-core, the main part of MyAEGEE, this time in JS.
 
@@ -37,7 +37,7 @@ Another implementation of oms-core, the main part of MyAEGEE, this time in JS.
 - **...check if my deps are vulnerable?**
 - Run `npm audit`.
 - **...have a CLI for playing with models/objects?**
-- Run `npm run cli`. You probably want to do it inside a container, with oms-docker you can do it this way: `./helper.sh --execute oms-core-js bash`, then run `npm run cli` there.
+- Run `npm run cli`. You probably want to do it inside a container, with oms-docker you can do it this way: `./helper.sh --execute core bash`, then run `npm run cli` there.
 - **...contribute to this repo?**
 - Contributions are always welcome! Just contact somebody from maintainers, we'll help you figuring things out.
 
@@ -76,8 +76,8 @@ fetch(`http://localhost/api/core/login`, {
 
 Easy way to recreate all data in the system:
 ```sh
-./helper.sh --execute -- oms-core-js npm run db:clear # or db:setup to drop the db schema and create it again
-./helper.sh --execute -- oms-core-js npm run db:seed
+./helper.sh --execute -- core npm run db:clear # or db:setup to drop the db schema and create it again
+./helper.sh --execute -- core npm run db:seed
 ```
 
 ## LICENSE

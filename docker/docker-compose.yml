@@ -1,30 +1,30 @@
 version: "3.4"
 
 services:
-    postgres-oms-core-js:
+    postgres-core:
         restart: always
         image: postgres:10
         volumes:
-            - postgres-oms-core-js:/var/lib/postgresql/data
+            - postgres-core:/var/lib/postgresql/data
         expose:
             - "5432"
         environment:
             POSTGRES_USER: "postgres"
             POSTGRES_PASSWORD: "${PW_POSTGRES}"
 
-    oms-core-js:
+    core:
         restart: always
-        image: aegee/oms-core-js:latest
+        image: aegee/core:latest
         volumes:
-            - oms-core-js-media:/usr/app/media
+            - core-media:/usr/app/media
             - shared:/usr/app/shared:ro
-            - oms-core-js-state:/usr/app/src/state:rw
+            - core-state:/usr/app/src/state:rw
         depends_on:
-            - postgres-oms-core-js
+            - postgres-core
         expose:
             - "8084"
         environment:
-            BUGSNAG_KEY: "${BUGSNAG_KEY_CORE_JS}"
+            BUGSNAG_KEY: "${BUGSNAG_KEY_CORE}"
             PG_PASSWORD: "${PW_POSTGRES}"
             NODE_ENV: "${MYAEGEE_ENV}"
             HOST: "${SUBDOMAIN_FRONTEND}${BASE_URL}"
@@ -37,20 +37,22 @@ services:
             retries: 3
             start_period: 40s
         labels:
-            - "traefik.backend=oms-core-js"
+            - "traefik.backend=core"
             - "traefik.port=8084"
-            - "traefik.frontend.rule=PathPrefixStripRegex:/services/oms-core-elixir/api;"
-            - "traefik.frontend.priority=200"
+            - "traefik.old.frontend.rule=PathPrefixStrip:/services/oms-core-elixir/api;"
+            - "traefik.new.frontend.rule=PathPrefixStrip:/api/core;"
+            - "traefik.old.frontend.priority=110"
+            - "traefik.new.frontend.priority=110"
             - "traefik.enable=true"
 
 volumes:
-    postgres-oms-core-js:
+    postgres-core:
         driver: local
-    oms-core-js-media:
+    core-media:
         driver: local
     shared:
         driver: local
-    oms-core-js-state:
+    core-state:
         driver: local
 
 networks:

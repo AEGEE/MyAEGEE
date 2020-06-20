@@ -30,7 +30,7 @@ jobs:
       image: ubuntu-1604:201903-01
     steps:
       - checkout
-      - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache oms-core-js
+      - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache core
   eslint:
     machine:
       image: ubuntu-1604:201903-01
@@ -71,10 +71,10 @@ jobs:
             which node && node -v
       - run: npm install
       - run: npx semantic-release
-      - run: docker build  --tag aegee/oms-core-js:$(node -p "require('./package.json').version") --tag aegee/oms-core-js:latest -f docker/oms-core-js/Dockerfile .
+      - run: docker build  --tag aegee/core:$(node -p "require('./package.json').version") --tag aegee/core:latest -f docker/core/Dockerfile .
       - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-      - run: docker push aegee/oms-core-js:$(node -p "require('./package.json').version")
-      - run: docker push aegee/oms-core-js:latest
+      - run: docker push aegee/core:$(node -p "require('./package.json').version")
+      - run: docker push aegee/core:latest
       - slack/status:
           success_message: The Docker image for \`$CIRCLE_PROJECT_REPONAME\` with tags \`$(node -p "require('./package.json').version")\` and \`latest\` has been pushed to Dockerhub.
           failure_message: The Docker image for \`$CIRCLE_PROJECT_REPONAME\` build and push has failed.
