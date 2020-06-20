@@ -1,16 +1,16 @@
 version: "3.4"
 
 services:
-    oms-mailer:
+    mailer:
         restart: unless-stopped
-        image: aegee/oms-mailer:latest
+        image: aegee/mailer:latest
         expose:
             - "4000"
         environment:
             MIX_ENV: "${MYAEGEE_ENV}"
             SMTP_USER: ${SMTP_USER?The SMTP_USER variable is not set.}
         depends_on:
-            - oms-mail-transfer-agent
+            - mail-transfer-agent
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:4000/healthcheck"]
             interval: 30s
@@ -19,17 +19,20 @@ services:
             start_period: 40s
         # Only exposing /healthcheck endpoint
         labels:
-            - "traefik.backend=oms-mailer"
+            - "traefik.backend=mailer"
             - "traefik.port=4000"
-            - "traefik.frontend.rule=Path:/services/oms-mailer/api/healthcheck;PathPrefixStrip:/services/oms-mailer/api"
+            - "traefik.old.frontend.rule=Path:/services/oms-mailer/api/healthcheck;PathPrefixStrip:/services/oms-mailer/api"
+            - "traefik.new.frontend.rule=Path:/api/mailer/healthcheck;PathPrefixStrip:/api/mailer"
+            - "traefik.old.frontend.priority=110"
+            - "traefik.new.frontend.priority=110"
             - "traefik.frontend.priority=110"
             - "traefik.enable=true"
         # cpu_count: 1
         # mem_limit: 900m
 
-    oms-mail-transfer-agent:
+    mail-transfer-agent:
         restart: always
-        image: aegee/oms-mail-transfer-agent:latest
+        image: aegee/mail-transfer-agent:latest
         expose:
             - "25"
         environment:

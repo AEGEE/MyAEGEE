@@ -35,7 +35,7 @@ config :logger, :console,
 
 config :omsmailer, Omsmailer.Mailer,
   adapter: Bamboo.SMTPAdapter,
-  server: "oms-mail-transfer-agent",
+  server: "mail-transfer-agent",
   hostname: "my.aegee.eu",
   port: 25,
   #username: Helper.read_secret_from_file(System.get_env("MAIL_USER"), "oms"), # or {:system, "SMTP_USERNAME"}

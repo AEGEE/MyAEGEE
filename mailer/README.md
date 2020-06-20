@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/AEGEE/oms-mailer.svg?branch=master)](https://travis-ci.org/AEGEE/oms-mailer)
+![CircleCI](https://img.shields.io/circleci/build/github/AEGEE/mailer)
 
 # Omsmailer
 

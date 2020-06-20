@@ -29,7 +29,7 @@ jobs:
       SMTP_HOST: mail.aegee.eu
     steps:
       - checkout
-      - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache oms-mailer
+      - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache mailer
   docker-build-and-push:
     machine:
       image: ubuntu-1604:201903-01
@@ -49,14 +49,14 @@ jobs:
             which node && node -v
       - run: npm install
       - run: npx semantic-release
-      - run: docker build  --tag aegee/oms-mailer:$(node -p "require('./package.json').version") --tag aegee/oms-mailer:latest -f docker/oms-mailer/Dockerfile .
+      - run: docker build  --tag aegee/mailer:$(node -p "require('./package.json').version") --tag aegee/mailer:latest -f docker/mailer/Dockerfile .
       - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-      - run: docker push aegee/oms-mailer:$(node -p "require('./package.json').version")
-      - run: docker push aegee/oms-mailer:latest
-      - run: docker build  --tag aegee/oms-mail-transfer-agent:$(node -p "require('./package.json').version") --tag aegee/oms-mail-transfer-agent:latest -f docker/mail_transfer_agent/Dockerfile .
+      - run: docker push aegee/mailer:$(node -p "require('./package.json').version")
+      - run: docker push aegee/mailer:latest
+      - run: docker build  --tag aegee/mail-transfer-agent:$(node -p "require('./package.json').version") --tag aegee/mail-transfer-agent:latest -f docker/mail_transfer_agent/Dockerfile .
       - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-      - run: docker push aegee/oms-mail-transfer-agent:$(node -p "require('./package.json').version")
-      - run: docker push aegee/oms-mail-transfer-agent:latest
+      - run: docker push aegee/mail-transfer-agent:$(node -p "require('./package.json').version")
+      - run: docker push aegee/mail-transfer-agent:latest
       - slack/status:
           success_message: The Docker image for \`$CIRCLE_PROJECT_REPONAME\` with tags \`$(node -p "require('./package.json').version")\` and \`latest\` has been pushed to Dockerhub.
           failure_message: The Docker image for \`$CIRCLE_PROJECT_REPONAME\` build and push has failed.

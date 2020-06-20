@@ -1,5 +1,5 @@
 {
-  "name": "oms-mailer",
+  "name": "mailer",
   "version": "0.10.0",
   "description": "The internal mailer module of my.aegee.eu",
   "keywords": [],
