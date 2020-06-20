@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/AEGEE/oms-discounts/compare/1.0.1...1.0.2) (2020-06-20)
+
+
+### Bug Fixes
+
+* **docker:** update core and mailer hosts ([#84](https://github.com/AEGEE/oms-discounts/issues/84)) ([f789a4d](https://github.com/AEGEE/oms-discounts/commit/f789a4d3859bcb4b7cbe475e8a167a27b0953662))
+
 ## [1.0.1](https://github.com/AEGEE/oms-discounts/compare/1.0.0...1.0.1) (2020-06-13)
 
 
