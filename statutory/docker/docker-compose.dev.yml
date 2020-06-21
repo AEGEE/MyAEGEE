@@ -1,15 +1,15 @@
 version: "3.4"
 
 services:
-  oms-statutory:
+  statutory:
     build:
-      context: ./${PATH_OMS_STATUTORY}/..
-      dockerfile: ./docker/oms-statutory/Dockerfile
-    image: aegee/oms-statutory:dev
+      context: ./${PATH_STATUTORY}/..
+      dockerfile: ./docker/statutory/Dockerfile
+    image: aegee/statutory:dev
     command: sh -c "sh /usr/app/scripts/bootstrap.sh && nodemon -e 'js,json' lib/run.js | bunyan"
     volumes:
-      - ./${PATH_OMS_STATUTORY}/../config:/usr/app/src/config
-      - ./${PATH_OMS_STATUTORY}/../lib:/usr/app/src/lib
-      - ./${PATH_OMS_STATUTORY}/../migrations:/usr/app/src/migrations
-      - ./${PATH_OMS_STATUTORY}/../models:/usr/app/src/models
-      - ./${PATH_OMS_STATUTORY}/../cli.js:/usr/app/src/cli.js
+      - ./${PATH_STATUTORY}/../config:/usr/app/src/config
+      - ./${PATH_STATUTORY}/../lib:/usr/app/src/lib
+      - ./${PATH_STATUTORY}/../migrations:/usr/app/src/migrations
+      - ./${PATH_STATUTORY}/../models:/usr/app/src/models
+      - ./${PATH_STATUTORY}/../cli.js:/usr/app/src/cli.js

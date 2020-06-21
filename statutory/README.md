@@ -1,11 +1,11 @@
-# OMS Statutory module
-![CircleCI](https://img.shields.io/circleci/build/github/AEGEE/oms-statutory)
-![Codecov branch for master](https://img.shields.io/codecov/c/github/AEGEE/oms-statutory.svg)
+# Statutory module
+![CircleCI](https://img.shields.io/circleci/build/github/AEGEE/statutory)
+![Codecov branch for master](https://img.shields.io/codecov/c/github/AEGEE/statutory.svg)
 
 
 ## General
 
-The statutory module of OMS is responsible for managing statutory events, their applications, votings, proposals and motions.
+The statutory module of MyAEGEE is responsible for managing statutory events, their applications, votings, proposals and motions.
 
 ## Contributing
 

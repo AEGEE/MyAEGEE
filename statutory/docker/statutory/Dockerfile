@@ -7,8 +7,8 @@ RUN mkdir -p /usr/app/src \
 RUN apt-get update
 RUN apt-get install netcat -y
 
-COPY ./docker/oms-statutory/bootstrap.sh /usr/app/scripts/bootstrap.sh
-COPY ./docker/oms-statutory/wait.sh /usr/app/scripts/wait.sh
+COPY ./docker/statutory/bootstrap.sh /usr/app/scripts/bootstrap.sh
+COPY ./docker/statutory/wait.sh /usr/app/scripts/wait.sh
 COPY . /usr/app/src
 
 RUN chown -R node:node /usr/app

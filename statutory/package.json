@@ -1,7 +1,7 @@
 {
-  "name": "oms-statutory",
+  "name": "statutory",
   "version": "1.0.2",
-  "description": "Statutory events module for OMS",
+  "description": "Statutory events module for MyAEGEE",
   "main": "lib/server.js",
   "scripts": {
     "lint": "eslint .",
@@ -39,9 +39,9 @@
   "author": "Sergey Peshkov <github.com/serge1peshcoff>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/AEGEE/oms-statutory/issues"
+    "url": "https://github.com/AEGEE/statutory/issues"
   },
-  "homepage": "https://github.com/AEGEE/oms-statutory",
+  "homepage": "https://github.com/AEGEE/statutory",
   "dependencies": {
     "@bugsnag/js": "^6.4.2",
     "body-parser": "^1.19.0",

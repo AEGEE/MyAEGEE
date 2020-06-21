@@ -1,25 +1,24 @@
 version: "3.4"
-### OMS STATUTORY     #######################################
 services:
-    postgres-oms-statutory:
+    postgres-statutory:
         restart: always
         image: postgres:10
         volumes:
-            - postgres-oms-statutory:/var/lib/postgresql/data
+            - postgres-statutory:/var/lib/postgresql/data
         expose:
             - "5432"
         environment:
             POSTGRES_USER: "postgres"
             POSTGRES_PASSWORD: "${PW_POSTGRES}"
 
-    oms-statutory:
+    statutory:
         restart: always
-        image: aegee/oms-statutory:latest
+        image: aegee/statutory:latest
         volumes:
-            - oms-statutory-media:/usr/app/media
+            - statutory-media:/usr/app/media
             - shared:/usr/app/shared:ro
         depends_on:
-            - postgres-oms-statutory
+            - postgres-statutory
         expose:
             - "8084"
         environment:
@@ -38,19 +37,21 @@ services:
         # cpu_count: 1
         # mem_limit: 900m
         labels:
-            - "traefik.backend=oms-statutory"
+            - "traefik.backend=statutory"
             - "traefik.port=8084"
-            - "traefik.frontend.rule=PathPrefix:/services/oms-statutory/api;PathPrefixStrip:/services/oms-statutory/api"
-            - "traefik.frontend.priority=110"
+            - "traefik.old.frontend.rule=PathPrefixStrip:/services/oms-statutory/api;"
+            - "traefik.new.frontend.rule=PathPrefixStrip:/api/statutory;"
+            - "traefik.old.frontend.priority=110"
+            - "traefik.new.frontend.priority=110"
             - "traefik.enable=true"
-    oms-statutory-static:
+    statutory-static:
         restart: on-failure
         image: aegee/nginx-static:latest
         volumes:
-            - oms-statutory-media:/usr/app/media:ro
-            - ./${PATH_OMS_STATUTORY}/oms-statutory-static/status.json:/usr/app/status.json:ro
-            - ./${PATH_OMS_STATUTORY}/oms-statutory-static/nginx.conf:/etc/nginx/nginx.conf:ro
-            - ./${PATH_OMS_STATUTORY}/oms-statutory-static/sites/default:/etc/nginx/sites-available/default:ro
+            - statutory-media:/usr/app/media:ro
+            - ./${PATH_STATUTORY}/statutory-static/status.json:/usr/app/status.json:ro
+            - ./${PATH_STATUTORY}/statutory-static/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./${PATH_STATUTORY}/statutory-static/sites/default:/etc/nginx/sites-available/default:ro
             - shared:/usr/app/shared:ro
         expose:
             - "80"
@@ -61,16 +62,16 @@ services:
             retries: 3
             start_period: 40s
         labels:
-            - "traefik.backend=oms-statutory-static"
+            - "traefik.backend=statutory-static"
             - "traefik.port=80"
             - "traefik.frontend.rule=PathPrefix:/media/statutory;PathPrefixStrip:/media/statutory"
             - "traefik.frontend.priority=110"
             - "traefik.enable=true"
 
 volumes:
-    postgres-oms-statutory:
+    postgres-statutory:
         driver: local
-    oms-statutory-media:
+    statutory-media:
         driver: local
     shared:
         driver: local
