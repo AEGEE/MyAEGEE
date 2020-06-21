@@ -276,7 +276,7 @@ export default {
         // set the permission to true if at least one set of permissions have
         // the required permission (either first for global, or others for local).
         this.can.setActive = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('update_active:member')))
-        this.can.edit = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('update:member')))
+        this.can.edit = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('update:member'))) || this.isOwnProfile
         this.can.delete = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('delete:user')))
 
         this.isLoading = false
