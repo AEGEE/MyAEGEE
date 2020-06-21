@@ -115,8 +115,8 @@ export default {
       this.isLoading = true
 
       const action = this.isNew
-        ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.event.id + '/positions/', this.position)
-        : this.axios.put(this.services['oms-statutory'] + '/events/' + this.event.id + '/positions/' + this.position.id, this.position)
+        ? this.axios.post(this.services['statutory'] + '/events/' + this.event.id + '/positions/', this.position)
+        : this.axios.put(this.services['statutory'] + '/events/' + this.event.id + '/positions/' + this.position.id, this.position)
 
       action.then(() => {
         this.showSuccess('Position is created.')

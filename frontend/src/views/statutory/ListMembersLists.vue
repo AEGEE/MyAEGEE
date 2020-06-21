@@ -91,7 +91,7 @@ export default {
     },
     setFeePaid (newFee, memberslist) {
       this.isLoading = true
-      this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + memberslist.body_id + '/fee_paid', {
+      this.axios.put(this.services['statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + memberslist.body_id + '/fee_paid', {
         fee_paid: newFee
       }).then(() => {
         this.$root.showSuccess('Fee paid is set.')
@@ -110,11 +110,11 @@ export default {
 
     let memberslists
 
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
       this.can = response.data.data.permissions
 
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/memberslists')
+      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/memberslists')
     }).then((response) => {
       memberslists = response.data.data
 

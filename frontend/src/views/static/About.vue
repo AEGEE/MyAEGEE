@@ -35,12 +35,12 @@
 
               <tr>
                 <td><a href="https://www.postgresql.org/">PostgreSQL</a></td>
-                <td>Database used by oms-core and oms-statutory modules.</td>
+                <td>Database used by core, events and statutory modules.</td>
               </tr>
 
               <tr>
                 <td><a href="https://github.com/sequelize/sequelize">Sequelize</a></td>
-                <td>ORM for oms-statutory module for interacting with PostgreSQL.</td>
+                <td>ORM for statutory module for interacting with PostgreSQL.</td>
               </tr>
 
               <tr>
@@ -153,7 +153,7 @@
               </tr>
 
               <tr>
-                <td><a href="https://github.com/AEGEE/oms-statutory">oms-statutory</a></td>
+                <td><a href="https://github.com/AEGEE/statutory">statutory</a></td>
                 <td>Agora and EPM applications, candidatures, proposals, motions, votings.</td>
               </tr>
 
@@ -192,7 +192,7 @@
 
               <tr>
                 <td><a href="https://github.com/serge1peshcoff">Sergey Peshkov</a></td>
-                <td>Maintainer of events and oms-statutory modules and the frontend</td>
+                <td>Maintainer of events and statutory modules and the frontend</td>
               </tr>
             </tbody>
           </table>

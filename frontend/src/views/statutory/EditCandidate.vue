@@ -279,7 +279,7 @@ export default {
       data.append('image', this.file)
 
       this.axios.post(
-        this.services['oms-statutory']
+        this.services['statutory']
         + '/events/' + this.$route.params.id
         + '/positions/' + this.$route.params.position_id
         + '/candidates/' + this.$route.params.candidate_id
@@ -299,8 +299,8 @@ export default {
       this.errors = {}
 
       const promise = this.$route.params.candidate_id
-        ? this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/' + this.$route.params.position_id + '/candidates/' + this.$route.params.candidate_id, this.candidate)
-        : this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/' + this.$route.params.position_id + '/candidates/', this.candidate)
+        ? this.axios.put(this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/' + this.$route.params.position_id + '/candidates/' + this.$route.params.candidate_id, this.candidate)
+        : this.axios.post(this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/' + this.$route.params.position_id + '/candidates/', this.candidate)
 
       promise.then(() => {
         this.isSaving = false
@@ -354,7 +354,7 @@ export default {
     this.isLoading = true
 
     this.axios.get(
-      this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/' + this.$route.params.position_id + '/candidates/' + this.$route.params.candidate_id
+      this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/' + this.$route.params.position_id + '/candidates/' + this.$route.params.candidate_id
     ).then((response) => {
       this.$set(this, 'candidate', response.data.data)
       this.$set(this.candidate, 'body', this.loginUser.bodies.find(body => body.id === this.candidate.body_id))

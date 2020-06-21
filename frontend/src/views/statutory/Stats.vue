@@ -380,10 +380,10 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
 
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/stats')
+      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/stats')
     }).then((stats) => {
       this.stats = stats.data.data
 

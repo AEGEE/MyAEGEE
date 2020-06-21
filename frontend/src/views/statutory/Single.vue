@@ -5,7 +5,7 @@
         <article class="tile is-child is-primary">
           <figure class="image">
             <img v-if="!event.image" src="/images/logo.png">
-            <img v-if="event.image" :src="services['oms-statutory-static'] + event.image.frontend_path">
+            <img v-if="event.image" :src="services['statutory-static'] + event.image.frontend_path">
           </figure>
         </article>
       </div>
@@ -326,7 +326,7 @@ export default {
       })
     },
     switchStatus (newStatus) {
-      this.axios.put(this.services['oms-statutory'] + '/events/' + this.event.id + '/status', { status: newStatus }).then(() => {
+      this.axios.put(this.services['statutory'] + '/events/' + this.event.id + '/status', { status: newStatus }).then(() => {
         this.$root.showInfo('Status is updated.')
         this.event.status = newStatus
       }).catch((err) => this.$root.showError('Could not update status', err))
@@ -357,7 +357,7 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
       this.can = response.data.data.permissions
 

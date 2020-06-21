@@ -386,8 +386,8 @@ export default {
       this.errors = {}
 
       const promise = this.isNew
-        ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications', this.application)
-        : this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id, this.application)
+        ? this.axios.post(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications', this.application)
+        : this.axios.put(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id, this.application)
 
       promise.then((application) => {
         this.$root.showSuccess('Application is saved.')
@@ -417,7 +417,7 @@ export default {
         board_comment: this.application.board_comment
       }
 
-      this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id + '/board', toServer).then(() => {
+      this.axios.put(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id + '/board', toServer).then(() => {
         this.$root.showSuccess('Application is saved.')
       }).catch((err) => {
         this.isSaving = false
@@ -441,7 +441,7 @@ export default {
       })
     },
     setCancelled (value) {
-      this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.application.id + '/cancel', {
+      this.axios.put(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.application.id + '/cancel', {
         cancelled: value
       }).then(() => {
         this.application.cancelled = value
@@ -477,7 +477,7 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
       this.can = response.data.data.permissions
 
@@ -510,7 +510,7 @@ export default {
       }
 
       // Fetching application
-      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id).then((application) => {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id).then((application) => {
         this.application = application.data.data
         this.can = application.data.data.permissions
 

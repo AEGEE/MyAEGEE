@@ -150,7 +150,7 @@ export default {
       })
     },
     deleteQuestionLine (questionLine, index) {
-      this.axios.delete(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/question-lines/' + questionLine.id).then(() => {
+      this.axios.delete(this.services['statutory'] + '/events/' + this.$route.params.id + '/question-lines/' + questionLine.id).then(() => {
         this.$root.showSuccess('Question line is deleted.')
         this.questionLines.splice(index, 1)
         this.selectedQuestionLine = this.questionLines[index]
@@ -167,7 +167,7 @@ export default {
       })
     },
     deleteQuestion (questionLine, question, questionIndex) {
-      this.axios.delete(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/question-lines/' + questionLine.id + '/questions/' + question.id).then(() => {
+      this.axios.delete(this.services['statutory'] + '/events/' + this.$route.params.id + '/question-lines/' + questionLine.id + '/questions/' + question.id).then(() => {
         this.$root.showSuccess('Question is deleted.')
         questionLine.questions.splice(questionIndex, 1)
       }).catch((err) => this.$root.showError('Could not delete question', err))
@@ -252,7 +252,7 @@ export default {
     },
     switchQuestionLineStatus (questionLine) {
       questionLine.isSaving = true
-      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/question-lines/' + questionLine.id + '/status'
+      const url = this.services['statutory'] + '/events/' + this.$route.params.id + '/question-lines/' + questionLine.id + '/status'
 
       this.axios.put(url, { status: questionLine.newStatus }).then(() => {
         questionLine.status = questionLine.newStatus
@@ -267,11 +267,11 @@ export default {
   mounted () {
     this.isLoading = true
 
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
 
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/question-lines/')
+      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/question-lines/')
     }).then((questionLines) => {
       for (const questionLine of questionLines.data.data) {
         questionLine.isSaving = false

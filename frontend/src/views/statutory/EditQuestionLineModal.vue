@@ -39,8 +39,8 @@ export default {
       this.isLoading = true
 
       const action = this.isNew
-        ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.event.id + '/question-lines/', this.questionLine)
-        : this.axios.put(this.services['oms-statutory'] + '/events/' + this.event.id + '/question-lines/' + this.questionLine.id, this.questionLine)
+        ? this.axios.post(this.services['statutory'] + '/events/' + this.event.id + '/question-lines/', this.questionLine)
+        : this.axios.put(this.services['statutory'] + '/events/' + this.event.id + '/question-lines/' + this.questionLine.id, this.questionLine)
 
       action.then(() => {
         this.showSuccess('Question line is created.')

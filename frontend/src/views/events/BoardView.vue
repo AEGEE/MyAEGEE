@@ -130,7 +130,7 @@ export default {
       action: 'approve_members',
       object: 'events'
     }).then((bodies) => {
-      // Getting bodies IDs list from POST /my_permissions. Copied from oms-statutory backend
+      // Getting bodies IDs list from POST /my_permissions. Copied from statutory backend
       const boardIds = bodies.data.data.reduce((acc, val) => acc.concat(val), [])
         .filter(elt => elt.body_id)
         .map(elt => elt.body_id)

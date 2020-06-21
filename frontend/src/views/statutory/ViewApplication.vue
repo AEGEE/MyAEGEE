@@ -301,7 +301,7 @@ export default {
       })
     },
     setCancelled (value) {
-      this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.application.id + '/cancel', {
+      this.axios.put(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.application.id + '/cancel', {
         cancelled: value
       }).then(() => {
         this.application.cancelled = value
@@ -311,14 +311,14 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
       this.can = response.data.data.permissions
 
       this.event.application_period_starts = new Date(this.event.application_period_starts)
       this.event.application_period_ends = new Date(this.event.application_period_ends)
 
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id).then((application) => {
+      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id).then((application) => {
         this.$set(this, 'application', application.data.data)
         this.can = application.data.data.permissions
         this.isLoading = false

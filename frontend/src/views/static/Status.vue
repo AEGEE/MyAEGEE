@@ -66,12 +66,12 @@ export default {
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/events/blob/master/CHANGELOG.md'
         },
-        'oms-statutory': {
+        statutory: {
           roundTrip: null,
           version: '-',
           latestVersion: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/oms-statutory/blob/master/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/statutory/blob/master/CHANGELOG.md'
         },
         'oms-discounts': {
           roundTrip: null,

@@ -56,7 +56,7 @@ export default {
   mounted () {
     this.isLoading = true
 
-    this.axios.get(this.services['oms-statutory'] + '/tasks/').then((event) => {
+    this.axios.get(this.services['statutory'] + '/tasks/').then((event) => {
       this.tasks = Object.keys(event.data.data).map(key => ({
         id: key,
         ...event.data.data[key]

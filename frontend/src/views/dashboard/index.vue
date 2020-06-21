@@ -163,7 +163,7 @@ export default {
     })
 
     this.axios.get(this.services['events'] + '/mine/participating').then((eventsResponse) => {
-      this.axios.get(this.services['oms-statutory'] + '/mine').then((statutoryResponse) => {
+      this.axios.get(this.services['statutory'] + '/mine').then((statutoryResponse) => {
         const input = eventsResponse.data.data.concat(statutoryResponse.data.data)
         for (const event of input) {
           if (moment().isSameOrBefore(event.starts)) {
@@ -184,7 +184,7 @@ export default {
       this.$root.showError('Could not fetch events list', err)
     })
 
-    this.axios.get(this.services['oms-statutory'] + '/events/latest').then((response) => {
+    this.axios.get(this.services['statutory'] + '/events/latest').then((response) => {
       this.$set(this, 'statutory', response.data.data)
       this.isLoading.statutory = false
     }).catch((err) => {

@@ -173,7 +173,7 @@ export default {
       this.isLoading = true
       this.memberslist = null
 
-      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + this.selectedBody).then((response) => {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + this.selectedBody).then((response) => {
         this.memberslist = response.data.data
         this.isLoading = false
       }).catch((err) => {
@@ -280,7 +280,7 @@ export default {
 
       this.isLoading = true
       this.isEditing = false
-      this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + this.selectedBody, body).then((response) => {
+      this.axios.post(this.services['statutory'] + '/events/' + this.$route.params.id + '/memberslists/' + this.selectedBody, body).then((response) => {
         this.$root.showSuccess('Members list is uploaded.')
         this.memberslist = response.data.data
         this.isLoading = false
@@ -354,7 +354,7 @@ export default {
   mounted () {
     this.isLoading = true
 
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
       this.myBoards = Object.keys(this.can.see_memberslist)

@@ -276,7 +276,7 @@ export default {
     deletePosition (position) {
       this.isLoading = true
       this.axios.delete(
-        this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/' + position.id
+        this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/' + position.id
       ).then(() => {
         const index = this.positions.indexOf(position)
         this.positions.splice(index, 1)
@@ -300,7 +300,7 @@ export default {
     },
     switchCandidateStatus (candidate, position) {
       candidate.isSaving = true
-      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/status'
+      const url = this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/' + position.id + '/candidates/' + candidate.id + '/status'
 
       this.axios.put(url, { status: candidate.newStatus }).then(() => {
         candidate.status = candidate.newStatus
@@ -313,7 +313,7 @@ export default {
     },
     switchPositionStatus (position) {
       position.isSaving = true
-      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/' + position.id + '/status'
+      const url = this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/' + position.id + '/status'
 
       this.axios.put(url, { status: position.newStatus }).then(() => {
         position.status = position.newStatus
@@ -332,11 +332,11 @@ export default {
       this.bodies = bodiesResponse.data.data
     })
 
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
 
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/' + this.prefix)
+      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/' + this.prefix)
     }).then((positionResponse) => {
       for (const position of positionResponse.data.data) {
         position.isSaving = false
@@ -350,7 +350,7 @@ export default {
 
       this.positions = positionResponse.data.data
 
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/candidates/mine')
+      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/candidates/mine')
     }).then((myCandidates) => {
       this.myCandidates = myCandidates.data.data
 

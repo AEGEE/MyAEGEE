@@ -2,9 +2,9 @@
   "core": "/api/core",
   "mailer": "/api/mailer",
   "events": "/api/events",
-  "oms-statutory": "/services/oms-statutory/api",
+  "statutory": "/api/statutory",
   "oms-discounts": "/services/oms-discounts/api",
   "oms-frontend": "",
   "events-static": "/media/events",
-  "oms-statutory-static": "/media/statutory"
+  "statutory-static": "/media/statutory"
 }

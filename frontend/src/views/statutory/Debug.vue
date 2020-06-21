@@ -76,7 +76,7 @@ export default {
   mounted () {
     this.isLoading = true
 
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.permissions = event.data.data.permissions
 

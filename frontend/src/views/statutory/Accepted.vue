@@ -80,7 +80,7 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/accepted').then((application) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/accepted').then((application) => {
       this.applications = application.data.data.sort((a, b) => {
         const byBody = a.body_name.localeCompare(b.body_name)
         if (byBody !== 0) {

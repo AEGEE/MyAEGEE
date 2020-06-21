@@ -106,7 +106,7 @@ export default {
         return []
       })
 
-      const statutoryPromise = this.axios.get(this.services['oms-statutory'], query).then((result) => {
+      const statutoryPromise = this.axios.get(this.services['statutory'], query).then((result) => {
         return result.data.data.map((event) => ({
           title: event.name,
           start: new Date(event.starts),

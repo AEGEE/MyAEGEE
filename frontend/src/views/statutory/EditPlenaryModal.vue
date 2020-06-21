@@ -80,8 +80,8 @@ export default {
       this.isLoading = true
 
       const action = this.isNew
-        ? this.axios.post(this.services['oms-statutory'] + '/events/' + this.event.id + '/plenaries/', this.plenary)
-        : this.axios.put(this.services['oms-statutory'] + '/events/' + this.event.id + '/plenaries/' + this.plenary.id, this.plenary)
+        ? this.axios.post(this.services['statutory'] + '/events/' + this.event.id + '/plenaries/', this.plenary)
+        : this.axios.put(this.services['statutory'] + '/events/' + this.event.id + '/plenaries/' + this.plenary.id, this.plenary)
 
       action.then(() => {
         this.showSuccess('Plenary is created.')

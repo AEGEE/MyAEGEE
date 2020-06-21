@@ -286,7 +286,7 @@ export default {
 
 
       this.errors = {}
-      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + this.selectedBody
+      const url = this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + this.selectedBody
       const body = this.bodyStatuses.filter(entry => entry.user_id !== null && typeof entry.user_id !== 'undefined')
 
       this.axios.post(url, body).then(() => {
@@ -301,10 +301,10 @@ export default {
     },
     fetchBoardview () {
       this.isLoading = true
-      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + this.selectedBody).then((application) => {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + this.selectedBody).then((application) => {
         this.applications = application.data.data
 
-        return this.axios.get(this.services['oms-statutory'] + '/limits/' + this.event.type + '/' + this.selectedBody)
+        return this.axios.get(this.services['statutory'] + '/limits/' + this.event.type + '/' + this.selectedBody)
       }).then((limitResponse) => {
         this.limits = limitResponse.data.data
 
@@ -358,7 +358,7 @@ export default {
   mounted () {
     this.isLoading = true
 
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.loading = false
 
       this.event = event.data.data

@@ -449,7 +449,7 @@ export default {
       const data = new FormData()
       data.append('image', this.file)
 
-      this.axios.post(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/image', data).then(() => {
+      this.axios.post(this.services['statutory'] + '/events/' + this.$route.params.id + '/image', data).then(() => {
         this.$root.showSuccess('Event image is updated.')
         this.file = null
       }).catch((err) => this.$root.showError('Could not update image', err))
@@ -579,8 +579,8 @@ export default {
       this.errors = {}
 
       const promise = this.$route.params.id
-        ? this.axios.put(this.services['oms-statutory'] + '/events/' + this.$route.params.id, this.event)
-        : this.axios.post(this.services['oms-statutory'], this.event)
+        ? this.axios.put(this.services['statutory'] + '/events/' + this.$route.params.id, this.event)
+        : this.axios.post(this.services['statutory'], this.event)
 
       promise.then(() => {
         this.isSaving = false
@@ -645,7 +645,7 @@ export default {
 
     this.isLoading = true
 
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
       this.can = response.data.data.permissions
 

@@ -24,7 +24,7 @@
               <div class="media-left">
                 <figure class="image image-96px">
                   <img v-if="!event.image" src="/images/logo.png">
-                  <img v-if="event.image" :src="services['oms-statutory-static'] + event.image.frontend_path">
+                  <img v-if="event.image" :src="services['statutory-static'] + event.image.frontend_path">
                 </figure>
               </div>
               <div class="media-content">
@@ -136,7 +136,7 @@ export default {
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['oms-statutory'], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
+      this.axios.get(this.services['statutory'], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
         this.events = this.events.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit

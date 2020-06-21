@@ -139,7 +139,7 @@ export default {
   methods: {
     switchPaxAttended (pax) {
       pax.isSavingAttended = true
-      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/attended'
+      const url = this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/attended'
 
       this.axios.put(url, { attended: pax.newAttended }).then(() => {
         pax.attended = pax.newAttended
@@ -152,7 +152,7 @@ export default {
     },
     switchPaxConfirmed (pax) {
       pax.isSavingConfirmed = true
-      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/confirmed'
+      const url = this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/confirmed'
 
       this.axios.put(url, { confirmed: pax.newConfirmed }).then(() => {
         pax.confirmed = pax.newConfirmed
@@ -174,10 +174,10 @@ export default {
     loadApplications () {
       this.isLoading = true
 
-      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
         this.event = event.data.data
 
-        return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/incoming', { params: this.queryObject })
+        return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/incoming', { params: this.queryObject })
       }).then((application) => {
         this.applications = application.data.data
         this.total = application.data.meta.count

@@ -87,10 +87,10 @@ export default {
   }),
   mounted () {
     this.isLoading = true
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/votes-amounts/antenna').then((votes) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/votes-amounts/antenna').then((votes) => {
       this.antennae = votes.data.data
 
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/votes-amounts/delegate')
+      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/votes-amounts/delegate')
     }).then((votes) => {
       this.delegates = votes.data.data.sort((a, b) => a.type.localeCompare(b.type))
 

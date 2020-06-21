@@ -113,7 +113,7 @@ export default {
   computed: mapGetters(['services']),
   methods: {
     saveLimit (limit) {
-      this.axios.post(this.services['oms-statutory'] + '/limits/' + this.eventType, limit).then(() => {
+      this.axios.post(this.services['statutory'] + '/limits/' + this.eventType, limit).then(() => {
         this.$root.showSuccess('Limit is saved.')
         this.$set(limit, 'isEditing', false)
         this.$set(limit, 'default', false)
@@ -122,7 +122,7 @@ export default {
       })
     },
     deleteLimit (limit) {
-      this.axios.delete(this.services['oms-statutory'] + '/limits/' + this.eventType + '/' + limit.body_id).then(() => {
+      this.axios.delete(this.services['statutory'] + '/limits/' + this.eventType + '/' + limit.body_id).then(() => {
         this.$root.showSuccess('Limit is deleted.')
         window.location.reload()
       }).catch((err) => {
@@ -131,7 +131,7 @@ export default {
     },
     fetchLimits () {
       this.isLoading = true
-      this.axios.get(this.services['oms-statutory'] + '/limits/' + this.eventType).then((response) => {
+      this.axios.get(this.services['statutory'] + '/limits/' + this.eventType).then((response) => {
         this.limits = response.data.data
 
         return this.axios.get(this.services['core'] + '/bodies/')

@@ -100,7 +100,7 @@ export default {
   }),
   methods: {
     exportOpenSlides () {
-      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/export/openslides', {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/export/openslides', {
         responseType: 'blob'
       }).then(response => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
@@ -119,7 +119,7 @@ export default {
       const select = this.filterKeys()
       const filter = this.filterApplications()
 
-      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/export/' + prefix, {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/export/' + prefix, {
         responseType: 'blob',
         params: {
           select,
@@ -149,7 +149,7 @@ export default {
   mounted () {
     this.isLoading = true
 
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
 
@@ -157,7 +157,7 @@ export default {
         ? 'all'
         : 'incoming'
 
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/fields/applications/' + prefix)
+      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/fields/applications/' + prefix)
     }).then((response) => {
       this.fields = response.data.data
       this.isLoading = false

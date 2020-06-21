@@ -95,7 +95,7 @@ export default {
     addAttendance () {
       this.isSaving = false
       this.axios.post(
-        this.services['oms-statutory']
+        this.services['statutory']
           + '/events/' + this.$route.params.id
           + '/plenaries/' + this.$route.params.plenary_id
           + '/attendance/mark',
@@ -125,11 +125,11 @@ export default {
   mounted () {
     this.isLoading = true
 
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
 
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/plenaries/' + this.$route.params.plenary_id)
+      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/plenaries/' + this.$route.params.plenary_id)
     }).then((plenary) => {
       this.plenary = plenary.data.data
       this.isLoading = false

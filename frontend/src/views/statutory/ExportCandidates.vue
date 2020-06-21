@@ -68,7 +68,7 @@ export default {
       const select = this.filterKeys()
       const filter = this.filterApplications()
 
-      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/positions/export', {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/positions/export', {
         responseType: 'blob',
         params: {
           select,
@@ -97,11 +97,11 @@ export default {
   mounted () {
     this.isLoading = true
 
-    this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
+    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
       this.event = event.data.data
       this.can = event.data.data.permissions
 
-      return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/fields/candidates')
+      return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/fields/candidates')
     }).then((response) => {
       this.fields = response.data.data
       this.isLoading = false

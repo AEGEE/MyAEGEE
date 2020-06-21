@@ -131,7 +131,7 @@ export default {
   methods: {
     switchPaxRegistered (pax) {
       pax.isSavingRegistered = true
-      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/registered'
+      const url = this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/registered'
 
       this.axios.put(url, { registered: pax.newRegistered }).then(() => {
         pax.registered = pax.newRegistered
@@ -144,7 +144,7 @@ export default {
     },
     switchPaxDeparted (pax) {
       pax.isSavingDeparted = true
-      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/departed'
+      const url = this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/departed'
 
       this.axios.put(url, { departed: pax.newDeparted }).then(() => {
         pax.departed = pax.newDeparted
@@ -166,10 +166,10 @@ export default {
     loadApplications () {
       this.isLoading = true
 
-      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
         this.event = event.data.data
 
-        return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/juridical', { params: this.queryObject })
+        return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/juridical', { params: this.queryObject })
       }).then((application) => {
         this.applications = application.data.data
         this.total = application.data.meta.count

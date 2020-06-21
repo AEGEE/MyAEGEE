@@ -127,7 +127,7 @@ export default {
     },
     switchPaxRegistered (pax) {
       pax.isSavingOnMemberslist = true
-      const url = this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/is_on_memberslist'
+      const url = this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/is_on_memberslist'
 
       this.axios.put(url, { is_on_memberslist: pax.newIsOnMemberslist }).then(() => {
         pax.is_on_memberslist = pax.newIsOnMemberslist
@@ -149,10 +149,10 @@ export default {
     loadApplications () {
       this.isLoading = true
 
-      this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id).then((event) => {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((event) => {
         this.event = event.data.data
 
-        return this.axios.get(this.services['oms-statutory'] + '/events/' + this.$route.params.id + '/applications/network', { params: this.queryObject })
+        return this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/network', { params: this.queryObject })
       }).then((application) => {
         this.applications = application.data.data
         this.total = application.data.meta.count
