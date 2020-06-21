@@ -1,3 +1,10 @@
+## [1.0.7](https://github.com/AEGEE/oms-frontend/compare/1.0.6...1.0.7) (2020-06-21)
+
+
+### Bug Fixes
+
+* **core:** fixed edit permission for user ([#427](https://github.com/AEGEE/oms-frontend/issues/427)) ([aa8e7f8](https://github.com/AEGEE/oms-frontend/commit/aa8e7f83d56bfe097f9171f0ec5b1d53f97bad23))
+
 ## [1.0.6](https://github.com/AEGEE/oms-frontend/compare/1.0.5...1.0.6) (2020-06-21)
 
 
