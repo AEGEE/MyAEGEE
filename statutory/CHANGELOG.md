@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/AEGEE/oms-statutory/compare/1.0.2...1.1.0) (2020-06-21)
+
+
+### Features
+
+* **docker:** use shorter prefix ([#308](https://github.com/AEGEE/oms-statutory/issues/308)) ([502611f](https://github.com/AEGEE/oms-statutory/commit/502611ffc074f4d0e6deaec713e199b547ed024c))
+
 ## [1.0.2](https://github.com/AEGEE/oms-statutory/compare/1.0.1...1.0.2) (2020-06-20)
 
 
