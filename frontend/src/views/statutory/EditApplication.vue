@@ -515,7 +515,7 @@ export default {
         this.can = application.data.data.permissions
 
         // Fetching user to get his/her bodies
-        return this.axios.get(this.services['oms-core-elixir'] + '/members/' + this.application.user_id)
+        return this.axios.get(this.services['core'] + '/members/' + this.application.user_id)
       }).then((user) => {
         this.bodies = user.data.data.bodies
         this.isLoading = false

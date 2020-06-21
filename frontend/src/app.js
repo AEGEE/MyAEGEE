@@ -132,7 +132,7 @@ axios.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    return Vue.axios.post(state.services['oms-core-elixir'] + '/renew', { refresh_token: refreshToken }).then((result) => {
+    return Vue.axios.post(state.services['core'] + '/renew', { refresh_token: refreshToken }).then((result) => {
       console.debug('Renew access token successfully.')
 
       window.localStorage.setItem('access-token', result.data.access_token)

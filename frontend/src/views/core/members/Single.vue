@@ -211,7 +211,7 @@ export default {
     //   })
     // },
     // deleteUser () {
-    //   this.axios.delete(this.services['oms-core-elixir'] + '/user/' + this.user.id).then(() => {
+    //   this.axios.delete(this.services['core'] + '/user/' + this.user.id).then(() => {
     //     this.$root.showSuccess('User is deleted.')
     //     this.$router.push({ name: 'oms.members.list' })
     //   }).catch((err) => this.$root.showError('Could not delete user', err))
@@ -246,7 +246,7 @@ export default {
     },
     toggleActive () {
       this.isSwitchingStatus = true
-      this.axios.put(this.services['oms-core-elixir'] + '/members/' + this.user.id + '/active', { active: !this.user.active }).then((response) => {
+      this.axios.put(this.services['core'] + '/members/' + this.user.id + '/active', { active: !this.user.active }).then((response) => {
         console.log('response', response)
         this.user.active = response.data.data.active
         this.$root.showSuccess('User is ' + (this.user.active ? 'activated.' : 'suspended.'))
@@ -258,14 +258,14 @@ export default {
     },
     fetchUser () {
       this.isLoading = true
-      this.axios.get(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id).then((response) => {
+      this.axios.get(this.services['core'] + '/members/' + this.$route.params.id).then((response) => {
         this.user = response.data.data
         this.isOwnProfile = this.user.id === this.loginUser.id
 
         // Combining global permissions and local ones for bodies of this users.
         const links = [
-          this.services['oms-core-elixir'] + '/members/' + this.$route.params.id + '/my_permissions',
-          ...this.user.bodies.map(body => this.services['oms-core-elixir'] + '/bodies/' + body.id + '/my_permissions')
+          this.services['core'] + '/members/' + this.$route.params.id + '/my_permissions',
+          ...this.user.bodies.map(body => this.services['core'] + '/bodies/' + body.id + '/my_permissions')
         ]
 
         return Promise.all(links.map(link => this.axios.get(link)))

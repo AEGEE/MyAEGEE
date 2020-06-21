@@ -152,7 +152,7 @@ export default {
     this.isLoading.events = true
     this.isLoading.statutory = true
 
-    this.axios.get(this.services['oms-core-elixir'] + '/members/me').then((response) => {
+    this.axios.get(this.services['core'] + '/members/me').then((response) => {
       this.user = response.data.data
       this.user.bodies.sort((b1, b2) => ((b1.name > b2.name) ? 1 : -1))
       this.user.circles.sort((c1, c2) => ((c1.name > c2.name) ? 1 : -1))

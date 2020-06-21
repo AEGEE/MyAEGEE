@@ -88,7 +88,7 @@ export default {
       this.source = this.axios.CancelToken.source()
 
       try {
-        const response = await this.axios.get(this.services['oms-core-elixir'] + '/campaigns/' + this.$route.params.id + '/members', {
+        const response = await this.axios.get(this.services['core'] + '/campaigns/' + this.$route.params.id + '/members', {
           params: this.queryObject,
           cancelToken: this.source.token
         })
@@ -110,8 +110,8 @@ export default {
       this.isLoading = true
       try {
         const campaignUrl = this.$route.params.body_id
-          ? this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.body_id + '/campaigns/' + this.$route.params.id
-          : this.services['oms-core-elixir'] + '/campaigns/' + this.$route.params.id
+          ? this.services['core'] + '/bodies/' + this.$route.params.body_id + '/campaigns/' + this.$route.params.id
+          : this.services['core'] + '/campaigns/' + this.$route.params.id
 
         const campaignsResponse = await this.axios.get(campaignUrl)
         this.campaign = campaignsResponse.data.data

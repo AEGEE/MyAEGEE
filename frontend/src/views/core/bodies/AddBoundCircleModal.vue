@@ -51,7 +51,7 @@ export default {
   methods: {
     saveBoundCircle () {
       this.isLoading = true
-      this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.body.id + '/circles', {
+      this.axios.post(this.services['core'] + '/bodies/' + this.body.id + '/circles', {
         name: this.tmpCircle.name,
         description: this.tmpCircle.description
       }).then((response) => {

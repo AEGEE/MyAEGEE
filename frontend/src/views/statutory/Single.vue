@@ -361,7 +361,7 @@ export default {
       this.event = response.data.data
       this.can = response.data.data.permissions
 
-      return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.event.body_id)
+      return this.axios.get(this.services['core'] + '/bodies/' + this.event.body_id)
     }).then((response) => {
       this.event.body = response.data.data
 

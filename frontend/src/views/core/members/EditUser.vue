@@ -69,7 +69,7 @@ export default {
       }
 
       this.isSaving = true
-      this.axios.put(this.services['oms-core-elixir'] + '/members/me/password', body).then(() => {
+      this.axios.put(this.services['core'] + '/members/me/password', body).then(() => {
         this.isSaving = false
 
         this.$root.showSuccess('Password is updated.')
@@ -97,7 +97,7 @@ export default {
   },
   computed: mapGetters(['services']),
   mounted () {
-    this.axios.get(this.services['oms-core-elixir'] + '/members/me').then((response) => {
+    this.axios.get(this.services['core'] + '/members/me').then((response) => {
       this.user = response.data.data
       this.user.password = ''
       this.isLoading = false

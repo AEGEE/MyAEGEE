@@ -408,7 +408,7 @@ export default {
       }
       this.stats.by_gender = byGenderStats
 
-      return this.axios.get(this.services['oms-core-elixir'] + '/bodies/')
+      return this.axios.get(this.services['core'] + '/bodies/')
     }).then((bodies) => {
       this.bodies = bodies.data.data
       for (const stat of this.stats.by_body) {

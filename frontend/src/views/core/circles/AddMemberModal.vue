@@ -51,8 +51,8 @@ export default {
 
       // If circle is bound to a body, search for body members. If not, use global search.
       const url = this.circle.body_id
-        ? this.services['oms-core-elixir'] + '/bodies/' + this.circle.body_id + '/members'
-        : this.services['oms-core-elixir'] + '/members'
+        ? this.services['core'] + '/bodies/' + this.circle.body_id + '/members'
+        : this.services['core'] + '/members'
 
       this.axios.get(url, {
         cancelToken: this.token.token,
@@ -74,7 +74,7 @@ export default {
       })
     },
     addMember (member) {
-      this.axios.post(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members', {
+      this.axios.post(this.services['core'] + '/circles/' + this.circle.id + '/members', {
         user_id: member.id
       }).then(() => {
         this.showSuccess('Member is added.')

@@ -190,7 +190,7 @@ export default {
         'phone'
       ])
 
-      this.axios.post(this.services['oms-core-elixir'] + '/signup/' + this.$route.params.id, body).then(() => {
+      this.axios.post(this.services['core'] + '/signup/' + this.$route.params.id, body).then(() => {
         this.$root.showSuccess('Your submission is registered.')
         return this.$router.push({ name: 'oms.confirm_token' })
       }).catch((err) => {

@@ -463,7 +463,7 @@ export default {
       if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['oms-core-elixir'] + '/bodies', {
+      this.axios.get(this.services['core'] + '/bodies', {
         cancelToken: this.token.token,
         params: { query }
       }).then((response) => {
@@ -658,7 +658,7 @@ export default {
       this.dates.memberslist_submission_deadline = this.event.memberslist_submission_deadline = new Date(this.event.memberslist_submission_deadline)
 
 
-      return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.event.body_id)
+      return this.axios.get(this.services['core'] + '/bodies/' + this.event.body_id)
     }).then((response) => {
       this.$set(this.event, 'body', response.data.data)
 

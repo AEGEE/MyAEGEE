@@ -4,7 +4,7 @@ import services from './services'
 export default {
   install (Vue) {
     const login = async (params) => {
-      const res = await Vue.axios.post(services['oms-core-elixir'] + '/login', params)
+      const res = await Vue.axios.post(services['core'] + '/login', params)
       if (!res.data.success) {
         throw res.data
       }
@@ -15,7 +15,7 @@ export default {
     }
 
     const fetchUser = async () => {
-      const result = await Vue.axios.get(services['oms-core-elixir'] + '/members/me', {
+      const result = await Vue.axios.get(services['core'] + '/members/me', {
         headers: { 'X-For-Auth': 'true' }
       })
 
@@ -28,7 +28,7 @@ export default {
     }
 
     const fetchPermissions = async () => {
-      const result = await Vue.axios.get(services['oms-core-elixir'] + '/my_permissions')
+      const result = await Vue.axios.get(services['core'] + '/my_permissions')
 
       if (!result.data.success) {
         throw result.data
@@ -52,7 +52,7 @@ export default {
     const logout = async () => {
       const accessToken = window.localStorage.getItem('access-token')
       try {
-        await Vue.axios.post(services['oms-core-elixir'] + '/logout', null, {
+        await Vue.axios.post(services['core'] + '/logout', null, {
           headers: { 'X-Auth-Token': accessToken }
         })
       } catch (err) {

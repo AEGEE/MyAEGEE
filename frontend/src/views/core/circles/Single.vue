@@ -169,14 +169,14 @@ export default {
       })
     },
     deleteCircle () {
-      this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.circle.id).then(() => {
+      this.axios.delete(this.services['core'] + '/circles/' + this.circle.id).then(() => {
         this.$root.showInfo('Circle is deleted.')
         this.$router.push({ name: 'oms.circles.list' })
       }).catch((err) => this.$root.showError('Could not delete circle', err))
     },
     joinCircle () {
       this.isLoading = true
-      this.axios.post(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members').then(() => {
+      this.axios.post(this.services['core'] + '/circles/' + this.circle.id + '/members').then(() => {
         this.$root.showSuccess('Successfully joined circle.')
         this.can.join = false
         this.isMember = true
@@ -203,7 +203,7 @@ export default {
     },
     leaveCircle () {
       this.isLoading = true
-      this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members').then(() => {
+      this.axios.delete(this.services['core'] + '/circles/' + this.circle.id + '/members').then(() => {
         this.$root.showSuccess('Successfully left circle.')
         this.can.join = true
         this.isMember = false
@@ -215,12 +215,12 @@ export default {
     },
     loadData (id) {
       this.isLoading = true
-      this.axios.get(this.services['oms-core-elixir'] + '/circles/' + id).then((response) => {
+      this.axios.get(this.services['core'] + '/circles/' + id).then((response) => {
         this.circle = response.data.data
 
         this.isMember = this.loginUser.circles.some(circle => circle.id === this.circle.id)
 
-        return this.axios.get(this.services['oms-core-elixir'] + '/circles/' + id + '/my_permissions')
+        return this.axios.get(this.services['core'] + '/circles/' + id + '/my_permissions')
       }).then((response) => {
         this.permissions = response.data.data
 
@@ -236,7 +236,7 @@ export default {
         const hasPermissionToViewMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
         this.can.addMembers = hasPermissionToAdd && (this.circle.body_id || hasPermissionToViewMembers)
 
-        return this.axios.get(this.services['oms-core-elixir'] + '/circles/' + id + '/permissions')
+        return this.axios.get(this.services['core'] + '/circles/' + id + '/permissions')
       }).then((response) => {
         this.inheritedPermissions = response.data.data
 

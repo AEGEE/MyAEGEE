@@ -184,8 +184,8 @@ export default {
       this.errors = {}
 
       const promise = this.$route.params.id
-        ? this.axios.put(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id, this.body)
-        : this.axios.post(this.services['oms-core-elixir'] + '/bodies/', this.body)
+        ? this.axios.put(this.services['core'] + '/bodies/' + this.$route.params.id, this.body)
+        : this.axios.post(this.services['core'] + '/bodies/', this.body)
 
       promise.then((response) => {
         this.isSaving = false
@@ -214,13 +214,13 @@ export default {
     }
 
     this.isLoading = true
-    this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id).then((response) => {
       this.body = response.data.data
       this.foundationDate = response.data.data.founded_at ? moment(response.data.data.founded_at, 'YYYY-MM-DD').toDate() : null
 
       this.isLoading = false
 
-      return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
+      return this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/my_permissions')
     }).then((response) => {
       this.permissions = response.data.data
 

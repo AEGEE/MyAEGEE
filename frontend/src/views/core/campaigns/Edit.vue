@@ -135,8 +135,8 @@ export default {
       this.errors = {}
 
       const promise = this.$route.params.id
-        ? this.axios.put(this.services['oms-core-elixir'] + '/campaigns/' + this.$route.params.id, this.campaign)
-        : this.axios.post(this.services['oms-core-elixir'] + '/campaigns/', this.campaign)
+        ? this.axios.put(this.services['core'] + '/campaigns/' + this.$route.params.id, this.campaign)
+        : this.axios.post(this.services['core'] + '/campaigns/', this.campaign)
 
       promise.then((response) => {
         this.isSaving = false
@@ -161,7 +161,7 @@ export default {
   },
   computed: mapGetters(['services']),
   mounted () {
-    this.axios.get(this.services['oms-core-elixir'] + '/bodies/', { params: { limit: 1000 } }).then((response) => { // TODO rethink
+    this.axios.get(this.services['core'] + '/bodies/', { params: { limit: 1000 } }).then((response) => { // TODO rethink
       this.bodies = response.data.data
 
       if (this.$route.params.body_id) {
@@ -177,7 +177,7 @@ export default {
     }
 
     this.isLoading = true
-    this.axios.get(this.services['oms-core-elixir'] + '/campaigns/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['core'] + '/campaigns/' + this.$route.params.id).then((response) => {
       this.campaign = response.data.data
       this.isLoading = false
     }).catch((err) => {

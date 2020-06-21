@@ -217,7 +217,7 @@ export default {
       })
     },
     deleteBody () {
-      this.axios.put(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/status', { status: 'deleted' }).then(() => {
+      this.axios.put(this.services['core'] + '/bodies/' + this.$route.params.id + '/status', { status: 'deleted' }).then(() => {
         this.$root.showSuccess('Body is deleted.')
         this.$router.push({ name: 'oms.bodies.list' })
       }).catch((err) => this.$root.showError('Could not delete body', err))
@@ -238,7 +238,7 @@ export default {
     },
     joinBody (motivation) {
       this.isLoading = true
-      this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/join-requests', {
+      this.axios.post(this.services['core'] + '/bodies/' + this.$route.params.id + '/join-requests', {
         motivation
       }).then(() => {
         this.$root.showSuccess('Join request is sent.')
@@ -264,7 +264,7 @@ export default {
       })
     },
     leaveBody () {
-      this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members').then(() => {
+      this.axios.delete(this.services['core'] + '/bodies/' + this.$route.params.id + '/members').then(() => {
         this.isMember = false
         this.isRequestingMembership = false
         this.$root.showSuccess('You are not the member anymore.')
@@ -275,14 +275,14 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id).then((response) => {
       this.body = response.data.data
 
       if (this.loginUser) {
         this.isMember = this.loginUser.bodies.some(body => body.id === this.body.id)
         this.isRequestingMembership = this.loginUser.join_requests.some(request => request.body_id === this.body.id)
 
-        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions').then((permissionsResponse) => {
+        return this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/my_permissions').then((permissionsResponse) => {
           this.permissions = permissionsResponse.data.data
           this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
           this.can.viewJoinRequests = this.permissions.some(permission => permission.combined.endsWith('view:join_request'))

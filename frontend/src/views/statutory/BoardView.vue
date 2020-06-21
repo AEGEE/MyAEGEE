@@ -378,7 +378,7 @@ export default {
 
       if (this.can.see_boardview.global) {
         // Fetching all bodies
-        this.axios.get(this.services['oms-core-elixir'] + '/bodies/').then((body) => {
+        this.axios.get(this.services['core'] + '/bodies/').then((body) => {
           this.boardBodies = body.data.data
         })
       } else {

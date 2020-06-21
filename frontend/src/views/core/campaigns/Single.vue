@@ -124,7 +124,7 @@ export default {
       })
     },
     deleteCampaign () {
-      this.axios.delete(this.services['oms-core-elixir'] + '/campaigns/' + this.$route.params.id).then(() => {
+      this.axios.delete(this.services['core'] + '/campaigns/' + this.$route.params.id).then(() => {
         this.$root.showSuccess('Campaign is deleted.')
         this.$router.push({ name: 'oms.campaigns.list' })
       }).catch((err) => this.$root.showError('Could not delete campaign', err))
@@ -132,16 +132,16 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(this.services['oms-core-elixir'] + '/campaigns/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['core'] + '/campaigns/' + this.$route.params.id).then((response) => {
       this.campaign = response.data.data
 
       const requests = [
-        this.axios.get(this.services['oms-core-elixir'] + '/my_permissions')
+        this.axios.get(this.services['core'] + '/my_permissions')
       ]
 
       // If bound circle, also request local permission on the body.
       if (this.campaign.autojoin_body_id) {
-        requests.push(this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.campaign.autojoin_body_id + '/my_permissions'))
+        requests.push(this.axios.get(this.services['core'] + '/bodies/' + this.campaign.autojoin_body_id + '/my_permissions'))
       }
 
       return Promise.all(requests)

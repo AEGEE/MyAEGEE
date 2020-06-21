@@ -134,7 +134,7 @@ export default {
       this.axios.get(this.services['oms-statutory'] + '/limits/' + this.eventType).then((response) => {
         this.limits = response.data.data
 
-        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/')
+        return this.axios.get(this.services['core'] + '/bodies/')
       }).then((response) => {
         this.bodies = response.data.data
 

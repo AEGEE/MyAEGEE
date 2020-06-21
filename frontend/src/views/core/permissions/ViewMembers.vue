@@ -43,10 +43,10 @@ export default {
     fetchData () {
       this.isLoading = true
 
-      this.axios.get(this.services['oms-core-elixir'] + '/permissions/' + this.$route.params.id).then((response) => {
+      this.axios.get(this.services['core'] + '/permissions/' + this.$route.params.id).then((response) => {
         this.permission = response.data.data
 
-        return this.axios.get(this.services['oms-core-elixir'] + '/permissions/' + this.$route.params.id + '/members')
+        return this.axios.get(this.services['core'] + '/permissions/' + this.$route.params.id + '/members')
       }).then((response) => {
         this.members = response.data.data
         this.isLoading = false

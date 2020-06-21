@@ -146,7 +146,7 @@ export default {
         'date_of_birth'
       ])
 
-      this.axios.put(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id, body).then(() => {
+      this.axios.put(this.services['core'] + '/members/' + this.$route.params.id, body).then(() => {
         this.isSaving = false
 
         this.$root.showSuccess('User is saved.')
@@ -170,7 +170,7 @@ export default {
   },
   computed: mapGetters(['services']),
   mounted () {
-    this.axios.get(this.services['oms-core-elixir'] + '/members/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['core'] + '/members/' + this.$route.params.id).then((response) => {
       this.user = response.data.data
 
       /* istanbul ignore next */

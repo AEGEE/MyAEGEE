@@ -1,6 +1,6 @@
 {
-  "oms-core-elixir": "/services/oms-core-elixir/api",
-  "oms-mailer": "/services/oms-mailer/api",
+  "core": "/api/core",
+  "mailer": "/api/mailer",
   "events": "/api/events",
   "oms-statutory": "/services/oms-statutory/api",
   "oms-discounts": "/services/oms-discounts/api",

@@ -191,7 +191,7 @@ export default {
       if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['oms-core-elixir'] + '/' + context, {
+      this.axios.get(this.services['core'] + '/' + context, {
         cancelToken: this.token.token,
         params: { query }
       }).then((response) => {
@@ -209,7 +209,7 @@ export default {
     },
     setParentCircle (circle) {
       this.autoComplete.parentCircle.loading = true
-      this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/parent', {
+      this.axios.put(this.services['core'] + '/circles/' + this.$route.params.id + '/parent', {
         parent_circle_id: circle ? circle.id : null
       }).then(() => {
         this.autoComplete.parentCircle.loading = false
@@ -231,7 +231,7 @@ export default {
     addPermission (permission) {
       this.autoComplete.permissions.loading = true
 
-      this.axios.post(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/permissions', {
+      this.axios.post(this.services['core'] + '/circles/' + this.$route.params.id + '/permissions', {
         permission_id: permission.id
       }).then(() => {
         this.autoComplete.permissions.loading = false
@@ -252,7 +252,7 @@ export default {
     deletePermission (permission) {
       this.autoComplete.permissions.loading = true
 
-      this.axios.delete(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id + '/permissions/' + permission.id).then(() => {
+      this.axios.delete(this.services['core'] + '/circles/' + this.$route.params.id + '/permissions/' + permission.id).then(() => {
         this.autoComplete.permissions.loading = false
         const index = this.circle.permissions.findIndex(perm => perm.id === permission.id)
         this.circle.permissions.splice(index, 1)
@@ -272,7 +272,7 @@ export default {
     setAsParentCircle (circle) {
       this.autoComplete.childCircles.loading = true
 
-      this.axios.put(this.services['oms-core-elixir'] + '/circles/' + circle.id + '/parent', {
+      this.axios.put(this.services['core'] + '/circles/' + circle.id + '/parent', {
         parent_circle_id: this.circle.id
       }).then(() => {
         this.autoComplete.childCircles.loading = false
@@ -294,7 +294,7 @@ export default {
     unsetAsParentCircle (circle) {
       this.autoComplete.childCircles.loading = true
 
-      this.axios.put(this.services['oms-core-elixir'] + '/circles/' + circle.id + '/parent', {
+      this.axios.put(this.services['core'] + '/circles/' + circle.id + '/parent', {
         parent_circle_id: null
       }).then(() => {
         this.autoComplete.childCircles.loading = false
@@ -326,8 +326,8 @@ export default {
       ])
 
       const promise = this.$route.params.id
-        ? this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id, body)
-        : this.axios.post(this.services['oms-core-elixir'] + '/circles/', body)
+        ? this.axios.put(this.services['core'] + '/circles/' + this.$route.params.id, body)
+        : this.axios.post(this.services['core'] + '/circles/', body)
 
       promise.then((response) => {
         this.isSaving = false
@@ -356,7 +356,7 @@ export default {
     }
 
     this.isLoading = true
-    this.axios.get(this.services['oms-core-elixir'] + '/circles/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['core'] + '/circles/' + this.$route.params.id).then((response) => {
       this.circle = response.data.data
       this.isLoading = false
     }).catch((err) => {

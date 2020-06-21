@@ -118,7 +118,7 @@ export default {
     }).then((response) => {
       memberslists = response.data.data
 
-      return this.axios.get(this.services['oms-core-elixir'] + '/bodies/')
+      return this.axios.get(this.services['core'] + '/bodies/')
     }).then((response) => {
       for (const memberslist of memberslists) {
         const body = response.data.data.find(bodyFromList => bodyFromList.id === memberslist.body_id)

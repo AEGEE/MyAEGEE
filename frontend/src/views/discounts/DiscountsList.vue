@@ -78,7 +78,7 @@ export default {
 
       this.categories = response.data.data
 
-      return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions')
+      return this.axios.get(this.services['core'] + '/my_permissions')
     }).then((response) => {
       this.permissions = response.data.data
 

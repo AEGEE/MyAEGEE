@@ -215,7 +215,7 @@ export default {
 
       this.isLoading.permissions = true
 
-      this.axios.get(this.services['oms-core-elixir'] + '/my_permissions').then((response) => {
+      this.axios.get(this.services['core'] + '/my_permissions').then((response) => {
         this.can.createEvent = response.data.data.some(permission => permission.combined.endsWith('create:event'))
 
         this.isLoading.permissions = false

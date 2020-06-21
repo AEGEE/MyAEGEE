@@ -103,7 +103,7 @@ export default {
     saveFeePayment () {
       this.isLoading = true
 
-      this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.body.id + '/payments', {
+      this.axios.post(this.services['core'] + '/bodies/' + this.body.id + '/payments', {
         starts: this.tmpPayment.starts,
         expires: this.tmpPayment.expires,
         currency: this.tmpPayment.currency,

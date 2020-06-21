@@ -96,7 +96,7 @@ export default {
 
       this.isLoading = false
 
-      this.axios.get(this.services['oms-core-elixir'] + '/bodies/').then((bodies) => {
+      this.axios.get(this.services['core'] + '/bodies/').then((bodies) => {
         for (const delegate of this.delegates) {
           this.$set(delegate, 'body', bodies.data.data.find(b => b.id === delegate.application.body_id))
         }

@@ -101,12 +101,12 @@ export default {
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['oms-core-elixir'] + '/campaigns', { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
+      this.axios.get(this.services['core'] + '/campaigns', { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
         this.campaigns = this.campaigns.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit
 
-        return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions')
+        return this.axios.get(this.services['core'] + '/my_permissions')
       }).then((response) => {
         this.permissions = response.data.data
 

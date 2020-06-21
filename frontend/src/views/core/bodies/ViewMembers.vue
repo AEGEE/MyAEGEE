@@ -159,7 +159,7 @@ export default {
       })
     },
     deleteMember (member) {
-      this.axios.delete(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members/' + member.id).then(() => {
+      this.axios.delete(this.services['core'] + '/bodies/' + this.$route.params.id + '/members/' + member.id).then(() => {
         this.$root.showSuccess('Member is deleted.')
 
         const index = this.members.findIndex(m => m.id === member.id)
@@ -177,7 +177,7 @@ export default {
     },
     changeComment (member, comment) {
       this.isLoading = true
-      this.axios.put(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members/' + member.id, {
+      this.axios.put(this.services['core'] + '/bodies/' + this.$route.params.id + '/members/' + member.id, {
         comment
       }).then(() => {
         this.$root.showSuccess('Comment is set.')
@@ -198,19 +198,19 @@ export default {
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id, {
+      this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id, {
         cancelToken: this.source.token
       }).then((response) => {
         this.body = response.data.data
 
-        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/members', {
+        return this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/members', {
           params: this.queryObject,
           cancelToken: this.source.token
         })
       }).then((response) => {
         this.members = this.members.concat(response.data.data)
 
-        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions', {
+        return this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/my_permissions', {
           cancelToken: this.source.token
         })
       }).then((response) => {
@@ -229,7 +229,7 @@ export default {
         }
 
         // If you can see payments, fetch them.
-        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/payments', {
+        return this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/payments', {
           cancelToken: this.source.token
         }).then((paymentsResponse) => {
           this.payments = paymentsResponse.data.data

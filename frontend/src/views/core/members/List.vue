@@ -99,7 +99,7 @@ export default {
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['oms-core-elixir'] + '/members', { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
+      this.axios.get(this.services['core'] + '/members', { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
         this.users = this.users.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit

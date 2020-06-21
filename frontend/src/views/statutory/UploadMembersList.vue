@@ -194,7 +194,7 @@ export default {
       this.isLoading = true
       this.isEditing = false
 
-      this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.selectedBody + '/members').then((response) => {
+      this.axios.get(this.services['core'] + '/bodies/' + this.selectedBody + '/members').then((response) => {
         this.memberslist = {
           currency: null,
           members: response.data.data.map(member => ({
@@ -205,7 +205,7 @@ export default {
           }))
         }
 
-        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.selectedBody + '/payments')
+        return this.axios.get(this.services['core'] + '/bodies/' + this.selectedBody + '/payments')
           .then((paymentsResponse) => {
             this.payments = paymentsResponse.data.data
 
@@ -366,14 +366,14 @@ export default {
       // Otherwise, fetch only bodies that user is a member of.
       if (!this.can.see_memberslist.global) {
         for (const bodyId of this.myBoards) {
-          this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + bodyId).then((body) => {
+          this.axios.get(this.services['core'] + '/bodies/' + bodyId).then((body) => {
             if (this.isLocal(body.data.data)) {
               this.boardBodies.push(body.data.data)
             }
           })
         }
       } else {
-        this.axios.get(this.services['oms-core-elixir'] + '/bodies/').then((response) => {
+        this.axios.get(this.services['core'] + '/bodies/').then((response) => {
           this.boardBodies = response.data.data.filter(body => this.isLocal(body))
         })
       }

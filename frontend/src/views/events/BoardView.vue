@@ -126,7 +126,7 @@ export default {
     }
   },
   mounted () {
-    this.axios.post(this.services['oms-core-elixir'] + '/my_permissions/', {
+    this.axios.post(this.services['core'] + '/my_permissions/', {
       action: 'approve_members',
       object: 'events'
     }).then((bodies) => {

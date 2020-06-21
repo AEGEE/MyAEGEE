@@ -584,8 +584,8 @@ export default {
       // If user has global permission, fetching global members list.
       // Otherwise, fetch all of the members of the bodies this user is a member of.
       const endpoints = this.can.viewAllMembers
-        ? [this.services['oms-core-elixir'] + '/members']
-        : this.loginUser.bodies.map(body => this.services['oms-core-elixir'] + '/bodies/' + body.id + '/members')
+        ? [this.services['core'] + '/members']
+        : this.loginUser.bodies.map(body => this.services['core'] + '/bodies/' + body.id + '/members')
 
       // Ignoring the requests that failed (because of 403 most likely)
       // since the user does not always has the permissions to see
@@ -783,10 +783,10 @@ export default {
     }
   },
   mounted () {
-    this.axios.get(this.services['oms-core-elixir'] + '/bodies/').then((response) => {
+    this.axios.get(this.services['core'] + '/bodies/').then((response) => {
       this.bodies = response.data.data
 
-      return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions/')
+      return this.axios.get(this.services['core'] + '/my_permissions/')
     }).then((response) => {
       this.can.viewAllMembers = response.data.data.some(permission => permission.combined.endsWith('global:view:member'))
 

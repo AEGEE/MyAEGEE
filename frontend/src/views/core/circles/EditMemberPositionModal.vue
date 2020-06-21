@@ -40,7 +40,7 @@ export default {
     updateMembership () {
       this.isLoading = true
 
-      this.axios.put(this.services['oms-core-elixir'] + '/circles/' + this.circle.id + '/members/' + this.membership.id, {
+      this.axios.put(this.services['core'] + '/circles/' + this.circle.id + '/members/' + this.membership.id, {
         position: this.membership.position
       }).then(() => {
         this.showSuccess('Membership is updated')

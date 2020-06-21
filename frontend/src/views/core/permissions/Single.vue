@@ -100,7 +100,7 @@ export default {
       })
     },
     deletePermission () {
-      this.axios.delete(this.services['oms-core-elixir'] + '/permissions/' + this.permission.id).then(() => {
+      this.axios.delete(this.services['core'] + '/permissions/' + this.permission.id).then(() => {
         this.$root.showSuccess('Permission is deleted.')
         this.$router.push({ name: 'oms.permissions.list' })
       }).catch((err) => this.$root.showError('Could not delete permission', err))
@@ -108,10 +108,10 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(this.services['oms-core-elixir'] + '/permissions/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['core'] + '/permissions/' + this.$route.params.id).then((response) => {
       this.permission = response.data.data
 
-      return this.axios.get(this.services['oms-core-elixir'] + '/my_permissions')
+      return this.axios.get(this.services['core'] + '/my_permissions')
     }).then((response) => {
       this.permissions = response.data.data
 

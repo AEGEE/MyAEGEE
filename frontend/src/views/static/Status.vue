@@ -45,24 +45,21 @@ export default {
   data () {
     return {
       statuses: {
-        'oms-core-elixir': {
-          name: 'oms-core-js',
+        core: {
           roundTrip: null,
           version: '-',
           latestVersion: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/oms-core-js/blob/master/CHANGELOG.md',
-          healthcheckLink: '/services/oms-core-elixir/api/healthcheck',
-          githubLink: 'https://api.github.com/repos/AEGEE/oms-core-js/contents/package.json'
+          changelog: 'https://github.com/AEGEE/core/blob/master/CHANGELOG.md'
         },
-        'oms-mailer': {
+        mailer: {
           roundTrip: null,
           version: '-',
           latestVersion: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/oms-mailer/blob/master/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/mailer/blob/master/CHANGELOG.md'
         },
-        'events': {
+        events: {
           roundTrip: null,
           version: '-',
           latestVersion: '-',
@@ -122,7 +119,7 @@ export default {
       })
     },
     fetchLatestVersionForService (service) {
-      const githubLink = this.statuses[service].githubLink || ('https://api.github.com/repos/AEGEE/' + service + '/contents/package.json')
+      const githubLink = 'https://api.github.com/repos/AEGEE/' + service + '/contents/package.json'
 
       fetch(githubLink)
         .then((res) => res.json())

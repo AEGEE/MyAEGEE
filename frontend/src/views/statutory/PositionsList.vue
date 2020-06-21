@@ -328,7 +328,7 @@ export default {
   mounted () {
     this.isLoading = true
 
-    this.axios.get(this.services['oms-core-elixir'] + '/bodies').then((bodiesResponse) => {
+    this.axios.get(this.services['core'] + '/bodies').then((bodiesResponse) => {
       this.bodies = bodiesResponse.data.data
     })
 

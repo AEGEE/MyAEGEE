@@ -124,7 +124,7 @@ export default {
       })
     },
     setMemberApproved (member, approved) {
-      this.axios.put(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/join-requests/' + member.id + '/status', {
+      this.axios.put(this.services['core'] + '/bodies/' + this.$route.params.id + '/join-requests/' + member.id + '/status', {
         status: (approved ? 'approved' : 'rejected')
       }).then(() => {
         this.$root.showSuccess('Join request is ' + (approved ? 'approved' : 'rejected') + '.')
@@ -147,14 +147,14 @@ export default {
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/join-requests', {
+      this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/join-requests', {
         params: this.queryObject, cancelToken: this.source.token
       }).then((response) => {
         this.members = this.members.concat(response.data.data)
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit
 
-        return this.axios.get(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/my_permissions')
+        return this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/my_permissions')
       }).then((response) => {
         this.permissions = response.data.data
 

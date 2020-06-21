@@ -107,8 +107,8 @@ export default {
       this.errors = {}
 
       const promise = this.$route.params.id
-        ? this.axios.put(this.services['oms-core-elixir'] + '/permissions/' + this.$route.params.id, this.permission)
-        : this.axios.post(this.services['oms-core-elixir'] + '/permissions/', this.permission)
+        ? this.axios.put(this.services['core'] + '/permissions/' + this.$route.params.id, this.permission)
+        : this.axios.post(this.services['core'] + '/permissions/', this.permission)
 
       promise.then((response) => {
         this.isSaving = false
@@ -145,7 +145,7 @@ export default {
     }
 
     this.isLoading = true
-    this.axios.get(this.services['oms-core-elixir'] + '/permissions/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['core'] + '/permissions/' + this.$route.params.id).then((response) => {
       this.permission = response.data.data
       this.isLoading = false
     }).catch((err) => {

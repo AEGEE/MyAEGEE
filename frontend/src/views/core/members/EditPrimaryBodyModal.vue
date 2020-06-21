@@ -40,7 +40,7 @@ export default {
     updatePrimaryBody () {
       this.isLoading = true
 
-      this.axios.put(this.services['oms-core-elixir'] + '/members/' + this.member.id + '/primary-body', {
+      this.axios.put(this.services['core'] + '/members/' + this.member.id + '/primary-body', {
         primary_body_id: this.primaryBodyId
       }).then(() => {
         this.member.primary_body_id = this.primaryBodyId

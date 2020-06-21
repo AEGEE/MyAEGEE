@@ -63,7 +63,7 @@ export default {
         return
       }
 
-      this.axios.post(this.services['oms-core-elixir'] + '/password_confirm', {
+      this.axios.post(this.services['core'] + '/password_confirm', {
         token: this.token,
         password: this.password
       }).then(() => {

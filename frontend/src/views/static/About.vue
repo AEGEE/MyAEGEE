@@ -148,7 +148,7 @@
 
             <tbody>
               <tr>
-                <td><a href="https://github.com/AEGEE/oms-core-elixir">oms-core-elixir</a></td>
+                <td><a href="https://github.com/AEGEE/core">core</a></td>
                 <td>Bodies, memberships, permissions management, registration.</td>
               </tr>
 
@@ -163,7 +163,7 @@
               </tr>
 
               <tr>
-                <td><a href="https://github.com/AEGEE/oms-mailer">oms-mailer</a></td>
+                <td><a href="https://github.com/AEGEE/mailer">mailer</a></td>
                 <td>Internal mailer (every email sent from our system is going through it).</td>
               </tr>
 

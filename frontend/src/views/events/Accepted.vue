@@ -68,7 +68,7 @@ export default {
 
       // Fetching users and bodies.
       for (const application of this.applications) {
-        this.axios.get(this.services['oms-core-elixir'] + '/members/' + application.user_id).then((user) => {
+        this.axios.get(this.services['core'] + '/members/' + application.user_id).then((user) => {
           const member = user.data.data
           this.$set(application, 'user', member)
           this.$set(application, 'body', member.bodies.find(body => body.id === application.body_id))

@@ -91,7 +91,7 @@ export default {
       this.$set(member, 'status', 'saving')
       this.$set(member, 'errors', {})
 
-      return this.axios.post(this.services['oms-core-elixir'] + '/bodies/' + this.$route.params.id + '/new_member', {
+      return this.axios.post(this.services['core'] + '/bodies/' + this.$route.params.id + '/new_member', {
         member: member.member,
         user: member.user
       }).then(() => {
