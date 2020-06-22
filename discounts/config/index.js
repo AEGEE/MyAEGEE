@@ -4,7 +4,7 @@ const config = {
     default: {
         port: 8084,
         postgres: {
-            host: process.env.DB_HOST || 'postgres-oms-discounts',
+            host: process.env.DB_HOST || 'postgres-discounts',
             port: parseInt(process.env.DB_PORT, 10) || 5432,
             username: process.env.USERNAME || 'postgres',
             password: process.env.PG_PASSWORD || 'postgres',

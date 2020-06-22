@@ -1,23 +1,23 @@
 version: "3.4"
 ### OMS DISCOUNTS     #######################################
 services:
-    postgres-oms-discounts:
+    postgres-discounts:
         image: postgres:10
         volumes:
-            - postgres-oms-discounts:/var/lib/postgresql/data
+            - postgres-discounts:/var/lib/postgresql/data
         expose:
             - "5432"
         environment:
             POSTGRES_USER: "postgres"
             POSTGRES_PASSWORD: "${PW_POSTGRES}"
 
-    oms-discounts:
-        image: aegee/oms-discounts:latest
+    discounts:
+        image: aegee/discounts:latest
         volumes:
-            - oms-discounts-media:/usr/app/media
+            - discounts-media:/usr/app/media
             - shared:/usr/app/shared:ro
         depends_on:
-            - postgres-oms-discounts
+            - postgres-discounts
         expose:
             - "8084"
         environment:
@@ -34,16 +34,18 @@ services:
         # cpu_count: 1
         # mem_limit: 900m
         labels:
-            - "traefik.backend=oms-discounts"
+            - "traefik.backend=discounts"
             - "traefik.port=8084"
-            - "traefik.frontend.rule=PathPrefix:/services/oms-discounts/api;PathPrefixStrip:/services/oms-discounts/api"
-            - "traefik.frontend.priority=110"
+            - "traefik.old.frontend.rule=PathPrefixStrip:/services/oms-discounts/api;"
+            - "traefik.new.frontend.rule=PathPrefixStrip:/api/discounts;"
+            - "traefik.old.frontend.priority=110"
+            - "traefik.new.frontend.priority=110"
             - "traefik.enable=true"
 
 volumes:
-    postgres-oms-discounts:
+    postgres-discounts:
         driver: local
-    oms-discounts-media:
+    discounts-media:
         driver: local
     shared:
         driver: local

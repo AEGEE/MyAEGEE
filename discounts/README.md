@@ -1,11 +1,11 @@
-# OMS Discounts module
-[![Build Status](https://travis-ci.org/AEGEE/oms-discounts.svg)](https://travis-ci.org/AEGEE/oms-discounts)
-![Codecov branch for master](https://img.shields.io/codecov/c/github/AEGEE/oms-discounts.svg)
+# Discounts module
+![CircleCI](https://img.shields.io/circleci/build/github/AEGEE/discounts)
+![Codecov branch for master](https://img.shields.io/codecov/c/github/AEGEE/discounts.svg)
 
 
 ## General
 
-The discounts module of OMS is responsible for distributing discount codes (Flixbus, N26 etc.);
+The discounts module of MyAEGEE is responsible for distributing discount codes (Flixbus, N26 etc.);
 
 ## Contributing
 

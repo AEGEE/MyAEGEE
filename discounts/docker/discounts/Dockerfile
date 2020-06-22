@@ -4,7 +4,7 @@ RUN mkdir -p /usr/app/src \
 	&& mkdir -p /usr/app/media \
 	&& mkdir -p /usr/app/scripts
 
-COPY ./docker/oms-discounts/bootstrap.sh /usr/app/scripts/bootstrap.sh
+COPY ./docker/discounts/bootstrap.sh /usr/app/scripts/bootstrap.sh
 COPY ./ /usr/app/src
 
 RUN chown -R node:node /usr/app
