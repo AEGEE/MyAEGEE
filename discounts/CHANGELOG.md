@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/AEGEE/discounts/compare/1.0.2...1.1.0) (2020-06-22)
+
+
+### Features
+
+* **docker:** use shorter prefix ([#88](https://github.com/AEGEE/discounts/issues/88)) ([34e17f2](https://github.com/AEGEE/discounts/commit/34e17f2bfc0eb1eb2e6feb96434c401ce40ad5e7))
+
 ## [1.0.2](https://github.com/AEGEE/oms-discounts/compare/1.0.1...1.0.2) (2020-06-20)
 
 
