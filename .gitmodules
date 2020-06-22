@@ -7,9 +7,6 @@
 [submodule "oms-mailer"]
 	path = oms-mailer
 	url = https://github.com/AEGEE/oms-mailer.git
-[submodule "oms-discounts"]
-	path = oms-discounts
-	url = https://github.com/AEGEE/oms-discounts.git
 [submodule "core"]
 	path = core
 	url = git@github.com:AEGEE/core.git
@@ -19,3 +16,6 @@
 [submodule "statutory"]
 	path = statutory
 	url = git@github.com:AEGEE/statutory.git
+[submodule "discounts"]
+	path = discounts
+	url = git@github.com:AEGEE/discounts.git
