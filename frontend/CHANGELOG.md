@@ -1,3 +1,10 @@
+## [1.0.11](https://github.com/AEGEE/frontend/compare/1.0.10...1.0.11) (2020-06-22)
+
+
+### Bug Fixes
+
+* **resources:** add Action Agenda. Fixes HELP-1149 ([#441](https://github.com/AEGEE/frontend/issues/441)) ([885c26d](https://github.com/AEGEE/frontend/commit/885c26d87c8827e0500a7c8e5be48101dc0cf05a))
+
 ## [1.0.10](https://github.com/AEGEE/frontend/compare/1.0.9...1.0.10) (2020-06-22)
 
 
