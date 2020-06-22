@@ -136,6 +136,12 @@ export default {
             title: 'Strategic Plan',
             description: 'Strategic Plan of AEGEE-Europe 2020-2023',
             color: '#FFDB4C'
+          },
+          {
+            url: 'https://site.aegee.org/wp-content/uploads/Action-Agenda-2020-2021.pdf',
+            title: 'Action Agenda',
+            description: 'Action Agenda 2020-2021',
+            color: '#FFDB4C'
           }
         ],
         'Statutory': [
