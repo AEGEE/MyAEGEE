@@ -1,9 +1,6 @@
 [submodule "oms-global/docker/portal/files"]
   path = oms-global/docker/portal/files
   url = https://github.com/AEGEE/AEGEEPortal
-[submodule "oms-mailer"]
-	path = oms-mailer
-	url = https://github.com/AEGEE/oms-mailer.git
 [submodule "core"]
 	path = core
 	url = git@github.com:AEGEE/core.git
@@ -19,3 +16,6 @@
 [submodule "frontend"]
 	path = frontend
 	url = git@github.com:AEGEE/frontend.git
+[submodule "mailer"]
+	path = mailer
+	url = git@github.com:AEGEE/mailer.git
