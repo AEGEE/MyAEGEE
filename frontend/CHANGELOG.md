@@ -1,3 +1,10 @@
+## [1.0.10](https://github.com/AEGEE/frontend/compare/1.0.9...1.0.10) (2020-06-22)
+
+
+### Bug Fixes
+
+* **general:** renamed container and fixes ([#440](https://github.com/AEGEE/frontend/issues/440)) ([1405c68](https://github.com/AEGEE/frontend/commit/1405c68f398adb6d299980f55a62086f7c47466a))
+
 ## [1.0.9](https://github.com/AEGEE/oms-frontend/compare/1.0.8...1.0.9) (2020-06-22)
 
 
