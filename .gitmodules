@@ -1,21 +1,21 @@
-[submodule "oms-events"]
-  path = oms-events
-  url = https://github.com/AEGEE/oms-events.git
 [submodule "oms-global/docker/portal/files"]
   path = oms-global/docker/portal/files
   url = https://github.com/AEGEE/AEGEEPortal
-[submodule "oms-core-elixir"]
-  path = oms-core-elixir
-  url = https://github.com/AEGEE/oms-core-elixir.git
-[submodule "oms-frontend"]
-  path = oms-frontend
-  url = https://github.com/aegee/oms-frontend
-[submodule "oms-statutory"]
-  path = oms-statutory
-  url = https://github.com/AEGEE/oms-statutory
-[submodule "oms-mailer"]
-	path = oms-mailer
-	url = https://github.com/AEGEE/oms-mailer.git
-[submodule "oms-discounts"]
-	path = oms-discounts
-	url = https://github.com/AEGEE/oms-discounts.git
+[submodule "core"]
+	path = core
+	url = git@github.com:AEGEE/core.git
+[submodule "events"]
+	path = events
+	url = git@github.com:AEGEE/events.git
+[submodule "statutory"]
+	path = statutory
+	url = git@github.com:AEGEE/statutory.git
+[submodule "discounts"]
+	path = discounts
+	url = git@github.com:AEGEE/discounts.git
+[submodule "frontend"]
+	path = frontend
+	url = git@github.com:AEGEE/frontend.git
+[submodule "mailer"]
+	path = mailer
+	url = git@github.com:AEGEE/mailer.git

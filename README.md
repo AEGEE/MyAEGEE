@@ -1,8 +1,8 @@
 # AEGEE-Europe's Online Membership System
-## `oms-docker`
+## `MyAEGEE`
 
 ## Description
-The repository for the ["Online Membership System" (OMS)](https://github.com/AEGEE/oms-docker), an open-source project of the student/youth association [AEGEE-Europe](http://aegee.org/).
+The repository for the ["Online Membership System" (OMS)](https://github.com/AEGEE/MyAEGEE), an open-source project of the student/youth association [AEGEE-Europe](http://aegee.org/).
 
 It makes use of docker, and docker-compose.
 
@@ -40,16 +40,16 @@ Now you can install the system
 ### Install the web application (linux):
 
 ```
-git clone --recursive https://github.com/AEGEE/oms-docker.git
-cd oms-docker
+git clone --recursive https://github.com/AEGEE/MyAEGEE.git
+cd MyAEGEE
 ./start.sh
 ```
 
 ### Install the web application (non-linux):
 
 ```
-git clone --recursive https://github.com/AEGEE/oms-docker.git
-cd oms-docker
+git clone --recursive https://github.com/AEGEE/MyAEGEE.git
+cd MyAEGEE
 vagrant up
 ```
 
