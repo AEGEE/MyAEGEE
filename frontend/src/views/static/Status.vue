@@ -73,12 +73,12 @@ export default {
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/statutory/blob/master/CHANGELOG.md'
         },
-        'oms-discounts': {
+        discounts: {
           roundTrip: null,
           version: '-',
           latestVersion: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/oms-discounts/blob/master/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/discounts/blob/master/CHANGELOG.md'
         },
         'oms-frontend': {
           roundTrip: null,

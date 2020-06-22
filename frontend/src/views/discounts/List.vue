@@ -83,7 +83,7 @@ export default {
     fetchData () {
       this.isLoading = true
 
-      this.axios.get(this.services['oms-discounts'] + '/integrations').then((response) => {
+      this.axios.get(this.services['discounts'] + '/integrations').then((response) => {
         this.integrations = response.data.data
 
         return this.axios.get(this.services['core'] + '/my_permissions')

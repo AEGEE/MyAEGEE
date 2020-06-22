@@ -105,8 +105,8 @@ export default {
       this.errors = {}
 
       const promise = this.$route.params.id
-        ? this.axios.put(this.services['oms-discounts'] + '/categories/' + this.$route.params.id, this.category)
-        : this.axios.post(this.services['oms-discounts'] + '/categories/', this.category)
+        ? this.axios.put(this.services['discounts'] + '/categories/' + this.$route.params.id, this.category)
+        : this.axios.post(this.services['discounts'] + '/categories/', this.category)
 
       promise.then(() => {
         this.isSaving = false
@@ -132,7 +132,7 @@ export default {
     }
 
     this.isLoading = true
-    this.axios.get(this.services['oms-discounts'] + '/categories/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['discounts'] + '/categories/' + this.$route.params.id).then((response) => {
       this.category = response.data.data
       this.isLoading = false
     }).catch((err) => {

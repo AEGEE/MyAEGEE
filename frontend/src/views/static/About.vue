@@ -168,7 +168,7 @@
               </tr>
 
               <tr>
-                <td><a href="https://github.com/AEGEE/oms-discounts">oms-discounts</a></td>
+                <td><a href="https://github.com/AEGEE/discounts">discounts</a></td>
                 <td>Discount code storage and retrieval.</td>
               </tr>
             </tbody>

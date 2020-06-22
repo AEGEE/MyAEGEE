@@ -54,7 +54,7 @@ export default {
 
       this.isSaving = true
 
-      this.axios.post(this.services['oms-discounts'] + '/integrations/' + this.integration.id + '/codes', this.codes).then(() => {
+      this.axios.post(this.services['discounts'] + '/integrations/' + this.integration.id + '/codes', this.codes).then(() => {
         this.isSaving = false
 
         this.$root.showSuccess('Codes are added.')
@@ -68,7 +68,7 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(this.services['oms-discounts'] + '/integrations/' + this.$route.params.id).then((response) => {
+    this.axios.get(this.services['discounts'] + '/integrations/' + this.$route.params.id).then((response) => {
       this.integration = response.data.data
       this.isLoading = false
     }).catch((err) => {

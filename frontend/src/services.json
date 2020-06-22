@@ -3,7 +3,7 @@
   "mailer": "/api/mailer",
   "events": "/api/events",
   "statutory": "/api/statutory",
-  "oms-discounts": "/services/oms-discounts/api",
+  "discounts": "/api/discounts",
   "oms-frontend": "",
   "events-static": "/media/events",
   "statutory-static": "/media/statutory"

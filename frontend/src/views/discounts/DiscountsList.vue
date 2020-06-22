@@ -69,7 +69,7 @@ export default {
   mounted () {
     this.isLoading = true
 
-    this.axios.get(this.services['oms-discounts'] + '/categories').then((response) => {
+    this.axios.get(this.services['discounts'] + '/categories').then((response) => {
       for (const category of response.data.data) {
         for (const discount of category.discounts) {
           discount.expanded = false
