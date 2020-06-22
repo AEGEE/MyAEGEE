@@ -1,9 +1,9 @@
 version: "3.4"
 
 services:
-    oms-frontend:
+    frontend:
         restart: always
-        image: aegee/oms-frontend:latest
+        image: aegee/frontend:latest
         # Healthcheck is disabled because traefik doesn't route stuff to the service
         # unless it's healthy, causing the ~1min downtime for frontend
         # while it waits for the container to be up.
@@ -18,7 +18,7 @@ services:
             - "traefik.frontend.rule=Host:${SUBDOMAIN_FRONTEND}${BASE_URL};PathPrefix:/"
             - "traefik.frontend.priority=11"
             - "traefik.port=80"
-            - "traefik.backend=oms-frontend"
+            - "traefik.backend=frontend"
             - "traefik.enable=true"
 
 networks:

@@ -80,12 +80,26 @@ export default {
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/discounts/blob/master/CHANGELOG.md'
         },
-        'oms-frontend': {
+        frontend: {
           roundTrip: null,
           version: this.$store.state.pkg.version,
           latestVersion: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/oms-frontend/blob/master/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/frontend/blob/master/CHANGELOG.md'
+        },
+        'statutory-static': {
+          roundTrip: null,
+          version: '-',
+          latestVersion: '-',
+          isAlive: 'Waiting...',
+          changelog: null
+        },
+        'events-static': {
+          roundTrip: null,
+          version: '-',
+          latestVersion: '-',
+          isAlive: 'Waiting...',
+          changelog: null
         }
       }
     }

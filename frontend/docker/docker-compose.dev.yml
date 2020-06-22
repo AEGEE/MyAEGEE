@@ -1,11 +1,11 @@
 version: "3.4"
 
 services:
-    oms-frontend:
+    frontend:
         build:
-            context: ./${PATH_OMS_FRONTEND}/..
+            context: ./${PATH_FRONTEND}/..
             dockerfile: ./docker/Dockerfile
-        image: aegee/oms-frontend:dev
+        image: aegee/frontend:dev
         volumes:
-            - ./${PATH_OMS_FRONTEND}/../:/usr/app/src
+            - ./${PATH_FRONTEND}/../:/usr/app/src
             - /usr/app/src/node_modules
