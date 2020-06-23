@@ -6,7 +6,7 @@ The repository for the ["Online Membership System" (OMS)](https://github.com/AEG
 
 It makes use of docker, and docker-compose.
 
-[Read more about the project](https://oms-project.atlassian.net/wiki/spaces/GENERAL/overview)
+[Read more about the project](https://myaegee.atlassian.net/wiki/spaces/GENERAL/overview)
 
 # Installation
 
@@ -81,7 +81,7 @@ read "_subdomain_.appserver.test"; e.g. you put in your browser `http://traefik.
 
 |Subdomain|What|Container|
 |---|---|---|
-| my | MyAEGEE | oms-frontend |
+| my | MyAEGEE | frontend |
 | portainer | Easier container mgmt (development only) | portainer |
 | traefik | Traefik's dashboard (under login) | traefik |
 | kibana | Central logging (under login) [WIP] | kibana |
@@ -91,7 +91,7 @@ read "_subdomain_.appserver.test"; e.g. you put in your browser `http://traefik.
 You can customise these subdomains by editing the `.env` file as explained above
 
 
-FIXME?? [For more detailed usage guides see this usage tips page.](https://oms-project.atlassian.net/wiki/spaces/GENERAL/pages/23655986/Usage+tips)
+FIXME?? [For more detailed usage guides see this usage tips page.](https://myaegee.atlassian.net/wiki/spaces/GENERAL/pages/23655986/Usage+tips)
 For container-specific usage guides see the container's repository.
 
 ## Easy script to manipulate the installation
@@ -129,10 +129,10 @@ Likewise, for now if one wants to execute a command on a container they have to 
 ```
 
 ## Contribute
-[You can read more about contributing on our confluence.](https://oms-project.atlassian.net/wiki/spaces/GENERAL/overview)
+[You can read more about contributing on our confluence.](https://myaegee.atlassian.net/wiki/spaces/GENERAL/overview)
 
 ## Issue tracker
-[We use JIRA as our preferred issue tracker.](https://oms-project.atlassian.net/projects/MEMB/issues)
+[We use JIRA as our preferred issue tracker.](https://myaegee.atlassian.net/projects/MEMB/issues)
 
 ## Licence
 Apache License 2.0, see LICENSE.txt for more information.
@@ -151,7 +151,7 @@ Apache License 2.0, see LICENSE.txt for more information.
 
 For prerequisites and installation of individual containers, see their `docker`(/`-compose`) files, located in the `(service)/docker` folder in their respective repository.
 
-For more detailed info, we hoped to have a better knowledge base [here](https://oms-project.atlassian.net/wiki/spaces/GENERAL/pages/224231425/Microservices+information), it's not great right now but it's a something `¯\_(ツ)_/¯`
+For more detailed info, we hoped to have a better knowledge base [here](https://myaegee.atlassian.net/wiki/spaces/GENERAL/pages/224231425/Microservices+information), it's not great right now but it's a something `¯\_(ツ)_/¯`
 
 ## Moving parts
 
