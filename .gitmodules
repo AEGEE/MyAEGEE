@@ -3,19 +3,19 @@
   url = https://github.com/AEGEE/AEGEEPortal
 [submodule "core"]
 	path = core
-	url = git@github.com:AEGEE/core.git
+	url = https://github.com/AEGEE/core
 [submodule "events"]
 	path = events
-	url = git@github.com:AEGEE/events.git
+	url = https://github.com/AEGEE/events
 [submodule "statutory"]
 	path = statutory
-	url = git@github.com:AEGEE/statutory.git
+	url = https://github.com/AEGEE/statutory
 [submodule "discounts"]
 	path = discounts
-	url = git@github.com:AEGEE/discounts.git
+	url = https://github.com/AEGEE/discounts
 [submodule "frontend"]
 	path = frontend
-	url = git@github.com:AEGEE/frontend.git
+	url = https://github.com/AEGEE/frontend
 [submodule "mailer"]
 	path = mailer
-	url = git@github.com:AEGEE/mailer.git
+	url = https://github.com/AEGEE/mailer
