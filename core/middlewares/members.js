@@ -128,8 +128,8 @@ exports.triggerEmailChange = async (req, res) => {
 
         await mailer.sendMail({
             to: req.body.new_email,
-            subject: constants.MAIL_SUBJECTS.PASSWORD_RESET,
-            template: 'mail-change.html',
+            subject: constants.MAIL_SUBJECTS.MAIL_CHANGE,
+            template: 'mail_change.html',
             parameters: {
                 token: mailChange.value
             }
