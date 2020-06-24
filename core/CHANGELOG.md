@@ -1,3 +1,10 @@
+## [1.22.1](https://github.com/AEGEE/core/compare/1.22.0...1.22.1) (2020-06-24)
+
+
+### Bug Fixes
+
+* **members:** fix template and mail title for email change ([#42](https://github.com/AEGEE/core/issues/42)) ([6bd96e6](https://github.com/AEGEE/core/commit/6bd96e6fce213b5774896a779b559cd665ac537f))
+
 # [1.22.0](https://github.com/AEGEE/core/compare/1.21.4...1.22.0) (2020-06-20)
 
 
