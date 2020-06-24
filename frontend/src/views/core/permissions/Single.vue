@@ -24,7 +24,7 @@
                   <td v-if="permission.filters.length === 0"><i>Not set</i></td>
                   <td v-if="permission.filters.length > 0">
                     <ul>
-                      <li v-for="filter in permission.filters" v-bind:key="filter.field">{{ filter.field }}</li>
+                      <li v-for="filter in permission.filters" v-bind:key="filter">{{ filter }}</li>
                     </ul>
                   </td>
                 </tr>

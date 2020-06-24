@@ -52,8 +52,8 @@
         <div class="field">
           <label class="label">Filters</label>
           <div class="control" v-if="permission.filters.length > 0">
-            <span  v-for="(filter, index) in permission.filters" v-bind:key="filter.field" class="tag is-info">
-              {{ filter.field }}
+            <span  v-for="(filter, index) in permission.filters" v-bind:key="filter" class="tag is-info">
+              {{ filter }}
               <button class="delete is-small" @click="deleteFilter(index)"></button>
             </span>
             <span v-if="permission.filters.length === 0" class="tag is-light">No filters set.</span>
@@ -134,7 +134,7 @@ export default {
       this.permission.filters.splice(index, 1)
     },
     addFilter () {
-      this.permission.filters.push({ field: this.tmpFilter })
+      this.permission.filters.push(this.tmpFilter)
       this.tmpFilter = ''
     }
   },
