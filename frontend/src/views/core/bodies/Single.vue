@@ -44,6 +44,13 @@
             </a>
           </div>
 
+          <div class="field is-grouped" v-if="can.viewMembers && can.addMembers">
+            <a @click="openAddMemberModal()" :class="['button', 'is-fullwidth']">
+              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'user-plus']" /></span>
+              <span class="field-label">Add member</span>
+            </a>
+          </div>
+
           <div class="field is-grouped" v-if="can.createBoundCircles">
             <a @click="openAddCircleModal()" :class="['button', 'is-fullwidth', 'is-warning']">
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'edit']" /></span>
@@ -149,13 +156,14 @@
       </article>
     </div>
 
-    <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+    <b-loading :is-full-page="false" :active.sync="isLoading"></b-loading>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import AddBoundCircleModal from './AddBoundCircleModal'
+import AddMemberModal from './AddMemberModal'
 
 export default {
   name: 'SingleBody',
@@ -181,11 +189,13 @@ export default {
       permissions: [],
       can: {
         viewMembers: false,
+        viewMembersGlobal: false,
         viewJoinRequests: false,
         viewCampaigns: false,
         createBoundCircles: false,
         updateBody: false,
-        deleteBody: false
+        deleteBody: false,
+        addMembers: false
       }
     }
   },
@@ -193,6 +203,22 @@ export default {
     openAddCircleModal () {
       this.$buefy.modal.open({
         component: AddBoundCircleModal,
+        hasModalCard: true,
+        props: {
+          // When programmatically opening a modal, it doesn't have access to Vue instance
+          // and therefore store, services and notifications functions. That's why
+          // I'm passing them as props.
+          // More info: https://github.com/buefy/buefy/issues/55
+          body: this.body,
+          services: this.services,
+          showError: this.$root.showError,
+          showSuccess: this.$root.showSuccess
+        }
+      })
+    },
+    openAddMemberModal () {
+      this.$buefy.modal.open({
+        component: AddMemberModal,
         hasModalCard: true,
         props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
@@ -285,12 +311,13 @@ export default {
         return this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/my_permissions').then((permissionsResponse) => {
           this.permissions = permissionsResponse.data.data
           this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
+          this.can.viewMembersGlobal = this.permissions.some(permission => permission.combined.endsWith('global:view:member'))
           this.can.viewJoinRequests = this.permissions.some(permission => permission.combined.endsWith('view:join_request'))
           this.can.viewCampaigns = this.permissions.some(permission => permission.combined.endsWith('view:campaign'))
           this.can.createBoundCircles = this.permissions.some(permission => permission.combined.endsWith('create:bound_circle'))
           this.can.updateBody = this.permissions.some(permission => permission.combined.endsWith('update:body'))
           this.can.deleteBody = this.permissions.some(permission => permission.combined.endsWith('delete:body'))
-
+          this.can.addMembers = this.permissions.some(permission => permission.combined.endsWith('add_member:body'))
 
           this.isLoading = false
         })
