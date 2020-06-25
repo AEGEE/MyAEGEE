@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/AEGEE/frontend/compare/1.1.0...1.2.0) (2020-06-25)
+
+
+### Features
+
+* **members:** add member to a body. Fixes MEMB-794 ([#455](https://github.com/AEGEE/frontend/issues/455)) ([cbf3f07](https://github.com/AEGEE/frontend/commit/cbf3f07fad0415d7d71a64bc823687a30f9e75a3))
+
 # [1.1.0](https://github.com/AEGEE/frontend/compare/1.0.12...1.1.0) (2020-06-25)
 
 
