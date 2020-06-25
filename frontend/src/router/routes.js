@@ -42,6 +42,16 @@ module.exports = [
     }
   },
   {
+    name: 'oms.mail_change',
+    path: '/mail-change',
+    component: 'auth/MailChange',
+    meta: {
+      label: 'Change your email',
+      skipLazyLoad: true,
+      auth: true
+    }
+  },
+  {
     name: 'oms.password_reset',
     path: '/password_reset/',
     component: 'auth/PasswordReset',

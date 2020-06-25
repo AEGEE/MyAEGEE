@@ -32,6 +32,13 @@
           </div>
 
           <div class="field is-grouped" v-if="can.edit">
+            <button class="button is-fullwidth is-warning" @click="askChangeEmail()">
+              <span>Change email</span>
+              <span class="icon"><font-awesome-icon icon="envelope" /></span>
+            </button>
+          </div>
+
+          <div class="field is-grouped" v-if="can.edit">
             <button class="button is-fullwidth is-warning" @click="editPrimaryBodyModal()">
               <span>Set primary body</span>
               <span class="icon"><font-awesome-icon icon="edit" /></span>
@@ -247,13 +254,30 @@ export default {
     toggleActive () {
       this.isSwitchingStatus = true
       this.axios.put(this.services['core'] + '/members/' + this.user.id + '/active', { active: !this.user.active }).then((response) => {
-        console.log('response', response)
         this.user.active = response.data.data.active
         this.$root.showSuccess('User is ' + (this.user.active ? 'activated.' : 'suspended.'))
         this.isSwitchingStatus = false
       }).catch((err) => {
         this.$root.showError('Error changing user status', err)
         this.isSwitchingStatus = false
+      })
+    },
+    askChangeEmail () {
+      this.$buefy.dialog.prompt({
+        message: 'Change email',
+        inputAttrs: {
+          type: 'email',
+          placeholder: 'Change email'
+        },
+        trapFocus: true,
+        onConfirm: (newEmail) => this.changeEmail(newEmail)
+      })
+    },
+    changeEmail (newEmail) {
+      this.axios.put(this.services['core'] + '/members/' + this.user.id + '/email', { new_email: newEmail }).then(() => {
+        this.$root.showSuccess('An email change is triggered. Check your new inbox for a confirmation.')
+      }).catch((err) => {
+        this.$root.showError('Error changing user email', err)
       })
     },
     fetchUser () {

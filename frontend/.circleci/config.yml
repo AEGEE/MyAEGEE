@@ -22,7 +22,7 @@ jobs:
             which node && node -v
       - run: npm install
       - run: mkdir -p ~/reports
-      - run: npm run lint -- --format junit --output-file ~/reports/eslint.xml
+      - run: npx vue-cli-service lint --no-fix --format junit > ~/reports/eslint.xml
       - store_test_results:
           path: ~/reports
       - store_artifacts:
