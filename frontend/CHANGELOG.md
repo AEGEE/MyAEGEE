@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/AEGEE/frontend/compare/1.0.12...1.1.0) (2020-06-25)
+
+
+### Features
+
+* **members:** allow email change ([#454](https://github.com/AEGEE/frontend/issues/454)) ([6eec54c](https://github.com/AEGEE/frontend/commit/6eec54cb1f98ce51ba76f093c2fca0081880ab36))
+
 ## [1.0.12](https://github.com/AEGEE/frontend/compare/1.0.11...1.0.12) (2020-06-24)
 
 
