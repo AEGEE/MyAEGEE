@@ -1,3 +1,10 @@
+## [1.22.2](https://github.com/AEGEE/core/compare/1.22.1...1.22.2) (2020-06-27)
+
+
+### Bug Fixes
+
+* **bodies:** populate body shadow circles ([#46](https://github.com/AEGEE/core/issues/46)) ([e7a8481](https://github.com/AEGEE/core/commit/e7a8481d9823cf97f184e5cca48ccf660bed3d45))
+
 ## [1.22.1](https://github.com/AEGEE/core/compare/1.22.0...1.22.1) (2020-06-24)
 
 
