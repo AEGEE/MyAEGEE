@@ -59,7 +59,10 @@ exports.fetchBody = async (req, res, next) => {
 
     const body = await Body.findOne({
         where,
-        include: [Circle]
+        include: [
+            { model: Circle, as: 'circles' },
+            { model: Circle, as: 'shadow_circle' }
+        ]
     });
     if (!body) {
         return errors.makeNotFoundError(res, 'Body is not found.');
