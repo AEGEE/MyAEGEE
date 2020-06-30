@@ -36,7 +36,7 @@
     "axios": "^0.19.2",
     "buefy": "^0.8.17",
     "chart.js": "^2.9.3",
-    "dompurify": "^2.0.11",
+    "dompurify": "^2.0.12",
     "ical": "^0.8.0",
     "eslint-plugin-cypress": "^2.10.3",
     "lodash": "^4.17.15",
