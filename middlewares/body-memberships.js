@@ -80,6 +80,17 @@ exports.listAllMembershipsWithPermission = async (req, res) => {
     });
 };
 
+exports.getMembership = async (req, res) => {
+    if (!req.permissions.hasPermission('view_members:body')) {
+        return errors.makeForbiddenError(res, 'Permission view_members:body is required, but not present.');
+    }
+
+    return res.json({
+        success: true,
+        data: req.currentBodyMembership
+    });
+};
+
 exports.createMembership = async (req, res) => {
     if (!req.permissions.hasPermission('add_member:body')) {
         return errors.makeForbiddenError(res, 'Permission add_member:body is required, but not present.');
