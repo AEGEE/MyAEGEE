@@ -50,10 +50,10 @@ export default {
     }
 
     const logout = async () => {
-      const accessToken = window.localStorage.getItem('access-token')
+      const refreshToken = window.localStorage.getItem('refresh-token')
       try {
-        await Vue.axios.post(services['core'] + '/logout', null, {
-          headers: { 'X-Auth-Token': accessToken }
+        await Vue.axios.post(services['core'] + '/logout', {
+          refresh_token: refreshToken
         })
       } catch (err) {
         console.log('Error logging out')
