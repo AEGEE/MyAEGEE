@@ -182,3 +182,25 @@ module.exports.passwordConfirm = async (req, res) => {
         message: 'Password was changed successfully.'
     });
 };
+
+module.exports.logout = async (req, res) => {
+    const value = req.body.refresh_token;
+    if (!value) {
+        return errors.makeBadRequestError(res, 'Token is not provided.');
+    }
+
+    const token = await RefreshToken.findOne({
+        where: { value }
+    });
+
+    if (!token) {
+        return errors.makeForbiddenError(res, 'Token is not found.');
+    }
+
+    await token.destroy();
+
+    return res.json({
+        success: true,
+        message: 'You are now logged out.'
+    });
+};

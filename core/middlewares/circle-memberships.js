@@ -63,6 +63,17 @@ exports.createMembership = async (req, res) => {
     });
 };
 
+exports.getMembership = async (req, res) => {
+    if (!req.permissions.hasPermission('view_members:circle')) {
+        return errors.makeForbiddenError(res, 'Permission view_members:circle is required, but not present.');
+    }
+
+    return res.json({
+        success: true,
+        data: req.currentCircleMembership
+    });
+};
+
 exports.updateMembership = async (req, res) => {
     if (!req.permissions.hasPermission('update_members:circle')) {
         return errors.makeForbiddenError(res, 'Permission update_members:circle is required, but not present.');
