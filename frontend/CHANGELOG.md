@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/AEGEE/frontend/compare/1.2.0...1.2.1) (2020-06-30)
+
+
+### Bug Fixes
+
+* **logout:** fixed /logout query ([#459](https://github.com/AEGEE/frontend/issues/459)) ([81a7e2a](https://github.com/AEGEE/frontend/commit/81a7e2aa91d6a32c4ed72e703ae9e7dbbb2ba2ad))
+
 # [1.2.0](https://github.com/AEGEE/frontend/compare/1.1.0...1.2.0) (2020-06-25)
 
 
