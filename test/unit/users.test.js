@@ -97,6 +97,13 @@ describe('Users testing', () => {
         }
     });
 
+    test('should allow empty date_of_birth', async () => {
+        const user = generator.generateUser();
+        delete user.date_of_birth;
+
+        await User.create(user);
+    });
+
     test('should fail with date_of_birth in the future', async () => {
         try {
             const user = generator.generateUser({

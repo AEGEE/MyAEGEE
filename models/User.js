@@ -89,6 +89,10 @@ const User = sequelize.define('user', {
         allowNull: true,
         validate: {
             isPast(value) {
+                if (!value) {
+                    return;
+                }
+
                 if (moment().isSameOrBefore(value)) {
                     throw new Error('Birthday should be in the past.');
                 }
