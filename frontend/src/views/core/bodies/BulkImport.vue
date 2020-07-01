@@ -16,20 +16,20 @@
 
         <b-table :data="members">
           <template slot-scope="props">
-            <b-table-column field="member.first_name" label="First name">
-              {{ props.row.member.first_name }}
+            <b-table-column field="first_name" label="First name">
+              {{ props.row.first_name }}
             </b-table-column>
 
-            <b-table-column field="member.last_name" label="Last name">
-              {{ props.row.member.last_name }}
+            <b-table-column field="last_name" label="Last name">
+              {{ props.row.last_name }}
             </b-table-column>
 
-            <b-table-column field="user.email" label="Email">
-              {{ props.row.user.email }}
+            <b-table-column field="email" label="Email">
+              {{ props.row.email }}
             </b-table-column>
 
-            <b-table-column field="user.name" label="Username">
-              {{ props.row.user.name }}
+            <b-table-column field="username" label="Username">
+              {{ props.row.username }}
             </b-table-column>
 
             <b-table-column label="Delete user">
@@ -91,10 +91,7 @@ export default {
       this.$set(member, 'status', 'saving')
       this.$set(member, 'errors', {})
 
-      return this.axios.post(this.services['core'] + '/bodies/' + this.$route.params.id + '/new_member', {
-        member: member.member,
-        user: member.user
-      }).then(() => {
+      return this.axios.post(this.services['core'] + '/bodies/' + this.$route.params.id + '/create-member', member).then(() => {
         this.$set(member, 'status', 'success')
 
         this.$root.showSuccess('User is created.')
@@ -145,14 +142,10 @@ export default {
 
         const username = firstName.toLowerCase() + '.' + lastName.toLowerCase().replace(/ /g, '.')
         return {
-          member: {
-            first_name: firstName,
-            last_name: lastName
-          },
-          user: {
-            name: username,
-            email
-          }
+          first_name: firstName,
+          last_name: lastName,
+          username,
+          email
         }
       })
     }
