@@ -41,6 +41,25 @@ describe('User mail change', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    test('should fail if new_email is not provided', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
+
+        const res = await request({
+            uri: '/members/' + user.id + '/email',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: {}
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
     test('should fail if there are validation errors', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
@@ -59,6 +78,27 @@ describe('User mail change', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveProperty('new_email');
+    });
+
+    test('should fail if the email is not unique', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createUser({ email: 'test@example.com' });
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
+
+        const res = await request({
+            uri: '/members/' + user.id + '/email',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { new_email: 'test@example.com' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
     });
 
     test('should fail if mailer fails', async () => {
