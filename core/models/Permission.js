@@ -62,12 +62,13 @@ Permission.beforeValidate(async (permission) => {
     if (typeof permission.description === 'string') permission.description = permission.description.trim();
 });
 
-Permission.afterValidate((permission) => {
+Permission.afterValidate((permission, options) => {
     permission.combined = [
         permission.scope,
         permission.action,
         permission.object
     ].join(':');
+    options.fields.push('combined');
 });
 
 module.exports = Permission;
