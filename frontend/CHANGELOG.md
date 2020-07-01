@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/AEGEE/frontend/compare/1.2.1...1.2.2) (2020-07-01)
+
+
+### Bug Fixes
+
+* **members:** fix members creating and importing. Fixes MEMB-865 ([#461](https://github.com/AEGEE/frontend/issues/461)) ([63a7b6a](https://github.com/AEGEE/frontend/commit/63a7b6aef365e4d705698d169db91cd5797bb5af))
+
 ## [1.2.1](https://github.com/AEGEE/frontend/compare/1.2.0...1.2.1) (2020-06-30)
 
 
