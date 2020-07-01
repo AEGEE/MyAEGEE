@@ -1,3 +1,10 @@
+## [1.22.4](https://github.com/AEGEE/core/compare/1.22.3...1.22.4) (2020-07-01)
+
+
+### Bug Fixes
+
+* **models:** small fixes ([#59](https://github.com/AEGEE/core/issues/59)) ([ee0aa95](https://github.com/AEGEE/core/commit/ee0aa9529a672e7ac3efc6a5c9bfb6f822b57b5e))
+
 ## [1.22.3](https://github.com/AEGEE/core/compare/1.22.2...1.22.3) (2020-07-01)
 
 
