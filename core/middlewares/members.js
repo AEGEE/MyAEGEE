@@ -5,7 +5,7 @@ const constants = require('../lib/constants');
 const helpers = require('../lib/helpers');
 const errors = require('../lib/errors');
 const mailer = require('../lib/mailer');
-const { sequelize } = require('../lib/sequelize');
+const { sequelize, Sequelize } = require('../lib/sequelize');
 
 
 exports.listAllUsers = async (req, res) => {
@@ -121,6 +121,22 @@ exports.setPrimaryBody = async (req, res) => {
 exports.triggerEmailChange = async (req, res) => {
     if (!req.permissions.hasPermission('update:member') && req.user.id !== req.currentUser.id) {
         return errors.makeForbiddenError(res, 'Permission update:member is required, but not present.');
+    }
+
+    if (!req.body.new_email) {
+        return errors.makeBadRequestError(res, 'No new email is provided.');
+    }
+
+    const existingMail = await User.findOne({
+        where: {
+            email: {
+                [Sequelize.Op.iLike]: req.body.new_email.trim()
+            }
+        }
+    });
+
+    if (existingMail) {
+        return errors.makeValidationError(res, 'User with this email already exists.');
     }
 
     await sequelize.transaction(async (t) => {
