@@ -1,3 +1,10 @@
+## [1.22.3](https://github.com/AEGEE/core/compare/1.22.2...1.22.3) (2020-07-01)
+
+
+### Bug Fixes
+
+* **users:** checking email uniqueness before creating MailChange. Fixes MEMB-864 ([#55](https://github.com/AEGEE/core/issues/55)) ([d178127](https://github.com/AEGEE/core/commit/d178127bb3311f442089e8abaede170f3ed2f47a))
+
 ## [1.22.2](https://github.com/AEGEE/core/compare/1.22.1...1.22.2) (2020-06-27)
 
 
