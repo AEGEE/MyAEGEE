@@ -89,7 +89,10 @@ workflows:
       - eslint
   build:
     jobs:
-      - build
+      - build:
+          filters:
+            branches:
+              ignore: master
   yamllint:
     jobs:
       - yamllint
