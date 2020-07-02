@@ -100,7 +100,7 @@ remove-agents:
 
 # Backups
 backup_core:
-	./helper.sh --execute postgres-core- -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/core' --inserts > core.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+	./helper.sh --execute postgres-core -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/core' --inserts > core.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
 
 backup_events:
 	./helper.sh --execute postgres-events -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/events' --inserts > events.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
