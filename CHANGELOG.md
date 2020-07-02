@@ -1,3 +1,10 @@
+## [1.22.5](https://github.com/AEGEE/core/compare/1.22.4...1.22.5) (2020-07-02)
+
+
+### Bug Fixes
+
+* **general:** concat fields for searching. Fixes MEMB-855 ([#60](https://github.com/AEGEE/core/issues/60)) ([4edf22e](https://github.com/AEGEE/core/commit/4edf22e2e5eb8b1594c50f41085434d5b8ebc3a3))
+
 ## [1.22.4](https://github.com/AEGEE/core/compare/1.22.3...1.22.4) (2020-07-01)
 
 
