@@ -7,5 +7,10 @@ services:
             dockerfile: ./docker/Dockerfile
         image: aegee/frontend:dev
         volumes:
-            - ./${PATH_FRONTEND}/../:/usr/app/src
-            - /usr/app/src/node_modules
+            # uncomment the next line and rebuild/restart if you build frontend on host
+            # - ./${PATH_FRONTEND}/../dist:/usr/app/src/dist
+            - ./${PATH_FRONTEND}/../public:/usr/app/src/public
+            - ./${PATH_FRONTEND}/../src:/usr/app/src/src
+            - ./${PATH_FRONTEND}/../babel.config.js:/usr/app/src/babel.config.js
+            - ./${PATH_FRONTEND}/../vue.config.js:/usr/app/src/vue.config.js
+            - ./${PATH_FRONTEND}/../package.json:/usr/app/src/package.json

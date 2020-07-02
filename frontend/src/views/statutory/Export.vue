@@ -53,7 +53,6 @@
               </label>
             </div>
 
-
             <div class="field">
               <div class="control">
                 <button @click="exportAll()" class="button is-primary">

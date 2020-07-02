@@ -284,7 +284,6 @@ export default {
         }
       }
 
-
       this.errors = {}
       const url = this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/boardview/' + this.selectedBody
       const body = this.bodyStatuses.filter(entry => entry.user_id !== null && typeof entry.user_id !== 'undefined')

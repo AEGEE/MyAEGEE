@@ -24,7 +24,6 @@
           <p class="help is-danger" v-if="errors.action">{{ errors.action.join(', ')}}</p>
         </div>
 
-
         <div class="field">
           <label class="label">Object</label>
           <div class="control">
@@ -32,7 +31,6 @@
           </div>
           <p class="help is-danger" v-if="errors.object">{{ errors.object.join(', ')}}</p>
         </div>
-
 
         <div class="field">
           <label class="label">Description</label>

@@ -595,7 +595,6 @@ export default {
         params: { query }
       }).then(res => res.data.data).catch(() => [])
 
-
       // Merging all of the responses into one array.
       // Then filtering out duplicate users.
       // .map is there because the /bodies/:id/members returns users, not members.

@@ -150,7 +150,6 @@
               </tbody>
             </table>
 
-
             <table class="table is-narrow" v-if="event.budget || event.programme">
               <tbody>
                 <tr>

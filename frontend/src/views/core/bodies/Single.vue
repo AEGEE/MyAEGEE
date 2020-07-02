@@ -31,7 +31,6 @@
             </router-link>
           </div>
 
-
           <div class="field is-grouped" v-if="!isMember">
             <a @click="askToJoinBody()" v-if="!isRequestingMembership" :class="['button', 'is-fullwidth', 'is-info']">
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'user-plus']" /></span>

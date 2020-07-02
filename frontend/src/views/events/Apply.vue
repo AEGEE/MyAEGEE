@@ -164,7 +164,6 @@
 
 </template>
 
-
 <script>
 import { mapGetters } from 'vuex'
 import EventNoBodyNotification from '../../components/notifications/EventNoBodyNotification'

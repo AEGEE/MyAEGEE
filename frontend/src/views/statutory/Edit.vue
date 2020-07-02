@@ -296,7 +296,6 @@
 
         <p class="help is-danger" v-if="errors.fee">{{ errors.questions.message }}</p>
 
-
         <div class="subtitle is-fullwidth has-text-centered">Locations</div>
         <hr/>
 
@@ -656,7 +655,6 @@ export default {
       this.dates.board_approve_deadline = this.event.board_approve_deadline = new Date(this.event.board_approve_deadline)
       this.dates.participants_list_publish_deadline = this.event.participants_list_publish_deadline = new Date(this.event.participants_list_publish_deadline)
       this.dates.memberslist_submission_deadline = this.event.memberslist_submission_deadline = new Date(this.event.memberslist_submission_deadline)
-
 
       return this.axios.get(this.services['core'] + '/bodies/' + this.event.body_id)
     }).then((response) => {

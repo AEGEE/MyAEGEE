@@ -60,7 +60,6 @@ import { faTrashAlt } from '@fortawesome/free-solid-svg-icons/faTrashAlt'
 import { faCoins } from '@fortawesome/free-solid-svg-icons/faCoins'
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle'
 
-
 library.add(faTimesCircle)
 library.add(faHeart)
 library.add(faBars)

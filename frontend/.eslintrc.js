@@ -7,14 +7,14 @@ module.exports = {
   extends: [
     'plugin:vue/essential',
     'plugin:cypress/recommended',
-    '@vue/airbnb',
+    '@vue/airbnb'
   ],
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'template-curly-spacing': 'off',
     indent: ['error', 2, {
-      ignoredNodes: ['TemplateLiteral'],
+      ignoredNodes: ['TemplateLiteral']
     }],
     'no-restricted-syntax': 'off',
     'semi': ['error', 'never'],
@@ -43,6 +43,6 @@ module.exports = {
     'dot-notation': 'off'
   },
   parserOptions: {
-    parser: 'babel-eslint',
+    parser: 'babel-eslint'
   }
 }

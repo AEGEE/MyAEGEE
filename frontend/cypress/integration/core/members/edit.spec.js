@@ -49,7 +49,6 @@ context('Members editing', () => {
     cy.contains('Could not save user')
   })
 
-
   it('should save user is all is correct', () => {
     cy.viewport(1024, 768) // to be not tablet size, so date_of_birth won't be a popup
 

@@ -70,7 +70,6 @@
           </div>
         </div>
 
-
         <div class="field">
           <div class="control">
             <input type="submit" value="Send bug report" :disabled="isSaving" class="button is-primary is-fullwidth"/>

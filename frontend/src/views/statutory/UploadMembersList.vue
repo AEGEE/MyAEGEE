@@ -216,7 +216,6 @@ export default {
                 continue
               }
 
-
               // get member's current payment
               const currentPayment = this.payments.find(payment => payment.member_id === member.user_id && moment().isBetween(payment.starts, payment.expires))
 

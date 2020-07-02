@@ -12,7 +12,6 @@ import qs from 'qs'
 import Vue2TouchEvents from 'vue2-touch-events'
 import VTooltip from 'v-tooltip'
 
-
 import App from './App.vue'
 import FontAwesomeIcon from './fontawesome'
 import NProgress from './scripts/vue-nprogress'
