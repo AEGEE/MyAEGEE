@@ -74,13 +74,14 @@ function getSorting(query) {
 
 /*
     Given a string like 'query' and fields like ['field1', 'field2'...]
-    returns an array like following:
+    returns an object like following:
 
-    [
-        { field1: { [Sequelize.Op.iLike]: '%query%' } },
-        { field2: { [Sequelize.Op.iLike]: '%query%' } },
-        ...
-    ]
+    {
+        names: Sequelize.where(
+            Sequelize.fn('concat', Sequelize.col('field1'), ' ', 'Sequelize.col('field2'), ...)
+            { [Sequelize.Op.iLike]: '%query%' }
+        }
+    }
 
     Required for filtering stuff.
 */
@@ -89,12 +90,19 @@ function filterBy(query, fields) {
         return {};
     }
 
+    const concatFields = [];
+    for (let i = 0; i < fields.length; i++) {
+        concatFields.push(Sequelize.col(fields[i]));
+        if (i < fields.length - 1) {
+            concatFields.push(' ');
+        }
+    }
+
     return {
-        [Sequelize.Op.or]: fields.map((field) => {
-            return {
-                [field]: { [Sequelize.Op.iLike]: '%' + query + '%' }
-            };
-        })
+        namesQuery: Sequelize.where(
+            Sequelize.fn('concat', ...concatFields),
+            { [Sequelize.Op.iLike]: '%' + query + '%' }
+        )
     };
 }
 

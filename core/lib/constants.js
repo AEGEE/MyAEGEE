@@ -36,19 +36,19 @@ module.exports = {
         CAMPAIGN: ['name', 'url', 'description_short', 'description_long'],
         CIRCLE: ['name', 'description'],
         JOIN_REQUEST: [
-            '$user.first_name$',
-            '$user.last_name$',
-            '$user.email$',
+            'user.first_name',
+            'user.last_name',
+            'user.email',
         ],
         BODY_MEMBERSHIP: [
-            '$user.first_name$',
-            '$user.last_name$',
-            '$user.email$',
+            'user.first_name',
+            'user.last_name',
+            'user.email',
         ],
         CIRCLE_MEMBERSHIP: [
-            '$user.first_name$',
-            '$user.last_name$',
-            '$user.email$',
+            'user.first_name',
+            'user.last_name',
+            'user.email',
         ],
         MEMBER: ['first_name', 'last_name', 'email'],
         PERMISSION: ['combined', 'description']
