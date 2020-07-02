@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/AEGEE/frontend/compare/1.2.2...1.3.0) (2020-07-02)
+
+
+### Features
+
+* **docker:** mount folders properly. Fixes MEMB-715 ([#463](https://github.com/AEGEE/frontend/issues/463)) ([bd6b6ae](https://github.com/AEGEE/frontend/commit/bd6b6aea38a4408faba0f64c61fb82f8e725a1b7))
+
 ## [1.2.2](https://github.com/AEGEE/frontend/compare/1.2.1...1.2.2) (2020-07-01)
 
 
