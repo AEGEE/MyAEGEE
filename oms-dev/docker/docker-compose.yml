@@ -62,13 +62,13 @@ services:
     image: swaggerapi/swagger-ui:v3.28.0
     environment:
       #API_URL: http://events/api-docs.json
-      URLS: "[{url: \"http://core/api-docs.json\", \
+      URLS: "[{url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/core/api-docs.json\", \
               name: \"core\"}, \
-              {url: \"http://events/api-docs.json\", \
+              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/events/api-docs.json\", \
               name: \"events\"}, \
-              {url: \"http://statutory/api-docs.json\", \
+              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/statutory/api-docs.json\", \
               name: \"statutory\"}, \
-              {url: \"http://discounts/api-docs.json\", \
+              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/discounts/api-docs.json\", \
               name: \"discounts\"}, \
               ]"
     labels:
