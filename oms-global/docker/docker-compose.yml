@@ -2,8 +2,8 @@ version: "3.4"
 
 services:
 
-### OMS TUNNEL        #######################################
-### Proxy container #######################################
+### Entrypoints http/s  #######################################
+### Proxy container     #######################################
 
   traefik:
     image: traefik:v1.7.4-alpine
@@ -23,10 +23,6 @@ services:
       # below: we have to mount it to preserve it on the host, so no secrets
       - ./secrets/acme.json:/etc/acme.json
       - ./${PATH_OMS_GLOBAL}/traefik/traefik.toml:/etc/traefik/traefik.toml
-      - ./${PATH_OMS_GLOBAL}/traefik/logs:/var/log/traefik/
-      # - shared_logs:/var/log/traefik/
-#        networks:
-#          - management
     labels:
       - traefik.enable=true
       - traefik.backend=traefik
@@ -34,10 +30,56 @@ services:
       - traefik.frontend.rule=Host:${SUBDOMAIN_TRAEFIK}${BASE_URL}
       - traefik.frontend.priority=20
       - traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}
-# volumes:
-#    shared_logs:
-#        driver: "local"
-#    upload:
+
+
+### API gateway container   #######################################
+  postgres-kong:
+    image: postgres:9.6
+    volumes:
+      - kong_datastore:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_DB:       api-gw
+      POSTGRES_USER:     kong
+      POSTGRES_PASSWORD: ${PW_POSTGRES}
+
+  kong:
+    image: kong:2.0-ubuntu
+    #image: kong:2.1-alpine
+    depends_on:
+      - postgres-kong
+    ports:
+      - "8000:8000" # Listener
+      - "8001:8001" # Admin API
+      - "8443:8443" # Listener  (SSL)
+      - "8444:8444" # Admin API (SSL)
+    environment:
+      KONG_DATABASE:         postgres
+      KONG_PG_HOST:          postgres-kong
+      KONG_PG_PORT:          5432
+      KONG_PG_DATABASE:      api-gw
+      KONG_PG_PASSWORD:      ${PW_POSTGRES}
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG:  /dev/stderr
+      KONG_ADMIN_ERROR_LOG:  /dev/stderr
+      KONG_PROXY_LISTEN:     0.0.0.0:8000, 0.0.0.0:8443 ssl
+      KONG_ADMIN_LISTEN:     0.0.0.0:8001, 0.0.0.0:8444 ssl
+      KONG_PLUGINS:          key-auth, jwt
+    labels:
+      - traefik.enable=true
+      - traefik.backend=kong
+      - traefik.port=8000
+      - traefik.frontend.rule=Host:${SUBDOMAIN_API}${BASE_URL}
+      - traefik.frontend.priority=20
+# in order to initialise:
+#   see the provision_kong.sh for instructions
+# in order to update (e.g. after adding another plugin):
+#  the command becomes `kong migrations up`
+
+volumes:
+  kong_datastore:
 
 networks:
   default:
