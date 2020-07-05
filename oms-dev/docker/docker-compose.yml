@@ -23,9 +23,9 @@ services:
 
 ### DB admin (UIs) Containers #######################################
 
-### pgAdmin Container #######################################
+### pg Admin Container #######################################
   pgadmin:
-    image: fenglc/pgadmin4:2.0
+    image: dpage/pgadmin4:4.23
     restart: on-failure
     expose:
       - "5050"
@@ -37,16 +37,18 @@ services:
       - "traefik.frontend.priority=20"
       - "traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}"
     environment:
-      DEFAULT_USER: "myaegee-admins@${EMAIL_DOMAIN}"
-      DEFAULT_PASSWORD: "${PW_PGADMIN}"
+      PGADMIN_DEFAULT_EMAIL: "myaegee-admins@${EMAIL_DOMAIN}"
+      PGADMIN_DEFAULT_PASSWORD: "${PW_PGADMIN}"
+      PGADMIN_LISTEN_PORT: 5050
 
+### redis Admin Container #######################################
   redisadmin:
     image: erikdubbelboer/phpredisadmin:v1.11.4
-    environment:
-      ADMIN_USER: admin
-      ADMIN_PASS: ${PW_TRAEFIK}
-      REDIS_1_HOST: redis-oms-gsuite-wrapper
-      REDIS_1_PORT: 6379
+    # environment:
+      # ADMIN_USER: admin
+      # ADMIN_PASS: ${PW_TRAEFIK}
+      # REDIS_1_HOST: redis-oms-gsuite-wrapper
+      # REDIS_1_PORT: 6379
     labels:
       - "traefik.enable=true"
       - "traefik.backend=redisadmin"
@@ -57,16 +59,25 @@ services:
 
 
 ### show api docs Container #######################################
-  # swagger:
-  #   image: swaggerapi/swagger-ui
-  #   environment:
-  #     API_URL: http://oms-events/api-docs.json
-  #   labels:
-  #     - traefik.enable=true
-  #     - traefik.backend=swagger
-  #     - traefik.port=8080
-  #     - traefik.frontend.rule=Host:${SUBDOMAIN_APIDOCS}${BASE_URL}
-  #     - traefik.frontend.priority=20
+  swagger:
+    image: swaggerapi/swagger-ui:v3.28.0
+    environment:
+      #API_URL: http://events/api-docs.json
+      URLS: "[{url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/core/api-docs.json\", \
+              name: \"core\"}, \
+              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/events/api-docs.json\", \
+              name: \"events\"}, \
+              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/statutory/api-docs.json\", \
+              name: \"statutory\"}, \
+              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/discounts/api-docs.json\", \
+              name: \"discounts\"}, \
+              ]"
+    labels:
+      - traefik.enable=true
+      - traefik.backend=swagger
+      - traefik.port=8080
+      - traefik.frontend.rule=Host:${SUBDOMAIN_APIDOCS}${BASE_URL}
+      - traefik.frontend.priority=20
 
 
 networks:
