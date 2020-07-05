@@ -71,22 +71,22 @@ prune: clean
 
 # Development
 listen_frontend:
-	cd oms-frontend && npm run build -- --watch
+	cd frontend && npm run build -- --watch
 
 rebuild_frontend:
-	./helper.sh --docker -- up -d --build --force-recreate oms-frontend
+	./helper.sh --docker -- up -d --build --force-recreate frontend
 
 rebuild_core:
-	./helper.sh --docker -- up -d --build --force-recreate oms-core-elixir
+	./helper.sh --docker -- up -d --build --force-recreate core
 
 rebuild_events:
-	./helper.sh --docker -- up -d --build --force-recreate oms-events
+	./helper.sh --docker -- up -d --build --force-recreate events
 
 rebuild_statutory:
-	./helper.sh --docker -- up -d --build --force-recreate oms-statutory
+	./helper.sh --docker -- up -d --build --force-recreate statutory
 
 rebuild_mailer:
-	./helper.sh --docker -- up -d --build --force-recreate oms-mailer
+	./helper.sh --docker -- up -d --build --force-recreate mailer
 
 bump:
 	./helper.sh --bump
@@ -100,16 +100,16 @@ remove-agents:
 
 # Backups
 backup_core:
-	./helper.sh --execute postgres-oms-core-elixir -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/omscore_dev' --inserts > oms_core.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+	./helper.sh --execute postgres-core -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/core' --inserts > core.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
 
 backup_events:
-	./helper.sh --execute postgres-oms-events -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/events' --inserts > oms_events.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+	./helper.sh --execute postgres-events -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/events' --inserts > events.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
 
 backup_statutory:
-	./helper.sh --execute postgres-oms-statutory -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/statutory' --inserts > oms_statutory.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+	./helper.sh --execute postgres-statutory -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/statutory' --inserts > statutory.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
 
 backup_discounts:
-	./helper.sh --execute postgres-oms-discounts -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/discounts' --inserts > oms_discounts.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+	./helper.sh --execute postgres-discounts -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/discounts' --inserts > discounts.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
 
 backup_gsuite-wrapper:
 	echo "TODO: redis"
