@@ -43,11 +43,11 @@ services:
 ### redis Admin Container #######################################
   redisadmin:
     image: erikdubbelboer/phpredisadmin:v1.11.4
-    environment:
-      ADMIN_USER: admin
-      ADMIN_PASS: ${PW_TRAEFIK}
-      REDIS_1_HOST: redis-oms-gsuite-wrapper
-      REDIS_1_PORT: 6379
+    # environment:
+      # ADMIN_USER: admin
+      # ADMIN_PASS: ${PW_TRAEFIK}
+      # REDIS_1_HOST: redis-oms-gsuite-wrapper
+      # REDIS_1_PORT: 6379
     labels:
       - "traefik.enable=true"
       - "traefik.backend=redisadmin"
