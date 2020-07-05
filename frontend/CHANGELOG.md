@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/AEGEE/frontend/compare/1.3.0...1.3.1) (2020-07-05)
+
+
+### Bug Fixes
+
+* update to right vi 2.0 colours ([#465](https://github.com/AEGEE/frontend/issues/465)) ([a09382f](https://github.com/AEGEE/frontend/commit/a09382fdbb3c050f3798afda244f2797fc03c2c6))
+
 # [1.3.0](https://github.com/AEGEE/frontend/compare/1.2.2...1.3.0) (2020-07-02)
 
 
