@@ -7,8 +7,11 @@ module.exports = {
 
         await queryInterface.addConstraint(
             'pax_limits',
-            ['body_id', 'event_type'],
-            { type: 'unique', name: 'pax_limits_body_id_event_type_unique' }
+            {
+                type: 'unique',
+                name: 'pax_limits_body_id_event_type_unique',
+                fields: ['body_id', 'event_type']
+            }
         );
     },
     down: async (queryInterface) => {
@@ -19,8 +22,11 @@ module.exports = {
 
         await queryInterface.addConstraint(
             'pax_limits',
-            ['body_id'],
-            { type: 'unique', name: 'pax_limits_body_id_key' }
+            {
+                type: 'unique',
+                name: 'pax_limits_body_id_key',
+                fields: ['body_id'],
+            }
         );
     }
 };

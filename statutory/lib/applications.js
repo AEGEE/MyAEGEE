@@ -340,7 +340,7 @@ function setApplicationBoolean(key) {
 
         const dbResult = await req.application.update(
             toUpdate,
-            { returning: true, hooks: false }
+            { returning: ['*'], hooks: false }
         );
 
         // Recalculating votes per delegate for this antenna.
@@ -375,7 +375,7 @@ exports.setApplicationStatus = async (req, res) => {
 
     const dbResult = await req.application.update(
         { status: req.body.status },
-        { returning: true }
+        { returning: ['*'] }
     );
 
     // Recalculating votes per delegate for this antenna.
@@ -423,7 +423,7 @@ exports.setApplicationBoard = async (req, res) => {
             // First, saving the application.
             // If we've passed after this one, there's no duplicated, validations
             // and constraint take care about it.
-            const application = await req.application.update(toUpdate, { returning: true, transaction: t });
+            const application = await req.application.update(toUpdate, { returning: ['*'], transaction: t });
 
             // Recalculating votes per delegate for this antenna.
             await VotesPerAntenna.recalculateVotesForDelegates(req.event, req.application.body_id, t);
@@ -544,7 +544,7 @@ exports.setBoardForBody = async (req, res) => {
                 // First, saving the application.
                 // If we've passed after this one, there's no duplications, validations
                 // and constraint take care about it.
-                await application.update(toUpdate, { returning: true, transaction: t });
+                await application.update(toUpdate, { returning: ['*'], transaction: t });
 
                 // Checking is done in a helper.
                 await helpers.checkApplicationBoardviewValidity({

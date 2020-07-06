@@ -59,7 +59,7 @@ describe('Applications pax type/board comment', () => {
     });
 
     test('should succeed when the permissions are okay', async () => {
-        application = await application.update({ user_id: 1337 }, { returning: true });
+        application = await application.update({ user_id: 1337 }, { returning: ['*'] });
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/board',
@@ -81,7 +81,7 @@ describe('Applications pax type/board comment', () => {
     test('should return 403 when user does not have permissions', async () => {
         mock.mockAll({ approvePermissions: { noPermissions: true }, mainPermissions: { noPermissions: true } });
 
-        application = await application.update({ user_id: 1337 }, { returning: true });
+        application = await application.update({ user_id: 1337 }, { returning: ['*'] });
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/board',
@@ -186,7 +186,7 @@ describe('Applications pax type/board comment', () => {
             user_id: 1,
             participant_type: 'delegate',
             participant_order: 1
-        }, { returning: true });
+        }, { returning: ['*'] });
 
         const otherApplication = await generator.createApplication({
             user_id: 2,
@@ -212,7 +212,7 @@ describe('Applications pax type/board comment', () => {
         application = await application.update({
             participant_type: 'delegate',
             participant_order: 1
-        }, { returning: true });
+        }, { returning: ['*'] });
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/board',
@@ -240,7 +240,7 @@ describe('Applications pax type/board comment', () => {
             board_approve_deadline: moment().subtract(3, 'year').toDate(),
             starts: moment().subtract(2, 'year').toDate(),
             ends: moment().subtract(1, 'year').toDate(),
-        }, { returning: true });
+        }, { returning: ['*'] });
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/board',
@@ -261,7 +261,7 @@ describe('Applications pax type/board comment', () => {
         application = await application.update({
             participant_order: 1,
             participant_type: 'delegate'
-        }, { returning: true });
+        }, { returning: ['*'] });
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/board',
@@ -354,7 +354,7 @@ describe('Applications pax type/board comment', () => {
         application = await application.update({
             participant_order: 1,
             participant_type: 'delegate'
-        }, { returning: true });
+        }, { returning: ['*'] });
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/board',
@@ -375,7 +375,7 @@ describe('Applications pax type/board comment', () => {
         application = await application.update({
             participant_order: 1,
             participant_type: 'delegate'
-        }, { returning: true });
+        }, { returning: ['*'] });
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/board',
@@ -396,7 +396,7 @@ describe('Applications pax type/board comment', () => {
         application = await application.update({
             participant_order: 1,
             participant_type: 'delegate'
-        }, { returning: true });
+        }, { returning: ['*'] });
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/board',
