@@ -132,7 +132,7 @@ exports.setApplicationConfirmed = async (req, res) => {
 
     const dbResult = await req.application.update(
         { confirmed: req.body.confirmed },
-        { returning: true }
+        { returning: ['*'] }
     );
 
     return res.json({
@@ -148,7 +148,7 @@ exports.setApplicationAttended = async (req, res) => {
 
     const dbResult = await req.application.update(
         { attended: req.body.attended },
-        { returning: true }
+        { returning: ['*'] }
     );
 
     return res.json({
