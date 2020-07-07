@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/AEGEE/frontend/compare/1.3.1...1.4.0) (2020-07-07)
+
+
+### Features
+
+* **members:** add backend pagination and sorting for members list ([#469](https://github.com/AEGEE/frontend/issues/469)) ([60f43b9](https://github.com/AEGEE/frontend/commit/60f43b97fe15428891c40ad2ea1af1d591e19e13))
+
 ## [1.3.1](https://github.com/AEGEE/frontend/compare/1.3.0...1.3.1) (2020-07-05)
 
 
