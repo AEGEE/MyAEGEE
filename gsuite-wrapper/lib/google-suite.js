@@ -14,27 +14,26 @@
 'use strict';
 
 const {google} = require('googleapis');
-const config = require('./config/configFile.js');
+const path = require('path');
 
-
-// Create JWT auth object
-const jwt = new google.auth.JWT(
-  config.GsuiteKeys.client_email,
-  null,
-  config.GsuiteKeys.private_key,
-  [
+  // Create auth object
+const auth = new google.auth.GoogleAuth({
+  keyFile: path.join(__dirname, './config/myaegee-serviceaccount.json'),
+  scopes: [
     'https://www.googleapis.com/auth/admin.directory.group',
     'https://www.googleapis.com/auth/admin.directory.group.member',
     'https://www.googleapis.com/auth/admin.directory.user',
     'https://www.googleapis.com/auth/calendar.events',
   ],
-  config.GsuiteKeys.delegatedUser,
-);
+});
+
 
 async function runGsuiteOperation(operation, payload) {
 
+  let jwt;
+
   try{
-    const authRes = await jwt.authorize();
+    jwt = await auth.getClient();
     //console.log("auth: " + JSON.stringify(authRes));
   }catch(AuthError){
     console.log("Authentication error!");
