@@ -12,14 +12,22 @@
 
         <b-table
           :data="users"
-          :loading="isLoading">
+          :loading="isLoading"
+          paginated
+          backend-pagination
+          backend-sorting
+          :total="total"
+          :per-page="limit"
+          @page-change="onPageChange"
+          :default-sort="[sortField, sortOrder]"
+          @sort="onSort">
           <template slot-scope="props">
             <b-table-column field="id" label="#" numeric sortable>
               {{ props.row.id }}
             </b-table-column>
 
             <b-table-column field="first_name" label="Name and surname" sortable width="150">
-              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.seo_url || props.row.id } }">
+              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.username || props.row.id } }">
                 {{ props.row.first_name }} {{ props.row.last_name }}
               </router-link>
             </b-table-column>
@@ -28,7 +36,7 @@
               {{ props.row.email }}
             </b-table-column>
 
-            <b-table-column field="birthday" label="Birthday" sortable width="150">
+            <b-table-column field="date_of_birth" label="Birthday" sortable width="150">
               {{ props.row.date_of_birth }}
             </b-table-column>
 
@@ -39,21 +47,16 @@
             <b-table-column field="about_me" label="About me">
               {{ props.row.about_me }}
             </b-table-column>
+
+            <b-table-column field="created_at" label="Registration date" sortable>
+              {{ props.row.created_at | datetime }}
+            </b-table-column>
           </template>
 
           <template slot="empty">
             <empty-table-stub />
           </template>
         </b-table>
-
-        <div class="field">
-          <button
-            class="button is-primary is-fullwidth"
-            :class="{ 'is-loading': isLoading }"
-            :disabled="isLoading"
-            v-show="canLoadMore"
-            @click="fetchData()">Load more users</button>
-        </div>
       </article>
     </div>
   </div>
@@ -70,7 +73,10 @@ export default {
       isLoading: false,
       query: '',
       limit: 30,
-      offset: 0,
+      page: 0,
+      total: 0,
+      sortField: 'id',
+      sortOrder: 'asc',
       canLoadMore: true,
       source: null
     }
@@ -79,7 +85,9 @@ export default {
     queryObject () {
       const queryObj = {
         limit: this.limit,
-        offset: this.offset
+        offset: this.page * this.limit,
+        sort: this.sortField,
+        direction: this.sortOrder
       }
 
       if (this.query) queryObj.query = this.query
@@ -90,8 +98,18 @@ export default {
   methods: {
     refetch () {
       this.users = []
-      this.offset = 0
+      this.page = 0
+      this.total = 0
       this.canLoadMore = true
+      this.fetchData()
+    },
+    onPageChange (page) {
+      this.page = page
+      this.fetchData()
+    },
+    onSort (field, order) {
+      this.sortField = field
+      this.sortOrder = order
       this.fetchData()
     },
     fetchData () {
@@ -100,8 +118,9 @@ export default {
       this.source = this.axios.CancelToken.source()
 
       this.axios.get(this.services['core'] + '/members', { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
-        this.users = this.users.concat(response.data.data)
-        this.offset += this.limit
+        this.users = response.data.data
+        this.total = response.data.meta.count
+        this.page++
         this.canLoadMore = response.data.data.length === this.limit
         this.isLoading = false
       }).catch((err) => {
