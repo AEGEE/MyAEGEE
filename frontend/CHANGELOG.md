@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/AEGEE/frontend/compare/1.4.0...1.4.1) (2020-07-07)
+
+
+### Bug Fixes
+
+* **members:** fixed members pagination when switching page ([#470](https://github.com/AEGEE/frontend/issues/470)) ([a8c62ff](https://github.com/AEGEE/frontend/commit/a8c62ff836f43366365c59b612a2ab2072376642))
+
 # [1.4.0](https://github.com/AEGEE/frontend/compare/1.3.1...1.4.0) (2020-07-07)
 
 
