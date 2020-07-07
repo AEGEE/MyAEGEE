@@ -1,33 +1,35 @@
-version: '3.2'
-### OMS GSUITE WRAPPER   #######################################
-services:
-    redis-oms-gsuite-wrapper:
-        restart: always
-        image: redis:5-alpine
-        volumes:
-            - redis-gsuite-persistence:/data
+version: "3.4"
 
-    oms-gsuite-wrapper:
-        restart: on-failure
-        image: aegee/oms-gsuite-wrapper:fab
-        links:
-          - redis-oms-gsuite-wrapper
-        expose:
-          - 8084
-        volumes:
-          - ./secrets/gsuite-wrapper-secrets.json:/usr/app/src/lib/config/secrets.json
-          - ./secrets/myaegee-service.keys.json:/usr/app/src/lib/config/myaegee-service.keys.json
-        env_file: ./$PATH_OMS_GSUITE_WRAPPER/.env
-        labels:
-          - "traefik.backend=oms-events"
-          - "traefik.port=8084"
-          - "traefik.frontend.rule=PathPrefix:/services/oms-gsuite-wrapper/api;PathPrefixStrip:/services/oms-gsuite-wrapper/api"
-          - "traefik.frontend.priority=110"
-          - "traefik.enable=true"
+### GSUITE WRAPPER   #######################################
+services:
+  redis-gsuite-wrapper:
+    restart: always
+    image: redis:5-alpine
+    volumes:
+      - redis_gsuite_persistence:/data
+
+  gsuite-wrapper:
+    restart: on-failure
+    image: aegee/gsuite-wrapper:latest
+    links:
+      - redis-gsuite-wrapper
+    expose:
+      - 8084
+    volumes:
+      - ./${PATH_GSUITE_WRAPPER}/../lib/config/myaegee-serviceaccount.json:/usr/app/src/lib/config/myaegee-serviceaccount.json
+    environment:
+      NODE_ENV: "${MYAEGEE_ENV}"
+      #BUGSNAG_KEY: "${BUGSNAG_KEY_GSUITE_WRAPPER}"
+    labels:
+      - "traefik.backend=gsuite-wrapper"
+      - "traefik.port=8084"
+      - "traefik.frontend.rule=PathPrefix:/api/gsuite-wrapper;PathPrefixStrip:/api/gsuite-wrapper"
+      - "traefik.frontend.priority=110"
+      - "traefik.enable=true"
 
 volumes:
-    redis-gsuite-persistence:
-        driver: "local"
+  redis_gsuite_persistence:
+    driver: "local"
 
 networks:
   default:

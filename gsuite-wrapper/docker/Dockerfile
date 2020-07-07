@@ -1,4 +1,4 @@
-FROM node:10
+FROM node:12
 
 RUN mkdir -p /usr/app/src
 
@@ -15,9 +15,7 @@ ENV PATH="/home/node/.npm-global/bin:${PATH}"
 
 RUN npm install --loglevel warn
 
-# ENTRYPOINT ["npm"]
-# CMD ["start"]
-
-CMD ["npm", "start"]
+ENTRYPOINT ["npm"]
+CMD ["start"]
 
 EXPOSE 8084
