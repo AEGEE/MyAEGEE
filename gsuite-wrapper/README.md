@@ -4,15 +4,15 @@ This module offers an API which talks to the Gsuite of AEGEE-Europe in order to 
 
 ## The project & how to contribute
 
-You can read more about the project on the [development wiki](https://oms-project.atlassian.net/wiki/spaces/GENERAL/overview)
+You can read more about the project on the [development wiki](https://myaegee.atlassian.net/wiki/spaces/GENERAL/overview)
 
 ## API
 
-For better visualisation and more detailed API consult [Apiary](http://docs.omsgsuitewrapper.apiary.io/) (not sure how the permissions to edit work, but nothing that can't be solved by asking).
+For better visualisation and more detailed API consult the [docs](apidocs.aegee.eu) (WIP).
 
 ### Licence
 
-Copyright 2019 Fabrizio Bellicano (AEGEE-Europe) and contributors
+Copyright 2019-2020 Fabrizio Bellicano (AEGEE-Europe) and contributors
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 

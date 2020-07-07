@@ -2,7 +2,5 @@
 /coverage/
 .nyc_output/
 *.swp
-docker/secrets/*
-lib/config/secrets.json
-lib/config/myaegee-service.keys.json
+lib/config/myaegee-serviceaccount.json
 commitmsg

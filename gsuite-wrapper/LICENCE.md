@@ -1,6 +1,6 @@
 # LICENCE
 
-Copyright 2019 Fabrizio Bellicano (AEGEE-Europe)  
+Copyright 2019-2020 Fabrizio Bellicano (AEGEE-Europe)
 and contributors
 
 Licensed under the Apache License, Version 2.0 (the "License");

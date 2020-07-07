@@ -1,5 +1,5 @@
-Fabrizio Bellicano, AEGEE-Genova; (Github: linuxbandit)
+Fabrizio Bellicano, AEGEE-Leuven/Genova/Sofia/Berlin; (Github: linuxbandit)
 
 
 your name, antenna (if member of AEGEE); github/bitbucket username
-(plz use comma and semicolon as pointed) 
+(plz use comma and semicolon as pointed)
