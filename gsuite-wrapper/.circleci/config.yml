@@ -7,7 +7,6 @@ jobs:
       image: ubuntu-1604:201903-01
     steps:
       - checkout
-      - run: docker run --name postgres -p 5432:5432 -d postgres:10.6
       - run:
           name: Install Node
           command: |
@@ -19,12 +18,12 @@ jobs:
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run tests
-          command: JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm test -- --reporters=default --reporters=jest-junit
-      - run: ./node_modules/.bin/codecov
-      - store_test_results:
-          path: ~/reports
-      - store_artifacts:
-          path: ~/reports
+          command: npm test
+      # - run: ./node_modules/.bin/codecov
+      # - store_test_results:
+      #     path: ~/reports
+      # - store_artifacts:
+      #     path: ~/reports
   build:
     machine:
       image: ubuntu-1604:201903-01
