@@ -104,7 +104,7 @@ export default {
       this.fetchData()
     },
     onPageChange (page) {
-      this.page = page
+      this.page = page - 1
       this.fetchData()
     },
     onSort (field, order) {
