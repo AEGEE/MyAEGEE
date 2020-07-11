@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/AEGEE/frontend/compare/1.4.1...1.5.0) (2020-07-11)
+
+
+### Features
+
+* .browserslist add support for Firefox ESR ([#358](https://github.com/AEGEE/frontend/issues/358)) ([9f358e2](https://github.com/AEGEE/frontend/commit/9f358e26838dea2a68474131a7b3d62c2af38e65))
+
 ## [1.4.1](https://github.com/AEGEE/frontend/compare/1.4.0...1.4.1) (2020-07-07)
 
 
