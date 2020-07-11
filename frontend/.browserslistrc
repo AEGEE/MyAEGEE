@@ -1,3 +1,12 @@
-> 1%
-last 2 versions
-not dead
+# This is the most mystical file in the whole project.  Its name starts
+# with dot, because this is an easter egg.  As of
+# https://github.com/babel/website/issues/2245 when the file is absent,
+# then babel generates code for target ES2015, which excludes IE11. But
+# if the file is absent, browserslist switches to `defaults` which includes IE11.
+# If the file is empty and present, then browserslist does not return anything.
+#
+# Moreover, babel is utilized by @vue/babel-preset-app and its documentation says, that
+# the configuration of @vue/babel-preset-app is determined only by reading package.json
+# but in practice, as outlined at https://github.com/vuejs/vue-cli/issues/5487, the
+# .browserslist file is also read.
+defaults
