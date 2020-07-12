@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/AEGEE/frontend/compare/1.5.0...1.5.1) (2020-07-12)
+
+
+### Bug Fixes
+
+* gender data removed from candidatures. MA-25 ([#477](https://github.com/AEGEE/frontend/issues/477)) ([dcb778d](https://github.com/AEGEE/frontend/commit/dcb778d7bcc11cd24ab274b5eff14fca9bf54b1b))
+
 # [1.5.0](https://github.com/AEGEE/frontend/compare/1.4.1...1.5.0) (2020-07-11)
 
 
