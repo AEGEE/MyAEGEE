@@ -76,14 +76,6 @@
         </div>
 
         <div class="field">
-          <label class="label">Gender</label>
-          <div class="control">
-            <input class="input" type="text" required v-model="candidate.gender" />
-          </div>
-          <p class="help is-danger" v-if="errors.gender">{{ errors.gender.join(', ') }}</p>
-        </div>
-
-        <div class="field">
           <label class="label">Date of birth</label>
           <div class="control">
             <flat-pickr
@@ -247,7 +239,6 @@ export default {
       candidate: {
         first_name: '',
         last_name: '',
-        gender: '',
         date_of_birth: '',
         member_since: '',
         body_id: null,
@@ -339,7 +330,6 @@ export default {
       this.candidate.first_name = this.loginUser.first_name
       this.candidate.last_name = this.loginUser.last_name
       this.candidate.email = this.loginUser.user.email
-      this.candidate.gender = this.loginUser.gender
       this.candidate.date_of_birth = this.loginUser.date_of_birth
       this.candidate.member_since = moment(this.loginUser.user.inserted_at).format('YYYY-MM-DD')
 

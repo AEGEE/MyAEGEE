@@ -44,10 +44,6 @@
             <td class="has-text-pre-wrap">{{ candidate.date_of_birth }}</td>
           </tr>
           <tr>
-            <th>Gender</th>
-            <td class="has-text-pre-wrap">{{ candidate.gender }}</td>
-          </tr>
-          <tr>
             <th>Nationality</th>
             <td class="has-text-pre-wrap">{{ candidate.nationality }}</td>
           </tr>
