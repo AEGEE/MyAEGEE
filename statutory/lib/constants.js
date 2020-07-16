@@ -161,7 +161,6 @@ module.exports = {
         last_name: 'Last name',
         email: 'Email',
         date_of_birth: 'Date of birth',
-        gender: 'Gender',
         nationality: 'Nationality',
         'position.name': 'Position',
         body_name: 'Body name',

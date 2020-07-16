@@ -283,7 +283,6 @@ describe('Candidates submission', () => {
         'first_name',
         'last_name',
         'date_of_birth',
-        'gender',
         'nationality',
         'languages',
         'studies',

@@ -68,14 +68,6 @@ const Candidate = sequelize.define('candidate', {
             isValidDate
         }
     },
-    gender: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: '',
-        validate: {
-            notEmpty: { msg: 'Gender should be set.' }
-        }
-    },
     nationality: {
         type: Sequelize.STRING,
         allowNull: false,
