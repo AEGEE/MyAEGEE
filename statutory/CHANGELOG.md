@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/AEGEE/statutory/compare/1.1.0...1.1.1) (2020-07-16)
+
+
+### Bug Fixes
+
+* database change to drop the gender column. See MA-25 ([#292](https://github.com/AEGEE/statutory/issues/292)) ([cfeacc3](https://github.com/AEGEE/statutory/commit/cfeacc3844b6d160de182b4bd316eed6009697cc))
+
 # [1.1.0](https://github.com/AEGEE/oms-statutory/compare/1.0.2...1.1.0) (2020-06-21)
 
 
