@@ -15,7 +15,9 @@ bump_repo ()
     git submodule foreach "git checkout master && git pull"
     git add "$(git submodule status | grep '^+' |  awk '{ print $2 }')"
     #if something is staged, do the following two lines
-    if (( "$(git diff --cached --quiet)" )); then
+    git diff --cached --quiet
+    #shellcheck disable=SC2181
+    if (( "$?" )); then
         git checkout -b "bump-submodules-$(date '+%d-%m')-$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 4)"
         git commit -m "chore(bump): Bump version of the submodules via make bump"
     fi
@@ -28,7 +30,9 @@ bump_single_module ()
     cd ..
     git add "${1}"
     #if something is staged, do the following two lines
-    if (( "$(git diff --cached --quiet)" )); then
+    git diff --cached --quiet
+    #shellcheck disable=SC2181
+    if (( "$?" )); then
         git checkout -b "bump-submodules-$(date '+%d-%m')-$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 4)"
         git commit -m "chore(bump): Bump version of the submodule via make bump module=${1}"
     fi
