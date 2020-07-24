@@ -87,6 +87,11 @@ compose_wrapper ()
         echo -e "\n[MyAEGEE] Full command:\n${command[*]}\n"
     fi
     "${command[@]}"
+
+    echo
+    echo "maybe run kong migrations"
+    echo
+
     return $?
 }
 
