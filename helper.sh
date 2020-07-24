@@ -23,7 +23,7 @@ bump_repo ()
 
 bump_single_module ()
 {
-    cd "${1}" || echo "no folder ${1}!" && exit 1
+    cd "${1}" || { echo "no folder ${1}!" && exit 189 ; }
     git checkout master && git pull
     cd ..
     git add "${1}"
@@ -280,7 +280,7 @@ fi
 
 #Brings the submodules to master and commits
 if ( $bump ); then
-    if [ -n "${arguments[*]}" ]; then
+    if [ -z "${arguments[*]}" ]; then
       bump_repo
     else
       bump_single_module "${arguments[*]}"
