@@ -5,7 +5,7 @@ export $(shell sed 's/=.*//' .env)
 
 .PHONY: default init build start bootstrap refresh live_refresh list debug config monitor stop down restart hard_restart \
           nuke_dev clean_docker_dangling_images clean_docker_images clean prune listen_frontend rebuild_frontend rebuild_core \
-	  rebuild_events rebuild_statutory rebuild_mailer bump install-agents remove-agents backup_core backup_events \
+	  rebuild_events rebuild_statutory rebuild_mailer bump install-agents remove-agents backup backup_core backup_events \
 	  backup_discounts backup_gsuite-wrapper backup_statping backup_statistics backup_security backup_shortener backup_survey
 
 default:
@@ -99,17 +99,20 @@ remove-agents:
 	docker-compose -f oms-monitor-agents/docker/docker-compose.yml down
 
 # Backups
+backup:
+	/opt/bu-settings/dump.sh postgres-core postgres-events postgres-statutory postgres-discounts
+
 backup_core:
-	./helper.sh --execute postgres-core -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/core' --inserts > core.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+	/opt/bu-settings/dump.sh postgres-core
 
 backup_events:
-	./helper.sh --execute postgres-events -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/events' --inserts > events.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+	/opt/bu-settings/dump.sh postgres-events
 
 backup_statutory:
-	./helper.sh --execute postgres-statutory -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/statutory' --inserts > statutory.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+	/opt/bu-settings/dump.sh postgres-statutory
 
 backup_discounts:
-	./helper.sh --execute postgres-discounts -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/discounts' --inserts > discounts.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+	/opt/bu-settings/dump.sh postgres-discounts
 
 backup_gsuite-wrapper:
 	echo "TODO: redis"
