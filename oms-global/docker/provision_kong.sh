@@ -86,11 +86,21 @@ curl -i -X POST \
 curl -i -X POST \
   --url http://localhost:8001/services/ \
   --data 'name=mailer' \
-  --data 'url=http://mailer:3000'
+  --data 'url=http://mailer:4000'
 
 ### MAILER svc route
 curl -i -X POST \
   --url http://localhost:8001/services/mailer/routes \
   --data 'paths[]=/mailer'
 
+### gsuite-wrapper svc
+curl -i -X POST \
+  --url http://localhost:8001/services/ \
+  --data 'name=gsuite-wrapper' \
+  --data 'url=http://gsuite-wrapper:8084'
+
+### gsuite-wrapper svc route
+curl -i -X POST \
+  --url http://localhost:8001/services/gsuite-wrapper/routes \
+  --data 'paths[]=/gsuite-wrapper'
 # One can also add authentication, but it is left for later
