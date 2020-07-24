@@ -88,8 +88,11 @@ rebuild_statutory:
 rebuild_mailer:
 	./helper.sh --docker -- up -d --build --force-recreate mailer
 
-bump:
+bump_and_commit:
 	./helper.sh --bump $(module)
+
+bump:
+	./helper.sh --bumpmodules
 
 # Monitors
 install-agents:
