@@ -20,7 +20,7 @@ build: #docker-compose build
 start: #docker-compose up -d
 	./helper.sh --start
 
-bootstrap: init build start
+bootstrap: init bump build start
 
 refresh:  build
 
@@ -89,7 +89,7 @@ rebuild_mailer:
 	./helper.sh --docker -- up -d --build --force-recreate mailer
 
 bump:
-	./helper.sh --bump
+	./helper.sh --bump $(module)
 
 # Monitors
 install-agents:
