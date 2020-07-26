@@ -19,7 +19,7 @@ services:
     depends_on:
       - maria-bitwarden
     volumes:
-      - ./${PATH_OMS_SECURITY}/bw-data/:/data/
+      - ./${PATH_PASS_MANAGER}/bw-data/:/data/
     environment:
       SIGNUPS_ALLOWED: "false"
       ADMIN_TOKEN: "${PW_BITWARDEN_ADMINPANEL}"
