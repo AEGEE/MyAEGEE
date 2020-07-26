@@ -102,7 +102,7 @@ services:
 #     volumes:
 #         - /opt/backups:/opt/backups:ro #MAKE A VOLUME SHARED AMONG CONTAINERS
 #           #- shared_logs:/var/log/traefik/ #not this way :/
-#         - ./$PATH_OMS_GLOBAL/traefik/logs:/var/log/traefik #not this way :/
+#         - ./$PATH_GATEWAYS/traefik/logs:/var/log/traefik #not this way :/
           # below is only for dev. do NOT override whole directory as the executable is there
 #         - ./$PATH_OMS_ELASTIC/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
             # just to bring stuff from the container to the host

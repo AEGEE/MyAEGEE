@@ -4,7 +4,7 @@ services:
 
   portal:
     build:
-      context: ./$PATH_OMS_GLOBAL/portal/
+      context: ./$PATH_GATEWAYS/portal/
       dockerfile: ./Dockerfile.dev
     image: aegee/portal:dev
     restart: always

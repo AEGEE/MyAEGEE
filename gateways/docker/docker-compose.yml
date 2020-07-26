@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
 
-### OMS TUNNEL        #######################################
+### HTTP gateway    #######################################
 ### Proxy container #######################################
 
   traefik:
@@ -22,8 +22,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       # below: we have to mount it to preserve it on the host, so no secrets
       - ./secrets/acme.json:/etc/acme.json
-      - ./${PATH_OMS_GLOBAL}/traefik/traefik.toml:/etc/traefik/traefik.toml
-      - ./${PATH_OMS_GLOBAL}/traefik/logs:/var/log/traefik/
+      - ./${PATH_GATEWAYS}/traefik/traefik.toml:/etc/traefik/traefik.toml
+      - ./${PATH_GATEWAYS}/traefik/logs:/var/log/traefik/
       # - shared_logs:/var/log/traefik/
 #        networks:
 #          - management
