@@ -93,10 +93,10 @@ bump:
 
 # Monitors
 install-agents:
-	docker-compose -f gateways/docker/docker-compose.yml -f oms-monitor-agents/docker/docker-compose.yml up -d
+	docker-compose -f gateways/docker/docker-compose.yml -f monitor-agents/docker/docker-compose.yml up -d
 
 remove-agents:
-	docker-compose -f oms-monitor-agents/docker/docker-compose.yml down
+	docker-compose -f monitor-agents/docker/docker-compose.yml down
 
 # Backups
 backup_core:
