@@ -10,6 +10,8 @@
           </div>
         </div>
 
+        <p>Total members: {{ members.length }}</p>
+
         <b-table
           :data="members"
           :loading="isLoading">
