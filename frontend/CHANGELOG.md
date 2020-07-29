@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/AEGEE/frontend/compare/1.5.1...1.6.0) (2020-07-29)
+
+
+### Features
+
+* **circle:** add total amount of members ([#490](https://github.com/AEGEE/frontend/issues/490)) ([71f240f](https://github.com/AEGEE/frontend/commit/71f240fb4a91eb6b3f4990ada650f025ea280343))
+
 ## [1.5.1](https://github.com/AEGEE/frontend/compare/1.5.0...1.5.1) (2020-07-12)
 
 
