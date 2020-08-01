@@ -1,3 +1,10 @@
+# [1.23.0](https://github.com/AEGEE/core/compare/1.22.5...1.23.0) (2020-08-01)
+
+
+### Features
+
+* add task description bodies ([#79](https://github.com/AEGEE/core/issues/79)) ([d45b63d](https://github.com/AEGEE/core/commit/d45b63d7006e49db417ed4840278d09413f7a468))
+
 ## [1.22.5](https://github.com/AEGEE/core/compare/1.22.4...1.22.5) (2020-07-02)
 
 
