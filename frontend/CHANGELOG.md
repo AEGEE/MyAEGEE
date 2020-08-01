@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/AEGEE/frontend/compare/1.6.0...1.7.0) (2020-08-01)
+
+
+### Features
+
+* **bodies:** add task description to bodies ([#488](https://github.com/AEGEE/frontend/issues/488)) ([67cfe4c](https://github.com/AEGEE/frontend/commit/67cfe4c331376be08a0778ae31048c4ddffbd08c))
+
 # [1.6.0](https://github.com/AEGEE/frontend/compare/1.5.1...1.6.0) (2020-07-29)
 
 
