@@ -17,6 +17,11 @@ const Body = sequelize.define('body', {
             notEmpty: { msg: 'Description should be set.' },
         }
     },
+    task_description: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+        defaultValue: ''
+    },
     code: {
         type: Sequelize.STRING,
         allowNull: false,
