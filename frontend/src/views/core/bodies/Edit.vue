@@ -44,6 +44,21 @@
         </div>
 
         <div class="field">
+          <label class="label">
+            Task description (if applicable)
+            <tooltip text="Only applicable to bodies that have Agora-elected positions"/>
+          </label>
+          <div class="control">
+            <textarea class="textarea" v-model="body.task_description"></textarea>
+          </div>
+          <label class="label">Preview</label>
+          <div class="content">
+            <span v-html="$options.filters.markdown(body.task_description)" />
+          </div>
+          <p class="help is-danger" v-if="errors.task_description">{{ errors.task_description.message }}</p>
+        </div>
+
+        <div class="field">
           <label class="label">Body code</label>
           <div class="control">
             <input class="input" type="text" required :disabled="!can.editCode" v-model="body.code" />
@@ -140,6 +155,7 @@ export default {
       body: {
         name: '',
         description: '',
+        task_description: '',
         id: null,
         code: null,
         email: null,

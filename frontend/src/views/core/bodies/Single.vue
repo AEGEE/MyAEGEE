@@ -89,14 +89,19 @@
               <tbody>
                 <tr>
                   <th>Title</th>
-                  <td>{{ body.name}}</td>
+                  <td>{{ body.name }}</td>
                 </tr>
                 <tr>
                   <th>Description</th>
                   <td>
-                    <span v-html="$options.filters.markdown(body.description)"></span>
+                    <span v-html="$options.filters.markdown(body.description)"/>
                   </td>
                 </tr>
+                <tr v-if="body.task_description !== null">
+                  <th>Task description</th>
+                  <td>
+                    <span v-html="$options.filters.markdown(body.task_description)"/>
+                  </td>
                 <tr>
                   <th>Type</th>
                   <td>{{ body.type | capitalize }}</td>
@@ -171,6 +176,7 @@ export default {
       body: {
         name: '',
         description: '',
+        task_description: '',
         type: '',
         id: null,
         code: null,

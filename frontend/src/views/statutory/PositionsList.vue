@@ -101,7 +101,7 @@
         <hr v-if="selectedPosition"/>
 
         <div class="subtitle" v-if="selectedPosition">Description of selected position</div>
-        <p class="content" v-if="selectedPosition" v-html="$options.filters.markdown(description)"></p>
+        <p class="content" v-if="selectedPosition" v-html="$options.filters.markdown(taskDescription)"></p>
 
         <hr v-if="selectedPosition"/>
 
@@ -199,12 +199,12 @@ export default {
     prefix () {
       return this.$route.params.prefix
     },
-    description () {
+    taskDescription () {
       if (!this.selectedPosition.body_id) {
         return 'A description for this position has not been set.'
       }
       const body = this.bodies.find(bod => bod.id === this.selectedPosition.body_id)
-      return body.description
+      return body.task_description
     }
   },
   methods: {
