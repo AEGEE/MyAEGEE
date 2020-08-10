@@ -165,4 +165,40 @@ describe('Body memberships list wth permission', () => {
         expect(res.body.data.length).toEqual(1);
         expect(res.body.data[0].user.id).toEqual(otherUser.id);
     });
+
+    test('should not list member if member has this permission over other body', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
+
+        const permission = await generator.createPermission({ scope: 'local', action: 'action', object: 'object' });
+        const baseCircle = await generator.createCircle();
+        await generator.createCirclePermission(baseCircle, permission);
+
+        const body = await generator.createBody();
+        const otherBody = await generator.createBody();
+        await generator.createCircle({ body_id: body.id, parent_circle_id: baseCircle.id });
+        const otherCircle = await generator.createCircle({ body_id: otherBody.id, parent_circle_id: baseCircle.id });
+
+        const otherUser = await generator.createUser();
+
+        await generator.createBodyMembership(body, otherUser);
+        await generator.createBodyMembership(otherBody, otherUser);
+        await generator.createCircleMembership(otherCircle, otherUser);
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/members',
+            method: 'GET',
+            qs: { holds_permission: { action: 'action', object: 'object' } },
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+
+        expect(res.body.data.length).toEqual(0);
+    });
 });
