@@ -2,6 +2,7 @@ const {
     Permission,
     BodyMembership,
     CircleMembership,
+    Circle,
     User
 } = require('../models');
 const helpers = require('../lib/helpers');
@@ -62,14 +63,18 @@ exports.listAllMembershipsWithPermission = async (req, res) => {
     const result = await BodyMembership.findAndCountAll({
         where: {
             body_id: req.currentBody.id,
-            '$user->circle_memberships.circle_id$': { [Sequelize.Op.in]: circleIds },
+            '$user.circle_memberships.circle_id$': { [Sequelize.Op.in]: circleIds },
+            '$user.circle_memberships.circle.body_id$': req.currentBody.id,
             ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.BODY_MEMBERSHIP)
         },
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query),
         include: [{
             model: User,
-            include: [CircleMembership]
+            include: [{
+                model: CircleMembership,
+                include: [Circle]
+            }]
         }]
     });
 
