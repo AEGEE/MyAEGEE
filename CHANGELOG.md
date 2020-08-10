@@ -1,3 +1,10 @@
+## [1.23.1](https://github.com/AEGEE/core/compare/1.23.0...1.23.1) (2020-08-10)
+
+
+### Bug Fixes
+
+* **members:** fix members with permissions ([#87](https://github.com/AEGEE/core/issues/87)) ([b480e97](https://github.com/AEGEE/core/commit/b480e976b156a20443d1faf25fc8ff793fab5681))
+
 # [1.23.0](https://github.com/AEGEE/core/compare/1.22.5...1.23.0) (2020-08-01)
 
 
