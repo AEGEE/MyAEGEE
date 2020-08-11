@@ -200,7 +200,7 @@ export default {
       return this.$route.params.prefix
     },
     taskDescription () {
-      if (!this.selectedPosition.body_id) {
+      if (!this.selectedPosition.body_id || !this.selectedPosition.task_description || this.selectedPosition.task_description === '') {
         return 'A description for this position has not been set.'
       }
       const body = this.bodies.find(bod => bod.id === this.selectedPosition.body_id)
