@@ -1,3 +1,10 @@
+## [1.7.3](https://github.com/AEGEE/frontend/compare/1.7.2...1.7.3) (2020-08-11)
+
+
+### Bug Fixes
+
+* **statutory:** fix body members fetching for members list. Fixes HELP-1234 ([#517](https://github.com/AEGEE/frontend/issues/517)) ([11822b5](https://github.com/AEGEE/frontend/commit/11822b55e8632fa1588d2904e9837eb83d886953))
+
 ## [1.7.2](https://github.com/AEGEE/frontend/compare/1.7.1...1.7.2) (2020-08-11)
 
 
