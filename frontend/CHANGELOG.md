@@ -1,3 +1,10 @@
+## [1.7.4](https://github.com/AEGEE/frontend/compare/1.7.3...1.7.4) (2020-08-11)
+
+
+### Bug Fixes
+
+* different weird things with empty task descriptions ([#518](https://github.com/AEGEE/frontend/issues/518)) ([ae90d45](https://github.com/AEGEE/frontend/commit/ae90d45f620e7840b5e6d2d3339a6edceac55d36))
+
 ## [1.7.3](https://github.com/AEGEE/frontend/compare/1.7.2...1.7.3) (2020-08-11)
 
 
