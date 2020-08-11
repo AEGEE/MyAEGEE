@@ -198,9 +198,9 @@ export default {
         this.memberslist = {
           currency: null,
           members: response.data.data.map(member => ({
-            user_id: member.member_id,
-            first_name: member.member.first_name,
-            last_name: member.member.last_name,
+            user_id: member.user_id,
+            first_name: member.user.first_name,
+            last_name: member.user.last_name,
             fee: 0
           }))
         }
