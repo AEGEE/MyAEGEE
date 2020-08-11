@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/AEGEE/frontend/compare/1.7.1...1.7.2) (2020-08-11)
+
+
+### Bug Fixes
+
+* **register:** saving address and about_me. Fixes HELP-1233 ([#516](https://github.com/AEGEE/frontend/issues/516)) ([af1290f](https://github.com/AEGEE/frontend/commit/af1290ff1aba758879e9b314731085f39d69c09a))
+
 ## [1.7.1](https://github.com/AEGEE/frontend/compare/1.7.0...1.7.1) (2020-08-11)
 
 
