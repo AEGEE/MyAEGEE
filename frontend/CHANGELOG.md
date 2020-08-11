@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/AEGEE/frontend/compare/1.7.0...1.7.1) (2020-08-11)
+
+
+### Bug Fixes
+
+* **about:** fix the about page ([#515](https://github.com/AEGEE/frontend/issues/515)) ([2164d25](https://github.com/AEGEE/frontend/commit/2164d25bc4b2593bed9af35fff41b769b13020e0))
+
 # [1.7.0](https://github.com/AEGEE/frontend/compare/1.6.0...1.7.0) (2020-08-01)
 
 
