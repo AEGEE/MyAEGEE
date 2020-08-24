@@ -156,6 +156,8 @@ User.beforeValidate(async (user) => {
     if (typeof user.phone === 'string') user.phone = user.phone.trim();
     if (typeof user.address === 'string') user.address = user.address.trim();
     if (typeof user.about_me === 'string') user.about_me = user.about_me.trim();
+
+    if (typeof user.date_of_birth === 'string' && user.date_of_birth === '') user.date_of_birth = null;
 });
 
 async function encryptPassword(user) {

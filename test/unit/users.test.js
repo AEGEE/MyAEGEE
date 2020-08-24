@@ -97,10 +97,15 @@ describe('Users testing', () => {
         }
     });
 
-    test('should allow empty date_of_birth', async () => {
+    test('should allow null date_of_birth', async () => {
         const user = generator.generateUser();
         delete user.date_of_birth;
 
+        await User.create(user);
+    });
+
+    test('should allow empty string date_of_birth', async () => {
+        const user = generator.generateUser({ date_of_birth: '' });
         await User.create(user);
     });
 
