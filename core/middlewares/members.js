@@ -93,7 +93,7 @@ exports.setUserActive = async (req, res) => {
 };
 
 exports.setPrimaryBody = async (req, res) => {
-    if (!req.permissions.hasPermission('update:member')) {
+    if (!req.permissions.hasPermission('update:member') && req.user.id !== req.currentUser.id) {
         return errors.makeForbiddenError(res, 'Permission update:member is required, but not present.');
     }
 
