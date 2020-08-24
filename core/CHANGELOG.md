@@ -1,3 +1,10 @@
+## [1.23.2](https://github.com/AEGEE/core/compare/1.23.1...1.23.2) (2020-08-24)
+
+
+### Bug Fixes
+
+* **users:** allow changing primary body. Fixes HELP-1222 ([#101](https://github.com/AEGEE/core/issues/101)) ([79673e2](https://github.com/AEGEE/core/commit/79673e28ba3c22216f2bf8bc628542cb4a247c16))
+
 ## [1.23.1](https://github.com/AEGEE/core/compare/1.23.0...1.23.1) (2020-08-10)
 
 
