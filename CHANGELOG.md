@@ -1,3 +1,10 @@
+## [1.23.3](https://github.com/AEGEE/core/compare/1.23.2...1.23.3) (2020-08-24)
+
+
+### Bug Fixes
+
+* **users:** allow saving users with date_of_birth as empty string ([#100](https://github.com/AEGEE/core/issues/100)) ([668b68a](https://github.com/AEGEE/core/commit/668b68a2e8a6349a096963ab349dec963dd31996))
+
 ## [1.23.2](https://github.com/AEGEE/core/compare/1.23.1...1.23.2) (2020-08-24)
 
 
