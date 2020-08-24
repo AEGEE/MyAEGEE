@@ -131,10 +131,10 @@ describe('User primary body setting', () => {
             body: { primary_body_id: null }
         });
 
-        expect(res.statusCode).toEqual(403);
-        expect(res.body.success).toEqual(false);
-        expect(res.body).not.toHaveProperty('data');
-        expect(res.body).toHaveProperty('message');
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
     });
 
     test('should work with local permission', async () => {
