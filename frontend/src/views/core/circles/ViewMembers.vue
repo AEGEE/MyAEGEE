@@ -10,7 +10,7 @@
           </div>
         </div>
 
-        <p>Total members: {{ members.length }}</p>
+        <p>Total members: {{ total }}</p>
 
         <b-table
           :data="members"
@@ -78,6 +78,7 @@ export default {
       query: '',
       limit: 30,
       offset: 0,
+      total: 0,
       canLoadMore: true,
       source: null,
       permissions: [],
@@ -155,6 +156,7 @@ export default {
         params: this.queryObject, cancelToken: this.source.token
       }).then((response) => {
         this.members = this.members.concat(response.data.data)
+        this.total = response.data.meta.count
         this.offset += this.limit
         this.canLoadMore = response.data.data.length === this.limit
 
