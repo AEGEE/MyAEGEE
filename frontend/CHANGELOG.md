@@ -1,3 +1,10 @@
+## [1.7.5](https://github.com/AEGEE/frontend/compare/1.7.4...1.7.5) (2020-08-25)
+
+
+### Bug Fixes
+
+* **members:** fixed circles members count. Fixes HELP-1213 ([#543](https://github.com/AEGEE/frontend/issues/543)) ([cfae254](https://github.com/AEGEE/frontend/commit/cfae254aa6f96f08ea12bbaa00917bbea0a436d1))
+
 ## [1.7.4](https://github.com/AEGEE/frontend/compare/1.7.3...1.7.4) (2020-08-11)
 
 
