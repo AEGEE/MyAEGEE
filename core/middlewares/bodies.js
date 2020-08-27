@@ -92,7 +92,12 @@ exports.createMember = async (req, res) => {
         ...req.body,
         password,
         mail_confirmed_at: new Date()
-    }, { fields: constants.FIELDS_TO_UPDATE.USER.CREATE });
+    }, {
+        fields: [
+            ...constants.FIELDS_TO_UPDATE.USER.CREATE,
+            'mail_confirmed_at'
+        ]
+    });
 
     const membership = await BodyMembership.create({
         user_id: user.id,
