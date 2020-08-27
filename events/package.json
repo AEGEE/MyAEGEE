@@ -86,7 +86,7 @@
     "jest-junit": "^11.0.1",
     "lint-staged": "^10.2.11",
     "mocha-lcov-reporter": "^1.3.0",
-    "nock": "^12.0.3",
+    "nock": "^13.0.4",
     "nyc": "^15.1.0",
     "opn-cli": "^5.0.0",
     "semantic-release": "^17.1.1",
