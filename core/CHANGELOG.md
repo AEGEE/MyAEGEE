@@ -1,3 +1,10 @@
+## [1.23.4](https://github.com/AEGEE/core/compare/1.23.3...1.23.4) (2020-08-27)
+
+
+### Bug Fixes
+
+* **members:** save mail_confirmed_at when registering user in body. Fixes HELP-1264 ([#104](https://github.com/AEGEE/core/issues/104)) ([d480c10](https://github.com/AEGEE/core/commit/d480c10d9616fb82cc95061e22d97c4a2b222929))
+
 ## [1.23.3](https://github.com/AEGEE/core/compare/1.23.2...1.23.3) (2020-08-24)
 
 
