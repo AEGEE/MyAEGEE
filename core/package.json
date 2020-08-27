@@ -87,7 +87,7 @@
     "prom-client": "^12.0.0",
     "request": "^2.88.2",
     "request-promise-native": "^1.0.9",
-    "sequelize": "^6.3.0",
+    "sequelize": "^6.3.4",
     "sequelize-cli": "^6.2.0"
   }
 }
