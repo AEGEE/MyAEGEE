@@ -28,7 +28,7 @@
     "@babel/core": "^7.10.4",
     "@babel/types": "^7.10.4",
     "@fortawesome/fontawesome-free": "^5.13.1",
-    "@fortawesome/fontawesome-svg-core": "^1.2.29",
+    "@fortawesome/fontawesome-svg-core": "^1.2.30",
     "@fortawesome/free-solid-svg-icons": "^5.13.1",
     "@fortawesome/vue-fontawesome": "^0.1.10",
     "@fullcalendar/core": "^4.4.0",
