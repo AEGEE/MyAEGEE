@@ -160,4 +160,30 @@ describe('Body members creating', () => {
         });
         expect(membershipFromDb).not.toEqual(null);
     });
+
+    test('should set mail_confirmed__at', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'create_member', object: 'body' });
+
+        const body = await generator.createBody();
+        const member = generator.generateUser({ superadmin: true });
+
+        const res = await request({
+            uri: '/bodies/' + body.id + '/create-member',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            body: member
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+
+        const userFromDb = await User.findByPk(res.body.data.user_id);
+        expect(userFromDb).not.toEqual(null);
+        expect(userFromDb.mail_confirmed_at).not.toEqual(null);
+    });
 });
