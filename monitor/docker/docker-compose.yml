@@ -6,9 +6,9 @@ services:
     image: grafana/grafana:6.7.1
     volumes:
       - grafana-storage:/var/lib/grafana
-      - ./${PATH_OMS_MONITOR}/config/gf-provisioning:/etc/grafana/provisioning
-      - ./${PATH_OMS_MONITOR}/gf-dashboards/metrics:/var/lib/grafana/dashboards/metrics
-      - ./${PATH_OMS_MONITOR}/gf-dashboards/statistics:/var/lib/grafana/dashboards/statistics
+      - ./${PATH_MONITOR}/config/gf-provisioning:/etc/grafana/provisioning
+      - ./${PATH_MONITOR}/gf-dashboards/metrics:/var/lib/grafana/dashboards/metrics
+      - ./${PATH_MONITOR}/gf-dashboards/statistics:/var/lib/grafana/dashboards/statistics
     environment:
       GF_SECURITY_ADMIN_PASSWORD: "${PW_GRAFANA}"
       GF_SERVER_ROOT_URL: "https://${SUBDOMAIN_GRAFANA}${BASE_URL}/"
@@ -32,7 +32,7 @@ services:
     image: prom/prometheus:v2.10.0
     volumes:
       - prometheus-storage:/prometheus
-      - ./${PATH_OMS_MONITOR}/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./${PATH_MONITOR}/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     labels:
       - "traefik.backend=prometheus"
       - "traefik.port=9090"
@@ -71,7 +71,7 @@ services:
   # blackbox-exporter:
   #   image: prom/blackbox-exporter:v0.16.0
   #   volumes:
-  #     - ./${PATH_OMS_MONITOR}/config/blackbox.yml:/config/blackbox.yml
+  #     - ./${PATH_MONITOR}/config/blackbox.yml:/config/blackbox.yml
   #   command: '--config.file=/config/blackbox.yml'
   #   labels:
   #     - "traefik.backend=blackbox-exporter"
@@ -83,12 +83,12 @@ services:
 
   logstash:
     build:
-      context: ./${PATH_OMS_MONITOR}/logstash/
+      context: ./${PATH_MONITOR}/logstash/
       args:
         ELK_VERSION: ${ELK_VERSION:-7.6.0}
     volumes:
-      - ./${PATH_OMS_MONITOR}/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
-      - ./${PATH_OMS_MONITOR}/logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - ./${PATH_MONITOR}/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./${PATH_MONITOR}/logstash/pipeline:/usr/share/logstash/pipeline:ro
     ports:
       - "5000:5000"
       - "9600:9600"

@@ -57,11 +57,11 @@ init_boot ()
     touch "${DIR}"/secrets/acme.json # to avoid making it think it's a folder
     chmod 600 "${DIR}"/secrets/acme.json # Traefik doesn't let ACME challenge go through otherwise
 
-    touch "${DIR}"/oms-global/docker/traefik/traefik.toml # to avoid making it think it's a folder
+    touch "${DIR}"/gateways/docker/traefik/traefik.toml # to avoid making it think it's a folder
     if [[ "${MYAEGEE_ENV}" != "development" ]]; then
-      envsubst < "${DIR}"/oms-global/docker/traefik/traefik.toml.template > "${DIR}"/oms-global/docker/traefik/traefik.toml
+      envsubst < "${DIR}"/gateways/docker/traefik/traefik.toml.template > "${DIR}"/gateways/docker/traefik/traefik.toml
     else
-      cat "${DIR}"/oms-global/docker/traefik/traefik.toml.dev > "${DIR}"/oms-global/docker/traefik/traefik.toml
+      cat "${DIR}"/gateways/docker/traefik/traefik.toml.dev > "${DIR}"/gateways/docker/traefik/traefik.toml
     fi
 
     echo -e "\n[Deployment] Setting secrets\n"
@@ -69,8 +69,8 @@ init_boot ()
 
     echo "manual things still to do (if applicable use-case): "
     echo "  init cachet files (oms-status/docker/setup.sh)"
-    echo "  init grafana config with the slack token (vim oms-monitor/docker/config/gf-provisioning/notifiers/conf.yml)"
-    echo "  init prometheus scraping config with the basic auth (vim oms-monitor/docker/config/prometheus.yml)"
+    echo "  init grafana config with the slack token (vim monitor/docker/config/gf-provisioning/notifiers/conf.yml)"
+    echo "  init prometheus scraping config with the basic auth (vim monitor/docker/config/prometheus.yml)"
 }
 
 # change passwords (calls an external script)

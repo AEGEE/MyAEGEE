@@ -5,7 +5,7 @@
 current-config.yml
 would-be-config.yml
 
-oms-global/docker/traefik/traefik.toml
+gateways/docker/traefik/traefik.toml
 
 secrets/*
 

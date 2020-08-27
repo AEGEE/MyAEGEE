@@ -1,6 +1,0 @@
-version: "3.4"
-
-services:
-  traefik:
-    volumes:
-      - ./${PATH_OMS_GLOBAL}/traefik/traefik.toml.dev:/etc/traefik/traefik.toml
