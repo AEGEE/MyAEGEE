@@ -1,3 +1,10 @@
+## [1.7.6](https://github.com/AEGEE/frontend/compare/1.7.5...1.7.6) (2020-08-27)
+
+
+### Bug Fixes
+
+* **members:** fix redirect when creating a member in body. Fixes HELP-1264 ([#553](https://github.com/AEGEE/frontend/issues/553)) ([02babe2](https://github.com/AEGEE/frontend/commit/02babe24335f41f0c39e493caec4f60bb96c2c8b))
+
 ## [1.7.5](https://github.com/AEGEE/frontend/compare/1.7.4...1.7.5) (2020-08-25)
 
 
