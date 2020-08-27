@@ -1,5 +1,9 @@
 #!/bin/bash
-#UTILITY script. To be run on the host/wherever the repos are
+# UTILITY script. To be run on the host/wherever the repos are
+# The idea of this script is not something like "bump", because
+# it could be achieved with a simple "git submodule foreach".
+# This is useful to do any operation, not a git operation, on each
+# submodule (in this commented example: sed)
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # shellcheck disable=SC2046

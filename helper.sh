@@ -15,9 +15,26 @@ bump_repo ()
     git submodule foreach "git checkout master && git pull"
     git add "$(git submodule status | grep '^+' |  awk '{ print $2 }')"
     #if something is staged, do the following two lines
-    if (( "$(git diff --cached --quiet)" )); then
+    git diff --cached --quiet
+    #shellcheck disable=SC2181
+    if (( "$?" )); then
         git checkout -b "bump-submodules-$(date '+%d-%m')-$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 4)"
-        git commit -m "bump: Bump version of the submodules via make bump"
+        git commit -m "chore(bump): Bump version of the submodules via make bump"
+    fi
+}
+
+bump_single_module ()
+{
+    cd "${1}" || { echo "no folder ${1}!" && exit 189 ; }
+    git checkout master && git pull
+    cd ..
+    git add "${1}"
+    #if something is staged, do the following two lines
+    git diff --cached --quiet
+    #shellcheck disable=SC2181
+    if (( "$?" )); then
+        git checkout -b "bump-submodules-$(date '+%d-%m')-$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 4)"
+        git commit -m "chore(bump): Bump version of the submodule via make bump module=${1}"
     fi
 }
 
@@ -267,10 +284,14 @@ fi
 
 #Brings the submodules to master and commits
 if ( $bump ); then
-    bump_repo
+    if [ -z "${arguments[*]}" ]; then
+      bump_repo
+    else
+      bump_single_module "${arguments[*]}"
+    fi
 fi
 
-#Brings the submodules to master, no commit
+#Brings the submodules to master, no commit. Launched by operator
 if ( $bumpmodules ); then
     bump_nocommit
 fi
