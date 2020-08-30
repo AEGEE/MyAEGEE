@@ -140,8 +140,14 @@ if [ ! -f "${DIR}"/.env ]; then #check if it exists, if not take the example
     cp "${DIR}"/.env.example "${DIR}"/.env
 fi
 # https://stackoverflow.com/questions/19331497/set-environment-variables-from-file-of-key-value-pairs
-# shellcheck disable=SC2046
-export $(grep -v '^#' "${DIR}/.env" | xargs -d '\n')
+if [[ $(hostname) == "appserver" ]]; then
+  # shellcheck disable=SC2046
+  export $(grep -v '^#' "${DIR}/.env" | xargs -d '\n')
+else
+  # shellcheck disable=SC2046
+  export $(grep -v '^#' "${DIR}/.env.fut" | xargs -d '\n')
+fi
+
 if [[ "${MYAEGEE_ENV}" != "production" && "${MYAEGEE_ENV}" != "development" ]]; then
   echo "Error: MYAEGEE_ENV can only be 'production' or 'development'"
   exit 1

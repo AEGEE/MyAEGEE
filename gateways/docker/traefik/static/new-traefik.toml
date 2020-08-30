@@ -1,0 +1,22 @@
+[global]
+  checkNewVersion = true
+  sendAnonymousUsage = false
+
+[entryPoints]
+  [entryPoints.http]
+    address = ":80"
+
+[providers]
+  providersThrottleDuration = "2s"
+  [providers.docker]
+    watch = true
+    endpoint = "unix:///var/run/docker.sock"
+    useBindPortIP = true
+    swarmModeRefreshSeconds = "15s"
+  [providers.file]
+
+[log]
+  level = "INFO"
+
+[accessLog]
+  bufferingSize = 0

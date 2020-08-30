@@ -1,0 +1,22 @@
+# traefik2-providers.yaml
+
+http:
+  routers:
+    # Define a catch-all router that forwards requests to legacy Traefik
+    to-traefik1:
+      # Catch all domains (regex matches all strings)
+      # See https://github.com/google/re2/wiki/Syntax
+      rule: "HostRegexp(`{domain:.+}`)"
+      # If the rule matches, forward to the traefik1 service (see below)
+      service: traefik1
+      # Set the lowest priority, so this route is only used as a last resort
+      priority: 1
+
+  services:
+    # Define how to reach legacy Traefik
+    traefik1:
+      loadBalancer:
+        servers:
+          # Legacy Traefik is part of the same stack so,
+          # hostname defaults to service name
+          - url: http://traefik1

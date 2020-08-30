@@ -11,3 +11,7 @@ secrets/*
 
 # exception to the rule
 !secrets/.gitkeep
+
+.env.fut
+Vagrantfile1*
+Vagrantfile2*
