@@ -1,3 +1,10 @@
+## [1.7.8](https://github.com/AEGEE/frontend/compare/1.7.7...1.7.8) (2020-09-02)
+
+
+### Bug Fixes
+
+* **bodies:** fix task descriptions. Fixes HELP-1272 ([#559](https://github.com/AEGEE/frontend/issues/559)) ([054fa23](https://github.com/AEGEE/frontend/commit/054fa23dd4f27b3ffffe3b0a70e8a5d0aae7e56b))
+
 ## [1.7.7](https://github.com/AEGEE/frontend/compare/1.7.6...1.7.7) (2020-09-02)
 
 
