@@ -124,12 +124,13 @@ export default {
       })
     },
     setMemberApproved (member, approved) {
+      const newStatus = approved ? 'approved' : 'rejected'
       this.axios.put(this.services['core'] + '/bodies/' + this.$route.params.id + '/join-requests/' + member.id + '/status', {
-        status: (approved ? 'approved' : 'rejected')
+        status: newStatus
       }).then(() => {
-        this.$root.showSuccess('Join request is ' + (approved ? 'approved' : 'rejected') + '.')
+        this.$root.showSuccess('Join request is ' + newStatus + '.')
         if (approved) {
-          member.approved = true
+          member.status = newStatus
         } else {
           const index = this.members.findIndex(m => m.id === member.id)
           this.members.splice(index, 1)
