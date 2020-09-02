@@ -1,3 +1,10 @@
+## [1.7.7](https://github.com/AEGEE/frontend/compare/1.7.6...1.7.7) (2020-09-02)
+
+
+### Bug Fixes
+
+* **join requests:** fix buttons after approving. Fixes HELP-1275 ([#558](https://github.com/AEGEE/frontend/issues/558)) ([5b57d3d](https://github.com/AEGEE/frontend/commit/5b57d3da417fcb1cbb791e69d7bd46489957c299))
+
 ## [1.7.6](https://github.com/AEGEE/frontend/compare/1.7.5...1.7.6) (2020-08-27)
 
 
