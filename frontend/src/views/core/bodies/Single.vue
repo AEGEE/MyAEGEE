@@ -97,7 +97,7 @@
                     <span v-html="$options.filters.markdown(body.description)"/>
                   </td>
                 </tr>
-                <tr v-if="body.task_description !== null && body.task_description != ''">
+                <tr v-if="body.task_description">
                   <th>Task description</th>
                   <td>
                     <span v-html="$options.filters.markdown(body.task_description)"/>
