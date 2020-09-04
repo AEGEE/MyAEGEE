@@ -1,3 +1,10 @@
+## [1.7.9](https://github.com/AEGEE/frontend/compare/1.7.8...1.7.9) (2020-09-04)
+
+
+### Bug Fixes
+
+* **deps:** revert fullcalendar to 4.4.0 as it breaks calendar ([#561](https://github.com/AEGEE/frontend/issues/561)) ([a462a5c](https://github.com/AEGEE/frontend/commit/a462a5cf1a7869f81d6f7e3467417c86dfb6b5cf))
+
 ## [1.7.8](https://github.com/AEGEE/frontend/compare/1.7.7...1.7.8) (2020-09-02)
 
 
