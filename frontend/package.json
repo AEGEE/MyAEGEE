@@ -33,7 +33,7 @@
     "@fortawesome/vue-fontawesome": "^0.1.10",
     "@fullcalendar/core": "^4.4.0",
     "@fullcalendar/daygrid": "^4.4.0",
-    "@fullcalendar/vue": "^5.3.0",
+    "@fullcalendar/vue": "^4.4.0",
     "@gfx/zopfli": "^1.0.15",
     "@vue/cli-plugin-babel": "^4.4.6",
     "@vue/cli-plugin-eslint": "^4.4.6",
