@@ -10,7 +10,7 @@
     "start": "node lib/run.js",
     "test": "export NODE_ENV=test; nyc --cache --reporter=none mocha",
     "posttest": "nyc report --reporter=html --reporter=text; echo 'time to get scared.. run <npm run lint>'",
-    "lint": "jshint **/*.js",
+    "lint": "eslint .",
     "update-dep": "david update"
   },
   "dependencies": {
