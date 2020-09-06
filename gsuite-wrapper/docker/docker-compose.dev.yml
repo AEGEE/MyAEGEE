@@ -1,6 +1,6 @@
 version: "3.4"
 
-### OMS STATUTORY     #######################################
+### Gsuite wrapper     #######################################
 services:
   gsuite-wrapper:
     build:

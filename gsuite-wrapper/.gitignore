@@ -3,4 +3,5 @@
 .nyc_output/
 *.swp
 lib/config/myaegee-serviceaccount.json
+lib/config/secrets.json
 commitmsg

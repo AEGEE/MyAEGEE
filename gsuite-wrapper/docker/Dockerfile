@@ -1,12 +1,10 @@
 FROM node:12
 
-RUN mkdir -p /usr/app/src
+WORKDIR /usr/app/src
 
 COPY . /usr/app/src
 
 RUN chown -R node:node /usr/app
-
-WORKDIR /usr/app/src
 
 USER node
 
