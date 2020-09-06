@@ -13,42 +13,42 @@ info:
 host: "my.aegee.eu"
 basePath: "/"
 tags:
-- name: "Account"
-  description: "Accounts operations: add/remove user; modify user details; add/remove aliases for user email"
-  externalDocs:
-    description: "The user will have to accept Gsuite terms"
-    url: "https://my.aegee.eu"
-- name: "Groups"
-  description: "Groups operations: add/remove a google group; add/remove a user membership to a group"
-  externalDocs:
-    description: "The user will be subscribed and unsubscribed automatically most of the times"
-    url: "http://groups.aegee.eu"
-- name: "Calendar"
-  description: "Calendar operations: add an event to the Gsuite calendar of events"
-  externalDocs:
-    description: "The user will be subscribed and unsubscribed automatically most of the times"
-    url: "http://calendar.aegee.eu"
+  - name: "Account"
+    description: "Accounts operations: add/remove user; modify user details; add/remove aliases for user email"
+    externalDocs:
+      description: "The user will have to accept Gsuite terms"
+      url: "https://my.aegee.eu"
+  - name: "Groups"
+    description: "Groups operations: add/remove a google group; add/remove a user membership to a group"
+    externalDocs:
+      description: "The user will be subscribed and unsubscribed automatically most of the times"
+      url: "http://groups.aegee.eu"
+  - name: "Calendar"
+    description: "Calendar operations: add an event to the Gsuite calendar of events"
+    externalDocs:
+      description: "The user will be subscribed and unsubscribed automatically most of the times"
+      url: "http://calendar.aegee.eu"
 schemes:
-- "https"
+  - "https"
 paths:
   /group:
     post:
       tags:
-      - "Groups"
+        - "Groups"
       summary: "Create Gsuite group"
       description: "This endpoint is to create a Gsuite group"
       operationId: "createGroup"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "This ain't shown anywhere"
-        required: true
-        schema:
-          $ref: '#/definitions/Group'
+        - in: "body"
+          name: "body"
+          description: "This ain't shown anywhere"
+          required: true
+          schema:
+            $ref: '#/definitions/Group'
       responses:
         201:
           description: "Successful operation"
@@ -59,18 +59,18 @@ paths:
   /group/{bodyPK}:
     delete:
       tags:
-      - "Groups"
+        - "Groups"
       summary: "Delete Gsuite group"
-      description: "This endpoint is to delete the Gsuite group. 'bodyPK' refers to the primary key of the body/circle in the system." 
+      description: "This endpoint is to delete the Gsuite group. 'bodyPK' refers to the primary key of the body/circle in the system."
       operationId: "deleteGroup"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "bodyPK"
-        in: "path"
-        description: "The MyAEGEE key of the group that needs to be deleted"
-        required: true
-        type: "string"
+        - name: "bodyPK"
+          in: "path"
+          description: "The MyAEGEE key of the group that needs to be deleted"
+          required: true
+          type: "string"
       responses:
         200:
           description: "Successful operation"
@@ -84,16 +84,16 @@ paths:
       description: "This endpoint is to create a Gsuite account"
       operationId: "createAccount"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "User account object"
-        required: true
-        schema:
-          $ref: "#/definitions/Account"
+        - in: "body"
+          name: "body"
+          description: "User account object"
+          required: true
+          schema:
+            $ref: "#/definitions/Account"
       responses:
         201:
           description: "Successful operation"
@@ -104,28 +104,28 @@ paths:
   /account/{userPK}/alias:
     put:
       tags:
-      - "Account"
+        - "Account"
       summary: "Gives/remove alias to the user"
       description: "Gives/remove alias to the user. For remotion, one has \
                       to be precise on which user alias wants to delete, in case \
                       of multiple aliases"
       operationId: "updateAlias"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "userPK"
-        in: "path"
-        description: "User whose alias needs to be updated (PK of MyAEGEE)"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "body"
-        description: "Operation to perform, and what the fuck this is not shown"
-        required: true
-        schema:
-          $ref: "#/definitions/aliasOperation"
+        - name: "userPK"
+          in: "path"
+          description: "User whose alias needs to be updated (PK of MyAEGEE)"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "Operation to perform, and what the fuck this is not shown"
+          required: true
+          schema:
+            $ref: "#/definitions/aliasOperation"
       responses:
         200:
           description: "Removal: Successful operation"
@@ -140,27 +140,27 @@ paths:
   /account/{userPK}/group:
     put:
       tags:
-      - "Groups"
+        - "Groups"
       summary: "Add/remove account membership to group"
       description: "This endpoint is used to modify an account's membership to a group, \
                     NOT a group"
       operationId: "editMembershipToGroup"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "userPK"
-        in: "path"
-        description: "User that needs to be inserted/removed"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "body"
-        description: "Operation & group info"
-        required: true
-        schema:
-          $ref: "#/definitions/Membership"
+        - name: "userPK"
+          in: "path"
+          description: "User that needs to be inserted/removed"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "Operation & group info"
+          required: true
+          schema:
+            $ref: "#/definitions/Membership"
       responses:
         200:
           description: "Removal: Successful operation"
@@ -175,23 +175,23 @@ paths:
   /calendar:
     post:
       tags:
-      - "Calendar"
+        - "Calendar"
       summary: "Create Gsuite event on Calendar of Event"
       description: "This endpoint is to create an event on \
                     the Gsuite calendar of events, an organisation-wide \
                     shared calendar."
       operationId: "createCalEvent"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Created event object"
-        required: true
-        schema:
-          $ref: '#/definitions/Event'
+        - in: "body"
+          name: "body"
+          description: "Created event object"
+          required: true
+          schema:
+            $ref: '#/definitions/Event'
       responses:
         201:
           description: "Successful operation"
@@ -248,12 +248,12 @@ definitions:
         type: "string"
         description: "The primary key of the user in MyAEGEE"
     required:
-     - primaryEmail
-     - name
-     - secondaryEmail
-     - password
-     - antenna
-     - userPK
+      - primaryEmail
+      - name
+      - secondaryEmail
+      - password
+      - antenna
+      - userPK
     example:
       primaryEmail: "cave.johnson@aegee.eu"
       name:
@@ -269,9 +269,9 @@ definitions:
         type: "string"
       familyName:
         type: "string"
-    required: 
-     - givenName
-     - familyName
+    required:
+      - givenName
+      - familyName
     example:
       givenName: "Cave"
       familyName: "Johnson"
@@ -286,8 +286,8 @@ definitions:
         type: "string"
         description: "(required) 'add'/'remove' member"
     required:
-     - groupPK
-     - operation
+      - groupPK
+      - operation
     example:
       groupPK: "(idk how it's represented)"
       operation: "add"
@@ -301,8 +301,8 @@ definitions:
         type: "string"
         description: "'add'/'remove' alias"
     required:
-     - aliasName
-     - operation
+      - aliasName
+      - operation
     example:
       aliasName: "example@aegee.eu"
       operation: "add"
@@ -328,12 +328,12 @@ definitions:
         description: "Format MUST be a-v 0-9"
     description: "(required)"
     required:
-     - name
-     - startDate
-     - endDate
-     - description
-     - location
-     - eventID
+      - name
+      - startDate
+      - endDate
+      - description
+      - location
+      - eventID
     example:
       name: "RTC Tallahassee"
       startDate: "2019-04-25"
