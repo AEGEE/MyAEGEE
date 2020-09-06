@@ -13,30 +13,33 @@
 
 'use strict';
 
-const {google} = require('googleapis');
-const path = require('path');
+const log = require('./util/logger.js');
 
-  // Create auth object
-const auth = new google.auth.GoogleAuth({
-  keyFile: path.join(__dirname, './config/myaegee-serviceaccount.json'),
-  scopes: [
+const {google} = require('googleapis');
+const config = require('./config/configFile.js');
+
+// Create JWT auth object
+const jwt = new google.auth.JWT(
+  config.GsuiteKeys.client_email,
+  null,
+  config.GsuiteKeys.private_key,
+  [
     'https://www.googleapis.com/auth/admin.directory.group',
     'https://www.googleapis.com/auth/admin.directory.group.member',
     'https://www.googleapis.com/auth/admin.directory.user',
     'https://www.googleapis.com/auth/calendar.events',
   ],
-});
+  config.GsuiteKeys.delegatedUser,
+);
 
 
 async function runGsuiteOperation(operation, payload) {
 
-  let jwt;
-
   try{
-    jwt = await auth.getClient();
-    //console.log("auth: " + JSON.stringify(authRes));
+    const authRes = await jwt.authorize();
+    log.debug("auth: " + JSON.stringify(authRes));
   }catch(AuthError){
-    console.log("Authentication error!");
+    log.error("Authentication error! " + AuthError.toString());
     throw { errors: [{message: "Authentication errorrrr"}], code: 500 };
   }
 
@@ -66,12 +69,12 @@ const gsuiteOperations = {
 
   // Change group description
   editGroup: async function addGroup(jwt, data){
-    return
+    throw GsuiteError;
   },
 
   // Change some user membership type
   changeUserGroupPrivilege: async function addGroup(jwt, data){
-    return
+    throw GsuiteError;
   },
 
   // Delete the group
@@ -97,7 +100,7 @@ const gsuiteOperations = {
 
   // Edit account e.g. change pic, change pw (until we have SSO)
   editAccount: async function addAccount(jwt, data){
-    return
+    throw GsuiteError;
   },
 
   // List user accounts present in the system (only for the initial sync script)
@@ -182,7 +185,7 @@ const gsuiteOperations = {
 
   // Change title or start/end time
   editEvent: async function addEvent(jwt, data){
-    return
+    throw GsuiteError;
   },
 
 }
