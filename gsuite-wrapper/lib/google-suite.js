@@ -64,6 +64,16 @@ const gsuiteOperations = {
     return result;
   },
 
+  // Change group description
+  editGroup: async function addGroup(jwt, data){
+    return
+  },
+
+  // Change some user membership type
+  changeUserGroupPrivilege: async function addGroup(jwt, data){
+    return
+  },
+
   // Delete the group
   deleteGroup: async function deleteGroup(jwt, data){
     const admin = google.admin('directory_v1');
@@ -85,6 +95,11 @@ const gsuiteOperations = {
     return result;
   },
 
+  // Edit account e.g. change pic, change pw (until we have SSO)
+  editAccount: async function addAccount(jwt, data){
+    return
+  },
+
   // List user accounts present in the system (only for the initial sync script)
   listAccounts: async function addAccount(jwt, data){
     const admin = google.admin('directory_v1');
@@ -93,7 +108,7 @@ const gsuiteOperations = {
     return result;
   },
 
-  // Delete the account
+  // Delete the account FIXME: make it suspended
   deleteAccount: async function deleteaccount(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.users.delete({
@@ -163,6 +178,11 @@ const gsuiteOperations = {
       resource: data,
     });
     return result;
+  },
+
+  // Change title or start/end time
+  editEvent: async function addEvent(jwt, data){
+    return
   },
 
 }
