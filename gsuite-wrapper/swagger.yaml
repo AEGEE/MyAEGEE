@@ -79,7 +79,7 @@ paths:
   /account:
     post:
       tags:
-      - "Account"
+        - "Account"
       summary: "Create user account"
       description: "This endpoint is to create a Gsuite account"
       operationId: "createAccount"
@@ -344,4 +344,3 @@ definitions:
 externalDocs:
   description: "Find out more about MyAEGEE"
   url: "https://oms-project.atlassian.net/wiki/spaces/GENERAL/overview"
-
