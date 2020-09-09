@@ -90,6 +90,14 @@ const Body = sequelize.define('body', {
             }
         }
     },
+    country: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
+    website: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
 }, {
     underscored: true,
     tableName: 'bodies',
