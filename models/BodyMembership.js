@@ -31,7 +31,7 @@ BodyMembership.beforeValidate(async (membership) => {
 });
 
 // Adding a person to a shadow circle after joining the body.
-BodyMembership.afterCreate(async (membership) => {
+BodyMembership.afterCreate(async (membership, options) => {
     const body = await Body.findByPk(membership.body_id);
     if (!body.shadow_circle_id) {
         logger.info('No shadow circle specified for body, not adding person to circle.');
@@ -46,7 +46,7 @@ BodyMembership.afterCreate(async (membership) => {
     await CircleMembership.create({
         circle_id: body.shadow_circle_id,
         user_id: membership.user_id
-    });
+    }, { transaction: options.transaction });
 });
 
 // Deleting all the circle memberships after leaving the body.
