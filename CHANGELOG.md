@@ -1,3 +1,10 @@
+## [1.23.5](https://github.com/AEGEE/core/compare/1.23.4...1.23.5) (2020-09-09)
+
+
+### Bug Fixes
+
+* **members:** forward transaction when creating user ([#112](https://github.com/AEGEE/core/issues/112)) ([f3df061](https://github.com/AEGEE/core/commit/f3df06188036db1b08c83c9a7fcf92d13735720d))
+
 ## [1.23.4](https://github.com/AEGEE/core/compare/1.23.3...1.23.4) (2020-08-27)
 
 
