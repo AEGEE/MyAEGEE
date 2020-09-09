@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/AEGEE/frontend/compare/1.7.10...1.8.0) (2020-09-09)
+
+
+### Features
+
+* **bodies:** added bodies and website ([#578](https://github.com/AEGEE/frontend/issues/578)) ([500b181](https://github.com/AEGEE/frontend/commit/500b1813f8a9e844c3b9904d354549cc112d7c27))
+
 ## [1.7.10](https://github.com/AEGEE/frontend/compare/1.7.9...1.7.10) (2020-09-09)
 
 
