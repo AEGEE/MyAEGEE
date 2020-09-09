@@ -1,3 +1,10 @@
+## [1.7.10](https://github.com/AEGEE/frontend/compare/1.7.9...1.7.10) (2020-09-09)
+
+
+### Bug Fixes
+
+* **nginx:** fix nginx config ([#579](https://github.com/AEGEE/frontend/issues/579)) ([9a526ef](https://github.com/AEGEE/frontend/commit/9a526ef98b06493c7963e068dd66e43a5834811b))
+
 ## [1.7.9](https://github.com/AEGEE/frontend/compare/1.7.8...1.7.9) (2020-09-04)
 
 
