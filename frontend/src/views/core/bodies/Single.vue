@@ -129,6 +129,11 @@
                   <td>{{ body.address }}</td>
                 </tr>
                 <tr>
+                  <th>Website</th>
+                  <td v-if="body.website"><a :href="body.website" target="_blank">{{ body.website }}</a></td>
+                  <td v-if="!body.website"><i>No website specified.</i></td>
+                </tr>
+                <tr>
                   <th>Shadow circle</th>
                   <td v-if="body.shadow_circle"><router-link :to="{ name: 'oms.circles.view', params: { id: body.shadow_circle.id} }">{{ body.shadow_circle.name }}</router-link></td>
                   <td v-if="!body.shadow_circle"><i>No shadow circle assigned.</i></td>
