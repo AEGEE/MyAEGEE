@@ -85,7 +85,7 @@ swarmmode = false
 #  key = "/etc/ssl/docker.key"
 #  insecureskipverify = true
 
-# CORS proxy pass for MyAEGEE confluence and Google calendar
+# CORS proxy pass for MyAEGEE confluence, Google calendar and Dockerhub
 [file]
 [frontends]
   [frontends.jira-cors-frontend]
@@ -100,6 +100,12 @@ swarmmode = false
   [frontends.calendar-cors-frontend.routes.main]
     rule = "PathPrefixStrip:/services/calendar-cors/;"
 
+  [frontends.dockerhub-frontend]
+  backend = "dockerhub-backend"
+  priority = 20
+  [frontends.dockerhub-frontend.routes.main]
+    rule = "PathPrefixStrip:/services/dockerhub/;"
+
 [backends]
   [backends.jira-cors-backend]
     [backends.jira-cors-backend.servers.server1]
@@ -108,3 +114,7 @@ swarmmode = false
   [backends.calendar-cors-backend]
     [backends.calendar-cors-backend.servers.server1]
     url = "https://calendar.google.com/"
+
+  [backends.dockerhub-backend]
+    [backends.dockerhub-backend.servers.server1]
+    url = "https://hub.docker.com"
