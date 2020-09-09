@@ -1,3 +1,10 @@
+# [1.24.0](https://github.com/AEGEE/core/compare/1.23.5...1.24.0) (2020-09-09)
+
+
+### Features
+
+* **bodies:** add country and website ([#113](https://github.com/AEGEE/core/issues/113)) ([5022c71](https://github.com/AEGEE/core/commit/5022c71a4d4bc8200df457eaea2ce73f94e54e7e))
+
 ## [1.23.5](https://github.com/AEGEE/core/compare/1.23.4...1.23.5) (2020-09-09)
 
 
