@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/AEGEE/frontend/compare/1.9.0...1.10.0) (2020-09-10)
+
+
+### Features
+
+* **bodies:** allow displaying deleted bodies ([#581](https://github.com/AEGEE/frontend/issues/581)) ([8bdd846](https://github.com/AEGEE/frontend/commit/8bdd84662ef991507c3410b331ddd11a920b4d60))
+
 # [1.9.0](https://github.com/AEGEE/frontend/compare/1.8.0...1.9.0) (2020-09-10)
 
 
