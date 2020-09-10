@@ -4,14 +4,31 @@ const constants = require('../lib/constants');
 const errors = require('../lib/errors');
 const { sequelize } = require('../lib/sequelize');
 
-
 exports.listAllBodies = async (req, res) => {
+    if (req.query.all) {
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: 'You are not authorized.'
+            });
+        }
+
+        if (!req.permissions.hasPermission('global:view_deleted:body')) {
+            return errors.makeForbiddenError(res, 'Permission global:view_deleted:body is required, but not present.');
+        }
+    }
+
+    const where = {
+        ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.BODY),
+        ...helpers.findBy(req.query, constants.FIELDS_TO_FIND.BODY)
+    };
+
+    if (!req.query.all) {
+        where.status = 'active';
+    }
+
     const result = await Body.findAndCountAll({
-        where: {
-            status: 'active',
-            ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.BODY),
-            ...helpers.findBy(req.query, constants.FIELDS_TO_FIND.BODY)
-        },
+        where,
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query)
     });
