@@ -8,8 +8,9 @@
           <thead>
             <tr>
               <th>Name</th>
-              <th>Version</th>
-              <th>Latest version</th>
+              <th>Current version</th>
+              <th>Latest Github version</th>
+              <th>Latest Dockerhub tag</th>
               <th>Changelog</th>
               <th>Round-trip time</th>
               <th>Is alive?</th>
@@ -20,6 +21,7 @@
               <td>{{ value.name || service }}</td>
               <td>{{ value.version }}</td>
               <td>{{ value.latestVersion }}</td>
+              <td>{{ value.latestTag }}</td>
               <td v-if="value.changelog">
                 <a :href="value.changelog" target="_blank">{{ value.changelog }}</a>
               </td>
@@ -49,6 +51,7 @@ export default {
           roundTrip: null,
           version: '-',
           latestVersion: '-',
+          latestTag: '-',
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/core/blob/master/CHANGELOG.md'
         },
@@ -56,6 +59,7 @@ export default {
           roundTrip: null,
           version: '-',
           latestVersion: '-',
+          latestTag: '-',
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/mailer/blob/master/CHANGELOG.md'
         },
@@ -63,6 +67,7 @@ export default {
           roundTrip: null,
           version: '-',
           latestVersion: '-',
+          latestTag: '-',
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/events/blob/master/CHANGELOG.md'
         },
@@ -70,6 +75,7 @@ export default {
           roundTrip: null,
           version: '-',
           latestVersion: '-',
+          latestTag: '-',
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/statutory/blob/master/CHANGELOG.md'
         },
@@ -77,6 +83,7 @@ export default {
           roundTrip: null,
           version: '-',
           latestVersion: '-',
+          latestTag: '-',
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/discounts/blob/master/CHANGELOG.md'
         },
@@ -84,6 +91,7 @@ export default {
           roundTrip: null,
           version: this.$store.state.pkg.version,
           latestVersion: '-',
+          latestTag: '-',
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/frontend/blob/master/CHANGELOG.md'
         },
@@ -91,6 +99,7 @@ export default {
           roundTrip: null,
           version: '-',
           latestVersion: '-',
+          latestTag: '-',
           isAlive: 'Waiting...',
           changelog: null
         },
@@ -98,6 +107,7 @@ export default {
           roundTrip: null,
           version: '-',
           latestVersion: '-',
+          latestTag: '-',
           isAlive: 'Waiting...',
           changelog: null
         }
@@ -145,6 +155,24 @@ export default {
         }).catch((err) => {
           console.log(err)
         })
+    },
+    fetchLatestDockerTagForService (service) {
+      fetch(`/services/dockerhub/v2/repositories/aegee/${service}/tags?page_size=10000`)
+        .then((res) => res.json())
+        .then((response) => {
+          const semverTags = response.results
+            .filter((image) => {
+              // filtering out non semver tags
+              const versions = image.name.split('.')
+              return versions.length >= 3
+            })
+
+          this.statuses[service].latestTag = semverTags.length > 0
+            ? semverTags[0].name
+            : ''
+        }).catch((err) => {
+          console.log(`Error fetching docker tags for ${service}: ${err}`)
+        })
     }
   },
   computed: {
@@ -154,6 +182,7 @@ export default {
     for (const service in this.statuses) {
       this.fetchHealthcheckForService(service)
       this.fetchLatestVersionForService(service)
+      this.fetchLatestDockerTagForService(service)
     }
   }
 }
