@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/AEGEE/frontend/compare/1.8.0...1.9.0) (2020-09-10)
+
+
+### Features
+
+* **status:** fetch docker tag ([#580](https://github.com/AEGEE/frontend/issues/580)) ([db60bb8](https://github.com/AEGEE/frontend/commit/db60bb89d640eed0850e42167206d7e6ce9e488b))
+
 # [1.8.0](https://github.com/AEGEE/frontend/compare/1.7.10...1.8.0) (2020-09-09)
 
 
