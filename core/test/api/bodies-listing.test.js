@@ -204,7 +204,7 @@ describe('Bodies list', () => {
         expect(res.body.data[0].id).toEqual(firstBody.id);
     });
 
-    test('should filter deleted bodies', async () => {
+    test('should filter deleted bodies on /bodies', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);
 
@@ -222,5 +222,55 @@ describe('Bodies list', () => {
         expect(res.body).toHaveProperty('meta');
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body.data.length).toEqual(0);
+    });
+
+    test('should return 401 if not authorized on /bodies?all=true', async () => {
+        const res = await request({
+            uri: '/bodies?all=true',
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(401);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should return 403 if no permission on /bodies?all=true', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken({}, user);
+
+        const res = await request({
+            uri: '/bodies?all=true',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should not filter deleted bodies on /bodies?all=true', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view_deleted', object: 'body' });
+
+        await generator.createBody({ status: 'deleted' });
+
+        const res = await request({
+            uri: '/bodies?all=true',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).toHaveProperty('meta');
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body.data.length).toEqual(1);
     });
 });
