@@ -1,3 +1,10 @@
+# [1.25.0](https://github.com/AEGEE/core/compare/1.24.0...1.25.0) (2020-09-10)
+
+
+### Features
+
+* **bodies:** allow returning deleted bodies ([#114](https://github.com/AEGEE/core/issues/114)) ([d1ba3e9](https://github.com/AEGEE/core/commit/d1ba3e9451a69bf8a58157a11246c8429242b9a0))
+
 # [1.24.0](https://github.com/AEGEE/core/compare/1.23.5...1.24.0) (2020-09-09)
 
 
