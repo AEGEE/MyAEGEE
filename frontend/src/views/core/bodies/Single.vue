@@ -72,9 +72,14 @@
           </div>
 
           <div class="field is-grouped" v-if="can.deleteBody">
-            <a @click="askDeleteBody()" :class="['button', 'is-fullwidth', 'is-danger']">
+            <a @click="askChangeStatus('deleted')" :class="['button', 'is-fullwidth', 'is-danger']" v-if="body.status === 'active'">
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'times']" /></span>
               <span class="field-label">Delete body</span>
+            </a>
+
+            <a @click="askChangeStatus('active')" :class="['button', 'is-fullwidth', 'is-info']" v-else>
+              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'history']" /></span>
+              <span class="field-label">Restore body</span>
             </a>
           </div>
         </article>
@@ -242,21 +247,39 @@ export default {
         }
       })
     },
-    askDeleteBody () {
+    askChangeStatus (newStatus) {
+      const isDeleting = newStatus === 'deleted'
+
+      const title = isDeleting ? 'Deleting a body' : 'Restoring a body'
+      const confirmText = isDeleting ? 'Delete body' : 'Restore body'
+      const type = isDeleting ? 'is-danger' : 'is-info'
+
+      let message = `Are you sure you want to <b>${isDeleting ? 'delete' : 'restore'}</b> this body?`
+      if (isDeleting) {
+        message += 'This action cannot be undone.'
+      }
+
       this.$buefy.dialog.confirm({
-        title: 'Deleting a body',
-        message: 'Are you sure you want to <b>delete</b> this body? This action cannot be undone.',
-        confirmText: 'Delete body',
-        type: 'is-danger',
+        title,
+        message,
+        confirmText,
+        type,
         hasIcon: true,
-        onConfirm: () => this.deleteBody()
+        onConfirm: () => this.changeStatus(newStatus)
       })
     },
-    deleteBody () {
-      this.axios.put(this.services['core'] + '/bodies/' + this.$route.params.id + '/status', { status: 'deleted' }).then(() => {
-        this.$root.showSuccess('Body is deleted.')
-        this.$router.push({ name: 'oms.bodies.list' })
-      }).catch((err) => this.$root.showError('Could not delete body', err))
+    changeStatus (newStatus) {
+      const isDeleting = newStatus === 'deleted'
+      this.isLoading = true
+
+      this.axios.put(this.services['core'] + '/bodies/' + this.$route.params.id + '/status', { status: newStatus }).then(() => {
+        this.isLoading = false
+        this.$root.showSuccess(isDeleting ? 'Body is deleted.' : 'Body is restored')
+        this.body.status = newStatus
+      }).catch((err) => {
+        this.isLoading = false
+        this.$root.showError('Could not change body status', err)
+      })
     },
     askToJoinBody () {
       if (!this.loginUser) {
