@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/AEGEE/frontend/compare/1.10.0...1.11.0) (2020-09-11)
+
+
+### Features
+
+* **bodies:** allow undeleting bodies. Fixes MA-40 ([#582](https://github.com/AEGEE/frontend/issues/582)) ([7245aaf](https://github.com/AEGEE/frontend/commit/7245aafe77aa042380a691d140ad026e1cf5ffc4))
+
 # [1.10.0](https://github.com/AEGEE/frontend/compare/1.9.0...1.10.0) (2020-09-10)
 
 
