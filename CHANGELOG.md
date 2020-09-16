@@ -1,3 +1,10 @@
+## [1.25.1](https://github.com/AEGEE/core/compare/1.25.0...1.25.1) (2020-09-16)
+
+
+### Bug Fixes
+
+* **bodies:** passing transaction correctly when deleting a body ([#120](https://github.com/AEGEE/core/issues/120)) ([f4f33d1](https://github.com/AEGEE/core/commit/f4f33d18b0d6ac279570e2c992e9f2d46486ccc4))
+
 # [1.25.0](https://github.com/AEGEE/core/compare/1.24.0...1.25.0) (2020-09-10)
 
 
