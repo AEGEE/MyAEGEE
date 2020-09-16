@@ -79,7 +79,7 @@
             <span class="icon is-small is-left"><font-awesome-icon icon="fa envelope" /></span>
             <input class="input" type="text" required v-model="user.username" />
           </div>
-          <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ')}}</p>
+          <p class="help is-danger" v-if="errors.username">{{ errors.username.join(', ')}}</p>
         </div>
 
         <div class="field">
