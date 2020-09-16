@@ -1,3 +1,10 @@
+## [1.11.1](https://github.com/AEGEE/frontend/compare/1.11.0...1.11.1) (2020-09-16)
+
+
+### Bug Fixes
+
+* **bodies:** fixed error on invalid username when creating member ([#596](https://github.com/AEGEE/frontend/issues/596)) ([b1f3d18](https://github.com/AEGEE/frontend/commit/b1f3d189be2a130f21830531b8431f102ded3090))
+
 # [1.11.0](https://github.com/AEGEE/frontend/compare/1.10.0...1.11.0) (2020-09-11)
 
 
