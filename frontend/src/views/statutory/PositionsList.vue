@@ -7,7 +7,9 @@
         <div class="notification is-warning">
           <div class="content">
             <p>The positions will be closed on the deadline if there were (number of places + 1) applications at that moment.</p>
-            <p>If there are not enough applications, the position will stay open until 2 weeks before the Agora.</p>
+            <p>After the deadline a position will be automatically closed when it reaches the number of available places plus one.
+            In case the number of candidates for a position drops under (number of places + 1) after the deadline, the position will be reopened.
+            Regardless of the amount of candidates, all positions are closed two weeks before the Agora.</p>
             <p>All dates are in your local time (which is not always CET).</p>
           </div>
         </div>
