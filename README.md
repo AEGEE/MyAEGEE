@@ -24,29 +24,33 @@ Memory requirements for the VM bootstrapped with Vagrant: 2GB (i.e. you need a m
 
 ## Pre-requisites: URL mapping
 
-You are encouraged to edit the `/etc/hosts` file (on windows: `C:\Windows\system32\drivers\etc\hosts`) to add the entry:
+You are encouraged to edit the `/etc/hosts` file on the HOST machine (on windows: `C:\Windows\system32\drivers\etc\hosts`) to add the entry:
 
-Pure docker case: `127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test kibana.appserver.test`
+Vagrant case: `192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test`
 
-Vagrant case: `192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test kibana.appserver.test`
+Pure docker case: `127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test`
 
 to be able to use advanced features.
 
-In the linux case, it is handled by `start.sh`.
-As a helper in the windows case, you have the script "run_as_win_administrator.bat". You have to right-click it and click "run as administrator". It will tell you the line to copy (on another terminal that will open) and open the file you need to edit in notepad. Paste the content at the last line of the file, save, and exit.
+In the linux case, it is handled by `start.sh`. More on the launching of this script later.
+As a helper in the windows case, you have the script "`run_as_win_administrator.bat`" (not very advanced). You have to right-click it and click "run as administrator". It will tell you the line to copy (on another terminal that will open) and open the file you need to edit in notepad. Paste the content at the last line of the file, save, and exit.
 
 Now you can install the system
 
 ### Install the web application (linux):
 
+> On the _HOST_
 ```
 git clone --recursive https://github.com/AEGEE/MyAEGEE.git
 cd MyAEGEE
 ./start.sh
 ```
 
+See [below](#start.sh-and-Makefile) for explanation of `start.sh`
+
 ### Install the web application (non-linux):
 
+> On the _HOST_
 ```
 git clone --recursive https://github.com/AEGEE/MyAEGEE.git
 cd MyAEGEE
@@ -67,42 +71,51 @@ See [below](#moving-parts) for more info.
 # Usage
 
 ## Accessing it
-After launching the system, you can navigate to it in your web browser. The URLs differ based on how you run it.
+After launching the system, you can navigate to it in your _HOST_ web browser.
 
-For accessing it, it becomes:
+For accessing it, the three most important URLs:
 
-| Case | URL |
-|---|---|
-| Pure docker | http://my.appserver.test, with the possibility of going to http://portainer.appserver.test or http://traefik.appserver.test |
-| Vagrant | http://my.appserver.test, with the possibility of going to http://portainer.appserver.test or http://traefik.appserver.test |
+| Service | URL | Description |
+|---|---|---|
+| The app (MyAEGEE) | http://my.appserver.test | What you're here for |
+| Traefik | http://traefik.appserver.test | Quick test to see if everything works well |
+| Portainer | http://portainer.appserver.test | Visual docker manager |
+
+See right below for the URL of extra services.
+
+See at the bottom for the [default credentials](#default-credentials) of MyAEGEE's fresh install.
 
 ### Subdomains registered on traefik
-read "_subdomain_.appserver.test"; e.g. you put in your browser `http://traefik.appserver.test`
+read "_subdomain_.appserver.test"; e.g. you put in your _HOST_ browser `http://traefik.appserver.test`
 
 |Subdomain|What|Container|
 |---|---|---|
 | my | MyAEGEE | frontend |
-| portainer | Easier container mgmt (development only) | portainer |
+| portainer | Easier container mgmt (development only) (under login)  | portainer |
 | traefik | Traefik's dashboard (under login) | traefik |
-| kibana | Central logging (under login) [WIP] | kibana |
+| pgadmin | Administration of databases (development only) (under login) | pgadmin |
 | www | Website | wordpress |
 | wiki | AEGEE's Wiki, the backbone of knowledge | mediawiki |
 
-You can customise these subdomains by editing the `.env` file as explained above
+You can customise these subdomains by editing the `.env` file as mentioned above, and relaunching the script (see below about `Makefile`).
 
 
-FIXME?? [For more detailed usage guides see this usage tips page.](https://myaegee.atlassian.net/wiki/spaces/GENERAL/pages/23655986/Usage+tips)
+FIXME: [For more detailed usage guides see this usage tips page.](https://myaegee.atlassian.net/wiki/spaces/GENERAL/pages/23655986/Usage+tips)
 For container-specific usage guides see the container's repository.
 
 ## Easy script to manipulate the installation
 
-There is a file called `Makefile` that gives some easy shortcut to do stuff.
+(At the end of this section there will be links to detailed explanations, don't panic!)
+
+There is a file called `Makefile` that gives some easy shortcut to do stuff. This must be launched on the _GUEST_.
 
 On first run of vagrant, the `bootstrap` target will be invoked (you don't need to do it). If you are stubborn and decide to not use Vagrant, you still don't have to invoke it (it is invoked by `start.sh`)
 
-The general flow is that once you edit the `.env` file, `make start` should be run to update the running configuration.
+The general flow is that once you edit the `.env` file, `make start` should be run (on the _GUEST_) to update the running configuration.
 
 You can invoke the easy scripting in the following way (this shell command must be run in the same folder of the `Makefile`):
+
+> On the _GUEST_
 
 | Command | What |
 |---|---|
@@ -115,6 +128,7 @@ You can invoke the easy scripting in the following way (this shell command must 
 | make stop/restart/hard-restart | Just don't use them on the server, EVER |
 | make bump | Only for development: updates the submodules |
 
+Guest? Host? wtf? read the [under the hood](#under-the-hood) section, and the [difference between start.sh and makefile](#start.sh-and-Makefile).
 
 ### Reading the logs
 
@@ -139,13 +153,29 @@ Apache License 2.0, see LICENSE.txt for more information.
 
 # Under the hood
 
-`Virtualbox` is a utility that lets people creating virtual machines on your computer.
+`Virtualbox` is a utility that lets people creating virtual machines (VM) on your computer. The created VM is the GUEST. The computer you run Virtualbox on is the HOST
 
 `Vagrant` is used as a tool to define VMs characteristics, that will be then run through Virtualbox - in other words, it is used so we can write a manifesto that defines the characteristics of a VM, and the VM generated has always the same characteristics. It is useful in this case to model the development VM just as if it was the server on which we will run the application.
 
-`Make` is a tool that, among other things, chains commands together. So, for instance, you write in the `Makefile` that `a` runs a specific long command, `b` a different long command, and you can call the commands with `make a` or `make b`. You can also write a command `c` which is a chain of `a` followed by `b`. We use it to set a 'flow' of operations that should be followed (e.g. as explained, `make bootstrap` chains 3 operations, and one such operation is used very often i.e. `build` and/or `start`)
+`Make` is a tool that, among other things, chains commands together. So, for instance, you write in the `Makefile` that `a` runs a specific long command, `b` a different long command, and you can call the commands with `make a` or `make b`. You can also write a command `c` which is a chain of `a` followed by `b`. We use it to set a 'flow' of operations that should be followed (e.g. as explained, `make bootstrap` chains 3 operations, and one such operation is used very often i.e. `build` and/or `start`). This is used on the _GUEST_.
 
-`start.sh` runs either `vagrant up` or `make bootstrap` (according to how you want to run your system in local) so one has to literally only launch one command and it's set to be working, after the startup time of around 10-20 minutes (according to internet connection speed)
+`start.sh` runs either `vagrant up` or `make bootstrap` (according to how you want to run your system in local) so one has to literally only launch one command and it's set to be working, after the startup time of around 10-20 minutes (according to internet connection speed). This is used on the _HOST_.
+
+### `start.sh` and Makefile
+
+> `start.sh`
+
+On the _HOST_, i.e. the machine that runs the virtual machine, you use `start.sh` which can either:
+- Start the vm
+  - Use `./start.sh` for normal development cycle: app runs in development mode
+  - Use `./start.sh --fast` for sysops/integration development cycle: app runs in production mode so you can concentrate on developing integration to the app, not the app itself
+- Reset the settings to recreate the virtual machine (`./start.sh --reset`). This is in case you experimented so hard that you made something exploooode
+
+If you are a know-it-all who doesn't want to use Vagrant, use `./start.sh --no-vagrant` (but again, if you're in trouble you will only get superficial support from our side)
+
+> Makefile
+
+On the _GUEST_, i.e. the virtual machine that runs docker, you use `make` which uses the `Makefile` (explained [above](#easy-script-to-manipulate-the-installation)).
 
 ## Individual containers
 
@@ -178,4 +208,49 @@ so for instance...
 ### docker-compose.yml
 In the docker-compose files there are the definitions of where an app should be reached.
 
-Docker-compose will use the variables defined above, and put them under the `labels` section of a container (if a container needs it). The `labels` section is parsed by traefik to route all the HTTP calls to the correct containers.
+Docker-compose will use the variables defined above, and put them under the `labels` section of a container (if a container needs it). The `labels` section is parsed by traefik to route all the HTTP calls to the correct containers. In other words, this is where the values contained in the `.env` file are used to specify that the app replies on '`my.`appserver.test' instead of e.g. '`magic.`appserver.test'.
+
+### /etc/hosts
+
+This file which is located on the _HOST_ machine is used to add new [subdomains for the services](#subdomains-registered-on-traefik): e.g. add `pgadmin` to be able to go to `pgadmin.appserver.test` and use a visual tool for the databases. The important part is that this name of subdomain matches the one defined in the file `.env`
+
+# Troubleshooting / other
+
+- If you are stuck and something doesn't seem to work, make sure you don't have a mismatch between `/etc/hosts`, the URL you type in the browser, and the address that the system expects. See file `current-config.yml` for that: it is a file which is generated every time `make start` is launched. It contains the description of the desired state of the app.
+
+- You can add dev-tools to the array of services and troubleshoot docker using portainer (mentioned above). Make sure that you have added also the URL to the hostfile (`/etc/hosts`) and that it matches the variable defined in `.env`
+
+- If you remove services from array `ENABLED_SERVICES`, they are not stopped. This is not a problem in general, just don't be surprised if when you start (having the configuration `ENABLED_SERVICES=core:frontend:events`) and stop later (with the configuration `ENABLED_SERVICES=events`) you find a message `WARNING: found orphan containers`
+
+## How to run unit/integration tests when you start the system
+
+?? @serge1peshcoff
+
+## Default credentials
+
+From the [core readme](./core/README.md): there are test users. All users have `5ecr3t5ecr3t` as password.
+
+- `admin@example.com` - admin
+- `board@example.com` - board member of antenna
+- `member@example.com` - regular member of antenna
+- `not-confirmed@example.com` - member who is not confirmed
+- `password-reset@example.com` - member who requested a password reset
+- `suspended@example.com` - a suspended member
+
+You can use `5ecr3t` for a password reset token (for a member with email `password-reset@example.com`) and `5ecr3t` for a mail confirmation (for a member with email `not-confirmed@example.com`).
+
+**NOTICE** if you use the `--fast` mode of `start.sh`, then core does NOT provision in production mode, so you will be fast in bootstrapping but without users to play with.
+
+@serge1peshcoff please confirm
+
+## How to reset the database and recreate
+
+A couple of options
+
+1) As mentioned above, you can enable dev-tools for pgadmin. From there you can delete the db
+  - Notice unfortunately you have to configure pgadmin when you first login: specify the host, username, password.
+    - Username and password of the database is NOT the same username and password of pgadmin. Find everything in the files mentioned in 'moving parts', or `current-config.yml` for ease.
+    - You put the name of the service as hostname (docker internally resolves stuff with its internal DNS). In other words, every container is reachable at the host named like its service (e.g. `frontend`, `core`, `postgres-core`, etc). The 'service' is named in the `docker-compose.yml` under the key `services:`. Again: _the title of the container is also the hostname of the container_
+
+2) Use portainer to delete the service and db, then `make start` to fix everything.
+  - The service must be deleted/restarted because it runs the migrations and therefore fills the DB with the important data. If you delete only the db, the service will expect the db to be filled with data, causing errors
