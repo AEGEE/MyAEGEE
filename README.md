@@ -29,18 +29,16 @@ Memory requirements for the VM bootstrapped with Vagrant: 2GB (i.e. you need a m
 
 ## Pre-requisites: URL mapping
 
-You are encouraged to edit the `/etc/hosts` file on the _HOST_ machine (on windows: `C:\Windows\system32\drivers\etc\hosts`) to add the entry:
+To be able to use advanced features, you are encouraged to edit (a script will do it for you, read below) the `/etc/hosts` file on the _HOST_ machine (on windows: `C:\Windows\system32\drivers\etc\hosts`) to add the entry:
 
-Vagrant case: `192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test`
+Vagrant case: `192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test`
 
-Pure docker case: `127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test`
-
-to be able to use advanced features.
+Pure docker case: `127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test`
 
 In the linux case, it is handled by `start.sh`. More on the launching of this script later.
 As a helper in the windows case, you have the script "`run_as_win_administrator.bat`" (not very advanced). You have to right-click it and click "run as administrator". It will tell you the line to copy (on another terminal that will open) and open the file you need to edit in notepad. Paste the content at the last line of the file, save, and exit.
 
-Now you can install the system
+Now you can install the system!
 
 ### Install the web application (linux):
 
@@ -50,6 +48,8 @@ git clone --recursive https://github.com/AEGEE/MyAEGEE.git
 cd MyAEGEE
 ./start.sh
 ```
+
+You will have to wait for up to 20'. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [usage section](#accessing-it).
 
 See [below](#start.sh-and-Makefile) for explanation of `start.sh`
 
@@ -61,6 +61,8 @@ git clone --recursive https://github.com/AEGEE/MyAEGEE.git
 cd MyAEGEE
 vagrant up
 ```
+
+You will have to wait for up to 20'. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [usage section](#accessing-it).
 
 ## Configuration file
 Everything related to the behaviour of the app is defined in the top-most `.env` file. Most important parameters are:

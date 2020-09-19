@@ -22,7 +22,7 @@ check_etc_hosts () {
   if [[ ! $(grep -q 'traefik' /etc/hosts) ]]; then
     echo 'modifying the hosts file'
     # shellcheck disable=SC2016
-    sudo bash -c 'echo "$1" "$2" "portainer.$2" "my.$2" "traefik.$2" >> /etc/hosts' -- "${1}" "${2}"
+    sudo bash -c 'echo "$1" "$2" "portainer.$2" "my.$2" "traefik.$2" "pgadmin.$2" >> /etc/hosts' -- "${1}" "${2}"
   fi
 }
 
@@ -49,10 +49,10 @@ fi
 #run accordingly
 if ( $novagrant ); then
   check_etc_hosts "127.0.0.1" "localhost"
+  sed -i 's/appserver/localhost/' .env
   make bootstrap
 else
   check_etc_hosts "192.168.168.168" "appserver.test"
-  sed -i 's/localhost/appserver/' .env
   if ( $fast ); then
     sed -i 's/development/production/' .env
   fi
