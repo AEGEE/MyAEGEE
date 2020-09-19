@@ -3,13 +3,12 @@
 cd /vagrant/ || exit 1
 
 if [[ -f .env ]]; then
-  dos2unix .env
+  chmod +x helper.sh
+  dos2unix .env Makefile helper.sh
   make start
 else
   cp .env.example .env
-
-  #git reset --hard HEAD
-  #./helper.sh --bumpmodules
+  chmod +x helper.sh
+  dos2unix .env Makefile helper.sh
   make bootstrap
-  sleep 120 #to give time for the bootstrap
 fi
