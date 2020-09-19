@@ -1,5 +1,5 @@
 #!/bin/bash
-#THIS IS RUN ON THE HOST MACHINE
+#THIS IS RUN ON THE HOST MACHINE manually by the user
 # It will also start vagrant (or not)
 
 #check how to bootstrap

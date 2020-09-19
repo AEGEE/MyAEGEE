@@ -1,6 +1,5 @@
 #!/bin/bash
-# THIS IS RUN ON THE MACHINE that you decided would run
-# the app: either the guest (with Vagrant) or your host machine
+# THIS IS RUN ON THE GUEST MACHINE
 
 # Structure: now everything here will be a target of makefile.
 # Then helper.sh will be called by the target with correct parameter for
