@@ -138,7 +138,7 @@
                   <td v-if="body.website"><a :href="body.website" target="_blank">{{ body.website }}</a></td>
                   <td v-if="!body.website"><i>No website specified.</i></td>
                 </tr>
-                <tr>
+                <tr v-if="can.viewShadowCircles">
                   <th>Shadow circle</th>
                   <td v-if="body.shadow_circle"><router-link :to="{ name: 'oms.circles.view', params: { id: body.shadow_circle.id} }">{{ body.shadow_circle.name }}</router-link></td>
                   <td v-if="!body.shadow_circle"><i>No shadow circle assigned.</i></td>
@@ -347,6 +347,7 @@ export default {
           this.can.viewMembersGlobal = this.permissions.some(permission => permission.combined.endsWith('global:view:member'))
           this.can.viewJoinRequests = this.permissions.some(permission => permission.combined.endsWith('view:join_request'))
           this.can.viewCampaigns = this.permissions.some(permission => permission.combined.endsWith('view:campaign'))
+          this.can.viewShadowCircles = this.permissions.some(permission => permission.combined.endsWith('view:shadow_circle'))
           this.can.createBoundCircles = this.permissions.some(permission => permission.combined.endsWith('create:bound_circle'))
           this.can.updateBody = this.permissions.some(permission => permission.combined.endsWith('update:body'))
           this.can.deleteBody = this.permissions.some(permission => permission.combined.endsWith('delete:body'))
