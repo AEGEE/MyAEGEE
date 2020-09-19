@@ -316,6 +316,10 @@ This file which is located on the _HOST_ machine is used to add new [subdomains 
 
 - As written in the 'moving parts' section: if you remove services from array `ENABLED_SERVICES`, they are not stopped. This is not a problem in general, just don't be surprised if when you start (having the configuration `ENABLED_SERVICES=core:frontend:events`) and stop later (with the configuration `ENABLED_SERVICES=events`) docker writes a message `WARNING: found orphan containers`.
 
+- `make start` calls a script `helper.sh` that will look into all folders described in `ENABLED_SERVICES` for a `docker-compose.yml` file. Then it creates in-memory a giant docker-compose configuration which is what will be run. This configuration is also outputted to a file (`current-config.yml`) for ease of troubleshoot.
+
+- Running the system in `development` mode means that every `docker-compose.yml` has extra-settings in a `docker-compose.dev.yml` file (in the same folder). Some modules are not thought for development mode, if you find an error about a missing `docker-compose.dev.yml` just create an empty one where the system wants it.
+
 ## How to run unit/integration tests when you start the system
 
 ?? @serge1peshcoff
