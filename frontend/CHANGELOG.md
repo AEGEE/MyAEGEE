@@ -1,3 +1,10 @@
+## [1.11.2](https://github.com/AEGEE/frontend/compare/1.11.1...1.11.2) (2020-09-19)
+
+
+### Bug Fixes
+
+* **bodies:** Only show shadow circles if permitted ([#600](https://github.com/AEGEE/frontend/issues/600)) ([7cb789c](https://github.com/AEGEE/frontend/commit/7cb789cbf0d711afb9a427e9d4707189910ae940))
+
 ## [1.11.1](https://github.com/AEGEE/frontend/compare/1.11.0...1.11.1) (2020-09-16)
 
 
