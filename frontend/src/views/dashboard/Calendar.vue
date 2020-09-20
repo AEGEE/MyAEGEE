@@ -17,13 +17,8 @@
     <hr />
 
     <FullCalendar
-      defaultView="dayGridMonth"
-      :firstDay="1"
-      :plugins="calendarPlugins"
-      :events="events"
-      :displayEventTime="false"
-      @eventClick="eventClick"
-      @datesRender="updateStartDate" />
+      :options="calendarOptions"
+    />
 
     <b-loading :is-full-page="true" :active.sync="isLoading"></b-loading>
   </div>
@@ -44,7 +39,6 @@ export default {
   },
   data () {
     return {
-      events: [],
       colors: {
         training: '#A0C514',
         conference: '#931991',
@@ -55,7 +49,16 @@ export default {
       isLoading: false,
       currentMonthStart: null,
       currentMonthEnd: null,
-      calendarPlugins: [dayGridPlugin]
+      calendarOptions: {
+        plugins: [dayGridPlugin],
+        initialView: 'dayGridMonth',
+        eventDisplay: 'block',
+        firstDay: 1,
+        events: [],
+        displayEventTime: false,
+        datesSet: this.updateStartDate,
+        eventClick: this.eventClick
+      }
     }
   },
   methods: {
@@ -142,15 +145,10 @@ export default {
         statutoryPromise,
         onlinePromise
       ]).then(([regular, statutory, online]) => {
-        this.events = [...regular, ...statutory, ...online]
+        this.calendarOptions.events = [...regular, ...statutory, ...online]
         this.isLoading = false
       })
     }
-  },
-  mounted () {
-    this.currentMonthStart = moment()
-    this.currentMonthEnd = moment()
-    this.fetchEvents()
   },
   computed: {
     ...mapGetters({
