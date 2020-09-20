@@ -24,6 +24,7 @@ const mapComponent = (component, nested = false) => ({
   name: component.name,
   path: component.path,
   label: component.label,
+  link: component.link,
   auth: component.auth,
   params: component.params || '',
   icon: typeof component.icon !== 'undefined' ? component.icon : null,

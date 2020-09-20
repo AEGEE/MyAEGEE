@@ -80,7 +80,7 @@
         "children": [
           {
             "name": "oms.events.change_status",
-            "label": "Change events statuses"
+            "label": "Change event status"
           },
           {
             "name": "oms.events.boardview",
@@ -126,7 +126,7 @@
         "children": [
           {
             "name": "oms.statutory.list.all",
-            "label": "List all statutory events"
+            "label": "All statutory events"
           },
           {
             "name": "oms.statutory.create",
@@ -162,6 +162,12 @@
         "name": "oms.resources",
         "label": "Resources",
         "icon": "external-link-alt"
+      },
+      {
+        "name": "oms.helpdesk",
+        "link": "https://myaegee.atlassian.net/servicedesk/customer/portals",
+        "label": "Helpdesk",
+        "icon": "question"
       }
     ]
   },
