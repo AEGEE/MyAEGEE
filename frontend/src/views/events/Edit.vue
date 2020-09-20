@@ -33,6 +33,16 @@
       </div>
 
       <form @submit.prevent="saveEvent()">
+        <div class="field notification is-warning">
+          <label class="label">COVID-19 restrictions</label>
+          <p>
+            Please follow the advice of local authorities for organising public events!
+          </p><p>
+            Take into account the social distancing requirements and make sure you don't exceed the number of people allowed in the same place. Also, cleaning and sanitary measures must be respected.
+          </p><p>
+            If it is needed, you are allowed to expel participants who don't follow the rules after clear instructions.
+          </p>
+        </div>
         <div class="notification is-info" v-if="!$route.params.id">
           <div class="content">
             <p>If you want to upload the image, please add it after creating the event by going to "Edit event" and uploading it there.</p>
@@ -127,6 +137,15 @@
             <input class="input" type="number" v-model="event.max_participants" min="0" @input="$root.nullifyIfEmpty(event, 'max_participants')"/>
           </div>
           <p class="help is-danger" v-if="errors.max_participants">{{ errors.max_participants.join(', ') }}</p>
+        </div>
+        <div class="field notification is-info">
+          <label class="label">Regarding water access</label>
+          <p>
+            Please make sure that the participants have access to a reasonable amount of water during the event.
+          </p>
+          <p>
+            Tip: Advise your participants to bring their own refillable water bottles and remind them throughout the event to refill them.
+          </p>
         </div>
 
         <div class="subtitle is-fullwidth has-text-centered">Event dates</div>
