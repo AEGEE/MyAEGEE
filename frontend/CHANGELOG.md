@@ -1,3 +1,10 @@
+## [1.11.3](https://github.com/AEGEE/frontend/compare/1.11.2...1.11.3) (2020-09-20)
+
+
+### Bug Fixes
+
+* **discounts:** Add button to manage integrations ([#602](https://github.com/AEGEE/frontend/issues/602)) ([23a8aed](https://github.com/AEGEE/frontend/commit/23a8aed9c22991610da5a80451c293ee9a17eb9e))
+
 ## [1.11.2](https://github.com/AEGEE/frontend/compare/1.11.1...1.11.2) (2020-09-19)
 
 
