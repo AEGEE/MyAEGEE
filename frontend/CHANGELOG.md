@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/AEGEE/frontend/compare/1.12.0...1.12.1) (2020-09-20)
+
+
+### Bug Fixes
+
+* **resources:** Update Resources page and add mailing lists page. ([#605](https://github.com/AEGEE/frontend/issues/605)) ([32e2318](https://github.com/AEGEE/frontend/commit/32e2318b3033b2a35e98bd3e01e4d99f9099a01d))
+
 # [1.12.0](https://github.com/AEGEE/frontend/compare/1.11.3...1.12.0) (2020-09-20)
 
 
