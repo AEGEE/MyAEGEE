@@ -28,7 +28,8 @@
 
       <section class="buttons">
         <router-link class="button is-primary" :to="{ name: 'oms.discounts.my_discounts' }">My codes</router-link>
-        <router-link  v-if="can.create" class="button is-primary" :to="{ name: 'oms.discounts.categories.list' }">Manage</router-link>
+        <router-link v-if="can.create" class="button is-primary" :to="{ name: 'oms.discounts.categories.list' }">Manage discounts</router-link>
+        <router-link v-if="can.create" class="button is-primary" :to="{ name: 'oms.discounts.list' }">Manage codes</router-link>
       </section>
     </div>
   </div>
