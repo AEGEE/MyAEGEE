@@ -1,3 +1,10 @@
+## [1.12.2](https://github.com/AEGEE/frontend/compare/1.12.1...1.12.2) (2020-09-20)
+
+
+### Bug Fixes
+
+* **ma-43:** update of fullcalendar dependency to 5.3.x ([#607](https://github.com/AEGEE/frontend/issues/607)) ([5c86d1a](https://github.com/AEGEE/frontend/commit/5c86d1a4344770dd65209dbb5525341805e960a3)), closes [#571](https://github.com/AEGEE/frontend/issues/571) [#564](https://github.com/AEGEE/frontend/issues/564) [#563](https://github.com/AEGEE/frontend/issues/563)
+
 ## [1.12.1](https://github.com/AEGEE/frontend/compare/1.12.0...1.12.1) (2020-09-20)
 
 
