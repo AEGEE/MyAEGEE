@@ -1,4 +1,8 @@
-# ARE ALL COMMANDS IDEMPOTENT??? (do i want them to be?)
+# NOTE: this file is only ever used by `make` being run on the GUEST
+#  Those commands are intended to be executed on the GUEST system,
+#  i.e. within the vagrant VM
+
+# TODO: are all commands idempotent??? (do i want them to be?)
 
 include .env
 export $(shell sed 's/=.*//' .env)
