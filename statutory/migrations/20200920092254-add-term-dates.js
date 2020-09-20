@@ -3,7 +3,7 @@ module.exports = {
         await queryInterface.addColumn(
             'positions',
             'start_term',
-            { type: Sequelize.DATEONLY, allowNull: false, defaultValue: Sequelize.NOW }
+            { type: Sequelize.DATEONLY, allowNull: false, defaultValue: Sequelize.fn('NOW') }
         );
 
         await queryInterface.addColumn(

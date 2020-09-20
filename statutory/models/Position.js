@@ -35,7 +35,7 @@ const Position = sequelize.define('position', {
     start_term: {
         type: Sequelize.DATEONLY,
         allowNull: false,
-        defaultValue: Sequelize.NOW,
+        defaultValue: '',
         validate: {
             notEmpty: { msg: 'Position start term date should be set.' },
             isDate: { msg: 'Position start term date should be valid.' }
