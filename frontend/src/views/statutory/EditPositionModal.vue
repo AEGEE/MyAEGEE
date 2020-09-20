@@ -99,7 +99,7 @@
         <div class="control">
           <b-input type="textarea" v-model="position.requirements" />
         </div>
-        <label class="label">Preview</label>
+        <label class="label">Preview <MarkdownTooltip/></label>
         <div class="content">
           <span v-html="$options.filters.markdown(position.requirements)" />
         </div>
@@ -115,8 +115,12 @@
 
 <script>
 import moment from 'moment'
+import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
 
 export default {
+  components: {
+    MarkdownTooltip
+  },
   name: 'EditPositionModal',
   props: ['event', 'position', 'services', 'showSuccess', 'showError', 'router', 'bodies'],
   data () {

@@ -37,11 +37,11 @@
           </div>
 
           <div class="field">
-            <label class="label">Description (long), supports <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">Markdown</a> for formatting</label>
+            <label class="label">Description (long)</label>
             <div class="control">
               <textarea class="textarea" placeholder="e.g. Hello world" required v-model="discount.longDescription"></textarea>
             </div>
-            <label class="label">Preview</label>
+            <label class="label">Preview <MarkdownTooltip/></label>
             <div class="content">
               <span v-html="$options.filters.markdown(discount.longDescription)" />
             </div>
@@ -66,8 +66,12 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
 
 export default {
+  components: {
+    MarkdownTooltip
+  },
   name: 'EditCategory',
   data () {
     return {

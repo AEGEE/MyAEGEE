@@ -36,7 +36,7 @@
           <div class="control">
             <textarea class="textarea" placeholder="e.g. Hello world" required v-model="body.description"></textarea>
           </div>
-          <label class="label">Preview</label>
+          <label class="label">Preview <MarkdownTooltip/></label>
           <div class="content">
             <span v-html="$options.filters.markdown(body.description)" />
           </div>
@@ -51,7 +51,7 @@
           <div class="control">
             <textarea class="textarea" v-model="body.task_description"></textarea>
           </div>
-          <label class="label">Preview</label>
+          <label class="label">Preview <MarkdownTooltip/></label>
           <div class="content">
             <span v-html="$options.filters.markdown(body.task_description)" />
           </div>
@@ -170,8 +170,12 @@ import { mapGetters } from 'vuex'
 import moment from 'moment'
 
 import countries from '../../../countries'
+import MarkdownTooltip from '../../../components/tooltips/MarkdownTooltip'
 
 export default {
+  components: {
+    MarkdownTooltip
+  },
   name: 'EditBody',
   data () {
     return {

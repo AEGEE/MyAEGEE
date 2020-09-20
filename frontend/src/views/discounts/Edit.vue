@@ -15,7 +15,7 @@
           <div class="control">
             <textarea class="textarea" placeholder="e.g. Hello world" required v-model="integration.description"></textarea>
           </div>
-          <label class="label">Preview</label>
+          <label class="label">Preview <MarkdownTooltip/></label>
           <div class="content">
             <span v-html="$options.filters.markdown(integration.description)" />
           </div>
@@ -64,8 +64,12 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
 
 export default {
+  components: {
+    MarkdownTooltip
+  },
   name: 'EditIntegration',
   data () {
     return {

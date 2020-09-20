@@ -59,7 +59,7 @@
           <div class="control">
             <textarea class="textarea" placeholder="e.g. Hello world" required v-model="event.description"></textarea>
           </div>
-          <label class="label">Description preview</label>
+          <label class="label">Preview <MarkdownTooltip/></label>
           <div class="content">
             <span v-html="$options.filters.markdown(event.description)" />
           </div>
@@ -492,13 +492,15 @@ import { MglMap, MglMarker, MglNavigationControl } from 'vue-mapbox'
 import constants from '../../constants'
 import credentials from '../../credentials'
 import TimezoneNotification from '../../components/notifications/TimezoneNotification'
+import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
 
 export default {
   components: {
     MglMap,
     MglMarker,
     MglNavigationControl,
-    TimezoneNotification
+    TimezoneNotification,
+    MarkdownTooltip
   },
   name: 'EditEvent',
   data () {
