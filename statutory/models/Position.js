@@ -32,6 +32,23 @@ const Position = sequelize.define('position', {
         type: Sequelize.INTEGER,
         allowNull: true
     },
+    start_term: {
+        type: Sequelize.DATEONLY,
+        allowNull: false,
+        defaultValue: Sequelize.NOW,
+        validate: {
+            notEmpty: { msg: 'Position start term date should be set.' },
+            isDate: { msg: 'Position start term date should be valid.' }
+        }
+    },
+    end_term: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'Position end term date should be set.' }
+        }
+    },
     starts: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -78,6 +95,11 @@ const Position = sequelize.define('position', {
             isNumeric: { msg: 'Places amount should be valid.' },
             min: { args: [1], msg: 'Places amount should be at least 1' }
         }
+    },
+    requirements: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+        defaultValue: ''
     },
     status: {
         type: Sequelize.ENUM('open', 'closed'),
