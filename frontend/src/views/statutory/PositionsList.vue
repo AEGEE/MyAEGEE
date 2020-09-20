@@ -102,6 +102,13 @@
 
         <hr v-if="selectedPosition"/>
 
+        <div class="subtitle" v-if="selectedPosition">Information about selected position</div>
+        <p class="content" v-if="selectedPosition">The term for this position starts on <strong>{{ startTerm }}</strong> and ends on <strong>{{ this.selectedPosition.end_term }}</strong>.</p>
+        <p class="content" v-if="selectedPosition && requirementsIsSet">This position has the following requirements associated with it:</p>
+        <p class="content" v-if="selectedPosition && requirementsIsSet" v-html="$options.filters.markdown(this.selectedPosition.requirements)"></p>
+
+        <hr v-if="selectedPosition"/>
+
         <div class="subtitle" v-if="selectedPosition">Description of selected position</div>
         <p class="content" v-if="selectedPosition" v-html="$options.filters.markdown(taskDescription)"></p>
 
@@ -208,6 +215,12 @@ export default {
 
       const body = this.bodies.find(bod => bod.id === this.selectedPosition.body_id)
       return body.task_description
+    },
+    startTerm () {
+      return moment(this.selectedPosition.start_term).format('YYYY-MM-DD')
+    },
+    requirementsIsSet () {
+      return (this.selectedPosition.requirements !== null && this.selectedPosition.requirements !== '')
     }
   },
   methods: {
@@ -226,6 +239,7 @@ export default {
           // I'm passing them as props.
           // More info: https://github.com/buefy/buefy/issues/55
           position: {
+            start_term: new Date(),
             starts: new Date(),
             ends: new Date(),
             ends_force: forceCloseDeadline,

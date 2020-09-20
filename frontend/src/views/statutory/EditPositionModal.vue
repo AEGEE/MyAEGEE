@@ -67,6 +67,43 @@
           </select>
         </div>
       </div>
+
+      <div class="field">
+        <label class="label">Position term starts</label>
+        <div class="control">
+        <flat-pickr
+            placeholder="Select date"
+            class="input"
+            required
+            :config="dayConfig"
+            v-model="dates.start_term" />
+        </div>
+        <p class="help is-danger" v-if="errors.starts">{{ errors.starts.join(', ') }}</p>
+      </div>
+
+      <b-message type="is-info">
+        <p>To enter a set date, use the following format:</p>
+        <p>yyyy-mm-dd</p>
+      </b-message>
+
+      <b-field label="Position term ends" id="term_ends">
+          <b-input type="text" required v-model="position.end_term" />
+      </b-field>
+
+      <b-message type="is-success" v-if="dateFound">
+        A date has been detected
+      </b-message>
+
+      <div class="field">
+        <label class="label">Requirements for the position</label>
+        <div class="control">
+          <b-input type="textarea" v-model="position.requirements" />
+        </div>
+        <label class="label">Preview</label>
+        <div class="content">
+          <span v-html="$options.filters.markdown(position.requirements)" />
+        </div>
+      </div>
     </section>
 
     <footer class="modal-card-foot">
@@ -77,6 +114,8 @@
 </template>
 
 <script>
+import moment from 'moment'
+
 export default {
   name: 'EditPositionModal',
   props: ['event', 'position', 'services', 'showSuccess', 'showError', 'router', 'bodies'],
@@ -87,11 +126,16 @@ export default {
         enableTime: true,
         time_24hr: true
       },
+      dayConfig: {
+        enableTime: false
+      },
       dates: {
         starts: null,
         ends: null,
-        ends_force: null
-      }
+        ends_force: null,
+        start_term: null
+      },
+      dateFound: null
     }
   },
   watch: {
@@ -103,6 +147,12 @@ export default {
     },
     'dates.ends_force': function (newDate) {
       this.position.ends_force = new Date(newDate)
+    },
+    'dates.start_term': function (newDate) {
+      this.position.start_term = new Date(newDate)
+    },
+    'position.end_term': function () {
+      this.dateFound = (moment(this.position.end_term, 'YYYY-MM-DD').isValid() && this.position.end_term !== '' && this.position.end_term.length === 10)
     }
   },
   computed: {
@@ -139,6 +189,7 @@ export default {
     this.dates.starts = this.position.starts = new Date(this.position.starts)
     this.dates.ends = this.position.ends = new Date(this.position.ends)
     this.dates.ends_force = this.position.ends_force = new Date(this.position.ends_force)
+    this.dates.start_term = this.position.start_term = new Date(this.position.start_term)
   }
 }
 </script>
