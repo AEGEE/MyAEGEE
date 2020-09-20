@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/AEGEE/statutory/compare/1.1.1...1.2.0) (2020-09-20)
+
+
+### Features
+
+* add fields requirements and term dates positions ([#388](https://github.com/AEGEE/statutory/issues/388)) ([ae9c696](https://github.com/AEGEE/statutory/commit/ae9c69659b03f568e85f2a63fe239f3b9759acbb))
+
 ## [1.1.1](https://github.com/AEGEE/statutory/compare/1.1.0...1.1.1) (2020-07-16)
 
 
