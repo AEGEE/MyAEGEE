@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/AEGEE/frontend/compare/1.12.2...1.13.0) (2020-09-20)
+
+
+### Features
+
+* add entry to helpdesk in menu ([#599](https://github.com/AEGEE/frontend/issues/599)) ([c4b26cd](https://github.com/AEGEE/frontend/commit/c4b26cdae0c594f31fc2421ad78319f3cfa2767e))
+
 ## [1.12.2](https://github.com/AEGEE/frontend/compare/1.12.1...1.12.2) (2020-09-20)
 
 
