@@ -926,7 +926,6 @@ const errored = {
 
 let client;
 
-
 async function migrateUsers() {
     // creating members
     const users = await client.query('select *, members.id as member_id from users inner join members on users.id = members.user_id');

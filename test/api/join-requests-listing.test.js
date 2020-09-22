@@ -154,7 +154,6 @@ describe('Join requests list', () => {
 
         const body = await generator.createBody();
 
-
         const user1 = await generator.createUser({ first_name: 'aaa', last_name: 'zzz', email: 'zzz@test.io' });
         const joinRequest = await generator.createJoinRequest(body, user1);
 
@@ -183,7 +182,6 @@ describe('Join requests list', () => {
         const token = await generator.createAccessToken({}, user);
 
         const body = await generator.createBody();
-
 
         const user1 = await generator.createUser({ first_name: 'zzz', last_name: 'aaa', email: 'zzz@test.io' });
         const joinRequest = await generator.createJoinRequest(body, user1);
@@ -214,7 +212,6 @@ describe('Join requests list', () => {
 
         const body = await generator.createBody();
 
-
         const user1 = await generator.createUser({ first_name: 'zzz', last_name: 'zzz', email: 'aaa@test.io' });
         const joinRequest = await generator.createJoinRequest(body, user1);
 
@@ -238,13 +235,11 @@ describe('Join requests list', () => {
         expect(res.body.data[0].id).toEqual(joinRequest.id);
     });
 
-
     test('should filter by status', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);
 
         const body = await generator.createBody();
-
 
         const user1 = await generator.createUser();
         const joinRequest = await JoinRequest.create({

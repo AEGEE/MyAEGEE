@@ -3,7 +3,6 @@ const { User } = require('../../models');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 
-
 describe('User activation', () => {
     beforeAll(async () => {
         await startServer();

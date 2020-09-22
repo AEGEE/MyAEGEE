@@ -3,7 +3,6 @@ const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const { Payment } = require('../../models');
 
-
 describe('Body payments deleting', () => {
     beforeAll(async () => {
         await startServer();

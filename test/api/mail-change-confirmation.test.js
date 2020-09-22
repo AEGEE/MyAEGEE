@@ -59,7 +59,6 @@ describe('Mail change confirm', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-
     test('should work if the token is found', async () => {
         const user = await generator.createUser();
         const mailChange = await generator.createMailChange({}, user);

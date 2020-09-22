@@ -1,7 +1,6 @@
 const mailer = require('../../lib/mailer');
 const mock = require('../scripts/mock');
 
-
 describe('Mailer', () => {
     beforeEach(async () => {
         await mock.mockAll();

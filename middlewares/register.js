@@ -1,7 +1,6 @@
 const { MailConfirmation, User } = require('../models');
 const errors = require('../lib/errors');
 
-
 module.exports.confirmEmail = async (req, res) => {
     if (!req.body.token) {
         return errors.makeBadRequestError(res, 'No token specified.');

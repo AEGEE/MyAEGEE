@@ -49,5 +49,4 @@ MailConfirmation.createForUser = async function createForUser(userId, transactio
     }, { transaction });
 };
 
-
 module.exports = MailConfirmation;

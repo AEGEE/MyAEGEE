@@ -140,7 +140,6 @@ describe('Body memberships list wth permission', () => {
         const body = await generator.createBody();
         const permission = await generator.createPermission({ scope: 'local', action: 'action', object: 'object' });
 
-
         const firstCircle = await generator.createCircle();
         const secondCircle = await generator.createCircle({ parent_circle_id: firstCircle.id });
         const thirdCircle = await generator.createCircle({ parent_circle_id: secondCircle.id, body_id: body.id });

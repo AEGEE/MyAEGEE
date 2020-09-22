@@ -169,7 +169,6 @@ async function encryptPassword(user) {
 User.beforeCreate(encryptPassword);
 User.beforeUpdate(encryptPassword);
 
-
 User.prototype.checkPassword = async function checkPassword(password) {
     return bcrypt.compare(password, this.password);
 };

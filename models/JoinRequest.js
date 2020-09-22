@@ -29,7 +29,6 @@ const JoinRequest = sequelize.define('join_request', {
     updatedAt: 'updated_at',
 });
 
-
 JoinRequest.beforeValidate(async (request) => {
     // skipping these fields if they are unset, will catch it later.
     if (typeof request.motivation === 'string') request.motivation = request.motivation.trim();

@@ -21,7 +21,6 @@ describe('Bodies editing', () => {
 
         await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
 
-
         const res = await request({
             uri: '/bodies/1337',
             method: 'PUT',

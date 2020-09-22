@@ -37,7 +37,6 @@ module.exports.login = async (req, res) => {
     //     return errors.makeValidationError(res, notValidFields);
     // }
 
-
     const accessToken = await AccessToken.createForUser(user.id);
     const refreshToken = await RefreshToken.createForUser(user.id);
 

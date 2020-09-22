@@ -24,7 +24,6 @@ const BodyMembership = sequelize.define('body_membership', {
     updatedAt: 'updated_at',
 });
 
-
 BodyMembership.beforeValidate(async (membership) => {
     // skipping these fields if they are unset, will catch it later.
     if (typeof membership.comment === 'string') membership.comment = membership.comment.trim();
@@ -80,6 +79,5 @@ BodyMembership.afterDestroy(async (membership) => {
         await user.update({ primary_body_id: null });
     }
 });
-
 
 module.exports = BodyMembership;

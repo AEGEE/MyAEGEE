@@ -7,7 +7,6 @@ const errors = require('../lib/errors');
 const mailer = require('../lib/mailer');
 const { sequelize, Sequelize } = require('../lib/sequelize');
 
-
 exports.listAllUsers = async (req, res) => {
     if (!req.permissions.hasPermission('global:view:member')) {
         return errors.makeForbiddenError(res, 'Permission global:view:member is required, but not present.');
