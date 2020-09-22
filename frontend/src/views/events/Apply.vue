@@ -92,7 +92,7 @@
                 <p class="help is-danger" v-if="errors.agreed_to_privacy_policy">{{ errors.agreed_to_privacy_policy.join(', ') }}</p>
               </div>
 
-              <div class="field notification is-info">
+              <div class="field notification is-warning">
                 <label class="label">COVID-19 warning</label>
                 <p>
                   Please respect all the local rules and be aware that they might differ from what you are used to. Always carry a mask, listen to organisers and stick to social distancing and other safety rules. Also, be aware that your event might get cancelled or have issues with mobility!
