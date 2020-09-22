@@ -32,7 +32,6 @@ exports.generateEvent = (options = {}) => {
     if (notSet(options.budget)) options.budget = faker.lorem.sentence();
     if (notSet(options.programme)) options.programme = faker.lorem.sentence();
 
-
     return options;
 };
 

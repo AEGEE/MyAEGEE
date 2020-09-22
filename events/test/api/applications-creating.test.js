@@ -19,7 +19,6 @@ describe('Events application creating', () => {
         await generator.clearAll();
     });
 
-
     it('should disallow application for events with closed deadline', async () => {
         const event = await generator.createEvent({
             application_starts: moment().subtract(2, 'weeks').toDate(),

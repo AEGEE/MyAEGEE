@@ -214,7 +214,6 @@ exports.exportAll = async (req, res) => {
         }
     ]);
 
-
     res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-disposition', 'attachment; filename=stats.xlsx');
 

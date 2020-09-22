@@ -178,10 +178,8 @@ describe('Events listing', () => {
 
         expect(res.statusCode).toEqual(200);
 
-
         expect(res.body.success).toEqual(true);
         expect(res.body).toHaveProperty('data');
-
 
         expect(res.body.data.length).toEqual(0);
         expect(res.body.meta.offset).toEqual(100);

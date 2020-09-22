@@ -90,7 +90,6 @@ describe('Events application editing', () => {
         expect(applicationFromDb.answers[0]).toEqual(2);
     });
 
-
     it('should update your application if you do not have global permissions', async () => {
         mock.mockAll(({ mainPermissions: { noPermissions: true } }));
 

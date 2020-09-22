@@ -228,7 +228,6 @@ exports.editEvent = async (req, res) => {
         });
     });
 
-
     return res.json({
         success: true,
         data: event.toJSON()

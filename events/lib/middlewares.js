@@ -93,7 +93,6 @@ exports.fetchSingleEvent = async (req, res, next) => {
         };
     }
 
-
     const event = await Event.findOne({ where: findObject });
 
     if (!event) {

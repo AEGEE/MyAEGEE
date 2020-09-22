@@ -173,7 +173,6 @@ describe('Events editing', () => {
             organizing_bodies: [{ body_id: user.bodies[0].id, body_name: 'test' }]
         });
 
-
         const res = await request({
             uri: '/single/' + event.id,
             method: 'PUT',

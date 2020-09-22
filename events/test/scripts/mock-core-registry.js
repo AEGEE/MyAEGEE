@@ -49,7 +49,6 @@ exports.mockCore = (options) => {
         .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
 };
 
-
 exports.mockCoreMainPermissions = (options) => {
     if (options.netError) {
         return nock(`${config.core.url}:${config.core.port}`)
@@ -92,7 +91,6 @@ exports.mockCoreMainPermissions = (options) => {
         .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-full.json'));
 };
 
-
 exports.mockCoreApprovePermissions = (options) => {
     if (options.netError) {
         return nock(`${config.core.url}:${config.core.port}`)
@@ -134,7 +132,6 @@ exports.mockCoreApprovePermissions = (options) => {
         .post('/my_permissions')
         .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-approve-permissions-full.json'));
 };
-
 
 exports.mockCoreMember = (options) => {
     if (options.netError) {

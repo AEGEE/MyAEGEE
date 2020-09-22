@@ -24,7 +24,6 @@ describe('Metrics requests', () => {
         await generator.createApplication({ user_id: 4, body_name: 1, status: 'pending' }, event);
         await generator.createApplication({ user_id: 5, body_name: 1, status: 'pending' }, event);
 
-
         const res = await request({
             uri: '/metrics',
             method: 'GET',

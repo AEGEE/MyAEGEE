@@ -78,7 +78,6 @@ describe('Export all', () => {
     test('should return 403 if you have no permissions to access', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
-
         const event = await generator.createEvent({
             organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }],
             questions: [
