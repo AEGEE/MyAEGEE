@@ -1,3 +1,10 @@
+# [1.26.0](https://github.com/AEGEE/core/compare/1.25.1...1.26.0) (2020-09-22)
+
+
+### Features
+
+* **users:** add privacy consent field ([#88](https://github.com/AEGEE/core/issues/88)) ([3275455](https://github.com/AEGEE/core/commit/32754551fa22078dbc9c38dde4c9aff6ac4e4c7a))
+
 ## [1.25.1](https://github.com/AEGEE/core/compare/1.25.0...1.25.1) (2020-09-16)
 
 
