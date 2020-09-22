@@ -58,6 +58,10 @@ const User = sequelize.define('user', {
         allowNull: false,
         defaultValue: false
     },
+    privacy_consent: {
+        type: Sequelize.DATE,
+        allowNull: true
+    },
     first_name: {
         type: Sequelize.STRING,
         allowNull: false,
