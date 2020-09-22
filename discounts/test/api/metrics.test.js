@@ -32,7 +32,6 @@ describe('Metrics requests', () => {
         expect(res.statusCode).toEqual(200);
     });
 
-
     test('should return data correctly on /metrics/requests', async () => {
         const res = await request({
             uri: '/metrics/requests',

@@ -5,7 +5,6 @@ const generator = require('../scripts/generator');
 const user = require('../assets/oms-core-valid').data;
 const { Code } = require('../../models');
 
-
 describe('Codes claiming', () => {
     beforeEach(async () => {
         mock.mockAll();

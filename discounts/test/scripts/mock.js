@@ -110,7 +110,6 @@ exports.mockCoreMailer = (options) => {
         .reply(200, { success: true });
 };
 
-
 exports.mockAll = (options = {}) => {
     nock.cleanAll();
     const omsCoreStub = exports.mockCore(options.core || {});

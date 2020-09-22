@@ -48,7 +48,6 @@ describe('Integrations codes population', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('message');
 
-
         const codesFromDb = await Code.count({ where: { integration_id: integration.id } });
         expect(codesFromDb).toEqual(3);
     });
