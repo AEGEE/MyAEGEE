@@ -66,5 +66,4 @@ Circle.throwIfAnyLoops = async function throwIfAnyLoops(transaction) {
     }
 };
 
-
 module.exports = Circle;

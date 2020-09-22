@@ -59,5 +59,4 @@ Campaign.beforeValidate(async (campaign) => {
     if (typeof campaign.description_long === 'string') campaign.description_long = campaign.description_long.trim();
 });
 
-
 module.exports = Campaign;

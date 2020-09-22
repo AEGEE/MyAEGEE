@@ -16,7 +16,6 @@ describe('Body membership creating', () => {
         await generator.clearAll();
     });
 
-
     test('should return 404 if the user is not found', async () => {
         const body = await generator.createBody();
         const user = await generator.createUser({ superadmin: true });

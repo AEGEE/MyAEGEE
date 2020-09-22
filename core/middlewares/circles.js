@@ -46,7 +46,6 @@ exports.getCirclePermissions = async (req, res) => {
     });
 };
 
-
 // This endpoint is for creating free circles only.
 exports.createCircle = async (req, res) => {
     if (!req.permissions.hasPermission('global:create:circle')) {

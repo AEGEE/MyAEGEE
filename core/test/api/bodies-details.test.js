@@ -69,7 +69,6 @@ describe('Body details', () => {
         expect(res.body.data.id).toEqual(body.id);
     });
 
-
     test('should find the body by id', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken({}, user);

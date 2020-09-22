@@ -124,7 +124,6 @@ describe('Body memberships deleting', () => {
             headers: { 'X-Auth-Token': token.value }
         });
 
-
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
         expect(res.body).not.toHaveProperty('errors');

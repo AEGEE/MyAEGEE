@@ -93,7 +93,6 @@ describe('Password confirm', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-
     test('should work if the token is found', async () => {
         const user = await generator.createUser();
         const reset = await generator.createPasswordReset({}, user);

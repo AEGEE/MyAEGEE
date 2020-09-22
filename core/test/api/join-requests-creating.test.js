@@ -3,7 +3,6 @@ const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
 
-
 describe('Join request creating', () => {
     beforeAll(async () => {
         await startServer();

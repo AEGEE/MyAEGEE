@@ -71,7 +71,6 @@ describe('User details', () => {
         expect(res.body.data.id).toEqual(user.id);
     });
 
-
     test('should find the user by id', async () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken({}, user);

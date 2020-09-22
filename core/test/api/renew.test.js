@@ -31,7 +31,6 @@ describe('Tokens renewal', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-
     test('should succeed if everything is okay', async () => {
         const user = await generator.createUser({ mail_confirmed_at: new Date() });
         const refreshToken = await generator.createRefreshToken({}, user);
