@@ -79,7 +79,7 @@
     "express-promise-router": "^4.0.1",
     "express-query-boolean": "^2.0.0",
     "lodash": "^4.17.20",
-    "moment": "^2.27.0",
+    "moment": "^2.28.0",
     "morgan": "^1.9.1",
     "node-cron": "^2.0.3",
     "on-finished": "^2.3.0",
