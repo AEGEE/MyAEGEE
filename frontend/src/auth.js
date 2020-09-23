@@ -15,6 +15,13 @@ export default {
     }
 
     const fetchUser = async () => {
+      // Prevent the request from being done if no access token
+      // to avoid extra requests when somebody is accesing the page
+      // when being unauthorized.
+      if (!window.localStorage.getItem('access-token') && !window.localStorage.getItem('refresh-token')) {
+        throw new Error('Both access and refresh token are not present.')
+      }
+
       const result = await Vue.axios.get(services['core'] + '/members/me', {
         headers: { 'X-For-Auth': 'true' }
       })
