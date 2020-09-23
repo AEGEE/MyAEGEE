@@ -84,9 +84,11 @@ export default {
         message: 'Set fee paid',
         inputAttrs: {
           placeholder: 'Fee paid (in EUR)',
-          required: true
+          required: true,
+          type: 'number',
+          step: 0.01
         },
-        onConfirm: (newFee) => this.setFeePaid(newFee, memberslist)
+        onConfirm: (newFee) => this.setFeePaid(parseFloat(newFee), memberslist)
       })
     },
     setFeePaid (newFee, memberslist) {
