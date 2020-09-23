@@ -1,3 +1,10 @@
+## [1.13.2](https://github.com/AEGEE/frontend/compare/1.13.1...1.13.2) (2020-09-23)
+
+
+### Bug Fixes
+
+* **statutory:** fix setting fee paid for members list. Fixes HELP-1305 ([#616](https://github.com/AEGEE/frontend/issues/616)) ([3b93960](https://github.com/AEGEE/frontend/commit/3b93960b61293350da4029ae8df42c0399675391))
+
 ## [1.13.1](https://github.com/AEGEE/frontend/compare/1.13.0...1.13.1) (2020-09-23)
 
 
