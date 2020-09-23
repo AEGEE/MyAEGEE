@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/AEGEE/frontend/compare/1.13.0...1.13.1) (2020-09-23)
+
+
+### Bug Fixes
+
+* **general:** fail request if no access token ([#615](https://github.com/AEGEE/frontend/issues/615)) ([085993d](https://github.com/AEGEE/frontend/commit/085993d3f64a2f2e1dd09e45720f830e25db7343))
+
 # [1.13.0](https://github.com/AEGEE/frontend/compare/1.12.2...1.13.0) (2020-09-20)
 
 
