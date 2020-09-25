@@ -5,7 +5,7 @@ const logger = require('./logger');
 const constants = require('./constants');
 const { Event, Application, Image } = require('../models');
 const { Sequelize } = require('./sequelize');
-const bugsnag = require('./bugsnag');
+const Bugsnag = require('./bugsnag');
 const packageInfo = require('../package');
 const cron = require('./cron');
 
@@ -227,7 +227,7 @@ exports.errorHandler = (err, req, res, next) => {
 
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') {
-        bugsnag.notify(err);
+        Bugsnag.notify(err);
     }
 
     /* istanbul ignore next */

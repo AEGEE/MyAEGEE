@@ -19,7 +19,7 @@ const questionLines = require('./question_lines');
 const questions = require('./questions');
 const candidates = require('./candidates');
 const plenaries = require('./plenaries');
-const bugsnag = require('./bugsnag');
+const Bugsnag = require('./bugsnag');
 const cron = require('./cron');
 const imageserv = require('./imageserv');
 const metrics = require('./metrics');
@@ -49,7 +49,7 @@ process.on('unhandledRejection', (err) => {
     log.error('Unhandled rejection: %s', err.stack);
 
     if (process.env.NODE_ENV !== 'test') {
-        bugsnag.notify(err);
+        Bugsnag.notify(err);
     }
 });
 
