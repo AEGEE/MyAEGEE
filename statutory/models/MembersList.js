@@ -59,7 +59,7 @@ const MembersList = sequelize.define('memberslist', {
         defaultValue: '',
         validate: {
             isValid(membersValue) {
-                const { error, value } = Joi.validate(membersValue, membersSchema);
+                const { error, value } = membersSchema.validate(membersValue);
                 if (error) {
                     throw error;
                 }
