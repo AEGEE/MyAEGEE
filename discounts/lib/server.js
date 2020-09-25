@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 
 const config = require('../config');
 const log = require('./logger');
-const bugsnag = require('./bugsnag');
+const Bugsnag = require('./bugsnag');
 const morgan = require('./morgan');
 const middlewares = require('./middlewares');
 const integrations = require('./integrations');
@@ -24,7 +24,7 @@ process.on('unhandledRejection', (err) => {
     log.error({ err }, 'Unhandled rejection');
 
     if (process.env.NODE_ENV !== 'test') {
-        bugsnag.notify(err);
+        Bugsnag.notify(err);
     }
 });
 

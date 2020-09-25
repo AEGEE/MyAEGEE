@@ -2,7 +2,7 @@ const core = require('./core');
 const errors = require('./errors');
 const helpers = require('./helpers');
 const logger = require('./logger');
-const bugsnag = require('./bugsnag');
+const Bugsnag = require('./bugsnag');
 const packageInfo = require('../package');
 
 exports.authenticateUser = async (req, res, next) => {
@@ -72,7 +72,7 @@ exports.errorHandler = (err, req, res, next) => {
 
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') {
-        bugsnag.notify(err);
+        Bugsnag.notify(err);
     }
 
     /* istanbul ignore next */
