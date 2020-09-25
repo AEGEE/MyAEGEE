@@ -7,7 +7,7 @@ const morgan = require('./morgan');
 const db = require('./sequelize');
 const log = require('./logger');
 const config = require('../config');
-const bugsnag = require('./bugsnag');
+const Bugsnag = require('./bugsnag');
 const cron = require('./cron');
 
 const middlewares = require('../middlewares/generic');
@@ -51,7 +51,7 @@ process.on('unhandledRejection', (err) => {
     log.error('Unhandled rejection: ', err);
 
     if (process.env.NODE_ENV !== 'test') {
-        bugsnag.notify(err);
+        Bugsnag.notify(err);
     }
 });
 
