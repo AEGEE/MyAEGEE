@@ -13,7 +13,7 @@ const middlewares = require('./middlewares');
 const metrics = require('./metrics');
 const endpointsMetrics = require('./endpoints_metrics');
 const config = require('../config');
-const bugsnag = require('./bugsnag');
+const Bugsnag = require('./bugsnag');
 
 const EventsRouter = router({ mergeParams: true });
 const GeneralRouter = router({ mergeParams: true });
@@ -28,7 +28,7 @@ process.on('unhandledRejection', (err) => {
     log.error({ err }, 'Unhandled rejection');
 
     if (process.env.NODE_ENV !== 'test') {
-        bugsnag.notify(err);
+        Bugsnag.notify(err);
     }
 });
 

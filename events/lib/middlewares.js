@@ -1,6 +1,6 @@
 const request = require('request-promise-native');
 
-const bugsnag = require('./bugsnag');
+const Bugsnag = require('./bugsnag');
 const errors = require('./errors');
 const logger = require('./logger');
 const { Event, Application } = require('../models');
@@ -166,7 +166,7 @@ exports.errorHandler = (err, req, res, next) => {
 
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') {
-        bugsnag.notify(err);
+        Bugsnag.notify(err);
     }
 
     /* istanbul ignore next */

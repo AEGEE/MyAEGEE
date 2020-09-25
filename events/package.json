@@ -43,7 +43,7 @@
   },
   "homepage": "https://github.com/AEGEE/events#readme",
   "dependencies": {
-    "@bugsnag/js": "^6.5.0",
+    "@bugsnag/js": "^7.3.5",
     "body-parser": "^1.19.0",
     "bunyan": "^1.8.14",
     "express": "^4.17.1",
