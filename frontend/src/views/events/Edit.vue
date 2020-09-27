@@ -139,7 +139,7 @@
           <p class="help is-danger" v-if="errors.max_participants">{{ errors.max_participants.join(', ') }}</p>
         </div>
         <div class="field notification is-info">
-          <label class="label">Regarding water access</label>
+          <label class="label" style="color: white">Regarding water access</label>
           <p>
             Please make sure that the participants have access to a reasonable amount of water during the event.
           </p>
