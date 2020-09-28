@@ -86,7 +86,7 @@
     "commitlint": "^8.3.5",
     "conventional-changelog": "^3.1.23",
     "cypress": "^4.9.0",
-    "husky": "^4.2.5",
+    "husky": "^4.3.0",
     "istanbul-instrumenter-loader": "^3.0.1",
     "istanbul-lib-coverage": "^3.0.0",
     "semantic-release": "^17.1.2"
