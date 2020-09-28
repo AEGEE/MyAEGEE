@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/AEGEE/frontend/compare/1.13.3...1.14.0) (2020-09-28)
+
+
+### Features
+
+* **ma-33:** add disclaimer and other info to event creation ([86e956d](https://github.com/AEGEE/frontend/commit/86e956d4efc810425c2f22bb95caf84751d49697))
+
 ## [1.13.3](https://github.com/AEGEE/frontend/compare/1.13.2...1.13.3) (2020-09-28)
 
 
