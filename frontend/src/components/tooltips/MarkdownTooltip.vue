@@ -17,8 +17,7 @@
 </template>
 
 <style>
-  .markdown > p > strong {
+  .tooltip-inner > .markdown > p > strong {
     color: white;
   }
-
 </style>
