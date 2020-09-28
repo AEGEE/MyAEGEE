@@ -1,3 +1,10 @@
+## [1.13.3](https://github.com/AEGEE/frontend/compare/1.13.2...1.13.3) (2020-09-28)
+
+
+### Bug Fixes
+
+* **markdown:** Improve styling of bold text. Fixes HELP-1315 ([#620](https://github.com/AEGEE/frontend/issues/620)) ([3d63c56](https://github.com/AEGEE/frontend/commit/3d63c56f68a3d30aae433e81bcf470afa09c4852))
+
 ## [1.13.2](https://github.com/AEGEE/frontend/compare/1.13.1...1.13.2) (2020-09-23)
 
 
