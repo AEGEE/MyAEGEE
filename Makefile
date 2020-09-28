@@ -9,7 +9,7 @@ export $(shell sed 's/=.*//' .env)
 
 .PHONY: default init build start bootstrap refresh live_refresh list debug config monitor stop down restart hard_restart \
           nuke_dev clean_docker_dangling_images clean_docker_images clean prune listen_frontend rebuild_frontend rebuild_core \
-	  rebuild_events rebuild_statutory rebuild_mailer bump install-agents remove-agents backup_core backup_events \
+	  rebuild_events rebuild_statutory rebuild_discounts rebuild_mailer bump install-agents remove-agents backup_core backup_events \
 	  backup_discounts backup_gsuite-wrapper backup_statping backup_statistics backup_security backup_shortener backup_survey
 
 default:
@@ -88,6 +88,9 @@ rebuild_events:
 
 rebuild_statutory:
 	./helper.sh --docker -- up -d --build --force-recreate statutory
+
+rebuild_discounts:
+	./helper.sh --docker -- up -d --build --force-recreate discounts
 
 rebuild_mailer:
 	./helper.sh --docker -- up -d --build --force-recreate mailer
