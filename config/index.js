@@ -34,7 +34,8 @@ const config = {
             'postgres.password',
             'access_token',
             'refresh_token',
-            'bugsnag_key'
+            'bugsnag_key',
+            'cookie'
         ],
         bugsnag_key: process.env.BUGSNAG_KEY_CORE || 'CHANGEME'
     },
