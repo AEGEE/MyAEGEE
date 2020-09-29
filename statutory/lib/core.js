@@ -9,6 +9,7 @@ const makeRequest = (options) => {
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'X-Auth-Token': options.token,
+            'X-Service': 'statutory'
         },
         simple: false,
         json: true,
