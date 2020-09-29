@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/AEGEE/discounts/compare/1.1.0...1.1.1) (2020-09-29)
+
+
+### Bug Fixes
+
+* **logging:** add x-service header to core requests ([#170](https://github.com/AEGEE/discounts/issues/170)) ([97e18cc](https://github.com/AEGEE/discounts/commit/97e18cc2b8451da08772a7d69a954ec3a0026916))
+
 # [1.1.0](https://github.com/AEGEE/discounts/compare/1.0.2...1.1.0) (2020-06-22)
 
 
