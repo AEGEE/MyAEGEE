@@ -50,7 +50,8 @@ const filterFields = (body) => {
 
 logger.addSerializers({
     body: (body) => filterFields(body),
-    config: (config) => filterFields(config)
+    config: (config) => filterFields(config),
+    headers: (headers) => filterFields(headers)
 });
 
 module.exports = logger;
