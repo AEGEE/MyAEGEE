@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/AEGEE/events/compare/1.1.1...1.1.2) (2020-09-29)
+
+
+### Bug Fixes
+
+* **logging:** add x-service header to core requests ([#366](https://github.com/AEGEE/events/issues/366)) ([6128770](https://github.com/AEGEE/events/commit/61287701a54e1a594fadbd721f56a1d9a6acf8a6))
+
 ## [1.1.1](https://github.com/AEGEE/events/compare/1.1.0...1.1.1) (2020-06-20)
 
 
