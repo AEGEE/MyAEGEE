@@ -1,3 +1,10 @@
+# [1.27.0](https://github.com/AEGEE/core/compare/1.26.0...1.27.0) (2020-09-29)
+
+
+### Features
+
+* **logs:** log request headers ([#130](https://github.com/AEGEE/core/issues/130)) ([f8242e4](https://github.com/AEGEE/core/commit/f8242e49da9e09d8813e101d5684b390e3ca3ed3))
+
 # [1.26.0](https://github.com/AEGEE/core/compare/1.25.1...1.26.0) (2020-09-22)
 
 
