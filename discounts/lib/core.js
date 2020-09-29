@@ -9,6 +9,7 @@ module.exports.getMyProfile = async (req) => {
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'X-Auth-Token': req.headers['x-auth-token'],
+            'X-Service': 'discounts'
         },
         simple: false,
         json: true,
@@ -24,6 +25,7 @@ module.exports.getMyPermissions = async (req) => {
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'X-Auth-Token': req.headers['x-auth-token'],
+            'X-Service': 'discounts'
         },
         simple: false,
         json: true,
