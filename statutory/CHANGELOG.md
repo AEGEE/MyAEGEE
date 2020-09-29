@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/AEGEE/statutory/compare/1.2.0...1.2.1) (2020-09-29)
+
+
+### Bug Fixes
+
+* **logging:** add x-service header to core requests ([#394](https://github.com/AEGEE/statutory/issues/394)) ([f982ca5](https://github.com/AEGEE/statutory/commit/f982ca58952b136b5d9df4beff2a0e93b1db048c))
+
 # [1.2.0](https://github.com/AEGEE/statutory/compare/1.1.1...1.2.0) (2020-09-20)
 
 
