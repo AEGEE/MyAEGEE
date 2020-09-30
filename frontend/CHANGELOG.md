@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/AEGEE/frontend/compare/1.14.0...1.15.0) (2020-09-30)
+
+
+### Features
+
+* **MA-6:** add additional fields to events (front) ([#601](https://github.com/AEGEE/frontend/issues/601)) ([7ad8ad6](https://github.com/AEGEE/frontend/commit/7ad8ad6f789b84a5310f7ccbcfff18734ab9eb70)), closes [AEGEE/events#314](https://github.com/AEGEE/events/issues/314)
+
 # [1.14.0](https://github.com/AEGEE/frontend/compare/1.13.3...1.14.0) (2020-09-28)
 
 
