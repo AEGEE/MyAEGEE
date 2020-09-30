@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/AEGEE/events/compare/1.1.2...1.2.0) (2020-09-30)
+
+
+### Features
+
+* **MA-6:** add additional fields to events ([#314](https://github.com/AEGEE/events/issues/314)) ([bd9502f](https://github.com/AEGEE/events/commit/bd9502f51069854a8219ac1f6d07c5f863b92c9b))
+
 ## [1.1.2](https://github.com/AEGEE/events/compare/1.1.1...1.1.2) (2020-09-29)
 
 
