@@ -104,7 +104,7 @@
         </div>
 
         <div class="notification is-info" v-if="!$route.params.id">
-          Please select the event type wisely. <strong>It can't be changed later.</strong>
+          Please select the event type wisely. <strong>It cannot be changed later.</strong>
         </div>
 
         <div class="field" v-if="!$route.params.id">
@@ -146,6 +146,56 @@
           <p>
             Tip: Advise your participants to bring their own refillable water bottles and remind them throughout the event to refill them.
           </p>
+        </div>
+
+        <div class="field">
+          <label class="label">Number of meals provided per day <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <div class="control">
+              <input class="input" type="number" v-model="event.meals_per_day" min="0" max="3" required />
+            </div>
+          </div>
+          <p class="help is-danger" v-if="errors.meals_per_day">{{ errors.meals_per_day.join(', ') }}</p>
+        </div>
+        <div class="field">
+          <label class="label">Accommodation type <span class="has-text-danger">*</span></label>
+          <div class="notification is-info" v-if="!$route.params.id">
+            <p>Accommodation can be for instance camping, hostel, hosting by the members of the local, or in a gym. Write "none" for online events.</p>
+          </div>
+          <div class="control">
+            <input class="input"  v-model="event.accommodation_type" required />
+          </div>
+          <p class="help is-danger" v-if="errors.accommodation_type">{{ errors.accommodation_type.join(', ') }}</p>
+        </div>
+
+        <div class="subtitle is-fullwidth has-text-centered">Optional Programme</div>
+        <hr />
+
+        <div class="notification is-info">
+          <div class="content">
+            <p>You may offer an optional feature to your event. If so, please specify the optional programme and its cost. Leave the fields empty if there is no extra fee charged. Be concise in the description: "trip to city X", "ice-skating", "extra museum".</p>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Optional Fee</label>
+          <div class="control">
+            <div class="field has-addons">
+              <div class="control">
+                <a class="button is-static">€</a>
+              </div>
+              <div class="control">
+                <input class="input" type="number" v-model="event.optional_fee" min="0" />
+              </div>
+            </div>
+          </div>
+          <p class="help is-danger" v-if="errors.optional_fee">{{ errors.optional_fee.join(', ') }}</p>
+        </div>
+        <div class="field">
+          <label class="label">Optional Programme</label>
+          <div class="control">
+            <input class="input" type="text" v-model="event.optional_programme" />
+          </div>
+          <p class="help is-danger" v-if="errors.optional_programme">{{ errors.optional_programme.join(', ') }}</p>
         </div>
 
         <div class="subtitle is-fullwidth has-text-centered">Event dates</div>
@@ -324,7 +374,7 @@
               <li><b>number</b> - a number (like "How much events in AEGEE I've visited")</li>
               <li><b>select</b> - predefined set of values (like "Vegan", "Vegetarian" and "Meat-eater" for meals type)</li>
               <li><b>checkbox</b> - a yes/no question (like "Do I need a visa?").
-                Combine it with "requred" field to only allow this to be checked in order to to apply (like "I give my consent to share my data with third parties")
+                Combine it with "required" field to only allow this to be checked in order to to apply (like "I give my consent to share my data with third parties")
               </li>
             </ul>
           </div>
@@ -453,6 +503,15 @@
           </div>
         </div>
 
+        <div class="field">
+          <label class="label">How to travel to your country</label>
+          <p>You may provide an optional link to provide useful information about travelling to your country.</p>
+          <div class="control">
+            <input class="input" type="url" v-model="event.link_info_travel_country" />
+          </div>
+          <p class="help is-danger" v-if="errors.link_info_travel_country">{{ errors.link_info_travel_country.join(', ') }}</p>
+        </div>
+
         <div class="subtitle is-fullwidth has-text-centered">EQAC approval fields</div>
         <hr/>
 
@@ -480,7 +539,7 @@
         <div class="field">
           <label class="label">Link to event budget</label>
           <div class="control">
-            <input class="input" type="text" v-model="event.budget" />
+            <input class="input" type="url" v-model="event.budget" />
           </div>
           <p class="help is-danger" v-if="errors.is_budget_set">{{ errors.is_budget_set.join(', ') }}</p>
         </div>
@@ -488,7 +547,7 @@
         <div class="field">
           <label class="label">Link to event program</label>
           <div class="control">
-            <input class="input" type="text" v-model="event.programme" />
+            <input class="input" type="url" v-model="event.programme" />
           </div>
           <p class="help is-danger" v-if="errors.is_programme_set">{{ errors.is_programme_set.join(', ') }}</p>
         </div>
@@ -540,7 +599,12 @@ export default {
         starts: null,
         ends: null,
         body_id: null,
-        body: null
+        body: null,
+        optional_fee: null,
+        meals_per_day: 0,
+        optional_programme: null,
+        link_info_travel_country: null,
+        accommodation_type: ''
       },
       autoComplete: {
         members: { name: '', values: [], loading: false }
