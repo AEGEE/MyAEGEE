@@ -14,6 +14,7 @@ exports.generateEvent = (options = {}) => {
     if (notSet(options.ends)) options.ends = faker.date.future(null, options.starts);
     if (notSet(options.type)) options.type = faker.random.arrayElement(['training', 'nwm', 'conference', 'cultural']);
     if (notSet(options.fee)) options.fee = faker.random.number({ min: 0, max: 100 });
+    if (notSet(options.optional_fee)) options.optional_fee = faker.random.number({ min: 0, max: 20 });
     if (notSet(options.organizing_bodies)) {
         options.organizing_bodies = [{
             body_id: faker.random.number({ min: 0, max: 100 }),
@@ -31,6 +32,11 @@ exports.generateEvent = (options = {}) => {
 
     if (notSet(options.budget)) options.budget = faker.lorem.sentence();
     if (notSet(options.programme)) options.programme = faker.lorem.sentence();
+
+    if (notSet(options.accommodation_type)) options.accommodation_type = faker.lorem.sentence();
+    if (notSet(options.optional_programme)) options.optional_programme = faker.lorem.sentence();
+    if (notSet(options.meals_per_day)) options.meals_per_day = faker.random.number({ min: 0, max: 3 });
+    if (notSet(options.link_info_travel_country)) options.link_info_travel_country = faker.internet.url();
 
     return options;
 };

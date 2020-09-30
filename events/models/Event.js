@@ -104,6 +104,15 @@ const Event = sequelize.define('event', {
             min: { args: [0], msg: 'Event fee cannot be negative' }
         }
     },
+    optional_fee: {
+        type: Sequelize.DECIMAL,
+        allowNull: true,
+        defaultValue: 0,
+        validate: {
+            isNumeric: { msg: 'Optional fee should be valid.' },
+            min: { args: [0], msg: 'Optional fee cannot be negative' },
+        }
+    },
     organizing_bodies: {
         type: Sequelize.JSONB,
         allowNull: false,
@@ -334,7 +343,34 @@ const Event = sequelize.define('event', {
         type: Sequelize.TEXT,
         allowNull: true
     },
-}, {
+    optional_programme: {
+        type: Sequelize.TEXT,
+        allowNull: true
+    },
+    link_info_travel_country: { // not validated. Will be checked client side, but validated nowhere
+        type: Sequelize.TEXT, // some links can reach 255 chars
+        allowNull: true
+    },
+    meals_per_day: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+        validate: {
+            isNumeric: { msg: 'Number of meals per day should be valid.' },
+            min: { args: [0], msg: 'Number of meals per day cannot be negative' },
+            max: { args: [4], msg: 'You cannot offer more than 4 meals per day' },
+        },
+    },
+    accommodation_type: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: '',
+        validate: {
+            notEmpty: { msg: 'The type of accommodation should be set. Use "none" if you do not provide any' },
+        }
+    },
+},
+{
     underscored: true,
     tableName: 'events',
     createdAt: 'created_at',

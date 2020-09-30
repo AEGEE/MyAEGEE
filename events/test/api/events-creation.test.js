@@ -33,7 +33,9 @@ describe('Events creation', () => {
                 ends: '2017-12-14 12:00',
                 type: 'cultural',
                 organizing_bodies: [{ body_id: user.bodies[0].id }],
-                organizers: [{ user_id: user.id }]
+                organizers: [{ user_id: user.id }],
+                meals_per_day: 2,
+                accommodation_type: 'ritz hotel',
             }
         });
 
@@ -53,6 +55,11 @@ describe('Events creation', () => {
         expect(res.body.data).toHaveProperty('description');
         expect(res.body.data).toHaveProperty('questions');
         expect(res.body.data).toHaveProperty('organizers');
+        expect(res.body.data).toHaveProperty('meals_per_day');
+        expect(res.body.data).toHaveProperty('accommodation_type');
+        expect(res.body.data).toHaveProperty('optional_programme');
+        expect(res.body.data).toHaveProperty('optional_fee');
+        expect(res.body.data).toHaveProperty('link_info_travel_country');
 
         // Check auto-filled fields
         expect(res.body.data.status).toEqual('draft');
@@ -60,7 +67,7 @@ describe('Events creation', () => {
         expect(res.body.data.questions.length).toEqual(0);
     });
 
-    it('should create a new event on exhausive sane / POST', async () => {
+    it('should create a new event on exhaustive sane / POST', async () => {
         const res = await request({
             uri: '/',
             headers: { 'X-Auth-Token': 'foobar' },
@@ -89,7 +96,12 @@ describe('Events creation', () => {
                     },
                 ],
                 organizers: [{ user_id: user.id }],
-                organizing_bodies: [{ body_id: user.bodies[0].id }]
+                organizing_bodies: [{ body_id: user.bodies[0].id }],
+                meals_per_day: 0,
+                accommodation_type: 'ritz hotel',
+                optional_programme: 'visit of the joke factory',
+                optional_fee: 21.45,
+                link_info_travel_country: 'https://en.wikipedia.org/wiki/Human_mission_to_Mars'
             }
         });
 
@@ -108,6 +120,11 @@ describe('Events creation', () => {
         expect(res.body.data).toHaveProperty('description');
         expect(res.body.data).toHaveProperty('questions');
         expect(res.body.data).toHaveProperty('organizers');
+        expect(res.body.data).toHaveProperty('meals_per_day');
+        expect(res.body.data).toHaveProperty('accommodation_type');
+        expect(res.body.data).toHaveProperty('optional_programme');
+        expect(res.body.data).toHaveProperty('optional_fee');
+        expect(res.body.data).toHaveProperty('link_info_travel_country');
 
         expect(res.body.data.questions.length).toEqual(2);
 
@@ -130,6 +147,8 @@ describe('Events creation', () => {
                 type: 'cultural',
                 organizers: [{ user_id: user.id }],
                 organizing_bodies: [{ body_id: user.bodies[0].id }],
+                accommodation_type: 'camping',
+                meals_per_day: 2,
                 status: 'published'
             }
         });
@@ -150,7 +169,9 @@ describe('Events creation', () => {
                 type: 'non-statutory',
                 organizers: [{ user_id: user.id }],
                 organizing_bodies: [{ body_id: user.bodies[0].id }],
-                fee: -150
+                fee: -150,
+                meals_per_day: 5,
+                optional_fee: 'string',
             }
         });
 
@@ -159,6 +180,13 @@ describe('Events creation', () => {
         expect(res.body.errors).toHaveProperty('ends');
         expect(res.body.errors).toHaveProperty('name');
         expect(res.body.errors).toHaveProperty('fee');
+        expect(res.body.errors).toHaveProperty('type');
+        expect(res.body.errors).toHaveProperty('description');
+        expect(res.body.errors).toHaveProperty('application_ends');
+        expect(res.body.errors).toHaveProperty('application_starts');
+        expect(res.body.errors).toHaveProperty('optional_fee');
+        expect(res.body.errors).toHaveProperty('meals_per_day');
+        expect(res.body.errors).toHaveProperty('accommodation_type');
     });
 
     it('should return 422 if the locations is not an array', async () => {
@@ -633,7 +661,7 @@ describe('Events creation', () => {
         expect(res.body.errors).toHaveProperty('questions');
     });
 
-    it('should return 422 if question.type = select and values are okay', async () => {
+    it('should return 200 if question.type = select and values are okay', async () => {
         const event = generator.generateEvent({
             organizing_bodies: [{ body_id: user.bodies[0].id }],
             questions: [{ description: 'test', type: 'select', required: true, values: ['test'] }]
@@ -673,6 +701,23 @@ describe('Events creation', () => {
 
     it('should return 200 if the fee is float', async () => {
         const event = generator.generateEvent({ fee: 50.45 });
+        event.body_id = user.bodies[0].id;
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+    });
+
+    it('should return 200 if the optional fee is int', async () => {
+        const event = generator.generateEvent({ optional_fee: 12 });
         event.body_id = user.bodies[0].id;
 
         const res = await request({

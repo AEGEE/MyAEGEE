@@ -38,6 +38,11 @@ describe('Events details', () => {
         expect(res.body.data).toHaveProperty('description');
         expect(res.body.data).toHaveProperty('questions');
         expect(res.body.data).toHaveProperty('organizers');
+        expect(res.body.data).toHaveProperty('meals_per_day');
+        expect(res.body.data).toHaveProperty('accommodation_type');
+        expect(res.body.data).toHaveProperty('link_info_travel_country');
+        expect(res.body.data).toHaveProperty('optional_programme');
+        expect(res.body.data).toHaveProperty('optional_fee');
         expect(res.body.data).not.toHaveProperty('applications');
 
         expect(res.body.data.id).toEqual(event.id);
@@ -65,6 +70,11 @@ describe('Events details', () => {
         expect(res.body.data).toHaveProperty('description');
         expect(res.body.data).toHaveProperty('questions');
         expect(res.body.data).toHaveProperty('organizers');
+        expect(res.body.data).toHaveProperty('meals_per_day');
+        expect(res.body.data).toHaveProperty('accommodation_type');
+        expect(res.body.data).toHaveProperty('link_info_travel_country');
+        expect(res.body.data).toHaveProperty('optional_programme');
+        expect(res.body.data).toHaveProperty('optional_fee');
         expect(res.body.data).not.toHaveProperty('applications');
 
         expect(res.body.data.id).toEqual(event.id);
