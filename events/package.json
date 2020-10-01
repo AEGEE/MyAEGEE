@@ -88,7 +88,7 @@
     "mocha-lcov-reporter": "^1.3.0",
     "nock": "^13.0.4",
     "nyc": "^15.1.0",
-    "opn-cli": "^5.0.0",
+    "open-cli": "^6.0.1",
     "semantic-release": "^17.1.2",
     "timekeeper": "^2.2.0"
   }
