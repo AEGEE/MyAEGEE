@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/AEGEE/frontend/compare/1.15.0...1.16.0) (2020-10-02)
+
+
+### Features
+
+* **positions:** Add final deadline field statutory positions ([#631](https://github.com/AEGEE/frontend/issues/631)) ([69aab3b](https://github.com/AEGEE/frontend/commit/69aab3b38ccdca6073ed7c96ef6bfc1b53da4309))
+
 # [1.15.0](https://github.com/AEGEE/frontend/compare/1.14.0...1.15.0) (2020-09-30)
 
 
