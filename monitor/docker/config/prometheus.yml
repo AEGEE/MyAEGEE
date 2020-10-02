@@ -148,7 +148,7 @@ scrape_configs:
       - targets: ['my.aegee.eu']
     scheme: 'https'
     metrics_path: '/api/core/metrics'
-  - job_name: 'discounts-metrics'
+  - job_name: 'core-metrics'
     static_configs:
       - targets: ['my.aegee.eu']
     scheme: 'https'
