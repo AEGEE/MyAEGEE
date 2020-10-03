@@ -1,6 +1,6 @@
 {
   "name": "discounts",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Discounts module for MyAEGEE, for populating codes and for distributing them to AEGEE members.",
   "main": "lib/run.js",
   "scripts": {

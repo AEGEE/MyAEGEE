@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/AEGEE/discounts/compare/1.1.1...1.2.0) (2020-10-03)
+
+
+### Features
+
+* **metrics:** added basic auth for /metrics/*. Fixes MEMB-670 ([#172](https://github.com/AEGEE/discounts/issues/172)) ([0c10153](https://github.com/AEGEE/discounts/commit/0c10153de9dc269dc2652eef085ed0940ffb1762))
+
 ## [1.1.1](https://github.com/AEGEE/discounts/compare/1.1.0...1.1.1) (2020-09-29)
 
 
