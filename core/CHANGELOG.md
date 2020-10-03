@@ -1,3 +1,10 @@
+# [1.28.0](https://github.com/AEGEE/core/compare/1.27.0...1.28.0) (2020-10-03)
+
+
+### Features
+
+* **metrics:** added basic auth for /metrics/*. Fixes MEMB-670 ([#131](https://github.com/AEGEE/core/issues/131)) ([e0f8faf](https://github.com/AEGEE/core/commit/e0f8fafffe73719aa116f7fa399885b1f2aab3f6))
+
 # [1.27.0](https://github.com/AEGEE/core/compare/1.26.0...1.27.0) (2020-09-29)
 
 
