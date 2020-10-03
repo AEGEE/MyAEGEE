@@ -1,6 +1,6 @@
 {
   "name": "statutory",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Statutory events module for MyAEGEE",
   "main": "lib/server.js",
   "scripts": {

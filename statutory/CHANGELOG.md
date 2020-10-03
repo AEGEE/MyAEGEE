@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/AEGEE/statutory/compare/1.3.0...1.3.1) (2020-10-03)
+
+
+### Bug Fixes
+
+* **metrics:** fix metrics basic auth priority ([#399](https://github.com/AEGEE/statutory/issues/399)) ([0d82ec0](https://github.com/AEGEE/statutory/commit/0d82ec05eb6a9e43e5c69e31cc8ff76cd42353e9))
+
 # [1.3.0](https://github.com/AEGEE/statutory/compare/1.2.1...1.3.0) (2020-10-03)
 
 
