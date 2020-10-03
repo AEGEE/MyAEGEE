@@ -45,7 +45,7 @@ services:
             - "traefik.auth.frontend.auth.basic.users=admin:${METRICS_CREDENTIALS}"
             - "traefik.old.frontend.priority=110"
             - "traefik.new.frontend.priority=110"
-            - "traefik.auth.frontend.priority=110"
+            - "traefik.auth.frontend.priority=120"
             - "traefik.enable=true"
     statutory-static:
         restart: on-failure
