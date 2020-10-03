@@ -39,10 +39,13 @@ services:
         labels:
             - "traefik.backend=core"
             - "traefik.port=8084"
+            - "traefik.auth.frontend.rule=PathPrefix:/api/core/metrics;PathPrefixStrip:/api/core;"
             - "traefik.old.frontend.rule=PathPrefixStrip:/services/oms-core-elixir/api;"
             - "traefik.new.frontend.rule=PathPrefixStrip:/api/core;"
+            - "traefik.auth.frontend.auth.basic.users=admin:${METRICS_CREDENTIALS}"
             - "traefik.old.frontend.priority=110"
             - "traefik.new.frontend.priority=110"
+            - "traefik.auth.frontend.priority=120"
             - "traefik.enable=true"
 
 volumes:
