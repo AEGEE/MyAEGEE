@@ -110,11 +110,17 @@ scrape_configs:
   - job_name: 'statutory-statistics'
     static_configs:
       - targets: ['my.aegee.eu']
+    basic_auth:
+      username: admin
+      password: ${METRICS_PASSWORD}
     scheme: 'https'
     metrics_path: '/api/statutory/metrics'
   - job_name: 'statutory-metrics'
     static_configs:
       - targets: ['my.aegee.eu']
+    basic_auth:
+      username: admin
+      password: ${METRICS_PASSWORD}
     scheme: 'https'
     scrape_interval: 10s
     metrics_path: '/api/statutory/metrics/requests'
@@ -122,11 +128,17 @@ scrape_configs:
   - job_name: 'events-statistics'
     static_configs:
       - targets: ['my.aegee.eu']
+    basic_auth:
+      username: admin
+      password: ${METRICS_PASSWORD}
     scheme: 'https'
     metrics_path: '/api/events/metrics'
   - job_name: 'events-metrics'
     static_configs:
       - targets: ['my.aegee.eu']
+    basic_auth:
+      username: admin
+      password: ${METRICS_PASSWORD}
     scheme: 'https'
     scrape_interval: 10s
     metrics_path: '/api/events/metrics/requests'
@@ -134,11 +146,17 @@ scrape_configs:
   - job_name: 'discounts-statistics'
     static_configs:
       - targets: ['my.aegee.eu']
+    basic_auth:
+      username: admin
+      password: ${METRICS_PASSWORD}
     scheme: 'https'
     metrics_path: '/api/core/metrics'
   - job_name: 'discounts-metrics'
     static_configs:
       - targets: ['my.aegee.eu']
+    basic_auth:
+      username: admin
+      password: ${METRICS_PASSWORD}
     scheme: 'https'
     scrape_interval: 10s
     metrics_path: '/api/discounts/metrics/requests'
@@ -146,11 +164,17 @@ scrape_configs:
   - job_name: 'core-statistics'
     static_configs:
       - targets: ['my.aegee.eu']
+    basic_auth:
+      username: admin
+      password: ${METRICS_PASSWORD}
     scheme: 'https'
     metrics_path: '/api/core/metrics'
   - job_name: 'core-metrics'
     static_configs:
       - targets: ['my.aegee.eu']
+    basic_auth:
+      username: admin
+      password: ${METRICS_PASSWORD}
     scheme: 'https'
     scrape_interval: 10s
     metrics_path: '/api/core/metrics/requests'
