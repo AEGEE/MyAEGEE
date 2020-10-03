@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/AEGEE/events/compare/1.2.0...1.3.0) (2020-10-03)
+
+
+### Features
+
+* **metrics:** added basic auth for /metrics/*. Fixes MEMB-670 ([#370](https://github.com/AEGEE/events/issues/370)) ([1e750fc](https://github.com/AEGEE/events/commit/1e750fc8e77867d8f92de95cbbfa3fd317cc8217))
+
 # [1.2.0](https://github.com/AEGEE/events/compare/1.1.2...1.2.0) (2020-09-30)
 
 
