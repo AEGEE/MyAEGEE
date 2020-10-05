@@ -86,7 +86,7 @@
     "faker": "^5.1.0",
     "husky": "^4.3.0",
     "jest": "^26.4.2",
-    "jest-junit": "^11.1.0",
+    "jest-junit": "^12.0.0",
     "jest-teamcity-reporter": "^0.9.0",
     "nock": "^13.0.4",
     "nyc": "^15.1.0",
