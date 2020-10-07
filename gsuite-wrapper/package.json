@@ -35,7 +35,7 @@
     "istanbul": "^0.4.5",
     "mocha": "^5.2.0",
     "mocha-istanbul": "^0.3.0",
-    "moment": "^2.27.0",
+    "moment": "^2.29.1",
     "nyc": "^13.1.0",
     "request": "^2.88.2",
     "request-promise-native": "^1.0.8",
