@@ -45,6 +45,19 @@
             </div>
           </div>
 
+          <div class="field is-fullwidth">
+            <label class="label">Filter on participant type</label>
+            <div class="select">
+              <select v-model="filter.participant_type">
+                <option :value="null">Everybody</option>
+                <option value="delegate">Delegates</option>
+                <option value="envoy">Envoys</option>
+                <option value="observer">Observers</option>
+                <option value="visitor">Visitors</option>
+              </select>
+            </div>
+          </div>
+
           <div>
             <div class="field" v-for="(field, key) in fields" v-bind:key="key">
               <label class="checkbox">
@@ -82,7 +95,8 @@ export default {
       },
       filter: {
         status: null,
-        confirmed: null
+        confirmed: null,
+        participant_type: null
       },
       can: {
         export: {
@@ -141,6 +155,7 @@ export default {
 
       if (this.filter.status !== null) filter.status = this.filter.status
       if (this.filter.confirmed !== null) filter.confirmed = this.filter.confirmed
+      if (this.filter.participant_type !== null) filter.participant_type = this.filter.participant_type
 
       return filter
     }
