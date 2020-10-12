@@ -1,3 +1,10 @@
+## [1.16.1](https://github.com/AEGEE/frontend/compare/1.16.0...1.16.1) (2020-10-12)
+
+
+### Bug Fixes
+
+* **statutory:** Add export filter participant type. Fixes MA-93 ([#646](https://github.com/AEGEE/frontend/issues/646)) ([58ed0f1](https://github.com/AEGEE/frontend/commit/58ed0f19477f01270c799f5d5f0bdf5c409353f3))
+
 # [1.16.0](https://github.com/AEGEE/frontend/compare/1.15.0...1.16.0) (2020-10-02)
 
 
