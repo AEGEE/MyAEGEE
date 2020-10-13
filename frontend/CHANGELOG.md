@@ -1,3 +1,10 @@
+## [1.16.2](https://github.com/AEGEE/frontend/compare/1.16.1...1.16.2) (2020-10-13)
+
+
+### Bug Fixes
+
+* **question line:** Add timestamp of question. Fixes HELP-1337 ([#648](https://github.com/AEGEE/frontend/issues/648)) ([b75e4f2](https://github.com/AEGEE/frontend/commit/b75e4f2f97aaf8354da305f6f977e7ecdfa038a3))
+
 ## [1.16.1](https://github.com/AEGEE/frontend/compare/1.16.0...1.16.1) (2020-10-12)
 
 
