@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/AEGEE/statutory/compare/1.3.1...1.4.0) (2020-10-13)
+
+
+### Features
+
+* **question line:** Allow users with permission to see question line ([#407](https://github.com/AEGEE/statutory/issues/407)) ([0371c67](https://github.com/AEGEE/statutory/commit/0371c671af04d4fec205e25331a613375cde5495))
+
 ## [1.3.1](https://github.com/AEGEE/statutory/compare/1.3.0...1.3.1) (2020-10-03)
 
 
