@@ -86,6 +86,10 @@
               {{ props.row.text }}
             </b-table-column>
 
+            <b-table-column field="updated_at" label="Last updated on">
+              {{ props.row.updated_at | datetime }}
+            </b-table-column>
+
             <b-table-column label="">
               <button
                 class="button is-small is-warning"
