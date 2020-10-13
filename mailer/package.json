@@ -6,7 +6,7 @@
   "author": "Nico Westerbeck",
   "license": "ISC",
   "devDependencies": {
-    "@commitlint/cli": "^8.2.0",
+    "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^8.2.0",
     "@semantic-release/changelog": "^5.0.0",
     "@semantic-release/git": "^9.0.0",
