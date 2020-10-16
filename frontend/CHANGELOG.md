@@ -1,3 +1,10 @@
+# [1.17.0](https://github.com/AEGEE/frontend/compare/1.16.2...1.17.0) (2020-10-16)
+
+
+### Features
+
+* **users:** allow deleting users. Fixes MA-100 ([#653](https://github.com/AEGEE/frontend/issues/653)) ([1f41afb](https://github.com/AEGEE/frontend/commit/1f41afb549237d004c09c8967d33cb84e9ba2ca8))
+
 ## [1.16.2](https://github.com/AEGEE/frontend/compare/1.16.1...1.16.2) (2020-10-13)
 
 
