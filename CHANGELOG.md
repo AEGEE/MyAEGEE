@@ -1,3 +1,10 @@
+# [1.29.0](https://github.com/AEGEE/core/compare/1.28.0...1.29.0) (2020-10-16)
+
+
+### Features
+
+* **users:** allow deleting users. Fixes MA-100 ([#145](https://github.com/AEGEE/core/issues/145)) ([821cc08](https://github.com/AEGEE/core/commit/821cc0859b141c9d912a7e4e3cc318aa3c6000c6))
+
 # [1.28.0](https://github.com/AEGEE/core/compare/1.27.0...1.28.0) (2020-10-03)
 
 
