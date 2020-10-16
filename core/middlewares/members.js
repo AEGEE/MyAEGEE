@@ -48,15 +48,17 @@ exports.updateUser = async (req, res) => {
     });
 };
 
-// TODO: reimplement by not deleting, but anonymizing a user.
-// exports.deleteUser = async (req, res) => {
-//     // TODO: check permissions
-//     await req.currentUser.destroy();
-//     return res.json({
-//         success: true,
-//         data: 'User is deleted.'
-//     });
-// };
+exports.deleteUser = async (req, res) => {
+    if (!req.permissions.hasPermission('delete:member')) {
+        return errors.makeForbiddenError(res, 'Permission delete:member is required, but not present.');
+    }
+
+    await req.currentUser.destroy();
+    return res.json({
+        success: true,
+        message: 'User is deleted.'
+    });
+};
 
 exports.setUserPassword = async (req, res) => {
     if (!req.permissions.hasPermission('update:member') && req.user.id !== req.currentUser.id) {
