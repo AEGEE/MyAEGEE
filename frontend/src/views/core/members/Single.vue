@@ -57,12 +57,12 @@
             </a>
           </div>
 
-          <!-- <div class="field is-grouped" v-if="can.delete">
+          <div class="field is-grouped" v-if="can.delete">
             <a class="button is-fullwidth is-danger" @click="askDeleteUser()">
               <span>Delete profile</span>
               <span class="icon"><font-awesome-icon icon="times" /></span>
             </a>
-          </div> -->
+          </div>
 
         </article>
       </div>
@@ -207,22 +207,22 @@ export default {
     updatePicture () {
       this.$root.showInfo('This feature is not implemented yet, come join MyAEGEE to help us implementing it ;)')
     },
-    // askDeleteUser () {
-    //   this.$buefy.dialog.confirm({
-    //     title: 'Deleting a user',
-    //     message: 'Are you sure you want to <b>delete</b> this user? This action cannot be undone.',
-    //     confirmText: 'Delete user',
-    //     type: 'is-danger',
-    //     hasIcon: true,
-    //     onConfirm: () => this.deleteUser()
-    //   })
-    // },
-    // deleteUser () {
-    //   this.axios.delete(this.services['core'] + '/user/' + this.user.id).then(() => {
-    //     this.$root.showSuccess('User is deleted.')
-    //     this.$router.push({ name: 'oms.members.list' })
-    //   }).catch((err) => this.$root.showError('Could not delete user', err))
-    // },
+    askDeleteUser () {
+      this.$buefy.dialog.confirm({
+        title: 'Deleting a user',
+        message: 'Are you sure you want to <b>delete</b> this user? This action cannot be undone.',
+        confirmText: 'Delete user',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.deleteUser()
+      })
+    },
+    deleteUser () {
+      this.axios.delete(this.services['core'] + '/members/' + this.user.id).then(() => {
+        this.$root.showSuccess('User is deleted.')
+        this.$router.push({ name: 'oms.members.list' })
+      }).catch((err) => this.$root.showError('Could not delete user', err))
+    },
     editPrimaryBodyModal () {
       this.$buefy.modal.open({
         component: EditPrimaryBodyModal,
@@ -301,7 +301,7 @@ export default {
         // the required permission (either first for global, or others for local).
         this.can.setActive = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('update_active:member')))
         this.can.edit = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('update:member'))) || this.isOwnProfile
-        this.can.delete = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('delete:user')))
+        this.can.delete = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('delete:member')))
 
         this.isLoading = false
       }).catch((err) => {
