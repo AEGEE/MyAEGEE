@@ -1,3 +1,10 @@
+## [1.17.1](https://github.com/AEGEE/frontend/compare/1.17.0...1.17.1) (2020-10-17)
+
+
+### Bug Fixes
+
+* **candidatures:** Unify view/edit of candidatures ([#657](https://github.com/AEGEE/frontend/issues/657)) ([25b5a2c](https://github.com/AEGEE/frontend/commit/25b5a2c98dcd072509714326408cf903af2548d9))
+
 # [1.17.0](https://github.com/AEGEE/frontend/compare/1.16.2...1.17.0) (2020-10-16)
 
 
