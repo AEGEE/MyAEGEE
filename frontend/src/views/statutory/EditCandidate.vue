@@ -141,7 +141,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Attended EPM</label>
+          <label class="label">Attended EPMs</label>
           <div class="control">
             <textarea class="textarea" required v-model="candidate.attended_epm" />
           </div>

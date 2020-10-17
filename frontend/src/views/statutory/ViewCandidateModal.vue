@@ -44,12 +44,12 @@
             <td class="has-text-pre-wrap">{{ candidate.date_of_birth }}</td>
           </tr>
           <tr>
-            <th>Nationality</th>
-            <td class="has-text-pre-wrap">{{ candidate.nationality }}</td>
-          </tr>
-          <tr>
             <th>Member since</th>
             <td class="has-text-pre-wrap">{{ candidate.member_since }}</td>
+          </tr>
+          <tr>
+            <th>Nationality</th>
+            <td class="has-text-pre-wrap">{{ candidate.nationality }}</td>
           </tr>
           <tr>
             <th>Languages</th>
@@ -58,14 +58,6 @@
           <tr>
             <th>Studies</th>
             <td class="has-text-pre-wrap">{{ candidate.studies }}</td>
-          </tr>
-          <tr>
-            <th>European level experience</th>
-            <td class="has-text-pre-wrap">{{ candidate.european_experience }}</td>
-          </tr>
-          <tr>
-            <th>Local level experience</th>
-            <td class="has-text-pre-wrap">{{ candidate.local_experience }}</td>
           </tr>
           <tr>
             <th>Attended Agorae</th>
@@ -78,6 +70,14 @@
           <tr>
             <th>Attended AEGEE conferences</th>
             <td class="has-text-pre-wrap">{{ candidate.attended_conferences }}</td>
+          </tr>
+          <tr>
+            <th>European level experience</th>
+            <td class="has-text-pre-wrap">{{ candidate.european_experience }}</td>
+          </tr>
+          <tr>
+            <th>Local level experience</th>
+            <td class="has-text-pre-wrap">{{ candidate.local_experience }}</td>
           </tr>
           <tr>
             <th>Non-AEGEE experience</th>
