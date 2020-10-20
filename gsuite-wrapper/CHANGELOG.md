@@ -1,3 +1,11 @@
+## [1.1.1](https://github.com/AEGEE/oms-gsuite-wrapper/compare/1.1.0...1.1.1) (2020-10-20)
+
+
+### Bug Fixes
+
+* actually do expose healthcheck ([5d9af15](https://github.com/AEGEE/oms-gsuite-wrapper/commit/5d9af15680bd1ab67f91062731a845f253ba49fe))
+* remove exposing to outside ([2d2e900](https://github.com/AEGEE/oms-gsuite-wrapper/commit/2d2e900692de40f92fcfdb99817215d038e79d58))
+
 # [1.1.0](https://github.com/AEGEE/oms-gsuite-wrapper/compare/1.0.0...1.1.0) (2020-10-20)
 
 
