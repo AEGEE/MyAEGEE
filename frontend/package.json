@@ -45,7 +45,7 @@
     "axios": "^0.20.0",
     "babel-eslint": "^10.1.0",
     "buefy": "^0.8.17",
-    "chart.js": "^2.9.3",
+    "chart.js": "^2.9.4",
     "compression-webpack-plugin": "^6.0.3",
     "css-loader": "^4.3.0",
     "dompurify": "^2.1.1",
