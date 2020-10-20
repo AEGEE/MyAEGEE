@@ -13,6 +13,7 @@ const middlewares = require('./middlewares.js');
 const config = require('./config/configFile.js');
 const redis = require('./redis.js');
 
+GsuiteRouter.get('/healthcheck', middlewares.healthcheck);
 
 GsuiteRouter.post('/group', wrapper.createGroup); //circle is created -> create a group
 //GsuiteRouter.put('/group', wrapper.modifyGroup); //circle is modified -> group is modified

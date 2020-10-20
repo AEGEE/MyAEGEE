@@ -31,3 +31,15 @@ exports.errorHandler = (err, req, res, next) => {
     /* istanbul ignore next */
     return errors.makeInternalError(res, err);
 };
+
+/* istanbul ignore next */
+exports.healthcheck = (req, res) => {
+  return res.json({
+      success: true,
+      data: {
+          name: packageInfo.name,
+          description: packageInfo.description,
+          version: packageInfo.version
+      }
+  });
+};
