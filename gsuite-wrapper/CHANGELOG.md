@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/AEGEE/oms-gsuite-wrapper/compare/1.0.0...1.1.0) (2020-10-20)
+
+
+### Features
+
+* add healthcheck endpoint ([e98cb48](https://github.com/AEGEE/oms-gsuite-wrapper/commit/e98cb48a9a60785899d4afd6b73239b7b94da252))
+
 # 1.0.0 (2020-09-06)
 
 
