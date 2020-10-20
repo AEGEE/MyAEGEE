@@ -20,6 +20,11 @@ services:
     environment:
       NODE_ENV: "${MYAEGEE_ENV}"
       #BUGSNAG_KEY: "${BUGSNAG_KEY_GSUITE_WRAPPER}"
+    labels:
+      - "traefik.backend=gsuite-wrapper"
+      - "traefik.port=8084"
+      - "traefik.frontend.rule=Path:/api/gsuite-wrapper/healthcheck;PathPrefixStrip:/api/gsuite-wrapper"
+      - "traefik.enable=true"
 
 volumes:
   redis_gsuite_persistence:
