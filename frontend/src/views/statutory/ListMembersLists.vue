@@ -26,6 +26,10 @@
               <button class="button is-small is-primary" @click="openMembersListModal(props.row)">View memberslist</button>
             </b-table-column>
 
+            <b-table-column label="Last updated at" sortable>
+                {{ props.row.updated_at | datetime }}
+            </b-table-column>
+
             <b-table-column field="fee_to_aegee" label="Fee to AEGEE-Europe" numeric sortable>
               {{ props.row.fee_to_aegee.toFixed(2) }} EUR
             </b-table-column>
