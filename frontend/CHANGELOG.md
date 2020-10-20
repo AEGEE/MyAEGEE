@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/AEGEE/frontend/compare/1.17.1...1.18.0) (2020-10-20)
+
+
+### Features
+
+* add tooltip language for candidates ([#668](https://github.com/AEGEE/frontend/issues/668)) ([b038a39](https://github.com/AEGEE/frontend/commit/b038a393f33cc3779cab61f54345dc18d210b133))
+
 ## [1.17.1](https://github.com/AEGEE/frontend/compare/1.17.0...1.17.1) (2020-10-17)
 
 
