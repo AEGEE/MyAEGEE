@@ -114,7 +114,10 @@
         </div>
 
         <div class="field">
-          <label class="label">Languages</label>
+          <label class="label">
+            Languages
+            <tooltip text="To add a language to the list, press either 'tab' or 'enter', or add a comma"/>
+          </label>
           <div class="control">
             <input-tag
                 v-if="!isLoading"
