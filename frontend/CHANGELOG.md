@@ -1,3 +1,10 @@
+## [1.18.1](https://github.com/AEGEE/frontend/compare/1.18.0...1.18.1) (2020-10-21)
+
+
+### Bug Fixes
+
+* **massmailer:** Remove pre-filled reply-to. Fixes HELP-902 ([#667](https://github.com/AEGEE/frontend/issues/667)) ([f33262a](https://github.com/AEGEE/frontend/commit/f33262a981082cb599e92e55c1b5e7dc2ec15fd5))
+
 # [1.18.0](https://github.com/AEGEE/frontend/compare/1.17.1...1.18.0) (2020-10-20)
 
 
