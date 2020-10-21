@@ -1,3 +1,10 @@
+# [1.19.0](https://github.com/AEGEE/frontend/compare/1.18.1...1.19.0) (2020-10-21)
+
+
+### Features
+
+* **general:** allow listing and confirming users manually. Fixes MA-77 ([#671](https://github.com/AEGEE/frontend/issues/671)) ([50d3740](https://github.com/AEGEE/frontend/commit/50d3740603e07be43538613181ebb128912ebd81))
+
 ## [1.18.1](https://github.com/AEGEE/frontend/compare/1.18.0...1.18.1) (2020-10-21)
 
 
