@@ -130,7 +130,7 @@ export default {
       confirmed: null,
       participant_type: null,
       subject: '',
-      reply_to: 'chair@aegee.org',
+      reply_to: '',
       isSending: false,
       stabUser: {
         first_name: 'Name',
