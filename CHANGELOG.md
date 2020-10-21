@@ -1,3 +1,10 @@
+# [1.30.0](https://github.com/AEGEE/core/compare/1.29.0...1.30.0) (2020-10-21)
+
+
+### Features
+
+* **general:** allow listing and confirming users manually. Fixes MA-77 ([#152](https://github.com/AEGEE/core/issues/152)) ([8b5fd16](https://github.com/AEGEE/core/commit/8b5fd1639a8f0bed5d1792671dd1af425a6e7be5))
+
 # [1.29.0](https://github.com/AEGEE/core/compare/1.28.0...1.29.0) (2020-10-16)
 
 
