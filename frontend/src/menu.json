@@ -180,6 +180,12 @@
         "label": "Status",
         "icon": "check",
         "permissions": ["global:access:admin"]
+      },
+      {
+        "name": "oms.members.list.unconfirmed",
+        "label": "Unconfirmed users",
+        "icon": "user",
+        "permissions": ["global:view_unconfirmed:member"]
       }
     ]
   }

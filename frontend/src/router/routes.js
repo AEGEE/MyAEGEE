@@ -116,6 +116,14 @@ module.exports = [
     }
   },
   {
+    name: 'oms.members.list.unconfirmed',
+    path: '/members/unconfirmed',
+    component: 'core/members/ListUnconfirmed',
+    meta: {
+      label: 'View unconfirmed members'
+    }
+  },
+  {
     name: 'oms.members.edituser',
     path: '/members/edituser',
     component: 'core/members/EditUser',
