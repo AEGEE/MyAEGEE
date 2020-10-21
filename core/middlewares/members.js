@@ -25,6 +25,27 @@ exports.listAllUsers = async (req, res) => {
     });
 };
 
+exports.listAllUnconfirmedUsers = async (req, res) => {
+    if (!req.permissions.hasPermission('global:view_unconfirmed:member')) {
+        return errors.makeForbiddenError(res, 'Permission global:view_unconfirmed:member is required, but not present.');
+    }
+
+    const result = await User.findAndCountAll({
+        where: {
+            ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.MEMBER),
+            mail_confirmed_at: null
+        },
+        ...helpers.getPagination(req.query),
+        order: helpers.getSorting(req.query)
+    });
+
+    return res.json({
+        success: true,
+        data: result.rows,
+        meta: { count: result.count }
+    });
+};
+
 exports.getUser = async (req, res) => {
     if (!req.permissions.hasPermission('view:member') && req.user.id !== req.currentUser.id) {
         return errors.makeForbiddenError(res, 'Permission view:member is required, but not present.');
@@ -87,6 +108,18 @@ exports.setUserActive = async (req, res) => {
     }
 
     await req.currentUser.update({ active: req.body.active });
+    return res.json({
+        success: true,
+        data: req.currentUser
+    });
+};
+
+exports.confirmUser = async (req, res) => {
+    if (!req.permissions.hasPermission('global:confirm:member')) {
+        return errors.makeForbiddenError(res, 'Permission global:confirm:member is required, but not present.');
+    }
+
+    await req.currentUser.update({ mail_confirmed_at: new Date() });
     return res.json({
         success: true,
         data: req.currentUser
