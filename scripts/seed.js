@@ -789,6 +789,18 @@ async function createPermissions() {
             object: 'member',
             scope: 'local',
             description: 'Allows to suspend or activate users that are member in the body that you got this permission from'
+        },
+        {
+            action: 'list_unconfirmed',
+            object: 'member',
+            scope: 'global',
+            description: 'Allows to list unconfirmed users'
+        },
+        {
+            action: 'confirm',
+            object: 'member',
+            scope: 'global',
+            description: 'Allows to confirm unconfirmed users manually'
         }
     ], { individualHooks: true, validate: true });
 
