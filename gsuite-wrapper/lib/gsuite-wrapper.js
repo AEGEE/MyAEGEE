@@ -150,6 +150,60 @@ exports.createAccount = async function(req, res , next) {
     return res.status(statusCode).json(response);
 };
 
+exports.editAccount = async function(req, res , next) {
+  log.debug(req.headers['test-title']);
+
+  const personPK = req.params.userPK;
+  const data = req.body;
+
+  let response = {success: false, message: "Undefined error"};
+  let statusCode = 500;
+
+  if( !personPK || Object.keys(data).length === 0 ){
+
+      response.message = "Validation error: the primary key or payload is absent or empty";
+      statusCode = 400;
+
+  }else{
+
+    const removeEmpty = (obj) => {
+      Object.keys(obj).forEach((key) => (obj[key] == null) && delete obj[key]);
+      return obj;
+    }
+
+    const payload = removeEmpty(Object.assign(
+      {},
+      data,
+      {"hashFunction": data.password ? "SHA-1" : null},
+      {"emails": data.secondaryEmail ? [
+        {
+          "address": data.secondaryEmail,
+          "type": "home",
+          "customType": "",
+          "primary": true
+        }
+      ] : null},
+      {"organizations": data.antennae ? [ { "department": data.antennae.toString() } ] : null}
+      ))
+
+      if ( Object.keys(payload).length > 0 ){
+
+        payload.userKey = personPK;
+
+        try{
+          let result = await runGsuiteOperation(gsuiteOperations.editAccount, payload);
+          response = {success: result.success, message: result.data[0].primaryEmail+" account has been updated", data: result.data };
+          statusCode = result.code;
+        }catch(GsuiteError){
+          log.warn("GsuiteError");
+          response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
+          statusCode = GsuiteError.code;
+      }
+    }
+  }
+
+  return res.status(statusCode).json(response);
+};
 //Possible values for data.operation: add|remove|upgrade|downgrade
 exports.editMembershipToGroup = async function(req, res , next) {
     log.debug(req.headers['test-title']);

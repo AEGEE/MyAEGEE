@@ -23,6 +23,7 @@ GsuiteRouter.delete('/group/:bodyPK', wrapper.deleteGroup); //body is deleted ->
 GsuiteRouter.post('/account', wrapper.createAccount); //member is created -> create an account
 GsuiteRouter.put('/account/:userPK/alias', wrapper.updateAlias); //user may need an alias (netcom-xxx@aegee.eu)
 GsuiteRouter.get('/account/:userPK/alias', wrapper.getAliasFromRedis); //user can read their alias (netcom-xxx@aegee.eu)
+GsuiteRouter.put('/account/:userPK', wrapper.editAccount); //change pic, password, suspend (not delete)
 
 GsuiteRouter.post('/calendar', wrapper.createCalEvent); //event is accepted by EQAC -> put in calendar of events
 
