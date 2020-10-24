@@ -1,6 +1,6 @@
 {
   "name": "oms-gsuite-wrapper",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "REST API for Gsuite wrapper of AEGEE's infrastructure",
   "author": "Fabrizio Bellicano <github.com/linuxbandit>",
   "license": "Apache-2.0",
