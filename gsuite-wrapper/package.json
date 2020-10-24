@@ -1,10 +1,10 @@
 {
-  "name": "oms-gsuite-wrapper",
+  "name": "gsuite-wrapper",
   "version": "1.1.1",
   "description": "REST API for Gsuite wrapper of AEGEE's infrastructure",
   "author": "Fabrizio Bellicano <github.com/linuxbandit>",
   "license": "Apache-2.0",
-  "repository": "AEGEE/oms-gsuite-wrapper",
+  "repository": "AEGEE/gsuite-wrapper",
   "main": "lib/server.js",
   "scripts": {
     "start": "node lib/run.js",
