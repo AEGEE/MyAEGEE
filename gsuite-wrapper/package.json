@@ -1,6 +1,6 @@
 {
   "name": "gsuite-wrapper",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "REST API for Gsuite wrapper of AEGEE's infrastructure",
   "author": "Fabrizio Bellicano <github.com/linuxbandit>",
   "license": "Apache-2.0",
@@ -18,7 +18,7 @@
     "express": "^4.17.1",
     "express-promise-router": "^4.0.1",
     "googleapis": "^59.0.0",
-    "ioredis": "^4.17.3",
+    "ioredis": "^4.19.0",
     "morgan": "^1.10.0",
     "winston": "^3.3.0",
     "oms-common-nodejs": "git+https://git@github.com/AEGEE/oms-common-nodejs.git",

@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/AEGEE/oms-gsuite-wrapper/compare/1.2.0...1.2.1) (2020-10-24)
+
+
+### Bug Fixes
+
+* secret.json was not mounted on the container ([9bde7c4](https://github.com/AEGEE/oms-gsuite-wrapper/commit/9bde7c4e23252d32fd92e73bc485352a140ec10e))
+
 # [1.2.0](https://github.com/AEGEE/oms-gsuite-wrapper/compare/1.1.1...1.2.0) (2020-10-24)
 
 
