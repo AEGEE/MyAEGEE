@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/AEGEE/oms-gsuite-wrapper/compare/1.1.1...1.2.0) (2020-10-24)
+
+
+### Features
+
+* add user editing ([8ce5b6b](https://github.com/AEGEE/oms-gsuite-wrapper/commit/8ce5b6ba8621c784c663c27205f98171e71e93c1))
+
 ## [1.1.1](https://github.com/AEGEE/oms-gsuite-wrapper/compare/1.1.0...1.1.1) (2020-10-20)
 
 
