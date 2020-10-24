@@ -99,8 +99,49 @@ const gsuiteOperations = {
   },
 
   // Edit account e.g. change pic, change pw (until we have SSO)
-  editAccount: async function addAccount(jwt, data){
-    throw GsuiteError;
+  // Assumption: at least one of pic or anything else MUST be specified
+  editAccount: async function editAccount(jwt, data){
+    const admin = google.admin('directory_v1');
+
+    const userKey = data.userKey;
+    delete data.userKey;
+
+    const photo = data.photoData || null;
+    delete data.photoData;
+
+    let result = { "data": [], "code_photo": null, "code_update": null };
+
+    if(Object.keys(data).length > 0){
+      const result_update = await admin.users.update({
+        userKey: userKey,
+        requestBody: data,
+        auth: jwt
+      });
+
+      result.data.push(result_update.data);
+      result.code_update=result_update.status;
+    }
+
+    if(photo){
+      const result_photo = await admin.users.photos.update({
+        userKey: userKey,
+        resource: {
+          photoData: photo
+        },
+        auth: jwt
+      });
+
+      result.data.push(result_photo.data);
+      result.code_photo=result_photo.status;
+    }
+
+    if (result.code_update && result.code_photo){
+      result.status = result.code_update != result.code_photo ? '207' : result.code_update;
+    }else{
+      result.status = result.code_photo ? result.code_photo : result.code_update;
+    }
+
+    return result;
   },
 
   // List user accounts present in the system (only for the initial sync script)
