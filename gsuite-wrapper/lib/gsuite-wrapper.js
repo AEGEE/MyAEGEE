@@ -107,10 +107,12 @@ exports.createAccount = async function(req, res , next) {
     }else{
 
         const payload = {
+            "suspended": true,
             "primaryEmail": data.primaryEmail,
             "name": data.name,
             "password": data.password,
             "hashFunction": "SHA-1",
+            "recoveryEmail": data.secondaryEmail,
             "emails": [
             {
               "address": data.secondaryEmail,
