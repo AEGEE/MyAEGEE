@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/AEGEE/gsuite-wrapper/compare/1.2.1...1.2.2) (2020-10-24)
+
+
+### Bug Fixes
+
+* correct registration flow ([dc6b33d](https://github.com/AEGEE/gsuite-wrapper/commit/dc6b33dc78cd549da816c834c74dc12b16a8ad3b))
+
 ## [1.2.1](https://github.com/AEGEE/oms-gsuite-wrapper/compare/1.2.0...1.2.1) (2020-10-24)
 
 
