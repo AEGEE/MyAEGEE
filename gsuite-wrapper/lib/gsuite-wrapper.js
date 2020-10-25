@@ -6,6 +6,244 @@ const redis = require('./redis.js').db;
 
 //API DEFINITION
 
+
+/**
+ * @swagger
+ *
+ * externalDocs:
+ *   description: "Find out more about MyAEGEE"
+ *   url: "https://myaegee.atlassian.net/wiki/spaces/GENERAL/overview"
+ *
+ * tags:
+ *   - name: "Account"
+ *     description: "Accounts operations: add/remove user; modify user details; add/remove aliases for user email"
+ *     externalDocs:
+ *       description: "The user will have to accept Gsuite terms"
+ *       url: "https://my.aegee.eu"
+ *   - name: "Groups"
+ *     description: "Groups operations: add/remove a google group; add/remove a user membership to a group"
+ *     externalDocs:
+ *       description: "The user will be subscribed and unsubscribed automatically most of the times"
+ *       url: "http://groups.aegee.eu"
+ *   - name: "Calendar"
+ *     description: "Calendar operations: add an event to the Gsuite calendar of events"
+ *     externalDocs:
+ *       description: "The user will be subscribed and unsubscribed automatically most of the times"
+ *       url: "http://calendar.aegee.eu"
+ *
+ * definitions:
+ *   generalResponse:
+ *     type: object
+ *     required:
+ *       - success
+ *       - message
+ *     properties:
+ *       success:
+ *         type: boolean
+ *       message:
+ *         type: string
+ *
+ *   errorResponse:
+ *     allOf:
+ *       - '$ref': '#/definitions/generalResponse'
+ *       - type: object
+ *         required:
+ *           - error
+ *         properties:
+ *           error:
+ *             type: string
+ *
+ *
+ *   successResponse:
+ *     allOf:
+ *       - '$ref': '#/definitions/generalResponse'
+ *       - type: object
+ *         required:
+ *           - data
+ *         properties:
+ *           data:
+ *             type: object
+ *             example:
+ *               "<property>": "<the whole object has all the properties being the name of the db fields>"
+ *
+ *   Group:
+ *     type: "object"
+ *     properties:
+ *       primaryEmail:
+ *         type: "string"
+ *         description: "The google ID (xxx@aegee.eu) of the group that is added"
+ *         format: "email"
+ *       groupName:
+ *         type: "string"
+ *         description: "The name of the Google group"
+ *         format: "string"
+ *       bodyPK:
+ *         type: "string"
+ *         description: "The primary key that identifies the body/circle in MyAEGEE"
+ *         format: "string"
+ *     required:
+ *       - groupName
+ *       - primaryEmail
+ *       - bodyPK
+ *     example:
+ *       groupName: "The Straight Banana Committee"
+ *       primaryEmail: "sbc@aegee.eu"
+ *       bodyPK: "(idk how it's represented)"
+ *
+ *   Account:
+ *     type: "object"
+ *     properties:
+ *       primaryEmail:
+ *         type: "string"
+ *         description: "The username @aegee.eu for the account"
+ *         format: "string"
+ *       name:
+ *         $ref: "#/definitions/Account_name"
+ *       secondaryEmail:
+ *         type: "string"
+ *         description: "The email of the user. For password reset and first-time sign up"
+ *         format: "email"
+ *       password:
+ *         type: "string"
+ *         description: "MUST be a SHA-1 password"
+ *         format: "password"
+ *       antenna:
+ *         type: "string"
+ *         description: "The (primary) antenna the user belongs to"
+ *         format: "string"
+ *       userPK:
+ *         type: "string"
+ *         description: "The primary key of the user in MyAEGEE"
+ *     required:
+ *       - primaryEmail
+ *       - name
+ *       - secondaryEmail
+ *       - password
+ *       - antenna
+ *       - userPK
+ *     example:
+ *       primaryEmail: "cave.johnson@aegee.eu"
+ *       name:
+ *         givenName: "Cave"
+ *         familyName: "Johnson"
+ *       secondaryEmail: "cave.aegee@example.com"
+ *       password: "[SOME-SHA1-HASH]"
+ *       antenna: "AEGEE-Tallahassee"
+ *       userPK: "(idk how it's represented)"
+ *
+ *   Account_name:
+ *     properties:
+ *       givenName:
+ *         type: "string"
+ *       familyName:
+ *         type: "string"
+ *     required:
+ *       - givenName
+ *       - familyName
+ *     example:
+ *       givenName: "Cave"
+ *       familyName: "Johnson"
+ *
+ *   Membership:
+ *     type: "object"
+ *     properties:
+ *       groupPK:
+ *         type: "string"
+ *         description: "(required) The group in which the user \
+ *                       is added. MyAEGEE's PK of the body/circle"
+ *       operation:
+ *         type: "string"
+ *         description: "(required) 'add'/'remove' member"
+ *     required:
+ *       - groupPK
+ *       - operation
+ *     example:
+ *       groupPK: "(idk how it's represented)"
+ *       operation: "add"
+ *
+ *   aliasOperation:
+ *     type: "object"
+ *     properties:
+ *       aliasName:
+ *         type: "string"
+ *         description: "The alias that is added"
+ *       operation:
+ *         type: "string"
+ *         description: "'add'/'remove' alias"
+ *     required:
+ *       - aliasName
+ *       - operation
+ *     example:
+ *       aliasName: "example@aegee.eu"
+ *       operation: "add"
+ *
+ *   Event:
+ *     properties:
+ *       name:
+ *         type: "string"
+ *         description: "The name of the event"
+ *       startDate:
+ *         type: "string"
+ *         description: "Format MUST be YYYY-MM-DD"
+ *       endDate:
+ *         type: "string"
+ *         description: "Format MUST be YYYY-MM-DD"
+ *       description:
+ *         type: "string"
+ *         description: "The description of the event"
+ *       location:
+ *         type: "string"
+ *         description: "The city where the event is happening. Can be any string"
+ *       eventID:
+ *         type: "string"
+ *         description: "Format MUST be a-v 0-9"
+ *     description: "(required)"
+ *     required:
+ *       - name
+ *       - startDate
+ *       - endDate
+ *       - description
+ *       - location
+ *       - eventID
+ *     example:
+ *       name: "RTC Tallahassee"
+ *       startDate: "2019-04-25"
+ *       endDate: "2019-04-25"
+ *       description: "An RTC in a far away place"
+ *       location: "Tallahassee, Florida"
+ *       eventID: "rtctallahassee19"
+ */
+//////////////////////////////////////////////////////////////
+/**
+ * @swagger
+ *
+ * /group:
+ *   post:
+ *     tags:
+ *       - "Groups"
+ *     summary: "Create Gsuite group"
+ *     description: "This endpoint is to create a Gsuite group"
+ *     operationId: "createGroup"
+ *     consumes:
+ *       - "application/json"
+ *     produces:
+ *       - "application/json"
+ *     parameters:
+ *       - name: "data"
+ *         in: "body"
+ *         description: "The data containing information on the group"
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/Group'
+ *     responses:
+ *       201:
+ *         description: "Successful operation"
+ *       400:
+ *         description: "Invalid input"
+ *       409:
+ *         description: "Duplicate entity"
+ */
+
 exports.createGroup = async function(req, res , next) {
     log.debug(req.headers['test-title']);
 
@@ -40,6 +278,31 @@ exports.createGroup = async function(req, res , next) {
 
     return res.status(statusCode).json(response);
 };
+
+/**
+ * @swagger
+ *
+ * /group/{bodyPK}:
+ *   delete:
+ *     tags:
+ *       - "Groups"
+ *     summary: "Delete Gsuite group"
+ *     description: "This endpoint is to delete the Gsuite group. 'bodyPK' refers to the primary key of the body/circle in the system."
+ *     operationId: "deleteGroup"
+ *     produces:
+ *       - "application/json"
+ *     parameters:
+ *       - name: "bodyPK"
+ *         in: "path"
+ *         description: "The MyAEGEE key of the group that needs to be deleted"
+ *         required: true
+ *         type: "string"
+ *     responses:
+ *       200:
+ *         description: "Successful operation"
+ *       404:
+ *         description: "Group not found"
+ */
 
 exports.deleteGroup = async function(req, res , next) {
     log.debug(req.headers['test-title']);
@@ -83,6 +346,38 @@ exports.deleteGroup = async function(req, res , next) {
 
     return res.status(statusCode).json(response);
 };
+
+/**
+ * @swagger
+ *
+ * /account:
+ *   post:
+ *     tags:
+ *       - "Account"
+ *     summary: "Create user account"
+ *     description: "This endpoint is to create a deactivated Gsuite \
+ *                   account. It will be activated at a later stage \
+ *                   during the registration process"
+ *     operationId: "createAccount"
+ *     consumes:
+ *       - "application/json"
+ *     produces:
+ *       - "application/json"
+ *     parameters:
+ *       - name: "data"
+ *         in: "body"
+ *         description: "User account object"
+ *         required: true
+ *         schema:
+ *           $ref: "#/definitions/Account"
+ *     responses:
+ *       201:
+ *         description: "Successful operation"
+ *       400:
+ *         description: "Invalid input"
+ *       409:
+ *         description: "Duplicate entity"
+ */
 
 exports.createAccount = async function(req, res , next) {
     log.debug(req.headers['test-title']);
@@ -152,6 +447,67 @@ exports.createAccount = async function(req, res , next) {
     return res.status(statusCode).json(response);
 };
 
+/**
+ * @swagger
+ *
+ * /account/{personPK}:
+ *   put:
+ *     description: Edit an user account
+ *     tags:
+ *       - Account
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: personPK
+ *         description: The primary key of the gsuite user
+ *         in: path
+ *         required: true
+ *         type: string
+ *       - name: secondaryEmail
+ *         description: The user's new alternative email (i.e. the one they used to register on MyAEGEE)
+ *         in: body
+ *         required: false
+ *         type: string
+ *       - name: password
+ *         description: The password hashed in a SHA-1 format
+ *         in: body
+ *         required: false
+ *         type: string
+ *       - name: antennae # FIXME
+ *         description: The antenna of the user
+ *         in: body
+ *         required: false
+ *         type: string
+ *       - name: givenName
+ *         description: Name of the user
+ *         in: body
+ *         required: false
+ *         type: string
+ *       - name: familyName
+ *         description: Surname of the user
+ *         in: body
+ *         required: false
+ *         type: string
+ *       - name: photoData
+ *         description: A web-safe base64 representation of the image
+ *         in: body
+ *         required: false
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: The user is created (deactivated)
+ *         schema:
+ *           '$ref': '#/definitions/successResponse'
+ *       400:
+ *         description: Validation error
+ *         schema:
+ *           '$ref': '#/definitions/generalResponse'
+ *       500:
+ *         description: Internal error
+ *         schema:
+ *           '$ref': '#/definitions/errorResponse'
+ */
+
 exports.editAccount = async function(req, res , next) {
   log.debug(req.headers['test-title']);
 
@@ -206,6 +562,46 @@ exports.editAccount = async function(req, res , next) {
 
   return res.status(statusCode).json(response);
 };
+/**
+ * @swagger
+ *
+ * /account/{userPK}/group:
+ *   put:
+ *     tags:
+ *       - "Groups"
+ *     summary: "Add/remove account membership to group"
+ *     description: "This endpoint is used to modify an account's membership to a group, \
+ *                   NOT a group"
+ *     operationId: "editMembershipToGroup"
+ *     consumes:
+ *       - "application/json"
+ *     produces:
+ *       - "application/json"
+ *     parameters:
+ *       - name: "userPK"
+ *         in: "path"
+ *         description: "User that needs to be inserted/removed"
+ *         required: true
+ *         type: "string"
+ *         example: "name.surname@aegee.eu"
+ *       - name: "body"
+ *         in: "body"
+ *         description: "Operation & group info. Possible values for data.operation: add|remove|upgrade|downgrade"
+ *         required: true
+ *         schema:
+ *           $ref: "#/definitions/Membership"
+ *     responses:
+ *       200:
+ *         description: "Removal: Successful operation"
+ *       201:
+ *         description: "Creation: Successful operation"
+ *       400:
+ *         description: "Invalid input"
+ *       404:
+ *         description: "Member not found"
+ *       409:
+ *         description: "Member duplicate"
+ */
 //Possible values for data.operation: add|remove|upgrade|downgrade
 exports.editMembershipToGroup = async function(req, res , next) {
     log.debug(req.headers['test-title']);
@@ -265,6 +661,47 @@ exports.editMembershipToGroup = async function(req, res , next) {
 
     return res.status(statusCode).json(response);
 };
+
+/**
+ * @swagger
+ *
+ * /account/{userPK}/alias:
+ *   put:
+ *     tags:
+ *       - "Account"
+ *     summary: "Gives/remove alias to the user"
+ *     description: "Gives/remove alias to the user. For remotion, one has \
+ *                     to be precise on which user alias wants to delete, in case \
+ *                     of multiple aliases"
+ *     operationId: "updateAlias"
+ *     consumes:
+ *       - "application/json"
+ *     produces:
+ *       - "application/json"
+ *     parameters:
+ *       - name: "userPK"
+ *         in: "path"
+ *         description: "User whose alias needs to be updated (PK of MyAEGEE)"
+ *         required: true
+ *         type: "string"
+ *       - name: "body"
+ *         in: "body"
+ *         description: "Operation to perform, and what the fuck this is not shown"
+ *         required: true
+ *         schema:
+ *           $ref: "#/definitions/aliasOperation"
+ *     responses:
+ *       200:
+ *         description: "Removal: Successful operation"
+ *       201:
+ *         description: "Creation: Successful operation"
+ *       400:
+ *         description: "Invalid payload"
+ *       404:
+ *         description: "Alias not found"
+ *       409:
+ *         description: "Alias already existing"
+ */
 
 exports.updateAlias = async function(req, res , next) {
     log.debug(req.headers['test-title']);
@@ -353,6 +790,38 @@ exports.getAliasFromRedis = async function(req, res , next) {
 
     return res.status(200).json(response);
 };
+
+/**
+ * @swagger
+ *
+ * /calendar:
+ *   post:
+ *     tags:
+ *       - "Calendar"
+ *     summary: "Create Gsuite event on Calendar of Event"
+ *     description: "This endpoint is to create an event on \
+ *                   the Gsuite calendar of events, an organisation-wide \
+ *                   shared calendar."
+ *     operationId: "createCalEvent"
+ *     consumes:
+ *       - "application/json"
+ *     produces:
+ *       - "application/json"
+ *     parameters:
+ *       - name: "body"
+ *         in: "body"
+ *         description: "Created event object"
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/Event'
+ *     responses:
+ *       201:
+ *         description: "Successful operation"
+ *       400:
+ *         description: "Invalid input"
+ *       409:
+ *         description: "Duplicate event"
+ */
 
 exports.createCalEvent = async function(req, res , next) {
     log.debug(req.headers['test-title']);

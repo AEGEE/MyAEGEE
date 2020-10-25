@@ -36,7 +36,7 @@ const swaggerSpec = swaggerJSDoc(options); // Initialize swagger-jsdoc -> return
 GsuiteRouter.get('/api-docs.json', (req, res) => { // mini-route to retrieve the docs
   log.info('request coming from ' + req.ip + ' to ' + req.hostname);
   res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Access-Control-Allow-Origin', 'http://' + req.hostname + ':8080');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.status(200).send(swaggerSpec);
 });
 
