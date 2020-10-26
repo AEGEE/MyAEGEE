@@ -52,7 +52,7 @@
     "express-promise-router": "^4.0.1",
     "express-query-boolean": "^2.0.0",
     "file-type": "^16.0.0",
-    "joi": "^17.2.1",
+    "joi": "^17.3.0",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
     "moment-range": "^4.0.2",
