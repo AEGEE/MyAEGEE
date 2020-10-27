@@ -1,3 +1,10 @@
+## [0.11.1](https://github.com/AEGEE/mailer/compare/0.11.0...0.11.1) (2020-10-27)
+
+
+### Bug Fixes
+
+* **templates:** Update alt text ([#53](https://github.com/AEGEE/mailer/issues/53)) ([16e084b](https://github.com/AEGEE/mailer/commit/16e084b3567bd69382fbd8646270b30f6a54e504))
+
 # [0.11.0](https://github.com/AEGEE/mailer/compare/0.10.0...0.11.0) (2020-06-20)
 
 
