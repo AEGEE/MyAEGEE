@@ -114,7 +114,7 @@ export default {
             color: '#FFDB4C'
           },
           {
-            url: 'https://site.aegee.org/wp-content/uploads/AEGEE-StrategicPlan-2020-2023.pdf',
+            url: 'http://www.zeus.aegee.org/portal/wp-content/uploads/Strategic-Plan-2020-2023-updated.pdf',
             title: 'Strategic Plan',
             description: 'Strategic Plan of AEGEE-Europe 2020-2023',
             color: '#FFDB4C'
