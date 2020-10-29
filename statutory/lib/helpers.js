@@ -299,6 +299,7 @@ exports.getEventPermissions = (data) => {
         approvePermissions,
         user,
         event,
+        limits,
         myApplication
     } = data;
 
@@ -360,6 +361,12 @@ exports.getEventPermissions = (data) => {
         permissions.upload_memberslist[body.id] = event.can_upload_memberslist && approveBodiesList.includes(body.id) && exports.isLocal(body);
         permissions.edit_memberslist[body.id] = event.can_edit_memberslist && approveBodiesList.includes(body.id) && exports.isLocal(body);
         permissions.see_memberslist[body.id] = approveBodiesList.includes(body.id) && exports.isLocal(body);
+    }
+
+    permissions.apply_from_body = {};
+
+    for (const limit of limits) {
+        permissions.apply_from_body[limit.body_id] = limit.hasAnyLimits();
     }
 
     permissions.manage_question_lines = hasPermission(corePermissions, 'global:manage_question_lines:' + event.type);

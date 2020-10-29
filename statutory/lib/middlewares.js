@@ -3,7 +3,7 @@ const errors = require('./errors');
 const helpers = require('./helpers');
 const logger = require('./logger');
 const constants = require('./constants');
-const { Event, Application, Image } = require('../models');
+const { Event, Application, Image, PaxLimit } = require('../models');
 const { Sequelize } = require('./sequelize');
 const Bugsnag = require('./bugsnag');
 const packageInfo = require('../package');
@@ -127,6 +127,7 @@ exports.fetchEvent = async (req, res, next) => {
         throw new Error(`Error fetching permissions for approve: ${JSON.stringify(approveRequest.body)}`);
     }
 
+    let limits = [];
     let myApplication;
     if (req.user) {
         myApplication = await Application.findOne({
@@ -135,6 +136,9 @@ exports.fetchEvent = async (req, res, next) => {
                 event_id: event.id
             }
         });
+        limits = await Promise.all(
+            req.user.bodies.map(body => PaxLimit.fetchOrUseDefaultForBody(body, event.type))
+        );
     }
 
     req.event = event;
@@ -148,6 +152,7 @@ exports.fetchEvent = async (req, res, next) => {
         approvePermissions: req.approvePermissions,
         user: req.user,
         event,
+        limits,
         myApplication
     });
 
