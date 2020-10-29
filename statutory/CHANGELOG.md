@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/AEGEE/statutory/compare/1.4.0...1.5.0) (2020-10-29)
+
+
+### Features
+
+* **statutory:** pass application limits per body in event ([#422](https://github.com/AEGEE/statutory/issues/422)) ([90b128b](https://github.com/AEGEE/statutory/commit/90b128b6b8d944352edc9c4d512c841edc92679b))
+
 # [1.4.0](https://github.com/AEGEE/statutory/compare/1.3.1...1.4.0) (2020-10-13)
 
 
