@@ -521,6 +521,8 @@
             <p>
               You can omit specifying them when creating the event, but
               <strong> you won't be able to submit event to EQAC if these fields are not set.</strong>
+
+              For online events, you are able to use https://online-event.example.com/ as a placeholder for the budget.
             </p>
             <p>Please provide the link to Google spreadsheets for the event program and budget.</p>
             <p><a href="https://docs.google.com/spreadsheets/u/1/?ftv=1&tgif=d" target="_blank">
