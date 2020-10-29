@@ -1,3 +1,10 @@
+## [1.19.2](https://github.com/AEGEE/frontend/compare/1.19.1...1.19.2) (2020-10-29)
+
+
+### Bug Fixes
+
+* **applications:** edit application now only shows applicable bodies ([#685](https://github.com/AEGEE/frontend/issues/685)) ([201f690](https://github.com/AEGEE/frontend/commit/201f690defefdb91432e59dd59aea3c75cc649b9))
+
 ## [1.19.1](https://github.com/AEGEE/frontend/compare/1.19.0...1.19.1) (2020-10-29)
 
 
