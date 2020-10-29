@@ -1,3 +1,11 @@
+## [1.19.1](https://github.com/AEGEE/frontend/compare/1.19.0...1.19.1) (2020-10-29)
+
+
+### Bug Fixes
+
+* **events:** Add help for placeholder budget link. Fixes HELP-1360 ([#683](https://github.com/AEGEE/frontend/issues/683)) ([168b456](https://github.com/AEGEE/frontend/commit/168b456b1b846cde34a36daa3e172d5a7a5c3897))
+* **statutory:** only allow applications from valid bodies ([#682](https://github.com/AEGEE/frontend/issues/682)) ([9d43ae0](https://github.com/AEGEE/frontend/commit/9d43ae085970a28d54924fb3fdad3effa60b54d4))
+
 # [1.19.0](https://github.com/AEGEE/frontend/compare/1.18.1...1.19.0) (2020-10-21)
 
 
