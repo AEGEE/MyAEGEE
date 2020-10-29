@@ -10,14 +10,14 @@
             <div class="tile is-child">
               <div class="field">
                 <label class="label">Body <span class="has-text-danger">*</span></label>
-                <div class="select" v-show="bodies.length > 0">
+                <div class="select" v-if="bodies.length > 0">
                   <select v-model="application.body_id">
                     <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
                   </select>
                 </div>
               </div>
 
-              <event-no-body-notification v-show="bodies.length == 0" />
+              <event-no-body-notification v-if="bodies.length == 0" />
 
               <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender|| errors.date_of_birth">
                 <div class="content">
@@ -497,11 +497,15 @@ export default {
       // If this is a new application, then allowing selecting bodies which the current user is a member of
       // and not fetching application.
       if (this.isNew) {
-        this.bodies = this.loginUser.bodies
+        this.bodies = this.loginUser.bodies.filter(body => this.can.apply_from_body[body.id])
 
-        // Setting 1st body as an application body if possible
+        // Setting primary body as default application body, if possible, otherwise pick the first body in the list
         if (this.bodies.length > 0) {
-          this.application.body_id = this.bodies[0].id
+          if (this.bodies.some(b => b.id === this.loginUser.primary_body_id)) {
+            this.application.body_id = this.loginUser.primary_body_id
+          } else {
+            this.application.body_id = this.bodies[0].id
+          }
         }
 
         this.isLoading = false
