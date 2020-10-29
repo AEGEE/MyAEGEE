@@ -520,7 +520,7 @@ export default {
         // Fetching user to get his/her bodies
         return this.axios.get(this.services['core'] + '/members/' + this.application.user_id)
       }).then((user) => {
-        this.bodies = user.data.data.bodies
+        this.bodies = user.data.data.bodies.filter(body => this.can.apply_from_body[body.id])
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
