@@ -22,6 +22,9 @@ const config = {
             url: 'http://mailer',
             port: 4000
         },
+        application_notification: [
+            'juridical@aegee.eu'
+        ],
         logger: {
             silent: false,
             level: process.env.LOGLEVEL || 'debug'

@@ -4,6 +4,8 @@ const errors = require('./errors');
 const { Candidate, Position, Image } = require('../models');
 
 const helpers = require('./helpers');
+const mailer = require('./mailer');
+const config = require('../config');
 
 exports.findCandidate = async (req, res, next) => {
     if (Number.isNaN(Number(req.params.candidate_id))) {
@@ -57,6 +59,17 @@ exports.submitYourCandidature = async (req, res) => {
     req.body.position_id = req.position.id;
 
     const newCandidate = await Candidate.create(req.body);
+
+    // Send email to JC when a new application is submitted
+    await mailer.sendMail({
+        to: config.application_notification,
+        subject: 'A new application was submitted',
+        template: 'candidate_applied.html',
+        parameters: {
+            position: req.position,
+            candidate: newCandidate
+        }
+    });
 
     // Closing position immediately if enough candidates.
     const candidatesCount = await Candidate.count({ where: { position_id: req.position.id } });
