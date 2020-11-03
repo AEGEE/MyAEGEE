@@ -29,18 +29,18 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert json_response(conn, 200)
     assert_email_delivered_with(subject: "pirates")
   end
-  
+
   # Test headers
   test "POST / confirm_email requires parameters", %{conn: conn} do
     conn = post conn, "/", %{template: "confirm_email.html", parameters: %{}, to: "test@aegee.org", subject: "pirates"}
     assert json_response(conn, 422)
     assert_no_emails_delivered()
-  end 
+  end
   test "POST / confirm_email requires to address", %{conn: conn} do
     conn = post conn, "/", %{template: "confirm_email.html", parameters: @confirm_email_params, to: "", subject: "pirates"}
     assert json_response(conn, 422)
     assert_no_emails_delivered()
-  end 
+  end
   test "POST / confirm_email requires subject", %{conn: conn} do
     conn = post conn, "/", %{template: "confirm_email.html", parameters: @confirm_email_params, to: "test@aegee.org", subject: ""}
     assert json_response(conn, 422)
@@ -134,7 +134,7 @@ defmodule OmsmailerWeb.PageControllerTest do
     conn = post conn, "/", %{template: "welcome.html", parameters: %{name: "Franz", surname: "Ferdinant"}, to: "test@aegee.org", subject: "pirates"}
     assert json_response(conn, 200)
     assert_email_delivered_with(subject: "pirates")
-  end    
+  end
 
   # Membership expired
   test "POST / membership expired", %{conn: conn} do
@@ -236,5 +236,11 @@ defmodule OmsmailerWeb.PageControllerTest do
     assert json_response(conn, 200)
     assert_email_delivered_with(subject: "pirates")
   end
+
+  # Candidature submitted
+  test "POST / candidature submitted should work", %{conn: conn} do
+    conn = post conn, "/", %{template: "candidate_applied.html", parameters: %{position: %{name: "test", event_id: "1"}, candidate: %{first_name: "test", last_name: "test"}}}, to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(subject: "pirates")
+  end
 end
- 
