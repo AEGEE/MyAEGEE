@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/AEGEE/statutory/compare/1.5.0...1.6.0) (2020-11-03)
+
+
+### Features
+
+* **candidate:** add mailer jc for new candidatures ([#426](https://github.com/AEGEE/statutory/issues/426)) ([c6ac2f3](https://github.com/AEGEE/statutory/commit/c6ac2f38e258b73aa6d3c2eadb911d392d768102))
+
 # [1.5.0](https://github.com/AEGEE/statutory/compare/1.4.0...1.5.0) (2020-10-29)
 
 
