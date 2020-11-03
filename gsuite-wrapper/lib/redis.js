@@ -9,17 +9,17 @@ async function startRedis(){
 //  console.log("Redis has started: "+result);
 //  log.info("Redis has started: "+result);
 //  return result;
-  redis.connect().then( () => {
-    console.log("Redis has started");
-    log.info("Redis has started");
-    return "YEAH";
-  })
+  redis.connect().then(() => {
+    console.log('Redis has started');
+    log.info('Redis has started');
+    return 'YEAH';
+  });
 }
 
 async function stopRedis(){
   const result = await redis.quit();
-  console.log("Redis has stopped: "+result);
-  log.info("Redis has stopped: "+result);
+  console.log('Redis has stopped: ' + result);
+  log.info('Redis has stopped: ' + result);
   return result;
 }
 

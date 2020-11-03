@@ -15,17 +15,17 @@ const redis = require('./redis.js');
 
 GsuiteRouter.get('/healthcheck', middlewares.healthcheck);
 
-GsuiteRouter.post('/group', wrapper.createGroup); //circle is created -> create a group
-//GsuiteRouter.put('/group', wrapper.modifyGroup); //circle is modified -> group is modified
-GsuiteRouter.put('/account/:userPK/group', wrapper.editMembershipToGroup); //user is into a circle -> user is added to a group
-GsuiteRouter.delete('/group/:bodyPK', wrapper.deleteGroup); //body is deleted -> group is deleted //FIXME: archived*
+GsuiteRouter.post('/group', wrapper.createGroup); // circle is created -> create a group
+// GsuiteRouter.put('/group', wrapper.modifyGroup); //circle is modified -> group is modified
+GsuiteRouter.put('/account/:userPK/group', wrapper.editMembershipToGroup); // user is into a circle -> user is added to a group
+GsuiteRouter.delete('/group/:bodyPK', wrapper.deleteGroup); // body is deleted -> group is deleted //FIXME: archived*
 
-GsuiteRouter.post('/account', wrapper.createAccount); //member is created -> create an account
-GsuiteRouter.put('/account/:userPK/alias', wrapper.updateAlias); //user may need an alias (netcom-xxx@aegee.eu)
-GsuiteRouter.get('/account/:userPK/alias', wrapper.getAliasFromRedis); //user can read their alias (netcom-xxx@aegee.eu)
-GsuiteRouter.put('/account/:userPK', wrapper.editAccount); //change pic, password, suspend (not delete)
+GsuiteRouter.post('/account', wrapper.createAccount); // member is created -> create an account
+GsuiteRouter.put('/account/:userPK/alias', wrapper.updateAlias); // user may need an alias (netcom-xxx@aegee.eu)
+GsuiteRouter.get('/account/:userPK/alias', wrapper.getAliasFromRedis); // user can read their alias (netcom-xxx@aegee.eu)
+GsuiteRouter.put('/account/:userPK', wrapper.editAccount); // change pic, password, suspend (not delete)
 
-GsuiteRouter.post('/calendar', wrapper.createCalEvent); //event is accepted by EQAC -> put in calendar of events
+GsuiteRouter.post('/calendar', wrapper.createCalEvent); // event is accepted by EQAC -> put in calendar of events
 
 const swaggerJSDoc = require('swagger-jsdoc');
 const options = {}; // (1/3) stupid gimmick because fuck the library lol
@@ -43,19 +43,19 @@ GsuiteRouter.get('/api-docs.json', (req, res) => { // mini-route to retrieve the
 const server = express();
 server.use(bodyParser.json());
 server.use(morgan((tokens, req, res) => {
-    return [
-        tokens.method(req, res),
-        tokens.url(req, res),
-        tokens.status(req, res),
-        tokens.res(req, res, 'content-length'), '-',
-        tokens['response-time'](req, res), 'ms,',
-        req.user ? ('user ' + req.user.user.name + ' with id ' + req.user.id) : 'unauthorized'
-    ].join(' ');
+  return [
+    tokens.method(req, res),
+    tokens.url(req, res),
+    tokens.status(req, res),
+    tokens.res(req, res, 'content-length'), '-',
+    tokens['response-time'](req, res), 'ms,',
+    req.user ? ('user ' + req.user.user.name + ' with id ' + req.user.id) : 'unauthorized',
+  ].join(' ');
 }, { stream: log.stream }));
 
 /* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
-    log.error('Unhandled rejection: %s', err.stack);
+  log.error('Unhandled rejection: %s', err.stack);
 
 //    if (process.env.NODE_ENV !== 'test') {
 //        bugsnag.notify(err);
@@ -64,8 +64,8 @@ process.on('unhandledRejection', (err) => {
 
 server.use('/', GsuiteRouter);
 
-server.use( middlewares.notFound );
-server.use( middlewares.errorHandler );
+server.use(middlewares.notFound);
+server.use(middlewares.errorHandler);
 // error handler
 // app.use(function(err, req, res, next) {
 //     // set locals, only providing error message in development
@@ -81,7 +81,7 @@ server.use( middlewares.errorHandler );
 let app;
 async function startServer() {
   return new Promise((res, rej) => {
-    const localApp = server.listen(config.port, async () => {
+    const localApp = server.listen(config.port, async() => {
       app = localApp;
       log.info('Up and running: %s listening on %s:%d', server.name, config.url, config.port);
       log.info('Version %s of %s in %s mode, deployed on %s', serverInfo.version(), serverInfo.name(), serverInfo.env, serverInfo.host());
@@ -96,19 +96,19 @@ async function startServer() {
 }
 
 async function stopServer() {
-    log.info('Stopping server...');
-    app.close();
-    /* istanbul ignore next */
-    //if (process.env.NODE_ENV !== 'test') await db.close();
-    const result = await redis.stop();
-    app = null;
-    log.info('Server stopped');
-    return result;
+  log.info('Stopping server...');
+  app.close();
+  /* istanbul ignore next */
+  // if (process.env.NODE_ENV !== 'test') await db.close();
+  const result = await redis.stop();
+  app = null;
+  log.info('Server stopped');
+  return result;
 }
 
 module.exports = {
-    app,
-    server,
-    stopServer,
-    startServer
+  app,
+  server,
+  stopServer,
+  startServer,
 };

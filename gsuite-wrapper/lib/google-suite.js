@@ -35,18 +35,18 @@ const jwt = new google.auth.JWT(
 
 async function runGsuiteOperation(operation, payload) {
 
-  try{
+  try {
     const authRes = await jwt.authorize();
-    log.debug("auth: " + JSON.stringify(authRes));
-  }catch(AuthError){
-    log.error("Authentication error! " + AuthError.toString());
-    throw { errors: [{message: "Authentication errorrrr"}], code: 500 };
+    log.debug('auth: ' + JSON.stringify(authRes));
+  } catch (AuthError){
+    log.error('Authentication error! ' + AuthError.toString());
+    throw { errors: [{message: 'Authentication errorrrr'}], code: 500 };
   }
 
-    const res = await operation(jwt, payload);
-    const operationResult = {success: true, code: res.status, data: res.data};
-    if( operation.name.indexOf("add") > -1 && operationResult.code === 200) { operationResult.code = 201 };
-    if( operationResult.code === 204) { operationResult.code = 200 };
+  const res = await operation(jwt, payload);
+  const operationResult = {success: true, code: res.status, data: res.data};
+  if (operation.name.indexOf('add') > -1 && operationResult.code === 200) { operationResult.code = 201; };
+  if (operationResult.code === 204) { operationResult.code = 200; };
 
   return operationResult;
 };
@@ -58,12 +58,12 @@ const gsuiteOperations = {
   addGroup: async function addGroup(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.groups.insert({
-        requestBody: {
-            name: data.groupName,
-            email: data.primaryEmail,
-        },
-        auth: jwt
-      });
+      requestBody: {
+        name: data.groupName,
+        email: data.primaryEmail,
+      },
+      auth: jwt,
+    });
     return result;
   },
 
@@ -81,18 +81,18 @@ const gsuiteOperations = {
   deleteGroup: async function deleteGroup(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.groups.delete({
-        groupKey: data.primaryEmail,
-        auth: jwt
-      });
+      groupKey: data.primaryEmail,
+      auth: jwt,
+    });
     return result;
   },
 
-   // Insert user account in the system
+  // Insert user account in the system
   addAccount: async function addAccount(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.users.insert({
       requestBody: data,
-      auth: jwt
+      auth: jwt,
     });
 
     return result;
@@ -109,35 +109,35 @@ const gsuiteOperations = {
     const photo = data.photoData || null;
     delete data.photoData;
 
-    let result = { "data": [], "code_photo": null, "code_update": null };
+    let result = { data: [], code_photo: null, code_update: null };
 
-    if(Object.keys(data).length > 0){
+    if (Object.keys(data).length > 0){
       const result_update = await admin.users.update({
         userKey: userKey,
         requestBody: data,
-        auth: jwt
+        auth: jwt,
       });
 
       result.data.push(result_update.data);
-      result.code_update=result_update.status;
+      result.code_update = result_update.status;
     }
 
-    if(photo){
+    if (photo){
       const result_photo = await admin.users.photos.update({
         userKey: userKey,
         resource: {
-          photoData: photo
+          photoData: photo,
         },
-        auth: jwt
+        auth: jwt,
       });
 
       result.data.push(result_photo.data);
-      result.code_photo=result_photo.status;
+      result.code_photo = result_photo.status;
     }
 
     if (result.code_update && result.code_photo){
       result.status = result.code_update != result.code_photo ? '207' : result.code_update;
-    }else{
+    } else {
       result.status = result.code_photo ? result.code_photo : result.code_update;
     }
 
@@ -156,9 +156,9 @@ const gsuiteOperations = {
   deleteAccount: async function deleteaccount(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.users.delete({
-        userKey: data.primaryEmail,
-        auth: jwt
-      });
+      userKey: data.primaryEmail,
+      auth: jwt,
+    });
     return result;
   },
 
@@ -166,51 +166,51 @@ const gsuiteOperations = {
   addUserInGroup: async function addUserInGroup(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.members.insert({
-        groupKey: data.primaryEmail,
-        requestBody: {
-          email: data.userName,
-        },
-        auth: jwt
-      });
-      return result;
+      groupKey: data.primaryEmail,
+      requestBody: {
+        email: data.userName,
+      },
+      auth: jwt,
+    });
+    return result;
   },
 
   // Remove member from Google group
   removeUserFromGroup: async function removeUserFromGroup(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.members.delete({
-        groupKey: data.primaryEmail,
-        memberKey: data.userName,
-        auth: jwt
-      });
+      groupKey: data.primaryEmail,
+      memberKey: data.userName,
+      auth: jwt,
+    });
 
-      return result;
+    return result;
   },
 
   // Add gsuite alias (e.g. netcom-xxx@aegeee.eu)
   addEmailAlias: async function addEmailAlias(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.users.aliases.insert({
-        userKey: data.primaryEmail,
-        requestBody: {
-          alias: data.aliasName,
-        },
-        auth: jwt
-      });
+      userKey: data.primaryEmail,
+      requestBody: {
+        alias: data.aliasName,
+      },
+      auth: jwt,
+    });
 
-      return result;
+    return result;
   },
 
   // Remove gsuite alias (e.g. netcom-xxx@aegeee.eu)
   removeEmailAlias: async function removeEmailAlias(jwt, data){
     const admin = google.admin('directory_v1');
     const result = await admin.users.aliases.delete({
-        userKey: data.primaryEmail,
-        alias: data.aliasName,
-        auth: jwt
-      });
+      userKey: data.primaryEmail,
+      alias: data.aliasName,
+      auth: jwt,
+    });
 
-      return result;
+    return result;
   },
 
   // Insert event in the system
@@ -229,7 +229,7 @@ const gsuiteOperations = {
     throw GsuiteError;
   },
 
-}
+};
 
 exports.runGsuiteOperation = runGsuiteOperation;
 exports.gsuiteOperations = gsuiteOperations;
