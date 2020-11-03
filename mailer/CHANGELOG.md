@@ -1,3 +1,10 @@
+# [0.12.0](https://github.com/AEGEE/mailer/compare/0.11.1...0.12.0) (2020-11-03)
+
+
+### Features
+
+* **statutory:** add template JC mail for new candidature ([#54](https://github.com/AEGEE/mailer/issues/54)) ([ec7b6d4](https://github.com/AEGEE/mailer/commit/ec7b6d484105aaa61389a58014db36514412b39e))
+
 ## [0.11.1](https://github.com/AEGEE/mailer/compare/0.11.0...0.11.1) (2020-10-27)
 
 
