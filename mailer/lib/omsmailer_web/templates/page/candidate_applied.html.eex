@@ -43,7 +43,7 @@
                             A new candidature to position
                             <strong><%= @parameters["position"]["name"] %></strong>
                             is submitted by
-                            <strong><%= @parameters["candidate"]["first_name"] %><%= @parameters["candidate"]["last_name"] %></strong>.
+                            <strong><%= @parameters["candidate"]["first_name"] %> <%= @parameters["candidate"]["last_name"] %></strong>.
                           </div>
                         </td>
                       </tr>
