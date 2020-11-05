@@ -46,7 +46,7 @@
     "babel-eslint": "^10.1.0",
     "buefy": "^0.8.17",
     "chart.js": "^2.9.4",
-    "compression-webpack-plugin": "^6.0.3",
+    "compression-webpack-plugin": "^6.0.5",
     "css-loader": "^4.3.0",
     "dompurify": "^2.2.2",
     "eslint": "^7.12.1",
