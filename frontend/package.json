@@ -57,7 +57,7 @@
     "mapbox-gl": "^1.12.0",
     "marked": "^1.2.2",
     "moment": "^2.29.1",
-    "node-sass": "^4.14.1",
+    "node-sass": "^5.0.0",
     "nprogress": "^0.2.0",
     "qs": "^6.9.3",
     "sass-loader": "^10.0.5",
