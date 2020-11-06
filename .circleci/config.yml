@@ -20,8 +20,6 @@ jobs:
       image: ubuntu-1604:201903-01
     steps:
       - checkout
-      - run: git submodule sync --recursive
-      - run: git submodule update --recursive --init
       - run: sudo apt-get update
       - run: sudo apt-get install shellcheck
       - run: shellcheck *.sh
