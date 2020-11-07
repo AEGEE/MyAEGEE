@@ -19,9 +19,9 @@
 [submodule "gsuite-wrapper"]
 	path = gsuite-wrapper
 	url = https://github.com/AEGEE/gsuite-wrapper
-[submodule "network"]
-  path = network
-  url = https://github.com/AEGEE/network
 [submodule "gateways/docker/portal/files"]
 	path = gateways/docker/portal/files
 	url = https://github.com/AEGEE/AEGEEPortal
+[submodule "network"]
+	path = network
+	url = https://github.com/AEGEE/network
