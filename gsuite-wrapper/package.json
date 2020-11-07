@@ -18,7 +18,7 @@
     "express": "^4.17.1",
     "express-promise-router": "^4.0.1",
     "googleapis": "^59.0.0",
-    "ioredis": "^4.19.0",
+    "ioredis": "^4.19.2",
     "morgan": "^1.10.0",
     "winston": "^3.3.0",
     "oms-common-nodejs": "git+https://git@github.com/AEGEE/oms-common-nodejs.git",
@@ -28,8 +28,8 @@
     "@semantic-release/changelog": "^5.0.1",
     "@semantic-release/git": "^9.0.0",
     "chai": "^4.2.0",
-    "conventional-changelog": "^3.1.21",
-    "eslint": "^7.11.0",
+    "conventional-changelog": "^3.1.24",
+    "eslint": "^7.12.1",
     "eslint-config-strongloop": "^2.1.0",
     "eslint-plugin-mocha": "^7.0.1",
     "istanbul": "^0.4.5",
@@ -39,6 +39,6 @@
     "nyc": "^13.1.0",
     "request": "^2.88.2",
     "request-promise-native": "^1.0.8",
-    "semantic-release": "^17.2.1"
+    "semantic-release": "^17.2.2"
   }
 }
