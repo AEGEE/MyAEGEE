@@ -72,7 +72,7 @@ server.use(middlewares.errorHandler);
 //     res.locals.message = err.message;
 //     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-//     log.error(`(${serverInfo.host()}) : error handler says: `+err);
+//     log.error(`(${serverInfo.host}) : error handler says: `+err);
 
 //     return res.status(err.status || 500).send({"error": err.message});
 //   });
@@ -84,9 +84,7 @@ async function startServer() {
     const localApp = server.listen(config.port, async() => {
       app = localApp;
       log.info('Up and running: %s listening on %s:%d', server.name, config.url, config.port);
-      log.info('Version %s of %s in %s mode, deployed on %s', serverInfo.version(), serverInfo.name(), serverInfo.env, serverInfo.host());
-      console.log('Up and running: %s listening on %s:%d', server.name, config.url, config.port);
-      console.log('Version %s of %s in %s mode, deployed on %s', serverInfo.version(), serverInfo.name(), serverInfo.env, serverInfo.host());
+      log.info('Version %s of %s in %s mode, deployed on %s', serverInfo.version, serverInfo.name, serverInfo.env, serverInfo.host);
       const result = await redis.start();
       return res(result);
     });

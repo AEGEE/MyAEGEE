@@ -1,23 +1,10 @@
 'use strict';
 const os = require('os');
 
-const host = () => {
-  return process.env.X_HOST || os.hostname();
-};
-
-const name = () => {
-  return process.env.npm_package_name;
-};
-
-const version = () => {
-  return process.env.npm_package_version;
-};
-
 // Assuming by default that we run in 'development' environment, if no
 // NODE_ENV is specified.
-const env = process.env.NODE_ENV || 'development';
-
-exports.host = host;
-exports.name = name;
-exports.version = version;
-exports.env = env;
+exports.env = process.env.NODE_ENV || 'development';
+exports.host = process.env.X_HOST || os.hostname();
+exports.name = process.env.npm_package_name;
+exports.version = process.env.npm_package_version;
+exports.description = process.env.npm_package_description;

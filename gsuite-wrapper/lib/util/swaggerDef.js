@@ -5,13 +5,10 @@ const serverInfo = require('./info.js');
 module.exports = {
   info: {
     // API informations (required)
-    title: serverInfo.name(), // Title (required)
-    version: serverInfo.version(), // Version (required)
-    description: 'API that wrap functionality of G Suite', // Description (optional)
+    title: serverInfo.name, // Title (required)
+    version: serverInfo.version, // Version (required)
+    description: serverInfo.description, // Description (optional)
     termsOfService: "https://my.aegee.eu/legal/simple",
-    contact: {
-      email: "myaegee@aegee.eu"
-    },
     license: {
       name: "Apache 2.0",
       url: "http://www.apache.org/licenses/LICENSE-2.0.html"

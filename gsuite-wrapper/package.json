@@ -1,7 +1,7 @@
 {
   "name": "gsuite-wrapper",
   "version": "1.2.2",
-  "description": "REST API for Gsuite wrapper of AEGEE's infrastructure",
+  "description": "API that wrap functionality of G Suite",
   "author": "Fabrizio Bellicano <github.com/linuxbandit>",
   "license": "Apache-2.0",
   "repository": "AEGEE/gsuite-wrapper",
