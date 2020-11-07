@@ -10,10 +10,6 @@ const redis = require('./redis.js').db;
 /**
  * @swagger
  *
- * externalDocs:
- *   description: "Find out more about MyAEGEE"
- *   url: "https://myaegee.atlassian.net/wiki/spaces/GENERAL/overview"
- *
  * tags:
  *   - name: "Account"
  *     description: "Accounts operations: add/remove user; modify user details; add/remove aliases for user email"

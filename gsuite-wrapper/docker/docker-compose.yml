@@ -24,8 +24,8 @@ services:
     labels:
       - "traefik.backend=gsuite-wrapper"
       - "traefik.port=8084"
-      - "traefik.frontend.rule=Path:/api/gsuite-wrapper/healthcheck;PathPrefixStrip:/api/gsuite-wrapper"
-      - "traefik.frontend.rule=Path:/api/gsuite-wrapper/api-docs.json;PathPrefixStrip:/api/gsuite-wrapper"
+      - "traefik.hc.frontend.rule=Path:/api/gsuite-wrapper/healthcheck;PathPrefixStrip:/api/gsuite-wrapper"
+      - "traefik.doc.frontend.rule=Path:/api/gsuite-wrapper/api-docs.json;PathPrefixStrip:/api/gsuite-wrapper"
       - "traefik.enable=true"
 
 volumes:
