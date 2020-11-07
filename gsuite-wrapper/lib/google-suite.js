@@ -39,13 +39,15 @@ async function runGsuiteOperation(operation, payload) {
     const authRes = await jwt.authorize();
     log.debug('auth: ' + JSON.stringify(authRes));
   } catch (AuthError){
-    log.error('Authentication error! ' + AuthError.toString());
-    throw { errors: [{message: 'Authentication errorrrr'}], code: 500 };
+    log.error('Authentication error to G Suite!' + AuthError.toString());
+    throw { errors: [{message: 'Authentication error to G Suite'}], code: 500 };
   }
 
   const res = await operation(jwt, payload);
   const operationResult = {success: true, code: res.status, data: res.data};
+    // code for 'created' is 201 but Google returns 200
   if (operation.name.indexOf('add') > -1 && operationResult.code === 200) { operationResult.code = 201; };
+    // by standard, 204 has no content body, but we always return content
   if (operationResult.code === 204) { operationResult.code = 200; };
 
   return operationResult;

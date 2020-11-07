@@ -10,7 +10,7 @@ exports.notFound = (req, res, next) => errors.makeNotFoundError(res, 'No such AP
 exports.errorHandler = (err, req, res, next) => {
   // Handling invalid JSON
 
-  log.error(`(${serverInfo.host()}) : error handler says: ` + err);
+  log.error(`(${serverInfo.host}) : error handler says: ` + err);
 
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
     return errors.makeBadRequestError(res, 'Invalid JSON.');
