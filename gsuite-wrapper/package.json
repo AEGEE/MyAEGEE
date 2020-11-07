@@ -1,6 +1,6 @@
 {
   "name": "gsuite-wrapper",
-  "version": "1.2.4",
+  "version": "1.3.0",
   "description": "API that wrap functionality of G Suite",
   "author": "Fabrizio Bellicano <github.com/linuxbandit>",
   "license": "Apache-2.0",

@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/AEGEE/gsuite-wrapper/compare/1.2.4...1.3.0) (2020-11-07)
+
+
+### Features
+
+* add list users ([9926f0d](https://github.com/AEGEE/gsuite-wrapper/commit/9926f0d6245f7d182e4599ebe79ff6be0fb3664f))
+
 ## [1.2.4](https://github.com/AEGEE/gsuite-wrapper/compare/1.2.3...1.2.4) (2020-11-07)
 
 
