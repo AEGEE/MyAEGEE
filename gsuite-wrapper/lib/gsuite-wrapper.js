@@ -1,7 +1,7 @@
 const {runGsuiteOperation, gsuiteOperations} = require('./google-suite.js');
 
 const log = require('./util/logger.js');
-
+const config = require('./config/configFile.js');
 const redis = require('./redis.js').db;
 
 // API DEFINITION
@@ -558,6 +558,79 @@ exports.editAccount = async function(req, res, next) {
 
   return res.status(statusCode).json(response);
 };
+
+/**
+ * @swagger
+ *
+ * /account:
+ *   get:
+ *     description: Get all accounts on gsuite (used only once)
+ *     tags:
+ *       - Account
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: pageToken
+ *         description: The token for the next page of results
+ *         in: query
+ *         required: false
+ *         type: string
+ *       - name: max
+ *         description: Max returned (default ?max=10)
+ *         in: query
+ *         required: false
+ *         type: string
+ *       - name: q
+ *         description: The query (default ?q=orgUnitPath=/individuals )
+ *         in: query
+ *         required: false
+ *         type: string
+ *       - name: sort
+ *         description: Sorting order (default ?sort=ASCENDING)
+ *         in: query
+ *         required: false
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: The user list is returned
+ *         schema:
+ *           '$ref': '#/definitions/successResponse'
+ *       403:
+ *         description: Unauthorised
+ *         schema:
+ *           '$ref': '#/definitions/generalResponse'
+ *       500:
+ *         description: Internal error
+ *         schema:
+ *           '$ref': '#/definitions/errorResponse'
+ */
+
+exports.listAccounts = async function(req, res , next) {
+  log.debug(req.headers['test-title']);
+
+  const payload = {
+    "pageToken": req.query.pageToken,
+    "maxResults": req.query.max,
+    "query": req.query.q || "orgUnitPath=/individuals",
+    "sortOrder": req.query.sort || "ASCENDING",
+    "customer": config.customer_ID,
+    "orderBy": "familyName"
+  };
+
+  try{
+      let result = await runGsuiteOperation(gsuiteOperations.listAccounts, payload);
+      response = {success: result.success, message: "There you go mate", data: result.data };
+      statusCode = result.code;
+
+  }catch(GsuiteError){
+      log.warn("GsuiteError");
+      response = {success: false, errors: GsuiteError.errors, message: GsuiteError.errors[0].message };
+      statusCode = GsuiteError.code;
+  }
+
+  return res.status(statusCode).json(response);
+};
+
 /**
  * @swagger
  *
