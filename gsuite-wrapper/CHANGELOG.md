@@ -1,3 +1,10 @@
+## [1.2.4](https://github.com/AEGEE/gsuite-wrapper/compare/1.2.3...1.2.4) (2020-11-07)
+
+
+### Bug Fixes
+
+* wrong package name ([d12ae3a](https://github.com/AEGEE/gsuite-wrapper/commit/d12ae3af3a7be97fcc227fbf69dabac3f8b4f9d2))
+
 ## [1.2.3](https://github.com/AEGEE/gsuite-wrapper/compare/1.2.2...1.2.3) (2020-11-07)
 
 
