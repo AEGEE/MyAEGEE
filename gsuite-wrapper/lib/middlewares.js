@@ -37,9 +37,9 @@ exports.healthcheck = (req, res) => {
   return res.json({
     success: true,
     data: {
-      name: packageInfo.name,
-      description: packageInfo.description,
-      version: packageInfo.version,
+      name: serverInfo.name,
+      description: serverInfo.description,
+      version: serverInfo.version,
     },
   });
 };
