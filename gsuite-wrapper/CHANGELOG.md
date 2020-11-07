@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/AEGEE/gsuite-wrapper/compare/1.2.2...1.2.3) (2020-11-07)
+
+
+### Bug Fixes
+
+* do not overwrite healthcheck route ([10492f9](https://github.com/AEGEE/gsuite-wrapper/commit/10492f9371d5b4c86ec9c8aa844da2c97261d1e7))
+
 ## [1.2.2](https://github.com/AEGEE/gsuite-wrapper/compare/1.2.1...1.2.2) (2020-10-24)
 
 
