@@ -1,3 +1,10 @@
+# [1.20.0](https://github.com/AEGEE/frontend/compare/1.19.2...1.20.0) (2020-11-08)
+
+
+### Features
+
+* **user:** save privacy consent new users ([#514](https://github.com/AEGEE/frontend/issues/514)) ([b8cc0e9](https://github.com/AEGEE/frontend/commit/b8cc0e9bf5baeda34dd9355ee83d59c6d53e2ca7))
+
 ## [1.19.2](https://github.com/AEGEE/frontend/compare/1.19.1...1.19.2) (2020-10-29)
 
 
