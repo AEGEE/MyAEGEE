@@ -143,6 +143,7 @@ export default {
         date_of_birth: null,
         gender: null,
         phone: null,
+        privacy_consent: null,
         address: null,
         about_me: null
       },
@@ -181,6 +182,8 @@ export default {
         return
       }
 
+      this.user.privacy_consent = moment().format()
+
       const body = _.pick(this.user, [
         'username',
         'password',
@@ -190,6 +193,7 @@ export default {
         'date_of_birth',
         'gender',
         'phone',
+        'privacy_consent',
         'address',
         'about_me'
       ])
