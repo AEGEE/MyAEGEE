@@ -1,0 +1,80 @@
+{
+  "name": "network",
+  "version": "0.0.1",
+  "description": "Network module for MyAEGEE, for network history and network status.",
+  "main": "lib/run.js",
+  "scripts": {
+    "start": "nodemon -e 'js,json' lib/run.js",
+    "nodemon-start": "nodemon -e 'js,json' lib/run.js",
+    "lint": "eslint .",
+    "db:create": "sequelize db:create",
+    "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
+    "db:migrate": "sequelize db:migrate",
+    "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
+    "open-coverage": "opn coverage/lcov-report/index.html"
+  },
+  "keywords": [],
+  "author": "Rik Smale <github.com/WikiRik>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AEGEE/network/issues"
+  },
+  "homepage": "https://github.com/AEGEE/network",
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "verbose": true,
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "lib/**/*.js",
+      "models/**/*.js",
+      "!lib/run.js",
+      "!lib/sequelize.js",
+      "!lib/logger.js"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^11.0.0",
+    "@commitlint/config-conventional": "^11.0.0",
+    "@semantic-release/changelog": "^5.0.1",
+    "@semantic-release/git": "^9.0.0",
+    "codecov": "^3.7.2",
+    "conventional-changelog": "^3.1.23",
+    "eslint": "^7.10.0",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-react": "^7.21.2",
+    "faker": "^5.1.0",
+    "husky": "^4.3.0",
+    "jest": "^26.4.2",
+    "jest-junit": "^11.1.0",
+    "nock": "^13.0.4",
+    "nyc": "^15.1.0",
+    "open-cli": "^6.0.1",
+    "semantic-release": "^17.1.2"
+  },
+  "dependencies": {
+    "@bugsnag/js": "^7.3.5",
+    "body-parser": "^1.19.0",
+    "bunyan": "^1.8.14",
+    "deep-assign": "^3.0.0",
+    "express": "^4.17.1",
+    "express-promise-router": "^4.0.1",
+    "joi": "^17.2.1",
+    "lodash": "^4.17.20",
+    "moment": "^2.29.0",
+    "morgan": "^1.10.0",
+    "on-finished": "^2.3.0",
+    "pg": "^8.3.3",
+    "prom-client": "^12.0.0",
+    "request": "^2.88.2",
+    "request-promise-native": "^1.0.9",
+    "sequelize": "^6.3.5",
+    "sequelize-cli": "^6.2.0"
+  }
+}

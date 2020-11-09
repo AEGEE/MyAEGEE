@@ -1,0 +1,15 @@
+version: "3.4"
+
+services:
+  network:
+    build:
+      context: ./${PATH_NETWORK}/..
+      dockerfile: ./docker/network/Dockerfile
+    image: aegee/network:dev
+    volumes:
+      - ./${PATH_NETWORK}/../config:/usr/app/src/config
+      - ./${PATH_NETWORK}/../lib:/usr/app/src/lib
+      - ./${PATH_NETWORK}/../migrations:/usr/app/src/migrations
+      - ./${PATH_NETWORK}/../models:/usr/app/src/models
+      - ./${PATH_NETWORK}/../cli.js:/usr/app/src/cli.js
+    command: "sh -c '/usr/app/scripts/bootstrap.sh && npm run nodemon-start | bunyan'"

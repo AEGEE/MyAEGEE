@@ -1,0 +1,57 @@
+version: "3.4"
+### NETWORK     #######################################
+services:
+    postgres-network:
+        image: postgres:10
+        volumes:
+            - postgres-network:/var/lib/postgresql/data
+        expose:
+            - "5432"
+        environment:
+            POSTGRES_USER: "postgres"
+            POSTGRES_PASSWORD: "${PW_POSTGRES}"
+
+    network:
+        image: aegee/network:latest
+        volumes:
+            - network-media:/usr/app/media
+            - shared:/usr/app/shared:ro
+        depends_on:
+            - postgres-network
+        expose:
+            - "8084"
+        environment:
+            BUGSNAG_KEY: "${BUGSNAG_KEY_NETWORK}"
+            PG_PASSWORD: "${PW_POSTGRES}"
+            NODE_ENV: "${MYAEGEE_ENV}"
+            HOST: "${SUBDOMAIN_FRONTEND}${BASE_URL}"
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8084/healthcheck"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+        # cpu_count: 1
+        # mem_limit: 900m
+        labels:
+            - "traefik.backend=network"
+            - "traefik.port=8084"
+            - "traefik.auth.frontend.rule=PathPrefix:/api/network/metrics;PathPrefixStrip:/api/network;"
+            - "traefik.new.frontend.rule=PathPrefixStrip:/api/network;"
+            - "traefik.auth.frontend.auth.basic.users=admin:${METRICS_CREDENTIALS}"
+            - "traefik.new.frontend.priority=110"
+            - "traefik.auth.frontend.priority=120"
+            - "traefik.enable=true"
+
+volumes:
+    postgres-network:
+        driver: local
+    network-media:
+        driver: local
+    shared:
+        driver: local
+
+networks:
+    default:
+        external:
+            name: OMS

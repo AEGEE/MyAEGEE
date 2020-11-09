@@ -1,0 +1,104 @@
+orbs:
+  slack: circleci/slack@3.4.1
+version: 2.1
+jobs:
+  test:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - checkout
+      - run: docker run --name postgres -p 5432:5432 -d postgres:10.6
+      - run:
+          name: Install Node
+          command: |
+            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
+            which node && node -v
+      - run: npm install
+      - run: mkdir -p ~/reports/jest
+      - run:
+          name: Run tests
+          command: JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm test -- --reporters=default --reporters=jest-junit
+      - run: ./node_modules/.bin/codecov
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  build:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - checkout
+      - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache network
+  eslint:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - checkout
+      - run:
+          name: Install Node
+          command: |
+            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
+            which node && node -v
+      - run: npm install
+      - run: mkdir -p ~/reports
+      - run: npm run lint -- --format junit --output-file ~/reports/eslint.xml
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  yamllint:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - checkout
+      - run: pip install yamllint
+      - run: yamllint -d .yamllint.yml .
+  docker-build-and-push:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - checkout
+      - run:
+          name: Install Node
+          command: |
+            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
+            which node && node -v
+      - run: npm install
+      - run: npx semantic-release
+      - run: docker build  --tag aegee/network:$(node -p "require('./package.json').version") --tag aegee/network:latest -f ./docker/network/Dockerfile .
+      - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+      - run: docker push aegee/network:$(node -p "require('./package.json').version")
+      - run: docker push aegee/network:latest
+      - slack/status:
+          success_message: The Docker image for \`$CIRCLE_PROJECT_REPONAME\` with tags \`$(node -p "require('./package.json').version")\` and \`latest\` has been pushed to Dockerhub.
+          failure_message: The Docker image for \`$CIRCLE_PROJECT_REPONAME\` build and push has failed.
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
+  eslint:
+    jobs:
+      - eslint
+  yamllint:
+    jobs:
+      - yamllint
+  build:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: master
+  docker-build-and-push:
+    jobs:
+      - docker-build-and-push:
+          filters:
+            branches:
+              only: master
