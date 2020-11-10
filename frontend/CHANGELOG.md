@@ -1,3 +1,10 @@
+## [1.20.1](https://github.com/AEGEE/frontend/compare/1.20.0...1.20.1) (2020-11-10)
+
+
+### Bug Fixes
+
+* **gsuitewrapper:** add gsuite-wrapper to status and about ([#705](https://github.com/AEGEE/frontend/issues/705)) ([da96a64](https://github.com/AEGEE/frontend/commit/da96a6492405631a7d8c40c947eb28fca2e51273))
+
 # [1.20.0](https://github.com/AEGEE/frontend/compare/1.19.2...1.20.0) (2020-11-08)
 
 
