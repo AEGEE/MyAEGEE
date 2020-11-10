@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 99
+    reviewers:
+      - "WikiRik"
+  - package-ecosystem: "docker"
+    directory: "/docker/core"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 99
+    reviewers:
+      - "WikiRik"
