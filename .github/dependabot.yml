@@ -1,0 +1,23 @@
+version: 2
+updates:
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 99
+    reviewers:
+      - "WikiRik"
+  - package-ecosystem: "docker"
+    directory: "/gateways/docker/portal"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 99
+    reviewers:
+      - "WikiRik"
+  - package-ecosystem: "docker"
+    directory: "/monitor/docker/logstash"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 99
+    reviewers:
+      - "WikiRik"
