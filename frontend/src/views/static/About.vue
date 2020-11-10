@@ -163,6 +163,11 @@
                 <td><a href="https://github.com/AEGEE/discounts">discounts</a></td>
                 <td>Discount code storage and retrieval.</td>
               </tr>
+
+              <tr>
+                <td><a href="https://github.com/AEGEE/gsuite-wrapper">gsuite-wrapper</a></td>
+                <td>Integrates GSuite with MyAEGEE.</td>
+              </tr>
             </tbody>
           </table>
 

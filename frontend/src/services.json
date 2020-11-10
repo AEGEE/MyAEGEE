@@ -4,6 +4,7 @@
   "events": "/api/events",
   "statutory": "/api/statutory",
   "discounts": "/api/discounts",
+  "gsuite-wrapper": "/api/gsuite-wrapper",
   "oms-frontend": "",
   "events-static": "/media/events",
   "statutory-static": "/media/statutory"

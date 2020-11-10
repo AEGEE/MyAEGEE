@@ -87,6 +87,14 @@ export default {
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/discounts/blob/master/CHANGELOG.md'
         },
+        'gsuite-wrapper': {
+          roundTrip: null,
+          version: '-',
+          latestVersion: '-',
+          latestTag: '-',
+          isAlive: 'Waiting...',
+          changelog: 'https://github.com/AEGEE/gsuite-wrapper/blob/master/CHANGELOG.md'
+        },
         frontend: {
           roundTrip: null,
           version: this.$store.state.pkg.version,
