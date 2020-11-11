@@ -1,3 +1,10 @@
+## [1.20.2](https://github.com/AEGEE/frontend/compare/1.20.1...1.20.2) (2020-11-11)
+
+
+### Bug Fixes
+
+* **memberslist:** remove negation mark from length ([#715](https://github.com/AEGEE/frontend/issues/715)) ([6c602a8](https://github.com/AEGEE/frontend/commit/6c602a80690335ea9d7f9fdafc7f8d005cf9d7d5))
+
 ## [1.20.1](https://github.com/AEGEE/frontend/compare/1.20.0...1.20.1) (2020-11-10)
 
 
