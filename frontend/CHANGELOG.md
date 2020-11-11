@@ -1,3 +1,10 @@
+## [1.20.3](https://github.com/AEGEE/frontend/compare/1.20.2...1.20.3) (2020-11-11)
+
+
+### Bug Fixes
+
+* **register:** make phone and address optional ([#716](https://github.com/AEGEE/frontend/issues/716)) ([334a676](https://github.com/AEGEE/frontend/commit/334a6765b4c49e2d8d215536122d8b9121a3aea2))
+
 ## [1.20.2](https://github.com/AEGEE/frontend/compare/1.20.1...1.20.2) (2020-11-11)
 
 
