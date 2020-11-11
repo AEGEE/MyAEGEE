@@ -243,7 +243,7 @@ export default {
       if (!this.memberslist.currency) {
         return this.$root.showError('Please select a currency.')
       }
-      if (!this.memberslist.members.length === 0) {
+      if (this.memberslist.members.length === 0) {
         return this.$root.showError('Memberslist should contain at least 1 member.')
       }
 
