@@ -27,36 +27,35 @@
           default-sort="statutory_id"
           default-sort-direction="desc"
           @sort="onSort">
-          <template slot-scope="props">
-            <b-table-column field="statutory_id" label="#" numeric sortable>
+            <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
               {{ props.row.statutory_id }}
             </b-table-column>
 
-            <b-table-column field="user_id" label="User ID" sortable>
+            <b-table-column field="user_id" label="User ID" sortable v-slot="props">
               {{ props.row.user_id }}
             </b-table-column>
 
-            <b-table-column field="first_name" label="First name" centered sortable>
+            <b-table-column field="first_name" label="First name" centered sortable v-slot="props">
               {{ props.row.first_name | beautify }}
             </b-table-column>
 
-            <b-table-column field="last_name" label="Last name" centered sortable>
+            <b-table-column field="last_name" label="Last name" centered sortable v-slot="props">
               {{ props.row.last_name | beautify }}
             </b-table-column>
 
-            <b-table-column field="body_name" label="Body" centered sortable>
+            <b-table-column field="body_name" label="Body" centered sortable v-slot="props">
               {{ props.row.body_name }}
             </b-table-column>
 
-            <b-table-column field="participant_type" label="Participant type and order" centered>
+            <b-table-column field="participant_type" label="Participant type and order" centered v-slot="props">
               {{ props.row.participant_type && `${props.row.participant_type} (${props.row.participant_order})` }}
             </b-table-column>
 
-            <b-table-column field="confirmed" label="Confirmed" centered>
+            <b-table-column field="confirmed" label="Confirmed" centered v-slot="props">
               {{ props.row.confirmed | beautify }}
             </b-table-column>
 
-            <b-table-column field="registered" label="JC registered?" centered sortable>
+            <b-table-column field="registered" label="JC registered?" centered sortable v-slot="props">
               <div class="select" :class="{ 'is-loading': props.row.isSavingRegistered }">
                 <select v-model="props.row.newRegistered" @change="switchPaxRegistered(props.row)" :disabled="props.row.departed || !props.row.confirmed">
                   <option :value="true">Yes</option>
@@ -65,7 +64,7 @@
               </div>
             </b-table-column>
 
-            <b-table-column field="departed" label="Departed?" centered sortable>
+            <b-table-column field="departed" label="Departed?" centered sortable v-slot="props">
               <div class="select" :class="{ 'is-loading': props.row.isSavingDeparted }">
                 <select v-model="props.row.newDeparted" @change="switchPaxDeparted(props.row)" :disabled="!props.row.registered">
                   <option :value="true">Yes</option>
@@ -73,7 +72,6 @@
                 </select>
               </div>
             </b-table-column>
-          </template>
 
           <template slot="empty">
             <empty-table-stub />

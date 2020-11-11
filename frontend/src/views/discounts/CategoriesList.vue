@@ -11,25 +11,23 @@
         </div>
 
         <b-table :data="categories" :loading="isLoading" narrowed>
-          <template slot-scope="props">
-            <b-table-column field="name" label="Name">
+            <b-table-column field="name" label="Name" v-slot="props">
               {{ props.row.name }}
             </b-table-column>
 
-            <b-table-column field="discounts" label="Discounts">
+            <b-table-column field="discounts" label="Discounts" v-slot="props">
               <ul v-for="(discount, index) in props.row.discounts" v-bind:key="index">
                 <li>{{ discount.name }}</li>
               </ul>
             </b-table-column>
 
-            <b-table-column label="Edit">
+            <b-table-column label="Edit" v-slot="props">
               <router-link :to="{ name: 'oms.discounts.categories.edit', params: { id: props.row.id } }" class="button is-small is-warning">Edit</router-link>
             </b-table-column>
 
-            <b-table-column label="Delete">
+            <b-table-column label="Delete" v-slot="props">
               <button @click="askDeleteCategory(props.index)" class="button is-small is-danger">Delete</button>
             </b-table-column>
-          </template>
 
           <template slot="empty">
             <empty-table-stub />

@@ -18,23 +18,21 @@
         :per-page="limit"
         default-sort="id"
         default-sort-direction="desc">
-        <template slot-scope="props">
-          <b-table-column field="user_id" label="#" numeric sortable>
+          <b-table-column field="user_id" label="#" numeric sortable v-slot="props">
             {{ props.row.user_id }}
           </b-table-column>
 
-          <b-table-column field="first_name" label="User" sortable>
+          <b-table-column field="first_name" label="User" sortable v-slot="props">
             <router-link :to="{ name: 'oms.members.view', params: { id: props.row.url || props.row.id } }">
               {{ props.row.first_name }} {{ props.row.last_name }}
             </router-link>
           </b-table-column>
 
-          <b-table-column field="mail_confirmed" label="Email confirmed?" sortable>
+          <b-table-column field="mail_confirmed" label="Email confirmed?" sortable v-slot="props">
             <span class="tag is-small" :class="(props.row.mail_confirmed_at) ? 'is-primary' : 'is-danger'">
               {{ !!props.row.mail_confirmed_at | beautify }}
             </span>
           </b-table-column>
-        </template>
 
         <template slot="empty">
           <empty-table-stub />

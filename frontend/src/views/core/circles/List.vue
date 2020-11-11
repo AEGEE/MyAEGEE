@@ -26,17 +26,15 @@
         <b-table
           :data="circles"
           :loading="isLoading">
-          <template slot-scope="props">
-            <b-table-column field="name" label="Circle name" width="150">
+            <b-table-column field="name" label="Circle name" width="150" v-slot="props">
               <router-link :to="{ name: 'oms.circles.view', params: { id: props.row.id } }">
                 {{ props.row.name }}
               </router-link>
             </b-table-column>
 
-            <b-table-column field="description" label="Description">
+            <b-table-column field="description" label="Description" v-slot="props">
               {{ props.row.description }}
             </b-table-column>
-          </template>
 
           <template slot="empty">
             <empty-table-stub />

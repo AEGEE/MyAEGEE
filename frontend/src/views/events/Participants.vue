@@ -17,26 +17,25 @@
           :data="applications"
           :row-class="row => calculateClassForApplication(row)"
           :loading="isLoading">
-          <template slot-scope="props">
-            <b-table-column field="user_id" label="User ID" numeric sortable>
+            <b-table-column field="user_id" label="User ID" numeric sortable v-slot="props">
               {{ props.row.user_id }}
             </b-table-column>
 
-            <b-table-column field="first_name" label="First and last name" sortable>
+            <b-table-column field="first_name" label="First and last name" sortable v-slot="props">
               {{ props.row.first_name }} {{ props.row.last_name }}
             </b-table-column>
 
-            <b-table-column field="body_name" label="Body">
+            <b-table-column field="body_name" label="Body" v-slot="props">
               <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
                 {{ props.row.body_name }}
               </router-link>
             </b-table-column>
 
-            <b-table-column label="View">
+            <b-table-column label="View" v-slot="props">
               <a href="#" @click.prevent="showModal(props.row)">View</a>
             </b-table-column>
 
-            <b-table-column label="Manage status" field="status" centered sortable>
+            <b-table-column label="Manage status" field="status" centered sortable v-slot="props">
               <div class="select" :class="{ 'is-loading': props.row.isSaving }">
                 <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)">
                   <option value="pending">Pending</option>
@@ -46,7 +45,7 @@
               </div>
             </b-table-column>
 
-            <b-table-column label="Confirmed?" field="confirmed" centered sortable>
+            <b-table-column label="Confirmed?" field="confirmed" centered sortable v-slot="props">
               <div class="select" :class="{ 'is-loading': props.row.isSavingConfirmed }">
                 <select v-model="props.row.newConfirmed" @change="switchPaxConfirmed(props.row)" :disabled="props.row.attended">
                   <option :value="true">Yes</option>
@@ -55,7 +54,7 @@
               </div>
             </b-table-column>
 
-            <b-table-column label="Attended?" field="confirmed" centered sortable>
+            <b-table-column label="Attended?" field="confirmed" centered sortable v-slot="props">
               <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
                 <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.confirmed">
                   <option :value="true">Yes</option>
@@ -63,7 +62,6 @@
                 </select>
               </div>
             </b-table-column>
-          </template>
 
           <template slot="empty">
             <empty-table-stub />

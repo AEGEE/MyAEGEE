@@ -26,36 +26,35 @@
         </div>
 
         <b-table :data="positions" :loading="isLoading" :selected.sync="selectedPosition" narrowed>
-          <template slot-scope="props">
-            <b-table-column field="id" label="#" numeric>
+            <b-table-column field="id" label="#" numeric v-slot="props">
               {{ props.row.id }}
             </b-table-column>
 
-            <b-table-column field="name" label="Name">
+            <b-table-column field="name" label="Name" v-slot="props">
               {{ props.row.name }}
             </b-table-column>
 
-            <b-table-column field="starts" label="Application period starts" centered>
+            <b-table-column field="starts" label="Application period starts" centered v-slot="props">
               {{ props.row.starts | datetime }}
             </b-table-column>
 
-            <b-table-column field="starts" label="Application period ends" centered>
+            <b-table-column field="starts" label="Application period ends" centered v-slot="props">
               {{ props.row.ends | datetime }}
             </b-table-column>
 
-            <b-table-column field="starts" label="Final application deadline" centered v-if="displayFinalDeadline">
+            <b-table-column field="starts" label="Final application deadline" centered v-if="displayFinalDeadline" v-slot="props">
               {{ props.row.ends_force | datetime }}
             </b-table-column>
 
-            <b-table-column field="places" label="Places available" centered numeric>
+            <b-table-column field="places" label="Places available" centered numeric v-slot="props">
               {{ props.row.places }}
             </b-table-column>
 
-            <b-table-column field="places" label="Applications" centered numeric>
+            <b-table-column field="places" label="Applications" centered numeric v-slot="props">
               {{ props.row.candidates.length }}
             </b-table-column>
 
-            <b-table-column field="starts" label="Status" centered>
+            <b-table-column field="starts" label="Status" centered v-slot="props">
               <span
                 class="tag"
                 v-if="prefix !== 'all'"
@@ -70,11 +69,11 @@
               </div>
             </b-table-column>
 
-            <b-table-column label="Edit" centered v-if="can.manage_candidates">
+            <b-table-column label="Edit" centered v-if="can.manage_candidates" v-slot="props">
               <a href="#" class="button is-primary is-small" @click.prevent="openEditPositionModal(props.row)">Edit</a>
             </b-table-column>
 
-            <b-table-column label="Apply" centered>
+            <b-table-column label="Apply" centered v-slot="props">
               <router-link
                 :to="{ name: 'oms.statutory.candidates.new', params: { id: $route.params.id, position_id: props.row.id } }"
                 class="button is-small"
@@ -92,12 +91,11 @@
               <span v-if="props.row.myCandidate && props.row.myCandidate.status !== 'pending'">You cannot edit your application.</span>
             </b-table-column>
 
-            <b-table-column label="" centered v-if="can.manage_candidates">
+            <b-table-column label="" centered v-if="can.manage_candidates" v-slot="props">
               <a href="#" class="button is-danger is-small" @click.prevent="askDeletePosition(props.row)">
                 <span class="white"><font-awesome-icon :icon="['fa', 'trash-alt']" /></span>
               </a>
             </b-table-column>
-          </template>
 
           <template slot="empty">
             <empty-table-stub />
@@ -121,32 +119,31 @@
         <div class="subtitle" v-if="selectedPosition">Applications for selected position</div>
 
         <b-table :data.sync="selectedPosition.candidates" v-if="selectedPosition" narrowed>
-          <template slot-scope="props">
-            <b-table-column field="id" label="#" numeric>
+            <b-table-column field="id" label="#" numeric v-slot="props">
               {{ props.row.id }}
             </b-table-column>
 
-            <b-table-column field="first_name" label="First name">
+            <b-table-column field="first_name" label="First name" v-slot="props">
               {{ props.row.first_name }}
             </b-table-column>
 
-            <b-table-column field="last_name" label="Last name">
+            <b-table-column field="last_name" label="Last name" v-slot="props">
               {{ props.row.last_name }}
             </b-table-column>
 
-            <b-table-column field="body_name" label="Body">
+            <b-table-column field="body_name" label="Body" v-slot="props">
               {{ props.row.body_name }}
             </b-table-column>
 
-            <b-table-column field="created_at" label="Applied on">
+            <b-table-column field="created_at" label="Applied on" v-slot="props">
               {{ props.row.created_at | datetimeseconds }}
             </b-table-column>
 
-            <b-table-column field="email" label="Email" :visible="prefix === 'all'">
+            <b-table-column field="email" label="Email" :visible="prefix === 'all'" v-slot="props">
               {{ props.row.email }}
             </b-table-column>
 
-            <b-table-column label="View">
+            <b-table-column label="View" v-slot="props">
               <a
                 v-if="props.row.status === 'approved' || prefix === 'all'"
                 href="#"
@@ -155,14 +152,14 @@
               </a>
             </b-table-column>
 
-            <b-table-column label="Edit" :visible="prefix === 'all'">
+            <b-table-column label="Edit" :visible="prefix === 'all'" v-slot="props">
               <router-link
                 :to="{ name: 'oms.statutory.candidates.edit', params: { id: $route.params.id, position_id: selectedPosition.id, candidate_id: props.row.id } }">
                 Edit
               </router-link>
             </b-table-column>
 
-            <b-table-column label="Update status" :visible="prefix === 'all'">
+            <b-table-column label="Update status" :visible="prefix === 'all'" v-slot="props">
               <div class="select is-small" :class="{ 'is-loading': props.row.isSaving }">
                 <select v-model="props.row.newStatus" @change="switchCandidateStatus(props.row, selectedPosition)">
                   <option value="pending">Pending</option>
@@ -171,7 +168,6 @@
                 </select>
               </div>
             </b-table-column>
-          </template>
 
           <template slot="empty">
             <empty-table-stub />

@@ -21,37 +21,35 @@
           @page-change="onPageChange"
           :default-sort="[sortField, sortOrder]"
           @sort="onSort">
-          <template slot-scope="props">
-            <b-table-column field="id" label="#" numeric sortable>
+            <b-table-column field="id" label="#" numeric sortable v-slot="props">
               {{ props.row.id }}
             </b-table-column>
 
-            <b-table-column field="first_name" label="Name and surname" sortable width="150">
+            <b-table-column field="first_name" label="Name and surname" sortable width="150" v-slot="props">
               <router-link :to="{ name: 'oms.members.view', params: { id: props.row.username || props.row.id } }">
                 {{ props.row.first_name }} {{ props.row.last_name }}
               </router-link>
             </b-table-column>
 
-            <b-table-column field="email" label="Email">
+            <b-table-column field="email" label="Email" v-slot="props">
               {{ props.row.email }}
             </b-table-column>
 
-            <b-table-column field="date_of_birth" label="Birthday" sortable width="150">
+            <b-table-column field="date_of_birth" label="Birthday" sortable width="150" v-slot="props">
               {{ props.row.date_of_birth }}
             </b-table-column>
 
-            <b-table-column field="address" label="Address">
+            <b-table-column field="address" label="Address" v-slot="props">
               {{ props.row.address }}
             </b-table-column>
 
-            <b-table-column field="about_me" label="About me">
+            <b-table-column field="about_me" label="About me" v-slot="props">
               {{ props.row.about_me }}
             </b-table-column>
 
-            <b-table-column field="created_at" label="Registration date" sortable>
+            <b-table-column field="created_at" label="Registration date" sortable v-slot="props">
               {{ props.row.created_at | datetime }}
             </b-table-column>
-          </template>
 
           <template slot="empty">
             <empty-table-stub />

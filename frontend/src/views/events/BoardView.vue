@@ -32,36 +32,34 @@
           :data="applications"
           :loading="isLoading"
           v-if="selectedBody && boardBodies.length > 0">
-          <template slot-scope="props">
-            <b-table-column field="updated_at" label="Date modified" sortable>
+            <b-table-column field="updated_at" label="Date modified" sortable v-slot="props">
               {{ props.row.updated_at | datetime }}
             </b-table-column>
 
-            <b-table-column field="event.name" label="Event" sortable>
+            <b-table-column field="event.name" label="Event" sortable v-slot="props">
               <router-link :to="{ name: 'oms.events.view', params: { id: props.row.event.url } }">
                 {{ props.row.event.name }}
               </router-link>
             </b-table-column>
 
-            <b-table-column field="first_name" label="Name" sortable>
+            <b-table-column field="first_name" label="Name" sortable v-slot="props">
               <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
                 {{ props.row.first_name }} {{ props.row.last_name  }}
               </router-link>
             </b-table-column>
 
-            <b-table-column field="board_comment" label="Board comment">
+            <b-table-column field="board_comment" label="Board comment" v-slot="props">
               <div class="control">
                 <input class="input" v-model="props.row.board_comment" />
               </div>
             </b-table-column>
 
-            <b-table-column label="Save">
+            <b-table-column label="Save" v-slot="props">
               <button type="button" class="button is-primary" @click="submitComment(props.row)">
                 <span class="icon"><font-awesome-icon icon="save" /></span>
                 <span>Save</span>
               </button>
             </b-table-column>
-          </template>
 
           <template slot="empty">
             <empty-table-stub />

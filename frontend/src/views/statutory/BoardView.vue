@@ -66,12 +66,11 @@
 
           <b-table
             :data="bodyStatuses">
-            <template slot-scope="props">
-              <b-table-column label="Participant type and order">
+              <b-table-column label="Participant type and order" v-slot="props">
                 {{ props.row.participant_type }} ({{ props.row.participant_order }})
               </b-table-column>
 
-              <b-table-column field="user_id" label="User">
+              <b-table-column field="user_id" label="User" v-slot="props">
                 <div class="select">
                   <select v-model="props.row.user_id">
                     <option :value="null">Not set</option>
@@ -82,10 +81,9 @@
                 </div>
               </b-table-column>
 
-              <b-table-column field="board_comment" label="Board comment" sortable>
+              <b-table-column field="board_comment" label="Board comment" sortable v-slot="props">
                 <textarea class="textarea" v-model="props.row.board_comment" />
               </b-table-column>
-            </template>
           </b-table>
 
           <div class="notification is-warning">
@@ -137,48 +135,46 @@
             :loading="isLoading"
             paginated
             :per-page="limit">
-            <template slot-scope="props">
-              <b-table-column field="statutory_id" label="#" numeric>
+              <b-table-column field="statutory_id" label="#" numeric v-slot="props">
                 {{ props.row.statutory_id }}
               </b-table-column>
 
-              <b-table-column field="last_name" label="First and last name">
+              <b-table-column field="last_name" label="First and last name" v-slot="props">
                 {{ props.row.first_name }} {{ props.row.last_name }}
               </b-table-column>
 
-              <b-table-column label="Participant type and order">
+              <b-table-column label="Participant type and order" v-slot="props">
                 <span v-if="props.row.participant_type">{{ props.row.participant_type }} ({{ props.row.participant_order }})</span>
               </b-table-column>
 
-              <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered :visible="event.type === 'agora'">
+              <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered :visible="event.type === 'agora'" v-slot="props">
                 <span :class="calculateClassForMemberslist(props.row)">
                   {{ props.row.is_on_memberslist | beautify }}
                 </span>
               </b-table-column>
 
-              <b-table-column field="cancelled" label="Cancelled?" centered :visible="displayCancelled">
+              <b-table-column field="cancelled" label="Cancelled?" centered :visible="displayCancelled" v-slot="props">
                 <span class="tag" :class="{ 'is-danger': props.row.cancelled }">
                   {{ props.row.cancelled | beautify }}
                 </span>
               </b-table-column>
 
-              <b-table-column label="View" centered>
+              <b-table-column label="View" centered v-slot="props">
                 <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
                   View
                 </router-link>
               </b-table-column>
 
-              <b-table-column field="status" label="Status" centered>
+              <b-table-column field="status" label="Status" centered v-slot="props">
                 <span v-if="props.row.status === 'accepted'">Accepted</span>
                 <span v-if="props.row.status === 'rejected'">Rejected</span>
                 <span v-if="props.row.status === 'waiting_list'">Waiting list</span>
                 <span v-if="props.row.status === 'pending'">Pending</span>
               </b-table-column>
 
-              <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name">
+              <b-table-column v-for="(field, index) in selectedFields" v-bind:key="index" field="answers[index]" :label="field.name" v-slot="props">
                 {{ field.get(props.row) | beautify }}
               </b-table-column>
-            </template>
 
             <template slot="empty">
               <empty-table-stub />

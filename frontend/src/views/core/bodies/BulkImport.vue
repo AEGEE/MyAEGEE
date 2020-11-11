@@ -15,36 +15,34 @@
         </div>
 
         <b-table :data="members">
-          <template slot-scope="props">
-            <b-table-column field="first_name" label="First name">
+            <b-table-column field="first_name" label="First name" v-slot="props">
               {{ props.row.first_name }}
             </b-table-column>
 
-            <b-table-column field="last_name" label="Last name">
+            <b-table-column field="last_name" label="Last name" v-slot="props">
               {{ props.row.last_name }}
             </b-table-column>
 
-            <b-table-column field="email" label="Email">
+            <b-table-column field="email" label="Email" v-slot="props">
               {{ props.row.email }}
             </b-table-column>
 
-            <b-table-column field="username" label="Username">
+            <b-table-column field="username" label="Username" v-slot="props">
               {{ props.row.username }}
             </b-table-column>
 
-            <b-table-column label="Delete user">
+            <b-table-column label="Delete user" v-slot="props">
               <a v-if="!props.row.status" @click="members.splice(props.index, 1)" class="button is-danger is-small">
                 <span class="icon"><font-awesome-icon icon="minus" /></span>
                 <span>Delete user</span>
               </a>
             </b-table-column>
 
-            <b-table-column label="Status">
+            <b-table-column label="Status" v-slot="props">
               <span v-if="props.row.status === 'saving'">Saving...</span>
               <span class="has-text-success" v-if="props.row.status === 'success'">Successfully saved.</span>
               <span class="has-text-danger" v-if="props.row.status === 'error'">Error while saving: {{ props.row.errors }}</span>
             </b-table-column>
-          </template>
 
           <template slot="empty">
             <section class="section">
