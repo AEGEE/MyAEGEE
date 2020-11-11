@@ -95,10 +95,10 @@ workflows:
       - build:
           filters:
             branches:
-              ignore: master
+              ignore: main
   docker-build-and-push:
     jobs:
       - docker-build-and-push:
           filters:
             branches:
-              only: master
+              only: main
