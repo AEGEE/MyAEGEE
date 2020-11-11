@@ -72,7 +72,7 @@
             <label class="label">Phone</label>
             <div class="control has-icons-left">
               <span class="icon is-small is-left"><font-awesome-icon icon="phone" /></span>
-              <input class="input" data-cy="phone" type="text" v-model="user.phone" required/>
+              <input class="input" data-cy="phone" type="text" v-model="user.phone"/>
             </div>
             <p class="help is-danger" v-if="errors.phone">{{ errors.phone.join(', ')}}</p>
           </div>
@@ -92,7 +92,7 @@
           <div class="field">
             <label class="label">Address</label>
             <div class="control">
-              <input class="input" data-cy="address" type="text" v-model="user.address" required/>
+              <input class="input" data-cy="address" type="text" v-model="user.address"/>
             </div>
             <p class="help is-danger" v-if="errors.address">{{ errors.address.join(', ')}}</p>
           </div>
