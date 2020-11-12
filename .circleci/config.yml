@@ -1,17 +1,17 @@
 orbs:
-  slack: circleci/slack@3.4.1
+  slack: circleci/slack@3.4.2
 version: 2.1
 jobs:
   test:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202010-01
     steps:
       - checkout
-      - run: docker run --name postgres -p 5432:5432 -d postgres:10.6
+      - run: docker run --name postgres -e POSTGRES_PASSWORD='5ecr3t' -p 5432:5432 -d postgres:13
       - run:
           name: Install Node
           command: |
-            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
             sudo apt-get install -y nodejs
             echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
             which node && node -v
@@ -27,19 +27,19 @@ jobs:
           path: ~/reports
   build:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202010-01
     steps:
       - checkout
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache core
   eslint:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202010-01
     steps:
       - checkout
       - run:
           name: Install Node
           command: |
-            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
             sudo apt-get install -y nodejs
             echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
             which node && node -v
@@ -52,20 +52,20 @@ jobs:
           path: ~/reports
   yamllint:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202010-01
     steps:
       - checkout
       - run: pip install yamllint
       - run: yamllint -d .yamllint.yml .
   docker-build-and-push:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202010-01
     steps:
       - checkout
       - run:
           name: Install Node
           command: |
-            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
             sudo apt-get install -y nodejs
             echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
             which node && node -v
