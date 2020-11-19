@@ -5,25 +5,27 @@
         <div class="title">Statutory background tasks</div>
 
         <b-table :data="tasks" :loading="isLoading">
-            <b-table-column field="id" label="ID" v-slot="props">
+          <template slot-scope="props">
+            <b-table-column field="id" label="ID" >
               {{ props.row.id }}
             </b-table-column>
 
-            <b-table-column field="key" label="key" v-slot="props">
+            <b-table-column field="key" label="key" >
               {{ props.row.key }}
             </b-table-column>
 
-            <b-table-column field="description" label="description" v-slot="props">
+            <b-table-column field="description" label="description" >
               {{ props.row.description }}
             </b-table-column>
 
-            <b-table-column field="params" label="params" v-slot="props">
+            <b-table-column field="params" label="params" >
               <span class="has-text-pre-wrap">{{ JSON.stringify(props.row.params) }}</span>
             </b-table-column>
 
-            <b-table-column field="time" label="time" v-slot="props">
+            <b-table-column field="time" label="time" >
               {{ props.row.time | datetimeseconds }}
             </b-table-column>
+          </template>
 
           <template slot="empty">
             <empty-table-stub />

@@ -7,15 +7,17 @@
         <div class="subtitle">Permissions</div>
 
         <b-table :data="flattenedPermissions" :loading="isLoading">
-            <b-table-column field="permission" label="Permission" v-slot="props">
+          <template slot-scope="props">
+            <b-table-column field="permission" label="Permission" >
               <b>{{ props.row.key }}</b>
             </b-table-column>
 
-            <b-table-column field="value" label="Value" sortable v-slot="props">
+            <b-table-column field="value" label="Value" sortable>
               <span :class="calculateForValue(props.row.value)">
                 {{ props.row.value | beautify }}
               </span>
             </b-table-column>
+          </template>
 
           <template slot="empty">
             <empty-table-stub />

@@ -19,23 +19,25 @@
         <b-table
           :data="campaigns"
           :loading="isLoading">
-            <b-table-column field="id" label="#" numeric sortable v-slot="props">
+          <template slot-scope="props">
+            <b-table-column field="id" label="#" numeric sortable>
               {{ props.row.id }}
             </b-table-column>
 
-            <b-table-column field="name" label="Campaign name" sortable v-slot="props">
+            <b-table-column field="name" label="Campaign name" sortable>
               <router-link :to="{ name: 'oms.campaigns.view', params: { id: props.row.id } }">
                 {{ props.row.name }}
               </router-link>
             </b-table-column>
 
-            <b-table-column field="description_short" label="Description" v-slot="props">
+            <b-table-column field="description_short" label="Description">
               {{ props.row.description_short }}
             </b-table-column>
 
-            <b-table-column label="Link" v-slot="props">
+            <b-table-column label="Link">
               {{ '/signup/' + props.row.url }}
             </b-table-column>
+          </template>
 
           <template slot="empty">
             <empty-table-stub />

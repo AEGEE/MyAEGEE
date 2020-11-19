@@ -19,21 +19,23 @@
         </div>
 
         <b-table :data="codes" :loading="isLoading" narrowed>
-            <b-table-column field="code" label="Code" v-slot="props">
+          <template slot-scope="props">
+            <b-table-column field="code" label="Code">
               {{ props.row.value }}
             </b-table-column>
 
-             <b-table-column field="updated_at" label="Claimed on" v-slot="props">
+             <b-table-column field="updated_at" label="Claimed on">
               {{ props.row.updated_at | datetimeseconds }}
             </b-table-column>
 
-            <b-table-column field="name" label="Partner name" v-slot="props">
+            <b-table-column field="name" label="Partner name">
               {{ props.row.integration.name }}
             </b-table-column>
 
-            <b-table-column field="description" label="Description" v-slot="props">
+            <b-table-column field="description" label="Description">
               <span v-html="$options.filters.markdown(props.row.integration.description)"></span>
             </b-table-column>
+          </template>
 
           <template slot="empty">
             <empty-table-stub />

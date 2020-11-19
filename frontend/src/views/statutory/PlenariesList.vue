@@ -10,33 +10,35 @@
         </div>
 
         <b-table :data="plenaries" :loading="isLoading">
-            <b-table-column field="id" label="#" numeric v-slot="props">
+          <template slot-scope="props">
+            <b-table-column field="id" label="#" numeric>
               {{ props.row.id }}
             </b-table-column>
 
-            <b-table-column field="name" label="Name" v-slot="props">
+            <b-table-column field="name" label="Name">
               {{ props.row.name }}
             </b-table-column>
 
-            <b-table-column field="starts" label="Starts" centered v-slot="props">
+            <b-table-column field="starts" label="Starts" centered>
               {{ props.row.starts | datetimeseconds }}
             </b-table-column>
 
-            <b-table-column field="starts" label="Ends" centered v-slot="props">
+            <b-table-column field="starts" label="Ends" centered>
               {{ props.row.ends | datetimeseconds }}
             </b-table-column>
 
-            <b-table-column label="Edit" centered v-if="can.manage_plenaries" v-slot="props">
+            <b-table-column label="Edit" centered v-if="can.manage_plenaries">
               <button class="button is-primary is-small" @click.prevent="openEditPlenaryModal(props.row)">Edit</button>
             </b-table-column>
 
-            <b-table-column label="Mark attendances" centered v-slot="props">
+            <b-table-column label="Mark attendances" centered>
               <router-link
                 :to="{ name: 'oms.statutory.plenaries.view', params: { id: $route.params.id, plenary_id: props.row.id } }"
                 class="button is-small">
                 View/mark attendances
               </router-link>
             </b-table-column>
+          </template>
 
           <template slot="empty">
             <empty-table-stub />

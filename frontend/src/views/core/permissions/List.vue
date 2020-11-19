@@ -19,20 +19,22 @@
         <b-table
           :data="permissions"
           :loading="isLoading">
-            <b-table-column field="combined" label="Permission code" sortable width="200" v-slot="props">
+          <template slot-scope="props">
+            <b-table-column field="combined" label="Permission code" sortable width="200">
               <router-link :to="{ name: 'oms.permissions.view', params: { id: props.row.id } }">
                 {{ props.row.combined }}
               </router-link>
             </b-table-column>
 
-            <b-table-column field="description" label="Description" v-slot="props">
+            <b-table-column field="description" label="Description">
               {{ props.row.description }}
             </b-table-column>
 
-            <b-table-column label="Additional info" v-slot="props">
+            <b-table-column label="Additional info">
               <span class="tag is-info" v-if="props.row.always_assigned">Always assigned</span>
               <span class="tag is-warning" v-if="props.row.filters.length > 0">Has filters</span>
             </b-table-column>
+          </template>
 
           <template slot="empty">
             <empty-table-stub />

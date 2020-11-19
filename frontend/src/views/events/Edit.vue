@@ -306,23 +306,25 @@
           <b-table
             :data="event.organizers"
             :loading="isLoading">
-               <b-table-column field="first_name" label="First and last name" sortable v-slot="props">
+            <template slot-scope="props">
+               <b-table-column field="first_name" label="First and last name" sortable>
                 <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
                   {{ props.row.first_name }} {{ props.row.last_name }}
                 </router-link>
               </b-table-column>
 
-              <b-table-column field="comment" label="Comment" v-slot="props">
+              <b-table-column field="comment" label="Comment">
                 <div class="control">
                   <input class="input" type="text" v-model="props.row.comment"/>
                 </div>
               </b-table-column>
 
-              <b-table-column label="Delete" v-slot="props">
+              <b-table-column label="Delete">
                 <button class="button is-small is-danger" v-if="!props.row.disableEdit" k="askDeleteOrganizer(props.index)">
                   Delete
                 </button>
               </b-table-column>
+            </template>
 
             <template slot="empty">
               <empty-table-stub />

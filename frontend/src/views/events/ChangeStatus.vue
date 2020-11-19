@@ -7,11 +7,12 @@
         <b-table
           :data="events"
           :loading="isLoading">
-            <b-table-column field="type" label="Event type" sortable v-slot="props">
+          <template slot-scope="props">
+            <b-table-column field="type" label="Event type" sortable>
               {{ eventTypes[props.row.type] }}
             </b-table-column>
 
-            <b-table-column field="name" label="Event name" sortable v-slot="props">
+            <b-table-column field="name" label="Event name" sortable>
               <router-link
                 :to="{ name: 'oms.events.view', params: { id: props.row.url || props.row.id } }"
                 class="has-word-break">
@@ -19,19 +20,19 @@
               </router-link>
             </b-table-column>
 
-            <b-table-column field="description" label="Description" v-slot="props">
+            <b-table-column field="description" label="Description">
               <div class="content has-word-break" v-html="$options.filters.markdown(props.row.description)"></div>
             </b-table-column>
 
-            <b-table-column field="starts" label="Event dates" sortable v-slot="props">
+            <b-table-column field="starts" label="Event dates" sortable>
               {{ props.row.starts | date }} - {{ props.row.ends | date }}
             </b-table-column>
 
-            <b-table-column field="status" label="Current status" sortable v-slot="props">
+            <b-table-column field="status" label="Current status" sortable>
               {{ props.row.status | capitalize }}
             </b-table-column>
 
-            <b-table-column field="status" label="Change status" sortable v-slot="props">
+            <b-table-column field="status" label="Change status" sortable>
               <div class="buttons">
                 <button
                   v-if="props.row.status === 'draft'"
@@ -59,6 +60,7 @@
                 </button>
               </div>
             </b-table-column>
+          </template>
 
           <template slot="empty">
             <empty-table-stub />
