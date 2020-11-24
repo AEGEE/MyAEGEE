@@ -3,21 +3,24 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: daily
+      interval: "weekly"
+      day: "friday"
     open-pull-requests-limit: 99
     reviewers:
       - "WikiRik"
   - package-ecosystem: "docker"
     directory: "/docker/network"
     schedule:
-      interval: daily
+      interval: "weekly"
+      day: "friday"
     open-pull-requests-limit: 99
     reviewers:
       - "WikiRik"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: daily
+      interval: "weekly"
+      day: "friday"
     open-pull-requests-limit: 99
     reviewers:
       - "WikiRik"
