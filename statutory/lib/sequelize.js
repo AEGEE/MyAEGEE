@@ -14,13 +14,13 @@ for (const field of requiredFields) {
     }
 }
 
-Sequelize.postgres.DECIMAL.parse = value => parseFloat(value);
+Sequelize.postgres.DECIMAL.parse = (value) => parseFloat(value);
 
 const getSequelize = () => new Sequelize(config.postgres.database, config.postgres.username, config.postgres.password, {
     host: config.postgres.host,
     port: config.postgres.port,
     dialect: 'postgres',
-    logging: query => logger.debug({ query }, 'DB request'),
+    logging: (query) => logger.debug({ query }, 'DB request'),
 });
 
 let sequelize = getSequelize();

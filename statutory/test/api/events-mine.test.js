@@ -36,7 +36,7 @@ describe('Events participating', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
 
-        const ids = res.body.data.map(e => e.id);
+        const ids = res.body.data.map((e) => e.id);
         expect(ids).not.toContain(event.id);
     });
 
@@ -55,7 +55,7 @@ describe('Events participating', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
 
-        const ids = res.body.data.map(e => e.id);
+        const ids = res.body.data.map((e) => e.id);
         expect(ids).toContain(event.id);
     });
 });

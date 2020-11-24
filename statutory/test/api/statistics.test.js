@@ -81,8 +81,8 @@ describe('Statistics testing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(Object.keys(res.body.data.by_date).length).toEqual(2);
-        expect(res.body.data.by_date.find(d => d.date === moment(firstPax.created_at).format('YYYY-MM-DD')).value).toEqual(1);
-        expect(res.body.data.by_date.find(d => d.date === moment(secondPax.created_at).format('YYYY-MM-DD')).value).toEqual(1);
+        expect(res.body.data.by_date.find((d) => d.date === moment(firstPax.created_at).format('YYYY-MM-DD')).value).toEqual(1);
+        expect(res.body.data.by_date.find((d) => d.date === moment(secondPax.created_at).format('YYYY-MM-DD')).value).toEqual(1);
     });
 
     test('should work in a proper way by date cumulative', async () => {
@@ -103,8 +103,8 @@ describe('Statistics testing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(Object.keys(res.body.data.by_date_cumulative).length).toEqual(2);
-        expect(res.body.data.by_date_cumulative.find(d => d.date === moment(firstPax.created_at).format('YYYY-MM-DD')).value).toEqual(1);
-        expect(res.body.data.by_date_cumulative.find(d => d.date === moment(secondPax.created_at).format('YYYY-MM-DD')).value).toEqual(2);
+        expect(res.body.data.by_date_cumulative.find((d) => d.date === moment(firstPax.created_at).format('YYYY-MM-DD')).value).toEqual(1);
+        expect(res.body.data.by_date_cumulative.find((d) => d.date === moment(secondPax.created_at).format('YYYY-MM-DD')).value).toEqual(2);
     });
 
     test('should work in a proper way by body', async () => {
@@ -123,8 +123,8 @@ describe('Statistics testing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(Object.keys(res.body.data.by_body).length).toEqual(2);
-        expect(res.body.data.by_body.find(t => t.type === 1).value).toEqual(1);
-        expect(res.body.data.by_body.find(t => t.type === 2).value).toEqual(2);
+        expect(res.body.data.by_body.find((t) => t.type === 1).value).toEqual(1);
+        expect(res.body.data.by_body.find((t) => t.type === 2).value).toEqual(2);
     });
 
     test('should work in a proper way by type', async () => {
@@ -143,8 +143,8 @@ describe('Statistics testing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(Object.keys(res.body.data.by_type).length).toEqual(2);
-        expect(res.body.data.by_type.find(t => t.type === null).value).toEqual(1);
-        expect(res.body.data.by_type.find(t => t.type === 'visitor').value).toEqual(2);
+        expect(res.body.data.by_type.find((t) => t.type === null).value).toEqual(1);
+        expect(res.body.data.by_type.find((t) => t.type === 'visitor').value).toEqual(2);
     });
 
     test('should work in a proper way by gender', async () => {
@@ -163,8 +163,8 @@ describe('Statistics testing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(Object.keys(res.body.data.by_gender).length).toEqual(2);
-        expect(res.body.data.by_gender.find(t => t.type === 'male').value).toEqual(2);
-        expect(res.body.data.by_gender.find(t => t.type === 'female').value).toEqual(1);
+        expect(res.body.data.by_gender.find((t) => t.type === 'male').value).toEqual(2);
+        expect(res.body.data.by_gender.find((t) => t.type === 'female').value).toEqual(1);
     });
 
     test('should work in a proper way by meal preference', async () => {
@@ -207,8 +207,8 @@ describe('Statistics testing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(Object.keys(res.body.data.by_number_of_events_visited).length).toEqual(2);
-        expect(res.body.data.by_number_of_events_visited.find(t => t.type === 0).value).toEqual(2);
-        expect(res.body.data.by_number_of_events_visited.find(t => t.type === 1).value).toEqual(1);
+        expect(res.body.data.by_number_of_events_visited.find((t) => t.type === 0).value).toEqual(2);
+        expect(res.body.data.by_number_of_events_visited.find((t) => t.type === 1).value).toEqual(1);
     });
 
     test('should sort properly by body', async () => {

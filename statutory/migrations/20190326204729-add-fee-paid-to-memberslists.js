@@ -4,5 +4,5 @@ module.exports = {
         'fee_paid',
         { type: Sequelize.DECIMAL, allowNull: false, defaultValue: 0 }
     ),
-    down: queryInterface => queryInterface.removeColumn('memberslists', 'fee_paid')
+    down: (queryInterface) => queryInterface.removeColumn('memberslists', 'fee_paid')
 };

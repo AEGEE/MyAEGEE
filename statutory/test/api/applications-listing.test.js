@@ -40,7 +40,7 @@ describe('Applications listing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
 
-        const applicationIds = event.applications.map(a => a.id);
+        const applicationIds = event.applications.map((a) => a.id);
         expect(res.body.data.length).toEqual(applicationIds.length);
 
         for (const application of res.body.data) {
@@ -171,7 +171,6 @@ describe('Applications listing', () => {
             expect(res.body.data[0]).toHaveProperty(field);
         }
     });
-
 
     test('should not return not accepted, cancelled or not confirmed applications on /juridical', async () => {
         const event = await generator.createEvent();

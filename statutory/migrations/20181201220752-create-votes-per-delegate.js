@@ -52,5 +52,5 @@ module.exports = {
             }
         });
     },
-    down: queryInterface => queryInterface.dropTable('votes_per_delegate')
+    down: (queryInterface) => queryInterface.dropTable('votes_per_delegate')
 };

@@ -8,5 +8,5 @@ module.exports = {
             defaultValue: []
         }
     ),
-    down: queryInterface => queryInterface.removeColumn('events', 'locations')
+    down: (queryInterface) => queryInterface.removeColumn('events', 'locations')
 };

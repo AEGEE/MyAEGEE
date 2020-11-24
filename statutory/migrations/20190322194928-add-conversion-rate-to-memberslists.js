@@ -4,5 +4,5 @@ module.exports = {
         'conversion_rate',
         { type: Sequelize.DECIMAL, allowNull: false, defaultValue: 1 }
     ),
-    down: queryInterface => queryInterface.removeColumn('memberslists', 'conversion_rate')
+    down: (queryInterface) => queryInterface.removeColumn('memberslists', 'conversion_rate')
 };

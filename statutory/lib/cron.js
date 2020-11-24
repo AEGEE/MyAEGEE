@@ -48,7 +48,7 @@ const JobCallbacks = {
 
         // Checking if there's enough candides, otherwise not closing the deadline.
         const candidates = position.candidates
-            .filter(candidate => candidate.status !== 'rejected')
+            .filter((candidate) => candidate.status !== 'rejected')
             .length;
 
         if (candidates <= position.places && !force) {

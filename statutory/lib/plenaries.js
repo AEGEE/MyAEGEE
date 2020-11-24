@@ -135,8 +135,8 @@ exports.listPlenariesStats = async (req, res) => {
                 'Application ID',
                 'First and last name',
                 'Body name',
-                ...plenaries.map(plenary => `${plenary.name} (seconds)`),
-                ...plenaries.map(plenary => `${plenary.name} (%)`),
+                ...plenaries.map((plenary) => `${plenary.name} (seconds)`),
+                ...plenaries.map((plenary) => `${plenary.name} (%)`),
                 'Total percent'
             ],
             // the actual data
@@ -146,8 +146,8 @@ exports.listPlenariesStats = async (req, res) => {
                 const plenariesAttendanceInSeconds = plenaries.map((plenary) => {
                     return plenary
                         .attendances
-                        .filter(a => a.application_id === application.id)
-                        .map(attendance => helpers.calculateTimeForPlenary(attendance, plenary))
+                        .filter((a) => a.application_id === application.id)
+                        .map((attendance) => helpers.calculateTimeForPlenary(attendance, plenary))
                         .reduce((acc, val) => acc + val, 0);
                 });
 
@@ -158,7 +158,7 @@ exports.listPlenariesStats = async (req, res) => {
                         const plenary = plenaries[index];
 
                         // and its total plenary duration in seconds
-                        return attendanceLength / plenary.duration * 100;
+                        return (attendanceLength / plenary.duration) * 100;
                     });
 
                 // aaaand the average percent
@@ -170,8 +170,8 @@ exports.listPlenariesStats = async (req, res) => {
                     application.id,
                     application.first_name + ' ' + application.last_name,
                     application.body_name,
-                    ...plenariesAttendanceInSeconds.map(attendance => attendance.toFixed(2)),
-                    ...plenariesAttendanceInPercents.map(attendance => attendance.toFixed(2) + '%'),
+                    ...plenariesAttendanceInSeconds.map((attendance) => attendance.toFixed(2)),
+                    ...plenariesAttendanceInPercents.map((attendance) => attendance.toFixed(2) + '%'),
                     avgPercentPerApplication.toFixed(2) + '%'
                 ];
             })
@@ -196,11 +196,11 @@ exports.listPlenariesStats = async (req, res) => {
             ],
             // the actual data
             ...bodies
-                .filter(body => ['antenna', 'contact antenna'].includes(body.type))
+                .filter((body) => ['antenna', 'contact antenna'].includes(body.type))
                 .map((body) => {
                     // Getting applications for body.
                     // TODO: refactor (at some point, this is super ugly).
-                    const applicationsForBody = applications.filter(a => a.body_id === body.id && ['delegate', 'envoy'].includes(a.participant_type));
+                    const applicationsForBody = applications.filter((a) => a.body_id === body.id && ['delegate', 'envoy'].includes(a.participant_type));
 
                     // Calculating avg% of visiting for each local.
                     const applicationsAttendances = applicationsForBody
@@ -208,12 +208,12 @@ exports.listPlenariesStats = async (req, res) => {
                             // Calculate avg% per each plenary per each delegate/envoy,
                             // then calculating avg% for all of them to display the avg% per local.
                             return plenaries.map((plenary) => {
-                                const plenaryAttendancesForBody = plenary.attendances.filter(a => a.application_id === application.id);
+                                const plenaryAttendancesForBody = plenary.attendances.filter((a) => a.application_id === application.id);
 
                                 // Return array of avg% per each plenary.
-                                return plenaryAttendancesForBody
-                                    .map(attendance => helpers.calculateTimeForPlenary(plenary, attendance))
-                                    .reduce((acc, val) => acc + val, 0) * 100 / plenary.duration;
+                                return (plenaryAttendancesForBody
+                                    .map((attendance) => helpers.calculateTimeForPlenary(plenary, attendance))
+                                    .reduce((acc, val) => acc + val, 0) * 100) / plenary.duration;
                             }).reduce((acc, val) => acc + val, 0) / plenaries.length;
                         });
 
@@ -229,7 +229,7 @@ exports.listPlenariesStats = async (req, res) => {
                         body.type,
                         applicationsForBody.length,
                         totalAverageAttendance.toFixed(2) + '%',
-                        ...applicationsAttendances.map(attendance => attendance.toFixed(2) + '%')
+                        ...applicationsAttendances.map((attendance) => attendance.toFixed(2) + '%')
                     ];
                 })
         ]
@@ -257,7 +257,7 @@ exports.listPlenariesStats = async (req, res) => {
                 // attendances data
                 ...plenary.attendances.map((attendance) => {
                     const attendanceDuration = helpers.calculateTimeForPlenary(attendance, plenary);
-                    const application = applications.find(a => a.id === attendance.application_id);
+                    const application = applications.find((a) => a.id === attendance.application_id);
 
                     return [
                         application.id,
@@ -266,7 +266,7 @@ exports.listPlenariesStats = async (req, res) => {
                         helpers.beautify(attendance.starts),
                         helpers.beautify(attendance.ends),
                         attendanceDuration.toFixed(2),
-                        (attendanceDuration / plenary.duration * 100).toFixed(2) + '%'
+                        ((attendanceDuration / plenary.duration) * 100).toFixed(2) + '%'
                     ];
                 })
             ]
@@ -278,7 +278,6 @@ exports.listPlenariesStats = async (req, res) => {
         bodiesSheet,
         ...plenariesSheets
     ]);
-
 
     res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-disposition', 'attachment; filename=plenary.xlsx');

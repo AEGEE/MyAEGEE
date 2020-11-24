@@ -8,5 +8,5 @@ module.exports = {
             defaultValue: Sequelize.fn('NOW') // so it won't set the deadline for existing positions, as it's in the past
         }
     ),
-    down: queryInterface => queryInterface.removeColumn('positions', 'ends_force')
+    down: (queryInterface) => queryInterface.removeColumn('positions', 'ends_force')
 };

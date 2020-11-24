@@ -140,7 +140,6 @@ describe('Plenaries exports', () => {
             ends: moment(plenary.ends).add(1, 'minute').toDate(),
         }, plenary);
 
-
         const res = await request({
             uri: '/events/' + event.id + '/plenaries/stats',
             method: 'GET',
@@ -161,17 +160,17 @@ describe('Plenaries exports', () => {
         expect(plenarySheetData[6][3]).toEqual(moment(firstAttendance.starts).format('YYYY-MM-DD HH:mm:ss'));
         expect(plenarySheetData[6][4]).toEqual(moment(firstAttendance.ends).format('YYYY-MM-DD HH:mm:ss'));
         expect(plenarySheetData[6][5]).toEqual(60.0.toFixed(2)); // only 60 seconds tracked
-        expect(plenarySheetData[6][6]).toEqual((60 / 3600 * 100).toFixed(2) + '%');
+        expect(plenarySheetData[6][6]).toEqual(((60 / 3600) * 100).toFixed(2) + '%');
 
         expect(plenarySheetData[7][3]).toEqual(moment(secondAttendance.starts).format('YYYY-MM-DD HH:mm:ss'));
         expect(plenarySheetData[7][4]).toEqual(moment(secondAttendance.ends).format('YYYY-MM-DD HH:mm:ss'));
         expect(plenarySheetData[7][5]).toEqual(120.0.toFixed(2)); // all 2 minutes tracked
-        expect(plenarySheetData[7][6]).toEqual((120 / 3600 * 100).toFixed(2) + '%');
+        expect(plenarySheetData[7][6]).toEqual(((120 / 3600) * 100).toFixed(2) + '%');
 
         expect(plenarySheetData[8][3]).toEqual(moment(thirdAttendance.starts).format('YYYY-MM-DD HH:mm:ss'));
         expect(plenarySheetData[8][4]).toEqual(moment(thirdAttendance.ends).format('YYYY-MM-DD HH:mm:ss'));
         expect(plenarySheetData[8][5]).toEqual(60.0.toFixed(2)); // 60 seconds tracked
-        expect(plenarySheetData[8][6]).toEqual((60 / 3600 * 100).toFixed(2) + '%');
+        expect(plenarySheetData[8][6]).toEqual(((60 / 3600) * 100).toFixed(2) + '%');
     });
 
     test('should return 0 for attendance length if it\'s not finished', async () => {
@@ -189,7 +188,6 @@ describe('Plenaries exports', () => {
             starts: moment(plenary.starts).add(1, 'minute').toDate(),
             ends: null
         }, plenary);
-
 
         const res = await request({
             uri: '/events/' + event.id + '/plenaries/stats',
@@ -229,7 +227,6 @@ describe('Plenaries exports', () => {
             starts: moment(plenary.starts).subtract(2, 'minute').toDate(),
             ends: moment(plenary.starts).subtract(1, 'minute').toDate(),
         }, plenary);
-
 
         const res = await request({
             uri: '/events/' + event.id + '/plenaries/stats',
@@ -298,7 +295,6 @@ describe('Plenaries exports', () => {
             ends: moment(plenary.ends).add(2, 'minute').toDate(),
         }, plenary);
 
-
         // total: 1 + 3 + 1 = 5 minutes
 
         const res = await request({
@@ -325,8 +321,8 @@ describe('Plenaries exports', () => {
         expect(firstApplicationSheet[1]).toEqual(application.first_name + ' ' + application.last_name);
         expect(firstApplicationSheet[2]).toEqual(application.body_name);
         expect(firstApplicationSheet[3]).toEqual(300.0.toFixed(2)); // 5 minutes
-        expect(firstApplicationSheet[4]).toEqual((300 / 3600 * 100).toFixed(2) + '%'); // same in percents
-        expect(firstApplicationSheet[5]).toEqual((300 / 3600 * 100).toFixed(2) + '%'); // the avg for single plenary should be the same
+        expect(firstApplicationSheet[4]).toEqual(((300 / 3600) * 100).toFixed(2) + '%'); // same in percents
+        expect(firstApplicationSheet[5]).toEqual(((300 / 3600) * 100).toFixed(2) + '%'); // the avg for single plenary should be the same
     });
 
     test('should calculate the average time for all plenaries correctly', async () => {
@@ -477,7 +473,7 @@ describe('Plenaries exports', () => {
         const bodiesSheetsData = bodiesSheets.data;
 
         // finding the row with the body
-        const row = bodiesSheetsData.find(r => r[2] === regularUser.bodies[0].name);
+        const row = bodiesSheetsData.find((r) => r[2] === regularUser.bodies[0].name);
         expect(row).toBeTruthy();
         expect(row.length).toEqual(9); // body ID, code, name, type, delegates count, avg%, 3 delegates %
 
@@ -512,7 +508,7 @@ describe('Plenaries exports', () => {
         const bodiesSheetsData = bodiesSheets.data;
 
         // finding the row with the body
-        const row = bodiesSheetsData.find(r => r[2] === regularUser.bodies[1].name); // Chair Team, not A/CA
+        const row = bodiesSheetsData.find((r) => r[2] === regularUser.bodies[1].name); // Chair Team, not A/CA
         expect(row).toBeFalsy();
     });
 
@@ -536,7 +532,7 @@ describe('Plenaries exports', () => {
         const bodiesSheetsData = bodiesSheets.data;
 
         // finding the row with the body
-        const row = bodiesSheetsData.find(r => r[2] === regularUser.bodies[0].name);
+        const row = bodiesSheetsData.find((r) => r[2] === regularUser.bodies[0].name);
         expect(row).toBeTruthy();
 
         expect(row.length).toEqual(6); // body ID, code, name, type, delegates count, avg%, 0 delegates %

@@ -76,7 +76,6 @@ describe('Export all', () => {
         const data = xlsx.parse(res.body);
         expect(data.length).toEqual(1);
 
-
         const sheet = data[0].data;
         expect(sheet.length).toEqual(1);
     });

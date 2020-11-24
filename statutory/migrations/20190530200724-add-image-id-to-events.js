@@ -11,5 +11,5 @@ module.exports = {
             }
         }
     ),
-    down: queryInterface => queryInterface.removeColumn('events', 'image_id')
+    down: (queryInterface) => queryInterface.removeColumn('events', 'image_id')
 };

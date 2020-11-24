@@ -32,5 +32,5 @@ module.exports = {
             type: Sequelize.DATE
         }
     }),
-    down: queryInterface => queryInterface.dropTable('question_lines')
+    down: (queryInterface) => queryInterface.dropTable('question_lines')
 };

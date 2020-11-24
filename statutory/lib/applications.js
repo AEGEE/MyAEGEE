@@ -124,21 +124,21 @@ exports.getStats = async (req, res) => {
 
     statsObject.numbers = {
         total: applications.length,
-        accepted: applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'accepted' })).length,
-        rejected: applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'rejected' })).length,
-        pending: applications.filter(app => helpers.filterObject(app, { cancelled: false, status: 'pending' })).length,
-        cancelled: applications.filter(app => helpers.filterObject(app, { cancelled: true })).length,
-        confirmed: applications.filter(app => helpers.filterObject(app, { confirmed: true })).length,
-        registered: applications.filter(app => helpers.filterObject(app, { registered: true })).length,
-        attended: applications.filter(app => helpers.filterObject(app, { attended: true })).length,
-        departed: applications.filter(app => helpers.filterObject(app, { departed: true })).length
+        accepted: applications.filter((app) => helpers.filterObject(app, { cancelled: false, status: 'accepted' })).length,
+        rejected: applications.filter((app) => helpers.filterObject(app, { cancelled: false, status: 'rejected' })).length,
+        pending: applications.filter((app) => helpers.filterObject(app, { cancelled: false, status: 'pending' })).length,
+        cancelled: applications.filter((app) => helpers.filterObject(app, { cancelled: true })).length,
+        confirmed: applications.filter((app) => helpers.filterObject(app, { confirmed: true })).length,
+        registered: applications.filter((app) => helpers.filterObject(app, { registered: true })).length,
+        attended: applications.filter((app) => helpers.filterObject(app, { attended: true })).length,
+        departed: applications.filter((app) => helpers.filterObject(app, { departed: true })).length
     };
 
     // Filtering out cancelled applications.
-    const notCancelledApplications = applications.filter(app => !app.cancelled);
+    const notCancelledApplications = applications.filter((app) => !app.cancelled);
 
     // By date
-    const dates = notCancelledApplications.map(app => moment(app.created_at).format('YYYY-MM-DD'))
+    const dates = notCancelledApplications.map((app) => moment(app.created_at).format('YYYY-MM-DD'))
         .filter((elt, index, array) => array.indexOf(elt) === index)
         .sort();
     const startDate = dates[0];
@@ -149,7 +149,7 @@ exports.getStats = async (req, res) => {
     for (let date = moment(startDate, 'YYYY-MM-DD'); date.isSameOrBefore(moment(endDate, 'YYYY-MM-DD')); date = date.add(1, 'day')) {
         const dateFormatted = moment(date).format('YYYY-MM-DD');
         const applicationsAmount = notCancelledApplications
-            .filter(elt => moment(elt.created_at).format('YYYY-MM-DD') === dateFormatted)
+            .filter((elt) => moment(elt.created_at).format('YYYY-MM-DD') === dateFormatted)
             .length;
 
         cumulativeSum += applicationsAmount;
@@ -260,7 +260,7 @@ exports.updateApplication = async (req, res) => {
     if (req.body.body_id) {
         // Shouldn't crash, if the person is not a member of a body,
         // it will be caught by helpers.isMemberOf() above.
-        req.body.body_name = user.bodies.find(b => req.body.body_id === b.id).name;
+        req.body.body_name = user.bodies.find((b) => req.body.body_id === b.id).name;
     }
 
     // If user changed his body (by himself), reset his board comment and participant type/order.
@@ -296,7 +296,7 @@ exports.updateApplication = async (req, res) => {
 
         if (boardMembers.length > 0) {
             await mailer.sendMail({
-                to: boardMembers.map(member => member.user.email),
+                to: boardMembers.map((member) => member.user.email),
                 subject: `One of your body members changed the application to ${req.event.name}`,
                 template: 'statutory_board_edited.html',
                 parameters: {
@@ -613,7 +613,7 @@ exports.postApplication = async (req, res) => {
     req.body.last_name = req.user.last_name;
     req.body.gender = req.user.gender;
     req.body.email = req.user.email;
-    req.body.body_name = req.user.bodies.find(b => req.body.body_id === b.id).name;
+    req.body.body_name = req.user.bodies.find((b) => req.body.body_id === b.id).name;
     req.body.date_of_birth = req.user.date_of_birth;
 
     let newApplication;
@@ -643,7 +643,7 @@ exports.postApplication = async (req, res) => {
 
         if (boardMembers.length > 0) {
             await mailer.sendMail({
-                to: boardMembers.map(member => member.user.email),
+                to: boardMembers.map((member) => member.user.email),
                 subject: `One of your body members has applied to ${req.event.name}`,
                 template: 'statutory_board_applied.html',
                 parameters: {
@@ -677,7 +677,7 @@ exports.exportOpenslides = async (req, res) => {
         where: { event_id: req.event.id, cancelled: false, status: 'accepted' },
     });
 
-    const wrap = string => '"' + string + '"';
+    const wrap = (string) => '"' + string + '"';
 
     const headers = [
         'Title',
@@ -713,7 +713,7 @@ exports.exportOpenslides = async (req, res) => {
             password,
             application.email // User email, currently not fetched from the system.
         ].map(wrap).join(',');
-    }).filter(line => line.length > 0).join('\n');
+    }).filter((line) => line.length > 0).join('\n');
 
     res.setHeader('Content-type', 'text/csv');
     res.setHeader('Content-disposition', 'attachment; filename=openslides.csv');
@@ -742,7 +742,7 @@ exports.exportAll = async (req, res) => {
     // If prefix is /incoming, only specific fields are allowed.
     // If prefix is /all, all fields are available.
     if (req.params.prefix !== 'all') {
-        req.query.select = req.query.select.filter(field => constants.ALLOWED_INCOMING_FIELDS.includes(field));
+        req.query.select = req.query.select.filter((field) => constants.ALLOWED_INCOMING_FIELDS.includes(field));
     }
 
     // Default query is filtering out cancelled applications.
@@ -752,15 +752,15 @@ exports.exportAll = async (req, res) => {
     const applicationsFilter = Object.assign(defaultFilter, req.query.filter);
 
     const headersNames = helpers.getApplicationFields(req.event);
-    const headers = req.query.select.map(field => headersNames[field]);
+    const headers = req.query.select.map((field) => headersNames[field]);
 
     const applications = await Application.findAll({ where: { event_id: req.event.id, ...applicationsFilter } });
 
     const resultArray = applications
-        .map(application => application.toJSON())
-        .map(application => helpers.flattenObject(application))
+        .map((application) => application.toJSON())
+        .map((application) => helpers.flattenObject(application))
         .map((application) => {
-            return req.query.select.map(field => helpers.beautify(application[field]));
+            return req.query.select.map((field) => helpers.beautify(application[field]));
         });
 
     const resultBuffer = xlsx.build([

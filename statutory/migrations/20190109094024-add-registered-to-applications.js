@@ -4,5 +4,5 @@ module.exports = {
         'registered',
         { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false }
     ),
-    down: queryInterface => queryInterface.removeColumn('applications', 'registered')
+    down: (queryInterface) => queryInterface.removeColumn('applications', 'registered')
 };

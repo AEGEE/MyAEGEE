@@ -128,7 +128,6 @@ describe('Positions listing', () => {
         expect(res.body.data[0].candidates[0]).not.toHaveProperty('european_experience');
     });
 
-
     test('should not list rejected applications on /approved', async () => {
         const event = await generator.createEvent({ type: 'agora', applications: [] });
         await generator.createPosition({

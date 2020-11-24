@@ -16,7 +16,7 @@ const {
     Question
 } = require('../../models');
 
-const notSet = field => typeof field === 'undefined';
+const notSet = (field) => typeof field === 'undefined';
 
 const visaFields = [
     'visa_place_of_birth',
@@ -139,7 +139,6 @@ exports.generatePaxLimit = (options = {}) => {
     if (notSet(options.envoy)) options.envoy = faker.random.number(100);
     if (notSet(options.event_type)) options.event_type = faker.random.arrayElement(['agora', 'epm']);
 
-
     return options;
 };
 
@@ -152,7 +151,6 @@ exports.generatePosition = (options = {}, event = null) => {
     if (notSet(options.deleted)) options.deleted = false;
     if (notSet(options.start_term)) options.start_term = faker.date.future(null, options.ends_force);
     if (notSet(options.end_term)) options.end_term = faker.lorem.sentence();
-
 
     if (event && event.id) {
         options.event_id = event.id;

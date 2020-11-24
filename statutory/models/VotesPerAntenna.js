@@ -3,7 +3,6 @@ const MembersList = require('./MembersList');
 const VotesPerDelegate = require('./VotesPerDelegate');
 const Application = require('./Application');
 
-
 const VotesPerAntenna = sequelize.define('VotesPerAntenna', {
     event_id: {
         allowNull: false,

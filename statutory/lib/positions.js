@@ -86,7 +86,7 @@ exports.listPositionsWithApprovedCandidates = async (req, res) => {
         const jsonPosition = position.toJSON();
 
         jsonPosition.candidates = position.candidates
-            .filter(candidate => candidate.status !== 'rejected')
+            .filter((candidate) => candidate.status !== 'rejected')
             .map((candidate) => {
                 if (candidate.status === 'approved') {
                     return helpers.blacklistObject(candidate.toJSON(), ['email']); // the email should be visible to JC only
@@ -185,7 +185,7 @@ exports.exportAll = async (req, res) => {
     const applicationsFilter = Object.assign(defaultFilter, req.query.filter);
 
     const headersNames = constants.CANDIDATE_FIELDS;
-    const headers = req.query.select.map(field => headersNames[field]);
+    const headers = req.query.select.map((field) => headersNames[field]);
 
     const applications = await Candidate.findAll({
         where: {
@@ -199,10 +199,10 @@ exports.exportAll = async (req, res) => {
     });
 
     const resultArray = applications
-        .map(application => application.toJSON())
-        .map(application => helpers.flattenObject(application))
+        .map((application) => application.toJSON())
+        .map((application) => helpers.flattenObject(application))
         .map((application) => {
-            return req.query.select.map(field => helpers.beautify(application[field]));
+            return req.query.select.map((field) => helpers.beautify(application[field]));
         });
 
     const resultBuffer = xlsx.build([

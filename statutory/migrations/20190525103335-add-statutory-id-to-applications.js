@@ -18,5 +18,5 @@ module.exports = {
             }
         );
     },
-    down: queryInterface => queryInterface.removeColumn('applications', 'statutory_id')
+    down: (queryInterface) => queryInterface.removeColumn('applications', 'statutory_id')
 };

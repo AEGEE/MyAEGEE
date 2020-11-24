@@ -7,7 +7,7 @@ const generator = require('../scripts/generator');
 const { Position, Attendance } = require('../../models');
 const cron = require('../../lib/cron');
 
-const sleep = delay => new Promise(res => setTimeout(res, delay));
+const sleep = (delay) => new Promise((res) => setTimeout(res, delay));
 
 describe('Cron testing', () => {
     beforeAll(async () => {
@@ -67,8 +67,8 @@ describe('Cron testing', () => {
             expect(Object.values(cron.jobs)[0].params.id).toEqual(position.id);
             expect(Object.values(cron.jobs)[1].params.id).toEqual(position.id);
             expect(Object.values(cron.jobs)[2].params.id).toEqual(position.id);
-            expect(Object.values(cron.jobs).map(job => job.key)).toContain(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key);
-            expect(Object.values(cron.jobs).map(job => job.key)).toContain(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key);
+            expect(Object.values(cron.jobs).map((job) => job.key)).toContain(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key);
+            expect(Object.values(cron.jobs).map((job) => job.key)).toContain(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key);
         });
 
         test('should set the close deadline for plenaries on cron.registerAll()', async () => {
@@ -131,8 +131,8 @@ describe('Cron testing', () => {
             expect(Object.values(cron.jobs)[0].params.id).toEqual(res.body.data.id);
             expect(Object.values(cron.jobs)[1].params.id).toEqual(res.body.data.id);
             expect(Object.values(cron.jobs)[2].params.id).toEqual(res.body.data.id);
-            expect(Object.values(cron.jobs).map(job => job.key)).toContain(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key);
-            expect(Object.values(cron.jobs).map(job => job.key)).toContain(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key);
+            expect(Object.values(cron.jobs).map((job) => job.key)).toContain(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key);
+            expect(Object.values(cron.jobs).map((job) => job.key)).toContain(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key);
         });
 
         test('should set the close deadline if the applications started but not ended', async () => {
@@ -270,8 +270,8 @@ describe('Cron testing', () => {
             expect(Object.values(cron.jobs)[0].params.id).toEqual(res.body.data.id);
             expect(Object.values(cron.jobs)[1].params.id).toEqual(res.body.data.id);
             expect(Object.values(cron.jobs)[2].params.id).toEqual(res.body.data.id);
-            expect(Object.values(cron.jobs).map(job => job.key)).toContain(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key);
-            expect(Object.values(cron.jobs).map(job => job.key)).toContain(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key);
+            expect(Object.values(cron.jobs).map((job) => job.key)).toContain(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key);
+            expect(Object.values(cron.jobs).map((job) => job.key)).toContain(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key);
         });
 
         test('should set the close deadline if the applications started but not ended', async () => {
@@ -356,7 +356,7 @@ describe('Cron testing', () => {
             }, event);
             expect(Object.keys(cron.jobs).length).toEqual(3); // opening, closing, closing force deadline
 
-            const job = Object.values(cron.jobs).find(j => j.key === cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key);
+            const job = Object.values(cron.jobs).find((j) => j.key === cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS.key);
             await cron.executeJob(job.id);
             expect(Object.keys(cron.jobs).length).toEqual(2); // closing, closing force deadline
         });
@@ -399,7 +399,7 @@ describe('Cron testing', () => {
             }, event);
             expect(Object.keys(cron.jobs).length).toEqual(2); // closing, closing force deadline
 
-            const job = Object.values(cron.jobs).find(j => j.key === cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key && !j.params.force);
+            const job = Object.values(cron.jobs).find((j) => j.key === cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key && !j.params.force);
             await cron.executeJob(job.id); // won't close it, too few people
             expect(Object.keys(cron.jobs).length).toEqual(1); // force closing;
 
@@ -420,7 +420,7 @@ describe('Cron testing', () => {
             }, event);
             expect(Object.keys(cron.jobs).length).toEqual(2); // closing + closing force deadline
 
-            const job = Object.values(cron.jobs).find(j => j.key === cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key && !j.params.force);
+            const job = Object.values(cron.jobs).find((j) => j.key === cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS.key && !j.params.force);
             await cron.executeJob(job.id);
             expect(Object.keys(cron.jobs).length).toEqual(1);
 

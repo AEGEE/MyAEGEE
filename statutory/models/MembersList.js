@@ -123,7 +123,7 @@ MembersList.beforeSave(async (memberslist, options) => {
         throw new Error('Malformed response when fetching API rates: ' + conversion);
     }
 
-    const conversionForCurrency = conversion.find(c => c.isoA2Code.toLowerCase() === currency.toLowerCase());
+    const conversionForCurrency = conversion.find((c) => c.isoA2Code.toLowerCase() === currency.toLowerCase());
     if (!conversionForCurrency) {
         throw new Error('No currency found: ' + currency);
     }

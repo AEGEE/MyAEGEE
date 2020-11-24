@@ -104,7 +104,6 @@ describe('Applications displaying', () => {
         const event = await generator.createEvent({ applications: [] });
         const application = await generator.createApplication({ user_id: 1337 }, event);
 
-
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id,
             method: 'GET',

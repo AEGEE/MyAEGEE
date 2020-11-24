@@ -28,13 +28,13 @@ exports.calculateTimeForPlenary = (attendance, plenary) => {
 };
 
 // A helper to check if the passed value is an object.
-exports.isObject = value => typeof value === 'object' && value !== null;
+exports.isObject = (value) => typeof value === 'object' && value !== null;
 
 // A helper to check if the value is set.
-exports.isDefined = value => typeof value !== 'undefined';
+exports.isDefined = (value) => typeof value !== 'undefined';
 
 // A helper to check if the value is truthy.
-exports.isTruthy = value => exports.isDefined(value) && value !== null;
+exports.isTruthy = (value) => exports.isDefined(value) && value !== null;
 
 // A helper to check if the boardview update for application was okay.
 // It's run within a transaction, so if this will throw an error, the transaction will be rolled back.
@@ -49,7 +49,6 @@ exports.checkApplicationBoardviewValidity = async ({ event, application, body, t
 
     // Fetching pax limits for this body for this event.
     const limit = await PaxLimit.fetchOrUseDefaultForBody(body, event.type);
-
 
     // Second, get from database how much people we have for this event
     // from this body with this pax type.
@@ -136,7 +135,7 @@ exports.whitelistObject = (object, allowedFields) => {
 
 // A helper to blacklist object's properties.
 exports.blacklistObject = (object, filteredFields) => {
-    const newObject = Object.assign({}, object);
+    const newObject = { ...object };
     for (const field of filteredFields) {
         delete newObject[field];
     }
@@ -158,7 +157,7 @@ exports.filterObject = (object, targetObject) => {
 // A helper to count objects in array by field.
 exports.countByField = (array, key) => {
     return array.reduce((acc, val) => {
-        const existing = acc.find(obj => obj.type === val[key]);
+        const existing = acc.find((obj) => obj.type === val[key]);
         if (existing) {
             existing.value += 1;
         } else {
@@ -235,18 +234,18 @@ exports.memberslistHasMember = (memberslist, application) => {
     }
 
     // Otherwise, iterate through members to check if some of them match.
-    return memberslist.members.some(member => exports.memberMatchApplication(member, application));
+    return memberslist.members.some((member) => exports.memberMatchApplication(member, application));
 };
 
 // A helpers to determine if the user is member of a body.
-exports.isMemberOf = (user, bodyId) => user.bodies.map(body => body.id).includes(bodyId);
+exports.isMemberOf = (user, bodyId) => user.bodies.map((body) => body.id).includes(bodyId);
 
 // A helpers to determine if body is a local.
-exports.isLocal = body => ['antenna', 'contact antenna', 'contact'].includes(body.type);
+exports.isLocal = (body) => ['antenna', 'contact antenna', 'contact'].includes(body.type);
 
 // A helper to get the names for application fields. Useful for exporting for getting columns headers.
 exports.getApplicationFields = (event) => {
-    const fields = Object.assign({}, constants.APPLICATION_FIELD_NAMES);
+    const fields = { ...constants.APPLICATION_FIELD_NAMES };
     for (let index = 0; index < event.questions.length; index++) {
         fields['answers.' + index] = `Answer ${index + 1}: ${event.questions[index].description}`;
     }
@@ -260,7 +259,7 @@ function hasPermission(permissionsList, combinedPermission) {
         return false;
     }
 
-    return permissionsList.some(permission => permission.combined.endsWith(combinedPermission));
+    return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
 }
 
 // A helper to get bodies list where I have some permission
@@ -271,8 +270,8 @@ function getBodiesListFromPermissions(result) {
     }
 
     return result
-        .filter(elt => elt.body_id)
-        .map(elt => elt.body_id)
+        .filter((elt) => elt.body_id)
+        .map((elt) => elt.body_id)
         .filter((elt, index, array) => array.indexOf(elt) === index);
 }
 
@@ -302,7 +301,6 @@ exports.getEventPermissions = (data) => {
         limits,
         myApplication
     } = data;
-
 
     // Event-related permissions
     permissions.edit_event = hasPermission(corePermissions, 'global:manage_event:' + event.type);

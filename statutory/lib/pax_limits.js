@@ -15,7 +15,7 @@ exports.listAllLimits = async (req, res) => {
     const bodies = await core.getBodies(req);
     const limits = await PaxLimit.findAll({ where: { event_type: req.params.event_type } });
     const result = bodies.map((body) => {
-        const limitPerBody = limits.find(limit => limit.body_id === body.id);
+        const limitPerBody = limits.find((limit) => limit.body_id === body.id);
 
         // Either return a custom limit for a body, or a default one if it's not found.
         return limitPerBody || PaxLimit.getDefaultForBody(body, req.params.event_type);

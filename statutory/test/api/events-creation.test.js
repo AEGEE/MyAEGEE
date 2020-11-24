@@ -66,7 +66,7 @@ describe('Events creation', () => {
         expect(eventFromDb.type).toEqual(res.body.data.type);
 
         for (const question of event.questions) {
-            expect(eventFromDb.questions.find(q => question.name === q.name)).toBeTruthy();
+            expect(eventFromDb.questions.find((q) => question.name === q.name)).toBeTruthy();
         }
     });
 

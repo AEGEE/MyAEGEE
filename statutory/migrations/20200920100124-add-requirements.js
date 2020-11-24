@@ -4,5 +4,5 @@ module.exports = {
         'requirements',
         { type: Sequelize.TEXT, allowNull: true, defaultValue: '' }
     ),
-    down: queryInterface => queryInterface.removeColumn('positions', 'requirements')
+    down: (queryInterface) => queryInterface.removeColumn('positions', 'requirements')
 };

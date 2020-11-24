@@ -106,7 +106,6 @@ describe('Applications status', () => {
             body: { status: 'lalala' }
         });
 
-
         expect(res.statusCode).toEqual(422);
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('errors');

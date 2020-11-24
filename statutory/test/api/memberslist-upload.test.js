@@ -856,7 +856,7 @@ describe('Memberslist uploading', () => {
             expect(res.body.success).toEqual(true);
             expect(res.body).toHaveProperty('data');
 
-            const conversionForTest = conversionRates.find(rate => rate.isoA2Code === 'HU');
+            const conversionForTest = conversionRates.find((rate) => rate.isoA2Code === 'HU');
             expect(res.body.data.conversion_rate).toEqual(conversionForTest.value);
         });
 
@@ -879,7 +879,7 @@ describe('Memberslist uploading', () => {
             expect(res.body.success).toEqual(true);
             expect(res.body).toHaveProperty('data');
 
-            const conversionForTest = conversionRates.find(rate => rate.isoA2Code === 'BE');
+            const conversionForTest = conversionRates.find((rate) => rate.isoA2Code === 'BE');
             expect(res.body.data.conversion_rate).toEqual(conversionForTest.value);
         });
 

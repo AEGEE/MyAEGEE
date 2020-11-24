@@ -153,7 +153,6 @@ describe('Votes per antenna calculation', () => {
         expect(votesInDatabase[0].event_id).toEqual(event.id);
         expect(votesInDatabase[0].votes).toEqual(5);
 
-
         // Reuploading members lists
         memberslist = generator.generateMembersList({
             body_id: regularUser.bodies[0].id,

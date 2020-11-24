@@ -65,7 +65,6 @@ describe('Applications creation', () => {
             body: application
         });
 
-
         tk.reset();
 
         expect(res.statusCode).toEqual(200);
@@ -336,7 +335,6 @@ describe('Applications creation', () => {
         expect(res.body).not.toHaveProperty('data');
         expect(res.body.errors).toHaveProperty('answers');
     });
-
 
     test('should return 422 if the text answer is empty, although required', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });

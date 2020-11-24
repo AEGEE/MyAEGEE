@@ -17,7 +17,6 @@ exports.findQuestionLine = async (req, res, next) => {
     return next();
 };
 
-
 exports.listAllQuestionLines = async (req, res) => {
     if (!req.permissions.see_questions && !req.permissions.manage_question_lines) {
         return errors.makeForbiddenError(res, 'You are not allowed to see questions');
@@ -76,7 +75,6 @@ exports.editQuestionLine = async (req, res) => {
         data: req.questionLine
     });
 };
-
 
 exports.updateQuestionLineStatus = async (req, res) => {
     if (!req.permissions.manage_question_lines) {

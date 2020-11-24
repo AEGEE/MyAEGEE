@@ -54,7 +54,7 @@ exports.submitYourCandidature = async (req, res) => {
 
     delete req.body.status;
 
-    req.body.body_name = req.user.bodies.find(body => body.id === req.body.body_id).name;
+    req.body.body_name = req.user.bodies.find((body) => body.id === req.body.body_id).name;
     req.body.user_id = req.user.id;
     req.body.position_id = req.position.id;
 

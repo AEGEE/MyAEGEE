@@ -5,5 +5,5 @@ module.exports = {
         Sequelize.DATE,
         { allowNull: true }
     ),
-    down: queryInterface => queryInterface.removeColumn('events', 'memberslist_submission_deadline')
+    down: (queryInterface) => queryInterface.removeColumn('events', 'memberslist_submission_deadline')
 };

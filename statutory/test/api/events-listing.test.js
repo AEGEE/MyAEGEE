@@ -42,7 +42,7 @@ describe('Events listing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
 
-        const ids = res.body.data.map(e => e.id);
+        const ids = res.body.data.map((e) => e.id);
         expect(ids).toContain(event.id);
     });
 
@@ -60,7 +60,7 @@ describe('Events listing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
 
-        const ids = res.body.data.map(e => e.id);
+        const ids = res.body.data.map((e) => e.id);
         expect(ids).toContain(event.id);
     });
 
@@ -78,7 +78,7 @@ describe('Events listing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
 
-        const ids = res.body.data.map(e => e.id);
+        const ids = res.body.data.map((e) => e.id);
         expect(ids).not.toContain(event.id);
     });
 
@@ -138,7 +138,7 @@ describe('Events listing', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.length).toEqual(2);
 
-        const ids = res.body.data.map(e => e.id);
+        const ids = res.body.data.map((e) => e.id);
         expect(ids).toContain(first.id);
         expect(ids).toContain(second.id);
     });
@@ -253,7 +253,7 @@ describe('Events listing', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.length).toEqual(2);
 
-        const ids = res.body.data.map(e => e.id);
+        const ids = res.body.data.map((e) => e.id);
         expect(ids).toContain(first.id);
         expect(ids).toContain(second.id);
     });

@@ -35,7 +35,7 @@ describe('Export OpenSlides', () => {
 
         expect(res.statusCode).toEqual(200);
 
-        const body = res.body.split('\n').filter(l => l.length > 0);
+        const body = res.body.split('\n').filter((l) => l.length > 0);
         expect(body.length).toEqual(1);
     });
 
@@ -51,7 +51,7 @@ describe('Export OpenSlides', () => {
 
         expect(res.statusCode).toEqual(200);
 
-        const body = res.body.split('\n').filter(l => l.length > 0);
+        const body = res.body.split('\n').filter((l) => l.length > 0);
         expect(body.length).toEqual(1);
     });
 
@@ -66,7 +66,7 @@ describe('Export OpenSlides', () => {
 
         expect(res.statusCode).toEqual(200);
 
-        const body = res.body.split('\n').filter(l => l.length > 0);
+        const body = res.body.split('\n').filter((l) => l.length > 0);
         expect(body.length).toEqual(2);
     });
 

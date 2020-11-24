@@ -50,7 +50,6 @@ const config = {
     }
 };
 
-
 // Assuming by default that we run in 'development' environment, if no
 // NODE_ENV is specified.
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
