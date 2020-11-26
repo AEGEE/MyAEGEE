@@ -1,3 +1,10 @@
+## [1.20.4](https://github.com/AEGEE/frontend/compare/1.20.3...1.20.4) (2020-11-26)
+
+
+### Bug Fixes
+
+* **import:** combine multiple lastnames to one word ([#746](https://github.com/AEGEE/frontend/issues/746)) ([2872a19](https://github.com/AEGEE/frontend/commit/2872a19df0e1a9f2b00ebd4dc4d89ee19bba539f))
+
 ## [1.20.3](https://github.com/AEGEE/frontend/compare/1.20.2...1.20.3) (2020-11-11)
 
 
