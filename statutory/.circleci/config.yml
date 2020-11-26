@@ -1,21 +1,22 @@
 orbs:
-  slack: circleci/slack@3.4.1
+  slack: circleci/slack@3.4.2
+  node: circleci/node@4.1.0
 version: 2.1
 jobs:
   test:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202010-01
     steps:
       - checkout
-      - run: docker run --name postgres -p 5432:5432 -d postgres:10.6
+      - run: docker run --name postgres -e POSTGRES_PASSWORD='5ecr3t' -p 5432:5432 -d postgres:13
       - run:
           name: Install Node
           command: |
-            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
             sudo apt-get install -y nodejs
             echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
             which node && node -v
-      - run: npm install
+      - node/install-packages
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run tests
@@ -26,24 +27,19 @@ jobs:
       - store_artifacts:
           path: ~/reports
   build:
-    machine:
-      image: ubuntu-1604:201903-01
+    docker:
+      - image: cimg/base:2020.11
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 19.03.13
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache statutory
   eslint:
-    machine:
-      image: ubuntu-1604:201903-01
+    docker:
+      - image: cimg/node:14.15
     steps:
       - checkout
-      - run:
-          name: Install Node
-          command: |
-            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-            sudo apt-get install -y nodejs
-            echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
-            which node && node -v
-      - run: npm install
+      - node/install-packages
       - run: mkdir -p ~/reports
       - run: npm run lint -- --format junit --output-file ~/reports/eslint.xml
       - store_test_results:
@@ -51,25 +47,20 @@ jobs:
       - store_artifacts:
           path: ~/reports
   yamllint:
-    machine:
-      image: ubuntu-1604:201903-01
+    docker:
+      - image: cimg/python:3.9.0
     steps:
       - checkout
       - run: pip install yamllint
       - run: yamllint -d .yamllint.yml .
   docker-build-and-push:
-    machine:
-      image: ubuntu-1604:201903-01
+    docker:
+      - image: cimg/node:14.15
     steps:
       - checkout
-      - run:
-          name: Install Node
-          command: |
-            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-            sudo apt-get install -y nodejs
-            echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
-            which node && node -v
-      - run: npm install
+      - setup_remote_docker:
+          version: 19.03.13
+      - node/install-packages
       - run: npx semantic-release
       - run: docker build  --tag aegee/statutory:$(node -p "require('./package.json').version") --tag aegee/statutory:latest -f docker/statutory/Dockerfile .
       - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
