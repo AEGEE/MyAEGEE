@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/AEGEE/statutory/compare/1.6.0...1.6.1) (2020-11-26)
+
+
+### Bug Fixes
+
+* **circleci:** update CircleCI config to use cimgs ([#446](https://github.com/AEGEE/statutory/issues/446)) ([97572a0](https://github.com/AEGEE/statutory/commit/97572a04375a8bb00caf38d4c838bf97e79731f0))
+
 # [1.6.0](https://github.com/AEGEE/statutory/compare/1.5.0...1.6.0) (2020-11-03)
 
 
