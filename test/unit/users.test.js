@@ -97,6 +97,30 @@ describe('Users testing', () => {
         }
     });
 
+    test('should fail with not valid email (aegee.eu)', async () => {
+        try {
+            await generator.createUser({ email: 'test@aegee.eu' });
+            expect(1).toEqual(0);
+        } catch (err) {
+            expect(err).toHaveProperty('errors');
+            expect(err.errors.length).toEqual(1);
+            expect(err.errors[0].type).toEqual('Validation error');
+            expect(err.errors[0].path).toEqual('email');
+        }
+    });
+
+    test('should fail with not valid email (aegee.org)', async () => {
+        try {
+            await generator.createUser({ email: 'test@aegee.org' });
+            expect(1).toEqual(0);
+        } catch (err) {
+            expect(err).toHaveProperty('errors');
+            expect(err.errors.length).toEqual(1);
+            expect(err.errors[0].type).toEqual('Validation error');
+            expect(err.errors[0].path).toEqual('email');
+        }
+    });
+
     test('should allow null date_of_birth', async () => {
         const user = generator.generateUser();
         delete user.date_of_birth;
