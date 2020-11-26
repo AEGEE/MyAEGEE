@@ -140,7 +140,7 @@ export default {
         const lastName = element[1].trim()
         const email = element[2].trim()
 
-        const username = firstName.toLowerCase() + '.' + lastName.toLowerCase().replace(/ /g, '.')
+        const username = firstName.toLowerCase() + '.' + lastName.toLowerCase().replace(/ /g, '')
         return {
           first_name: firstName,
           last_name: lastName,
