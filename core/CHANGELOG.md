@@ -1,3 +1,10 @@
+## [1.30.1](https://github.com/AEGEE/core/compare/1.30.0...1.30.1) (2020-11-26)
+
+
+### Bug Fixes
+
+* **email:** disallow specific email domains ([#192](https://github.com/AEGEE/core/issues/192)) ([818eca7](https://github.com/AEGEE/core/commit/818eca7827b11dc04c68dd0acec3d6e70f14eb97))
+
 # [1.30.0](https://github.com/AEGEE/core/compare/1.29.0...1.30.0) (2020-10-21)
 
 
