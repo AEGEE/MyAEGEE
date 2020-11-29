@@ -3,7 +3,7 @@ version: "3.4"
 services:
     postgres-core:
         restart: always
-        image: postgres:13
+        image: postgres:10.15
         volumes:
             - postgres-core:/var/lib/postgresql/data
         expose:
