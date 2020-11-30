@@ -1,3 +1,10 @@
+# [1.31.0](https://github.com/AEGEE/core/compare/1.30.1...1.31.0) (2020-11-30)
+
+
+### Features
+
+* **body:** add abbreviation ([#193](https://github.com/AEGEE/core/issues/193)) ([7153e5a](https://github.com/AEGEE/core/commit/7153e5aac8a8a6a9579d883af0d5dc97bc205b0c))
+
 ## [1.30.1](https://github.com/AEGEE/core/compare/1.30.0...1.30.1) (2020-11-26)
 
 
