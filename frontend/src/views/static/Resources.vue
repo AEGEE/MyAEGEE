@@ -64,19 +64,19 @@ export default {
       resources: {
         'External': [
           {
-            url: 'http://aegee.org',
+            url: 'https://aegee.org',
             title: 'AEGEE website',
             description: 'Official website',
             color: '#4CA0FF'
           },
           {
-            url: 'http://aegee.blogactiv.eu/',
+            url: 'https://aegee.blogactiv.eu/',
             title: 'External blog',
             description: 'Blog hosted on Blogactiv platform',
             color: '#4CA0FF'
           },
           {
-            url: 'http://aegee.us7.list-manage.com/subscribe?u=7a170c64e0d3990f3f6629d21&id=fc8908d780',
+            url: 'https://aegee.us7.list-manage.com/subscribe?u=7a170c64e0d3990f3f6629d21&id=fc8908d780',
             title: 'External newsletter',
             description: 'Bi-monthly newsletter for Partners & Supporters',
             color: '#4CA0FF'
@@ -96,9 +96,15 @@ export default {
             color: '#FFDB4C'
           },
           {
-            url: 'http://aegee.org/wiki',
+            url: 'https://aegee.org/wiki',
             title: 'AEGEE Wiki',
             description: 'A collaborative knowledge backbone of AEGEE',
+            color: '#FFDB4C'
+          },
+          {
+            url: 'https://drive.google.com/drive/folders/1KtcEZspEAdKgzORqWjn_MNNl2eHK4Jks',
+            title: 'AEGEE Materials Database',
+            description: 'Knowledge library of AEGEE materials',
             color: '#FFDB4C'
           },
           {
@@ -108,13 +114,13 @@ export default {
             color: '#FFDB4C'
           },
           {
-            url: 'http://www.zeus.aegee.org/magazine/',
+            url: 'https://www.zeus.aegee.org/magazine/',
             title: 'The AEGEEan magazine',
             description: 'AEGEE\'s online Magazine',
             color: '#FFDB4C'
           },
           {
-            url: 'http://www.zeus.aegee.org/portal/wp-content/uploads/Strategic-Plan-2020-2023-updated.pdf',
+            url: 'https://www.zeus.aegee.org/portal/wp-content/uploads/Strategic-Plan-2020-2023-updated.pdf',
             title: 'Strategic Plan',
             description: 'Strategic Plan of AEGEE-Europe 2020-2023',
             color: '#FFDB4C'
@@ -142,7 +148,7 @@ export default {
         ],
         'Useful guides': [
           {
-            url: 'http://www.zeus.aegee.org/portal/resources/pr-materials/',
+            url: 'https://www.zeus.aegee.org/portal/resources/pr-materials/',
             title: 'Visual identity',
             description: 'Manual, logos, PR materials and more',
             color: '#FF5543'
