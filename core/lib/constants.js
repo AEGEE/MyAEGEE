@@ -34,7 +34,7 @@ module.exports = {
         }
     },
     FIELDS_TO_QUERY: {
-        BODY: ['code', 'name'],
+        BODY: ['code', 'name', 'abbreviation'],
         CAMPAIGN: ['name', 'url', 'description_short', 'description_long'],
         CIRCLE: ['name', 'description'],
         JOIN_REQUEST: [
