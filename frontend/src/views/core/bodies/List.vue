@@ -5,10 +5,10 @@
         <h4 class="title">Bodies list</h4>
 
         <div class="field">
-          <label class="label">Search by name or body code</label>
+          <label class="label">Search by name, body code or abbreviation</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name or body code" @input="refetch()">
+              <input class="input" type="text" v-model="query" placeholder="Search by name, body code or abbreviation" @input="refetch()">
             </div>
             <div class="control" v-if="can.viewDeleted">
               <a class="button is-info" v-if="includeDeleted"  @click="toggleIncludeDeleted()">Show only active bodies</a>

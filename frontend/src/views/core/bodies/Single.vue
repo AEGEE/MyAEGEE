@@ -96,6 +96,11 @@
                   <th>Title</th>
                   <td>{{ body.name }}</td>
                 </tr>
+                <tr v-if="!['antenna', 'contact antenna', 'contact'].includes(body.type)">
+                  <th>Abbreviation</th>
+                  <td v-if="body.abbreviation">{{ body.abbreviation }}</td>
+                  <td v-if="!body.abbreviation"><i>No abbreviation specified.</i></td>
+                </tr>
                 <tr>
                   <th>Description</th>
                   <td>
@@ -185,6 +190,7 @@ export default {
     return {
       body: {
         name: '',
+        abbreviation: '',
         description: '',
         task_description: '',
         type: '',
