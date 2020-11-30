@@ -1,3 +1,10 @@
+# [1.21.0](https://github.com/AEGEE/frontend/compare/1.20.4...1.21.0) (2020-11-30)
+
+
+### Features
+
+* **body:** add abbreviation ([#747](https://github.com/AEGEE/frontend/issues/747)) ([e01d8a8](https://github.com/AEGEE/frontend/commit/e01d8a8af61ad449df8a1c942be87259af0bfa1d))
+
 ## [1.20.4](https://github.com/AEGEE/frontend/compare/1.20.3...1.20.4) (2020-11-26)
 
 
