@@ -9,9 +9,10 @@ export $(shell sed 's/=.*//' .env)
 
 .PHONY: default init build start bootstrap refresh live_refresh list debug config monitor stop down restart hard_restart \
           nuke_dev clean_docker_dangling_images clean_docker_images clean prune listen_frontend rebuild_frontend rebuild_core \
-	  rebuild_events rebuild_statutory rebuild_discounts rebuild_mailer rebuild_network bump install-agents remove-agents backup_core \
-	  backup_events backup_discounts backup_network backup_gsuite-wrapper backup_statping backup_statistics backup_security backup_shortener \
-	  backup_survey
+          rebuild_events rebuild_statutory rebuild_discounts rebuild_mailer rebuild_network bump install-agents remove-agents \
+          backup backup_core backup_events backup_discounts backup_network backup_gsuite-wrapper backup_statping \
+          backup_statistics backup_security backup_shortener backup_survey
+
 
 default:
 	@echo 'Most common options are bootstrap, start, monitor, live_refresh, restart, nuke_dev, clean (cleans untagged/unnamed images)'
@@ -113,17 +114,20 @@ remove-agents:
 	docker-compose -f monitor-agents/docker/docker-compose.yml down
 
 # Backups
+backup:
+	./scripts/dump.sh postgres-core postgres-events postgres-statutory postgres-discounts
+
 backup_core:
-	./helper.sh --execute postgres-core -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/core' --inserts > core.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+	./scripts/dump.sh postgres-core
 
 backup_events:
-	./helper.sh --execute postgres-events -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/events' --inserts > events.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+	./scripts/dump.sh postgres-events
 
 backup_statutory:
-	./helper.sh --execute postgres-statutory -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/statutory' --inserts > statutory.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+	./scripts/dump.sh postgres-statutory
 
 backup_discounts:
-	./helper.sh --execute postgres-discounts -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/discounts' --inserts > discounts.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+	./scripts/dump.sh postgres-discounts
 
 backup_network:
 	./helper.sh --execute postgres-network -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/network' --inserts > discounts.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
