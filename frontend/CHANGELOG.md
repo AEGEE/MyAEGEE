@@ -1,3 +1,10 @@
+## [1.21.1](https://github.com/AEGEE/frontend/compare/1.21.0...1.21.1) (2020-12-08)
+
+
+### Bug Fixes
+
+* **position:** display page correctly when there are no positions ([#753](https://github.com/AEGEE/frontend/issues/753)) ([9a16855](https://github.com/AEGEE/frontend/commit/9a168550056258bb6e7fb792e87ff298e5bba4ea))
+
 # [1.21.0](https://github.com/AEGEE/frontend/compare/1.20.4...1.21.0) (2020-11-30)
 
 
