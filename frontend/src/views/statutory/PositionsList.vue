@@ -228,7 +228,10 @@ export default {
     },
     // TODO: This is a temporary solution, in the future, we want to display either the "first" deadline OR the force_end deadline
     displayFinalDeadline () {
-      return moment().isAfter(this.positions[0].ends)
+      if (this.positions.length > 0) {
+        return moment().isAfter(this.positions[0].ends)
+      }
+      return false
     }
   },
   methods: {
