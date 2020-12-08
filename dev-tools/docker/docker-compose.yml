@@ -71,6 +71,8 @@ services:
               name: \"statutory\"}, \
               {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/discounts/api-docs.json\", \
               name: \"discounts\"}, \
+              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/network/api-docs.json\", \
+              name: \"network\"}, \
               ]"
     labels:
       - traefik.enable=true

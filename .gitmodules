@@ -22,3 +22,6 @@
 [submodule "gateways/docker/portal/files"]
 	path = gateways/docker/portal/files
 	url = https://github.com/AEGEE/AEGEEPortal
+[submodule "network"]
+	path = network
+	url = https://github.com/AEGEE/network

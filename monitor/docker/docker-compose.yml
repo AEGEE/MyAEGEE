@@ -30,6 +30,8 @@ services:
   prometheus:
     restart: on-failure
     image: prom/prometheus:v2.10.0
+    environment:
+      METRICS_PASSWORD: ${METRICS_PASSWORD}
     volumes:
       - prometheus-storage:/prometheus
       - ./${PATH_MONITOR}/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro

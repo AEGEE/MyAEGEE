@@ -9,8 +9,10 @@ export $(shell sed 's/=.*//' .env)
 
 .PHONY: default init build start bootstrap refresh live_refresh list debug config monitor stop down restart hard_restart \
           nuke_dev clean_docker_dangling_images clean_docker_images clean prune listen_frontend rebuild_frontend rebuild_core \
-	  rebuild_events rebuild_statutory rebuild_discounts rebuild_mailer bump install-agents remove-agents backup backup_core backup_events \
-	  backup_discounts backup_gsuite-wrapper backup_statping backup_statistics backup_security backup_shortener backup_survey
+          rebuild_events rebuild_statutory rebuild_discounts rebuild_mailer rebuild_network bump install-agents remove-agents \
+          backup backup_core backup_events backup_discounts backup_network backup_gsuite-wrapper backup_statping \
+          backup_statistics backup_security backup_shortener backup_survey
+
 
 default:
 	@echo 'Most common options are bootstrap, start, monitor, live_refresh, restart, nuke_dev, clean (cleans untagged/unnamed images)'
@@ -95,6 +97,9 @@ rebuild_discounts:
 rebuild_mailer:
 	./helper.sh --docker -- up -d --build --force-recreate mailer
 
+rebuild_network:
+	./helper.sh --docker -- up -d --build --force-recreate network
+
 bump_and_commit:
 	./helper.sh --bump $(module)
 
@@ -123,6 +128,9 @@ backup_statutory:
 
 backup_discounts:
 	./scripts/dump.sh postgres-discounts
+
+backup_network:
+	./helper.sh --execute postgres-network -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/network' --inserts > discounts.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
 
 backup_gsuite-wrapper:
 	echo "TODO: redis"
