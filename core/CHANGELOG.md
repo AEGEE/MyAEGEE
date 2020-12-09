@@ -1,3 +1,10 @@
+## [1.31.1](https://github.com/AEGEE/core/compare/1.31.0...1.31.1) (2020-12-09)
+
+
+### Bug Fixes
+
+* **gsuite:** add gsuite model ([#184](https://github.com/AEGEE/core/issues/184)) ([d5c5534](https://github.com/AEGEE/core/commit/d5c5534ca46eab10210adca34c5f2feda8e3c89d))
+
 # [1.31.0](https://github.com/AEGEE/core/compare/1.30.1...1.31.0) (2020-11-30)
 
 
