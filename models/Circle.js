@@ -16,6 +16,14 @@ const Circle = sequelize.define('circle', {
         validate: {
             notEmpty: { msg: 'Description should be set.' },
         },
+    },
+    gsuite_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        validate: {
+            isEmail: { msg: 'GSuite ID should be a valid email.' }
+        },
+        unique: true
     }
 }, {
     underscored: true,
@@ -26,6 +34,8 @@ const Circle = sequelize.define('circle', {
 
 Circle.beforeValidate(async (circle) => {
     // skipping these fields if they are unset, will catch it later.
+    if (typeof circle.gsuite_id === 'string') circle.gsuite_id = circle.gsuite_id.toLowerCase().trim();
+
     if (typeof circle.name === 'string') circle.name = circle.name.trim();
     if (typeof circle.description === 'string') circle.description = circle.description.trim();
 });
