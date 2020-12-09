@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/AEGEE/gsuite-wrapper/compare/1.3.0...1.3.1) (2020-12-09)
+
+
+### Bug Fixes
+
+* **deps:** remove oms-common-nodejs ([#161](https://github.com/AEGEE/gsuite-wrapper/issues/161)) ([bebf95c](https://github.com/AEGEE/gsuite-wrapper/commit/bebf95ce56d800fdd9c319896656d185a247516c))
+
 # [1.3.0](https://github.com/AEGEE/gsuite-wrapper/compare/1.2.4...1.3.0) (2020-11-07)
 
 
