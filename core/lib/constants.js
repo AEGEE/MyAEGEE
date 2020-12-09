@@ -52,7 +52,7 @@ module.exports = {
             'user.last_name',
             'user.email',
         ],
-        MEMBER: ['first_name', 'last_name', 'email'],
+        MEMBER: ['first_name', 'last_name', 'email', 'gsuite_id'],
         PERMISSION: ['combined', 'description']
     },
     FIELDS_TO_FIND: {
