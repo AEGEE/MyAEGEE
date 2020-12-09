@@ -1,6 +1,5 @@
-const { errors } = require('oms-common-nodejs');
+const errors = require('./util/errors.js');
 const serverInfo = require('./util/info.js');
-
 const log = require('./util/logger.js');
 
 /* eslint-disable no-unused-vars */
