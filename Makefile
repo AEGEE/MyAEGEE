@@ -101,7 +101,7 @@ rebuild_network:
 	./helper.sh --docker -- up -d --build --force-recreate network
 
 bump_and_commit:
-	./helper.sh --bump $(module)
+	./helper.sh --bump $(module) #FIXME it is missing something (like variable declaration)
 
 bump:
 	./helper.sh --bumpmodules
@@ -115,7 +115,7 @@ remove-agents:
 
 # Backups
 backup:
-	./scripts/dump.sh postgres-core postgres-events postgres-statutory postgres-discounts
+	./scripts/dump.sh postgres-core postgres-events postgres-statutory postgres-discounts postgres-network
 
 backup_core:
 	./scripts/dump.sh postgres-core
@@ -130,7 +130,7 @@ backup_discounts:
 	./scripts/dump.sh postgres-discounts
 
 backup_network:
-	./helper.sh --execute postgres-network -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/network' --inserts > discounts.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+	./scripts/dump.sh postgres-network
 
 backup_gsuite-wrapper:
 	echo "TODO: redis"

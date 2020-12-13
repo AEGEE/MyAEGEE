@@ -26,6 +26,7 @@ tmp_dir="/tmp/myaegee-backup-$(date +%Y-%m-%d)"
 
 mkdir -p "${tmp_dir}"
 
+SCRIPT_DIR=$(dirname "${0}")
 #shellcheck disable=SC2164
 cd "${backup_dir}"
 
@@ -96,9 +97,11 @@ fi
 if [[ ! "$error" == "0" ]]
 then
   echo "$(date +%Y-%m-%dT%H:%M:%S) -- ERROR -- File:${output_file} ; Backup unsuccessful" | tee -a "${log_file}"
+  "${SCRIPT_DIR}"/notify.sh FAILURE
   exit $error
 else
   echo "$(date +%Y-%m-%dT%H:%M:%S) -- INFO -- File:${output_file} ; Backup successful, everything written to ${output_file}" | tee -a "${log_file}"
+  "${SCRIPT_DIR}"/notify.sh SUCCESS
 fi
 
 #TODO: rsync to bucket. Buckets are cheaper than HDD/SDD storage
