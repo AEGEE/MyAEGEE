@@ -1,3 +1,10 @@
+## [1.31.2](https://github.com/AEGEE/core/compare/1.31.1...1.31.2) (2020-12-14)
+
+
+### Bug Fixes
+
+* **login:** allow people to login with gsuite_id ([#201](https://github.com/AEGEE/core/issues/201)) ([10229a7](https://github.com/AEGEE/core/commit/10229a75b655c301f20485d0e3c4eb452613d5f6))
+
 ## [1.31.1](https://github.com/AEGEE/core/compare/1.31.0...1.31.1) (2020-12-09)
 
 
