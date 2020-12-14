@@ -13,7 +13,8 @@ module.exports.login = async (req, res) => {
         where: {
             [Sequelize.Op.or]: {
                 email: { [Sequelize.Op.iLike]: username },
-                username: { [Sequelize.Op.iLike]: username }
+                username: { [Sequelize.Op.iLike]: username },
+                gsuite_id: { [Sequelize.Op.iLike]: username }
             }
         }
     });
