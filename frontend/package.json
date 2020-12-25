@@ -48,7 +48,7 @@
     "chart.js": "^2.9.4",
     "compression-webpack-plugin": "^6.1.1",
     "css-loader": "^5.0.1",
-    "dompurify": "^2.2.4",
+    "dompurify": "^2.2.6",
     "eslint": "^7.15.0",
     "eslint-plugin-cypress": "^2.11.2",
     "eslint-plugin-vue": "^7.3.0",
