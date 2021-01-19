@@ -130,6 +130,12 @@ export default {
             title: 'Action Agenda',
             description: 'Action Agenda 2020-2021',
             color: '#FFDB4C'
+          },
+          {
+            url: 'https://aegee-academy.eu/request-a-training/',
+            title: 'AEGEE-Academy',
+            description: 'Request a trainer for your training events',
+            color: '#FFDB4C'
           }
         ],
         'Statutory': [
