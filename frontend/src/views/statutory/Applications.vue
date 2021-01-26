@@ -19,7 +19,7 @@
               label="name">
               <template
                 slot="selection"
-                slot-scope="{ values, isOpen }">
+                slot-scope="{ values, search, isOpen }">
                 <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} fields selected</span>
               </template>
             </multiselect>
