@@ -1,3 +1,10 @@
+## [1.21.2](https://github.com/AEGEE/frontend/compare/1.21.1...1.21.2) (2021-01-26)
+
+
+### Bug Fixes
+
+* **resources:** add request a trainer. Fixes HELP-1459 ([#824](https://github.com/AEGEE/frontend/issues/824)) ([fd8b853](https://github.com/AEGEE/frontend/commit/fd8b8533adc7e5e8ebbfe814c297b752cbabdeb0)), closes [#811](https://github.com/AEGEE/frontend/issues/811)
+
 ## [1.21.1](https://github.com/AEGEE/frontend/compare/1.21.0...1.21.1) (2020-12-08)
 
 
