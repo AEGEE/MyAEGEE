@@ -209,14 +209,6 @@ const Event = sequelize.define('event', {
                     if (typeof body.body_id !== 'number') {
                         throw new Error('body_id should be an integer.');
                     }
-
-                    if (typeof body.body_name !== 'string') {
-                        throw new Error('body_name should be a string.');
-                    }
-
-                    if (body.body_name.trim().length === 0) {
-                        throw new Error('body_name should not be empty.');
-                    }
                 }
             }
         }
@@ -386,55 +378,6 @@ const Event = sequelize.define('event', {
             isValid(value) {
                 if (!Array.isArray(value)) {
                     throw new Error('Event questions should be an array of strings.');
-                }
-
-                for (let index = 0; index < value.length; index++) {
-                    const question = value[index];
-                    /* Question structure
-                    {
-                        type: 'string|text|number|checkbox|select',
-                        description: 'a line that will appear as a label',
-                        required: 'boolean',
-                        values: ['an array of strings, required for select']
-                    }
-                    */
-
-                    if (typeof question !== 'object') {
-                        throw new Error(`Question ${index + 1}: should be an object.`);
-                    }
-
-                    if (typeof question.description !== 'string' || question.description.trim().length === 0) {
-                        throw new Error(`Question ${index + 1}: description should be set.`);
-                    }
-
-                    if (typeof question.type !== 'string') {
-                        throw new Error(`Question ${index + 1}: type should be set.`);
-                    }
-
-                    if (typeof question.required !== 'boolean') {
-                        throw new Error(`Question ${index + 1}: required is not a boolean.`);
-                    }
-
-                    switch (question.type) {
-                    case 'string':
-                    case 'text':
-                    case 'checkbox':
-                    case 'number':
-                        break;
-                    case 'select':
-                        if (!Array.isArray(question.values)) {
-                            throw new Error(`Question ${index + 1}: values is not an array.`);
-                        }
-
-                        for (const val of question.values) {
-                            if (typeof val !== 'string' || val.trim().length === 0) {
-                                throw new Error(`Question ${index + 1}: some of the values are empty.`);
-                            }
-                        }
-                        break;
-                    default:
-                        throw new Error(`Question ${index + 1}: invalid question type: "${question.type}"`);
-                    }
                 }
             }
         }
