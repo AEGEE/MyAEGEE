@@ -1,0 +1,14 @@
+version: "3.4"
+services:
+    summeruniversity:
+        build:
+            context: ./${PATH_SUMMERUNIVERSITY}/..
+            dockerfile: ./docker/summeruniversity/Dockerfile
+        image: aegee/summeruniversity:dev
+        command: sh -c "sh /usr/app/scripts/bootstrap.sh && nodemon -e 'js,json' lib/run.js | bunyan"
+        volumes:
+            - ./${PATH_SUMMERUNIVERSITY}/../config:/usr/app/src/config
+            - ./${PATH_SUMMERUNIVERSITY}/../lib:/usr/app/src/lib
+            - ./${PATH_SUMMERUNIVERSITY}/../migrations:/usr/app/src/migrations
+            - ./${PATH_SUMMERUNIVERSITY}/../models:/usr/app/src/models
+            - ./${PATH_SUMMERUNIVERSITY}/../cli.js:/usr/app/src/cli.js
