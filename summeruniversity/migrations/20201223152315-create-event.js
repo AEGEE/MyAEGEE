@@ -93,7 +93,6 @@ module.exports = {
                 allowNull: true
             },
             status: {
-                // TODO: check with SUCT which statuses are possible
                 type: Sequelize.STRING,
                 allowNull: false
             },
