@@ -10,7 +10,7 @@ export $(shell sed 's/=.*//' .env)
 .PHONY: default init build start bootstrap refresh live_refresh list debug config monitor stop down restart hard_restart \
           nuke_dev clean_docker_dangling_images clean_docker_images clean prune listen_frontend rebuild_frontend rebuild_core \
           rebuild_events rebuild_summeruniversity rebuild_statutory rebuild_discounts rebuild_mailer rebuild_network bump install-agents remove-agents \
-          backup backup_core backup_events backup_discounts backup_network backup_gsuite-wrapper backup_statping \
+          backup backup_core backup_events backup_discounts backup_network backup_summeruniversity backup_gsuite-wrapper backup_statping \
           backup_statistics backup_security backup_shortener backup_survey
 
 
