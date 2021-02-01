@@ -9,7 +9,7 @@ export $(shell sed 's/=.*//' .env)
 
 .PHONY: default init build start bootstrap refresh live_refresh list debug config monitor stop down restart hard_restart \
           nuke_dev clean_docker_dangling_images clean_docker_images clean prune listen_frontend rebuild_frontend rebuild_core \
-          rebuild_events rebuild_statutory rebuild_discounts rebuild_mailer rebuild_network bump install-agents remove-agents \
+          rebuild_events rebuild_summeruniversity rebuild_statutory rebuild_discounts rebuild_mailer rebuild_network bump install-agents remove-agents \
           backup backup_core backup_events backup_discounts backup_network backup_gsuite-wrapper backup_statping \
           backup_statistics backup_security backup_shortener backup_survey
 
@@ -100,6 +100,9 @@ rebuild_mailer:
 rebuild_network:
 	./helper.sh --docker -- up -d --build --force-recreate network
 
+rebuild_summeruniversity:
+	./helper.sh --docker -- up -d --build --force-recreate summeruniversity
+
 bump_and_commit:
 	./helper.sh --bump $(module) #FIXME it is missing something (like variable declaration)
 
@@ -115,7 +118,7 @@ remove-agents:
 
 # Backups
 backup:
-	./scripts/dump.sh postgres-core postgres-events postgres-statutory postgres-discounts postgres-network
+	./scripts/dump.sh postgres-core postgres-events postgres-statutory postgres-discounts postgres-network postgres-summeruniversity
 
 backup_core:
 	./scripts/dump.sh postgres-core
@@ -131,6 +134,9 @@ backup_discounts:
 
 backup_network:
 	./scripts/dump.sh postgres-network
+
+backup_summeruniversity:
+	./scripts/dump.sh postgres-summeruniversity
 
 backup_gsuite-wrapper:
 	echo "TODO: redis"
