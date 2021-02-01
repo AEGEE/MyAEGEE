@@ -4,6 +4,9 @@
 [submodule "events"]
 	path = events
 	url = https://github.com/AEGEE/events
+[submodule "summeruniversity"]
+	path = summeruniversity
+	url = https://github.com/AEGEE/summeruniversity
 [submodule "statutory"]
 	path = statutory
 	url = https://github.com/AEGEE/statutory

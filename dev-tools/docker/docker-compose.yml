@@ -73,6 +73,8 @@ services:
               name: \"discounts\"}, \
               {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/network/api-docs.json\", \
               name: \"network\"}, \
+              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/summeruniversity/api-docs.json\", \
+              name: \"summeruniversity\"}, \
               ]"
     labels:
       - traefik.enable=true
