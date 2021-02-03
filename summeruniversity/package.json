@@ -1,6 +1,6 @@
 {
   "name": "summeruniversity",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Summer University module of MyAEGEE",
   "main": "server.js",
   "directories": {
@@ -93,14 +93,18 @@
     "timekeeper": "^2.2.0"
   },
   "release": {
-    "branches": ["main"],
+    "branches": [
+      "main"
+    ],
     "plugins": [
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
       "@semantic-release/changelog",
       [
         "@semantic-release/npm",
-        { "npmPublish": false }
+        {
+          "npmPublish": false
+        }
       ],
       "@semantic-release/github",
       "@semantic-release/git"
