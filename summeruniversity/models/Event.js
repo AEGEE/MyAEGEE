@@ -37,7 +37,7 @@ const Event = sequelize.define('event', {
         allowNull: true
     },
     photos: {
-        type: Sequelize.ARRAY(Sequelize.STRING),
+        type: Sequelize.JSONB,
         allowNull: true,
         // TODO: max 6 photos
     },
@@ -70,7 +70,7 @@ const Event = sequelize.define('event', {
         }
     },
     social_media: {
-        type: Sequelize.ARRAY(Sequelize.STRING),
+        type: Sequelize.JSONB,
         allowNull: true,
         validate: {
             // TODO: all are links
@@ -297,7 +297,7 @@ const Event = sequelize.define('event', {
         }
     },
     learning_objectives: {
-        type: Sequelize.ARRAY(Sequelize.STRING),
+        type: Sequelize.JSONB,
         validate: {
             notEmpty: { msg: 'Learning objectives should be set.' },
             // TODO: min 2 and max 5 learning objectives
