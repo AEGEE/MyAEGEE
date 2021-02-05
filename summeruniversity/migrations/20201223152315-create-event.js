@@ -21,7 +21,7 @@ module.exports = {
                 allowNull: true
             },
             photos: {
-                type: Sequelize.ARRAY(Sequelize.STRING),
+                type: Sequelize.JSONB,
                 allowNull: true
             },
             video: {
@@ -41,7 +41,7 @@ module.exports = {
                 allowNull: true
             },
             social_media: {
-                type: Sequelize.ARRAY(Sequelize.STRING),
+                type: Sequelize.JSONB,
                 allowNull: true
             },
             starts: {
@@ -89,7 +89,7 @@ module.exports = {
                 allowNull: false
             },
             learning_objectives: {
-                type: Sequelize.ARRAY(Sequelize.STRING),
+                type: Sequelize.JSONB,
                 allowNull: true
             },
             status: {
