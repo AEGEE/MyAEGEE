@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/AEGEE/summeruniversity/compare/1.0.2...1.0.3) (2021-02-05)
+
+
+### Bug Fixes
+
+* **event:** fix cooperation in other place ([347ddb4](https://github.com/AEGEE/summeruniversity/commit/347ddb451269667dbb0534764cab5a017fab2fae))
+
 ## [1.0.2](https://github.com/AEGEE/summeruniversity/compare/1.0.1...1.0.2) (2021-02-05)
 
 

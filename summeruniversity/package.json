@@ -1,6 +1,6 @@
 {
   "name": "summeruniversity",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Summer University module of MyAEGEE",
   "main": "server.js",
   "directories": {
