@@ -1,3 +1,10 @@
+# [1.22.0](https://github.com/AEGEE/frontend/compare/1.21.2...1.22.0) (2021-02-05)
+
+
+### Features
+
+* **SU:** MVP SU creation ([#850](https://github.com/AEGEE/frontend/issues/850)) ([fe0b541](https://github.com/AEGEE/frontend/commit/fe0b541ecaca67f30ab44bcbd638ffbb6422ca8b))
+
 ## [1.21.2](https://github.com/AEGEE/frontend/compare/1.21.1...1.21.2) (2021-01-26)
 
 
