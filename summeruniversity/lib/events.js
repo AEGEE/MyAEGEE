@@ -167,6 +167,11 @@ exports.editEvent = async (req, res) => {
             core.fetchBody(body, req.headers['x-auth-token'])));
     }
 
+    if (Array.isArray(data.cooperation)) {
+        data.cooperation = await Promise.all(data.cooperation.map((body) =>
+            core.fetchBody(body, req.headers['x-auth-token'])));
+    }
+
     await sequelize.transaction(async (t) => {
         // Updating the event in a transaction, so if mail sending fails, the update would be reverted.
         await event.update(data, { transaction: t });
