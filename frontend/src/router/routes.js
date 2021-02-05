@@ -476,6 +476,41 @@ module.exports = [
       auth: false
     }
   },
+  /* Summer University management */
+  {
+    name: 'oms.summeruniversity.list.all',
+    path: '/summeruniversity',
+    component: 'summeruniversity/List',
+    meta: {
+      label: 'List all events',
+      auth: false
+    }
+  },
+  {
+    name: 'oms.summeruniversity.edit',
+    path: '/summeruniversity/:id/edit',
+    component: 'summeruniversity/Edit',
+    meta: {
+      label: 'Edit single event'
+    }
+  },
+  {
+    name: 'oms.summeruniversity.create',
+    path: '/summeruniversity/new',
+    component: 'summeruniversity/Edit',
+    meta: {
+      label: 'Create event'
+    }
+  },
+  {
+    name: 'oms.summeruniversity.view',
+    path: '/summeruniversity/:id',
+    component: 'summeruniversity/Single',
+    meta: {
+      label: 'Display single event',
+      auth: false
+    }
+  },
   /* Statutory events management. */
   {
     name: 'oms.statutory.list.all',

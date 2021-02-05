@@ -71,6 +71,14 @@ export default {
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/events/blob/master/CHANGELOG.md'
         },
+        summeruniversity: {
+          roundTrip: null,
+          version: '-',
+          latestVersion: '-',
+          latestTag: '-',
+          isAlive: 'Waiting...',
+          changelog: 'https://github.com/AEGEE/summeruniversity/blob/main/CHANGELOG.md'
+        },
         statutory: {
           roundTrip: null,
           version: '-',
@@ -112,6 +120,14 @@ export default {
           changelog: null
         },
         'events-static': {
+          roundTrip: null,
+          version: '-',
+          latestVersion: '-',
+          latestTag: '-',
+          isAlive: 'Waiting...',
+          changelog: null
+        },
+        'summeruniversity-static': {
           roundTrip: null,
           version: '-',
           latestVersion: '-',

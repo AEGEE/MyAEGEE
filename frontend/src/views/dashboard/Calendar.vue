@@ -109,6 +109,20 @@ export default {
         return []
       })
 
+      const summeruniversityPromise = this.axios.get(this.services['summeruniversity'], query).then((result) => {
+        return result.data.data.map((event) => ({
+          title: event.name,
+          start: new Date(event.starts),
+          end: new Date(event.ends),
+          backgroundColor: this.colors[event.type] || '#1468C5',
+          textColor: '#FFFFFF',
+          url: '/summeruniversity/' + (event.url || event.id)
+        }))
+      }).catch((err) => {
+        this.$root.showError('Could not load events list', err)
+        return []
+      })
+
       const statutoryPromise = this.axios.get(this.services['statutory'], query).then((result) => {
         return result.data.data.map((event) => ({
           title: event.name,
@@ -142,10 +156,11 @@ export default {
 
       Promise.all([
         eventsPromise,
+        summeruniversityPromise,
         statutoryPromise,
         onlinePromise
-      ]).then(([regular, statutory, online]) => {
-        this.calendarOptions.events = [...regular, ...statutory, ...online]
+      ]).then(([regular, summeruniversity, statutory, online]) => {
+        this.calendarOptions.events = [...regular, ...summeruniversity, ...statutory, ...online]
         this.isLoading = false
       })
     }

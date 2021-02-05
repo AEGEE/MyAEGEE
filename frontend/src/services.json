@@ -2,10 +2,12 @@
   "core": "/api/core",
   "mailer": "/api/mailer",
   "events": "/api/events",
+  "summeruniversity": "/api/summeruniversity",
   "statutory": "/api/statutory",
   "discounts": "/api/discounts",
   "gsuite-wrapper": "/api/gsuite-wrapper",
   "oms-frontend": "",
   "events-static": "/media/events",
+  "summeruniversity-static": "/media/summeruniversity",
   "statutory-static": "/media/statutory"
 }

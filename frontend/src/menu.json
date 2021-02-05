@@ -117,6 +117,19 @@
     ]
   },
   {
+    "categoryName": "Summer University",
+    "permissions": ["global:create:summeruniversity"],
+    "components": [
+      {
+        "name": "oms.summeruniversity.create",
+        "label": "Create SU",
+        "icon": "umbrella-beach",
+        "permissions": ["global:create:summeruniversity"],
+        "auth": "logged-in"
+      }
+    ]
+  },
+  {
     "categoryName": "Statutory events",
     "auth": "logged-in",
     "components": [
