@@ -279,7 +279,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Website</label>
+          <label class="label">Website <URLTooltip/></label>
           <div class="control">
             <input class="input" type="url" v-model="event.website" />
           </div>
@@ -287,7 +287,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Social media</label>
+          <label class="label">Social media <URLTooltip/></label>
           <table class="table is-narrowed">
             <tbody>
               <tr v-for="(social_media, index) in event.social_media" v-bind:key="index">
@@ -325,7 +325,7 @@
                 Or use photos from <a href="https://pixabay.com" target="_blank">pixabay.com</a> or <a href="https://pexels.com" target="_blank">pexels.com</a> for example (free to use photos).</p>
             </div>
           </div>
-          <label class="label">Photos</label>
+          <label class="label">Photos <URLTooltip/></label>
           <table class="table is-narrowed">
             <tbody>
               <tr v-for="(photos, index) in event.photos" v-bind:key="index">
@@ -356,7 +356,7 @@
         <p class="help is-danger" v-if="errors.photos">{{ errors.photos.message }}</p>
 
         <div class="field">
-          <label class="label">Video</label>
+          <label class="label">Video <URLTooltip/></label>
           <div class="control">
             <input class="input" type="url" v-model="event.video" />
           </div>
@@ -443,9 +443,7 @@
           <div class="content">
             <p>The user creating the event automatically becomes an organizer.</p>
             <p>People who are not listed as organizers won't be able to see and manage event manage applications, even if they are the board members.</p>
-            <p v-if="!can.viewAllMembers">
-              <strong>You can only add people from the organizing bodies.</strong>
-            </p>
+            <p><strong>You can only add people from the organizing bodies.</strong></p>
             <p>Please add at least:<br/>
               - 1 main coordinator per organising local<br/>
               - 1 content manager<br/>
@@ -486,7 +484,6 @@
             </template>
           </b-table>
 
-          <!-- searching for organizers is broken on prod as well -->
           <div class="field">
             <label class="label">Add organizer</label>
             <div class="control">
@@ -634,10 +631,7 @@
             </p>
             <p>Please provide the link to Google spreadsheets for the event programme and budget. Be sure that SUCT can open it.</p>
             <p><a href="https://docs.google.com/spreadsheets/u/1/?ftv=1&tgif=d" target="_blank">
-              You can take the template for the budget here.
-            </a><br/>
-            <a href="https://docs.google.com/spreadsheets/d/1cJ0YCW_yZxMSfDTuxC8B9fAjh_nX4B9S5KaouluKgzA/edit?usp=sharing" target="_blank">
-              You can take the template for the programme here.
+              You can take the templates for the budget and programme here.
             </a></p>
             <p><i>
               Note: in case you cannot see AEGEE templates at the link above, try switching to AEGEE GSuite account.
@@ -650,7 +644,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Link to preliminary budget</label>
+          <label class="label">Link to preliminary budget <URLTooltip/></label>
           <div class="control">
             <input class="input" type="url" v-model="event.budget" />
           </div>
@@ -658,7 +652,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Link to preliminary programme <span class="has-text-danger">*</span></label>
+          <label class="label">Link to preliminary programme <span class="has-text-danger">*</span> <URLTooltip/></label>
           <div class="control">
             <input class="input" type="url" v-model="event.programme_suct" required />
           </div>
@@ -705,6 +699,7 @@ import constants from '../../constants'
 import credentials from '../../credentials'
 import TimezoneNotification from '../../components/notifications/TimezoneNotification'
 import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
+import URLTooltip from '../../components/tooltips/URLTooltip'
 
 export default {
   components: {
@@ -712,7 +707,8 @@ export default {
     MglMarker,
     MglNavigationControl,
     TimezoneNotification,
-    MarkdownTooltip
+    MarkdownTooltip,
+    URLTooltip
   },
   name: 'EditEvent',
   data () {
@@ -776,8 +772,7 @@ export default {
       },
       can: {
         edit_application_status: false,
-        editEventType: false,
-        viewAllMembers: false
+        editEventType: false
       },
       errors: {},
       isLoading: false,
@@ -973,7 +968,7 @@ export default {
       // we don't need to pass body objects there
       const eventToSave = JSON.parse(JSON.stringify(this.event))
       eventToSave.organizing_bodies = eventToSave.organizing_bodies.map(body => ({ body_id: body.body_id }))
-      eventToSave.organizers = eventToSave.organizers.map(org => ({ user_id: org.user_id }))
+      eventToSave.organizers = eventToSave.organizers.map(org => ({ user_id: org.user_id, role: org.role }))
       if (this.event.cooperation.length !== 0) {
         eventToSave.cooperation = eventToSave.cooperation.map(body => ({ body_id: body.body_id }))
       }
@@ -1049,7 +1044,6 @@ export default {
       return this.axios.get(this.services['core'] + '/my_permissions/')
     }).then((response) => {
       this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
-      this.can.viewAllMembers = response.data.data.some(permission => permission.combined.endsWith('global:view:member'))
 
       if (!this.$route.params.id) {
         this.isLoading = false
@@ -1057,7 +1051,6 @@ export default {
           user_id: this.loginUser.id,
           first_name: this.loginUser.first_name,
           last_name: this.loginUser.last_name,
-          comment: 'Event creator.',
           disableEdit: true
         })
         return
@@ -1067,7 +1060,6 @@ export default {
         this.event = eventsResponse.data.data
         this.can = eventsResponse.data.permissions
         this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
-        this.can.viewAllMembers = response.data.data.some(permission => permission.combined.endsWith('global:view:member')) // override it
 
         this.dates.starts = this.event.starts = new Date(this.event.starts)
         this.dates.ends = this.event.starts = new Date(this.event.ends)
