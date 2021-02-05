@@ -5,8 +5,8 @@ const helpers = require('./helpers');
 const { Event } = require('../models');
 const { Sequelize, sequelize } = require('./sequelize');
 const core = require('./core');
-const mailer = require('./mailer');
-const config = require('../config');
+// const mailer = require('./mailer');
+// const config = require('../config');
 
 exports.listEvents = async (req, res) => {
     // Get default query obj.
@@ -89,6 +89,11 @@ exports.addEvent = async (req, res) => {
 
     if (Array.isArray(event.organizing_bodies)) {
         event.organizing_bodies = await Promise.all(event.organizing_bodies.map((body) =>
+            core.fetchBody(body, req.headers['x-auth-token'])));
+    }
+
+    if (Array.isArray(event.cooperation)) {
+        event.cooperation = await Promise.all(event.cooperation.map((body) =>
             core.fetchBody(body, req.headers['x-auth-token'])));
     }
 
