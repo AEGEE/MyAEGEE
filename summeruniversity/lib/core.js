@@ -35,10 +35,10 @@ const fetchUser = async (user, token) => {
 
     return {
         user_id: userRequest.data.id,
-        comment: user.comment,
         first_name: userRequest.data.first_name,
         last_name: userRequest.data.last_name,
-        email: userRequest.data.email
+        email: userRequest.data.email,
+        role: user.role
     };
 };
 

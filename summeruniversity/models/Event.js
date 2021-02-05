@@ -355,8 +355,8 @@ const Event = sequelize.define('event', {
                         throw new Error('last_name is malformed.');
                     }
 
-                    if (typeof organizer.comment !== 'undefined' && typeof organizer.comment !== 'string') {
-                        throw new Error('comment is malformed.');
+                    if (typeof organizer.role !== 'undefined' && typeof organizer.role !== 'string') {
+                        throw new Error('role is malformed.');
                     }
 
                     if (typeof organizer.email !== 'undefined' && typeof organizer.email !== 'string') {
