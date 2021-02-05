@@ -1,3 +1,10 @@
+## [1.22.1](https://github.com/AEGEE/frontend/compare/1.22.0...1.22.1) (2021-02-05)
+
+
+### Bug Fixes
+
+* **SU:** small fixes ([#859](https://github.com/AEGEE/frontend/issues/859)) ([0ffcb68](https://github.com/AEGEE/frontend/commit/0ffcb689fdbc68cedbeb25c4051f482e59aea960))
+
 # [1.22.0](https://github.com/AEGEE/frontend/compare/1.21.2...1.22.0) (2021-02-05)
 
 
