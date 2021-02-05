@@ -370,7 +370,7 @@
           <a class="tag is-primary is-medium"
             v-for="(body, index) in event.organizing_bodies"
             v-bind:key="body.body_id">
-            {{ body ? body.body_name : 'Loading...' }}
+            {{ body ? body.body.name : 'Loading...' }}
             <button class="delete is-small" @click.prevent="body => event.organizing_bodies.splice(index, 1)" />
           </a>
           <a class="tag is-danger is-medium" v-if="event.organizing_bodies.length === 0">No organizing bodies.</a>
@@ -410,7 +410,7 @@
           <a class="tag is-primary is-medium"
             v-for="(body, index) in event.cooperation"
             v-bind:key="body.body_id">
-            {{ body ? body.body_name : 'Loading...' }}
+            {{ body ? body.body.name : 'Loading...' }}
             <button class="delete is-small" @click.prevent="body => event.cooperation.splice(index, 1)" />
           </a>
           <a class="tag is-danger is-medium" v-if="event.cooperation.length === 0">No cooperation with bodies.</a>
@@ -1065,6 +1065,11 @@ export default {
         this.dates.ends = this.event.starts = new Date(this.event.ends)
 
         for (const body of this.event.organizing_bodies) {
+          const foundBody = this.bodies.find(b => b.id === body.body_id)
+          this.$set(body, 'body', foundBody)
+        }
+
+        for (const body of this.event.cooperation) {
           const foundBody = this.bodies.find(b => b.id === body.body_id)
           this.$set(body, 'body', foundBody)
         }
