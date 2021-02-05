@@ -102,9 +102,9 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Program link</th>
+                  <th>Programme link</th>
                   <td>
-                    <a v-if="event.programme" :href="event.programme" target="_blank">{{ event.programme }}</a>
+                    <a v-if="event.programme_suct" :href="event.programme_suct" target="_blank">{{ event.programme_suct }}</a>
                   </td>
                 </tr>
               </tbody>

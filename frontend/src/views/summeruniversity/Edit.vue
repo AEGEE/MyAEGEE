@@ -370,7 +370,7 @@
           <a class="tag is-primary is-medium"
             v-for="(body, index) in event.organizing_bodies"
             v-bind:key="body.body_id">
-            {{ body ? body.body.name : 'Loading...' }}
+            {{ body ? body.body_name : 'Loading...' }}
             <button class="delete is-small" @click.prevent="body => event.organizing_bodies.splice(index, 1)" />
           </a>
           <a class="tag is-danger is-medium" v-if="event.organizing_bodies.length === 0">No organizing bodies.</a>
@@ -410,7 +410,7 @@
           <a class="tag is-primary is-medium"
             v-for="(body, index) in event.cooperation"
             v-bind:key="body.body_id">
-            {{ body ? body.body.name : 'Loading...' }}
+            {{ body ? body.body_name : 'Loading...' }}
             <button class="delete is-small" @click.prevent="body => event.cooperation.splice(index, 1)" />
           </a>
           <a class="tag is-danger is-medium" v-if="event.cooperation.length === 0">No cooperation with bodies.</a>
