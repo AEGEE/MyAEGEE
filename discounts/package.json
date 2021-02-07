@@ -61,7 +61,7 @@
   "dependencies": {
     "@bugsnag/js": "^7.5.4",
     "body-parser": "^1.19.0",
-    "bunyan": "^1.8.14",
+    "bunyan": "^1.8.15",
     "deep-assign": "^3.0.0",
     "express": "^4.17.1",
     "express-promise-router": "^4.0.1",
