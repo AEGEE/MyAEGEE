@@ -32,5 +32,5 @@ exports.addEndpointMetrics = async (req, res, next) => {
 
 exports.getEndpointMetrics = async (req, res) => {
     res.set('Content-Type', endpointsRegistry.contentType);
-    res.end(endpointsRegistry.metrics());
+    res.end(await endpointsRegistry.metrics());
 };

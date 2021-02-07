@@ -72,5 +72,5 @@ exports.getMetrics = async (req, res) => {
     helpers.addGaugeData(gaugesList.codesTotal, codes);
 
     res.set('Content-Type', register.contentType);
-    res.end(register.metrics());
+    res.end(await register.metrics());
 };
