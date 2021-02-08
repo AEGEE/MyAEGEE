@@ -5,8 +5,8 @@ const helpers = require('./helpers');
 const { Event } = require('../models');
 const { Sequelize, sequelize } = require('./sequelize');
 const core = require('./core');
-// const mailer = require('./mailer');
-// const config = require('../config');
+const mailer = require('./mailer');
+const config = require('../config');
 
 exports.listEvents = async (req, res) => {
     // Get default query obj.
@@ -102,14 +102,14 @@ exports.addEvent = async (req, res) => {
         await event.save({ transaction: t });
 
         // Sending the mail to a user.
-        // await mailer.sendMail({
-        //     to: event.organizers.map((organizer) => organizer.email),
-        //     subject: 'The event was created',
-        //     template: 'summeruniversity_event_created.html',
-        //     parameters: {
-        //         event
-        //     }
-        // });
+        await mailer.sendMail({
+            to: event.organizers.map((organizer) => organizer.email),
+            subject: 'The event was created',
+            template: 'summeruniversity_event_created.html',
+            parameters: {
+                event
+            }
+        });
     });
 
     return res.status(201).json({
@@ -177,14 +177,14 @@ exports.editEvent = async (req, res) => {
         await event.update(data, { transaction: t });
 
         // Sending the mail to a user.
-        // await mailer.sendMail({
-        //     to: event.organizers.map((organizer) => organizer.email),
-        //     subject: 'The event was updated',
-        //     template: 'summeruniversity_event_updated.html',
-        //     parameters: {
-        //         event
-        //     }
-        // });
+        await mailer.sendMail({
+            to: event.organizers.map((organizer) => organizer.email),
+            subject: 'The event was updated',
+            template: 'summeruniversity_event_updated.html',
+            parameters: {
+                event
+            }
+        });
     });
 
     return res.json({
@@ -226,14 +226,14 @@ exports.setApprovalStatus = async (req, res) => {
         //     }
         // });
 
-        // await mailer.sendMail({
-        //     to: config.new_event_notifications,
-        //     subject: 'A new event was submitted.',
-        //     template: 'summeruniversity_submitted.html',
-        //     parameters: {
-        //         event: req.event
-        //     }
-        // });
+        await mailer.sendMail({
+            to: config.new_event_notifications,
+            subject: 'A new event was submitted.',
+            template: 'summeruniversity_submitted.html',
+            parameters: {
+                event: req.event
+            }
+        });
     });
 
     return res.json({
