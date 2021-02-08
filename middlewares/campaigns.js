@@ -44,7 +44,7 @@ exports.registerUser = async (req, res) => {
         const confirmation = await MailConfirmation.createForUser(user.id, t);
 
         await mailer.sendMail({
-            to: user.email,
+            to: user.notification_email,
             subject: constants.MAIL_SUBJECTS.MAIL_CONFIRMATION,
             template: 'confirm_email.html',
             parameters: {

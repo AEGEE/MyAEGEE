@@ -71,7 +71,7 @@ exports.createJoinRequest = async (req, res) => {
         }
 
         await mailer.sendMail({
-            to: members.map((member) => member.email),
+            to: members.map((member) => member.notification_email),
             subject: constants.MAIL_SUBJECTS.NEW_JOIN_REQUEST,
             template: 'member_joined.html',
             parameters: {
