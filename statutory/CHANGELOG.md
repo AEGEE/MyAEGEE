@@ -1,3 +1,10 @@
+## [1.6.3](https://github.com/AEGEE/statutory/compare/1.6.2...1.6.3) (2021-02-08)
+
+
+### Bug Fixes
+
+* **circleci:** add audit, shellcheck and hadolint ([#447](https://github.com/AEGEE/statutory/issues/447)) ([f0f9ad5](https://github.com/AEGEE/statutory/commit/f0f9ad50a453748ffba94e12cd0162f62a3649db))
+
 ## [1.6.2](https://github.com/AEGEE/statutory/compare/1.6.1...1.6.2) (2021-02-08)
 
 
