@@ -1,3 +1,10 @@
+## [1.31.3](https://github.com/AEGEE/core/compare/1.31.2...1.31.3) (2021-02-08)
+
+
+### Bug Fixes
+
+* **user:** allow users to choose notification email. Fixes MA-134 ([#179](https://github.com/AEGEE/core/issues/179)) ([353d9d4](https://github.com/AEGEE/core/commit/353d9d44d807881849a94658c55345d37a99a27c))
+
 ## [1.31.2](https://github.com/AEGEE/core/compare/1.31.1...1.31.2) (2020-12-14)
 
 
