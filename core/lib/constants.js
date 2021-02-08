@@ -21,6 +21,7 @@ module.exports = {
                 'last_name',
                 'date_of_birth',
                 'gender',
+                'gsuite_id',
                 'phone',
                 'privacy_consent',
                 'address',
