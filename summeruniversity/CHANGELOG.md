@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/AEGEE/summeruniversity/compare/1.0.3...1.0.4) (2021-02-08)
+
+
+### Bug Fixes
+
+* **mailer:** send emails upon creation/editing event ([#19](https://github.com/AEGEE/summeruniversity/issues/19)) ([34a7ba4](https://github.com/AEGEE/summeruniversity/commit/34a7ba4d1ec8042650cbaa3852d5bdff8941fa3a))
+
 ## [1.0.3](https://github.com/AEGEE/summeruniversity/compare/1.0.2...1.0.3) (2021-02-05)
 
 
