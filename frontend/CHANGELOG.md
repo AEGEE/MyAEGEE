@@ -1,3 +1,10 @@
+## [1.22.4](https://github.com/AEGEE/frontend/compare/1.22.3...1.22.4) (2021-02-08)
+
+
+### Bug Fixes
+
+* **events:** only display events you are going to. Fixes HELP-1477 ([#858](https://github.com/AEGEE/frontend/issues/858)) ([66d5d52](https://github.com/AEGEE/frontend/commit/66d5d529475fda25880ef762eb75eb5041873085))
+
 ## [1.22.3](https://github.com/AEGEE/frontend/compare/1.22.2...1.22.3) (2021-02-05)
 
 
