@@ -1,3 +1,10 @@
+## [1.6.5](https://github.com/AEGEE/statutory/compare/1.6.4...1.6.5) (2021-02-08)
+
+
+### Bug Fixes
+
+* **mail:** update to field mailer ([#438](https://github.com/AEGEE/statutory/issues/438)) ([b562efe](https://github.com/AEGEE/statutory/commit/b562efe9b8bcea8c2c7f28845805dedd20a64639))
+
 ## [1.6.4](https://github.com/AEGEE/statutory/compare/1.6.3...1.6.4) (2021-02-08)
 
 
