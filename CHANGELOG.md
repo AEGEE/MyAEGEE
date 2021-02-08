@@ -1,3 +1,10 @@
+## [1.31.4](https://github.com/AEGEE/core/compare/1.31.3...1.31.4) (2021-02-08)
+
+
+### Bug Fixes
+
+* **gsuite:** add gsuite_id to user updating ([#226](https://github.com/AEGEE/core/issues/226)) ([65cd775](https://github.com/AEGEE/core/commit/65cd775840eec4ed0d1a22b43f816fc74aea1f6a))
+
 ## [1.31.3](https://github.com/AEGEE/core/compare/1.31.2...1.31.3) (2021-02-08)
 
 
