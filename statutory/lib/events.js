@@ -1,5 +1,5 @@
 const moment = require('moment');
-const lodash = require('lodash');
+const deepAssign = require('deep-assign');
 
 const errors = require('./errors');
 const constants = require('./constants');
@@ -166,7 +166,7 @@ exports.listUserAppliedEvents = async (req, res) => {
         select: constants.EVENT_PUBLIC_FIELDS
     };
 
-    const queryObj = lodash.merge(defaultQueryObj, {
+    const queryObj = deepAssign(defaultQueryObj, {
         where: {
             '$applications.user_id$': req.user.id
         },

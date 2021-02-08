@@ -1,4 +1,4 @@
-const lodash = require('lodash');
+const deepAssign = require('deep-assign');
 
 const config = {
     default: {
@@ -70,7 +70,7 @@ let appConfig = config.default || {};
 
 // If we have the environment config, overwrite the config's fields with its fields
 if (config[env]) {
-    appConfig = lodash.merge(appConfig, config[env]);
+    appConfig = deepAssign(appConfig, config[env]);
 }
 
 module.exports = appConfig;

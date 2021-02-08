@@ -4,7 +4,7 @@
         "node": true,
         "jest": true
     },
-    "extends": "airbnb-base",
+    "extends": "airbnb",
     "rules": {
         "no-underscore-dangle": "off",
         "no-param-reassign": ["error", { "props": false }],
