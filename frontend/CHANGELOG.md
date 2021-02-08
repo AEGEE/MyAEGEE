@@ -1,3 +1,10 @@
+# [1.23.0](https://github.com/AEGEE/frontend/compare/1.22.6...1.23.0) (2021-02-08)
+
+
+### Features
+
+* **general:** prompt for invalid users ([#700](https://github.com/AEGEE/frontend/issues/700)) ([ede14d2](https://github.com/AEGEE/frontend/commit/ede14d20984048e1e3b83cfbcc45ab57c04e210f)), closes [#703](https://github.com/AEGEE/frontend/issues/703) [#676](https://github.com/AEGEE/frontend/issues/676) [#678](https://github.com/AEGEE/frontend/issues/678) [#680](https://github.com/AEGEE/frontend/issues/680) [#684](https://github.com/AEGEE/frontend/issues/684) [#687](https://github.com/AEGEE/frontend/issues/687) [#689](https://github.com/AEGEE/frontend/issues/689) [#690](https://github.com/AEGEE/frontend/issues/690) [#688](https://github.com/AEGEE/frontend/issues/688) [#691](https://github.com/AEGEE/frontend/issues/691) [#692](https://github.com/AEGEE/frontend/issues/692) [#695](https://github.com/AEGEE/frontend/issues/695) [#696](https://github.com/AEGEE/frontend/issues/696) [#697](https://github.com/AEGEE/frontend/issues/697) [#698](https://github.com/AEGEE/frontend/issues/698) [#694](https://github.com/AEGEE/frontend/issues/694) [#699](https://github.com/AEGEE/frontend/issues/699)
+
 ## [1.22.6](https://github.com/AEGEE/frontend/compare/1.22.5...1.22.6) (2021-02-08)
 
 
