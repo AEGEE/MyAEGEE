@@ -1,3 +1,10 @@
+## [1.6.4](https://github.com/AEGEE/statutory/compare/1.6.3...1.6.4) (2021-02-08)
+
+
+### Reverts
+
+* Revert "fix(circleci): add audit, shellcheck and hadolint (#447)" (#485) ([6b8e698](https://github.com/AEGEE/statutory/commit/6b8e6982af9a307cf0b31915eed4fbc731b1d8a5)), closes [#447](https://github.com/AEGEE/statutory/issues/447) [#485](https://github.com/AEGEE/statutory/issues/485)
+
 ## [1.6.3](https://github.com/AEGEE/statutory/compare/1.6.2...1.6.3) (2021-02-08)
 
 
