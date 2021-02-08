@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/AEGEE/events/compare/1.3.0...1.3.1) (2021-02-08)
+
+
+### Bug Fixes
+
+* **mail:** update to field mailer ([#416](https://github.com/AEGEE/events/issues/416)) ([1ef3ce3](https://github.com/AEGEE/events/commit/1ef3ce3c24aaad43e9f5b7ac3147f14a56afb566))
+
 # [1.3.0](https://github.com/AEGEE/events/compare/1.2.0...1.3.0) (2020-10-03)
 
 
