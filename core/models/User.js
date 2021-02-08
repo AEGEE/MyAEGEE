@@ -131,6 +131,20 @@ const User = sequelize.define('user', {
         allowNull: true,
         defaultValue: ''
     },
+    primary_email: {
+        type: Sequelize.ENUM('personal', 'gsuite'),
+        allowNull: false,
+        defaultValue: 'personal'
+    },
+    notification_email: {
+        type: Sequelize.VIRTUAL,
+        get() {
+            if (this.primary_email === 'gsuite') {
+                return this.gsuite_id;
+            }
+            return this.email;
+        }
+    },
     last_logged_in: {
         type: Sequelize.DATE,
         allowNull: true

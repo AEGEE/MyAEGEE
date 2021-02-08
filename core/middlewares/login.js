@@ -141,7 +141,7 @@ module.exports.passwordReset = async (req, res) => {
         const currentReset = await PasswordReset.createForUser(user.id, t);
 
         await mailer.sendMail({
-            to: user.email,
+            to: user.notification_email,
             subject: constants.MAIL_SUBJECTS.PASSWORD_RESET,
             template: 'password_reset.html',
             parameters: {

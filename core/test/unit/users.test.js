@@ -97,6 +97,11 @@ describe('Users testing', () => {
         }
     });
 
+    test('should return gsuite id', async () => {
+        const user = await generator.createUser({ gsuite_id: 'test@aegee.eu', primary_email: 'gsuite' });
+        expect(user.notification_email).toEqual('test@aegee.eu');
+    });
+
     test('should fail with not valid email (aegee.eu)', async () => {
         try {
             await generator.createUser({ email: 'test@aegee.eu' });

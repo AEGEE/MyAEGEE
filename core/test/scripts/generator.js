@@ -32,6 +32,7 @@ exports.generateUser = (options = {}) => {
     if (notSet(options.address)) options.address = faker.lorem.paragraph();
     if (notSet(options.password)) options.password = faker.random.alphaNumeric(16);
     if (notSet(options.mail_confirmed_at)) options.mail_confirmed_at = new Date();
+    if (notSet(options.primary_email)) options.primary_email = 'personal';
 
     return options;
 };

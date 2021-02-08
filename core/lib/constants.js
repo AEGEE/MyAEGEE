@@ -12,7 +12,8 @@ module.exports = {
                 'phone',
                 'privacy_consent',
                 'address',
-                'about_me'
+                'about_me',
+                'primary_email'
             ],
             UPDATE: [
                 'username',
@@ -23,7 +24,8 @@ module.exports = {
                 'phone',
                 'privacy_consent',
                 'address',
-                'about_me'
+                'about_me',
+                'primary_email'
             ]
         },
         CIRCLE: {
