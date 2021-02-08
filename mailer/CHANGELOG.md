@@ -1,3 +1,10 @@
+## [0.12.1](https://github.com/AEGEE/mailer/compare/0.12.0...0.12.1) (2021-02-08)
+
+
+### Bug Fixes
+
+* **SU:** templates added for SU event creation/updating ([#60](https://github.com/AEGEE/mailer/issues/60)) ([aad3693](https://github.com/AEGEE/mailer/commit/aad36934a7e18b918e2ebda2bcde6581feb7cd86))
+
 # [0.12.0](https://github.com/AEGEE/mailer/compare/0.11.1...0.12.0) (2020-11-03)
 
 
