@@ -1,3 +1,10 @@
+## [1.22.5](https://github.com/AEGEE/frontend/compare/1.22.4...1.22.5) (2021-02-08)
+
+
+### Bug Fixes
+
+* **network:** add network module to status and about ([#701](https://github.com/AEGEE/frontend/issues/701)) ([0b6d8ad](https://github.com/AEGEE/frontend/commit/0b6d8ad174ca8ff6e15f61bf279a1b463742e5e8))
+
 ## [1.22.4](https://github.com/AEGEE/frontend/compare/1.22.3...1.22.4) (2021-02-08)
 
 
