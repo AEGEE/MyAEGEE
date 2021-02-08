@@ -95,6 +95,14 @@ export default {
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/discounts/blob/master/CHANGELOG.md'
         },
+        network: {
+          roundTrip: null,
+          version: '-',
+          latestVersion: '-',
+          latestTag: '-',
+          isAlive: 'Waiting...',
+          changelog: 'https://github.com/AEGEE/network/blob/main/CHANGELOG.md'
+        },
         'gsuite-wrapper': {
           roundTrip: null,
           version: '-',

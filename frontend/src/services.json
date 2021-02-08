@@ -5,6 +5,7 @@
   "summeruniversity": "/api/summeruniversity",
   "statutory": "/api/statutory",
   "discounts": "/api/discounts",
+  "network": "/api/network",
   "gsuite-wrapper": "/api/gsuite-wrapper",
   "oms-frontend": "",
   "events-static": "/media/events",
