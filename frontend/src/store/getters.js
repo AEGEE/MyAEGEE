@@ -10,6 +10,8 @@ const user = state => state.login.user
 const permissions = state => state.login.permissions
 const services = state => state.services
 const componententry = state => state.menu.items.filter(c => c.meta && c.meta.label === 'Components')[0]
+const validationErrors = state => state.login.validationErrors
+const isValid = state => state.login.isValid
 
 export {
   pkg,
@@ -23,5 +25,7 @@ export {
   loggedIn,
   user,
   permissions,
-  services
+  services,
+  validationErrors,
+  isValid
 }

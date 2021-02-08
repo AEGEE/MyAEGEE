@@ -48,7 +48,7 @@ module.exports = [
     meta: {
       label: 'Change your email',
       skipLazyLoad: true,
-      auth: true
+      auth: false
     }
   },
   {
@@ -145,6 +145,14 @@ module.exports = [
     component: 'core/members/Single',
     meta: {
       label: 'View single member'
+    }
+  },
+  {
+    name: 'oms.profile.update',
+    path: '/profile/update',
+    component: 'core/members/UpdateProfile',
+    meta: {
+      label: 'Update your profile'
     }
   },
   /* Bodies management */
@@ -746,33 +754,6 @@ module.exports = [
   },
   /* Static resources. */
   {
-    name: 'oms.legal.simple',
-    path: '/legal/simple',
-    meta: {
-      label: 'Privacy policy (simple)',
-      auth: false
-    },
-    component: 'static/LegalSimple'
-  },
-  {
-    name: 'oms.legal.simple',
-    path: '/legal/simple',
-    meta: {
-      label: 'Privacy policy (simple)',
-      auth: false
-    },
-    component: 'static/LegalSimple'
-  },
-  {
-    name: 'oms.legal.full',
-    path: '/legal/full',
-    meta: {
-      label: 'Privacy policy (full)',
-      auth: false
-    },
-    component: 'static/LegalFull'
-  },
-  {
     name: 'oms.about',
     path: '/about',
     meta: {
@@ -867,7 +848,8 @@ module.exports = [
     path: '/pages/:page_id',
     component: 'static/ConfluencePage',
     meta: {
-      label: 'Display page'
+      label: 'Display page',
+      auth: false
     }
   }
 ]

@@ -61,6 +61,12 @@ router.beforeEach((to, from, next) => {
 
   // Fuck my life.
   if (state.login.user) {
+    if (!state.login.isValid && to.meta.auth && to.name !== 'oms.profile.update') {
+      console.debug('User is invalid (user fetched):', state.login.validationErrors)
+      console.debug('Path', from.path, to.path)
+      return next('/profile/update')
+    }
+
     // First, checking if the user is fetched, if so, not fetching it again.
     // For auth-only requests we'll catch it later in .catch() block
     console.debug('User is fetched, skipping.')
@@ -86,6 +92,11 @@ router.beforeEach((to, from, next) => {
   return router.app.$auth.fetchUserWithExistingData().then(() => {
     if (!state.login.isLoggedIn && to.meta.auth) {
       throw new Error('Trying to access the auth-only page while being unauthorized.')
+    }
+
+    if (!state.login.isValid && to.meta.auth) {
+      console.debug('User is invalid (user not fetched):', state.login.validationErrors)
+      return next('/profile/update')
     }
 
     document.title = 'MyAEGEE | ' + to.meta.label
