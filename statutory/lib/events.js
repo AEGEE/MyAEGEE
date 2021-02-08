@@ -173,7 +173,7 @@ exports.listUserAppliedEvents = async (req, res) => {
         subQuery: false,
         include: [{
             model: Application,
-            attributes: ['user_id'], // we only need user_id here
+            attributes: ['user_id', 'cancelled', 'status'], // pass along user_id, as well as the status of the application
             required: true
         }]
     });
