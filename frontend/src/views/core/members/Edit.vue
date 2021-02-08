@@ -22,9 +22,16 @@
           <label class="label">Username</label>
           <div class="control">
             <input class="input" data-cy="username" type="text" required v-model="user.username" placeholder="Type your username..." />
-
           </div>
           <p class="help is-danger" v-if="errors.username">{{ errors.username.join(', ')}}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">GSuite account</label>
+          <div class="control">
+            <input class="input" data-cy="gsuite_id" type="email" required :disabled="!can.editGsuite" v-model="user.gsuite_id" placeholder="Type your GSuite account..." />
+          </div>
+          <p class="help is-danger" v-if="errors.gsuite_id">{{ errors.gsuite_id.join(', ')}}</p>
         </div>
 
         <div class="field">
@@ -107,6 +114,7 @@ export default {
         circles: null,
         date_of_birth: null,
         gender: null,
+        gsuite_id: null,
         phone: null,
         address: null,
         about_me: null,
@@ -116,7 +124,10 @@ export default {
       errors: {},
       birthday: null,
       isLoading: true,
-      isSaving: false
+      isSaving: false,
+      can: {
+        editGsuite: false
+      }
     }
   },
   methods: {
@@ -142,6 +153,7 @@ export default {
         'gender',
         'about_me',
         'address',
+        'gsuite_id',
         'phone',
         'date_of_birth'
       ])
@@ -176,6 +188,12 @@ export default {
       /* istanbul ignore next */
       this.birthday = response.data.data.date_of_birth ? moment(response.data.data.date_of_birth, 'YYYY-MM-DD').toDate() : null
       this.isLoading = false
+
+      return this.axios.get(this.services['core'] + '/members/' + this.$route.params.id + '/my_permissions')
+    }).then((response) => {
+      this.permissions = response.data.data
+
+      this.can.editGsuite = this.permissions.find(permission => permission.combined.endsWith('global:update:member'))
     }).catch((err) => {
       if (err.response.status === 404) {
         this.$root.showError('User is not found')

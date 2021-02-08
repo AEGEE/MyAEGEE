@@ -38,6 +38,13 @@
             </button>
           </div>
 
+          <div class="field is-grouped" v-if="can.edit && this.user.gsuite_id != null && this.user.gsuite_id != ''">
+            <button class="button is-fullwidth is-warning" @click="editPrimaryEmail()">
+              <span>Set primary email</span>
+              <span class="icon"><font-awesome-icon icon="envelope" /></span>
+            </button>
+          </div>
+
           <div class="field is-grouped" v-if="can.edit">
             <button class="button is-fullwidth is-warning" @click="editPrimaryBodyModal()">
               <span>Set primary body</span>
@@ -113,6 +120,11 @@
                   <td><a :href="'mailto:' + user.email" data-cy="email">{{ user.email }}</a></td>
                 </tr>
                 <tr>
+                  <th>GSuite account</th>
+                  <td v-if="user.gsuite_id"><a :href="'mailto:' + user.gsuite_id" data-cy="gsuite">{{ user.gsuite_id }}</a></td>
+                  <td v-if="!user.gsuite_id"><i>Not set.</i></td>
+                </tr>
+                <tr>
                   <th>Login suspended?</th>
                   <td data-cy="active">{{ user.active ? 'No' : 'Yes' }}</td>
                 </tr>
@@ -172,6 +184,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import EditPrimaryBodyModal from './EditPrimaryBodyModal.vue'
+import EditPrimaryEmailModal from './EditPrimaryEmailModal.vue'
 
 export default {
   name: 'SingleUser',
@@ -278,6 +291,18 @@ export default {
         this.$root.showSuccess('An email change is triggered. Check your new inbox for a confirmation.')
       }).catch((err) => {
         this.$root.showError('Error changing user email', err)
+      })
+    },
+    editPrimaryEmail () {
+      this.$buefy.modal.open({
+        component: EditPrimaryEmailModal,
+        hasModalCard: true,
+        props: {
+          member: this.user,
+          services: this.services,
+          showError: this.$root.showError,
+          showSuccess: this.$root.showSuccess
+        }
       })
     },
     fetchUser () {
