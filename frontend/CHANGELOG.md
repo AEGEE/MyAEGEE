@@ -1,3 +1,10 @@
+## [1.22.6](https://github.com/AEGEE/frontend/compare/1.22.5...1.22.6) (2021-02-08)
+
+
+### Bug Fixes
+
+* **user:** allow users to choose notification email. Fixes MA-134 ([#722](https://github.com/AEGEE/frontend/issues/722)) ([8ad404a](https://github.com/AEGEE/frontend/commit/8ad404a2175bf9e730837dc3e21304979bd4b5ef))
+
 ## [1.22.5](https://github.com/AEGEE/frontend/compare/1.22.4...1.22.5) (2021-02-08)
 
 
