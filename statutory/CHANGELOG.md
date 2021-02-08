@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/AEGEE/statutory/compare/1.6.1...1.6.2) (2021-02-08)
+
+
+### Bug Fixes
+
+* **user:** return user's application status ([#484](https://github.com/AEGEE/statutory/issues/484)) ([ac51bfc](https://github.com/AEGEE/statutory/commit/ac51bfc5a92a515ccd08a1fd8600e8de0729d4c7))
+
 ## [1.6.1](https://github.com/AEGEE/statutory/compare/1.6.0...1.6.1) (2020-11-26)
 
 
