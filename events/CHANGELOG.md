@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/AEGEE/events/compare/1.3.1...1.3.2) (2021-02-08)
+
+
+### Bug Fixes
+
+* **user:** return user's application status ([#458](https://github.com/AEGEE/events/issues/458)) ([ab5fae3](https://github.com/AEGEE/events/commit/ab5fae3c79edf6845e654b7fa3a3c6ecf465967f))
+
 ## [1.3.1](https://github.com/AEGEE/events/compare/1.3.0...1.3.1) (2021-02-08)
 
 
