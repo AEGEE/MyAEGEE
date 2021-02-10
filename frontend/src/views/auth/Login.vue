@@ -5,9 +5,9 @@
       <div class="box">
         <div v-show="error" style="color:red; word-wrap:break-word;">{{ error }}</div>
         <form v-on:submit.prevent="login">
-          <label class="label">Email</label>
+          <label class="label">Email / Username</label>
           <p class="control">
-            <input v-model="data.username" required class="input" type="email" placeholder="email@example.org">
+            <input v-model="data.username" required class="input" type="text" placeholder="username">
           </p>
 
           <password-toggle required v-model="data.password" placeholder="password" label="Password"/>
