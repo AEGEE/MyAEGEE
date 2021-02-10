@@ -52,6 +52,30 @@ describe('Mail changes', () => {
         }
     });
 
+    test('should fail with invalid new_email (aegee.eu)', async () => {
+        try {
+            const user = await generator.createUser();
+            await generator.createMailChange({ new_email: 'test@aegee.eu' }, user);
+            expect(1).toEqual(0);
+        } catch (err) {
+            expect(err).toHaveProperty('errors');
+            expect(err.errors.length).toEqual(1);
+            expect(err.errors[0].path).toEqual('new_email');
+        }
+    });
+
+    test('should fail with invalid new_email (aegee.org)', async () => {
+        try {
+            const user = await generator.createUser();
+            await generator.createMailChange({ new_email: 'test@aegee.org' }, user);
+            expect(1).toEqual(0);
+        } catch (err) {
+            expect(err).toHaveProperty('errors');
+            expect(err.errors.length).toEqual(1);
+            expect(err.errors[0].path).toEqual('new_email');
+        }
+    });
+
     test('should normalize fields', async () => {
         const user = await generator.createUser();
         const permission = await MailChange.create({
