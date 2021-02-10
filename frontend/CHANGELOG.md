@@ -1,3 +1,10 @@
+## [1.23.1](https://github.com/AEGEE/frontend/compare/1.23.0...1.23.1) (2021-02-10)
+
+
+### Bug Fixes
+
+* **login:** allow username. Partially fixes HELP-1463 ([#863](https://github.com/AEGEE/frontend/issues/863)) ([a6fb7f4](https://github.com/AEGEE/frontend/commit/a6fb7f49b20b456864b44b7756fffce3553df690))
+
 # [1.23.0](https://github.com/AEGEE/frontend/compare/1.22.6...1.23.0) (2021-02-08)
 
 
