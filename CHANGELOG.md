@@ -1,3 +1,10 @@
+## [1.31.5](https://github.com/AEGEE/core/compare/1.31.4...1.31.5) (2021-02-10)
+
+
+### Bug Fixes
+
+* **email:** restrict email change. Fixes MA-173 ([#227](https://github.com/AEGEE/core/issues/227)) ([85d7dd1](https://github.com/AEGEE/core/commit/85d7dd1489504321e57895917d4cc5777ef3bda4))
+
 ## [1.31.4](https://github.com/AEGEE/core/compare/1.31.3...1.31.4) (2021-02-08)
 
 
