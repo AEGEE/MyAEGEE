@@ -40,7 +40,8 @@ module.exports = {
     'quote-props': 'off',
     'arrow-body-style': 'off',
     'import/no-extraneous-dependencies': 'off',
-    'dot-notation': 'off'
+    'dot-notation': 'off',
+    'vue/no-mutating-props': 'off'
   },
   parserOptions: {
     parser: 'babel-eslint'
