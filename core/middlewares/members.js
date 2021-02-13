@@ -48,6 +48,17 @@ exports.listAllUnconfirmedUsers = async (req, res) => {
 
 exports.getUser = async (req, res) => {
     if (!req.permissions.hasPermission('view:member') && req.user.id !== req.currentUser.id) {
+        if (req.permissions.hasPermission('view_members:body')) {
+            return res.json({
+                success: true,
+                data: {
+                    id: req.currentUser.id,
+                    first_name: req.currentUser.first_name,
+                    last_name: req.currentUser.last_name,
+                    email: req.currentUser.email
+                }
+            });
+        }
         return errors.makeForbiddenError(res, 'Permission view:member is required, but not present.');
     }
 
