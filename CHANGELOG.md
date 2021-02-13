@@ -1,3 +1,10 @@
+## [1.31.6](https://github.com/AEGEE/core/compare/1.31.5...1.31.6) (2021-02-13)
+
+
+### Bug Fixes
+
+* **members:** change getUser for event creation ([#232](https://github.com/AEGEE/core/issues/232)) ([20c01c3](https://github.com/AEGEE/core/commit/20c01c3c06c6478a67c29f7104876e998389dad3))
+
 ## [1.31.5](https://github.com/AEGEE/core/compare/1.31.4...1.31.5) (2021-02-10)
 
 
