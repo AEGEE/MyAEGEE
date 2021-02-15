@@ -1,3 +1,10 @@
+## [0.12.2](https://github.com/AEGEE/mailer/compare/0.12.1...0.12.2) (2021-02-15)
+
+
+### Bug Fixes
+
+* **SU:** template added for SU status change ([#62](https://github.com/AEGEE/mailer/issues/62)) ([e5244e8](https://github.com/AEGEE/mailer/commit/e5244e833c9c3c97b36e6bcb9cad0b8308df17be))
+
 ## [0.12.1](https://github.com/AEGEE/mailer/compare/0.12.0...0.12.1) (2021-02-08)
 
 
