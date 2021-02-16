@@ -30,6 +30,18 @@ const constants = {
     treasurer: 'Treasurer',
     incoming_responsible: 'Incoming responsible',
     general_organizer: 'General organizer'
+  },
+  SUMMERUNIVERSITY_PAX_CONFIRMATIONS: {
+    no_confirmation: 'No confirmation needed',
+    payment: 'Payment',
+    ticket: 'Copy of ticket',
+    payment_or_ticket: 'Payment OR copy of ticket',
+    payment_and_ticket: 'Payment AND copy of ticket'
+  },
+  SUMMERUNIVERSITY_COURSE_LEVELS: {
+    beginner: 'Beginner',
+    intermediate: 'Intermediate',
+    advanced: 'Advanced'
   }
 }
 

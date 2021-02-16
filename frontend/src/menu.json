@@ -118,14 +118,40 @@
   },
   {
     "categoryName": "Summer University",
-    "permissions": ["global:create:summeruniversity"],
+    "auth": "logged-in",
     "components": [
       {
-        "name": "oms.summeruniversity.create",
-        "label": "Create SU",
-        "icon": "umbrella-beach",
-        "permissions": ["global:create:summeruniversity"],
-        "auth": "logged-in"
+        "label": "Events admin",
+        "icon": "wrench",
+        "auth": "logged-in",
+        "children": [
+          {
+            "name": "oms.summeruniversity.change_status",
+            "label": "Change SU status",
+            "icon": "check",
+            "permissions": ["global:approve_summeruniversity:regular", "global:approve_summeruniversity:pilot"]
+          }
+        ]
+      },
+      {
+        "label": "SU listing",
+        "icon": "calendar",
+        "children": [
+          {
+            "name": "oms.summeruniversity.list.all",
+            "label": "All Summer Universities"
+          },
+          {
+            "name": "oms.summeruniversity.list.organizing",
+            "auth": "logged-in",
+            "label": "Organizing"
+          },
+          {
+            "name": "oms.summeruniversity.create",
+            "label": "Create SU",
+            "permissions": ["global:create:summeruniversity"]
+          }
+        ]
       }
     ]
   },

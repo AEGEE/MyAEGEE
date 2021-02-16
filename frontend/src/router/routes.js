@@ -486,6 +486,14 @@ module.exports = [
   },
   /* Summer University management */
   {
+    name: 'oms.summeruniversity.change_status',
+    path: '/summeruniversity/change_status',
+    component: 'summeruniversity/ChangeStatus',
+    meta: {
+      label: 'Change SU statuses'
+    }
+  },
+  {
     name: 'oms.summeruniversity.list.all',
     path: '/summeruniversity',
     component: 'summeruniversity/List',
@@ -495,11 +503,27 @@ module.exports = [
     }
   },
   {
+    name: 'oms.summeruniversity.list.organizing',
+    path: '/summeruniversity/organizing',
+    component: 'summeruniversity/List',
+    meta: {
+      label: 'List events I\'m organizing'
+    }
+  },
+  {
     name: 'oms.summeruniversity.edit',
     path: '/summeruniversity/:id/edit',
     component: 'summeruniversity/Edit',
     meta: {
       label: 'Edit single event'
+    }
+  },
+  {
+    name: 'oms.summeruniversity.edit_second',
+    path: '/summeruniversity/:id/edit_second',
+    component: 'summeruniversity/EditSecond',
+    meta: {
+      label: 'Edit single event for second submission'
     }
   },
   {

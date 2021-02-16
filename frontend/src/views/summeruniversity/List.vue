@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent is-vertical">
       <article class="tile is-child">
-        <h4 class="title">Events list</h4>
+        <h4 class="title">List of Summer Universities</h4>
         <div class="field">
           <label class="label">Search by name or description</label>
           <div class="field has-addons">
@@ -15,6 +15,14 @@
               </a>
             </div>
           </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Event types</label>
+          <label v-for="(value, index) in eventTypes" v-bind:key="index">
+            <input class="checkbox" type="checkbox" v-model="value.enabled" @change="refetch()" />
+            {{ value.name }}
+          </label>
         </div>
 
         <div class="field" v-if="can.createEvent">
@@ -42,6 +50,7 @@
             <div class="content">
               <span v-html="$options.filters.markdown(event.description)"></span>
               <ul>
+                <li><strong>Type:</strong> {{ eventTypesNames[event.type] }} </li>
                 <li><strong>From:</strong> {{ event.starts | date }} </li>
                 <li><strong>To:</strong> {{ event.ends | date }} </li>
                 <li>
@@ -92,12 +101,21 @@
 <script>
 import moment from 'moment'
 import { mapGetters } from 'vuex'
+import constants from '../../constants'
 
 export default {
   name: 'EventsList',
   data () {
+    const eventTypes = Object.entries(constants.SUMMERUNIVERSITY_TYPES_NAMES).map(([value, name]) => ({
+      value,
+      name,
+      enabled: false
+    }))
+
     return {
       events: [],
+      eventTypes,
+      eventTypesNames: constants.SUMMERUNIVERSITY_TYPES_NAMES,
       isLoading: {
         events: false,
         permissions: false
@@ -117,7 +135,8 @@ export default {
     queryObject () {
       const queryObj = {
         limit: this.limit,
-        offset: this.offset
+        offset: this.offset,
+        type: this.eventTypes.filter(type => type.enabled).map(type => type.value)
       }
 
       if (!this.displayPast) queryObj.starts = moment().format('YYYY-MM-DD')
@@ -127,6 +146,7 @@ export default {
     },
     scope () {
       if (this.$route.name === 'oms.summeruniversity.list.all') return 'all'
+      if (this.$route.name === 'oms.summeruniversity.list.organizing') return 'organizing'
 
       throw new Error('Unknown scope: ' + this.$route.name)
     },
@@ -155,7 +175,8 @@ export default {
       this.source = this.axios.CancelToken.source()
 
       const urls = {
-        all: this.services['summeruniversity']
+        all: this.services['summeruniversity'],
+        organizing: this.services['summeruniversity'] + '/mine/organizing'
       }
 
       this.axios.get(urls[this.scope], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
@@ -182,7 +203,7 @@ export default {
       this.isLoading.permissions = true
 
       this.axios.get(this.services['core'] + '/my_permissions').then((response) => {
-        this.can.createEvent = response.data.data.some(permission => permission.combined.endsWith('create:event'))
+        this.can.createEvent = response.data.data.some(permission => permission.combined.endsWith('create:summeruniversity'))
 
         this.isLoading.permissions = false
       }).catch((err) => {
