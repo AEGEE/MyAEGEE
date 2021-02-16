@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/AEGEE/summeruniversity/compare/1.0.4...1.1.0) (2021-02-16)
+
+
+### Features
+
+* **SU:** add listing and second submission ([#24](https://github.com/AEGEE/summeruniversity/issues/24)) ([3f81fb4](https://github.com/AEGEE/summeruniversity/commit/3f81fb4a8b006cbabf56603290f2fc61baaaa5b6))
+
 ## [1.0.4](https://github.com/AEGEE/summeruniversity/compare/1.0.3...1.0.4) (2021-02-08)
 
 
