@@ -18,5 +18,6 @@ module.exports = {
         'application_status',
         'status'
     ],
+    EVENT_TYPES: ['regular', 'pilot'],
     CURRENT_USER_PREFIX: 'me'
 };

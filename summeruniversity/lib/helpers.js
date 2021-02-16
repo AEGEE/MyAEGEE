@@ -126,6 +126,15 @@ exports.whitelistObject = (object, allowedFields) => {
     return newObject;
 };
 
+// A helper to determine if user has permission.
+function hasPermission(permissionsList, combinedPermission) {
+    if (!Array.isArray(permissionsList)) {
+        return false;
+    }
+
+    return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
+}
+
 // A helpers to determine if the user is member of a body.
 exports.isMemberOf = (user, bodyId) => user.bodies.map((body) => body.id).includes(bodyId);
 
@@ -153,9 +162,14 @@ exports.isOrganizer = (event, user) => {
 
 exports.getPermissions = (user, corePermissions, approvePermissions) => {
     const permissions = {
-        approve_event: {},
-        manage_event: {}
+        approve_summeruniversity: {},
+        manage_summeruniversity: {}
     };
+
+    for (const type of constants.EVENT_TYPES) {
+        permissions.approve_summeruniversity[type] = hasPermission(corePermissions, 'approve_summeruniversity:' + type);
+        permissions.manage_summeruniversity[type] = hasPermission(corePermissions, 'manage_summeruniversity:' + type);
+    }
 
     permissions.set_board_comment = {};
     permissions.see_boardview = {};
@@ -171,37 +185,45 @@ exports.getPermissions = (user, corePermissions, approvePermissions) => {
 };
 
 exports.getEventPermissions = ({ permissions, event, user }) => {
-    const canApprove = permissions.approve_event[event.type];
+    const canApprove = permissions.approve_summeruniversity[event.type];
     const canApproveOrIsOrganizer = exports.isOrganizer(event, user) || canApprove;
 
     // The event can only be seen to public if it's published and not deleted.
     // Otherwise (if it's deleted, submitted or draft) it should be accessible
     // only to LOs and those who can approve it.
-    permissions.see_event = (event.status === 'published' && !event.deleted)
+    permissions.see_summeruniversity = (event.status === 'published' && !event.deleted)
         || canApproveOrIsOrganizer;
 
-    permissions.edit_event = (event.status === 'draft' && exports.isOrganizer(event, user)) || permissions.manage_event[event.type];
-    permissions.delete_event = permissions.manage_event[event.type];
+    permissions.edit_summeruniversity = (event.status !== 'second_approval' && exports.isOrganizer(event, user)) || permissions.manage_summeruniversity[event.type];
+    permissions.delete_summeruniversity = permissions.manage_summeruniversity[event.type];
 
     permissions.apply = event.application_status === 'open' && event.status === 'published';
 
-    permissions.approve_participants = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
-    permissions.set_participants_attended = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
-    permissions.set_participants_confirmed = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
-    permissions.export = exports.isOrganizer(event, user) || permissions.manage_event[event.type];
+    permissions.approve_participants = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
+    permissions.set_participants_attended = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
+    permissions.set_participants_confirmed = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
+    permissions.export = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
 
     // Status transitions.
-    // 1) draft -> submitted - by LOs or those who can approve (ask for approval)
-    // 2) submitted -> draft - by those who can approve (reject approval)
-    // 3) submitted -> published - by those who can approve (approve and publish)
-    // 4) published -> submitted - by those who can approve (unpublish)
-    // 5) draft -> published - no direct transition
-    // 6) published -> draft - no direct transition
+    // 1) first_draft -> first_submission - by event creator / LOs (when saved)
+    // 2) first_submission -> first_draft - by those who can approve (reject approval)
+    // 3) first_submission -> first_approval - by those who can approve (approve)
+    // 4) first_approval -> first_submission - by those who can approve (unpublish)
+    // 5) first_approval -> second_submission - by event creator / LOs (when saving second submission)
+    // 6) second_draft -> second_submission - by event creator / LOs (when saving second submission)
+    // 7) second_submission -> second_draft - by those who can approve (reject approval)
+    // 8) second_submission -> second_approval - by those who can approve (approve)
+    // 9) second_approval -> second_submission - by those who can approve (unpublish)
     permissions.change_status = {
-        draft: event.status === 'submitted' && canApprove, // 2
-        published: event.status === 'submitted' && canApprove, // 3
-        submitted: (event.status === 'published' && canApprove) // 4
-            || (event.status === 'draft' && canApproveOrIsOrganizer) // 1
+        first_draft: event.status === 'first_submission' && canApprove, // 2
+        first_approval: event.status === 'first_submission' && canApprove, // 3
+        first_submission: (event.status === 'first_approval' && canApprove) // 4
+            || (event.status === 'first_draft' && canApproveOrIsOrganizer), // 1
+        second_draft: event.status === 'second_submission' && canApprove, // 7
+        second_approval: event.status === 'second_submission' && canApprove, // 8
+        second_submission: (event.status === 'second_approval' && canApprove) // 9
+            || (event.status === 'second_draft' && canApproveOrIsOrganizer) // 6
+            || (event.status === 'first_approval' && canApproveOrIsOrganizer) // 5
     };
 
     return permissions;

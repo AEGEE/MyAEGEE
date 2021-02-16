@@ -41,6 +41,9 @@ GeneralRouter.use(middlewares.authenticateUser);
 GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', middlewares.ensureAuthorized, events.addEvent);
 
+GeneralRouter.get('/mine/organizing', middlewares.ensureAuthorized, events.listUserOrganizedEvents);
+GeneralRouter.get('/mine/approvable', middlewares.ensureAuthorized, events.listApprovableEvents);
+
 // All requests from here on use the getEvent middleware to fetch a single event from db
 EventsRouter.use(middlewares.fetchSingleEvent);
 

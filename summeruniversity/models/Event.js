@@ -312,14 +312,13 @@ const Event = sequelize.define('event', {
         }
     },
     status: {
-        // TODO: check with SUCT which statuses are possible
-        type: Sequelize.ENUM('draft', 'submitted', 'published'),
+        type: Sequelize.ENUM('first_draft', 'first_submission', 'first_approval', 'second_draft', 'second_submission', 'second_approval', 'published'),
         allowNull: false,
-        defaultValue: 'draft',
+        defaultValue: 'first_draft',
         validate: {
             isIn: {
-                args: [['draft', 'submitted', 'published']],
-                msg: 'Event status should be one of these: "draft", "submitted", "published".'
+                args: [['first_draft', 'first_submission', 'first_approval', 'second_draft', 'second_submission', 'second_approval', 'published']],
+                msg: 'Event status is not valid.'
             }
         }
     },
@@ -395,11 +394,11 @@ const Event = sequelize.define('event', {
         allowNull: true
     },
     pax_confirmation: {
-        type: Sequelize.ENUM('no confirmation', 'payment', 'ticket', 'payment OR ticket', 'payment AND ticket'),
+        type: Sequelize.ENUM('no_confirmation', 'payment', 'ticket', 'payment_or_ticket', 'payment_and_ticket'),
         validate: {
             isIn: {
-                args: [['no confirmation', 'payment', 'ticket', 'payment OR ticket', 'payment AND ticket']],
-                msg: 'Theme should be one of these: no confirmation, payment, ticket, payment OR ticket, payment AND ticket.'
+                args: [['no_confirmation', 'payment', 'ticket', 'payment_or_ticket', 'payment_and_ticket']],
+                msg: 'Theme should be one of these: no_confirmation, payment, ticket, payment_or_ticket, payment_and_ticket.'
             }
         }
     },
@@ -450,8 +449,14 @@ const Event = sequelize.define('event', {
         allowNull: true
     },
     course_level: {
-        type: Sequelize.STRING,
-        allowNull: true
+        type: Sequelize.ENUM('beginner', 'intermediate', 'advanced'),
+        allowNull: true,
+        validate: {
+            isIn: {
+                args: [['beginner', 'intermediate', 'advanced']],
+                msg: 'SU course level should be one of these: beginner, intermediate, advanced.'
+            }
+        }
     },
     courses: {
         type: Sequelize.TEXT,
@@ -493,8 +498,8 @@ const Event = sequelize.define('event', {
     createdAt: 'created_at',
     updatedAt: 'updated_at',
     validate: {
-        // TODO: first submission complete validation, based on date? or on status?
-        // TODO: second submission complete validation, based on date? or on status?
+        // TODO: first submission complete validation, based on status
+        // TODO: second submission complete validation, based on status
         // is_budget_set() {
         //     if (this.status === 'draft') {
         //         return;
@@ -506,19 +511,6 @@ const Event = sequelize.define('event', {
 
         //     if (this.budget.trim().length === 0) {
         //         throw new Error('Budget cannot be empty when the event status is not "draft".');
-        //     }
-        // },
-        // is_programme_set() {
-        //     if (this.status === 'draft') {
-        //         return;
-        //     }
-
-        //     if (typeof this.programme !== 'string') {
-        //         throw new Error('Programme should be a string when the event status is not "draft".');
-        //     }
-
-        //     if (this.programme.trim().length === 0) {
-        //         throw new Error('Programme cannot be empty when the event status is not "draft".');
         //     }
         // }
     }

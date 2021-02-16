@@ -51,13 +51,12 @@ exports.listUserOrganizedEvents = async (req, res) => {
 };
 
 exports.listApprovableEvents = async (req, res) => {
-    const allowedEventTypes = Object.keys(req.permissions.approve_event)
-        .filter((key) => req.permissions.approve_event[key]);
+    const allowedEventTypes = Object.keys(req.permissions.approve_summeruniversity)
+        .filter((key) => req.permissions.approve_summeruniversity[key]);
 
     const events = await Event.findAll({
         where: {
             deleted: false,
-            status: { [Sequelize.Op.ne]: 'published' },
             type: { [Sequelize.Op.in]: allowedEventTypes }
         }
     });
@@ -121,7 +120,7 @@ exports.addEvent = async (req, res) => {
 
 // TODO: Should be 3 seperate actions, show_min (after first submission), show (after second submission), show_approval (for SUCT)
 exports.eventDetails = async (req, res) => {
-    if (!req.permissions.see_event) {
+    if (!req.permissions.see_summeruniversity) {
         return errors.makeForbiddenError(res, 'You cannot see this event.');
     }
 
@@ -129,8 +128,8 @@ exports.eventDetails = async (req, res) => {
 
     // Some fields shouldn't be public and only should be displayed to EQAC/CD/admins/organizers.
     if (!helpers.isOrganizer(event, req.user)
-        && !req.permissions.manage_event[event.type]
-        && !req.permissions.approve_event[event.type]) {
+        && !req.permissions.manage_summeruniversity[event.type]
+        && !req.permissions.approve_summeruniversity[event.type]) {
         event = helpers.whitelistObject(event, constants.EVENT_PUBLIC_FIELDS);
     }
 
@@ -143,7 +142,7 @@ exports.eventDetails = async (req, res) => {
 
 exports.editEvent = async (req, res) => {
     // If user can't edit anything, return error right away
-    if (!req.permissions.edit_event) {
+    if (!req.permissions.edit_summeruniversity) {
         return errors.makeForbiddenError(res, 'You cannot edit this event');
     }
 
@@ -194,7 +193,7 @@ exports.editEvent = async (req, res) => {
 };
 
 exports.deleteEvent = async (req, res) => {
-    if (!req.permissions.delete_event) {
+    if (!req.permissions.delete_summeruniversity) {
         return errors.makeForbiddenError(res, 'You are not permitted to delete this event.');
     }
 
@@ -212,19 +211,21 @@ exports.setApprovalStatus = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to change status.');
     }
 
+    const oldStatus = req.event.status;
+
     await sequelize.transaction(async (t) => {
         await req.event.update({ status: req.body.status }, { transaction: t });
 
         // Send email to all organizers.
-        // await mailer.sendMail({
-        //     to: req.event.organizers.map((organizer) => organizer.email),
-        //     subject: 'Your event\'s status was changed',
-        //     template: 'summeruniversity_status_changed.html',
-        //     parameters: {
-        //         event: req.event,
-        //         old_status: oldStatus
-        //     }
-        // });
+        await mailer.sendMail({
+            to: req.event.organizers.map((organizer) => organizer.email),
+            subject: 'Your event\'s status was changed',
+            template: 'summeruniversity_status_changed.html',
+            parameters: {
+                event: req.event,
+                old_status: oldStatus
+            }
+        });
 
         await mailer.sendMail({
             to: config.new_event_notifications,

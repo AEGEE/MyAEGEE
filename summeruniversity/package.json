@@ -2,7 +2,7 @@
   "name": "summeruniversity",
   "version": "1.0.4",
   "description": "Summer University module of MyAEGEE",
-  "main": "server.js",
+  "main": "lib/server.js",
   "directories": {
     "test": "test"
   },
