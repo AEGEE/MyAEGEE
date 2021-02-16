@@ -1,3 +1,10 @@
+## [1.23.2](https://github.com/AEGEE/frontend/compare/1.23.1...1.23.2) (2021-02-16)
+
+
+### Bug Fixes
+
+* **user:** allow users to be only of Other bodies. Fixes HELP-1554 ([#872](https://github.com/AEGEE/frontend/issues/872)) ([6243e7c](https://github.com/AEGEE/frontend/commit/6243e7cd63e3fa16edf54352a3d5e1913a21a70f))
+
 ## [1.23.1](https://github.com/AEGEE/frontend/compare/1.23.0...1.23.1) (2021-02-10)
 
 
