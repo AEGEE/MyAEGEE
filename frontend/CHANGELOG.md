@@ -1,3 +1,10 @@
+# [1.24.0](https://github.com/AEGEE/frontend/compare/1.23.2...1.24.0) (2021-02-16)
+
+
+### Features
+
+* **SU:** add listing and second submission ([#871](https://github.com/AEGEE/frontend/issues/871)) ([d5a06c8](https://github.com/AEGEE/frontend/commit/d5a06c86df020be1dd9c5b5ba61e79bcd4a1c49f))
+
 ## [1.23.2](https://github.com/AEGEE/frontend/compare/1.23.1...1.23.2) (2021-02-16)
 
 
