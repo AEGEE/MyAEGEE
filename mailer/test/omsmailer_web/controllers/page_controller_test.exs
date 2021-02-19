@@ -241,8 +241,8 @@ defmodule OmsmailerWeb.PageControllerTest do
   # Summer University event status changed
   test "POST / summeruniversity event status changed should work", %{conn: conn} do
     conn = post conn, "/", %{template: "summeruniversity_status_changed.html", parameters: %{
-      event: %{name: "test", status: "first_draft" },
-      old_status: "first_approval"
+      event: %{name: "test", status: "first draft" },
+      old_status: "first approval"
     }, from: "mailer@aegee.org", to: "test@aegee.org", subject: "pirates"}
 
     assert json_response(conn, 200)
