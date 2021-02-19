@@ -1,6 +1,6 @@
 {
   "name": "mailer",
-  "version": "0.12.2",
+  "version": "0.12.3",
   "description": "The internal mailer module of my.aegee.eu",
   "keywords": [],
   "author": "Nico Westerbeck",
