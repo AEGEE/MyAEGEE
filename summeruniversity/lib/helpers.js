@@ -194,7 +194,7 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
     permissions.see_summeruniversity = (event.status === 'published' && !event.deleted)
         || canApproveOrIsOrganizer;
 
-    permissions.edit_summeruniversity = (event.status !== 'second_approval' && exports.isOrganizer(event, user)) || permissions.manage_summeruniversity[event.type];
+    permissions.edit_summeruniversity = (event.status !== 'second approval' && exports.isOrganizer(event, user)) || permissions.manage_summeruniversity[event.type];
     permissions.delete_summeruniversity = permissions.manage_summeruniversity[event.type];
 
     permissions.apply = event.application_status === 'open' && event.status === 'published';
@@ -205,25 +205,25 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
     permissions.export = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
 
     // Status transitions.
-    // 1) first_draft -> first_submission - by event creator / LOs (when saved)
-    // 2) first_submission -> first_draft - by those who can approve (reject approval)
-    // 3) first_submission -> first_approval - by those who can approve (approve)
-    // 4) first_approval -> first_submission - by those who can approve (unpublish)
-    // 5) first_approval -> second_submission - by event creator / LOs (when saving second submission)
-    // 6) second_draft -> second_submission - by event creator / LOs (when saving second submission)
-    // 7) second_submission -> second_draft - by those who can approve (reject approval)
-    // 8) second_submission -> second_approval - by those who can approve (approve)
-    // 9) second_approval -> second_submission - by those who can approve (unpublish)
+    // 1) first draft -> first submission - by event creator / LOs (when saved)
+    // 2) first submission -> first draft - by those who can approve (reject approval)
+    // 3) first submission -> first approval - by those who can approve (approve)
+    // 4) first approval -> first submission - by those who can approve (unpublish)
+    // 5) first approval -> second submission - by event creator / LOs (when saving second submission)
+    // 6) second draft -> second submission - by event creator / LOs (when saving second submission)
+    // 7) second submission -> second draft - by those who can approve (reject approval)
+    // 8) second submission -> second approval - by those who can approve (approve)
+    // 9) second approval -> second submission - by those who can approve (unpublish)
     permissions.change_status = {
-        first_draft: event.status === 'first_submission' && canApprove, // 2
-        first_approval: event.status === 'first_submission' && canApprove, // 3
-        first_submission: (event.status === 'first_approval' && canApprove) // 4
-            || (event.status === 'first_draft' && canApproveOrIsOrganizer), // 1
-        second_draft: event.status === 'second_submission' && canApprove, // 7
-        second_approval: event.status === 'second_submission' && canApprove, // 8
-        second_submission: (event.status === 'second_approval' && canApprove) // 9
-            || (event.status === 'second_draft' && canApproveOrIsOrganizer) // 6
-            || (event.status === 'first_approval' && canApproveOrIsOrganizer) // 5
+        first_draft: event.status === 'first submission' && canApprove, // 2
+        first_approval: event.status === 'first submission' && canApprove, // 3
+        first_submission: (event.status === 'first approval' && canApprove) // 4
+            || (event.status === 'first draft' && canApproveOrIsOrganizer), // 1
+        second_draft: event.status === 'second submission' && canApprove, // 7
+        second_approval: event.status === 'second submission' && canApprove, // 8
+        second_submission: (event.status === 'second approval' && canApprove) // 9
+            || (event.status === 'second draft' && canApproveOrIsOrganizer) // 6
+            || (event.status === 'first approval' && canApproveOrIsOrganizer) // 5
     };
 
     return permissions;

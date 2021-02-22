@@ -37,7 +37,7 @@ const fetchUser = async (user, token) => {
         user_id: userRequest.data.id,
         first_name: userRequest.data.first_name,
         last_name: userRequest.data.last_name,
-        email: userRequest.data.email,
+        notification_email: userRequest.data.notification_email,
         role: user.role
     };
 };

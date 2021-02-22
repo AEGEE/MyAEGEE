@@ -1,6 +1,24 @@
+const Joi = require('joi');
 const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
+
+const organizersSchema = Joi.array().min(4).items(Joi.object().keys({
+    user_id: Joi.number().integer().required(),
+    // body_id: Joi.number().integer().required() // so we know which body is main organizer for
+    role: Joi.string().required()
+}));
+
+const locationsSchema = Joi.array().min(1).items(Joi.object().keys({
+    name: Joi.string().required(),
+    position: Joi.object().keys({
+        lat: Joi.number().required(),
+        lng: Joi.number().required()
+    }),
+    description: Joi.string(),
+    start: Joi.boolean(),
+    end: Joi.boolean()
+}));
 
 const Event = sequelize.define('event', {
     name: {
@@ -27,7 +45,6 @@ const Event = sequelize.define('event', {
                 if (value.match(/^[0-9-]+$/)) {
                     throw new Error('Event URL should have at least 1 letter.');
                 }
-                // TODO: not the same as url from statutory or events (also add that in the others)
             }
         },
         unique: true
@@ -37,6 +54,7 @@ const Event = sequelize.define('event', {
         allowNull: true
     },
     photos: {
+        // TODO: check if JSONB is the type that we want, maybe an array of ids/location is enough?
         type: Sequelize.JSONB,
         allowNull: true,
         // TODO: max 6 photos
@@ -70,6 +88,7 @@ const Event = sequelize.define('event', {
         }
     },
     social_media: {
+        // TODO: change this to an array of strings since we do not store anything else than the URL itself
         type: Sequelize.JSONB,
         allowNull: true,
         validate: {
@@ -114,7 +133,7 @@ const Event = sequelize.define('event', {
         validate: {
             notEmpty: { msg: 'Event start date should be set.' },
             isDate: { msg: 'Event start date should be valid.' }
-            // TODO: check if timeframe set by SUCT
+            // TODO: check if within timeframe set by SUCT
         }
     },
     ends: {
@@ -129,7 +148,7 @@ const Event = sequelize.define('event', {
                     throw new Error('Event cannot start after or at the same time it ends.');
                 }
             }
-            // TODO: check if timeframe set by SUCT
+            // TODO: check if within timeframe set by SUCT
             // TODO: check for duration, not too short nor too long
         }
     },
@@ -155,6 +174,7 @@ const Event = sequelize.define('event', {
         }
     },
     organizing_bodies: {
+        // TODO: check if JSONB is the type that we want, maybe an array of ids is enough?
         type: Sequelize.JSONB,
         allowNull: false,
         defaultValue: [],
@@ -190,6 +210,7 @@ const Event = sequelize.define('event', {
         }
     },
     cooperation: {
+        // TODO: check if JSONB is the type that we want, maybe an array of ids is enough?
         type: Sequelize.JSONB,
         allowNull: true,
         defaultValue: [],
@@ -226,45 +247,19 @@ const Event = sequelize.define('event', {
         allowNull: false,
         defaultValue: [],
         validate: {
-            // TODO: check if we want to keep track of the order here or make seperate values for starting and ending locations
-            // TODO: only order of start and end is important, the rest not
-            // TODO: so might be good to keep track of starting and ending location seperately in the database
-            // TODO: add optional description per location
-            isValid(value) {
-                if (!Array.isArray(value)) {
-                    throw new Error('Locations should be an array.');
+            // TODO: validate so that only 1 (no more, but also no less) start/end is true
+            isValid(locationsValue) {
+                const { error, value } = locationsSchema.validate(locationsValue);
+                if (error) {
+                    throw error;
                 }
 
-                for (const position of value) {
-                    if (typeof position !== 'object' || position === null) {
-                        throw new Error('Position is malformed.');
-                    }
-
-                    if (typeof position.name !== 'string') {
-                        throw new Error('Name is invalid.');
-                    }
-
-                    if (position.name.trim().length === 0) {
-                        throw new Error('Name should be presented.');
-                    }
-
-                    if (typeof position.position !== 'object' || position.position === null) {
-                        throw new Error('Position.position is malformed.');
-                    }
-
-                    if (typeof position.position.lat !== 'number') {
-                        throw new Error('Latitude is malformed.');
-                    }
-
-                    if (typeof position.position.lng !== 'number') {
-                        throw new Error('Longitude is malformed.');
-                    }
-                }
+                // eslint-disable-next-line no-param-reassign
+                locationsValue = value;
             }
         }
     },
     type: {
-        // TODO: check with SUCT if these are the only types
         type: Sequelize.ENUM('regular', 'pilot'),
         allowNull: false,
         defaultValue: 'regular',
@@ -305,6 +300,7 @@ const Event = sequelize.define('event', {
         }
     },
     learning_objectives: {
+        // TODO: change this to an array of strings since we do not store anything else than the learning objective itself
         type: Sequelize.JSONB,
         validate: {
             notEmpty: { msg: 'Learning objectives should be set.' },
@@ -312,12 +308,12 @@ const Event = sequelize.define('event', {
         }
     },
     status: {
-        type: Sequelize.ENUM('first_draft', 'first_submission', 'first_approval', 'second_draft', 'second_submission', 'second_approval', 'published'),
+        type: Sequelize.ENUM('first draft', 'first submission', 'first approval', 'second draft', 'second submission', 'second approval', 'published'),
         allowNull: false,
-        defaultValue: 'first_draft',
+        defaultValue: 'first draft',
         validate: {
             isIn: {
-                args: [['first_draft', 'first_submission', 'first_approval', 'second_draft', 'second_submission', 'second_approval', 'published']],
+                args: [['first draft', 'first submission', 'first approval', 'second draft', 'second submission', 'second approval', 'published']],
                 msg: 'Event status is not valid.'
             }
         }
@@ -332,44 +328,14 @@ const Event = sequelize.define('event', {
         allowNull: false,
         defaultValue: [],
         validate: {
-            isValid(value) {
-                // TODO: add optional function
-                // TODO: keep track of body ID
-                // TODO: validate for 1 main coordinator per local, 1 content manager, 1 treasurer, 1 incoming responsible
-                // TODO: in frontend two columns, 1st for name + local, 2nd for optional function
-                if (!Array.isArray(value)) {
-                    throw new Error('Organizers should be an array.');
+            isValid(organizersValue) {
+                const { error, value } = organizersSchema.validate(organizersValue);
+                if (error) {
+                    throw error;
                 }
 
-                if (value.length === 0) {
-                    throw new Error('At least 1 organizer should be presented.');
-                }
-
-                for (const organizer of value) {
-                    if (typeof organizer !== 'object' || organizer === null) {
-                        throw new Error('Organizer is malformed.');
-                    }
-
-                    if (!organizer.user_id || typeof organizer.user_id !== 'number') {
-                        throw new Error('user_id is malformed.');
-                    }
-
-                    if (!organizer.first_name || typeof organizer.first_name !== 'string') {
-                        throw new Error('first_name is malformed.');
-                    }
-
-                    if (!organizer.last_name || typeof organizer.last_name !== 'string') {
-                        throw new Error('last_name is malformed.');
-                    }
-
-                    if (typeof organizer.role !== 'undefined' && typeof organizer.role !== 'string') {
-                        throw new Error('role is malformed.');
-                    }
-
-                    if (typeof organizer.email !== 'undefined' && typeof organizer.email !== 'string') {
-                        throw new Error('email is malformed.');
-                    }
-                }
+                // eslint-disable-next-line no-param-reassign
+                organizersValue = value;
             }
         }
     },
@@ -378,6 +344,7 @@ const Event = sequelize.define('event', {
         allowNull: true
     },
     questions: {
+        // TODO: change this to an array of strings since we do not store anything else than the question itself
         type: Sequelize.JSONB,
         allowNull: true,
         defaultValue: [],
@@ -415,9 +382,8 @@ const Event = sequelize.define('event', {
     application_status: {
         type: Sequelize.VIRTUAL,
         get() {
-            // return moment().isBetween(this.application_starts, this.application_ends, null, '[]')
-            //     ? 'open'
-            //     : 'closed'; // inclusive
+            // TODO: should return'open' if within SU application period or if extended open call is a thing
+            // TODO: think about where extended open call deadline is stored, in this model or in the year?
             return 'closed';
         }
     },
