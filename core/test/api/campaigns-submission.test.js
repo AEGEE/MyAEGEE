@@ -73,6 +73,24 @@ describe('Campaign submission', () => {
         expect(res.body.errors).toHaveProperty('username');
     });
 
+    test('should fail if the username has no letters', async () => {
+        const campaign = await generator.createCampaign();
+        const user = generator.generateUser({ username: '123' });
+
+        const res = await request({
+            uri: '/signup/' + campaign.url,
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: user
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('username');
+    });
+
     test('should fail if the first name is invalid', async () => {
         const campaign = await generator.createCampaign();
         const user = generator.generateUser({ first_name: '!@#!@#D' });
