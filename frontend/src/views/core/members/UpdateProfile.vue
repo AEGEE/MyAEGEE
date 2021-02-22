@@ -13,7 +13,7 @@
         </div>
       </template>
 
-      <form @submit.prevent="saveUser()" v-if="validationErrors.privacy">
+      <form @submit.prevent="saveUser()" v-if="validationErrors.privacy || validationErrors.username">
         <!-- <select-or-custom v-model="user.gender" data-cy="gender" :values="['Male', 'Female']" label="Gender">
           <template slot="errors-slot">
             <p class="help is-danger" v-if="errors.gender">{{ errors.gender.join(', ')}}</p>
@@ -36,7 +36,21 @@
           <p class="help is-danger" v-if="errors.about_me">{{ errors.about_me.join(', ')}}</p>
         </div> -->
 
-        <div class="field">
+        <div class="field" v-if="validationErrors.username">
+          <label class="label">Username <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <input
+              v-model="user.username"
+              class="input"
+              type="text"
+              pattern="^(?![0-9._-]*$)[a-zA-Z0-9._-]+$"
+              data-cy="username"
+              title="Username can only contain English letters, numbers, dots and dashes and should contain at least 1 letter."
+              placeholder="You will be able to login with it." />
+          </div>
+        </div>
+
+        <div class="field" v-if="validationErrors.privacy">
           <label class="label">
             I agree to the <router-link :to="{ name: 'oms.confluence', params: { page_id: 'terms-of-service' } }">Privacy Policy</router-link>
             <input type="checkbox" class="checkbox" id="checkbox" v-model="agreedToPrivacyPolicy">
@@ -129,7 +143,7 @@ export default {
   },
   methods: {
     saveUser () {
-      if (!this.agreedToPrivacyPolicy) {
+      if (!this.user.privacy_consent && !this.agreedToPrivacyPolicy) {
         return this.$root.showError('You should agree to the Privacy Policy.')
       }
 

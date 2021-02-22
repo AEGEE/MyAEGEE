@@ -12,9 +12,9 @@
                 required
                 class="input"
                 type="text"
-                pattern="^[a-zA-Z0-9\.\-].*$"
+                pattern="^(?![0-9._-]*$)[a-zA-Z0-9._-]+$"
                 data-cy="username"
-                title="Username can only contain English letters, numbers, dots and dashes."
+                title="Username can only contain English letters, numbers, dots and dashes and should contain at least 1 letter."
                 placeholder="You will be able to login with it." />
             </div>
              <p class="help is-danger" v-if="errors.username">{{ errors.username.join(', ')}}</p>
@@ -29,7 +29,7 @@
                 class="input"
                 type="email"
                 data-cy="email"
-                placeholder="Email address the system will send letters to.">
+                placeholder="Email address the system will send emails to.">
             </div>
              <p class="help is-danger" v-if="errors.email">{{ errors.email.join(', ')}}</p>
           </div>
