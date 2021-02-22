@@ -92,7 +92,6 @@
           <p class="help is-danger" v-if="errors.url">{{ errors.url.join(', ') }}</p>
         </div>
 
-        <!-- Possibly open to everybody, but then some info is needed (SUCT will discuss) -->
         <div class="field" v-if="can.editEventType">
           <label class="label">Event type <span class="has-text-danger">*</span></label>
           <div class="select">
@@ -134,6 +133,7 @@
 
         <!-- Max fee based on event dates, can be overwritten by SUCT -->
         <!-- If larger than max, show error that exception first needs to be granted by SUCT -->
+        <!-- Maybe have two inputs, one without a maximum for people with the proper permission and one with the dynamic maximum? -->
         <div class="field">
           <label class="label">Fee <span class="has-text-danger">*</span></label>
           <div class="control">
@@ -246,7 +246,7 @@
 
         <div class="field">
           <label class="label">Course level</label>
-          <div class="control">
+          <div class="select">
             <select v-model="event.course_level">
               <option v-for="(name, course_level) in courseLevels" v-bind:key="course_level" v-bind:value="course_level">{{ name }}</option>
             </select>
@@ -491,7 +491,7 @@
             :data="event.organizers"
             :loading="isLoading">
             <template slot-scope="props">
-               <b-table-column field="first_name" label="First and last name" sortable>
+               <b-table-column field="organizer" label="First and last name" sortable>
                 <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
                   {{ props.row.first_name }} {{ props.row.last_name }}
                 </router-link>
@@ -507,7 +507,7 @@
               </b-table-column>
 
               <b-table-column label="Delete">
-                <button class="button is-small is-danger" v-if="!props.row.disableEdit" k="askDeleteOrganizer(props.index)">
+                <button class="button is-small is-danger" v-if="!props.row.disableEdit" @click="deleteOrganizer(props.index)">
                   Delete
                 </button>
               </b-table-column>
@@ -581,7 +581,6 @@
               <th>Longitude</th>
               <th>Name</th>
               <th>Description</th>
-              <!-- Fix that only 1 start/end city can be selected -->
               <th>Starting city</th>
               <th>Ending city</th>
               <th></th>
@@ -598,10 +597,10 @@
                 <textarea class="textarea" v-model="marker.description"></textarea>
               </td>
               <td>
-                <input type="checkbox" v-model="marker.start" />
+                <input type="radio" name="start_loc" v-model="marker.start" />
               </td>
               <td>
-                <input type="checkbox" v-model="marker.end" />
+                <input type="radio" name="end_loc" v-model="marker.end" />
               </td>
               <td>
                 <button class="button is-danger" @click="deleteLocation(index)">Delete location</button>
@@ -915,10 +914,12 @@ export default {
 
       this.event.organizers.push({
         user_id: organizer.id,
-        user: organizer,
         first_name: organizer.first_name,
         last_name: organizer.last_name
       })
+    },
+    deleteOrganizer (index) {
+      this.event.organizers.splice(index, 1)
     },
     addQuestion () {
       this.event.questions.push({
@@ -1140,9 +1141,13 @@ export default {
         }
 
         for (const organizer of this.event.organizers) {
+          this.axios.get(this.services['core'] + '/members/' + organizer.user_id).then((organizerResponse) => {
+            this.$set(organizer, 'first_name', organizerResponse.data.data.first_name)
+            this.$set(organizer, 'last_name', organizerResponse.data.data.last_name)
+          })
+
           if (this.loginUser.id === organizer.user_id) {
             this.$set(organizer, 'disableEdit', true)
-            break
           }
         }
 

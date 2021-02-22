@@ -21,7 +21,13 @@
             </b-table-column>
 
             <b-table-column field="description" label="Description">
-              <div class="content has-word-break" v-html="$options.filters.markdown(props.row.description)"></div>
+              <ul>
+                <li v-for="body in props.row.organizing_bodies" v-bind:key="body._id">
+                  <router-link class="tag" :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }">
+                    {{ body.body_name }}
+                  </router-link>
+                </li>
+              </ul>
             </b-table-column>
 
             <b-table-column field="starts" label="Event dates" sortable>
@@ -35,45 +41,45 @@
             <b-table-column field="status" label="Change status" sortable>
               <div class="buttons">
                 <button
-                  v-if="props.row.status === 'first_draft'"
+                  v-if="props.row.status === 'first draft'"
                   class="button is-small is-warning"
-                  @click="changeStatus(props.row, 'first_submission')">
+                  @click="changeStatus(props.row, 'first submission')">
                   Submit first draft
                 </button>
                 <button
-                  v-if="props.row.status === 'first_approval'"
+                  v-if="props.row.status === 'first approval'"
                   class="button is-small is-warning"
-                  @click="changeStatus(props.row, 'second_submission')">
+                  @click="changeStatus(props.row, 'second submission')">
                   Submit second draft
                 </button>
                 <button
-                  v-if="props.row.status === 'second_draft'"
+                  v-if="props.row.status === 'second draft'"
                   class="button is-small is-warning"
-                  @click="changeStatus(props.row, 'second_submission')">
+                  @click="changeStatus(props.row, 'second submission')">
                   Submit second draft
                 </button>
                 <button
-                  v-if="props.row.status === 'first_submission'"
+                  v-if="props.row.status === 'first submission'"
                   class="button is-small is-primary"
-                  @click="changeStatus(props.row, 'first_approval')">
+                  @click="changeStatus(props.row, 'first approval')">
                   Approve first submission
                 </button>
                 <button
-                  v-if="props.row.status === 'second_submission'"
+                  v-if="props.row.status === 'second submission'"
                   class="button is-small is-primary"
-                  @click="changeStatus(props.row, 'second_approval')">
+                  @click="changeStatus(props.row, 'second approval')">
                   Approve second submission
                 </button>
                 <button
-                  v-if="props.row.status === 'first_submission'"
+                  v-if="props.row.status === 'first submission'"
                   class="button is-small is-danger"
-                  @click="changeStatus(props.row, 'first_draft')">
+                  @click="changeStatus(props.row, 'first draft')">
                   Reject first submission
                 </button>
                 <button
-                  v-if="props.row.status === 'second_submission'"
+                  v-if="props.row.status === 'second submission'"
                   class="button is-small is-danger"
-                  @click="changeStatus(props.row, 'second_draft')">
+                  @click="changeStatus(props.row, 'second draft')">
                   Reject second submission
                 </button>
               </div>

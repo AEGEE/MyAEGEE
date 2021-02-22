@@ -320,7 +320,7 @@
               </b-table-column>
 
               <b-table-column label="Delete">
-                <button class="button is-small is-danger" v-if="!props.row.disableEdit" k="askDeleteOrganizer(props.index)">
+                <button class="button is-small is-danger" v-if="!props.row.disableEdit" @click="deleteOrganizer(props.index)">
                   Delete
                 </button>
               </b-table-column>
@@ -719,6 +719,9 @@ export default {
         first_name: organizer.first_name,
         last_name: organizer.last_name
       })
+    },
+    deleteOrganizer (index) {
+      this.event.organizers.splice(index, 1)
     },
     addQuestion () {
       this.event.questions.push({
