@@ -1,3 +1,10 @@
+## [1.24.2](https://github.com/AEGEE/frontend/compare/1.24.1...1.24.2) (2021-02-22)
+
+
+### Bug Fixes
+
+* **su:** change status underscores to spaces ([#873](https://github.com/AEGEE/frontend/issues/873)) ([728588c](https://github.com/AEGEE/frontend/commit/728588c81d184417ddcd3bcd65065af42c557c1f))
+
 ## [1.24.1](https://github.com/AEGEE/frontend/compare/1.24.0...1.24.1) (2021-02-22)
 
 
