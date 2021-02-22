@@ -55,7 +55,8 @@ exports.getUser = async (req, res) => {
                     id: req.currentUser.id,
                     first_name: req.currentUser.first_name,
                     last_name: req.currentUser.last_name,
-                    email: req.currentUser.email
+                    email: req.currentUser.email,
+                    notification_email: req.currentUser.notification_email
                 }
             });
         }
