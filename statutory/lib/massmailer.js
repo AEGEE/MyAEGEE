@@ -1,3 +1,4 @@
+const core = require('./core');
 const errors = require('./errors');
 const mailer = require('./mailer');
 const logger = require('./logger');
@@ -46,7 +47,7 @@ exports.sendAll = async (req, res) => {
         // TODO: Think, maybe use Pug or EJS for that?
         // TODO: Think what else will we need? Probably remove after Agora Bucuresti if there
         // won't be something required.
-        const email = application.email;
+        const notification_email = await core.getMember(req, application.user_id).notification_email;
         const typeAndOrder = application.participant_type
             ? (application.participant_type + ' (' + application.participant_order + ')')
             : 'not set';
@@ -58,10 +59,10 @@ exports.sendAll = async (req, res) => {
 
         // Using the custom oms-mailer template, it accepts only body as a parameter
         // and sends the body as it was passed.
-        to.push(email);
+        to.push(notification_email);
         bodies.push({ body: text });
 
-        logger.info({ email }, 'Prepared email');
+        logger.info({ notification_email }, 'Prepared email');
     }
 
     logger.info({ count: bodies.length }, 'Prepared letters');
