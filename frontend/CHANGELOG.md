@@ -1,3 +1,10 @@
+## [1.24.1](https://github.com/AEGEE/frontend/compare/1.24.0...1.24.1) (2021-02-22)
+
+
+### Bug Fixes
+
+* **username:** force usernames to not only have numbers ([#881](https://github.com/AEGEE/frontend/issues/881)) ([c9fa29d](https://github.com/AEGEE/frontend/commit/c9fa29d41dcb7ce5d17067bdc48dc77fffb24fe1))
+
 # [1.24.0](https://github.com/AEGEE/frontend/compare/1.23.2...1.24.0) (2021-02-16)
 
 
