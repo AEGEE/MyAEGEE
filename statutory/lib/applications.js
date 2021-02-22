@@ -277,11 +277,9 @@ exports.updateApplication = async (req, res) => {
         // Updating application in a transaction, so if mail sending fails, the update would be reverted.
         await req.application.update(req.body, { transaction: t });
 
-        const notificationEmail = await core.getMember(req, req.application.user_id).notification_email;
-
         // Sending the mail to a user.
         await mailer.sendMail({
-            to: notificationEmail,
+            to: user.notification_email,
             subject: `Your application for ${req.event.name} was updated`,
             template: 'statutory_edited.html',
             parameters: {
@@ -626,11 +624,11 @@ exports.postApplication = async (req, res) => {
 
         // We don't need to recalculate the votes amount, as the pax type is not set here.
 
-        const notificationEmail = await core.getMember(req, req.application.user_id).notification_email;
+        const applicationUser = await core.getMember(req, req.application.user_id);
 
         // Sending the mail to a user.
         await mailer.sendMail({
-            to: notificationEmail,
+            to: applicationUser.notification_email,
             subject: `You've successfully applied for ${req.event.name}`,
             template: 'statutory_applied.html',
             parameters: {
