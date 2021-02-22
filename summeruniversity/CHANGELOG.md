@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/AEGEE/summeruniversity/compare/1.1.0...1.1.1) (2021-02-22)
+
+
+### Bug Fixes
+
+* **SU:** change status underscores to spaces ([#25](https://github.com/AEGEE/summeruniversity/issues/25)) ([423db01](https://github.com/AEGEE/summeruniversity/commit/423db0127e16a2d37cd5f217736285d2cef0e980))
+
 # [1.1.0](https://github.com/AEGEE/summeruniversity/compare/1.0.4...1.1.0) (2021-02-16)
 
 
