@@ -1,3 +1,10 @@
+## [1.31.8](https://github.com/AEGEE/core/compare/1.31.7...1.31.8) (2021-02-22)
+
+
+### Bug Fixes
+
+* **members:** add notification_email to getUser change ([#234](https://github.com/AEGEE/core/issues/234)) ([d094b0a](https://github.com/AEGEE/core/commit/d094b0a705185f42ffe2bcc146356dddd29430e0))
+
 ## [1.31.7](https://github.com/AEGEE/core/compare/1.31.6...1.31.7) (2021-02-22)
 
 
