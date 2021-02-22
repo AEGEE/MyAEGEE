@@ -1,3 +1,10 @@
+## [1.31.7](https://github.com/AEGEE/core/compare/1.31.6...1.31.7) (2021-02-22)
+
+
+### Bug Fixes
+
+* **user:** not allow numerical usernames. Partially fixes MA-176 ([#233](https://github.com/AEGEE/core/issues/233)) ([c8f6622](https://github.com/AEGEE/core/commit/c8f6622f8deb88d75c292c08c2ed6ddae703e8bb))
+
 ## [1.31.6](https://github.com/AEGEE/core/compare/1.31.5...1.31.6) (2021-02-13)
 
 
