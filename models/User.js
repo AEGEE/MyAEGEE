@@ -19,6 +19,9 @@ const User = sequelize.define('user', {
                 if (!USERNAME_REGEX.test(value)) {
                     throw new Error('Username should only contain letters, numbers, dots, underscores and dashes.');
                 }
+                if (value.match(/^[0-9._-]+$/)) {
+                    throw new Error('Username should have at least 1 letter.');
+                }
             }
         },
         unique: true
