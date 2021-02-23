@@ -1,4 +1,3 @@
-const core = require('./core');
 const errors = require('./errors');
 const mailer = require('./mailer');
 const logger = require('./logger');
@@ -42,12 +41,13 @@ exports.sendAll = async (req, res) => {
     const to = [];
     const bodies = [];
 
+    // TODO: get notification_email from user instead of using application.email
     for (const application of applications) {
         // We can customize the letter a little bit by replacing {something} with corresponding field.
         // TODO: Think, maybe use Pug or EJS for that?
         // TODO: Think what else will we need? Probably remove after Agora Bucuresti if there
         // won't be something required.
-        const notificationEmail = await core.getMember(req, application.user_id).notification_email;
+        const email = application.email
         const typeAndOrder = application.participant_type
             ? (application.participant_type + ' (' + application.participant_order + ')')
             : 'not set';
@@ -59,10 +59,10 @@ exports.sendAll = async (req, res) => {
 
         // Using the custom oms-mailer template, it accepts only body as a parameter
         // and sends the body as it was passed.
-        to.push(notificationEmail);
+        to.push(email);
         bodies.push({ body: text });
 
-        logger.info({ notificationEmail }, 'Prepared email');
+        logger.info({ email }, 'Prepared email');
     }
 
     logger.info({ count: bodies.length }, 'Prepared letters');
