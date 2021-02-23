@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/AEGEE/discounts/compare/1.2.0...1.2.1) (2021-02-23)
+
+
+### Bug Fixes
+
+* **mail:** added notification_email to morgan ([#254](https://github.com/AEGEE/discounts/issues/254)) ([25cf94a](https://github.com/AEGEE/discounts/commit/25cf94a3b9ec3f03065f7d7e483ef808d283e282))
+
 # [1.2.0](https://github.com/AEGEE/discounts/compare/1.1.1...1.2.0) (2020-10-03)
 
 
