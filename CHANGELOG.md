@@ -1,3 +1,10 @@
+## [1.31.9](https://github.com/AEGEE/core/compare/1.31.8...1.31.9) (2021-02-23)
+
+
+### Bug Fixes
+
+* **mail:** added notification_email to morgan ([#238](https://github.com/AEGEE/core/issues/238)) ([fd66588](https://github.com/AEGEE/core/commit/fd665885db36b86df428c3805a5b7703a8eca230))
+
 ## [1.31.8](https://github.com/AEGEE/core/compare/1.31.7...1.31.8) (2021-02-22)
 
 
