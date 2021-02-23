@@ -7,6 +7,8 @@ module.exports = {
         last_name: 'Last name',
         email: 'Email',
         status: 'Status',
+        confirmed: 'Confirmed',
+        attended: 'Attended',
         board_comment: 'Board comment',
         created_at: 'Created at',
         updated_at: 'Updated at'
