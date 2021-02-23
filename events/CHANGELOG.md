@@ -1,3 +1,10 @@
+## [1.3.4](https://github.com/AEGEE/events/compare/1.3.3...1.3.4) (2021-02-23)
+
+
+### Bug Fixes
+
+* **mailer:** get notification_mail when sending email ([#466](https://github.com/AEGEE/events/issues/466)) ([893e372](https://github.com/AEGEE/events/commit/893e3724b96d7f324c36e2ce5451938a0b067b2c))
+
 ## [1.3.3](https://github.com/AEGEE/events/compare/1.3.2...1.3.3) (2021-02-23)
 
 
