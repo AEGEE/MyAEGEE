@@ -41,6 +41,7 @@ exports.sendAll = async (req, res) => {
     const to = [];
     const bodies = [];
 
+    // TODO: get notification_email from user instead of using application.email
     for (const application of applications) {
         // We can customize the letter a little bit by replacing {something} with corresponding field.
         // TODO: Think, maybe use Pug or EJS for that?

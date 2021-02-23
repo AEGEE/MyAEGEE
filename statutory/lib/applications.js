@@ -255,7 +255,7 @@ exports.updateApplication = async (req, res) => {
     req.body.first_name = user.first_name;
     req.body.last_name = user.last_name;
     req.body.gender = user.gender;
-    req.body.email = user.notification_email;
+    req.body.email = user.email;
     req.body.date_of_birth = user.date_of_birth;
     if (req.body.body_id) {
         // Shouldn't crash, if the person is not a member of a body,
@@ -279,7 +279,7 @@ exports.updateApplication = async (req, res) => {
 
         // Sending the mail to a user.
         await mailer.sendMail({
-            to: req.application.email,
+            to: user.notification_email,
             subject: `Your application for ${req.event.name} was updated`,
             template: 'statutory_edited.html',
             parameters: {
@@ -612,7 +612,7 @@ exports.postApplication = async (req, res) => {
     req.body.first_name = req.user.first_name;
     req.body.last_name = req.user.last_name;
     req.body.gender = req.user.gender;
-    req.body.email = req.user.notification_email;
+    req.body.email = req.user.email;
     req.body.body_name = req.user.bodies.find((b) => req.body.body_id === b.id).name;
     req.body.date_of_birth = req.user.date_of_birth;
 
@@ -626,7 +626,7 @@ exports.postApplication = async (req, res) => {
 
         // Sending the mail to a user.
         await mailer.sendMail({
-            to: newApplication.email,
+            to: req.user.notification_email,
             subject: `You've successfully applied for ${req.event.name}`,
             template: 'statutory_applied.html',
             parameters: {

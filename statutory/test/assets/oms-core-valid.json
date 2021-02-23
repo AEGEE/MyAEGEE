@@ -4,6 +4,7 @@
         "superadmin": true,
         "name": "admin",
         "inserted_at": "2018-05-03T23:12:01.111566",
+        "email": "admin@aegee.org",
         "notification_email": "admin@aegee.org",
         "active": true,
         "primary_body_id": null,
