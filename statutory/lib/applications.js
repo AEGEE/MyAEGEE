@@ -624,11 +624,9 @@ exports.postApplication = async (req, res) => {
 
         // We don't need to recalculate the votes amount, as the pax type is not set here.
 
-        const notificationEmail = await core.getMember(req, newApplication.user_id).notification_email;
-
         // Sending the mail to a user.
         await mailer.sendMail({
-            to: notificationEmail,
+            to: req.user.notification_email,
             subject: `You've successfully applied for ${req.event.name}`,
             template: 'statutory_applied.html',
             parameters: {
