@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/AEGEE/events/compare/1.3.2...1.3.3) (2021-02-23)
+
+
+### Bug Fixes
+
+* **event:** add confirmed and attended to export ([#468](https://github.com/AEGEE/events/issues/468)) ([dc14dd2](https://github.com/AEGEE/events/commit/dc14dd2ec219a168b48c81a0133c775c63f5fe40))
+
 ## [1.3.2](https://github.com/AEGEE/events/compare/1.3.1...1.3.2) (2021-02-08)
 
 
