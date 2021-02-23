@@ -1,3 +1,12 @@
+## [1.6.6](https://github.com/AEGEE/statutory/compare/1.6.5...1.6.6) (2021-02-23)
+
+
+### Bug Fixes
+
+* **email:** use user notification_email ([de4cd63](https://github.com/AEGEE/statutory/commit/de4cd636abe76b1f37f80d4b5da1ab8fc7e1c4c9))
+* **mailer:** get notification_mail when sending email ([1d8aea5](https://github.com/AEGEE/statutory/commit/1d8aea5086c6538ad8a434ec2aa23ad855e9a581))
+* **massmailer:** revert to original state and add TODO ([e554a05](https://github.com/AEGEE/statutory/commit/e554a05dd983c0dfb48cbf0bc11e50e96ad0dee9))
+
 ## [1.6.5](https://github.com/AEGEE/statutory/compare/1.6.4...1.6.5) (2021-02-08)
 
 
