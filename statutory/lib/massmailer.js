@@ -47,7 +47,7 @@ exports.sendAll = async (req, res) => {
         // TODO: Think, maybe use Pug or EJS for that?
         // TODO: Think what else will we need? Probably remove after Agora Bucuresti if there
         // won't be something required.
-        const email = application.email
+        const email = application.email;
         const typeAndOrder = application.participant_type
             ? (application.participant_type + ' (' + application.participant_order + ')')
             : 'not set';
