@@ -5,7 +5,7 @@ const log = require('./logger');
 
 module.exports = morgan((tokens, req, res) => {
     const user = req.user
-        ? _.pick(req.user, ['id', 'username', 'first_name', 'last_name', 'email'])
+        ? _.pick(req.user, ['id', 'username', 'first_name', 'last_name', 'email', 'notification_email'])
         : undefined;
 
     const body = _.isEmpty(req.body)
