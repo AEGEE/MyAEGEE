@@ -38,7 +38,8 @@ const fetchUser = async (user, token) => {
         comment: user.comment,
         first_name: userRequest.data.first_name,
         last_name: userRequest.data.last_name,
-        email: userRequest.data.email
+        email: userRequest.data.email,
+        notification_email: userRequest.data.notification_email
     };
 };
 

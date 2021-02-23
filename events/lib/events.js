@@ -258,6 +258,9 @@ exports.setApprovalStatus = async (req, res) => {
     await sequelize.transaction(async (t) => {
         await req.event.update({ status: req.body.status }, { transaction: t });
 
+        req.event.organizers = await Promise.all(req.event.organizers.map((organizer) =>
+            core.fetchUser(organizer, req.headers['x-auth-token'])));
+
         // Send email to all organizers.
         await mailer.sendMail({
             to: req.event.organizers.map((organizer) => organizer.notification_email),

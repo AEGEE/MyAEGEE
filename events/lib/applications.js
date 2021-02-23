@@ -1,5 +1,6 @@
 const xlsx = require('node-xlsx');
 
+const core = require('./core');
 const errors = require('./errors');
 const { Application } = require('../models');
 const helpers = require('./helpers');
@@ -51,7 +52,7 @@ exports.createApplication = async (req, res) => {
     req.body.body_name = req.user.bodies.find((b) => b.id === req.body.body_id).name;
     req.body.user_id = req.user.id;
     req.body.event_id = req.event.id;
-    req.body.email = req.user.notification_email;
+    req.body.email = req.user.email;
 
     let newApplication;
 
@@ -63,7 +64,7 @@ exports.createApplication = async (req, res) => {
 
         // Sending the mail to a user.
         await mailer.sendMail({
-            to: newApplication.email,
+            to: req.user.notification_email,
             subject: `You've successfully applied for ${req.event.name}`,
             template: 'events_applied.html',
             parameters: {
@@ -93,6 +94,7 @@ exports.updateApplication = async (req, res) => {
     delete req.body.board_comment;
     delete req.body.status;
 
+    // TODO fix this so applications can be updated by EQAC/admins
     req.body.first_name = req.user.first_name;
     req.body.last_name = req.user.last_name;
     if (typeof req.body.body_id !== 'undefined') {
@@ -100,15 +102,17 @@ exports.updateApplication = async (req, res) => {
     }
     req.body.user_id = req.user.id;
     req.body.event_id = req.event.id;
-    req.body.email = req.user.notification_email;
+    req.body.email = req.user.email;
 
     await sequelize.transaction(async (t) => {
         // Updating application in a transaction, so if mail sending fails, the update would be reverted.
         await req.application.update(req.body, { transaction: t });
 
+        const notificationEmail = (await core.fetchUser(req.body, req.headers['x-auth-token'])).notification_email;
+
         // Sending the mail to a user.
         await mailer.sendMail({
-            to: req.application.email,
+            to: notificationEmail,
             subject: `Your application for ${req.event.name} was updated`,
             template: 'events_edited.html',
             parameters: {
