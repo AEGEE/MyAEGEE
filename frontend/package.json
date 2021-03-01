@@ -53,7 +53,7 @@
     "eslint-plugin-cypress": "2.11.2",
     "eslint-plugin-vue": "7.6.0",
     "ical": "0.8.0",
-    "lodash": "4.17.20",
+    "lodash": "4.17.21",
     "mapbox-gl": "1.13.0",
     "marked": "2.0.0",
     "moment": "2.29.1",
