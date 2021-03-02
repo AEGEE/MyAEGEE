@@ -15,7 +15,7 @@ const locationsSchema = Joi.array().min(1).items(Joi.object().keys({
         lat: Joi.number().required(),
         lng: Joi.number().required()
     }),
-    description: Joi.string(),
+    description: Joi.string().allow(''),
     start: Joi.boolean(),
     end: Joi.boolean()
 }));
