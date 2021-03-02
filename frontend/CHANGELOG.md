@@ -1,3 +1,10 @@
+## [1.24.3](https://github.com/AEGEE/frontend/compare/1.24.2...1.24.3) (2021-03-02)
+
+
+### Bug Fixes
+
+* **su:** properly send start/end city selection ([#893](https://github.com/AEGEE/frontend/issues/893)) ([5701374](https://github.com/AEGEE/frontend/commit/570137478b5eb32d63f171db117460bf13529d68))
+
 ## [1.24.2](https://github.com/AEGEE/frontend/compare/1.24.1...1.24.2) (2021-02-22)
 
 
