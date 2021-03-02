@@ -71,7 +71,7 @@
   },
   "dependencies": {
     "@bugsnag/js": "^7.8.0",
-    "bcrypt": "^5.0.0",
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.19.0",
     "bunyan": "^1.8.15",
     "eslint": "^7.20.0",
