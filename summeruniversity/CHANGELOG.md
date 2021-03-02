@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/AEGEE/summeruniversity/compare/1.1.1...1.1.2) (2021-03-02)
+
+
+### Bug Fixes
+
+* **event:** allow empty location description ([#37](https://github.com/AEGEE/summeruniversity/issues/37)) ([c9b875b](https://github.com/AEGEE/summeruniversity/commit/c9b875b68f73ac0b6a6064d64a5418f0abbc92a8))
+
 ## [1.1.1](https://github.com/AEGEE/summeruniversity/compare/1.1.0...1.1.1) (2021-02-22)
 
 
