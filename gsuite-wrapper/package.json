@@ -14,7 +14,7 @@
     "update-dep": "david update"
   },
   "dependencies": {
-    "config": "^3.3.3",
+    "config": "^3.3.4",
     "express": "^4.17.1",
     "express-promise-router": "^4.0.1",
     "googleapis": "^59.0.0",
