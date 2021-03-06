@@ -1,0 +1,57 @@
+version: "3.4"
+### KNOWLEDGE     #######################################
+services:
+    postgres-knowledge:
+        image: postgres:10
+        volumes:
+            - postgres-knowledge:/var/lib/postgresql/data
+        expose:
+            - "5432"
+        environment:
+            POSTGRES_USER: "postgres"
+            POSTGRES_PASSWORD: "${PW_POSTGRES}"
+
+    knowledge:
+        image: aegee/knowledge:latest
+        volumes:
+            - knowledge-media:/usr/app/media
+            - shared:/usr/app/shared:ro
+        depends_on:
+            - postgres-knowledge
+        expose:
+            - "8084"
+        environment:
+            BUGSNAG_KEY: "${BUGSNAG_KEY_KNOWLEDGE}"
+            PG_PASSWORD: "${PW_POSTGRES}"
+            NODE_ENV: "${MYAEGEE_ENV}"
+            HOST: "${SUBDOMAIN_FRONTEND}${BASE_URL}"
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8084/healthcheck"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+        # cpu_count: 1
+        # mem_limit: 900m
+        labels:
+            - "traefik.backend=knowledge"
+            - "traefik.port=8084"
+            - "traefik.auth.frontend.rule=PathPrefix:/api/knowledge/metrics;PathPrefixStrip:/api/knowledge;"
+            - "traefik.new.frontend.rule=PathPrefixStrip:/api/knowledge;"
+            - "traefik.auth.frontend.auth.basic.users=admin:${METRICS_CREDENTIALS}"
+            - "traefik.new.frontend.priority=110"
+            - "traefik.auth.frontend.priority=120"
+            - "traefik.enable=true"
+
+volumes:
+    postgres-knowledge:
+        driver: local
+    knowledge-media:
+        driver: local
+    shared:
+        driver: local
+
+networks:
+    default:
+        external:
+            name: OMS

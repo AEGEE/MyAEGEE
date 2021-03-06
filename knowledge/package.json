@@ -1,0 +1,96 @@
+{
+  "name": "knowledge",
+  "version": "0.0.1",
+  "description": "Knowledge module for MyAEGEE, for storing the Knowledge Management System and providing other features related to internal communication.",
+  "main": "lib/run.js",
+  "scripts": {
+    "start": "nodemon -e 'js,json' lib/run.js",
+    "nodemon-start": "nodemon -e 'js,json' lib/run.js",
+    "lint": "eslint .",
+    "lint-staged": "lint-staged",
+    "db:create": "sequelize db:create",
+    "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
+    "db:migrate": "sequelize db:migrate",
+    "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
+    "open-coverage": "opn coverage/lcov-report/index.html",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "*.{js,jsx}": "eslint"
+  },
+  "keywords": [],
+  "author": "Rik Smale <github.com/WikiRik>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AEGEE/knowledge/issues"
+  },
+  "homepage": "https://github.com/AEGEE/knowledge",
+  "jest": {
+    "testEnvironment": "node",
+    "verbose": true,
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "lib/**/*.js",
+      "models/**/*.js",
+      "!lib/run.js",
+      "!lib/sequelize.js",
+      "!lib/logger.js"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^12.0.1",
+    "@commitlint/config-conventional": "^12.0.1",
+    "@semantic-release/changelog": "^5.0.1",
+    "@semantic-release/git": "^9.0.0",
+    "codecov": "^3.8.1",
+    "conventional-changelog": "^3.1.24",
+    "eslint": "^7.21.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "faker": "^5.4.0",
+    "husky": "^5.1.3",
+    "jest": "^26.6.3",
+    "jest-junit": "^12.0.0",
+    "lint-staged": "^10.5.4",
+    "nock": "^13.0.10",
+    "open-cli": "^6.0.1",
+    "semantic-release": "^17.4.1"
+  },
+  "dependencies": {
+    "@bugsnag/js": "^7.8.0",
+    "body-parser": "^1.19.0",
+    "bunyan": "^1.8.15",
+    "express": "^4.17.1",
+    "express-promise-router": "^4.0.1",
+    "joi": "^17.4.0",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.1",
+    "morgan": "^1.10.0",
+    "on-finished": "^2.3.0",
+    "pg": "^8.5.1",
+    "prom-client": "^13.1.0",
+    "request": "^2.88.2",
+    "request-promise-native": "^1.0.9",
+    "sequelize": "^6.5.0",
+    "sequelize-cli": "^6.2.0"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      [
+        "@semantic-release/npm",
+        {
+          "npmPublish": false
+        }
+      ],
+      "@semantic-release/github",
+      "@semantic-release/git"
+    ],
+    "tagFormat": "${version}"
+  }
+}

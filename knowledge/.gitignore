@@ -1,0 +1,7 @@
+node_modules/
+coverage*
+commitmsg
+log
+nginx.conf
+npm-debug.log
+**/.DS_Store

@@ -1,0 +1,13 @@
+{
+    "success": true,
+    "data": [{
+      "scope": "global",
+      "object": "knowledge",
+      "id": 71,
+      "filters": [],
+      "description": "Manage knowledge",
+      "combined": "global:manage:knowledge",
+      "circles": null,
+      "action": "manage"
+    }]
+}

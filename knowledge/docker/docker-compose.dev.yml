@@ -1,0 +1,15 @@
+version: "3.4"
+
+services:
+  knowledge:
+    build:
+      context: ./${PATH_KNOWLEDGE}/..
+      dockerfile: ./docker/knowledge/Dockerfile
+    image: aegee/knowledge:dev
+    volumes:
+      - ./${PATH_KNOWLEDGE}/../config:/usr/app/src/config
+      - ./${PATH_KNOWLEDGE}/../lib:/usr/app/src/lib
+      - ./${PATH_KNOWLEDGE}/../migrations:/usr/app/src/migrations
+      - ./${PATH_KNOWLEDGE}/../models:/usr/app/src/models
+      - ./${PATH_KNOWLEDGE}/../cli.js:/usr/app/src/cli.js
+    command: "sh -c '/usr/app/scripts/bootstrap.sh && npm run nodemon-start | bunyan'"
