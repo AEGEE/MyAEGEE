@@ -1,6 +1,6 @@
 {
   "name": "knowledge",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Knowledge module for MyAEGEE, for storing the Knowledge Management System and providing other features related to internal communication.",
   "main": "lib/run.js",
   "scripts": {
