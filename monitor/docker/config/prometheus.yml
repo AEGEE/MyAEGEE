@@ -214,3 +214,21 @@ scrape_configs:
     scheme: 'https'
     scrape_interval: 10s
     metrics_path: '/api/summeruniversity/metrics/requests'
+
+    - job_name: 'knowledge-statistics'
+    static_configs:
+      - targets: ['my.aegee.eu']
+    basic_auth:
+      username: admin
+      password: ${METRICS_PASSWORD}
+    scheme: 'https'
+    metrics_path: '/api/knowledge/metrics'
+  - job_name: 'knowledge-metrics'
+    static_configs:
+      - targets: ['my.aegee.eu']
+    basic_auth:
+      username: admin
+      password: ${METRICS_PASSWORD}
+    scheme: 'https'
+    scrape_interval: 10s
+    metrics_path: '/api/knowledge/metrics/requests'
