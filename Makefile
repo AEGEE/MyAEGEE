@@ -103,6 +103,9 @@ rebuild_network:
 rebuild_summeruniversity:
 	./helper.sh --docker -- up -d --build --force-recreate summeruniversity
 
+rebuild_knowledge:
+	./helper.sh --docker -- up -d --build --force-recreate knowledge
+
 bump_and_commit:
 	./helper.sh --bump $(module) #FIXME it is missing something (like variable declaration)
 
@@ -118,7 +121,7 @@ remove-agents:
 
 # Backups
 backup:
-	./scripts/dump.sh postgres-core postgres-events postgres-statutory postgres-discounts postgres-network postgres-summeruniversity
+	./scripts/dump.sh postgres-core postgres-events postgres-statutory postgres-discounts postgres-network postgres-summeruniversity postgres-knowledge
 
 backup_core:
 	./scripts/dump.sh postgres-core
@@ -137,6 +140,9 @@ backup_network:
 
 backup_summeruniversity:
 	./scripts/dump.sh postgres-summeruniversity
+
+backup_knowledge:
+	./scripts/dump.sh postgres-knowledge
 
 backup_gsuite-wrapper:
 	echo "TODO: redis"

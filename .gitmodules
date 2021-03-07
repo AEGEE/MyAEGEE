@@ -28,3 +28,6 @@
 [submodule "network"]
 	path = network
 	url = https://github.com/AEGEE/network
+[submodule "knowledge"]
+	path = knowledge
+	url = https://github.com/AEGEE/knowledge

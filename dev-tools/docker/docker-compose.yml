@@ -75,6 +75,8 @@ services:
               name: \"network\"}, \
               {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/summeruniversity/api-docs.json\", \
               name: \"summeruniversity\"}, \
+              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/knowledge/api-docs.json\", \
+              name: \"knowledge\"}, \
               ]"
     labels:
       - traefik.enable=true
