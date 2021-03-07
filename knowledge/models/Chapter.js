@@ -1,12 +1,12 @@
 const { Sequelize, sequelize } = require('../lib/sequelize');
 
-const Category = sequelize.define('category', {
+const Chapter = sequelize.define('chapter', {
     name: {
         allowNull: false,
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Category name should be set.' }
+            notEmpty: { msg: 'Chapter name should be set.' }
         },
     },
     course_id: {
@@ -22,9 +22,9 @@ const Category = sequelize.define('category', {
     }
 }, {
     underscored: true,
-    tableName: 'categories',
+    tableName: 'chapters',
     createdAt: 'created_at',
     updatedAt: 'updated_at'
 });
 
-module.exports = Category;
+module.exports = Chapter;

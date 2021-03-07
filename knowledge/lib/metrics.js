@@ -5,7 +5,7 @@ const {
 
 const {
     Course,
-    Category,
+    Chapter,
     Page
 } = require('../models');
 const helpers = require('./helpers');
@@ -16,9 +16,9 @@ const gaugesList = {
         name: 'knowledge_courses_total',
         help: 'Total amount of knowledge courses'
     }),
-    categoriesTotal: new Gauge({
-        name: 'knowledge_categories_total',
-        help: 'Total amount of knowledge categories',
+    chaptersTotal: new Gauge({
+        name: 'knowledge_chapters_total',
+        help: 'Total amount of knowledge chapters',
     }),
     pagesTotal: new Gauge({
         name: 'knowledge_pages_total',
@@ -29,7 +29,7 @@ const gaugesList = {
 exports.getMetrics = async (req, res) => {
     const [
         courses,
-        categories,
+        chapters,
         pages
     ] = await Promise.all([
         Course.findAll({
@@ -38,7 +38,7 @@ exports.getMetrics = async (req, res) => {
             ],
             raw: true
         }),
-        Category.findAll({
+        Chapter.findAll({
             attributes: [
                 [sequelize.fn('COUNT', 'id'), 'value']
             ],
@@ -54,7 +54,7 @@ exports.getMetrics = async (req, res) => {
 
     // setting gauges with real data
     helpers.addGaugeData(gaugesList.coursesTotal, courses);
-    helpers.addGaugeData(gaugesList.categoriesTotal, categories);
+    helpers.addGaugeData(gaugesList.chaptersTotal, chapters);
     helpers.addGaugeData(gaugesList.pagesTotal, pages);
 
     res.set('Content-Type', register.contentType);

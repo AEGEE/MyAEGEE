@@ -9,7 +9,7 @@ const morgan = require('./morgan');
 const middlewares = require('./middlewares');
 const fetch = require('./fetch');
 const courses = require('./courses');
-const categories = require('./categories');
+const chapters = require('./chapters');
 const pages = require('./pages');
 const metrics = require('./metrics');
 const endpointsMetrics = require('./endpoints_metrics');
@@ -21,7 +21,7 @@ server.use(morgan);
 
 const GeneralRouter = router({ mergeParams: true });
 const CoursesRouter = router({ mergeParams: true });
-const CategoriesRouter = router({ mergeParams: true });
+const ChaptersRouter = router({ mergeParams: true });
 const PagesRouter = router({ mergeParams: true });
 
 /* istanbul ignore next */
@@ -45,25 +45,25 @@ CoursesRouter.use(middlewares.authenticateUser, fetch.fetchCourse);
 CoursesRouter.get('/', courses.getCourse);
 CoursesRouter.put('/', courses.updateCourse);
 CoursesRouter.delete('/', courses.deleteCourse);
-CoursesRouter.get('/categories', categories.listAllCategories);
-CoursesRouter.post('/categories', categories.createCategory);
+CoursesRouter.get('/chapters', chapters.listAllChapters);
+CoursesRouter.post('/chapters', chapters.createChapter);
 
-CategoriesRouter.use(middlewares.authenticateUser, fetch.fetchCourse, fetch.fetchCategory);
-CategoriesRouter.get('/', categories.getCategory);
-CategoriesRouter.put('/', categories.updateCategory);
-CategoriesRouter.delete('/', categories.deleteCategory);
-CategoriesRouter.get('/pages', categories.listAllPages);
-CategoriesRouter.post('/pages', categories.createPage);
+ChaptersRouter.use(middlewares.authenticateUser, fetch.fetchCourse, fetch.fetchChapter);
+ChaptersRouter.get('/', chapters.getChapter);
+ChaptersRouter.put('/', chapters.updateChapter);
+ChaptersRouter.delete('/', chapters.deleteChapter);
+ChaptersRouter.get('/pages', chapters.listAllPages);
+ChaptersRouter.post('/pages', chapters.createPage);
 
-PagesRouter.use(middlewares.authenticateUser, fetch.fetchCourse, fetch.fetchCategory, fetch.fetchPage);
+PagesRouter.use(middlewares.authenticateUser, fetch.fetchCourse, fetch.fetchChapter, fetch.fetchPage);
 PagesRouter.get('/', pages.getPage);
 PagesRouter.put('/', pages.updatePage);
 PagesRouter.delete('/', pages.deletePage);
 
 server.use(endpointsMetrics.addEndpointMetrics);
 server.use('/courses/:course_id', CoursesRouter);
-server.use('/courses/:course_id/categories/:category_id', CategoriesRouter);
-server.use('/courses/:course_id/categories/:category_id/pages/:page_id', PagesRouter);
+server.use('/courses/:course_id/chapters/:chapter_id', ChaptersRouter);
+server.use('/courses/:course_id/chapters/:chapter_id/pages/:page_id', PagesRouter);
 server.use('/', GeneralRouter);
 server.use(middlewares.notFound);
 server.use(middlewares.errorHandler);

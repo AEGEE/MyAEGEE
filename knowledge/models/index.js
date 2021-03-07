@@ -1,15 +1,15 @@
 const Course = require('./Course');
-const Category = require('./Category');
+const Chapter = require('./Chapter');
 const Page = require('./Page');
 
-Course.hasMany(Category, { foreignKey: 'course_id' });
-Category.belongsTo(Course, { foreignKey: 'course_id' });
+Course.hasMany(Chapter, { foreignKey: 'course_id' });
+Chapter.belongsTo(Course, { foreignKey: 'course_id' });
 
-Category.hasMany(Page, { foreignKey: 'category_id' });
-Page.belongsTo(Category, { foreignKey: 'category_id' });
+Chapter.hasMany(Page, { foreignKey: 'chapter_id' });
+Page.belongsTo(Chapter, { foreignKey: 'chapter_id' });
 
 module.exports = {
     Course,
-    Category,
+    Chapter,
     Page
 };

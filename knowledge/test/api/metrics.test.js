@@ -18,8 +18,8 @@ describe('Metrics requests', () => {
 
     test('should return data correctly on /metrics', async () => {
         const course = await generator.createCourse({});
-        const category = await generator.createCategory({ course });
-        await generator.createPage({ category });
+        const chapter = await generator.createChapter({ course });
+        await generator.createPage({ chapter });
 
         const res = await request({
             uri: '/metrics',

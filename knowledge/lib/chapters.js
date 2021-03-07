@@ -1,20 +1,17 @@
 const {
-    Category
+    Chapter
 } = require('../models');
 const helpers = require('./helpers');
-// const constants = require('./constants');
 const errors = require('./errors');
 
-exports.listAllCategories = async (req, res) => {
+exports.listAllChapters = async (req, res) => {
     if (!req.permissions.hasPermission('view:knowledge')) {
         return errors.makeForbiddenError(res, 'Permission view:knowledge is required, but not present.');
     }
 
-    const result = await Category.findAndCountAll({
+    const result = await Chapter.findAndCountAll({
         where: {
-            course_id: req.currentCourse.id,
-            // TODO: see if we want the filterBy function or just search for ID?
-            // ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.CATEGORY)
+            course_id: req.currentCourse.id
         },
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query)
@@ -27,57 +24,55 @@ exports.listAllCategories = async (req, res) => {
     });
 };
 
-exports.getCategory = async (req, res) => {
+exports.getChapter = async (req, res) => {
     if (!req.permissions.hasPermission('view:knowledge')) {
         return errors.makeForbiddenError(res, 'Permission view:knowledge is required, but not present.');
     }
 
     return res.json({
         success: true,
-        data: req.currentCategory
+        data: req.currentChapter
     });
 };
 
-exports.createCategory = async (req, res) => {
+exports.createChapter = async (req, res) => {
     if (!req.permissions.hasPermission('manage:knowledge')) {
         return errors.makeForbiddenError(res, 'Permission manage:knowledge is required, but not present.');
     }
 
-    const category = await Category.create({
-        // TODO: figure out how this works
-        course_id: req.currentCourse.id,
+    const chapter = await Chapter.create({
+        ...req.body,
+        course_id: req.currentCourse.id
     });
 
     return res.json({
         success: true,
-        data: category
+        data: chapter
     });
 };
 
-exports.updateCategory = async (req, res) => {
+exports.updateChapter = async (req, res) => {
     if (!req.permissions.hasPermission('manage:knowledge')) {
         return errors.makeForbiddenError(res, 'Permission manage:knowledge is required, but not present.');
     }
 
-    await req.currentCategory.update({
-        // TODO: figure out how this works
-    });
+    await req.currentChapter.update(req.body);
 
     return res.json({
         success: true,
-        data: req.currentCategory
+        data: req.currentChapter
     });
 };
 
-exports.deleteCategory = async (req, res) => {
+exports.deleteChapter = async (req, res) => {
     if (!req.permissions.hasPermission('manage:knowledge')) {
         return errors.makeForbiddenError(res, 'Permission manage:knowledge is required, but not present.');
     }
 
-    await req.currentCategory.destroy();
+    await req.currentChapter.destroy();
 
     return res.json({
         success: true,
-        message: 'Category is deleted.'
+        message: 'Chapter is deleted.'
     });
 };

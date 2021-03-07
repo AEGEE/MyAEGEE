@@ -2,7 +2,7 @@ const errors = require('./errors');
 const helpers = require('./helpers');
 const {
     Course,
-    Category,
+    Chapter,
     Page
 } = require('../models');
 
@@ -24,23 +24,23 @@ exports.fetchCourse = async (req, res, next) => {
     return next();
 };
 
-exports.fetchCategory = async (req, res, next) => {
-    // searching the category by id if it's numeric
-    if (!helpers.isNumber(req.params.category_id)) {
-        return errors.makeBadRequestError(res, 'Category ID is invalid.');
+exports.fetchChapter = async (req, res, next) => {
+    // searching the chapter by id if it's numeric
+    if (!helpers.isNumber(req.params.chapter_id)) {
+        return errors.makeBadRequestError(res, 'Chapter ID is invalid.');
     }
 
-    const category = await Category.findOne({
+    const chapter = await Chapter.findOne({
         where: {
-            id: Number(req.params.category_id),
+            id: Number(req.params.chapter_id),
             course_id: Number(req.params.course_id)
         }
     });
-    if (!category) {
-        return errors.makeNotFoundError(res, 'Category is not found.');
+    if (!chapter) {
+        return errors.makeNotFoundError(res, 'Chapter is not found.');
     }
 
-    req.currentCategory = category;
+    req.currentChapter = chapter;
     return next();
 };
 
@@ -53,7 +53,7 @@ exports.fetchPage = async (req, res, next) => {
     const page = await Page.findOne({
         where: {
             id: Number(req.params.page_id),
-            category_id: Number(req.params.category_id)
+            chapter_id: Number(req.params.chapter_id)
         }
     });
     if (!page) {

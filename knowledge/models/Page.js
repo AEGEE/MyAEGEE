@@ -9,21 +9,16 @@ const Page = sequelize.define('page', {
             notEmpty: { msg: 'Page name should be set.' }
         },
     },
-    category_id: {
+    chapter_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Category ID should be set.' },
+            notEmpty: { msg: 'Chapter ID should be set.' },
         },
     },
     content_type: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: '',
-        validate: {
-            notEmpty: { msg: 'Type should be set.' },
-        },
+        type: Sequelize.STRING
     },
     content: {
         type: Sequelize.TEXT

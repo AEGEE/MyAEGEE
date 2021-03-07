@@ -11,10 +11,6 @@ exports.listAllCourses = async (req, res) => {
     }
 
     const result = await Course.findAndCountAll({
-        where: {
-            // TODO: see if we want the filterBy function or just search for ID?
-            // ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.COURSE)
-        },
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query)
     });
@@ -42,9 +38,7 @@ exports.createCourse = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission manage:knowledge is required, but not present.');
     }
 
-    const course = await Course.create({
-        // TODO: figure out how this works
-    });
+    const course = await Course.create(req.body);
 
     return res.json({
         success: true,
@@ -57,9 +51,7 @@ exports.updateCourse = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission manage:knowledge is required, but not present.');
     }
 
-    await req.currentCourse.update({
-        // TODO: figure out how this works
-    });
+    await req.currentCourse.update(req.body);
 
     return res.json({
         success: true,
