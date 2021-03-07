@@ -52,8 +52,8 @@ ChaptersRouter.use(middlewares.authenticateUser, fetch.fetchCourse, fetch.fetchC
 ChaptersRouter.get('/', chapters.getChapter);
 ChaptersRouter.put('/', chapters.updateChapter);
 ChaptersRouter.delete('/', chapters.deleteChapter);
-ChaptersRouter.get('/pages', chapters.listAllPages);
-ChaptersRouter.post('/pages', chapters.createPage);
+ChaptersRouter.get('/pages', pages.listAllPages);
+ChaptersRouter.post('/pages', pages.createPage);
 
 PagesRouter.use(middlewares.authenticateUser, fetch.fetchCourse, fetch.fetchChapter, fetch.fetchPage);
 PagesRouter.get('/', pages.getPage);
