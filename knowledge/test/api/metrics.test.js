@@ -17,9 +17,7 @@ describe('Metrics requests', () => {
     });
 
     test('should return data correctly on /metrics', async () => {
-        const course = await generator.createCourse({});
-        const chapter = await generator.createChapter({ course });
-        await generator.createPage({ chapter });
+        await generator.createCourse();
 
         const res = await request({
             uri: '/metrics',

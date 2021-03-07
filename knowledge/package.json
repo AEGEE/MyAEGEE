@@ -11,7 +11,7 @@
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
-    "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
+    "test": "NODE_ENV=test npm run db:setup && jest test/**/*.js --runInBand --forceExit",
     "open-coverage": "opn coverage/lcov-report/index.html",
     "prepare": "husky install"
   },
