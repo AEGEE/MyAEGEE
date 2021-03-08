@@ -238,10 +238,14 @@ export default {
   .menu-label {
     padding-left: 10px;
     margin-top: 1em;
+    color: #898989;
   }
 
   .menu-list {
     li a {
+      &.is-active {
+        background-color: #E6BDE5;
+      }
       &[aria-expanded="true"] {
         .is-angle {
           transform: rotate(180deg);

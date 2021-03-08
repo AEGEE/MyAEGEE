@@ -2,6 +2,11 @@
   <div>
     <div class="tile is-ancestor">
       <div class="tile is-vertical is-12">
+        <div class="tile is-12">
+          <article class="tile is-child box centered">
+            <a href="https://aegee.blogactiv.eu/2021/03/08/statement-of-aegee-europe-on-international-womens-day-2021/"><b>Read AEGEE's statement for the International Women's Day</b></a>
+          </article>
+        </div>
         <div class="tile">
           <div class="tile is-4 is-parent">
             <article class="tile is-child box">

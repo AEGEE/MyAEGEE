@@ -21,6 +21,8 @@ $grey-standard: #898989;
 $grey-dark: #434242;
 $black: #000000;
 $white: #FFFFFF;
+$iwd: #931991;
+$iwd-light: #E6BDE5;
 
 $blue: 				$blue-standard;
 $red: 				$red-standard;
@@ -31,9 +33,9 @@ $cyan:				$blue-light;
 
 $family-sans-serif: 'Open Sans', sans-serif;
 
-$primary: $blue-standard;
+$primary: $iwd-light;
 $link: $blue;
-$info: $cyan;
+$info: $iwd-light;
 $success: $green;
 $warning: $yellow;
 $danger: $red;
@@ -86,6 +88,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .bold {
 	font-weight: bold;
+}
+
+a {
+	color: $iwd !important;
+}
+
+.button.is-primary {
+	background-color: $iwd-light !important;
 }
 
 @keyframes rainbow-text {
@@ -254,7 +264,7 @@ h1, h2, h3, h4, h5, h6 {
 	z-index: 10000;
 
 	.tooltip-inner {
-	  background: $blue-standard;
+	  background: $iwd;
 	  color: $white;
 	  border-radius: 10px;
 	  padding: 5px 10px 4px;
@@ -266,7 +276,7 @@ h1, h2, h3, h4, h5, h6 {
 	  border-style: solid;
 	  position: absolute;
 	  margin: 5px;
-	  border-color: $blue-standard;
+	  border-color: $iwd;
 	  z-index: 1;
 	}
 
