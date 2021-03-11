@@ -54,21 +54,13 @@ export default {
         initialView: 'dayGridMonth',
         eventDisplay: 'block',
         firstDay: 1,
-        events: [],
+        events: this.fetchEvents,
         displayEventTime: false,
-        datesSet: this.updateStartDate,
         eventClick: this.eventClick
       }
     }
   },
   methods: {
-    updateStartDate (arg) {
-      const currentStart = arg.view.currentStart
-      const currentEnd = arg.view.currentEnd
-      this.currentMonthStart = moment(currentStart)
-      this.currentMonthEnd = moment(currentEnd)
-      this.fetchEvents()
-    },
     eventClick (info) {
       if (info.event.url) {
         return
@@ -83,11 +75,11 @@ export default {
         canCancel: '[escape, outside]'
       })
     },
-    fetchEvents () {
+    fetchEvents (arg) {
       this.isLoading = true
 
-      const startDate = this.currentMonthStart.subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
-      const endDate = this.currentMonthEnd.add(1, 'month').endOf('month').format('YYYY-MM-DD')
+      const startDate = moment(arg.start).subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
+      const endDate = moment(arg.end).add(1, 'month').endOf('month').format('YYYY-MM-DD')
 
       const query = { params: { starts: startDate, ends: endDate } }
 
