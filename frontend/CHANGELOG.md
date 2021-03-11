@@ -1,3 +1,10 @@
+## [1.24.4](https://github.com/AEGEE/frontend/compare/1.24.3...1.24.4) (2021-03-11)
+
+
+### Bug Fixes
+
+* **deps:** update various deps ([#892](https://github.com/AEGEE/frontend/issues/892)) ([8df51b2](https://github.com/AEGEE/frontend/commit/8df51b2005ff6a9e3649cca5800a19c4a6296202))
+
 ## [1.24.3](https://github.com/AEGEE/frontend/compare/1.24.2...1.24.3) (2021-03-02)
 
 
