@@ -1,3 +1,10 @@
+## [1.6.9](https://github.com/AEGEE/statutory/compare/1.6.8...1.6.9) (2021-03-13)
+
+
+### Bug Fixes
+
+* **docker:** revert CMD ([#517](https://github.com/AEGEE/statutory/issues/517)) ([8094534](https://github.com/AEGEE/statutory/commit/8094534dd54b88e5ff107c11d2b2f00d1e0a8de7))
+
 ## [1.6.8](https://github.com/AEGEE/statutory/compare/1.6.7...1.6.8) (2021-03-13)
 
 
