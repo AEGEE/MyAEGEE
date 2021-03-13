@@ -1,3 +1,10 @@
+## [1.6.8](https://github.com/AEGEE/statutory/compare/1.6.7...1.6.8) (2021-03-13)
+
+
+### Bug Fixes
+
+* **docker:** reverted some Dockerfile changes ([#516](https://github.com/AEGEE/statutory/issues/516)) ([f69ba39](https://github.com/AEGEE/statutory/commit/f69ba39793017ad1880736ae1fc6c1f050268d3a))
+
 ## [1.6.7](https://github.com/AEGEE/statutory/compare/1.6.6...1.6.7) (2021-03-13)
 
 
