@@ -1,3 +1,10 @@
+## [1.6.7](https://github.com/AEGEE/statutory/compare/1.6.6...1.6.7) (2021-03-13)
+
+
+### Bug Fixes
+
+* **circleci:** add new checks attempt 2 ([#486](https://github.com/AEGEE/statutory/issues/486)) ([27dbd6f](https://github.com/AEGEE/statutory/commit/27dbd6f94287cfbf54ab960b52fcaf307c655284))
+
 ## [1.6.6](https://github.com/AEGEE/statutory/compare/1.6.5...1.6.6) (2021-02-23)
 
 
