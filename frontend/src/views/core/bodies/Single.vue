@@ -138,6 +138,10 @@
                   <th>Address</th>
                   <td>{{ body.address }}</td>
                 </tr>
+                <tr v-if="body.postal_address">
+                  <th>Postal address</th>
+                  <td>{{ body.postal_address }}</td>
+                </tr>
                 <tr>
                   <th>Website</th>
                   <td v-if="body.website"><a :href="body.website" target="_blank">{{ body.website }}</a></td>
@@ -201,6 +205,7 @@ export default {
         email: null,
         phone: null,
         address: null,
+        postal_address: null,
         shadow_circle: null,
         shadow_circle_id: null
       },

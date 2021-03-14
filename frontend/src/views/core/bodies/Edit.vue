@@ -75,6 +75,24 @@
         </div>
 
         <div class="field">
+          <label class="label">Country</label>
+          <div class="control">
+            <div class="select">
+              <select v-model="body.country">
+                <option v-for="(country, index) in countries" v-bind:key="index">{{ country }}</option>
+              </select>
+            </div>
+          </div>
+          <p class="help is-danger" v-if="errors.country">{{ errors.country.join(', ') }}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Founded at</label>
+          <b-datepicker :date-formatter="formatDate" :date-parser="parseDate" v-model="foundationDate" @input="transformFoundedAt()" />
+          <p class="help is-danger" v-if="errors.founded_at">{{ errors.founded_at.join(', ')}}</p>
+        </div>
+
+        <div class="field">
           <label class="label">Email</label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><font-awesome-icon icon="envelope" /></span>
@@ -93,27 +111,6 @@
         </div>
 
         <div class="field">
-          <label class="label">Website</label>
-          <div class="control has-icons-left">
-            <span class="icon is-small is-left"><font-awesome-icon icon="globe" /></span>
-            <input class="input" type="text" v-model="body.website" />
-          </div>
-          <p class="help is-danger" v-if="errors.website">{{ errors.website.join(', ')}}</p>
-        </div>
-
-        <div class="field">
-          <label class="label">Country</label>
-          <div class="control">
-            <div class="select">
-              <select v-model="body.country">
-                <option v-for="(country, index) in countries" v-bind:key="index">{{ country }}</option>
-              </select>
-            </div>
-          </div>
-          <p class="help is-danger" v-if="errors.country">{{ errors.country.join(', ') }}</p>
-        </div>
-
-        <div class="field">
           <label class="label">Address</label>
           <div class="control">
             <input class="input" type="text" required v-model="body.address" />
@@ -122,9 +119,23 @@
         </div>
 
         <div class="field">
-          <label class="label">Founded at</label>
-          <b-datepicker :date-formatter="formatDate" :date-parser="parseDate" v-model="foundationDate" @input="transformFoundedAt()" />
-          <p class="help is-danger" v-if="errors.founded_at">{{ errors.founded_at.join(', ')}}</p>
+          <label class="label">
+            Postal address (if applicable)
+            <tooltip text="Only applicable to bodies that have a different postal address than their regular address"/>
+          </label>
+          <div class="control">
+            <input class="input" type="text" v-model="body.postal_address" />
+          </div>
+          <p class="help is-danger" v-if="errors.postal_address">{{ errors.postal_address.join(', ')}}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Website</label>
+          <div class="control has-icons-left">
+            <span class="icon is-small is-left"><font-awesome-icon icon="globe" /></span>
+            <input class="input" type="text" v-model="body.website" />
+          </div>
+          <p class="help is-danger" v-if="errors.website">{{ errors.website.join(', ')}}</p>
         </div>
 
         <div class="field" v-if="$route.params.id && can.editShadowCircle">
@@ -197,6 +208,7 @@ export default {
         email: null,
         phone: null,
         address: null,
+        postal_address: null,
         shadow_circle_id: null,
         shadow_circle: null,
         circles: []
