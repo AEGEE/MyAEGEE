@@ -56,8 +56,12 @@ const Body = sequelize.define('body', {
         allowNull: false,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Phone should be set.' },
+            notEmpty: { msg: 'Address should be set.' },
         }
+    },
+    postal_address: {
+        type: Sequelize.TEXT,
+        allowNull: true,
     },
     type: {
         type: Sequelize.ENUM('antenna', 'contact antenna', 'contact', 'interest group', 'working group', 'commission', 'committee', 'project', 'partner', 'other'),
