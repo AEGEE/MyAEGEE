@@ -1,3 +1,10 @@
+# [1.32.0](https://github.com/AEGEE/core/compare/1.31.9...1.32.0) (2021-03-14)
+
+
+### Features
+
+* **body:** add postal address bodies ([#259](https://github.com/AEGEE/core/issues/259)) ([3776217](https://github.com/AEGEE/core/commit/3776217061d0bfb585e71f78cf6eb0115a5e708d))
+
 ## [1.31.9](https://github.com/AEGEE/core/compare/1.31.8...1.31.9) (2021-02-23)
 
 
