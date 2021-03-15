@@ -1,3 +1,10 @@
+## [1.25.1](https://github.com/AEGEE/frontend/compare/1.25.0...1.25.1) (2021-03-15)
+
+
+### Bug Fixes
+
+* **iwd:** revert IWD 2021 and update material database link ([#913](https://github.com/AEGEE/frontend/issues/913)) ([933a6e1](https://github.com/AEGEE/frontend/commit/933a6e1141ac6f56616d8aa8a07bec860e929217))
+
 # [1.25.0](https://github.com/AEGEE/frontend/compare/1.24.4...1.25.0) (2021-03-14)
 
 
