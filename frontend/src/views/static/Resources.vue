@@ -102,7 +102,7 @@ export default {
             color: '#FFDB4C'
           },
           {
-            url: 'https://drive.google.com/drive/folders/1KtcEZspEAdKgzORqWjn_MNNl2eHK4Jks',
+            url: 'https://drive.google.com/drive/folders/1IOg5hnbGmhgZ8pajYQgbY3CBTsETijS_',
             title: 'AEGEE Materials Database',
             description: 'Knowledge library of AEGEE materials',
             color: '#FFDB4C'
