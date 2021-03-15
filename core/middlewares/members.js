@@ -1,6 +1,6 @@
 const moment = require('moment');
 
-const { User, Body, MailChange } = require('../models');
+const { User, Body, MailChange, MailConfirmation } = require('../models');
 const constants = require('../lib/constants');
 const helpers = require('../lib/helpers');
 const errors = require('../lib/errors');
@@ -132,6 +132,13 @@ exports.confirmUser = async (req, res) => {
     }
 
     await req.currentUser.update({ mail_confirmed_at: new Date() });
+
+    const confirmation = await MailConfirmation.findOne({
+        where: { user_id: req.currentUser.id }
+    });
+
+    await confirmation.destroy();
+
     return res.json({
         success: true,
         data: req.currentUser
