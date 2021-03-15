@@ -20,8 +20,7 @@ module.exports = {
             allowNull: false
         },
         content_type: {
-            type: Sequelize.STRING,
-            allowNull: false
+            type: Sequelize.STRING
         },
         content: {
             type: Sequelize.TEXT

@@ -43,6 +43,7 @@ exports.authenticateUser = async (req, res, next) => {
     return next();
 };
 
+/* istanbul ignore next */
 exports.healthcheck = (req, res) => {
     return res.json({
         success: true,
@@ -69,10 +70,13 @@ exports.errorHandler = (err, req, res, next) => {
         return errors.makeValidationError(res, err);
     }
 
+    /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'test') {
         Bugsnag.notify(err);
     }
 
+    /* istanbul ignore next */
     logger.error({ err }, 'Unhandled error');
+    /* istanbul ignore next */
     return errors.makeInternalError(res, err);
 };

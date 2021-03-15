@@ -1,5 +1,3 @@
-const { Sequelize } = require('./sequelize');
-
 // Figure out if the value is a number or a string containing only numbers
 function isNumber(value) {
     /* istanbul ignore if */
@@ -58,40 +56,6 @@ function getPermissions(user, corePermissions) {
     };
 }
 
-/*
-    Given a string like 'query' and fields like ['field1', 'field2'...]
-    returns an object like following:
-
-    {
-        names: Sequelize.where(
-            Sequelize.fn('concat', Sequelize.col('field1'), ' ', 'Sequelize.col('field2'), ...)
-            { [Sequelize.Op.iLike]: '%query%' }
-        }
-    }
-
-    Required for filtering stuff.
-*/
-function filterBy(query, fields) {
-    if (typeof query !== 'string' || query.trim().length === 0) {
-        return {};
-    }
-
-    const concatFields = [];
-    for (let i = 0; i < fields.length; i++) {
-        concatFields.push(Sequelize.col(fields[i]));
-        if (i < fields.length - 1) {
-            concatFields.push(' ');
-        }
-    }
-
-    return {
-        namesQuery: Sequelize.where(
-            Sequelize.fn('concat', ...concatFields),
-            { [Sequelize.Op.iLike]: { [Sequelize.Op.any]: ['%' + query + '%', '%4%'] } }
-        )
-    };
-}
-
 // A helper to add data to gauge Prometheus metric.
 const addGaugeData = (gauge, array) => {
     // reset gauge...
@@ -113,6 +77,5 @@ module.exports = {
     getPagination,
     getSorting,
     getPermissions,
-    filterBy,
     addGaugeData
 };

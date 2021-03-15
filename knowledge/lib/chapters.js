@@ -1,11 +1,9 @@
-const {
-    Chapter
-} = require('../models');
+const { Chapter } = require('../models');
 const helpers = require('./helpers');
 const errors = require('./errors');
 
 exports.listAllChapters = async (req, res) => {
-    if (!req.permissions.hasPermission('view:knowledge')) {
+    if (!req.permissions.view_knowledge) {
         return errors.makeForbiddenError(res, 'Permission view:knowledge is required, but not present.');
     }
 
@@ -25,7 +23,7 @@ exports.listAllChapters = async (req, res) => {
 };
 
 exports.getChapter = async (req, res) => {
-    if (!req.permissions.hasPermission('view:knowledge')) {
+    if (!req.permissions.view_knowledge) {
         return errors.makeForbiddenError(res, 'Permission view:knowledge is required, but not present.');
     }
 
@@ -36,7 +34,7 @@ exports.getChapter = async (req, res) => {
 };
 
 exports.createChapter = async (req, res) => {
-    if (!req.permissions.hasPermission('manage:knowledge')) {
+    if (!req.permissions.manage_knowledge) {
         return errors.makeForbiddenError(res, 'Permission manage:knowledge is required, but not present.');
     }
 
@@ -52,7 +50,7 @@ exports.createChapter = async (req, res) => {
 };
 
 exports.updateChapter = async (req, res) => {
-    if (!req.permissions.hasPermission('manage:knowledge')) {
+    if (!req.permissions.manage_knowledge) {
         return errors.makeForbiddenError(res, 'Permission manage:knowledge is required, but not present.');
     }
 
@@ -65,7 +63,7 @@ exports.updateChapter = async (req, res) => {
 };
 
 exports.deleteChapter = async (req, res) => {
-    if (!req.permissions.hasPermission('manage:knowledge')) {
+    if (!req.permissions.manage_knowledge) {
         return errors.makeForbiddenError(res, 'Permission manage:knowledge is required, but not present.');
     }
 
@@ -73,6 +71,6 @@ exports.deleteChapter = async (req, res) => {
 
     return res.json({
         success: true,
-        message: 'Chapter is deleted.'
+        data: req.currentChapter
     });
 };

@@ -1,12 +1,9 @@
-const {
-    Course
-} = require('../models');
+const { Course } = require('../models');
 const helpers = require('./helpers');
-// const constants = require('./constants');
 const errors = require('./errors');
 
 exports.listAllCourses = async (req, res) => {
-    if (!req.permissions.hasPermission('view:knowledge')) {
+    if (!req.permissions.view_knowledge) {
         return errors.makeForbiddenError(res, 'Permission view:knowledge is required, but not present.');
     }
 
@@ -23,7 +20,7 @@ exports.listAllCourses = async (req, res) => {
 };
 
 exports.getCourse = async (req, res) => {
-    if (!req.permissions.hasPermission('view:knowledge')) {
+    if (!req.permissions.view_knowledge) {
         return errors.makeForbiddenError(res, 'Permission view:knowledge is required, but not present.');
     }
 
@@ -34,7 +31,7 @@ exports.getCourse = async (req, res) => {
 };
 
 exports.createCourse = async (req, res) => {
-    if (!req.permissions.hasPermission('manage:knowledge')) {
+    if (!req.permissions.manage_knowledge) {
         return errors.makeForbiddenError(res, 'Permission manage:knowledge is required, but not present.');
     }
 
@@ -47,7 +44,7 @@ exports.createCourse = async (req, res) => {
 };
 
 exports.updateCourse = async (req, res) => {
-    if (!req.permissions.hasPermission('manage:knowledge')) {
+    if (!req.permissions.manage_knowledge) {
         return errors.makeForbiddenError(res, 'Permission manage:knowledge is required, but not present.');
     }
 
@@ -60,7 +57,7 @@ exports.updateCourse = async (req, res) => {
 };
 
 exports.deleteCourse = async (req, res) => {
-    if (!req.permissions.hasPermission('manage:knowledge')) {
+    if (!req.permissions.manage_knowledge) {
         return errors.makeForbiddenError(res, 'Permission manage:knowledge is required, but not present.');
     }
 
@@ -68,6 +65,6 @@ exports.deleteCourse = async (req, res) => {
 
     return res.json({
         success: true,
-        message: 'Course is deleted.'
+        data: req.currentCourse
     });
 };
