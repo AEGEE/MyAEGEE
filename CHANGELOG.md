@@ -1,3 +1,10 @@
+## [1.32.1](https://github.com/AEGEE/core/compare/1.32.0...1.32.1) (2021-03-15)
+
+
+### Bug Fixes
+
+* **user:** delete confirmation with manual ([#260](https://github.com/AEGEE/core/issues/260)) ([3284f8b](https://github.com/AEGEE/core/commit/3284f8b6e177dd811cceef35cf9c34ac43f4dd5f))
+
 # [1.32.0](https://github.com/AEGEE/core/compare/1.31.9...1.32.0) (2021-03-14)
 
 
