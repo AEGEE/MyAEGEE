@@ -38,6 +38,7 @@ describe('User confirmation', () => {
         const token = await generator.createAccessToken({}, user);
 
         await generator.createPermission({ scope: 'global', action: 'confirm', object: 'member' });
+        await generator.createMailConfirmation({ user_id: user.id });
 
         const res = await request({
             uri: '/members/' + user.id + '/confirm',
