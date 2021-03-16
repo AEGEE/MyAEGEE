@@ -56,6 +56,7 @@ EventsRouter.put('/', events.editEvent);
 EventsRouter.delete('/', events.deleteEvent);
 EventsRouter.put('/status', events.setApprovalStatus);
 EventsRouter.post('/upload', imageserv.uploadImage);
+EventsRouter.put('/published', events.setPublished);
 
 server.use(endpointsMetrics.addEndpointMetrics);
 server.use('/', GeneralRouter);

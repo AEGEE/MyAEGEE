@@ -3,10 +3,12 @@ const moment = require('moment');
 
 const { Sequelize, sequelize } = require('../lib/sequelize');
 
+// TODO: require body_id if role is main_coordinator
+// TODO: validate that role is in enum ['main_coordinator', 'content_manager', 'treasurer', 'incoming_responsible', 'general_organizer']
 const organizersSchema = Joi.array().min(4).items(Joi.object().keys({
     user_id: Joi.number().integer().required(),
-    // body_id: Joi.number().integer().required() // so we know which body is main organizer for
-    role: Joi.string().required()
+    body_id: Joi.number().integer(),
+    role: Joi.string().required() // TODO: validate that there is 1 main_coordinator per organizing body, 1 content_manager, 1 treasurer and 1 incoming_responsible
 }));
 
 const locationsSchema = Joi.array().min(1).items(Joi.object().keys({
@@ -15,9 +17,9 @@ const locationsSchema = Joi.array().min(1).items(Joi.object().keys({
         lat: Joi.number().required(),
         lng: Joi.number().required()
     }),
-    description: Joi.string().allow(''),
-    start: Joi.boolean(),
-    end: Joi.boolean()
+    description: Joi.string().allow(''), // TODO: check that description is filled in for the second submission
+    start: Joi.boolean(), // TODO: validate that there is 1 starting city
+    end: Joi.boolean() // TODO: validate that there is 1 ending city
 }));
 
 const Event = sequelize.define('event', {
@@ -56,7 +58,7 @@ const Event = sequelize.define('event', {
     photos: {
         // TODO: check if JSONB is the type that we want, maybe an array of ids/location is enough?
         type: Sequelize.JSONB,
-        allowNull: true,
+        allowNull: true
         // TODO: max 6 photos
     },
     video: {
@@ -84,7 +86,7 @@ const Event = sequelize.define('event', {
         type: Sequelize.STRING,
         allowNull: true,
         validate: {
-            // isUrl: { msg: 'The provided link is not a valid URL.' }
+            isUrl: { msg: 'The provided link is not a valid URL.' }
         }
     },
     social_media: {
@@ -92,20 +94,11 @@ const Event = sequelize.define('event', {
         type: Sequelize.JSONB,
         allowNull: true,
         validate: {
-            // TODO: all are links
-            // isUrl: { msg: 'The provided link is not a valid URL.' }
-            // TODO: max 3 links
+            // TODO: validate that all provided strings are URLs
+            // TODO: max 3 URLs
         }
     },
-    // application_starts: {
-    //     type: Sequelize.DATE,
-    //     allowNull: true,
-    //     validate: {
-    //         // isDate: { msg: 'Event application start date should be set.' }
-    //         // TODO: check if timeframe set by SUCT
-    //         // TODO: only done by SUCT
-    //     }
-    // },
+    // TODO: see how we want to implement the end date for extended open calls, below is how application_ends is set up in the events module
     // application_ends: {
     //     type: Sequelize.DATE,
     //     allowNull: true,
@@ -121,9 +114,6 @@ const Event = sequelize.define('event', {
     //         //         throw new Error('Application period cannot end before or at the same time the event starts.');
     //         //     }
     //         // }
-    //         // TODO: check if timeframe set by SUCT
-    //         // TODO: only done by SUCT
-    //         // TODO: see how we want to do extended open call close (SUCT will open, organizers will close)
     //     }
     // },
     starts: {
@@ -133,7 +123,7 @@ const Event = sequelize.define('event', {
         validate: {
             notEmpty: { msg: 'Event start date should be set.' },
             isDate: { msg: 'Event start date should be valid.' }
-            // TODO: check if within timeframe set by SUCT
+            // TODO: check if within timeframe set by CIA/SUCT
         }
     },
     ends: {
@@ -148,11 +138,12 @@ const Event = sequelize.define('event', {
                     throw new Error('Event cannot start after or at the same time it ends.');
                 }
             }
-            // TODO: check if within timeframe set by SUCT
-            // TODO: check for duration, not too short nor too long
+            // TODO: check if within timeframe set by CIA/SUCT
+            // TODO: check for duration, not too short (min 6 days) nor too long (max 28 days)
         }
     },
     fee: {
+        // TODO: validate that it is max 14 euros per night for normal people but no max for SUCT/people with proper permission
         type: Sequelize.DECIMAL,
         allowNull: false,
         defaultValue: 0,
@@ -160,27 +151,25 @@ const Event = sequelize.define('event', {
             notEmpty: { msg: 'Event fee should be set.' },
             isNumeric: { msg: 'Event fee should be valid.' },
             min: { args: [0], msg: 'Event fee cannot be negative' }
-            // TODO: check how we want to check for the maximal fee (14 euro per day, exception possible), especially with exception
-            // TODO: on frontend add warning for maximum fee, not validate on database
         }
     },
     optional_fee: {
         type: Sequelize.DECIMAL,
         allowNull: true,
         validate: {
-            // isNumeric: { msg: 'Optional fee should be valid.' },
-            // min: { args: [0], msg: 'Optional fee cannot be negative' },
-            // max: { args: [40], msg: 'Optional fee cannot be more than 40 euros.' }
+            isNumeric: { msg: 'Optional fee should be valid.' },
+            min: { args: [0], msg: 'Optional fee cannot be negative' },
+            max: { args: [40], msg: 'Optional fee cannot be more than 40 euros.' }
         }
     },
     organizing_bodies: {
         // TODO: check if JSONB is the type that we want, maybe an array of ids is enough?
+        // TODO: check that the body is a local
         type: Sequelize.JSONB,
         allowNull: false,
         defaultValue: [],
         validate: {
             isValid(value) {
-                // TODO: validate for locals
                 if (!Array.isArray(value)) {
                     throw new Error('Organizing bodies should be an array.');
                 }
@@ -211,15 +200,16 @@ const Event = sequelize.define('event', {
     },
     cooperation: {
         // TODO: check if JSONB is the type that we want, maybe an array of ids is enough?
+        // TODO: validate for non-locals (or whatever EBs are allowed to do this)
+        // TODO: max 2
+        // TODO: do proper validation, either with Joi if JSONB is being used or just in here if an array of IDs is used
         type: Sequelize.JSONB,
         allowNull: true,
         defaultValue: [],
         validate: {
             isValid(value) {
-                // TODO: validate for non-locals (or whatever EBs are allowed to do this)
-                // TODO: max 2
                 if (!Array.isArray(value)) {
-                    throw new Error('TODO should be an array.');
+                    throw new Error('Cooperation should be an array.');
                 }
 
                 for (const body of value) {
@@ -247,7 +237,6 @@ const Event = sequelize.define('event', {
         allowNull: false,
         defaultValue: [],
         validate: {
-            // TODO: validate so that only 1 (no more, but also no less) start/end is true
             isValid(locationsValue) {
                 const { error, value } = locationsSchema.validate(locationsValue);
                 if (error) {
@@ -308,13 +297,24 @@ const Event = sequelize.define('event', {
         }
     },
     status: {
-        type: Sequelize.ENUM('first draft', 'first submission', 'first approval', 'second draft', 'second submission', 'second approval', 'published'),
+        type: Sequelize.ENUM('first draft', 'first submission', 'first approval', 'second draft', 'second submission', 'second approval'),
         allowNull: false,
         defaultValue: 'first draft',
         validate: {
             isIn: {
-                args: [['first draft', 'first submission', 'first approval', 'second draft', 'second submission', 'second approval', 'published']],
+                args: [['first draft', 'first submission', 'first approval', 'second draft', 'second submission', 'second approval']],
                 msg: 'Event status is not valid.'
+            }
+        }
+    },
+    published: {
+        type: Sequelize.ENUM('none', 'minimal', 'full'),
+        allowNull: false,
+        defaultValue: 'none',
+        validate: {
+            isIn: {
+                args: [['none', 'minimal', 'full']],
+                msg: 'Event publication must be none, minimal or full.'
             }
         }
     },
@@ -349,6 +349,7 @@ const Event = sequelize.define('event', {
         allowNull: true,
         defaultValue: [],
         validate: {
+            // TODO: validate for maximum of 3 questions
             isValid(value) {
                 if (!Array.isArray(value)) {
                     throw new Error('Event questions should be an array of strings.');
@@ -370,20 +371,19 @@ const Event = sequelize.define('event', {
         }
     },
     max_participants: {
-        // TODO: min 15 participants
         type: Sequelize.INTEGER,
         allowNull: true,
         defaultValue: null,
         validate: {
             isNumeric: { msg: 'Max amount of participants should be valid.' },
+            // TODO: min 15 participants
             min: { args: [0], msg: 'Max amount of participants cannot be negative' }
         }
     },
     application_status: {
         type: Sequelize.VIRTUAL,
         get() {
-            // TODO: should return'open' if within SU application period or if extended open call is a thing
-            // TODO: think about where extended open call deadline is stored, in this model or in the year?
+            // TODO: should return 'open' if within SU application period or within extended open call
             return 'closed';
         }
     },
@@ -411,6 +411,7 @@ const Event = sequelize.define('event', {
         allowNull: true
     },
     optional_programme: {
+        // TODO: if optional_fee is given, then optional_programme is required
         type: Sequelize.TEXT,
         allowNull: true
     },
@@ -464,19 +465,13 @@ const Event = sequelize.define('event', {
     createdAt: 'created_at',
     updatedAt: 'updated_at',
     validate: {
-        // TODO: first submission complete validation, based on status
-        // TODO: second submission complete validation, based on status
-        // is_budget_set() {
-        //     if (this.status === 'draft') {
+        // TODO: validate that the following fields are filled in properly;
+        // firstSubmissionComplete() {
+        // },
+        // TODO: validate that the following fields are filled in properly;
+        // secondSubmissionComplete() {
+        //     if (!['first_draft', 'first_submission', 'first_approval'].includes(this.status)) {
         //         return;
-        //     }
-
-        //     if (typeof this.budget !== 'string') {
-        //         throw new Error('Budget should be a string when the event status is not "draft".');
-        //     }
-
-        //     if (this.budget.trim().length === 0) {
-        //         throw new Error('Budget cannot be empty when the event status is not "draft".');
         //     }
         // }
     }

@@ -12,11 +12,11 @@ exports.listEvents = async (req, res) => {
     // Get default query obj.
     const defaultQueryObj = helpers.getDefaultQuery(req);
 
-    // Applying custom filter: deleted = false, status === published.
+    // Applying custom filter: deleted = false, published != none.
     const queryObj = merge(defaultQueryObj, {
         where: {
             deleted: false,
-            status: 'published'
+            published: { [Sequelize.Op.not]: 'none' }
         }
     });
 
@@ -72,6 +72,7 @@ exports.addEvent = async (req, res) => {
     const data = req.body;
     delete data.id;
     delete data.deleted;
+    delete data.published;
 
     data.status = 'first submission';
 
@@ -128,7 +129,6 @@ exports.addEvent = async (req, res) => {
     });
 };
 
-// TODO: Should be 3 seperate actions, show_min (after first submission), show (after second submission), show_approval (for SUCT)
 exports.eventDetails = async (req, res) => {
     if (!req.permissions.see_summeruniversity) {
         return errors.makeForbiddenError(res, 'You cannot see this event.');
@@ -140,7 +140,11 @@ exports.eventDetails = async (req, res) => {
     if (!helpers.isOrganizer(event, req.user)
         && !req.permissions.manage_summeruniversity[event.type]
         && !req.permissions.approve_summeruniversity[event.type]) {
-        event = helpers.whitelistObject(event, constants.EVENT_PUBLIC_FIELDS);
+        if (req.event.published === 'full') {
+            event = helpers.whitelistObject(event, constants.EVENT_FULL_FIELDS);
+        } else {
+            event = helpers.whitelistObject(event, constants.EVENT_MINIMAL_FIELDS);
+        }
     }
 
     return res.json({
@@ -163,6 +167,7 @@ exports.editEvent = async (req, res) => {
     delete data.id;
     delete data.status;
     delete data.deleted;
+    delete data.published;
 
     if (Object.keys(data).length === 0) {
         return errors.makeValidationError(res, 'No valid field changes requested');
@@ -283,5 +288,30 @@ exports.setApprovalStatus = async (req, res) => {
     return res.json({
         success: true,
         message: 'Successfully changed approval status',
+    });
+};
+
+exports.setPublished = async (req, res) => {
+    if (!req.permissions.manage_summeruniversity[req.event.type]) {
+        return errors.makeForbiddenError(res, 'You are not allowed to set the publication.');
+    }
+
+    if (!['none', 'minimal', 'full'].includes(req.body.published)) {
+        return errors.makeBadRequestError(res, 'The wanted event publication status is not valid.');
+    }
+
+    if (['first draft', 'first submission'].includes(req.event.status) && req.body.published === 'minimal') {
+        return errors.makeForbiddenError(res, 'This event status does not allow a minimal publication');
+    }
+
+    if (req.event.status !== 'second approval' && req.body.published === 'full') {
+        return errors.makeForbiddenError(res, 'This event status does not allow a full publication');
+    }
+
+    await req.event.update({ published: req.body.published });
+
+    return res.json({
+        success: true,
+        message: 'Successfully changed publication status',
     });
 };

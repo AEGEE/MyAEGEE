@@ -191,13 +191,13 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
     // The event can only be seen to public if it's published and not deleted.
     // Otherwise (if it's deleted, submitted or draft) it should be accessible
     // only to LOs and those who can approve it.
-    permissions.see_summeruniversity = (event.status === 'published' && !event.deleted)
+    permissions.see_summeruniversity = (event.published !== 'none' && !event.deleted)
         || canApproveOrIsOrganizer;
 
     permissions.edit_summeruniversity = (event.status !== 'second approval' && exports.isOrganizer(event, user)) || permissions.manage_summeruniversity[event.type];
     permissions.delete_summeruniversity = permissions.manage_summeruniversity[event.type];
 
-    permissions.apply = event.application_status === 'open' && event.status === 'published';
+    permissions.apply = event.application_status === 'open' && event.published === 'full';
 
     permissions.approve_participants = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
     permissions.set_participants_attended = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
