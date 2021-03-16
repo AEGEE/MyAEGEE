@@ -8,6 +8,9 @@
         <span class="tag" style="background-color: #1468C5; color: #FFFFFF">
           Statutory
         </span>
+        <span class="tag" style="background-color: #00BBD8; color: #FFFFFF">
+          Summer University
+        </span>
         <span class="tag" style="background-color: #898989; color: #FFFFFF">
           Online event
         </span>
@@ -106,7 +109,7 @@ export default {
           title: event.name,
           start: new Date(event.starts),
           end: new Date(event.ends),
-          backgroundColor: this.colors[event.type] || '#1468C5',
+          backgroundColor: this.colors[event.type] || '#00BBD8',
           textColor: '#FFFFFF',
           url: '/summeruniversity/' + (event.url || event.id)
         }))

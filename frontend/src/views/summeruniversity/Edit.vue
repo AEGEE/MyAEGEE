@@ -104,7 +104,7 @@
 
         <timezone-notification />
 
-        <!-- Set by CIA! -->
+        <!-- TODO: start with datePicker on first possible SU start date set by CIA/SUCT -->
         <div class="field">
           <label class="label">Event start date <span class="has-text-danger">*</span></label>
           <div class="control">
@@ -118,7 +118,7 @@
           <p class="help is-danger" v-if="errors.starts">{{ errors.starts.join(', ') }}</p>
         </div>
 
-        <!-- Set by CIA! -->
+        <!-- TODO: start with datePicker on 6 days after first possible SU start date (or set start date) set by CIA/SUCT -->
         <div class="field">
           <label class="label">Event end date <span class="has-text-danger">*</span></label>
           <div class="control">
@@ -131,9 +131,8 @@
           <p class="help is-danger" v-if="errors.ends">{{ errors.ends.join(', ') }}</p>
         </div>
 
-        <!-- Max fee based on event dates, can be overwritten by SUCT -->
-        <!-- If larger than max, show error that exception first needs to be granted by SUCT -->
-        <!-- Maybe have two inputs, one without a maximum for people with the proper permission and one with the dynamic maximum? -->
+        <!-- TODO: If larger than max, show warning that higher fee can only be set by SUCT -->
+        <!-- TODO: Have two inputs, one without a maximum for people with the proper permission and one with the maximum based on duration (max 14 euros per night) -->
         <div class="field">
           <label class="label">Fee <span class="has-text-danger">*</span></label>
           <div class="control">
@@ -351,7 +350,7 @@
         </div>
         <p class="help is-danger" v-if="errors.social_media">{{ errors.social_media.message }}</p>
 
-        <!-- add ability to upload up to 6 photos (upload after saving) -->
+        <!-- TODO: add ability to upload up to 6 photos (upload after saving) -->
         <div class="field">
           <div class="notification is-warning">
             <div class="content">
@@ -410,7 +409,6 @@
           <a class="tag is-danger is-medium" v-if="event.organizing_bodies.length === 0">No organizing bodies.</a>
         </div>
 
-        <!-- restrict bodies to antenna/CA/contacts -->
         <div class="field">
           <label class="label">Add organizing body</label>
           <div class="control">
@@ -450,7 +448,6 @@
           <a class="tag is-danger is-medium" v-if="event.cooperation.length === 0">No cooperation with bodies.</a>
         </div>
 
-        <!-- restrict bodies to non-locals -->
         <div class="field">
           <label class="label">Add cooperation</label>
           <div class="control">
@@ -497,7 +494,6 @@
                 </router-link>
               </b-table-column>
 
-              <!-- Make smart based on # of organizing bodies -->
               <b-table-column field="role" label="Role">
                 <div class="select">
                   <select v-model="props.row.role">
@@ -764,6 +760,7 @@ import TimezoneNotification from '../../components/notifications/TimezoneNotific
 import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
 import URLTooltip from '../../components/tooltips/URLTooltip'
 
+// TODO: check that all unused code is removed
 export default {
   components: {
     MglMap,

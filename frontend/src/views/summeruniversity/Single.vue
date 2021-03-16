@@ -11,6 +11,13 @@
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info">
+          <div class="field is-grouped">
+            <a :href="`mailto:${event.email}`" class="button is-fullwidth">
+              <span>Mail organizers</span>
+              <span class="icon"><font-awesome-icon icon="envelope" /></span>
+            </a>
+          </div>
+
           <div class="field is-grouped" v-if="can.edit_summeruniversity">
             <router-link v-if="can.approve_summeruniversity[event.type] || event.status === 'first draft' || event.status === 'first submission'" :to="{ name: 'oms.summeruniversity.edit', params: { id: event.url || event.id } }" class="button is-fullwidth is-warning">
               <span>Edit event</span>
@@ -38,10 +45,10 @@
             </a>
           </div>
 
-          <!-- For SUCT: submit first approval (first approval -> second submission) -->
+          <!-- For SUCT & LOs: submit first approval (first approval -> second submission) -->
           <div class="field is-grouped" v-if="can.change_status.second_submission && event.status === 'first approval'">
             <a class="button is-fullwidth is-warning" @click="askChangeStatus('second submission')">
-              <span>Submit second draft</span>
+              <span>Submit event for second approval</span>
               <span class="icon"><font-awesome-icon icon="sign-in-alt" /></span>
             </a>
           </div>
@@ -78,6 +85,30 @@
             </a>
           </div>
 
+          <!-- For SUCT: publish minimal event -->
+          <div class="field is-grouped" v-if="can.manage_summeruniversity[event.type] && event.published === 'none'">
+            <a class="button is-fullwidth is-info" @click="askChangePublication('minimal')">
+              <span>Publish minimal event</span>
+              <span class="icon"><font-awesome-icon icon="globe" /></span>
+            </a>
+          </div>
+
+          <!-- For SUCT: publish full event -->
+          <div class="field is-grouped" v-if="can.manage_summeruniversity[event.type] && event.published === 'minimal'">
+            <a class="button is-fullwidth is-info" @click="askChangePublication('full')">
+              <span>Publish full event</span>
+              <span class="icon"><font-awesome-icon icon="globe" /></span>
+            </a>
+          </div>
+
+          <!-- For SUCT: unpublish event -->
+          <div class="field is-grouped" v-if="can.manage_summeruniversity[event.type] && event.published !== 'none'">
+            <a class="button is-fullwidth is-danger" @click="askChangePublication('none')">
+              <span>Unpublish event</span>
+              <span class="icon"><font-awesome-icon icon="pen" /></span>
+            </a>
+          </div>
+
           <div class="field is-grouped" v-if="can.delete_summeruniversity">
             <a class="button is-fullwidth is-danger" @click="askDeleteEvent()">
               <span>Delete event</span>
@@ -106,6 +137,18 @@
                   </td>
                 </tr>
                 <tr>
+                  <th>Event type</th>
+                  <td>{{ eventTypes[event.type] }}</td>
+                </tr>
+                <tr>
+                  <th>Theme category</th>
+                  <td>{{ themeCategories[event.theme_category] }}</td>
+                </tr>
+                <tr>
+                  <th>Theme</th>
+                  <td>{{ event.theme }}</td>
+                </tr>
+                <tr>
                   <th>Max. participants</th>
                   <td>{{ event.max_participants }}</td>
                 </tr>
@@ -114,8 +157,16 @@
                   <td>{{ event.starts | datetime }}</td>
                 </tr>
                 <tr>
+                  <th>Starts in</th>
+                  <td>{{ event.start_city }}</td>
+                </tr>
+                <tr>
                   <th>Ends <timezone-tooltip /></th>
                   <td>{{ event.ends | datetime }}</td>
+                </tr>
+                <tr>
+                  <th>Ends in</th>
+                  <td>{{ event.end_city }}</td>
                 </tr>
                 <tr>
                   <th>Fee</th>
@@ -123,7 +174,7 @@
                   <td v-if="!event.fee"><i>Free</i></td>
                 </tr>
                 <tr v-if="event.optional_fee">
-                  <th>Optional Fee</th>
+                  <th>Optional fee</th>
                   <td>€{{ event.optional_fee }}</td>
                 </tr>
                 <tr v-if="event.optional_programme">
@@ -134,7 +185,7 @@
                   <th>Accommodation type</th>
                   <td>{{ event.accommodation_type }}</td>
                 </tr>
-                <tr v-if="can.approve_summeruniversity">
+                <tr v-if="can.approve_summeruniversity[event.type]">
                   <th>Status</th>
                   <td>{{ event.status | capitalize }}</td>
                 </tr>
@@ -153,7 +204,7 @@
               </tbody>
             </table>
 
-            <table class="table is-narrow" v-if="event.budget || event.programme">
+            <table class="table is-narrow" v-if="event.budget || event.programme_suct">
               <tbody>
                 <tr>
                   <th>Budget link</th>
@@ -171,7 +222,7 @@
             </table>
           </div>
 
-          <div class="notification is-info" v-if="event.status !== 'published'">
+          <div class="notification is-info" v-if="event.published === 'none'">
             <p><strong>This event is visible to SUCT and organizers only because it's not published yet.</strong></p>
             <p>Once the event will be published, others would be able to access it.</p>
           </div>
@@ -232,7 +283,6 @@ export default {
         organizers: [],
         organizing_bodies: [],
         locations: [],
-        circles: [],
         starts: null,
         ends: null,
         head_image: null,
@@ -242,6 +292,7 @@ export default {
         accommodation_type: ''
       },
       eventTypes: constants.SUMMERUNIVERSITY_TYPES_NAMES,
+      themeCategories: constants.SUMMERUNIVERSITY_THEMES_NAMES,
       accessToken: '',
       map: {
         actions: null,
@@ -253,6 +304,10 @@ export default {
       can: {
         edit_summeruniversity: false,
         approve_summeruniversity: {
+          pilot: false,
+          regular: false
+        },
+        manage_summeruniversity: {
           pilot: false,
           regular: false
         },
@@ -314,6 +369,34 @@ export default {
         this.$root.showError('Could not change event status', err)
       })
     },
+    askChangePublication (newPublication) {
+      this.$buefy.dialog.confirm({
+        title: 'Change status',
+        message: `Are you sure you want to <b>change this event publication to "${newPublication}"</b>?`,
+        confirmText: 'Change publication',
+        type: 'is-warning',
+        hasIcon: true,
+        onConfirm: () => this.changePublication(newPublication)
+      })
+    },
+    changePublication (newPublication) {
+      this.isLoading = true
+      const body = { published: newPublication }
+
+      this.axios.put(this.services['summeruniversity'] + '/single/' + this.event.id + '/published', body).then(() => {
+        this.$root.showInfo(`Event publication is now ${newPublication}`)
+
+        // Refetching the event to renew the permissions.
+        return this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id)
+      }).then((response) => {
+        this.event = response.data.data
+        this.can = response.data.permissions
+        this.isLoading = false
+      }).catch((err) => {
+        this.isLoading = false
+        this.$root.showError('Could not change event publication', err)
+      })
+    },
     onMapLoaded (event) {
       this.map.actions = event.component.actions
 
@@ -345,6 +428,9 @@ export default {
     this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id).then((response) => {
       this.event = response.data.data
       this.can = response.data.permissions
+
+      this.event.start_city = this.event.locations.find(location => location.start === true).name
+      this.event.end_city = this.event.locations.find(location => location.end === true).name
 
       this.isLoading = false
 

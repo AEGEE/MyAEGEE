@@ -20,7 +20,7 @@
               </router-link>
             </b-table-column>
 
-            <b-table-column field="description" label="Description">
+            <b-table-column field="organizing_bodies" label="Organizing bodies">
               <ul>
                 <li v-for="body in props.row.organizing_bodies" v-bind:key="body._id">
                   <router-link class="tag" :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }">

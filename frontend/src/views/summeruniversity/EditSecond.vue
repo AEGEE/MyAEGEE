@@ -42,20 +42,6 @@
         <div class="subtitle is-fullwidth has-text-centered">Event details</div>
         <hr />
 
-        <!-- TODO wait for Wouter to confirm what to do with this -->
-        <div class="field">
-          <label class="label">Description <span class="has-text-danger">*</span></label>
-          <div class="control">
-            <textarea class="textarea" placeholder="1-2 sentence long catchy description to be shown on the website before the second submission has been accepted" required v-model="event.description"></textarea>
-          </div>
-          <label class="label">Preview <MarkdownTooltip/></label>
-          <div class="content">
-            <span v-html="$options.filters.markdown(event.description)" />
-          </div>
-          <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ') }}</p>
-        </div>
-
-        <!-- Possibly open to everybody, but then some info is needed (SUCT will discuss) -->
         <div class="field" v-if="can.editEventType">
           <label class="label">Event type <span class="has-text-danger">*</span></label>
           <div class="select">
@@ -150,7 +136,6 @@
         </div>
         <p class="help is-danger" v-if="errors.social_media">{{ errors.social_media.message }}</p>
 
-        <!-- add ability to upload up to 6 photos (upload after saving) -->
         <div class="field">
           <div class="notification is-warning">
             <div class="content">
@@ -223,7 +208,6 @@
                 </router-link>
               </b-table-column>
 
-              <!-- Make smart based on # of organizing bodies -->
               <b-table-column field="role" label="Role">
                 <div class="select">
                   <select v-model="props.row.role">
@@ -464,7 +448,6 @@ import { mapGetters } from 'vuex'
 import { MglMap, MglMarker, MglNavigationControl } from 'vue-mapbox'
 import constants from '../../constants'
 import credentials from '../../credentials'
-import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
 import URLTooltip from '../../components/tooltips/URLTooltip'
 
 export default {
@@ -472,7 +455,6 @@ export default {
     MglMap,
     MglMarker,
     MglNavigationControl,
-    MarkdownTooltip,
     URLTooltip
   },
   name: 'EditEvent',
