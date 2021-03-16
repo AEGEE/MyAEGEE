@@ -352,7 +352,16 @@ export default {
         return
       }
 
-      this.map.actions.fitBounds(this.event.locations.map(location => location.position), { padding: 50 })
+      const minCoords = {
+        lat: Math.min(...this.event.locations.map(location => location.position.lat)),
+        lng: Math.min(...this.event.locations.map(location => location.position.lng))
+      }
+      const maxCoords = {
+        lat: Math.max(...this.event.locations.map(location => location.position.lat)),
+        lng: Math.max(...this.event.locations.map(location => location.position.lng))
+      }
+
+      this.map.actions.fitBounds([minCoords, maxCoords], { padding: 50 })
     }
   },
   mounted () {
