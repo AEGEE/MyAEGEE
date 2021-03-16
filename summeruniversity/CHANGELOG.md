@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/AEGEE/summeruniversity/compare/1.1.2...1.1.3) (2021-03-16)
+
+
+### Bug Fixes
+
+* **event:** add validation TODO and publication flow ([#48](https://github.com/AEGEE/summeruniversity/issues/48)) ([2507cde](https://github.com/AEGEE/summeruniversity/commit/2507cdebc9d3301a2fc1f415747b3cc7359f93b3))
+
 ## [1.1.2](https://github.com/AEGEE/summeruniversity/compare/1.1.1...1.1.2) (2021-03-02)
 
 
