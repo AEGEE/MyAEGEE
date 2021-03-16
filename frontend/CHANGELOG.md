@@ -1,3 +1,10 @@
+# [1.26.0](https://github.com/AEGEE/frontend/compare/1.25.1...1.26.0) (2021-03-16)
+
+
+### Features
+
+* **su:** add validation TODOs and event publication ([#912](https://github.com/AEGEE/frontend/issues/912)) ([c3f9498](https://github.com/AEGEE/frontend/commit/c3f94984054a2c013ab26dacebd1526bbc17df35))
+
 ## [1.25.1](https://github.com/AEGEE/frontend/compare/1.25.0...1.25.1) (2021-03-15)
 
 
