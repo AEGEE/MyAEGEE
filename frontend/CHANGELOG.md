@@ -1,3 +1,10 @@
+## [1.26.1](https://github.com/AEGEE/frontend/compare/1.26.0...1.26.1) (2021-03-16)
+
+
+### Bug Fixes
+
+* **map:** define bounds for more than 2 locations ([#904](https://github.com/AEGEE/frontend/issues/904)) ([0d28fca](https://github.com/AEGEE/frontend/commit/0d28fcaa2a3e5a9da6a0333b0b145ef94eb4ba57))
+
 # [1.26.0](https://github.com/AEGEE/frontend/compare/1.25.1...1.26.0) (2021-03-16)
 
 
