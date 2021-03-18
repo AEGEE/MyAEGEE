@@ -78,19 +78,14 @@ export default {
         canCancel: '[escape, outside]'
       })
     },
-    fetchEvents (arg) {
+    fetchEvents () {
       this.isLoading = true
-
-      const startDate = moment(arg.start).subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
-      const endDate = moment(arg.end).add(1, 'month').endOf('month').format('YYYY-MM-DD')
-
-      const query = { params: { starts: startDate, ends: endDate } }
 
       const onlineEventsUrl = '/services/calendar-cors/calendar/ical/'
         + 'aegee.eu_v5mn651imeqpvs87v4ln7hr1f4@group.calendar.google.com' // ID of the online calendar
         + '/public/basic.ics'
 
-      const eventsPromise = this.axios.get(this.services['events'], query).then((result) => {
+      const eventsPromise = this.axios.get(this.services['events']).then((result) => {
         return result.data.data.map((event) => ({
           title: event.name,
           start: new Date(event.starts),
@@ -104,7 +99,7 @@ export default {
         return []
       })
 
-      const summeruniversityPromise = this.axios.get(this.services['summeruniversity'], query).then((result) => {
+      const summeruniversityPromise = this.axios.get(this.services['summeruniversity']).then((result) => {
         return result.data.data.map((event) => ({
           title: event.name,
           start: new Date(event.starts),
@@ -118,7 +113,7 @@ export default {
         return []
       })
 
-      const statutoryPromise = this.axios.get(this.services['statutory'], query).then((result) => {
+      const statutoryPromise = this.axios.get(this.services['statutory']).then((result) => {
         return result.data.data.map((event) => ({
           title: event.name,
           start: new Date(event.starts),
