@@ -38,6 +38,10 @@
               {{ props.row.status | capitalize }}
             </b-table-column>
 
+            <b-table-column field="published" label="Current publication" sortable>
+              {{ props.row.published | capitalize }}
+            </b-table-column>
+
             <b-table-column field="status" label="Change status" sortable>
               <div class="buttons">
                 <button
@@ -84,6 +88,29 @@
                 </button>
               </div>
             </b-table-column>
+
+            <b-table-column field="published" label="Change publication" sortable>
+              <div class="buttons">
+                <button
+                  v-if="props.row.published === 'none'"
+                  class="button is-small is-info"
+                  @click="changePublication(props.row, 'minimal')">
+                  Publish minimal event
+                </button>
+                <button
+                  v-if="props.row.published === 'minimal'"
+                  class="button is-small is-info"
+                  @click="changePublication(props.row, 'full')">
+                  Publish full event
+                </button>
+                <button
+                  v-if="props.row.published !== 'none'"
+                  class="button is-small is-danger"
+                  @click="changePublication(props.row, 'none')">
+                  Unpublish event
+                </button>
+              </div>
+            </b-table-column>
           </template>
 
           <template slot="empty">
@@ -120,6 +147,17 @@ export default {
         event.status = newStatus
       }).catch((err) => {
         this.$root.showError('Could not update event status', err)
+      })
+    },
+    changePublication (event, newPublication) {
+      this.axios.put(this.services['summeruniversity'] + '/single/' + event.id + '/published', {
+        published: newPublication
+      }).then(() => {
+        this.$root.showSuccess(`Event publication is now "${newPublication}".`)
+
+        event.published = newPublication
+      }).catch((err) => {
+        this.$root.showError('Could not update event publication', err)
       })
     },
     fetchData () {

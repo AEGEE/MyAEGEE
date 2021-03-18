@@ -158,7 +158,8 @@
                 </tr>
                 <tr>
                   <th>Starts in</th>
-                  <td>{{ event.start_city }}</td>
+                  <td v-if="event.startLocation">{{ event.startLocation }}</td>
+                  <td v-if="!event.startLocation"><i>Not specified</i></td>
                 </tr>
                 <tr>
                   <th>Ends <timezone-tooltip /></th>
@@ -166,7 +167,8 @@
                 </tr>
                 <tr>
                   <th>Ends in</th>
-                  <td>{{ event.end_city }}</td>
+                  <td v-if="event.endLocation">{{ event.endLocation }}</td>
+                  <td v-if="!event.endLocation"><i>Not specified</i></td>
                 </tr>
                 <tr>
                   <th>Fee</th>
@@ -188,6 +190,10 @@
                 <tr v-if="can.approve_summeruniversity[event.type]">
                   <th>Status</th>
                   <td>{{ event.status | capitalize }}</td>
+                </tr>
+                <tr v-if="can.manage_summeruniversity[event.type]">
+                  <th>Publication status</th>
+                  <td>{{ event.published | capitalize }}</td>
                 </tr>
                 <tr>
                   <th>Organizing bodies</th>
@@ -438,8 +444,14 @@ export default {
       this.event = response.data.data
       this.can = response.data.permissions
 
-      this.event.start_city = this.event.locations.find(location => location.start === true).name
-      this.event.end_city = this.event.locations.find(location => location.end === true).name
+      const startLocation = this.event.locations.find(location => location.start === true)
+      if (startLocation) {
+        this.event.startLocation = startLocation.name
+      }
+      const endLocation = this.event.locations.find(location => location.end === true)
+      if (endLocation) {
+        this.event.endLocation = endLocation.name
+      }
 
       this.isLoading = false
 

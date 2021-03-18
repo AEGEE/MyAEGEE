@@ -118,7 +118,6 @@
   },
   {
     "categoryName": "Summer University",
-    "auth": "logged-in",
     "components": [
       {
         "label": "Events admin",
