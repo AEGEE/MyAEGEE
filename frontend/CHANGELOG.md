@@ -1,3 +1,10 @@
+## [1.26.3](https://github.com/AEGEE/frontend/compare/1.26.2...1.26.3) (2021-03-18)
+
+
+### Bug Fixes
+
+* **calendar:** fetch all events ([#914](https://github.com/AEGEE/frontend/issues/914)) ([01ddae8](https://github.com/AEGEE/frontend/commit/01ddae8467ecdd7448eb2df4d5f95aa96ea3dcdc))
+
 ## [1.26.2](https://github.com/AEGEE/frontend/compare/1.26.1...1.26.2) (2021-03-18)
 
 
