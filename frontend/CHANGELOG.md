@@ -1,3 +1,10 @@
+## [1.26.2](https://github.com/AEGEE/frontend/compare/1.26.1...1.26.2) (2021-03-18)
+
+
+### Bug Fixes
+
+* **su:** fix bug with location name ([#915](https://github.com/AEGEE/frontend/issues/915)) ([0373140](https://github.com/AEGEE/frontend/commit/0373140c2d0fde6a309ef768379535046190eec3))
+
 ## [1.26.1](https://github.com/AEGEE/frontend/compare/1.26.0...1.26.1) (2021-03-16)
 
 
