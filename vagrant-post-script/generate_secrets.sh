@@ -3,7 +3,7 @@
 CURDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 ## Create secrets
-echo -e "[MyAEGEE] Creating random secrets if not existing"
+echo -e "[MyAEGEE] Creating *very* random secrets if not existing"
 
 ## Create a new random jwt key
 if ! [[ -f "${CURDIR}/../secrets/jwt_key" ]]; then

@@ -48,6 +48,7 @@ bump_nocommit ()
 # FIRST DEPLOYMENT
 init_boot ()
 {
+  if [[ ! -f .init ]]; then
     #always check if the repo is "complete"
     git submodule update --init
 
@@ -70,6 +71,10 @@ init_boot ()
     echo "  init cachet files (oms-status/docker/setup.sh)"
     echo "  init grafana config with the slack token (vim monitor/docker/config/gf-provisioning/notifiers/conf.yml)"
     echo "  init prometheus scraping config with the basic auth (vim monitor/docker/config/prometheus.yml)"
+    touch .init
+  else
+    echo "already initialised"
+  fi
 }
 
 # change passwords (calls an external script)
@@ -152,9 +157,7 @@ function retry {
 # HUMAN INTERVENTION NEEDED: register in .env your services
 ## Export all environment variables from .env to this script in case we need them some time
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-if [ ! -f "${DIR}"/.env ]; then #check if it exists, if not take the example
-    cp "${DIR}"/.env.example "${DIR}"/.env
-fi
+
 # https://stackoverflow.com/questions/19331497/set-environment-variables-from-file-of-key-value-pairs
 # shellcheck disable=SC2046
 export $(grep -v '^#' "${DIR}/.env" | xargs -d '\n')

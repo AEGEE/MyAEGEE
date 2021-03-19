@@ -19,7 +19,9 @@ done
 
 check_etc_hosts () {
   # shellcheck disable=SC2143
-  if [[ ! $(grep -q 'traefik' /etc/hosts) ]]; then
+  if grep -q 'traefik' /etc/hosts ; then
+    echo 'host file already good!'
+  else
     echo 'modifying the hosts file'
     # shellcheck disable=SC2016
     sudo bash -c 'echo "$1" "$2" "portainer.$2" "my.$2" "traefik.$2" "pgadmin.$2" >> /etc/hosts' -- "${1}" "${2}"
@@ -36,6 +38,7 @@ if ( $reset ); then
   echo
   sed '/AEGEE_LOGO_B64/d' "${DIR}/.env"
   rm "${DIR}/.env"
+  rm "${DIR}/.init"
   echo
   echo "MORE CAREFUL! you are deleting your development machine"
   echo
