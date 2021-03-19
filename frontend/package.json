@@ -35,7 +35,7 @@
     "@fullcalendar/daygrid": "5.5.0",
     "@fullcalendar/vue": "5.5.0",
     "@gfx/zopfli": "1.0.15",
-    "@vue/cli-plugin-babel": "4.5.11",
+    "@vue/cli-plugin-babel": "4.5.12",
     "@vue/cli-plugin-router": "4.5.11",
     "@vue/cli-plugin-vuex": "4.5.11",
     "@vue/cli-service": "4.5.11",
