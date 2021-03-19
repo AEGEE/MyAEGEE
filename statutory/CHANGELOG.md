@@ -1,3 +1,10 @@
+## [1.6.10](https://github.com/AEGEE/statutory/compare/1.6.9...1.6.10) (2021-03-19)
+
+
+### Bug Fixes
+
+* **docker:** fix hadolint ([#518](https://github.com/AEGEE/statutory/issues/518)) ([3b5e2db](https://github.com/AEGEE/statutory/commit/3b5e2dbb4444e03bc98cdd2a97b5a5c32cb6979a))
+
 ## [1.6.9](https://github.com/AEGEE/statutory/compare/1.6.8...1.6.9) (2021-03-13)
 
 
