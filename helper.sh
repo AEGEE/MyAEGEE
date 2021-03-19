@@ -72,6 +72,8 @@ init_boot ()
     echo "  init grafana config with the slack token (vim monitor/docker/config/gf-provisioning/notifiers/conf.yml)"
     echo "  init prometheus scraping config with the basic auth (vim monitor/docker/config/prometheus.yml)"
     touch .init
+  else
+    echo "already initialised"
   fi
 }
 
