@@ -22,15 +22,16 @@ Vagrant.configure("2") do |config|
   config.vm.network :forwarded_port, guest: 80, host: 8888, id: "main"
 
 
-  #make it work also for windows
+  #make it work also when windows messes up the line ending
   config.vm.provision "shell", inline: "apt-get install dos2unix -qq -y; cd /vagrant && dos2unix *.sh; dos2unix vagrant-post-script/*.sh"
-
-  #nice-to-have prompt and completion
-  config.vm.provision "shell", inline: "dos2unix /vagrant/vagrant-post-script/bashrc; cat /vagrant/vagrant-post-script/bashrc > /home/vagrant/.bashrc"
 
   #install docker and docker-composer the easy way
   config.vm.provision "shell", path: "vagrant-post-script/install_docker.sh"
   config.vm.provision "shell", path: "vagrant-post-script/install_docker_composer.sh"
+  config.vm.provision "shell", path: "vagrant-post-script/install_other_utils.sh"
+
+  #nice-to-have prompt and completion
+  config.vm.provision "shell", inline: "dos2unix /vagrant/vagrant-post-script/bashrc; cat /vagrant/vagrant-post-script/bashrc > /home/vagrant/.bashrc"
 
   #provision docker orchestration (set to always run)
   config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh", run: "always"
