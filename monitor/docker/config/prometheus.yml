@@ -215,7 +215,7 @@ scrape_configs:
     scrape_interval: 10s
     metrics_path: '/api/summeruniversity/metrics/requests'
 
-    - job_name: 'knowledge-statistics'
+  - job_name: 'knowledge-statistics'
     static_configs:
       - targets: ['my.aegee.eu']
     basic_auth:
