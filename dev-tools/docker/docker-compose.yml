@@ -62,7 +62,7 @@ services:
   swagger:
     image: swaggerapi/swagger-ui:v3.28.0
     environment:
-      #API_URL: http://events/api-docs.json
+      # API_URL: http://events/api-docs.json
       URLS: "[{url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/core/api-docs.json\", \
               name: \"core\"}, \
               {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/events/api-docs.json\", \
@@ -73,6 +73,10 @@ services:
               name: \"discounts\"}, \
               {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/network/api-docs.json\", \
               name: \"network\"}, \
+              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/summeruniversity/api-docs.json\", \
+              name: \"summeruniversity\"}, \
+              {url: \"http://${SUBDOMAIN_FRONTEND}${BASE_URL}/api/knowledge/api-docs.json\", \
+              name: \"knowledge\"}, \
               ]"
     labels:
       - traefik.enable=true
