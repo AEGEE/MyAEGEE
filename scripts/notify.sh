@@ -13,11 +13,11 @@ SCRIPT_DIR=$(dirname "${0}")
 # - telegram
 
 function slack_notifier(){
-  SLACK_WEBHOOK_URL=$(jq .slack "${SCRIPT_DIR}"/../secrets/tokens.json)
+  SLACK_WEBHOOK_URL=$(jq .slack "${SCRIPT_DIR}"/../secrets/tokens.json | tr -d '"' )
 
   PICTURE="\"icon_emoji\": \":shipit:\""
   SLACK_USERNAME="Backup notifier"
-cat <<EOF > /tmp/attachment.txt
+  cat <<EOF > /tmp/attachment.txt
 {
   "color": "#37FDFC",
   "author_name": "Host: $(hostname)",
