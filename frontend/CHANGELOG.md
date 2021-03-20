@@ -1,3 +1,10 @@
+## [1.26.4](https://github.com/AEGEE/frontend/compare/1.26.3...1.26.4) (2021-03-20)
+
+
+### Bug Fixes
+
+* **general:** open router link in new tab. Fixes MA-185 ([#929](https://github.com/AEGEE/frontend/issues/929)) ([70e94cd](https://github.com/AEGEE/frontend/commit/70e94cdfce775cb0de097fe086e049e45905bd4a))
+
 ## [1.26.3](https://github.com/AEGEE/frontend/compare/1.26.2...1.26.3) (2021-03-18)
 
 
