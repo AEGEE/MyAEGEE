@@ -24,7 +24,7 @@ check_etc_hosts () {
   else
     echo 'modifying the hosts file'
     # shellcheck disable=SC2016
-    sudo bash -c 'echo "$1" "$2" "portainer.$2" "my.$2" "traefik.$2" "pgadmin.$2" >> /etc/hosts' -- "${1}" "${2}"
+    sudo bash -c 'echo "$1" "$2" "portainer.$2" "my.$2" "traefik.$2" "pgadmin.$2" "apidocs.$2" >> /etc/hosts' -- "${1}" "${2}"
   fi
 }
 

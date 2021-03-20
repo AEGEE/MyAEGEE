@@ -55,5 +55,8 @@ export PS1="\[\e[41m\]\`nonzero_return\`\[\e[m\] \[\e[32m\]\h\[\e[m\][\[\e[36m\]
 bind 'set show-all-if-ambiguous on'
 bind 'TAB:menu-complete'
 
+#utils
+alias dry='docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=$DOCKER_HOST moncho/dry'
+
 #start session on the right folder for the job
 cd /vagrant
