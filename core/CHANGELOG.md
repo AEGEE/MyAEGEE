@@ -1,3 +1,10 @@
+# [1.33.0](https://github.com/AEGEE/core/compare/1.32.1...1.33.0) (2021-03-20)
+
+
+### Features
+
+* sync script for gsuite-myaegee ([#188](https://github.com/AEGEE/core/issues/188)) ([1cba493](https://github.com/AEGEE/core/commit/1cba493edc17066946f99ce861ffd68ed089f4e3))
+
 ## [1.32.1](https://github.com/AEGEE/core/compare/1.32.0...1.32.1) (2021-03-15)
 
 
