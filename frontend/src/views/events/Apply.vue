@@ -112,7 +112,7 @@
             <div class="tile is-child">
               <p>
                 <b>You applied from this body:</b>
-                <router-link :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
+                <router-link target="_blank" :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
                   {{ application.body ? application.body.name : 'Loading...' }}
                 </router-link>
               </p>

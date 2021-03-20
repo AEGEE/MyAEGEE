@@ -29,10 +29,10 @@
                     <li v-for="(error, index) in errors.body_id" v-bind:key="index">{{ error }}</li>
                   </ul>
                   <ul v-if="errors.gender">
-                    <li>Please set the gender in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank'>your profile.</router-link></li>
+                    <li>Please set the gender in <router-link target="_blank" :to="{ name: 'oms.members.view', params: { id: 'me' } }">your profile.</router-link></li>
                   </ul>
                   <ul v-if="errors.date_of_birth">
-                    <li>Please set the date of birth in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank'>your profile.</router-link></li>
+                    <li>Please set the date of birth in <router-link target="_blank" :to="{ name: 'oms.members.view', params: { id: 'me' } }">your profile.</router-link></li>
                   </ul>
                 </div>
               </div>

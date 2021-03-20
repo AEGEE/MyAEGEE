@@ -107,7 +107,7 @@
               <tr v-for="(member, index) in memberslist.members" v-bind:key="index">
                 <td>{{ index + 1 }}</td>
                 <td>
-                  <router-link v-if="member.user_id" :to="{ name: 'oms.members.view', params: { id: member.user_id } }">
+                  <router-link target="_blank" v-if="member.user_id" :to="{ name: 'oms.members.view', params: { id: member.user_id } }">
                     {{ member.user_id }}
                   </router-link>
                   <span v-if="!member.user_id">-</span>

@@ -308,7 +308,7 @@
             :loading="isLoading">
             <template slot-scope="props">
                <b-table-column field="first_name" label="First and last name" sortable>
-                <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
+                <router-link target="_blank" :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
                   {{ props.row.first_name }} {{ props.row.last_name }}
                 </router-link>
               </b-table-column>

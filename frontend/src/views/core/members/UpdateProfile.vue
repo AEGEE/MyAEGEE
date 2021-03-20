@@ -52,7 +52,7 @@
 
         <div class="field" v-if="validationErrors.privacy">
           <label class="label">
-            I agree to the <router-link :to="{ name: 'oms.confluence', params: { page_id: 'terms-of-service' } }">Privacy Policy</router-link>
+            I agree to the <router-link target="_blank" :to="{ name: 'oms.confluence', params: { page_id: 'terms-of-service' } }">Privacy Policy</router-link>
             <input type="checkbox" class="checkbox" id="checkbox" v-model="agreedToPrivacyPolicy">
           </label>
         </div>
