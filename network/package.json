@@ -64,7 +64,7 @@
     "bunyan": "^1.8.15",
     "deep-assign": "^3.0.0",
     "express": "^4.17.1",
-    "express-promise-router": "^4.0.1",
+    "express-promise-router": "^4.1.0",
     "joi": "^17.4.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
