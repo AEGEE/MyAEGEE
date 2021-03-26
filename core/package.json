@@ -76,7 +76,7 @@
     "bunyan": "^1.8.15",
     "eslint": "^7.22.0",
     "express": "^4.17.1",
-    "express-promise-router": "^4.0.1",
+    "express-promise-router": "^4.1.0",
     "express-query-boolean": "^2.0.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
