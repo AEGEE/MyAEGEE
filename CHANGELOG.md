@@ -1,3 +1,10 @@
+## [1.33.1](https://github.com/AEGEE/core/compare/1.33.0...1.33.1) (2021-03-29)
+
+
+### Bug Fixes
+
+* **deps:** bump node-cron from 2.0.3 to 3.0.0 ([#258](https://github.com/AEGEE/core/issues/258)) ([48d6fef](https://github.com/AEGEE/core/commit/48d6fefa8794eac23f49a583a1737624b52ea873))
+
 # [1.33.0](https://github.com/AEGEE/core/compare/1.32.1...1.33.0) (2021-03-20)
 
 
