@@ -65,18 +65,30 @@ export default {
   },
   methods: {
     eventClick (info) {
-      if (info.event.url) {
-        return
-      }
-
       info.jsEvent.preventDefault() // don't let the browser navigate
-      this.$buefy.dialog.alert({
-        title: info.event.title,
-        message: '<strong>Starts: </strong>' + moment(info.event.start).format('D MMMM Y H:mm')
-          + '</br><strong>Ends: </strong>' + moment(info.event.end).format('D MMMM Y H:mm')
-          + '<hr>' + info.event.extendedProps.description,
-        canCancel: '[escape, outside]'
-      })
+
+      if (info.event.url !== '') { // If the event has a non-empty link field
+        this.$buefy.dialog.confirm({
+          title: info.event.title,
+          message: '<strong>Starts: </strong>' + moment(info.event.start).format('D MMMM Y H:mm')
+            + '</br><strong>Ends: </strong>' + moment(info.event.end).format('D MMMM Y H:mm')
+            + '<hr>' + info.event.extendedProps.description,
+          canCancel: '[escape, button, outside]',
+          confirmText: 'Event page',
+          type: 'is-info',
+          onConfirm: () => window.open(info.event.url, '_self')
+        })
+      } else { // If there is no link
+        this.$buefy.dialog.alert({
+          title: info.event.title,
+          message: '<strong>Starts: </strong>' + moment(info.event.start).format('D MMMM Y H:mm')
+            + '</br><strong>Ends: </strong>' + moment(info.event.end).format('D MMMM Y H:mm')
+            + '<hr>' + info.event.extendedProps.description,
+          canCancel: '[escape, outside]',
+          confirmText: 'Cancel',
+          type: 'is-light'
+        })
+      }
     },
     fetchEvents () {
       this.isLoading = true
@@ -92,7 +104,8 @@ export default {
           end: new Date(event.ends),
           backgroundColor: this.colors[event.type] || '#1468C5',
           textColor: '#FFFFFF',
-          url: '/events/' + (event.url || event.id)
+          url: '/events/' + (event.url || event.id),
+          description: event.description
         }))
       }).catch((err) => {
         this.$root.showError('Could not load events list', err)
@@ -106,7 +119,8 @@ export default {
           end: new Date(event.ends),
           backgroundColor: this.colors[event.type] || '#00BBD8',
           textColor: '#FFFFFF',
-          url: '/summeruniversity/' + (event.url || event.id)
+          url: '/summeruniversity/' + (event.url || event.id),
+          description: event.description
         }))
       }).catch((err) => {
         this.$root.showError('Could not load events list', err)
@@ -120,7 +134,8 @@ export default {
           end: new Date(event.ends),
           backgroundColor: '#1468C5',
           textColor: '#FFFFFF',
-          url: '/statutory/' + (event.url || event.id)
+          url: '/statutory/' + (event.url || event.id),
+          description: event.description
         }))
       }).catch((err) => {
         this.$root.showError('Could not load statutory events list', err)
