@@ -1,3 +1,10 @@
+## [1.27.1](https://github.com/AEGEE/frontend/compare/1.27.0...1.27.1) (2021-03-31)
+
+
+### Bug Fixes
+
+* **calendar:** add dialog for native MyAEGEE events. Fixes MA-85 ([#931](https://github.com/AEGEE/frontend/issues/931)) ([7b0982c](https://github.com/AEGEE/frontend/commit/7b0982cf95f86c79d0480de8282a9b6e4c290e11))
+
 # [1.27.0](https://github.com/AEGEE/frontend/compare/1.26.4...1.27.0) (2021-03-31)
 
 
