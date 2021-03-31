@@ -79,6 +79,8 @@ GeneralRouter.get('/bodies', bodies.listAllBodies);
 GeneralRouter.get('/my_permissions', middlewares.ensureAuthorized, myPermissions.getMyPermissions);
 GeneralRouter.post('/my_permissions', middlewares.ensureAuthorized, myPermissions.getMyCirclesWithPermission);
 GeneralRouter.get('/members', middlewares.ensureAuthorized, members.listAllUsers);
+GeneralRouter.get('/members_search', middlewares.ensureAuthorized, members.searchAllUsers);
+GeneralRouter.get('/members_email', middlewares.ensureAuthorized, members.getUsersEmail);
 GeneralRouter.post('/bodies', middlewares.ensureAuthorized, bodies.createBody);
 GeneralRouter.get('/circles', middlewares.ensureAuthorized, circles.listAllCircles);
 GeneralRouter.post('/circles', middlewares.ensureAuthorized, circles.createCircle);
