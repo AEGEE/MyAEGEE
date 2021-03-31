@@ -1,3 +1,10 @@
+## [1.34.1](https://github.com/AEGEE/core/compare/1.34.0...1.34.1) (2021-03-31)
+
+
+### Bug Fixes
+
+* **body:** update mandatory fields body ([#265](https://github.com/AEGEE/core/issues/265)) ([e80a5a7](https://github.com/AEGEE/core/commit/e80a5a7c50d034e83c9b30a3bb00d8a60897d41e))
+
 # [1.34.0](https://github.com/AEGEE/core/compare/1.33.1...1.34.0) (2021-03-31)
 
 
