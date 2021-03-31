@@ -21,10 +21,20 @@ exports.listEvents = async (req, res) => {
     });
 
     const events = await Event.findAll(queryObj);
+    const whitelistEvents = [];
+
+    for (let event of events) {
+        if (event.published === 'full') {
+            event = helpers.whitelistObject(event, constants.EVENT_FULL_FIELDS);
+        } else {
+            event = helpers.whitelistObject(event, constants.EVENT_MINIMAL_FIELDS);
+        }
+        whitelistEvents.push(event);
+    }
 
     return res.json({
         success: true,
-        data: events,
+        data: whitelistEvents,
         meta: {
             offset: queryObj.offset,
             limit: queryObj.limit
