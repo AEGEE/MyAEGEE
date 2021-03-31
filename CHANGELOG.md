@@ -1,3 +1,10 @@
+# [1.34.0](https://github.com/AEGEE/core/compare/1.33.1...1.34.0) (2021-03-31)
+
+
+### Features
+
+* **campaign:** various updates ([#266](https://github.com/AEGEE/core/issues/266)) ([eefc961](https://github.com/AEGEE/core/commit/eefc961af47c14d8880719ee8a5cbff5afc1867e))
+
 ## [1.33.1](https://github.com/AEGEE/core/compare/1.33.0...1.33.1) (2021-03-29)
 
 
