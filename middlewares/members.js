@@ -1,4 +1,5 @@
 const moment = require('moment');
+const _ = require('lodash');
 
 const { User, Body, MailChange, MailConfirmation } = require('../models');
 const constants = require('../lib/constants');
@@ -15,6 +16,25 @@ exports.listAllUsers = async (req, res) => {
     const result = await User.findAndCountAll({
         where: helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.MEMBER),
         ...helpers.getPagination(req.query),
+        order: helpers.getSorting(req.query)
+    });
+
+    return res.json({
+        success: true,
+        data: result.rows,
+        meta: { count: result.count }
+    });
+};
+
+exports.searchAllUsers = async (req, res) => {
+    if (!req.permissions.hasPermission('global:search:member')) {
+        return errors.makeForbiddenError(res, 'Permission global:search:member is required, but not present.');
+    }
+
+    const result = await User.findAndCountAll({
+        where: helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.MEMBER),
+        ...helpers.getPagination(req.query),
+        attributes: ['id', 'first_name', 'last_name', 'username', 'email', 'gsuite_id'],
         order: helpers.getSorting(req.query)
     });
 
@@ -66,6 +86,33 @@ exports.getUser = async (req, res) => {
     return res.json({
         success: true,
         data: req.currentUser
+    });
+};
+
+exports.getUsersEmail = async (req, res) => {
+    if (!req.permissions.hasPermission('global:mail:member')) {
+        return errors.makeForbiddenError(res, 'Permission global:mail:member is required, but not present.');
+    }
+
+    if (req.query.query && !req.query.query.match(/^\d+(?:,\d+)*$/g)) {
+        return errors.makeBadRequestError(res, 'Query should be a string of 1 id or multiple ids seperated by commas.');
+    }
+
+    let where = {};
+
+    if (typeof req.query.query === 'string' && req.query.query.trim().length > 0) {
+        where = { id: { [Sequelize.Op.or]: req.query.query.split(',') } };
+    }
+
+    const result = await User.findAndCountAll({
+        where,
+        attributes: ['id', 'email', 'gsuite_id', 'primary_email', 'notification_email']
+    });
+
+    return res.json({
+        success: true,
+        data: result.rows.map((row) => _.pick(row, ['id', 'notification_email'])),
+        meta: { count: result.count }
     });
 };
 
