@@ -1,3 +1,10 @@
+## [0.12.4](https://github.com/AEGEE/mailer/compare/0.12.3...0.12.4) (2021-03-31)
+
+
+### Bug Fixes
+
+* **statutory:** add mailing lists link to application email ([#66](https://github.com/AEGEE/mailer/issues/66)) ([48bf2fb](https://github.com/AEGEE/mailer/commit/48bf2fbb5728bca81c4e5d32936be8f2e630a4ea))
+
 ## [0.12.3](https://github.com/AEGEE/mailer/compare/0.12.2...0.12.3) (2021-02-19)
 
 
