@@ -30,7 +30,12 @@ module.exports = {
         'questions',
         'max_participants',
         'application_status',
-        'status'
+        'status',
+        'meals_per_day',
+        'accommodation_type',
+        'optional_programme',
+        'optional_fee',
+        'link_info_travel_country'
     ],
     EVENT_TYPES: ['training', 'nwm', 'conference', 'cultural'],
     CURRENT_USER_PREFIX: 'me'

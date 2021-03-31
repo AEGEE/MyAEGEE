@@ -17,7 +17,8 @@ exports.listEvents = async (req, res) => {
         where: {
             deleted: false,
             status: 'published'
-        }
+        },
+        attributes: constants.EVENT_PUBLIC_FIELDS
     });
 
     const events = await Event.findAll(queryObj);
@@ -81,6 +82,7 @@ exports.listUserAppliedEvents = async (req, res) => {
             deleted: false,
             '$applications.user_id$': req.user.id
         },
+        attributes: constants.EVENT_PUBLIC_FIELDS,
         subQuery: false,
         include: [{
             model: Application,
