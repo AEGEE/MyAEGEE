@@ -3,7 +3,7 @@
     <div class="tile is-child">
 
       <div class="notification is-info">
-        This form is only for creating members that are not yet signed up to a system. If you want to add an existing member to your body, ask them to create a join request and approve that join request!
+        This form is only for creating members that are not yet signed up to a system. If you want to add an existing member to your body, go back to the body page and press 'Add member'!
       </div>
 
       <form @submit.prevent="createUser()">

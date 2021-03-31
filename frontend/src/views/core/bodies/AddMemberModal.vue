@@ -32,7 +32,7 @@
 <script>
 export default {
   name: 'AddBodyMemberModal',
-  props: ['body', 'services', 'showError', 'showSuccess'],
+  props: ['body', 'services', 'showError', 'showSuccess', 'router'],
   data () {
     return {
       isLoadingMembers: false,
@@ -49,7 +49,7 @@ export default {
       if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['core'] + '/members', {
+      this.axios.get(this.services['core'] + '/members_search', {
         cancelToken: this.token.token,
         params: { query: this.memberName }
       }).then((response) => {
@@ -69,7 +69,7 @@ export default {
         user_id: member.id
       }).then(() => {
         this.showSuccess('Member is added.')
-        this.$parent.close()
+        this.router.go(0) // Reloading the page.
       }).catch((err) => {
         if (err.response.status === 422) {
           this.showError('Could not add member: this person is already a member of this body.')

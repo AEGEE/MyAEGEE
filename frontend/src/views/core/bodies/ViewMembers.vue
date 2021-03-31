@@ -12,6 +12,9 @@
 
         <div class="field is-grouped" v-if="can.create">
           <div class="control">
+            <a @click="openAddMemberModal()" class="button is-primary" >Add member</a>
+          </div>
+          <div class="control">
             <router-link :to="{ name: 'oms.bodies.new_member', params: { id: $route.params.id } }" class="button is-primary" >Create member</router-link>
           </div>
           <div class="control">
@@ -88,6 +91,7 @@
 import { mapGetters } from 'vuex'
 import ListFeePaymentsModal from './ListFeePaymentsModal'
 import AddFeePaymentModal from './AddFeePaymentModal'
+import AddMemberModal from './AddMemberModal'
 
 export default {
   name: 'BodyMembersList',
@@ -141,6 +145,23 @@ export default {
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess
+        }
+      })
+    },
+    openAddMemberModal () {
+      this.$buefy.modal.open({
+        component: AddMemberModal,
+        hasModalCard: true,
+        props: {
+          // When programmatically opening a modal, it doesn't have access to Vue instance
+          // and therefore store, services and notifications functions. That's why
+          // I'm passing them as props.
+          // More info: https://github.com/buefy/buefy/issues/55
+          body: this.body,
+          services: this.services,
+          showError: this.$root.showError,
+          showSuccess: this.$root.showSuccess,
+          router: this.$router
         }
       })
     },
