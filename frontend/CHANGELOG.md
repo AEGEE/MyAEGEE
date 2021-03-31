@@ -1,3 +1,10 @@
+## [1.27.2](https://github.com/AEGEE/frontend/compare/1.27.1...1.27.2) (2021-03-31)
+
+
+### Bug Fixes
+
+* **member:** add member to body ([#930](https://github.com/AEGEE/frontend/issues/930)) ([b289063](https://github.com/AEGEE/frontend/commit/b289063f17d5a436055d26b43042979afa56f3b4))
+
 ## [1.27.1](https://github.com/AEGEE/frontend/compare/1.27.0...1.27.1) (2021-03-31)
 
 
