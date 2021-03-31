@@ -80,8 +80,12 @@ exports.listAllCampaigns = async (req, res) => {
 };
 
 exports.getCampaign = async (req, res) => {
-    if (!req.permissions.hasPermission('global:view:campaign')) {
-        return errors.makeForbiddenError(res, 'Permission global:view:campaign is required, but not present.');
+    if (!req.user || !req.permissions.hasPermission('global:create:campaign')) {
+        req.currentCampaign = helpers.whitelistObject(req.currentCampaign, constants.PUBLIC_FIELDS.CAMPAIGN);
+    }
+
+    if (req.currentCampaign.autojoin_body) {
+        req.currentCampaign.autojoin_body = helpers.whitelistObject(req.currentCampaign.autojoin_body, ['id', 'name', 'email', 'phone', 'address', 'website']);
     }
 
     return res.json({
@@ -96,10 +100,10 @@ exports.createCampaign = async (req, res) => {
     }
 
     // TODO: filter out fields that are changed in the other way
-    const circle = await Campaign.create(req.body);
+    const campaign = await Campaign.create(req.body);
     return res.json({
         success: true,
-        data: circle
+        data: campaign
     });
 };
 
