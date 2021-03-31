@@ -1,3 +1,10 @@
+## [1.3.5](https://github.com/AEGEE/events/compare/1.3.4...1.3.5) (2021-03-31)
+
+
+### Bug Fixes
+
+* **events:** only show public fields in list. Fixes MA-165 ([#490](https://github.com/AEGEE/events/issues/490)) ([2fdbde0](https://github.com/AEGEE/events/commit/2fdbde0ff8932008d8fcdacb5b084d0163bfcbec))
+
 ## [1.3.4](https://github.com/AEGEE/events/compare/1.3.3...1.3.4) (2021-02-23)
 
 
