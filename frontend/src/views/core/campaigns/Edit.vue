@@ -11,19 +11,15 @@
         </div>
 
         <div class="field">
-          <label class="label">Description (short)</label>
+          <label class="label">Description</label>
           <div class="control">
-            <input class="input" type="text" required v-model="campaign.description_short" />
+            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="campaign.description_long"></textarea>
           </div>
-          <p class="help is-danger" v-if="errors.description_short">{{ errors.description_short.join(', ')}}</p>
-        </div>
-
-        <div class="field">
-          <label class="label">Description (long)</label>
-          <div class="control">
-            <input class="input" type="text" v-model="campaign.description_long" />
+          <label class="label">Preview <MarkdownTooltip/></label>
+          <div class="content">
+            <span v-html="$options.filters.markdown(campaign.description_long)" />
           </div>
-          <p class="help is-danger" v-if="errors.description_long">{{ errors.description_long.join(', ')}}</p>
+          <p class="help is-danger" v-if="errors.description_long">{{ errors.description_long.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -77,13 +73,6 @@
         </div>
 
         <div class="field">
-          <label class="label">Auto-activate user?
-            <input type="checkbox" v-model="campaign.activate_user" />
-          </label>
-          <p class="help is-danger" v-if="errors.activate_user">{{ errors.auto_activate.join(', ')}}</p>
-        </div>
-
-        <div class="field">
           <label class="label">Active?
             <input type="checkbox" v-model="campaign.active" :disabled="!$route.params.id"/>
           </label>
@@ -109,19 +98,22 @@
 <script>
 import { mapGetters } from 'vuex'
 
+import MarkdownTooltip from '../../../components/tooltips/MarkdownTooltip'
+
 export default {
+  components: {
+    MarkdownTooltip
+  },
   name: 'EditCampaign',
   data () {
     return {
       campaign: {
         name: '',
-        description_short: '',
         description_long: '',
         id: null,
         autojoin_body_id: null,
         autojoin_body: null,
-        active: true,
-        activate_user: false
+        active: true
       },
       bodies: [],
       errors: {},

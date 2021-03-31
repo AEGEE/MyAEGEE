@@ -13,11 +13,9 @@
                 </tr>
                 <tr>
                   <th>Description</th>
-                  <td>{{ campaign.description_short }}</td>
-                </tr>
-                <tr>
-                  <th>Long description</th>
-                  <td>{{ campaign.description_long }}</td>
+                  <td>
+                    <span v-html="$options.filters.markdown(campaign.description_long)"/>
+                  </td>
                 </tr>
                 <tr>
                   <th>URL</th>
@@ -31,11 +29,6 @@
                     </router-link>
                   </td>
                   <td v-if="!campaign.autojoin_body">This campaign will not create a join request to a body after signup </td>
-                </tr>
-                <tr>
-                  <th>Activate User</th>
-                  <td v-if="campaign.activate_user">User will be activated automatically after mail confirmation</td>
-                  <td v-if="!campaign.activate_user">User will remain inactive even after mail confirmation</td>
                 </tr>
                 <tr>
                   <th>Status</th>
@@ -93,7 +86,6 @@ export default {
     return {
       campaign: {
         name: '',
-        description_short: '',
         description_long: '',
         id: null,
         url: null,

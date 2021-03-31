@@ -30,8 +30,8 @@
               </router-link>
             </b-table-column>
 
-            <b-table-column field="description_short" label="Description">
-              {{ props.row.description_short }}
+            <b-table-column field="description_long" label="Description">
+              <span class="description" v-html="$options.filters.markdown(props.row.description_long)"></span>
             </b-table-column>
 
             <b-table-column label="Link">

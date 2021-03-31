@@ -3,9 +3,21 @@
   <div class="columns is-vcentered">
     <div class="column is-6 is-offset-3">
       <div class="box">
+        <div class="field" v-if="campaign.autojoin_body">
+          <label class="label">Register on MyAEGEE for {{ campaign.autojoin_body.name }}</label>
+          <p>With this form you will be registering on MyAEGEE and automatically become a member of {{ campaign.autojoin_body.name }} after you have confirmed your email.</p>
+          <p><span v-html="$options.filters.markdown(campaign.description_long)" /></p>
+          <p v-if="campaign.autojoin_body.email">If you have any questions, you can contact {{ campaign.autojoin_body.name }} at {{ campaign.autojoin_body.email }}.</p>
+        </div>
+        <div class="field" v-if="!campaign.autojoin_body">
+          <label class="label">Register on MyAEGEE</label>
+          <p>With this form you will be registering on MyAEGEE. You will not become a member of a local yet, but you can make a join request after you have confirmed your email.</p>
+        </div>
+
+        <hr />
         <form v-on:submit.prevent="register">
           <div class="field">
-            <label class="label">Username</label>
+            <label class="label">Username <span class="has-text-danger">*</span></label>
             <div class="control">
               <input
                 v-model="user.username"
@@ -21,7 +33,7 @@
           </div>
 
           <div class="field">
-            <label class="label">Email</label>
+            <label class="label">Email <span class="has-text-danger">*</span></label>
             <div class="control">
               <input
                 v-model="user.email"
@@ -35,7 +47,7 @@
           </div>
 
           <div class="field">
-            <label class="label">Password</label>
+            <label class="label">Password <span class="has-text-danger">*</span></label>
             <div class="control">
               <input v-model="user.password" data-cy="password" required class="input" type="password" minlength="8" placeholder="Type a secure password.">
             </div>
@@ -43,7 +55,7 @@
           </div>
 
           <div class="field">
-            <label class="label">Password confirmation</label>
+            <label class="label">Password confirmation <span class="has-text-danger">*</span></label>
             <div class="control">
               <input v-model="user.password_copy" required data-cy="password-confirmation" class="input" type="password" minlength="8" placeholder="Repeat your password.">
             </div>
@@ -53,7 +65,7 @@
           <hr />
 
           <div class="field">
-            <label class="label">First name</label>
+            <label class="label">First name <span class="has-text-danger">*</span></label>
             <div class="control">
               <input v-model="user.first_name" required data-cy="first-name" class="input" type="text" placeholder="E.g. Stephen">
             </div>
@@ -61,7 +73,7 @@
           </div>
 
           <div class="field">
-            <label class="label">Last name</label>
+            <label class="label">Last name <span class="has-text-danger">*</span></label>
             <div class="control">
               <input v-model="user.last_name" required data-cy="last-name" class="input" type="text" placeholder="E.g. Hawking">
             </div>
@@ -83,7 +95,7 @@
             <p class="help is-danger" v-if="errors.date_of_birth">{{ errors.date_of_birth.join(', ')}}</p>
           </div>
 
-          <select-or-custom v-model="user.gender" data-cy="gender" :values="['Male', 'Female']" label="Gender" required>
+          <select-or-custom v-model="user.gender" data-cy="gender" :values="['Male', 'Female']" label="Gender">
             <template slot="errors-slot">
               <p class="help is-danger" v-if="errors.gender">{{ errors.gender.join(', ')}}</p>
             </template>
@@ -106,8 +118,9 @@
           </div>
 
           <div class="field">
-            <label class="label">I agree to the <router-link :to="{ name: 'oms.confluence', params: { page_id: 'terms-of-service' } }">Privacy Policy</router-link>
-              <input type="checkbox" class="checkbox" data-cy="agree-to-privacy-policy" v-model="agreedToPrivacyPolicy" />
+            <label class="checkbox">
+              I agree to the <router-link :to="{ name: 'oms.confluence', params: { page_id: 'terms-of-service' } }">Privacy Policy <span class="has-text-danger">*</span> </router-link>
+              <input type="checkbox" required data-cy="agree-to-privacy-policy" v-model="agreedToPrivacyPolicy" />
             </label>
              <p class="help is-danger" v-if="errors.agreedToPrivacyPolicy">{{ errors.agreedToPrivacyPolicy.join(', ')}}</p>
           </div>
@@ -147,6 +160,13 @@ export default {
         address: null,
         about_me: null
       },
+      campaign: {
+        name: '',
+        description_long: '',
+        id: null,
+        autojoin_body: null,
+        active: null
+      },
       birthday: null,
       agreedToPrivacyPolicy: false,
       errors: {}
@@ -169,11 +189,6 @@ export default {
 
       if (!this.agreedToPrivacyPolicy) {
         this.errors.agreedToPrivacyPolicy = ['You need to agree with our Privacy Policy.']
-        return
-      }
-
-      if (!this.user.date_of_birth) {
-        this.errors.date_of_birth = ['Please enter your date of birth.']
         return
       }
 
@@ -214,6 +229,22 @@ export default {
         this.$root.showError('Could not register', err)
       })
     }
+  },
+  mounted () {
+    this.isLoading = true
+    this.axios.get(this.services['core'] + '/campaigns/' + this.$route.params.id).then((response) => {
+      this.campaign = response.data.data
+    }).then(
+      this.isLoading = false
+    ).catch((err) => {
+      if (err.response && err.response.status === 404) {
+        this.$root.showError('Campaign is not found')
+      } else {
+        this.$root.showError('Some error happened', err)
+      }
+
+      this.$router.push({ name: 'oms.login' })
+    })
   }
 }
 </script>
