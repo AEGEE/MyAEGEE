@@ -123,13 +123,15 @@ exports.fetchPermission = async (req, res, next) => {
 };
 
 exports.fetchCampaign = async (req, res, next) => {
-    // searching the campaign by id if it's numeric
-    if (!helpers.isNumber(req.params.campaign_id)) {
-        return errors.makeBadRequestError(res, 'Campaign ID is invalid.');
+    // Checking if the passed ID is a string or not.
+    // If it is a string, find the campaign by URL, if not, find it by ID or URL.
+    let findObject = { url: req.params.campaign_id };
+    if (!Number.isNaN(Number(req.params.campaign_id))) {
+        findObject = { id: Number(req.params.campaign_id) };
     }
 
     const campaign = await Campaign.findOne({
-        where: { id: Number(req.params.campaign_id) },
+        where: findObject,
         include: [{ model: Body, as: 'autojoin_body' }]
     });
     if (!campaign) {

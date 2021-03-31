@@ -25,10 +25,9 @@ const Campaign = sequelize.define('campaign', {
     },
     description_short: {
         type: Sequelize.TEXT,
-        allowNull: false,
+        allowNull: true,
         validate: {
-            notEmpty: { msg: 'Description should be set.' },
-            notNull: { msg: 'Description should be set.' }
+            notEmpty: { msg: 'Description should be set.' }
         }
     },
     description_long: {
@@ -41,7 +40,7 @@ const Campaign = sequelize.define('campaign', {
     },
     activate_user: {
         type: Sequelize.BOOLEAN,
-        allowNull: false,
+        allowNull: true,
         defaultValue: true
     }
 }, {
