@@ -1,3 +1,10 @@
+# [1.27.0](https://github.com/AEGEE/frontend/compare/1.26.4...1.27.0) (2021-03-31)
+
+
+### Features
+
+* **campaign:** add name and description ([#932](https://github.com/AEGEE/frontend/issues/932)) ([316b438](https://github.com/AEGEE/frontend/commit/316b438146abe4379158d16c0c43c6b1a39af201))
+
 ## [1.26.4](https://github.com/AEGEE/frontend/compare/1.26.3...1.26.4) (2021-03-20)
 
 
