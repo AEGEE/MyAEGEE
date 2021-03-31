@@ -1,3 +1,10 @@
+# [1.35.0](https://github.com/AEGEE/core/compare/1.34.1...1.35.0) (2021-03-31)
+
+
+### Features
+
+* **members:** add endpoints for searching and retrieving email ([#249](https://github.com/AEGEE/core/issues/249)) ([020ebe1](https://github.com/AEGEE/core/commit/020ebe1c1cce66543ee174493f03ecc5770c01b7))
+
 ## [1.34.1](https://github.com/AEGEE/core/compare/1.34.0...1.34.1) (2021-03-31)
 
 
