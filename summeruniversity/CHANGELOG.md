@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/AEGEE/summeruniversity/compare/1.1.3...1.1.4) (2021-03-31)
+
+
+### Bug Fixes
+
+* **events:** reduce fields returned in listing ([#53](https://github.com/AEGEE/summeruniversity/issues/53)) ([5ab7807](https://github.com/AEGEE/summeruniversity/commit/5ab7807d34aea3423fe4f35826a35d94660a708b))
+
 ## [1.1.3](https://github.com/AEGEE/summeruniversity/compare/1.1.2...1.1.3) (2021-03-16)
 
 
