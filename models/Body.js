@@ -38,23 +38,23 @@ const Body = sequelize.define('body', {
     },
     email: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: false,
+        defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Email should be set.' }
+            notEmpty: { msg: 'Email should be set.' },
+            isEmail: { msg: 'Email should be valid.' }
         }
     },
     phone: {
         type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: '',
+        allowNull: true,
         validate: {
             notEmpty: { msg: 'Phone should be set.' },
         }
     },
     address: {
         type: Sequelize.TEXT,
-        allowNull: false,
-        defaultValue: '',
+        allowNull: true,
         validate: {
             notEmpty: { msg: 'Address should be set.' },
         }
