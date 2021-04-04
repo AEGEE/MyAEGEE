@@ -1,5 +1,7 @@
 const core = require('./core');
 const errors = require('./errors');
+const mailer = require('./mailer');
+const config = require('../config');
 const { MembersList, VotesPerAntenna } = require('../models');
 
 exports.checkIfAgora = async (req, res, next) => {
@@ -97,6 +99,19 @@ exports.uploadMembersList = async (req, res) => {
         }
 
         const result = await existingMembersList.update(req.body);
+
+        // Sending the mail to a user.
+        await mailer.sendMail({
+            to: config.memberslist_notification,
+            subject: `A memberslist has been edited for ${req.event.name}`,
+            template: 'statutory_memberslist_edited.html',
+            parameters: {
+                body_name: body.name,
+                event_name: req.event.name,
+                membership_fee: result.fee_to_aegee
+            }
+        });
+
         // Recalculating votes per antenna.
         await VotesPerAntenna.recalculateVotesForAntenna(body, req.event);
 
@@ -111,6 +126,18 @@ exports.uploadMembersList = async (req, res) => {
     }
 
     const newMembersList = await MembersList.create(req.body);
+
+    // Sending the mail to a user.
+    await mailer.sendMail({
+        to: config.memberslist_notification,
+        subject: `A memberslist has been submitted for ${req.event.name}`,
+        template: 'statutory_memberslist_submitted.html',
+        parameters: {
+            body_name: body.name,
+            event_name: req.event.name,
+            membership_fee: newMembersList.fee_to_aegee
+        }
+    });
 
     // Calculating votes per antenna.
     await VotesPerAntenna.recalculateVotesForAntenna(body, req.event);
