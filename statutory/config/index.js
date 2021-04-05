@@ -25,6 +25,9 @@ const config = {
         application_notification: [
             'juridical@aegee.eu'
         ],
+        memberslist_notification: [
+            'treasurer@aegee.eu'
+        ],
         logger: {
             silent: false,
             level: process.env.LOGLEVEL || 'debug'
