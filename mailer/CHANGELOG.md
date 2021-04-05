@@ -1,3 +1,10 @@
+# [0.13.0](https://github.com/AEGEE/mailer/compare/0.12.4...0.13.0) (2021-04-05)
+
+
+### Features
+
+* **statutory:** add mails for memberslist ([#68](https://github.com/AEGEE/mailer/issues/68)) ([2bd5d0c](https://github.com/AEGEE/mailer/commit/2bd5d0cc784d4d75e528c286bd848ba3ab26533e))
+
 ## [0.12.4](https://github.com/AEGEE/mailer/compare/0.12.3...0.12.4) (2021-03-31)
 
 
