@@ -1,3 +1,10 @@
+## [1.27.3](https://github.com/AEGEE/frontend/compare/1.27.2...1.27.3) (2021-04-05)
+
+
+### Bug Fixes
+
+* **su:** display full summeruniversity ([#953](https://github.com/AEGEE/frontend/issues/953)) ([711402a](https://github.com/AEGEE/frontend/commit/711402a9af884c9f26ba061d0aa82817335ef6fc))
+
 ## [1.27.2](https://github.com/AEGEE/frontend/compare/1.27.1...1.27.2) (2021-03-31)
 
 
