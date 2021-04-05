@@ -187,6 +187,38 @@
                   <th>Accommodation type</th>
                   <td>{{ event.accommodation_type }}</td>
                 </tr>
+                <tr v-if="event.pax_description">
+                  <th>Ideal participant</th>
+                  <td>{{ event.pax_description }}</td>
+                </tr>
+                <tr v-if="event.pax_confirmation">
+                  <th>Participant confirmation needed</th>
+                  <td>{{ event.pax_confirmation }}</td>
+                </tr>
+                <tr v-if="event.activities_list">
+                  <th>List of activities</th>
+                  <td>{{ event.activities_list }}</td>
+                </tr>
+                <tr v-if="event.special_equipment">
+                  <th>Special equipment needed</th>
+                  <td>{{ event.special_equipment }}</td>
+                </tr>
+                <tr v-if="event.course_level">
+                  <th>Course level</th>
+                  <td>{{ event.course_level | capitalize }}</td>
+                </tr>
+                <tr v-if="event.courses">
+                  <th>Courses</th>
+                  <td>{{ event.courses }}</td>
+                </tr>
+                <tr v-if="event.trainers">
+                  <th>Trainers</th>
+                  <td>{{ event.trainers }}</td>
+                </tr>
+                <tr v-if="event.university_support">
+                  <th>Has university support?</th>
+                  <td>{{ event.university_support | beautify }}</td>
+                </tr>
                 <tr v-if="can.approve_summeruniversity[event.type]">
                   <th>Status</th>
                   <td>{{ event.status | capitalize }}</td>
@@ -204,6 +236,18 @@
                           {{ body.body_name }}
                         </router-link>
                       </li>
+                    </ul>
+                  </td>
+                </tr>
+                <tr v-if="event.website">
+                  <th>Website</th>
+                  <td><a :href="event.website" target="_blank">{{ event.website }}</a></td>
+                </tr>
+                <tr v-if="event.social_media">
+                  <th>Social media</th>
+                  <td>
+                    <ul>
+                      <li v-for="social_medium in event.social_media" v-bind:key="social_medium"><a :href="social_medium.description" target="_blank">{{ social_medium.description }}</a></li>
                     </ul>
                   </td>
                 </tr>
@@ -249,7 +293,10 @@
                 :coordinates="location.position"
                 color="red">
                 <MglPopup>
-                  <div class="mapbox-popup-custom">{{ location.name }}</div>
+                  <div class="mapbox-popup-custom">
+                    <strong>{{ location.name }}</strong><br>
+                    {{ location.description }}
+                  </div>
                 </MglPopup>
               </MglMarker>
             </MglMap>
