@@ -19,9 +19,13 @@ jobs:
       - shellcheck/check
 workflows:
   version: 2
-  linters:
+  lint-yaml:
     jobs:
       - yamllint
+  lint-shell:
+    jobs:
       - shellcheck
+  lint-docker:
+    jobs:
       - docker/hadolint:
           dockerfiles: $(find . -name '*Dockerfile*')
