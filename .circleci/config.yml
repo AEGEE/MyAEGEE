@@ -1,4 +1,7 @@
-version: 2
+orbs:
+  shellcheck: circleci/shellcheck@2.2.2
+  docker: circleci/docker@1.5.0
+version: 2.1
 jobs:
   yamllint:
     docker:
