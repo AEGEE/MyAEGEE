@@ -33,7 +33,7 @@
     "@fortawesome/vue-fontawesome": "2.0.2",
     "@fullcalendar/core": "5.5.1",
     "@fullcalendar/daygrid": "5.5.0",
-    "@fullcalendar/vue": "5.5.0",
+    "@fullcalendar/vue": "5.6.0",
     "@gfx/zopfli": "1.0.15",
     "@vue/cli-plugin-babel": "4.5.12",
     "@vue/cli-plugin-router": "4.5.12",
