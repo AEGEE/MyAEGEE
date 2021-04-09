@@ -120,13 +120,13 @@ export default {
             color: '#FFDB4C'
           },
           {
-            url: 'https://www.zeus.aegee.org/portal/wp-content/uploads/Strategic-Plan-2020-2023-new-version.pdf',
+            url: 'https://drive.google.com/file/d/1OpcmgL-_A2u0daj86BgoPiTlsmpWDx7F/view',
             title: 'Strategic Plan',
             description: 'Strategic Plan of AEGEE-Europe 2020-2023',
             color: '#FFDB4C'
           },
           {
-            url: 'https://site.aegee.org/wp-content/uploads/Action-Agenda-2020-2021.pdf',
+            url: 'https://drive.google.com/file/d/1_CfHn9BSl2aPk3RpjbXEy5Er4AIyMZQY/view',
             title: 'Action Agenda',
             description: 'Action Agenda 2020-2021',
             color: '#FFDB4C'
