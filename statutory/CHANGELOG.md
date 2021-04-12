@@ -1,3 +1,10 @@
+## [1.6.12](https://github.com/AEGEE/statutory/compare/1.6.11...1.6.12) (2021-04-12)
+
+
+### Bug Fixes
+
+* **memberslists:** send mails to treasurer ([5dbe894](https://github.com/AEGEE/statutory/commit/5dbe894ca853e35734e17e75ac7cfd795686e08b))
+
 ## [1.6.11](https://github.com/AEGEE/statutory/compare/1.6.10...1.6.11) (2021-04-05)
 
 
