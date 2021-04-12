@@ -16,7 +16,8 @@ jobs:
     steps:
       - checkout
       - shellcheck/install
-      - shellcheck/check
+      - shellcheck/check:
+          exclude: SC2002,SC2086,SC2126,SC2154
 workflows:
   version: 2
   lint-yaml:
