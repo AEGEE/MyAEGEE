@@ -10,4 +10,9 @@ fi
 chmod +x helper.sh
 find . -type f -name "*.sh" -exec dos2unix {} \+;
 dos2unix .env Makefile
-make bootstrap
+
+if [[ -f .env ]]; then
+  make start
+else
+  make bootstrap
+fi
