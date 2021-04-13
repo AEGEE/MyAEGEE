@@ -1,3 +1,10 @@
+## [1.3.6](https://github.com/AEGEE/events/compare/1.3.5...1.3.6) (2021-04-13)
+
+
+### Bug Fixes
+
+* **circleci:** update ci ([#489](https://github.com/AEGEE/events/issues/489)) ([4a06c4f](https://github.com/AEGEE/events/commit/4a06c4ffc714167e951c73b86e05467e4ac3c062))
+
 ## [1.3.5](https://github.com/AEGEE/events/compare/1.3.4...1.3.5) (2021-03-31)
 
 
