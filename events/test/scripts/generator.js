@@ -13,11 +13,11 @@ exports.generateEvent = (options = {}) => {
     if (notSet(options.starts)) options.starts = faker.date.future(null, options.application_ends);
     if (notSet(options.ends)) options.ends = faker.date.future(null, options.starts);
     if (notSet(options.type)) options.type = faker.random.arrayElement(['training', 'nwm', 'conference', 'cultural']);
-    if (notSet(options.fee)) options.fee = faker.random.number({ min: 0, max: 100 });
-    if (notSet(options.optional_fee)) options.optional_fee = faker.random.number({ min: 0, max: 20 });
+    if (notSet(options.fee)) options.fee = faker.datatype.number({ min: 0, max: 100 });
+    if (notSet(options.optional_fee)) options.optional_fee = faker.datatype.number({ min: 0, max: 20 });
     if (notSet(options.organizing_bodies)) {
         options.organizing_bodies = [{
-            body_id: faker.random.number({ min: 0, max: 100 }),
+            body_id: faker.datatype.number({ min: 0, max: 100 }),
             body_name: faker.lorem.sentence()
         }];
     }
@@ -28,14 +28,14 @@ exports.generateEvent = (options = {}) => {
             last_name: faker.lorem.sentence()
         }];
     }
-    if (notSet(options.max_participants)) options.max_participants = faker.random.number({ min: 5, max: 100 });
+    if (notSet(options.max_participants)) options.max_participants = faker.datatype.number({ min: 5, max: 100 });
 
     if (notSet(options.budget)) options.budget = faker.lorem.sentence();
     if (notSet(options.programme)) options.programme = faker.lorem.sentence();
 
     if (notSet(options.accommodation_type)) options.accommodation_type = faker.lorem.sentence();
     if (notSet(options.optional_programme)) options.optional_programme = faker.lorem.sentence();
-    if (notSet(options.meals_per_day)) options.meals_per_day = faker.random.number({ min: 0, max: 3 });
+    if (notSet(options.meals_per_day)) options.meals_per_day = faker.datatype.number({ min: 0, max: 3 });
     if (notSet(options.link_info_travel_country)) options.link_info_travel_country = faker.internet.url();
 
     return options;
@@ -46,8 +46,8 @@ exports.createEvent = (options = {}) => {
 };
 
 exports.generateApplication = (options = {}, event) => {
-    if (notSet(options.user_id)) options.user_id = faker.random.number(100);
-    if (notSet(options.body_id)) options.body_id = faker.random.number(100);
+    if (notSet(options.user_id)) options.user_id = faker.datatype.number(100);
+    if (notSet(options.body_id)) options.body_id = faker.datatype.number(100);
     if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
     if (notSet(options.last_name)) options.last_name = faker.lorem.sentence();
     if (notSet(options.body_name)) options.body_name = faker.lorem.sentence();

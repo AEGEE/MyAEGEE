@@ -41,7 +41,7 @@ const config = {
         port: 8085,
         postgres: {
             host: 'localhost',
-            database: 'statutory-testing'
+            database: 'events-testing'
         },
         logger: {
             silent: (typeof process.env.ENABLE_LOGGING !== 'undefined') ? (!process.env.ENABLE_LOGGING) : true
