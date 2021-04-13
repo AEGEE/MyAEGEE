@@ -1,4 +1,4 @@
-FROM node:12.10.0-alpine AS builder
+FROM node:12.22.1-alpine AS builder
 
 COPY . /usr/app/src
 WORKDIR /usr/app/src
@@ -18,7 +18,7 @@ COPY ./docker/frontend-nginx/sites/default.conf /etc/nginx/sites-available/defau
 # the default nginx page, which is not what we need
 RUN rm -rf /etc/nginx/conf.d
 
-RUN apk add curl
+RUN apk --no-cache add curl=7.67.0-r3
 
 RUN chown -R www-data:www-data /usr/app/
 

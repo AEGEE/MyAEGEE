@@ -6,7 +6,8 @@ ignore: |
   **/node_modules/**
 
 rules:
-  document-start: disable
+  document-start:
+    present: false
   line-length: disable
-  truthy: disable
-  comments-indentation: disable
+  truthy:
+    check-keys: false
