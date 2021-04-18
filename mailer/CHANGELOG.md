@@ -1,3 +1,10 @@
+# [0.14.0](https://github.com/AEGEE/mailer/compare/0.13.0...0.14.0) (2021-04-18)
+
+
+### Features
+
+* **new_member:** add new member email ([#69](https://github.com/AEGEE/mailer/issues/69)) ([e61978c](https://github.com/AEGEE/mailer/commit/e61978c99369792de34f3265a84a73ae543aa090))
+
 # [0.13.0](https://github.com/AEGEE/mailer/compare/0.12.4...0.13.0) (2021-04-05)
 
 
