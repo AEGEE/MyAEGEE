@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%= render(OmsmailerWeb.SnippetsView, "head.html", title: "MyAEGEE: Welcome to MyAEGEE") %>
+<%= render(OmsmailerWeb.SnippetsView, "head.html", title: "MyAEGEE: Welcome to AEGEE") %>
 
 
 <body style="width:100% !important;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;padding-top:0;padding-bottom:0;padding-right:0;padding-left:0;">
@@ -38,13 +38,32 @@
                       </tr>
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>Welcome to MyAEGEE</strong></div>
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">You successfully registered, welcome to the AEGEE family!</div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>Hello, <%= @parameters["member_firstname"] %></strong></div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">Welcome to AEGEE! You have taken the first steps to discover the AEGEE Universe. In this mail you can find some further information to help you further along in your journey.</div>
                         </td>
                       </tr>
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">The MyAEGEE is the new central gathering point of IT in AEGEE, you are invited to explore it. If you get lost or need help, either check out our <a href="https://myaegee.atlassian.net/wiki/spaces/HEL/pages/240615425/How-to+guides+for+MyAEGEE">How-To Guides</a>, issue a bug or contact the development team</div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;"><u>For quick information and communication the following links will help you out:</u><br>
+                            <a href="https://www.oms.aegee.org/wiki/index.php?title=Main_Page">AEGEE Wiki</a> (the knowledge backbone of AEGEE)<br>
+                            <a href="https://my.aegee.eu/pages/mailing-lists">Mailing lists</a> (official communication channels of AEGEE-Europe which keep you updated)<br>
+                            <a href="https://www.facebook.com/groups/aegeeans">AEGEEans</a> (Facebook group with the latest news in AEGEE)<br>
+                            <a href="https://t.me/AEGEE_Europe">Telegram channel</a> (updates from AEGEE-Europe)</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;"><a href="https://my.aegee.eu/">MyAEGEE</a> offers most information. Ranging from Events listing to all the locals and internal bodies of AEGEE-Europe. In the left menu under ‘Resources’ one can find quick access to the most important information.</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">In order to find out what’s happening in your local, get in touch with members and the board of <%= @parameters["body_name"] %>.</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">Enjoy your time in AEGEE!</div>
                         </td>
                       </tr>
                     </tbody>
