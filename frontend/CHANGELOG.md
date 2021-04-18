@@ -1,3 +1,10 @@
+## [1.27.5](https://github.com/AEGEE/frontend/compare/1.27.4...1.27.5) (2021-04-18)
+
+
+### Bug Fixes
+
+* **bug report:** auto fill notification_email users ([#969](https://github.com/AEGEE/frontend/issues/969)) ([435d128](https://github.com/AEGEE/frontend/commit/435d12813bc0266c20713b9b2a4f9182c50efdf6))
+
 ## [1.27.4](https://github.com/AEGEE/frontend/compare/1.27.3...1.27.4) (2021-04-18)
 
 
