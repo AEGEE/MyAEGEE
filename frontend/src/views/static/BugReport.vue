@@ -63,7 +63,7 @@
           </div>
         </div>
 
-        <div class="field">
+        <div class="field" v-if="!loginUser">
           <label class="label">Your email</label>
           <div class="control">
             <input class="input" type="email" v-model="bug.email" required />
@@ -157,7 +157,7 @@ export default {
   }),
   mounted () {
     if (this.loginUser) {
-      this.bug.email = this.loginUser.user.email
+      this.bug.email = this.loginUser.notification_email
     }
   }
 }
