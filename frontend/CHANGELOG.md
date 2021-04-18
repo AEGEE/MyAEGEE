@@ -1,3 +1,10 @@
+## [1.27.4](https://github.com/AEGEE/frontend/compare/1.27.3...1.27.4) (2021-04-18)
+
+
+### Bug Fixes
+
+* **body:** fix abbreviation ([#968](https://github.com/AEGEE/frontend/issues/968)) ([982b2c2](https://github.com/AEGEE/frontend/commit/982b2c257da9fa4c4cbced6e4a5717e22c65a968))
+
 ## [1.27.3](https://github.com/AEGEE/frontend/compare/1.27.2...1.27.3) (2021-04-05)
 
 
