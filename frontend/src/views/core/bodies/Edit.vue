@@ -113,7 +113,7 @@
         <div class="field">
           <label class="label">Address</label>
           <div class="control">
-            <input class="input" type="text" required v-model="body.address" />
+            <input class="input" type="text" v-model="body.address" />
           </div>
           <p class="help is-danger" v-if="errors.address">{{ errors.address.join(', ')}}</p>
         </div>
@@ -200,7 +200,7 @@ export default {
     return {
       body: {
         name: '',
-        abbreviation: '',
+        abbreviation: null,
         description: '',
         task_description: '',
         id: null,
