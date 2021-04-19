@@ -3,8 +3,8 @@ FROM node:12.22.1-alpine AS builder
 COPY . /usr/app/src
 WORKDIR /usr/app/src
 
-RUN npm install --only=production
-RUN npm run build
+RUN npm install --only=production \
+ && npm run build
 
 FROM nginx:1.18.0-alpine
 
@@ -16,11 +16,9 @@ COPY ./docker/frontend-nginx/sites/default.conf /etc/nginx/sites-available/defau
 
 # it has some default settings there which result in displaying
 # the default nginx page, which is not what we need
-RUN rm -rf /etc/nginx/conf.d
-
-RUN apk --no-cache add curl=7.67.0-r3
-
-RUN chown -R www-data:www-data /usr/app/
+RUN rm -rf /etc/nginx/conf.d \
+ && apk --no-cache add curl=7.67.0-r3 \
+ && chown -R www-data:www-data /usr/app/
 
 WORKDIR /usr/app/src/dist
 #USER www-data ?????/
