@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { CircleMembership } = require('../../models');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
+const mock = require('../scripts/mock');
 
 describe('Body membership creating', () => {
     beforeAll(async () => {
@@ -12,8 +13,13 @@ describe('Body membership creating', () => {
         await stopServer();
     });
 
+    beforeEach(async () => {
+        await mock.mockAll();
+    });
+
     afterEach(async () => {
         await generator.clearAll();
+        await mock.cleanAll();
     });
 
     test('should return 404 if the user is not found', async () => {
