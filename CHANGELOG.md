@@ -1,3 +1,10 @@
+# [1.36.0](https://github.com/AEGEE/core/compare/1.35.0...1.36.0) (2021-04-22)
+
+
+### Features
+
+* **member:** send email when joining first body ([#278](https://github.com/AEGEE/core/issues/278)) ([18a0d31](https://github.com/AEGEE/core/commit/18a0d317f497c95461a206661c173ebe4188d37d))
+
 # [1.35.0](https://github.com/AEGEE/core/compare/1.34.1...1.35.0) (2021-03-31)
 
 
