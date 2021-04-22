@@ -12,7 +12,7 @@ describe('Join request creating', () => {
         await stopServer();
     });
 
-    afterEach(async () => {
+    beforeEach(async () => {
         await mock.mockAll();
     });
 

@@ -107,10 +107,29 @@ exports.changeRequestStatus = async (req, res) => {
         // but store the join request (for history)
         // if a join request is rejected, just delete it so a person can reapply.
         if (req.body.status === 'approved') {
+            const bodyCount = await BodyMembership.count({ where: { user_id: req.currentJoinRequest.user_id } });
+
             await BodyMembership.create({
                 user_id: req.currentJoinRequest.user_id,
                 body_id: req.currentBody.id
             }, { transaction: t });
+
+            if (bodyCount === 0) {
+                const user = await User.findByPk(req.currentJoinRequest.user_id);
+
+                await mailer.sendMail({
+                    to: user.notification_email,
+                    subject: constants.MAIL_SUBJECTS.NEW_MEMBER,
+                    template: 'new_member.html',
+                    parameters: {
+                        member_firstname: user.first_name,
+                        member_lastname: user.last_name,
+                        body_name: req.currentBody.name,
+                        body_id: req.currentBody.id
+                    }
+                });
+            }
+
             await req.currentJoinRequest.update({ status: req.body.status }, { transaction: t });
         } else {
             await req.currentJoinRequest.destroy();
