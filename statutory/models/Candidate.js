@@ -120,7 +120,7 @@ const Candidate = sequelize.define('candidate', {
         }
     },
     studies: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: false,
         defaultValue: '',
         validate: {

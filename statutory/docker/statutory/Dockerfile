@@ -18,10 +18,10 @@ ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
 ENV PATH="/home/node/.npm-global/bin:${PATH}"
 
 # FIXME remove nodemon for production
-RUN npm install -g nodemon@2.0.7
-RUN npm install -g bunyan@1.8.15
-RUN npm cache clean --force
-RUN npm install
+RUN npm install -g nodemon@2.0.7 \
+ && npm install -g bunyan@1.8.15 \
+ && npm cache clean --force \
+ && npm install
 
 CMD sh /usr/app/scripts/bootstrap.sh && nodemon -e "js,json" lib/run.js
 
