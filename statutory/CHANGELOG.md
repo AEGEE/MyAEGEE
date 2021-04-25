@@ -1,3 +1,10 @@
+## [1.6.13](https://github.com/AEGEE/statutory/compare/1.6.12...1.6.13) (2021-04-25)
+
+
+### Bug Fixes
+
+* **candidate:** change studies into text ([#538](https://github.com/AEGEE/statutory/issues/538)) ([b499629](https://github.com/AEGEE/statutory/commit/b499629a51f88d0e3fe82df26e6b680ca2939566))
+
 ## [1.6.12](https://github.com/AEGEE/statutory/compare/1.6.11...1.6.12) (2021-04-12)
 
 
