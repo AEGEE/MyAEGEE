@@ -1,3 +1,10 @@
+## [1.28.1](https://github.com/AEGEE/frontend/compare/1.28.0...1.28.1) (2021-04-26)
+
+
+### Bug Fixes
+
+* **add member:** add placeholder to field ([#982](https://github.com/AEGEE/frontend/issues/982)) ([dc0f10e](https://github.com/AEGEE/frontend/commit/dc0f10eebc174d1aa4c98a9353bb35a45d069aff))
+
 # [1.28.0](https://github.com/AEGEE/frontend/compare/1.27.5...1.28.0) (2021-04-26)
 
 
