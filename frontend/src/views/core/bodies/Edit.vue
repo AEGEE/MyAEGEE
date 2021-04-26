@@ -3,10 +3,10 @@
     <div class="tile is-child">
       <form @submit.prevent="saveBody()">
         <div class="field">
-          <label class="label">Type</label>
+          <label class="label">Type <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="select">
-              <select v-model="body.type" :disabled="!can.editType" >
+              <select v-model="body.type" required :disabled="!can.editType" >
                 <option value="antenna">Antenna</option>
                 <option value="contact antenna">Contact antenna</option>
                 <option value="contact">Contact</option>
@@ -24,7 +24,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Name</label>
+          <label class="label">Name <span class="has-text-danger">*</span></label>
           <div class="control">
             <input class="input" type="text" required :disabled="!can.editName" v-model="body.name" />
           </div>
@@ -40,7 +40,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Description</label>
+          <label class="label">Description <span class="has-text-danger">*</span></label>
           <div class="control">
             <textarea class="textarea" placeholder="e.g. Hello world" required v-model="body.description"></textarea>
           </div>
@@ -67,7 +67,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Body code</label>
+          <label class="label">Body code <span class="has-text-danger">*</span></label>
           <div class="control">
             <input class="input" type="text" required :disabled="!can.editCode" v-model="body.code" />
           </div>
@@ -93,7 +93,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Email</label>
+          <label class="label">Email <span class="has-text-danger">*</span></label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><font-awesome-icon icon="envelope" /></span>
             <input class="input" type="text" required v-model="body.email" />

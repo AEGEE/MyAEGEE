@@ -96,10 +96,9 @@
                   <th>Title</th>
                   <td>{{ body.name }}</td>
                 </tr>
-                <tr v-if="!['antenna', 'contact antenna', 'contact'].includes(body.type)">
+                <tr v-if="!['antenna', 'contact antenna', 'contact'].includes(body.type) && body.abbreviation">
                   <th>Abbreviation</th>
-                  <td v-if="body.abbreviation">{{ body.abbreviation }}</td>
-                  <td v-if="!body.abbreviation"><i>No abbreviation specified.</i></td>
+                  <td>{{ body.abbreviation }}</td>
                 </tr>
                 <tr>
                   <th>Description</th>
@@ -129,12 +128,11 @@
                   <td v-if="body.email"><a :href="'mailto:' + body.email">{{ body.email }}</a></td>
                   <td v-if="!body.email"><i>Not set.</i></td>
                 </tr>
-                <tr>
+                <tr v-if="body.phone">
                   <th>Phone</th>
-                  <td v-if="body.phone">{{ body.phone }}</td>
-                  <td v-if="!body.phone"><i>No phone specified.</i></td>
+                  <td>{{ body.phone }}</td>
                 </tr>
-                <tr>
+                <tr v-if="body.address">
                   <th>Address</th>
                   <td>{{ body.address }}</td>
                 </tr>
@@ -142,10 +140,9 @@
                   <th>Postal address</th>
                   <td>{{ body.postal_address }}</td>
                 </tr>
-                <tr>
+                <tr v-if="body.website">
                   <th>Website</th>
-                  <td v-if="body.website"><a :href="body.website" target="_blank">{{ body.website }}</a></td>
-                  <td v-if="!body.website"><i>No website specified.</i></td>
+                  <td><a :href="body.website" target="_blank">{{ body.website }}</a></td>
                 </tr>
                 <tr v-if="can.viewShadowCircles">
                   <th>Shadow circle</th>
