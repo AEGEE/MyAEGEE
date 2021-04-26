@@ -48,7 +48,7 @@
     "compression-webpack-plugin": "6.1.1",
     "css-loader": "5.2.1",
     "dompurify": "2.2.7",
-    "eslint": "7.24.0",
+    "eslint": "7.25.0",
     "eslint-plugin-cypress": "2.11.2",
     "eslint-plugin-vue": "7.9.0",
     "ical": "0.8.0",
