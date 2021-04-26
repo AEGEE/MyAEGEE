@@ -323,7 +323,8 @@ exports.getEventPermissions = (data) => {
     permissions.export = {
         openslides: permissions.manage_applications || permissions.manage_incoming,
         all: permissions.manage_applications,
-        incoming: permissions.manage_applications || permissions.manage_incoming
+        incoming: permissions.manage_applications || permissions.manage_incoming,
+        delegates_jc: permissions.manage_applications
     };
 
     permissions.set_board_comment_and_participant_type = {

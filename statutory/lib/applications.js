@@ -728,7 +728,7 @@ exports.exportAll = async (req, res) => {
     }
 
     if (!req.permissions.export[req.params.prefix]) {
-        return errors.makeForbiddenError(res, 'You are not allowed to see statistics.');
+        return errors.makeForbiddenError(res, 'You are not allowed to export participants.');
     }
 
     if (!Array.isArray(req.query.select)) {
@@ -765,7 +765,7 @@ exports.exportAll = async (req, res) => {
 
     const resultBuffer = xlsx.build([
         {
-            name: 'Application stats',
+            name: 'Participants export',
             data: [
                 headers,
                 ...resultArray
@@ -774,7 +774,40 @@ exports.exportAll = async (req, res) => {
     ]);
 
     res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-disposition', 'attachment; filename=stats.xlsx');
+    res.setHeader('Content-disposition', 'attachment; filename=participants_' + new Date().toISOString() + '.xlsx');
 
     return res.send(resultBuffer);
+};
+
+exports.exportDelegatesJc = async (req, res) => {
+    // Exporting delegates as CSV for importing in OMS JC
+    if (!req.permissions.export.delegates_jc) {
+        return errors.makeForbiddenError(res, 'You are not allowed to export delegates for JC.');
+    }
+
+    const applications = await Application.findAll({ where: { event_id: req.event.id, cancelled: false, status: 'accepted', participant_type: 'delegate' } });
+
+    // Returns a CSV string
+    const exportString = await Promise.all(applications.map(async (application) => {
+        const user = await core.getMember(req, application.user_id);
+        const body = await core.getBody(req, application.body_id);
+        const regex = /[^a-zA-z\-\ ]/; // eslint-disable-line
+        application.first_name = application.first_name.replace(regex, '?');
+        application.last_name = application.last_name.replace(regex, '?');
+
+        return [
+            application.statutory_id,
+            user.email,
+            application.first_name,
+            application.last_name,
+            body.code,
+            application.participant_type
+        ].join(';');
+    }));
+    const resultString = exportString.filter((line) => line.length > 0).join('\n');
+
+    res.setHeader('Content-type', 'text/csv');
+    res.setHeader('Content-disposition', 'attachment; filename=delegates_jc_' + new Date().toISOString() + '.csv');
+
+    return res.send(resultString);
 };

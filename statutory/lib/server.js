@@ -88,6 +88,7 @@ ApplicationsRouter.get('/incoming', applications.listIncomingApplications);
 ApplicationsRouter.get('/network', applications.listNetworkApplications);
 ApplicationsRouter.get('/stats', applications.getStats);
 ApplicationsRouter.get('/export/openslides', applications.exportOpenslides);
+ApplicationsRouter.get('/export/delegates_jc', applications.exportDelegatesJc);
 ApplicationsRouter.get('/export/:prefix', applications.exportAll);
 ApplicationsRouter.get('/boardview/:body_id', applications.listBoardView);
 ApplicationsRouter.post('/boardview/:body_id', applications.setBoardForBody);
