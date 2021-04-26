@@ -227,6 +227,10 @@ exports.triggerEmailChange = async (req, res) => {
         return errors.makeBadRequestError(res, 'No new email is provided.');
     }
 
+    if (constants.RESTRICTED_EMAILS.some((email) => req.body.new_email.includes(email))) {
+        return errors.makeValidationError(res, 'New email can not be in one of the following domains: ' + constants.RESTRICTED_EMAILS.join(', ').trim() + '.');
+    }
+
     const existingMail = await User.findOne({
         where: {
             email: {
