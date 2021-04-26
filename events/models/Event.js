@@ -405,4 +405,9 @@ const Event = sequelize.define('event', {
     }
 });
 
+Event.beforeValidate(async (event) => {
+    // skipping these fields if they are unset, will catch it later.
+    if (typeof event.url === 'string') event.url = event.url.toLowerCase().trim();
+});
+
 module.exports = Event;
