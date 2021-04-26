@@ -36,6 +36,15 @@ const getMember = async (req, id) => {
     return user.data;
 };
 
+const getMails = async (req, ids) => {
+    const mails = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/members_email?query=' + ids,
+        token: req.headers['x-auth-token']
+    });
+
+    return mails.data;
+};
+
 const getBody = async (req, id) => {
     const body = await makeRequest({
         url: config.core.url + ':' + config.core.port + '/bodies/' + id,
@@ -142,6 +151,7 @@ const getBodyUsersForPermission = async (permission, bodyId) => {
 
 module.exports = {
     getMember,
+    getMails,
     getBody,
     getApprovePermissions,
     getBodies,

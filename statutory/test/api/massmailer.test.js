@@ -2,7 +2,7 @@ const { startServer, stopServer } = require('../../lib/server.js');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const regularUser = require('../assets/oms-core-valid').data;
+const regularUser = require('../assets/core-valid').data;
 
 describe('Massmailer', () => {
     let event;
@@ -175,7 +175,7 @@ describe('Massmailer', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should fail if oms-mailer returns net error', async () => {
+    test('should fail if mailer returns net error', async () => {
         mock.mockAll({ mailer: { netError: true } });
         const res = await request({
             uri: '/events/' + event.id + '/massmailer',
@@ -192,7 +192,7 @@ describe('Massmailer', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should fail if oms-mailer returns bad response', async () => {
+    test('should fail if mailer returns bad response', async () => {
         mock.mockAll({ mailer: { badResponse: true } });
         const res = await request({
             uri: '/events/' + event.id + '/massmailer',
@@ -209,7 +209,7 @@ describe('Massmailer', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should fail if oms-mailer returns unsuccessful response', async () => {
+    test('should fail if mailer returns unsuccessful response', async () => {
         mock.mockAll({ mailer: { unsuccessfulResponse: true } });
         const res = await request({
             uri: '/events/' + event.id + '/massmailer',

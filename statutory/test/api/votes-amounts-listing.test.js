@@ -3,7 +3,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { VotesPerAntenna } = require('../../models');
-const regularUser = require('../assets/oms-core-valid').data;
+const regularUser = require('../assets/core-valid').data;
 
 describe('Votes amounts listing', () => {
     beforeAll(async () => {

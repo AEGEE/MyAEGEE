@@ -2,7 +2,7 @@ const nock = require('nock');
 const path = require('path');
 
 const config = require('../../config');
-const regularUser = require('../assets/oms-core-valid').data;
+const regularUser = require('../assets/core-valid').data;
 const constants = require('../../lib/constants');
 
 exports.cleanAll = () => nock.cleanAll();
@@ -33,13 +33,13 @@ exports.mockCore = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/members/me')
-            .replyWithFile(401, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+            .replyWithFile(401, path.join(__dirname, '..', 'assets', 'core-unauthorized.json'));
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get('/members/me')
-        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-valid.json'));
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-valid.json'));
 };
 
 exports.mockCoreMainPermissions = (options) => {
@@ -68,20 +68,20 @@ exports.mockCoreMainPermissions = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/my_permissions')
-            .replyWithFile(401, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+            .replyWithFile(401, path.join(__dirname, '..', 'assets', 'core-unauthorized.json'));
     }
 
     if (options.noPermissions) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/my_permissions')
-            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-empty.json'));
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get('/my_permissions')
-        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-permissions-full.json'));
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-permissions-full.json'));
 };
 
 exports.mockCoreApprovePermissions = (options) => {
@@ -110,20 +110,20 @@ exports.mockCoreApprovePermissions = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .post('/my_permissions')
-            .replyWithFile(401, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+            .replyWithFile(401, path.join(__dirname, '..', 'assets', 'core-unauthorized.json'));
     }
 
     if (options.noPermissions) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .post('/my_permissions')
-            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-empty.json'));
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .post('/my_permissions')
-        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-approve-permissions-full.json'));
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-approve-permissions-full.json'));
 };
 
 exports.mockCoreMembers = (options) => {
@@ -152,20 +152,20 @@ exports.mockCoreMembers = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/members')
-            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'core-unauthorized.json'));
     }
 
     if (options.empty) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/members')
-            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-empty.json'));
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get('/members')
-        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-members.json'));
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-members.json'));
 };
 
 exports.mockCoreBodies = (options) => {
@@ -194,20 +194,20 @@ exports.mockCoreBodies = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/bodies')
-            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'core-unauthorized.json'));
     }
 
     if (options.empty) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get('/bodies')
-            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-empty.json'));
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get('/bodies')
-        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-bodies.json'));
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-bodies.json'));
 };
 
 exports.mockCoreBody = (options) => {
@@ -379,47 +379,77 @@ exports.mockCoreBodyMembers = (options) => {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get(/\/bodies\/[0-9].*\/members/)
-            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'oms-core-unauthorized.json'));
+            .replyWithFile(403, path.join(__dirname, '..', 'assets', 'core-unauthorized.json'));
     }
 
     if (options.empty) {
         return nock(`${config.core.url}:${config.core.port}`)
             .persist()
             .get(/\/bodies\/[0-9].*\/members/)
-            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-empty.json'));
+            .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-empty.json'));
     }
 
     return nock(`${config.core.url}:${config.core.port}`)
         .persist()
         .get(/\/bodies\/[0-9].*\/members/)
-        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'oms-core-body-members.json'));
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-body-members.json'));
+};
+
+exports.mockCoreMails = (options) => {
+    if (options.netError) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/members_email\?query=[0-9,].*/)
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/members_email\?query=[0-9,].*/)
+            .reply(500, 'Some error happened.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/members_email\?query=[0-9,].*/)
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
+    return nock(`${config.core.url}:${config.core.port}`)
+        .persist()
+        .get(/\/members_email\?query=[0-9,].*/)
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-notification-mails.json'));
 };
 
 exports.mockAll = (options = {}) => {
     nock.cleanAll();
-    const omsCoreStub = exports.mockCore(options.core || {});
-    const omsMainPermissionsStub = exports.mockCoreMainPermissions(options.mainPermissions || {});
-    const omsApprovePermissionsStub = exports.mockCoreApprovePermissions(options.approvePermissions || {});
-    const omsCoreMembersStub = exports.mockCoreMembers(options.members || {});
-    const omsCoreBodyMembersStub = exports.mockCoreBodyMembers(options.bodyMembers || {});
-    const omsCoreBodiesStub = exports.mockCoreBodies(options.bodies || {});
-    const omsCoreBodyStub = exports.mockCoreBody(options.body || {});
-    const omsCoreMemberStub = exports.mockCoreMember(options.member || {});
-    const omsCoreLoginStub = exports.mockCoreLogin(options.login || {});
-    const omsMailerStub = exports.mockCoreMailer(options.mailer || {});
+    const coreStub = exports.mockCore(options.core || {});
+    const mainPermissionsStub = exports.mockCoreMainPermissions(options.mainPermissions || {});
+    const approvePermissionsStub = exports.mockCoreApprovePermissions(options.approvePermissions || {});
+    const coreMembersStub = exports.mockCoreMembers(options.members || {});
+    const coreBodyMembersStub = exports.mockCoreBodyMembers(options.bodyMembers || {});
+    const coreBodiesStub = exports.mockCoreBodies(options.bodies || {});
+    const coreBodyStub = exports.mockCoreBody(options.body || {});
+    const coreMemberStub = exports.mockCoreMember(options.member || {});
+    const coreLoginStub = exports.mockCoreLogin(options.login || {});
+    const coreMailsStub = exports.mockCoreMails(options.mails || {});
+    const mailerStub = exports.mockCoreMailer(options.mailer || {});
     const conversionRatesStub = exports.mockConversionApi(options.conversion || {});
 
     return {
-        omsCoreStub,
-        omsMainPermissionsStub,
-        omsApprovePermissionsStub,
-        omsCoreMembersStub,
-        omsCoreBodiesStub,
-        omsCoreBodyStub,
-        omsCoreMemberStub,
-        omsCoreLoginStub,
-        omsCoreBodyMembersStub,
-        omsMailerStub,
+        coreStub,
+        mainPermissionsStub,
+        approvePermissionsStub,
+        coreMembersStub,
+        coreBodiesStub,
+        coreBodyStub,
+        coreMemberStub,
+        coreLoginStub,
+        coreBodyMembersStub,
+        mailerStub,
+        coreMailsStub,
         conversionRatesStub
     };
 };

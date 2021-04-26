@@ -14,7 +14,7 @@ describe('API requests', () => {
         mock.cleanAll();
     });
 
-    test('should fail if oms-core returns net error while fetching user', async () => {
+    test('should fail if core returns net error while fetching user', async () => {
         mock.mockAll({ core: { netError: true } });
 
         const res = await request({
@@ -29,7 +29,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    test('should fail if oms-core returns garbage while fetching user', async () => {
+    test('should fail if core returns garbage while fetching user', async () => {
         mock.mockAll({ core: { badResponse: true } });
 
         const res = await request({
@@ -44,7 +44,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    test('should fail if oms-core returns net error while fetching permissions', async () => {
+    test('should fail if core returns net error while fetching permissions', async () => {
         mock.mockAll({ mainPermissions: { netError: true } });
 
         const res = await request({
@@ -59,7 +59,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    test('should fail if oms-core returns garbage while fetching permissions', async () => {
+    test('should fail if core returns garbage while fetching permissions', async () => {
         mock.mockAll({ mainPermissions: { badResponse: true } });
 
         const res = await request({
@@ -74,7 +74,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    test('should return 500 if oms-core returned unsuccessful response', async () => {
+    test('should return 500 if core returned unsuccessful response', async () => {
         mock.mockAll({ core: { unsuccessfulResponse: true } });
 
         const event = await generator.createEvent();
@@ -91,7 +91,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    test('should return 500 if oms-core returned unsuccessful response for permissions', async () => {
+    test('should return 500 if core returned unsuccessful response for permissions', async () => {
         mock.mockAll({ mainPermissions: { unsuccessfulResponse: true } });
 
         const event = await generator.createEvent();
@@ -108,7 +108,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    test('should return 500 if oms-core returned unsuccessful response for approve permissions', async () => {
+    test('should return 500 if core returned unsuccessful response for approve permissions', async () => {
         mock.mockAll({ approvePermissions: { unsuccessfulResponse: true } });
 
         const event = await generator.createEvent();
@@ -176,7 +176,7 @@ describe('API requests', () => {
         expect(res.body.success).toEqual(false);
     });
 
-    test('should fail if oms-core returns garbage while fetching approve permissions', async () => {
+    test('should fail if core returns garbage while fetching approve permissions', async () => {
         mock.mockAll({ approvePermissions: { badResponse: true } });
         const event = await generator.createEvent({});
 

@@ -5,7 +5,7 @@ const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { MembersList, Application } = require('../../models');
-const regularUser = require('../assets/oms-core-valid').data;
+const regularUser = require('../assets/core-valid').data;
 const conversionRates = require('../assets/conversion-rates-api');
 
 describe('Memberslist uploading', () => {
