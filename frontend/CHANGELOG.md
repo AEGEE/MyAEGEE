@@ -1,3 +1,10 @@
+## [1.28.2](https://github.com/AEGEE/frontend/compare/1.28.1...1.28.2) (2021-04-26)
+
+
+### Bug Fixes
+
+* **bodies:** visibly mark required ([#985](https://github.com/AEGEE/frontend/issues/985)) ([be36092](https://github.com/AEGEE/frontend/commit/be3609248475f7bfd4a6a40a9801b246643fef32))
+
 ## [1.28.1](https://github.com/AEGEE/frontend/compare/1.28.0...1.28.1) (2021-04-26)
 
 
