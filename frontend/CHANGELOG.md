@@ -1,3 +1,10 @@
+## [1.28.3](https://github.com/AEGEE/frontend/compare/1.28.2...1.28.3) (2021-04-26)
+
+
+### Bug Fixes
+
+* **export:** add dateTime. Fixes MA-102 ([#986](https://github.com/AEGEE/frontend/issues/986)) ([9e60cf5](https://github.com/AEGEE/frontend/commit/9e60cf576e7e5d6bccf6e03511f1bcdec40101da))
+
 ## [1.28.2](https://github.com/AEGEE/frontend/compare/1.28.1...1.28.2) (2021-04-26)
 
 
