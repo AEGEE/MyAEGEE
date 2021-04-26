@@ -102,6 +102,26 @@ describe('Events creation', () => {
         expect(res.body.errors).toHaveProperty('url');
     });
 
+    it('should return 422 if URL is not unique', async () => {
+        await generator.createEvent({ url: 'non-unique-url' });
+
+        const event = generator.generateEvent({
+            url: 'non-unique-URL'
+        });
+
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: event
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body.errors).toHaveProperty('url');
+    });
+
     test('should fail if event ends before it starts', async () => {
         const res = await request({
             uri: '/',
