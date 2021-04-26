@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/AEGEE/statutory/compare/1.8.0...1.8.1) (2021-04-26)
+
+
+### Bug Fixes
+
+* **candidate:** update body name. Fixes MA-108 ([#542](https://github.com/AEGEE/statutory/issues/542)) ([7fb085c](https://github.com/AEGEE/statutory/commit/7fb085cdc71c01dd25f26d3b00d4287549c3dc2f))
+
 # [1.8.0](https://github.com/AEGEE/statutory/compare/1.7.0...1.8.0) (2021-04-26)
 
 
