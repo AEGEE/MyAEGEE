@@ -101,6 +101,44 @@ describe('User mail change', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    test('should fail if new mail in in @aegee.eu', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
+
+        const res = await request({
+            uri: '/members/' + user.id + '/email',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { new_email: 'test@aegee.eu' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should fail if new mail in in @aegee.org', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'update', object: 'member' });
+
+        const res = await request({
+            uri: '/members/' + user.id + '/email',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': token.value },
+            body: { new_email: 'test@aegee.org' }
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
     test('should fail if mailer fails', async () => {
         mock.mockAll({ mailer: { netError: true } });
 
