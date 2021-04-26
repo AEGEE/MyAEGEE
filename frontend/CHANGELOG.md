@@ -1,3 +1,10 @@
+# [1.28.0](https://github.com/AEGEE/frontend/compare/1.27.5...1.28.0) (2021-04-26)
+
+
+### Features
+
+* **MA-24:** csv export of body votes for statutory events  ([#630](https://github.com/AEGEE/frontend/issues/630)) ([f20904a](https://github.com/AEGEE/frontend/commit/f20904a7ebdf80e5938689244037ac3a0bd78fe2))
+
 ## [1.27.5](https://github.com/AEGEE/frontend/compare/1.27.4...1.27.5) (2021-04-18)
 
 
