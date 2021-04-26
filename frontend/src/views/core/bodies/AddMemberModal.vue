@@ -13,7 +13,8 @@
           :loading="isLoadingMembers"
           @input="fetchMembers"
           :expanded="true"
-          @select="option => addMember(option)">
+          @select="option => addMember(option)"
+          placeholder="Search by name or email">
 
           <template slot-scope="props">
             <div class="media">
