@@ -11,6 +11,12 @@
               <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
             </div>
           </div>
+
+          <div class="control">
+            <button @click="exportDelegatesJc()" class="button is-primary">
+              Export all delegates for OMS JC
+            </button>
+          </div>
         </div>
 
         <div>Total participants: {{ total }}</div>
@@ -191,6 +197,19 @@ export default {
         }
 
         this.$router.push({ name: 'oms.statutory.list.all' })
+      })
+    },
+    exportDelegatesJc () {
+      this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/export/delegates_jc', {
+        responseType: 'blob'
+      }).then(response => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        const filename = 'delegates_jc_' + new Date().toISOString() + '.csv'
+        link.setAttribute('download', filename)
+        document.body.appendChild(link)
+        link.click()
       })
     }
   },
