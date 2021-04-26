@@ -1,3 +1,10 @@
+## [1.3.7](https://github.com/AEGEE/events/compare/1.3.6...1.3.7) (2021-04-26)
+
+
+### Bug Fixes
+
+* **event:** make urls lowercase. Fixes MA-114 ([#508](https://github.com/AEGEE/events/issues/508)) ([9e0b03b](https://github.com/AEGEE/events/commit/9e0b03b7789d6d357dd8b31b3decbb8c1acf24bb))
+
 ## [1.3.6](https://github.com/AEGEE/events/compare/1.3.5...1.3.6) (2021-04-13)
 
 
