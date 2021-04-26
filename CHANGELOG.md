@@ -1,3 +1,10 @@
+## [1.36.1](https://github.com/AEGEE/core/compare/1.36.0...1.36.1) (2021-04-26)
+
+
+### Bug Fixes
+
+* **mail change:** do not allow change to restricted domain. Fixes MA-173 ([#284](https://github.com/AEGEE/core/issues/284)) ([cd71d97](https://github.com/AEGEE/core/commit/cd71d976b6e1d50f5ece3f577eaa2cff5541b989))
+
 # [1.36.0](https://github.com/AEGEE/core/compare/1.35.0...1.36.0) (2021-04-22)
 
 
