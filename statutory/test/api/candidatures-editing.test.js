@@ -108,7 +108,7 @@ describe('Candidates editing', () => {
         const res = await request({
             uri: '/events/' + event.id + '/positions/' + position.id + '/candidates/' + position.candidates[0].id,
             method: 'PUT',
-            body: { first_name: 'Different' },
+            body: { first_name: 'Different', body_id: regularUser.bodies[0].id },
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 

@@ -102,6 +102,8 @@ exports.editCandidature = async (req, res) => {
     delete req.body.status;
     delete req.body.user_id;
 
+    req.body.body_name = req.user.bodies.find((body) => body.id === req.body.body_id).name;
+
     await req.candidate.update(req.body);
 
     return res.json({
