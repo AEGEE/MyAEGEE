@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/AEGEE/statutory/compare/1.7.0...1.8.0) (2021-04-26)
+
+
+### Features
+
+* **delegates:** add delegates export OMS JC ([#540](https://github.com/AEGEE/statutory/issues/540)) ([89aabc2](https://github.com/AEGEE/statutory/commit/89aabc2094cb8977a72c508607c89c94f150977c))
+
 # [1.7.0](https://github.com/AEGEE/statutory/compare/1.6.13...1.7.0) (2021-04-26)
 
 
