@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/AEGEE/summeruniversity/compare/1.1.4...1.1.5) (2021-04-26)
+
+
+### Bug Fixes
+
+* **event:** make urls lowercase. Fixes MA-114 ([#69](https://github.com/AEGEE/summeruniversity/issues/69)) ([19066c4](https://github.com/AEGEE/summeruniversity/commit/19066c44b562d940c743f47355e1a648db569fb8))
+
 ## [1.1.4](https://github.com/AEGEE/summeruniversity/compare/1.1.3...1.1.4) (2021-03-31)
 
 
