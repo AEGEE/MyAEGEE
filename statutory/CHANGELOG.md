@@ -1,3 +1,10 @@
+## [1.8.2](https://github.com/AEGEE/statutory/compare/1.8.1...1.8.2) (2021-04-26)
+
+
+### Bug Fixes
+
+* **event:** make urls lowercase. Fixes MA-114 ([#541](https://github.com/AEGEE/statutory/issues/541)) ([8374f55](https://github.com/AEGEE/statutory/commit/8374f550e6b9a4b920702dec6b1241e44363a28e))
+
 ## [1.8.1](https://github.com/AEGEE/statutory/compare/1.8.0...1.8.1) (2021-04-26)
 
 
