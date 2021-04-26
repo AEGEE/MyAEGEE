@@ -1,3 +1,10 @@
+# [1.29.0](https://github.com/AEGEE/frontend/compare/1.28.3...1.29.0) (2021-04-26)
+
+
+### Features
+
+* **agora:** add export delegates OMS JC ([#984](https://github.com/AEGEE/frontend/issues/984)) ([2632c8d](https://github.com/AEGEE/frontend/commit/2632c8dfad6af2ad457a0417356d5572fac43bac))
+
 ## [1.28.3](https://github.com/AEGEE/frontend/compare/1.28.2...1.28.3) (2021-04-26)
 
 
