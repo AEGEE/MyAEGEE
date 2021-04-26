@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/AEGEE/statutory/compare/1.6.13...1.7.0) (2021-04-26)
+
+
+### Features
+
+* **massmailer:** use notification_mail ([#539](https://github.com/AEGEE/statutory/issues/539)) ([7e450e2](https://github.com/AEGEE/statutory/commit/7e450e27726210877407ecfe42b8a2a60a4f7fb1))
+
 ## [1.6.13](https://github.com/AEGEE/statutory/compare/1.6.12...1.6.13) (2021-04-25)
 
 
