@@ -6,15 +6,25 @@
 
         <div class="subtitle">By antenna</div>
 
+        <div class="field">
+          <div class="control">
+            <a :href="exportVotesCSV.content" :download="exportVotesCSV.filename"><button class="button is-primary">
+              Export list of votes
+            </button></a>
+          </div>
+        </div>
+
         <table class="table is-narrow is-fullwidth">
           <thead>
             <tr>
+              <th>Body Code</th>
               <th>Body</th>
               <th>Votes</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="vote in antennae" v-bind:key="vote.id">
+              <td>{{ vote.body ? vote.body.code : 'Loading...' }}</td>
               <td>
                 <router-link :to="{ name: 'oms.bodies.view', params: { id: vote.body_id } }">
                   {{ vote.body ? vote.body.name : 'Loading...' }}
@@ -71,6 +81,23 @@
 <script>
 import { mapGetters } from 'vuex'
 
+/**
+ * Takes a list of antennas, and returns an object with two properties, CSV content and a filename
+ * @param antennae
+ * @param eventShortLink the string 'aaa' in the URL http://my.appserver.test/statutory/aaa/votes. Since it's part of the URL, it does comport spaces.
+ */
+function prepareExportCsv (antennae, eventShortLink) {
+  // we're forced to use %2C for commas and %0A for linebreak.
+  const contentT = 'data:text/csv,' + antennae
+    .map(antenna => antenna.body.code + '%2C' + antenna.votes + '%0A')
+    .join('')
+  const filenameT = 'exportVotes_' + eventShortLink + '_' + new Date().toISOString() + '.csv'
+  return {
+    content: contentT,
+    filename: filenameT
+  }
+}
+
 export default {
   name: 'VotesAmountsForStatutory',
   data () {
@@ -78,7 +105,11 @@ export default {
       antennae: [],
       delegates: [],
       isLoading: false,
-      isSaving: false
+      isSaving: false,
+      exportVotesCSV: {
+        content: '',
+        filename: ''
+      }
     }
   },
   computed: mapGetters({
@@ -104,6 +135,7 @@ export default {
         for (const antenna of this.antennae) {
           this.$set(antenna, 'body', bodies.data.data.find(b => b.id === antenna.body_id))
         }
+        this.exportVotesCSV = prepareExportCsv(this.antennae, this.$route.params.id)
       }).catch(console.error)
     }).catch((err) => {
       if (err.response.status === 404) {
