@@ -55,7 +55,7 @@
               </div>
             </b-table-column>
 
-            <b-table-column label="Attended?" field="confirmed" centered sortable>
+            <b-table-column label="Attended?" field="attended" centered sortable>
               <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
                 <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.confirmed">
                   <option :value="true">Yes</option>

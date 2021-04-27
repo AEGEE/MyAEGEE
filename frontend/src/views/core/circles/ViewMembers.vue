@@ -16,7 +16,7 @@
           :data="members"
           :loading="isLoading">
           <template slot-scope="props">
-            <b-table-column field="first_name" label="Name and surname" sortable>
+            <b-table-column field="user.first_name" label="Name and surname" sortable>
               <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user.username || props.row.user.id } }">
                 {{ props.row.user.first_name }} {{ props.row.user.last_name }}
               </router-link>

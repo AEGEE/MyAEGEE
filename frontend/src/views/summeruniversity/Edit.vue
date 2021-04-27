@@ -488,7 +488,7 @@
             :data="event.organizers"
             :loading="isLoading">
             <template slot-scope="props">
-               <b-table-column field="organizer" label="First and last name" sortable>
+               <b-table-column field="first_name" label="First and last name" sortable>
                 <router-link target="_blank" :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
                   {{ props.row.first_name }} {{ props.row.last_name }}
                 </router-link>

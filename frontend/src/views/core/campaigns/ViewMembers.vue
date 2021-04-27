@@ -19,8 +19,8 @@
         default-sort="id"
         default-sort-direction="desc">
         <template slot-scope="props">
-          <b-table-column field="user_id" label="#" numeric sortable>
-            {{ props.row.user_id }}
+          <b-table-column field="id" label="#" numeric sortable>
+            {{ props.row.id }}
           </b-table-column>
 
           <b-table-column field="first_name" label="User" sortable>

@@ -7,7 +7,7 @@
     <section class="modal-card-body">
       <b-table :data="memberslist.members">
         <template slot-scope="props">
-          <b-table-column field="id" label="User ID" numeric sortable>
+          <b-table-column field="user_id" label="User ID" numeric sortable>
             {{ props.row.user_id }}
           </b-table-column>
 
