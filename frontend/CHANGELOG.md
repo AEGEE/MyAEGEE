@@ -1,3 +1,10 @@
+## [1.29.1](https://github.com/AEGEE/frontend/compare/1.29.0...1.29.1) (2021-04-27)
+
+
+### Bug Fixes
+
+* **tables:** fix sortable fields. Fixes MA-189 ([#988](https://github.com/AEGEE/frontend/issues/988)) ([70f573c](https://github.com/AEGEE/frontend/commit/70f573cfe03b51563e00844d6304fc6a754ed07e))
+
 # [1.29.0](https://github.com/AEGEE/frontend/compare/1.28.3...1.29.0) (2021-04-26)
 
 
