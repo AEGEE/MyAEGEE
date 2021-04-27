@@ -107,7 +107,7 @@ class JobManager {
 
         const id = ++this.currentJob;
 
-        const job = scheduler.scheduleJob(time, () => this.executeJob(id));
+        scheduler.scheduleJob(time, () => this.executeJob(id));
 
         this.jobs[id] = {
             key,
@@ -115,8 +115,7 @@ class JobManager {
             time,
             params,
             id,
-            callback,
-            job
+            callback
         };
         logger.info({
             id,

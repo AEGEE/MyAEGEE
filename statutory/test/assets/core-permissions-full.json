@@ -193,5 +193,14 @@
         "combined": "global:manage_question_lines:agora",
         "circles": null,
         "action": "manage_question_lines"
+      }, {
+        "scope": "global",
+        "object": "statutory",
+        "id": 71,
+        "filters": [],
+        "description": "See background tasks",
+        "combined": "global:see_background_tasks:statutory",
+        "circles": null,
+        "action": "see_background_tasks"
       }]
 }

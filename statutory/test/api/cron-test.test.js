@@ -52,6 +52,27 @@ describe('Cron testing', () => {
         expect(Object.keys(cron.jobs).length).toEqual(1);
     });
 
+    test('should get tasks properly', async () => {
+        const event = await generator.createEvent({ type: 'agora', applications: [] });
+        await generator.createPosition({
+            starts: moment().add(1, 'week').toDate(),
+            ends: moment().add(2, 'week').toDate(),
+        }, event);
+
+        cron.clearAll(); // to clear all of them
+        await cron.registerAllDeadlines();
+
+        const res = await request({
+            uri: '/tasks',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+    });
+
     describe('on system start', () => {
         test('should set the open and close deadline for positions on cron.registerAll()', async () => {
             const event = await generator.createEvent({ type: 'agora', applications: [] });
