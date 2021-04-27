@@ -1,3 +1,10 @@
+## [1.8.3](https://github.com/AEGEE/statutory/compare/1.8.2...1.8.3) (2021-04-27)
+
+
+### Bug Fixes
+
+* **cron:** fix returning tasklist. Fixes MA-187 ([#543](https://github.com/AEGEE/statutory/issues/543)) ([89ca2d2](https://github.com/AEGEE/statutory/commit/89ca2d2e57352b12edd11faed920f131351a5756))
+
 ## [1.8.2](https://github.com/AEGEE/statutory/compare/1.8.1...1.8.2) (2021-04-26)
 
 
