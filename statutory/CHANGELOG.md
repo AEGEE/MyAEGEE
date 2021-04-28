@@ -1,3 +1,10 @@
+## [1.8.4](https://github.com/AEGEE/statutory/compare/1.8.3...1.8.4) (2021-04-28)
+
+
+### Bug Fixes
+
+* **export:** fix permission. Fixes HELP-1685 ([#544](https://github.com/AEGEE/statutory/issues/544)) ([f9bd76c](https://github.com/AEGEE/statutory/commit/f9bd76c178f91b5337e80114c6e21a02ba7792e2))
+
 ## [1.8.3](https://github.com/AEGEE/statutory/compare/1.8.2...1.8.3) (2021-04-27)
 
 
