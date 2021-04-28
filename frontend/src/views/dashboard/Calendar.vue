@@ -72,7 +72,7 @@ export default {
           title: info.event.title,
           message: '<strong>Starts: </strong>' + moment(info.event.start).format('D MMMM Y H:mm')
             + '</br><strong>Ends: </strong>' + moment(info.event.end).format('D MMMM Y H:mm')
-            + '<hr>' + info.event.extendedProps.description,
+            + '<hr>' + this.$options.filters.markdown(info.event.extendedProps.description),
           canCancel: '[escape, button, outside]',
           confirmText: 'Event page',
           type: 'is-info',
