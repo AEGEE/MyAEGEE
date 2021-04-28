@@ -1,3 +1,10 @@
+## [1.29.2](https://github.com/AEGEE/frontend/compare/1.29.1...1.29.2) (2021-04-28)
+
+
+### Bug Fixes
+
+* **calendar:** add markdown to event description ([#989](https://github.com/AEGEE/frontend/issues/989)) ([fd6a300](https://github.com/AEGEE/frontend/commit/fd6a3008af96f8932dfae19cc62bd3cc9e41d920))
+
 ## [1.29.1](https://github.com/AEGEE/frontend/compare/1.29.0...1.29.1) (2021-04-27)
 
 
