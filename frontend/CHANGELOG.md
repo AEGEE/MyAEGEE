@@ -1,3 +1,10 @@
+## [1.29.3](https://github.com/AEGEE/frontend/compare/1.29.2...1.29.3) (2021-04-28)
+
+
+### Bug Fixes
+
+* **export:** change CSV to tab seperated TXT ([#991](https://github.com/AEGEE/frontend/issues/991)) ([a1ef856](https://github.com/AEGEE/frontend/commit/a1ef8564b4f72e6026a712587532a703c6287004))
+
 ## [1.29.2](https://github.com/AEGEE/frontend/compare/1.29.1...1.29.2) (2021-04-28)
 
 
