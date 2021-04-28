@@ -17,7 +17,7 @@ describe('Export Delegates JC', () => {
 
     beforeEach(async () => {
         mock.mockAll();
-        event = await generator.createEvent({ applications: [] });
+        event = await generator.createEvent({ applications: [], type: 'agora' });
     });
 
     afterEach(async () => {

@@ -202,5 +202,14 @@
         "combined": "global:see_background_tasks:statutory",
         "circles": null,
         "action": "see_background_tasks"
+      }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 71,
+        "filters": [],
+        "description": "See JC list and change 'registered' and 'departed' attributes only.",
+        "combined": "global:manage_juridical:agora",
+        "circles": null,
+        "action": "manage_juridical"
       }]
 }
