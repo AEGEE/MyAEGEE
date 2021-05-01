@@ -33,7 +33,7 @@ const config = {
         postgres: {
             host: 'localhost',
             database: 'knowledge-testing',
-            password: process.env.PG_PASSWORD || 'postgres',
+            password: process.env.PG_PASSWORD || '5ecr3t',
         },
         logger: {
             silent: (typeof process.env.ENABLE_LOGGING !== 'undefined') ? (!process.env.ENABLE_LOGGING) : true
