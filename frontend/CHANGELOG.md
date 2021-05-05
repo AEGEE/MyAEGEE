@@ -1,3 +1,10 @@
+# [1.30.0](https://github.com/AEGEE/frontend/compare/1.29.3...1.30.0) (2021-05-05)
+
+
+### Features
+
+* **su:** add covid fields to events ([#994](https://github.com/AEGEE/frontend/issues/994)) ([a22b341](https://github.com/AEGEE/frontend/commit/a22b341393e3f5cf6919124909a3aa11b7b1358f))
+
 ## [1.29.3](https://github.com/AEGEE/frontend/compare/1.29.2...1.29.3) (2021-04-28)
 
 
