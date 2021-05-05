@@ -307,10 +307,10 @@
                 <textarea class="textarea" v-model="marker.description"></textarea>
               </td>
               <td>
-                <input type="checkbox" name="start_loc" v-model="marker.start" />
+                <input type="radio" name="start_loc" v-model="marker.start" value=true />
               </td>
               <td>
-                <input type="checkbox" name="end_loc" v-model="marker.end" />
+                <input type="radio" name="end_loc" v-model="marker.end" value=true />
               </td>
               <td>
                 <button class="button is-danger" @click="deleteLocation(index)">Delete location</button>

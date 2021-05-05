@@ -133,7 +133,7 @@
 
         <!-- TODO: If larger than max, show warning that higher fee can only be set by SUCT -->
         <!-- TODO: Have two inputs, one without a maximum for people with the proper permission and one with the maximum based on duration (max 14 euros per night) -->
-        <div class="field">
+        <div class="field" v-if="!event.status || event.status === 'first draft' || can.editFee">
           <label class="label">Fee <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="field has-addons">
@@ -681,6 +681,33 @@
         </div>
         <p class="help is-danger" v-if="errors.questions">{{ errors.questions.message }}</p>
 
+        <div class="subtitle is-fullwidth has-text-centered">Covid regulations</div>
+        <hr />
+
+        <div class="field">
+          <label class="label">Where to find covid regulations <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <textarea class="textarea" placeholder="Where to find information on destinations' covid regulations." required v-model="event.covid_regulations"></textarea>
+          </div>
+          <p class="help is-danger" v-if="errors.covid_regulations">{{ errors.covid_regulations.join(', ') }}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Payment and cancellation rules <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <textarea class="textarea" placeholder="Payment and cancellation rules set by your SU." required v-model="event.cancellation_rules"></textarea>
+          </div>
+          <p class="help is-danger" v-if="errors.cancellation_rules">{{ errors.cancellation_rules.join(', ') }}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">SU specific regulations <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <textarea class="textarea" placeholder="Additional regulations set by your SU." required v-model="event.additional_regulation"></textarea>
+          </div>
+          <p class="help is-danger" v-if="errors.additional_regulation">{{ errors.additional_regulation.join(', ') }}</p>
+        </div>
+
         <div class="subtitle is-fullwidth has-text-centered">SUCT approval fields</div>
         <hr/>
 
@@ -810,6 +837,9 @@ export default {
         pax_confirmation: null,
         pax_description: null,
         special_equipment: null,
+        covid_regulations: null,
+        cancellation_rules: null,
+        additional_regulation: null,
         agreed_to_su_terms: false
       },
       autoComplete: {
@@ -839,7 +869,8 @@ export default {
         time_24hr: true
       },
       can: {
-        editEventType: false
+        editEventType: false,
+        editFee: false
       },
       errors: {},
       isLoading: false,
@@ -1116,6 +1147,7 @@ export default {
       return this.axios.get(this.services['core'] + '/my_permissions/')
     }).then((response) => {
       this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
+      this.can.editFee = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_fee'))
 
       if (!this.$route.params.id) {
         this.isLoading = false
@@ -1132,6 +1164,7 @@ export default {
         this.event = eventsResponse.data.data
         this.can = eventsResponse.data.permissions
         this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
+        this.can.editFee = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_fee'))
 
         this.dates.starts = this.event.starts = new Date(this.event.starts)
         this.dates.ends = this.event.starts = new Date(this.event.ends)
