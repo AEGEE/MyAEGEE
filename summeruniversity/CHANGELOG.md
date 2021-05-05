@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/AEGEE/summeruniversity/compare/1.1.5...1.2.0) (2021-05-05)
+
+
+### Features
+
+* **events:** add covid fields events ([#72](https://github.com/AEGEE/summeruniversity/issues/72)) ([3f1c5d7](https://github.com/AEGEE/summeruniversity/commit/3f1c5d715f3be2ac40d87a007333878e59d0246b))
+
 ## [1.1.5](https://github.com/AEGEE/summeruniversity/compare/1.1.4...1.1.5) (2021-04-26)
 
 
