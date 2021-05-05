@@ -297,24 +297,24 @@ const Event = sequelize.define('event', {
         }
     },
     status: {
-        type: Sequelize.ENUM('first draft', 'first submission', 'first approval', 'second draft', 'second submission', 'second approval'),
+        type: Sequelize.ENUM('first draft', 'first submission', 'first approval', 'second draft', 'second submission', 'second approval', 'covid draft', 'covid submission', 'covid approval'),
         allowNull: false,
         defaultValue: 'first draft',
         validate: {
             isIn: {
-                args: [['first draft', 'first submission', 'first approval', 'second draft', 'second submission', 'second approval']],
+                args: [['first draft', 'first submission', 'first approval', 'second draft', 'second submission', 'second approval', 'covid draft', 'covid submission', 'covid approval']],
                 msg: 'Event status is not valid.'
             }
         }
     },
     published: {
-        type: Sequelize.ENUM('none', 'minimal', 'full'),
+        type: Sequelize.ENUM('none', 'minimal', 'full', 'covid'),
         allowNull: false,
         defaultValue: 'none',
         validate: {
             isIn: {
-                args: [['none', 'minimal', 'full']],
-                msg: 'Event publication must be none, minimal or full.'
+                args: [['none', 'minimal', 'full', 'covid']],
+                msg: 'Event publication must be none, minimal, full or covid.'
             }
         }
     },
@@ -445,6 +445,18 @@ const Event = sequelize.define('event', {
         type: Sequelize.BOOLEAN,
         allowNull: true,
         defaultValue: false
+    },
+    covid_regulations: {
+        type: Sequelize.TEXT,
+        allowNull: true
+    },
+    cancellation_rules: {
+        type: Sequelize.TEXT,
+        allowNull: true
+    },
+    additional_regulation: {
+        type: Sequelize.TEXT,
+        allowNull: true
     },
     agreed_to_su_terms: {
         type: Sequelize.BOOLEAN,

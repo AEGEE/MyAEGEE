@@ -24,7 +24,9 @@ exports.listEvents = async (req, res) => {
     const whitelistEvents = [];
 
     for (let event of events) {
-        if (event.published === 'full') {
+        if (event.published === 'covid') {
+            event = helpers.whitelistObject(event, constants.EVENT_COVID_FIELDS);
+        } else if (event.published === 'full') {
             event = helpers.whitelistObject(event, constants.EVENT_FULL_FIELDS);
         } else {
             event = helpers.whitelistObject(event, constants.EVENT_MINIMAL_FIELDS);
@@ -150,7 +152,9 @@ exports.eventDetails = async (req, res) => {
     if (!helpers.isOrganizer(event, req.user)
         && !req.permissions.manage_summeruniversity[event.type]
         && !req.permissions.approve_summeruniversity[event.type]) {
-        if (req.event.published === 'full') {
+        if (req.event.published === 'covid') {
+            event = helpers.whitelistObject(event, constants.EVENT_COVID_FIELDS);
+        } else if (req.event.published === 'full') {
             event = helpers.whitelistObject(event, constants.EVENT_FULL_FIELDS);
         } else {
             event = helpers.whitelistObject(event, constants.EVENT_MINIMAL_FIELDS);
@@ -209,6 +213,14 @@ exports.editEvent = async (req, res) => {
         }
     }
 
+    if (['second approval', 'covid draft'].includes(oldStatus)) {
+        data.status = 'covid submission';
+
+        if (!req.permissions.change_status[data.status.replace(' ', '_')]) {
+            return errors.makeForbiddenError(res, 'You are not allowed to change status.');
+        }
+    }
+
     await sequelize.transaction(async (t) => {
         // Updating the event in a transaction, so if mail sending fails, the update would be reverted.
         await event.update(data, { transaction: t });
@@ -226,7 +238,7 @@ exports.editEvent = async (req, res) => {
             }
         });
 
-        if (['first draft', 'first approval', 'second draft'].includes(oldStatus)) {
+        if (['first draft', 'first approval', 'second draft', 'second approval', 'covid draft'].includes(oldStatus)) {
             await mailer.sendMail({
                 to: config.new_event_notifications,
                 subject: 'A event was submitted.',
@@ -283,7 +295,7 @@ exports.setApprovalStatus = async (req, res) => {
             }
         });
 
-        if (['first submission', 'second submission'].includes(req.event.status)) {
+        if (['first submission', 'second submission', 'covid submission'].includes(req.event.status)) {
             await mailer.sendMail({
                 to: config.new_event_notifications,
                 subject: 'A new event was submitted.',
@@ -306,7 +318,7 @@ exports.setPublished = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to set the publication.');
     }
 
-    if (!['none', 'minimal', 'full'].includes(req.body.published)) {
+    if (!['none', 'minimal', 'full', 'covid'].includes(req.body.published)) {
         return errors.makeBadRequestError(res, 'The wanted event publication status is not valid.');
     }
 
@@ -316,6 +328,10 @@ exports.setPublished = async (req, res) => {
 
     if (req.event.status !== 'second approval' && req.body.published === 'full') {
         return errors.makeForbiddenError(res, 'This event status does not allow a full publication');
+    }
+
+    if (req.event.status !== 'covid approval' && req.body.published === 'covid') {
+        return errors.makeForbiddenError(res, 'This event status does not allow a covid publication');
     }
 
     await req.event.update({ published: req.body.published });

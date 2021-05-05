@@ -194,10 +194,10 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
     permissions.see_summeruniversity = (event.published !== 'none' && !event.deleted)
         || canApproveOrIsOrganizer;
 
-    permissions.edit_summeruniversity = (event.status !== 'second approval' && exports.isOrganizer(event, user)) || permissions.manage_summeruniversity[event.type];
+    permissions.edit_summeruniversity = (event.status !== 'covid approval' && exports.isOrganizer(event, user)) || permissions.manage_summeruniversity[event.type];
     permissions.delete_summeruniversity = permissions.manage_summeruniversity[event.type];
 
-    permissions.apply = event.application_status === 'open' && event.published === 'full';
+    permissions.apply = event.application_status === 'open' && event.published === 'covid';
 
     permissions.approve_participants = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
     permissions.set_participants_attended = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
@@ -214,6 +214,11 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
     // 7) second submission -> second draft - by those who can approve (reject approval)
     // 8) second submission -> second approval - by those who can approve (approve)
     // 9) second approval -> second submission - by those who can approve (unpublish)
+    // 10) second approval -> covid submission - by event creator / LOs (when saving second submission)
+    // 11) covid draft -> covid submission - by event creator / LOs (when saving covid submission)
+    // 12) covid submission -> covid draft - by those who can approve (reject approval)
+    // 13) covid submission -> covid approval - by those who can approve (approve)
+    // 14) covid approval -> covid submission - by those who can approve (unpublish)
     permissions.change_status = {
         first_draft: event.status === 'first submission' && canApprove, // 2
         first_approval: event.status === 'first submission' && canApprove, // 3
@@ -223,7 +228,12 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
         second_approval: event.status === 'second submission' && canApprove, // 8
         second_submission: (event.status === 'second approval' && canApprove) // 9
             || (event.status === 'second draft' && canApproveOrIsOrganizer) // 6
-            || (event.status === 'first approval' && canApproveOrIsOrganizer) // 5
+            || (event.status === 'first approval' && canApproveOrIsOrganizer), // 5
+        covid_draft: event.status === 'covid submission' && canApprove, // 12
+        covid_approval: event.status === 'covid submission' && canApprove, // 13
+        covid_submission: (event.status === 'covid approval' && canApprove) // 14
+            || (event.status === 'covid draft' && canApproveOrIsOrganizer) // 11
+            || (event.status === 'second approval' && canApproveOrIsOrganizer) // 10
     };
 
     return permissions;
