@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/AEGEE/summeruniversity/compare/1.2.0...1.2.1) (2021-05-06)
+
+
+### Bug Fixes
+
+* **events:** fix migration ([#73](https://github.com/AEGEE/summeruniversity/issues/73)) ([81f0303](https://github.com/AEGEE/summeruniversity/commit/81f0303af2200c99eaa0086052d6303cdd4f75ac))
+
 # [1.2.0](https://github.com/AEGEE/summeruniversity/compare/1.1.5...1.2.0) (2021-05-05)
 
 
