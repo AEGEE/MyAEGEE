@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/AEGEE/knowledge/compare/1.0.1...1.0.2) (2021-05-08)
+
+
+### Bug Fixes
+
+* **circleci:** update ci ([#8](https://github.com/AEGEE/knowledge/issues/8)) ([c0b473a](https://github.com/AEGEE/knowledge/commit/c0b473a85e42602c0442fdc844d12a97e07fef90))
+
 ## [1.0.1](https://github.com/AEGEE/knowledge/compare/1.0.0...1.0.1) (2021-03-07)
 
 
