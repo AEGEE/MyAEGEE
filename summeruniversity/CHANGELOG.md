@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/AEGEE/summeruniversity/compare/1.2.1...1.3.0) (2021-05-10)
+
+
+### Features
+
+* **applications:** add applications ([#76](https://github.com/AEGEE/summeruniversity/issues/76)) ([ae392bc](https://github.com/AEGEE/summeruniversity/commit/ae392bcfb6acc187601a5ed6ca46423db078b9c6))
+
 ## [1.2.1](https://github.com/AEGEE/summeruniversity/compare/1.2.0...1.2.1) (2021-05-06)
 
 
