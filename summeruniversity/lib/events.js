@@ -2,7 +2,7 @@ const errors = require('./errors');
 const merge = require('./merge');
 const constants = require('./constants');
 const helpers = require('./helpers');
-const { Event } = require('../models');
+const { Application, Event } = require('../models');
 const { Sequelize, sequelize } = require('./sequelize');
 const core = require('./core');
 const mailer = require('./mailer');
@@ -44,6 +44,29 @@ exports.listEvents = async (req, res) => {
     });
 };
 
+// All applications for bodies, including events.
+exports.listBodyApplications = async (req, res) => {
+    const bodyId = Number(req.params.body_id);
+    if (Number.isNaN(bodyId)) {
+        return errors.makeBadRequestError(res, 'bodyId is not a number.');
+    }
+
+    // Only visible to board members
+    if (!req.permissions.see_boardview[bodyId]) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see this');
+    }
+
+    const applications = await Application.findAll({
+        where: { body_id: bodyId },
+        include: [Event]
+    });
+
+    return res.json({
+        success: true,
+        data: applications,
+    });
+};
+
 // Returns all events the user is organizer on
 exports.listUserOrganizedEvents = async (req, res) => {
     const defaultQueryObj = helpers.getDefaultQuery(req);
@@ -53,6 +76,36 @@ exports.listUserOrganizedEvents = async (req, res) => {
             organizers: { [Sequelize.Op.contains]: [{ user_id: req.user.id }] }
         }
     });
+
+    const events = await Event.findAll(queryObj);
+
+    return res.json({
+        success: true,
+        data: events,
+    });
+};
+
+// List all the event where the user is participant at.
+exports.listUserAppliedEvents = async (req, res) => {
+    const defaultQueryObj = helpers.getDefaultQuery(req);
+    const queryObj = merge(defaultQueryObj, {
+        where: {
+            deleted: false,
+            '$applications.user_id$': req.user.id
+        },
+        attributes: constants.EVENT_MINIMAL_FIELDS, // TODO: check if these fields are enough or too much
+        subQuery: false,
+        include: [{
+            model: Application,
+            attributes: ['user_id', 'status'], // pass along user_id, as well as the status of the application
+            required: true
+        }]
+    });
+
+    // The subQuery: false line is super important as if we'll remove it,
+    // the query will fail with `missing FROM-clause entry for table "applications"`
+    // error. It's a regression bug in Sequelize, more info
+    // here: https://github.com/sequelize/sequelize/issues/9869
 
     const events = await Event.findAll(queryObj);
 
@@ -339,5 +392,25 @@ exports.setPublished = async (req, res) => {
     return res.json({
         success: true,
         message: 'Successfully changed publication status',
+    });
+};
+
+exports.setApplicationPeriod = async (req, res) => {
+    if (!req.permissions.manage_summeruniversity[req.event.type]) {
+        return errors.makeForbiddenError(res, 'You are not allowed to set the application period.');
+    }
+
+    if (req.event.published !== 'covid') {
+        return errors.makeForbiddenError(res, 'This event status does not allow changing the application period');
+    }
+
+    await req.event.update({
+        application_starts: new Date(),
+        application_ends: req.body.application_ends
+    });
+
+    return res.json({
+        success: true,
+        message: 'Successfully changed application period',
     });
 };

@@ -98,24 +98,30 @@ const Event = sequelize.define('event', {
             // TODO: max 3 URLs
         }
     },
-    // TODO: see how we want to implement the end date for extended open calls, below is how application_ends is set up in the events module
-    // application_ends: {
-    //     type: Sequelize.DATE,
-    //     allowNull: true,
-    //     validate: {
-    //         // isDate: { msg: 'Event application end date should be set.' },
-    //         // laterThanApplicationStart(val) {
-    //         //     if (moment(val).isSameOrBefore(this.application_starts)) {
-    //         //         throw new Error('Application period cannot start after or at the same time it ends.');
-    //         //     }
-    //         // },
-    //         // beforeEventStart(val) {
-    //         //     if (moment(val).isSameOrAfter(this.starts)) {
-    //         //         throw new Error('Application period cannot end before or at the same time the event starts.');
-    //         //     }
-    //         // }
-    //     }
-    // },
+    application_starts: {
+        type: Sequelize.DATE,
+        allowNull: true,
+        validate: {
+            isDate: { msg: 'Event application starts date should be set.' }
+        }
+    },
+    application_ends: {
+        type: Sequelize.DATE,
+        allowNull: true,
+        validate: {
+            isDate: { msg: 'Event application end date should be set.' },
+            laterThanApplicationStart(val) {
+                if (moment(val).isSameOrBefore(this.application_starts)) {
+                    throw new Error('Application period cannot start after or at the same time it ends.');
+                }
+            },
+            beforeEventStart(val) {
+                if (moment(val).isSameOrAfter(this.starts)) {
+                    throw new Error('Application period cannot end before or at the same time the event starts.');
+                }
+            }
+        }
+    },
     starts: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -383,8 +389,9 @@ const Event = sequelize.define('event', {
     application_status: {
         type: Sequelize.VIRTUAL,
         get() {
-            // TODO: should return 'open' if within SU application period or within extended open call
-            return 'closed';
+            return moment().isBetween(this.application_starts, this.application_ends, null, '[]')
+                ? 'open'
+                : 'closed'; // inclusive
         }
     },
     budget: {

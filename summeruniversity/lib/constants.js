@@ -17,7 +17,9 @@ module.exports = {
         'max_participants',
         'accommodation_type',
         'optional_fee',
-        'optional_programme'
+        'optional_programme',
+        'published',
+        'application_status'
     ],
     EVENT_FULL_FIELDS: [
         'id',
@@ -42,13 +44,16 @@ module.exports = {
         'pax_description',
         'pax_confirmation',
         'max_participants',
+        'accommodation_type',
         'activities_list',
         'course_level',
         'courses',
         'special_equipment',
         'university_support',
         'optional_fee',
-        'optional_programme'
+        'optional_programme',
+        'published',
+        'application_status'
     ],
     EVENT_COVID_FIELDS: [
         'id',
@@ -72,7 +77,9 @@ module.exports = {
         'trainers',
         'pax_description',
         'pax_confirmation',
+        'questions',
         'max_participants',
+        'accommodation_type',
         'activities_list',
         'course_level',
         'courses',
@@ -82,7 +89,10 @@ module.exports = {
         'optional_programme',
         'covid_regulations',
         'cancellation_rules',
-        'additional_regulation'
+        'additional_regulation',
+        'application_status',
+        'published',
+        'application_ends'
     ],
     EVENT_TYPES: ['regular', 'pilot'],
     CURRENT_USER_PREFIX: 'me'

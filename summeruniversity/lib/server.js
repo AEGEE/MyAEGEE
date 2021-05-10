@@ -5,6 +5,7 @@ const boolParser = require('express-query-boolean');
 
 const morgan = require('./morgan');
 const db = require('./sequelize');
+const applications = require('./applications'); // API middlewares for applications management
 const events = require('./events'); // API middlewares for events management
 const imageserv = require('./imageserv');
 const log = require('./logger');
@@ -42,7 +43,9 @@ GeneralRouter.get('/', events.listEvents);
 GeneralRouter.post('/', middlewares.ensureAuthorized, events.addEvent);
 
 GeneralRouter.get('/mine/organizing', middlewares.ensureAuthorized, events.listUserOrganizedEvents);
+GeneralRouter.get('/mine/participating', middlewares.ensureAuthorized, events.listUserAppliedEvents);
 GeneralRouter.get('/mine/approvable', middlewares.ensureAuthorized, events.listApprovableEvents);
+GeneralRouter.get('/boardview/:body_id', middlewares.ensureAuthorized, events.listBodyApplications);
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
 EventsRouter.use(middlewares.fetchSingleEvent);
@@ -57,6 +60,16 @@ EventsRouter.delete('/', events.deleteEvent);
 EventsRouter.put('/status', events.setApprovalStatus);
 EventsRouter.post('/upload', imageserv.uploadImage);
 EventsRouter.put('/published', events.setPublished);
+EventsRouter.put('/application_period', events.setApplicationPeriod);
+
+EventsRouter.get('/applications', applications.listAllApplications);
+EventsRouter.post('/applications', applications.createApplication);
+EventsRouter.get('/applications/:application_id', middlewares.fetchSingleApplication, applications.getApplication);
+EventsRouter.put('/applications/:application_id', middlewares.fetchSingleApplication, applications.updateApplication);
+EventsRouter.put('/applications/:application_id/attended', middlewares.fetchSingleApplication, applications.setApplicationAttended);
+EventsRouter.put('/applications/:application_id/confirmed', middlewares.fetchSingleApplication, applications.setApplicationConfirmed);
+EventsRouter.put('/applications/:application_id/status', middlewares.fetchSingleApplication, applications.setApplicationStatus);
+EventsRouter.put('/applications/:application_id/comment', middlewares.fetchSingleApplication, applications.setApplicationComment);
 
 server.use(endpointsMetrics.addEndpointMetrics);
 server.use('/', GeneralRouter);

@@ -1,9 +1,10 @@
 const request = require('request-promise-native');
 
 const Bugsnag = require('./bugsnag');
+const constants = require('./constants');
 const errors = require('./errors');
 const logger = require('./logger');
-const { Event } = require('../models');
+const { Application, Event } = require('../models');
 const helpers = require('./helpers');
 const config = require('../config');
 
@@ -99,11 +100,39 @@ exports.fetchSingleEvent = async (req, res, next) => {
     }
 
     req.event = event;
-    req.permissions = helpers.getEventPermissions({
+    req.permissions = await helpers.getEventPermissions({
         permissions: req.permissions,
         corePermissions: req.corePermissions,
         user: req.user,
         event
+    });
+    return next();
+};
+
+exports.fetchSingleApplication = async (req, res, next) => {
+    const whereObj = { event_id: req.event.id };
+
+    if (req.params.application_id === constants.CURRENT_USER_PREFIX) { // / me, find by user_id
+        whereObj.user_id = req.user.id;
+    } else if (helpers.isNumber(req.params.application_id)) { // Find by application ID
+        whereObj.id = Number(req.params.application_id);
+    } else {
+        return errors.makeBadRequestError(res, `Application ID should be either a number or ${constants.CURRENT_USER_PREFIX}`);
+    }
+
+    const application = await Application.findOne({ where: whereObj });
+    if (!application) {
+        return errors.makeNotFoundError(res, `Application with id ${req.params.application_id} not found`);
+    }
+
+    req.application = application;
+    req.permissions = helpers.getApplicationPermissions({
+        permissions: req.permissions,
+        application: req.application,
+        corePermissions: req.corePermissions,
+        approvePermissions: req.approvePermissions,
+        user: req.user,
+        event: req.event
     });
     return next();
 };

@@ -1,6 +1,7 @@
 const moment = require('moment');
 
 const constants = require('./constants');
+const { Application } = require('../models');
 const { Sequelize } = require('./sequelize');
 
 // A helper to get default search/query/pagination filter for events listings.
@@ -163,13 +164,16 @@ exports.isOrganizer = (event, user) => {
 exports.getPermissions = (user, corePermissions, approvePermissions) => {
     const permissions = {
         approve_summeruniversity: {},
-        manage_summeruniversity: {}
+        manage_summeruniversity: {},
+        apply_general: {}
     };
 
     for (const type of constants.EVENT_TYPES) {
         permissions.approve_summeruniversity[type] = hasPermission(corePermissions, 'approve_summeruniversity:' + type);
         permissions.manage_summeruniversity[type] = hasPermission(corePermissions, 'manage_summeruniversity:' + type);
     }
+
+    permissions.apply_general = hasPermission(corePermissions, 'apply:summeruniversity');
 
     permissions.set_board_comment = {};
     permissions.see_boardview = {};
@@ -184,7 +188,7 @@ exports.getPermissions = (user, corePermissions, approvePermissions) => {
     return permissions;
 };
 
-exports.getEventPermissions = ({ permissions, event, user }) => {
+exports.getEventPermissions = async ({ permissions, event, user }) => {
     const canApprove = permissions.approve_summeruniversity[event.type];
     const canApproveOrIsOrganizer = exports.isOrganizer(event, user) || canApprove;
 
@@ -197,12 +201,22 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
     permissions.edit_summeruniversity = (event.status !== 'covid approval' && exports.isOrganizer(event, user)) || permissions.manage_summeruniversity[event.type];
     permissions.delete_summeruniversity = permissions.manage_summeruniversity[event.type];
 
-    permissions.apply = event.application_status === 'open' && event.published === 'covid';
+    // TODO: fix that cancelled and rejected applications don't count
+    if (user) {
+        const applicationCount = await Application.count({ where: { user_id: user.id, event_id: { [Sequelize.Op.ne]: event.id } } });
 
-    permissions.approve_participants = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
-    permissions.set_participants_attended = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
-    permissions.set_participants_confirmed = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
-    permissions.export = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
+        permissions.apply = event.application_status === 'open'
+            && event.published === 'covid'
+            && permissions.apply_general
+            && applicationCount === 0;
+    }
+
+    // TODO: re-add exports.isOrganizer(event, user) ||  to all the these permissions (and figure out a way to disable this until after the period ends)
+    permissions.list_applications = permissions.manage_summeruniversity[event.type];
+    permissions.approve_participants = permissions.manage_summeruniversity[event.type];
+    permissions.set_participants_cancelled = permissions.manage_summeruniversity[event.type];
+    permissions.set_participants_attended = permissions.manage_summeruniversity[event.type];
+    permissions.set_participants_confirmed = permissions.manage_summeruniversity[event.type];
 
     // Status transitions.
     // 1) first draft -> first submission - by event creator / LOs (when saved)
@@ -235,6 +249,15 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
             || (event.status === 'covid draft' && canApproveOrIsOrganizer) // 11
             || (event.status === 'second approval' && canApproveOrIsOrganizer) // 10
     };
+
+    return permissions;
+};
+
+exports.getApplicationPermissions = ({ permissions, user, application }) => {
+    const isMine = application.user_id === user.id;
+
+    permissions.view_application = isMine || permissions.edit_event;
+    permissions.edit_application = (isMine && permissions.apply) || permissions.edit_event;
 
     return permissions;
 };
