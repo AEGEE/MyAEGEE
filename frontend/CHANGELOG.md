@@ -1,3 +1,10 @@
+# [1.31.0](https://github.com/AEGEE/frontend/compare/1.30.0...1.31.0) (2021-05-10)
+
+
+### Features
+
+* **su:** add applications ([#1001](https://github.com/AEGEE/frontend/issues/1001)) ([cca8167](https://github.com/AEGEE/frontend/commit/cca8167f359a4f8b35c98dead1c33362e03a5b29))
+
 # [1.30.0](https://github.com/AEGEE/frontend/compare/1.29.3...1.30.0) (2021-05-05)
 
 
