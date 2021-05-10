@@ -24,14 +24,16 @@ exports.listEvents = async (req, res) => {
     const whitelistEvents = [];
 
     for (let event of events) {
-        if (event.published === 'covid') {
-            event = helpers.whitelistObject(event, constants.EVENT_COVID_FIELDS);
-        } else if (event.published === 'full') {
-            event = helpers.whitelistObject(event, constants.EVENT_FULL_FIELDS);
-        } else {
-            event = helpers.whitelistObject(event, constants.EVENT_MINIMAL_FIELDS);
+        if (!req.query.application_status || req.query.application_status.includes(event.application_status)) {
+            if (event.published === 'covid') {
+                event = helpers.whitelistObject(event, constants.EVENT_COVID_FIELDS);
+            } else if (event.published === 'full') {
+                event = helpers.whitelistObject(event, constants.EVENT_FULL_FIELDS);
+            } else {
+                event = helpers.whitelistObject(event, constants.EVENT_MINIMAL_FIELDS);
+            }
+            whitelistEvents.push(event);
         }
-        whitelistEvents.push(event);
     }
 
     return res.json({
@@ -379,7 +381,7 @@ exports.setPublished = async (req, res) => {
         return errors.makeForbiddenError(res, 'This event status does not allow a minimal publication');
     }
 
-    if (req.event.status !== 'second approval' && req.body.published === 'full') {
+    if (!['second approval', 'covid draft', 'covid submission', 'covid approval'].includes(req.event.status) && req.body.published === 'full') {
         return errors.makeForbiddenError(res, 'This event status does not allow a full publication');
     }
 
