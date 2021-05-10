@@ -1,3 +1,10 @@
+## [1.31.1](https://github.com/AEGEE/frontend/compare/1.31.0...1.31.1) (2021-05-10)
+
+
+### Bug Fixes
+
+* **su list:** filter application status ([#1002](https://github.com/AEGEE/frontend/issues/1002)) ([8b0092b](https://github.com/AEGEE/frontend/commit/8b0092bff530adb4b7a402cf5c4f7aaa0a1cd1e6))
+
 # [1.31.0](https://github.com/AEGEE/frontend/compare/1.30.0...1.31.0) (2021-05-10)
 
 
