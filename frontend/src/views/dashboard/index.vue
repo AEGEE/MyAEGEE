@@ -37,6 +37,9 @@
                     <router-link :to="{ name: 'oms.statutory.view', params: { id: event.url || event.id } }" v-if="constants.STATUTORY_TYPES_NAMES[event.type]">
                       {{ event.name }} - {{ event.starts | date }}
                     </router-link>
+                    <router-link :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }" v-else-if="constants.SUMMERUNIVERSITY_TYPES_NAMES[event.type]">
+                      {{ event.name }} - {{ event.starts | date }}
+                    </router-link>
                     <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }" v-else>
                       {{ event.name }} - {{ event.starts | date }}
                     </router-link>
@@ -56,6 +59,9 @@
                   <router-link :to="{ name: 'oms.statutory.view', params: { id: event.url || event.id } }" v-if="constants.STATUTORY_TYPES_NAMES[event.type]">
                     {{ event.name }}
                   </router-link>
+                    <router-link :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }" v-else-if="constants.SUMMERUNIVERSITY_TYPES_NAMES[event.type]">
+                      {{ event.name }}
+                    </router-link>
                   <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }" v-else>
                     {{ event.name }}
                   </router-link>
@@ -164,19 +170,24 @@ export default {
 
     this.axios.get(this.services['events'] + '/mine/participating').then((eventsResponse) => {
       this.axios.get(this.services['statutory'] + '/mine').then((statutoryResponse) => {
-        const input = eventsResponse.data.data.concat(statutoryResponse.data.data)
-        for (const event of input) {
-          if (!event.applications[0].cancelled && event.applications[0].status !== 'rejected') {
-            if (moment().isSameOrBefore(event.starts)) {
-              this.events.future.push(event)
-            } else {
-              this.events.past.push(event)
+        this.axios.get(this.services['summeruniversity'] + '/mine/participating').then((summeruniversityResponse) => {
+          const input = eventsResponse.data.data.concat(statutoryResponse.data.data, summeruniversityResponse.data.data)
+          for (const event of input) {
+            if (!event.applications[0].cancelled && event.applications[0].status !== 'rejected') {
+              if (moment().isSameOrBefore(event.starts)) {
+                this.events.future.push(event)
+              } else {
+                this.events.past.push(event)
+              }
             }
           }
-        }
-        this.events.past.sort((e1, e2) => ((e1.starts < e2.starts) ? 1 : -1))
-        this.events.future.sort((e1, e2) => ((e1.starts > e2.starts) ? 1 : -1))
-        this.isLoading.events = false
+          this.events.past.sort((e1, e2) => ((e1.starts < e2.starts) ? 1 : -1))
+          this.events.future.sort((e1, e2) => ((e1.starts > e2.starts) ? 1 : -1))
+          this.isLoading.events = false
+        }).catch((err) => {
+          this.isLoading.events = false
+          this.$root.showError('Could not fetch summer university events list', err)
+        })
       }).catch((err) => {
         this.isLoading.events = false
         this.$root.showError('Could not fetch statutory events list', err)

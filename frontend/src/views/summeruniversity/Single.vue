@@ -18,6 +18,28 @@
             </a>
           </div>
 
+          <div class="field is-grouped" v-if="can.list_applications">
+            <router-link :to="{ name: 'oms.summeruniversity.participants', params: { id: event.url || event.id } }" class="button is-fullwidth">
+              <span>View applications</span>
+              <span class="icon"><font-awesome-icon icon="users" /></span>
+            </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="can.apply">
+            <router-link :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }" class="button is-primary is-fullwidth">
+              <span>Apply</span>
+              <span class="icon"><font-awesome-icon icon="plus" /></span>
+            </router-link>
+          </div>
+
+          <!-- TODO: v-if if applied for this event -->
+          <!-- <div class="field is-grouped" v-if="can.apply">
+            <router-link :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }" class="button is-warning is-fullwidth">
+              <span>Manage application</span>
+              <span class="icon"><font-awesome-icon icon="plus" /></span>
+            </router-link>
+          </div> -->
+
           <div class="field is-grouped" v-if="can.edit_summeruniversity">
             <!-- TODO: fix this, this is a hack because of covid submissions -->
             <!-- v-if="can.approve_summeruniversity[event.type] || event.status === 'first draft' || event.status === 'first submission'" -->
@@ -193,6 +215,14 @@
                 <tr>
                   <th>Max. participants</th>
                   <td>{{ event.max_participants }}</td>
+                </tr>
+                <tr>
+                  <th>Application status</th>
+                  <td>{{ event.application_status | capitalize }}</td>
+                </tr>
+                <tr v-if="event.application_status === 'open'">
+                  <th>Application period ends <timezone-tooltip /></th>
+                  <td>{{ event.application_ends | datetime }}</td>
                 </tr>
                 <tr>
                   <th>Starts <timezone-tooltip /></th>
@@ -392,8 +422,9 @@ export default {
         locations: [],
         starts: null,
         ends: null,
+        application_status: 'closed',
+        application_ends: null,
         head_image: null,
-        status: 'published',
         optional_fee: null,
         optional_programme: null,
         accommodation_type: ''
@@ -418,7 +449,7 @@ export default {
           pilot: false,
           regular: false
         },
-        view_applications: false,
+        list_applications: false,
         apply: false,
         change_status: {
           first_draft: false,

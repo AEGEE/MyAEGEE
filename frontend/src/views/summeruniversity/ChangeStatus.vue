@@ -42,6 +42,10 @@
               {{ props.row.published | capitalize }}
             </b-table-column>
 
+            <b-table-column field="application_status" label="Current application status" sortable>
+              {{ props.row.application_status | capitalize }}
+            </b-table-column>
+
             <b-table-column field="status" label="Change status" sortable>
               <div class="buttons">
                 <button
@@ -141,6 +145,16 @@
                 </button>
               </div>
             </b-table-column>
+
+            <b-table-column field="application_status" label="Change application deadline" sortable>
+              <div class="buttons">
+                <button
+                  class="button is-small is-info"
+                  @click="askChangeApplicationPeriod(props.row)">
+                  Change application deadline
+                </button>
+              </div>
+            </b-table-column>
           </template>
 
           <template slot="empty">
@@ -188,6 +202,28 @@ export default {
         event.published = newPublication
       }).catch((err) => {
         this.$root.showError('Could not update event publication', err)
+      })
+    },
+    askChangeApplicationPeriod (event) {
+      this.$buefy.dialog.prompt({
+        message: 'Change application deadline (UTC)',
+        inputAttrs: {
+          type: 'datetime-local',
+          required: true,
+          placeholder: 'Change application deadline'
+        },
+        trapFocus: true,
+        onConfirm: (newApplicationEnds) => this.changeApplicationPeriod(event, newApplicationEnds)
+      })
+    },
+    changeApplicationPeriod (event, newApplicationEnds) {
+      console.log(newApplicationEnds)
+      this.axios.put(this.services['summeruniversity'] + '/single/' + event.id + '/application_period', {
+        application_ends: newApplicationEnds
+      }).then(() => {
+        this.$root.showSuccess(`Event application deadline is now "${newApplicationEnds}".`)
+      }).catch((err) => {
+        this.$root.showError('Could not update event application deadline', err)
       })
     },
     fetchData () {

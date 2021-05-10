@@ -141,6 +141,11 @@
             "label": "All Summer Universities"
           },
           {
+            "name": "oms.summeruniversity.list.participating",
+            "auth": "logged-in",
+            "label": "Participating"
+          },
+          {
             "name": "oms.summeruniversity.list.organizing",
             "auth": "logged-in",
             "label": "Organizing"

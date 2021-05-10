@@ -53,6 +53,9 @@
                 <li><strong>Type:</strong> {{ eventTypesNames[event.type] }} </li>
                 <li><strong>From:</strong> {{ event.starts | date }} </li>
                 <li><strong>To:</strong> {{ event.ends | date }} </li>
+                <li v-if="event.application_status === 'open'"><strong>Application deadline: </strong>
+                  <span>{{ event.application_ends | date }}</span>
+                </li>
                 <li>
                   <strong>Organizing bodies: </strong>
                     <router-link
@@ -69,6 +72,13 @@
                   <router-link
                     :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }"
                     class="button">Go to event page</router-link>
+                </p>
+                <p class="control" v-if="can.apply">
+                  <router-link
+                    :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }"
+                    class="button is-primary">
+                    Apply
+                  </router-link>
                 </p>
               </div>
             </div>
@@ -127,7 +137,8 @@ export default {
       canLoadMore: true,
       source: null,
       can: {
-        createEvent: false
+        createEvent: false,
+        apply: false
       }
     }
   },
@@ -146,6 +157,7 @@ export default {
     },
     scope () {
       if (this.$route.name === 'oms.summeruniversity.list.all') return 'all'
+      if (this.$route.name === 'oms.summeruniversity.list.participating') return 'participating'
       if (this.$route.name === 'oms.summeruniversity.list.organizing') return 'organizing'
 
       throw new Error('Unknown scope: ' + this.$route.name)
@@ -176,7 +188,8 @@ export default {
 
       const urls = {
         all: this.services['summeruniversity'],
-        organizing: this.services['summeruniversity'] + '/mine/organizing'
+        organizing: this.services['summeruniversity'] + '/mine/organizing',
+        participating: this.services['summeruniversity'] + '/mine/participating'
       }
 
       this.axios.get(urls[this.scope], { params: this.queryObject, cancelToken: this.source.token }).then((response) => {

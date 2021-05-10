@@ -503,11 +503,35 @@ module.exports = [
     }
   },
   {
+    name: 'oms.summeruniversity.list.participating',
+    path: '/summeruniversity/participating',
+    component: 'summeruniversity/List',
+    meta: {
+      label: 'List events I\'m participating'
+    }
+  },
+  {
     name: 'oms.summeruniversity.list.organizing',
     path: '/summeruniversity/organizing',
     component: 'summeruniversity/List',
     meta: {
       label: 'List events I\'m organizing'
+    }
+  },
+  {
+    name: 'oms.summeruniversity.apply',
+    path: '/summeruniversity/:id/applications/:application_id',
+    component: 'summeruniversity/Apply',
+    meta: {
+      label: 'View/edit the event application'
+    }
+  },
+  {
+    name: 'oms.summeruniversity.participants',
+    path: '/summeruniversity/:id/participants',
+    component: 'summeruniversity/Participants',
+    meta: {
+      label: 'List/manage participants of the event'
     }
   },
   {
