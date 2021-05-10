@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/AEGEE/summeruniversity/compare/1.3.0...1.3.1) (2021-05-10)
+
+
+### Bug Fixes
+
+* **events:** select application status ([#77](https://github.com/AEGEE/summeruniversity/issues/77)) ([acf581d](https://github.com/AEGEE/summeruniversity/commit/acf581db0d9567e7259ae5dcee5b367df513d43b))
+
 # [1.3.0](https://github.com/AEGEE/summeruniversity/compare/1.2.1...1.3.0) (2021-05-10)
 
 
