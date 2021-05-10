@@ -265,7 +265,7 @@
                 </tr>
                 <tr v-if="event.pax_confirmation">
                   <th>Participant confirmation needed</th>
-                  <td>{{ event.pax_confirmation }}</td>
+                  <td>{{ paxConfirmations[event.pax_confirmation] }}</td>
                 </tr>
                 <tr v-if="event.activities_list">
                   <th>List of activities</th>
@@ -431,6 +431,7 @@ export default {
       },
       eventTypes: constants.SUMMERUNIVERSITY_TYPES_NAMES,
       themeCategories: constants.SUMMERUNIVERSITY_THEMES_NAMES,
+      paxConfirmations: constants.SUMMERUNIVERSITY_PAX_CONFIRMATIONS,
       accessToken: '',
       map: {
         actions: null,

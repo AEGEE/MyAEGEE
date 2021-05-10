@@ -42,6 +42,10 @@ const constants = {
     beginner: 'Beginner',
     intermediate: 'Intermediate',
     advanced: 'Advanced'
+  },
+  SUMMERUNIVERSITY_APPLICATION_STATUS_NAMES: {
+    open: 'Open',
+    closed: 'Closed'
   }
 }
 

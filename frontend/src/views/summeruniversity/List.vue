@@ -25,6 +25,14 @@
           </label>
         </div>
 
+        <div class="field">
+          <label class="label">Application status</label>
+          <label v-for="(value, index) in applicationStatuses" v-bind:key="index">
+            <input class="checkbox" type="checkbox" v-model="value.enabled" @change="refetch()" />
+            {{ value.name }}
+          </label>
+        </div>
+
         <div class="field" v-if="can.createEvent">
           <div class="control">
             <router-link class="button is-primary" :to="{ name: 'oms.summeruniversity.create' }">Create event</router-link>
@@ -54,7 +62,7 @@
                 <li><strong>From:</strong> {{ event.starts | date }} </li>
                 <li><strong>To:</strong> {{ event.ends | date }} </li>
                 <li v-if="event.application_status === 'open'"><strong>Application deadline: </strong>
-                  <span>{{ event.application_ends | date }}</span>
+                  <span>{{ event.application_ends | datetime }}</span>
                 </li>
                 <li>
                   <strong>Organizing bodies: </strong>
@@ -122,10 +130,17 @@ export default {
       enabled: false
     }))
 
+    const applicationStatuses = Object.entries(constants.SUMMERUNIVERSITY_APPLICATION_STATUS_NAMES).map(([value, name]) => ({
+      value,
+      name,
+      enabled: false
+    }))
+
     return {
       events: [],
       eventTypes,
       eventTypesNames: constants.SUMMERUNIVERSITY_TYPES_NAMES,
+      applicationStatuses,
       isLoading: {
         events: false,
         permissions: false
@@ -147,7 +162,8 @@ export default {
       const queryObj = {
         limit: this.limit,
         offset: this.offset,
-        type: this.eventTypes.filter(type => type.enabled).map(type => type.value)
+        type: this.eventTypes.filter(type => type.enabled).map(type => type.value),
+        application_status: this.applicationStatuses.filter(type => type.enabled).map(type => type.value)
       }
 
       if (!this.displayPast) queryObj.starts = moment().format('YYYY-MM-DD')
