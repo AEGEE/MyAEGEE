@@ -1,4 +1,4 @@
-const deepAssign = require('deep-assign');
+const lodash = require('lodash');
 
 const config = {
     default: {
@@ -33,7 +33,7 @@ const config = {
         postgres: {
             host: 'localhost',
             database: 'discounts-testing',
-            password: process.env.PG_PASSWORD || 'postgres',
+            password: process.env.PG_PASSWORD || '5ecr3t',
         },
         logger: {
             silent: (typeof process.env.ENABLE_LOGGING !== 'undefined') ? (!process.env.ENABLE_LOGGING) : true
@@ -62,7 +62,7 @@ let appConfig = config.default || {};
 
 // If we have the environment config, overwrite the config's fields with its fields
 if (config[env]) {
-    appConfig = deepAssign(appConfig, config[env]);
+    appConfig = lodash.merge(appConfig, config[env]);
 }
 
 module.exports = appConfig;
