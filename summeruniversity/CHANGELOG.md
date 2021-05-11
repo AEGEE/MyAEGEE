@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/AEGEE/summeruniversity/compare/1.3.1...1.3.2) (2021-05-11)
+
+
+### Bug Fixes
+
+* **circleci:** update ci ([#52](https://github.com/AEGEE/summeruniversity/issues/52)) ([060672d](https://github.com/AEGEE/summeruniversity/commit/060672d89bbe623933474a14fc6fc146bc2127a4))
+
 ## [1.3.1](https://github.com/AEGEE/summeruniversity/compare/1.3.0...1.3.1) (2021-05-10)
 
 
