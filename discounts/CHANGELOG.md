@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/AEGEE/discounts/compare/1.2.1...1.2.2) (2021-05-11)
+
+
+### Bug Fixes
+
+* **circleci:** update ci ([#275](https://github.com/AEGEE/discounts/issues/275)) ([479b7b9](https://github.com/AEGEE/discounts/commit/479b7b9cd2b1be2ef3dc62e8d499c44c345efeee))
+
 ## [1.2.1](https://github.com/AEGEE/discounts/compare/1.2.0...1.2.1) (2021-02-23)
 
 
