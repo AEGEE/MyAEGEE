@@ -1,3 +1,10 @@
+## [1.36.2](https://github.com/AEGEE/core/compare/1.36.1...1.36.2) (2021-05-11)
+
+
+### Bug Fixes
+
+* **circleci:** update ci ([#264](https://github.com/AEGEE/core/issues/264)) ([4f7764e](https://github.com/AEGEE/core/commit/4f7764ec5285ecbeafcb899f9968ed210bb650ee))
+
 ## [1.36.1](https://github.com/AEGEE/core/compare/1.36.0...1.36.1) (2021-04-26)
 
 
