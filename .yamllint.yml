@@ -8,5 +8,3 @@ ignore: |
 rules:
   document-start: disable
   line-length: disable
-  truthy: disable
-  comments-indentation: disable

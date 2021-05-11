@@ -180,7 +180,7 @@ exports.generatePayment = (body, user, options = {}) => {
 
     if (notSet(options.starts)) options.starts = faker.date.past();
     if (notSet(options.expires)) options.expires = faker.date.future();
-    if (notSet(options.amount)) options.amount = faker.random.number({ min: 1 });
+    if (notSet(options.amount)) options.amount = faker.datatype.number({ min: 1 });
     if (notSet(options.currency)) options.currency = faker.random.alphaNumeric(3);
 
     return options;
