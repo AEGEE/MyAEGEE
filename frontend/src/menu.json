@@ -129,6 +129,11 @@
             "label": "Change SU status",
             "icon": "check",
             "permissions": ["global:approve_summeruniversity:regular", "global:approve_summeruniversity:pilot"]
+          },
+          {
+            "name": "oms.events.boardview",
+            "label": "Board view",
+            "permissions": ["local:approve_members:summeruniversity"]
           }
         ]
       },

@@ -494,6 +494,14 @@ module.exports = [
     }
   },
   {
+    name: 'oms.summeruniversity.boardview',
+    path: '/summeruniversity/boardview',
+    component: 'summeruniversity/BoardView',
+    meta: {
+      label: 'Board view'
+    }
+  },
+  {
     name: 'oms.summeruniversity.list.all',
     path: '/summeruniversity',
     component: 'summeruniversity/List',

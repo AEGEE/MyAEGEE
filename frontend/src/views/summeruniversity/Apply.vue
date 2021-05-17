@@ -8,6 +8,15 @@
 
         <div class="subtitle" v-show="isNew && !this.can.apply">You cannot apply to this event.</div>
 
+        <div class="tile is-parent" v-if="application && application.cancelled">
+          <div class="tile is-child">
+            <div class="notification is-danger">
+              Your application is cancelled.
+              <span v-if="can.set_application_cancelled">You can uncancel it till the application period ends.</span>
+            </div>
+          </div>
+        </div>
+
         <!-- TODO: add all fields -->
         <form @submit.prevent="saveApplication()">
           <div class="tile is-parent" v-show="this.can.apply">
@@ -331,66 +340,82 @@
               </div>
             </div>
           </div>
-
-          <!-- TODO: add fields here -->
-          <div v-show="!isNew && !this.can.apply" class="tile is-parent">
-            <div class="tile is-child">
-              <p>
-                <b>You applied from this body:</b>
-                <router-link target="_blank" :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
-                  {{ application.body ? application.body.name : 'Loading...' }}
-                </router-link>
-              </p>
-              <table class="table is-narrow is-fullwidth">
-                <thead>
-                  <tr>
-                    <th>Description</th>
-                    <th>Your answer</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(field, index) in event.questions" v-bind:key="index">
-                    <td><b>{{ field.description }}</b><span class="is-danger" ng-show="field.required">*</span></td>
-                    <td>{{ application.answers[index] | beautify }}</td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <b>
-                        I agree with my personal data to be processed
-                        by AEGEE-Europe for the purposes of the participant selection
-                        and event organisation. AEGEE-Europe will disclose this data
-                        to organising local for the time period of the event organisation.
-                      </b>
-                    </td>
-                    <td>{{ application.agreed_to_privacy_policy | beautify }}</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <div class="field" v-show="event.questions.length === 0">
-                <div class="notification is-info">
-                  You didn't need to fill in the application fields.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="tile is-parent" v-show="!isNew && !this.can.apply">
-            <div class="tile is-child">
-              <div class="notification is-warning" v-if="application.status === 'pending'">
-                Your application is being processed, please wait for the organizers to evaluate your application. Unfortunately you can not edit it anymore.
-              </div>
-              <div class="notification is-success" v-else-if="application.status === 'accepted'">
-                Congratulations, you have been accepted to the event!
-              </div>
-              <div class="notification is-success" v-else-if="application.status === 'rejected'">
-                Sorry, but you were not accepted to the event.
-              </div>
-            </div>
-          </div>
-
-          <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
         </form>
+
+        <!-- TODO: add fields here -->
+        <div v-show="!isNew && !this.can.apply" class="tile is-parent">
+          <div class="tile is-child">
+            <p>
+              <b>You applied from this body:</b>
+              <router-link target="_blank" :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
+                {{ application.body ? application.body.name : 'Loading...' }}
+              </router-link>
+            </p>
+            <table class="table is-narrow is-fullwidth">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Your answer</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(field, index) in event.questions" v-bind:key="index">
+                  <td><b>{{ field.description }}</b><span class="is-danger" ng-show="field.required">*</span></td>
+                  <td>{{ application.answers[index] | beautify }}</td>
+                </tr>
+                <tr>
+                  <td>
+                    <b>
+                      I agree with my personal data to be processed
+                      by AEGEE-Europe for the purposes of the participant selection
+                      and event organisation. AEGEE-Europe will disclose this data
+                      to organising local for the time period of the event organisation.
+                    </b>
+                  </td>
+                  <td>{{ application.agreed_to_privacy_policy | beautify }}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="field" v-show="event.questions.length === 0">
+              <div class="notification is-info">
+                You didn't need to fill in the application fields.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tile is-parent" v-show="!isNew && !this.can.apply">
+          <div class="tile is-child">
+            <div class="notification is-warning" v-if="application.status === 'pending'">
+              Your application is being processed, please wait for the organizers to evaluate your application. Unfortunately you can not edit it anymore.
+            </div>
+            <div class="notification is-success" v-else-if="application.status === 'accepted'">
+              Congratulations, you have been accepted to the event!
+            </div>
+            <div class="notification is-success" v-else-if="application.status === 'rejected'">
+              Sorry, but you were not accepted to the event.
+            </div>
+          </div>
+        </div>
+
+        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+
+        <hr v-show="can.set_application_cancelled" />
+
+        <button
+          class="button is-danger"
+          @click="askSetCancelled(true)"
+          v-if="application && !application.cancelled && can.set_application_cancelled">
+          Cancel application
+        </button>
+
+        <button
+          class="button is-info"
+          @click="setCancelled(false)"
+            v-if="application && application.cancelled && can.set_application_cancelled">
+          Uncancel application
+        </button>
       </div>
     </div>
   </div>
@@ -467,6 +492,24 @@ export default {
 
         this.$root.showError('Could not save application', err)
       })
+    },
+    askSetCancelled (value) {
+      this.$buefy.dialog.confirm({
+        title: 'Cancel application',
+        message: 'Are you sure you want to <b>cancel your application</b>? You can uncancel it only during application period.',
+        confirmText: 'Cancel application',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.setCancelled(value)
+      })
+    },
+    setCancelled (value) {
+      this.axios.put(this.services['summeruniversity'] + '/single/' + this.$route.params.id + '/applications/' + this.application.id + '/cancelled', {
+        cancelled: value
+      }).then(() => {
+        this.application.cancelled = value
+        this.$root.showInfo(value ? 'Application is cancelled.' : 'Application is uncancelled.')
+      }).catch((err) => this.$root.showError('Could not cancel application', err))
     }
   },
   computed: {
@@ -494,6 +537,7 @@ export default {
       return this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id + '/applications/' + this.$route.params.application_id).then((application) => {
         this.application = application.data.data
         this.application.body = this.bodies.find(body => body.id === this.application.body_id)
+        this.can = application.data.permissions
 
         this.isLoading = false
       }).catch((err) => {
