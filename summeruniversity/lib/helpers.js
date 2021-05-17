@@ -201,9 +201,13 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
     permissions.edit_summeruniversity = (event.status !== 'covid approval' && exports.isOrganizer(event, user)) || permissions.manage_summeruniversity[event.type];
     permissions.delete_summeruniversity = permissions.manage_summeruniversity[event.type];
 
-    // TODO: fix that cancelled and rejected applications don't count
     if (user) {
-        const applicationCount = await Application.count({ where: { user_id: user.id, event_id: { [Sequelize.Op.ne]: event.id } } });
+        const applicationCount = await Application.count({ where: {
+            user_id: user.id,
+            event_id: { [Sequelize.Op.ne]: event.id },
+            status: { [Sequelize.Op.ne]: 'rejected' },
+            cancelled: false
+        } });
 
         permissions.apply = event.application_status === 'open'
             && event.published === 'covid'
@@ -258,6 +262,7 @@ exports.getApplicationPermissions = ({ permissions, user, application }) => {
 
     permissions.view_application = isMine || permissions.edit_event;
     permissions.edit_application = (isMine && permissions.apply) || permissions.edit_event;
+    permissions.set_application_cancelled = (isMine && permissions.apply) || permissions.edit_event;
 
     return permissions;
 };

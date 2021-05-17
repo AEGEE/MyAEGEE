@@ -29,6 +29,7 @@ exports.getApplication = async (req, res) => {
     return res.json({
         success: true,
         data: req.application,
+        permissions: req.permissions
     });
 };
 
@@ -57,8 +58,6 @@ exports.createApplication = async (req, res) => {
     await sequelize.transaction(async (t) => {
         newApplication = await Application.create(req.body, { transaction: t });
 
-        // We don't need to recalculate the votes amount, as the pax type is not set here.
-
         // Sending the mail to a user.
         await mailer.sendMail({
             to: req.user.notification_email,
@@ -84,29 +83,31 @@ exports.updateApplication = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot edit this application.');
     }
 
-    const user = await core.fetchUser(req.body, req.headers['x-auth-token']);
-    if (typeof req.body.body_id !== 'undefined' && !helpers.isMemberOf(user, req.body.body_id)) {
+    if (typeof req.body.body_id !== 'undefined' && !helpers.isMemberOf(req.user, req.body.body_id)) {
         return errors.makeForbiddenError(res, 'You are not a member of this body.');
     }
 
     delete req.body.board_comment;
     delete req.body.status;
 
-    req.body.first_name = user.first_name;
-    req.body.last_name = user.last_name;
+    // TODO fix this so applications can be updated by SUCT/admins
+    req.body.first_name = req.user.first_name;
+    req.body.last_name = req.user.last_name;
     if (typeof req.body.body_id !== 'undefined') {
-        req.body.body_name = user.bodies.find((b) => b.id === req.body.body_id).name;
+        req.body.body_name = req.user.bodies.find((b) => b.id === req.body.body_id).name;
     }
-    req.body.user_id = user.id;
+    req.body.user_id = req.user.id;
     req.body.event_id = req.event.id;
 
     await sequelize.transaction(async (t) => {
         // Updating application in a transaction, so if mail sending fails, the update would be reverted.
         await req.application.update(req.body, { transaction: t });
 
+        const notificationEmail = (await core.fetchUser(req.body, req.headers['x-auth-token'])).notification_email;
+
         // Sending the mail to a user.
         await mailer.sendMail({
-            to: user.notification_email,
+            to: notificationEmail,
             subject: `Your application for ${req.event.name} was updated`,
             template: 'events_edited.html',
             parameters: {
@@ -156,7 +157,7 @@ exports.setApplicationAttended = async (req, res) => {
 };
 
 exports.setApplicationCancelled = async (req, res) => {
-    if (!req.permissions.set_participants_cancelled) {
+    if (!req.permissions.set_participants_cancelled || !req.permissions.set_application_cancelled) {
         return errors.makeForbiddenError(res, 'You don\'t have permissions to change this application.');
     }
 
