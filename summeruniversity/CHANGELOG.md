@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/AEGEE/summeruniversity/compare/1.3.2...1.3.3) (2021-05-17)
+
+
+### Bug Fixes
+
+* **application:** fix error with updating application ([#82](https://github.com/AEGEE/summeruniversity/issues/82)) ([652e6f6](https://github.com/AEGEE/summeruniversity/commit/652e6f62eb9b109fba6694f675452d2634748a7b))
+
 ## [1.3.2](https://github.com/AEGEE/summeruniversity/compare/1.3.1...1.3.2) (2021-05-11)
 
 
