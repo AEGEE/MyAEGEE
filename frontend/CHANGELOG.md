@@ -1,3 +1,10 @@
+## [1.31.2](https://github.com/AEGEE/frontend/compare/1.31.1...1.31.2) (2021-05-17)
+
+
+### Bug Fixes
+
+* **su:** add board view ([#1020](https://github.com/AEGEE/frontend/issues/1020)) ([98029c4](https://github.com/AEGEE/frontend/commit/98029c49cf9d94e56a4c9b9f1fc3f2f8dc39b8db))
+
 ## [1.31.1](https://github.com/AEGEE/frontend/compare/1.31.0...1.31.1) (2021-05-10)
 
 
