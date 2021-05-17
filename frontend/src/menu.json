@@ -131,7 +131,7 @@
             "permissions": ["global:approve_summeruniversity:regular", "global:approve_summeruniversity:pilot"]
           },
           {
-            "name": "oms.events.boardview",
+            "name": "oms.summeruniversity.boardview",
             "label": "Board view",
             "permissions": ["local:approve_members:summeruniversity"]
           }
