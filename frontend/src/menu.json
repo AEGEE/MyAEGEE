@@ -132,8 +132,7 @@
           },
           {
             "name": "oms.summeruniversity.boardview",
-            "label": "Board view",
-            "permissions": ["local:approve_members:summeruniversity"]
+            "label": "Board view"
           }
         ]
       },
