@@ -157,7 +157,7 @@ exports.setApplicationAttended = async (req, res) => {
 };
 
 exports.setApplicationCancelled = async (req, res) => {
-    if (!req.permissions.set_participants_cancelled || !req.permissions.set_application_cancelled) {
+    if (!req.permissions.set_participants_cancelled && !req.permissions.set_application_cancelled) {
         return errors.makeForbiddenError(res, 'You don\'t have permissions to change this application.');
     }
 
