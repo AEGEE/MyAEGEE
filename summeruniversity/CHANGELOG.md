@@ -1,3 +1,10 @@
+## [1.3.4](https://github.com/AEGEE/summeruniversity/compare/1.3.3...1.3.4) (2021-05-19)
+
+
+### Bug Fixes
+
+* **applications:** fix logic error with cancelling ([#83](https://github.com/AEGEE/summeruniversity/issues/83)) ([3f98894](https://github.com/AEGEE/summeruniversity/commit/3f988949fbc4a4529001515e49c680a24c9b6314))
+
 ## [1.3.3](https://github.com/AEGEE/summeruniversity/compare/1.3.2...1.3.3) (2021-05-17)
 
 
