@@ -49,6 +49,12 @@
               </router-link>
             </b-table-column>
 
+            <b-table-column label="View applications">
+              <button type="button" class="button" @click="showModal(props.row)">
+                View application
+              </button>
+            </b-table-column>
+
             <b-table-column field="board_comment" label="Board comment">
               <div class="control">
                 <input class="input" v-model="props.row.board_comment" />
@@ -74,6 +80,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import ViewParticipantModal from './ViewParticipantModal'
 
 export default {
   name: 'BoardView',
@@ -113,6 +120,20 @@ export default {
         this.isLoading = false
 
         this.$root.showError('Error fetching board view data', err)
+      })
+    },
+    showModal (participant) {
+      this.$buefy.modal.open({
+        component: ViewParticipantModal,
+        hasModalCard: true,
+        props: {
+          // When programmatically opening a modal, it doesn't have access to Vue instance
+          // and therefore store, services and notifications functions. That's why
+          // I'm passing them as props.
+          // More info: https://github.com/buefy/buefy/issues/55
+          event: participant.event,
+          participant
+        }
       })
     }
   },
