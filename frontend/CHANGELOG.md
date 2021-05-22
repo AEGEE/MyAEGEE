@@ -1,3 +1,10 @@
+## [1.31.3](https://github.com/AEGEE/frontend/compare/1.31.2...1.31.3) (2021-05-22)
+
+
+### Bug Fixes
+
+* **statutory:** add watch live button during Agora ([#1027](https://github.com/AEGEE/frontend/issues/1027)) ([c046de9](https://github.com/AEGEE/frontend/commit/c046de979e167eeb336949fff8fc7418da8b4425))
+
 ## [1.31.2](https://github.com/AEGEE/frontend/compare/1.31.1...1.31.2) (2021-05-17)
 
 
