@@ -11,6 +11,13 @@
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info">
+          <div class="field is-grouped" v-if="duringAgora">
+            <a href="https://aegeeagora-streaming.westeurope.cloudapp.azure.com/" class="button is-danger is-fullwidth">
+              <span>Watch live</span>
+              <span class="icon"><font-awesome-icon icon="circle" /></span>
+            </a>
+          </div>
+
           <div class="field is-grouped" v-if="can.see_applications">
             <router-link :to="{ name: 'oms.statutory.applications', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>View applications</span>
@@ -269,6 +276,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
+import moment from 'moment'
 import credentials from '../../credentials'
 
 export default {
@@ -404,6 +412,9 @@ export default {
       return Object.keys(this.can.see_memberslist)
         .filter(key => this.can.see_memberslist[key])
         .length > 0
+    },
+    duringAgora () {
+      return this.event.type === 'agora' && moment().isBetween(this.event.starts, this.event.ends, null, '[]')
     }
   }
 }
