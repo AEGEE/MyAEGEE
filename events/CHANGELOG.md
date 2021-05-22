@@ -1,3 +1,10 @@
+## [1.3.8](https://github.com/AEGEE/events/compare/1.3.7...1.3.8) (2021-05-22)
+
+
+### Bug Fixes
+
+* **event:** send created_at and updated_at when retrieving event. Fixes HELP-1725 ([#521](https://github.com/AEGEE/events/issues/521)) ([c6af85d](https://github.com/AEGEE/events/commit/c6af85d993a989708da204b5f925a1a64298f384))
+
 ## [1.3.7](https://github.com/AEGEE/events/compare/1.3.6...1.3.7) (2021-04-26)
 
 
