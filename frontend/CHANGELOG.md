@@ -1,3 +1,10 @@
+## [1.31.4](https://github.com/AEGEE/frontend/compare/1.31.3...1.31.4) (2021-05-22)
+
+
+### Bug Fixes
+
+* **su:** allow board members to see the complete application ([#1026](https://github.com/AEGEE/frontend/issues/1026)) ([9c7fab7](https://github.com/AEGEE/frontend/commit/9c7fab7b6a3615504edccdbb9150411b555a18e0))
+
 ## [1.31.3](https://github.com/AEGEE/frontend/compare/1.31.2...1.31.3) (2021-05-22)
 
 
