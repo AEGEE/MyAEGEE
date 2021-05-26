@@ -1,3 +1,10 @@
+## [1.31.5](https://github.com/AEGEE/frontend/compare/1.31.4...1.31.5) (2021-05-26)
+
+
+### Bug Fixes
+
+* **su:** improve participant modal ([#1031](https://github.com/AEGEE/frontend/issues/1031)) ([c978ef9](https://github.com/AEGEE/frontend/commit/c978ef965b635a47816e1e1979289242f2c54458))
+
 ## [1.31.4](https://github.com/AEGEE/frontend/compare/1.31.3...1.31.4) (2021-05-22)
 
 
