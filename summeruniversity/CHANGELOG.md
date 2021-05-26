@@ -1,3 +1,10 @@
+## [1.3.5](https://github.com/AEGEE/summeruniversity/compare/1.3.4...1.3.5) (2021-05-26)
+
+
+### Bug Fixes
+
+* **event:** allow board members to accept applications ([#87](https://github.com/AEGEE/summeruniversity/issues/87)) ([5d1a457](https://github.com/AEGEE/summeruniversity/commit/5d1a45750badc330a5eb98e2c728537a198b8c61))
+
 ## [1.3.4](https://github.com/AEGEE/summeruniversity/compare/1.3.3...1.3.4) (2021-05-19)
 
 
