@@ -2,6 +2,7 @@ const request = require('request-promise-native');
 
 const Bugsnag = require('./bugsnag');
 const constants = require('./constants');
+const core = require('./core');
 const errors = require('./errors');
 const logger = require('./logger');
 const { Application, Event } = require('../models');
@@ -124,6 +125,11 @@ exports.fetchSingleApplication = async (req, res, next) => {
     if (!application) {
         return errors.makeNotFoundError(res, `Application with id ${req.params.application_id} not found`);
     }
+
+    const user = await core.fetchApplicationUser(application.user_id);
+
+    application.dataValues.gender = user.gender;
+    application.dataValues.date_of_birth = user.date_of_birth;
 
     req.application = application;
     req.permissions = helpers.getApplicationPermissions({

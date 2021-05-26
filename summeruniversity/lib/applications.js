@@ -62,7 +62,7 @@ exports.createApplication = async (req, res) => {
         await mailer.sendMail({
             to: req.user.notification_email,
             subject: `You've successfully applied for ${req.event.name}`,
-            template: 'events_applied.html',
+            template: 'summeruniversity_applied.html',
             parameters: {
                 application: newApplication,
                 event: req.event
@@ -109,7 +109,7 @@ exports.updateApplication = async (req, res) => {
         await mailer.sendMail({
             to: notificationEmail,
             subject: `Your application for ${req.event.name} was updated`,
-            template: 'events_edited.html',
+            template: 'summeruniversity_application_edited.html',
             parameters: {
                 application: req.application,
                 event: req.event
@@ -178,7 +178,23 @@ exports.setApplicationStatus = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to accept or reject participants');
     }
 
-    await req.application.update({ status: req.body.status });
+    await sequelize.transaction(async (t) => {
+        // Updating application in a transaction, so if mail sending fails, the update would be reverted.
+        await req.application.update({ status: req.body.status }, { transaction: t });
+
+        const notificationEmail = (await core.fetchUser(req.application, req.headers['x-auth-token'])).notification_email;
+
+        // Sending the mail to a user.
+        await mailer.sendMail({
+            to: notificationEmail,
+            subject: `Your application status for ${req.event.name} was updated`,
+            template: 'summeruniversity_application_status_updated.html',
+            parameters: {
+                application: req.application,
+                event: req.event
+            }
+        });
+    });
 
     return res.json({
         success: true,

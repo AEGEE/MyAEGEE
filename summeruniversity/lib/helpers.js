@@ -215,12 +215,12 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
             && applicationCount === 0;
     }
 
-    // TODO: re-add exports.isOrganizer(event, user) ||  to all the these permissions (and figure out a way to disable this until after the period ends)
-    permissions.list_applications = permissions.manage_summeruniversity[event.type];
-    permissions.approve_participants = permissions.manage_summeruniversity[event.type];
-    permissions.set_participants_cancelled = permissions.manage_summeruniversity[event.type];
-    permissions.set_participants_attended = permissions.manage_summeruniversity[event.type];
-    permissions.set_participants_confirmed = permissions.manage_summeruniversity[event.type];
+    // TODO: set it up so that organizers can only do this during a set time window
+    permissions.list_applications = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
+    permissions.approve_participants = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
+    permissions.set_participants_cancelled = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
+    permissions.set_participants_attended = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
+    permissions.set_participants_confirmed = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
 
     // Status transitions.
     // 1) first draft -> first submission - by event creator / LOs (when saved)
@@ -260,9 +260,9 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
 exports.getApplicationPermissions = ({ permissions, user, application }) => {
     const isMine = application.user_id === user.id;
 
-    permissions.view_application = isMine || permissions.edit_event;
-    permissions.edit_application = (isMine && permissions.apply) || permissions.edit_event;
-    permissions.set_application_cancelled = (isMine && permissions.apply) || permissions.edit_event;
+    permissions.view_application = isMine || permissions.edit_summeruniversity;
+    permissions.edit_application = (isMine && permissions.apply) || permissions.edit_summeruniversity;
+    permissions.set_application_cancelled = (isMine && permissions.apply) || permissions.edit_summeruniversity;
 
     return permissions;
 };
