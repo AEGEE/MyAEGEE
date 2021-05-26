@@ -1,3 +1,10 @@
+## [1.3.6](https://github.com/AEGEE/summeruniversity/compare/1.3.5...1.3.6) (2021-05-26)
+
+
+### Bug Fixes
+
+* **application:** fix viewing application for organizers ([#88](https://github.com/AEGEE/summeruniversity/issues/88)) ([4f66749](https://github.com/AEGEE/summeruniversity/commit/4f667494d8514680e4f0511f566af99337243154))
+
 ## [1.3.5](https://github.com/AEGEE/summeruniversity/compare/1.3.4...1.3.5) (2021-05-26)
 
 
