@@ -1,3 +1,10 @@
+# [0.15.0](https://github.com/AEGEE/mailer/compare/0.14.0...0.15.0) (2021-05-26)
+
+
+### Features
+
+* **su:** add extra summeruniversity mails ([#74](https://github.com/AEGEE/mailer/issues/74)) ([875c8c0](https://github.com/AEGEE/mailer/commit/875c8c001a47da39d3f73b3b46fd13141f5760f8))
+
 # [0.14.0](https://github.com/AEGEE/mailer/compare/0.13.0...0.14.0) (2021-04-18)
 
 
