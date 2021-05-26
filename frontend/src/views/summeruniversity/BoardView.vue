@@ -123,17 +123,19 @@ export default {
       })
     },
     showModal (participant) {
-      this.$buefy.modal.open({
-        component: ViewParticipantModal,
-        hasModalCard: true,
-        props: {
+      this.axios.get(this.services['summeruniversity'] + '/single/' + this.event.id + '/applications/' + participant.id).then((response) => {
+        this.$buefy.modal.open({
+          component: ViewParticipantModal,
+          hasModalCard: true,
+          props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
           // I'm passing them as props.
           // More info: https://github.com/buefy/buefy/issues/55
-          event: participant.event,
-          participant
-        }
+            event: participant.event,
+            participant: response.data.data
+          }
+        })
       })
     }
   },

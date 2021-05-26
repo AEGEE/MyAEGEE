@@ -16,15 +16,17 @@
           <td>{{ participant.last_name }}</td>
         </tr>
 
-        <!-- <tr>
+        <tr>
           <td><b>Gender</b></td>
-          <td>{{ participant.gender }}</td>
+          <td v-show="participant.gender">{{ participant.gender }}</td>
+          <td v-show="!participant.gender">Unknown</td>
         </tr>
 
         <tr>
           <td><b>Date of birth</b></td>
-          <td>{{ participant.date_of_birth | date }}</td>
-        </tr> -->
+          <td v-show="participant.date_of_birth">{{ participant.date_of_birth | date }}</td>
+          <td v-show="!participant.date_of_birth">Unknown</td>
+        </tr>
 
         <tr>
           <td><b>Nationality</b></td>
@@ -51,7 +53,55 @@
           <td>{{ participant.visa_required | beautify }}</td>
         </tr>
 
-        <!-- TODO: add visa fields shown when application is status x (discuss with SUCT) -->
+        <tr v-show="participant.visa_required === true && participant.status === 'accepted'">
+          <td><b>Visa passport number</b></td>
+          <td>{{ participant.visa_passport_number }}</td>
+        </tr>
+
+        <tr v-show="participant.visa_required === true && participant.status === 'accepted'">
+          <td><b>Visa passport issue date</b></td>
+          <td>{{ participant.visa_passport_issue_date }}</td>
+        </tr>
+
+        <tr v-show="participant.visa_required === true && participant.status === 'accepted'">
+          <td><b>Visa passport expiration date</b></td>
+          <td>{{ participant.visa_passport_expiration_date }}</td>
+        </tr>
+
+        <tr v-show="participant.visa_required === true && participant.status === 'accepted'">
+          <td><b>Visa passport issue authority</b></td>
+          <td>{{ participant.visa_passport_issue_authority }}</td>
+        </tr>
+
+        <tr v-show="participant.visa_required === true && participant.status === 'accepted'">
+          <td><b>Visa place of birth</b></td>
+          <td>{{ participant.visa_place_of_birth }}</td>
+        </tr>
+
+        <tr v-show="participant.visa_required === true && participant.status === 'accepted'">
+          <td><b>Visa embassy</b></td>
+          <td>{{ participant.visa_embassy }}</td>
+        </tr>
+
+        <tr v-show="participant.visa_required === true && participant.status === 'accepted'">
+          <td><b>Visa street and house number</b></td>
+          <td>{{ participant.visa_street_and_house }}</td>
+        </tr>
+
+        <tr v-show="participant.visa_required === true && participant.status === 'accepted'">
+          <td><b>Visa postal code</b></td>
+          <td>{{ participant.visa_postal_code }}</td>
+        </tr>
+
+        <tr v-show="participant.visa_required === true && participant.status === 'accepted'">
+          <td><b>Visa city</b></td>
+          <td>{{ participant.visa_city }}</td>
+        </tr>
+
+        <tr v-show="participant.visa_required === true && participant.status === 'accepted'">
+          <td><b>Visa country</b></td>
+          <td>{{ participant.visa_country }}</td>
+        </tr>
 
         <tr>
           <td><b>Meals type</b></td>
