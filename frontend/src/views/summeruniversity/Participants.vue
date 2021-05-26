@@ -38,7 +38,7 @@
 
             <b-table-column label="Cancelled?" field="cancelled" centered sortable>
               <div class="select" :class="{ 'is-loading': props.row.isSavingCancelled }">
-                <select v-model="props.row.newCancelled" @change="switchPaxCancelled(props.row)" :disabled="!props.row.cancelled">
+                <select v-model="props.row.newCancelled" @change="switchPaxCancelled(props.row)" :disabled="props.row.cancelled">
                   <option :value="true">Yes</option>
                   <option :value="false">No</option>
                 </select>
