@@ -257,10 +257,10 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
     return permissions;
 };
 
-exports.getApplicationPermissions = ({ permissions, user, application }) => {
+exports.getApplicationPermissions = ({ permissions, user, application, event }) => {
     const isMine = application.user_id === user.id;
 
-    permissions.view_application = isMine || permissions.edit_summeruniversity;
+    permissions.view_application = isMine || exports.isOrganizer(event, user) || permissions.edit_summeruniversity;
     permissions.edit_application = (isMine && permissions.apply) || permissions.edit_summeruniversity;
     permissions.set_application_cancelled = (isMine && permissions.apply) || permissions.edit_summeruniversity;
 
