@@ -1,3 +1,10 @@
+## [1.31.6](https://github.com/AEGEE/frontend/compare/1.31.5...1.31.6) (2021-05-26)
+
+
+### Bug Fixes
+
+* **su:** invert logic cancelled ([#1032](https://github.com/AEGEE/frontend/issues/1032)) ([9399eb8](https://github.com/AEGEE/frontend/commit/9399eb8c421d7e8c92c0d88ab23d348803dae0b5))
+
 ## [1.31.5](https://github.com/AEGEE/frontend/compare/1.31.4...1.31.5) (2021-05-26)
 
 
