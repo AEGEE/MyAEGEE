@@ -1,3 +1,10 @@
+## [1.31.7](https://github.com/AEGEE/frontend/compare/1.31.6...1.31.7) (2021-05-27)
+
+
+### Bug Fixes
+
+* **su:** add help text for organizers ([#1033](https://github.com/AEGEE/frontend/issues/1033)) ([d636d03](https://github.com/AEGEE/frontend/commit/d636d039a74d1f1bfcd268cf1b3cb1724781479c))
+
 ## [1.31.6](https://github.com/AEGEE/frontend/compare/1.31.5...1.31.6) (2021-05-26)
 
 
