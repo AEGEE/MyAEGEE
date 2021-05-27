@@ -4,6 +4,16 @@
       <div class="tile is-child">
         <div class="title">Applications</div>
 
+        <div class="notification is-info">
+          <div class="content">
+            <p>On this page you can see the applications to your SU. There are various columns that you can use as organizer:</p>
+            <p>The column 'Manage status' is used to accept or reject participants.</p>
+            <p>The column 'Cancelled?' can be used to cancel participants after they have been accepted. Some applications might have been cancelled, this can also be done by the person that has applied before the application period ended.</p>
+            <p>The column 'Confirmed?' can be used to keep track of the participants that have confirmed their participation. By updating this, SUCT can also see how many participants have already been confirmed.</p>
+            <p>The column 'Attended?' can be used for confirmed participants for when they have attended your SU. This helps SUCT to see how many people participated in this year's SUs.</p>
+          </div>
+        </div>
+
         <p>Total applications: {{ applications.length }}.</p>
         <p>Click on the application to extend it.</p>
 
