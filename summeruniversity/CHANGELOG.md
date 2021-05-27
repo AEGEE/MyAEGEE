@@ -1,3 +1,10 @@
+## [1.3.7](https://github.com/AEGEE/summeruniversity/compare/1.3.6...1.3.7) (2021-05-27)
+
+
+### Bug Fixes
+
+* **application:** show email to organizers ([#89](https://github.com/AEGEE/summeruniversity/issues/89)) ([3e32b3c](https://github.com/AEGEE/summeruniversity/commit/3e32b3c3e7af8cb1173f3ab2faaa42f4a735198d))
+
 ## [1.3.6](https://github.com/AEGEE/summeruniversity/compare/1.3.5...1.3.6) (2021-05-26)
 
 
