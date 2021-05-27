@@ -130,6 +130,7 @@ exports.fetchSingleApplication = async (req, res, next) => {
 
     application.dataValues.gender = user.gender;
     application.dataValues.date_of_birth = user.date_of_birth;
+    application.dataValues.notification_email = user.notification_email;
 
     req.application = application;
     req.permissions = helpers.getApplicationPermissions({
