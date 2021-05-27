@@ -120,7 +120,7 @@ export default {
             color: '#FFDB4C'
           },
           {
-            url: 'https://drive.google.com/file/d/1OpcmgL-_A2u0daj86BgoPiTlsmpWDx7F/view',
+            url: 'https://drive.google.com/file/d/1j_lQ5gFqZr2ZgZQV9-HIax-S1wXyls62/view',
             title: 'Strategic Plan',
             description: 'Strategic Plan of AEGEE-Europe 2020-2023',
             color: '#FFDB4C'
