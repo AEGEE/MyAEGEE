@@ -1,3 +1,10 @@
+## [0.15.1](https://github.com/AEGEE/mailer/compare/0.15.0...0.15.1) (2021-05-31)
+
+
+### Bug Fixes
+
+* **su:** add board/organizer application emails ([#75](https://github.com/AEGEE/mailer/issues/75)) ([28ec9ab](https://github.com/AEGEE/mailer/commit/28ec9ab265bd01e37f8892bc152a7907518ce6d1))
+
 # [0.15.0](https://github.com/AEGEE/mailer/compare/0.14.0...0.15.0) (2021-05-26)
 
 
