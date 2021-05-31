@@ -69,6 +69,9 @@ exports.createApplication = async (req, res) => {
             }
         });
 
+        req.event.organizers = await Promise.all(req.event.organizers.map((organizer) =>
+            core.fetchUser(organizer, req.headers['x-auth-token'])));
+
         // Sending the mail to the organizers
         await mailer.sendMail({
             to: req.event.organizers.map((organizer) => organizer.notification_email),
@@ -144,6 +147,9 @@ exports.updateApplication = async (req, res) => {
                 event: req.event
             }
         });
+
+        req.event.organizers = await Promise.all(req.event.organizers.map((organizer) =>
+            core.fetchUser(organizer, req.headers['x-auth-token'])));
 
         // Sending the mail to the organizers
         await mailer.sendMail({
