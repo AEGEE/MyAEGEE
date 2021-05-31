@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/AEGEE/summeruniversity/compare/1.4.1...1.4.2) (2021-05-31)
+
+
+### Bug Fixes
+
+* **application:** fix emails organizers ([#98](https://github.com/AEGEE/summeruniversity/issues/98)) ([b091602](https://github.com/AEGEE/summeruniversity/commit/b091602329abb0428d4a72afea7e033f0b64b875))
+
 ## [1.4.1](https://github.com/AEGEE/summeruniversity/compare/1.4.0...1.4.1) (2021-05-31)
 
 
