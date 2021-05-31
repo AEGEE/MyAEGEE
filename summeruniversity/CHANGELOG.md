@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/AEGEE/summeruniversity/compare/1.3.7...1.4.0) (2021-05-31)
+
+
+### Features
+
+* **event:** add open call ([#96](https://github.com/AEGEE/summeruniversity/issues/96)) ([a501074](https://github.com/AEGEE/summeruniversity/commit/a501074a0ead0b3ba6540aae8b285e60b2eceda9))
+
 ## [1.3.7](https://github.com/AEGEE/summeruniversity/compare/1.3.6...1.3.7) (2021-05-27)
 
 
