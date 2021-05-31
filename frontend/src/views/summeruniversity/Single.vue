@@ -32,13 +32,28 @@
             </router-link>
           </div>
 
-          <!-- TODO: v-if if applied for this event -->
-          <!-- <div class="field is-grouped" v-if="can.apply">
-            <router-link :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }" class="button is-warning is-fullwidth">
+          <div class="field is-grouped" v-if="can.see_own_application">
+            <router-link :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }" class="button is-fullwidth">
               <span>Manage application</span>
               <span class="icon"><font-awesome-icon icon="plus" /></span>
             </router-link>
-          </div> -->
+          </div>
+
+          <!-- For SUCT & LOs: open Open Call period -->
+          <div class="field is-grouped" v-if="can.edit_summeruniversity_open_call && event.open_call != true && event.available_spots != 0">
+            <a class="button is-fullwidth is-warning" @click="askStartOpenCall()">
+              <span>Start open call</span>
+              <span class="icon"><font-awesome-icon icon="play" /></span>
+            </a>
+          </div>
+
+          <!-- For SUCT & LOs: close Open Call period -->
+          <div class="field is-grouped" v-if="can.edit_summeruniversity_open_call && event.open_call === true">
+            <a class="button is-fullwidth is-danger" @click="askCloseOpenCall()">
+              <span>Close open call</span>
+              <span class="icon"><font-awesome-icon icon="stop" /></span>
+            </a>
+          </div>
 
           <div class="field is-grouped" v-if="can.edit_summeruniversity">
             <!-- TODO: fix this, this is a hack because of covid submissions -->
@@ -220,9 +235,13 @@
                   <th>Application status</th>
                   <td>{{ event.application_status | capitalize }}</td>
                 </tr>
-                <tr v-if="event.application_status === 'open'">
+                <tr v-if="event.application_status === 'open' && event.open_call != true">
                   <th>Application period ends <timezone-tooltip /></th>
                   <td>{{ event.application_ends | datetime }}</td>
+                </tr>
+                <tr v-if="event.open_call === true">
+                  <th>Spots available</th>
+                  <td>{{ event.available_spots }}</td>
                 </tr>
                 <tr>
                   <th>Starts <timezone-tooltip /></th>
@@ -537,6 +556,51 @@ export default {
       }).catch((err) => {
         this.isLoading = false
         this.$root.showError('Could not change event publication', err)
+      })
+    },
+    askStartOpenCall () {
+      this.$buefy.dialog.prompt({
+        title: 'Start open call',
+        message: 'Set maximum amount of participants',
+        inputAttrs: {
+          type: 'number',
+          required: true,
+          value: this.event.max_participants
+        },
+        trapFocus: true,
+        onConfirm: (newMaxParticipants) => this.changeOpenCall(newMaxParticipants)
+      })
+    },
+    askCloseOpenCall () {
+      this.$buefy.dialog.confirm({
+        message: 'Are you sure you want to <b>close</b> the open call.',
+        confirmText: 'Close open call',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.changeOpenCall('close')
+      })
+    },
+    changeOpenCall (openCall) {
+      this.isLoading = true
+
+      if (openCall === 'close') {
+        openCall = { open_call: false }
+      } else {
+        openCall = { open_call: true, max_participants: openCall }
+      }
+
+      this.axios.put(this.services['summeruniversity'] + '/single/' + this.event.id + '/open_call', openCall).then(() => {
+        this.$root.showInfo('Event open call is succesfully changed')
+
+        // Refetching the event to renew the permissions.
+        return this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id)
+      }).then((response) => {
+        this.event = response.data.data
+        this.can = response.data.permissions
+        this.isLoading = false
+      }).catch((err) => {
+        this.isLoading = false
+        this.$root.showError('Could not change event open call', err)
       })
     },
     onMapLoaded (event) {

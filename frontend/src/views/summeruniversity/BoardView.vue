@@ -30,6 +30,7 @@
 
         <b-table
           :data="applications"
+          :row-class="row => calculateClassForApplication(row)"
           :loading="isLoading"
           v-if="selectedBody && boardBodies.length > 0">
           <template slot-scope="props">
@@ -53,6 +54,10 @@
               <button type="button" class="button" @click="showModal(props.row)">
                 View application
               </button>
+            </b-table-column>
+
+            <b-table-column field="status" label="Status" sortable>
+                {{ props.row.status }}
             </b-table-column>
 
             <b-table-column field="board_comment" label="Board comment">
@@ -93,6 +98,18 @@ export default {
     }
   },
   methods: {
+    calculateClassForApplication (pax) {
+      switch (pax.status) {
+      case 'accepted':
+        return 'has-background-success'
+      case 'rejected':
+        return 'has-background-danger'
+      case 'waiting_list':
+        return 'has-background-warning'
+      default:
+        return ''
+      }
+    },
     submitComment (application) {
       this.axios.put(this.services['summeruniversity'] + '/single/' + application.event.id + '/applications/' + application.id + '/comment/', {
         board_comment: application.board_comment
@@ -123,7 +140,7 @@ export default {
       })
     },
     showModal (participant) {
-      this.axios.get(this.services['summeruniversity'] + '/single/' + this.event.id + '/applications/' + participant.id).then((response) => {
+      this.axios.get(this.services['summeruniversity'] + '/single/' + participant.event.id + '/applications/' + participant.id).then((response) => {
         this.$buefy.modal.open({
           component: ViewParticipantModal,
           hasModalCard: true,

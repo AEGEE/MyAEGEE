@@ -342,7 +342,6 @@
           </div>
         </form>
 
-        <!-- TODO: add fields here -->
         <div v-show="!isNew && !this.can.apply" class="tile is-parent">
           <div class="tile is-child">
             <p>
@@ -359,20 +358,137 @@
                 </tr>
               </thead>
               <tbody>
+              <tr>
+                  <td><b>First Name</b></td>
+                  <td>{{ application.first_name }}</td>
+                </tr>
+
+                <tr>
+                  <td><b>Last Name</b></td>
+                  <td>{{ application.last_name }}</td>
+                </tr>
+
+                <tr>
+                  <td><b>Gender</b></td>
+                  <td v-show="application.gender">{{ application.gender }}</td>
+                  <td v-show="!application.gender" style="color: #C51C13">Please set your gender in your profile</td>
+                </tr>
+
+                <tr>
+                  <td><b>Date of birth</b></td>
+                  <td v-show="application.date_of_birth">{{ application.date_of_birth | date }}</td>
+                  <td v-show="!application.date_of_birth" style="color: #C51C13">Please set your date of birth in your profile</td>
+                </tr>
+
+                <tr>
+                  <td><b>Nationality</b></td>
+                  <td>{{ application.nationality }}</td>
+                </tr>
+
+                <tr>
+                  <td><b>Body</b></td>
+                  <td>{{ application.body_name }}</td>
+                </tr>
+
+                <tr>
+                  <td><b>Travelling from</b></td>
+                  <td>{{ application.travelling_from }}</td>
+                </tr>
+
+                <tr>
+                  <td><b>Application date</b></td>
+                  <td>{{ application.created_at | date }}</td>
+                </tr>
+
+                <tr>
+                  <td><b>Email address</b></td>
+                  <td>{{ application.notification_email }}</td>
+                </tr>
+
+                <tr>
+                  <td><b>Visa required?</b></td>
+                  <td>{{ application.visa_required | beautify }}</td>
+                </tr>
+
+                <tr v-show="application.visa_required === true">
+                  <td><b>Visa passport number</b></td>
+                  <td>{{ application.visa_passport_number }}</td>
+                </tr>
+
+                <tr v-show="application.visa_required === true">
+                  <td><b>Visa passport issue date</b></td>
+                  <td>{{ application.visa_passport_issue_date }}</td>
+                </tr>
+
+                <tr v-show="application.visa_required === true">
+                  <td><b>Visa passport expiration date</b></td>
+                  <td>{{ application.visa_passport_expiration_date }}</td>
+                </tr>
+
+                <tr v-show="application.visa_required === true">
+                  <td><b>Visa passport issue authority</b></td>
+                  <td>{{ application.visa_passport_issue_authority }}</td>
+                </tr>
+
+                <tr v-show="application.visa_required === true">
+                  <td><b>Visa place of birth</b></td>
+                  <td>{{ application.visa_place_of_birth }}</td>
+                </tr>
+
+                <tr v-show="application.visa_required === true">
+                  <td><b>Visa embassy</b></td>
+                  <td>{{ application.visa_embassy }}</td>
+                </tr>
+
+                <tr v-show="application.visa_required === true">
+                  <td><b>Visa street and house number</b></td>
+                  <td>{{ application.visa_street_and_house }}</td>
+                </tr>
+
+                <tr v-show="application.visa_required === true">
+                  <td><b>Visa postal code</b></td>
+                  <td>{{ application.visa_postal_code }}</td>
+                </tr>
+
+                <tr v-show="application.visa_required === true">
+                  <td><b>Visa city</b></td>
+                  <td>{{ application.visa_city }}</td>
+                </tr>
+
+                <tr v-show="application.visa_required === true">
+                  <td><b>Visa country</b></td>
+                  <td>{{ application.visa_country }}</td>
+                </tr>
+
+                <tr>
+                  <td><b>Meals type</b></td>
+                  <td>{{ application.meals }}</td>
+                </tr>
+
+                <tr>
+                  <td><b>Allergies</b></td>
+                  <td v-show="application.allergies">{{ application.allergies }}</td>
+                  <td v-show="!application.allergies">-</td>
+                </tr>
+
+                <tr>
+                  <td><b>AEGEE experience</b></td>
+                  <td>{{ application.aegee_experience }}</td>
+                </tr>
+
+                <tr>
+                  <td><b>Ideal SU</b></td>
+                  <td>{{ application.ideal_su }}</td>
+                </tr>
+
+                <tr>
+                  <td><b>Motivation</b></td>
+                  <td>{{ application.motivation }}</td>
+                </tr>
+
                 <tr v-for="(field, index) in event.questions" v-bind:key="index">
                   <td><b>{{ field.description }}</b><span class="is-danger" ng-show="field.required">*</span></td>
                   <td>{{ application.answers[index] | beautify }}</td>
-                </tr>
-                <tr>
-                  <td>
-                    <b>
-                      I agree with my personal data to be processed
-                      by AEGEE-Europe for the purposes of the participant selection
-                      and event organisation. AEGEE-Europe will disclose this data
-                      to organising local for the time period of the event organisation.
-                    </b>
-                  </td>
-                  <td>{{ application.agreed_to_privacy_policy | beautify }}</td>
                 </tr>
               </tbody>
             </table>

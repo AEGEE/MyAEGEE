@@ -66,13 +66,15 @@
 
             <div class="content">
               <span v-html="$options.filters.markdown(event.description)"></span>
+              <span v-if="event.application_status === 'open'" style="color: #A0C514">Applications are open!</span>
               <ul>
                 <li><strong>Type:</strong> {{ eventTypesNames[event.type] }} </li>
                 <li><strong>From:</strong> {{ event.starts | date }} </li>
                 <li><strong>To:</strong> {{ event.ends | date }} </li>
-                <li v-if="event.application_status === 'open'"><strong>Application deadline: </strong>
+                <li v-if="event.application_status === 'open' && event.open_call != true"><strong>Application deadline: </strong>
                   <span>{{ event.application_ends | datetime }}</span>
                 </li>
+                <li v-if="event.open_call === true"><strong>Spots available:</strong> {{ event.available_spots }} </li>
                 <li>
                   <strong>Organizing bodies: </strong>
                     <router-link

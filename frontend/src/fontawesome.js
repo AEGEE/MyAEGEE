@@ -61,6 +61,8 @@ import { faCoins } from '@fortawesome/free-solid-svg-icons/faCoins'
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle'
 import { faHistory } from '@fortawesome/free-solid-svg-icons/faHistory'
 import { faUmbrellaBeach } from '@fortawesome/free-solid-svg-icons/faUmbrellaBeach'
+import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay'
+import { faStop } from '@fortawesome/free-solid-svg-icons/faStop'
 
 library.add(faTimesCircle)
 library.add(faHeart)
@@ -121,5 +123,7 @@ library.add(faCoins)
 library.add(faExclamationCircle)
 library.add(faHistory)
 library.add(faUmbrellaBeach)
+library.add(faPlay)
+library.add(faStop)
 
 export default FontAwesomeIcon
