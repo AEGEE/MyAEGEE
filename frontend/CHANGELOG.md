@@ -1,3 +1,10 @@
+## [1.32.1](https://github.com/AEGEE/frontend/compare/1.32.0...1.32.1) (2021-05-31)
+
+
+### Bug Fixes
+
+* **su:** improve color for open applications ([#1045](https://github.com/AEGEE/frontend/issues/1045)) ([acac227](https://github.com/AEGEE/frontend/commit/acac227fcabe3a41ab6b8d996fe4eb92545ce42d))
+
 # [1.32.0](https://github.com/AEGEE/frontend/compare/1.31.7...1.32.0) (2021-05-31)
 
 
