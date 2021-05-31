@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/AEGEE/summeruniversity/compare/1.4.0...1.4.1) (2021-05-31)
+
+
+### Bug Fixes
+
+* **event:** small fixes open call ([#97](https://github.com/AEGEE/summeruniversity/issues/97)) ([afbb4a3](https://github.com/AEGEE/summeruniversity/commit/afbb4a37364fe4b18e0e454b97917525017cbcea))
+
 # [1.4.0](https://github.com/AEGEE/summeruniversity/compare/1.3.7...1.4.0) (2021-05-31)
 
 
