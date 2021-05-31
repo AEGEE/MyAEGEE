@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/AEGEE/summeruniversity/compare/1.4.2...1.4.3) (2021-05-31)
+
+
+### Bug Fixes
+
+* **mail:** temp disable board mail ([#99](https://github.com/AEGEE/summeruniversity/issues/99)) ([09a1d3e](https://github.com/AEGEE/summeruniversity/commit/09a1d3eb6a68afcac3f7062e5c2f01e183f758b2))
+
 ## [1.4.2](https://github.com/AEGEE/summeruniversity/compare/1.4.1...1.4.2) (2021-05-31)
 
 
