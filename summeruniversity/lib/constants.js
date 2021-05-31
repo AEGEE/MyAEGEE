@@ -85,6 +85,7 @@ module.exports = {
         'max_participants',
         'accepted_participants',
         'available_spots',
+        'open_call',
         'accommodation_type',
         'activities_list',
         'course_level',

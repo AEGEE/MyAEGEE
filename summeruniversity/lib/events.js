@@ -426,10 +426,17 @@ exports.setOpenCallPeriod = async (req, res) => {
         return errors.makeForbiddenError(res, 'This event publication does not allow changing the open call period');
     }
 
+    const acceptedParticipants = await Application.count({ where: {
+        event_id: req.event.id,
+        status: 'accepted',
+        cancelled: false
+    } });
+
     if (req.body.max_participants) {
         req.body = {
             max_participants: req.body.max_participants,
-            open_call: req.body.open_call
+            open_call: req.body.open_call,
+            accepted_participants: acceptedParticipants
         };
     } else {
         req.body = { open_call: req.body.open_call };
