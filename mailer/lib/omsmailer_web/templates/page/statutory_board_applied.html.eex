@@ -43,7 +43,7 @@
                       <tr>
                         <td style="padding: 0 56px 28px 56px;" valign="top">
                           <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">
-                            Here the the application details:
+                            Here are the application details:
                             <%= render(OmsmailerWeb.SnippetsView, "statutory_application_info.html", parameters: @parameters ) %>
                           </div>
                         </td>

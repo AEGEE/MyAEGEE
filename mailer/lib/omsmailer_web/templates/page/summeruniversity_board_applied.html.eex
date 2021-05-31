@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%= render(OmsmailerWeb.SnippetsView, "head.html", title: "MyAEGEE: A member of your body edited the application for " <> @parameters["event"]["name"]) %>
+<%= render(OmsmailerWeb.SnippetsView, "head.html", title: "MyAEGEE: A member of your body applied for " <> @parameters["event"]["name"]) %>
 
 <body style="width:100% !important;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;padding-top:0;padding-bottom:0;padding-right:0;padding-left:0;">
   <table cellpadding="0" cellspacing="0" border="0" id="backgroundTable" style="margin:0; padding:0; width:100% !important; line-height: 100% !important; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;background-color: #F9FAFB;"
@@ -37,22 +37,22 @@
                       </tr>
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>A member of your body (<%= @parameters["application"]["body_name"] %>) edited the application for <%= @parameters["event"]["name"] %></strong></div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>A member of your body (<%= @parameters["application"]["body_name"] %>) applied for <%= @parameters["event"]["name"] %></strong></div>
                         </td>
                       </tr>
                       <tr>
                         <td style="padding: 0 56px 28px 56px;" valign="top">
                           <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">
                             Here are the application details:
-                            <%= render(OmsmailerWeb.SnippetsView, "statutory_application_info.html", parameters: @parameters ) %>
+                            <%= render(OmsmailerWeb.SnippetsView, "summeruniversity_application_info.html", parameters: @parameters ) %>
                           </div>
                         </td>
                       </tr>
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
                           <div>
-                            <a href="https://my.aegee.eu/statutory/<%= @parameters["event"]["url"] %>/boardview" style="background-color:#1468C5;border-radius:50px;color:#ffffff;display:inline-block;font-family: 'lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:18px;font-weight: bold;line-height:40px;text-align:center;text-decoration:none;width:270px;-webkit-text-size-adjust:none;"
-                              target="_blank">Manage boardview</a>
+                            <a href="https://my.aegee.eu/summeruniversity/boardview" style="background-color:#1468C5;border-radius:50px;color:#ffffff;display:inline-block;font-family: 'lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:18px;font-weight: bold;line-height:40px;text-align:center;text-decoration:none;width:270px;-webkit-text-size-adjust:none;"
+                              target="_blank">Go to the Summer University board view</a>
                           </div>
                         </td>
                       </tr>

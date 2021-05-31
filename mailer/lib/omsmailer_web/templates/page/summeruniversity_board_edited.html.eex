@@ -44,15 +44,15 @@
                         <td style="padding: 0 56px 28px 56px;" valign="top">
                           <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">
                             Here are the application details:
-                            <%= render(OmsmailerWeb.SnippetsView, "statutory_application_info.html", parameters: @parameters ) %>
+                            <%= render(OmsmailerWeb.SnippetsView, "summeruniversity_application_info.html", parameters: @parameters ) %>
                           </div>
                         </td>
                       </tr>
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
                           <div>
-                            <a href="https://my.aegee.eu/statutory/<%= @parameters["event"]["url"] %>/boardview" style="background-color:#1468C5;border-radius:50px;color:#ffffff;display:inline-block;font-family: 'lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:18px;font-weight: bold;line-height:40px;text-align:center;text-decoration:none;width:270px;-webkit-text-size-adjust:none;"
-                              target="_blank">Manage boardview</a>
+                            <a href="https://my.aegee.eu/summeruniversity/boardview" style="background-color:#1468C5;border-radius:50px;color:#ffffff;display:inline-block;font-family: 'lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:18px;font-weight: bold;line-height:40px;text-align:center;text-decoration:none;width:270px;-webkit-text-size-adjust:none;"
+                              target="_blank">Go to the Summer University board view</a>
                           </div>
                         </td>
                       </tr>

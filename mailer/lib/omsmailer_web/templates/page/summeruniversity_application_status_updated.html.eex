@@ -44,7 +44,7 @@
                       <tr>
                         <td style="padding: 0 56px 28px 56px;" valign="top">
                           <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">
-                            The status of your application for <%= @parameters["event"]["name"] %> is <%= @parameters["application"]["status"] %>. 
+                            The status of your application for <%= @parameters["event"]["name"] %> is <strong><%= @parameters["application"]["status"] %></strong>. 
                             If you have been accepted, the organizers of the Summer University will be in touch with you soon and provide you with more information. 
                             If you have been rejected, there might be other Summer Universities with open calls. If there are any at this moment you can find them on MyAEGEE.
                           </div>
