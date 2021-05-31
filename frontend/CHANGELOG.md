@@ -1,3 +1,10 @@
+# [1.32.0](https://github.com/AEGEE/frontend/compare/1.31.7...1.32.0) (2021-05-31)
+
+
+### Features
+
+* **su:** add open call for organizers ([#1040](https://github.com/AEGEE/frontend/issues/1040)) ([8e4f133](https://github.com/AEGEE/frontend/commit/8e4f1336b1cc43ab6867e81a9fbac37bab909cf3))
+
 ## [1.31.7](https://github.com/AEGEE/frontend/compare/1.31.6...1.31.7) (2021-05-27)
 
 
