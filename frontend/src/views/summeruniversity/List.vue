@@ -65,8 +65,8 @@
             </div>
 
             <div class="content">
+              <span v-if="event.application_status === 'open'" style="color: #647A16; font-weight: bold">Applications are open!</span>
               <span v-html="$options.filters.markdown(event.description)"></span>
-              <span v-if="event.application_status === 'open'" style="color: #A0C514">Applications are open!</span>
               <ul>
                 <li><strong>Type:</strong> {{ eventTypesNames[event.type] }} </li>
                 <li><strong>From:</strong> {{ event.starts | date }} </li>
