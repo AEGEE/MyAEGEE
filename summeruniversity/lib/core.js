@@ -107,8 +107,48 @@ const fetchBody = async (body, token) => {
     };
 };
 
+const getBodyUsersForPermission = async (permission, bodyId) => {
+    // Getting access and refresh token.
+    const authRequest = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/login',
+        method: 'POST',
+        body: {
+            username: config.core.user.login,
+            password: config.core.user.password
+        }
+    });
+
+    if (typeof authRequest !== 'object') {
+        throw new Error('Malformed response when fetching auth request: ' + authRequest);
+    }
+
+    if (!authRequest.success) {
+        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
+    }
+
+    // Fetching members.
+    const membersResponse = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/bodies/' + bodyId + '/members',
+        token: authRequest.access_token,
+        qs: {
+            holds_permission: { action: permission.action, object: permission.object }
+        }
+    });
+
+    if (typeof membersResponse !== 'object') {
+        throw new Error('Malformed response when fetching members for permission: ' + membersResponse);
+    }
+
+    if (!membersResponse.success) {
+        throw new Error('Error fetching members for permission: ' + JSON.stringify(membersResponse));
+    }
+
+    return membersResponse.data;
+};
+
 module.exports = {
     fetchUser,
     fetchApplicationUser,
-    fetchBody
+    fetchBody,
+    getBodyUsersForPermission
 };

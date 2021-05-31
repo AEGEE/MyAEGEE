@@ -416,3 +416,29 @@ exports.setApplicationPeriod = async (req, res) => {
         message: 'Successfully changed application period',
     });
 };
+
+exports.setOpenCallPeriod = async (req, res) => {
+    if (!req.permissions.edit_summeruniversity_open_call) {
+        return errors.makeForbiddenError(res, 'You are not allowed to change the open call period.');
+    }
+
+    if (req.event.published !== 'covid') {
+        return errors.makeForbiddenError(res, 'This event publication does not allow changing the open call period');
+    }
+
+    if (req.body.max_participants) {
+        req.body = {
+            max_participants: req.body.max_participants,
+            open_call: req.body.open_call
+        };
+    } else {
+        req.body = { open_call: req.body.open_call };
+    }
+
+    await req.event.update(req.body);
+
+    return res.json({
+        success: true,
+        message: 'Successfully changed open call period',
+    });
+};

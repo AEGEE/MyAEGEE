@@ -66,6 +66,7 @@ EventsRouter.put('/status', events.setApprovalStatus);
 EventsRouter.post('/upload', imageserv.uploadImage);
 EventsRouter.put('/published', events.setPublished);
 EventsRouter.put('/application_period', events.setApplicationPeriod);
+EventsRouter.put('/open_call', events.setOpenCallPeriod);
 
 EventsRouter.get('/applications', applications.listAllApplications);
 EventsRouter.post('/applications', applications.createApplication);

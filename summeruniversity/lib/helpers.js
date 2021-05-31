@@ -213,6 +213,13 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
             && event.published === 'covid'
             && permissions.apply_general
             && applicationCount === 0;
+
+        const appliedForEvent = await Application.count({ where: {
+            user_id: user.id,
+            event_id: event.id
+        } });
+
+        permissions.see_own_application = appliedForEvent === 1;
     }
 
     // TODO: set it up so that organizers can only do this during a set time window
@@ -221,6 +228,7 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
     permissions.set_participants_cancelled = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
     permissions.set_participants_attended = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
     permissions.set_participants_confirmed = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
+    permissions.edit_summeruniversity_open_call = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
 
     // Status transitions.
     // 1) first draft -> first submission - by event creator / LOs (when saved)
@@ -257,10 +265,10 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
     return permissions;
 };
 
-exports.getApplicationPermissions = ({ permissions, user, application, event }) => {
+exports.getApplicationPermissions = ({ permissions, user, application }) => {
     const isMine = application.user_id === user.id;
 
-    permissions.view_application = isMine || exports.isOrganizer(event, user) || permissions.edit_summeruniversity;
+    permissions.view_application = isMine || permissions.list_applications || permissions.see_boardview[application.body_id] || permissions.edit_summeruniversity;
     permissions.edit_application = (isMine && permissions.apply) || permissions.edit_summeruniversity;
     permissions.set_application_cancelled = (isMine && permissions.apply) || permissions.edit_summeruniversity;
 

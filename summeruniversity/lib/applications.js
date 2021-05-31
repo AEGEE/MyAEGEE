@@ -68,6 +68,35 @@ exports.createApplication = async (req, res) => {
                 event: req.event
             }
         });
+
+        // Sending the mail to the organizers
+        await mailer.sendMail({
+            to: req.event.organizers.map((organizer) => organizer.notification_email),
+            subject: `Somebody has applied for ${req.event.name}`,
+            template: 'summeruniversity_organizer_applied.html',
+            parameters: {
+                application: newApplication,
+                event: req.event
+            }
+        });
+
+        // Sending emails to board members of this body.
+        const boardMembers = await core.getBodyUsersForPermission({
+            action: 'approve_members',
+            object: 'summeruniversity'
+        }, newApplication.body_id);
+
+        if (boardMembers.length > 0) {
+            await mailer.sendMail({
+                to: boardMembers.map((member) => member.user.notification_email),
+                subject: `One of your body members has applied to ${req.event.name}`,
+                template: 'summeruniversity_board_applied.html',
+                parameters: {
+                    application: newApplication,
+                    event: req.event
+                }
+            });
+        }
     });
 
     return res.json({
@@ -115,6 +144,35 @@ exports.updateApplication = async (req, res) => {
                 event: req.event
             }
         });
+
+        // Sending the mail to the organizers
+        await mailer.sendMail({
+            to: req.event.organizers.map((organizer) => organizer.notification_email),
+            subject: `Somebody has updated their application for ${req.event.name}`,
+            template: 'summeruniversity_organizer_edited.html',
+            parameters: {
+                application: req.application,
+                event: req.event
+            }
+        });
+
+        // Sending emails to board members of this body.
+        const boardMembers = await core.getBodyUsersForPermission({
+            action: 'approve_members',
+            object: 'summeruniversity'
+        }, req.application.body_id);
+
+        if (boardMembers.length > 0) {
+            await mailer.sendMail({
+                to: boardMembers.map((member) => member.user.notification_email),
+                subject: `One of your body members has updated their application to ${req.event.name}`,
+                template: 'summeruniversity_board_edited.html',
+                parameters: {
+                    application: req.application,
+                    event: req.event
+                }
+            });
+        }
     });
 
     return res.json({
@@ -166,6 +224,13 @@ exports.setApplicationCancelled = async (req, res) => {
         { returning: ['*'] }
     );
 
+    const acceptedParticipants = await Application.count({ where: {
+        event_id: req.event.id,
+        status: 'accepted',
+        cancelled: false
+    } });
+    await req.event.update({ accepted_participants: acceptedParticipants });
+
     return res.json({
         success: true,
         data: dbResult
@@ -195,6 +260,13 @@ exports.setApplicationStatus = async (req, res) => {
             }
         });
     });
+
+    const acceptedParticipants = await Application.count({ where: {
+        event_id: req.event.id,
+        status: 'accepted',
+        cancelled: false
+    } });
+    await req.event.update({ accepted_participants: acceptedParticipants });
 
     return res.json({
         success: true,

@@ -386,13 +386,28 @@ const Event = sequelize.define('event', {
             min: { args: [0], msg: 'Max amount of participants cannot be negative' }
         }
     },
+    accepted_participants: {
+        type: Sequelize.INTEGER,
+        allowNull: true
+    },
+    available_spots: {
+        type: Sequelize.VIRTUAL,
+        get() {
+            return this.max_participants - this.accepted_participants;
+        }
+    },
     application_status: {
         type: Sequelize.VIRTUAL,
         get() {
-            return moment().isBetween(this.application_starts, this.application_ends, null, '[]')
+            return (moment().isBetween(this.application_starts, this.application_ends, null, '[]') || this.open_call === true)
                 ? 'open'
                 : 'closed'; // inclusive
         }
+    },
+    open_call: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: false
     },
     budget: {
         type: Sequelize.STRING,
@@ -499,6 +514,12 @@ const Event = sequelize.define('event', {
 Event.beforeValidate(async (event) => {
     // skipping these fields if they are unset, will catch it later.
     if (typeof event.url === 'string') event.url = event.url.toLowerCase().trim();
+});
+
+Event.afterSave(async (event) => {
+    if (event.available_spots === 0 && event.open_call === true) {
+        event.open_call = false;
+    }
 });
 
 module.exports = Event;
