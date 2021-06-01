@@ -1,3 +1,10 @@
+## [1.32.2](https://github.com/AEGEE/frontend/compare/1.32.1...1.32.2) (2021-06-01)
+
+
+### Bug Fixes
+
+* **map:** increase zoom ([#1046](https://github.com/AEGEE/frontend/issues/1046)) ([ec0278e](https://github.com/AEGEE/frontend/commit/ec0278ea19bd2ee82d69d812b153580e3e9ce87e))
+
 ## [1.32.1](https://github.com/AEGEE/frontend/compare/1.32.0...1.32.1) (2021-05-31)
 
 
