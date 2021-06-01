@@ -20,6 +20,10 @@ const makeRequest = (options) => {
         requestOptions.body = options.body;
     }
 
+    if (options.qs) {
+        requestOptions.qs = options.qs;
+    }
+
     return request(requestOptions);
 };
 

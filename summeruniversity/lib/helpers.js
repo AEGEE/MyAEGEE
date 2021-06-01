@@ -209,10 +209,17 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
             cancelled: false
         } });
 
+        const acceptedForEvent = await Application.count({ where: {
+            user_id: user.id,
+            event_id: event.id,
+            status: 'accepted'
+        } });
+
         permissions.apply = event.application_status === 'open'
             && event.published === 'covid'
             && permissions.apply_general
-            && applicationCount === 0;
+            && applicationCount === 0
+            && acceptedForEvent === 0;
 
         const appliedForEvent = await Application.count({ where: {
             user_id: user.id,

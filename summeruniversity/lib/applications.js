@@ -84,22 +84,22 @@ exports.createApplication = async (req, res) => {
         });
 
         // Sending emails to board members of this body.
-        //const boardMembers = await core.getBodyUsersForPermission({
-        //    action: 'approve_members',
-        //    object: 'summeruniversity'
-        //}, newApplication.body_id);
+        const boardMembers = await core.getBodyUsersForPermission({
+            action: 'approve_members',
+            object: 'summeruniversity'
+        }, newApplication.body_id);
 
-        //if (boardMembers.length > 0) {
-        //    await mailer.sendMail({
-        //        to: boardMembers.map((member) => member.user.notification_email),
-        //        subject: `One of your body members has applied to ${req.event.name}`,
-        //        template: 'summeruniversity_board_applied.html',
-        //        parameters: {
-        //            application: newApplication,
-        //            event: req.event
-        //        }
-        //    });
-        //}
+        if (boardMembers.length > 0) {
+            await mailer.sendMail({
+                to: boardMembers.map((member) => member.user.notification_email),
+                subject: `One of your body members has applied to ${req.event.name}`,
+                template: 'summeruniversity_board_applied.html',
+                parameters: {
+                    application: newApplication,
+                    event: req.event
+                }
+            });
+        }
     });
 
     return res.json({
@@ -163,22 +163,22 @@ exports.updateApplication = async (req, res) => {
         });
 
         // Sending emails to board members of this body.
-        //const boardMembers = await core.getBodyUsersForPermission({
-        //    action: 'approve_members',
-        //    object: 'summeruniversity'
-        //}, req.application.body_id);
+        const boardMembers = await core.getBodyUsersForPermission({
+            action: 'approve_members',
+            object: 'summeruniversity'
+        }, req.application.body_id);
 
-        //if (boardMembers.length > 0) {
-        //    await mailer.sendMail({
-        //        to: boardMembers.map((member) => member.user.notification_email),
-        //        subject: `One of your body members has updated their application to ${req.event.name}`,
-        //        template: 'summeruniversity_board_edited.html',
-        //        parameters: {
-        //            application: req.application,
-        //            event: req.event
-        //        }
-        //    });
-        //}
+        if (boardMembers.length > 0) {
+            await mailer.sendMail({
+                to: boardMembers.map((member) => member.user.notification_email),
+                subject: `One of your body members has updated their application to ${req.event.name}`,
+                template: 'summeruniversity_board_edited.html',
+                parameters: {
+                    application: req.application,
+                    event: req.event
+                }
+            });
+        }
     });
 
     return res.json({
