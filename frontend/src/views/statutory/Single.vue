@@ -305,7 +305,7 @@ export default {
         actions: null,
         style: credentials.MAPS_API_TOKEN,
         center: { lat: 50.8503396, lng: 4.3517103 },
-        zoom: 8
+        zoom: 3
       },
       isLoading: false,
       can: {
