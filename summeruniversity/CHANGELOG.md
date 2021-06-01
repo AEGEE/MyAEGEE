@@ -1,3 +1,10 @@
+## [1.4.4](https://github.com/AEGEE/summeruniversity/compare/1.4.3...1.4.4) (2021-06-01)
+
+
+### Bug Fixes
+
+* **mailer:** send qs with request to core ([#100](https://github.com/AEGEE/summeruniversity/issues/100)) ([117f187](https://github.com/AEGEE/summeruniversity/commit/117f18706aba74c84e31fe506e9d41269ef3f16d))
+
 ## [1.4.3](https://github.com/AEGEE/summeruniversity/compare/1.4.2...1.4.3) (2021-05-31)
 
 
