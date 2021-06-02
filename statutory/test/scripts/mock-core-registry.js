@@ -2,7 +2,7 @@ const nock = require('nock');
 const path = require('path');
 
 const config = require('../../config');
-const regularUser = require('../assets/core-valid').data;
+const regularUser = require('../assets/core-valid.json').data;
 const constants = require('../../lib/constants');
 
 exports.cleanAll = () => nock.cleanAll();

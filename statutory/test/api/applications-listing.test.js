@@ -1,7 +1,7 @@
 const moment = require('moment');
 const tk = require('timekeeper');
 
-const { startServer, stopServer } = require('../../lib/server.js');
+const { startServer, stopServer } = require('../../lib/server');
 const constants = require('../../lib/constants');
 
 const { request } = require('../scripts/helpers');

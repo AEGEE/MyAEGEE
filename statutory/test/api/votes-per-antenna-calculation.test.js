@@ -1,11 +1,11 @@
 const moment = require('moment');
 
-const { startServer, stopServer } = require('../../lib/server.js');
+const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
 const { VotesPerAntenna, } = require('../../models');
-const regularUser = require('../assets/core-valid').data;
+const regularUser = require('../assets/core-valid.json').data;
 
 describe('Votes per antenna calculation', () => {
     const amounts = [

@@ -1,13 +1,13 @@
 const xlsx = require('node-xlsx');
 
-const { startServer, stopServer } = require('../../lib/server.js');
+const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const helpers = require('../../lib/helpers');
 const constants = require('../../lib/constants');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
-const regularUser = require('../assets/core-valid').data;
-const users = require('../assets/core-members').data;
+const regularUser = require('../assets/core-valid.json').data;
+const users = require('../assets/core-members.json').data;
 
 describe('Export all', () => {
     let event;

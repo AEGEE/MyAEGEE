@@ -6,7 +6,7 @@ const constants = require('./constants');
 const { Event, Application, Image, PaxLimit } = require('../models');
 const { Sequelize } = require('./sequelize');
 const Bugsnag = require('./bugsnag');
-const packageInfo = require('../package');
+const packageInfo = require('../package.json');
 const cron = require('./cron');
 
 exports.authenticateUser = async (req, res, next) => {

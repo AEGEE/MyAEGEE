@@ -21,7 +21,7 @@ ENV PATH="/home/node/.npm-global/bin:${PATH}"
 RUN npm install -g nodemon@2.0.7 \
  && npm install -g bunyan@1.8.15 \
  && npm cache clean --force \
- && npm install
+ && npm ci
 
 CMD sh /usr/app/scripts/bootstrap.sh && nodemon -e "js,json" lib/run.js
 
