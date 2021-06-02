@@ -48,7 +48,7 @@
           <td>{{ participant.created_at | date }}</td>
         </tr>
 
-        <tr v-show="participant.status === 'accepted'">
+        <tr>
           <td><b>Email address</b></td>
           <td>{{ participant.notification_email }}</td>
         </tr>
