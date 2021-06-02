@@ -10,7 +10,7 @@ const {
     BodyMembership,
     JoinRequest,
 } = require('../models');
-const packageInfo = require('../package');
+const packageInfo = require('../package.json');
 const PermissionManager = require('../lib/permissions-manager');
 
 exports.maybeAuthorize = async (req, res, next) => {
