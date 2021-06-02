@@ -1,3 +1,10 @@
+## [1.32.3](https://github.com/AEGEE/frontend/compare/1.32.2...1.32.3) (2021-06-02)
+
+
+### Bug Fixes
+
+* **su:** always show email to organizers ([#1052](https://github.com/AEGEE/frontend/issues/1052)) ([3bf66d0](https://github.com/AEGEE/frontend/commit/3bf66d02c7940e3a6425779ddeb08b21090417a5))
+
 ## [1.32.2](https://github.com/AEGEE/frontend/compare/1.32.1...1.32.2) (2021-06-01)
 
 
