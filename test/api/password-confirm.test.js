@@ -1,4 +1,4 @@
-const { startServer, stopServer } = require('../../lib/server.js');
+const { startServer, stopServer } = require('../../lib/server');
 const { PasswordReset, AccessToken, RefreshToken, User } = require('../../models');
 
 const { request } = require('../scripts/helpers');

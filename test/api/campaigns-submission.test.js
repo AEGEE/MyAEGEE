@@ -1,4 +1,4 @@
-const { startServer, stopServer } = require('../../lib/server.js');
+const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
