@@ -54,7 +54,7 @@
     "lint-staged": "^10.5.4",
     "nock": "^13.0.11",
     "open-cli": "^6.0.1",
-    "semantic-release": "^17.4.2"
+    "semantic-release": "^17.4.3"
   },
   "dependencies": {
     "@bugsnag/js": "^7.10.1",
