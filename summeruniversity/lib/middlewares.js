@@ -9,7 +9,7 @@ const { Application, Event } = require('../models');
 const helpers = require('./helpers');
 const config = require('../config');
 
-const packageInfo = require('../package');
+const packageInfo = require('../package.json');
 
 exports.authenticateUser = async (req, res, next) => {
     // Query the core for user and permissions.
