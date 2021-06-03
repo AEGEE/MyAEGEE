@@ -1,7 +1,7 @@
 const faker = require('faker');
 
 const { Event, Application } = require('../../models');
-const firstUser = require('../assets/oms-core-valid').data;
+const firstUser = require('../assets/oms-core-valid.json').data;
 
 const notSet = (field) => typeof field === 'undefined';
 

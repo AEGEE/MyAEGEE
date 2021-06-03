@@ -8,7 +8,7 @@ const helpers = require('./helpers');
 const config = require('../config');
 const constants = require('./constants');
 
-const packageInfo = require('../package');
+const packageInfo = require('../package.json');
 
 exports.authenticateUser = async (req, res, next) => {
     // Query the core for user and permissions.
