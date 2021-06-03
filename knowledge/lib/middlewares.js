@@ -3,7 +3,7 @@ const errors = require('./errors');
 const helpers = require('./helpers');
 const logger = require('./logger');
 const Bugsnag = require('./bugsnag');
-const packageInfo = require('../package');
+const packageInfo = require('../package.json');
 
 exports.authenticateUser = async (req, res, next) => {
     const token = req.header('x-auth-token');
