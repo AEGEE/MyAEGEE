@@ -1,8 +1,8 @@
-const { startServer, stopServer } = require('../../lib/server.js');
+const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock');
 const generator = require('../scripts/generator');
-const user = require('../assets/oms-core-valid').data;
+const user = require('../assets/oms-core-valid.json').data;
 const { Code } = require('../../models');
 
 describe('Codes claiming', () => {
