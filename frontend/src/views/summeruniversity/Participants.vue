@@ -14,6 +14,18 @@
           </div>
         </div>
 
+        <div class="field">
+          <div class="control">
+            <button class="button is-primary" @click="exportAll()">Export pending and accepted participants</button>
+          </div>
+        </div>
+
+        <div class="notification is-warning">
+          <div class="content">
+            <p>The export above will not export visa information due to privacy concerns. That information can only be viewed on this page.</p>
+          </div>
+        </div>
+
         <p>Total applications: {{ applications.length }}.</p>
         <p>Click on the application to extend it.</p>
 
@@ -103,6 +115,19 @@ export default {
     }
   },
   methods: {
+    exportAll () {
+      this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id + '/applications/export/', {
+        responseType: 'blob'
+      }).then(response => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        const filename = 'participants_' + this.event.name + '_' + new Date().toISOString() + '.xlsx'
+        link.setAttribute('download', filename)
+        document.body.appendChild(link)
+        link.click()
+      })
+    },
     calculateClassForApplication (pax) {
       switch (pax.status) {
       case 'accepted':
