@@ -127,6 +127,16 @@ exports.whitelistObject = (object, allowedFields) => {
     return newObject;
 };
 
+// A helper to get the names for application fields. Useful for exporting for getting columns headers.
+exports.getApplicationFields = (event) => {
+    const fields = { ...constants.APPLICATION_FIELD_NAMES };
+    for (let index = 0; index < event.questions.length; index++) {
+        fields['answers.' + index] = `Answer ${index + 1}: ${event.questions[index].description}`;
+    }
+
+    return fields;
+};
+
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
     if (!Array.isArray(permissionsList)) {
@@ -236,6 +246,7 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
     permissions.set_participants_attended = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
     permissions.set_participants_confirmed = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
     permissions.edit_summeruniversity_open_call = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
+    permissions.export_pax = exports.isOrganizer(event, user) || permissions.manage_summeruniversity[event.type];
 
     // Status transitions.
     // 1) first draft -> first submission - by event creator / LOs (when saved)

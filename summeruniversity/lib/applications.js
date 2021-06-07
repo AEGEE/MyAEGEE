@@ -1,9 +1,11 @@
+const xlsx = require('node-xlsx').default;
+
 const core = require('./core');
 const errors = require('./errors');
 const { Application } = require('../models');
 const helpers = require('./helpers');
 const mailer = require('./mailer');
-const { sequelize } = require('./sequelize');
+const { sequelize, Sequelize } = require('./sequelize');
 
 exports.listAllApplications = async (req, res) => {
     if (!req.permissions.list_applications) {
@@ -293,4 +295,55 @@ exports.setApplicationComment = async (req, res) => {
         success: true,
         data: req.application
     });
+};
+
+exports.exportAll = async (req, res) => {
+    // Exporting users as XLSX.
+    if (!req.permissions.export_pax) {
+        return errors.makeForbiddenError(res, 'You are not allowed to export participants.');
+    }
+
+    let applications = await Application.findAll({ where: {
+        event_id: req.event.id,
+        cancelled: false,
+        status: { [Sequelize.Op.ne]: 'rejected' }
+    } });
+
+    const headersNames = helpers.getApplicationFields(req.event);
+
+    const headers = Object.keys(headersNames).map((field) => headersNames[field]);
+
+    applications = await Promise.all(applications
+        .map(async (application) => {
+            const user = await core.fetchApplicationUser(application.user_id);
+
+            application.dataValues.gender = user.gender;
+            application.dataValues.date_of_birth = user.date_of_birth;
+            application.dataValues.notification_email = user.notification_email;
+
+            return application;
+        }));
+
+    // TODO: if status != accepted do not return visa fields
+    const resultArray = applications
+        .map((application) => application.toJSON())
+        .map((application) => helpers.flattenObject(application))
+        .map((application) => {
+            return Object.keys(headersNames).map((field) => helpers.beautify(application[field]));
+        });
+
+    const resultBuffer = xlsx.build([
+        {
+            name: 'Participants',
+            data: [
+                headers,
+                ...resultArray
+            ]
+        }
+    ]);
+
+    res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-disposition', 'attachment; filename=participants_' + req.event.name + '_' + new Date().toISOString() + '.xlsx');
+
+    return res.send(resultBuffer);
 };

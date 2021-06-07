@@ -70,6 +70,7 @@ EventsRouter.put('/open_call', events.setOpenCallPeriod);
 
 EventsRouter.get('/applications', applications.listAllApplications);
 EventsRouter.post('/applications', applications.createApplication);
+EventsRouter.get('/applications/export', applications.exportAll);
 EventsRouter.get('/applications/:application_id', middlewares.fetchSingleApplication, applications.getApplication);
 EventsRouter.put('/applications/:application_id', middlewares.fetchSingleApplication, applications.updateApplication);
 EventsRouter.put('/applications/:application_id/attended', middlewares.fetchSingleApplication, applications.setApplicationAttended);

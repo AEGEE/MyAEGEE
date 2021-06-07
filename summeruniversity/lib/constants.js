@@ -103,6 +103,27 @@ module.exports = {
         'created_at',
         'updated_at'
     ],
+    APPLICATION_FIELD_NAMES: {
+        first_name: 'First name',
+        last_name: 'Last name',
+        gender: 'Gender',
+        date_of_birth: 'Date of birth',
+        nationality: 'Nationality',
+        body_name: 'Body',
+        travelling_from: 'Travelling from',
+        created_at: 'Application date',
+        notification_email: 'Email address',
+        visa_required: 'Visa required?',
+        meals: 'Meals type',
+        allergies: 'Allergies',
+        status: 'Status',
+        confirmed: 'Confirmed?',
+        attended: 'Attended?',
+        board_comment: 'Board comment',
+        aegee_experience: 'AEGEE experience',
+        ideal_su: 'Ideal SU',
+        motivation: 'Motivation',
+    },
     EVENT_TYPES: ['regular', 'pilot'],
     CURRENT_USER_PREFIX: 'me'
 };
