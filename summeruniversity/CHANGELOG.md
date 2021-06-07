@@ -1,3 +1,10 @@
+## [1.4.5](https://github.com/AEGEE/summeruniversity/compare/1.4.4...1.4.5) (2021-06-07)
+
+
+### Bug Fixes
+
+* **applications:** add export for LOs ([#106](https://github.com/AEGEE/summeruniversity/issues/106)) ([a3ae926](https://github.com/AEGEE/summeruniversity/commit/a3ae92676b44988a16d9da376a8264f836a5d5a4))
+
 ## [1.4.4](https://github.com/AEGEE/summeruniversity/compare/1.4.3...1.4.4) (2021-06-01)
 
 
