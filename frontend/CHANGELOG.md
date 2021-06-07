@@ -1,3 +1,10 @@
+## [1.32.4](https://github.com/AEGEE/frontend/compare/1.32.3...1.32.4) (2021-06-07)
+
+
+### Bug Fixes
+
+* **su:** add export participants ([#1057](https://github.com/AEGEE/frontend/issues/1057)) ([73f05e0](https://github.com/AEGEE/frontend/commit/73f05e05ea5e1777cc78465ed08bbc2ac35ced20))
+
 ## [1.32.3](https://github.com/AEGEE/frontend/compare/1.32.2...1.32.3) (2021-06-02)
 
 
