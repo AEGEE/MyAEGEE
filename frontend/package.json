@@ -79,7 +79,7 @@
   },
   "devDependencies": {
     "@commitlint/config-conventional": "12.1.4",
-    "@cypress/code-coverage": "3.9.7",
+    "@cypress/code-coverage": "3.9.9",
     "@semantic-release/changelog": "5.0.1",
     "@semantic-release/git": "9.0.0",
     "commitlint": "12.1.4",
