@@ -72,20 +72,6 @@ const Position = sequelize.define('position', {
             }
         }
     },
-    ends_force: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: '',
-        validate: {
-            notEmpty: { msg: 'Position force close deadline should be set.' },
-            isDate: { msg: 'Position force close deadline should be valid.' },
-            laterThanEnd(val) {
-                if (moment(val).isSameOrBefore(this.ends)) {
-                    throw new Error('Position\'s force close deadline cannot be before the regular deadline.');
-                }
-            }
-        }
-    },
     places: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -160,7 +146,6 @@ Position.afterSave(async (position) => {
     // Should be run on create and update.
     cron.addJob(cron.JOB_TYPES.OPEN_POSITION_APPLICATIONS, position.starts, { id: position.id });
     cron.addJob(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS, position.ends, { id: position.id });
-    cron.addJob(cron.JOB_TYPES.CLOSE_POSITION_APPLICATIONS, position.ends_force, { id: position.id, force: true });
 });
 
 module.exports = Position;

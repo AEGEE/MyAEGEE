@@ -31,7 +31,7 @@ const JobCallbacks = {
         await position.update({ status: 'open' }, { hooks: false });
         logger.info({ position }, 'Opening applications for position: Successfully opened deadline for position');
     },
-    CLOSE_POSITION_APPLICATIONS: async ({ id, force = false }) => {
+    CLOSE_POSITION_APPLICATIONS: async ({ id }) => {
         const position = await Position.findByPk(id, {
             include: [Candidate]
         });
@@ -43,20 +43,6 @@ const JobCallbacks = {
 
         if (position.status === 'closed') {
             logger.warn({ position }, 'Closing applications for position: Position status is not open.');
-            return;
-        }
-
-        // Checking if there's enough candides, otherwise not closing the deadline.
-        const candidates = position.candidates
-            .filter((candidate) => candidate.status !== 'rejected')
-            .length;
-
-        if (candidates <= position.places && !force) {
-            logger.warn({
-                position,
-                places: position.places,
-                candidates,
-            }, 'Closing applications for position: not filled all the places');
             return;
         }
 
