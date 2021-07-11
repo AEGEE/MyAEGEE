@@ -1,3 +1,10 @@
+## [1.32.5](https://github.com/AEGEE/frontend/compare/1.32.4...1.32.5) (2021-07-11)
+
+
+### Bug Fixes
+
+* **position:** remove force close deadline ([#1085](https://github.com/AEGEE/frontend/issues/1085)) ([3df6186](https://github.com/AEGEE/frontend/commit/3df61869219ef68825e3824049083d758ec11a5b))
+
 ## [1.32.4](https://github.com/AEGEE/frontend/compare/1.32.3...1.32.4) (2021-06-07)
 
 
