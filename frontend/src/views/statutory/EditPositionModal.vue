@@ -40,18 +40,6 @@
       </div>
 
       <div class="field">
-        <label class="label">Application period ends (force)</label>
-        <div class="control">
-        <flat-pickr
-            placeholder="Select date"
-            class="input"
-            :config="dateConfig"
-            v-model="dates.ends_force" />
-        </div>
-        <p class="help is-danger" v-if="errors.ends_force">{{ errors.ends_force.join(', ') }}</p>
-      </div>
-
-      <div class="field">
         <label class="label">Places available</label>
         <div class="control">
         <input type="number" class="input" v-model.number="position.places" min="1">
@@ -136,7 +124,6 @@ export default {
       dates: {
         starts: null,
         ends: null,
-        ends_force: null,
         start_term: null
       },
       dateFound: null
@@ -148,9 +135,6 @@ export default {
     },
     'dates.ends': function (newDate) {
       this.position.ends = new Date(newDate)
-    },
-    'dates.ends_force': function (newDate) {
-      this.position.ends_force = new Date(newDate)
     },
     'dates.start_term': function (newDate) {
       this.position.start_term = new Date(newDate)
@@ -192,7 +176,6 @@ export default {
   mounted () {
     this.dates.starts = this.position.starts = new Date(this.position.starts)
     this.dates.ends = this.position.ends = new Date(this.position.ends)
-    this.dates.ends_force = this.position.ends_force = new Date(this.position.ends_force)
     this.dates.start_term = this.position.start_term = new Date(this.position.start_term)
   }
 }

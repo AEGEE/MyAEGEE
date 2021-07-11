@@ -43,10 +43,6 @@
               {{ props.row.ends | datetime }}
             </b-table-column>
 
-            <b-table-column field="starts" label="Final application deadline" centered v-if="displayFinalDeadline">
-              {{ props.row.ends_force | datetime }}
-            </b-table-column>
-
             <b-table-column field="places" label="Places available" centered numeric>
               {{ props.row.places }}
             </b-table-column>
@@ -225,18 +221,11 @@ export default {
     },
     requirementsIsSet () {
       return (this.selectedPosition.requirements !== null && this.selectedPosition.requirements !== '')
-    },
-    // TODO: This is a temporary solution, in the future, we want to display either the "first" deadline OR the force_end deadline
-    displayFinalDeadline () {
-      if (this.positions.length > 0) {
-        return moment().isAfter(this.positions[0].ends)
-      }
-      return false
     }
   },
   methods: {
     openCreatePositionModal () {
-      const forceCloseDeadline = moment(this.event.starts)
+      const closeDeadline = moment(this.event.starts)
         .subtract(2, 'week')
         .endOf('day')
         .toDate()
@@ -252,8 +241,7 @@ export default {
           position: {
             start_term: new Date(),
             starts: new Date(),
-            ends: new Date(),
-            ends_force: forceCloseDeadline,
+            ends: closeDeadline,
             name: '',
             places: 1
           },
