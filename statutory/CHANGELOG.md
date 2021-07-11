@@ -1,3 +1,10 @@
+## [1.8.5](https://github.com/AEGEE/statutory/compare/1.8.4...1.8.5) (2021-07-11)
+
+
+### Bug Fixes
+
+* **position:** remove ends_force deadline. Fixes HELP-1778 ([#577](https://github.com/AEGEE/statutory/issues/577)) ([273b17a](https://github.com/AEGEE/statutory/commit/273b17abda1c8e3c961247b26ef59f245c029ce6))
+
 ## [1.8.4](https://github.com/AEGEE/statutory/compare/1.8.3...1.8.4) (2021-04-28)
 
 
