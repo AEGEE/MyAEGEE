@@ -1,3 +1,10 @@
+## [1.4.6](https://github.com/AEGEE/summeruniversity/compare/1.4.5...1.4.6) (2021-07-11)
+
+
+### Bug Fixes
+
+* **stats:** first version of stats ([#123](https://github.com/AEGEE/summeruniversity/issues/123)) ([5e91c9b](https://github.com/AEGEE/summeruniversity/commit/5e91c9bac32e45499a58e19e3bd783ad95234493))
+
 ## [1.4.5](https://github.com/AEGEE/summeruniversity/compare/1.4.4...1.4.5) (2021-06-07)
 
 
