@@ -85,6 +85,19 @@ exports.isNumber = (value) => {
     return false;
 };
 
+// A helper to count objects in array by field.
+exports.countByField = (array, key) => {
+    return array.reduce((acc, val) => {
+        const existing = acc.find((obj) => obj.type === val[key]);
+        if (existing) {
+            existing.value += 1;
+        } else {
+            acc.push({ type: val[key], value: 1 });
+        }
+        return acc;
+    }, []);
+};
+
 // A helper to add data to gauge Prometheus metric.
 exports.addGaugeData = (gauge, array) => {
     // reset gauge...

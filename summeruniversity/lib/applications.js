@@ -2,7 +2,7 @@ const xlsx = require('node-xlsx').default;
 
 const core = require('./core');
 const errors = require('./errors');
-const { Application } = require('../models');
+const { Application, Event } = require('../models');
 const helpers = require('./helpers');
 const mailer = require('./mailer');
 const { sequelize, Sequelize } = require('./sequelize');
@@ -346,4 +346,32 @@ exports.exportAll = async (req, res) => {
     res.setHeader('Content-disposition', 'attachment; filename=participants_' + req.event.name + '_' + new Date().toISOString() + '.xlsx');
 
     return res.send(resultBuffer);
+};
+
+exports.getStats = async (req, res) => {
+    const statsObject = {
+        by_event: [],
+        by_body: [],
+        by_nationality: []
+    };
+
+    const applications = await Application.findAll({ attributes: ['event_id', 'body_name', 'nationality'] });
+    const events = await Event.findAll({ attributes: ['id', 'name'] });
+
+    statsObject.by_event = helpers
+        .countByField(applications, 'event_id')
+        .map(({ type, value }) => ({ type: events.find((event) => event.id === type).name, value }));
+
+    // TODO: only use one application per user from here
+
+    statsObject.by_body = helpers
+        .countByField(applications, 'body_name');
+
+    statsObject.by_nationality = helpers
+        .countByField(applications, 'nationality');
+
+    return res.json({
+        success: true,
+        data: statsObject
+    });
 };
