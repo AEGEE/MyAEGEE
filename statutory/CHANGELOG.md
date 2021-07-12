@@ -1,3 +1,10 @@
+## [1.8.6](https://github.com/AEGEE/statutory/compare/1.8.5...1.8.6) (2021-07-12)
+
+
+### Bug Fixes
+
+* **massmailer:** ignore if notifmail was not returned ([#584](https://github.com/AEGEE/statutory/issues/584)) ([e55a094](https://github.com/AEGEE/statutory/commit/e55a094c126485d0c585b6badc79ed3cc908c7df))
+
 ## [1.8.5](https://github.com/AEGEE/statutory/compare/1.8.4...1.8.5) (2021-07-11)
 
 
