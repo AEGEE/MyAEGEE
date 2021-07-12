@@ -260,4 +260,25 @@ describe('Massmailer', () => {
         expect(res.body.success).toEqual(false);
         expect(res.body).toHaveProperty('message');
     });
+
+    test('should not fail if one user does not exist', async () => {
+        await generator.createApplication({
+            user_id: 7
+        }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/massmailer',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                subject: 'Testing',
+                text: 'Testing mail sending.'
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body.meta.sent).toEqual(3);
+    });
 });

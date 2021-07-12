@@ -45,6 +45,13 @@ exports.sendAll = async (req, res) => {
     const bodies = [];
 
     for (const application of applications) {
+        const user = mails.find((m) => application.user_id === m.id);
+
+        if (!user) {
+            logger.warn({ user_id: application.user_id }, 'Could not find user');
+            continue;
+        }
+
         const typeAndOrder = application.participant_type
             ? (application.participant_type + ' (' + application.participant_order + ')')
             : 'not set';
@@ -56,7 +63,7 @@ exports.sendAll = async (req, res) => {
 
         // Using the custom mailer template, it accepts only body as a parameter
         // and sends the body as it was passed.
-        const notificationEmail = mails.find((m) => application.user_id === m.id).notification_email;
+        const notificationEmail = user.notification_email;
         to.push(notificationEmail);
         bodies.push({ body: text });
 
@@ -76,6 +83,6 @@ exports.sendAll = async (req, res) => {
     return res.json({
         success: true,
         message: 'Mail was sent successfully.',
-        meta: { sent: applications.length }
+        meta: { sent: bodies.length }
     });
 };
