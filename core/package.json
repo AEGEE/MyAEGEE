@@ -10,7 +10,7 @@
     "@commitlint/config-conventional": "^12.1.4",
     "@semantic-release/changelog": "^5.0.1",
     "@semantic-release/git": "^9.0.0",
-    "codecov": "^3.8.2",
+    "codecov": "^3.8.3",
     "conventional-changelog": "^3.1.24",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.23.4",
