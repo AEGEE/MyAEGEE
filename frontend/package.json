@@ -78,7 +78,7 @@
     "vuex-router-sync": "5.0.0"
   },
   "devDependencies": {
-    "@commitlint/config-conventional": "12.1.4",
+    "@commitlint/config-conventional": "13.1.0",
     "@cypress/code-coverage": "3.9.9",
     "@semantic-release/changelog": "5.0.1",
     "@semantic-release/git": "9.0.0",
