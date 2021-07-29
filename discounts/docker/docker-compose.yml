@@ -2,7 +2,7 @@ version: "3.4"
 ### OMS DISCOUNTS     #######################################
 services:
     postgres-discounts:
-        image: postgres:10
+        image: postgres:10.17
         volumes:
             - postgres-discounts:/var/lib/postgresql/data
         expose:
