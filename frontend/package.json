@@ -50,7 +50,7 @@
     "dompurify": "2.3.0",
     "eslint": "7.31.0",
     "eslint-plugin-cypress": "2.11.3",
-    "eslint-plugin-vue": "7.14.0",
+    "eslint-plugin-vue": "7.15.0",
     "ical": "0.8.0",
     "lodash": "4.17.21",
     "mapbox-gl": "1.13.1",
