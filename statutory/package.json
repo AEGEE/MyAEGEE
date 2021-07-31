@@ -59,7 +59,7 @@
     "node-schedule": "^2.0.0",
     "node-xlsx": "^0.17.1",
     "on-finished": "^2.3.0",
-    "pg": "^8.6.0",
+    "pg": "^8.7.1",
     "prom-client": "^13.1.0",
     "read-chunk": "^3.2.0",
     "request": "^2.88.2",
