@@ -1,6 +1,6 @@
 {
   "name": "network",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Network module for MyAEGEE, for network history and network status.",
   "main": "lib/run.js",
   "scripts": {
@@ -78,14 +78,18 @@
     "sequelize-cli": "^6.2.0"
   },
   "release": {
-    "branches": ["main"],
+    "branches": [
+      "main"
+    ],
     "plugins": [
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
       "@semantic-release/changelog",
       [
         "@semantic-release/npm",
-        { "npmPublish": false }
+        {
+          "npmPublish": false
+        }
       ],
       "@semantic-release/github",
       "@semantic-release/git"
