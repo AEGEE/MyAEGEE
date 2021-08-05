@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/AEGEE/knowledge/compare/1.0.2...1.0.3) (2021-08-05)
+
+
+### Bug Fixes
+
+* **logging:** log info and above by default ([#75](https://github.com/AEGEE/knowledge/issues/75)) ([a6c6107](https://github.com/AEGEE/knowledge/commit/a6c61070a29aed1548b8a47cc3e679990e73cb82))
+
 ## [1.0.2](https://github.com/AEGEE/knowledge/compare/1.0.1...1.0.2) (2021-05-08)
 
 
