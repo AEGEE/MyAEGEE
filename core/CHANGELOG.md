@@ -1,3 +1,10 @@
+## [1.36.3](https://github.com/AEGEE/core/compare/1.36.2...1.36.3) (2021-08-05)
+
+
+### Bug Fixes
+
+* **logging:** Log info and above by default ([#327](https://github.com/AEGEE/core/issues/327)) ([a72b10b](https://github.com/AEGEE/core/commit/a72b10b4499a7ca6c3b64ab05e83ff09933ea955))
+
 ## [1.36.2](https://github.com/AEGEE/core/compare/1.36.1...1.36.2) (2021-05-11)
 
 
