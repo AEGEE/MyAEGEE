@@ -16,7 +16,7 @@ const config = {
         },
         logger: {
             silent: false,
-            level: process.env.LOGLEVEL || 'debug'
+            level: process.env.LOGLEVEL || 'info'
         },
         host: process.env.HOST || 'localhost',
         media_dir: '/usr/app/media',
