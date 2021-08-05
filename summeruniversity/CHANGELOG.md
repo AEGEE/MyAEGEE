@@ -1,3 +1,10 @@
+## [1.4.7](https://github.com/AEGEE/summeruniversity/compare/1.4.6...1.4.7) (2021-08-05)
+
+
+### Bug Fixes
+
+* **logging:** log info and above by default ([#132](https://github.com/AEGEE/summeruniversity/issues/132)) ([1a70b37](https://github.com/AEGEE/summeruniversity/commit/1a70b37d4a533b7bd88d208f5d3ae4b0932b13a0))
+
 ## [1.4.6](https://github.com/AEGEE/summeruniversity/compare/1.4.5...1.4.6) (2021-07-11)
 
 
