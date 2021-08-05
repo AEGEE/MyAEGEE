@@ -1,3 +1,10 @@
+## [1.3.9](https://github.com/AEGEE/events/compare/1.3.8...1.3.9) (2021-08-05)
+
+
+### Bug Fixes
+
+* **logging:** log info and above by default ([#562](https://github.com/AEGEE/events/issues/562)) ([a08ece5](https://github.com/AEGEE/events/commit/a08ece54239d73f71615d4a909c9ffc4c75e5fe2))
+
 ## [1.3.8](https://github.com/AEGEE/events/compare/1.3.7...1.3.8) (2021-05-22)
 
 
