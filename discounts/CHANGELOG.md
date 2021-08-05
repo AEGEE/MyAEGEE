@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/AEGEE/discounts/compare/1.2.2...1.2.3) (2021-08-05)
+
+
+### Bug Fixes
+
+* **logging:** log info and above by default ([#337](https://github.com/AEGEE/discounts/issues/337)) ([77b1b5a](https://github.com/AEGEE/discounts/commit/77b1b5a3de26c6d00f4da457bce0576802ca86f9))
+
 ## [1.2.2](https://github.com/AEGEE/discounts/compare/1.2.1...1.2.2) (2021-05-11)
 
 
