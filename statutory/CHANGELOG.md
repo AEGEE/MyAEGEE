@@ -1,3 +1,10 @@
+## [1.8.7](https://github.com/AEGEE/statutory/compare/1.8.6...1.8.7) (2021-08-05)
+
+
+### Bug Fixes
+
+* **logging:** log info and above by default ([#593](https://github.com/AEGEE/statutory/issues/593)) ([072c8aa](https://github.com/AEGEE/statutory/commit/072c8aa56c2f276c52e177574896f34b74b33caa))
+
 ## [1.8.6](https://github.com/AEGEE/statutory/compare/1.8.5...1.8.6) (2021-07-12)
 
 
