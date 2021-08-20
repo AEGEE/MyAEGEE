@@ -120,15 +120,15 @@ export default {
             color: '#FFDB4C'
           },
           {
-            url: 'https://drive.google.com/file/d/1j_lQ5gFqZr2ZgZQV9-HIax-S1wXyls62/view',
+            url: 'https://drive.google.com/file/d/17uspGKtGdrA60B0WbebVYhoNTyBZvWY0/view',
             title: 'Strategic Plan',
             description: 'Strategic Plan of AEGEE-Europe 2020-2023',
             color: '#FFDB4C'
           },
           {
-            url: 'https://drive.google.com/file/d/1_CfHn9BSl2aPk3RpjbXEy5Er4AIyMZQY/view',
+            url: 'https://drive.google.com/file/d/1XU-1S_QkPRybkVfgYuFnZvCWfXFcjmjt/view',
             title: 'Action Agenda',
-            description: 'Action Agenda 2020-2021',
+            description: 'Action Agenda 2021-2022',
             color: '#FFDB4C'
           },
           {

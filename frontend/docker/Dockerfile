@@ -17,7 +17,7 @@ COPY ./docker/frontend-nginx/sites/default.conf /etc/nginx/sites-available/defau
 # it has some default settings there which result in displaying
 # the default nginx page, which is not what we need
 RUN rm -rf /etc/nginx/conf.d \
- && apk --no-cache add curl=7.77.0-r1 \
+ && apk --no-cache add curl=7.78.0-r0 \
  && chown -R www-data:www-data /usr/app/
 
 WORKDIR /usr/app/src/dist
