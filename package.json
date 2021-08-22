@@ -22,7 +22,7 @@
     "nock": "^13.1.1",
     "nyc": "^15.1.0",
     "open-cli": "^7.0.0",
-    "semantic-release": "^17.4.4"
+    "semantic-release": "^17.4.5"
   },
   "scripts": {
     "test": "NODE_ENV=test npm run db:setup && jest test/**/*.test.js --runInBand --forceExit",
