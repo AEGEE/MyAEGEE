@@ -48,7 +48,7 @@
     "express": "^4.17.1",
     "express-promise-router": "^4.1.0",
     "express-query-boolean": "^2.0.0",
-    "file-type": "^16.5.2",
+    "file-type": "^16.5.3",
     "joi": "^17.4.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
