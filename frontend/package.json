@@ -17,12 +17,8 @@
     "test": "npm run cypress:run && npm run nyc:report",
     "cypress:run": "cypress run",
     "cypress:open": "cypress open",
-    "nyc:report": "nyc report"
-  },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
+    "nyc:report": "nyc report",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@babel/core": "7.14.8",
@@ -85,7 +81,7 @@
     "commitlint": "13.1.0",
     "conventional-changelog": "3.1.24",
     "cypress": "8.1.0",
-    "husky": "4.3.8",
+    "husky": "7.0.1",
     "istanbul-instrumenter-loader": "3.0.1",
     "istanbul-lib-coverage": "3.0.0",
     "semantic-release": "17.4.4"
