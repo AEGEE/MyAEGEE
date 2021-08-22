@@ -38,6 +38,6 @@
     "nyc": "^13.1.0",
     "request": "^2.88.2",
     "request-promise-native": "^1.0.8",
-    "semantic-release": "^17.4.4"
+    "semantic-release": "^17.4.5"
   }
 }
