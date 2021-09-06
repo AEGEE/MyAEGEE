@@ -1,3 +1,10 @@
+## [1.32.6](https://github.com/AEGEE/frontend/compare/1.32.5...1.32.6) (2021-09-06)
+
+
+### Bug Fixes
+
+* **resources:** update resources. Fixes HELP-1818 ([#1141](https://github.com/AEGEE/frontend/issues/1141)) ([c3768be](https://github.com/AEGEE/frontend/commit/c3768bee0c707532445b93433ed49effe33e79a4))
+
 ## [1.32.5](https://github.com/AEGEE/frontend/compare/1.32.4...1.32.5) (2021-07-11)
 
 
