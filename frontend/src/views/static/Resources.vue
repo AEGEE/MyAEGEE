@@ -65,19 +65,19 @@ export default {
         'External': [
           {
             url: 'https://aegee.org',
-            title: 'AEGEE website',
+            title: 'AEGEE Website',
             description: 'Official website',
             color: '#4CA0FF'
           },
           {
             url: 'https://aegee.blogactiv.eu/',
-            title: 'External blog',
+            title: 'External Blog',
             description: 'Blog hosted on Blogactiv platform',
             color: '#4CA0FF'
           },
           {
             url: 'https://aegee.us7.list-manage.com/subscribe?u=7a170c64e0d3990f3f6629d21&id=fc8908d780',
-            title: 'External newsletter',
+            title: 'External Newsletter',
             description: 'Bi-monthly newsletter for Partners & Supporters',
             color: '#4CA0FF'
           },
@@ -91,7 +91,7 @@ export default {
         'Members': [
           {
             url: '/pages/mailing-lists',
-            title: 'Mailing lists',
+            title: 'Mailing Lists',
             description: 'AEGEE mailing lists',
             color: '#FFDB4C'
           },
@@ -109,13 +109,13 @@ export default {
           },
           {
             url: 'https://www.facebook.com/groups/aegeeans/',
-            title: 'Facebook group',
+            title: 'Facebook Group',
             description: 'AEGEE\'s official group on Facebook',
             color: '#FFDB4C'
           },
           {
             url: 'https://www.zeus.aegee.org/magazine/',
-            title: 'The AEGEEan magazine',
+            title: 'The AEGEEan Magazine',
             description: 'AEGEE\'s online Magazine',
             color: '#FFDB4C'
           },
@@ -136,17 +136,43 @@ export default {
             title: 'AEGEE-Academy',
             description: 'Request a trainer for your training events',
             color: '#FFDB4C'
+          },
+          {
+            url: 'https://calendar.google.com/calendar/embed?src=powerhost.gr_uo2hj0qhr1493oqhpjel5v4lo8%40group.calendar.google.com&ctz=Europe%2FBrussels',
+            title: 'Calendar of CD',
+            description: 'Find out more about how the schedule of CD looks like',
+            color: '#FFDB4C'
+          },
+          {
+            url: 'https://podio.com/webforms/2318137/167577',
+            title: 'AEGEE Newsletter',
+            description: 'Submitting content for the AEGEE newsletter',
+            color: '#FFDB4C'
+          },
+          {
+            url: 'https://podio.com/webforms/13269615/901752',
+            title: 'CD House Guest Request',
+            description: 'Visiting the CD house',
+            color: '#FFDB4C'
+          }
+        ],
+        'Network': [
+          {
+            url: 'https://docs.google.com/forms/d/e/1FAIpQLSfheOjWEQjqua1UqaqYofuqlrBV2bQK_m8OOypeqq6fnfgQLQ/viewform',
+            title: 'Board Submission Form',
+            description: 'Submitting new board to NetCom',
+            color: '#C2DE5D'
           }
         ],
         'Statutory': [
           {
             url: 'https://www.zeus.aegee.org/statutoryvote/jc/',
-            title: 'Online voting',
+            title: 'Online Voting',
             description: 'Online Voting for Agorae/General Assembly',
             color: '#C44BC2'
           },
           {
-            url: 'https://www.zeus.aegee.org/portal/category/jc/',
+            url: 'https://drive.google.com/drive/folders/1GKd6jWeolMDRw7EXZO-ROXupBQUzAgk2',
             title: 'CIA',
             description: 'Statutes, regulation, working formats and motions',
             color: '#C44BC2'
@@ -154,21 +180,15 @@ export default {
         ],
         'Useful guides': [
           {
-            url: 'https://www.zeus.aegee.org/portal/resources/pr-materials/',
-            title: 'Visual identity',
+            url: 'https://drive.google.com/drive/folders/1FosqlM9zjSnpvAxZkOg0yoCW7swHdwM1',
+            title: 'Visual Identity',
             description: 'Manual, logos, PR materials and more',
             color: '#FF5543'
           },
           {
-            url: 'https://www.zeus.aegee.org/portal/resources/internal-education/',
-            title: 'Internal education',
-            description: 'LTC and RTC packages.',
-            color: '#FF5543'
-          },
-          {
-            url: 'https://www.zeus.aegee.org/portal/resources/members-manual/',
-            title: 'Members manual',
-            description: 'Members Manual, guides etc.',
+            url: 'https://drive.google.com/drive/folders/1J9qCQP4Kbuol3Nutid3h04b-E-BM3QN5',
+            title: 'Internal Education',
+            description: 'LTC packages',
             color: '#FF5543'
           }
         ]
