@@ -6,7 +6,7 @@ WORKDIR /usr/app/src
 RUN npm install --only=production \
  && npm run build
 
-FROM nginx:1.21.1-alpine
+FROM nginx:1.21.3-alpine
 
 RUN adduser -D -H -u 1000 -s /bin/bash www-data -G www-data
 
