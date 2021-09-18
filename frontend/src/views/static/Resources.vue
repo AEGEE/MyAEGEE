@@ -162,6 +162,30 @@ export default {
             title: 'Board Submission Form',
             description: 'Submitting new board to NetCom',
             color: '#C2DE5D'
+          },
+          {
+            url: 'https://docs.google.com/forms/d/e/1FAIpQLSd2u-r1jFGyNwYCwsSnMf9-dApH7ZGeGltZusxqWqkB_VQ0zg/viewform',
+            title: 'AEGEE Contact in your City',
+            description: 'Leave your contact details behind to start the process of founding an AEGEE Contact in your city',
+            color: '#C2DE5D'
+          },
+          {
+            url: 'https://docs.google.com/forms/d/e/1FAIpQLSfmbGAjG_us00KMuV-pMeasja_gfjLXVwhaqRK9y5rbTSb0xw/viewform',
+            title: 'Suggest a City for a Potential Contact',
+            description: 'Provide a suggestion for where AEGEE should have a Contact',
+            color: '#C2DE5D'
+          },
+          {
+            url: 'https://docs.google.com/document/d/1rQRddt8H3J1RUYMpdxRxuhNqyV3BcP8mV8ykNLNup3o/edit',
+            title: 'Set up your own Contact',
+            description: 'Find out how to set up a Contact in this step by step guide',
+            color: '#C2DE5D'
+          },
+          {
+            url: 'https://docs.google.com/document/d/1e0jdTLvn7-JdwOlxMXcf55I5mcNwEmI_loN0djj0U2c/edit',
+            title: 'Develop your Contact',
+            description: 'Find out how to develop your Contact with tips and tricks in this toolkit',
+            color: '#C2DE5D'
           }
         ],
         'Statutory': [
