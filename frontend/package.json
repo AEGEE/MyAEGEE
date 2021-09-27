@@ -46,7 +46,7 @@
     "dompurify": "2.3.1",
     "eslint": "7.32.0",
     "eslint-plugin-cypress": "2.11.3",
-    "eslint-plugin-vue": "7.17.0",
+    "eslint-plugin-vue": "7.18.0",
     "ical": "0.8.0",
     "lodash": "4.17.21",
     "mapbox-gl": "1.13.1",
