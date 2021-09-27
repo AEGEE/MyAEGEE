@@ -50,7 +50,7 @@ jobs:
           failure_message: The audit check for \`$CIRCLE_PROJECT_REPONAME\` has failed.
   docker-build-and-push:
     docker:
-      - image: cimg/node:14.16.0
+      - image: cimg/node:14.17.6
     steps:
       - checkout
       - setup_remote_docker:
