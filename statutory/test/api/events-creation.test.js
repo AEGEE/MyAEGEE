@@ -250,28 +250,6 @@ describe('Events creation', () => {
         expect(res.body.errors).toHaveProperty('participants_list_publish_deadline');
     });
 
-    test('should fail if memberslist publish deadline is before application_period starts', async () => {
-        const res = await request({
-            uri: '/',
-            method: 'POST',
-            headers: { 'X-Auth-Token': 'blablabla' },
-            body: generator.generateEvent({
-                application_period_starts: moment().add(2, 'months').toDate(),
-                application_period_ends: moment().add(3, 'months').toDate(),
-                board_approve_deadline: moment().add(4, 'months').toDate(),
-                participants_list_publish_deadline: moment().add(5, 'months').toDate(),
-                memberslist_submission_deadline: moment().add(1, 'months').toDate(),
-                starts: moment().add(6, 'months').toDate(),
-                ends: moment().add(7, 'months').toDate()
-            })
-        });
-
-        expect(res.statusCode).toEqual(422);
-        expect(res.body.success).toEqual(false);
-        expect(Object.keys(res.body.errors).length).toEqual(1);
-        expect(res.body.errors).toHaveProperty('memberslist_submission_deadline');
-    });
-
     test('should fail if memberslist publish deadline is after event starts', async () => {
         const res = await request({
             uri: '/',
