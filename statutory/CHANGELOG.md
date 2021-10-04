@@ -1,3 +1,10 @@
+## [1.8.8](https://github.com/AEGEE/statutory/compare/1.8.7...1.8.8) (2021-10-04)
+
+
+### Bug Fixes
+
+* **event:** remove link between memberslist and application period. Fixes MA-191 ([#632](https://github.com/AEGEE/statutory/issues/632)) ([f2454a6](https://github.com/AEGEE/statutory/commit/f2454a67b5bac9301c28efca08d24485d335f327))
+
 ## [1.8.7](https://github.com/AEGEE/statutory/compare/1.8.6...1.8.7) (2021-08-05)
 
 
