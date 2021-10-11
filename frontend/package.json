@@ -78,7 +78,7 @@
     "@cypress/code-coverage": "3.9.10",
     "@semantic-release/changelog": "6.0.0",
     "@semantic-release/git": "10.0.0",
-    "commitlint": "13.1.0",
+    "commitlint": "13.2.1",
     "conventional-changelog": "3.1.24",
     "cypress": "8.5.0",
     "husky": "7.0.2",
