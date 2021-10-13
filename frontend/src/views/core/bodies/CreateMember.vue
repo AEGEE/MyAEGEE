@@ -68,7 +68,7 @@
           <label class="label">Email</label>
           <div class="control has-icons-left">
             <span class="icon is-small is-left"><font-awesome-icon icon="envelope" /></span>
-            <input class="input" type="text" required v-model="user.email" />
+            <input class="input" type="email" required v-model="user.email" />
           </div>
           <p class="help is-danger" v-if="errors.email">{{ errors.email.join(', ')}}</p>
         </div>

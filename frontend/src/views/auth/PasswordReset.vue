@@ -7,7 +7,7 @@
           <div class="field">
             <label class="label">Email</label>
             <div class="control">
-              <input v-model="email" data-cy="email" required class="input" type="text" placeholder="Type the email you've registered with.">
+              <input v-model="email" data-cy="email" required class="input" type="email" placeholder="Type the email you've registered with.">
             </div>
              <p class="help is-danger" v-if="error">{{ error }}</p>
           </div>
