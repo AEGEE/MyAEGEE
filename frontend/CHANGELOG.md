@@ -1,3 +1,10 @@
+## [1.32.7](https://github.com/AEGEE/frontend/compare/1.32.6...1.32.7) (2021-10-13)
+
+
+### Bug Fixes
+
+* **email:** validate email input. Fixes HELP-1822 ([#1149](https://github.com/AEGEE/frontend/issues/1149)) ([01de87f](https://github.com/AEGEE/frontend/commit/01de87f7ad55228435133b2d8f256dd68d02d70f))
+
 ## [1.32.6](https://github.com/AEGEE/frontend/compare/1.32.5...1.32.6) (2021-09-06)
 
 
