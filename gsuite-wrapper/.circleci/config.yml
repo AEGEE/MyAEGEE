@@ -4,13 +4,13 @@ version: 2.1
 jobs:
   test:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202107-02
     steps:
       - checkout
       - run:
           name: Install Node
           command: |
-            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
             sudo apt-get install -y nodejs
             echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
             which node && node -v
@@ -26,19 +26,19 @@ jobs:
       #     path: ~/reports
   build:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202107-02
     steps:
       - checkout
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache gsuite-wrapper
   eslint:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202107-02
     steps:
       - checkout
       - run:
           name: Install Node
           command: |
-            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
             sudo apt-get install -y nodejs
             echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
             which node && node -v
@@ -51,20 +51,20 @@ jobs:
           path: ~/reports
   yamllint:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202107-02
     steps:
       - checkout
       - run: pip install yamllint
       - run: yamllint -d .yamllint.yml .
   docker-build-and-push:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202107-02
     steps:
       - checkout
       - run:
           name: Install Node
           command: |
-            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
             sudo apt-get install -y nodejs
             echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
             which node && node -v
