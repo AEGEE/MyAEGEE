@@ -37,7 +37,7 @@
     "@vue/cli-service": "4.5.13",
     "@vue/eslint-config-airbnb": "5.3.0",
     "animate.css": "4.1.1",
-    "axios": "0.22.0",
+    "axios": "0.23.0",
     "babel-eslint": "10.1.0",
     "buefy": "0.8.20",
     "chart.js": "2.9.4",
