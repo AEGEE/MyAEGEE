@@ -238,7 +238,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import Mapbox from 'mapbox-gl'
 import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
 import constants from '../../constants'
 import credentials from '../../credentials'
@@ -376,6 +375,7 @@ export default {
       // if it's a single point, then just centering on it
       if (this.event.locations.length === 1) {
         this.map.actions.flyTo({ center: this.event.locations[0].position })
+        this.map.actions.zoomTo(10)
         return
       }
 
@@ -392,7 +392,6 @@ export default {
     }
   },
   mounted () {
-    this.mapbox = Mapbox
     this.isLoading = true
 
     this.axios.get(this.services['events'] + '/single/' + this.$route.params.id).then((response) => {
