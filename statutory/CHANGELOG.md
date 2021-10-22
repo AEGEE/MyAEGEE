@@ -1,3 +1,10 @@
+## [1.8.9](https://github.com/AEGEE/statutory/compare/1.8.8...1.8.9) (2021-10-22)
+
+
+### Bug Fixes
+
+* **event:** add publication_date ([#642](https://github.com/AEGEE/statutory/issues/642)) ([e78b0bc](https://github.com/AEGEE/statutory/commit/e78b0bcf5202e378a0aa5e90eb9a44313fa50ec3))
+
 ## [1.8.8](https://github.com/AEGEE/statutory/compare/1.8.7...1.8.8) (2021-10-04)
 
 
