@@ -90,6 +90,11 @@ describe('Events listing', () => {
             board_approve_deadline: moment().add(3, 'week').toDate(),
             participants_list_publish_deadline: moment().add(4, 'week').toDate(),
             memberslist_submission_deadline: moment().add(5, 'week').toDate(),
+            draft_proposal_deadline: moment().add(4, 'week').toDate(),
+            final_proposal_deadline: moment().add(5, 'week').toDate(),
+            candidature_deadline: moment().add(5, 'week').toDate(),
+            booklet_publication_deadline: moment().add(4, 'week').toDate(),
+            updated_booklet_publication_deadline: moment().add(5, 'week').toDate(),
             starts: moment().add(6, 'week').toDate(),
             ends: moment().add(7, 'week').toDate(),
         });
@@ -101,6 +106,11 @@ describe('Events listing', () => {
             board_approve_deadline: moment().add(10, 'week').toDate(),
             participants_list_publish_deadline: moment().add(11, 'week').toDate(),
             memberslist_submission_deadline: moment().add(12, 'week').toDate(),
+            draft_proposal_deadline: moment().add(11, 'week').toDate(),
+            final_proposal_deadline: moment().add(12, 'week').toDate(),
+            candidature_deadline: moment().add(12, 'week').toDate(),
+            booklet_publication_deadline: moment().add(11, 'week').toDate(),
+            updated_booklet_publication_deadline: moment().add(12, 'week').toDate(),
             starts: moment().add(13, 'week').toDate(),
             ends: moment().add(14, 'week').toDate(),
         });
@@ -151,6 +161,11 @@ describe('Events listing', () => {
             board_approve_deadline: moment().subtract(5, 'week').toDate(),
             participants_list_publish_deadline: moment().subtract(4, 'week').toDate(),
             memberslist_submission_deadline: moment().subtract(3, 'week').toDate(),
+            draft_proposal_deadline: moment().subtract(4, 'week').toDate(),
+            final_proposal_deadline: moment().subtract(3, 'week').toDate(),
+            candidature_deadline: moment().subtract(3, 'week').toDate(),
+            booklet_publication_deadline: moment().subtract(4, 'week').toDate(),
+            updated_booklet_publication_deadline: moment().subtract(3, 'week').toDate(),
             starts: moment().add(1, 'week').toDate(),
             ends: moment().add(2, 'week').toDate(),
         });
@@ -162,6 +177,11 @@ describe('Events listing', () => {
             board_approve_deadline: moment().subtract(5, 'week').toDate(),
             participants_list_publish_deadline: moment().subtract(4, 'week').toDate(),
             memberslist_submission_deadline: moment().subtract(3, 'week').toDate(),
+            draft_proposal_deadline: moment().subtract(4, 'week').toDate(),
+            final_proposal_deadline: moment().subtract(3, 'week').toDate(),
+            candidature_deadline: moment().subtract(3, 'week').toDate(),
+            booklet_publication_deadline: moment().subtract(4, 'week').toDate(),
+            updated_booklet_publication_deadline: moment().subtract(3, 'week').toDate(),
             starts: moment().subtract(2, 'week').toDate(),
             ends: moment().add(1, 'week').toDate()
         });
@@ -188,6 +208,11 @@ describe('Events listing', () => {
             board_approve_deadline: moment().subtract(5, 'week').toDate(),
             participants_list_publish_deadline: moment().subtract(4, 'week').toDate(),
             memberslist_submission_deadline: moment().subtract(3, 'week').toDate(),
+            draft_proposal_deadline: moment().subtract(4, 'week').toDate(),
+            final_proposal_deadline: moment().subtract(3, 'week').toDate(),
+            candidature_deadline: moment().subtract(3, 'week').toDate(),
+            booklet_publication_deadline: moment().subtract(4, 'week').toDate(),
+            updated_booklet_publication_deadline: moment().subtract(3, 'week').toDate(),
             starts: moment().subtract(2, 'week').toDate(),
             ends: moment().subtract(1, 'week').toDate(),
         });
@@ -199,6 +224,11 @@ describe('Events listing', () => {
             board_approve_deadline: moment().subtract(5, 'week').toDate(),
             participants_list_publish_deadline: moment().subtract(4, 'week').toDate(),
             memberslist_submission_deadline: moment().subtract(3, 'week').toDate(),
+            draft_proposal_deadline: moment().subtract(4, 'week').toDate(),
+            final_proposal_deadline: moment().subtract(3, 'week').toDate(),
+            candidature_deadline: moment().subtract(3, 'week').toDate(),
+            booklet_publication_deadline: moment().subtract(4, 'week').toDate(),
+            updated_booklet_publication_deadline: moment().subtract(3, 'week').toDate(),
             starts: moment().add(1, 'week').toDate(),
             ends: moment().add(2, 'week').toDate()
         });

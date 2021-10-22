@@ -42,6 +42,11 @@ exports.generateEvent = (options = {}) => {
     if (notSet(options.board_approve_deadline)) options.board_approve_deadline = faker.date.future(null, options.application_period_ends);
     if (notSet(options.participants_list_publish_deadline)) options.participants_list_publish_deadline = faker.date.future(null, options.board_approve_deadline);
     if (notSet(options.memberslist_submission_deadline)) options.memberslist_submission_deadline = faker.date.future(null, options.participants_list_publish_deadline);
+    if (notSet(options.draft_proposal_deadline)) options.draft_proposal_deadline = faker.date.between(options.application_period_starts, options.memberslist_submission_deadline);
+    if (notSet(options.final_proposal_deadline)) options.final_proposal_deadline = faker.date.between(options.draft_proposal_deadline, options.memberslist_submission_deadline);
+    if (notSet(options.candidature_deadline)) options.candidature_deadline = faker.date.between(options.application_period_starts, options.memberslist_submission_deadline);
+    if (notSet(options.booklet_publication_deadline)) options.booklet_publication_deadline = faker.date.between(options.application_period_starts, options.memberslist_submission_deadline);
+    if (notSet(options.updated_booklet_publication_deadline)) options.updated_booklet_publication_deadline = faker.date.between(options.booklet_publication_deadline, options.memberslist_submission_deadline);
     if (notSet(options.starts)) options.starts = faker.date.future(null, options.memberslist_submission_deadline);
     if (notSet(options.ends)) options.ends = faker.date.future(null, options.starts);
     if (notSet(options.fee)) options.fee = faker.datatype.number({ min: 0, max: 100 });

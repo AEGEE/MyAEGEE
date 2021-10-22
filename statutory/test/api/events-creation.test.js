@@ -133,6 +133,11 @@ describe('Events creation', () => {
                 board_approve_deadline: moment().add(3, 'months').toDate(),
                 participants_list_publish_deadline: moment().add(4, 'months').toDate(),
                 memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
                 starts: moment().add(7, 'months').toDate(),
                 ends: moment().add(6, 'months').toDate()
             })
@@ -155,6 +160,11 @@ describe('Events creation', () => {
                 board_approve_deadline: moment().add(3, 'months').toDate(),
                 participants_list_publish_deadline: moment().add(4, 'months').toDate(),
                 memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
                 starts: moment().add(6, 'months').toDate(),
                 ends: moment().add(7, 'months').toDate()
             })
@@ -250,7 +260,7 @@ describe('Events creation', () => {
         expect(res.body.errors).toHaveProperty('participants_list_publish_deadline');
     });
 
-    test('should fail if memberslist publish deadline is after event starts', async () => {
+    test('should fail if memberslist_submission_deadline is after event starts', async () => {
         const res = await request({
             uri: '/',
             method: 'POST',
@@ -261,6 +271,11 @@ describe('Events creation', () => {
                 board_approve_deadline: moment().add(3, 'months').toDate(),
                 participants_list_publish_deadline: moment().add(4, 'months').toDate(),
                 memberslist_submission_deadline: moment().add(7, 'months').toDate(),
+                draft_proposal_deadline: moment().add(3, 'months').toDate(),
+                final_proposal_deadline: moment().add(4, 'months').toDate(),
+                candidature_deadline: moment().add(4, 'months').toDate(),
+                booklet_publication_deadline: moment().add(3, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(4, 'months').toDate(),
                 starts: moment().add(5, 'months').toDate(),
                 ends: moment().add(6, 'months').toDate()
             })
@@ -272,7 +287,7 @@ describe('Events creation', () => {
         expect(res.body.errors).toHaveProperty('memberslist_submission_deadline');
     });
 
-    test('should fail if memberslist publish deadline is not set for Agora', async () => {
+    test('should fail if memberslist_submission_deadline is not set for Agora', async () => {
         const res = await request({
             uri: '/',
             method: 'POST',
@@ -284,6 +299,11 @@ describe('Events creation', () => {
                 board_approve_deadline: moment().add(3, 'months').toDate(),
                 participants_list_publish_deadline: moment().add(4, 'months').toDate(),
                 memberslist_submission_deadline: null,
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
                 starts: moment().add(6, 'months').toDate(),
                 ends: moment().add(7, 'months').toDate()
             })
@@ -295,7 +315,7 @@ describe('Events creation', () => {
         expect(res.body.errors).toHaveProperty('memberslist_submission_deadline');
     });
 
-    test('should not fail if memberslist publish deadline is not set for EPM', async () => {
+    test('should not fail if memberslist_submission_deadline is not set for EPM', async () => {
         const res = await request({
             uri: '/',
             method: 'POST',
@@ -307,6 +327,11 @@ describe('Events creation', () => {
                 board_approve_deadline: moment().add(3, 'months').toDate(),
                 participants_list_publish_deadline: moment().add(4, 'months').toDate(),
                 memberslist_submission_deadline: null,
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
                 starts: moment().add(6, 'months').toDate(),
                 ends: moment().add(7, 'months').toDate()
             })
@@ -316,7 +341,7 @@ describe('Events creation', () => {
         expect(res.body.success).toEqual(true);
     });
 
-    test('should fail if memberslist publish deadline is invalid for Agora', async () => {
+    test('should fail if memberslist_submission_deadline is invalid for Agora', async () => {
         const res = await request({
             uri: '/',
             method: 'POST',
@@ -328,6 +353,11 @@ describe('Events creation', () => {
                 board_approve_deadline: moment().add(3, 'months').toDate(),
                 participants_list_publish_deadline: moment().add(4, 'months').toDate(),
                 memberslist_submission_deadline: 'test',
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
                 starts: moment().add(6, 'months').toDate(),
                 ends: moment().add(7, 'months').toDate()
             })
@@ -337,6 +367,607 @@ describe('Events creation', () => {
         expect(res.body.success).toEqual(false);
         expect(Object.keys(res.body.errors).length).toEqual(1);
         expect(res.body.errors).toHaveProperty('memberslist_submission_deadline');
+    });
+
+    test('should fail if draft_proposal_deadline is after event starts', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(4, 'months').toDate(),
+                draft_proposal_deadline: moment().add(7, 'months').toDate(),
+                final_proposal_deadline: moment().add(4, 'months').toDate(),
+                candidature_deadline: moment().add(4, 'months').toDate(),
+                booklet_publication_deadline: moment().add(3, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                starts: moment().add(5, 'months').toDate(),
+                ends: moment().add(6, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(2);
+        expect(res.body.errors).toHaveProperty('draft_proposal_deadline');
+        expect(res.body.errors).toHaveProperty('final_proposal_deadline');
+    });
+
+    test('should fail if draft_proposal_deadline is not set for Agora', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                type: 'agora',
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: null,
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(7, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('draft_proposal_deadline');
+    });
+
+    test('should not fail if draft_proposal_deadline is not set for EPM', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                type: 'epm',
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: null,
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(7, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+    });
+
+    test('should fail if draft_proposal_deadline is invalid for Agora', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                type: 'agora',
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: 'test',
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(7, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('draft_proposal_deadline');
+    });
+
+    test('should fail if final_proposal_deadline is after event starts', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(4, 'months').toDate(),
+                draft_proposal_deadline: moment().add(3, 'months').toDate(),
+                final_proposal_deadline: moment().add(7, 'months').toDate(),
+                candidature_deadline: moment().add(4, 'months').toDate(),
+                booklet_publication_deadline: moment().add(3, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                starts: moment().add(5, 'months').toDate(),
+                ends: moment().add(6, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('final_proposal_deadline');
+    });
+
+    test('should fail if final_proposal_deadline is not set for Agora', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                type: 'agora',
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: null,
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(7, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('final_proposal_deadline');
+    });
+
+    test('should not fail if final_proposal_deadline is not set for EPM', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                type: 'epm',
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: null,
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(7, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+    });
+
+    test('should fail if final_proposal_deadline is invalid for Agora', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                type: 'agora',
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: 'test',
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(7, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('final_proposal_deadline');
+    });
+
+    test('should fail if final_proposal_deadline is before draft_proposal_deadline', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(4, 'months').toDate(),
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: moment().add(3, 'months').toDate(),
+                candidature_deadline: moment().add(4, 'months').toDate(),
+                booklet_publication_deadline: moment().add(3, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                starts: moment().add(5, 'months').toDate(),
+                ends: moment().add(6, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('final_proposal_deadline');
+    });
+
+    test('should fail if candidature_deadline is after event starts', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(4, 'months').toDate(),
+                draft_proposal_deadline: moment().add(3, 'months').toDate(),
+                final_proposal_deadline: moment().add(4, 'months').toDate(),
+                candidature_deadline: moment().add(7, 'months').toDate(),
+                booklet_publication_deadline: moment().add(3, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                starts: moment().add(5, 'months').toDate(),
+                ends: moment().add(6, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('candidature_deadline');
+    });
+
+    test('should fail if candidature_deadline is not set for Agora', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                type: 'agora',
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: null,
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(7, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('candidature_deadline');
+    });
+
+    test('should not fail if candidature_deadline is not set for EPM', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                type: 'epm',
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: null,
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(7, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+    });
+
+    test('should fail if candidature_deadline is invalid for Agora', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                type: 'agora',
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: 'test',
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(7, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('candidature_deadline');
+    });
+
+    test('should fail if booklet_publication_deadline is after event starts', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(4, 'months').toDate(),
+                draft_proposal_deadline: moment().add(3, 'months').toDate(),
+                final_proposal_deadline: moment().add(4, 'months').toDate(),
+                candidature_deadline: moment().add(4, 'months').toDate(),
+                booklet_publication_deadline: moment().add(7, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                starts: moment().add(5, 'months').toDate(),
+                ends: moment().add(6, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(2);
+        expect(res.body.errors).toHaveProperty('booklet_publication_deadline');
+        expect(res.body.errors).toHaveProperty('updated_booklet_publication_deadline');
+    });
+
+    test('should fail if booklet_publication_deadline is not set for Agora', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                type: 'agora',
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: null,
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(7, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('booklet_publication_deadline');
+    });
+
+    test('should not fail if booklet_publication_deadline is not set for EPM', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                type: 'epm',
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: null,
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(7, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+    });
+
+    test('should fail if booklet_publication_deadline is invalid for Agora', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                type: 'agora',
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: 'test',
+                updated_booklet_publication_deadline: moment().add(5, 'months').toDate(),
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(7, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('booklet_publication_deadline');
+    });
+
+    test('should fail if updated_booklet_publication_deadline is after event starts', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(4, 'months').toDate(),
+                draft_proposal_deadline: moment().add(3, 'months').toDate(),
+                final_proposal_deadline: moment().add(4, 'months').toDate(),
+                candidature_deadline: moment().add(4, 'months').toDate(),
+                booklet_publication_deadline: moment().add(3, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(7, 'months').toDate(),
+                starts: moment().add(5, 'months').toDate(),
+                ends: moment().add(6, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('updated_booklet_publication_deadline');
+    });
+
+    test('should fail if updated_booklet_publication_deadline is not set for Agora', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                type: 'agora',
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: null,
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(7, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('updated_booklet_publication_deadline');
+    });
+
+    test('should not fail if updated_booklet_publication_deadline is not set for EPM', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                type: 'epm',
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: null,
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(7, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+    });
+
+    test('should fail if updated_booklet_publication_deadline is invalid for Agora', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                type: 'agora',
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(5, 'months').toDate(),
+                draft_proposal_deadline: moment().add(4, 'months').toDate(),
+                final_proposal_deadline: moment().add(5, 'months').toDate(),
+                candidature_deadline: moment().add(5, 'months').toDate(),
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: 'test',
+                starts: moment().add(6, 'months').toDate(),
+                ends: moment().add(7, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('updated_booklet_publication_deadline');
+    });
+
+    test('should fail if updated_booklet_publication_deadline is before booklet_publication_deadline', async () => {
+        const res = await request({
+            uri: '/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: generator.generateEvent({
+                application_period_starts: moment().add(1, 'months').toDate(),
+                application_period_ends: moment().add(2, 'months').toDate(),
+                board_approve_deadline: moment().add(3, 'months').toDate(),
+                participants_list_publish_deadline: moment().add(4, 'months').toDate(),
+                memberslist_submission_deadline: moment().add(4, 'months').toDate(),
+                draft_proposal_deadline: moment().add(3, 'months').toDate(),
+                final_proposal_deadline: moment().add(4, 'months').toDate(),
+                candidature_deadline: moment().add(4, 'months').toDate(),
+                booklet_publication_deadline: moment().add(4, 'months').toDate(),
+                updated_booklet_publication_deadline: moment().add(3, 'months').toDate(),
+                starts: moment().add(5, 'months').toDate(),
+                ends: moment().add(6, 'months').toDate()
+            })
+        });
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(Object.keys(res.body.errors).length).toEqual(1);
+        expect(res.body.errors).toHaveProperty('updated_booklet_publication_deadline');
     });
 
     test('should fail if questions is empty array', async () => {

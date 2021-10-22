@@ -52,6 +52,13 @@ const Event = sequelize.define('event', {
             notEmpty: { msg: 'Event description should be set.' },
         }
     },
+    booklet_folder: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        validate: {
+            isUrl: { msg: 'The provided link is not a valid URL.' }
+        }
+    },
     status: {
         type: Sequelize.ENUM('draft', 'published'),
         allowNull: false,
@@ -156,6 +163,136 @@ const Event = sequelize.define('event', {
             beforeEventStart(val) {
                 if (val && moment(val).isSameOrAfter(this.starts)) {
                     throw new Error('Members list submission deadline cannot be after or at the same time the event starts.');
+                }
+            }
+        }
+    },
+    draft_proposal_deadline: {
+        type: Sequelize.DATE,
+        allowNull: true,
+        validate: {
+            isValidForAgora(val) {
+                if (this.type !== 'agora') {
+                    return;
+                }
+
+                if (!val) {
+                    throw new Error('Event is Agora, but the draft proposal deadline is not set.');
+                }
+
+                if (!moment(val).isValid()) {
+                    throw new Error('Event is Agora, but the draft proposal deadline is invalid.');
+                }
+            },
+            beforeEventStart(val) {
+                if (val && moment(val).isSameOrAfter(this.starts)) {
+                    throw new Error('Draft proposal deadline cannot be after or at the same time the event starts.');
+                }
+            }
+        }
+    },
+    final_proposal_deadline: {
+        type: Sequelize.DATE,
+        allowNull: true,
+        validate: {
+            isValidForAgora(val) {
+                if (this.type !== 'agora') {
+                    return;
+                }
+
+                if (!val) {
+                    throw new Error('Event is Agora, but the final proposal deadline is not set.');
+                }
+
+                if (!moment(val).isValid()) {
+                    throw new Error('Event is Agora, but the final proposal deadline is invalid.');
+                }
+            },
+            beforeEventStart(val) {
+                if (val && moment(val).isSameOrAfter(this.starts)) {
+                    throw new Error('Final proposal deadline cannot be after or at the same time the event starts.');
+                }
+            },
+            afterDraftProposalDeadline(val) {
+                if (val && moment(val).isBefore(this.draft_proposal_deadline)) {
+                    throw new Error('Final proposal deadline cannot be before the draft proposal deadline.');
+                }
+            }
+        }
+    },
+    candidature_deadline: {
+        type: Sequelize.DATE,
+        allowNull: true,
+        validate: {
+            isValidForAgora(val) {
+                if (this.type !== 'agora') {
+                    return;
+                }
+
+                if (!val) {
+                    throw new Error('Event is Agora, but the candidature deadline is not set.');
+                }
+
+                if (!moment(val).isValid()) {
+                    throw new Error('Event is Agora, but the candidature deadline is invalid.');
+                }
+            },
+            beforeEventStart(val) {
+                if (val && moment(val).isSameOrAfter(this.starts)) {
+                    throw new Error('Candidature deadline cannot be after or at the same time the event starts.');
+                }
+            }
+        }
+    },
+    booklet_publication_deadline: {
+        type: Sequelize.DATE,
+        allowNull: true,
+        validate: {
+            isValidForAgora(val) {
+                if (this.type !== 'agora') {
+                    return;
+                }
+
+                if (!val) {
+                    throw new Error('Event is Agora, but the booklet publication deadline is not set.');
+                }
+
+                if (!moment(val).isValid()) {
+                    throw new Error('Event is Agora, but the booklet publication deadline is invalid.');
+                }
+            },
+            beforeEventStart(val) {
+                if (val && moment(val).isSameOrAfter(this.starts)) {
+                    throw new Error('Booklet publication deadline cannot be after or at the same time the event starts.');
+                }
+            }
+        }
+    },
+    updated_booklet_publication_deadline: {
+        type: Sequelize.DATE,
+        allowNull: true,
+        validate: {
+            isValidForAgora(val) {
+                if (this.type !== 'agora') {
+                    return;
+                }
+
+                if (!val) {
+                    throw new Error('Event is Agora, but the booklet publication deadline is not set.');
+                }
+
+                if (!moment(val).isValid()) {
+                    throw new Error('Event is Agora, but the booklet publication deadline is invalid.');
+                }
+            },
+            beforeEventStart(val) {
+                if (val && moment(val).isSameOrAfter(this.starts)) {
+                    throw new Error('Booklet publication deadline cannot be after or at the same time the event starts.');
+                }
+            },
+            afterBookletPublicationDeadline(val) {
+                if (val && moment(val).isBefore(this.booklet_publication_deadline)) {
+                    throw new Error('Updated booklet publication deadline cannot be before the booklet publication deadline.');
                 }
             }
         }
