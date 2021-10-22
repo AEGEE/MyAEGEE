@@ -3,7 +3,7 @@ FROM node:14.18.0-alpine AS builder
 COPY . /usr/app/src
 WORKDIR /usr/app/src
 
-RUN npm install --only=production \
+RUN npm ci --production \
  && npm run build
 
 FROM nginx:1.21.3-alpine
