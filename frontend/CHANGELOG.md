@@ -1,3 +1,10 @@
+## [1.32.8](https://github.com/AEGEE/frontend/compare/1.32.7...1.32.8) (2021-10-22)
+
+
+### Bug Fixes
+
+* **statutory:** add button to VotesAmounts from JC view ([#1187](https://github.com/AEGEE/frontend/issues/1187)) ([eebe918](https://github.com/AEGEE/frontend/commit/eebe9187471b943a974cc839137f59792aab1fde))
+
 ## [1.32.7](https://github.com/AEGEE/frontend/compare/1.32.6...1.32.7) (2021-10-13)
 
 
