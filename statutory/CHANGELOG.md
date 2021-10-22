@@ -1,3 +1,10 @@
+## [1.8.10](https://github.com/AEGEE/statutory/compare/1.8.9...1.8.10) (2021-10-22)
+
+
+### Bug Fixes
+
+* **candidate:** restrict updating image_id ([#647](https://github.com/AEGEE/statutory/issues/647)) ([a915c6a](https://github.com/AEGEE/statutory/commit/a915c6a8a9804f69c8d90a5812cb635b2fad24be))
+
 ## [1.8.9](https://github.com/AEGEE/statutory/compare/1.8.8...1.8.9) (2021-10-22)
 
 
