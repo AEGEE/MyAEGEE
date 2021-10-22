@@ -20,7 +20,7 @@
               </select>
             </div>
           </div>
-          <p class="help is-danger" v-if="errors.scope">{{ errors.scope.join(', ')}}</p>
+          <p class="help is-danger" v-if="errors.type">{{ errors.type.join(', ')}}</p>
         </div>
 
         <div class="field">
@@ -48,7 +48,7 @@
           <div class="content">
             <span v-html="$options.filters.markdown(body.description)" />
           </div>
-          <p class="help is-danger" v-if="errors.description">{{ errors.description.message }}</p>
+          <p class="help is-danger" v-if="errors.description">{{ errors.description.join(', ') }}</p>
         </div>
 
         <div class="field">
@@ -86,8 +86,14 @@
           <p class="help is-danger" v-if="errors.country">{{ errors.country.join(', ') }}</p>
         </div>
 
-        <div class="field">
-          <label class="label">Founded at</label>
+        <div class="field" v-if="['antenna', 'contact antenna', 'contact'].includes(body.type)">
+          <label class="label">Founded at <span class="has-text-danger">*</span></label>
+          <b-datepicker :date-formatter="formatDate" :date-parser="parseDate" required v-model="foundationDate" @input="transformFoundedAt()" />
+          <p class="help is-danger" v-if="errors.founded_at">{{ errors.founded_at.join(', ')}}</p>
+        </div>
+
+        <div class="field" v-if="!['antenna', 'contact antenna', 'contact'].includes(body.type)">
+          <label class="label" >Founded at (if applicable)</label>
           <b-datepicker :date-formatter="formatDate" :date-parser="parseDate" v-model="foundationDate" @input="transformFoundedAt()" />
           <p class="help is-danger" v-if="errors.founded_at">{{ errors.founded_at.join(', ')}}</p>
         </div>
@@ -246,6 +252,10 @@ export default {
       this.body.founded_at = moment(this.foundationDate).format('YYYY-MM-DD')
     },
     saveBody () {
+      if (['antenna', 'contact antenna', 'contact'].includes(this.body.type) && !this.body.founded_at) {
+        return this.$root.showError('Please set the founding date of the local.')
+      }
+
       this.isSaving = true
       this.errors = {}
 

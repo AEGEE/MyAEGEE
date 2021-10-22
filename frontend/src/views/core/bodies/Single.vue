@@ -119,7 +119,7 @@
                   <th>Code</th>
                   <td>{{ body.code }}</td>
                 </tr>
-                <tr>
+                <tr v-if="body.founded_at">
                   <th>Foundation date</th>
                   <td>{{ body.founded_at }}</td>
                 </tr>
