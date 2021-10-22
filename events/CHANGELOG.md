@@ -1,3 +1,10 @@
+## [1.3.10](https://github.com/AEGEE/events/compare/1.3.9...1.3.10) (2021-10-22)
+
+
+### Bug Fixes
+
+* **events:** disallow updating picture in some cases ([#608](https://github.com/AEGEE/events/issues/608)) ([ebaedf9](https://github.com/AEGEE/events/commit/ebaedf985c2992d8b0e43d9699e28e2a9dce2622))
+
 ## [1.3.9](https://github.com/AEGEE/events/compare/1.3.8...1.3.9) (2021-08-05)
 
 
