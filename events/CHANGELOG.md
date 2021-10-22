@@ -1,3 +1,10 @@
+## [1.3.11](https://github.com/AEGEE/events/compare/1.3.10...1.3.11) (2021-10-22)
+
+
+### Bug Fixes
+
+* **event:** add publication_date ([#603](https://github.com/AEGEE/events/issues/603)) ([25b5615](https://github.com/AEGEE/events/commit/25b5615a29ecb73de559f6dc6cf8f60f43b1c1af))
+
 ## [1.3.10](https://github.com/AEGEE/events/compare/1.3.9...1.3.10) (2021-10-22)
 
 
