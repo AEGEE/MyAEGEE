@@ -169,6 +169,10 @@
                     <div class="content" v-html="$options.filters.markdown(event.description)"></div>
                   </td>
                 </tr>
+                <tr v-if="event.booklet_folder && canSeeBooklet">
+                  <th>Booklet</th>
+                  <td><a :href="event.booklet_folder" target="_blank">{{ event.booklet_folder }}</a></td>
+                </tr>
                 <tr>
                   <th>Type</th>
                   <td v-if="event.type === 'agora'">Agora</td>
@@ -239,6 +243,26 @@
                   <th>Members list edit period</th>
                   <td>{{ event.application_period_starts | datetime }}</td>
                   <td>{{ event.memberslist_edit_deadline | datetime }}</td>
+                </tr>
+                <tr v-if="event.type === 'agora'">
+                  <th>Draft proposals</th>
+                  <td colspan="2">{{ event.draft_proposal_deadline | datetime }}</td>
+                </tr>
+                <tr v-if="event.type === 'agora'">
+                  <th>Final proposals</th>
+                  <td colspan="2">{{ event.final_proposal_deadline | datetime }}</td>
+                </tr>
+                <tr v-if="event.type === 'agora'">
+                  <th>Candidatures</th>
+                  <td colspan="2">{{ event.candidature_deadline | datetime }}</td>
+                </tr>
+                <tr v-if="event.type === 'agora'">
+                  <th>Booklet publication</th>
+                  <td colspan="2">{{ event.booklet_publication_deadline | datetime }}</td>
+                </tr>
+                <tr v-if="event.type === 'agora'">
+                  <th>Updated booklet publication</th>
+                  <td colspan="2">{{ event.updated_booklet_publication_deadline | datetime }}</td>
                 </tr>
               </tbody>
             </table>
@@ -415,6 +439,9 @@ export default {
     },
     duringAgora () {
       return this.event.type === 'agora' && moment().isBetween(this.event.starts, this.event.ends, null, '[]')
+    },
+    canSeeBooklet () {
+      return this.event.type !== 'agora' || moment().isAfter(this.booklet_publication_deadline) || this.can.edit_event
     }
   }
 }

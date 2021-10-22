@@ -37,7 +37,7 @@
 
       <form @submit.prevent="saveEvent()">
         <div class="field">
-          <label class="label">Title</label>
+          <label class="label">Title <span class="has-text-danger">*</span></label>
           <div class="control">
             <input class="input" type="text" required v-model="event.name" />
           </div>
@@ -45,7 +45,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Description</label>
+          <label class="label">Description <span class="has-text-danger">*</span></label>
           <div class="control">
             <textarea class="textarea" placeholder="e.g. Hello world" required v-model="event.description"></textarea>
           </div>
@@ -57,7 +57,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Event URL</label>
+          <label class="label">Event URL <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
@@ -71,75 +71,36 @@
           <p class="help is-danger" v-if="errors.url">{{ errors.url.join(', ') }}</p>
         </div>
 
+        <div class="field" v-if="!$route.params.id">
+          <label class="label">Event type <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <div class="select">
+              <select v-model="event.type">
+                <option value="agora">Agora</option>
+                <option value="epm">EPM</option>
+                <option value="spm">SPM</option>
+              </select>
+            </div>
+          </div>
+          <p class="help is-danger" v-if="errors.type">{{ errors.type.join(', ')}}</p>
+        </div>
+
+        <div class="notification is-info" v-if="!$route.params.id">
+          Please select the event type wisely, as it will influence the event's workflow. <strong>It can't be changed later.</strong>
+        </div>
+
+        <div class="field">
+          <label class="label">Link to booklet folder <URLTooltip/></label>
+          <div class="control">
+            <input class="input" type="url" v-model="event.booklet_folder" />
+          </div>
+          <p class="help is-danger" v-if="errors.booklet_folder">{{ errors.booklet_folder.join(', ') }}</p>
+        </div>
+
         <timezone-notification />
 
         <div class="field">
-          <label class="label">Application period starts</label>
-          <div class="control">
-            <flat-pickr
-              placeholder="Select date"
-              class="input"
-              required
-              :config="dateConfig"
-              v-model="dates.application_period_starts" />
-          </div>
-          <p class="help is-danger" v-if="errors.application_period_starts">{{ errors.application_period_starts.join(', ') }}</p>
-        </div>
-
-        <div class="field">
-          <label class="label">Application period ends</label>
-          <div class="control">
-            <flat-pickr
-              placeholder="Select date"
-              class="input"
-              required
-              :config="dateConfig"
-              v-model="dates.application_period_ends" />
-          </div>
-          <p class="help is-danger" v-if="errors.application_period_ends">{{ errors.application_period_ends.join(', ') }}</p>
-        </div>
-
-        <div class="field">
-          <label class="label">Board approve deadline</label>
-          <div class="control">
-            <flat-pickr
-              placeholder="Select date"
-              class="input"
-              required
-              :config="dateConfig"
-              v-model="dates.board_approve_deadline" />
-          </div>
-          <p class="help is-danger" v-if="errors.board_approve_deadline">{{ errors.board_approve_deadline.join(', ') }}</p>
-        </div>
-
-        <div class="field">
-          <label class="label">Participants list publish deadline</label>
-          <div class="control">
-            <flat-pickr
-              placeholder="Select date"
-              class="input"
-              required
-              :config="dateConfig"
-              v-model="dates.participants_list_publish_deadline" />
-          </div>
-          <p class="help is-danger" v-if="errors.participants_list_publish_deadline">{{ errors.participants_list_publish_deadline.join(', ') }}</p>
-        </div>
-
-        <div class="field" v-if="event.type === 'agora'">
-          <label class="label">Members list submission deadline</label>
-          <div class="control">
-            <flat-pickr
-              placeholder="Select date"
-              class="input"
-              required
-              :config="dateConfig"
-              v-model="dates.memberslist_submission_deadline" />
-          </div>
-          <p class="help is-danger" v-if="errors.memberslist_submission_deadline">{{ errors.memberslist_submission_deadline.join(', ') }}</p>
-        </div>
-
-        <div class="field">
-          <label class="label">Event start date</label>
+          <label class="label">Event start date <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
               placeholder="Select date"
@@ -152,7 +113,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Event end date</label>
+          <label class="label">Event end date <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
               placeholder="Select date"
@@ -163,9 +124,139 @@
           <p class="help is-danger" v-if="errors.ends">{{ errors.ends.join(', ') }}</p>
         </div>
 
+        <div class="field">
+          <label class="label">Application period starts <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.application_period_starts" />
+          </div>
+          <p class="help is-danger" v-if="errors.application_period_starts">{{ errors.application_period_starts.join(', ') }}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Application period ends <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.application_period_ends" />
+          </div>
+          <p class="help is-danger" v-if="errors.application_period_ends">{{ errors.application_period_ends.join(', ') }}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Board approve deadline <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.board_approve_deadline" />
+          </div>
+          <p class="help is-danger" v-if="errors.board_approve_deadline">{{ errors.board_approve_deadline.join(', ') }}</p>
+        </div>
+
+        <div class="field">
+          <label class="label">Participants list publish deadline <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.participants_list_publish_deadline" />
+          </div>
+          <p class="help is-danger" v-if="errors.participants_list_publish_deadline">{{ errors.participants_list_publish_deadline.join(', ') }}</p>
+        </div>
+
+        <div class="field" v-if="event.type === 'agora'">
+          <label class="label">Members list submission deadline <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.memberslist_submission_deadline" />
+          </div>
+          <p class="help is-danger" v-if="errors.memberslist_submission_deadline">{{ errors.memberslist_submission_deadline.join(', ') }}</p>
+        </div>
+
+        <div class="field" v-if="event.type === 'agora'">
+          <label class="label">Draft proposals deadline <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.draft_proposal_deadline" />
+          </div>
+          <p class="help is-danger" v-if="errors.draft_proposal_deadline">{{ errors.draft_proposal_deadline.join(', ') }}</p>
+        </div>
+
+        <div class="field" v-if="event.type === 'agora'">
+          <label class="label">Final proposals deadline <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.final_proposal_deadline" />
+          </div>
+          <p class="help is-danger" v-if="errors.final_proposal_deadline">{{ errors.final_proposal_deadline.join(', ') }}</p>
+        </div>
+
+        <div class="field" v-if="event.type === 'agora'">
+          <label class="label">Candidatures deadline <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.candidature_deadline" />
+          </div>
+          <p class="help is-danger" v-if="errors.candidature_deadline">{{ errors.candidature_deadline.join(', ') }}</p>
+        </div>
+
+        <div class="field" v-if="event.type === 'agora'">
+          <label class="label">Booklet publication deadline <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.booklet_publication_deadline" />
+          </div>
+          <p class="help is-danger" v-if="errors.booklet_publication_deadline">{{ errors.booklet_publication_deadline.join(', ') }}</p>
+        </div>
+
+        <div class="field" v-if="event.type === 'agora'">
+          <label class="label">Updated booklet publication deadline <span class="has-text-danger">*</span></label>
+          <div class="control">
+            <flat-pickr
+              placeholder="Select date"
+              class="input"
+              required
+              :config="dateConfig"
+              v-model="dates.updated_booklet_publication_deadline" />
+          </div>
+          <p class="help is-danger" v-if="errors.updated_booklet_publication_deadline">{{ errors.updated_booklet_publication_deadline.join(', ') }}</p>
+        </div>
+
         <div class="tile is-child">
           <div class="field">
-            <label class="label">Organizing body</label>
+            <label class="label">Organizing body <span class="has-text-danger">*</span></label>
             <div class="control">
               <div class="field has-addons">
                 <b-autocomplete
@@ -197,26 +288,8 @@
           <p class="help is-danger" v-if="errors.body">{{ errors.body.join(', ')}}</p>
         </div>
 
-        <div class="field" v-if="!$route.params.id">
-          <label class="label">Event type</label>
-          <div class="control">
-            <div class="select">
-              <select v-model="event.type">
-                <option value="agora">Agora</option>
-                <option value="epm">EPM</option>
-                <option value="spm">SPM</option>
-              </select>
-            </div>
-          </div>
-          <p class="help is-danger" v-if="errors.type">{{ errors.type.join(', ')}}</p>
-        </div>
-
-        <div class="notification is-info" v-if="!$route.params.id">
-          Please select the event type wisely, as it will influence the event's workflow. <strong>It can't be changed later.</strong>
-        </div>
-
         <div class="field">
-          <label class="label">Fee</label>
+          <label class="label">Fee <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
@@ -232,7 +305,7 @@
 
         <hr/>
 
-        <div class="subtitle is-fullwidth has-text-centered">Questions</div>
+        <div class="subtitle is-fullwidth has-text-centered">Questions <span class="has-text-danger">*</span></div>
 
         <table class="table is-fullwidth is-narrowed">
           <thead>
@@ -371,6 +444,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import moment from 'moment'
 import { MglMap, MglMarker, MglNavigationControl } from 'vue-mapbox'
 import TimezoneNotification from '../../components/notifications/TimezoneNotification'
 import credentials from '../../credentials'
@@ -399,11 +473,17 @@ export default {
         board_approve_deadline: null,
         participants_list_publish_deadline: null,
         memberslist_submission_deadline: null,
+        draft_proposal_deadline: null,
+        final_proposal_deadline: null,
+        candidature_deadline: null,
+        booklet_publication_deadline: null,
+        updated_booklet_publication_deadline: null,
         questions: [],
         locations: [],
         fee: null,
         starts: null,
-        ends: null
+        ends: null,
+        booklet_folder: null
       },
       options: [],
       dates: {
@@ -412,6 +492,11 @@ export default {
         board_approve_deadline: null,
         participants_list_publish_deadline: null,
         memberslist_submission_deadline: null,
+        draft_proposal_deadline: null,
+        final_proposal_deadline: null,
+        candidature_deadline: null,
+        booklet_publication_deadline: null,
+        updated_booklet_publication_deadline: null,
         starts: null,
         ends: null
       },
@@ -551,6 +636,14 @@ export default {
         return this.$root.showError('Please set at least 1 application question.')
       }
 
+      if (!this.event.starts) {
+        return this.$root.showError('Please set the date when the event will start.')
+      }
+
+      if (!this.event.ends) {
+        return this.$root.showError('Please set the date when the event will end.')
+      }
+
       if (!this.event.application_period_starts) {
         return this.$root.showError('Please set the date when applications period will start.')
       }
@@ -573,12 +666,34 @@ export default {
         this.event.memberslist_submission_deadline = null
       }
 
-      if (!this.event.starts) {
-        return this.$root.showError('Please set the date when the event will start.')
+      if (this.event.type === 'agora' && !this.event.draft_proposal_deadline) {
+        return this.$root.showError('Please set the draft proposal deadline.')
+      } if (this.event.type !== 'agora') {
+        this.event.draft_proposal_deadline = null
       }
 
-      if (!this.event.ends) {
-        return this.$root.showError('Please set the date when the event will end.')
+      if (this.event.type === 'agora' && !this.event.final_proposal_deadline) {
+        return this.$root.showError('Please set the final proposal deadline.')
+      } if (this.event.type !== 'agora') {
+        this.event.final_proposal_deadline = null
+      }
+
+      if (this.event.type === 'agora' && !this.event.candidature_deadline) {
+        return this.$root.showError('Please set the candidature deadline.')
+      } if (this.event.type !== 'agora') {
+        this.event.candidature_deadline = null
+      }
+
+      if (this.event.type === 'agora' && !this.event.booklet_publication_deadline) {
+        return this.$root.showError('Please set the booklet publication deadline.')
+      } if (this.event.type !== 'agora') {
+        this.event.booklet_publication_deadline = null
+      }
+
+      if (this.event.type === 'agora' && !this.event.updated_booklet_publication_deadline) {
+        return this.$root.showError('Please set the updated booklet publication deadline.')
+      } if (this.event.type !== 'agora') {
+        this.event.updated_booklet_publication_deadline = null
       }
 
       if (!this.event.body_id) {
@@ -643,9 +758,34 @@ export default {
     },
     'dates.starts': function (newDate) {
       this.event.starts = new Date(newDate)
+      this.dates.draft_proposal_deadline = moment(this.dates.starts).subtract(45, 'days').endOf('day').second(0)
+        .toDate()
+      this.dates.final_proposal_deadline = moment(this.dates.starts).subtract(1, 'month').endOf('day').second(0)
+        .toDate()
+      this.dates.candidature_deadline = moment(this.dates.starts).subtract(2, 'week').endOf('day').second(0)
+        .toDate()
+      this.dates.booklet_publication_deadline = moment(this.dates.starts).subtract(2, 'week').endOf('day').second(0)
+        .toDate()
+      this.dates.updated_booklet_publication_deadline = moment(this.dates.starts).subtract(1, 'week').endOf('day').second(0)
+        .toDate()
     },
     'dates.ends': function (newDate) {
       this.event.ends = new Date(newDate)
+    },
+    'dates.draft_proposal_deadline': function (newDate) {
+      this.event.draft_proposal_deadline = new Date(newDate)
+    },
+    'dates.final_proposal_deadline': function (newDate) {
+      this.event.final_proposal_deadline = new Date(newDate)
+    },
+    'dates.candidature_deadline': function (newDate) {
+      this.event.candidature_deadline = new Date(newDate)
+    },
+    'dates.booklet_publication_deadline': function (newDate) {
+      this.event.booklet_publication_deadline = new Date(newDate)
+    },
+    'dates.updated_booklet_publication_deadline': function (newDate) {
+      this.event.updated_booklet_publication_deadline = new Date(newDate)
     }
   },
   mounted () {
@@ -666,6 +806,11 @@ export default {
       this.dates.board_approve_deadline = this.event.board_approve_deadline = new Date(this.event.board_approve_deadline)
       this.dates.participants_list_publish_deadline = this.event.participants_list_publish_deadline = new Date(this.event.participants_list_publish_deadline)
       this.dates.memberslist_submission_deadline = this.event.memberslist_submission_deadline = new Date(this.event.memberslist_submission_deadline)
+      this.dates.draft_proposal_deadline = this.event.draft_proposal_deadline = new Date(this.event.draft_proposal_deadline)
+      this.dates.final_proposal_deadline = this.event.final_proposal_deadline = new Date(this.event.final_proposal_deadline)
+      this.dates.candidature_deadline = this.event.candidature_deadline = new Date(this.event.candidature_deadline)
+      this.dates.booklet_publication_deadline = this.event.booklet_publication_deadline = new Date(this.event.booklet_publication_deadline)
+      this.dates.updated_booklet_publication_deadline = this.event.updated_booklet_publication_deadline = new Date(this.event.updated_booklet_publication_deadline)
 
       return this.axios.get(this.services['core'] + '/bodies/' + this.event.body_id)
     }).then((response) => {
