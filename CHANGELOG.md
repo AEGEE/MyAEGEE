@@ -1,3 +1,10 @@
+## [1.36.4](https://github.com/AEGEE/core/compare/1.36.3...1.36.4) (2021-10-22)
+
+
+### Bug Fixes
+
+* **bodies:** allow empty foundation date for non-locals. Fixes HELP-1789 ([#371](https://github.com/AEGEE/core/issues/371)) ([05372de](https://github.com/AEGEE/core/commit/05372de165a49ba2df419e086159b7e3b500b159))
+
 ## [1.36.3](https://github.com/AEGEE/core/compare/1.36.2...1.36.3) (2021-08-05)
 
 
