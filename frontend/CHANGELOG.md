@@ -1,3 +1,10 @@
+## [1.33.1](https://github.com/AEGEE/frontend/compare/1.33.0...1.33.1) (2021-10-22)
+
+
+### Bug Fixes
+
+* **bodies:** allow empty foundation date. Fixes HELP-1789 ([#1184](https://github.com/AEGEE/frontend/issues/1184)) ([b5a22f6](https://github.com/AEGEE/frontend/commit/b5a22f6d9d0b78207a418e51793cb482af4c8729))
+
 # [1.33.0](https://github.com/AEGEE/frontend/compare/1.32.8...1.33.0) (2021-10-22)
 
 
