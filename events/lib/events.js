@@ -276,6 +276,10 @@ exports.setApprovalStatus = async (req, res) => {
             }
         });
 
+        if (req.event.status === 'published') {
+            await req.event.update({ publication_date: new Date() }, { transaction: t });
+        }
+
         // If the new status is submitted and the old status is draft, send a mail
         // to those who have permissions (EQAC/CD)
         if (oldStatus !== 'draft' || req.event.status !== 'submitted') {

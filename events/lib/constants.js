@@ -31,6 +31,7 @@ module.exports = {
         'max_participants',
         'application_status',
         'status',
+        'publication_date',
         'meals_per_day',
         'accommodation_type',
         'optional_programme',

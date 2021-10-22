@@ -117,6 +117,27 @@ describe('Events status change', () => {
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).not.toEqual('submitted');
         });
+
+        it('should not set the publication date', async () => {
+            const event = await generator.createEvent({
+                status: 'draft',
+                organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+            });
+
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'submitted' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).toHaveProperty('message');
+
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.publication_date).toBeNull();
+        });
     });
 
     describe('draft -> published', () => {
@@ -206,6 +227,27 @@ describe('Events status change', () => {
 
             const eventFromDb = await Event.findByPk(event.id);
             expect(eventFromDb.status).not.toEqual('published');
+        });
+
+        it('should set the publication date', async () => {
+            const event = await generator.createEvent({
+                status: 'submitted',
+                organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
+            });
+
+            const res = await request({
+                uri: '/single/' + event.id + '/status',
+                headers: { 'X-Auth-Token': 'foobar' },
+                method: 'PUT',
+                body: { status: 'published' }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).toHaveProperty('message');
+
+            const eventFromDb = await Event.findByPk(event.id);
+            expect(eventFromDb.publication_date).not.toBeNull();
         });
     });
 

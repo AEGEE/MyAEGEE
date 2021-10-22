@@ -208,6 +208,13 @@ const Event = sequelize.define('event', {
             }
         }
     },
+    publication_date: {
+        type: Sequelize.DATE,
+        allowNull: true,
+        validate: {
+            isDate: { msg: 'Event publication date should be valid.' }
+        }
+    },
     deleted: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
