@@ -112,4 +112,40 @@ describe('Events status editing', () => {
         const eventFromDb = await Event.findOne({ where: { id: event.id } });
         expect(eventFromDb.status).toEqual('published');
     });
+
+    test('should set publication_date if changed to published', async () => {
+        const event = await generator.createEvent();
+
+        const res = await request({
+            uri: '/events/' + event.id + '/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { status: 'published' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('message');
+
+        const eventFromDb = await Event.findOne({ where: { id: event.id } });
+        expect(eventFromDb.publication_date).not.toBeNull();
+    });
+
+    test('should not set publication_date if changed to draft', async () => {
+        const event = await generator.createEvent();
+
+        const res = await request({
+            uri: '/events/' + event.id + '/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { status: 'draft' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('message');
+
+        const eventFromDb = await Event.findOne({ where: { id: event.id } });
+        expect(eventFromDb.publication_date).toBeNull();
+    });
 });

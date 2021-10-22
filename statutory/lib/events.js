@@ -127,6 +127,10 @@ exports.changeEventStatus = async (req, res) => {
 
     await req.event.update({ status: req.body.status });
 
+    if (req.event.status === 'published') {
+        await req.event.update({ publication_date: new Date() });
+    }
+
     return res.json({
         success: true,
         message: 'Event status was changed successfully.'

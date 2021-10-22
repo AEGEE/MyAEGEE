@@ -63,6 +63,13 @@ const Event = sequelize.define('event', {
             }
         }
     },
+    publication_date: {
+        type: Sequelize.DATE,
+        allowNull: true,
+        validate: {
+            isDate: { msg: 'Event publication date should be valid.' }
+        }
+    },
     application_period_starts: {
         type: Sequelize.DATE,
         allowNull: false,
