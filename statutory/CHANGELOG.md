@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/AEGEE/statutory/compare/1.8.10...1.9.0) (2021-10-22)
+
+
+### Features
+
+* **events:** add additional Agora deadlines. Fixes HELP-1853 ([#646](https://github.com/AEGEE/statutory/issues/646)) ([27cd7c8](https://github.com/AEGEE/statutory/commit/27cd7c8bca24da83e39bd9263f02d215b8de797a))
+
 ## [1.8.10](https://github.com/AEGEE/statutory/compare/1.8.9...1.8.10) (2021-10-22)
 
 
