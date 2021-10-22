@@ -1,3 +1,10 @@
+# [1.33.0](https://github.com/AEGEE/frontend/compare/1.32.8...1.33.0) (2021-10-22)
+
+
+### Features
+
+* **agora:** add additional deadlines. Fixes HELP-1853 ([#1192](https://github.com/AEGEE/frontend/issues/1192)) ([84bd9c4](https://github.com/AEGEE/frontend/commit/84bd9c4ad8cc6ae4073ea5c7f310ff034e7b5b5e))
+
 ## [1.32.8](https://github.com/AEGEE/frontend/compare/1.32.7...1.32.8) (2021-10-22)
 
 
