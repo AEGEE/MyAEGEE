@@ -158,4 +158,51 @@ describe('Bodies editing', () => {
         expect(res.body.data.email).not.toEqual('test@test.io');
         expect(res.body.data.name).toEqual('bbb');
     });
+
+    for (const type of ['antenna', 'contact antenna', 'contact']) {
+        test(`should fail when foundation date is empty on ${type}`, async () => {
+            const user = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken({}, user);
+
+            await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
+
+            const body = await generator.createBody({ type });
+
+            const res = await request({
+                uri: '/bodies/' + body.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { founded_at: null }
+            });
+
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body).not.toHaveProperty('data');
+            expect(res.body).toHaveProperty('errors');
+            expect(res.body.errors).toHaveProperty('founded_at');
+        });
+    }
+
+    for (const type of ['interest group', 'working group', 'commission', 'committee', 'project', 'partner', 'other']) {
+        test(`should succeed when foundation date is empty on ${type}`, async () => {
+            const user = await generator.createUser({ superadmin: true });
+            const token = await generator.createAccessToken({}, user);
+
+            await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
+
+            const body = await generator.createBody({ type });
+
+            const res = await request({
+                uri: '/bodies/' + body.id,
+                method: 'PUT',
+                headers: { 'X-Auth-Token': token.value },
+                body: { founded_at: null }
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body).not.toHaveProperty('errors');
+            expect(res.body).toHaveProperty('data');
+        });
+    }
 });
