@@ -138,6 +138,7 @@ exports.addEvent = async (req, res) => {
     // Make sure the user doesn't insert malicious stuff
     const data = req.body;
     delete data.id;
+    delete data.image;
     delete data.deleted;
     delete data.published;
 
@@ -234,6 +235,7 @@ exports.editEvent = async (req, res) => {
     const oldStatus = data.status;
 
     delete data.id;
+    delete data.image;
     delete data.status;
     delete data.deleted;
     delete data.published;
