@@ -1,3 +1,10 @@
+## [1.4.8](https://github.com/AEGEE/summeruniversity/compare/1.4.7...1.4.8) (2021-10-22)
+
+
+### Bug Fixes
+
+* **event:** restrict updating image ([#184](https://github.com/AEGEE/summeruniversity/issues/184)) ([ff3e0c9](https://github.com/AEGEE/summeruniversity/commit/ff3e0c9283f6cbfde2e0d6aeab9582619412d6a4))
+
 ## [1.4.7](https://github.com/AEGEE/summeruniversity/compare/1.4.6...1.4.7) (2021-08-05)
 
 
