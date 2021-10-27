@@ -1,3 +1,10 @@
+## [1.33.2](https://github.com/AEGEE/frontend/compare/1.33.1...1.33.2) (2021-10-27)
+
+
+### Bug Fixes
+
+* **board view:** improve status in board views ([#1193](https://github.com/AEGEE/frontend/issues/1193)) ([e36a9a0](https://github.com/AEGEE/frontend/commit/e36a9a069f7f4fd77ae6a327d259eefbfea53ae7))
+
 ## [1.33.1](https://github.com/AEGEE/frontend/compare/1.33.0...1.33.1) (2021-10-22)
 
 
