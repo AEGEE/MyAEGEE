@@ -30,6 +30,7 @@
 
         <b-table
           :data="applications"
+          :row-class="row => calculateClassForApplication(row)"
           :loading="isLoading"
           v-if="selectedBody && boardBodies.length > 0">
           <template slot-scope="props">
@@ -53,6 +54,13 @@
               <div class="control">
                 <input class="input" v-model="props.row.board_comment" />
               </div>
+            </b-table-column>
+
+            <b-table-column field="status" label="Status" sortable>
+              <span v-if="props.row.status === 'accepted'">Accepted</span>
+              <span v-if="props.row.status === 'rejected'">Rejected</span>
+              <span v-if="props.row.status === 'waiting_list'">Waiting list</span>
+              <span v-if="props.row.status === 'pending'">Pending</span>
             </b-table-column>
 
             <b-table-column label="Save">
@@ -86,6 +94,18 @@ export default {
     }
   },
   methods: {
+    calculateClassForApplication (pax) {
+      switch (pax.status) {
+      case 'accepted':
+        return 'has-background-success'
+      case 'rejected':
+        return 'has-background-danger'
+      case 'waiting_list':
+        return 'has-background-warning'
+      default:
+        return ''
+      }
+    },
     submitComment (application) {
       this.axios.put(this.services['events'] + '/single/' + application.event.id + '/applications/' + application.id + '/comment/', {
         board_comment: application.board_comment

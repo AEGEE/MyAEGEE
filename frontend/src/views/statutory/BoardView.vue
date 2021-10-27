@@ -134,6 +134,7 @@
 
           <b-table
             :data="filteredApplications"
+            :row-class="row => calculateClassForApplication(row)"
             :loading="isLoading"
             paginated
             :per-page="limit">
@@ -262,6 +263,18 @@ export default {
     }
   },
   methods: {
+    calculateClassForApplication (pax) {
+      switch (pax.status) {
+      case 'accepted':
+        return 'has-background-success'
+      case 'rejected':
+        return 'has-background-danger'
+      case 'waiting_list':
+        return 'has-background-warning'
+      default:
+        return ''
+      }
+    },
     calculateClassForMemberslist (pax) {
       return ['tag', 'is-small', pax.is_on_memberslist ? 'is-primary' : 'is-danger']
     },

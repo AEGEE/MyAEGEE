@@ -57,7 +57,10 @@
             </b-table-column>
 
             <b-table-column field="status" label="Status" sortable>
-                {{ props.row.status }}
+              <span v-if="props.row.status === 'accepted'">Accepted</span>
+              <span v-if="props.row.status === 'rejected'">Rejected</span>
+              <span v-if="props.row.status === 'waiting_list'">Waiting list</span>
+              <span v-if="props.row.status === 'pending'">Pending</span>
             </b-table-column>
 
             <b-table-column field="board_comment" label="Board comment">
