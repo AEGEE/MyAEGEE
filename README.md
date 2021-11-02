@@ -9,17 +9,13 @@ It makes use of docker, and docker-compose.
 [Read more about the project](https://myaegee.atlassian.net/wiki/spaces/GENERAL/overview)
 
 # Installation
-
-Explanation of the installation are here. Explanation of why we're doing it this way is [at the bottom](#Under-the-hood).
-
-A note on terminology:
-- The computer you run Virtualbox on is the _HOST_.
-- The created VM which runs Docker is the _GUEST_.
-
 ## Pre-requisites: installations required
 
-Install [Virtualbox](https://www.virtualbox.org/wiki/Downloads) first, then [Vagrant](https://www.vagrantup.com/downloads.html). Even if you have a linux box, this is **very** recommended.
-If you decide to not do it, *sigh...* but don't come to cry to us.
+Install
+1. First [Virtualbox](https://www.virtualbox.org/wiki/Downloads), 
+2. then [Vagrant](https://www.vagrantup.com/downloads.html). 
+
+Even if you have a linux box, this is **very** recommended. If you decide to not do it, *sigh...* but don't come to cry to us.
 
 If you decide you know better than us, [install docker and docker-compose](https://docs.docker.com/compose/install/) on your Windows/Linux/Mac machine, instead of Virtualbox and Vagrant. (Make sure you install the correct versions: tested with Docker CE 19.03.1 and docker-compose 1.24.1)
 
@@ -27,20 +23,19 @@ Note: if you use Vagrant, Docker will be already automatically on the virtual ma
 
 Memory requirements for the VM bootstrapped with Vagrant: 2GB (i.e. you need a machine with at least 3GB physical RAM)
 
-## Pre-requisites: URL mapping
+## Pre-requisites: terminology
+Explanation of the installation are here. Explanation of why we're doing it this way is [at the bottom](#Under-the-hood).
 
-To be able to use advanced features, you are encouraged to edit (a script will do it for you, read below) the `/etc/hosts` file on the _HOST_ machine (on windows: `C:\Windows\system32\drivers\etc\hosts`) to add the entry:
+A note on terminology:
+- The computer you run Virtualbox on is the _HOST_.
+- The created VM which runs Docker is the _GUEST_.
 
-Vagrant case: `192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test`
+## Install the web application
+**NOTE on URL MAPPING**: to be able to use advanced features, the `hosts` file has to be edited. The procedure is handled by a script (both for Linux and Windows machine) provided in the repo. Details are explained below.
 
-Pure docker case: `127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test`
+For manual edits, see [URL mapping advanced and troubleshoot](#Url-Mapping-advanced-and-troubleshoot).
 
-In the linux case, it is handled by `start.sh`. More on the launching of this script later.
-As a helper in the windows case, you have the script "`run_as_win_administrator.bat`" (not very advanced). You have to right-click it and click "run as administrator". It will tell you the line to copy (on another terminal that will open) and open the file you need to edit in notepad. Paste the content at the last line of the file, save, and exit.
-
-Now you can install the system!
-
-### Install the web application (linux):
+### Linux 
 
 > On the _HOST_
 ```
@@ -49,20 +44,53 @@ cd MyAEGEE
 ./start.sh
 ```
 
+**URL MAPPING for Linux**: You don't have to do anything, the mapping is handled by `start.sh`.
+
 You will have to wait for up to 20'. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [usage section](#accessing-it).
 
 See [below](#start.sh-and-Makefile) for explanation of `start.sh`
 
-### Install the web application (non-linux):
-
+### Non-linux
 > On the _HOST_
 ```
 git clone --recursive https://github.com/AEGEE/MyAEGEE.git
 cd MyAEGEE
+```
+**URL MAPPING for Windows**
+As a helper in the windows case, you have the script "`run_as_win_administrator.bat`" (not very advanced).
+1. You have to right-click it and click "run as administrator".
+2. It will tell you the line to copy (on another terminal that will open) and open the file you need to edit in notepad.
+3. 	A) (Vagrant case) Paste the content at the last line of the file 
+	```192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```
+	B) (Docker case) Paste the content at the last line of the file 
+	```127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```
+4. Save, and exit.
+
+For any troubleshoot, see [URL mapping advanced and troubleshoot](#Url-Mapping-advanced-and-troubleshoot).
+
+Once set up the mapping, you can continue the installation:
+```
 vagrant up
 ```
 
 You will have to wait for up to 20'. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [usage section](#accessing-it).
+
+
+### Url Mapping Advanced and troubleshoot
+**MANUAL EDIT**
+You are encouraged to edit (a script will do it for you, read below) the `/etc/hosts` file on the _HOST_ machine (on windows: `C:\Windows\system32\drivers\etc\hosts`) to add the entry:
+
+Vagrant case: `192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test`
+
+Pure docker case: `127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test`
+
+**WINDOWS write-permission issue**
+For security reason, Windows could have rescrited writing permession. A workaround (from this [source](https://windowsreport.com/access-denied-hosts-windows-10/)) is to copy the hosts file to a different location:
+
+1. Go to `C:\Windows\system32\drivers\etc\hosts` and locate `hosts` file.
+2. Copy it to your Desktop, or any other folder that you can easily access.
+3. Open the `hosts` file on your Desktop with Notepad or any other text editor.
+4. Make the necessary changes (see above) and move the hosts file back to `C:\Windows\system32\drivers\etc\hosts` directory.
 
 ## Configuration file
 Everything related to the behaviour of the app is defined in the top-most `.env` file. Most important parameters are:
