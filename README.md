@@ -61,8 +61,8 @@ As a helper in the windows case, you have the script "`run_as_win_administrator.
 1. You have to right-click it and click "run as administrator".
 2. It will tell you the line to copy (on another terminal that will open) and open the file you need to edit in notepad.
 3. 	A) (Vagrant case) Paste the content at the last line of the file 
-	```192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```
-	B) (Docker case) Paste the content at the last line of the file 
+	```192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```  
+3.  B) (Docker case) Paste the content at the last line of the file 
 	```127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```
 4. Save, and exit.
 
@@ -76,7 +76,7 @@ vagrant up
 You will have to wait for up to 20'. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [usage section](#accessing-it).
 
 
-### Url Mapping Advanced and troubleshoot
+## Url Mapping Advanced and troubleshoot
 **MANUAL EDIT**
 You are encouraged to edit (a script will do it for you, read below) the `/etc/hosts` file on the _HOST_ machine (on windows: `C:\Windows\system32\drivers\etc\hosts`) to add the entry:
 
@@ -85,7 +85,7 @@ Vagrant case: `192.168.168.168 appserver.test my.appserver.test traefik.appserve
 Pure docker case: `127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test`
 
 **WINDOWS write-permission issue**
-For security reason, Windows could have rescrited writing permession. A workaround (from this [source](https://windowsreport.com/access-denied-hosts-windows-10/)) is to copy the hosts file to a different location:
+For security reason, Windows could have rescrited writing permession. A workaround (original [source](https://windowsreport.com/access-denied-hosts-windows-10/)) is to copy the hosts file to a different location:
 
 1. Go to `C:\Windows\system32\drivers\etc\hosts` and locate `hosts` file.
 2. Copy it to your Desktop, or any other folder that you can easily access.
