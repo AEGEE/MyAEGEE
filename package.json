@@ -8,8 +8,8 @@
   "devDependencies": {
     "@commitlint/cli": "^14.1.0",
     "@commitlint/config-conventional": "^14.1.0",
-    "@semantic-release/changelog": "^5.0.1",
-    "@semantic-release/git": "^9.0.1",
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/git": "^10.0.1",
     "codecov": "^3.8.3",
     "conventional-changelog": "^3.1.24",
     "eslint": "^7.32.0",
@@ -23,7 +23,7 @@
     "nock": "^13.1.4",
     "nyc": "^15.1.0",
     "open-cli": "^7.0.1",
-    "semantic-release": "^17.4.7"
+    "semantic-release": "^18.0.0"
   },
   "scripts": {
     "test": "NODE_ENV=test npm run db:setup && jest test/**/*.test.js --runInBand --forceExit",
