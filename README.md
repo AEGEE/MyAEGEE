@@ -33,7 +33,7 @@ A note on terminology:
 ## Install the web application
 **NOTE on URL MAPPING**: to be able to use advanced features, the `hosts` file has to be edited. The procedure is handled by a script (both for Linux and Windows machine) provided in the repo. Details are explained below.
 
-For manual edits, see [URL mapping advanced and troubleshoot](#Url-Mapping-advanced-and-troubleshoot).
+For manual edits, see [advanced URL mapping and troubleshoot](#Advanced-Url-mapping-and-troubleshoot).
 
 ### Linux 
 
@@ -46,7 +46,7 @@ cd MyAEGEE
 
 **URL MAPPING for Linux**: You don't have to do anything, the mapping is handled by `start.sh`.
 
-You will have to wait for up to 20'. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [usage section](#accessing-it).
+You will have to wait for up to 20'. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [Usage section](#accessing-it).
 
 See [below](#start.sh-and-Makefile) for explanation of `start.sh`
 
@@ -56,7 +56,7 @@ See [below](#start.sh-and-Makefile) for explanation of `start.sh`
 git clone --recursive https://github.com/AEGEE/MyAEGEE.git
 cd MyAEGEE
 ```
-**URL MAPPING for Windows**
+**URL MAPPING for Windows:**
 As a helper in the windows case, you have the script "`run_as_win_administrator.bat`" (not very advanced).
 1. You have to right-click it and click "run as administrator".
 2. It will tell you the line to copy (on another terminal that will open) and open the file you need to edit in notepad.
@@ -66,17 +66,17 @@ As a helper in the windows case, you have the script "`run_as_win_administrator.
 	```127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```
 4. Save, and exit.
 
-For any troubleshoot, see [URL mapping advanced and troubleshoot](#Url-Mapping-advanced-and-troubleshoot).
+For any troubleshoot, see [advanced URL mapping and troubleshoot](#Advanced-Url-mapping-and-troubleshoot).
 
 Once set up the mapping, you can continue the installation:
 ```
 vagrant up
 ```
 
-You will have to wait for up to 20'. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [usage section](#accessing-it).
+You will have to wait for up to 20'. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [Usage section](#accessing-it).
 
 
-## Url Mapping Advanced and troubleshoot
+## Advanced Url mapping and troubleshoot
 **MANUAL EDIT**
 You are encouraged to edit (a script will do it for you, read below) the `/etc/hosts` file on the _HOST_ machine (on windows: `C:\Windows\system32\drivers\etc\hosts`) to add the entry:
 
@@ -116,11 +116,7 @@ After launching the system, you have two ways to check everything is working:
 vagrant ssh
 
 # ...which connects you to the _GUEST_, where docker is.
-# So now you can run:
-
-docker ps
 ```
-
 Let's run the commands and see that they should yield an output like
 ```
 username@computername:~/Documents/aegee/MyAEGEE$ vagrant ssh
@@ -148,6 +144,9 @@ Last login: Fri Sep 18 14:13:43 2020 from 10.0.2.2
 
 appserver[/vagrant]$ [master !?]
 ```
+
+So now you can run `docker ps`:
+
 ```
 appserver[/vagrant]$ [master !?] docker ps
 CONTAINER ID        IMAGE                                  COMMAND                  CREATED             STATUS                 PORTS                                      NAMES
@@ -173,6 +172,8 @@ dc2ea7b33c97        aegee/nginx-static:latest              "nginx -g 'daemon ofâ
 what do we see here? That we can connect to vagrant (we are inside the virtual machine with `vagrant ssh`), and that a bunch of containers are up (we ask the docker containers with `docker ps`). We'll see later that we should use some commands (`make start`) on the _GUEST_, so knowing how to access the virtual machine is important.
 
 **HOORAY! YOUR SYSTEM IS UP!**
+
+For any issue, see [**Troubleshooting**](#Troubleshooting-/-other)
 
 2) you can navigate to it in your _HOST_ web browser.
 
