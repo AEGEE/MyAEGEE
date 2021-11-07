@@ -33,7 +33,7 @@ A note on terminology:
 ## Install the web application
 **NOTE on URL MAPPING**: to be able to use advanced features, the `hosts` file has to be edited. The procedure is handled by a script (both for Linux and Windows machine) provided in the repo. Details are explained below.
 
-For manual edits, see [advanced URL mapping and troubleshoot](#Advanced-Url-mapping-and-troubleshoot).
+For manual edits, see [Advanced URL mapping and troubleshoot](#advanced-url-mapping-and-troubleshoot).
 
 ### Linux 
 
