@@ -48,7 +48,7 @@ cd MyAEGEE
 
 You will have to wait for up to 20'. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [Usage section](#accessing-it).
 
-See [below](#start.sh-and-Makefile) for explanation of `start.sh`
+See [below](#startsh-and-makefile) for explanation of `start.sh`
 
 ### Non-linux
 > On the _HOST_
