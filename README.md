@@ -78,7 +78,7 @@ You will have to wait for up to 20 minutes. A message appears when the bootstrap
 
 ## Advanced URL mapping and troubleshoot
 **MANUAL EDIT**
-You are encouraged to edit (a script will do it for you, read below) the `/etc/hosts` file on the _HOST_ machine (on windows: `C:\Windows\system32\drivers\etc\hosts`) to add the entry:
+If the script above did not work, you can also manually edit the `/etc/hosts` file on the _HOST_ machine (on Windows: `C:\Windows\system32\drivers\etc\hosts`) to add the entry:
 
 Vagrant case: `192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test`
 
