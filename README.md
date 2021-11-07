@@ -62,7 +62,7 @@ As a helper in the windows case, you have the script "`run_as_win_administrator.
 2. It will tell you the line to copy (on another terminal that will open) and open the file you need to edit in notepad.
 3. 	A) (Vagrant case) Paste the content at the last line of the file 
 	```192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```  
-3.  B) (Docker case) Paste the content at the last line of the file 
+    B) (Docker case) Paste the content at the last line of the file 
 	```127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```
 4. Save, and exit.
 
