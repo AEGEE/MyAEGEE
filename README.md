@@ -84,7 +84,7 @@ Vagrant case: `192.168.168.168 appserver.test my.appserver.test traefik.appserve
 
 Pure docker case: `127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test`
 
-**WINDOWS write-permission issue**
+**Windows write-permission issue**
 For security reason, Windows could have rescrited writing permession. A workaround (original [source](https://windowsreport.com/access-denied-hosts-windows-10/)) is to copy the hosts file to a different location:
 
 1. Go to `C:\Windows\system32\drivers\etc\hosts` and locate `hosts` file.
