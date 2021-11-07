@@ -173,7 +173,7 @@ what do we see here? That we can connect to vagrant (we are inside the virtual m
 
 **HOORAY! YOUR SYSTEM IS UP!**
 
-For any issue, see [**Troubleshooting**](#Troubleshooting-/-other)
+For any issue, see [**Troubleshooting**](#troubleshooting--other)
 
 2) you can navigate to it in your _HOST_ web browser.
 
