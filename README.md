@@ -24,7 +24,7 @@ Note: if you use Vagrant, Docker will be already automatically on the virtual ma
 Memory requirements for the VM bootstrapped with Vagrant: 2GB (i.e. you need a machine with at least 3GB physical RAM)
 
 ## Pre-requisites: terminology
-Explanation of the installation are here. Explanation of why we're doing it this way is [at the bottom](#Under-the-hood).
+Explanation of the installation are here. Explanation of why we're doing it this way is [at the bottom](#under-the-hood).
 
 A note on terminology:
 - The computer you run Virtualbox on is the _HOST_.
