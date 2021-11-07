@@ -76,7 +76,7 @@ vagrant up
 You will have to wait for up to 20 minutes. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [Usage section](#accessing-it).
 
 
-## Advanced Url mapping and troubleshoot
+## Advanced URL mapping and troubleshoot
 **MANUAL EDIT**
 You are encouraged to edit (a script will do it for you, read below) the `/etc/hosts` file on the _HOST_ machine (on windows: `C:\Windows\system32\drivers\etc\hosts`) to add the entry:
 
