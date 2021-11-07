@@ -66,7 +66,7 @@ As a helper in the windows case, you have the script "`run_as_win_administrator.
 	```127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```
 4. Save, and exit.
 
-For any troubleshoot, see [advanced URL mapping and troubleshoot](#Advanced-Url-mapping-and-troubleshoot).
+For any troubleshoot, see [Advanced URL mapping and troubleshoot](#advanced-url-mapping-and-troubleshoot).
 
 Once set up the mapping, you can continue the installation:
 ```
