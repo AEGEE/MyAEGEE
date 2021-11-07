@@ -73,7 +73,7 @@ Once set up the mapping, you can continue the installation:
 vagrant up
 ```
 
-You will have to wait for up to 20'. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [Usage section](#accessing-it).
+You will have to wait for up to 20 minutes. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [Usage section](#accessing-it).
 
 
 ## Advanced Url mapping and troubleshoot
