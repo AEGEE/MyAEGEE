@@ -1,3 +1,10 @@
+## [1.36.5](https://github.com/AEGEE/core/compare/1.36.4...1.36.5) (2021-11-11)
+
+
+### Bug Fixes
+
+* **body:** only show deleted bodies to people with permission. Fixes HELP-1873 ([#386](https://github.com/AEGEE/core/issues/386)) ([c3f38eb](https://github.com/AEGEE/core/commit/c3f38eb009c6cc4d712fd700855fd9152f1a0c63))
+
 ## [1.36.4](https://github.com/AEGEE/core/compare/1.36.3...1.36.4) (2021-10-22)
 
 
