@@ -102,4 +102,57 @@ describe('Body details', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body.data.id).toEqual(body.id);
     });
+
+    test('should return 403 if not logged in on a deleted body', async () => {
+        const body = await generator.createBody({ status: 'deleted' });
+
+        const res = await request({
+            uri: '/bodies/' + body.id,
+            method: 'GET'
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should return 403 if no permissions on a deleted body', async () => {
+        const user = await generator.createUser();
+        const token = await generator.createAccessToken({}, user);
+
+        const body = await generator.createBody({ status: 'deleted' });
+
+        const res = await request({
+            uri: '/bodies/' + body.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should work for authorized user on a deleted body', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken({}, user);
+
+        await generator.createPermission({ scope: 'global', action: 'view_deleted', object: 'body' });
+
+        const body = await generator.createBody({ status: 'deleted' });
+
+        const res = await request({
+            uri: '/bodies/' + body.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body.data.id).toEqual(body.id);
+    });
 });

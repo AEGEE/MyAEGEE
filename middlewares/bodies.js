@@ -41,6 +41,10 @@ exports.listAllBodies = async (req, res) => {
 };
 
 exports.getBody = async (req, res) => {
+    if (req.currentBody.status === 'deleted' && (!req.user || !req.permissions.hasPermission('view_deleted:body'))) {
+        return errors.makeForbiddenError(res, 'Permission view_deleted:body is required, but not present.');
+    }
+
     return res.json({
         success: true,
         data: req.currentBody
