@@ -58,7 +58,7 @@
     "semantic-release": "^18.0.0"
   },
   "dependencies": {
-    "@bugsnag/js": "^7.13.2",
+    "@bugsnag/js": "^7.13.3",
     "body-parser": "^1.19.0",
     "bunyan": "^1.8.15",
     "express": "^4.17.1",
