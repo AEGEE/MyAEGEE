@@ -1,16 +1,17 @@
 orbs:
-  slack: circleci/slack@4.4.2
-  node: circleci/node@4.5.1
-  shellcheck: circleci/shellcheck@2.2.4
+  codecov: codecov/codecov@3.2.0
   docker: circleci/docker@1.6.0
+  node: circleci/node@4.7.0
+  shellcheck: circleci/shellcheck@2.2.4
+  slack: circleci/slack@4.4.4
 version: 2.1
 jobs:
   test:
     docker:
-      - image: cimg/node:14.17.3
-      - image: circleci/postgres:10.17
+      - image: cimg/node:16.13.0
+      - image: circleci/postgres:10.18
         environment:
-          POSTGRES_PASSWORD: 5ecr3t
+          POSTGRES_PASSWORD: config.test.postgres.password
     parallelism: 4
     steps:
       - checkout
@@ -21,22 +22,22 @@ jobs:
           command: |
             TEST=$(circleci tests glob test/api/*.js | circleci tests split --split-by=timings)
             JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
-      - run: ./node_modules/.bin/codecov
+      - codecov/upload
       - store_test_results:
           path: ~/reports
       - store_artifacts:
           path: ~/reports
   build:
     docker:
-      - image: cimg/base:2021.07
+      - image: cimg/base:2021.10
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.7
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache discounts
   eslint:
     docker:
-      - image: cimg/node:14.17.3
+      - image: cimg/node:16.13.0
     steps:
       - checkout
       - node/install-packages
@@ -48,45 +49,71 @@ jobs:
           path: ~/reports
   yamllint:
     docker:
-      - image: cimg/python:3.9.6
+      - image: cimg/python:3.10.0
     steps:
       - checkout
       - run: pip install yamllint
       - run: yamllint -d .yamllint.yml .
   shellcheck:
     docker:
-      - image: cimg/base:2021.07
+      - image: cimg/base:2021.10
     steps:
       - checkout
       - shellcheck/install
       - shellcheck/check
   audit:
     docker:
-      - image: cimg/node:14.17.3
+      - image: cimg/node:16.13.0
     steps:
       - checkout
       - run: npm audit --production
       - slack/notify:
           event: fail
           custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "The audit check for `$CIRCLE_PROJECT_REPONAME` has failed."
+              {
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": ":x: The audit check for `$CIRCLE_PROJECT_REPONAME` has failed."
+                    }
+                  },
+                  {
+                    "type": "section",
+                    "fields": [
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "actions",
+                    "elements": [
+                      {
+                        "type": "button",
+                        "text": {
+                          "type": "plain_text",
+                          "text": "Visit Job"
+                        },
+                        "url": "${CIRCLE_BUILD_URL}"
+                      }
+                    ]
                   }
-                }
-              ]
-            }
+                ]
+              }
   docker-build-and-push:
     docker:
-      - image: cimg/node:14.17.3
+      - image: cimg/node:16.13.0
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.7
       - node/install-packages
       - run: npx semantic-release
       - run: echo export PACKAGE_VERSION=$(node -p "require('./package.json').version") >> $BASH_ENV
@@ -103,8 +130,34 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "The Docker image for `$CIRCLE_PROJECT_REPONAME` with tags `$PACKAGE_VERSION` and `latest` has been pushed to Dockerhub."
+                    "text": ":white_check_mark: The Docker image for `$CIRCLE_PROJECT_REPONAME` with tags `$PACKAGE_VERSION` and `latest` has been pushed to Dockerhub."
                   }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
                 }
               ]
             }
@@ -117,8 +170,34 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "The Docker image for `$CIRCLE_PROJECT_REPONAME` build and push has failed."
+                    "text": ":octagonal_sign: The Docker image for `$CIRCLE_PROJECT_REPONAME` build and push has failed."
                   }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
                 }
               ]
             }
