@@ -1,3 +1,10 @@
+## [1.2.4](https://github.com/AEGEE/discounts/compare/1.2.3...1.2.4) (2021-11-12)
+
+
+### Bug Fixes
+
+* **deps:** move to Node 16 and update CI config ([#394](https://github.com/AEGEE/discounts/issues/394)) ([bf4a7b2](https://github.com/AEGEE/discounts/commit/bf4a7b2153b046ae379e80660d8581a39b6e668b))
+
 ## [1.2.3](https://github.com/AEGEE/discounts/compare/1.2.2...1.2.3) (2021-08-05)
 
 
