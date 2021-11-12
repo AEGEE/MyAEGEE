@@ -13,7 +13,7 @@
     "db:migrate": "sequelize db:migrate",
     "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
     "test:ci": "NODE_ENV=test npm run db:setup && jest --runInBand --forceExit",
-    "open-coverage": "opn coverage/lcov-report/index.html",
+    "open-coverage": "open-cli coverage/lcov-report/index.html",
     "prepare": "husky install"
   },
   "keywords": [],
