@@ -23,7 +23,7 @@ describe('Applications confirmation', () => {
 
     test('should succeed when the permissions are okay', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication(event);
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/' + application.id + '/confirmed',
@@ -46,7 +46,7 @@ describe('Applications confirmation', () => {
         const event = await generator.createEvent({
             organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
         });
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication(event);
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/' + application.id + '/confirmed',
@@ -79,7 +79,7 @@ describe('Applications confirmation', () => {
 
     test('should return 422 if confirmed is invalid', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication(event);
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/' + application.id + '/confirmed',
@@ -96,7 +96,7 @@ describe('Applications confirmation', () => {
 
     test('should return 422 on unsetting confirmed if attended is true', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ confirmed: true, attended: true }, event);
+        const application = await generator.createApplication(event, { confirmed: true, attended: true });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/' + application.id + '/confirmed',

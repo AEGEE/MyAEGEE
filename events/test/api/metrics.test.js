@@ -18,11 +18,11 @@ describe('Metrics requests', () => {
 
     test('should return data correctly on /metrics', async () => {
         const event = await generator.createEvent({});
-        await generator.createApplication({ user_id: 1, status: 'accepted' }, event);
-        await generator.createApplication({ user_id: 2, status: 'accepted' }, event);
-        await generator.createApplication({ user_id: 3, status: 'pending' }, event);
-        await generator.createApplication({ user_id: 4, body_name: 1, status: 'pending' }, event);
-        await generator.createApplication({ user_id: 5, body_name: 1, status: 'pending' }, event);
+        await generator.createApplication(event, { user_id: 1, status: 'accepted' });
+        await generator.createApplication(event, { user_id: 2, status: 'accepted' });
+        await generator.createApplication(event, { user_id: 3, status: 'pending' });
+        await generator.createApplication(event, { user_id: 4, body_name: 1, status: 'pending' });
+        await generator.createApplication(event, { user_id: 5, body_name: 1, status: 'pending' });
 
         const res = await request({
             uri: '/metrics',

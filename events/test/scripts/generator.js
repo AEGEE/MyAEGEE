@@ -45,7 +45,7 @@ exports.createEvent = (options = {}) => {
     return Event.create(exports.generateEvent(options));
 };
 
-exports.generateApplication = (options = {}, event) => {
+exports.generateApplication = (event, options = {}) => {
     if (notSet(options.user_id)) options.user_id = faker.datatype.number(100);
     if (notSet(options.body_id)) options.body_id = faker.datatype.number(100);
     if (notSet(options.first_name)) options.first_name = faker.lorem.sentence();
@@ -66,8 +66,8 @@ exports.generateApplication = (options = {}, event) => {
     return options;
 };
 
-exports.createApplication = (options = {}, event) => {
-    return Application.create(exports.generateApplication(options, event));
+exports.createApplication = (event, options = {}) => {
+    return Application.create(exports.generateApplication(event, options));
 };
 
 exports.clearAll = async () => {

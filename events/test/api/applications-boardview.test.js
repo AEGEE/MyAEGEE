@@ -46,7 +46,7 @@ describe('Events application boardview', () => {
     it('should display the application of the current body', async () => {
         const body = user.bodies.find((b) => user.circles.some((c) => c.body_id === b.id && c.name.toLowerCase().includes('board')));
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ body_id: body.id }, event);
+        const application = await generator.createApplication(event, { body_id: body.id });
 
         const res = await request({
             uri: '/boardview/' + body.id,
@@ -66,7 +66,7 @@ describe('Events application boardview', () => {
     it('should not display the application of other bodies', async () => {
         const body = user.bodies.find((b) => user.circles.some((c) => c.body_id === b.id && c.name.toLowerCase().includes('board')));
         const event = await generator.createEvent({});
-        await generator.createApplication({ body_id: 1337 }, event);
+        await generator.createApplication(event, { body_id: 1337 });
 
         const res = await request({
             uri: '/boardview/' + body.id,

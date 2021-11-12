@@ -51,12 +51,12 @@ describe('Export all', () => {
             ]
         });
 
-        await generator.createApplication({
+        await generator.createApplication(event, {
             cancelled: true,
             user_id: regularUser.id,
             body_id: regularUser.bodies[0].id,
             answers: [true, false, 'string']
-        }, event);
+        });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/export',
@@ -86,11 +86,11 @@ describe('Export all', () => {
             ]
         });
 
-        await generator.createApplication({
+        await generator.createApplication(event, {
             user_id: regularUser.id,
             body_id: regularUser.bodies[0].id,
             answers: [true, 'string']
-        }, event);
+        });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/export',

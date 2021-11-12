@@ -22,7 +22,7 @@ describe('Events application comments', () => {
         mock.mockAll({ approvePermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication(event);
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/' + application.id + '/comment',
@@ -41,7 +41,7 @@ describe('Events application comments', () => {
         mock.mockAll({ approvePermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        await generator.createApplication({}, event);
+        await generator.createApplication(event);
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/1337/comment',
@@ -60,7 +60,7 @@ describe('Events application comments', () => {
         mock.mockAll({ approvePermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        await generator.createApplication({}, event);
+        await generator.createApplication(event);
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/false/comment',
@@ -77,10 +77,10 @@ describe('Events application comments', () => {
 
     it('should allow changing status if everything is okay', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({
+        const application = await generator.createApplication(event, {
             body_id: user.bodies[0].id,
             board_comment: 'Awesome person.'
-        }, event);
+        });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/' + application.id + '/comment',

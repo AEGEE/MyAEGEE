@@ -23,7 +23,7 @@ describe('Applications attendance', () => {
 
     test('should succeed when the permissions are okay', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ confirmed: true }, event);
+        const application = await generator.createApplication(event, { confirmed: true });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/' + application.id + '/attended',
@@ -42,7 +42,7 @@ describe('Applications attendance', () => {
 
     test('should fail if the application is not marked as confirmed', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ confirmed: false }, event);
+        const application = await generator.createApplication(event, { confirmed: false });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/' + application.id + '/attended',
@@ -64,7 +64,7 @@ describe('Applications attendance', () => {
         const event = await generator.createEvent({
             organizers: [{ user_id: 1337, first_name: 'test', last_name: 'test' }]
         });
-        const application = await generator.createApplication({ confirmed: true }, event);
+        const application = await generator.createApplication(event, { confirmed: true });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/' + application.id + '/attended',
@@ -97,7 +97,7 @@ describe('Applications attendance', () => {
 
     test('should return 422 if attended is invalid', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ confirmed: true }, event);
+        const application = await generator.createApplication(event, { confirmed: true });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/' + application.id + '/attended',

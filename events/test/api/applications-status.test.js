@@ -22,7 +22,7 @@ describe('Events application status', () => {
         const event = await generator.createEvent({
             organizers: [{ first_name: 'test', last_name: 'test', user_id: 1337 }]
         });
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication(event);
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/' + application.id + '/status',
@@ -57,7 +57,7 @@ describe('Events application status', () => {
 
     it('should allow changing status if everything is okay', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication(event);
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/' + application.id + '/status',

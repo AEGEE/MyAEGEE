@@ -44,7 +44,7 @@ describe('Events application listing', () => {
             user_id: user.id
         }] });
 
-        const application = await generator.createApplication({}, event);
+        const application = await generator.createApplication(event);
         const res = await request({
             uri: '/single/' + event.id + '/applications',
             headers: { 'X-Auth-Token': 'foobar' },
@@ -66,9 +66,9 @@ describe('Events application listing', () => {
             user_id: user.id
         }] });
 
-        const first = await generator.createApplication({ user_id: 1 }, event);
-        const second = await generator.createApplication({ user_id: 2 }, event);
-        const third = await generator.createApplication({ user_id: 3 }, event);
+        const first = await generator.createApplication(event, { user_id: 1 });
+        const second = await generator.createApplication(event, { user_id: 2 });
+        const third = await generator.createApplication(event, { user_id: 3 });
 
         await first.update({ user_id: 4 });
 
@@ -91,7 +91,7 @@ describe('Events application listing', () => {
 
     it('should not display events I haven\'t applied at /mine/participating', async () => {
         const event = await generator.createEvent();
-        await generator.createApplication({ user_id: 1337 }, event);
+        await generator.createApplication(event, { user_id: 1337 });
 
         const res = await request({
             uri: '/mine/participating',
@@ -108,7 +108,7 @@ describe('Events application listing', () => {
 
     it('should display events I\'ve applied at /mine/participating', async () => {
         const event = await generator.createEvent();
-        await generator.createApplication({ user_id: user.id }, event);
+        await generator.createApplication(event, { user_id: user.id });
 
         const res = await request({
             uri: '/mine/participating',

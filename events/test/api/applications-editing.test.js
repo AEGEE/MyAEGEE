@@ -36,7 +36,7 @@ describe('Events application editing', () => {
             }]
         });
 
-        await generator.createApplication({ user_id: user.id }, event);
+        await generator.createApplication(event, { user_id: user.id });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/me',
@@ -68,11 +68,11 @@ describe('Events application editing', () => {
             }]
         });
 
-        const application = await generator.createApplication({
+        const application = await generator.createApplication(event, {
             user_id: 1337,
             body_id: user.bodies[0].id,
             answers: [1]
-        }, event);
+        });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/' + application.id,
@@ -108,11 +108,11 @@ describe('Events application editing', () => {
                 required: true
             }]
         });
-        const application = await generator.createApplication({
+        const application = await generator.createApplication(event, {
             user_id: user.id,
             body_id: user.bodies[0].id,
             answers: [1]
-        }, event);
+        });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/me',
@@ -148,11 +148,11 @@ describe('Events application editing', () => {
                 required: true
             }]
         });
-        const application = await generator.createApplication({
+        const application = await generator.createApplication(event, {
             user_id: user.id,
             body_id: user.bodies[0].id,
             answers: [1]
-        }, event);
+        });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/me',
@@ -189,11 +189,11 @@ describe('Events application editing', () => {
             }]
         });
 
-        await generator.createApplication({
+        await generator.createApplication(event, {
             user_id: user.id,
             body_id: user.bodies[0].id,
             answers: [1]
-        }, event);
+        });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/me',

@@ -41,7 +41,7 @@ describe('Events application info', () => {
                 last_name: 'test'
             }]
         });
-        const application = await generator.createApplication({ user_id: 1337 }, event);
+        const application = await generator.createApplication(event, { user_id: 1337 });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/' + application.id,
@@ -58,7 +58,7 @@ describe('Events application info', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        await generator.createApplication({ user_id: user.id }, event);
+        await generator.createApplication(event, { user_id: user.id });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/me',
@@ -73,7 +73,7 @@ describe('Events application info', () => {
 
     it('should display other user application if have global permission', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ user_id: user.id }, event);
+        const application = await generator.createApplication(event, { user_id: user.id });
 
         const res = await request({
             uri: '/single/' + event.id + '/applications/' + application.id,
