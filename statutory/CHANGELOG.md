@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/AEGEE/statutory/compare/1.9.0...1.9.1) (2021-11-15)
+
+
+### Bug Fixes
+
+* **deps:** update to Node 16 and upgrade deps and CI config ([#659](https://github.com/AEGEE/statutory/issues/659)) ([db78cd3](https://github.com/AEGEE/statutory/commit/db78cd39049938a8f81924f3011a297c06782f7d))
+
 # [1.9.0](https://github.com/AEGEE/statutory/compare/1.8.10...1.9.0) (2021-10-22)
 
 
