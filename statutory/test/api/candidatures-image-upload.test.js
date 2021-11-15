@@ -119,7 +119,9 @@ describe('Candidates image upload', () => {
         expect(res.body.data.image).toHaveProperty('file_path_absolute');
 
         const imgPath = path.join(
-            __dirname, '..', '..',
+            __dirname,
+            '..',
+            '..',
             res.body.data.image.file_path_absolute
         );
         expect(fs.existsSync(imgPath)).toEqual(true);
@@ -139,7 +141,9 @@ describe('Candidates image upload', () => {
         expect(firstRequest.statusCode).toEqual(200);
 
         const oldImgPath = path.join(
-            __dirname, '..', '..',
+            __dirname,
+            '..',
+            '..',
             firstRequest.body.data.image.file_path_absolute
         );
         const oldImgId = firstRequest.body.data.image.id;
@@ -196,7 +200,9 @@ describe('Candidates image upload', () => {
         expect(firstRequest.statusCode).toEqual(200);
 
         const oldImgPath = path.join(
-            __dirname, '..', '..',
+            __dirname,
+            '..',
+            '..',
             firstRequest.body.data.image.file_path_absolute
         );
         await fs.remove(oldImgPath);

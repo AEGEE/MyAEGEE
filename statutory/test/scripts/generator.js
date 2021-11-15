@@ -164,6 +164,7 @@ exports.generatePosition = (options = {}, event = null) => {
     return options;
 };
 
+// eslint-disable-next-line default-param-last
 exports.generateCandidate = (options = {}, position) => {
     if (notSet(options.user_id)) options.user_id = faker.datatype.number({ min: 1, max: 100 });
     if (notSet(options.body_id)) options.body_id = faker.datatype.number({ min: 1, max: 100 });

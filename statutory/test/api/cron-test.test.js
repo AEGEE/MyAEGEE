@@ -7,6 +7,7 @@ const generator = require('../scripts/generator');
 const { Position, Attendance } = require('../../models');
 const cron = require('../../lib/cron');
 
+// eslint-disable-next-line no-promise-executor-return
 const sleep = (delay) => new Promise((res) => setTimeout(res, delay));
 
 describe('Cron testing', () => {
