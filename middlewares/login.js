@@ -129,7 +129,7 @@ module.exports.renew = async (req, res) => {
 
 module.exports.passwordReset = async (req, res) => {
     const user = await User.findOne({
-        where: { email: (req.body.email || '').trim() }
+        where: { email: (req.body.email || '').trim().toLowerCase() }
     });
 
     if (!user) {
