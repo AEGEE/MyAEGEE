@@ -1,3 +1,10 @@
+## [1.36.6](https://github.com/AEGEE/core/compare/1.36.5...1.36.6) (2021-11-17)
+
+
+### Bug Fixes
+
+* **password:** search for lowercase email. Fixes HELP-1879 ([#392](https://github.com/AEGEE/core/issues/392)) ([760014d](https://github.com/AEGEE/core/commit/760014d56d413accfdc40a8ff34dbd4f818ac5ab))
+
 ## [1.36.5](https://github.com/AEGEE/core/compare/1.36.4...1.36.5) (2021-11-11)
 
 
