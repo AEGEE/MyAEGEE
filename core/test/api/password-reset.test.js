@@ -85,6 +85,24 @@ describe('Password reset', () => {
         expect(resets).not.toEqual(0);
     });
 
+    test('should work if the user is found with email with uppercase', async () => {
+        const user = await generator.createUser();
+
+        const res = await request({
+            uri: '/password_reset',
+            method: 'POST',
+            body: { email: user.email.toUpperCase() }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('message');
+
+        const resets = await PasswordReset.count({ where: { user_id: user.id } });
+        expect(resets).not.toEqual(0);
+    });
+
     test('should remove all other password resets', async () => {
         const user = await generator.createUser();
         const existingReset = await generator.createPasswordReset({}, user);
