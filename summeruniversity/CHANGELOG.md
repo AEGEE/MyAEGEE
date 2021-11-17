@@ -1,3 +1,10 @@
+## [1.4.9](https://github.com/AEGEE/summeruniversity/compare/1.4.8...1.4.9) (2021-11-17)
+
+
+### Bug Fixes
+
+* **deps:** update to Node 16 and upgrade deps and CI config ([#199](https://github.com/AEGEE/summeruniversity/issues/199)) ([1fd3286](https://github.com/AEGEE/summeruniversity/commit/1fd328687b2a21d6c5ee6e3e847376a065227ff0))
+
 ## [1.4.8](https://github.com/AEGEE/summeruniversity/compare/1.4.7...1.4.8) (2021-10-22)
 
 
