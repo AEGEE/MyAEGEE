@@ -1,3 +1,10 @@
+## [1.33.3](https://github.com/AEGEE/frontend/compare/1.33.2...1.33.3) (2021-11-19)
+
+
+### Bug Fixes
+
+* **agora:** make booklet link visible after deadline ([#1225](https://github.com/AEGEE/frontend/issues/1225)) ([47ae443](https://github.com/AEGEE/frontend/commit/47ae443a4e87657d8eade242379def853f109d9a))
+
 ## [1.33.2](https://github.com/AEGEE/frontend/compare/1.33.1...1.33.2) (2021-10-27)
 
 
