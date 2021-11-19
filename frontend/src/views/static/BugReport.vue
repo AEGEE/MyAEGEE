@@ -2,6 +2,10 @@
   <div class="tile is-ancestor ">
     <div class="tile is-child">
       <div class="subtitle">Attach screenshot</div>
+      <div class="notification is-info">
+        Attaching a screenshot is not mandatory, but it will help us with reproducing the bug.
+        If you do not attach a screenshot, do click the 'Remove screenshot' button before submitting.
+      </div>
 
       <div class="field is-grouped" v-for="(file, index) in files" v-bind:key="index">
         <div class="control">
