@@ -441,7 +441,7 @@ export default {
       return this.event.type === 'agora' && moment().isBetween(this.event.starts, this.event.ends, null, '[]')
     },
     canSeeBooklet () {
-      return this.event.type !== 'agora' || moment().isAfter(this.booklet_publication_deadline) || this.can.edit_event
+      return this.event.type !== 'agora' || moment().isAfter(this.event.booklet_publication_deadline) || this.can.edit_event
     }
   }
 }
