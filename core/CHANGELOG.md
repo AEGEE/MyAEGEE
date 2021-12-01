@@ -1,3 +1,10 @@
+## [1.36.7](https://github.com/AEGEE/core/compare/1.36.6...1.36.7) (2021-12-01)
+
+
+### Bug Fixes
+
+* **deps:** update to Node 16 and upgrade deps and CI config ([#387](https://github.com/AEGEE/core/issues/387)) ([e8d05fd](https://github.com/AEGEE/core/commit/e8d05fdbcbf211731a28164c124f09d1a1082c4f))
+
 ## [1.36.6](https://github.com/AEGEE/core/compare/1.36.5...1.36.6) (2021-11-17)
 
 
