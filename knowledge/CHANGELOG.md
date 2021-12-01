@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/AEGEE/knowledge/compare/1.0.3...1.0.4) (2021-12-01)
+
+
+### Bug Fixes
+
+* **deps:** update to Node 16 and upgrade deps and CI config ([#131](https://github.com/AEGEE/knowledge/issues/131)) ([97203e1](https://github.com/AEGEE/knowledge/commit/97203e11826206c6f6cb6b99f35f396a4769d779))
+
 ## [1.0.3](https://github.com/AEGEE/knowledge/compare/1.0.2...1.0.3) (2021-08-05)
 
 
