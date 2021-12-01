@@ -2,7 +2,7 @@ version: "3.4"
 services:
     postgres-events:
         restart: always
-        image: postgres:10
+        image: postgres:10.18
         volumes:
             - postgres-events:/var/lib/postgresql/data
         expose:
