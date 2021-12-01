@@ -1,3 +1,10 @@
+## [1.33.4](https://github.com/AEGEE/frontend/compare/1.33.3...1.33.4) (2021-12-01)
+
+
+### Bug Fixes
+
+* **deps:** update to Node 16 and upgrade deps and CI config ([#1220](https://github.com/AEGEE/frontend/issues/1220)) ([56b247f](https://github.com/AEGEE/frontend/commit/56b247fe646525c1cf0d2f2d7457a1df89b98f62))
+
 ## [1.33.3](https://github.com/AEGEE/frontend/compare/1.33.2...1.33.3) (2021-11-19)
 
 
