@@ -17,7 +17,7 @@ describe('Circle permissions', () => {
 
     test('should display the permission if it\'s directly attached', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const circle = await generator.createCircle();
         const permission = await generator.createPermission();
@@ -39,7 +39,7 @@ describe('Circle permissions', () => {
 
     test('should display the permission if it\'s indirectly attached', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const firstCircle = await generator.createCircle();
         const secondCircle = await generator.createCircle({ parent_circle_id: firstCircle.id });

@@ -45,7 +45,7 @@ describe('Password confirm', () => {
 
     test('should fail if password is not provided', async () => {
         const user = await generator.createUser();
-        const reset = await generator.createPasswordReset({}, user);
+        const reset = await generator.createPasswordReset(user);
 
         const res = await request({
             uri: '/password_confirm',
@@ -62,7 +62,7 @@ describe('Password confirm', () => {
 
     test('should fail if password is invalid', async () => {
         const user = await generator.createUser();
-        const reset = await generator.createPasswordReset({}, user);
+        const reset = await generator.createPasswordReset(user);
 
         const res = await request({
             uri: '/password_confirm',
@@ -79,7 +79,7 @@ describe('Password confirm', () => {
 
     test('should fail if token is expired', async () => {
         const user = await generator.createUser();
-        const reset = await generator.createPasswordReset({ expires_at: new Date() }, user);
+        const reset = await generator.createPasswordReset(user, { expires_at: new Date() });
 
         const res = await request({
             uri: '/password_confirm',
@@ -95,7 +95,7 @@ describe('Password confirm', () => {
 
     test('should work if the token is found', async () => {
         const user = await generator.createUser();
-        const reset = await generator.createPasswordReset({}, user);
+        const reset = await generator.createPasswordReset(user);
 
         const res = await request({
             uri: '/password_confirm',
@@ -123,7 +123,7 @@ describe('Password confirm', () => {
 
     test('should work if the user is found with email with spaces/tabs', async () => {
         const user = await generator.createUser();
-        const reset = await generator.createPasswordReset({}, user);
+        const reset = await generator.createPasswordReset(user);
 
         const res = await request({
             uri: '/password_confirm',

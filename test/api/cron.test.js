@@ -54,8 +54,8 @@ describe('Cron testing', () => {
             const userWithValidConfirmation = await generator.createUser();
             const userWithoutValidConfirmation = await generator.createUser();
 
-            await generator.createMailConfirmation({ expires_at: moment().add(1, 'day') }, userWithValidConfirmation);
-            await generator.createMailConfirmation({ expires_at: moment().subtract(1, 'day') }, userWithoutValidConfirmation);
+            await generator.createMailConfirmation(userWithValidConfirmation, { expires_at: moment().add(1, 'day') });
+            await generator.createMailConfirmation(userWithoutValidConfirmation, { expires_at: moment().subtract(1, 'day') });
 
             cron.addJob(cron.JOB_TYPES.DELETE_NOT_CONFIRMED_USERS);
             expect(Object.keys(cron.jobs).length).toEqual(1);

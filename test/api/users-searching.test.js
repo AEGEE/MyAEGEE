@@ -17,7 +17,7 @@ describe('Users list', () => {
 
     test('should fail if no permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/members_search',
@@ -33,7 +33,7 @@ describe('Users list', () => {
 
     test('should succeed when everything is okay', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
 
@@ -54,7 +54,7 @@ describe('Users list', () => {
 
     test('should respect limit and offset', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const member = await generator.createUser();
         await generator.createUser();
@@ -85,7 +85,7 @@ describe('Users list', () => {
             mail_confirmed_at: new Date(),
             superadmin: true
         });
-        const token = await generator.createAccessToken({}, firstUser);
+        const token = await generator.createAccessToken(firstUser);
 
         await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
 
@@ -110,7 +110,7 @@ describe('Users list', () => {
 
     test('should find by first_name', async () => {
         const user = await generator.createUser({ superadmin: true, first_name: 'aaa', last_name: 'bbb', email: 'ccc@test.io' });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
         await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'zzz', email: 'zzz@test.io' });
@@ -132,7 +132,7 @@ describe('Users list', () => {
 
     test('should find by last_name', async () => {
         const user = await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'aaa', email: 'ccc@test.io' });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
         await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'zzz', email: 'zzz@test.io' });
@@ -154,7 +154,7 @@ describe('Users list', () => {
 
     test('should find by email', async () => {
         const user = await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'zzz', email: 'aaa@test.io' });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
         await generator.createUser({ superadmin: true, first_name: 'zzz', last_name: 'zzz', email: 'zzz@test.io' });
@@ -176,7 +176,7 @@ describe('Users list', () => {
 
     test('should only return certain fields (with GSuite ID)', async () => {
         const user = await generator.createUser({ superadmin: true, gsuite_id: 'test@aegee.eu' });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
 
@@ -206,7 +206,7 @@ describe('Users list', () => {
 
     test('should only return certain fields (without GSuite ID)', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
 

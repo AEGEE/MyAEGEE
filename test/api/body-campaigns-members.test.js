@@ -17,7 +17,7 @@ describe('Body campaign users list', () => {
 
     test('should fail if no permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
@@ -36,7 +36,7 @@ describe('Body campaign users list', () => {
 
     test('should succeed when everything is okay', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
@@ -61,7 +61,7 @@ describe('Body campaign users list', () => {
 
     test('should respect limit and offset', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
@@ -99,7 +99,7 @@ describe('Body campaign users list', () => {
             superadmin: true,
             campaign_id: campaign.id
         });
-        const token = await generator.createAccessToken({}, firstUser);
+        const token = await generator.createAccessToken(firstUser);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 

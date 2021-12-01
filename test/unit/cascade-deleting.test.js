@@ -95,7 +95,7 @@ describe('Cascade deleting', () => {
 
         test('should delete all access tokens', async () => {
             const user = await generator.createUser();
-            const token = await generator.createAccessToken({}, user);
+            const token = await generator.createAccessToken(user);
 
             await user.destroy();
 
@@ -105,7 +105,7 @@ describe('Cascade deleting', () => {
 
         test('should delete all refresh tokens', async () => {
             const user = await generator.createUser();
-            const token = await generator.createRefreshToken({}, user);
+            const token = await generator.createRefreshToken(user);
 
             await user.destroy();
 
@@ -115,7 +115,7 @@ describe('Cascade deleting', () => {
 
         test('should delete all mail confirmations', async () => {
             const user = await generator.createUser();
-            const confirmation = await generator.createMailConfirmation({}, user);
+            const confirmation = await generator.createMailConfirmation(user);
 
             await user.destroy();
 

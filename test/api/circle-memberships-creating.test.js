@@ -17,7 +17,7 @@ describe('Circle memberships creating', () => {
 
     test('should return 400 if the user_id is invalid', async () => {
         const currentUser = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, currentUser);
+        const token = await generator.createAccessToken(currentUser);
 
         await generator.createPermission({ scope: 'global', action: 'add_member', object: 'circle' });
 
@@ -38,7 +38,7 @@ describe('Circle memberships creating', () => {
 
     test('should return 404 if the user is not found', async () => {
         const currentUser = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, currentUser);
+        const token = await generator.createAccessToken(currentUser);
 
         await generator.createPermission({ scope: 'global', action: 'add_member', object: 'circle' });
 
@@ -59,7 +59,7 @@ describe('Circle memberships creating', () => {
 
     test('should fail if the user is not a member of a body', async () => {
         const currentUser = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, currentUser);
+        const token = await generator.createAccessToken(currentUser);
 
         await generator.createPermission({ scope: 'global', action: 'add_member', object: 'circle' });
 
@@ -82,7 +82,7 @@ describe('Circle memberships creating', () => {
 
     test('should succeed if everything is okay for a bound circle', async () => {
         const currentUser = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, currentUser);
+        const token = await generator.createAccessToken(currentUser);
 
         await generator.createPermission({ scope: 'global', action: 'add_member', object: 'circle' });
 
@@ -106,7 +106,7 @@ describe('Circle memberships creating', () => {
 
     test('should fail if no permission', async () => {
         const currentUser = await generator.createUser();
-        const token = await generator.createAccessToken({}, currentUser);
+        const token = await generator.createAccessToken(currentUser);
 
         const circle = await generator.createCircle();
         const user = await generator.createUser();
@@ -126,7 +126,7 @@ describe('Circle memberships creating', () => {
 
     test('should succeed if everything is okay for a free circle', async () => {
         const currentUser = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, currentUser);
+        const token = await generator.createAccessToken(currentUser);
 
         await generator.createPermission({ scope: 'global', action: 'add_member', object: 'circle' });
 
@@ -148,7 +148,7 @@ describe('Circle memberships creating', () => {
 
     test('should work with local permission', async () => {
         const currentUser = await generator.createUser();
-        const token = await generator.createAccessToken({}, currentUser);
+        const token = await generator.createAccessToken(currentUser);
 
         const permission = await generator.createPermission({ scope: 'local', action: 'add_member', object: 'circle' });
 

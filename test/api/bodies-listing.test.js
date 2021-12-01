@@ -17,7 +17,7 @@ describe('Bodies list', () => {
 
     test('should succeed when everything is okay', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
 
@@ -41,7 +41,7 @@ describe('Bodies list', () => {
 
     test('should respect limit and offset', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createBody();
         const body = await generator.createBody();
@@ -67,7 +67,7 @@ describe('Bodies list', () => {
 
     test('should respect sorting', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const firstBody = await generator.createBody({ code: 'AAA' });
         const secondBody = await generator.createBody({ code: 'BBB' });
@@ -91,7 +91,7 @@ describe('Bodies list', () => {
 
     test('should find body by name case-sensitive', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const firstBody = await generator.createBody({ name: 'AAA', code: 'ZZZ1' });
         await generator.createBody({ name: 'BBB', code: 'ZZZ2' });
@@ -114,7 +114,7 @@ describe('Bodies list', () => {
 
     test('should find body by name case-insensitive', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const firstBody = await generator.createBody({ name: 'AAA', code: 'ZZZ1' });
         await generator.createBody({ name: 'BBB', code: 'ZZZ2' });
@@ -137,7 +137,7 @@ describe('Bodies list', () => {
 
     test('should find body by code case-sensitive', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const firstBody = await generator.createBody({ name: 'ZZZ', code: 'AAA' });
         await generator.createBody({ name: 'ZZZ', code: 'BBB' });
@@ -160,7 +160,7 @@ describe('Bodies list', () => {
 
     test('should find body by code case-sensitive', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const firstBody = await generator.createBody({ name: 'ZZZ', code: 'AAA' });
         await generator.createBody({ name: 'ZZZ', code: 'BBB' });
@@ -183,7 +183,7 @@ describe('Bodies list', () => {
 
     test('should find by part of the name/code', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const firstBody = await generator.createBody({ name: 'aaa', code: 'aaa' });
         await generator.createBody({ name: 'bbb', code: 'bbb' });
@@ -206,7 +206,7 @@ describe('Bodies list', () => {
 
     test('should filter deleted bodies on /bodies', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createBody({ status: 'deleted' });
 
@@ -238,7 +238,7 @@ describe('Bodies list', () => {
 
     test('should return 403 if no permission on /bodies?all=true', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/bodies?all=true',
@@ -254,7 +254,7 @@ describe('Bodies list', () => {
 
     test('should not filter deleted bodies on /bodies?all=true', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view_deleted', object: 'body' });
 

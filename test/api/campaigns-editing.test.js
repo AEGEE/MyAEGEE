@@ -17,7 +17,7 @@ describe('Campaign editing', () => {
 
     test('should return 404 if the campaign is not found', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
 
@@ -36,7 +36,7 @@ describe('Campaign editing', () => {
 
     test('should fail if there are validation errors', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
 
@@ -58,7 +58,7 @@ describe('Campaign editing', () => {
 
     test('should fail if no permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const campaign = await generator.createCampaign();
 
@@ -77,7 +77,7 @@ describe('Campaign editing', () => {
 
     test('should succeed if everything is okay', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'update', object: 'campaign' });
 

@@ -17,7 +17,7 @@ describe('Body campaigns listing', () => {
 
     test('should fail if no permissions', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         await generator.createCampaign({ autojoin_body_id: body.id });
@@ -36,7 +36,7 @@ describe('Body campaigns listing', () => {
 
     test('should succeed on local permission', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
         const circle = await generator.createCircle({ body_id: body.id });
 
@@ -63,7 +63,7 @@ describe('Body campaigns listing', () => {
 
     test('should succeed on global permission', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
@@ -87,7 +87,7 @@ describe('Body campaigns listing', () => {
 
     test('should respect limit and offset', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
@@ -116,7 +116,7 @@ describe('Body campaigns listing', () => {
 
     test('should respect sorting', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
@@ -143,7 +143,7 @@ describe('Body campaigns listing', () => {
 
     test('should find by name case-sensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
@@ -179,7 +179,7 @@ describe('Body campaigns listing', () => {
 
     test('should find by name case-insensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
@@ -215,7 +215,7 @@ describe('Body campaigns listing', () => {
 
     test('should find by url case-sensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
@@ -251,7 +251,7 @@ describe('Body campaigns listing', () => {
 
     test('should find by url case-insensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
@@ -287,7 +287,7 @@ describe('Body campaigns listing', () => {
 
     test('should find by description_short case-sensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
@@ -323,7 +323,7 @@ describe('Body campaigns listing', () => {
 
     test('should find by description_short case-insensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
@@ -359,7 +359,7 @@ describe('Body campaigns listing', () => {
 
     test('should find by description_long case-sensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
@@ -395,7 +395,7 @@ describe('Body campaigns listing', () => {
 
     test('should find by description_short case-insensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });

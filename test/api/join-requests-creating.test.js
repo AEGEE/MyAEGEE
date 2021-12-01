@@ -23,7 +23,7 @@ describe('Join request creating', () => {
 
     test('should succeed if everything is okay', async () => {
         const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
 
@@ -43,7 +43,7 @@ describe('Join request creating', () => {
 
     test('should fail if join request is presented already', async () => {
         const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
 
@@ -66,7 +66,7 @@ describe('Join request creating', () => {
         mock.mockAll({ mailer: { netError: true } });
 
         const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
 
@@ -94,7 +94,7 @@ describe('Join request creating', () => {
         const requestMock = mock.mockAll();
 
         const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
 
@@ -117,7 +117,7 @@ describe('Join request creating', () => {
         const requestMock = mock.mockAll();
 
         const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
 
@@ -144,7 +144,7 @@ describe('Join request creating', () => {
         const requestMock = mock.mockAll();
 
         const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
 
@@ -171,7 +171,7 @@ describe('Join request creating', () => {
 
     test('should send mails if there are members', async () => {
         const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date() });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
 

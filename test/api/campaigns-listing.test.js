@@ -17,7 +17,7 @@ describe('Campaigns list', () => {
 
     test('should fail if no permission', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createCampaign();
 
@@ -35,7 +35,7 @@ describe('Campaigns list', () => {
 
     test('should succeed when everything is okay', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
@@ -58,7 +58,7 @@ describe('Campaigns list', () => {
 
     test('should respect limit and offset', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
@@ -86,7 +86,7 @@ describe('Campaigns list', () => {
 
     test('should respect sorting', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
@@ -112,7 +112,7 @@ describe('Campaigns list', () => {
 
     test('should find by name case-sensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
@@ -147,7 +147,7 @@ describe('Campaigns list', () => {
 
     test('should find by name case-insensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
@@ -182,7 +182,7 @@ describe('Campaigns list', () => {
 
     test('should find by url case-sensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
@@ -217,7 +217,7 @@ describe('Campaigns list', () => {
 
     test('should find by url case-insensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
@@ -252,7 +252,7 @@ describe('Campaigns list', () => {
 
     test('should find by description_short case-sensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
@@ -287,7 +287,7 @@ describe('Campaigns list', () => {
 
     test('should find by description_short case-insensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
@@ -322,7 +322,7 @@ describe('Campaigns list', () => {
 
     test('should find by description_long case-sensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
@@ -357,7 +357,7 @@ describe('Campaigns list', () => {
 
     test('should find by description_long case-insensitive', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 

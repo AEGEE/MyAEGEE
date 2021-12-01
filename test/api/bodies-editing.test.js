@@ -17,7 +17,7 @@ describe('Bodies editing', () => {
 
     test('should return 404 if the body is not found', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
 
@@ -36,7 +36,7 @@ describe('Bodies editing', () => {
 
     test('should fail if there are validation errors', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
 
@@ -58,7 +58,7 @@ describe('Bodies editing', () => {
 
     test('should fail if no permissions', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
 
@@ -77,7 +77,7 @@ describe('Bodies editing', () => {
 
     test('should succeed on global permission', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
 
@@ -99,7 +99,7 @@ describe('Bodies editing', () => {
 
     test('should succeed on local permission', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({
             scope: 'local',
@@ -129,7 +129,7 @@ describe('Bodies editing', () => {
 
     test('should respect filters', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({
             scope: 'local',
@@ -162,7 +162,7 @@ describe('Bodies editing', () => {
     for (const type of ['antenna', 'contact antenna', 'contact']) {
         test(`should fail when foundation date is empty on ${type}`, async () => {
             const user = await generator.createUser({ superadmin: true });
-            const token = await generator.createAccessToken({}, user);
+            const token = await generator.createAccessToken(user);
 
             await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
 
@@ -186,7 +186,7 @@ describe('Bodies editing', () => {
     for (const type of ['interest group', 'working group', 'commission', 'committee', 'project', 'partner', 'other']) {
         test(`should succeed when foundation date is empty on ${type}`, async () => {
             const user = await generator.createUser({ superadmin: true });
-            const token = await generator.createAccessToken({}, user);
+            const token = await generator.createAccessToken(user);
 
             await generator.createPermission({ scope: 'global', action: 'update', object: 'body' });
 

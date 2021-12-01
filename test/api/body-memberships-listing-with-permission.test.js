@@ -17,7 +17,7 @@ describe('Body memberships list wth permission', () => {
 
     test('should fail if no view:member permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         await generator.createBodyMembership(body, user);
@@ -37,7 +37,7 @@ describe('Body memberships list wth permission', () => {
 
     test('should complain if no action is specified', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         await generator.createBodyMembership(body, user);
@@ -59,7 +59,7 @@ describe('Body memberships list wth permission', () => {
 
     test('should complain if no object is specified', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         await generator.createBodyMembership(body, user);
@@ -81,7 +81,7 @@ describe('Body memberships list wth permission', () => {
 
     test('should fail if no permission found', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         await generator.createBodyMembership(body, user);
@@ -103,7 +103,7 @@ describe('Body memberships list wth permission', () => {
 
     test('should list member who got this permission from a bound circle directly', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
@@ -133,7 +133,7 @@ describe('Body memberships list wth permission', () => {
 
     test('should list member who got this permission from a bound circle indirectly', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
@@ -167,7 +167,7 @@ describe('Body memberships list wth permission', () => {
 
     test('should not list member if member has this permission over other body', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 

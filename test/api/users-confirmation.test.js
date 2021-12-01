@@ -17,7 +17,7 @@ describe('User confirmation', () => {
 
     test('should return 404 if the user is not found', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'confirm', object: 'member' });
 
@@ -35,10 +35,10 @@ describe('User confirmation', () => {
 
     test('should succeed if everything is okay', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'confirm', object: 'member' });
-        await generator.createMailConfirmation({ user_id: user.id });
+        await generator.createMailConfirmation(null, { user_id: user.id });
 
         const res = await request({
             uri: '/members/' + user.id + '/confirm',
@@ -55,7 +55,7 @@ describe('User confirmation', () => {
 
     test('should fail without permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/members/' + user.id + '/confirm',

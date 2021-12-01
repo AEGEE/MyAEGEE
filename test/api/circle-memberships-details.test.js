@@ -17,7 +17,7 @@ describe('Circle membership details', () => {
 
     test('should return 404 if the membership is not found', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const circle = await generator.createCircle();
 
@@ -37,7 +37,7 @@ describe('Circle membership details', () => {
 
     test('should return 400 if id is not a number', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const circle = await generator.createCircle();
 
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'circle' });
@@ -56,7 +56,7 @@ describe('Circle membership details', () => {
 
     test('should fail if no permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const circle = await generator.createCircle();
         const membership = await generator.createCircleMembership(circle, user);
@@ -75,7 +75,7 @@ describe('Circle membership details', () => {
 
     test('should find the membership by id', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'circle' });
 

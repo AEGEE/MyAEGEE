@@ -17,7 +17,7 @@ describe('User details', () => {
 
     test('should return 404 if the user is not found', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
@@ -35,7 +35,7 @@ describe('User details', () => {
 
     test('should find the user by username', async () => {
         const user = await generator.createUser({ superadmin: true, username: 'test' });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
@@ -54,7 +54,7 @@ describe('User details', () => {
 
     test('should find the user by username case-insensitive', async () => {
         const user = await generator.createUser({ superadmin: true, username: 'test' });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
@@ -73,7 +73,7 @@ describe('User details', () => {
 
     test('should find the user by id', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
@@ -92,7 +92,7 @@ describe('User details', () => {
 
     test('work for the current user for /me without permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/members/me',
@@ -109,7 +109,7 @@ describe('User details', () => {
 
     test('work for the current user for /:user_id without permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/members/' + user.id,
@@ -126,7 +126,7 @@ describe('User details', () => {
 
     test('should work with join_request permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const otherUser = await generator.createUser();
         const permission = await generator.createPermission({ scope: 'join_request', action: 'view', object: 'member' });
@@ -151,7 +151,7 @@ describe('User details', () => {
 
     test('should work with local permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const otherUser = await generator.createUser();
         const permission = await generator.createPermission({ scope: 'local', action: 'view', object: 'member' });
@@ -176,7 +176,7 @@ describe('User details', () => {
 
     test('should work with global view_members permission', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
 
@@ -197,7 +197,7 @@ describe('User details', () => {
 
     test('should fail if no permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const otherUser = await generator.createUser();
 

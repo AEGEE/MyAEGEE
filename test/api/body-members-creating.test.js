@@ -18,7 +18,7 @@ describe('Body members creating', () => {
 
     test('should fail if there are validation errors', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'create_member', object: 'body' });
 
@@ -41,7 +41,7 @@ describe('Body members creating', () => {
 
     test('should succeed if global permission', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'create_member', object: 'body' });
 
@@ -63,7 +63,7 @@ describe('Body members creating', () => {
 
     test('should succeed if local permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({ scope: 'local', action: 'create_member', object: 'body' });
         const body = await generator.createBody();
@@ -88,7 +88,7 @@ describe('Body members creating', () => {
 
     test('should fail if no permissions', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const member = generator.generateUser();
@@ -108,7 +108,7 @@ describe('Body members creating', () => {
 
     test('should remove extra fields', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'create_member', object: 'body' });
 
@@ -133,7 +133,7 @@ describe('Body members creating', () => {
 
     test('should create a body membership', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'create_member', object: 'body' });
 
@@ -163,7 +163,7 @@ describe('Body members creating', () => {
 
     test('should set mail_confirmed__at', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'create_member', object: 'body' });
 

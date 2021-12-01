@@ -18,7 +18,7 @@ describe('Circle setting parent circle', () => {
 
     test('should return 404 if the parent circle is not found', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const circle = await generator.createCircle();
 
         await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
@@ -38,7 +38,7 @@ describe('Circle setting parent circle', () => {
 
     test('should return 400 if the parent circle id is not valid', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const circle = await generator.createCircle();
 
         await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
@@ -58,7 +58,7 @@ describe('Circle setting parent circle', () => {
 
     test('should fail if the circle links to itself', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const circle = await generator.createCircle();
 
         await generator.createPermission({ scope: 'global', action: 'put_parent', object: 'circle' });
@@ -81,7 +81,7 @@ describe('Circle setting parent circle', () => {
 
     test('should fail if there are loops', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const circle1 = await generator.createCircle();
         const circle2 = await generator.createCircle({}, circle1);
@@ -107,7 +107,7 @@ describe('Circle setting parent circle', () => {
 
     test('should succeed if everything is okay', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const circle = await generator.createCircle();
         const otherCircle = await generator.createCircle();
@@ -132,7 +132,7 @@ describe('Circle setting parent circle', () => {
 
     test('should not fail if there are not any loops', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const circle1 = await generator.createCircle();
         const circle2 = await generator.createCircle({}, circle1);
@@ -158,7 +158,7 @@ describe('Circle setting parent circle', () => {
 
     test('should fail if no permissions', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const circle1 = await generator.createCircle();
         const circle2 = await generator.createCircle({}, circle1);
@@ -179,7 +179,7 @@ describe('Circle setting parent circle', () => {
 
     test('should allow unsetting parent circle', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const circle = await generator.createCircle();
         const otherCircle = await generator.createCircle({ parent_circle_id: circle.id });

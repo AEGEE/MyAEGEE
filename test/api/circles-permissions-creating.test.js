@@ -17,7 +17,7 @@ describe('Circle add permission', () => {
 
     test('should fail without permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const circle = await generator.createCircle();
         const permission = await generator.createPermission();
@@ -37,7 +37,7 @@ describe('Circle add permission', () => {
 
     test('should fail if permission is not found', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'put_permissions', object: 'circle' });
 
@@ -58,7 +58,7 @@ describe('Circle add permission', () => {
 
     test('should fail if permission is already there', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'put_permissions', object: 'circle' });
 
@@ -81,7 +81,7 @@ describe('Circle add permission', () => {
 
     test('should succeed if everything\'s okay', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'put_permissions', object: 'circle' });
 

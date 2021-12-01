@@ -17,7 +17,7 @@ describe('My permissions for user', () => {
 
     test('should list the global permission that is assigned to a circle user is member of', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({ scope: 'global', action: 'action', object: 'object' });
         const circle = await generator.createCircle();
@@ -42,7 +42,7 @@ describe('My permissions for user', () => {
 
     test('should not list the local permissions that is assigned to a circle user is member of', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({ scope: 'local', action: 'action', object: 'object' });
         const circle = await generator.createCircle();
@@ -66,7 +66,7 @@ describe('My permissions for user', () => {
 
     test('should list the global permission that is assigned to a circle user is indirectly a member of', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({ scope: 'global', action: 'action', object: 'object' });
         const firstCircle = await generator.createCircle();
@@ -94,7 +94,7 @@ describe('My permissions for user', () => {
 
     test('should not list the global permission that is assigned to a circle user is not a member of', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({ scope: 'global', action: 'action', object: 'object' });
         const circle = await generator.createCircle();
@@ -117,7 +117,7 @@ describe('My permissions for user', () => {
 
     test('should list a local permission for a body for direct circle', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({ scope: 'local', action: 'action', object: 'object' });
         const body = await generator.createBody();
@@ -145,7 +145,7 @@ describe('My permissions for user', () => {
 
     test('should list a local permission for a body for a indirect circle', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const otherUser = await generator.createUser();
@@ -176,7 +176,7 @@ describe('My permissions for user', () => {
 
     test('should list a join_request permission for a body for direct circle', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({ scope: 'join_request', action: 'action', object: 'object' });
         const body = await generator.createBody();
