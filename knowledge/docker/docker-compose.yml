@@ -2,7 +2,7 @@ version: "3.4"
 ### KNOWLEDGE     #######################################
 services:
     postgres-knowledge:
-        image: postgres:10
+        image: postgres:10.18
         volumes:
             - postgres-knowledge:/var/lib/postgresql/data
         expose:
