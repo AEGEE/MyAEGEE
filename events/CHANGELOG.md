@@ -1,3 +1,10 @@
+## [1.3.12](https://github.com/AEGEE/events/compare/1.3.11...1.3.12) (2021-12-01)
+
+
+### Bug Fixes
+
+* **deps:** update to Node 16 and upgrade deps and CI config ([#625](https://github.com/AEGEE/events/issues/625)) ([2a6923d](https://github.com/AEGEE/events/commit/2a6923ddd3392730c908eabe161a80876dc2c0ef))
+
 ## [1.3.11](https://github.com/AEGEE/events/compare/1.3.10...1.3.11) (2021-10-22)
 
 
