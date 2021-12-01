@@ -17,7 +17,7 @@ describe('Listing my circles for permission', () => {
 
     test('should return 404 if the permission is not found', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/my_permissions',
@@ -34,7 +34,7 @@ describe('Listing my circles for permission', () => {
 
     test('should return 400 if action is not provided', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/my_permissions',
@@ -51,7 +51,7 @@ describe('Listing my circles for permission', () => {
 
     test('should return 400 if object is not provided', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/my_permissions',
@@ -68,7 +68,7 @@ describe('Listing my circles for permission', () => {
 
     test('should return empty list if the permission is not attached', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'local', action: 'action', object: 'object' });
 
@@ -88,7 +88,7 @@ describe('Listing my circles for permission', () => {
 
     test('should return free circle', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({ scope: 'local', action: 'action', object: 'object' });
         const circle = await generator.createCircle();
@@ -112,7 +112,7 @@ describe('Listing my circles for permission', () => {
 
     test('should return bound circle', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({ scope: 'local', action: 'action', object: 'object' });
         const body = await generator.createBody();
@@ -137,7 +137,7 @@ describe('Listing my circles for permission', () => {
 
     test('should return bound indirect circle', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({ scope: 'local', action: 'action', object: 'object' });
         const body = await generator.createBody();
@@ -166,7 +166,7 @@ describe('Listing my circles for permission', () => {
 
     test('should not return a circle you are not a member of', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({ scope: 'local', action: 'action', object: 'object' });
         const parentCircle = await generator.createCircle();

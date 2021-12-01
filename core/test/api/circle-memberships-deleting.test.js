@@ -19,7 +19,7 @@ describe('Circle memberships deleting', () => {
     test('should return 404 if the membership is not found', async () => {
         const circle = await generator.createCircle();
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'delete_members', object: 'circle' });
 
@@ -38,7 +38,7 @@ describe('Circle memberships deleting', () => {
     test('should succeed if everything is okay', async () => {
         const circle = await generator.createCircle();
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const membership = await generator.createCircleMembership(circle, user);
 
         await generator.createPermission({ scope: 'global', action: 'delete_members', object: 'circle' });
@@ -61,7 +61,7 @@ describe('Circle memberships deleting', () => {
     test('should work with local permission', async () => {
         const body = await generator.createBody();
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         await generator.createBodyMembership(body, user);
 
         const permission = await generator.createPermission({ scope: 'local', action: 'delete_members', object: 'circle' });
@@ -89,7 +89,7 @@ describe('Circle memberships deleting', () => {
     test('should fail if no permission', async () => {
         const circle = await generator.createCircle();
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const membership = await generator.createCircleMembership(circle, user);
 
         const res = await request({

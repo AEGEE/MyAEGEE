@@ -19,7 +19,7 @@ describe('Body memberships deleting own', () => {
     test('should return 404 if the membership is not found', async () => {
         const body = await generator.createBody();
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/bodies/' + body.id + '/members',
@@ -36,7 +36,7 @@ describe('Body memberships deleting own', () => {
     test('should succeed if everything is okay', async () => {
         const body = await generator.createBody();
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const membership = await generator.createBodyMembership(body, user);
 
         const res = await request({
@@ -58,7 +58,7 @@ describe('Body memberships deleting own', () => {
         const body = await generator.createBody();
         const circle = await generator.createCircle({ body_id: body.id });
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const circleMembership = await generator.createCircleMembership(circle, user);
         await generator.createBodyMembership(body, user);
@@ -81,7 +81,7 @@ describe('Body memberships deleting own', () => {
     test('should unset primary body', async () => {
         const body = await generator.createBody();
         const user = await generator.createUser({ superadmin: true, primary_body_id: body.id });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         await generator.createBodyMembership(body, user);
 
         const res = await request({

@@ -19,7 +19,7 @@ describe('Circle memberships deleting own', () => {
     test('should return 404 if the membership is not found', async () => {
         const circle = await generator.createCircle();
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/circles/' + circle.id + '/members',
@@ -36,7 +36,7 @@ describe('Circle memberships deleting own', () => {
     test('should succeed if everything is okay', async () => {
         const circle = await generator.createCircle();
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const membership = await generator.createCircleMembership(circle, user);
 
         const res = await request({

@@ -203,9 +203,9 @@ describe('Unique indexes', () => {
     describe('Mail confirmations', () => {
         test('should be unique', async () => {
             const user = await generator.createUser();
-            await generator.createMailConfirmation({ value: 'test' }, user);
+            await generator.createMailConfirmation(user, { value: 'test' });
             try {
-                await generator.createMailConfirmation({ value: 'test' }, user);
+                await generator.createMailConfirmation(user, { value: 'test' });
                 expect(1).toEqual(0);
             } catch (err) {
                 expect(err).toHaveProperty('errors');
@@ -219,9 +219,9 @@ describe('Unique indexes', () => {
     describe('Access tokens', () => {
         test('should be unique', async () => {
             const user = await generator.createUser();
-            await generator.createAccessToken({ value: 'test' }, user);
+            await generator.createAccessToken(user, { value: 'test' });
             try {
-                await generator.createAccessToken({ value: 'test' }, user);
+                await generator.createAccessToken(user, { value: 'test' });
                 expect(1).toEqual(0);
             } catch (err) {
                 expect(err).toHaveProperty('errors');
@@ -235,9 +235,9 @@ describe('Unique indexes', () => {
     describe('Refresh tokens', () => {
         test('should be unique', async () => {
             const user = await generator.createUser();
-            await generator.createRefreshToken({ value: 'test' }, user);
+            await generator.createRefreshToken(user, { value: 'test' });
             try {
-                await generator.createRefreshToken({ value: 'test' }, user);
+                await generator.createRefreshToken(user, { value: 'test' });
                 expect(1).toEqual(0);
             } catch (err) {
                 expect(err).toHaveProperty('errors');
@@ -251,9 +251,9 @@ describe('Unique indexes', () => {
     describe('Mail change', () => {
         test('should be unique', async () => {
             const user = await generator.createUser();
-            await generator.createMailChange({ value: 'test' }, user);
+            await generator.createMailChange(user, { value: 'test' });
             try {
-                await generator.createMailChange({ value: 'test' }, user);
+                await generator.createMailChange(user, { value: 'test' });
                 expect(1).toEqual(0);
             } catch (err) {
                 expect(err).toHaveProperty('errors');

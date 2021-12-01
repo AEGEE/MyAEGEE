@@ -17,7 +17,7 @@ describe('Body circles creating', () => {
 
     test('should fail if there are validation errors', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
 
@@ -41,7 +41,7 @@ describe('Body circles creating', () => {
 
     test('should succeed if everything is okay', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
 
@@ -65,7 +65,7 @@ describe('Body circles creating', () => {
 
     test('should work with local permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const bodyCircle = await generator.createCircle({ body_id: body.id });
@@ -91,7 +91,7 @@ describe('Body circles creating', () => {
 
     test('should fail if no permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const circle = generator.generateCircle();
@@ -111,7 +111,7 @@ describe('Body circles creating', () => {
 
     test('should replace body_id with body\'s one', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'create', object: 'circle' });
 

@@ -17,7 +17,7 @@ describe('Body payments creating', () => {
 
     test('should fail if no user', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const otherUser = await generator.createUser();
@@ -42,7 +42,7 @@ describe('Body payments creating', () => {
 
     test('should fail if user is not a member of a body', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const otherUser = await generator.createUser();
@@ -66,7 +66,7 @@ describe('Body payments creating', () => {
 
     test('should fail if no permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const otherUser = await generator.createUser();
@@ -89,7 +89,7 @@ describe('Body payments creating', () => {
 
     test('should work with global permission', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'create', object: 'payment' });
 
@@ -115,7 +115,7 @@ describe('Body payments creating', () => {
 
     test('should work with local permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({ scope: 'local', action: 'create', object: 'payment' });
 
@@ -145,7 +145,7 @@ describe('Body payments creating', () => {
 
     test('should not override body_id', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'create', object: 'payment' });
 

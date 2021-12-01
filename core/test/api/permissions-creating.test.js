@@ -17,7 +17,7 @@ describe('Permissions creating', () => {
 
     test('should fail if there are validation errors', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'create', object: 'permission' });
 
@@ -39,7 +39,7 @@ describe('Permissions creating', () => {
 
     test('should fail if no permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = generator.generatePermission();
 
@@ -58,7 +58,7 @@ describe('Permissions creating', () => {
 
     test('should succeed if everything is okay', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'create', object: 'permission' });
 

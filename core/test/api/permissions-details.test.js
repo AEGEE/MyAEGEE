@@ -17,7 +17,7 @@ describe('Permission details', () => {
 
     test('should return 404 if the permission is not found', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/permissions/1337',
@@ -33,7 +33,7 @@ describe('Permission details', () => {
 
     test('should return 400 if id is not a number', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/permissions/xxx',
@@ -49,7 +49,7 @@ describe('Permission details', () => {
 
     test('should find the permission by id', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission();
 

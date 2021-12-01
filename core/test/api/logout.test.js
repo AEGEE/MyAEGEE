@@ -49,7 +49,7 @@ describe('Logout', () => {
 
     test('should succeed if everything is okay', async () => {
         const user = await generator.createUser();
-        const token = await generator.createRefreshToken({}, user);
+        const token = await generator.createRefreshToken(user);
 
         const res = await request({
             uri: '/logout',

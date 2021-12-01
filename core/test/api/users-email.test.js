@@ -17,7 +17,7 @@ describe('Users list', () => {
 
     test('should fail if no permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/members_email',
@@ -33,7 +33,7 @@ describe('Users list', () => {
 
     test('should succeed when everything is okay', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'mail', object: 'member' });
 
@@ -54,7 +54,7 @@ describe('Users list', () => {
 
     test('should find one by id', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'mail', object: 'member' });
 
@@ -76,7 +76,7 @@ describe('Users list', () => {
     test('should find multiple by id array', async () => {
         const user = await generator.createUser({ superadmin: true });
         const secondUser = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'mail', object: 'member' });
 
@@ -98,7 +98,7 @@ describe('Users list', () => {
 
     test('should fail when query is not a string of ids seperated by commas', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'mail', object: 'member' });
 
@@ -116,7 +116,7 @@ describe('Users list', () => {
 
     test('should only return id and notification email', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'mail', object: 'member' });
 

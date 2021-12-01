@@ -17,7 +17,7 @@ describe('Campaign details', () => {
 
     test('should return 404 if the campaign id is not found', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
@@ -35,7 +35,7 @@ describe('Campaign details', () => {
 
     test('should return 404 if the campaign name is not found', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
@@ -53,7 +53,7 @@ describe('Campaign details', () => {
 
     test('should return less info if no permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const campaign = await generator.createCampaign();
 
@@ -71,7 +71,7 @@ describe('Campaign details', () => {
 
     test('should return some info about the autojoin_body', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });
@@ -92,7 +92,7 @@ describe('Campaign details', () => {
 
     test('should find the campaign by id', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 
@@ -113,7 +113,7 @@ describe('Campaign details', () => {
 
     test('should find the campaign by url', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
 

@@ -105,7 +105,7 @@ describe('Password reset', () => {
 
     test('should remove all other password resets', async () => {
         const user = await generator.createUser();
-        const existingReset = await generator.createPasswordReset({}, user);
+        const existingReset = await generator.createPasswordReset(user);
 
         const res = await request({
             uri: '/password_reset',

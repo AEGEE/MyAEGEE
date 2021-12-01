@@ -17,7 +17,7 @@ describe('Permission members', () => {
 
     test('should return 404 if the permission is not found', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/permissions/1337/members',
@@ -33,7 +33,7 @@ describe('Permission members', () => {
 
     test('should return 400 if id is not a number', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/permissions/xxx/members',
@@ -49,7 +49,7 @@ describe('Permission members', () => {
 
     test('should fail if no permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission();
 
@@ -67,7 +67,7 @@ describe('Permission members', () => {
 
     test('should list superadmins', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
@@ -89,7 +89,7 @@ describe('Permission members', () => {
 
     test('should list people who have this permission through free circle', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permissionCircle = await generator.createCircle();
         const viewPermission = await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
@@ -118,7 +118,7 @@ describe('Permission members', () => {
 
     test('should list people who have this permission through bound circle', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permissionCircle = await generator.createCircle();
         const viewPermission = await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
@@ -148,7 +148,7 @@ describe('Permission members', () => {
 
     test('should list people who have this permission through indirect circle', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permissionCircle = await generator.createCircle();
         const viewPermission = await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });

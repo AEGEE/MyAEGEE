@@ -58,14 +58,16 @@ const gsuiteObj = [
         // PART 2: if there is a match, add their gsuite address in the core's field and mark it done
         if (users.length === 1) {
             try {
-                await User.update({
-                    gsuite_id: obj.primaryEmail
-                },
-                {
-                    where: { email: obj.recoveryEmail.toLowerCase() },
-                    returning: true,
-                    plain: true
-                });
+                await User.update(
+                    {
+                        gsuite_id: obj.primaryEmail
+                    },
+                    {
+                        where: { email: obj.recoveryEmail.toLowerCase() },
+                        returning: true,
+                        plain: true
+                    }
+                );
 
                 obj.allocated = true;
             } catch (e) {

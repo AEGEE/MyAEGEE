@@ -17,7 +17,7 @@ describe('Permission list', () => {
 
     test('should succeed when everything is okay', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permissions = await generator.createPermission();
 
@@ -38,7 +38,7 @@ describe('Permission list', () => {
 
     test('should respect limit and offset', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission();
         const circle = await generator.createPermission();
@@ -64,7 +64,7 @@ describe('Permission list', () => {
 
     test('should respect sorting', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const firstPermission = await generator.createPermission({ action: 'aaa' });
         const secondPermission = await generator.createPermission({ action: 'bbb' });
@@ -88,7 +88,7 @@ describe('Permission list', () => {
 
     test('should find by combined', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({ scope: 'global', action: 'action', object: 'object' });
         await generator.createPermission({ scope: 'global', action: 'action2', object: 'object2' });
@@ -110,7 +110,7 @@ describe('Permission list', () => {
 
     test('should find by description', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({ description: 'test' });
         await generator.createPermission({ description: 'zzz' });

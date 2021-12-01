@@ -17,7 +17,7 @@ describe('Campaign users list', () => {
 
     test('should fail if no permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const campaign = await generator.createCampaign();
 
@@ -35,7 +35,7 @@ describe('Campaign users list', () => {
 
     test('should succeed when everything is okay', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 
@@ -59,7 +59,7 @@ describe('Campaign users list', () => {
 
     test('should respect limit and offset', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const campaign = await generator.createCampaign();
 
@@ -95,7 +95,7 @@ describe('Campaign users list', () => {
             superadmin: true,
             campaign_id: campaign.id
         });
-        const token = await generator.createAccessToken({}, firstUser);
+        const token = await generator.createAccessToken(firstUser);
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'member' });
 

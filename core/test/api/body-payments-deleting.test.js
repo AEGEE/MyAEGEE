@@ -18,7 +18,7 @@ describe('Body payments deleting', () => {
 
     test('should return 404 if the payment is not found', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const otherUser = await generator.createUser();
@@ -40,7 +40,7 @@ describe('Body payments deleting', () => {
 
     test('should fail if no permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const otherUser = await generator.createUser();
@@ -62,7 +62,7 @@ describe('Body payments deleting', () => {
 
     test('should work with global permission', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'payment' });
 
@@ -89,7 +89,7 @@ describe('Body payments deleting', () => {
 
     test('should work with local permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const permission = await generator.createPermission({ scope: 'local', action: 'delete', object: 'payment' });
 

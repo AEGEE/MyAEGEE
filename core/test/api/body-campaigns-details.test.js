@@ -17,7 +17,7 @@ describe('Body campaign details', () => {
 
     test('should return 404 if the campaign is not found', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         const res = await request({
@@ -34,7 +34,7 @@ describe('Body campaign details', () => {
 
     test('should return 400 if id is not a number', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         const res = await request({
@@ -51,7 +51,7 @@ describe('Body campaign details', () => {
 
     test('should return 404 if campaign doesn\'t belong to this body', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
         const otherBody = await generator.createBody();
 
@@ -71,7 +71,7 @@ describe('Body campaign details', () => {
 
     test('should succeed on global permission', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         await generator.createPermission({ scope: 'global', action: 'view', object: 'campaign' });
@@ -93,7 +93,7 @@ describe('Body campaign details', () => {
 
     test('should succeed on local permission', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
         const circle = await generator.createCircle({ body_id: body.id });
         const permission = await generator.createPermission({ scope: 'local', action: 'view', object: 'campaign' });
@@ -118,7 +118,7 @@ describe('Body campaign details', () => {
 
     test('should fail if no permission', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         const campaign = await generator.createCampaign({ autojoin_body_id: body.id });

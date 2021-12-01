@@ -18,7 +18,7 @@ describe('Mail changes', () => {
     test('should fail with null new_email', async () => {
         try {
             const user = await generator.createUser();
-            await generator.createMailChange({ new_email: null }, user);
+            await generator.createMailChange(user, { new_email: null });
             expect(1).toEqual(0);
         } catch (err) {
             expect(err).toHaveProperty('errors');
@@ -30,7 +30,7 @@ describe('Mail changes', () => {
     test('should fail with empty new_email', async () => {
         try {
             const user = await generator.createUser();
-            await generator.createMailChange({ new_email: '' }, user);
+            await generator.createMailChange(user, { new_email: '' });
             expect(1).toEqual(0);
         } catch (err) {
             expect(err).toHaveProperty('errors');
@@ -43,7 +43,7 @@ describe('Mail changes', () => {
     test('should fail with invalid new_email', async () => {
         try {
             const user = await generator.createUser();
-            await generator.createMailChange({ new_email: 'test' }, user);
+            await generator.createMailChange(user, { new_email: 'test' });
             expect(1).toEqual(0);
         } catch (err) {
             expect(err).toHaveProperty('errors');
@@ -55,7 +55,7 @@ describe('Mail changes', () => {
     test('should fail with invalid new_email (aegee.eu)', async () => {
         try {
             const user = await generator.createUser();
-            await generator.createMailChange({ new_email: 'test@aegee.eu' }, user);
+            await generator.createMailChange(user, { new_email: 'test@aegee.eu' });
             expect(1).toEqual(0);
         } catch (err) {
             expect(err).toHaveProperty('errors');
@@ -67,7 +67,7 @@ describe('Mail changes', () => {
     test('should fail with invalid new_email (aegee.org)', async () => {
         try {
             const user = await generator.createUser();
-            await generator.createMailChange({ new_email: 'test@aegee.org' }, user);
+            await generator.createMailChange(user, { new_email: 'test@aegee.org' });
             expect(1).toEqual(0);
         } catch (err) {
             expect(err).toHaveProperty('errors');

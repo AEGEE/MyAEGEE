@@ -17,7 +17,7 @@ describe('Body details', () => {
 
     test('should return 404 if the body is not found', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/bodies/1337',
@@ -33,7 +33,7 @@ describe('Body details', () => {
 
     test('should find the body by code', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody({ code: 'xxx' });
 
@@ -52,7 +52,7 @@ describe('Body details', () => {
 
     test('should find the body by username case-insensitive', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody({ code: 'xxx' });
 
@@ -71,7 +71,7 @@ describe('Body details', () => {
 
     test('should find the body by id', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
 
@@ -119,7 +119,7 @@ describe('Body details', () => {
 
     test('should return 403 if no permissions on a deleted body', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody({ status: 'deleted' });
 
@@ -137,7 +137,7 @@ describe('Body details', () => {
 
     test('should work for authorized user on a deleted body', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'view_deleted', object: 'body' });
 

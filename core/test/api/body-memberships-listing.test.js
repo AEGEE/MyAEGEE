@@ -17,7 +17,7 @@ describe('Body memberships list', () => {
 
     test('should succeed when everything is okay', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const membership = await generator.createBodyMembership(body, user);
@@ -41,7 +41,7 @@ describe('Body memberships list', () => {
 
     test('should respect limit and offset', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         await generator.createPermission({ scope: 'global', action: 'view_members', object: 'body' });
@@ -74,7 +74,7 @@ describe('Body memberships list', () => {
 
     test('should respect sorting', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const body = await generator.createBody();
 
         const firstUser = await generator.createUser();
@@ -104,7 +104,7 @@ describe('Body memberships list', () => {
 
     test('should work with local permission', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         await generator.createBodyMembership(body, user);
@@ -128,7 +128,7 @@ describe('Body memberships list', () => {
 
     test('should fail if no permission', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         await generator.createBodyMembership(body, user);
@@ -152,7 +152,7 @@ describe('Body memberships list', () => {
             last_name: 'zzz',
             email: 'test@test.io'
         });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const membership = await generator.createBodyMembership(body, user);
@@ -188,7 +188,7 @@ describe('Body memberships list', () => {
             last_name: 'aaa',
             email: 'test@test.io'
         });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const membership = await generator.createBodyMembership(body, user);
@@ -224,7 +224,7 @@ describe('Body memberships list', () => {
             last_name: 'zzz',
             email: 'aaa@test.io'
         });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const membership = await generator.createBodyMembership(body, user);

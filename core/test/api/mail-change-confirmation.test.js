@@ -45,7 +45,7 @@ describe('Mail change confirm', () => {
 
     test('should fail if token is expired', async () => {
         const user = await generator.createUser();
-        const mailChange = await generator.createMailChange({ expires_at: new Date() }, user);
+        const mailChange = await generator.createMailChange(user, { expires_at: new Date() });
 
         const res = await request({
             uri: '/confirm-email-change',
@@ -61,7 +61,7 @@ describe('Mail change confirm', () => {
 
     test('should work if the token is found', async () => {
         const user = await generator.createUser();
-        const mailChange = await generator.createMailChange({}, user);
+        const mailChange = await generator.createMailChange(user);
 
         const res = await request({
             uri: '/confirm-email-change',
@@ -83,7 +83,7 @@ describe('Mail change confirm', () => {
 
     test('should work if the token is found with email with spaces/tabs', async () => {
         const user = await generator.createUser();
-        const mailChange = await generator.createMailChange({}, user);
+        const mailChange = await generator.createMailChange(user);
 
         const res = await request({
             uri: '/confirm-email-change',

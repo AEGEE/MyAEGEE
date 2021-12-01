@@ -18,7 +18,7 @@ describe('Bodies status', () => {
 
     test('should return 404 if the body is not found', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'body' });
 
@@ -37,7 +37,7 @@ describe('Bodies status', () => {
 
     test('should fail if there are validation errors', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'body' });
 
@@ -59,7 +59,7 @@ describe('Bodies status', () => {
 
     test('should fail if no permissions', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
 
@@ -78,7 +78,7 @@ describe('Bodies status', () => {
 
     test('should succeed if new status is deleted', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'body' });
 
@@ -100,7 +100,7 @@ describe('Bodies status', () => {
 
     test('should succeed if new status is active', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'body' });
 
@@ -122,7 +122,7 @@ describe('Bodies status', () => {
 
     test('should remove all stuff from body once deleted', async () => {
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'delete', object: 'body' });
 

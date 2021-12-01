@@ -17,7 +17,7 @@ describe('Circle details', () => {
 
     test('should return 404 if the circle is not found', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/circles/1337',
@@ -33,7 +33,7 @@ describe('Circle details', () => {
 
     test('should return 400 if id us not a number', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/circles/xxx',
@@ -49,7 +49,7 @@ describe('Circle details', () => {
 
     test('should find the circle by id', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const circle = await generator.createCircle();
 

@@ -19,7 +19,7 @@ describe('Body memberships deleting', () => {
     test('should return 404 if the membership is not found', async () => {
         const body = await generator.createBody();
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'delete_member', object: 'body' });
 
@@ -38,7 +38,7 @@ describe('Body memberships deleting', () => {
     test('should succeed if everything is okay', async () => {
         const body = await generator.createBody();
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const membership = await generator.createBodyMembership(body, user);
 
         await generator.createPermission({ scope: 'global', action: 'delete_member', object: 'body' });
@@ -62,7 +62,7 @@ describe('Body memberships deleting', () => {
         const body = await generator.createBody();
         const circle = await generator.createCircle({ body_id: body.id });
         const user = await generator.createUser({ superadmin: true });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'delete_member', object: 'body' });
 
@@ -87,7 +87,7 @@ describe('Body memberships deleting', () => {
     test('should unset primary body', async () => {
         const body = await generator.createBody();
         const user = await generator.createUser({ superadmin: true, primary_body_id: body.id });
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const membership = await generator.createBodyMembership(body, user);
 
         await generator.createPermission({ scope: 'global', action: 'delete_member', object: 'body' });
@@ -110,7 +110,7 @@ describe('Body memberships deleting', () => {
     test('should work with local permission', async () => {
         const body = await generator.createBody();
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const membership = await generator.createBodyMembership(body, user);
 
         const permission = await generator.createPermission({ scope: 'local', action: 'delete_member', object: 'body' });
@@ -133,7 +133,7 @@ describe('Body memberships deleting', () => {
     test('should fail if no permission', async () => {
         const body = await generator.createBody();
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
         const membership = await generator.createBodyMembership(body, user);
 
         const res = await request({

@@ -17,7 +17,7 @@ describe('Circles list', () => {
 
     test('should succeed when everything is okay', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const circle = await generator.createCircle();
 
@@ -38,7 +38,7 @@ describe('Circles list', () => {
 
     test('should respect limit and offset', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         await generator.createCircle();
         const circle = await generator.createCircle();
@@ -64,7 +64,7 @@ describe('Circles list', () => {
 
     test('should respect sorting', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const firstCircle = await generator.createCircle({ name: 'aaa' });
         const secondCircle = await generator.createCircle({ name: 'bbb' });
@@ -88,7 +88,7 @@ describe('Circles list', () => {
 
     test('should find by name', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const circle = await generator.createCircle({ name: 'aaa', description: 'zzz' });
         await generator.createCircle({ name: 'bbb', description: 'zzz' });
@@ -110,7 +110,7 @@ describe('Circles list', () => {
 
     test('should find by description', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const circle = await generator.createCircle({ name: 'zzz', description: 'aaa' });
         await generator.createCircle({ name: 'zzz', description: 'bbb' });
@@ -132,7 +132,7 @@ describe('Circles list', () => {
 
     test('should not return bound circles without ?all=true', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         await generator.createCircle({ body_id: body.id });
@@ -152,7 +152,7 @@ describe('Circles list', () => {
 
     test('should return bound circles with ?all=true', async () => {
         const user = await generator.createUser();
-        const token = await generator.createAccessToken({}, user);
+        const token = await generator.createAccessToken(user);
 
         const body = await generator.createBody();
         const circle = await generator.createCircle({ body_id: body.id });

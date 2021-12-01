@@ -41,7 +41,7 @@ exports.createUser = (options = {}) => {
     return User.create(exports.generateUser(options));
 };
 
-exports.generateMailConfirmation = (options = {}, user) => {
+exports.generateMailConfirmation = (user, options = {}) => {
     if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
     if (notSet(options.expires_at)) options.expires_at = faker.date.future();
     if (user) options.user_id = user.id;
@@ -49,8 +49,8 @@ exports.generateMailConfirmation = (options = {}, user) => {
     return options;
 };
 
-exports.createMailConfirmation = (options = {}, user = null) => {
-    return MailConfirmation.create(exports.generateMailConfirmation(options, user));
+exports.createMailConfirmation = (user = null, options = {}) => {
+    return MailConfirmation.create(exports.generateMailConfirmation(user, options));
 };
 
 exports.generateBody = (options = {}) => {
@@ -108,30 +108,18 @@ exports.createPermission = (options = {}) => {
     return Permission.create(exports.generatePermission(options));
 };
 
-exports.generateRefreshToken = (options = {}, user) => {
+exports.generateRefreshToken = (user, options = {}) => {
     if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
     if (user) options.user_id = user.id;
 
     return options;
 };
 
-exports.createRefreshToken = (options = {}, user = null) => {
-    return RefreshToken.create(exports.generateRefreshToken(options, user));
+exports.createRefreshToken = (user = null, options = {}) => {
+    return RefreshToken.create(exports.generateRefreshToken(user, options));
 };
 
-exports.generateAccessToken = (options = {}, user) => {
-    if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
-    if (notSet(options.expires_at)) options.expires_at = faker.date.future();
-    if (user) options.user_id = user.id;
-
-    return options;
-};
-
-exports.createAccessToken = (options = {}, user = null) => {
-    return AccessToken.create(exports.generateAccessToken(options, user));
-};
-
-exports.generatePasswordReset = (options = {}, user) => {
+exports.generateAccessToken = (user, options = {}) => {
     if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
     if (notSet(options.expires_at)) options.expires_at = faker.date.future();
     if (user) options.user_id = user.id;
@@ -139,8 +127,20 @@ exports.generatePasswordReset = (options = {}, user) => {
     return options;
 };
 
-exports.createPasswordReset = (options = {}, user = null) => {
-    return PasswordReset.create(exports.generatePasswordReset(options, user));
+exports.createAccessToken = (user = null, options = {}) => {
+    return AccessToken.create(exports.generateAccessToken(user, options));
+};
+
+exports.generatePasswordReset = (user, options = {}) => {
+    if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
+    if (notSet(options.expires_at)) options.expires_at = faker.date.future();
+    if (user) options.user_id = user.id;
+
+    return options;
+};
+
+exports.createPasswordReset = (user = null, options = {}) => {
+    return PasswordReset.create(exports.generatePasswordReset(user, options));
 };
 
 exports.createCircleMembership = (circle, user) => {
@@ -187,7 +187,7 @@ exports.generatePayment = (body, user, options = {}) => {
     return options;
 };
 
-exports.generateMailChange = (options = {}, user) => {
+exports.generateMailChange = (user, options = {}) => {
     if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
     if (notSet(options.expires_at)) options.expires_at = faker.date.future();
     if (notSet(options.new_email)) options.new_email = faker.internet.email();
@@ -196,8 +196,8 @@ exports.generateMailChange = (options = {}, user) => {
     return options;
 };
 
-exports.createMailChange = (options = {}, user = null) => {
-    return MailChange.create(exports.generateMailChange(options, user));
+exports.createMailChange = (user = null, options = {}) => {
+    return MailChange.create(exports.generateMailChange(user, options));
 };
 
 exports.clearAll = async () => {

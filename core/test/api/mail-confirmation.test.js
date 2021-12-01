@@ -46,7 +46,7 @@ describe('Mail confirmation', () => {
 
     test('should fail if the confirmation is expired', async () => {
         const user = await generator.createUser({ mail_confirmed_at: null });
-        const confirmation = await generator.createMailConfirmation({ expires_at: moment().subtract(1, 'day').toDate() }, user);
+        const confirmation = await generator.createMailConfirmation(user, { expires_at: moment().subtract(1, 'day').toDate() });
 
         const res = await request({
             uri: '/confirm-email',
@@ -62,7 +62,7 @@ describe('Mail confirmation', () => {
 
     test('should succeed if everything is okay', async () => {
         const user = await generator.createUser({ mail_confirmed_at: null });
-        const confirmation = await generator.createMailConfirmation({ expires_at: moment().add(1, 'day').toDate() }, user);
+        const confirmation = await generator.createMailConfirmation(user, { expires_at: moment().add(1, 'day').toDate() });
 
         const res = await request({
             uri: '/confirm-email',
