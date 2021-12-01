@@ -1,3 +1,10 @@
+## [0.15.2](https://github.com/AEGEE/mailer/compare/0.15.1...0.15.2) (2021-12-01)
+
+
+### Bug Fixes
+
+* **deps:** update CI config and update deps ([#82](https://github.com/AEGEE/mailer/issues/82)) ([b4ce9e1](https://github.com/AEGEE/mailer/commit/b4ce9e1356de88feae3d408bca7f303532ca1e84))
+
 ## [0.15.1](https://github.com/AEGEE/mailer/compare/0.15.0...0.15.1) (2021-05-31)
 
 
