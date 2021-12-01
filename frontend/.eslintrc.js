@@ -41,9 +41,17 @@ module.exports = {
     'arrow-body-style': 'off',
     'import/no-extraneous-dependencies': 'off',
     'dot-notation': 'off',
-    'vue/no-mutating-props': 'off'
+    'vue/no-mutating-props': 'off',
+    'vue/multi-word-component-names': 'off',
+    'vuejs-accessibility/accessible-emoji': 'off',
+    'vuejs-accessibility/alt-text': 'off',
+    'vuejs-accessibility/anchor-has-content': 'off',
+    'vuejs-accessibility/click-events-have-key-events': 'off',
+    'vuejs-accessibility/form-control-has-label': 'off',
+    'vuejs-accessibility/label-has-for': 'off',
+    'vuejs-accessibility/interactive-supports-focus': 'off'
   },
   parserOptions: {
-    parser: 'babel-eslint'
+    parser: '@babel/eslint-parser'
   }
 }
