@@ -84,7 +84,7 @@
               <tbody>
                 <tr>
                   <th>Profile link</th>
-                  <td>/members/<span data-cy="username">{{ user.username || user.id }}</span></td>
+                  <td><router-link :to="{ name: 'oms.members.view', params: { id: user.username || user.id } }"><span data-cy="username">https://my.aegee.eu/members/{{ user.username || user.id }}</span></router-link></td>
                 </tr>
                 <tr>
                   <th>Primary body</th>
