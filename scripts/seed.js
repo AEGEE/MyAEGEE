@@ -801,6 +801,12 @@ async function createPermissions() {
             object: 'member',
             scope: 'global',
             description: 'Allows to confirm unconfirmed users manually'
+        },
+        {
+            action: 'update_superadmin',
+            object: 'member',
+            scope: 'global',
+            description: 'Allows to add or remove superadmin powers to any user in the system'
         }
     ], { individualHooks: true, validate: true });
 

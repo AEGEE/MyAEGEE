@@ -65,7 +65,10 @@ const User = sequelize.define('user', {
     superadmin: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: false
+        defaultValue: false,
+        validate: {
+            isBoolean: { msg: 'Superadmin should be valid.' }
+        }
     },
     privacy_consent: {
         type: Sequelize.DATE,
