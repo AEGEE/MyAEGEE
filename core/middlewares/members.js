@@ -173,6 +173,18 @@ exports.setUserActive = async (req, res) => {
     });
 };
 
+exports.setUserSuperadmin = async (req, res) => {
+    if (!req.permissions.hasPermission('global:update_superadmin:member')) {
+        return errors.makeForbiddenError(res, 'Permission global:update_superadmin:member is required, but not present.');
+    }
+
+    await req.currentUser.update({ superadmin: req.body.superadmin });
+    return res.json({
+        success: true,
+        data: req.currentUser
+    });
+};
+
 exports.confirmUser = async (req, res) => {
     if (!req.permissions.hasPermission('global:confirm:member')) {
         return errors.makeForbiddenError(res, 'Permission global:confirm:member is required, but not present.');
