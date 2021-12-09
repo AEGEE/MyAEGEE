@@ -1,3 +1,10 @@
+## [1.33.5](https://github.com/AEGEE/frontend/compare/1.33.4...1.33.5) (2021-12-09)
+
+
+### Bug Fixes
+
+* **members:** provide full profile link ([#1239](https://github.com/AEGEE/frontend/issues/1239)) ([41754ac](https://github.com/AEGEE/frontend/commit/41754ac62d149d370595ab3fd64f63200ee03857))
+
 ## [1.33.4](https://github.com/AEGEE/frontend/compare/1.33.3...1.33.4) (2021-12-01)
 
 
