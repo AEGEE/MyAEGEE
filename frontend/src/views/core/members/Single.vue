@@ -64,6 +64,18 @@
             </a>
           </div>
 
+          <div class="field is-grouped" v-if="can.setSuperadmin">
+            <a v-if="!user.superadmin" class="button is-fullwidth is-danger" :class="{'is-loading': isSwitchingSuperadmin }" @click="askToggleSuperadmin()">
+              <span>Add superadmin status</span>
+              <span class="icon"><font-awesome-icon icon="plus" /></span>
+            </a>
+
+            <a v-if="user.superadmin" class="button is-fullwidth is-danger" :class="{'is-loading': isSwitchingSuperadmin }" @click="askToggleSuperadmin()">
+              <span>Remove superadmin status</span>
+              <span class="icon"><font-awesome-icon icon="minus" /></span>
+            </a>
+          </div>
+
           <div class="field is-grouped" v-if="can.delete">
             <a class="button is-fullwidth is-danger" @click="askDeleteUser()">
               <span>Delete profile</span>
@@ -212,6 +224,7 @@ export default {
       can: {
         edit: false,
         setActive: false,
+        setSuperadmin: false,
         delete: false
       }
     }
@@ -275,6 +288,29 @@ export default {
         this.isSwitchingStatus = false
       })
     },
+    askToggleSuperadmin () {
+      const superadmin = this.user.superadmin
+      this.$buefy.dialog.confirm({
+        title: superadmin ? 'Remove superadmin status' : 'Add superadmin status',
+        message: 'Are you sure you want to <b>' + (superadmin ? 'remove superadmin status' : 'add superadmin status') + '</b> for this user?',
+        confirmText: superadmin ? 'Remove superadmin status' : 'Add superadmin status',
+        type: 'is-danger',
+        icon: 'exclamation-circle',
+        hasIcon: true,
+        onConfirm: () => this.toggleSuperadmin()
+      })
+    },
+    toggleSuperadmin () {
+      this.isSwitchingSuperadmin = true
+      this.axios.put(this.services['core'] + '/members/' + this.user.id + '/superadmin', { superadmin: !this.user.superadmin }).then((response) => {
+        this.user.superadmin = response.data.data.superadmin
+        this.$root.showSuccess('User has ' + (this.user.superadmin ? '' : 'no ') + 'superadmin powers')
+        this.isSwitchingSuperadmin = false
+      }).catch((err) => {
+        this.$root.showError('Error changing superadmin powers', err)
+        this.isSwitchingSuperadmin = false
+      })
+    },
     askChangeEmail () {
       this.$buefy.dialog.prompt({
         message: 'Change email',
@@ -325,6 +361,7 @@ export default {
         // set the permission to true if at least one set of permissions have
         // the required permission (either first for global, or others for local).
         this.can.setActive = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('update_active:member')))
+        this.can.setSuperadmin = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('update_superadmin:member')))
         this.can.edit = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('update:member'))) || this.isOwnProfile
         this.can.delete = responses.some(list => list.data.data.some(permission => permission.combined.endsWith('delete:member')))
 
