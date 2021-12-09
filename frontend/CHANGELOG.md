@@ -1,3 +1,10 @@
+## [1.33.6](https://github.com/AEGEE/frontend/compare/1.33.5...1.33.6) (2021-12-09)
+
+
+### Bug Fixes
+
+* **superadmin:** add superadmin buttons ([#1235](https://github.com/AEGEE/frontend/issues/1235)) ([6476e49](https://github.com/AEGEE/frontend/commit/6476e491c7026d01378513d804b903d59f1fcac4))
+
 ## [1.33.5](https://github.com/AEGEE/frontend/compare/1.33.4...1.33.5) (2021-12-09)
 
 
