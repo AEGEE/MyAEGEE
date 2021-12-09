@@ -1,3 +1,10 @@
+## [1.36.8](https://github.com/AEGEE/core/compare/1.36.7...1.36.8) (2021-12-09)
+
+
+### Bug Fixes
+
+* **superadmin:** add endpoint for superadmin ([#400](https://github.com/AEGEE/core/issues/400)) ([493552d](https://github.com/AEGEE/core/commit/493552d00292ddf79d9cc26772b6c0f7597432ea))
+
 ## [1.36.7](https://github.com/AEGEE/core/compare/1.36.6...1.36.7) (2021-12-01)
 
 
