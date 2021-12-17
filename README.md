@@ -12,8 +12,9 @@ It makes use of docker, and docker-compose.
 ## Pre-requisites: installations required
 
 Install
-1. First [Virtualbox](https://www.virtualbox.org/wiki/Downloads), 
-2. then [Vagrant](https://www.vagrantup.com/downloads.html). 
+1. First [Git](https://git-scm.com/downloads) (you might already have Git installed through other sources if you worked with git/GitHub before)
+2. then [Virtualbox](https://www.virtualbox.org/wiki/Downloads), 
+3. and finally [Vagrant](https://www.vagrantup.com/downloads.html). 
 
 Even if you have a linux box, this is **very** recommended. If you decide to not do it, *sigh...* but don't come to cry to us.
 
