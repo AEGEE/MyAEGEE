@@ -27,6 +27,18 @@ jobs:
           path: ~/reports
       - store_artifacts:
           path: ~/reports
+  db-recreate:
+    docker:
+      - image: cimg/node:16.13.0
+      - image: circleci/postgres:10.18
+        environment:
+          POSTGRES_PASSWORD: config.test.postgres.password
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Run db:recreate
+          command: NODE_ENV=test npm run db:recreate
   build:
     docker:
       - image: cimg/base:2021.10
@@ -217,6 +229,7 @@ workflows:
           filters:
             branches:
               ignore: master
+      - db-recreate
   test:
     jobs:
       - test

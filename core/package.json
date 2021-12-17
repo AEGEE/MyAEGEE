@@ -35,6 +35,7 @@
     "db:migrate": "sequelize db:migrate",
     "db:seed": "LOGLEVEL=info node --experimental-repl-await scripts/seed.js && touch state/.seed-executed-$NODE_ENV",
     "db:clear": "LOGLEVEL=info node  --experimental-repl-await scripts/clear.js; rm -f state/.seed-executed-$NODE_ENV",
+    "db:recreate": "npm run db:setup && npm run db:seed",
     "cli": "node --experimental-repl-await -r ./cli.js",
     "open-coverage": "open-cli coverage/lcov-report/index.html",
     "prepare": "husky install"
