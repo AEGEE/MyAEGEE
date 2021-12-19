@@ -26,6 +26,11 @@ exports.getDefaultQuery = (req) => {
         queryObj.where.type = Array.isArray(req.query.type) ? { [Sequelize.Op.in]: req.query.type } : req.query.type;
     }
 
+    // If event season is set, filter on it.
+    if (req.query.season) {
+        queryObj.where.season = parseInt(req.query.season, 10);
+    }
+
     // Filtering by event start and end dates.
     // The events are not inclusive, so when the event starts on 2018-01-02 and ends on 2018-01-17, querying
     // from 2018-01-05 to 2018-01-10 won't return it.

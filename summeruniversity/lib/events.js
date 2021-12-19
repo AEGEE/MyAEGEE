@@ -144,6 +144,10 @@ exports.addEvent = async (req, res) => {
 
     data.status = 'first submission';
 
+    if (!data.season) {
+        data.season = 2022;
+    }
+
     const event = new Event(data);
 
     // we'll catch these on validation inside the Event model.
@@ -239,6 +243,10 @@ exports.editEvent = async (req, res) => {
     delete data.status;
     delete data.deleted;
     delete data.published;
+
+    if (!data.season) {
+        data.season = 2022;
+    }
 
     if (Object.keys(data).length === 0) {
         return errors.makeValidationError(res, 'No valid field changes requested');
