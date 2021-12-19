@@ -1,3 +1,10 @@
+## [1.4.10](https://github.com/AEGEE/summeruniversity/compare/1.4.9...1.4.10) (2021-12-19)
+
+
+### Bug Fixes
+
+* **event:** add seasons ([#223](https://github.com/AEGEE/summeruniversity/issues/223)) ([5801e2f](https://github.com/AEGEE/summeruniversity/commit/5801e2f429687e2f05d768a99a85f8bc33c73dd8))
+
 ## [1.4.9](https://github.com/AEGEE/summeruniversity/compare/1.4.8...1.4.9) (2021-11-17)
 
 
