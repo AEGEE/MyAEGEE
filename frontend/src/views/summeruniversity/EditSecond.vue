@@ -52,6 +52,17 @@
           <p class="help is-danger" v-if="errors.type">{{ errors.type.join(', ') }}</p>
         </div>
 
+        <div class="field" v-if="can.editSeason">
+          <label class="label">Season <span class="has-text-danger">*</span></label>
+          <div class="select">
+              <select v-model="season">
+                <option value="2021">2021</option>
+                <option selected value="2022">2022</option>
+              </select>
+          </div>
+          <p class="help is-danger" v-if="errors.season">{{ errors.season.join(', ') }}</p>
+        </div>
+
         <div class="field">
           <label class="checkbox">
             <strong>Our SU has university support </strong>
@@ -502,7 +513,8 @@ export default {
       courseLevels: constants.SUMMERUNIVERSITY_COURSE_LEVELS,
       file: null,
       can: {
-        editEventType: false
+        editEventType: false,
+        editSeason: false
       },
       errors: {},
       isLoading: false,
@@ -699,11 +711,13 @@ export default {
   mounted () {
     this.axios.get(this.services['core'] + '/my_permissions/').then((response) => {
       this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
+      this.can.editSeason = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_season'))
 
       return this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id).then((eventsResponse) => {
         this.event = eventsResponse.data.data
         this.can = eventsResponse.data.permissions
         this.can.editEventType = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_type'))
+        this.can.editSeason = response.data.data.some(permission => permission.combined.endsWith('global:edit:su_season'))
 
         for (const organizer of this.event.organizers) {
           this.axios.get(this.services['core'] + '/members/' + organizer.user_id).then((organizerResponse) => {

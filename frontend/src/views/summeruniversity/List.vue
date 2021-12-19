@@ -27,6 +27,18 @@
         </div>
 
         <div class="field">
+          <label class="label">Select year</label>
+          <div class="control">
+            <div class="select">
+              <select v-model="season" @change="refetch()">
+                <option value="2021">2021</option>
+                <option selected value="2022">2022</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
           <label class="label">Event types</label>
           <label v-for="(value, index) in eventTypes" v-bind:key="index">
             <input class="checkbox" type="checkbox" v-model="value.enabled" @change="refetch()" />
@@ -152,6 +164,7 @@ export default {
       eventTypes,
       eventTypesNames: constants.SUMMERUNIVERSITY_TYPES_NAMES,
       applicationStatuses,
+      season: 2022,
       isLoading: {
         events: false,
         permissions: false
@@ -174,7 +187,8 @@ export default {
         limit: this.limit,
         offset: this.offset,
         type: this.eventTypes.filter(type => type.enabled).map(type => type.value),
-        application_status: this.applicationStatuses.filter(type => type.enabled).map(type => type.value)
+        application_status: this.applicationStatuses.filter(type => type.enabled).map(type => type.value),
+        season: this.season
       }
 
       if (!this.displayPast) queryObj.starts = moment().format('YYYY-MM-DD')
