@@ -1,3 +1,10 @@
+## [1.33.7](https://github.com/AEGEE/frontend/compare/1.33.6...1.33.7) (2021-12-19)
+
+
+### Bug Fixes
+
+* **su:** add seasons ([#1253](https://github.com/AEGEE/frontend/issues/1253)) ([44764a8](https://github.com/AEGEE/frontend/commit/44764a881e367da982f3d48148f6a27ee8013ecb))
+
 ## [1.33.6](https://github.com/AEGEE/frontend/compare/1.33.5...1.33.6) (2021-12-09)
 
 
