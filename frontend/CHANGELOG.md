@@ -1,3 +1,10 @@
+## [1.33.8](https://github.com/AEGEE/frontend/compare/1.33.7...1.33.8) (2021-12-25)
+
+
+### Bug Fixes
+
+* **body:** validate body code to be 3 letters ([#1254](https://github.com/AEGEE/frontend/issues/1254)) ([a59071a](https://github.com/AEGEE/frontend/commit/a59071ab50eaf88d78901c5d31766cb2dde88153))
+
 ## [1.33.7](https://github.com/AEGEE/frontend/compare/1.33.6...1.33.7) (2021-12-19)
 
 
