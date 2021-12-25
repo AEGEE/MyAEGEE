@@ -69,7 +69,7 @@
         <div class="field">
           <label class="label">Body code <span class="has-text-danger">*</span></label>
           <div class="control">
-            <input class="input" type="text" required :disabled="!can.editCode" v-model="body.code" />
+            <input class="input" type="text" required :disabled="!can.editCode" v-model="body.code" pattern="[A-Za-z]{3}" title="Body code should contain only 3 letters"/>
           </div>
           <p class="help is-danger" v-if="errors.code">{{ errors.code.join(', ')}}</p>
         </div>
