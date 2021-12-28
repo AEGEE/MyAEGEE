@@ -56,7 +56,7 @@ exports.createMailConfirmation = (user = null, options = {}) => {
 exports.generateBody = (options = {}) => {
     if (notSet(options.name)) options.name = faker.name.firstName();
     if (notSet(options.description)) options.description = faker.lorem.paragraph();
-    if (notSet(options.code)) options.code = faker.random.alphaNumeric(16);
+    if (notSet(options.code)) options.code = faker.random.alpha(3);
     if (notSet(options.email)) options.email = faker.internet.email();
     if (notSet(options.phone)) options.phone = faker.phone.phoneNumber();
     if (notSet(options.address)) options.address = faker.lorem.paragraph();
