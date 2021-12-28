@@ -13,9 +13,8 @@ const AccessToken = sequelize.define('access_token', {
     value: {
         type: Sequelize.TEXT,
         allowNull: false,
-        defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Value should be set.' },
+            notEmpty: { msg: 'Value must be set.' },
         },
         unique: true
     },

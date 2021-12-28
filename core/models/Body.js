@@ -4,17 +4,15 @@ const Body = sequelize.define('body', {
     name: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Name should be set.' },
+            notEmpty: { msg: 'Name must be set.' },
         }
     },
     description: {
         type: Sequelize.TEXT,
         allowNull: false,
-        defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Description should be set.' },
+            notEmpty: { msg: 'Description must be set.' },
         }
     },
     task_description: {
@@ -26,9 +24,9 @@ const Body = sequelize.define('body', {
         type: Sequelize.STRING,
         allowNull: false,
         validate: {
-            notEmpty: { msg: 'Code should be set.' },
-            isAlpha: { msg: 'Code should contains only letters.' },
-            len: { args: [3, 3], msg: 'Code should be 3 letters long.' }
+            notEmpty: { msg: 'Code must be set.' },
+            isAlpha: { msg: 'Code must contain only letters.' },
+            len: { args: [3, 3], msg: 'Code must be 3 letters long.' }
         },
         unique: true
     },
@@ -40,24 +38,23 @@ const Body = sequelize.define('body', {
     email: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Email should be set.' },
-            isEmail: { msg: 'Email should be valid.' }
+            notEmpty: { msg: 'Email must be set.' },
+            isEmail: { msg: 'Email must be valid.' }
         }
     },
     phone: {
         type: Sequelize.STRING,
         allowNull: true,
         validate: {
-            notEmpty: { msg: 'Phone should be set.' },
+            notEmpty: { msg: 'Phone must be set.' },
         }
     },
     address: {
         type: Sequelize.TEXT,
         allowNull: true,
         validate: {
-            notEmpty: { msg: 'Address should be set.' },
+            notEmpty: { msg: 'Address must be set.' },
         }
     },
     postal_address: {
@@ -71,7 +68,7 @@ const Body = sequelize.define('body', {
         validate: {
             isIn: {
                 args: [['antenna', 'contact antenna', 'contact', 'interest group', 'working group', 'commission', 'committee', 'project', 'partner', 'other']],
-                msg: 'Type should be one of these: "antenna", "contact antenna", "contact", "interest group", "working group", "commission", "committee", "project", "partner", "other".'
+                msg: 'Type must be one of these: "antenna", "contact antenna", "contact", "interest group", "working group", "commission", "committee", "project", "partner", "other".'
             }
         }
     },
@@ -91,7 +88,7 @@ const Body = sequelize.define('body', {
         validate: {
             isValid(value) {
                 if (['antenna', 'contact antenna', 'contact'].includes(this.type) && value === null) {
-                    throw new Error('Foundation date should be set');
+                    throw new Error('Foundation date must be set');
                 }
             }
         }
@@ -103,7 +100,7 @@ const Body = sequelize.define('body', {
         validate: {
             isIn: {
                 args: [['active', 'deleted']],
-                msg: 'Status should be one of these: "active", "deleted".'
+                msg: 'Status must be one of these: "active", "deleted".'
             }
         }
     },
@@ -119,7 +116,7 @@ const Body = sequelize.define('body', {
         type: Sequelize.STRING,
         allowNull: true,
         validate: {
-            isEmail: { msg: 'GSuite ID should be a valid email.' }
+            isEmail: { msg: 'GSuite ID must be a valid email.' }
         },
         unique: true
     }
