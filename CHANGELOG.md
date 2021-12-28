@@ -1,3 +1,10 @@
+## [1.36.9](https://github.com/AEGEE/core/compare/1.36.8...1.36.9) (2021-12-28)
+
+
+### Bug Fixes
+
+* **body:** validate body code to be 3 letters ([#409](https://github.com/AEGEE/core/issues/409)) ([3203716](https://github.com/AEGEE/core/commit/3203716848860a8c55bc8dc5410b2911a745ce3a))
+
 ## [1.36.8](https://github.com/AEGEE/core/compare/1.36.7...1.36.8) (2021-12-09)
 
 
