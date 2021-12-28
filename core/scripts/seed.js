@@ -51,13 +51,26 @@ async function createBodies() {
         'Other'
     ];
 
+    const codes = [
+        'ANT',
+        'COA',
+        'CON',
+        'INT',
+        'WRK',
+        'COS',
+        'COT',
+        'PRO',
+        'PAR',
+        'OTH'
+    ];
+
     const bodies = [];
 
-    for (const type of types) {
+    types.forEach(async (type, i) => {
         const typeLowerCase = type.toLowerCase();
         bodies.push(await Body.create({
             name: 'AEGEE-' + type,
-            code: type.toUpperCase().replace(' ', '-'),
+            code: codes[i],
             description: type,
             type: typeLowerCase,
             phone: '1-800-111-11-11',
@@ -65,8 +78,7 @@ async function createBodies() {
             founded_at: '1970-01-01',
             email: typeLowerCase.replace(' ', '') + '@example.com'
         }));
-    }
-
+    });
     return bodies;
 }
 

@@ -101,9 +101,9 @@ describe('Unique indexes', () => {
     describe('Bodies', () => {
         describe('Body code', () => {
             test('should be unique', async () => {
-                await generator.createBody({ code: 'test' });
+                await generator.createBody({ code: 'tet' });
                 try {
-                    await generator.createBody({ code: 'test' });
+                    await generator.createBody({ code: 'tet' });
                     expect(1).toEqual(0);
                 } catch (err) {
                     expect(err).toHaveProperty('errors');
@@ -114,9 +114,9 @@ describe('Unique indexes', () => {
             });
 
             test('should be unique case-insensitive', async () => {
-                await generator.createBody({ code: 'test' });
+                await generator.createBody({ code: 'tst' });
                 try {
-                    await generator.createBody({ code: 'TEST' });
+                    await generator.createBody({ code: 'TST' });
                     expect(1).toEqual(0);
                 } catch (err) {
                     expect(err).toHaveProperty('errors');
@@ -127,9 +127,9 @@ describe('Unique indexes', () => {
             });
 
             test('should be unique with spaces/tabs', async () => {
-                await generator.createBody({ code: '\t test\t' });
+                await generator.createBody({ code: '\t est\t' });
                 try {
-                    await generator.createBody({ code: 'test' });
+                    await generator.createBody({ code: 'est' });
                     expect(1).toEqual(0);
                 } catch (err) {
                     expect(err).toHaveProperty('errors');

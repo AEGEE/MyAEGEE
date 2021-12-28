@@ -25,9 +25,10 @@ const Body = sequelize.define('body', {
     code: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: '',
         validate: {
             notEmpty: { msg: 'Code should be set.' },
+            isAlpha: { msg: 'Code should contains only letters.' },
+            len: { args: [3, 3], msg: 'Code should be 3 letters long.' }
         },
         unique: true
     },
