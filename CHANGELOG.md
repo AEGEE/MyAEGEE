@@ -1,3 +1,10 @@
+## [1.36.10](https://github.com/AEGEE/core/compare/1.36.9...1.36.10) (2021-12-28)
+
+
+### Bug Fixes
+
+* **bodies:** replace SHOULD with MUST for mandatory requirements ([#414](https://github.com/AEGEE/core/issues/414)) ([f0a1211](https://github.com/AEGEE/core/commit/f0a121109f891c0cf03242355ec9e54607867f3b))
+
 ## [1.36.9](https://github.com/AEGEE/core/compare/1.36.8...1.36.9) (2021-12-28)
 
 
