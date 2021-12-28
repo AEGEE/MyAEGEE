@@ -106,9 +106,8 @@ describe('Bodies testing', () => {
             expect(1).toEqual(0);
         } catch (err) {
             expect(err).toHaveProperty('errors');
-            expect(err.errors.length).toEqual(2);
+            expect(err.errors.length).toEqual(1);
             expect(err.errors[0].path).toEqual('email');
-            expect(err.errors[1].path).toEqual('email');
         }
     });
 
