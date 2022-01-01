@@ -7,7 +7,7 @@ RUN npm set-script prepare "" \
  && npm ci --production \
  && npm run build
 
-FROM nginx:1.21.4-alpine
+FROM nginx:1.21.5-alpine
 
 RUN adduser -D -H -u 1000 -s /bin/bash www-data -G www-data
 
@@ -18,7 +18,7 @@ COPY ./docker/frontend-nginx/sites/default.conf /etc/nginx/sites-available/defau
 # it has some default settings there which result in displaying
 # the default nginx page, which is not what we need
 RUN rm -rf /etc/nginx/conf.d \
- && apk --no-cache add curl=7.79.1-r0 \
+ && apk --no-cache add curl=7.80.0-r0 \
  && chown -R www-data:www-data /usr/app/
 
 WORKDIR /usr/app/src/dist
