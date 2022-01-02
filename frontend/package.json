@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.16.7",
-    "@babel/eslint-parser": "^7.16.3",
+    "@babel/eslint-parser": "^7.16.5",
     "@babel/types": "^7.16.7",
     "@fortawesome/fontawesome-free": "^5.15.4",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
