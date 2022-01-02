@@ -46,7 +46,7 @@
     "dompurify": "^2.3.3",
     "eslint": "^8.6.0",
     "eslint-plugin-cypress": "^2.12.1",
-    "eslint-plugin-vue": "^8.1.1",
+    "eslint-plugin-vue": "^8.2.0",
     "eslint-plugin-vuejs-accessibility": "^1.1.1",
     "ical": "^0.8.0",
     "lodash": "^4.17.21",
