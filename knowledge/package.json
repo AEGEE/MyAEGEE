@@ -51,7 +51,7 @@
     "husky": "^7.0.4",
     "jest": "^27.3.1",
     "jest-junit": "^13.0.0",
-    "lint-staged": "^11.2.6",
+    "lint-staged": "^12.1.5",
     "nock": "^13.2.1",
     "open-cli": "^7.0.1",
     "semantic-release": "^18.0.1"
