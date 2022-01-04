@@ -1,3 +1,10 @@
+## [1.33.9](https://github.com/AEGEE/frontend/compare/1.33.8...1.33.9) (2022-01-04)
+
+
+### Bug Fixes
+
+* **body:** allow email to be null. Fixes HELP-1864 ([#1261](https://github.com/AEGEE/frontend/issues/1261)) ([ca085c5](https://github.com/AEGEE/frontend/commit/ca085c5cc11cbacee81faf9600a79e7a8c1f197a))
+
 ## [1.33.8](https://github.com/AEGEE/frontend/compare/1.33.7...1.33.8) (2021-12-25)
 
 
