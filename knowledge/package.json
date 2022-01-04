@@ -61,7 +61,7 @@
     "body-parser": "^1.19.0",
     "bunyan": "^1.8.15",
     "express": "^4.17.1",
-    "express-promise-router": "^4.1.0",
+    "express-promise-router": "^4.1.1",
     "joi": "^17.4.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
