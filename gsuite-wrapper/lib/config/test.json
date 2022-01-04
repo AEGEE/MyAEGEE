@@ -1,0 +1,10 @@
+{
+    "url": "http://localhost",
+    "port": 8084,
+    "redis": {
+      "host": "localhost",
+      "port": "6379",
+      "lazyConnect": "true"
+    }
+  }
+  

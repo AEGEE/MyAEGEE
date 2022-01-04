@@ -4,7 +4,7 @@ version: "3.4"
 services:
   redis-gsuite-wrapper:
     restart: always
-    image: redis:5-alpine
+    image: redis:6.2.6-alpine
     volumes:
       - redis_gsuite_persistence:/data
 
@@ -20,7 +20,7 @@ services:
       - ./${PATH_GSUITE_WRAPPER}/../lib/config/secrets.json:/usr/app/src/lib/config/secrets.json
     environment:
       NODE_ENV: "${MYAEGEE_ENV}"
-      #BUGSNAG_KEY: "${BUGSNAG_KEY_GSUITE_WRAPPER}"
+      # BUGSNAG_KEY: "${BUGSNAG_KEY_GSUITE_WRAPPER}"
     labels:
       - "traefik.backend=gsuite-wrapper"
       - "traefik.port=8084"

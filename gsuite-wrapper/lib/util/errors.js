@@ -1,33 +1,33 @@
 exports.makeError = (res, statusCode, err, message) => {
-  // 3 cases:
-  // 1) 'err' is a string
-  // 2) 'err' is a ValidationError
-  // 3) 'err' is Error
+    // 3 cases:
+    // 1) 'err' is a string
+    // 2) 'err' is a ValidationError
+    // 3) 'err' is Error
 
-  // If the error is a string, just forward it to user.
-  if (typeof err === 'string') {
+    // If the error is a string, just forward it to user.
+    if (typeof err === 'string') {
+        return res.status(statusCode).json({
+            success: false,
+            message: err,
+        });
+    }
+
+    const msgText = message ? message + ' ' + err.message : err.message;
+
+    // If the error is ValidationError, pass the errors details to the user.
+    if (err.name && err.name === 'ValidationError') {
+        return res.status(statusCode).json({
+            success: false,
+            message: msgText,
+            errors: err.errors,
+        });
+    }
+
+    // Otherwise, just pass the error message.
     return res.status(statusCode).json({
-      success: false,
-      message: err,
+        success: false,
+        message: msgText,
     });
-  }
-
-  const msgText = message ? message + ' ' + err.message : err.message;
-
-  // If the error is ValidationError, pass the errors details to the user.
-  if (err.name && err.name === 'ValidationError') {
-    return res.status(statusCode).json({
-      success: false,
-      message: msgText,
-      errors: err.errors,
-    });
-  }
-
-  // Otherwise, just pass the error message.
-  return res.status(statusCode).json({
-    success: false,
-    message: msgText,
-  });
 };
 
 exports.makeUnauthorizedError = (res, err, message) => exports.makeError(res, 401, err, message);

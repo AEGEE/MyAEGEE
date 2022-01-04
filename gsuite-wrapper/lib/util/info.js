@@ -1,4 +1,3 @@
-'use strict';
 const os = require('os');
 
 // Assuming by default that we run in 'development' environment, if no

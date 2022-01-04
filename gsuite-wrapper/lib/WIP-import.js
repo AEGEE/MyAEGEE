@@ -1,5 +1,5 @@
 // 'use strict'
-// const {runGsuiteOperation, gsuiteOperations} = require('./google-suite.js');
+// const {runGsuiteOperation, gsuiteOperations} = require('./google-suite');
 
 // const requestPromise = require('request-promise-native');
 
@@ -67,7 +67,6 @@
 //   });
 // }
 
-
 // map_existing_users();
 
 // // function create_account_for_the_others (){
@@ -80,4 +79,3 @@
 // // }
 
 // // create_account_for_the_others ();
-

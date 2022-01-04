@@ -7,7 +7,7 @@ services:
       context: ./${PATH_GSUITE_WRAPPER}/..
       dockerfile: ./docker/Dockerfile
     image: aegee/gsuite-wrapper:dev
-    #command: sh -c "sh /usr/app/scripts/bootstrap.sh && nodemon -L -e 'js,json' lib/run.js | bunyan --color"
+    # command: sh -c "sh /usr/app/scripts/bootstrap.sh && nodemon -L -e 'js,json' lib/run.js | bunyan --color"
     # volumes:
     #   - ./${PATH_GSUITE_WRAPPER}/../config/:/usr/app/src/config
     #   - ./${PATH_GSUITE_WRAPPER}/../lib/:/usr/app/src/lib
