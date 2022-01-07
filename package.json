@@ -13,7 +13,7 @@
     "conventional-changelog": "^3.1.25",
     "eslint": "^8.5.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-import": "^2.25.4",
     "faker": "^5.5.3",
     "husky": "^7.0.4",
     "jest": "^27.4.7",
