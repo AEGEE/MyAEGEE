@@ -19,7 +19,7 @@
     "jest": "^27.4.7",
     "jest-junit": "^13.0.0",
     "lint-staged": "^12.1.6",
-    "nock": "^13.2.1",
+    "nock": "^13.2.2",
     "nyc": "^15.1.0",
     "open-cli": "^7.0.1",
     "semantic-release": "^18.0.1"
