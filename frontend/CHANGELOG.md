@@ -1,3 +1,10 @@
+## [1.33.10](https://github.com/AEGEE/frontend/compare/1.33.9...1.33.10) (2022-01-26)
+
+
+### Bug Fixes
+
+* **map:** fix single location centering. Fixes HELP-1897 ([#1260](https://github.com/AEGEE/frontend/issues/1260)) ([2f080c0](https://github.com/AEGEE/frontend/commit/2f080c001be55eb24a8b6c565aee17ede0da3484))
+
 ## [1.33.9](https://github.com/AEGEE/frontend/compare/1.33.8...1.33.9) (2022-01-04)
 
 
