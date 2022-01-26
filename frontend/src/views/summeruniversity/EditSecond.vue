@@ -688,7 +688,10 @@ export default {
 
       // if it's a single point, then just centering on it
       if (this.event.locations.length === 1) {
-        this.map.actions.flyTo({ center: this.event.locations[0].position })
+        this.map.actions.jumpTo({
+          center: this.event.locations[0].position,
+          zoom: 10
+        })
         return
       }
 
