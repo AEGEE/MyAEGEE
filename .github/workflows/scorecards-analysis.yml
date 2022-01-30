@@ -3,9 +3,11 @@ on:
   # Only the default branch is supported.
   branch_protection_rule:
   schedule:
-    - cron: '20 0 * * 6'
+    - cron: '24 5 * * 5'
   push:
-    branches: [ master ]
+    branches: [master]
+  pull_request:
+    branches: [master]
 
 # Declare default permissions as read only.
 permissions: read-all
