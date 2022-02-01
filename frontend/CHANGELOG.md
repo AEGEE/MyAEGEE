@@ -1,3 +1,10 @@
+## [1.33.11](https://github.com/AEGEE/frontend/compare/1.33.10...1.33.11) (2022-02-01)
+
+
+### Bug Fixes
+
+* **resources:** add ASRF form ([#1290](https://github.com/AEGEE/frontend/issues/1290)) ([b62b01c](https://github.com/AEGEE/frontend/commit/b62b01c7d867fee5ff73c6e82c47d9d42b7b2aa2))
+
 ## [1.33.10](https://github.com/AEGEE/frontend/compare/1.33.9...1.33.10) (2022-01-26)
 
 
