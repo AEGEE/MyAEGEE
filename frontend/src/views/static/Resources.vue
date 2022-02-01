@@ -70,12 +70,6 @@ export default {
             color: '#4CA0FF'
           },
           {
-            url: 'https://aegee.blogactiv.eu/',
-            title: 'External Blog',
-            description: 'Blog hosted on Blogactiv platform',
-            color: '#4CA0FF'
-          },
-          {
             url: 'https://aegee.us7.list-manage.com/subscribe?u=7a170c64e0d3990f3f6629d21&id=fc8908d780',
             title: 'External Newsletter',
             description: 'Bi-monthly newsletter for Partners & Supporters',
@@ -153,6 +147,12 @@ export default {
             url: 'https://podio.com/webforms/13269615/901752',
             title: 'CD House Guest Request',
             description: 'Visiting the CD house',
+            color: '#FFDB4C'
+          },
+          {
+            url: 'https://forms.gle/ZMfSByo5QEUAwoY4A',
+            title: 'ASRF Application Form',
+            description: 'Apply for the AEGEE Social Responsibility Fund',
             color: '#FFDB4C'
           }
         ],
