@@ -46,7 +46,7 @@
     "@bugsnag/js": "^7.14.1",
     "body-parser": "^1.19.0",
     "bunyan": "^1.8.15",
-    "express": "^4.17.2",
+    "express": "^4.17.3",
     "express-promise-router": "^4.1.1",
     "express-query-boolean": "^2.0.0",
     "file-type": "^16.5.3",
