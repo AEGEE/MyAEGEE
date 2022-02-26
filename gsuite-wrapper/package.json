@@ -25,7 +25,7 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "@commitlint/config-conventional": "^16.0.0",
+    "@commitlint/config-conventional": "^16.2.1",
     "@semantic-release/changelog": "^6.0.1",
     "@semantic-release/git": "^10.0.1",
     "chai": "^4.3.4",
