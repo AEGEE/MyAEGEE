@@ -1,3 +1,10 @@
+## [1.4.11](https://github.com/AEGEE/summeruniversity/compare/1.4.10...1.4.11) (2022-04-01)
+
+
+### Bug Fixes
+
+* **application:** allow people to apply in 2022 as well ([#285](https://github.com/AEGEE/summeruniversity/issues/285)) ([26c7b63](https://github.com/AEGEE/summeruniversity/commit/26c7b630513aa582f0e6267a92b5944e0441d317))
+
 ## [1.4.10](https://github.com/AEGEE/summeruniversity/compare/1.4.9...1.4.10) (2021-12-19)
 
 
