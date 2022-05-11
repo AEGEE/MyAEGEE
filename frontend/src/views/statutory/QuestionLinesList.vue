@@ -4,6 +4,14 @@
       <div class="tile is-child">
         <div class="title">Question lines list</div>
 
+        <div class="notification is-info" v-if="$route.params.id === 'spring-agora-novi-sad-2022'">
+          Every Agora participant can request a place in the question line in real time by <b>entering the corresponding number</b>.<br>
+          In case you are a visitor, your submitted question line place request will be considered as a request for speaking rights as well.<br>
+          Based on the time left, the Chair will decide how many questions will be accepted and evaluate if they will grant speaking rights to individuals.<br>
+          The questions are not anonymous, the name, Local/Body and participant status of the person asking a question will be visible to everyone else attending the Agora.<br>
+          The Chair reserves the right to delete requests that do not conform to the rules listed underneath this text, are offensive or disrupt the order of the Agora.
+        </div>
+
         <div class="field" v-if="can.manage_question_lines">
           <div class="control">
             <button class="button is-primary" @click="openCreateQuestionLineModal">Create a question line</button>

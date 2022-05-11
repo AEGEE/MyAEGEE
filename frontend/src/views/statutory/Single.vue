@@ -11,12 +11,12 @@
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info">
-          <div class="field is-grouped" v-if="duringAgora">
+          <!-- <div class="field is-grouped" v-if="duringAgora">
             <a href="https://aegeeagora-streaming.westeurope.cloudapp.azure.com/" class="button is-danger is-fullwidth">
               <span>Watch live</span>
               <span class="icon"><font-awesome-icon icon="circle" /></span>
             </a>
-          </div>
+          </div> -->
 
           <div class="field is-grouped" v-if="can.see_applications">
             <router-link :to="{ name: 'oms.statutory.applications', params: { id: event.url || event.id } }" class="button is-fullwidth">
