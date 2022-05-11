@@ -1,3 +1,10 @@
+## [1.33.12](https://github.com/AEGEE/frontend/compare/1.33.11...1.33.12) (2022-05-11)
+
+
+### Bug Fixes
+
+* **question line:** add specific text for Novi Sad ([#1370](https://github.com/AEGEE/frontend/issues/1370)) ([61db7fc](https://github.com/AEGEE/frontend/commit/61db7fc51d91a5f81fc5c906084a3946c07662d1))
+
 ## [1.33.11](https://github.com/AEGEE/frontend/compare/1.33.10...1.33.11) (2022-02-01)
 
 
