@@ -1,4 +1,4 @@
-const faker = require('faker');
+const { faker } = require('@faker-js/faker');
 
 const {
     User,
@@ -26,7 +26,7 @@ exports.generateUser = (options = {}) => {
     if (notSet(options.last_name)) options.last_name = faker.name.lastName();
     if (notSet(options.email)) options.email = faker.internet.email();
     if (notSet(options.gender)) options.gender = faker.random.alphaNumeric(16);
-    if (notSet(options.phone)) options.phone = faker.phone.phoneNumber();
+    if (notSet(options.phone)) options.phone = faker.phone.number();
     if (notSet(options.date_of_birth)) options.date_of_birth = faker.date.past();
     if (notSet(options.about_me)) options.about_me = faker.lorem.paragraph();
     if (notSet(options.address)) options.address = faker.lorem.paragraph();
@@ -58,7 +58,7 @@ exports.generateBody = (options = {}) => {
     if (notSet(options.description)) options.description = faker.lorem.paragraph();
     if (notSet(options.code)) options.code = faker.random.alpha(3);
     if (notSet(options.email)) options.email = faker.internet.email();
-    if (notSet(options.phone)) options.phone = faker.phone.phoneNumber();
+    if (notSet(options.phone)) options.phone = faker.phone.number();
     if (notSet(options.address)) options.address = faker.lorem.paragraph();
     if (notSet(options.founded_at)) options.founded_at = faker.date.past();
 
