@@ -1,3 +1,10 @@
+## [1.33.13](https://github.com/AEGEE/frontend/compare/1.33.12...1.33.13) (2022-09-17)
+
+
+### Bug Fixes
+
+* **statutory:** prefill email and date of birth for candidates ([#1504](https://github.com/AEGEE/frontend/issues/1504)) ([259f0b2](https://github.com/AEGEE/frontend/commit/259f0b2510b298628d95df0728a3b43af7aff67a))
+
 ## [1.33.12](https://github.com/AEGEE/frontend/compare/1.33.11...1.33.12) (2022-05-11)
 
 
