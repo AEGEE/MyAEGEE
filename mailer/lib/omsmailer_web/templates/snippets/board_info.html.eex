@@ -1,0 +1,10 @@
+<ul>
+  <li><strong>Body name: </strong><%= @parameters["body_name"] %></li>
+  <li><strong>Elected date: </strong><%= @parameters["board"]["elected_date"] %></li>
+  <li><strong>Start date: </strong><%= @parameters["board"]["start_date"] %></li>
+  <li><strong>End date: </strong><%= @parameters["board"]["end_date"] %></li>
+  <%= for {other} <- @parameters["positions"] do %>
+    <li><strong><%= other["function"] %> </strong> <%= other["name"] %></li>
+  <% end %>
+  <li><strong>Message: </strong><%= @parameters["board"]["message"] %></li>
+</ul>
