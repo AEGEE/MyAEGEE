@@ -1,4 +1,4 @@
-const { startServer, stopServer } = require('../../lib/server.js');
+const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock');
 
@@ -131,7 +131,6 @@ describe('API requests', () => {
     test('should fail on accessing non-existant endpoint', async () => {
         const res = await request({
             uri: '/nonexistant',
-            method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
 

@@ -1,49 +1,46 @@
 orbs:
-  slack: circleci/slack@3.4.1
+  codecov: codecov/codecov@3.2.0
+  docker: circleci/docker@1.6.0
+  node: circleci/node@4.7.0
+  shellcheck: circleci/shellcheck@2.2.4
+  slack: circleci/slack@4.4.4
 version: 2.1
 jobs:
   test:
-    machine:
-      image: ubuntu-1604:201903-01
+    docker:
+      - image: cimg/node:16.13.0
+      - image: circleci/postgres:10.18
+        environment:
+          POSTGRES_PASSWORD: config.test.postgres.password
+    parallelism: 4
     steps:
       - checkout
-      - run: docker run --name postgres -p 5432:5432 -d postgres:10.6
-      - run:
-          name: Install Node
-          command: |
-            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-            sudo apt-get install -y nodejs
-            echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
-            which node && node -v
-      - run: npm install
+      - node/install-packages
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run tests
-          command: JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm test -- --reporters=default --reporters=jest-junit
-      - run: ./node_modules/.bin/codecov
+          command: |
+            TEST=$(circleci tests glob test/**/*.js | circleci tests split --split-by=timings)
+            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
+      - codecov/upload
       - store_test_results:
           path: ~/reports
       - store_artifacts:
           path: ~/reports
   build:
-    machine:
-      image: ubuntu-1604:201903-01
+    docker:
+      - image: cimg/base:2021.10
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 20.10.7
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache network
   eslint:
-    machine:
-      image: ubuntu-1604:201903-01
+    docker:
+      - image: cimg/node:16.13.0
     steps:
       - checkout
-      - run:
-          name: Install Node
-          command: |
-            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-            sudo apt-get install -y nodejs
-            echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
-            which node && node -v
-      - run: npm install
+      - node/install-packages
       - run: mkdir -p ~/reports
       - run: npm run lint -- --format junit --output-file ~/reports/eslint.xml
       - store_test_results:
@@ -51,54 +48,190 @@ jobs:
       - store_artifacts:
           path: ~/reports
   yamllint:
-    machine:
-      image: ubuntu-1604:201903-01
+    docker:
+      - image: cimg/python:3.10.0
     steps:
       - checkout
       - run: pip install yamllint
       - run: yamllint -d .yamllint.yml .
-  docker-build-and-push:
-    machine:
-      image: ubuntu-1604:201903-01
+  shellcheck:
+    docker:
+      - image: cimg/base:2021.10
     steps:
       - checkout
-      - run:
-          name: Install Node
-          command: |
-            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-            sudo apt-get install -y nodejs
-            echo 'export PATH=/usr/bin:$PATH' >> $BASH_ENV
-            which node && node -v
-      - run: npm install
+      - shellcheck/install
+      - shellcheck/check
+  audit:
+    docker:
+      - image: cimg/node:16.13.0
+    steps:
+      - checkout
+      - run: npm audit --production
+      - slack/notify:
+          event: fail
+          custom: |
+              {
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": ":x: The audit check for `$CIRCLE_PROJECT_REPONAME` has failed."
+                    }
+                  },
+                  {
+                    "type": "section",
+                    "fields": [
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "actions",
+                    "elements": [
+                      {
+                        "type": "button",
+                        "text": {
+                          "type": "plain_text",
+                          "text": "Visit Job"
+                        },
+                        "url": "${CIRCLE_BUILD_URL}"
+                      }
+                    ]
+                  }
+                ]
+              }
+  docker-build-and-push:
+    docker:
+      - image: cimg/node:16.13.0
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.7
+      - node/install-packages
       - run: npx semantic-release
-      - run: docker build  --tag aegee/network:$(node -p "require('./package.json').version") --tag aegee/network:latest -f ./docker/network/Dockerfile .
+      - run: echo export PACKAGE_VERSION=$(node -p "require('./package.json').version") >> $BASH_ENV
+      - run: docker build --tag aegee/network:$PACKAGE_VERSION --tag aegee/network:latest -f docker/network/Dockerfile .
       - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-      - run: docker push aegee/network:$(node -p "require('./package.json').version")
+      - run: docker push aegee/network:$PACKAGE_VERSION
       - run: docker push aegee/network:latest
-      - slack/status:
-          success_message: The Docker image for \`$CIRCLE_PROJECT_REPONAME\` with tags \`$(node -p "require('./package.json').version")\` and \`latest\` has been pushed to Dockerhub.
-          failure_message: The Docker image for \`$CIRCLE_PROJECT_REPONAME\` build and push has failed.
+      - slack/notify:
+          event: pass
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":white_check_mark: The Docker image for `$CIRCLE_PROJECT_REPONAME` with tags `$PACKAGE_VERSION` and `latest` has been pushed to Dockerhub."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":octagonal_sign: The Docker image for `$CIRCLE_PROJECT_REPONAME` build and push has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
 
 workflows:
   version: 2
-  test:
-    jobs:
-      - test
-  eslint:
+  linters:
     jobs:
       - eslint
-  yamllint:
-    jobs:
       - yamllint
+      - shellcheck
+      - docker/hadolint:
+          dockerfiles: $(find . -name '*Dockerfile*')
   build:
     jobs:
       - build:
           filters:
             branches:
               ignore: main
+  test:
+    jobs:
+      - test
   docker-build-and-push:
     jobs:
       - docker-build-and-push:
           filters:
             branches:
               only: main
+  audit:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 5"
+          filters:
+            branches:
+              only: main
+    jobs:
+      - audit

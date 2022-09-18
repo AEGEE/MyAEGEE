@@ -1,4 +1,4 @@
-const { startServer, stopServer } = require('../../lib/server.js');
+const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const mock = require('../scripts/mock');
@@ -17,7 +17,7 @@ describe('Metrics requests', () => {
     });
 
     test('should return data correctly on /metrics', async () => {
-        await generator.createBody();
+        await generator.createBoard();
 
         const res = await request({
             uri: '/metrics',

@@ -1,0 +1,23 @@
+{
+    "success": true,
+    "data": [{
+      "scope": "global",
+      "object": "boards",
+      "id": 1,
+      "filters": [],
+      "description": "Manage boards in network module",
+      "combined": "global:manage_network:boards",
+      "circles": null,
+      "action": "manage_network"
+    },
+    {
+      "scope": "global",
+      "object": "board",
+      "id": 1,
+      "filters": [],
+      "description": "View boards in network module",
+      "combined": "global:view:board",
+      "circles": null,
+      "action": "view"
+    }]
+}

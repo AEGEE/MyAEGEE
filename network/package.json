@@ -7,11 +7,14 @@
     "start": "nodemon -e 'js,json' lib/run.js",
     "nodemon-start": "nodemon -e 'js,json' lib/run.js",
     "lint": "eslint .",
+    "lint-staged": "lint-staged",
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
     "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
-    "open-coverage": "opn coverage/lcov-report/index.html"
+    "test:ci": "NODE_ENV=test npm run db:setup && jest --runInBand --forceExit",
+    "open-coverage": "open-cli coverage/lcov-report/index.html",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "Rik Smale <github.com/WikiRik>",
@@ -20,10 +23,8 @@
     "url": "https://github.com/AEGEE/network/issues"
   },
   "homepage": "https://github.com/AEGEE/network",
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
+  "lint-staged": {
+    "*.{js,jsx}": "eslint"
   },
   "jest": {
     "testEnvironment": "node",
@@ -38,44 +39,41 @@
     ]
   },
   "devDependencies": {
-    "@commitlint/cli": "^12.1.1",
-    "@commitlint/config-conventional": "^12.1.1",
-    "@semantic-release/changelog": "^5.0.1",
-    "@semantic-release/git": "^9.0.0",
-    "codecov": "^3.8.1",
+    "@commitlint/cli": "^15.0.0",
+    "@commitlint/config-conventional": "^15.0.0",
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/git": "^10.0.1",
     "conventional-changelog": "^3.1.24",
-    "eslint": "^7.23.0",
-    "eslint-config-airbnb": "^18.2.1",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-react": "^7.22.0",
-    "faker": "^5.5.2",
-    "husky": "^4.3.7",
-    "jest": "^26.6.3",
-    "jest-junit": "^12.0.0",
-    "nock": "^13.0.11",
+    "eslint": "^8.3.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.3",
+    "faker": "^5.5.3",
+    "husky": "^7.0.4",
+    "jest": "^27.4.3",
+    "jest-junit": "^13.0.0",
+    "lint-staged": "^12.1.2",
+    "nock": "^13.2.1",
     "nyc": "^15.1.0",
-    "open-cli": "^6.0.1",
-    "semantic-release": "^17.4.2"
+    "open-cli": "^7.0.1",
+    "semantic-release": "^18.0.1"
   },
   "dependencies": {
-    "@bugsnag/js": "^7.9.0",
+    "@bugsnag/js": "^7.14.1",
     "body-parser": "^1.19.0",
     "bunyan": "^1.8.15",
-    "deep-assign": "^3.0.0",
     "express": "^4.17.1",
-    "express-promise-router": "^4.1.0",
-    "joi": "^17.4.0",
+    "express-promise-router": "^4.1.1",
+    "joi": "^17.4.3",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "morgan": "^1.10.0",
     "on-finished": "^2.3.0",
-    "pg": "^8.5.1",
-    "prom-client": "^12.0.0",
+    "pg": "^8.7.1",
+    "prom-client": "^14.0.1",
     "request": "^2.88.2",
     "request-promise-native": "^1.0.9",
-    "sequelize": "^6.6.2",
-    "sequelize-cli": "^6.2.0"
+    "sequelize": "^6.11.0",
+    "sequelize-cli": "^6.3.0"
   },
   "release": {
     "branches": [

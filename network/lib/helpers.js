@@ -15,6 +15,20 @@ exports.isNumber = (value) => {
     return false;
 };
 
+exports.getSorting = (query) => {
+    const result = [['id', 'ASC']];
+
+    if (typeof query.sort === 'string') {
+        result[0][0] = query.sort;
+    }
+
+    if (typeof query.direction === 'string' && ['desc', 'asc'].includes(query.direction)) {
+        result[0][1] = query.direction;
+    }
+
+    return result;
+};
+
 // A helper to determine if user has permission.
 function hasPermission(permissionsList, combinedPermission) {
     return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
@@ -22,7 +36,8 @@ function hasPermission(permissionsList, combinedPermission) {
 
 exports.getPermissions = (user, corePermissions) => {
     return {
-        manage_boards: hasPermission(corePermissions, 'manage_network:boards')
+        manage_boards: hasPermission(corePermissions, 'manage_network:boards'),
+        view_board: hasPermission(corePermissions, 'view:board')
     };
 };
 

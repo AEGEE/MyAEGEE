@@ -1,4 +1,4 @@
-const deepAssign = require('deep-assign');
+const lodash = require('lodash');
 
 const config = {
     default: {
@@ -22,6 +22,9 @@ const config = {
             url: 'http://mailer',
             port: 4000
         },
+        new_board_notifications: [
+            'netcommies@aegee.eu'
+        ],
         logger: {
             silent: false,
             level: process.env.LOGLEVEL || 'info'
@@ -65,7 +68,7 @@ let appConfig = config.default || {};
 
 // If we have the environment config, overwrite the config's fields with its fields
 if (config[env]) {
-    appConfig = deepAssign(appConfig, config[env]);
+    appConfig = lodash.merge(appConfig, config[env]);
 }
 
 module.exports = appConfig;

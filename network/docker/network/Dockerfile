@@ -1,25 +1,28 @@
-FROM node:12
+# FIXME use alpine
+FROM node:16.13.0
 
 RUN mkdir -p /usr/app/src \
 	&& mkdir -p /usr/app/media \
 	&& mkdir -p /usr/app/scripts
 
-COPY --chown=node:node package.json /usr/app/src
-
-ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
-ENV PATH="/home/node/.npm-global/bin:${PATH}"
-
-RUN npm install -g --loglevel warn nodemon bunyan && npm cache clean --force
-RUN npm install --loglevel warn
-
+COPY ./docker/network/bootstrap.sh /usr/app/scripts/bootstrap.sh
 COPY . /usr/app/src
 
 RUN chown -R node:node /usr/app
 
+WORKDIR /usr/app/src
+
 USER node
 
-COPY ./docker/network/bootstrap.sh /usr/app/scripts/bootstrap.sh
+ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
+ENV PATH="/home/node/.npm-global/bin:${PATH}"
 
-CMD sh /usr/app/scripts/bootstrap.sh && npm start
+# FIXME remove nodemon for production
+RUN npm install -g nodemon@2.0.14 \
+ && npm install -g bunyan@1.8.15 \
+ && npm cache clean --force \
+ && npm ci
+
+CMD sh /usr/app/scripts/bootstrap.sh && nodemon -e "js,json" lib/run.js
 
 EXPOSE 8084
