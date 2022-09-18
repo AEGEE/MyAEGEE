@@ -1,3 +1,10 @@
+# [0.16.0](https://github.com/AEGEE/mailer/compare/0.15.2...0.16.0) (2022-09-18)
+
+
+### Features
+
+* **board:** add mail netcom new board ([#65](https://github.com/AEGEE/mailer/issues/65)) ([726314c](https://github.com/AEGEE/mailer/commit/726314c58c35416f54fa55e1b07e69f4b60520fd))
+
 ## [0.15.2](https://github.com/AEGEE/mailer/compare/0.15.1...0.15.2) (2021-12-01)
 
 
