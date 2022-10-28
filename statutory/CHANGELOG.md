@@ -1,3 +1,10 @@
+## [1.9.2](https://github.com/AEGEE/statutory/compare/1.9.1...1.9.2) (2022-10-28)
+
+
+### Bug Fixes
+
+* **memberslist:** allow late submissions/edits to memberslist ([#864](https://github.com/AEGEE/statutory/issues/864)) ([a40d557](https://github.com/AEGEE/statutory/commit/a40d5570ae9b50b6ae6bf1394213a3d69fb6c224))
+
 ## [1.9.1](https://github.com/AEGEE/statutory/compare/1.9.0...1.9.1) (2021-11-15)
 
 
