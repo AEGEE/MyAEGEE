@@ -357,8 +357,8 @@ exports.getEventPermissions = (data) => {
     for (const body of bodies) {
         permissions.set_board_comment_and_participant_type[body.id] = event.can_approve_members && approveBodiesList.includes(body.id);
         permissions.see_boardview[body.id] = approveBodiesList.includes(body.id);
-        permissions.upload_memberslist[body.id] = event.can_upload_memberslist && approveBodiesList.includes(body.id) && exports.isLocal(body);
-        permissions.edit_memberslist[body.id] = event.can_edit_memberslist && approveBodiesList.includes(body.id) && exports.isLocal(body);
+        permissions.upload_memberslist[body.id] = (event.can_upload_memberslist || hasPermission(corePermissions, 'memberslist_late:' + event.type)) && approveBodiesList.includes(body.id) && exports.isLocal(body);
+        permissions.edit_memberslist[body.id] = (event.can_edit_memberslist || hasPermission(corePermissions, 'memberslist_late:' + event.type)) && approveBodiesList.includes(body.id) && exports.isLocal(body);
         permissions.see_memberslist[body.id] = approveBodiesList.includes(body.id) && exports.isLocal(body);
     }
 
