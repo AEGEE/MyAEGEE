@@ -3,17 +3,19 @@ version: "3.4"
 services:
 
 ### container administration helper Container #######################################
+  # This is not meant to use in prod! only in local env for newbies
   # to get the password (hashed): (also remember to escape $ with anotehr $)
   #   docker run --rm httpd:2.4-alpine htpasswd -nbB admin 5ecr3t | cut -d ":" -f 2
   portainer:
     restart: "no"
-    image: portainer/portainer:1.22.1
-    # image: portainer/portainer:1.15.5 #they broke the tag
+    image: portainer/portainer:1.25.0
+    #image: portainer/portainer-ce:2.15.0
     command: -H unix:///var/run/docker.sock --admin-password ${PW_TRAEFIK} --logo ${AEGEE_LOGO_B64}  # yamllint disable-line rule:line-length
     expose:
       - "9000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
+      # - portainer-data:/data
     labels:
       - "traefik.enable=true"
       - "traefik.backend=portainer"
@@ -85,6 +87,9 @@ services:
       - traefik.frontend.rule=Host:${SUBDOMAIN_APIDOCS}${BASE_URL}
       - traefik.frontend.priority=20
 
+volumes:
+    portainer-data:
+        driver: local
 
 networks:
   default:
