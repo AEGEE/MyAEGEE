@@ -16,7 +16,7 @@ jobs:
     steps:
       - checkout
       - run: pip install pylint
-      - run: pylint .
+      - run: pylint scripts/notify.py
   shellcheck:
     docker:
       - image: cimg/base:2021.10
