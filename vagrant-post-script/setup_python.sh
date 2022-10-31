@@ -14,6 +14,7 @@ if [[ -z ${VENV} ]]; then # globally deps
   pip install -r "${SCRIPT_DIR}/requirements.txt"
 else
   python3 -m venv myaegee-venv
+  # shellcheck disable=SC1091
   source ./myaegee-venv/bin/activate
   pip install -r "${SCRIPT_DIR}/requirements.txt"
   deactivate
