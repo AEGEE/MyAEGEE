@@ -16,7 +16,8 @@ jobs:
     steps:
       - checkout
       - run: pip install pylint
-      - run: pylint --recursive=y scripts
+      # FIXME: enable W0511 and E0401 as well
+      - run: pylint scripts --disable C0114,C0116,W0511,E0401
   shellcheck:
     docker:
       - image: cimg/base:2021.10
