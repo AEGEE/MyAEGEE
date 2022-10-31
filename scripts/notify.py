@@ -15,9 +15,16 @@ import slack_notifications as slack
 
 #the 4 notification channels:
 # - slack
-# - notifi (works for both phone and mac)
-# - push on the phone (via 'logsnag', pushme disappeared)
+# - notifi (works for both iOS/Android but also MacOS and Linux)
+# - push on the phone (via 'logsnag')
 # - telegram (wip)
+
+# example of tokens.json:
+# {
+#   "slack": "123",            # a single token
+#   "notifi": ["456", "789"],  # an array of tokens
+#   "logsnag": ["910", "111"]  # an array of tokens
+# }
 
 
 token_file = f'{os.path.realpath(os.path.dirname(__file__))}/../secrets/tokens.json'
@@ -42,7 +49,7 @@ def slack_alert():
       author_name=f'Host: {os.uname()[1]}',
       text=EVENT,
       footer='Hope the backup is never needed',
-      color='#37FDFC' if STATUS == "SUCCESS" else "#ff5a36",
+      color='#37FDFC' if STATUS == "SUCCESS" else "#FF5A36",
       fields=[
         slack.Attachment.Field(
             title='Completed at:',
@@ -50,7 +57,6 @@ def slack_alert():
             short=False
         ),
       ],
-      #fallback=EVENT # missing
   )
 
   slack.send_notify('----monitoring', icon_emoji=':shipit:', username='Backup notifier', attachments=[attachment])
