@@ -71,6 +71,7 @@ init_boot ()
     echo "  init cachet files (oms-status/docker/setup.sh)"
     echo "  init grafana config with the slack token (vim monitor/docker/config/gf-provisioning/notifiers/conf.yml)"
     echo "  init prometheus scraping config with the basic auth (vim monitor/docker/config/prometheus.yml)"
+    echo "  install the pip requirement for the python extra scripts (notification): see the script in vagrant-post-scripts"
     touch .init
   else
     echo "already initialised"
