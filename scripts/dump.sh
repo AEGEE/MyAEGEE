@@ -97,11 +97,11 @@ fi
 if [[ ! "$error" == "0" ]]
 then
   echo "$(date +%Y-%m-%dT%H:%M:%S) -- ERROR -- File:${output_file} ; Backup unsuccessful" | tee -a "${log_file}"
-  "${SCRIPT_DIR}"/notify.sh FAILURE
+  "${SCRIPT_DIR}"/notify.py FAILURE
   exit $error
 else
   echo "$(date +%Y-%m-%dT%H:%M:%S) -- INFO -- File:${output_file} ; Backup successful, everything written to ${output_file}" | tee -a "${log_file}"
-  "${SCRIPT_DIR}"/notify.sh SUCCESS
+  "${SCRIPT_DIR}"/notify.py SUCCESS
 fi
 
 #TODO: rsync to bucket. Buckets are cheaper than HDD/SDD storage
