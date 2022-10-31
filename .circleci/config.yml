@@ -10,6 +10,14 @@ jobs:
       - checkout
       - run: pip install yamllint
       - run: yamllint -d .yamllint.yml .
+  pylint:
+    docker:
+      - image: cimg/python:3.10.0
+    steps:
+      - checkout
+      - run: pip install pylint
+      # FIXME: enable W0511 and E0401 as well
+      - run: pylint scripts --disable C0114,C0116,W0511,E0401
   shellcheck:
     docker:
       - image: cimg/base:2021.10
@@ -26,6 +34,9 @@ workflows:
   lint-shell:
     jobs:
       - shellcheck
+  lint-python:
+    jobs:
+      - pylint
   lint-dockerfile:
     jobs:
       - docker/hadolint:
