@@ -10,6 +10,13 @@ jobs:
       - checkout
       - run: pip install yamllint
       - run: yamllint -d .yamllint.yml .
+  pylint:
+    docker:
+      - image: cimg/python:3.10.0
+    steps:
+      - checkout
+      - run: pip install pylint
+      - run: pylint .
   shellcheck:
     docker:
       - image: cimg/base:2021.10
@@ -26,6 +33,9 @@ workflows:
   lint-shell:
     jobs:
       - shellcheck
+  lint-python:
+    jobs:
+      - pylint
   lint-dockerfile:
     jobs:
       - docker/hadolint:
