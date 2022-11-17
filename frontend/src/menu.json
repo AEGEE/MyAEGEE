@@ -215,6 +215,12 @@
         "link": "https://myaegee.atlassian.net/servicedesk/customer/portals",
         "label": "Helpdesk",
         "icon": "question"
+      },
+      {
+        "name": "oms.ideas.platform",
+        "link": "https://aegee.kollaborat.io",
+        "label": "Ideas Platform",
+        "icon": "microphone"
       }
     ]
   },
