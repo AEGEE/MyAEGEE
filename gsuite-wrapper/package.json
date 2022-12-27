@@ -16,7 +16,7 @@
   "dependencies": {
     "body-parser": "^1.19.1",
     "config": "^3.3.6",
-    "express": "^4.17.3",
+    "express": "^4.18.2",
     "express-promise-router": "^4.1.1",
     "googleapis": "^92.0.0",
     "ioredis": "^4.28.2",
