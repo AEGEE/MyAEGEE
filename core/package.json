@@ -21,7 +21,7 @@
     "lint-staged": "^13.1.0",
     "nock": "^13.2.9",
     "nyc": "^15.1.0",
-    "open-cli": "^7.0.1",
+    "open-cli": "^7.1.0",
     "semantic-release": "^19.0.5"
   },
   "scripts": {
