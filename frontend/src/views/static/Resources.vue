@@ -102,6 +102,12 @@ export default {
             color: '#FFDB4C'
           },
           {
+            url: 'https://drive.google.com/drive/folders/1TSLKDPKUFe7k3POjlW1XzJdxgz5mfhrQ',
+            title: 'Strategic Plans & Action Agendas',
+            description: 'Strategic Plans and their Action Agendas',
+            color: '#FFDB4C'
+          },
+          {
             url: 'https://www.facebook.com/groups/aegeeans/',
             title: 'Facebook Group',
             description: 'AEGEE\'s official group on Facebook',
@@ -111,18 +117,6 @@ export default {
             url: 'https://www.zeus.aegee.org/magazine/',
             title: 'The AEGEEan Magazine',
             description: 'AEGEE\'s online Magazine',
-            color: '#FFDB4C'
-          },
-          {
-            url: 'https://drive.google.com/file/d/10iLCFY40_kGATtZLwkwIs0PJwt5VNXX5/view',
-            title: 'Strategic Plan',
-            description: 'Strategic Plan of AEGEE-Europe 2020-2023',
-            color: '#FFDB4C'
-          },
-          {
-            url: 'https://drive.google.com/file/d/1XU-1S_QkPRybkVfgYuFnZvCWfXFcjmjt/view',
-            title: 'Action Agenda',
-            description: 'Action Agenda 2021-2022',
             color: '#FFDB4C'
           },
           {
