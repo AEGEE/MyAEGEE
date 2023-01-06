@@ -5,7 +5,7 @@ defmodule Omsmailer.Mixfile do
     [
       app: :omsmailer,
       version: "0.0.1",
-      elixir: "~> 1.4",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix] ++ Mix.compilers,
       start_permanent: Mix.env == :production,
@@ -35,14 +35,15 @@ defmodule Omsmailer.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.3.1"},
-      {:phoenix_pubsub, "~> 1.0"},
-      {:phoenix_html, "~> 2.10"},
+      {:phoenix, "~> 1.6"},
+      {:phoenix_pubsub, "~> 2.0"},
+      {:phoenix_html, "~> 2.14"},
       {:gettext, "~> 0.11"},
       {:bamboo, "~> 1.1"},
       {:bamboo_smtp, "~> 1.6.0"},
-      {:plug_cowboy, "~> 1.0"},
-      {:cowboy, "~> 1.0"},
+      {:jason, "~> 1.0"},
+      {:plug_cowboy, "~> 2.2"},
+      {:cowboy, "~> 2.7"},
       {:excoveralls, "~> 0.10", only: :test}
     ]
   end

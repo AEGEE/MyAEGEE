@@ -47,6 +47,7 @@ config :omsmailer, Omsmailer.Mailer,
   no_mx_lookups: false # can be `true`
   #auth: :always # can be `always`. If your smtp relay requires authentication set it to `always`.
 
+config :phoenix, :json_library, Jason
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

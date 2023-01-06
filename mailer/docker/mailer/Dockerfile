@@ -1,10 +1,10 @@
-FROM elixir:1.8-alpine
+FROM elixir:1.14-alpine
 
 RUN mkdir -p /usr/src/myapp \
 	&& mkdir -p /usr/src/scripts \
 	&& mix local.hex --force \
   	&& mix local.rebar --force \
-	&& apk add --update --no-cache nodejs nodejs-npm make gcc g++ curl
+	&& apk add --update --no-cache nodejs make gcc g++ curl
 
 WORKDIR /usr/src/myapp
 
