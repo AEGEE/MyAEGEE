@@ -2,20 +2,20 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Ask a question</p>
-      <button class="delete" aria-label="close" @click="$parent.close()"></button>
+      <button class="delete" aria-label="close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
       <div class="notification is-info" v-if="event.url === 'spring-agora-novi-sad-2022'">
-          The requests for a place in a question line for elections are as follows:<br>
-            1 - a question to one candidate<br>
-            2 - a question to more candidates (not a yes or no question)<br>
-            3 - a yes or no question to more candidates<br>
-            4 - more than one question to one candidate<br>
-            5 - more than one question to more candidates<br>
-            <br>
-            The requests for a place in a question line for other topics are as follows:<br>
-            I - Question<br>
-            O - Objection
+        The requests for a place in a question line for elections are as follows:<br>
+        1 - a question to one candidate<br>
+        2 - a question to more candidates (not a yes or no question)<br>
+        3 - a yes or no question to more candidates<br>
+        4 - more than one question to one candidate<br>
+        5 - more than one question to more candidates<br>
+        <br>
+        The requests for a place in a question line for other topics are as follows:<br>
+        I - Question<br>
+        O - Objection
       </div>
       <div class="field">
         <label class="label">Text</label>

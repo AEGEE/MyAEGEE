@@ -13,9 +13,9 @@
         <div class="field">
           <label class="label">Description</label>
           <div class="control">
-            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="integration.description"></textarea>
+            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="integration.description" />
           </div>
-          <label class="label">Preview <MarkdownTooltip/></label>
+          <label class="label">Preview <MarkdownTooltip /></label>
           <div class="content">
             <span v-html="$options.filters.markdown(integration.description)" />
           </div>
@@ -32,7 +32,7 @@
 
         <div class="field has-addons">
           <p class="control">
-            <input class="input" type="number"  v-model.number="integration.quota_amount" placeholder="Amount of codes claimable">
+            <input class="input" type="number" v-model.number="integration.quota_amount" placeholder="Amount of codes claimable">
           </p>
           <p class="control">
             <a class="button is-statuc">
@@ -50,11 +50,11 @@
           </p>
         </div>
 
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+        <b-loading is-full-page="false" :active.sync="isLoading" />
 
         <div class="field">
           <div class="control">
-            <input type="submit" value="Save integration" :disabled="isSaving" class="button is-primary is-fullwidth"/>
+            <input type="submit" value="Save integration" :disabled="isSaving" class="button is-primary is-fullwidth" />
           </div>
         </div>
       </form>

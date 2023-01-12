@@ -95,7 +95,7 @@
                 <tr>
                   <th>Description</th>
                   <td>
-                    <div class="content" v-html="$options.filters.markdown(event.description)"></div>
+                    <div class="content" v-html="$options.filters.markdown(event.description)" />
                   </td>
                 </tr>
                 <tr>
@@ -141,7 +141,7 @@
                 </tr>
                 <tr v-if="event.link_info_travel_country">
                   <th>Useful information to travel to this country</th>
-                  <td><a :href="event.link_info_travel_country" target="_blank">{{ event.link_info_travel_country }}</a>
+                  <td><a :href="event.link_info_travel_country" target="_blank" rel="noopener noreferrer">{{ event.link_info_travel_country }}</a>
                   </td>
                 </tr>
                 <tr>
@@ -176,13 +176,13 @@
                 <tr>
                   <th>Budget link</th>
                   <td>
-                    <a v-if="event.budget" :href="event.budget" target="_blank">{{ event.budget }}</a>
+                    <a v-if="event.budget" :href="event.budget" target="_blank" rel="noopener noreferrer">{{ event.budget }}</a>
                   </td>
                 </tr>
                 <tr>
                   <th>Program link</th>
                   <td>
-                    <a v-if="event.programme" :href="event.programme" target="_blank">{{ event.programme }}</a>
+                    <a v-if="event.programme" :href="event.programme" target="_blank" rel="noopener noreferrer">{{ event.programme }}</a>
                   </td>
                 </tr>
               </tbody>
@@ -232,7 +232,7 @@
       </article>
     </div>
 
-    <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+    <b-loading is-full-page="false" :active.sync="isLoading" />
   </div>
 </template>
 

@@ -13,9 +13,9 @@
         <div class="field">
           <label class="label">Description</label>
           <div class="control">
-            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="campaign.description_long"></textarea>
+            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="campaign.description_long" />
           </div>
-          <label class="label">Preview <MarkdownTooltip/></label>
+          <label class="label">Preview <MarkdownTooltip /></label>
           <div class="content">
             <span v-html="$options.filters.markdown(campaign.description_long)" />
           </div>
@@ -39,42 +39,42 @@
 
         <div class="field">
           <label class="label">Autojoin body</label>
-          <p class="control">
-            <div class="field has-addons">
-              <b-autocomplete
-                v-model="autocompleteCampaign"
-                :data="bodies"
-                :disabled="$route.params.body_id"
-                open-on-focus="true"
-                @select="body => { campaign.autojoin_body_id = body.id; campaign.autojoin_body = body }">
-                <template slot-scope="props">
-                  <div class="media">
-                    <div class="media-content">
-                        {{ props.option.name }}
-                        <br>
-                        <small> {{ props.option.description }} </small>
-                    </div>
+          <p class="control" /><div class="field has-addons">
+            <b-autocomplete
+              v-model="autocompleteCampaign"
+              :data="bodies"
+              :disabled="$route.params.body_id"
+              open-on-focus="true"
+              @select="body => { campaign.autojoin_body_id = body.id; campaign.autojoin_body = body }">
+              <template slot-scope="props">
+                <div class="media">
+                  <div class="media-content">
+                    {{ props.option.name }}
+                    <br>
+                    <small> {{ props.option.description }} </small>
                   </div>
-                </template>
-              </b-autocomplete>
-              <p class="control">
-                <a class="button is-danger"
-                  @click="campaign.autojoin_body_id = null; campaign.autojoin_body = null"
-                  v-if="campaign.autojoin_body && !$route.params.body_id">
-                  {{ campaign.autojoin_body.name }} (Click to unset)
-                </a>
-                <a class="button is-static" v-if="campaign.autojoin_body && $route.params.body_id">
-                  {{ campaign.autojoin_body.name }}
-                </a>
-                <a class="button is-static" v-if="!campaign.autojoin_body">Not set.</a>
-              </p>
-            </div>
+                </div>
+              </template>
+            </b-autocomplete>
+            <p class="control">
+              <a
+                class="button is-danger"
+                @click="campaign.autojoin_body_id = null; campaign.autojoin_body = null"
+                v-if="campaign.autojoin_body && !$route.params.body_id">
+                {{ campaign.autojoin_body.name }} (Click to unset)
+              </a>
+              <a class="button is-static" v-if="campaign.autojoin_body && $route.params.body_id">
+                {{ campaign.autojoin_body.name }}
+              </a>
+              <a class="button is-static" v-if="!campaign.autojoin_body">Not set.</a>
+            </p>
+          </div>
           <p class="help is-danger" v-if="errors.autojoin_body_id">{{ errors.autojoin_body_id.join(', ')}}</p>
         </div>
 
         <div class="field">
           <label class="label">Active?
-            <input type="checkbox" v-model="campaign.active" :disabled="!$route.params.id"/>
+            <input type="checkbox" v-model="campaign.active" :disabled="!$route.params.id" />
           </label>
           <p class="help is-danger" v-if="errors.active">{{ errors.active.join(', ')}}</p>
         </div>
@@ -83,11 +83,11 @@
           The newly created recruitment campaign should be active.
         </div>
 
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+        <b-loading is-full-page="false" :active.sync="isLoading" />
 
         <div class="field">
           <div class="control">
-            <input type="submit" value="Save campaign" :disabled="isSaving" class="button is-primary is-fullwidth"/>
+            <input type="submit" value="Save campaign" :disabled="isSaving" class="button is-primary is-fullwidth" />
           </div>
         </div>
       </form>

@@ -52,16 +52,16 @@
 
         <div class="field" v-if="validationErrors.privacy">
           <label class="label">
-            I agree to the <router-link target="_blank" :to="{ name: 'oms.confluence', params: { page_id: 'terms-of-service' } }">Privacy Policy</router-link>
+            I agree to the <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.confluence', params: { page_id: 'terms-of-service' } }">Privacy Policy</router-link>
             <input type="checkbox" class="checkbox" id="checkbox" v-model="agreedToPrivacyPolicy">
           </label>
         </div>
 
-        <b-loading :is-full-page="false" :active.sync="isLoading"></b-loading>
+        <b-loading :is-full-page="false" :active.sync="isLoading" />
 
         <div class="field">
           <div class="control">
-            <input type="submit" value="Save user" :disabled="isSaving" class="button is-primary is-fullwidth"/>
+            <input type="submit" value="Save user" :disabled="isSaving" class="button is-primary is-fullwidth" />
           </div>
         </div>
       </form>

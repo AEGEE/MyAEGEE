@@ -5,8 +5,8 @@
         <div class="title">Plenaries list</div>
 
         <div class="buttons">
-            <button class="button is-primary" @click="openEditPlenaryModal(null)" v-if="can.manage_plenaries">Create a plenary</button>
-            <button class="button is-primary" @click="exportAll()">Export stats</button>
+          <button class="button is-primary" @click="openEditPlenaryModal(null)" v-if="can.manage_plenaries">Create a plenary</button>
+          <button class="button is-primary" @click="exportAll()">Export stats</button>
         </div>
 
         <b-table :data="plenaries" :loading="isLoading">

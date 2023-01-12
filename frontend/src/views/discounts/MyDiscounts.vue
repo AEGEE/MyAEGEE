@@ -24,7 +24,7 @@
               {{ props.row.value }}
             </b-table-column>
 
-             <b-table-column field="updated_at" label="Claimed on">
+            <b-table-column field="updated_at" label="Claimed on">
               {{ props.row.updated_at | datetimeseconds }}
             </b-table-column>
 
@@ -33,7 +33,7 @@
             </b-table-column>
 
             <b-table-column field="description" label="Description">
-              <span v-html="$options.filters.markdown(props.row.integration.description)"></span>
+              <span v-html="$options.filters.markdown(props.row.integration.description)" />
             </b-table-column>
           </template>
 

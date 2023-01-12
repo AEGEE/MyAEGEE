@@ -4,7 +4,7 @@
       <div class="tile is-child">
         <div class="title">MyAEGEE - Online Membership System</div>
 
-        <hr/>
+        <hr />
 
         <div class="content">
           <h2>Technologies used</h2>
@@ -71,19 +71,19 @@
           </div>
 
           <div class="images-block">
-            <a href="https://www.docker.com/" target="_blank">
+            <a href="https://www.docker.com/" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/docker.svg" alt="Docker" />
             </a>
-            <a href="https://git-scm.com/" target="_blank">
+            <a href="https://git-scm.com/" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/git.png" alt="Git" />
             </a>
-            <a href="https://circleci.com/" target="_blank">
+            <a href="https://circleci.com/" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/circle.svg" alt="Circle CI" />
             </a>
-            <a href="https://codecov.io/" target="_blank">
+            <a href="https://codecov.io/" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/codecov.png" alt="Codecov" />
             </a>
-            <a href="https://slack.com/intl/de-de/?eu_nc=1" target="_blank">
+            <a href="https://slack.com/intl/de-de/?eu_nc=1" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/slack.svg" alt="Slack" />
             </a>
           </div>
@@ -93,37 +93,37 @@
           </div>
 
           <div class="images-block">
-            <a href="https://auth0.com/" target="_blank">
+            <a href="https://auth0.com/" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/auth0.svg" alt="Auth0" />
             </a>
-            <a href="https://1password.com/" target="_blank">
+            <a href="https://1password.com/" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/1password.png" alt="1password" />
             </a>
-            <a href="https://azure.microsoft.com/en-us/" target="_blank">
+            <a href="https://azure.microsoft.com/en-us/" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/azure.svg" alt="Microsoft Azure" />
             </a>
-            <a href="https://www.office.com/" target="_blank">
+            <a href="https://www.office.com/" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/o365.svg" alt="Microsoft O365" />
             </a>
-            <a href="https://www.atlassian.com/software/jira" target="_blank">
+            <a href="https://www.atlassian.com/software/jira" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/jira-core.svg" alt="Jira" />
             </a>
-            <a href="https://github.com/" target="_blank">
+            <a href="https://github.com/" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/github.png" alt="GitHub" />
             </a>
-            <a href="https://www.atlassian.com/software/jira/service-desk" target="_blank">
+            <a href="https://www.atlassian.com/software/jira/service-desk" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/jira-service-desk.svg" alt="Jira Service Desk" />
             </a>
-            <a href="https://www.bugsnag.com/" target="_blank">
+            <a href="https://www.bugsnag.com/" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/bugsnag.png" alt="Bugsnag" />
             </a>
-            <a href="https://www.atlassian.com/software/confluence" target="_blank">
+            <a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/confluence.svg" alt="Confluence" />
             </a>
-            <a href="https://gsuite.google.com/" target="_blank">
+            <a href="https://gsuite.google.com/" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/gsuite.svg" alt="GSuite" />
             </a>
-            <a href="https://www.elastic.co/" target="_blank">
+            <a href="https://www.elastic.co/" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/elastic.svg" alt="Elastic" />
             </a>
           </div>
@@ -218,9 +218,9 @@
               <li>... and many many other people who also helped us with every aspect of the system.</li>
             </ul>
 
-            <p>Do you want to join the development team? Are you interested in helping MyAEGEE to become better and better? Contact us here: <a href="https://myaegee.slack.com/" target="_blank">https://myaegee.slack.com/</a> using your @aegee.eu or @aegee.org email. (IT knowledge is not a must, we have a lot of things you can help with.)</p>
+            <p>Do you want to join the development team? Are you interested in helping MyAEGEE to become better and better? Contact us here: <a href="https://myaegee.slack.com/" target="_blank" rel="noopener noreferrer">https://myaegee.slack.com/</a> using your @aegee.eu or @aegee.org email. (IT knowledge is not a must, we have a lot of things you can help with.)</p>
 
-            <p>Have you found an issue on MyAEGEE? Do you want to know more about it? Submit a ticket to <a href="https://aegee.org/support" target="_blank">AEGEE's helpdesk</a> and we'll see what we can do.</p>
+            <p>Have you found an issue on MyAEGEE? Do you want to know more about it? Submit a ticket to <a href="https://aegee.org/support" target="_blank" rel="noopener noreferrer">AEGEE's helpdesk</a> and we'll see what we can do.</p>
           </div>
         </div>
       </div>

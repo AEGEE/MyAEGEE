@@ -17,7 +17,7 @@
                 </tr>
                 <tr>
                   <th>Body</th>
-                  <td v-if="circle.body"><router-link :to="{ name: 'oms.bodies.view', params:{ id: circle.body.id } }">{{ circle.body.name }} </router-link></td>
+                  <td v-if="circle.body"><router-link :to="{ name: 'oms.bodies.view', params: { id: circle.body.id } }">{{ circle.body.name }} </router-link></td>
                   <td v-if="!circle.body"><i>This circle is not associated to a body</i></td>
                 </tr>
                 <tr>
@@ -26,7 +26,7 @@
                 </tr>
                 <tr>
                   <th>Parent circle</th>
-                  <td v-if="circle.parent_circle"><router-link :to="{ name: 'oms.circles.view', params:{ id: circle.parent_circle.id } }">{{ circle.parent_circle.name }} </router-link></td>
+                  <td v-if="circle.parent_circle"><router-link :to="{ name: 'oms.circles.view', params: { id: circle.parent_circle.id } }">{{ circle.parent_circle.name }} </router-link></td>
                   <td v-if="!circle.parent_circle"><i>This circle is a toplevel circle</i></td>
                 </tr>
                 <tr>
@@ -101,7 +101,7 @@
       </div>
     </div>
 
-    <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+    <b-loading is-full-page="false" :active.sync="isLoading" />
   </div>
 </template>
 

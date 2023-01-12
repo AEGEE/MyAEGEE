@@ -18,7 +18,7 @@
             </b-table-column>
 
             <b-table-column field="description_long" label="Description">
-              <span class="description" v-html="$options.filters.markdown(props.row.description_long)"></span>
+              <span class="description" v-html="$options.filters.markdown(props.row.description_long)" />
             </b-table-column>
 
             <b-table-column label="Link">

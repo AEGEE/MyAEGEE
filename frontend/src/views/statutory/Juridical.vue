@@ -17,7 +17,7 @@
               <a @click="exportDelegatesJc()" class="button is-primary">Export all delegates for OMS JC</a>
             </div>
             <div class="control">
-              <router-link :to="{ name: 'oms.statutory.votes', params: { id: this.$route.params.id } }" class="button is-primary" >View amount of votes</router-link>
+              <router-link :to="{ name: 'oms.statutory.votes', params: { id: this.$route.params.id } }" class="button is-primary">View amount of votes</router-link>
             </div>
           </div>
         </div>

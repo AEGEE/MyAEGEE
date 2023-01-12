@@ -6,7 +6,7 @@
 
         <div class="collapse is-fullwidth">
           <div class="discounts-item" v-for="discount in block.discounts" v-bind:key="discount.name">
-            <div class="card collapse-item" :class="{ 'is-active' : discount.expanded }">
+            <div class="card collapse-item" :class="{ 'is-active': discount.expanded }">
               <header role="tab" class="card-header touchable" @click="discount.expanded = !discount.expanded">
                 <div class="card-header-icon">
                   <font-awesome-icon :icon="['fa', discount.icon]" />
@@ -19,7 +19,7 @@
                 </span>
               </header>
               <div class="card-content" v-show="discount.expanded">
-                <div class="card-content-box" v-html="$options.filters.markdown(discount.longDescription)"></div>
+                <div class="card-content-box" v-html="$options.filters.markdown(discount.longDescription)" />
               </div>
             </div>
           </div>

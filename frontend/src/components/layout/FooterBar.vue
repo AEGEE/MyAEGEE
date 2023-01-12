@@ -7,8 +7,8 @@
           <router-link :to="{ name: 'oms.about' }">About MyAEGEE</router-link> &bull;
           <router-link :to="{ name: 'oms.bug_report' }">Report a bug!</router-link>
         </p>
-        <p>© 2017-{{ year }} <a href="//aegee.org" target="_blank">AEGEE-Europe</a> &bull;
-        Powered by <a href="//myaegee.atlassian.net/wiki/spaces/GENERAL" target="_blank">Online Membership System</a></p>
+        <p>© 2017-{{ year }} <a href="//aegee.org" target="_blank" rel="noopener noreferrer">AEGEE-Europe</a> &bull;
+          Powered by <a href="//myaegee.atlassian.net/wiki/spaces/GENERAL" target="_blank" rel="noopener noreferrer">Online Membership System</a></p>
       </div>
 
       <article class="footer-message message is-danger">
@@ -16,7 +16,7 @@
           <p>DEBUG BUILD</p>
         </div>
         <div class="message-body">
-           <strong>All data is volatile and can be reverted at any time!</strong>
+          <strong>All data is volatile and can be reverted at any time!</strong>
         </div>
       </article>
     </div>

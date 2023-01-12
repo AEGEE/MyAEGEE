@@ -10,7 +10,7 @@
                 <p v-if="hasAnyBodies">You are member of these bodies:</p>
                 <ul v-if="hasAnyBodies">
                   <li v-for="body in addStyle" v-bind:key="body.id">
-                    <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id} }" :class="body.class">{{ body.name }}</router-link>
+                    <router-link :to="{ name: 'oms.bodies.view', params: { id: body.id } }" :class="body.class">{{ body.name }}</router-link>
                   </li>
                 </ul>
                 <p v-if="!hasAnyBodies"><i>You are currently not a member of any body.</i></p>
@@ -18,12 +18,12 @@
                 <p v-show="user.circles.length > 0">You are member of these circles:</p>
                 <ul v-show="user.circles.length > 0">
                   <li v-for="circle in user.circles" v-bind:key="circle.id">
-                    <router-link :to="{ name: 'oms.circles.view', params: { id: circle.id} }">{{ circle.name }}</router-link>
+                    <router-link :to="{ name: 'oms.circles.view', params: { id: circle.id } }">{{ circle.name }}</router-link>
                   </li>
                 </ul>
                 <p v-show="user.circles.length === 0"><i>You are currently not a member of any circle.</i></p>
 
-                <b-loading :is-full-page="false" :active.sync="isLoading.user"></b-loading>
+                <b-loading :is-full-page="false" :active.sync="isLoading.user" />
               </div>
             </article>
           </div>
@@ -55,23 +55,23 @@
               <p class="title">Past events you've applied to</p>
               <div class="content" v-show="events.past.length > 0">
                 <ul>
-                <li v-for="event in events.past" v-bind:key="event.id">
-                  <router-link :to="{ name: 'oms.statutory.view', params: { id: event.url || event.id } }" v-if="constants.STATUTORY_TYPES_NAMES[event.type]">
-                    {{ event.name }}
-                  </router-link>
+                  <li v-for="event in events.past" v-bind:key="event.id">
+                    <router-link :to="{ name: 'oms.statutory.view', params: { id: event.url || event.id } }" v-if="constants.STATUTORY_TYPES_NAMES[event.type]">
+                      {{ event.name }}
+                    </router-link>
                     <router-link :to="{ name: 'oms.summeruniversity.view', params: { id: event.url || event.id } }" v-else-if="constants.SUMMERUNIVERSITY_TYPES_NAMES[event.type]">
                       {{ event.name }}
                     </router-link>
-                  <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }" v-else>
-                    {{ event.name }}
-                  </router-link>
-                </li>
+                    <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }" v-else>
+                      {{ event.name }}
+                    </router-link>
+                  </li>
                 </ul>
               </div>
               <div class="content" v-show="events.past.length === 0">
                 <p><i>You haven't applied to any past events yet.</i></p>
               </div>
-              <b-loading :is-full-page="false" :active.sync="isLoading.events"></b-loading>
+              <b-loading :is-full-page="false" :active.sync="isLoading.events" />
             </article>
           </div>
 
@@ -115,7 +115,7 @@
                   </li>
                 </ul>
               </div>
-              <b-loading :is-full-page="false" :active.sync="isLoading.statutory"></b-loading>
+              <b-loading :is-full-page="false" :active.sync="isLoading.statutory" />
             </article>
           </div>
         </div>

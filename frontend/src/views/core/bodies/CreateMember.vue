@@ -84,7 +84,7 @@
 
         <div class="field">
           <div class="control">
-            <input type="submit" value="Save user" :disabled="isSaving" class="button is-primary is-fullwidth"/>
+            <input type="submit" value="Save user" :disabled="isSaving" class="button is-primary is-fullwidth" />
           </div>
         </div>
       </form>

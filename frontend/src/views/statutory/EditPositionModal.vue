@@ -2,7 +2,7 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Add position</p>
-      <button class="delete" aria-label="close" @click="$parent.close()"></button>
+      <button class="delete" aria-label="close" @click="$parent.close()" />
     </header>
 
     <section class="modal-card-body">
@@ -17,7 +17,7 @@
       <div class="field">
         <label class="label">Application period starts</label>
         <div class="control">
-        <flat-pickr
+          <flat-pickr
             placeholder="Select date"
             class="input"
             required
@@ -30,7 +30,7 @@
       <div class="field">
         <label class="label">Application period ends</label>
         <div class="control">
-        <flat-pickr
+          <flat-pickr
             placeholder="Select date"
             class="input"
             :config="dateConfig"
@@ -42,7 +42,7 @@
       <div class="field">
         <label class="label">Places available</label>
         <div class="control">
-        <input type="number" class="input" v-model.number="position.places" min="1">
+          <input type="number" class="input" v-model.number="position.places" min="1">
         </div>
         <p class="help is-danger" v-if="errors.places">{{ errors.places.join(', ') }}</p>
       </div>
@@ -59,7 +59,7 @@
       <div class="field">
         <label class="label">Position term starts</label>
         <div class="control">
-        <flat-pickr
+          <flat-pickr
             placeholder="Select date"
             class="input"
             required
@@ -75,7 +75,7 @@
       </b-message>
 
       <b-field label="Position term ends" id="term_ends">
-          <b-input type="text" required v-model="position.end_term" />
+        <b-input type="text" required v-model="position.end_term" />
       </b-field>
 
       <b-message type="is-success" v-if="dateFound">
@@ -87,7 +87,7 @@
         <div class="control">
           <b-input type="textarea" v-model="position.requirements" />
         </div>
-        <label class="label">Preview <MarkdownTooltip/></label>
+        <label class="label">Preview <MarkdownTooltip /></label>
         <div class="content">
           <span v-html="$options.filters.markdown(position.requirements)" />
         </div>

@@ -46,7 +46,7 @@
 
             <b-table-column field="first_name" label="Name" sortable>
               <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
-                {{ props.row.first_name }} {{ props.row.last_name  }}
+                {{ props.row.first_name }} {{ props.row.last_name }}
               </router-link>
             </b-table-column>
 

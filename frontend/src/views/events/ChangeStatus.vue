@@ -21,7 +21,7 @@
             </b-table-column>
 
             <b-table-column field="description" label="Description">
-              <div class="content has-word-break" v-html="$options.filters.markdown(props.row.description)"></div>
+              <div class="content has-word-break" v-html="$options.filters.markdown(props.row.description)" />
             </b-table-column>
 
             <b-table-column field="starts" label="Event dates" sortable>

@@ -22,8 +22,8 @@
 
             <b-table-column field="body_name" label="Body">
               <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
-                  {{ props.row.body_name }}
-                </router-link>
+                {{ props.row.body_name }}
+              </router-link>
             </b-table-column>
 
             <b-table-column field="participant_type" label="Participant type and order">

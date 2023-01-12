@@ -23,7 +23,7 @@
               <td>{{ value.latestVersion }}</td>
               <td>{{ value.latestTag }}</td>
               <td v-if="value.changelog">
-                <a :href="value.changelog" target="_blank">{{ value.changelog }}</a>
+                <a :href="value.changelog" target="_blank" rel="noopener noreferrer">{{ value.changelog }}</a>
               </td>
               <td v-else>-</td>
               <td v-if="value.roundTrip">{{ value.roundTrip }} ms.</td>

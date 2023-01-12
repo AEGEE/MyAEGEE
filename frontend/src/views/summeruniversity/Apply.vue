@@ -34,7 +34,7 @@
 
               <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender || errors.date_of_birth">
                 <div class="content">
-                Could not apply because of these reasons:
+                  Could not apply because of these reasons:
                   <ul>
                     <li v-for="(error, index) in errors.answers" v-bind:key="index">{{ error }}</li>
                   </ul>
@@ -42,10 +42,10 @@
                     <li v-for="(error, index) in errors.body_id" v-bind:key="index">{{ error }}</li>
                   </ul>
                   <ul v-if="errors.gender">
-                    <li>Please set the gender in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank'>your profile.</router-link></li>
+                    <li>Please set the gender in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank' rel='noopener noreferrer'>your profile.</router-link></li>
                   </ul>
                   <ul v-if="errors.date_of_birth">
-                    <li>Please set the date of birth in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank'>your profile.</router-link></li>
+                    <li>Please set the date of birth in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank' rel='noopener noreferrer'>your profile.</router-link></li>
                   </ul>
                 </div>
               </div>
@@ -240,7 +240,7 @@
               <div class="field">
                 <label class="label">AEGEE experience <span class="has-text-danger">*</span></label>
                 <div class="control">
-                  <textarea class="textarea" required v-model="application.aegee_experience"></textarea>
+                  <textarea class="textarea" required v-model="application.aegee_experience" />
                 </div>
                 <p class="help is-danger" v-if="errors.aegee_experience">{{ errors.aegee_experience.join(', ') }}</p>
               </div>
@@ -248,7 +248,7 @@
               <div class="field">
                 <label class="label">Ideal SU <span class="has-text-danger">*</span></label>
                 <div class="control">
-                  <textarea class="textarea" required v-model="application.ideal_su"></textarea>
+                  <textarea class="textarea" required v-model="application.ideal_su" />
                 </div>
                 <p class="help is-danger" v-if="errors.ideal_su">{{ errors.ideal_su.join(', ') }}</p>
               </div>
@@ -256,7 +256,7 @@
               <div class="field">
                 <label class="label">Motivation <span class="has-text-danger">*</span></label>
                 <div class="control">
-                  <textarea class="textarea" required v-model="application.motivation"></textarea>
+                  <textarea class="textarea" required v-model="application.motivation" />
                 </div>
                 <p class="help is-danger" v-if="errors.motivation">{{ errors.motivation.join(', ') }}</p>
               </div>
@@ -277,7 +277,7 @@
 
               <div class="field">
                 <label class="has-text-weight-bold">
-                    Privacy Policy <span class="has-text-danger">*</span>
+                  Privacy Policy <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <b-checkbox required v-model="application.agreed_to_privacy_policy">
@@ -292,7 +292,7 @@
 
               <div class="field">
                 <label class="has-text-weight-bold">
-                    SU Covid regulations <span class="has-text-danger">*</span>
+                  SU Covid regulations <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <b-checkbox required v-model="application.agreed_to_su_terms">
@@ -306,13 +306,13 @@
                     the occurrence of symptoms and up to 14 days after the occurrence of
                     symptoms. I also undertake to inform the local organisers and Local
                     Health Authority of any possible occurrence of above mentioned symptoms
-                    arising within eight days after the conclusion of the event.<br/>
+                    arising within eight days after the conclusion of the event.<br />
                     Failure to present any mandatory documentation may result in my
                     participation in the event being denied by local authorities and/or
-                    the local organisers and my entry being denied in the destination country.<br/>
+                    the local organisers and my entry being denied in the destination country.<br />
                     I declare that I will indemnify any local of AEGEE against any and all
                     fines and/or costs the local may incur due to my failure to comply with
-                    any of the above Covid-19 government requirements.<br/>
+                    any of the above Covid-19 government requirements.<br />
                     I confirm that I will comply with all country specific Covid-19 requirements
                     and the documents provided are valid and as required for travel. I understand
                     that I am required to have these documents available (digitally or in paper
@@ -324,7 +324,7 @@
 
               <div class="field">
                 <label class="has-text-weight-bold">
-                    SU specific Covid regulations <span class="has-text-danger">*</span>
+                  SU specific Covid regulations <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <b-checkbox required>
@@ -346,7 +346,7 @@
           <div class="tile is-child">
             <p>
               <b>You applied from this body:</b>
-              <router-link target="_blank" :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
+              <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
                 {{ application.body ? application.body.name : 'Loading...' }}
               </router-link>
             </p>
@@ -358,7 +358,7 @@
                 </tr>
               </thead>
               <tbody>
-              <tr>
+                <tr>
                   <td><b>First Name</b></td>
                   <td>{{ application.first_name }}</td>
                 </tr>
@@ -515,7 +515,7 @@
           </div>
         </div>
 
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+        <b-loading is-full-page="false" :active.sync="isLoading" />
 
         <hr v-show="can.set_application_cancelled" />
 
@@ -529,7 +529,7 @@
         <button
           class="button is-info"
           @click="setCancelled(false)"
-            v-if="application && application.cancelled && can.set_application_cancelled">
+          v-if="application && application.cancelled && can.set_application_cancelled">
           Uncancel application
         </button>
       </div>

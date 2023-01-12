@@ -11,7 +11,7 @@
               <input class="input" type="text" v-model="query" placeholder="Search" @input="refetch()">
             </div>
             <div class="control">
-              <a class="button is-info" v-if="includeBoundCircles"  @click="toggleBoundCircles()">Show only free circles</a>
+              <a class="button is-info" v-if="includeBoundCircles" @click="toggleBoundCircles()">Show only free circles</a>
               <a class="button is-info" v-if="!includeBoundCircles" @click="toggleBoundCircles()">Show also bound circles</a>
             </div>
           </div>

@@ -103,13 +103,13 @@
                 <tr>
                   <th>Description</th>
                   <td>
-                    <span v-html="$options.filters.markdown(body.description)"/>
+                    <span v-html="$options.filters.markdown(body.description)" />
                   </td>
                 </tr>
                 <tr v-if="body.task_description">
                   <th>Task description</th>
                   <td>
-                    <span v-html="$options.filters.markdown(body.task_description)"/>
+                    <span v-html="$options.filters.markdown(body.task_description)" />
                   </td>
                 <tr>
                   <th>Type</th>
@@ -142,11 +142,11 @@
                 </tr>
                 <tr v-if="body.website">
                   <th>Website</th>
-                  <td><a :href="body.website" target="_blank">{{ body.website }}</a></td>
+                  <td><a :href="body.website" target="_blank" rel="noopener noreferrer">{{ body.website }}</a></td>
                 </tr>
                 <tr v-if="can.viewShadowCircles">
                   <th>Shadow circle</th>
-                  <td v-if="body.shadow_circle"><router-link :to="{ name: 'oms.circles.view', params: { id: body.shadow_circle.id} }">{{ body.shadow_circle.name }}</router-link></td>
+                  <td v-if="body.shadow_circle"><router-link :to="{ name: 'oms.circles.view', params: { id: body.shadow_circle.id } }">{{ body.shadow_circle.name }}</router-link></td>
                   <td v-if="!body.shadow_circle"><i>No shadow circle assigned.</i></td>
                 </tr>
               </tbody>
@@ -176,7 +176,7 @@
       </article>
     </div>
 
-    <b-loading :is-full-page="false" :active.sync="isLoading"></b-loading>
+    <b-loading :is-full-page="false" :active.sync="isLoading" />
   </div>
 </template>
 

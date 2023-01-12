@@ -50,9 +50,9 @@
         <div class="field">
           <label class="label">Filters</label>
           <div class="control" v-if="permission.filters.length > 0">
-            <span  v-for="(filter, index) in permission.filters" v-bind:key="filter" class="tag is-info">
+            <span v-for="(filter, index) in permission.filters" v-bind:key="filter" class="tag is-info">
               {{ filter }}
-              <button class="delete is-small" @click="deleteFilter(index)"></button>
+              <button class="delete is-small" @click="deleteFilter(index)" />
             </span>
             <span v-if="permission.filters.length === 0" class="tag is-light">No filters set.</span>
           </div>
@@ -67,11 +67,11 @@
           </div>
         </div>
 
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+        <b-loading is-full-page="false" :active.sync="isLoading" />
 
         <div class="field">
           <div class="control">
-            <input type="submit" value="Save permission" :disabled="isSaving" class="button is-primary is-fullwidth"/>
+            <input type="submit" value="Save permission" :disabled="isSaving" class="button is-primary is-fullwidth" />
           </div>
         </div>
       </form>

@@ -53,24 +53,24 @@
           </div>
 
           <div class="field is-grouped" v-if="can.setActive">
-            <a v-if="user.active" class="button is-fullwidth is-danger" :class="{'is-loading': isSwitchingStatus }" @click="askToggleActive()" data-cy="suspend-user-link">
+            <a v-if="user.active" class="button is-fullwidth is-danger" :class="{ 'is-loading': isSwitchingStatus }" @click="askToggleActive()" data-cy="suspend-user-link">
               <span>Suspend user</span>
               <span class="icon"><font-awesome-icon icon="minus" /></span>
             </a>
 
-            <a v-if="!user.active" class="button is-fullwidth is-primary" :class="{'is-loading': isSwitchingStatus }" @click="askToggleActive()" data-cy="activate-user-link">
+            <a v-if="!user.active" class="button is-fullwidth is-primary" :class="{ 'is-loading': isSwitchingStatus }" @click="askToggleActive()" data-cy="activate-user-link">
               <span>Activate user</span>
               <span class="icon"><font-awesome-icon icon="plus" /></span>
             </a>
           </div>
 
           <div class="field is-grouped" v-if="can.setSuperadmin">
-            <a v-if="!user.superadmin" class="button is-fullwidth is-danger" :class="{'is-loading': isSwitchingSuperadmin }" @click="askToggleSuperadmin()">
+            <a v-if="!user.superadmin" class="button is-fullwidth is-danger" :class="{ 'is-loading': isSwitchingSuperadmin }" @click="askToggleSuperadmin()">
               <span>Add superadmin status</span>
               <span class="icon"><font-awesome-icon icon="plus" /></span>
             </a>
 
-            <a v-if="user.superadmin" class="button is-fullwidth is-danger" :class="{'is-loading': isSwitchingSuperadmin }" @click="askToggleSuperadmin()">
+            <a v-if="user.superadmin" class="button is-fullwidth is-danger" :class="{ 'is-loading': isSwitchingSuperadmin }" @click="askToggleSuperadmin()">
               <span>Remove superadmin status</span>
               <span class="icon"><font-awesome-icon icon="minus" /></span>
             </a>
@@ -189,7 +189,7 @@
       </article>
     </div>
 
-    <b-loading :is-full-page="false" :active.sync="isLoading"></b-loading>
+    <b-loading :is-full-page="false" :active.sync="isLoading" />
   </div>
 </template>
 

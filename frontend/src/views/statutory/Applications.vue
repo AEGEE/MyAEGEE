@@ -77,7 +77,8 @@
             <b-table-column
               v-for="(field, index) in fields"
               :visible="selectedFields.some(sField => sField.name === field.name)"
-              v-bind:key="index" field="answers[index]"
+              v-bind:key="index"
+              field="answers[index]"
               class="has-text-pre-wrap"
               :label="field.name">{{ field.get(props.row) | beautify }}</b-table-column>
 

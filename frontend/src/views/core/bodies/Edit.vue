@@ -6,7 +6,7 @@
           <label class="label">Type <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="select">
-              <select v-model="body.type" required :disabled="!can.editType" >
+              <select v-model="body.type" required :disabled="!can.editType">
                 <option value="antenna">Antenna</option>
                 <option value="contact antenna">Contact antenna</option>
                 <option value="contact">Contact</option>
@@ -42,9 +42,9 @@
         <div class="field">
           <label class="label">Description <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="body.description"></textarea>
+            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="body.description" />
           </div>
-          <label class="label">Preview <MarkdownTooltip/></label>
+          <label class="label">Preview <MarkdownTooltip /></label>
           <div class="content">
             <span v-html="$options.filters.markdown(body.description)" />
           </div>
@@ -54,12 +54,12 @@
         <div class="field">
           <label class="label">
             Task description (if applicable)
-            <tooltip text="Only applicable to bodies that have Agora-elected positions"/>
+            <tooltip text="Only applicable to bodies that have Agora-elected positions" />
           </label>
           <div class="control">
-            <textarea class="textarea" v-model="body.task_description"></textarea>
+            <textarea class="textarea" v-model="body.task_description" />
           </div>
-          <label class="label">Preview <MarkdownTooltip/></label>
+          <label class="label">Preview <MarkdownTooltip /></label>
           <div class="content">
             <span v-html="$options.filters.markdown(body.task_description)" />
           </div>
@@ -69,7 +69,7 @@
         <div class="field">
           <label class="label">Body code <span class="has-text-danger">*</span></label>
           <div class="control">
-            <input class="input" type="text" required :disabled="!can.editCode" v-model="body.code" pattern="[A-Za-z]{3}" title="Body code should contain only 3 letters"/>
+            <input class="input" type="text" required :disabled="!can.editCode" v-model="body.code" pattern="[A-Za-z]{3}" title="Body code should contain only 3 letters" />
           </div>
           <p class="help is-danger" v-if="errors.code">{{ errors.code.join(', ')}}</p>
         </div>
@@ -93,7 +93,7 @@
         </div>
 
         <div class="field" v-if="!['antenna', 'contact antenna', 'contact'].includes(body.type)">
-          <label class="label" >Founded at (if applicable)</label>
+          <label class="label">Founded at (if applicable)</label>
           <b-datepicker :date-formatter="formatDate" :date-parser="parseDate" v-model="foundationDate" @input="transformFoundedAt()" />
           <p class="help is-danger" v-if="errors.founded_at">{{ errors.founded_at.join(', ')}}</p>
         </div>
@@ -127,7 +127,7 @@
         <div class="field">
           <label class="label">
             Postal address (if applicable)
-            <tooltip text="Only applicable to bodies that have a different postal address than their regular address"/>
+            <tooltip text="Only applicable to bodies that have a different postal address than their regular address" />
           </label>
           <div class="control">
             <input class="input" type="text" v-model="body.postal_address" />
@@ -146,43 +146,43 @@
 
         <div class="field" v-if="$route.params.id && can.editShadowCircle">
           <label class="label">Shadow circle</label>
-          <p class="control">
-            <div class="field has-addons">
-              <b-autocomplete
-                v-model="autocompleteBody"
-                :data="filteredShadowCircles"
-                :disabled="!can.editShadowCircle"
-                :open-on-focus="true"
-                @select="circle => { body.shadow_circle_id = circle.id; body.shadow_circle = circle }">
-                <template slot-scope="props">
-                  <div class="media">
-                    <div class="media-content">
-                        {{ props.option.name }}
-                        <br>
-                        <small> {{ props.option.description }} </small>
-                    </div>
+          <p class="control" /><div class="field has-addons">
+            <b-autocomplete
+              v-model="autocompleteBody"
+              :data="filteredShadowCircles"
+              :disabled="!can.editShadowCircle"
+              :open-on-focus="true"
+              @select="circle => { body.shadow_circle_id = circle.id; body.shadow_circle = circle }">
+              <template slot-scope="props">
+                <div class="media">
+                  <div class="media-content">
+                    {{ props.option.name }}
+                    <br>
+                    <small> {{ props.option.description }} </small>
                   </div>
-                </template>
-              </b-autocomplete>
-              <p class="control" v-if="can.editShadowCircle">
-                <a class="button is-danger"
-                  @click="body.shadow_circle_id = null; body.shadow_circle = null"
-                  v-if="body.shadow_circle">{{ body.shadow_circle.name }} (Click to unset)</a>
-                <a class="button is-static" v-if="!body.shadow_circle">Not set.</a>
-              </p>
-              <p class="control" v-if="!can.editShadowCircle">
-                <a class="button is-static" v-if="body.shadow_circle">{{ body.shadow_circle.name }}</a>
-                <a class="button is-static" v-if="!body.shadow_circle">Not set.</a>
-              </p>
-            </div>
+                </div>
+              </template>
+            </b-autocomplete>
+            <p class="control" v-if="can.editShadowCircle">
+              <a
+                class="button is-danger"
+                @click="body.shadow_circle_id = null; body.shadow_circle = null"
+                v-if="body.shadow_circle">{{ body.shadow_circle.name }} (Click to unset)</a>
+              <a class="button is-static" v-if="!body.shadow_circle">Not set.</a>
+            </p>
+            <p class="control" v-if="!can.editShadowCircle">
+              <a class="button is-static" v-if="body.shadow_circle">{{ body.shadow_circle.name }}</a>
+              <a class="button is-static" v-if="!body.shadow_circle">Not set.</a>
+            </p>
+          </div>
           <p class="help is-danger" v-if="errors.shadow_circle_id">{{ errors.shadow_circle_id.join(', ')}}</p>
         </div>
 
-        <b-loading :is-full-page="false" :active.sync="isLoading"></b-loading>
+        <b-loading :is-full-page="false" :active.sync="isLoading" />
 
         <div class="field">
           <div class="control">
-            <input type="submit" value="Save body" :disabled="isSaving" class="button is-primary is-fullwidth"/>
+            <input type="submit" value="Save body" :disabled="isSaving" class="button is-primary is-fullwidth" />
           </div>
         </div>
       </form>

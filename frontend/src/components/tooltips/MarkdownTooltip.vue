@@ -12,8 +12,7 @@
 
     &nbsp;
 
-    More information can be found by searching for Markdown online'>
-  </tooltip>
+    More information can be found by searching for Markdown online' />
 </template>
 
 <style>

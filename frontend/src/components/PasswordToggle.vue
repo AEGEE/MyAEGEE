@@ -16,7 +16,7 @@
         </div>
       </div>
     </div>
-    <slot name="errors-slot"></slot>
+    <slot name="errors-slot" />
   </div>
 </template>
 

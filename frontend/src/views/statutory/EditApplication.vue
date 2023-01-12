@@ -19,9 +19,9 @@
 
               <event-no-body-notification v-if="bodies.length == 0" />
 
-              <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender|| errors.date_of_birth">
+              <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender || errors.date_of_birth">
                 <div class="content">
-                Could not apply because of these reasons:
+                  Could not apply because of these reasons:
                   <ul>
                     <li v-for="(error, index) in errors.answers" v-bind:key="index">{{ error }}</li>
                   </ul>
@@ -29,10 +29,10 @@
                     <li v-for="(error, index) in errors.body_id" v-bind:key="index">{{ error }}</li>
                   </ul>
                   <ul v-if="errors.gender">
-                    <li>Please set the gender in <router-link target="_blank" :to="{ name: 'oms.members.view', params: { id: 'me' } }">your profile.</router-link></li>
+                    <li>Please set the gender in <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.members.view', params: { id: 'me' } }">your profile.</router-link></li>
                   </ul>
                   <ul v-if="errors.date_of_birth">
-                    <li>Please set the date of birth in <router-link target="_blank" :to="{ name: 'oms.members.view', params: { id: 'me' } }">your profile.</router-link></li>
+                    <li>Please set the date of birth in <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.members.view', params: { id: 'me' } }">your profile.</router-link></li>
                   </ul>
                 </div>
               </div>
@@ -273,7 +273,7 @@
             </div>
           </div>
 
-          <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+          <b-loading is-full-page="false" :active.sync="isLoading" />
         </form>
 
         <hr v-show="!isNew && can.set_board_comment_and_participant_type_global" />

@@ -8,7 +8,7 @@
 
         <b-table :data="flattenedPermissions" :loading="isLoading">
           <template slot-scope="props">
-            <b-table-column field="permission" label="Permission" >
+            <b-table-column field="permission" label="Permission">
               <b>{{ props.row.key }}</b>
             </b-table-column>
 

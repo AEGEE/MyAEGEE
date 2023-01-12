@@ -17,7 +17,7 @@
               <td>{{ pax.user_id }}</td>
               <td>
                 <router-link :to="{ name: 'oms.members.view', params: { id: pax.user_id } }">
-                  {{ pax.user ? pax.user.first_name + ' ' + pax.user.last_name: 'Loading...' }}
+                  {{ pax.user ? pax.user.first_name + ' ' + pax.user.last_name : 'Loading...' }}
                 </router-link>
               </td>
               <td>

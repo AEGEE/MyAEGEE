@@ -60,7 +60,7 @@
       </article>
     </div>
 
-    <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+    <b-loading is-full-page="false" :active.sync="isLoading" />
   </div>
 </template>
 

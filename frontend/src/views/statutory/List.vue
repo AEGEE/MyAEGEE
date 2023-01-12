@@ -35,7 +35,7 @@
             </div>
 
             <div class="content">
-              <span v-html="$options.filters.markdown(event.description)"></span>
+              <span v-html="$options.filters.markdown(event.description)" />
               <ul>
                 <li><strong>Type:</strong> {{ event.type }} </li>
                 <li><strong>From:</strong> {{ event.starts | date }} </li>

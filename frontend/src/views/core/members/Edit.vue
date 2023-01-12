@@ -83,11 +83,11 @@
           <p class="help is-danger" v-if="errors.about_me">{{ errors.about_me.join(', ')}}</p>
         </div>
 
-        <b-loading :is-full-page="false" :active.sync="isLoading"></b-loading>
+        <b-loading :is-full-page="false" :active.sync="isLoading" />
 
         <div class="field">
           <div class="control">
-            <input type="submit" value="Save user" :disabled="isSaving" class="button is-primary is-fullwidth"/>
+            <input type="submit" value="Save user" :disabled="isSaving" class="button is-primary is-fullwidth" />
           </div>
         </div>
       </form>

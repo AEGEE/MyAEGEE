@@ -2,7 +2,7 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Add question line</p>
-      <button class="delete" aria-label="close" @click="$parent.close()"></button>
+      <button class="delete" aria-label="close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
       <div class="field">

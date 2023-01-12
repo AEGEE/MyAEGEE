@@ -7,7 +7,7 @@
 
         <section class="resources-block">
           <div class="resources-item" v-for="resource in block" v-bind:key="resource.url">
-            <a :href="resource.url" target="_blank">
+            <a :href="resource.url" target="_blank" rel="noopener noreferrer">
               <div class="card">
                 <header role="tab" class="card-header">
                   <div class="card-header-title" :style="{ 'background-color': resource.color }">
@@ -15,7 +15,7 @@
                   </div>
                 </header>
                 <div class="card-content">
-                  <div class="card-content-box" v-html="resource.description"></div>
+                  <div class="card-content-box" v-html="resource.description" />
                 </div>
               </div>
             </a>

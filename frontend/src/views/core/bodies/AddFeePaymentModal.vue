@@ -2,13 +2,13 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Add fee payment</p>
-      <button class="delete" aria-label="close" @click="$parent.close()"></button>
+      <button class="delete" aria-label="close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
       <div class="field">
         <label class="label">Starts at <span class="has-text-danger">*</span></label>
         <div class="control">
-        <flat-pickr
+          <flat-pickr
             placeholder="Select date"
             class="input"
             required
@@ -20,7 +20,7 @@
       <div class="field">
         <label class="label">Expires on <span class="has-text-danger">*</span></label>
         <div class="control">
-        <flat-pickr
+          <flat-pickr
             placeholder="Select date"
             class="input"
             required

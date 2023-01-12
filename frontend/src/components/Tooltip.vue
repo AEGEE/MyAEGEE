@@ -1,12 +1,16 @@
 <template>
-  <font-awesome-icon class="icon" :icon="['fa', 'info-circle']" v-tooltip="{
-        content: $options.filters.markdown(text),
-        placement: 'top-center',
-        offset: 5,
-        delay: {
-          show: 100,
-          hide: 200
-        }}"/>
+  <font-awesome-icon
+    class="icon"
+    :icon="['fa', 'info-circle']"
+    v-tooltip="{
+      content: $options.filters.markdown(text),
+      placement: 'top-center',
+      offset: 5,
+      delay: {
+        show: 100,
+        hide: 200,
+      },
+    }" />
 </template>
 
 <script>

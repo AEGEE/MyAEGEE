@@ -39,9 +39,9 @@
           <div class="field">
             <label class="label">Description (long)</label>
             <div class="control">
-              <textarea class="textarea" placeholder="e.g. Hello world" required v-model="discount.longDescription"></textarea>
+              <textarea class="textarea" placeholder="e.g. Hello world" required v-model="discount.longDescription" />
             </div>
-            <label class="label">Preview <MarkdownTooltip/></label>
+            <label class="label">Preview <MarkdownTooltip /></label>
             <div class="content">
               <span v-html="$options.filters.markdown(discount.longDescription)" />
             </div>
@@ -53,11 +53,11 @@
           <hr />
         </div>
 
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+        <b-loading is-full-page="false" :active.sync="isLoading" />
 
         <div class="buttons">
           <button class="button is-primary" @click="addDiscount()">Add new discount</button>
-          <input type="submit" value="Save category" :disabled="isSaving" class="button is-primary"/>
+          <input type="submit" value="Save category" :disabled="isSaving" class="button is-primary" />
         </div>
       </form>
     </div>

@@ -2,7 +2,7 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Add member</p>
-      <button class="delete" aria-label="close" @click="$parent.close()"></button>
+      <button class="delete" aria-label="close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body" style="height:200px;">
       <div class="field has-addons">
@@ -21,7 +21,7 @@
               <div class="media-content">{{ props.option.first_name }} {{ props.option.last_name }}</div>
             </div>
           </template>
-          </b-autocomplete>
+        </b-autocomplete>
       </div>
     </section>
     <footer class="modal-card-foot">

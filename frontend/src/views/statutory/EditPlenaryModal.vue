@@ -2,7 +2,7 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Add plenary</p>
-      <button class="delete" aria-label="close" @click="$parent.close()"></button>
+      <button class="delete" aria-label="close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
       <div class="field">
@@ -16,7 +16,7 @@
       <div class="field">
         <label class="label">Starts</label>
         <div class="control">
-        <flat-pickr
+          <flat-pickr
             placeholder="Select date"
             class="input"
             required
@@ -29,7 +29,7 @@
       <div class="field">
         <label class="label">Ends</label>
         <div class="control">
-        <flat-pickr
+          <flat-pickr
             placeholder="Select date"
             class="input"
             :config="dateConfig"

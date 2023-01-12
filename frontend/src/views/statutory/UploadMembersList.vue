@@ -107,7 +107,7 @@
               <tr v-for="(member, index) in memberslist.members" v-bind:key="index">
                 <td>{{ index + 1 }}</td>
                 <td>
-                  <router-link target="_blank" v-if="member.user_id" :to="{ name: 'oms.members.view', params: { id: member.user_id } }">
+                  <router-link target="_blank" rel="noopener noreferrer" v-if="member.user_id" :to="{ name: 'oms.members.view', params: { id: member.user_id } }">
                     {{ member.user_id }}
                   </router-link>
                   <span v-if="!member.user_id">-</span>
@@ -116,9 +116,9 @@
                 <td v-if="!isEditing">{{ member.last_name }}</td>
                 <td v-if="!isEditing">{{ member.fee }}</td>
 
-                <td v-if="isEditing"><input type="text" class="input" v-model="member.first_name"/></td>
-                <td v-if="isEditing"><input type="text" class="input" v-model="member.last_name"/></td>
-                <td v-if="isEditing"><input type="number" class="input" v-model.number="member.fee"/></td>
+                <td v-if="isEditing"><input type="text" class="input" v-model="member.first_name" /></td>
+                <td v-if="isEditing"><input type="text" class="input" v-model="member.last_name" /></td>
+                <td v-if="isEditing"><input type="number" class="input" v-model.number="member.fee" /></td>
 
                 <td>
                   <span v-if="memberslist.fee_to_aegee">{{ member.fee_to_aegee.toFixed(2) }} EUR</span>

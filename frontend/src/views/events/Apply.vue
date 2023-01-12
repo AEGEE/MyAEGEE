@@ -22,9 +22,9 @@
 
               <event-no-body-notification v-show="bodies.length == 0" />
 
-              <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender|| errors.date_of_birth">
+              <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender || errors.date_of_birth">
                 <div class="content">
-                Could not apply because of these reasons:
+                  Could not apply because of these reasons:
                   <ul>
                     <li v-for="(error, index) in errors.answers" v-bind:key="index">{{ error }}</li>
                   </ul>
@@ -32,10 +32,10 @@
                     <li v-for="(error, index) in errors.body_id" v-bind:key="index">{{ error }}</li>
                   </ul>
                   <ul v-if="errors.gender">
-                    <li>Please set the gender in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank'>your profile.</router-link></li>
+                    <li>Please set the gender in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank' rel='noopener noreferrer'>your profile.</router-link></li>
                   </ul>
                   <ul v-if="errors.date_of_birth">
-                    <li>Please set the date of birth in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank'>your profile.</router-link></li>
+                    <li>Please set the date of birth in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank' rel='noopener noreferrer'>your profile.</router-link></li>
                   </ul>
                 </div>
               </div>
@@ -96,7 +96,7 @@
                 <label class="label">COVID-19 warning</label>
                 <p>
                   Please respect all the local rules and be aware that they might differ from what you are used to. Always carry a mask, listen to organisers and stick to social distancing and other safety rules. Also, be aware that your event might get cancelled or have issues with mobility!
-                  The <a href="https://reopen.europa.eu/" target="_blank">Re-open EU</a> website may help you identifying legal obligations if you cross a border.
+                  The <a href="https://reopen.europa.eu/" target="_blank" rel="noopener noreferrer">Re-open EU</a> website may help you identifying legal obligations if you cross a border.
                 </p>
               </div>
 
@@ -112,7 +112,7 @@
             <div class="tile is-child">
               <p>
                 <b>You applied from this body:</b>
-                <router-link target="_blank" :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
+                <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
                   {{ application.body ? application.body.name : 'Loading...' }}
                 </router-link>
               </p>
@@ -164,7 +164,7 @@
             </div>
           </div>
 
-          <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+          <b-loading is-full-page="false" :active.sync="isLoading" />
         </form>
       </div>
     </div>

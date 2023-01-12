@@ -2,7 +2,7 @@
   <div>
     <div class="content">
       <div class="tags">
-        <span class="tag" v-for="(type, key) in constants.EVENT_TYPES_NAMES" :key="key" :style="{ 'background-color': colors[key], 'color': '#FFFFFF' }">
+        <span class="tag" v-for="(type, key) in constants.EVENT_TYPES_NAMES" :key="key" :style="{ 'background-color': colors[key], color: '#FFFFFF' }">
           {{ type }}
         </span>
         <span class="tag" style="background-color: #1468C5; color: #FFFFFF">
@@ -23,7 +23,7 @@
       :options="calendarOptions"
     />
 
-    <b-loading :is-full-page="true" :active.sync="isLoading"></b-loading>
+    <b-loading :is-full-page="true" :active.sync="isLoading" />
   </div>
 </template>
 

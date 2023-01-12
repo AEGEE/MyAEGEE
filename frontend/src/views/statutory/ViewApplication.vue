@@ -216,7 +216,7 @@
           </div>
         </div>
 
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+        <b-loading is-full-page="false" :active.sync="isLoading" />
 
         <hr v-show="can.set_application_cancelled || can.edit || can.apply" />
 
@@ -230,10 +230,10 @@
           </router-link>
 
           <router-link
-          :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: application.id } }"
-          type="submit"
-          class="button is-warning"
-          v-if="application && can.edit_application">
+            :to="{ name: 'oms.statutory.applications.edit', params: { id: event.url || event.id, application_id: application.id } }"
+            type="submit"
+            class="button is-warning"
+            v-if="application && can.edit_application">
             Edit your application
           </router-link>
 
@@ -247,7 +247,7 @@
           <button
             class="button is-info"
             @click="setCancelled(false)"
-              v-if="application && application.cancelled && can.set_application_cancelled">
+            v-if="application && application.cancelled && can.set_application_cancelled">
             Uncancel application
           </button>
         </div>

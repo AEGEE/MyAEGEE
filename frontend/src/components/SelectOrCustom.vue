@@ -18,7 +18,7 @@
           :required="required"
           v-model="customValue" />
       </div>
-      <slot name="errors-slot"></slot>
+      <slot name="errors-slot" />
     </div>
   </div>
 </template>

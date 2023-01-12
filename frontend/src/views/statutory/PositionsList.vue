@@ -97,19 +97,19 @@
           </template>
         </b-table>
 
-        <hr v-if="selectedPosition"/>
+        <hr v-if="selectedPosition" />
 
         <div class="subtitle" v-if="selectedPosition">Information about selected position</div>
         <p class="content" v-if="selectedPosition">The term for this position starts on <strong>{{ startTerm }}</strong> and ends on <strong>{{ this.selectedPosition.end_term }}</strong>.</p>
         <p class="content" v-if="selectedPosition && requirementsIsSet">This position has the following requirements associated with it:</p>
-        <p class="content" v-if="selectedPosition && requirementsIsSet" v-html="$options.filters.markdown(this.selectedPosition.requirements)"></p>
+        <p class="content" v-if="selectedPosition && requirementsIsSet" v-html="$options.filters.markdown(this.selectedPosition.requirements)" />
 
-        <hr v-if="selectedPosition"/>
+        <hr v-if="selectedPosition" />
 
         <div class="subtitle" v-if="selectedPosition">Description of selected position</div>
-        <p class="content" v-if="selectedPosition" v-html="$options.filters.markdown(taskDescription)"></p>
+        <p class="content" v-if="selectedPosition" v-html="$options.filters.markdown(taskDescription)" />
 
-        <hr v-if="selectedPosition"/>
+        <hr v-if="selectedPosition" />
 
         <div class="subtitle" v-if="selectedPosition">Applications for selected position</div>
 

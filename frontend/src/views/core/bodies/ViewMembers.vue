@@ -12,13 +12,13 @@
 
         <div class="field is-grouped" v-if="can.create">
           <div class="control">
-            <a @click="openAddMemberModal()" class="button is-primary" >Add member</a>
+            <a @click="openAddMemberModal()" class="button is-primary">Add member</a>
           </div>
           <div class="control">
-            <router-link :to="{ name: 'oms.bodies.new_member', params: { id: $route.params.id } }" class="button is-primary" >Create member</router-link>
+            <router-link :to="{ name: 'oms.bodies.new_member', params: { id: $route.params.id } }" class="button is-primary">Create member</router-link>
           </div>
           <div class="control">
-            <router-link :to="{ name: 'oms.bodies.bulk_import', params: { id: $route.params.id } }" class="button is-primary" >Bulk import members</router-link>
+            <router-link :to="{ name: 'oms.bodies.bulk_import', params: { id: $route.params.id } }" class="button is-primary">Bulk import members</router-link>
           </div>
         </div>
 
@@ -50,7 +50,7 @@
             </b-table-column>
 
             <b-table-column label="View payments" centered :visible="(can.viewPayment || can.createPayment) && body.pays_fees">
-              <a class="button is-small is-primary" @click="openListFeePaymentsModal(props.row)" >
+              <a class="button is-small is-primary" @click="openListFeePaymentsModal(props.row)">
                 <span class="icon"><font-awesome-icon icon="dollar-sign" /></span>
                 <span>View or manage payments</span>
               </a>

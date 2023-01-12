@@ -1,13 +1,13 @@
 <template>
   <nav class="navbar is-fixed-top" :class="{ slideInDown: show, slideOutDown: !show }">
     <div class="navbar-brand">
-      <a class="navbar-item is-hidden-tablet" @click="toggleSidebar({opened: !sidebar.opened})">
+      <a class="navbar-item is-hidden-tablet" @click="toggleSidebar({ opened: !sidebar.opened })">
         <font-awesome-icon icon="bars" aria-hidden="true" v-show="!sidebar.hidden" />
       </a>
       <a href="/" class="logo">
         <img src="../../images/AEGEE_logo.png" class="image">
       </a>
-      <a role="button" class="navbar-burger burger" data-cy="navbar-menu" @click="toggleNavbarMenu({opened: !navbar.menuOpened})">
+      <a role="button" class="navbar-burger burger" data-cy="navbar-menu" @click="toggleNavbarMenu({ opened: !navbar.menuOpened })">
         <span aria-hidden="true">
           <font-awesome-icon icon="user" />
         </span>

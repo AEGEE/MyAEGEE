@@ -11,7 +11,7 @@
               <input class="input" type="text" v-model="query" placeholder="Search by name, body code or abbreviation" @input="refetch()">
             </div>
             <div class="control" v-if="can.viewDeleted">
-              <a class="button is-info" v-if="includeDeleted"  @click="toggleIncludeDeleted()">Only show active bodies</a>
+              <a class="button is-info" v-if="includeDeleted" @click="toggleIncludeDeleted()">Only show active bodies</a>
               <a class="button is-info" v-if="!includeDeleted" @click="toggleIncludeDeleted()">Also show deleted bodies</a>
             </div>
           </div>
@@ -61,7 +61,7 @@
             </b-table-column>
 
             <b-table-column field="description" label="Description">
-              <span class="body-description" v-html="$options.filters.markdown(props.row.description)"></span>
+              <span class="body-description" v-html="$options.filters.markdown(props.row.description)" />
             </b-table-column>
 
             <b-table-column field="founded_at" label="Foundation date">

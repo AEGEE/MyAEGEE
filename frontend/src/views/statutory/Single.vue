@@ -117,7 +117,7 @@
           </div>
 
           <div class="field is-grouped">
-            <router-link :to="{ name: 'oms.statutory.applications.stats', params: { id: event.url || event.id} }" class="button is-fullwidth">
+            <router-link :to="{ name: 'oms.statutory.applications.stats', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Applications stats</span>
               <span class="icon"><font-awesome-icon icon="table" /></span>
             </router-link>
@@ -166,12 +166,12 @@
                 <tr>
                   <th>Description</th>
                   <td>
-                    <div class="content" v-html="$options.filters.markdown(event.description)"></div>
+                    <div class="content" v-html="$options.filters.markdown(event.description)" />
                   </td>
                 </tr>
                 <tr v-if="event.booklet_folder && canSeeBooklet">
                   <th>Booklet</th>
-                  <td><a :href="event.booklet_folder" target="_blank">{{ event.booklet_folder }}</a></td>
+                  <td><a :href="event.booklet_folder" target="_blank" rel="noopener noreferrer">{{ event.booklet_folder }}</a></td>
                 </tr>
                 <tr>
                   <th>Type</th>
@@ -214,7 +214,7 @@
             <table class="table is-narrow">
               <thead>
                 <tr>
-                  <th></th>
+                  <th />
                   <th>From</th>
                   <th>To</th>
                 </tr>
@@ -293,7 +293,7 @@
       </article>
     </div>
 
-    <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+    <b-loading is-full-page="false" :active.sync="isLoading" />
   </div>
 </template>
 

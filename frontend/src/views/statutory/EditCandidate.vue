@@ -116,13 +116,13 @@
         <div class="field">
           <label class="label">
             Languages
-            <tooltip text="To add a language to the list, press either 'tab' or 'enter', or add a comma"/>
+            <tooltip text="To add a language to the list, press either 'tab' or 'enter', or add a comma" />
           </label>
           <div class="control">
             <input-tag
-                v-if="!isLoading"
-                v-model="candidate.languages"
-                :before-adding="value => value.trim()"></input-tag>
+              v-if="!isLoading"
+              v-model="candidate.languages"
+              :before-adding="value => value.trim()" />
           </div>
           <p class="help is-danger" v-if="errors.languages">{{ errors.languages.join(', ') }}</p>
         </div>
@@ -219,12 +219,12 @@
 
         <div class="field">
           <div class="control">
-            <input type="submit" value="Save candidature" :disabled="isSaving" class="button is-primary is-fullwidth"/>
+            <input type="submit" value="Save candidature" :disabled="isSaving" class="button is-primary is-fullwidth" />
           </div>
         </div>
       </form>
 
-      <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+      <b-loading is-full-page="false" :active.sync="isLoading" />
     </div>
   </div>
 </template>

@@ -33,7 +33,7 @@
       <form @submit.prevent="saveEvent()">
         <div class="notification is-info">
           <div class="content">
-            <p>If you have any questions, please refer to the <a href="https://www.projects.aegee.org/suct/su2021/booklets.php" target="_blank">booklets</a> first.</p>
+            <p>If you have any questions, please refer to the <a href="https://www.projects.aegee.org/suct/su2021/booklets.php" target="_blank" rel="noopener noreferrer">booklets</a> first.</p>
             <p><strong>Once the event is saved for the second submission, you are not able to edit information yourself.</strong> So please check everything twice.</p>
             <p>If you will need the event info to be changed after saving, please contact <a href="mailto:suct@aegee.eu">SUCT</a>.</p>
           </div>
@@ -55,10 +55,10 @@
         <div class="field" v-if="can.editSeason">
           <label class="label">Season <span class="has-text-danger">*</span></label>
           <div class="select">
-              <select v-model="season">
-                <option value="2021">2021</option>
-                <option selected value="2022">2022</option>
-              </select>
+            <select v-model="season">
+              <option value="2021">2021</option>
+              <option selected value="2022">2022</option>
+            </select>
           </div>
           <p class="help is-danger" v-if="errors.season">{{ errors.season.join(', ') }}</p>
         </div>
@@ -74,7 +74,7 @@
         <div class="field">
           <label class="label">List of activities <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="List the main activities here so potential participants know what they can expect from your SU." required v-model="event.activities_list"></textarea>
+            <textarea class="textarea" placeholder="List the main activities here so potential participants know what they can expect from your SU." required v-model="event.activities_list" />
           </div>
           <p class="help is-danger" v-if="errors.activities_list">{{ errors.activities_list.join(', ') }}</p>
         </div>
@@ -92,7 +92,7 @@
         <div class="field">
           <label class="label">Courses</label>
           <div class="control">
-            <textarea class="textarea" placeholder="List your courses here." v-model="event.courses"></textarea>
+            <textarea class="textarea" placeholder="List your courses here." v-model="event.courses" />
           </div>
           <p class="help is-danger" v-if="errors.courses">{{ errors.courses.join(', ') }}</p>
         </div>
@@ -100,7 +100,7 @@
         <div class="field">
           <label class="label">Trainers <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="Do not provide names, just explain if they are from a body, experienced members of your local, etc." required v-model="event.trainers"></textarea>
+            <textarea class="textarea" placeholder="Do not provide names, just explain if they are from a body, experienced members of your local, etc." required v-model="event.trainers" />
           </div>
           <p class="help is-danger" v-if="errors.trainers">{{ errors.trainers.join(', ') }}</p>
         </div>
@@ -109,7 +109,7 @@
         <hr />
 
         <div class="field">
-          <label class="label">Website <URLTooltip/></label>
+          <label class="label">Website <URLTooltip /></label>
           <div class="control">
             <input class="input" type="url" v-model="event.website" />
           </div>
@@ -117,12 +117,12 @@
         </div>
 
         <div class="field">
-          <label class="label">Social media <URLTooltip/></label>
+          <label class="label">Social media <URLTooltip /></label>
           <table class="table is-narrowed">
             <tbody>
               <tr v-for="(social_media, index) in event.social_media" v-bind:key="index">
                 <td>
-                  <input class="input" type="url" required v-model="event.social_media[index].description"/>
+                  <input class="input" type="url" required v-model="event.social_media[index].description" />
                 </td>
                 <td>
                   <a class="button is-danger" @click="deleteSocialMedia(index)">Delete</a>
@@ -151,15 +151,15 @@
           <div class="notification is-warning">
             <div class="content">
               <p><strong>COPYRIGHT:</strong> Make sure you own the rights to the photos. Use photos of previous events made by your own local.
-                Or use photos from <a href="https://pixabay.com" target="_blank">pixabay.com</a> or <a href="https://pexels.com" target="_blank">pexels.com</a> for example (free to use photos).</p>
+                Or use photos from <a href="https://pixabay.com" target="_blank" rel="noopener noreferrer">pixabay.com</a> or <a href="https://pexels.com" target="_blank" rel="noopener noreferrer">pexels.com</a> for example (free to use photos).</p>
             </div>
           </div>
-          <label class="label">Photos <span class="has-text-danger">*</span> <URLTooltip/></label>
+          <label class="label">Photos <span class="has-text-danger">*</span> <URLTooltip /></label>
           <table class="table is-narrowed">
             <tbody>
               <tr v-for="(photos, index) in event.photos" v-bind:key="index">
                 <td>
-                  <input class="input" type="url" required v-model="event.photos[index].description"/>
+                  <input class="input" type="url" required v-model="event.photos[index].description" />
                 </td>
                 <td>
                   <a class="button is-danger" @click="deletePhotos(index)">Delete</a>
@@ -185,7 +185,7 @@
         <p class="help is-danger" v-if="errors.photos">{{ errors.photos.message }}</p>
 
         <div class="field">
-          <label class="label">Video <URLTooltip/></label>
+          <label class="label">Video <URLTooltip /></label>
           <div class="control">
             <input class="input" type="url" v-model="event.video" />
           </div>
@@ -200,10 +200,10 @@
             <p>The user creating the event automatically becomes an organizer.</p>
             <p>People who are not listed as organizers won't be able to see and manage event applications, even if they are the board members.</p>
             <p><strong>You can only add people from the organizing bodies.</strong></p>
-            <p>Please add at least:<br/>
-              - 1 main coordinator per organizing body<br/>
-              - 1 content manager<br/>
-              - 1 treasurer<br/>
+            <p>Please add at least:<br />
+              - 1 main coordinator per organizing body<br />
+              - 1 content manager<br />
+              - 1 treasurer<br />
               - 1 incoming responsible</p>
           </div>
         </div>
@@ -213,8 +213,8 @@
             :data="event.organizers"
             :loading="isLoading">
             <template slot-scope="props">
-               <b-table-column field="first_name" label="First and last name" sortable>
-                <router-link target="_blank" :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
+              <b-table-column field="first_name" label="First and last name" sortable>
+                <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
                   {{ props.row.first_name }} {{ props.row.last_name }}
                 </router-link>
               </b-table-column>
@@ -253,9 +253,9 @@
                   <template slot-scope="props">
                     <div class="media">
                       <div class="media-content">
-                          {{ props.option.first_name }}
-                          <br>
-                          <small> {{ props.option.last_name }} </small>
+                        {{ props.option.first_name }}
+                        <br>
+                        <small> {{ props.option.last_name }} </small>
                       </div>
                     </div>
                   </template>
@@ -266,7 +266,7 @@
         </div>
 
         <div class="subtitle is-fullwidth has-text-centered">Locations <span class="has-text-danger">*</span></div>
-        <hr/>
+        <hr />
 
         <div class="notification is-info">
           <div class="content">
@@ -283,7 +283,7 @@
             :zoom="map.zoom"
             :scrollZoom="false"
             @load="onMapLoaded"
-            :center="map.center" >
+            :center="map.center">
             <MglNavigationControl position="top-right" />
             <MglMarker
               v-for="(location, index) in event.locations"
@@ -291,7 +291,7 @@
               :coordinates="location.position"
               color="red"
               :draggable="true"
-              @dragend="setMarkerPosition($event, index)"/>
+              @dragend="setMarkerPosition($event, index)" />
           </MglMap>
         </div>
 
@@ -304,7 +304,7 @@
               <th>Description</th>
               <th>Starting city</th>
               <th>Ending city</th>
-              <th></th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -315,7 +315,7 @@
                 <input type="text" class="input" required v-model="marker.name" />
               </td>
               <td>
-                <textarea class="textarea" v-model="marker.description"></textarea>
+                <textarea class="textarea" v-model="marker.description" />
               </td>
               <td>
                 <input type="radio" name="start_loc" v-model="marker.start" value=true />
@@ -355,7 +355,7 @@
         <div class="field">
           <label class="label">Ideal participant <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="Explain what should participants of your SU look like." required v-model="event.pax_description"></textarea>
+            <textarea class="textarea" placeholder="Explain what should participants of your SU look like." required v-model="event.pax_description" />
           </div>
           <p class="help is-danger" v-if="errors.pax_description">{{ errors.pax_description.join(', ') }}</p>
         </div>
@@ -363,7 +363,7 @@
         <div class="field">
           <label class="label">Special equipment needed</label>
           <div class="control">
-            <textarea class="textarea" placeholder="Explain if participants need special equipment for your SU." v-model="event.special_equipment"></textarea>
+            <textarea class="textarea" placeholder="Explain if participants need special equipment for your SU." v-model="event.special_equipment" />
           </div>
           <p class="help is-danger" v-if="errors.special_equipment">{{ errors.special_equipment.join(', ') }}</p>
         </div>
@@ -381,7 +381,7 @@
             <tbody>
               <tr v-for="(questions, index) in event.questions" v-bind:key="index">
                 <td>
-                  <input class="input" type="text" required v-model="event.questions[index].description"/>
+                  <input class="input" type="text" required v-model="event.questions[index].description" />
                 </td>
                 <td>
                   <a class="button is-danger" @click="deleteQuestion(index)">Delete</a>
@@ -407,13 +407,13 @@
         <p class="help is-danger" v-if="errors.questions">{{ errors.questions.message }}</p>
 
         <div class="subtitle is-fullwidth has-text-centered">SUCT approval fields</div>
-        <hr/>
+        <hr />
 
         <div class="notification is-info">
           <div class="content">
             <p>These fields are visible to SUCT only.</p>
             <p>Please provide the link to Google spreadsheets for the event programme and budget. Be sure that SUCT can open it.</p>
-            <p><a href="https://docs.google.com/spreadsheets/u/1/?ftv=1&tgif=d" target="_blank">
+            <p><a href="https://docs.google.com/spreadsheets/u/1/?ftv=1&tgif=d" target="_blank" rel="noopener noreferrer">
               You can take the templates for the budget and programme here.
             </a></p>
             <p><i>
@@ -427,7 +427,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Link to preliminary budget <span class="has-text-danger">*</span> <URLTooltip/></label>
+          <label class="label">Link to preliminary budget <span class="has-text-danger">*</span> <URLTooltip /></label>
           <div class="control">
             <input class="input" type="url" v-model="event.budget" required />
           </div>
@@ -435,18 +435,18 @@
         </div>
 
         <div class="field">
-          <label class="label">Link to preliminary programme <span class="has-text-danger">*</span> <URLTooltip/></label>
+          <label class="label">Link to preliminary programme <span class="has-text-danger">*</span> <URLTooltip /></label>
           <div class="control">
             <input class="input" type="url" v-model="event.programme_suct" required />
           </div>
           <p class="help is-danger" v-if="errors.is_programme_set">{{ errors.is_programme_set.join(', ') }}</p>
         </div>
 
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+        <b-loading is-full-page="false" :active.sync="isLoading" />
 
         <div class="field">
           <div class="control">
-            <input type="submit" value="Save event" :disabled="isSaving" class="button is-primary is-fullwidth"/>
+            <input type="submit" value="Save event" :disabled="isSaving" class="button is-primary is-fullwidth" />
           </div>
         </div>
       </form>

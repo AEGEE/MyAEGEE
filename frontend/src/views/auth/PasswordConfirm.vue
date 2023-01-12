@@ -1,42 +1,42 @@
 <template>
-<div class="content has-text-centered confirm-block">
-  <div class="columns is-vcentered">
-    <div class="column is-6 is-offset-3">
-      <div class="box">
-        <form v-on:submit.prevent="confirmPassword">
-          <div class="field">
-            <label class="label">Token</label>
-            <div class="control">
-              <input v-model="token" data-cy="token" required class="input" type="text" placeholder="Type the token you've received by your email.">
+  <div class="content has-text-centered confirm-block">
+    <div class="columns is-vcentered">
+      <div class="column is-6 is-offset-3">
+        <div class="box">
+          <form v-on:submit.prevent="confirmPassword">
+            <div class="field">
+              <label class="label">Token</label>
+              <div class="control">
+                <input v-model="token" data-cy="token" required class="input" type="text" placeholder="Type the token you've received by your email.">
+              </div>
+              <p class="help is-danger" v-if="errors.token">{{ errors.token.join(', ') }}</p>
             </div>
-             <p class="help is-danger" v-if="errors.token">{{ errors.token.join(', ') }}</p>
-          </div>
 
-          <password-toggle v-model="password" data-cy="password" required placeholder="Type your new password." label="Password">
-            <template slot="errors-slot">
-              <p class="help is-danger" v-if="errors.password">{{ errors.password.join(', ')}}</p>
-            </template>
-          </password-toggle>
+            <password-toggle v-model="password" data-cy="password" required placeholder="Type your new password." label="Password">
+              <template slot="errors-slot">
+                <p class="help is-danger" v-if="errors.password">{{ errors.password.join(', ')}}</p>
+              </template>
+            </password-toggle>
 
-          <password-toggle v-model="password_confirmation" data-cy="password-confirmation" required placeholder="Confirm your password." label="Password confirmation" />
+            <password-toggle v-model="password_confirmation" data-cy="password-confirmation" required placeholder="Confirm your password." label="Password confirmation" />
 
-          <hr />
-          <p class="control">
-            <button type="submit" class="button is-primary">Confirm password</button>
-            <router-link :to="{ name: 'oms.password_reset' }" class="button">I don't have a token</router-link>
-          </p>
-        </form>
-      </div>
+            <hr />
+            <p class="control">
+              <button type="submit" class="button is-primary">Confirm password</button>
+              <router-link :to="{ name: 'oms.password_reset' }" class="button">I don't have a token</router-link>
+            </p>
+          </form>
+        </div>
 
-      <div class="notification is-info">
-        Please make up your mind for a second why a
-        <a href="https://howsecureismypassword.net/" target="_blank">strong password</a>
-        is a good idea. We recommend a
-        <a href="https://padlock.io/" target="_blank">password manager.</a>
+        <div class="notification is-info">
+          Please make up your mind for a second why a
+          <a href="https://howsecureismypassword.net/" target="_blank" rel="noopener noreferrer">strong password</a>
+          is a good idea. We recommend a
+          <a href="https://padlock.io/" target="_blank" rel="noopener noreferrer">password manager.</a>
+        </div>
       </div>
     </div>
   </div>
-</div>
 </template>
 
 <script>

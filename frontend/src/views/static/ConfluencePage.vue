@@ -2,8 +2,8 @@
   <div class="tile is-ancestor legal">
     <div class="tile is-parent is-vertical">
       <div class="tile is-child">
-        <div class="title">{{ error ? 'The page is not found' : title  }}</div>
-        <div class="content" v-html="text"></div>
+        <div class="title">{{ error ? 'The page is not found' : title }}</div>
+        <div class="content" v-html="text" />
 
         <div class="notification is-danger" v-if="error">
           The page you've requested cannot be found. Maybe you've mistyped the URL?...

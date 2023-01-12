@@ -2,7 +2,7 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">View participant</p>
-      <button class="delete" aria-label="close" @click="$parent.close()"></button>
+      <button class="delete" aria-label="close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
       <table class="table is-narrow is-fullwidth">
@@ -146,9 +146,7 @@
         </tr>
       </table>
     </section>
-    <footer class="modal-card-foot">
-
-    </footer>
+    <footer class="modal-card-foot" />
   </div>
 </template>
 

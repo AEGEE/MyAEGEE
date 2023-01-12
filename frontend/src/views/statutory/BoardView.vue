@@ -36,13 +36,13 @@
 
         <div class="tabs is-centered is-boxed">
           <ul>
-            <li :class="{'is-active': scope === 'edit' }" @click="scope = 'edit'" v-show="bodyStatuses.length > 0 && canEditSelectedBody">
+            <li :class="{ 'is-active': scope === 'edit' }" @click="scope = 'edit'" v-show="bodyStatuses.length > 0 && canEditSelectedBody">
               <a>
                 <span class="icon is-small"><font-awesome-icon icon="pen" aria-hidden="true" /></span>
                 <span>Edit boardview</span>
               </a>
             </li>
-            <li :class="{'is-active': scope === 'view' }" @click="scope = 'view'">
+            <li :class="{ 'is-active': scope === 'view' }" @click="scope = 'view'">
               <a>
                 <span class="icon is-small"><font-awesome-icon icon="users" aria-hidden="true" /></span>
                 <span>View applications</span>
@@ -122,7 +122,7 @@
                 :options="fields"
                 placeholder="Select application fields"
                 track-by="name"
-                label="name" >
+                label="name">
                 <template
                   slot="selection"
                   slot-scope="{ values, isOpen }">

@@ -14,7 +14,7 @@
                 <tr>
                   <th>Description</th>
                   <td>
-                    <span v-html="$options.filters.markdown(campaign.description_long)"/>
+                    <span v-html="$options.filters.markdown(campaign.description_long)" />
                   </td>
                 </tr>
                 <tr>
@@ -43,22 +43,22 @@
         <div class="tile is-parent">
           <article class="tile is-child is-info">
             <div class="buttons">
-              <router-link  v-if="can.edit && !$route.params.body_id" :to="{ name: 'oms.campaigns.edit', params: { id: campaign.id } }" class="button is-warning">
+              <router-link v-if="can.edit && !$route.params.body_id" :to="{ name: 'oms.campaigns.edit', params: { id: campaign.id } }" class="button is-warning">
                 <span>Edit campaign details</span>
                 <span class="icon"><font-awesome-icon icon="edit" /></span>
               </router-link>
 
-              <router-link  v-if="can.edit && $route.params.body_id" :to="{ name: 'oms.bodies.campaigns.edit', params: { body_id: campaign.autojoin_body_id, id: campaign.id } }" class="button is-warning">
+              <router-link v-if="can.edit && $route.params.body_id" :to="{ name: 'oms.bodies.campaigns.edit', params: { body_id: campaign.autojoin_body_id, id: campaign.id } }" class="button is-warning">
                 <span>Edit campaign details</span>
                 <span class="icon"><font-awesome-icon icon="edit" /></span>
               </router-link>
 
-              <router-link  v-if="can.viewMembers && !$route.params.body_id" :to="{ name: 'oms.campaigns.members', params: { id: campaign.id } }" class="button">
+              <router-link v-if="can.viewMembers && !$route.params.body_id" :to="{ name: 'oms.campaigns.members', params: { id: campaign.id } }" class="button">
                 <span>View members</span>
                 <span class="icon"><font-awesome-icon icon="users" /></span>
               </router-link>
 
-              <router-link  v-if="can.viewMembers && $route.params.body_id" :to="{ name: 'oms.bodies.campaigns.members', params: { body_id: campaign.autojoin_body_id, id: campaign.id } }" class="button">
+              <router-link v-if="can.viewMembers && $route.params.body_id" :to="{ name: 'oms.bodies.campaigns.members', params: { body_id: campaign.autojoin_body_id, id: campaign.id } }" class="button">
                 <span>View members</span>
                 <span class="icon"><font-awesome-icon icon="users" /></span>
               </router-link>
@@ -73,7 +73,7 @@
       </article>
     </div>
 
-    <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+    <b-loading is-full-page="false" :active.sync="isLoading" />
   </div>
 </template>
 

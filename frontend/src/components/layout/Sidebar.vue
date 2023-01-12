@@ -20,7 +20,7 @@
               <font-awesome-icon :icon="['fa', 'angle-down']" />
             </span>
           </a>
-          <a :href="item.link" target="_blank" v-else>
+          <a :href="item.link" target="_blank" rel="noopener noreferrer" v-else>
             <span><font-awesome-icon :icon="['fas', item.icon]" /></span>
             {{ item.label }}
           </a>

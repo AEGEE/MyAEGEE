@@ -1,14 +1,14 @@
 <template>
   <section class="app-main" data-cy="app-main" :style="[hiddenSidebarStyle]" :class="{ 'is-menu-opened': navbar.menuOpened }">
     <div class="container is-fluid is-marginless app-content">
-      <levelbar></levelbar>
+      <levelbar />
       <transition
         mode="out-in"
         enter-active-class="fadeIn"
         leave-active-class="fadeOut"
         appear>
         <div class="box">
-          <router-view class="animated"></router-view>
+          <router-view class="animated" />
         </div>
       </transition>
     </div>

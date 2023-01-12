@@ -7,15 +7,15 @@
         <div class="field">
           <label class="label">Please enter each code on a separate line, without any spaces or tabs.</label>
           <div class="control">
-            <textarea class="textarea" placeholder="e.g. Hello world" rows="20" required v-model="codesRaw"></textarea>
+            <textarea class="textarea" placeholder="e.g. Hello world" rows="20" required v-model="codesRaw" />
           </div>
         </div>
 
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+        <b-loading is-full-page="false" :active.sync="isLoading" />
 
         <div class="field">
           <div class="control">
-            <input type="submit" value="Add codes to integration" :disabled="isSaving" class="button is-primary is-fullwidth"/>
+            <input type="submit" value="Add codes to integration" :disabled="isSaving" class="button is-primary is-fullwidth" />
           </div>
         </div>
       </form>

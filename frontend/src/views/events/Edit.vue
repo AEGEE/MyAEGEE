@@ -67,9 +67,9 @@
         <div class="field">
           <label class="label">Description <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="event.description"></textarea>
+            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="event.description" />
           </div>
-          <label class="label">Preview <MarkdownTooltip/></label>
+          <label class="label">Preview <MarkdownTooltip /></label>
           <div class="content">
             <span v-html="$options.filters.markdown(event.description)" />
           </div>
@@ -134,7 +134,7 @@
         <div class="field">
           <label class="label">Max. participants</label>
           <div class="control">
-            <input class="input" type="number" v-model="event.max_participants" min="0" @input="$root.nullifyIfEmpty(event, 'max_participants')"/>
+            <input class="input" type="number" v-model="event.max_participants" min="0" @input="$root.nullifyIfEmpty(event, 'max_participants')" />
           </div>
           <p class="help is-danger" v-if="errors.max_participants">{{ errors.max_participants.join(', ') }}</p>
         </div>
@@ -163,7 +163,7 @@
             <p>Accommodation can be for instance camping, hostel, hosting by the members of the local, or in a gym. Write "none" for online events.</p>
           </div>
           <div class="control">
-            <input class="input"  v-model="event.accommodation_type" required />
+            <input class="input" v-model="event.accommodation_type" required />
           </div>
           <p class="help is-danger" v-if="errors.accommodation_type">{{ errors.accommodation_type.join(', ') }}</p>
         </div>
@@ -258,7 +258,8 @@
         <hr />
 
         <div class="tags">
-          <a class="tag is-primary is-medium"
+          <a
+            class="tag is-primary is-medium"
             v-for="(body, index) in event.organizing_bodies"
             v-bind:key="body.body_id">
             {{ body ? body.body.name : 'Loading...' }}
@@ -307,15 +308,15 @@
             :data="event.organizers"
             :loading="isLoading">
             <template slot-scope="props">
-               <b-table-column field="first_name" label="First and last name" sortable>
-                <router-link target="_blank" :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
+              <b-table-column field="first_name" label="First and last name" sortable>
+                <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
                   {{ props.row.first_name }} {{ props.row.last_name }}
                 </router-link>
               </b-table-column>
 
               <b-table-column field="comment" label="Comment">
                 <div class="control">
-                  <input class="input" type="text" v-model="props.row.comment"/>
+                  <input class="input" type="text" v-model="props.row.comment" />
                 </div>
               </b-table-column>
 
@@ -345,9 +346,9 @@
                   <template slot-scope="props">
                     <div class="media">
                       <div class="media-content">
-                          {{ props.option.first_name }}
-                          <br>
-                          <small> {{ props.option.last_name }} </small>
+                        {{ props.option.first_name }}
+                        <br>
+                        <small> {{ props.option.last_name }} </small>
                       </div>
                     </div>
                   </template>
@@ -387,13 +388,13 @@
               <th>Type <span class="has-text-danger">*</span></th>
               <th>Required (works for text and string)?</th>
               <th>Values (for select)</th>
-              <th></th>
+              <th />
             </tr>
           </thead>
           <tbody>
             <tr v-for="(question, index) in event.questions" v-bind:key="index">
               <td>
-                <input class="input" type="text" required v-model="event.questions[index].description"/>
+                <input class="input" type="text" required v-model="event.questions[index].description" />
               </td>
               <td>
                 <div class="select">
@@ -413,7 +414,7 @@
                 <input-tag
                   v-if="event.questions[index].type === 'select'"
                   v-model="event.questions[index].values"
-                  :before-adding="value => value.trim()"></input-tag>
+                  :before-adding="value => value.trim()" />
               </td>
               <td>
                 <a class="button is-danger" @click="deleteQuestion(index)">Delete question</a>
@@ -427,7 +428,7 @@
 
         <div class="notification is-danger" v-if="errors.questions">
           <div class="content">
-          Could not create/edit event because of these reasons:
+            Could not create/edit event because of these reasons:
             <ul v-if="errors.questions">
               <li v-for="(error, index) in errors.questions" v-bind:key="index">{{ error }}</li>
             </ul>
@@ -443,7 +444,7 @@
         <p class="help is-danger" v-if="errors.fee">{{ errors.questions.message }}</p>
 
         <div class="subtitle is-fullwidth has-text-centered">Locations</div>
-        <hr/>
+        <hr />
 
         <div class="notification is-info">
           <div class="content">
@@ -459,7 +460,7 @@
             :zoom="map.zoom"
             :scrollZoom="false"
             @load="onMapLoaded"
-            :center="map.center" >
+            :center="map.center">
             <MglNavigationControl position="top-right" />
             <MglMarker
               v-for="(location, index) in event.locations"
@@ -467,7 +468,7 @@
               :coordinates="location.position"
               color="red"
               :draggable="true"
-              @dragend="setMarkerPosition($event, index)"/>
+              @dragend="setMarkerPosition($event, index)" />
           </MglMap>
         </div>
 
@@ -477,7 +478,7 @@
               <th>Latitude</th>
               <th>Longitude</th>
               <th>Name</th>
-              <th></th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -513,7 +514,7 @@
         </div>
 
         <div class="subtitle is-fullwidth has-text-centered">EQAC approval fields</div>
-        <hr/>
+        <hr />
 
         <div class="notification is-info">
           <div class="content">
@@ -525,7 +526,7 @@
               For online events, you are able to use https://online-event.example.com/ as a placeholder for the budget.
             </p>
             <p>Please provide the link to Google spreadsheets for the event program and budget.</p>
-            <p><a href="https://docs.google.com/spreadsheets/u/1/?ftv=1&tgif=d" target="_blank">
+            <p><a href="https://docs.google.com/spreadsheets/u/1/?ftv=1&tgif=d" target="_blank" rel="noopener noreferrer">
               You can take the template for the budget and the program here.
             </a></p>
             <p><i>
@@ -554,11 +555,11 @@
           <p class="help is-danger" v-if="errors.is_programme_set">{{ errors.is_programme_set.join(', ') }}</p>
         </div>
 
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+        <b-loading is-full-page="false" :active.sync="isLoading" />
 
         <div class="field">
           <div class="control">
-            <input type="submit" value="Save event" :disabled="isSaving" class="button is-primary is-fullwidth"/>
+            <input type="submit" value="Save event" :disabled="isSaving" class="button is-primary is-fullwidth" />
           </div>
         </div>
       </form>

@@ -21,7 +21,7 @@
             </b-table-column>
 
             <b-table-column field="description" label="Description">
-              <span v-html="$options.filters.markdown(props.row.description)"></span>
+              <span v-html="$options.filters.markdown(props.row.description)" />
             </b-table-column>
 
             <b-table-column label="Quota">

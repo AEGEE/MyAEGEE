@@ -1,11 +1,11 @@
 <template>
   <div id="app" v-touch:swipe.left="swipeLeft" v-touch:swipe.right="swipeRight">
-    <nprogress-container></nprogress-container>
-    <navbar :show="true"></navbar>
-    <sidebar :show="sidebar.opened"></sidebar>
-    <app-main></app-main>
+    <nprogress-container />
+    <navbar :show="true" />
+    <sidebar :show="sidebar.opened" />
+    <app-main />
     <hr />
-    <footer-bar></footer-bar>
+    <footer-bar />
   </div>
 </template>
 

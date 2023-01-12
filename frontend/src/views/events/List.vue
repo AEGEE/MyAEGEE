@@ -48,7 +48,7 @@
             </div>
 
             <div class="content">
-              <span v-html="$options.filters.markdown(event.description)"></span>
+              <span v-html="$options.filters.markdown(event.description)" />
               <ul>
                 <li><strong>Type:</strong> {{ eventTypesNames[event.type] }} </li>
                 <li><strong>From:</strong> {{ event.starts | date }} </li>
@@ -58,12 +58,12 @@
                 </li>
                 <li>
                   <strong>Organizing bodies: </strong>
-                    <router-link
-                      v-for="(body, index) in event.organizing_bodies"
-                      v-bind:key="index"
-                      :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }">
-                      {{ body.body_name }}
-                    </router-link>
+                  <router-link
+                    v-for="(body, index) in event.organizing_bodies"
+                    v-bind:key="index"
+                    :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }">
+                    {{ body.body_name }}
+                  </router-link>
                 </li>
               </ul>
 

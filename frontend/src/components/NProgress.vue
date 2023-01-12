@@ -1,5 +1,5 @@
 <template>
-  <div class="nprogress-container"></div>
+  <div class="nprogress-container" />
 </template>
 
 <script>

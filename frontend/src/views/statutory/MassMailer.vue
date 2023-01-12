@@ -91,7 +91,7 @@
               <div class="field is-fullwidth">
                 <label class="label">Preview:</label>
                 <div class="content box">
-                  <div v-html="filledTemplate"></div>
+                  <div v-html="filledTemplate" />
                 </div>
               </div>
 

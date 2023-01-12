@@ -7,7 +7,7 @@
         <label class="label">Search by name or surname</label>
         <div class="field has-addons">
           <div class="control is-expanded">
-            <input class="input" type="text" v-model="query" placeholder="Search by name or surname"  @input="refetch()"/>
+            <input class="input" type="text" v-model="query" placeholder="Search by name or surname" @input="refetch()" />
           </div>
         </div>
       </div>
@@ -42,7 +42,7 @@
       </b-table>
     </div>
 
-    <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+    <b-loading is-full-page="false" :active.sync="isLoading" />
   </div>
 </template>
 

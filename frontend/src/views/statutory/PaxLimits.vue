@@ -35,8 +35,8 @@
                 <th>Envoys</th>
                 <th>Observers</th>
                 <th>Visitors</th>
-                <th></th>
-                <th></th>
+                <th />
+                <th />
               </tr>
             </thead>
             <tfoot>
@@ -47,8 +47,8 @@
                 <th>Envoys</th>
                 <th>Observers</th>
                 <th>Visitors</th>
-                <th></th>
-                <th></th>
+                <th />
+                <th />
               </tr>
             </tfoot>
             <tbody>
@@ -64,23 +64,23 @@
                 <td v-if="!limit.isEditing">{{ limit.observer | numberOrUnlimited }}</td>
                 <td v-if="!limit.isEditing">{{ limit.visitor | numberOrUnlimited }}</td>
                 <td v-if="limit.isEditing">
-                    <input type="number" min="0" v-model.number="limit.delegate" @input="$root.nullifyIfEmpty(limit, 'delegate')">
+                  <input type="number" min="0" v-model.number="limit.delegate" @input="$root.nullifyIfEmpty(limit, 'delegate')">
                 </td>
                 <td v-if="limit.isEditing">
-                    <input type="number" min="0" v-model.number="limit.envoy" @input="$root.nullifyIfEmpty(limit, 'envoy')">
+                  <input type="number" min="0" v-model.number="limit.envoy" @input="$root.nullifyIfEmpty(limit, 'envoy')">
                 </td>
                 <td v-if="limit.isEditing">
-                    <input type="number" min="0" v-model.number="limit.observer" @input="$root.nullifyIfEmpty(limit, 'observer')">
+                  <input type="number" min="0" v-model.number="limit.observer" @input="$root.nullifyIfEmpty(limit, 'observer')">
                 </td>
                 <td v-if="limit.isEditing">
-                    <input type="number" min="0" v-model.number="limit.visitor" @input="$root.nullifyIfEmpty(limit, 'visitor')">
+                  <input type="number" min="0" v-model.number="limit.visitor" @input="$root.nullifyIfEmpty(limit, 'visitor')">
                 </td>
                 <td>
-                    <button class="button is-small is-warning" v-if="!limit.isEditing" @click="$set(limit, 'isEditing', true)">Edit</button>
-                    <button class="button is-small is-primary" v-if="limit.isEditing" @click="saveLimit(limit)">Save</button>
+                  <button class="button is-small is-warning" v-if="!limit.isEditing" @click="$set(limit, 'isEditing', true)">Edit</button>
+                  <button class="button is-small is-primary" v-if="limit.isEditing" @click="saveLimit(limit)">Save</button>
                 </td>
                 <td>
-                    <button class="button is-small is-danger" v-if="!limit.default" @click="deleteLimit(limit)">Use default</button>
+                  <button class="button is-small is-danger" v-if="!limit.default" @click="deleteLimit(limit)">Use default</button>
                 </td>
               </tr>
               <tr v-show="isLoading">

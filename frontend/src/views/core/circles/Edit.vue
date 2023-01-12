@@ -20,22 +20,22 @@
 
         <div class="field">
           <label class="label">Joinable?
-            <input type="checkbox" class="checkbox" v-model="circle.joinable"/>
+            <input type="checkbox" class="checkbox" v-model="circle.joinable" />
           </label>
           <p class="help is-danger" v-if="errors.joinable">{{ errors.joinable.join(', ')}}</p>
         </div>
 
-        <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+        <b-loading is-full-page="false" :active.sync="isLoading" />
 
         <div class="field">
           <div class="control">
-            <input type="submit" value="Save circle" :disabled="isSaving" class="button is-primary is-fullwidth"/>
+            <input type="submit" value="Save circle" :disabled="isSaving" class="button is-primary is-fullwidth" />
           </div>
         </div>
       </form>
     </div>
 
-    <hr/>
+    <hr />
 
     <div class="tile is-child" v-if="$route.params.id">
       <div class="field">
@@ -52,15 +52,16 @@
               <template slot-scope="props">
                 <div class="media">
                   <div class="media-content">
-                      {{ props.option.name }}
-                      <br>
-                      <small> {{ props.option.description }} </small>
+                    {{ props.option.name }}
+                    <br>
+                    <small> {{ props.option.description }} </small>
                   </div>
                 </div>
               </template>
             </b-autocomplete>
             <p class="control">
-              <a class="button is-danger"
+              <a
+                class="button is-danger"
                 @click="setParentCircle(null)"
                 v-if="circle.parent_circle">{{ circle.parent_circle.name }} (Click to unset)</a>
               <a class="button is-static" v-if="!circle.parent_circle">Not set.</a>
@@ -74,7 +75,7 @@
         <ul>
           <li v-for="childCircle in circle.child_circles" v-bind:key="childCircle.id">
             <span class="tag is-danger">{{ childCircle.name }}
-              <button class="delete is-small" @click="unsetAsParentCircle(childCircle)"></button>
+              <button class="delete is-small" @click="unsetAsParentCircle(childCircle)" />
             </span>
           </li>
           <li v-if="circle.child_circles.length === 0">
@@ -97,9 +98,9 @@
               <template slot-scope="props">
                 <div class="media">
                   <div class="media-content">
-                      {{ props.option.name }}
-                      <br>
-                      <small> {{ props.option.description }} </small>
+                    {{ props.option.name }}
+                    <br>
+                    <small> {{ props.option.description }} </small>
                   </div>
                 </div>
               </template>
@@ -113,7 +114,7 @@
         <ul>
           <li v-for="permission in circle.permissions" v-bind:key="permission.id">
             <span class="tag is-danger">{{ permission.combined }}
-              <button class="delete is-small" @click="deletePermission(permission)"></button>
+              <button class="delete is-small" @click="deletePermission(permission)" />
             </span>
           </li>
           <li v-if="circle.permissions.length === 0">
@@ -136,9 +137,9 @@
               <template slot-scope="props">
                 <div class="media">
                   <div class="media-content">
-                      {{ props.option.combined }}
-                      <br>
-                      <small> {{ props.option.description }} </small>
+                    {{ props.option.combined }}
+                    <br>
+                    <small> {{ props.option.description }} </small>
                   </div>
                 </div>
               </template>

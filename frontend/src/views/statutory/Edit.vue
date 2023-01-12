@@ -47,9 +47,9 @@
         <div class="field">
           <label class="label">Description <span class="has-text-danger">*</span></label>
           <div class="control">
-            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="event.description"></textarea>
+            <textarea class="textarea" placeholder="e.g. Hello world" required v-model="event.description" />
           </div>
-          <label class="label">Preview <MarkdownTooltip/></label>
+          <label class="label">Preview <MarkdownTooltip /></label>
           <div class="content">
             <span v-html="$options.filters.markdown(event.description)" />
           </div>
@@ -90,7 +90,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Link to booklet folder <URLTooltip/></label>
+          <label class="label">Link to booklet folder <URLTooltip /></label>
           <div class="control">
             <input class="input" type="url" v-model="event.booklet_folder" />
           </div>
@@ -260,24 +260,25 @@
             <div class="control">
               <div class="field has-addons">
                 <b-autocomplete
-                v-model="autoComplete.bodies.name"
-                :data="autoComplete.bodies.values"
-                open-on-focus="true"
-                :loading="autoComplete.bodies.loading"
-                @input="query => fetchBodies(query)"
-                @select="body => { event.body_id = body.id; $set(event, 'body', body); }">
-                <template slot-scope="props">
-                  <div class="media">
-                    <div class="media-content">
+                  v-model="autoComplete.bodies.name"
+                  :data="autoComplete.bodies.values"
+                  open-on-focus="true"
+                  :loading="autoComplete.bodies.loading"
+                  @input="query => fetchBodies(query)"
+                  @select="body => { event.body_id = body.id; $set(event, 'body', body); }">
+                  <template slot-scope="props">
+                    <div class="media">
+                      <div class="media-content">
                         {{ props.option.name }}
                         <br>
                         <small> {{ props.option.description }} </small>
+                      </div>
                     </div>
-                  </div>
-                </template>
-              </b-autocomplete>
+                  </template>
+                </b-autocomplete>
                 <p class="control">
-                  <a class="button is-danger"
+                  <a
+                    class="button is-danger"
                     @click="body => { $set(event, 'body_id', null); $delete(event, 'body') }"
                     v-if="event.body">{{ event.body.name }} (Click to unset)</a>
                   <a class="button is-static" v-if="!event.body">Not set.</a>
@@ -296,14 +297,14 @@
                 <a class="button is-static">€</a>
               </div>
               <div class="control">
-                <input class="input" type="number" v-model.number="event.fee" required min="0"/>
+                <input class="input" type="number" v-model.number="event.fee" required min="0" />
               </div>
             </div>
           </div>
           <p class="help is-danger" v-if="errors.fee">{{ errors.fee.message }}</p>
         </div>
 
-        <hr/>
+        <hr />
 
         <div class="subtitle is-fullwidth has-text-centered">Questions <span class="has-text-danger">*</span></div>
 
@@ -314,13 +315,13 @@
               <th>Type</th>
               <th>Required (works for text and string)?</th>
               <th>Values (for select)</th>
-              <th></th>
+              <th />
             </tr>
           </thead>
           <tbody>
             <tr v-for="(question, index) in event.questions" v-bind:key="index">
               <td>
-                <input class="input" type="text" required v-model="event.questions[index].description"/>
+                <input class="input" type="text" required v-model="event.questions[index].description" />
               </td>
               <td>
                 <div class="select">
@@ -340,7 +341,7 @@
                 <input-tag
                   v-if="event.questions[index].type === 'select'"
                   v-model="event.questions[index].values"
-                  :before-adding="value => value.trim()"></input-tag>
+                  :before-adding="value => value.trim()" />
               </td>
               <td>
                 <a class="button is-danger" @click="deleteQuestion(index)">Delete question</a>
@@ -354,7 +355,7 @@
 
         <div class="notification is-danger" v-if="errors.questions">
           <div class="content">
-          Could not create/edit event because of these reasons:
+            Could not create/edit event because of these reasons:
             <ul v-if="errors.questions">
               <li v-for="(error, index) in errors.questions" v-bind:key="index">{{ error }}</li>
             </ul>
@@ -370,7 +371,7 @@
         <p class="help is-danger" v-if="errors.fee">{{ errors.questions.message }}</p>
 
         <div class="subtitle is-fullwidth has-text-centered">Locations</div>
-        <hr/>
+        <hr />
 
         <div class="notification is-info">
           <div class="content">
@@ -386,7 +387,7 @@
             :zoom="map.zoom"
             :scrollZoom="false"
             @load="onMapLoaded"
-            :center="map.center" >
+            :center="map.center">
             <MglNavigationControl position="top-right" />
             <MglMarker
               v-for="(location, index) in event.locations"
@@ -394,7 +395,7 @@
               :coordinates="location.position"
               color="red"
               :draggable="true"
-              @dragend="setMarkerPosition($event, index)"/>
+              @dragend="setMarkerPosition($event, index)" />
           </MglMap>
         </div>
 
@@ -404,7 +405,7 @@
               <th>Latitude</th>
               <th>Longitude</th>
               <th>Name</th>
-              <th></th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -432,12 +433,12 @@
 
         <div class="field">
           <div class="control">
-            <input type="submit" value="Save event" :disabled="isSaving" class="button is-primary is-fullwidth"/>
+            <input type="submit" value="Save event" :disabled="isSaving" class="button is-primary is-fullwidth" />
           </div>
         </div>
       </form>
 
-      <b-loading is-full-page="false" :active.sync="isLoading"></b-loading>
+      <b-loading is-full-page="false" :active.sync="isLoading" />
     </div>
   </div>
 </template>

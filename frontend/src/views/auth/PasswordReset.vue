@@ -1,27 +1,27 @@
 <template>
-<div class="content has-text-centered confirm-block">
-  <div class="columns is-vcentered">
-    <div class="column is-6 is-offset-3">
-      <div class="box">
-        <form v-on:submit.prevent="resetPassword">
-          <div class="field">
-            <label class="label">Email</label>
-            <div class="control">
-              <input v-model="email" data-cy="email" required class="input" type="email" placeholder="Type the email you've registered with.">
+  <div class="content has-text-centered confirm-block">
+    <div class="columns is-vcentered">
+      <div class="column is-6 is-offset-3">
+        <div class="box">
+          <form v-on:submit.prevent="resetPassword">
+            <div class="field">
+              <label class="label">Email</label>
+              <div class="control">
+                <input v-model="email" data-cy="email" required class="input" type="email" placeholder="Type the email you've registered with.">
+              </div>
+              <p class="help is-danger" v-if="error">{{ error }}</p>
             </div>
-             <p class="help is-danger" v-if="error">{{ error }}</p>
-          </div>
 
-          <hr />
-          <p class="control">
-            <button type="submit" class="button is-primary">Reset password</button>
-            <router-link :to="{ name: 'oms.password_confirm' }" class="button">Confirm password</router-link>
-          </p>
-        </form>
+            <hr />
+            <p class="control">
+              <button type="submit" class="button is-primary">Reset password</button>
+              <router-link :to="{ name: 'oms.password_confirm' }" class="button">Confirm password</router-link>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
 </template>
 
 <script>

@@ -13,9 +13,9 @@
           </div>
 
           <div class="notification is-info">
-              Keep in mind that the passwords for OpenSlides are generated at the runtime.
-              If you'll export this data 2 times, you'll get 2 different set of passwords.
-              Therefore it's more reasonable to do it only when you'll have the participants list finalized.
+            Keep in mind that the passwords for OpenSlides are generated at the runtime.
+            If you'll export this data 2 times, you'll get 2 different set of passwords.
+            Therefore it's more reasonable to do it only when you'll have the participants list finalized.
           </div>
 
           <hr />
