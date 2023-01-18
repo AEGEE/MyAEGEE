@@ -1,3 +1,10 @@
+## [1.33.14](https://github.com/AEGEE/frontend/compare/1.33.13...1.33.14) (2023-01-18)
+
+
+### Bug Fixes
+
+* **su:** updates for 2023 ([#1621](https://github.com/AEGEE/frontend/issues/1621)) ([bf9b7e5](https://github.com/AEGEE/frontend/commit/bf9b7e5861917f957699315d8ba442e944b34f0a))
+
 ## [1.33.13](https://github.com/AEGEE/frontend/compare/1.33.12...1.33.13) (2022-09-17)
 
 
