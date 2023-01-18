@@ -1,3 +1,10 @@
+## [1.4.12](https://github.com/AEGEE/summeruniversity/compare/1.4.11...1.4.12) (2023-01-18)
+
+
+### Bug Fixes
+
+* increase maximum optional fee to 50 euros ([#455](https://github.com/AEGEE/summeruniversity/issues/455)) ([a993d4d](https://github.com/AEGEE/summeruniversity/commit/a993d4d6d259e6a686fcf1a405dfdf416dd2e8f6))
+
 ## [1.4.11](https://github.com/AEGEE/summeruniversity/compare/1.4.10...1.4.11) (2022-04-01)
 
 
