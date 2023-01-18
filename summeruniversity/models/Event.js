@@ -172,7 +172,7 @@ const Event = sequelize.define(
             validate: {
                 isNumeric: { msg: 'Optional fee should be valid.' },
                 min: { args: [0], msg: 'Optional fee cannot be negative' },
-                max: { args: [40], msg: 'Optional fee cannot be more than 40 euros.' }
+                max: { args: [50], msg: 'Optional fee cannot be more than 50 euros.' }
             }
         },
         organizing_bodies: {
