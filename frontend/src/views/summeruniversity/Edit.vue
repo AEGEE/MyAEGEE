@@ -108,6 +108,7 @@
             <select v-model="event.season">
               <option value="2021">2021</option>
               <option value="2022">2022</option>
+              <option value="2023">2023</option>
             </select>
           </div>
           <p class="help is-danger" v-if="errors.season">{{ errors.season.join(', ') }}</p>
@@ -286,7 +287,7 @@
 
         <div class="notification is-info">
           <div class="content">
-            <p>You may offer an optional programme to your event. If so, please specify the optional activities and its cost (maximum of 40 euros). Leave the fields empty if there is no extra fee charged. Be concise in the description: "trip to city X", "ice-skating", "extra museum".</p>
+            <p>You may offer an optional programme to your event. If so, please specify the optional activities and its cost (maximum of 50 euros). Leave the fields empty if there is no extra fee charged. Be concise in the description: "trip to city X", "ice-skating", "extra museum".</p>
           </div>
         </div>
         <div class="field">
@@ -297,7 +298,7 @@
                 <a class="button is-static">€</a>
               </div>
               <div class="control">
-                <input class="input" type="number" v-model="event.optional_fee" min="0" max="40" />
+                <input class="input" type="number" v-model="event.optional_fee" min="0" max="50" />
               </div>
             </div>
           </div>

@@ -32,7 +32,8 @@
             <div class="select">
               <select v-model="season" @change="refetch()">
                 <option value="2021">2021</option>
-                <option selected value="2022">2022</option>
+                <option value="2022">2022</option>
+                <option selected value="2023">2023</option>
               </select>
             </div>
           </div>
@@ -164,7 +165,7 @@ export default {
       eventTypes,
       eventTypesNames: constants.SUMMERUNIVERSITY_TYPES_NAMES,
       applicationStatuses,
-      season: 2022,
+      season: 2023,
       isLoading: {
         events: false,
         permissions: false
