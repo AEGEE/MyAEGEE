@@ -1,3 +1,10 @@
+## [1.4.13](https://github.com/AEGEE/summeruniversity/compare/1.4.12...1.4.13) (2023-01-18)
+
+
+### Bug Fixes
+
+* update default event season ([#456](https://github.com/AEGEE/summeruniversity/issues/456)) ([0a007c8](https://github.com/AEGEE/summeruniversity/commit/0a007c8e0a2371b2e4d1511fc6a1d1aec70163f8))
+
 ## [1.4.12](https://github.com/AEGEE/summeruniversity/compare/1.4.11...1.4.12) (2023-01-18)
 
 
