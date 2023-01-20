@@ -6,7 +6,7 @@
   "author": "Sergey Peshkov",
   "license": "ISC",
   "devDependencies": {
-    "@commitlint/cli": "^17.4.0",
+    "@commitlint/cli": "^17.4.2",
     "@commitlint/config-conventional": "^17.4.2",
     "@faker-js/faker": "^7.6.0",
     "@semantic-release/changelog": "^6.0.2",
