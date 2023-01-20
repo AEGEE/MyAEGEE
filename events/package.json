@@ -71,7 +71,7 @@
     "commitlint": "^17.4.2",
     "conventional-changelog": "^3.1.25",
     "conventional-changelog-cli": "^2.2.2",
-    "eslint": "^8.31.0",
+    "eslint": "^8.32.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5",
     "husky": "^8.0.3",
