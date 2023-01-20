@@ -50,7 +50,7 @@
     "eslint-plugin-vuejs-accessibility": "^1.2.0",
     "ical": "^0.8.0",
     "lodash": "^4.17.21",
-    "mapbox-gl": "^1.13.2",
+    "mapbox-gl": "^1.13.3",
     "marked": "^3.0.8",
     "moment": "^2.29.4",
     "node-sass": "^6.0.1",
