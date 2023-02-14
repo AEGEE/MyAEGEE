@@ -1,3 +1,10 @@
+## [1.33.15](https://github.com/AEGEE/frontend/compare/1.33.14...1.33.15) (2023-02-14)
+
+
+### Bug Fixes
+
+* **statutory:** disable meat-eater application option for Spring Agora Enschede 2023 ([#1643](https://github.com/AEGEE/frontend/issues/1643)) ([03f49e8](https://github.com/AEGEE/frontend/commit/03f49e80b41e1d48f70194671ace2db853dfcd55))
+
 ## [1.33.14](https://github.com/AEGEE/frontend/compare/1.33.13...1.33.14) (2023-01-18)
 
 
