@@ -86,7 +86,7 @@ def notifi_alert():
         }, timeout=10)
 
     if response.status_code != 200:
-        raise Exception(response.status_code, response.text)
+        raise ConnectionError(response.status_code, response.text)
 
 def telegram_alert():
     pass
