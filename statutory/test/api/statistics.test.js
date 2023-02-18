@@ -183,9 +183,9 @@ describe('Statistics testing', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('data');
         expect(Object.keys(res.body.data.by_meal).length).toEqual(2);
-        expect(res.body.data.by_meal[0].type).toEqual('vegetarian');
+        expect(res.body.data.by_meal[0].type).toEqual('Vegetarian');
         expect(res.body.data.by_meal[0].value).toEqual(2);
-        expect(res.body.data.by_meal[1].type).toEqual('meat-eater');
+        expect(res.body.data.by_meal[1].type).toEqual('Meat-eater');
         expect(res.body.data.by_meal[1].value).toEqual(1);
     });
 

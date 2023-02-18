@@ -796,7 +796,7 @@ describe('Applications creation', () => {
             body_id: regularUser.bodies[0].id,
             answers: [true]
         }, event);
-        application.meals = 'meat-eater';
+        application.meals = 'Meat-eater';
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 

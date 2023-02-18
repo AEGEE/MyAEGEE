@@ -95,7 +95,7 @@ exports.generateApplication = (options = {}, event = null) => {
         if (notSet(options[visaField])) options[visaField] = faker.lorem.sentence();
     }
 
-    if (notSet(options.meals)) options.meals = faker.random.arrayElement(['meat-eater', 'vegetarian', 'vegan']);
+    if (notSet(options.meals)) options.meals = faker.random.arrayElement(['Meat-eater', 'Vegetarian', 'Vegan']);
     if (notSet(options.number_of_events_visited)) options.number_of_events_visited = faker.datatype.number({ min: 0, max: 100 });
 
     if (notSet(options.answers)) {

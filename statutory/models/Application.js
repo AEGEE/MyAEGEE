@@ -326,8 +326,8 @@ const Application = sequelize.define('application', {
         defaultValue: '',
         validate: {
             isIn: {
-                args: [['meat-eater', 'vegetarian', 'vegan']],
-                msg: 'Meals should be one of these: meat-eater, vegetarian, vegan.'
+                args: [['Meat-eater', 'Vegetarian', 'Vegan']],
+                msg: 'Meals should be one of these: Meat-eater, Vegetarian, Vegan.'
             }
         }
     },
@@ -448,9 +448,8 @@ Application.findWithParams = ({ where, attributes, query }) => {
 };
 
 Application.beforeValidate((application) => {
-    application.meals = application.meals.toLowerCase().trim();
     // TODO: create an option to set that meat-eaters are not allowed for an event
-    if (application.event_id === 23 && application.meals === 'meat-eater') {
+    if (application.event_id === 23 && application.meals === 'Meat-eater') {
         throw new Error('Meat-eater is not allowed for this event.');
     }
 });
