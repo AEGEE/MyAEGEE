@@ -1,3 +1,10 @@
+## [1.9.3](https://github.com/AEGEE/statutory/compare/1.9.2...1.9.3) (2023-02-18)
+
+
+### Bug Fixes
+
+* **application:** add validation for meals ([#937](https://github.com/AEGEE/statutory/issues/937)) ([3028ec1](https://github.com/AEGEE/statutory/commit/3028ec1d951b68b2e790967c397a556617075287))
+
 ## [1.9.2](https://github.com/AEGEE/statutory/compare/1.9.1...1.9.2) (2022-10-28)
 
 
