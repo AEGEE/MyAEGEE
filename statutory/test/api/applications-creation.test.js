@@ -753,6 +753,68 @@ describe('Applications creation', () => {
         expect(res.body.errors).toHaveProperty('number_of_events_visited');
     });
 
+    test('should return 422 if meals is not one of the allowed options', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
+            applications: []
+        });
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id,
+            answers: [true]
+        });
+        application.meals = 'gluten-free';
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(422);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('errors');
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body.errors).toHaveProperty('meals');
+    });
+
+    test('should return 500 if meat-eater is given but not allowed', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent({
+            id: 23,
+            questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
+            applications: []
+        });
+        const application = generator.generateApplication({
+            body_id: regularUser.bodies[0].id,
+            answers: [true]
+        }, event);
+        application.meals = 'meat-eater';
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: application
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(500);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toContain('Meat-eater is not allowed');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
     const visaFields = [
         'visa_place_of_birth',
         'visa_passport_number',
