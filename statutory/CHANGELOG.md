@@ -1,3 +1,10 @@
+## [1.9.4](https://github.com/AEGEE/statutory/compare/1.9.3...1.9.4) (2023-02-18)
+
+
+### Bug Fixes
+
+* **statutory:** capitalize meals ([#945](https://github.com/AEGEE/statutory/issues/945)) ([664b274](https://github.com/AEGEE/statutory/commit/664b27408c1ce7ad3e481a2c90b6b70c8175eb9e))
+
 ## [1.9.3](https://github.com/AEGEE/statutory/compare/1.9.2...1.9.3) (2023-02-18)
 
 
