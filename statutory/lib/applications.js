@@ -743,6 +743,7 @@ exports.exportAll = async (req, res) => {
     // If prefix is /all, all fields are available.
     if (req.params.prefix !== 'all') {
         req.query.select = req.query.select.filter((field) => constants.ALLOWED_INCOMING_FIELDS.includes(field));
+        req.query.filter = { status: 'accepted' };
     }
 
     // Default query is filtering out cancelled applications.
