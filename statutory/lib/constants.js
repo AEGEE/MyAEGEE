@@ -58,7 +58,6 @@ module.exports = {
         'visa_postal_code',
         'visa_city',
         'visa_country',
-        'date_of_birth',
         'created_at',
         'updated_at'
     ],
