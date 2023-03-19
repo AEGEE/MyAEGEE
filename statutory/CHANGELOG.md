@@ -1,3 +1,10 @@
+## [1.9.5](https://github.com/AEGEE/statutory/compare/1.9.4...1.9.5) (2023-03-19)
+
+
+### Bug Fixes
+
+* **applications:** only allow accepted participants to be exported by incoming ([#964](https://github.com/AEGEE/statutory/issues/964)) ([e99d624](https://github.com/AEGEE/statutory/commit/e99d62431a7d7a4ccbc7fdf0f918bc1ed2b1c589))
+
 ## [1.9.4](https://github.com/AEGEE/statutory/compare/1.9.3...1.9.4) (2023-02-18)
 
 
