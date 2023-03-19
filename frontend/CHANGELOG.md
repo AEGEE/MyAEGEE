@@ -1,3 +1,10 @@
+## [1.33.16](https://github.com/AEGEE/frontend/compare/1.33.15...1.33.16) (2023-03-19)
+
+
+### Bug Fixes
+
+* **statutory:** only filter on participant status and confirmation when all ([#1667](https://github.com/AEGEE/frontend/issues/1667)) ([20004ff](https://github.com/AEGEE/frontend/commit/20004ff1ade6f6afb24af6d955e778d1b0417920))
+
 ## [1.33.15](https://github.com/AEGEE/frontend/compare/1.33.14...1.33.15) (2023-02-14)
 
 
