@@ -45,7 +45,7 @@
             </div>
           </div>
 
-          <div class="field is-fullwidth">
+          <div class="field is-fullwidth" v-if="this.can.export.all">
             <label class="label">Filter on participant type</label>
             <div class="select">
               <select v-model="filter.participant_type">
