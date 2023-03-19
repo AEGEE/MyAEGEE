@@ -1,3 +1,10 @@
+## [1.9.7](https://github.com/AEGEE/statutory/compare/1.9.6...1.9.7) (2023-03-19)
+
+
+### Bug Fixes
+
+* **statutory:** remove date of birth from incoming fields ([#967](https://github.com/AEGEE/statutory/issues/967)) ([e65919a](https://github.com/AEGEE/statutory/commit/e65919ac87ca17599f7c9aa3cf54aa86d9265b35))
+
 ## [1.9.6](https://github.com/AEGEE/statutory/compare/1.9.5...1.9.6) (2023-03-19)
 
 
