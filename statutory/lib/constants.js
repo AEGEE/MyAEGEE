@@ -48,8 +48,6 @@ module.exports = {
         'meals',
         'allergies',
         'email',
-        'gender',
-        'nationality',
         'visa_place_of_birth',
         'visa_passport_number',
         'visa_passport_issue_date',
