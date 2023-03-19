@@ -1,3 +1,10 @@
+## [1.33.17](https://github.com/AEGEE/frontend/compare/1.33.16...1.33.17) (2023-03-19)
+
+
+### Bug Fixes
+
+* **statutory:** only filter on participant type when allowed to export all ([#1669](https://github.com/AEGEE/frontend/issues/1669)) ([cc1f28f](https://github.com/AEGEE/frontend/commit/cc1f28f50122d7fa5ffb36695e5d9718e22d8340))
+
 ## [1.33.16](https://github.com/AEGEE/frontend/compare/1.33.15...1.33.16) (2023-03-19)
 
 
