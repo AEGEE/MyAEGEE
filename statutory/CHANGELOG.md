@@ -1,3 +1,10 @@
+## [1.9.6](https://github.com/AEGEE/statutory/compare/1.9.5...1.9.6) (2023-03-19)
+
+
+### Bug Fixes
+
+* **statutory:** update incoming fields ([#966](https://github.com/AEGEE/statutory/issues/966)) ([5fedc8b](https://github.com/AEGEE/statutory/commit/5fedc8b4872dc1a9e8cdd1e977fff89fb8375a69))
+
 ## [1.9.5](https://github.com/AEGEE/statutory/compare/1.9.4...1.9.5) (2023-03-19)
 
 
