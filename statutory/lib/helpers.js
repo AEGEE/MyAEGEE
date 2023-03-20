@@ -392,7 +392,8 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     // Update is_on_memberslist attribute (Network Director).
     const updateMemberslistStatus = hasPermission(corePermissions, 'update_memberslist_status:' + event.type);
 
-    permissions.see_application = mine || canManage || isIncoming || permissions.see_boardview[application.body_id];
+    permissions.see_application = mine || canManage || permissions.see_boardview[application.body_id];
+    permissions.see_application_incoming = isIncoming;
 
     // User can edit application if it's his application and it's within the deadline, or if he has the permission.
     permissions.edit_application = (mine && event.can_apply) || canManage || canApply;

@@ -188,6 +188,22 @@ exports.fetchSingleApplication = async (req, res, next) => {
         mine: req.user.id === req.application.user_id
     });
 
+    if (req.permissions.see_application_incoming && !req.permissions.see_application) {
+        whereObj.status = 'accepted';
+        whereObj.cancelled = false;
+
+        const incomingApplication = await Application.findOne({
+            attributes: constants.ALLOWED_INCOMING_FIELDS,
+            where: whereObj
+        });
+
+        if (!incomingApplication) {
+            return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.');
+        }
+
+        req.application = incomingApplication;
+    }
+
     return next();
 };
 

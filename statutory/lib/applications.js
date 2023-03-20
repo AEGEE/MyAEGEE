@@ -217,7 +217,7 @@ exports.listBoardView = async (req, res) => {
 };
 
 exports.getApplication = async (req, res) => {
-    if (!req.permissions.see_application) {
+    if (!req.permissions.see_application && !req.permissions.see_application_incoming) {
         return errors.makeForbiddenError(res, 'You are not allowed to see this application.');
     }
 
