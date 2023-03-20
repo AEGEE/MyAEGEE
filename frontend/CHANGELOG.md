@@ -1,3 +1,10 @@
+## [1.33.18](https://github.com/AEGEE/frontend/compare/1.33.17...1.33.18) (2023-03-20)
+
+
+### Bug Fixes
+
+* **statutory:** only show answers when given ([#1670](https://github.com/AEGEE/frontend/issues/1670)) ([8ac8cbe](https://github.com/AEGEE/frontend/commit/8ac8cbed83a0613e7c42fdb54237bb447a5f1332))
+
 ## [1.33.17](https://github.com/AEGEE/frontend/compare/1.33.16...1.33.17) (2023-03-19)
 
 
