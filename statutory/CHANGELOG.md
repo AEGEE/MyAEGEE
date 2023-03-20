@@ -1,3 +1,10 @@
+## [1.9.8](https://github.com/AEGEE/statutory/compare/1.9.7...1.9.8) (2023-03-20)
+
+
+### Bug Fixes
+
+* **applications:** only view incoming fields in application ([#968](https://github.com/AEGEE/statutory/issues/968)) ([09ecc4f](https://github.com/AEGEE/statutory/commit/09ecc4f30b68deaa14cf0b2cd1c8239d1271c0c0))
+
 ## [1.9.7](https://github.com/AEGEE/statutory/compare/1.9.6...1.9.7) (2023-03-19)
 
 
