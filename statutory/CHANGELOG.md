@@ -1,3 +1,10 @@
+## [1.9.9](https://github.com/AEGEE/statutory/compare/1.9.8...1.9.9) (2023-03-21)
+
+
+### Bug Fixes
+
+* **applications:** show date of birth for local organizers ([#970](https://github.com/AEGEE/statutory/issues/970)) ([7f3db08](https://github.com/AEGEE/statutory/commit/7f3db0858dd709737b0912feba0960cf1affb440))
+
 ## [1.9.8](https://github.com/AEGEE/statutory/compare/1.9.7...1.9.8) (2023-03-20)
 
 
