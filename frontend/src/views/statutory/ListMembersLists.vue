@@ -26,7 +26,7 @@
               <button class="button is-small is-primary" @click="openMembersListModal(props.row)">View memberslist</button>
             </b-table-column>
 
-            <b-table-column label="Last updated at" sortable>
+            <b-table-column field="updated_at" label="Last updated at" sortable>
               {{ props.row.updated_at | datetime }}
             </b-table-column>
 
