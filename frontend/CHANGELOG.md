@@ -1,3 +1,10 @@
+## [1.33.19](https://github.com/AEGEE/frontend/compare/1.33.18...1.33.19) (2023-03-23)
+
+
+### Bug Fixes
+
+* **statutory:** sort updated_at in members lists ([#1671](https://github.com/AEGEE/frontend/issues/1671)) ([da4d327](https://github.com/AEGEE/frontend/commit/da4d32799d4103fa0fb8cf245ca3c710b17c606c))
+
 ## [1.33.18](https://github.com/AEGEE/frontend/compare/1.33.17...1.33.18) (2023-03-20)
 
 
