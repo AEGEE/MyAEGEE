@@ -1,3 +1,10 @@
+## [1.33.21](https://github.com/AEGEE/frontend/compare/1.33.20...1.33.21) (2023-03-30)
+
+
+### Bug Fixes
+
+* **statutory:** replace statutory id in massmailer preview ([#1689](https://github.com/AEGEE/frontend/issues/1689)) ([96bbe5c](https://github.com/AEGEE/frontend/commit/96bbe5c4512b3ffe520fe3ac8d393ab1fb239cd1))
+
 ## [1.33.20](https://github.com/AEGEE/frontend/compare/1.33.19...1.33.20) (2023-03-30)
 
 
