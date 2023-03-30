@@ -59,7 +59,8 @@ exports.sendAll = async (req, res) => {
             .replace(/\{first_name\}/ig, application.first_name)
             .replace(/\{last_name\}/ig, application.last_name)
             .replace(/\{participant_type_order\}/ig, typeAndOrder)
-            .replace(/\{body_name\}/ig, application.body_name);
+            .replace(/\{body_name\}/ig, application.body_name)
+            .replace(/\{statutory_id\}/ig, application.statutory_id);
 
         // Using the custom mailer template, it accepts only body as a parameter
         // and sends the body as it was passed.
