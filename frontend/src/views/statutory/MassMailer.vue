@@ -138,7 +138,7 @@ export default {
         last_name: 'Surname'
       },
       stabBody: { name: 'AEGEE-Europe' },
-      stabApplication: { participant_type: 'delegate', participant_order: 1 }
+      stabApplication: { statutory_id: '001-0001', participant_type: 'delegate', participant_order: 1 }
     }
   },
   computed: {
@@ -155,6 +155,7 @@ export default {
         .replace(/\{last_name\}/ig, this.stabUser.last_name)
         .replace(/\{participant_type_order\}/ig, typeAndOrder)
         .replace(/\{body_name\}/ig, this.stabBody.name)
+        .replace(/\{statutory_id\}/ig, this.stabApplication.statutory_id)
     },
     filter () {
       const filterObj = {}
