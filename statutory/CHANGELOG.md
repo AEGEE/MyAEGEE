@@ -1,3 +1,10 @@
+## [1.9.10](https://github.com/AEGEE/statutory/compare/1.9.9...1.9.10) (2023-03-30)
+
+
+### Bug Fixes
+
+* **massmailer:** add statutory ID to replaced text ([#977](https://github.com/AEGEE/statutory/issues/977)) ([48b5e22](https://github.com/AEGEE/statutory/commit/48b5e2229d318f97b8dab5cc0e6f31b0bf38e9fb))
+
 ## [1.9.9](https://github.com/AEGEE/statutory/compare/1.9.8...1.9.9) (2023-03-21)
 
 
