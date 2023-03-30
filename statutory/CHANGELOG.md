@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/AEGEE/statutory/compare/1.9.10...1.10.0) (2023-03-30)
+
+
+### Features
+
+* **memberslists:** add API endpoints for missing members lists and lists without local fee ([#982](https://github.com/AEGEE/statutory/issues/982)) ([93de520](https://github.com/AEGEE/statutory/commit/93de520513cb05c76d437e9ef01f865e0f54b592))
+
 ## [1.9.10](https://github.com/AEGEE/statutory/compare/1.9.9...1.9.10) (2023-03-30)
 
 
