@@ -1,3 +1,10 @@
+## [1.33.22](https://github.com/AEGEE/frontend/compare/1.33.21...1.33.22) (2023-03-30)
+
+
+### Bug Fixes
+
+* **statutory:** fix typo in permission ([#1690](https://github.com/AEGEE/frontend/issues/1690)) ([d6f0598](https://github.com/AEGEE/frontend/commit/d6f05985512f85d2fb038f8b3f7c28101c109f0c))
+
 ## [1.33.21](https://github.com/AEGEE/frontend/compare/1.33.20...1.33.21) (2023-03-30)
 
 
