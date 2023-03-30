@@ -107,6 +107,8 @@ SingleApplicationRouter.put('/', applications.updateApplication);
 
 MembersListsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, middlewares.fetchEvent, memberslists.checkIfAgora);
 MembersListsRouter.get('/', memberslists.getAllMemberslists);
+MembersListsRouter.get('/missing', memberslists.getMissingMemberslists);
+MembersListsRouter.get('/without_fee', memberslists.getMemberslistsWithoutFee);
 MembersListsRouter.get('/:body_id', memberslists.getMemberslist);
 MembersListsRouter.post('/:body_id', memberslists.uploadMembersList);
 

@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 const core = require('./core');
 const errors = require('./errors');
 const mailer = require('./mailer');
@@ -45,6 +47,46 @@ exports.getMemberslist = async (req, res) => {
     return res.json({
         success: true,
         data: memberslist
+    });
+};
+
+exports.getMissingMemberslists = async (req, res) => {
+    if (!req.permissions.see_memberslist.global) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see memberslists.');
+    }
+
+    const memberslists = await MembersList.findAll({ where: { event_id: req.event.id } });
+    const bodies = await core.getBodies(req);
+
+    const missingMemberslists = bodies.filter((body) => !memberslists.find((memberslist) => memberslist.dataValues.body_id === body.id) && ['antenna', 'contact antenna', 'contact'].includes(body.type));
+
+    const filteredMissingMembersLists = [];
+    missingMemberslists.forEach((missingMemberslist) => filteredMissingMembersLists.push(_.pick(missingMemberslist, ['id', 'name', 'type'])));
+
+    return res.json({
+        success: true,
+        data: filteredMissingMembersLists
+    });
+};
+
+exports.getMemberslistsWithoutFee = async (req, res) => {
+    if (!req.permissions.see_memberslist.global) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see memberslists.');
+    }
+
+    const memberslists = await MembersList.findAll({ where: { event_id: req.event.id } });
+    const memberslistsWithoutFee = memberslists.filter((memberslist) => memberslist.dataValues.members.every((member) => member.fee === 0));
+
+    const bodies = await core.getBodies(req);
+
+    const bodiesWithoutFee = bodies.filter((body) => memberslistsWithoutFee.find((memberslistWithoutFee) => memberslistWithoutFee.dataValues.body_id === body.id));
+
+    const filteredBodiesWithoutFee = [];
+    bodiesWithoutFee.forEach((bodyWithoutFee) => filteredBodiesWithoutFee.push(_.pick(bodyWithoutFee, ['id', 'name', 'type'])));
+
+    return res.json({
+        success: true,
+        data: filteredBodiesWithoutFee
     });
 };
 
