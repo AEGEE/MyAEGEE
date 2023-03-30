@@ -55,6 +55,7 @@
                         <li><i>{last_name}</i> - user's last name</li>
                         <li><i>{participant_type_order}</i> - applicant's type order, in this format: <strong>type (order)</strong>, or <strong>not set</strong> if it's not set by the board.</li>
                         <li><i>{body_name}</i> - name of the body</li>
+                        <li><i>{statutory_id}</i> - applicant's statutory id</li>
                       </ul>
                       <span>Also you can use Markdown for text markup. For example, you can:</span>
                       <ul>
