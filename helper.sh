@@ -83,7 +83,7 @@ init_boot ()
 pw_changer ()
 {
     echo -e "\n[Deployment] Setting passwords\n"
-    bash "${DIR}"/password-setter.sh
+    bash "${DIR}"/scripts/password-setter.sh
 }
 
 # wrapper for the compose mess (ACCEPTS PARAMETERS)
