@@ -19,6 +19,10 @@
               <td>{{ stats.numbers.pending }}</td>
             </tr>
             <tr>
+              <th>Waiting list applications:</th>
+              <td>{{ stats.numbers.waiting_list }}</td>
+            </tr>
+            <tr>
               <th>Rejected applications:</th>
               <td>{{ stats.numbers.rejected }}</td>
             </tr>
