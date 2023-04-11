@@ -1,3 +1,10 @@
+## [1.33.23](https://github.com/AEGEE/frontend/compare/1.33.22...1.33.23) (2023-04-11)
+
+
+### Bug Fixes
+
+* **statutory:** show amount of waiting list participants ([#1697](https://github.com/AEGEE/frontend/issues/1697)) ([9e7a760](https://github.com/AEGEE/frontend/commit/9e7a76026cedc92299ba54add56410ab6c623de4))
+
 ## [1.33.22](https://github.com/AEGEE/frontend/compare/1.33.21...1.33.22) (2023-03-30)
 
 
