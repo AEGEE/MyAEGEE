@@ -230,13 +230,13 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
     permissions.delete_summeruniversity = permissions.manage_summeruniversity[event.type];
 
     if (user) {
-        // TODO: this is a temporary solution so people that have applied in 2021 can apply again
+        // TODO: this is a temporary solution so people that have applied in 2021 and/or 2022 can apply again
         const applicationCount = await Application.count({ where: {
             user_id: user.id,
             event_id: { [Sequelize.Op.ne]: event.id },
             status: { [Sequelize.Op.ne]: 'rejected' },
             cancelled: false,
-            '$event.season$': 2022
+            '$event.season$': 2023
         },
         include: [{
             model: Event,
