@@ -1,3 +1,10 @@
+## [1.4.14](https://github.com/AEGEE/summeruniversity/compare/1.4.13...1.4.14) (2023-04-11)
+
+
+### Bug Fixes
+
+* **event:** restrict 2023 application to 1 per account ([#509](https://github.com/AEGEE/summeruniversity/issues/509)) ([d47dd8b](https://github.com/AEGEE/summeruniversity/commit/d47dd8b2c73e762523ebab1638b34ba32e34cb24))
+
 ## [1.4.13](https://github.com/AEGEE/summeruniversity/compare/1.4.12...1.4.13) (2023-01-18)
 
 
