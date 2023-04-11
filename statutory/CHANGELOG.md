@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/AEGEE/statutory/compare/1.10.0...1.10.1) (2023-04-11)
+
+
+### Bug Fixes
+
+* **appplications:** add waiting list to stats ([#986](https://github.com/AEGEE/statutory/issues/986)) ([41c8f0a](https://github.com/AEGEE/statutory/commit/41c8f0acd78e5a99472d017407c432e6eeca35e9))
+
 # [1.10.0](https://github.com/AEGEE/statutory/compare/1.9.10...1.10.0) (2023-03-30)
 
 
