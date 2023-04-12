@@ -1,3 +1,10 @@
+## [1.33.24](https://github.com/AEGEE/frontend/compare/1.33.23...1.33.24) (2023-04-12)
+
+
+### Bug Fixes
+
+* **summeruniversity:** loosen equality for SU locations ([#1700](https://github.com/AEGEE/frontend/issues/1700)) ([064625f](https://github.com/AEGEE/frontend/commit/064625f75396f127639fa2e8c3294695be63240c))
+
 ## [1.33.23](https://github.com/AEGEE/frontend/compare/1.33.22...1.33.23) (2023-04-11)
 
 
