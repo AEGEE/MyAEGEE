@@ -9,4 +9,5 @@ sudo apt-get install -y jq
 echo "[Vagrant] ###################     Installing net-tools"
 sudo apt-get install -y net-tools
 
+echo "[Vagrant] ###################     Installing vim"
 sudo apt-get install -y vim
