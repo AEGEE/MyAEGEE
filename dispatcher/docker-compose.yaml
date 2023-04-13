@@ -1,0 +1,25 @@
+version: "3.4"
+
+services:
+
+  rabbit:
+    image: rabbitmq:3.11-management
+    restart: always
+    expose:
+      - 5672
+    ports:
+      - 8080:15672
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    restart: always
+    ports:
+      - 8025:8025
+      - 1025:1025
+
+
+
+networks:
+  default:
+    external:
+      name: OMS
