@@ -23,7 +23,6 @@ We do not need a web service for this, only a worker. Doing it this way only mea
 In order to add templates, one can work on the filesystem: as the template file is read from memory at the time a message is received, there is basically a mechanism of hot-reload ready to be used.
 
 We do not need a web service, because we do not need to pilot anything.
- #FIXME validate this. Run app and add a new template and push to the queue a new template
 
 ## Queues
 
@@ -40,4 +39,5 @@ Queues envisioned:
 rather in order:
 1. (not on this project): run core with the email as 'inserting in the queue' instead of 'API request to mailer'
 1. include traefik configuration to have the mailhog and rabbit on a subdomain instead of `domain:port`
+1. When RabbitMQ quits or crashes it will forget the queues and messages unless you tell it not tot: we need to mark both the queue and messages as durable
 1. add the telegram queue

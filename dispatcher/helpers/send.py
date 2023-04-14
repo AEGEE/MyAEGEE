@@ -20,8 +20,8 @@ def generate_fake_payload():
         "to": [faker.email() for _ in range(random.randrange(1,3))],
         "reply_to": "noreply@aegee.eu",
         "subject": faker.sentence(),
-        "template": "member_expired",
-        "parameters": {"first_name": faker.name(), "body": f"AEGEE-{faker.city()}", "last_payment": faker.date()}
+        "template": "new_member",
+        "parameters": {"member_firstname": faker.first_name(), "body": f"AEGEE-{faker.city()}", "last_payment": faker.date(), "body_name": faker.language_name()}
     }
     return email
 
