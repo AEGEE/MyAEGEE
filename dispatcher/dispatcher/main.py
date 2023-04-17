@@ -10,10 +10,10 @@ continuously polls the email queue and renders+sends the template on every acked
 
 environment = Environment(loader=FileSystemLoader("../templates/"))
 
-EMAIL_HOST='172.18.0.13' #FIXME
+EMAIL_HOST='mailhog' #FIXME differentiate between dev and prod
 smtpObj = smtplib.SMTP( EMAIL_HOST, 1025 )
 
-RABBIT_HOST='172.18.0.11' #FIXME
+RABBIT_HOST='rabbit'
 connection = pika.BlockingConnection(pika.ConnectionParameters(RABBIT_HOST))
 channel = connection.channel()
 
@@ -24,9 +24,9 @@ def send_email(ch, method, properties, body):
     try:
         template = environment.get_template(f"{msg['template']}.jinja2")
     except exceptions.TemplateNotFound:
+        # TODO: send a notification to someone about adding a template
         return
     # TODO: check if there is an auto-delete after 30 minutes for stuck un-acked messages
-    # TODO: add auto-retry. rabbit is smart and doesn't let me process a message again unless i force it
     rendered = template.render(msg['parameters'], altro=msg['subject'])
 
     email = EmailMessage()
@@ -35,7 +35,7 @@ def send_email(ch, method, properties, body):
     email['Reply-To'] = msg['reply_to']
     email['To'] = msg['to']
     email['Subject'] = msg['subject']
-    smtpObj.send_message(email)
+    smtpObj.send_message(email) #TODO handle case in which smtp not ready
     ch.basic_ack(delivery_tag = method.delivery_tag)
 
 channel.basic_consume(queue='email',

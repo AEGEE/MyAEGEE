@@ -1,0 +1,21 @@
+version: "3.4"
+
+services:
+
+  dispatcher:
+    build:
+      context: ./${PATH_DISPATCHER}/..
+      dockerfile: ./docker/Dockerfile
+    image: aegee/dispatcher:dev
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    restart: always
+    ports:
+      - 8025:8025
+      - 1025:1025
+    labels:
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_MAILHOG}${BASE_URL};"
+      - "traefik.backend=mailhog"
+      - "traefik.port=8025"
+      - "traefik.enable=true"
