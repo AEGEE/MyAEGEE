@@ -1,0 +1,27 @@
+version: "3.4"
+
+services:
+
+  rabbit:
+    image: rabbitmq:3.11-management
+    restart: always
+    expose:
+      - 5672
+      - 15672
+    labels:
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_RABBITMQ}${BASE_URL};PathPrefix:/"
+      - "traefik.backend=rabbit"
+      - "traefik.port=15672"
+      - "traefik.enable=true"
+
+  # Not a webservice, but a worker service
+  dispatcher:
+    image: aegee/dispatcher
+    restart: always
+
+
+
+networks:
+  default:
+    external:
+      name: OMS
