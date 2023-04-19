@@ -4,6 +4,8 @@ import random
 
 """
 creates between 1 and 8 fake emails and puts in the queue
+OR
+tests all templates it finds in the folder
 """
 
 from faker import Faker
@@ -13,6 +15,9 @@ RANDOM_AMOUNT_TEST=False
 ALL_TEMPLATES_TEST=True
 
 BODIES_LIST = [ "ITC", "HRC", "CC", "SomeCommission", "JC", "DPC", "MedCom" ]
+su_words_list = ['summer', 'awesome', 'your', 'now', 'sustainability', 'culture', 'europe', 'balkan', 'russia', 'adventure', 'ukraine', 'capital', 'montenegro', 'ireland', 'serbia', 'crimea', 'amazing', 'slavaukraini', 'heroiamslava']
+def su_sentence():
+    return faker.sentence(nb_words=5, ext_word_list=su_words_list)
 # from constants.js
 MAIL_SUBJECTS = {
     "CORE": {
@@ -23,9 +28,18 @@ MAIL_SUBJECTS = {
         "NEW_MEMBER": 'MyAEGEE: Welcome to AEGEE'
     },
     #"EVENTS": {},
+    "SUMMERUNIVERSITIES": {
+        "MAIL_APPLIED_MEMBER": f"You've successfully applied for {su_sentence()}",
+        "MAIL_APPLIED_ORGANISERS": f"Somebody has applied for {su_sentence()}",
+        "MAIL_APPLIED_BOARD": f"One of your body members has applied to {su_sentence()}",
+        "MAIL_UPDATED_MEMBER": f"Your application for {su_sentence()} was updated",
+        "MAIL_UPDATED_ORGANISERS": f"Somebody has updated their application for {su_sentence()}",
+        "MAIL_UPDATED_BOARD": f"One of your body members has updated their application to {su_sentence()}",
+    },
 }
 # should exist in constants.js but it does not yet.
 # anyway here one could #TODO a smarter way: look into the filesystem
+# but then you miss the correspondence between the subject and the template
 MAIL_TEMPLATES = {
     "CORE": {
         "MAIL_CONFIRMATION": 'confirm_email',
@@ -35,6 +49,14 @@ MAIL_TEMPLATES = {
         "NEW_MEMBER": 'new_member'
     },
     #"EVENTS": {},
+    "SUMMERUNIVERSITIES": {
+        "MAIL_APPLIED_MEMBER": "summeruniversity_applied",
+        "MAIL_APPLIED_ORGANISERS": "summeruniversity_organizer_applied",
+        "MAIL_APPLIED_BOARD": "summeruniversity_board_applied",
+        "MAIL_UPDATED_MEMBER": "summeruniversity_application_edited",
+        "MAIL_UPDATED_ORGANISERS": "summeruniversity_organizer_edited",
+        "MAIL_UPDATED_BOARD": "summeruniversity_board_edited",
+    },
 }
 
 RABBIT_HOST='172.18.0.8' #FIXME
@@ -61,10 +83,12 @@ def generate_fake_payload(subj="", template=""):
             "member_lastname": faker.last_name(),
             "body": f"AEGEE-{faker.city()}",
             "last_payment": faker.date(),
-            "body_name": random.choice(BODIES_LIST),
+            "body_name": random.choice(BODIES_LIST), #note: discrepancy in the microservices on the use of body vs body_name
             "body_id": random.choice(range(random.randrange(10,70))),
             "place": faker.city(),
             "token": faker.md5(),
+            "event": { "name": su_sentence(), "location": faker.city(), "url": "example.org"},
+            "application": { "first_name": faker.first_name(), "last_name": faker.last_name(), "body_name": random.choice(BODIES_LIST)},
         }
     }
     return email
