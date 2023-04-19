@@ -14,10 +14,12 @@ connection = pika.BlockingConnection(pika.ConnectionParameters(RABBIT_HOST))
 channel = connection.channel()
 
 channel.exchange_declare(exchange='eml',
-                         exchange_type='direct')
+                         exchange_type='direct',
+                         durable=True)
 channel.queue_declare(queue='email', durable=True)
 channel.queue_bind(exchange='eml',
-                   queue='email')
+                   queue='email',
+                   routing_key='mail')
 
 def generate_fake_payload():
     email = {
