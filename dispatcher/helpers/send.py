@@ -62,7 +62,9 @@ def generate_fake_payload(subj="", template=""):
             "body": f"AEGEE-{faker.city()}",
             "last_payment": faker.date(),
             "body_name": random.choice(BODIES_LIST),
+            "body_id": random.choice(range(random.randrange(10,70))),
             "place": faker.city(),
+            "token": faker.md5(),
         }
     }
     return email
