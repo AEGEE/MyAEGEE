@@ -5,7 +5,8 @@ from email.message import EmailMessage
 from jinja2 import Environment, FileSystemLoader, exceptions
 
 """
-continuously polls the email queue and renders+sends the template on every acked message
+continuously polls(*) the email queue and renders+sends the template on every acked message
+(*) = waits for the queue to push a message onto the app
 """
 
 environment = Environment(loader=FileSystemLoader("../templates/"))
@@ -18,10 +19,12 @@ connection = pika.BlockingConnection(pika.ConnectionParameters(RABBIT_HOST))
 channel = connection.channel()
 
 channel.exchange_declare(exchange='eml',
-                         exchange_type='direct')
+                         exchange_type='direct',
+                         durable=True)
 channel.queue_declare(queue='email', durable=True)
 channel.queue_bind(exchange='eml',
-                   queue='email')
+                   queue='email',
+                   routing_key='mail')
 channel.basic_qos(prefetch_count=1)
 
 def send_email(ch, method, properties, body):
