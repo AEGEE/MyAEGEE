@@ -10,8 +10,7 @@ COPY ./dispatcher/main.py /usr/app/src/main.py
 
 #USER python
 
-#ENV PORCO=dio
-#ENV PATH="/home/node/.npm-global/bin:${PATH}"
+#ENV FOO=BAR
 
 ENTRYPOINT [ "python", "-u" ]
 CMD ["main.py"]
