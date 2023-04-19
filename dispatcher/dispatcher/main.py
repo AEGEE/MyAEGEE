@@ -25,7 +25,7 @@ channel.queue_declare(queue='email', durable=True)
 channel.queue_bind(exchange='eml',
                    queue='email',
                    routing_key='mail')
-channel.basic_qos(prefetch_count=1)
+#channel.basic_qos(prefetch_count=1) #TODO: notice that an error processing a message will BLOCK the others from being processed
 
 def send_email(ch, method, properties, body):
     msg = json.loads(body)
@@ -33,6 +33,7 @@ def send_email(ch, method, properties, body):
         template = environment.get_template(f"{msg['template']}.jinja2")
     except exceptions.TemplateNotFound:
         # TODO: send a notification to someone about adding a template
+        print(f"template {msg['template']}.jinja2 not found")
         return
     # TODO: check if there is an auto-delete after 30 minutes for stuck un-acked messages
     rendered = template.render(msg['parameters'], altro=msg['subject'])
