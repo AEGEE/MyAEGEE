@@ -17,7 +17,12 @@ RABBIT_HOST='rabbit'
 connection = pika.BlockingConnection(pika.ConnectionParameters(RABBIT_HOST))
 channel = connection.channel()
 
+channel.exchange_declare(exchange='eml',
+                         exchange_type='direct')
 channel.queue_declare(queue='email', durable=True)
+channel.queue_bind(exchange='eml',
+                   queue='email')
+channel.basic_qos(prefetch_count=1)
 
 def send_email(ch, method, properties, body):
     msg = json.loads(body)
