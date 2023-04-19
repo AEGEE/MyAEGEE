@@ -7,6 +7,9 @@ services:
       context: ./${PATH_DISPATCHER}/..
       dockerfile: ./docker/Dockerfile
     image: aegee/dispatcher:dev
+    volumes:
+      - ./${PATH_DISPATCHER}/../templates:/usr/app/templates:ro
+      - ./${PATH_DISPATCHER}/../dispatcher:/usr/app/src:ro
 
   mailhog:
     image: mailhog/mailhog:v1.0.1
