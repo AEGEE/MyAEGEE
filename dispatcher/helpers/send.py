@@ -12,6 +12,7 @@ faker = Faker()
 RABBIT_HOST='172.18.0.8' #FIXME
 connection = pika.BlockingConnection(pika.ConnectionParameters(RABBIT_HOST))
 channel = connection.channel()
+channel.queue_declare(queue='email')
 
 
 def generate_fake_payload():
@@ -33,7 +34,6 @@ def generate_fake_payload():
 
 for _ in range(random.randrange(1,8)):
     email = generate_fake_payload()
-    channel.queue_declare(queue='email')
     channel.basic_publish(exchange='',
                         routing_key='email',
                         body=json.dumps(email))
