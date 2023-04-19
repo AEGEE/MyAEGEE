@@ -41,6 +41,6 @@ rather in order:
 1. [x] (not on this project): run core with the email as 'inserting in the queue' instead of 'API request to mailer'
 1. [?] (not on this project): run core with the email as 'exchange' instead of 'inserting in the queue'
 1. [x] include traefik configuration to have the mailhog and rabbit on a subdomain instead of `domain:port`
-1. [ ] When RabbitMQ quits or crashes it will forget the queues and messages unless you tell it not to: we need to mark both the queue and messages as durable
+1. [x] When RabbitMQ quits or crashes it will forget the queues and messages unless you tell it not to: we need to mark both the queue and messages as durable
 1. [ ] Add auto-retry (DLQ). rabbit is smart and doesn't let me process a message again unless i force it.. https://devcorner.digitalpress.blog/rabbitmq-retries-the-new-full-story/
 1. [ ] add the telegram queue
