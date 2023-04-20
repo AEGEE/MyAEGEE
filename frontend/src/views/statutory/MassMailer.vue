@@ -33,6 +33,17 @@
               </div>
 
               <div class="field is-fullwidth">
+                <label class="label">Filter on incoming form filled (LO)</label>
+                <div class="select">
+                  <select v-model="incoming">
+                    <option :value="null">Everybody</option>
+                    <option :value="true">Participants that did fill incoming form</option>
+                    <option :value="false">Participants that did not fill incoming form</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field is-fullwidth">
                 <label class="label">Filter on participant type</label>
                 <div class="select">
                   <select v-model="participant_type">
@@ -129,6 +140,7 @@ export default {
       text: '',
       status: null,
       confirmed: null,
+      incoming: null,
       participant_type: null,
       subject: '',
       reply_to: '',
@@ -162,6 +174,7 @@ export default {
 
       if (this.status !== null) filterObj.status = this.status
       if (this.confirmed !== null) filterObj.confirmed = this.confirmed
+      if (this.incoming !== null) filterObj.incoming = this.incoming
       if (this.participant_type !== null) filterObj.participant_type = this.participant_type
 
       return filterObj

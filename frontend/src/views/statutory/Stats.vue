@@ -140,6 +140,7 @@ export default {
           accepted: 0,
           rejected: 0,
           pending: 0,
+          waiting_list: 0,
           confirmed: 0,
           attended: 0,
           registered: 0,

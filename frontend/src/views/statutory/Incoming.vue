@@ -67,6 +67,15 @@
               </div>
             </b-table-column>
 
+            <b-table-column field="incoming" label="Incoming form filled?" centered sortable>
+              <div class="select" :class="{ 'is-loading': props.row.isSavingIncoming }">
+                <select v-model="props.row.newIncoming" @change="switchPaxIncoming(props.row)" :disabled="props.row.attended">
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+            </b-table-column>
+
             <b-table-column field="attended" label="Attended?" centered sortable>
               <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
                 <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.confirmed">
@@ -163,6 +172,19 @@ export default {
         this.$root.showError('Could not update participant fee info', err)
       })
     },
+    switchPaxIncoming (pax) {
+      pax.isSavingIncoming = true
+      const url = this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + pax.id + '/incoming'
+
+      this.axios.put(url, { incoming: pax.newIncoming }).then(() => {
+        pax.incoming = pax.newIncoming
+        pax.isSavingIncoming = false
+        this.$root.showSuccess(`Successfully updated incoming info of application for user #${pax.user_id}`)
+      }).catch((err) => {
+        pax.isSavingIncoming = false
+        this.$root.showError('Could not update participant incoming info', err)
+      })
+    },
     onPageChange (page) {
       this.offset = (page - 1) * this.limit
       this.loadApplications()
@@ -186,8 +208,10 @@ export default {
         // Fetching users and bodies.
         for (const pax of this.applications) {
           this.$set(pax, 'newConfirmed', pax.confirmed)
+          this.$set(pax, 'newIncoming', pax.incoming)
           this.$set(pax, 'newAttended', pax.attended)
           this.$set(pax, 'isSavingConfirmed', false)
+          this.$set(pax, 'isSavingIncoming', false)
           this.$set(pax, 'isSavingAttended', false)
         }
       }).catch((err) => {
