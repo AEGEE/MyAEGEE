@@ -555,6 +555,27 @@
           <p class="help is-danger" v-if="errors.is_programme_set">{{ errors.is_programme_set.join(', ') }}</p>
         </div>
 
+        <div class="notification is-success">
+          <div class="content">
+            <p><strong>Useful sustainability tips</strong></p>
+            <p>In AEGEE we aim to make our events as environmentally sustainable as possible.
+              In order to help you out on what you can do to make your event sustainable,
+              we have a few handy documents for you!
+            </p>
+
+            <p>Firstly, there is a general
+              <a href="https://drive.google.com/file/d/1xSgp2THL4rqFwZYgN79F0JwW2yFabiR7/view?usp=sharing" target="blank"><strong>guide on how to organise a sustainable event</strong></a>.
+              There is also an
+              <a href="https://docs.google.com/spreadsheets/d/1kwwbtznv4IjTY4bFmIp0PDYxXTkpQTD6/edit#gid=1247355884" target="blank"><strong>event sustainability assessment tool</strong></a>,
+              which is a list of measures that you can use before your event to plan
+              how to be as sustainable as possible, and check off afterwards to see how well you did.
+              Lastly, there is a
+              <a href="https://drive.google.com/file/d/16aWZLATOSo8kDBM5p33c1XLcjga4g3Kl/view?usp=sharing" target="blank"><strong>recipe booklet</strong></a>,
+              where you can find sustainable vegetarian and vegan recipes that are easily made for a large number of people.
+            </p>
+          </div>
+        </div>
+
         <b-loading is-full-page="false" :active.sync="isLoading" />
 
         <div class="field">
