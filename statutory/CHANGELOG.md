@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/AEGEE/statutory/compare/1.10.1...1.11.0) (2023-04-20)
+
+
+### Features
+
+* **applications:** allow LO to mark incoming form filled ([#993](https://github.com/AEGEE/statutory/issues/993)) ([4611540](https://github.com/AEGEE/statutory/commit/4611540e32a27e85d8595bcb8632d488a607f6bc))
+
 ## [1.10.1](https://github.com/AEGEE/statutory/compare/1.10.0...1.10.1) (2023-04-11)
 
 
