@@ -1,3 +1,10 @@
+## [1.33.25](https://github.com/AEGEE/frontend/compare/1.33.24...1.33.25) (2023-04-20)
+
+
+### Bug Fixes
+
+* **statutory:** allow LO to check if incoming form is filled ([#1704](https://github.com/AEGEE/frontend/issues/1704)) ([e45a5b0](https://github.com/AEGEE/frontend/commit/e45a5b0c139b45a82d5804be01eaf1a343723978))
+
 ## [1.33.24](https://github.com/AEGEE/frontend/compare/1.33.23...1.33.24) (2023-04-12)
 
 
