@@ -250,6 +250,7 @@ exports.updateApplication = async (req, res) => {
     delete req.body.departed;
     delete req.body.cancelled;
     delete req.body.confirmed;
+    delete req.body.incoming;
     delete req.body.user_id;
 
     // Some fields are filled in from the user/body automatically.
@@ -357,6 +358,7 @@ function setApplicationBoolean(key) {
 exports.setApplicationCancelled = setApplicationBoolean('cancelled');
 exports.setApplicationAttended = setApplicationBoolean('attended');
 exports.setApplicationConfirmed = setApplicationBoolean('confirmed');
+exports.setApplicationIncoming = setApplicationBoolean('incoming');
 exports.setApplicationRegistered = setApplicationBoolean('registered');
 exports.setApplicationDeparted = setApplicationBoolean('departed');
 exports.setApplicationIsOnMemberslist = setApplicationBoolean('is_on_memberslist');
@@ -606,6 +608,7 @@ exports.postApplication = async (req, res) => {
     delete req.body.departed;
     delete req.body.cancelled;
     delete req.body.confirmed;
+    delete req.body.incoming;
 
     req.body.event_id = req.event.id;
 

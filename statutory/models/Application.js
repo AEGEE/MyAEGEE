@@ -164,7 +164,25 @@ const Application = sequelize.define('application', {
             },
             notAllowIfAttended(value) {
                 if (!value && this.attended) {
-                    throw new Error('This application is markedd as attended, you cannot mark it as not confirmed.');
+                    throw new Error('This application is marked as attended, you cannot mark it as not confirmed.');
+                }
+            }
+        }
+    },
+    incoming: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        validate: {
+            isBoolean,
+            notAllowIfCancelled(value) {
+                if (this.cancelled && value) {
+                    throw new Error('This application is cancelled, you cannot mark it as incoming.');
+                }
+            },
+            notAllowIfAttended(value) {
+                if (!value && this.attended) {
+                    throw new Error('This application is marked as attended, you cannot mark it as not incoming.');
                 }
             }
         }

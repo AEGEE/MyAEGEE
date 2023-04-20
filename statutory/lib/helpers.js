@@ -383,7 +383,7 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     // Basically do everything with applications.
     const canManage = hasPermission(corePermissions, 'manage_applications:' + event.type);
 
-    // See pax list and change 'confirmed' and 'attended' attribute only.
+    // See pax list and change 'confirmed', 'incoming' and 'attended' attribute only.
     const isIncoming = hasPermission(corePermissions, 'manage_incoming:' + event.type);
 
     // See JC list and change 'registered' and 'departed' attributes only.
@@ -403,6 +403,7 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
 
     // For paid fee and cancelled and others, only if has permissions.
     permissions.set_application_confirmed = isIncoming || canManage;
+    permissions.set_application_incoming = isIncoming || canManage;
     permissions.set_application_attended = isIncoming || canManage;
     permissions.set_application_registered = isJuridical || canManage;
     permissions.set_application_departed = isJuridical || canManage;
