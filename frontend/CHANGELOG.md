@@ -1,3 +1,10 @@
+## [1.33.26](https://github.com/AEGEE/frontend/compare/1.33.25...1.33.26) (2023-04-20)
+
+
+### Bug Fixes
+
+* **events:** add information about sustainable events ([#1705](https://github.com/AEGEE/frontend/issues/1705)) ([4e72bf9](https://github.com/AEGEE/frontend/commit/4e72bf9ad5ea83b652b1ccef248411e74dc92bba))
+
 ## [1.33.25](https://github.com/AEGEE/frontend/compare/1.33.24...1.33.25) (2023-04-20)
 
 
