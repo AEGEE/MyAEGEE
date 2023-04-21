@@ -12,6 +12,8 @@ from faker import Faker
 faker = Faker()
 
 RANDOM_AMOUNT_TEST=False
+MIN_MSG=1
+MAX_MSG=8
 ALL_TEMPLATES_TEST=True
 
 BODIES_LIST = [ "ITC", "HRC", "CC", "SomeCommission", "JC", "DPC", "MedCom" ]
@@ -35,6 +37,11 @@ MAIL_SUBJECTS = {
         "MAIL_UPDATED_MEMBER": f"Your application for {su_sentence()} was updated",
         "MAIL_UPDATED_ORGANISERS": f"Somebody has updated their application for {su_sentence()}",
         "MAIL_UPDATED_BOARD": f"One of your body members has updated their application to {su_sentence()}",
+        "MAIL_APPL_STATUS_CHANGED": f"Your application status for {su_sentence()} was updated",
+        "MAIL_SU_CREATED": "The event was created",
+        "MAIL_SU_UPDATED": "The event was updated",
+        "MAIL_SU_STATUS_CHANGED": "Your event's status was changed",
+        "MAIL_SU_SUBMITTED": "An event was submitted",
     },
 }
 # should exist in constants.js but it does not yet.
@@ -56,6 +63,11 @@ MAIL_TEMPLATES = {
         "MAIL_UPDATED_MEMBER": "summeruniversity_application_edited",
         "MAIL_UPDATED_ORGANISERS": "summeruniversity_organizer_edited",
         "MAIL_UPDATED_BOARD": "summeruniversity_board_edited",
+        "MAIL_APPL_STATUS_CHANGED": "summeruniversity_application_status_updated",
+        "MAIL_SU_CREATED": "summeruniversity_event_created",
+        "MAIL_SU_UPDATED": "summeruniversity_event_updated",
+        "MAIL_SU_STATUS_CHANGED": "summeruniversity_status_changed",
+        "MAIL_SU_SUBMITTED": "summeruniversity_submitted",
     },
 }
 
@@ -87,15 +99,40 @@ def generate_fake_payload(subj="", template=""):
             "body_id": random.choice(range(random.randrange(10,70))),
             "place": faker.city(),
             "token": faker.md5(),
-            "event": { "name": su_sentence(), "location": faker.city(), "url": "example.org"},
-            "application": { "first_name": faker.first_name(), "last_name": faker.last_name(), "body_name": random.choice(BODIES_LIST)},
+            "old_status": "snafu",
+            "event": {
+                "name": su_sentence(),
+                "location": faker.city(),
+                "url": "example.org",
+                "status": "damned",
+                "questions": [
+                    { "description": "Who are you?" },
+                    { "description": "What is the answer to life ...etc?" },
+                    ],
+            },
+            "application": {
+                "first_name": faker.first_name(),
+                "last_name": faker.last_name(),
+                "body_name": random.choice(BODIES_LIST),
+                "created_at": "yesterday or whatever",
+                "updated_at": "now more or less",
+                "aegee_experience": "I suck",
+                "ideal_su": "I get to suck",
+                "motivation": "I wanna suck",
+                "status": "totally snafu",
+                "answers": [
+                    "ho-hoo, ho-hoo",
+                    "42",
+                    ],
+            },
         }
     }
     return email
 
 
 if(RANDOM_AMOUNT_TEST):
-    for _ in range(random.randrange(1,8)):
+    amount = random.randrange(MIN_MSG,MAX_MSG)
+    for _ in range(amount):
         email = generate_fake_payload()
         channel.basic_publish(exchange='eml',
                             routing_key='mail',
@@ -104,6 +141,7 @@ if(RANDOM_AMOUNT_TEST):
                                 delivery_mode = pika.spec.PERSISTENT_DELIVERY_MODE
                             ))
         print(f" [x] Sent {email['subject']} (to {email['to']})")
+    print(f" Gee, I sent all  {amount} ")
 
 if(ALL_TEMPLATES_TEST):
     for ms in MAIL_TEMPLATES:

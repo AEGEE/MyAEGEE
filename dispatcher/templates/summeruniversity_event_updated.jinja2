@@ -3,7 +3,7 @@
 <html lang="en">
 
 {% import "snippets/macros.jinja2" as macros %}
-{{ macros.head("MyAEGEE: Your application for VAR"|replace("VAR", event["name"])) }}
+{{ macros.head("MyAEGEE: The event has been updated") }}
 
 
 <body style="width:100% !important;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;padding-top:0;padding-bottom:0;padding-right:0;padding-left:0;">
@@ -33,20 +33,25 @@
                       <tr>
                         <td align="center" style="padding: 56px 56px 28px 56px;" valign="top">
                           <a style="color: #3498DB; text-decoration: none;" href="my.aegee.eu"
-                            target="_blank"><img style="width: 56px; height: 56px; border: 0;" alt="AEGEE-Europe"
+                            target="_blank"><img style="width: 56px; height: 56px; border: 0;" alt="Logo"
                               src="https://my.aegee.eu/images/logo.png">
                           </a></td>
                       </tr>
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>You've successfully applied to {{event["name"]}}</strong></div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;">
+                            <strong>The event "{{event["name"]}}" has been updated.</strong>
+                          </div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">
+                            You are receiving this as one of the organizers.
+                          </div>
                         </td>
                       </tr>
                       <tr>
-                        <td style="padding: 0 56px 28px 56px;" valign="top">
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">
-                            Here are your application details:
-                            {% include "snippets/summeruniversity_application_info.jinja2" %}
+                        <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
+                          <div>
+                            <a href="https://my.aegee.eu/summeruniversity/{{event["url"]}}" style="background-color:#1468C5;border-radius:50px;color:#ffffff;display:inline-block;font-family: 'lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:18px;font-weight: bold;line-height:40px;text-align:center;text-decoration:none;width:270px;-webkit-text-size-adjust:none;"
+                              target="_blank">See event</a>
                           </div>
                         </td>
                       </tr>
