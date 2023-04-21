@@ -29,7 +29,14 @@ MAIL_SUBJECTS = {
         "NEW_JOIN_REQUEST": 'MyAEGEE: New join request for your body',
         "NEW_MEMBER": 'MyAEGEE: Welcome to AEGEE'
     },
-    #"EVENTS": {},
+    "EVENTS": {
+        "MAIL_APPLIED": f"You've successfully applied for {su_sentence()}",
+        "MAIL_UPDATED": f"Your application for {su_sentence()} was updated",
+        "MAIL_EVENT_CREATED": "The event was created",
+        "MAIL_EVENT_UPDATED": "The event was updated",
+        "MAIL_EVENT_STATUS_CHANGED": "Your event's status was changed",
+        "MAIL_EVENT_SUBMITTED": "An event was submitted",
+    },
     "SUMMERUNIVERSITIES": {
         "MAIL_APPLIED_MEMBER": f"You've successfully applied for {su_sentence()}",
         "MAIL_APPLIED_ORGANISERS": f"Somebody has applied for {su_sentence()}",
@@ -55,7 +62,14 @@ MAIL_TEMPLATES = {
         "NEW_JOIN_REQUEST": 'member_joined',
         "NEW_MEMBER": 'new_member'
     },
-    #"EVENTS": {},
+    "EVENTS": {
+        "MAIL_APPLIED": "events_applied",
+        "MAIL_UPDATED": "events_edited",
+        "MAIL_EVENT_CREATED": "events_event_created",
+        "MAIL_EVENT_UPDATED": "events_event_updated",
+        "MAIL_EVENT_STATUS_CHANGED": "events_status_changed",
+        "MAIL_EVENT_SUBMITTED": "events_submitted",
+    },
     "SUMMERUNIVERSITIES": {
         "MAIL_APPLIED_MEMBER": "summeruniversity_applied",
         "MAIL_APPLIED_ORGANISERS": "summeruniversity_organizer_applied",
@@ -120,6 +134,7 @@ def generate_fake_payload(subj="", template=""):
                 "ideal_su": "I get to suck",
                 "motivation": "I wanna suck",
                 "status": "totally snafu",
+                "email": "someone@example.org",
                 "answers": [
                     "ho-hoo, ho-hoo",
                     "42",
