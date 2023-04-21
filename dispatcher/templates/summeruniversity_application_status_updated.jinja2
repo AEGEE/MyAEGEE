@@ -3,7 +3,7 @@
 <html lang="en">
 
 {% import "snippets/macros.jinja2" as macros %}
-{{ macros.head("MyAEGEE: Your application for VAR"|replace("VAR", event["name"])) }}
+{{ macros.head("MyAEGEE: Updated status of your application for VAR"|replace("VAR", event["name"])) }}
 
 
 <body style="width:100% !important;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;padding-top:0;padding-bottom:0;padding-right:0;padding-left:0;">
@@ -39,14 +39,15 @@
                       </tr>
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>You've successfully applied to {{event["name"]}}</strong></div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 20px; color: #333;"><strong>The status of your application for {{event["name"]}} was changed.</strong></div>
                         </td>
                       </tr>
                       <tr>
                         <td style="padding: 0 56px 28px 56px;" valign="top">
                           <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">
-                            Here are your application details:
-                            {% include "snippets/summeruniversity_application_info.jinja2" %}
+                            The status of your application for {{event["name"]}} is <strong>{{application["status"]}}</strong>.
+                            If you have been accepted, the organizers of the Summer University will be in touch with you soon and provide you with more information.
+                            If you have been rejected, there might be other Summer Universities with open calls. If there are any at this moment you can find them on MyAEGEE.
                           </div>
                         </td>
                       </tr>
