@@ -1,3 +1,10 @@
+## [1.33.27](https://github.com/AEGEE/frontend/compare/1.33.26...1.33.27) (2023-04-23)
+
+
+### Bug Fixes
+
+* add Hong Kongese to nationalities list ([#1710](https://github.com/AEGEE/frontend/issues/1710)) ([2db86cc](https://github.com/AEGEE/frontend/commit/2db86cc6adca11d6953250e7cf800b222a6bc235))
+
 ## [1.33.26](https://github.com/AEGEE/frontend/compare/1.33.25...1.33.26) (2023-04-20)
 
 
