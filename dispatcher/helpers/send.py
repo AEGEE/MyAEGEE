@@ -20,7 +20,10 @@ BODIES_LIST = [ "ITC", "HRC", "CC", "SomeCommission", "JC", "DPC", "MedCom" ]
 su_words_list = ['summer', 'awesome', 'your', 'now', 'sustainability', 'culture', 'europe', 'balkan', 'russia', 'adventure', 'ukraine', 'capital', 'montenegro', 'ireland', 'serbia', 'crimea', 'amazing', 'slavaukraini', 'heroiamslava']
 def su_sentence():
     return faker.sentence(nb_words=5, ext_word_list=su_words_list)
-# from constants.js
+def agora_sentence():
+    return f"Agora {faker.sentence(nb_words=1)}"
+
+# from constants.js (at least for core..)
 MAIL_SUBJECTS = {
     "CORE": {
         "MAIL_CONFIRMATION": 'MyAEGEE: Please confirm your account',
@@ -36,6 +39,15 @@ MAIL_SUBJECTS = {
         "MAIL_EVENT_UPDATED": "The event was updated",
         "MAIL_EVENT_STATUS_CHANGED": "Your event's status was changed",
         "MAIL_EVENT_SUBMITTED": "An event was submitted",
+    },
+    "STATUTORY": {
+        "MAIL_APPLIED": f"You've successfully applied for {agora_sentence()}",
+        "MAIL_UPDATED": f"Your application for {agora_sentence()} was updated",
+        "MAIL_APPLIED_BOARD": f"One of your body members has applied to {agora_sentence()}",
+        "MAIL_UPDATED_BOARD": f"One of your body members has updated their application to {agora_sentence()}",
+        "MAIL_CANDIDATE_APPLIED": "A new application was submitted",
+        "MAIL_MEMBERSLIST_SUBMITTED": "The event was updated",
+        "MAIL_MEMBERSLIST_EDITED": f"A memberslist has been edited for {agora_sentence()}",
     },
     "SUMMERUNIVERSITIES": {
         "MAIL_APPLIED_MEMBER": f"You've successfully applied for {su_sentence()}",
@@ -70,6 +82,15 @@ MAIL_TEMPLATES = {
         "MAIL_EVENT_STATUS_CHANGED": "events_status_changed",
         "MAIL_EVENT_SUBMITTED": "events_submitted",
     },
+    "STATUTORY": {
+        "MAIL_APPLIED": "statutory_applied",
+        "MAIL_UPDATED": "statutory_edited",
+        "MAIL_APPLIED_BOARD": "statutory_board_applied",
+        "MAIL_UPDATED_BOARD": "statutory_board_edited",
+        "MAIL_CANDIDATE_APPLIED": "candidate_applied",
+        "MAIL_MEMBERSLIST_SUBMITTED": "statutory_memberslist_submitted",
+        "MAIL_MEMBERSLIST_EDITED": "statutory_memberslist_edited",
+    },
     "SUMMERUNIVERSITIES": {
         "MAIL_APPLIED_MEMBER": "summeruniversity_applied",
         "MAIL_APPLIED_ORGANISERS": "summeruniversity_organizer_applied",
@@ -85,7 +106,7 @@ MAIL_TEMPLATES = {
     },
 }
 
-RABBIT_HOST='172.18.0.8' #FIXME
+RABBIT_HOST='172.18.0.5' #FIXME
 connection = pika.BlockingConnection(pika.ConnectionParameters(RABBIT_HOST))
 channel = connection.channel()
 
@@ -114,6 +135,8 @@ def generate_fake_payload(subj="", template=""):
             "place": faker.city(),
             "token": faker.md5(),
             "old_status": "snafu",
+            "event_name": agora_sentence(),
+            "membership_fee": "15⎊",
             "event": {
                 "name": su_sentence(),
                 "location": faker.city(),
@@ -135,10 +158,25 @@ def generate_fake_payload(subj="", template=""):
                 "motivation": "I wanna suck",
                 "status": "totally snafu",
                 "email": "someone@example.org",
+                "gender": "Robot",
+                "date_of_birth": "1985-04-16",
+                "nationality": "Europe",
+                "meals": "Steak",
+                "allergies": "wallopers",
+                "number_of_events_visited": "over 9000",
+                "visa_required": "No",
                 "answers": [
                     "ho-hoo, ho-hoo",
                     "42",
                     ],
+            },
+            "candidate": {
+                "first_name": faker.first_name(),
+                "last_name": faker.last_name(),
+            },
+            "position": {
+                "event_id": "42",
+                "name": "This gran C commissioner",
             },
         }
     }
