@@ -33,11 +33,17 @@ def send_email(ch, method, properties, body):
         template = environment.get_template(f"{msg['template']}.jinja2")
     except exceptions.TemplateNotFound:
         # TODO: send a notification to someone about adding a template
-        print(f"template {msg['template']}.jinja2 not found")
+        print(f"Template {msg['template']}.jinja2 not found")
         return
     # TODO: check if there is an auto-delete after 30 minutes for stuck un-acked messages
-    rendered = template.render(msg['parameters'], altro=msg['subject'])
-
+    try:
+        rendered = template.render(msg['parameters'], altro=msg['subject'])
+    except exceptions.UndefinedError:
+        print(f"Error in rendering: some parameter is undefined")
+        return
+    except exceptions.TemplateNotFound:
+        print(f"A sub-template in {msg['template']}.jinja2 was not found")
+        return
     email = EmailMessage()
     email.set_content(rendered, subtype='html')
     email['From'] = msg['from']
