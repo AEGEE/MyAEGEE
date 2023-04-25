@@ -16,7 +16,7 @@ In a console, run `python3 dispatcher/main.py`.
 In another console, run `python3 helpers/send.py`.
 Control on `appserver.test:8025` the emails sent. It is also possible to control rabbit's stats on `appserver.test:8080`
 
-This method is not dockerised. Currently unsure about adding the docker way.
+This method is now dockerised. Using the docker way is useful for the 'DNS' feature of docker (i.e. not hardcoding the IP address of the rabbit host)
 
 ### Rationale
 We do not need a web service for this, only a worker. Doing it this way only means it cannot be scaled (unless precautions are taken for the ack of the message, but pika should already give this out of the box).
