@@ -1,0 +1,12 @@
+<ul>
+  <li><strong>Body name: </strong>{{ body_name }}</li>
+  <li><strong>Elected date: </strong>{{ board["elected_date"] }}</li>
+  <li><strong>Start date: </strong>{{ board["start_date"] }}</li>
+  <li><strong>End date: </strong>{{ board["end_date"] }}</li>
+
+  {% for position in positions %}
+    <li><strong>{{ position["function"] }} </strong> {{ position["name"] }}</li>
+  {% endfor %}
+
+  <li><strong>Message: </strong>{{ board["message"] }}</li>
+</ul>
