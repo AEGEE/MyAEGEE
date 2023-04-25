@@ -2,9 +2,8 @@
 <!DOCTYPE html>
 <html lang="en">
 
-{% with title="MyAEGEE: New event submitted" %}
-  {% include "snippets/head.jinja2" %}
-{% endwith %}
+{% import "snippets/macros.jinja2" as macros %}
+{{ macros.head("MyAEGEE: New event submitted") }}
 
 <body style="width:100% !important;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;padding-top:0;padding-bottom:0;padding-right:0;padding-left:0;">
   <table cellpadding="0" cellspacing="0" border="0" id="backgroundTable" style="margin:0; padding:0; width:100% !important; line-height: 100% !important; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;background-color: #F9FAFB;"

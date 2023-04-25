@@ -62,6 +62,13 @@ MAIL_SUBJECTS = {
         "MAIL_SU_STATUS_CHANGED": "Your event's status was changed",
         "MAIL_SU_SUBMITTED": "An event was submitted",
     },
+    "NETWORK": {
+        "MAIL_NEW_BOARD": f'A new board was added for { random.choice(BODIES_LIST) }',
+    },
+    "OTHER": {
+        "MAIL_EXPIRED_MEMBERSHIP": 'member_expired',
+        "MAIL_CUSTOM": 'custom',
+    },
 }
 # should exist in constants.js but it does not yet.
 # anyway here one could #TODO a smarter way: look into the filesystem
@@ -104,6 +111,13 @@ MAIL_TEMPLATES = {
         "MAIL_SU_STATUS_CHANGED": "summeruniversity_status_changed",
         "MAIL_SU_SUBMITTED": "summeruniversity_submitted",
     },
+    "NETWORK": {
+        "MAIL_NEW_BOARD": 'network_new_board',
+    },
+    "OTHER": {
+        "MAIL_EXPIRED_MEMBERSHIP": 'membership_expired',
+        "MAIL_CUSTOM": 'custom',
+    },
 }
 
 RABBIT_HOST='172.18.0.5' #FIXME
@@ -137,6 +151,12 @@ def generate_fake_payload(subj="", template=""):
             "old_status": "snafu",
             "event_name": agora_sentence(),
             "membership_fee": "15⎊",
+            "board": {
+                "elected_date": "yesteeeerday",
+                "start_date": "tomooorrow",
+                "end_date": "next weeeeek",
+                "message": "chattanooga",
+            },
             "event": {
                 "name": su_sentence(),
                 "location": faker.city(),
@@ -178,6 +198,12 @@ def generate_fake_payload(subj="", template=""):
                 "event_id": "42",
                 "name": "This gran C commissioner",
             },
+            "body": """
+                <ul>
+                    <li><strong>Who is cool: </strong>Accountable people</li>
+                    <li><strong>Who is not: </strong>People hiding behind the excuse of 'volunteer'</li>
+                </ul>
+            """
         }
     }
     return email
