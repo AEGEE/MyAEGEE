@@ -1,3 +1,10 @@
+## [1.4.15](https://github.com/AEGEE/summeruniversity/compare/1.4.14...1.4.15) (2023-04-25)
+
+
+### Bug Fixes
+
+* **server:** add app.aegee-leiden.nl to CORS options ([#521](https://github.com/AEGEE/summeruniversity/issues/521)) ([809a2b1](https://github.com/AEGEE/summeruniversity/commit/809a2b11415963d27ceccbf704919ef9a7b0f4f5))
+
 ## [1.4.14](https://github.com/AEGEE/summeruniversity/compare/1.4.13...1.4.14) (2023-04-11)
 
 
