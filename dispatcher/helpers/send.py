@@ -1,6 +1,7 @@
 import pika
 import json
 import random
+import os
 
 """
 creates between 1 and 8 fake emails and puts in the queue
@@ -71,8 +72,9 @@ MAIL_SUBJECTS = {
     },
 }
 # should exist in constants.js but it does not yet.
-# anyway here one could #TODO a smarter way: look into the filesystem
-# but then you miss the correspondence between the subject and the template
+# anyway here one could make it in a smarter way: look into the filesystem
+# but then you miss the correspondence between the subject and the template.
+# So we only look in the fs to cross-check if we were thorough
 MAIL_TEMPLATES = {
     "CORE": {
         "MAIL_CONFIRMATION": 'confirm_email',
@@ -120,7 +122,7 @@ MAIL_TEMPLATES = {
     },
 }
 
-RABBIT_HOST='172.18.0.5' #FIXME
+RABBIT_HOST='172.18.0.2' #FIXME
 connection = pika.BlockingConnection(pika.ConnectionParameters(RABBIT_HOST))
 channel = connection.channel()
 
@@ -223,6 +225,7 @@ if(RANDOM_AMOUNT_TEST):
     print(f" Gee, I sent all  {amount} ")
 
 if(ALL_TEMPLATES_TEST):
+    templates_tested=0
     for ms in MAIL_TEMPLATES:
         for case in MAIL_TEMPLATES[ms]:
             email = generate_fake_payload(MAIL_SUBJECTS[ms][case], MAIL_TEMPLATES[ms][case])
@@ -233,5 +236,11 @@ if(ALL_TEMPLATES_TEST):
                                     delivery_mode = pika.spec.PERSISTENT_DELIVERY_MODE
                                 ))
             print(f" [x] Sent {email['subject']}")
+            templates_tested+=1
+    file_count = len([f for f in os.listdir("../templates/") if os.path.isfile(os.path.join("../templates/", f))])
+    if(file_count != templates_tested):
+        print()
+        print()
+        print(f"Tested {templates_tested} templates but the folder contains {file_count}")
 
 connection.close()
