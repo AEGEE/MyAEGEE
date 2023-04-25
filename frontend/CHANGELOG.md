@@ -1,3 +1,10 @@
+## [1.33.28](https://github.com/AEGEE/frontend/compare/1.33.27...1.33.28) (2023-04-25)
+
+
+### Bug Fixes
+
+* **summeruniversity:** improve equality start/end location ([#1714](https://github.com/AEGEE/frontend/issues/1714)) ([642b2da](https://github.com/AEGEE/frontend/commit/642b2da90bfa441e208aea1e54a8f4f7f272b882))
+
 ## [1.33.27](https://github.com/AEGEE/frontend/compare/1.33.26...1.33.27) (2023-04-23)
 
 
