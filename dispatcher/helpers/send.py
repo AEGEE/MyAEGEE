@@ -117,7 +117,7 @@ MAIL_TEMPLATES = {
         "MAIL_NEW_BOARD": 'network_new_board',
     },
     "OTHER": {
-        "MAIL_EXPIRED_MEMBERSHIP": 'membership_expired',
+        "MAIL_EXPIRED_MEMBERSHIP": 'member_expired',
         "MAIL_CUSTOM": 'custom',
     },
 }
