@@ -11,4 +11,4 @@ down:
 	COMPOSE_PROJECT_NAME=myaegee docker-compose -f ./docker/docker-compose.yml -f ./docker/docker-compose.dev.yml down
 
 test:
-	python helpers/send.py
+	@sed -i "s/'172.18.0.2'/$$(docker inspect myaegee_rabbit_1 | jq .[0].NetworkSettings.Networks.OMS.IPAddress)/" helpers/send.py ; cd helpers && python send.py
