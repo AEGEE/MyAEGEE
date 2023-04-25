@@ -34,7 +34,7 @@ process.on('unhandledRejection', (err) => {
 });
 
 const corsOptions = {
-    origin: [/aegee\.eu|aegee\.org/]
+    origin: [/aegee\.eu|aegee\.org|app\.aegee-leiden\.nl/]
 };
 
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
