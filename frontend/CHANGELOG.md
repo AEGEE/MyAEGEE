@@ -1,3 +1,10 @@
+## [1.33.29](https://github.com/AEGEE/frontend/compare/1.33.28...1.33.29) (2023-04-28)
+
+
+### Bug Fixes
+
+* **statutory:** allow candidates to use markdown in their application ([#1715](https://github.com/AEGEE/frontend/issues/1715)) ([843ccfd](https://github.com/AEGEE/frontend/commit/843ccfd1325b42c694fc50ecf590a4688c81ce97))
+
 ## [1.33.28](https://github.com/AEGEE/frontend/compare/1.33.27...1.33.28) (2023-04-25)
 
 
