@@ -73,27 +73,39 @@
           </tr>
           <tr>
             <th>European level experience</th>
-            <td class="has-text-pre-wrap">{{ candidate.european_experience }}</td>
+            <td>
+              <div class="content" v-html="$options.filters.markdown(candidate.european_experience)" />
+            </td>
           </tr>
           <tr>
             <th>Local level experience</th>
-            <td class="has-text-pre-wrap">{{ candidate.local_experience }}</td>
+            <td>
+              <div class="content" v-html="$options.filters.markdown(candidate.local_experience)" />
+            </td>
           </tr>
           <tr>
             <th>Non-AEGEE experience</th>
-            <td class="has-text-pre-wrap">{{ candidate.external_experience }}</td>
+            <td>
+              <div class="content" v-html="$options.filters.markdown(candidate.external_experience)" />
+            </td>
           </tr>
           <tr>
             <th>Position-related experience</th>
-            <td class="has-text-pre-wrap">{{ candidate.related_experience }}</td>
+            <td>
+              <div class="content" v-html="$options.filters.markdown(candidate.related_experience)" />
+            </td>
           </tr>
           <tr>
             <th>Motivation</th>
-            <td class="has-text-pre-wrap">{{ candidate.motivation }}</td>
+            <td>
+              <div class="content" v-html="$options.filters.markdown(candidate.motivation)" />
+            </td>
           </tr>
           <tr>
             <th>Program</th>
-            <td class="has-text-pre-wrap">{{ candidate.program }}</td>
+            <td>
+              <div class="content" v-html="$options.filters.markdown(candidate.program)" />
+            </td>
           </tr>
         </tbody>
       </table>

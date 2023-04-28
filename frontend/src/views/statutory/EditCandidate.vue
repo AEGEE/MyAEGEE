@@ -164,6 +164,10 @@
           <div class="control">
             <textarea class="textarea" required v-model="candidate.european_experience" />
           </div>
+          <label class="label">Preview <MarkdownTooltip /></label>
+          <div class="content">
+            <span v-html="$options.filters.markdown(candidate.european_experience)" />
+          </div>
           <p class="help is-danger" v-if="errors.european_experience">{{ errors.european_experience.join(', ') }}</p>
         </div>
 
@@ -171,6 +175,10 @@
           <label class="label">Local level experience</label>
           <div class="control">
             <textarea class="textarea" required v-model="candidate.local_experience" />
+          </div>
+          <label class="label">Preview <MarkdownTooltip /></label>
+          <div class="content">
+            <span v-html="$options.filters.markdown(candidate.local_experience)" />
           </div>
           <p class="help is-danger" v-if="errors.local_experience">{{ errors.local_experience.join(', ') }}</p>
         </div>
@@ -180,6 +188,10 @@
           <div class="control">
             <textarea class="textarea" required v-model="candidate.related_experience" />
           </div>
+          <label class="label">Preview <MarkdownTooltip /></label>
+          <div class="content">
+            <span v-html="$options.filters.markdown(candidate.related_experience)" />
+          </div>
           <p class="help is-danger" v-if="errors.related_experience">{{ errors.related_experience.join(', ') }}</p>
         </div>
 
@@ -187,6 +199,10 @@
           <label class="label">Non-AEGEE experience</label>
           <div class="control">
             <textarea class="textarea" required v-model="candidate.external_experience" />
+          </div>
+          <label class="label">Preview <MarkdownTooltip /></label>
+          <div class="content">
+            <span v-html="$options.filters.markdown(candidate.external_experience)" />
           </div>
           <p class="help is-danger" v-if="errors.external_experience">{{ errors.external_experience.join(', ') }}</p>
         </div>
@@ -196,6 +212,10 @@
           <div class="control">
             <textarea class="textarea" required v-model="candidate.motivation" />
           </div>
+          <label class="label">Preview <MarkdownTooltip /></label>
+          <div class="content">
+            <span v-html="$options.filters.markdown(candidate.motivation)" />
+          </div>
           <p class="help is-danger" v-if="errors.motivation">{{ errors.motivation.join(', ') }}</p>
         </div>
 
@@ -204,8 +224,14 @@
           <div class="control">
             <textarea class="textarea" required v-model="candidate.program" />
           </div>
+          <label class="label">Preview <MarkdownTooltip /></label>
+          <div class="content">
+            <span v-html="$options.filters.markdown(candidate.program)" />
+          </div>
           <p class="help is-danger" v-if="errors.program">{{ errors.program.join(', ') }}</p>
         </div>
+
+        <hr />
 
         <div class="field">
           <label class="checkbox">
@@ -234,8 +260,12 @@ import { mapGetters } from 'vuex'
 import moment from 'moment'
 
 import nationalities from '../../nationalities'
+import MarkdownTooltip from '../../components/tooltips/MarkdownTooltip'
 
 export default {
+  components: {
+    MarkdownTooltip
+  },
   name: 'EditCandidate',
   data () {
     return {
