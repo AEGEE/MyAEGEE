@@ -1,3 +1,10 @@
+## [1.33.31](https://github.com/AEGEE/frontend/compare/1.33.30...1.33.31) (2023-05-01)
+
+
+### Bug Fixes
+
+* **statutory:** update question line information ([#1718](https://github.com/AEGEE/frontend/issues/1718)) ([e968bd4](https://github.com/AEGEE/frontend/commit/e968bd4cd8438a67b96ee4dc095bb60cd6534661))
+
 ## [1.33.30](https://github.com/AEGEE/frontend/compare/1.33.29...1.33.30) (2023-05-01)
 
 
