@@ -1,3 +1,10 @@
+## [1.33.30](https://github.com/AEGEE/frontend/compare/1.33.29...1.33.30) (2023-05-01)
+
+
+### Bug Fixes
+
+* **statutory:** additional markdown fields in candidatures ([#1717](https://github.com/AEGEE/frontend/issues/1717)) ([af9206d](https://github.com/AEGEE/frontend/commit/af9206d9e7f8673334669eb64cde1797575ac195))
+
 ## [1.33.29](https://github.com/AEGEE/frontend/compare/1.33.28...1.33.29) (2023-04-28)
 
 
