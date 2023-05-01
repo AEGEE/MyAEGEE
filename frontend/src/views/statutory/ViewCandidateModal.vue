@@ -57,19 +57,27 @@
           </tr>
           <tr>
             <th>Studies</th>
-            <td class="has-text-pre-wrap">{{ candidate.studies }}</td>
+            <td>
+              <div class="content" v-html="$options.filters.markdown(candidate.studies)" />
+            </td>
           </tr>
           <tr>
             <th>Attended Agorae</th>
-            <td class="has-text-pre-wrap">{{ candidate.attended_agorae }}</td>
+            <td>
+              <div class="content" v-html="$options.filters.markdown(candidate.attended_agorae)" />
+            </td>
           </tr>
           <tr>
             <th>Attended EPMs</th>
-            <td class="has-text-pre-wrap">{{ candidate.attended_epm }}</td>
+            <td>
+              <div class="content" v-html="$options.filters.markdown(candidate.attended_epm)" />
+            </td>
           </tr>
           <tr>
             <th>Attended AEGEE conferences</th>
-            <td class="has-text-pre-wrap">{{ candidate.attended_conferences }}</td>
+            <td>
+              <div class="content" v-html="$options.filters.markdown(candidate.attended_conferences)" />
+            </td>
           </tr>
           <tr>
             <th>European level experience</th>

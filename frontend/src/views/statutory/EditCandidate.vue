@@ -132,6 +132,10 @@
           <div class="control">
             <input class="input" type="text" required v-model="candidate.studies" />
           </div>
+          <label class="label">Preview <MarkdownTooltip /></label>
+          <div class="content">
+            <span v-html="$options.filters.markdown(candidate.studies)" />
+          </div>
           <p class="help is-danger" v-if="errors.studies">{{ errors.studies.join(', ') }}</p>
         </div>
 
@@ -139,6 +143,10 @@
           <label class="label">Attended Agorae</label>
           <div class="control">
             <textarea class="textarea" required v-model="candidate.attended_agorae" />
+          </div>
+          <label class="label">Preview <MarkdownTooltip /></label>
+          <div class="content">
+            <span v-html="$options.filters.markdown(candidate.attended_agorae)" />
           </div>
           <p class="help is-danger" v-if="errors.attended_agorae">{{ errors.attended_agorae.join(', ') }}</p>
         </div>
@@ -148,6 +156,10 @@
           <div class="control">
             <textarea class="textarea" required v-model="candidate.attended_epm" />
           </div>
+          <label class="label">Preview <MarkdownTooltip /></label>
+          <div class="content">
+            <span v-html="$options.filters.markdown(candidate.attended_epm)" />
+          </div>
           <p class="help is-danger" v-if="errors.attended_epm">{{ errors.attended_epm.join(', ') }}</p>
         </div>
 
@@ -155,6 +167,10 @@
           <label class="label">Attended AEGEE conferences</label>
           <div class="control">
             <textarea class="textarea" required v-model="candidate.attended_conferences" />
+          </div>
+          <label class="label">Preview <MarkdownTooltip /></label>
+          <div class="content">
+            <span v-html="$options.filters.markdown(candidate.attended_conferences)" />
           </div>
           <p class="help is-danger" v-if="errors.attended_conferences">{{ errors.attended_conferences.join(', ') }}</p>
         </div>
