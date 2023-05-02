@@ -1,3 +1,10 @@
+## [1.11.1](https://github.com/AEGEE/statutory/compare/1.11.0...1.11.1) (2023-05-02)
+
+
+### Bug Fixes
+
+* **server:** add CORS ([#1003](https://github.com/AEGEE/statutory/issues/1003)) ([3329f02](https://github.com/AEGEE/statutory/commit/3329f02a960033b20284a06ab5cd20680448f740))
+
 # [1.11.0](https://github.com/AEGEE/statutory/compare/1.10.1...1.11.0) (2023-04-20)
 
 
