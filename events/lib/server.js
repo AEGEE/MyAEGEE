@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const router = require('express-promise-router');
 const bodyParser = require('body-parser');
 const boolParser = require('express-query-boolean');
@@ -32,6 +33,10 @@ process.on('unhandledRejection', (err) => {
     }
 });
 
+const corsOptions = {
+    origin: [/aegee\.eu|aegee\.org|app\.aegee-leiden\.nl/]
+};
+
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
 GeneralRouter.get('/metrics', metrics.getMetrics);
 GeneralRouter.get('/metrics/requests', endpointsMetrics.getEndpointMetrics);
@@ -39,7 +44,7 @@ GeneralRouter.get('/metrics/requests', endpointsMetrics.getEndpointMetrics);
 // For all the requests above these three, query the core for authorization data.
 GeneralRouter.use(middlewares.authenticateUser);
 
-GeneralRouter.get('/', events.listEvents);
+GeneralRouter.get('/', cors(corsOptions), events.listEvents);
 GeneralRouter.post('/', middlewares.ensureAuthorized, events.addEvent);
 
 GeneralRouter.get('/mine/organizing', middlewares.ensureAuthorized, events.listUserOrganizedEvents);
@@ -51,7 +56,7 @@ GeneralRouter.get('/boardview/:body_id', middlewares.ensureAuthorized, events.li
 EventsRouter.use(middlewares.fetchSingleEvent);
 
 // Getting the event details can be done without autorization.
-EventsRouter.get('/', events.eventDetails);
+EventsRouter.get('/', cors(corsOptions), events.eventDetails);
 
 // The next routes cannot.
 EventsRouter.use(middlewares.ensureAuthorized);
