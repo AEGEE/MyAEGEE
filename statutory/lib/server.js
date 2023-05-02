@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const router = require('express-promise-router');
 const bodyParser = require('body-parser');
 const boolParser = require('express-query-boolean');
@@ -53,11 +54,15 @@ process.on('unhandledRejection', (err) => {
     }
 });
 
+const corsOptions = {
+    origin: [/aegee\.eu|aegee\.org|app\.aegee-leiden\.nl/]
+};
+
 GeneralRouter.get('/healthcheck', middlewares.healthcheck);
 GeneralRouter.get('/metrics', metrics.getMetrics);
 GeneralRouter.get('/metrics/requests', endpointsMetrics.getEndpointMetrics);
 GeneralRouter.use(middlewares.authenticateUser);
-GeneralRouter.get('/', events.listEvents);
+GeneralRouter.get('/', cors(corsOptions), events.listEvents);
 GeneralRouter.use(middlewares.ensureAuthorized);
 GeneralRouter.post('/', events.addEvent);
 GeneralRouter.get('/tasks', middlewares.getTasksList);
@@ -70,7 +75,7 @@ PaxLimitsRouter.post('/', paxLimits.updateLimit);
 PaxLimitsRouter.get('/', paxLimits.listAllLimits);
 
 EventsRouter.use(middlewares.authenticateUser, middlewares.fetchEvent);
-EventsRouter.get('/', events.displayEvent);
+EventsRouter.get('/', cors(corsOptions), events.displayEvent);
 EventsRouter.get('/fields/applications/all', events.getApplicationAllFields);
 EventsRouter.get('/fields/applications/incoming', events.getApplicationIncomingFields);
 EventsRouter.get('/fields/candidates', events.getCandidatesFields);
