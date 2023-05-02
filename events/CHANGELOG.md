@@ -1,3 +1,10 @@
+## [1.3.13](https://github.com/AEGEE/events/compare/1.3.12...1.3.13) (2023-05-02)
+
+
+### Bug Fixes
+
+* **server:** add CORS ([#932](https://github.com/AEGEE/events/issues/932)) ([7bd1240](https://github.com/AEGEE/events/commit/7bd12407da1ac478cdde4d1b095cd7100e62ee32))
+
 ## [1.3.12](https://github.com/AEGEE/events/compare/1.3.11...1.3.12) (2021-12-01)
 
 
