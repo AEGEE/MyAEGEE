@@ -82,7 +82,7 @@ describe('Applications departion', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ confirmed: true, attended: true }, event);
+        const application = await generator.createApplication({ confirmed: true, incoming: true, attended: true }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/departed',
@@ -115,7 +115,7 @@ describe('Applications departion', () => {
 
     test('should return 422 if departed is invalid', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ confirmed: true, attended: true }, event);
+        const application = await generator.createApplication({ confirmed: true, incoming: true, attended: true }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/departed',

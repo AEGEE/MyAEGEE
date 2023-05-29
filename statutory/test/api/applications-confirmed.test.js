@@ -132,7 +132,7 @@ describe('Applications confirmation', () => {
 
     test('should return 422 on unsetting confirmed if attended is true', async () => {
         const event = await generator.createEvent();
-        const application = await generator.createApplication({ confirmed: true, attended: true }, event);
+        const application = await generator.createApplication({ confirmed: true, incoming: true, attended: true }, event);
 
         const res = await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/confirmed',

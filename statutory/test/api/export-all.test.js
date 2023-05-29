@@ -95,6 +95,7 @@ describe('Export all', () => {
             participant_order: 1,
             attended: true,
             confirmed: true,
+            incoming: true,
             departed: true,
             registered: true,
             cancelled: false,

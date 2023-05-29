@@ -310,9 +310,9 @@ describe('Statistics testing', () => {
         await generator.createApplication({ user_id: 2, status: 'rejected' }, event);
         await generator.createApplication({ user_id: 3, status: 'accepted' }, event);
         await generator.createApplication({ user_id: 4, status: 'accepted', confirmed: true }, event);
-        await generator.createApplication({ user_id: 5, status: 'accepted', confirmed: true, attended: true }, event);
-        await generator.createApplication({ user_id: 6, status: 'accepted', confirmed: true, attended: true, registered: true }, event);
-        await generator.createApplication({ user_id: 7, status: 'accepted', confirmed: true, attended: true, registered: true, departed: true }, event);
+        await generator.createApplication({ user_id: 5, status: 'accepted', confirmed: true, incoming: true, attended: true }, event);
+        await generator.createApplication({ user_id: 6, status: 'accepted', confirmed: true, incoming: true, attended: true, registered: true }, event);
+        await generator.createApplication({ user_id: 7, status: 'accepted', confirmed: true, incoming: true, attended: true, registered: true, departed: true }, event);
 
         // cancelled aplications shouldn't count
         await generator.createApplication({ user_id: 8, status: 'pending', cancelled: true }, event);
