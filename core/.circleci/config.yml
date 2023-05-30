@@ -1,16 +1,15 @@
 orbs:
-  codecov: codecov/codecov@3.2.3
-  # TODO: update docker orb to v2
-  docker: circleci/docker@1.6.0
-  node: circleci/node@5.0.2
-  shellcheck: circleci/shellcheck@3.1.1
-  slack: circleci/slack@4.10.1
+  codecov: codecov/codecov@3.2.5
+  docker: circleci/docker@2.2.0
+  node: circleci/node@5.1.0
+  shellcheck: circleci/shellcheck@3.1.2
+  slack: circleci/slack@4.12.5
 version: 2.1
 jobs:
   test:
     docker:
-      - image: cimg/node:18.7.0
-      - image: cimg/postgres:10.21
+      - image: cimg/node:18.16.0
+      - image: cimg/postgres:10.22
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
     parallelism: 4
@@ -31,8 +30,8 @@ jobs:
           path: ~/reports
   db-recreate:
     docker:
-      - image: cimg/node:18.7.0
-      - image: cimg/postgres:10.21
+      - image: cimg/node:18.16.0
+      - image: cimg/postgres:10.22
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
     resource_class: large
@@ -43,18 +42,17 @@ jobs:
           name: Run db:recreate
           command: NODE_ENV=test npm run db:recreate
   build:
-    # TODO: update to newest cimg/base image
     docker:
-      - image: cimg/base:2021.10
+      - image: cimg/base:2023.05
     resource_class: large
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.7
+          version: 20.10.23
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache core
   eslint:
     docker:
-      - image: cimg/node:18.7.0
+      - image: cimg/node:18.16.0
     resource_class: large
     steps:
       - checkout
@@ -67,7 +65,7 @@ jobs:
           path: ~/reports
   yamllint:
     docker:
-      - image: cimg/python:3.10.6
+      - image: cimg/python:3.11.3
     resource_class: large
     steps:
       - checkout
@@ -75,7 +73,7 @@ jobs:
       - run: yamllint -d .yamllint.yml .
   shellcheck:
     docker:
-      - image: cimg/base:2022.08
+      - image: cimg/base:2023.05
     resource_class: large
     steps:
       - checkout
@@ -83,7 +81,7 @@ jobs:
       - shellcheck/check
   audit:
     docker:
-      - image: cimg/node:18.7.0
+      - image: cimg/node:18.16.0
     resource_class: large
     steps:
       - checkout
@@ -130,12 +128,12 @@ jobs:
               }
   docker-build-and-push:
     docker:
-      - image: cimg/node:18.7.0
+      - image: cimg/node:18.16.0
     resource_class: large
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.14
+          version: 20.10.23
       - node/install-packages
       - run: npx semantic-release
       - run: echo export PACKAGE_VERSION=$(node -p "require('./package.json').version") >> $BASH_ENV
