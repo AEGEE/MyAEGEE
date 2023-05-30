@@ -63,7 +63,7 @@
     "request-promise-native": "^1.0.9",
     "rimraf": "^3.0.2",
     "sequelize": "^6.28.0",
-    "sequelize-cli": "^6.5.2"
+    "sequelize-cli": "^6.6.0"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^17.6.5",
