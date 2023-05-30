@@ -1,16 +1,17 @@
 orbs:
-  node: circleci/node@4.7.0
-  slack: circleci/slack@4.4.4
+  node: circleci/node@5.1.0
+  slack: circleci/slack@4.12.5
 version: 2.1
 jobs:
   test:
     machine:
-      image: ubuntu-2004:202107-02
+      image: ubuntu-2204:2023.04.2
     environment:
       MIX_ENV: test
       SMTP_USER: mailer@aegee.eu
       SMTP_PASSWORD: 5ecr3t
       SMTP_HOST: mail.aegee.eu
+    resource_class: large
     steps:
       - checkout
       - run: wget https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb && sudo dpkg -i erlang-solutions_2.0_all.deb
@@ -22,29 +23,31 @@ jobs:
       - run: SMTP_USER=mailer@aegee.eu mix coveralls
   build:
     docker:
-      - image: cimg/base:2021.10
+      - image: cimg/base:2023.05
         environment:
           MIX_ENV: test
           SMTP_USER: mailer@aegee.eu
           SMTP_PASSWORD: 5ecr3t
           SMTP_HOST: mail.aegee.eu
+    resource_class: large
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.7
+          version: 20.10.23
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache mailer
   docker-build-and-push:
     docker:
-      - image: cimg/node:16.13.0
+      - image: cimg/node:18.16.0
         environment:
           MIX_ENV: test
           SMTP_USER: mailer@aegee.eu
           SMTP_PASSWORD: 5ecr3t
           SMTP_HOST: mail.aegee.eu
+    resource_class: large
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.7
+          version: 20.10.23
       - node/install-packages
       - run: npx semantic-release
       - run: echo export PACKAGE_VERSION=$(node -p "require('./package.json').version") >> $BASH_ENV
