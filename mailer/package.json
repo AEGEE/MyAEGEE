@@ -6,13 +6,13 @@
   "author": "Nico Westerbeck",
   "license": "ISC",
   "devDependencies": {
-    "@commitlint/cli": "^15.0.0",
+    "@commitlint/cli": "^17.6.1",
     "@commitlint/config-conventional": "^15.0.0",
     "@semantic-release/changelog": "^6.0.1",
     "@semantic-release/git": "^10.0.1",
     "conventional-changelog": "^3.1.24",
     "husky": "^7.0.4",
-    "semantic-release": "^19.0.5"
+    "semantic-release": "^21.0.1"
   },
   "scripts": {
     "prepare": "husky install"
