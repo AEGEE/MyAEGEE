@@ -11,7 +11,7 @@
     "@faker-js/faker": "^7.6.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "conventional-changelog": "^3.1.25",
+    "conventional-changelog": "^4.0.0",
     "eslint": "^8.41.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5",
