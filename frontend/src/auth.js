@@ -49,7 +49,6 @@ export default {
       try {
         await fetchUser() // The request will be re-done and access token will be renewed if expired.
         await fetchPermissions()
-        return
       } catch (err) {
         store.dispatch('logout')
         throw new Error('Cannot authorize, need to relogin.')
