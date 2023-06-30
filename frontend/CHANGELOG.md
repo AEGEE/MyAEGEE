@@ -1,3 +1,10 @@
+## [1.33.32](https://github.com/AEGEE/frontend/compare/1.33.31...1.33.32) (2023-06-30)
+
+
+### Bug Fixes
+
+* **core:** display notification email instead of email in user profile ([#1766](https://github.com/AEGEE/frontend/issues/1766)) ([458dd76](https://github.com/AEGEE/frontend/commit/458dd76d325a70817b7a9732ed56041a70c4b63e))
+
 ## [1.33.31](https://github.com/AEGEE/frontend/compare/1.33.30...1.33.31) (2023-05-01)
 
 
