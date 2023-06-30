@@ -128,8 +128,8 @@
                   <td data-cy="superadmin">{{ (user.superadmin) ? 'Yes' : 'No' }}</td>
                 </tr>
                 <tr>
-                  <th>Email</th>
-                  <td><a :href="'mailto:' + user.email" data-cy="email">{{ user.email }}</a></td>
+                  <th>Notification email</th>
+                  <td><a :href="'mailto:' + user.email" data-cy="notification_email">{{ user.notification_email }}</a></td>
                 </tr>
                 <tr>
                   <th>GSuite account</th>
@@ -212,7 +212,7 @@ export default {
         date_of_birth: null,
         gender: null,
         phone: null,
-        email: null,
+        notification_email: null,
         active: null,
         superadmin: null,
         username: null
