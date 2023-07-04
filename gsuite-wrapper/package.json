@@ -22,7 +22,7 @@
     "ioredis": "^4.28.2",
     "morgan": "^1.10.0",
     "swagger-jsdoc": "^6.2.7",
-    "winston": "^3.8.2"
+    "winston": "^3.9.0"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^17.6.5",
