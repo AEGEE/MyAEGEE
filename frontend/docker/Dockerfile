@@ -1,10 +1,11 @@
-FROM node:16.20.1-alpine AS builder
+# FIXME use alpine
+FROM node:18.16.1 AS builder
 
 COPY . /usr/app/src
 WORKDIR /usr/app/src
 
-RUN npm set-script prepare "" \
- && npm ci --production --legacy-peer-deps \
+RUN npm pkg delete scripts.prepare \
+ && npm ci --omit=dev \
  && npm run build
 
 FROM nginx:1.25.1-alpine
