@@ -206,6 +206,10 @@
         </div>
       </article>
 
+      <div class="notification is-success" v-if="event.vegetarian">
+        This event is fully vegetarian!
+      </div>
+
       <article class="tile is-child">
         <div class="content">
           <p class="subtitle">Deadlines</p>

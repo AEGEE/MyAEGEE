@@ -89,6 +89,18 @@
           Please select the event type wisely, as it will influence the event's workflow. <strong>It can't be changed later.</strong>
         </div>
 
+        <div class="field" v-if="!$route.params.id">
+          <label class="label">Is the event going to be fully vegetarian?</label>
+          <div class="control">
+            <input type="checkbox" v-model="event.vegetarian" />
+            <label class="checkbox"> Yes, the event will be without any meat</label>
+          </div>
+        </div>
+
+        <div class="notification is-success" v-if="!$route.params.id">
+          Consider if you want to make the event fully vegetarian / vegan! <strong>It can't be changed later.</strong>
+        </div>
+
         <div class="field">
           <label class="label">Link to booklet folder <URLTooltip /></label>
           <div class="control">
@@ -468,6 +480,7 @@ export default {
         id: null,
         url: null,
         type: 'agora',
+        vegetarian: false,
         body_id: null,
         application_period_starts: null,
         application_period_ends: null,

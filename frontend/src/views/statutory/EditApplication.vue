@@ -56,11 +56,15 @@
                     <select v-model="application.meals">
                       <option>Vegetarian</option>
                       <option>Vegan</option>
-                      <option v-if="event.url !== 'spring-agora-enschede-2023'">Meat-eater</option>
+                      <option v-if="event.vegetarian !== true">Meat-eater</option>
                     </select>
                   </div>
                 </div>
                 <p class="help is-danger" v-if="errors.meals">{{ errors.meals.join(', ') }}</p>
+              </div>
+
+              <div class="notification is-success" v-if="event.vegetarian">
+                This event is fully vegetarian!
               </div>
 
               <div class="field is-fullwidth">
