@@ -788,7 +788,7 @@ describe('Applications creation', () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         const event = await generator.createEvent({
-            id: 23,
+            vegetarian: true,
             questions: [generator.generateQuestionForEvent({ type: 'checkbox' })],
             applications: []
         });

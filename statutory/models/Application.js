@@ -465,9 +465,13 @@ Application.findWithParams = ({ where, attributes, query }) => {
     return Application.findAndCountAll(findAllObject);
 };
 
-Application.beforeValidate((application) => {
-    // TODO: create an option to set that meat-eaters are not allowed for an event
-    if (application.event_id === 23 && application.meals === 'Meat-eater') {
+Application.beforeValidate(async (application) => {
+    // Skipping if not event not fully vegetarian
+    const event = await Event.findByPk(application.event_id);
+    if (event.vegetarian !== true) {
+        return;
+    }
+    if (application.meals === 'Meat-eater') {
         throw new Error('Meat-eater is not allowed for this event.');
     }
 });
