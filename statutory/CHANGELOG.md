@@ -1,3 +1,10 @@
+## [1.11.2](https://github.com/AEGEE/statutory/compare/1.11.1...1.11.2) (2023-07-05)
+
+
+### Bug Fixes
+
+* **event:** mark event as vegetarian ([#1034](https://github.com/AEGEE/statutory/issues/1034)) ([114302b](https://github.com/AEGEE/statutory/commit/114302bf9188e37f61cf54beeae734659597d4cd))
+
 ## [1.11.1](https://github.com/AEGEE/statutory/compare/1.11.0...1.11.1) (2023-05-02)
 
 
