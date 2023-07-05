@@ -1,3 +1,10 @@
+## [1.33.33](https://github.com/AEGEE/frontend/compare/1.33.32...1.33.33) (2023-07-05)
+
+
+### Bug Fixes
+
+* **statutory:** add option to make events vegetarian ([#1784](https://github.com/AEGEE/frontend/issues/1784)) ([84188b8](https://github.com/AEGEE/frontend/commit/84188b8e67fec642e8a6f807c6a16db83d0be83c))
+
 ## [1.33.32](https://github.com/AEGEE/frontend/compare/1.33.31...1.33.32) (2023-06-30)
 
 
