@@ -122,14 +122,20 @@ MAIL_TEMPLATES = {
     },
 }
 
-RABBIT_HOST='172.18.0.2' #FIXME
+RABBIT_HOST="172.18.0.2" #FIXME
 connection = pika.BlockingConnection(pika.ConnectionParameters(RABBIT_HOST))
 channel = connection.channel()
 
 channel.exchange_declare(exchange='eml',
                          exchange_type='direct',
                          durable=True)
-channel.queue_declare(queue='email', durable=True)
+channel.queue_declare(queue='email',
+                      arguments={
+                        'x-dead-letter-exchange': "dead_letter_exchange",
+                        'x-dead-letter-routing-key': "dead_letterl_routing_key",
+                        'x-death-header': True,
+                      },
+                      durable=True)
 channel.queue_bind(exchange='eml',
                    queue='email',
                    routing_key='mail')
