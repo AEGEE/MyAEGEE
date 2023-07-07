@@ -1,0 +1,6 @@
+FROM rabbitmq:3.11-management
+
+ADD https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/3.11.1/rabbitmq_delayed_message_exchange-3.11.1.ez /opt/rabbitmq/plugins
+RUN chown rabbitmq:rabbitmq /opt/rabbitmq/plugins/rabbitmq_delayed_message_exchange-3.11.1.ez \
+  && chmod 755 /opt/rabbitmq/plugins/rabbitmq_delayed_message_exchange-3.11.1.ez \
+  && rabbitmq-plugins enable rabbitmq_delayed_message_exchange --offline
