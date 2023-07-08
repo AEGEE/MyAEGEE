@@ -46,7 +46,7 @@ Vagrant.configure("2") do |config|
   ## Deprovisioning scripts ##
   config.trigger.before :destroy do |trigger|
     trigger.warn = "Removing .init to avoid Docker network mismatch"
-    trigger.run_remote = { inline: "rm /vagrant/.init || echo 'file already gone'" }
+    trigger.run_remote = { inline: "rm /vagrant/.init 2>/dev/null || echo 'file already gone'" }
   end
 
 end

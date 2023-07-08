@@ -47,7 +47,7 @@ else
   if ( $fast ); then
     sed -i 's/development/production/' .env
   fi
-  vagrant box add bento/ubuntu-18.04 --provider virtualbox --box-version v202303.13.0 -c
+  vagrant box list | grep "202303.13.0" -q || vagrant box add bento/ubuntu-18.04 --provider virtualbox --box-version "202303.13.0" -c
   vagrant plugin list | grep vbguest -q || vagrant plugin install vagrant-vbguest
   vagrant up
 fi
