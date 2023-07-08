@@ -1,7 +1,7 @@
 #!/bin/bash
 
-sudo apt-get update
-sudo apt-get install curl -y
+sudo apt-get update > /dev/null
+sudo apt-get install curl -y > /dev/null
 
 NODE_VERSION=16
 NPM_VERSION=9.6.4

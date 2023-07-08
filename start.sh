@@ -30,19 +30,7 @@ check_etc_hosts () {
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if ( $reset ); then
-  echo
-  echo
-  echo "CAREFUL! you are deleting your .env"
-  echo "here it is, in case you forgot to save some tokens/configs"
-  echo
-  echo
-  sed '/AEGEE_LOGO_B64/d' "${DIR}/.env"
-  rm "${DIR}/.env"
-  rm "${DIR}/.init"
-  echo
-  echo "MORE CAREFUL! you are deleting your development machine"
-  echo
-  vagrant destroy
+  vagrant destroy && vagrant up
 fi
 
 if [ ! -f "${DIR}"/.env ]; then #check if it exists, if not take the example
@@ -59,6 +47,8 @@ else
   if ( $fast ); then
     sed -i 's/development/production/' .env
   fi
+  vagrant box add bento/ubuntu-18.04 --provider virtualbox --box-version v202303.13.0 -c
+  vagrant plugin install vagrant-vbguest
   vagrant up
 fi
 

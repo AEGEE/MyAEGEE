@@ -16,3 +16,10 @@ if [[ -f .init ]]; then
 else
   make bootstrap
 fi
+
+
+# frontend helper
+cd frontend || exit 1
+echo "node: $(node --version)"
+echo "npm: $(npm --version)"
+npm i || npm i --force && npx vue-cli-service build && chmod 775 -R dist && docker restart myaegee_frontend_1
