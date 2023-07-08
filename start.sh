@@ -30,7 +30,7 @@ check_etc_hosts () {
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if ( $reset ); then
-  vagrant destroy && vagrant up
+  vagrant destroy
 fi
 
 if [ ! -f "${DIR}"/.env ]; then #check if it exists, if not take the example
@@ -48,7 +48,7 @@ else
     sed -i 's/development/production/' .env
   fi
   vagrant box add bento/ubuntu-18.04 --provider virtualbox --box-version v202303.13.0 -c
-  vagrant plugin install vagrant-vbguest
+  vagrant plugin list | grep vbguest -q || vagrant plugin install vagrant-vbguest
   vagrant up
 fi
 
