@@ -1,7 +1,7 @@
 Vagrant.configure("2") do |config|
   #Machine name for Vagrant, and machine type
   config.vm.define "appserver"
-  config.vm.box = "bento/ubuntu-18.04"
+  config.vm.box = "bento/ubuntu-22.04"
 
   #Machine name for virtualbox, and RAM size
   config.vm.provider :virtualbox do |vb|

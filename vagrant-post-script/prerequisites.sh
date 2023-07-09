@@ -3,8 +3,8 @@
 sudo apt-get update > /dev/null #avoid spamming the output
 sudo apt-get install curl htop -y
 
-NODE_VERSION=16
-NPM_VERSION=9.6.4
+NODE_VERSION=18
+NPM_VERSION=9.8.8
 
 echo "[Vagrant] ###################     Installing node tooling for frontend and backend"
 sudo apt-get remove nodejs npm
