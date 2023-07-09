@@ -32,7 +32,7 @@ Vagrant.configure("2") do |config|
 
   #install docker and docker-composer the easy way
   config.vm.provision "shell", path: "vagrant-post-script/install_docker.sh"
-  config.vm.provision "shell", path: "vagrant-post-script/install_docker_composer.sh"
+  config.vm.provision "shell", path: "vagrant-post-script/install_docker_compose.sh"
   config.vm.provision "shell", path: "vagrant-post-script/install_other_utils.sh"
 
   #nice-to-have prompt and completion

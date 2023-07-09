@@ -20,9 +20,9 @@ done
 check_etc_hosts () {
   # shellcheck disable=SC2143
   if grep -q 'traefik' /etc/hosts ; then
-    echo 'host file already good!'
+    echo '[Start script] ##### host file already good!'
   else
-    echo 'modifying the hosts file'
+    echo '[Start script] ##### modifying the hosts file'
     # shellcheck disable=SC2016
     sudo bash -c 'echo "$1" "$2" "portainer.$2" "my.$2" "traefik.$2" "pgadmin.$2" "apidocs.$2" >> /etc/hosts' -- "${1}" "${2}"
   fi
