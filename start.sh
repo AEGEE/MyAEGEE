@@ -20,9 +20,9 @@ done
 check_etc_hosts () {
   # shellcheck disable=SC2143
   if grep -q 'traefik' /etc/hosts ; then
-    echo 'host file already good!'
+    echo '[Start script] ##### host file already good!'
   else
-    echo 'modifying the hosts file'
+    echo '[Start script] ##### modifying the hosts file'
     # shellcheck disable=SC2016
     sudo bash -c 'echo "$1" "$2" "portainer.$2" "my.$2" "traefik.$2" "pgadmin.$2" "apidocs.$2" >> /etc/hosts' -- "${1}" "${2}"
   fi
@@ -30,18 +30,6 @@ check_etc_hosts () {
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if ( $reset ); then
-  echo
-  echo
-  echo "CAREFUL! you are deleting your .env"
-  echo "here it is, in case you forgot to save some tokens/configs"
-  echo
-  echo
-  sed '/AEGEE_LOGO_B64/d' "${DIR}/.env"
-  rm "${DIR}/.env"
-  rm "${DIR}/.init"
-  echo
-  echo "MORE CAREFUL! you are deleting your development machine"
-  echo
   vagrant destroy
 fi
 
@@ -59,6 +47,8 @@ else
   if ( $fast ); then
     sed -i 's/development/production/' .env
   fi
+  vagrant box list | grep "202303.13.0" -q || vagrant box add bento/ubuntu-18.04 --provider virtualbox --box-version "202303.13.0" -c
+  vagrant plugin list | grep vbguest -q || vagrant plugin install vagrant-vbguest
   vagrant up
 fi
 
