@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/AEGEE/events/compare/1.3.13...1.4.0) (2023-07-10)
+
+
+### Features
+
+* **events:** Add option to make events fully vegetarian ([#967](https://github.com/AEGEE/events/issues/967)) ([64b7712](https://github.com/AEGEE/events/commit/64b7712c67b773678a43790ffbc7a7e147ae956b))
+
 ## [1.3.13](https://github.com/AEGEE/events/compare/1.3.12...1.3.13) (2023-05-02)
 
 
