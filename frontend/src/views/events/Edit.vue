@@ -157,6 +157,19 @@
           </div>
           <p class="help is-danger" v-if="errors.meals_per_day">{{ errors.meals_per_day.join(', ') }}</p>
         </div>
+
+        <div class="field" v-if="!$route.params.id">
+          <label class="label">Is the event going to be fully vegetarian?</label>
+          <div class="control">
+            <input type="checkbox" v-model="event.vegetarian" />
+            <label class="checkbox"> Yes, the event will be without any meat</label>
+          </div>
+        </div>
+
+        <div class="notification is-success" v-if="!$route.params.id">
+          Consider if you want to make the event fully vegetarian / vegan! <strong>It can't be changed later.</strong>
+        </div>
+
         <div class="field">
           <label class="label">Accommodation type <span class="has-text-danger">*</span></label>
           <div class="notification is-info" v-if="!$route.params.id">
@@ -626,6 +639,7 @@ export default {
         body: null,
         optional_fee: null,
         meals_per_day: 0,
+        vegetarian: false,
         optional_programme: null,
         link_info_travel_country: null,
         accommodation_type: ''

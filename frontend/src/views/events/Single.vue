@@ -148,6 +148,13 @@
                   <th>Number of meals provided per day</th>
                   <td>{{ event.meals_per_day }}</td>
                 </tr>
+                <tr v-if="event.vegetarian">
+                  <td colspan="2">
+                    <div class="notification is-success">
+                      This event is fully vegetarian!
+                    </div>
+                  </td>
+                </tr>
                 <tr>
                   <th>Accommodation type</th>
                   <td>{{ event.accommodation_type }}</td>
