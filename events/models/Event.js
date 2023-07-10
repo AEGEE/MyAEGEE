@@ -370,6 +370,11 @@ const Event = sequelize.define(
                 max: { args: [4], msg: 'You cannot offer more than 4 meals per day' },
             },
         },
+        vegetarian: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
         accommodation_type: {
             type: Sequelize.STRING,
             allowNull: false,
