@@ -1,3 +1,10 @@
+## [0.16.1](https://github.com/AEGEE/mailer/compare/0.16.0...0.16.1) (2023-07-11)
+
+
+### Bug Fixes
+
+* add poison to fix healthcheck ([#96](https://github.com/AEGEE/mailer/issues/96)) ([508fb4b](https://github.com/AEGEE/mailer/commit/508fb4bf3c281d52541bbe09f391e48182a16b93))
+
 # [0.16.0](https://github.com/AEGEE/mailer/compare/0.15.2...0.16.0) (2022-09-18)
 
 
