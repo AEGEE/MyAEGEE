@@ -21,16 +21,16 @@ const {
 const notSet = (field) => typeof field === 'undefined';
 
 exports.generateUser = (options = {}) => {
-    if (notSet(options.username)) options.username = faker.random.alphaNumeric(16);
-    if (notSet(options.first_name)) options.first_name = faker.name.firstName();
-    if (notSet(options.last_name)) options.last_name = faker.name.lastName();
+    if (notSet(options.username)) options.username = faker.string.alphanumeric(16);
+    if (notSet(options.first_name)) options.first_name = faker.person.firstName();
+    if (notSet(options.last_name)) options.last_name = faker.person.lastName();
     if (notSet(options.email)) options.email = faker.internet.email();
-    if (notSet(options.gender)) options.gender = faker.random.alphaNumeric(16);
+    if (notSet(options.gender)) options.gender = faker.string.alphanumeric(16);
     if (notSet(options.phone)) options.phone = faker.phone.number();
     if (notSet(options.date_of_birth)) options.date_of_birth = faker.date.past();
     if (notSet(options.about_me)) options.about_me = faker.lorem.paragraph();
     if (notSet(options.address)) options.address = faker.lorem.paragraph();
-    if (notSet(options.password)) options.password = faker.random.alphaNumeric(16);
+    if (notSet(options.password)) options.password = faker.string.alphanumeric(16);
     if (notSet(options.mail_confirmed_at)) options.mail_confirmed_at = new Date();
     if (notSet(options.primary_email)) options.primary_email = 'personal';
 
@@ -42,7 +42,7 @@ exports.createUser = (options = {}) => {
 };
 
 exports.generateMailConfirmation = (user, options = {}) => {
-    if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
+    if (notSet(options.value)) options.value = faker.string.alphanumeric(16);
     if (notSet(options.expires_at)) options.expires_at = faker.date.future();
     if (user) options.user_id = user.id;
 
@@ -54,9 +54,9 @@ exports.createMailConfirmation = (user = null, options = {}) => {
 };
 
 exports.generateBody = (options = {}) => {
-    if (notSet(options.name)) options.name = faker.name.firstName();
+    if (notSet(options.name)) options.name = faker.person.firstName();
     if (notSet(options.description)) options.description = faker.lorem.paragraph();
-    if (notSet(options.code)) options.code = faker.random.alpha(3);
+    if (notSet(options.code)) options.code = faker.string.alpha(3);
     if (notSet(options.email)) options.email = faker.internet.email();
     if (notSet(options.phone)) options.phone = faker.phone.number();
     if (notSet(options.address)) options.address = faker.lorem.paragraph();
@@ -70,7 +70,7 @@ exports.createBody = (options = {}) => {
 };
 
 exports.generateCircle = (options = {}, circle = null) => {
-    if (notSet(options.name)) options.name = faker.name.firstName();
+    if (notSet(options.name)) options.name = faker.person.firstName();
     if (notSet(options.description)) options.description = faker.lorem.paragraph();
     if (notSet(options.joinable)) options.joinable = true;
     if (circle) options.parent_circle_id = circle.id;
@@ -83,8 +83,8 @@ exports.createCircle = (options = {}, circle = null) => {
 };
 
 exports.generateCampaign = (options = {}) => {
-    if (notSet(options.name)) options.name = faker.random.alphaNumeric(16);
-    if (notSet(options.url)) options.url = faker.random.alphaNumeric(16);
+    if (notSet(options.name)) options.name = faker.string.alphanumeric(16);
+    if (notSet(options.url)) options.url = faker.string.alphanumeric(16);
     if (notSet(options.description_short)) options.description_short = faker.lorem.paragraph();
     if (notSet(options.description_long)) options.description_long = faker.lorem.paragraph();
 
@@ -97,8 +97,8 @@ exports.createCampaign = (options = {}) => {
 
 exports.generatePermission = (options = {}) => {
     if (notSet(options.scope)) options.scope = 'global';
-    if (notSet(options.action)) options.action = faker.random.alphaNumeric(16);
-    if (notSet(options.object)) options.object = faker.random.alphaNumeric(16);
+    if (notSet(options.action)) options.action = faker.string.alphanumeric({ length: 16, casing: 'lower' });
+    if (notSet(options.object)) options.object = faker.string.alphanumeric({ length: 16, casing: 'lower' });
     if (notSet(options.description)) options.description = faker.lorem.paragraph();
 
     return options;
@@ -109,7 +109,7 @@ exports.createPermission = (options = {}) => {
 };
 
 exports.generateRefreshToken = (user, options = {}) => {
-    if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
+    if (notSet(options.value)) options.value = faker.string.alphanumeric(16);
     if (user) options.user_id = user.id;
 
     return options;
@@ -120,7 +120,7 @@ exports.createRefreshToken = (user = null, options = {}) => {
 };
 
 exports.generateAccessToken = (user, options = {}) => {
-    if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
+    if (notSet(options.value)) options.value = faker.string.alphanumeric(16);
     if (notSet(options.expires_at)) options.expires_at = faker.date.future();
     if (user) options.user_id = user.id;
 
@@ -132,7 +132,7 @@ exports.createAccessToken = (user = null, options = {}) => {
 };
 
 exports.generatePasswordReset = (user, options = {}) => {
-    if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
+    if (notSet(options.value)) options.value = faker.string.alphanumeric(16);
     if (notSet(options.expires_at)) options.expires_at = faker.date.future();
     if (user) options.user_id = user.id;
 
@@ -181,14 +181,14 @@ exports.generatePayment = (body, user, options = {}) => {
 
     if (notSet(options.starts)) options.starts = faker.date.past();
     if (notSet(options.expires)) options.expires = faker.date.future();
-    if (notSet(options.amount)) options.amount = faker.datatype.number({ min: 1 });
-    if (notSet(options.currency)) options.currency = faker.random.alphaNumeric(3);
+    if (notSet(options.amount)) options.amount = faker.number.int({ min: 1 });
+    if (notSet(options.currency)) options.currency = faker.string.alphanumeric(3);
 
     return options;
 };
 
 exports.generateMailChange = (user, options = {}) => {
-    if (notSet(options.value)) options.value = faker.random.alphaNumeric(16);
+    if (notSet(options.value)) options.value = faker.string.alphanumeric(16);
     if (notSet(options.expires_at)) options.expires_at = faker.date.future();
     if (notSet(options.new_email)) options.new_email = faker.internet.email();
     if (user) options.user_id = user.id;
