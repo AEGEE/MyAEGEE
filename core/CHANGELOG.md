@@ -1,3 +1,10 @@
+## [1.36.11](https://github.com/AEGEE/core/compare/1.36.10...1.36.11) (2023-07-11)
+
+
+### Bug Fixes
+
+* improve NAME_REGEX to allow dashes ([#717](https://github.com/AEGEE/core/issues/717)) ([f2a1678](https://github.com/AEGEE/core/commit/f2a167836bd8ea0c7249c1a0a65709958e042957))
+
 ## [1.36.10](https://github.com/AEGEE/core/compare/1.36.9...1.36.10) (2021-12-28)
 
 
