@@ -5,7 +5,7 @@ const constants = require('../lib/constants');
 const { Sequelize, sequelize } = require('../lib/sequelize');
 const config = require('../config');
 
-const NAME_REGEX = /^[\p{L}. -']*$/u;
+const NAME_REGEX = /^[\p{L}. \-']*$/u;
 const USERNAME_REGEX = /^[a-zA-Z0-9._-]*$/;
 
 const User = sequelize.define('user', {
