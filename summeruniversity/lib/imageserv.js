@@ -3,11 +3,11 @@ const multer = require('multer');
 const readChunk = require('read-chunk');
 const FileType = require('file-type');
 const util = require('util');
+const fs = require('fs');
 
 const errors = require('./errors');
 const log = require('./logger');
 const config = require('../config');
-const fs = require('./fs');
 
 const uploadFolderName = `${config.media_dir}/headimages`;
 const allowedExtensions = ['.png', '.jpg', '.jpeg'];
@@ -45,8 +45,8 @@ exports.uploadImage = async (req, res) => {
     const oldimg = req.event.image;
 
     // If upload folder doesn't exists, create it.
-    if (!await fs.existsSync(uploadFolderName)) {
-        await fs.mkdir(uploadFolderName, { recursive: true });
+    if (!fs.existsSync(uploadFolderName)) {
+        await fs.promises.mkdir(uploadFolderName, { recursive: true });
     }
 
     try {
@@ -78,7 +78,7 @@ exports.uploadImage = async (req, res) => {
 
     // Remove old file
     if (oldimg) {
-        await fs.remove(path.join(uploadFolderName, oldimg));
+        await fs.promises.unlink(path.join(uploadFolderName, oldimg));
     }
 
     return res.json({
