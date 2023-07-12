@@ -1,5 +1,5 @@
 const moment = require('moment');
-const faker = require('faker');
+const { faker } = require('@faker-js/faker');
 
 const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
