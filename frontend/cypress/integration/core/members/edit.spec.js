@@ -14,7 +14,9 @@ context('Members editing', () => {
   })
 
   it('should complain if the data is invalid', () => {
-    cy.get('[data-cy=first_name]').clear().type('admin2')
+    cy.get('[data-cy=first_name]')
+    cy.clear()
+    cy.type('admin2')
     cy.contains('Save user').click()
 
     cy.contains('Some of the user data is invalid.')
@@ -43,7 +45,9 @@ context('Members editing', () => {
       status: 500
     })
 
-    cy.get('[data-cy=first_name]').clear().type('new')
+    cy.get('[data-cy=first_name]')
+    cy.clear()
+    cy.type('new')
     cy.contains('Save user').click()
 
     cy.contains('Could not save user')
@@ -52,16 +56,30 @@ context('Members editing', () => {
   it('should save user is all is correct', () => {
     cy.viewport(1024, 768) // to be not tablet size, so date_of_birth won't be a popup
 
-    cy.get('[data-cy=first_name]').clear().type('new')
-    cy.get('[data-cy=last_name]').clear().type('new')
-    cy.get('[data-cy=username]').clear().type('new')
-    cy.get('[data-cy=phone]').clear().type('new')
+    cy.get('[data-cy=first_name]')
+    cy.clear()
+    cy.type('new')
+    cy.get('[data-cy=last_name]')
+    cy.clear()
+    cy.type('new')
+    cy.get('[data-cy=username]')
+    cy.clear()
+    cy.type('new')
+    cy.get('[data-cy=phone]')
+    cy.clear()
+    cy.type('new')
 
     cy.typeDate('[data-cy=date_of_birth]', '1973-02-02')
 
-    cy.get('[data-cy=gender]').clear().type('new')
-    cy.get('[data-cy=address]').clear().type('new')
-    cy.get('[data-cy=about_me]').clear().type('new')
+    cy.get('[data-cy=gender]')
+    cy.clear()
+    cy.type('new')
+    cy.get('[data-cy=address]')
+    cy.clear()
+    cy.type('new')
+    cy.get('[data-cy=about_me]')
+    cy.clear()
+    cy.type('new')
     cy.contains('Save user').click()
 
     cy.contains('User is saved.')
