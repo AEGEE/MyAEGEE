@@ -1,4 +1,4 @@
-const faker = require('faker');
+const { faker } = require('@faker-js/faker');
 
 const {
     Course,
@@ -15,7 +15,7 @@ exports.generateCourse = (options = {}) => {
 };
 
 exports.generateChapter = (options = {}, course = null) => {
-    if (notSet(options.name)) options.name = faker.random.word();
+    if (notSet(options.name)) options.name = faker.lorem.word();
 
     if (course && course.id) {
         options.course_id = course.id;
@@ -25,7 +25,7 @@ exports.generateChapter = (options = {}, course = null) => {
 };
 
 exports.generatePage = (options = {}, chapter = null) => {
-    if (notSet(options.name)) options.name = faker.random.word();
+    if (notSet(options.name)) options.name = faker.lorem.word();
 
     if (chapter && chapter.id) {
         options.chapter_id = chapter.id;
