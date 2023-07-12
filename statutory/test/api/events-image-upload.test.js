@@ -1,7 +1,8 @@
+const fs = require('fs');
 const path = require('path');
+const { rimraf } = require('rimraf');
 
 const { startServer, stopServer } = require('../../lib/server');
-const fs = require('../../lib/fs');
 const { request } = require('../scripts/helpers');
 const mock = require('../scripts/mock-core-registry');
 const generator = require('../scripts/generator');
@@ -28,11 +29,11 @@ describe('Events image upload', () => {
         mock.cleanAll();
 
         await generator.clearAll();
-        await fs.rimraf(config.images_dir);
+        await rimraf(config.images_dir);
     });
 
     it('should create an upload folder if it doesn\'t exist', async () => {
-        await fs.rimraf(config.images_dir);
+        await rimraf(config.images_dir);
 
         await request({
             uri: '/events/' + event.id + '/image',
@@ -94,7 +95,7 @@ describe('Events image upload', () => {
         expect(res.statusCode).toEqual(422);
 
         expect(res.body.success).toEqual(false);
-        expect(res.body).toHaveProperty('message');
+        expect(res.body.message).toEqual('No head_image is specified.');
     });
 
     it('should upload a file if it\'s valid', async () => {
@@ -200,7 +201,7 @@ describe('Events image upload', () => {
             '..',
             firstRequest.body.data.image.file_path_absolute
         );
-        await fs.remove(oldImgPath);
+        await fs.promises.unlink(oldImgPath);
 
         const res = await request({
             uri: '/events/' + event.id + '/image',

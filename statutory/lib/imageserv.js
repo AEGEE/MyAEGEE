@@ -3,11 +3,11 @@ const multer = require('multer');
 const readChunk = require('read-chunk');
 const FileType = require('file-type');
 const util = require('util');
+const fs = require('fs');
 
 const errors = require('./errors');
 const log = require('./logger');
 const config = require('../config');
-const fs = require('./fs');
 const { Image } = require('../models');
 
 const uploadFolderName = config.images_dir;
@@ -45,7 +45,7 @@ const uploadAsync = util.promisify(upload);
 exports.uploadImage = async (req, res, next) => {
     // If upload folder doesn't exists, create it.
     if (!fs.existsSync(uploadFolderName)) {
-        await fs.mkdir(uploadFolderName, { recursive: true });
+        await fs.promises.mkdir(uploadFolderName, { recursive: true });
     }
 
     try {
