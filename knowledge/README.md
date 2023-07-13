@@ -1,6 +1,6 @@
 # Knowledge module
 ![CircleCI](https://img.shields.io/circleci/build/github/AEGEE/knowledge)
-![Codecov branch for master](https://img.shields.io/codecov/c/github/AEGEE/knowledge.svg)
+![Codecov branch for main](https://img.shields.io/codecov/c/github/AEGEE/knowledge.svg)
 
 
 ## General
