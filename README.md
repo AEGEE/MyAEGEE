@@ -13,8 +13,8 @@ It makes use of docker, and docker-compose.
 
 Install
 1. First [Git](https://git-scm.com/downloads) (you might already have Git installed through other sources if you worked with git/GitHub before)
-2. then [Virtualbox](https://www.virtualbox.org/wiki/Downloads), 
-3. and finally [Vagrant](https://www.vagrantup.com/downloads.html). 
+2. then [Virtualbox](https://www.virtualbox.org/wiki/Downloads),
+3. and finally [Vagrant](https://www.vagrantup.com/downloads.html).
 
 Even if you have a linux box, this is **very** recommended. If you decide to not do it, *sigh...* but don't come to cry to us.
 
@@ -36,7 +36,7 @@ A note on terminology:
 
 For manual edits, see [Advanced URL mapping and troubleshoot](#advanced-url-mapping-and-troubleshoot).
 
-### Linux 
+### Linux
 
 > On the _HOST_
 ```
@@ -61,9 +61,9 @@ cd MyAEGEE
 As a helper in the windows case, you have the script "`run_as_win_administrator.bat`" (not very advanced).
 1. You have to right-click it and click "run as administrator".
 2. It will tell you the line to copy (on another terminal that will open) and open the file you need to edit in notepad.
-3. 	A) (Vagrant case) Paste the content at the last line of the file 
-	```192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```  
-    B) (Docker case) Paste the content at the last line of the file 
+3. 	A) (Vagrant case) Paste the content at the last line of the file
+	```192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```
+    B) (Docker case) Paste the content at the last line of the file
 	```127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```
 4. Save, and exit.
 
@@ -143,13 +143,13 @@ This system is built by the Bento project by Chef Software
 More information can be found at https://github.com/chef/bento
 Last login: Fri Sep 18 14:13:43 2020 from 10.0.2.2
 
-appserver[/vagrant]$ [master !?]
+appserver[/vagrant]$ [main !?]
 ```
 
 So now you can run `docker ps`:
 
 ```
-appserver[/vagrant]$ [master !?] docker ps
+appserver[/vagrant]$ [main !?] docker ps
 CONTAINER ID        IMAGE                                  COMMAND                  CREATED             STATUS                 PORTS                                      NAMES
 cbe689ea9ee2        aegee/discounts:dev                    "docker-entrypoint.s…"   5 hours ago         Up 5 hours (healthy)   8084/tcp                                   myaegee_discounts_1
 ed1c20a4e65a        aegee/statutory:dev                    "docker-entrypoint.s…"   5 hours ago         Up 5 hours (healthy)   8084/tcp                                   myaegee_statutory_1

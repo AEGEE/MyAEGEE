@@ -9,7 +9,7 @@
 # This makes the script swarm compatible as the databases don't necessarily
 #   need to live on the same host.
 
-RESTORE_REFERENCE_URL="https://github.com/AEGEE/MyAEGEE/blob/master/scripts"
+RESTORE_REFERENCE_URL="https://github.com/AEGEE/MyAEGEE/blob/main/scripts"
 BACKUP_REFERENCE_URL="https://myaegee.atlassian.net/wiki/spaces/AIT/pages/291897345/Using+backup+restore+scripts+for+MyAEGEE+data"
 
 #shellcheck disable=SC2206

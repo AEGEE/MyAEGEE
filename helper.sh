@@ -11,7 +11,7 @@
 # bump the version of the oms submodules and commit (currently not there)
 bump_repo ()
 {
-    git submodule foreach "git checkout master && git pull"
+    git submodule foreach "git checkout main && git pull"
     git add "$(git submodule status | grep '^+' |  awk '{ print $2 }')"
     #if something is staged, do the following two lines
     git diff --cached --quiet
@@ -25,7 +25,7 @@ bump_repo ()
 bump_single_module ()
 {
     cd "${1}" || { echo "no folder ${1}!" && exit 189 ; }
-    git checkout master && git pull
+    git checkout main && git pull
     cd ..
     git add "${1}"
     #if something is staged, do the following two lines
@@ -40,7 +40,7 @@ bump_single_module ()
 # bump the version of the oms submodules and do not commit
 bump_nocommit ()
 {
-    git submodule foreach "git checkout master && git pull"
+    git submodule foreach "git checkout main && git pull"
 }
 
 #CATEGORY: DEPLOY
@@ -285,7 +285,7 @@ fi
 #DEV/UTILS
 #
 
-#Brings the submodules to master and commits
+#Brings the submodules to main and commits
 if ( $bump ); then
     if [ -z "${arguments[*]}" ]; then
       bump_repo
@@ -294,7 +294,7 @@ if ( $bump ); then
     fi
 fi
 
-#Brings the submodules to master, no commit. Launched by operator
+#Brings the submodules to main, no commit. Launched by operator
 if ( $bumpmodules ); then
     bump_nocommit
 fi
