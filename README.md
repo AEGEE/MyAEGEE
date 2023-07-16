@@ -143,13 +143,13 @@ This system is built by the Bento project by Chef Software
 More information can be found at https://github.com/chef/bento
 Last login: Fri Sep 18 14:13:43 2020 from 10.0.2.2
 
-appserver[/vagrant]$ [main !?]
+appserver[/vagrant]$ [stable !?]
 ```
 
 So now you can run `docker ps`:
 
 ```
-appserver[/vagrant]$ [main !?] docker ps
+appserver[/vagrant]$ [stable !?] docker ps
 CONTAINER ID        IMAGE                                  COMMAND                  CREATED             STATUS                 PORTS                                      NAMES
 cbe689ea9ee2        aegee/discounts:dev                    "docker-entrypoint.s…"   5 hours ago         Up 5 hours (healthy)   8084/tcp                                   myaegee_discounts_1
 ed1c20a4e65a        aegee/statutory:dev                    "docker-entrypoint.s…"   5 hours ago         Up 5 hours (healthy)   8084/tcp                                   myaegee_statutory_1
