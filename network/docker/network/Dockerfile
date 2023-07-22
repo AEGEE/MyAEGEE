@@ -1,5 +1,5 @@
 # FIXME use alpine
-FROM node:18.16.1
+FROM node:18.17.0
 
 RUN mkdir -p /usr/app/src \
 	&& mkdir -p /usr/app/media \
