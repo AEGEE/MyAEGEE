@@ -1,0 +1,15 @@
+version: "3.4"
+
+services:
+  discounts:
+    build:
+      context: ./${PATH_DISCOUNTS}/..
+      dockerfile: ./docker/discounts/Dockerfile
+    image: aegee/discounts:dev
+    volumes:
+      - ./${PATH_DISCOUNTS}/../config:/usr/app/src/config
+      - ./${PATH_DISCOUNTS}/../lib:/usr/app/src/lib
+      - ./${PATH_DISCOUNTS}/../migrations:/usr/app/src/migrations
+      - ./${PATH_DISCOUNTS}/../models:/usr/app/src/models
+      - ./${PATH_DISCOUNTS}/../cli.js:/usr/app/src/cli.js
+    command: "sh -c '/usr/app/scripts/bootstrap.sh && npm run nodemon-start | bunyan'"

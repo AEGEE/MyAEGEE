@@ -10,9 +10,6 @@
 [submodule "statutory"]
 	path = statutory
 	url = https://github.com/AEGEE/statutory
-[submodule "discounts"]
-	path = discounts
-	url = https://github.com/AEGEE/discounts
 [submodule "frontend"]
 	path = frontend
 	url = https://github.com/AEGEE/frontend
