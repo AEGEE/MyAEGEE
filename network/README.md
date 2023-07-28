@@ -1,6 +1,6 @@
 # Network module
 ![CircleCI](https://img.shields.io/circleci/build/github/AEGEE/network)
-![Codecov branch for main](https://img.shields.io/codecov/c/github/AEGEE/network.svg)
+![Codecov branch for stable](https://img.shields.io/codecov/c/github/AEGEE/network.svg)
 
 
 ## General
