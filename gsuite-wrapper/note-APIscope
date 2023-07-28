@@ -6,9 +6,9 @@ When one wants to add API:
 
 2) look for the js wrapper in github
 
-    https://github.com/googleapis/google-api-nodejs-client/blob/master/src/apis/admin/directory_v1.ts
+    https://github.com/googleapis/google-api-nodejs-client/blob/main/src/apis/admin/directory_v1.ts
 
-    https://github.com/googleapis/google-api-nodejs-client/blob/master/src/apis/calendar/v3.ts
+    https://github.com/googleapis/google-api-nodejs-client/blob/main/src/apis/calendar/v3.ts
 
 3) enable from google cloud console the api
 
