@@ -53,7 +53,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/core/blob/master/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/core/blob/stable/CHANGELOG.md'
         },
         mailer: {
           roundTrip: null,
@@ -61,7 +61,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/mailer/blob/master/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/mailer/blob/stable/CHANGELOG.md'
         },
         events: {
           roundTrip: null,
@@ -69,7 +69,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/events/blob/master/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/events/blob/stable/CHANGELOG.md'
         },
         summeruniversity: {
           roundTrip: null,
@@ -77,7 +77,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/summeruniversity/blob/main/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/summeruniversity/blob/stable/CHANGELOG.md'
         },
         statutory: {
           roundTrip: null,
@@ -85,7 +85,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/statutory/blob/master/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/statutory/blob/stable/CHANGELOG.md'
         },
         discounts: {
           roundTrip: null,
@@ -93,7 +93,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/discounts/blob/master/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/discounts/blob/stable/CHANGELOG.md'
         },
         network: {
           roundTrip: null,
@@ -101,7 +101,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/network/blob/main/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/network/blob/stable/CHANGELOG.md'
         },
         'gsuite-wrapper': {
           roundTrip: null,
@@ -109,7 +109,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/gsuite-wrapper/blob/master/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/gsuite-wrapper/blob/stable/CHANGELOG.md'
         },
         frontend: {
           roundTrip: null,
@@ -117,7 +117,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/frontend/blob/master/CHANGELOG.md'
+          changelog: 'https://github.com/AEGEE/frontend/blob/stable/CHANGELOG.md'
         },
         'statutory-static': {
           roundTrip: null,
