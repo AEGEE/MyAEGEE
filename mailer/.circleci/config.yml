@@ -150,10 +150,10 @@ workflows:
       - build:
           filters:
             branches:
-              ignore: master
+              ignore: stable
   docker-build-and-push:
     jobs:
       - docker-build-and-push:
           filters:
             branches:
-              only: master
+              only: stable
