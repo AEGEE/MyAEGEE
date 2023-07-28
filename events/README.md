@@ -1,6 +1,6 @@
 # Events module
 
-**master**: [![Build Status](https://travis-ci.org/AEGEE/events.svg)](https://travis-ci.org/AEGEE/events/)
+**stable**: [![Build Status](https://travis-ci.org/AEGEE/events.svg)](https://travis-ci.org/AEGEE/events/)
 ![Codecov branch for dev](https://img.shields.io/codecov/c/github/AEGEE/events.svg)
 
 **dev**: [![Build Status](https://travis-ci.org/AEGEE/events.svg?branch=dev)](https://travis-ci.org/AEGEE/events/dev)
