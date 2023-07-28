@@ -1,6 +1,6 @@
 # Discounts module
 ![CircleCI](https://img.shields.io/circleci/build/github/AEGEE/discounts)
-![Codecov branch for master](https://img.shields.io/codecov/c/github/AEGEE/discounts.svg)
+![Codecov branch for stable](https://img.shields.io/codecov/c/github/AEGEE/discounts.svg)
 
 
 ## General
