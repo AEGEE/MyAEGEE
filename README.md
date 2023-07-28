@@ -1,7 +1,7 @@
 # core
 
 ![CircleCI](https://img.shields.io/circleci/build/github/AEGEE/core)
-![Codecov branch for master](https://img.shields.io/codecov/c/github/AEGEE/core.svg)
+![Codecov branch for stable](https://img.shields.io/codecov/c/github/AEGEE/core.svg)
 
 Another implementation of oms-core, the main part of MyAEGEE, this time in JS.
 

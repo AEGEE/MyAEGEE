@@ -236,7 +236,7 @@ workflows:
       - build:
           filters:
             branches:
-              ignore: master
+              ignore: stable
       - db-recreate
   test:
     jobs:
@@ -246,13 +246,13 @@ workflows:
       - docker-build-and-push:
           filters:
             branches:
-              only: master
+              only: stable
   audit:
     triggers:
       - schedule:
           cron: "0 0 * * 5"
           filters:
             branches:
-              only: master
+              only: stable
     jobs:
       - audit
