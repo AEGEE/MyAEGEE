@@ -74,24 +74,5 @@
     "request-promise-native": "^1.0.9",
     "sequelize": "^6.32.1",
     "sequelize-cli": "^6.6.1"
-  },
-  "release": {
-    "branches": [
-      "stable"
-    ],
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      "@semantic-release/changelog",
-      [
-        "@semantic-release/npm",
-        {
-          "npmPublish": false
-        }
-      ],
-      "@semantic-release/github",
-      "@semantic-release/git"
-    ],
-    "tagFormat": "${version}"
   }
 }
