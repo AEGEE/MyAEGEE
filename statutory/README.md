@@ -1,6 +1,6 @@
 # Statutory module
 ![CircleCI](https://img.shields.io/circleci/build/github/AEGEE/statutory)
-![Codecov branch for master](https://img.shields.io/codecov/c/github/AEGEE/statutory.svg)
+![Codecov branch for stable](https://img.shields.io/codecov/c/github/AEGEE/statutory.svg)
 
 
 ## General
