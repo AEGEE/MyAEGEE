@@ -1,6 +1,6 @@
 # Summer University module
 ![CircleCI](https://img.shields.io/circleci/build/github/AEGEE/summeruniversity)
-![Codecov branch for main](https://img.shields.io/codecov/c/github/AEGEE/summeruniversity.svg)
+![Codecov branch for stable](https://img.shields.io/codecov/c/github/AEGEE/summeruniversity.svg)
 
 
 ## General
