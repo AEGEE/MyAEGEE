@@ -2,6 +2,12 @@
 <!DOCTYPE html>
 <html lang="en">
 
+{#
+{% with title="MyAEGEE: New event submitted" %}
+  {% include "snippets/head.jinja2" %}
+{% endwith %}
+#}
+
 {% import "snippets/macros.jinja2" as macros %}
 {{ macros.head("MyAEGEE: New event submitted") }}
 
