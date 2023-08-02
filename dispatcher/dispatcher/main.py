@@ -54,12 +54,48 @@ channel.queue_bind(exchange='wait_exchange',
                    queue='requeue_queue',
                    routing_key='wait')
 
+def requeue_wait(ch, method, properties, body, reason):
+    REQUEUE_DELAY_DURATIONS = [
+        5 * 60000, # 5 mins
+        50 * 60000, # 50 mins
+        5*60 * 60000, # 5 hrs
+        5*60*10 * 60000, # 50 hrs
+        5*60*20 * 60000, # 100 hrs
+    ]
+
+    if (properties.headers != None and "x-delay" in properties.headers):
+        index = REQUEUE_DELAY_DURATIONS.index(int(properties.headers["x-delay"]))
+        if (index+1 == len(REQUEUE_DELAY_DURATIONS) ):
+            print('Max retry time hit, dropping message')
+            # TODO: notify someone that they've been sloppy
+            ch.basic_ack(delivery_tag = method.delivery_tag)
+            return
+        else:
+            print(f'Attempt {index+1}/{len(REQUEUE_DELAY_DURATIONS)-1}')
+            wait = REQUEUE_DELAY_DURATIONS[index+1]
+    else:
+        wait = REQUEUE_DELAY_DURATIONS[0]
+
+    headers = {
+        'reason': reason,
+        'x-delay': wait,
+    }
+    prop = pika.BasicProperties(
+        headers=headers,
+        delivery_mode = pika.spec.PERSISTENT_DELIVERY_MODE,
+        )
+    channel.basic_publish(exchange='wait_exchange',
+                        routing_key='wait',
+                        body=body,
+                        properties=prop) #NOTE it completely ignores the previous properties (and it's fine)
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+
 def send_email(ch, method, properties, body):
     """
     Callback for the NORMAL MESSAGE
     Output: send an email
         OR
-    Output: Dead-letter queue
+    Output: Wait-exchange
     """
     msg = json.loads(body)
 
@@ -69,7 +105,7 @@ def send_email(ch, method, properties, body):
         # TODO: send a notification to someone about adding a template
         # NOTE: this is a requeuable message
         print(f"Template {msg['template']}.jinja2 not found")
-        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+        requeue_wait(ch, method, properties, body, reason="template_not_found")
         return
 
     try:
@@ -77,29 +113,12 @@ def send_email(ch, method, properties, body):
     except exceptions.UndefinedError as e:
         # NOTE: this is a NON-requeuable message
         print(f"Error in rendering: some parameter is undefined (error: {e}; message: {msg})")
-# TODO: check if there is no x-header about DLQ if
-# i send directly to queue from this (i.e. without passing from DLQ),
-
-        # headers = {
-        #     'reason': 'parameter_undefined',
-        #     'x-delay': '60000',
-        # }
-        # prop = pika.BasicProperties(
-        #     headers=headers,
-        #     delivery_mode = pika.spec.PERSISTENT_DELIVERY_MODE,
-        #     )
-        # channel.basic_publish(exchange='wait_exchange',
-        #                   routing_key='wait',
-        #                   body=body,
-        #                   properties=prop)
-        # ch.basic_ack(delivery_tag=method.delivery_tag)
-
-        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+        requeue_wait(ch, method, properties, body, reason="parameter_undefined")
         return
     except exceptions.TemplateNotFound:
         # NOTE: this is a requeuable message
         print(f"A sub-template in {msg['template']}.jinja2 was not found")
-        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+        requeue_wait(ch, method, properties, body, reason="sub-template_not_found")
         return
 
     email = EmailMessage()
@@ -114,10 +133,12 @@ def send_email(ch, method, properties, body):
 def process_dead_letter_messages(ch, method, properties, body):
     """
     Callback for the ERROR MESSAGE
-    Output: Requeue on delayed exchange (if error about missing template)
-        OR
-    Output: Remove (if error about unretrievable data)
-    #TODO I can't know which is the case, with the current design
+    Output: none yet. I don't expect for messages to fall here, I keep the DLQ for safety
+
+    @see https://stackoverflow.com/a/58500336
+    "The way to do this is not to use NACK at all but to generate and return a 'new' message
+    (which is simply the current message you are handling, but adding new headers to it).
+    It appears that a NACK is basically doing this anyway according to the AMQP spec."
     """
     REQUEUE_DELAY_DURATIONS = [
         5 * 60000, # 5 mins
@@ -126,15 +147,9 @@ def process_dead_letter_messages(ch, method, properties, body):
         5*60*10 * 60000, # 50 hrs
         5*60*20 * 60000, # 100 hrs
     ]
-    wait_for = REQUEUE_DELAY_DURATIONS[4] # TODO make it dynamic
-
-    print(f'DLQ')
-    print(properties.headers)
-    print(f'Message was in "{properties.headers["x-first-death-exchange"]}" (specifically "{properties.headers["x-first-death-queue"]}" queue) and was rejected because: {properties.headers["x-first-death-reason"]}')
-    print()
+    wait_for = REQUEUE_DELAY_DURATIONS[-1]
 
     headers = {
-            #'reason': 'parameter_undefined',
             'x-delay': wait_for,
         }
     fullheaders = {**properties.headers, **headers}
@@ -154,18 +169,20 @@ def process_requeue(ch, method, properties, body):
     Callback for the WAITING MESSAGES
     Output: Requeue on normal exchange (if error about missing template)
         OR
-    Output: Remove (if limit time reached) #TODO
+    Output: Remove (if unfixable error)
     """
 
-    print(f'REQUEUE-WAIT')
-    print(properties.headers)
-    print(f'Message was in "{properties.headers["x-first-death-exchange"]}" (specifically "{properties.headers["x-first-death-queue"]}" queue) and was rejected because: {properties.headers["x-first-death-reason"]}')
-    print()
+    if (properties.headers["reason"] == 'parameter_undefined'):
+        print('Impossible to fix error, dropping message')
+        #TODO output something/notify to leave a trail for better debugging on what was missing
+        ch.basic_ack(delivery_tag = method.delivery_tag)
+        return
 
     channel.basic_publish(exchange='eml',
                           routing_key='mail',
                           body=body,
                           properties=pika.BasicProperties(
+                              headers = properties.headers, # propagation to avoid endless loop
                               delivery_mode = pika.spec.PERSISTENT_DELIVERY_MODE,
                           ))
     ch.basic_ack(delivery_tag = method.delivery_tag)

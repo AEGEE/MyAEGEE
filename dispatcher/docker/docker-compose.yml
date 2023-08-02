@@ -3,7 +3,7 @@ version: "3.4"
 services:
 
   rabbit:
-    image: aegee/rabbit
+    image: aegee/rabbit:3.11-mgmt-delayxch
     restart: always
     expose:
       - 5672

@@ -12,6 +12,7 @@ tests all templates it finds in the folder
 from faker import Faker
 faker = Faker()
 
+ERROR_TEST=True
 RANDOM_AMOUNT_TEST=False
 MIN_MSG=1
 MAX_MSG=8
@@ -122,7 +123,7 @@ MAIL_TEMPLATES = {
     },
 }
 
-RABBIT_HOST="172.18.0.2" #FIXME
+RABBIT_HOST="172.18.0.X" #FIXME (as this is a python script launched on host we cant use docker's dns)
 connection = pika.BlockingConnection(pika.ConnectionParameters(RABBIT_HOST))
 channel = connection.channel()
 
@@ -132,7 +133,7 @@ channel.exchange_declare(exchange='eml',
 channel.queue_declare(queue='email',
                       arguments={
                         'x-dead-letter-exchange': "dead_letter_exchange",
-                        'x-dead-letter-routing-key': "dead_letterl_routing_key",
+                        'x-dead-letter-routing-key': "dead_letter_routing_key",
                         'x-death-header': True,
                       },
                       durable=True)
@@ -140,7 +141,7 @@ channel.queue_bind(exchange='eml',
                    queue='email',
                    routing_key='mail')
 
-def generate_fake_payload(subj="", template=""):
+def generate_fake_payload(subj="", template="", return_malformed_mail=False):
     email = {
         "from": "mailer@aegee.eu",
         "to": [faker.email() for _ in range(random.randrange(1,3))],
@@ -214,6 +215,9 @@ def generate_fake_payload(subj="", template=""):
             """
         }
     }
+    if(return_malformed_mail):
+        email["template"] = MAIL_TEMPLATES["EVENTS"]["MAIL_EVENT_UPDATED"]
+        del email["parameters"]["event"]
     return email
 
 
@@ -228,7 +232,27 @@ if(RANDOM_AMOUNT_TEST):
                                 delivery_mode = pika.spec.PERSISTENT_DELIVERY_MODE
                             ))
         print(f" [x] Sent {email['subject']} (to {email['to']})")
-    print(f" Gee, I sent all  {amount} ")
+    print(f" Gee, I sent all {amount} ")
+
+if(ERROR_TEST):
+    #ERROR 1: no template
+    email = generate_fake_payload(template="notexisting", subj="will never be delivered")
+    channel.basic_publish(exchange='eml',
+                        routing_key='mail',
+                        body=json.dumps(email),
+                        properties=pika.BasicProperties(
+                            delivery_mode = pika.spec.PERSISTENT_DELIVERY_MODE
+                        ))
+    print(f" [x] Sent {email['subject']} (to {email['to']})")
+    #ERROR 2: missing field
+    email = generate_fake_payload(return_malformed_mail=True, subj="will never be delivered")
+    channel.basic_publish(exchange='eml',
+                        routing_key='mail',
+                        body=json.dumps(email),
+                        properties=pika.BasicProperties(
+                            delivery_mode = pika.spec.PERSISTENT_DELIVERY_MODE
+                        ))
+    print(f" [x] Sent {email['subject']} (to {email['to']})")
 
 if(ALL_TEMPLATES_TEST):
     templates_tested=0
