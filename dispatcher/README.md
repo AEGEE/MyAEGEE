@@ -44,3 +44,15 @@ rather in order:
 1. [x] When RabbitMQ quits or crashes it will forget the queues and messages unless you tell it not to: we need to mark both the queue and messages as durable
 1. [ ] Add auto-retry (DLQ). rabbit is smart and doesn't let me process a message again unless i force it.. https://devcorner.digitalpress.blog/rabbitmq-retries-the-new-full-story/
 1. [ ] add the telegram queue
+1. investigate the massmailer queue: a queue which picks every message, and creates a list of "bcc" to send only one email? (danger: queue needs something like batch ack..) - OR it is not feasible at all because "mass"mailer is still "personalised" mailer?
+
+1. why do we even have a `<`title`>` (which is dynamic), why not using directly the subject? (re: the body of the email)
+1. remove extension Jinja2 (into jinja)
+1. make it such that templates list is read from fs (for dynamic tests)
+
+
+
+https://www.rabbitmq.com/publishers.html#unroutable
+
+
+Each consumer (subscription) has an identifier called a consumer tag. It can be used to unsubscribe from messages. Consumer tags are just strings.
