@@ -24,7 +24,7 @@ channel.exchange_declare(exchange='eml',
 channel.queue_declare(queue='email',
                       arguments={
                         'x-dead-letter-exchange': "dead_letter_exchange",
-                        'x-dead-letter-routing-key': "dead_letterl_routing_key",
+                        'x-dead-letter-routing-key': "dead_letter_routing_key",
                         'x-death-header': True,
                       },
                       durable=True)
@@ -32,7 +32,7 @@ channel.queue_bind(exchange='eml',
                    queue='email',
                    routing_key='mail')
 
-#channel.basic_qos(prefetch_count=1) #TODO: notice that an error processing a message will BLOCK the others from being processed
+#channel.basic_qos(prefetch_count=1) #TODO: notice that with this enabled, an error processing a message will BLOCK the others from being processed
 
 channel.exchange_declare(exchange="dead_letter_exchange",
                          exchange_type='direct',
@@ -41,7 +41,7 @@ channel.queue_declare(queue='error_queue',
                       durable=True)
 channel.queue_bind(exchange='dead_letter_exchange',
                    queue='error_queue',
-                   routing_key='dead_letterl_routing_key')
+                   routing_key='dead_letter_routing_key')
 
 channel.exchange_declare(exchange="wait_exchange",
                          exchange_type='x-delayed-message',
@@ -79,6 +79,7 @@ def send_email(ch, method, properties, body):
         print(f"Error in rendering: some parameter is undefined (error: {e}; message: {msg})")
 # TODO: check if there is no x-header about DLQ if
 # i send directly to queue from this (i.e. without passing from DLQ),
+
         # headers = {
         #     'reason': 'parameter_undefined',
         #     'x-delay': '60000',
@@ -125,8 +126,7 @@ def process_dead_letter_messages(ch, method, properties, body):
         5*60*10 * 60000, # 50 hrs
         5*60*20 * 60000, # 100 hrs
     ]
-    wait_for = REQUEUE_DELAY_DURATIONS[4]
-    wait_for = '15000'
+    wait_for = REQUEUE_DELAY_DURATIONS[4] # TODO make it dynamic
 
     print(f'DLQ')
     print(properties.headers)
@@ -188,7 +188,7 @@ channel.start_consuming()
 
 if __name__ == '__main__':
     try:
-        main()
+        main() #fixme lol
     except KeyboardInterrupt:
         print('Interrupted')
         smtpObj.quit()
