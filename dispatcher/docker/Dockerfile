@@ -8,9 +8,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ./templates /usr/app/templates
 COPY ./dispatcher/main.py /usr/app/src/main.py
 
-#USER python
-
-#ENV FOO=BAR
+RUN useradd -s /bin/bash python
+USER python
 
 ENTRYPOINT [ "python", "-u" ]
 CMD ["main.py"]
