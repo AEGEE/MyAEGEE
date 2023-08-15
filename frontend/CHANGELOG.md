@@ -1,3 +1,10 @@
+## [1.33.35](https://github.com/AEGEE/frontend/compare/1.33.34...1.33.35) (2023-08-15)
+
+
+### Bug Fixes
+
+* **events:** add email to application modal ([#1827](https://github.com/AEGEE/frontend/issues/1827)) ([b6cc741](https://github.com/AEGEE/frontend/commit/b6cc74146704677937872be167e5eb448494c335))
+
 ## [1.33.34](https://github.com/AEGEE/frontend/compare/1.33.33...1.33.34) (2023-07-10)
 
 
