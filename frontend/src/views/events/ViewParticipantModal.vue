@@ -22,6 +22,11 @@
         </tr>
 
         <tr>
+          <td><b>Email</b></td>
+          <td>{{ participant.email }}</td>
+        </tr>
+
+        <tr>
           <td><b>Application date</b></td>
           <td>{{ participant.created_at | date }}</td>
         </tr>
