@@ -1,3 +1,10 @@
+## [0.16.2](https://github.com/AEGEE/mailer/compare/0.16.1...0.16.2) (2023-08-18)
+
+
+### Bug Fixes
+
+* update new member email and add welcome email for board members ([#92](https://github.com/AEGEE/mailer/issues/92)) ([bf862c7](https://github.com/AEGEE/mailer/commit/bf862c7a71cad14b8ddcf8979eea469daf5c4770))
+
 ## [0.16.1](https://github.com/AEGEE/mailer/compare/0.16.0...0.16.1) (2023-07-11)
 
 
