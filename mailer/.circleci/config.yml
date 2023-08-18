@@ -14,9 +14,8 @@ jobs:
     resource_class: large
     steps:
       - checkout
-      - run: wget https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb && sudo dpkg -i erlang-solutions_2.0_all.deb
       - run: sudo apt-get update
-      - run: sudo apt-get install elixir esl-erlang
+      - run: sudo apt-get install elixir erlang
       - run: mix local.hex --force
       - run: mix local.rebar --force
       - run: mix deps.get
