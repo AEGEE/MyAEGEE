@@ -1,5 +1,5 @@
-const chai = require('chai');
 const crypto = require('crypto');
+const chai = require('chai');
 
 const should = chai.should();
 const { request } = require('./test-helper');
