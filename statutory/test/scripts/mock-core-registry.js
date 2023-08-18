@@ -1,5 +1,5 @@
-const nock = require('nock');
 const path = require('path');
+const nock = require('nock');
 
 const config = require('../../config');
 const regularUser = require('../assets/core-valid.json').data;
