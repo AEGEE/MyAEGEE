@@ -44,8 +44,13 @@
                       </tr>
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;"><u>For quick information and communication the following links will help you out:</u><br>
-                            <a href="https://www.oms.aegee.org/wiki/index.php?title=Main_Page">AEGEE Wiki</a> (the knowledge backbone of AEGEE)<br>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">To find most information regarding AEGEE, you can use <a href="https://my.aegee.eu/">MyAEGEE</a>. MyAEGEE provides information ranging from upcoming events to all local branches (called Locals) plus the internal bodies within AEGEE-Europe with whom you can collaborate or can join. In the left menu under 'Resources' one can find quick access to the most important information.</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;"><u>For quick <b>information and communication</b> the following links will help you out:</u><br>
+                            <a href="https://myaegee.atlassian.net/l/cp/SCGL38CB">AEGEE Knowledge Management System</a> (the knowledge backbone of AEGEE. For this you have to log-in with your aegee.eu email address via Google, which you can request <a href="https://myaegee.atlassian.net/servicedesk/customer/portal/1/article/248348673?src=1879644314">here</a>.)<br>
                             <a href="https://my.aegee.eu/pages/mailing-lists">Mailing lists</a> (official communication channels of AEGEE-Europe which keep you updated)<br>
                             <a href="https://www.facebook.com/groups/aegeeans">AEGEEans</a> (Facebook group with the latest news in AEGEE)<br>
                             <a href="https://t.me/AEGEE_Europe">Telegram channel</a> (updates from AEGEE-Europe)</div>
@@ -53,12 +58,7 @@
                       </tr>
                       <tr>
                         <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;"><a href="https://my.aegee.eu/">MyAEGEE</a> offers most information. Ranging from Events listing to all the locals and internal bodies of AEGEE-Europe. In the left menu under ‘Resources’ one can find quick access to the most important information.</div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td align="center" style="padding: 0 56px 28px 56px;" valign="top">
-                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">In order to find out what’s happening in your local, get in touch with members and the board of <%= @parameters["body_name"] %>.</div>
+                          <div style="font-family: &quot;lato&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; line-height: 28px;font-size: 16px; color: #333;">In order to find out what is happening in your Local, get in touch with members and the board of <%= @parameters["body_name"] %>.</div>
                         </td>
                       </tr>
                       <tr>
