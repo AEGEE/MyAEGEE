@@ -29,7 +29,7 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "chai": "^4.3.7",
-    "commitlint": "^17.6.7",
+    "commitlint": "^17.7.1",
     "conventional-changelog": "^4.0.0",
     "eslint": "^8.45.0",
     "eslint-config-airbnb-base": "^15.0.0",
