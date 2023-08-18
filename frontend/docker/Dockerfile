@@ -8,7 +8,7 @@ RUN npm pkg delete scripts.prepare \
  && npm ci --omit=dev \
  && npm run build
 
-FROM nginx:1.25.1-alpine
+FROM nginx:1.25.2-alpine
 
 RUN adduser -D -H -u 1000 -s /bin/bash www-data -G www-data
 
