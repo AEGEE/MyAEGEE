@@ -1,9 +1,9 @@
 const path = require('path');
+const util = require('util');
+const fs = require('fs');
 const multer = require('multer');
 const readChunk = require('read-chunk');
 const FileType = require('file-type');
-const util = require('util');
-const fs = require('fs');
 
 const errors = require('./errors');
 const log = require('./logger');
