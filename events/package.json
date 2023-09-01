@@ -70,7 +70,7 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "commitlint": "^17.7.1",
-    "conventional-changelog": "^4.0.0",
+    "conventional-changelog": "^5.0.0",
     "conventional-changelog-cli": "^3.0.0",
     "eslint": "^8.47.0",
     "eslint-config-airbnb-base": "^15.0.0",
