@@ -713,6 +713,22 @@ module.exports = [
     }
   },
   {
+    name: 'oms.statutory.memberslist.list.missing',
+    path: '/statutory/:id/memberslist/list/missing',
+    component: 'statutory/ListMissingMembersLists',
+    meta: {
+      label: 'List missing members lists'
+    }
+  },
+  {
+    name: 'oms.statutory.memberslist.list.without_fee',
+    path: '/statutory/:id/memberslist/list/without_fee',
+    component: 'statutory/ListWithoutFeeMembersLists',
+    meta: {
+      label: 'List members lists without fee'
+    }
+  },
+  {
     name: 'oms.statutory.massmailer',
     path: '/statutory/:id/massmailer',
     component: 'statutory/MassMailer',

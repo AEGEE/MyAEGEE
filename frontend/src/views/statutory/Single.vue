@@ -88,6 +88,20 @@
             </router-link>
           </div>
 
+          <div class="field is-grouped" v-if="can.see_memberslist.global && this.event.type === 'agora'">
+            <router-link :to="{ name: 'oms.statutory.memberslist.list.missing', params: { id: event.url || event.id } }" class="button is-fullwidth">
+              <span>See missing members lists</span>
+              <span class="icon"><font-awesome-icon icon="users" /></span>
+            </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="can.see_memberslist.global && this.event.type === 'agora'">
+            <router-link :to="{ name: 'oms.statutory.memberslist.list.without_fee', params: { id: event.url || event.id } }" class="button is-fullwidth">
+              <span>See members lists without fee</span>
+              <span class="icon"><font-awesome-icon icon="users" /></span>
+            </router-link>
+          </div>
+
           <div class="field is-grouped" v-if="can.use_massmailer">
             <router-link :to="{ name: 'oms.statutory.massmailer', params: { id: event.url || event.id } }" class="button is-fullwidth">
               <span>Mass mailer</span>
