@@ -1,3 +1,10 @@
+## [1.33.36](https://github.com/AEGEE/frontend/compare/1.33.35...1.33.36) (2023-09-11)
+
+
+### Bug Fixes
+
+* **statutory:** add views for missing and without fee memberlists ([#1852](https://github.com/AEGEE/frontend/issues/1852)) ([526e8c7](https://github.com/AEGEE/frontend/commit/526e8c7fb8f6c6175a975c5fee064e9bd033159d))
+
 ## [1.33.35](https://github.com/AEGEE/frontend/compare/1.33.34...1.33.35) (2023-08-15)
 
 
