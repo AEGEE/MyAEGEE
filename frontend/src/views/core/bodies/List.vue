@@ -48,15 +48,15 @@
 
         <b-table :data="bodies" :loading="isLoading" narrowed>
           <template slot-scope="props">
-            <b-table-column field="code" label="Body code">
+            <b-table-column field="code" label="Body code" sortable>
               {{ props.row.code }}
             </b-table-column>
 
-            <b-table-column field="name" label="Body name">
+            <b-table-column field="name" label="Body name" sortable>
               <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.id } }">{{ props.row.name}}</router-link>
             </b-table-column>
 
-            <b-table-column field="type" label="Type">
+            <b-table-column field="type" label="Type" sortable>
               {{ props.row.type | capitalize }}
             </b-table-column>
 
@@ -64,7 +64,7 @@
               <span class="body-description" v-html="$options.filters.markdown(props.row.description)" />
             </b-table-column>
 
-            <b-table-column field="founded_at" label="Foundation date">
+            <b-table-column field="founded_at" label="Foundation date" sortable>
               {{ props.row.founded_at }}
             </b-table-column>
 
