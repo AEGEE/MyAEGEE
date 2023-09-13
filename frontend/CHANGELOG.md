@@ -1,3 +1,10 @@
+## [1.33.37](https://github.com/AEGEE/frontend/compare/1.33.36...1.33.37) (2023-09-13)
+
+
+### Bug Fixes
+
+* **core:** sort some fields in bodies list. Fixes HELP-2298 ([#1853](https://github.com/AEGEE/frontend/issues/1853)) ([a42ae3d](https://github.com/AEGEE/frontend/commit/a42ae3deb55b97865aeb1ab0adc59751950bb4c0))
+
 ## [1.33.36](https://github.com/AEGEE/frontend/compare/1.33.35...1.33.36) (2023-09-11)
 
 
