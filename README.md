@@ -257,6 +257,19 @@ For better development experience: the files in your _HOST_ folder `MyAEGEE` are
 
 Make sure however to use an extension in your IDE called [editorconfig](https://editorconfig.org/#download)! It will avoid pains especially if your _HOST_ is a windows machine.
 
+### Example first tasks:
+1. change subdomain name, instead of accessing the app at `my.appserver.test` make it `imthebest.appserver.test`
+1. change the top left logo of AEGEE-Europe to some other (small enough) logo
+1. change background colour, instead of a white one make it green (and I don't mean by going to "inspect element" and changing it temporarily!)
+1. change content and/or style of the footer
+1. change order/remove one of the microservices from the menubar on the left
+1. In resources > resources, add another box linking to your antenna's website
+1. Add an user to an antenna/circle (this is less programming-wise, more getting to know the platform)
+1. Core-specific: change how many results you can visualise at a time
+1. Events-specific: in the Board view add an emoji to statuses "Accepted"/"Pending"/"Rejected"
+1. Statutory-specific: ?? (propose your own!)
+1. SU-specific: ?? (propose your own!)
+
 
 ## Contribute
 [You can read more about contributing on our confluence.](https://myaegee.atlassian.net/wiki/spaces/GENERAL/overview)
