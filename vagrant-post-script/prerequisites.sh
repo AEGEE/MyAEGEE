@@ -1,7 +1,7 @@
 #!/bin/bash
 
-sudo apt-get update > /dev/null #avoid spamming the output
-sudo apt-get install curl htop -y
+sudo apt-get update
+sudo apt-get install curl sqlite3 -y
 
 NODE_VERSION=16
 NPM_VERSION=9.6.4
@@ -18,3 +18,9 @@ export NVM_DIR="$HOME/.nvm"
 nvm install "$NODE_VERSION"
 nvm use "$NODE_VERSION"
 npm install -g npm@"$NPM_VERSION"
+
+# To mock the backup directory on the server
+sudo mkdir /opt/myaegee
+sudo mkdir /opt/backups
+sudo chown vagrant:vagrant /opt/myaegee
+sudo chown vagrant:vagrant /opt/backups
