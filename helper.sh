@@ -65,13 +65,13 @@ init_boot ()
     fi
 
     echo -e "\n[Deployment] Setting secrets\n"
-    bash "${DIR}"/vagrant-post-script/generate_secrets.sh
+    bash "${DIR}"/scripts-vagrant_provision/generate_secrets.sh
 
     echo "manual things still to do (if applicable use-case): "
     echo "  init cachet files (oms-status/docker/setup.sh)"
     echo "  init grafana config with the slack token (vim monitor/docker/config/gf-provisioning/notifiers/conf.yml)"
     echo "  init prometheus scraping config with the basic auth (vim monitor/docker/config/prometheus.yml)"
-    echo "  install the pip requirement for the python extra scripts (notification): see the script in vagrant-post-scripts"
+    echo "  install the pip requirement for the python extra scripts (notification): see the script in scripts-vagrant_provision"
     touch .init
   else
     echo "already initialised"
@@ -83,7 +83,7 @@ init_boot ()
 pw_changer ()
 {
     echo -e "\n[Deployment] Setting passwords\n"
-    bash "${DIR}"/scripts/password-setter.sh
+    bash "${DIR}"/scripts-server/password-setter.sh
 }
 
 # wrapper for the compose mess (ACCEPTS PARAMETERS)

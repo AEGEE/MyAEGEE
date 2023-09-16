@@ -12,6 +12,7 @@ Vagrant.configure("2") do |config|
     ]
   end
 
+  # Avoids wasting time on virtualbox guest additions mismatch
   config.vbguest.auto_update = false
 
   ## Network configurations ##
@@ -27,19 +28,19 @@ Vagrant.configure("2") do |config|
 
   ## Provisioning scripts ##
   #make it work also when windows messes up the line ending
-  config.vm.provision "shell", inline: "apt-get install dos2unix -qq -y; cd /vagrant && dos2unix *.sh; dos2unix vagrant-post-script/*.sh"
-  config.vm.provision "shell", privileged: false, path: "vagrant-post-script/prerequisites.sh"
+  config.vm.provision "shell", inline: "apt-get install dos2unix -qq -y; cd /vagrant && dos2unix *.sh; dos2unix scripts-vagrant_provision/*.sh"
+  config.vm.provision "shell", privileged: false, path: "scripts-vagrant_provision/prerequisites.sh"
 
   #install docker and docker-composer the easy way
-  config.vm.provision "shell", path: "vagrant-post-script/install_docker.sh"
-  config.vm.provision "shell", path: "vagrant-post-script/install_docker_compose.sh"
-  config.vm.provision "shell", path: "vagrant-post-script/install_other_utils.sh"
+  config.vm.provision "shell", path: "scripts-vagrant_provision/install_docker.sh"
+  config.vm.provision "shell", path: "scripts-vagrant_provision/install_docker_compose.sh"
+  config.vm.provision "shell", path: "scripts-vagrant_provision/install_other_utils.sh"
 
   #nice-to-have prompt and completion
-  config.vm.provision "shell", inline: "dos2unix /vagrant/vagrant-post-script/bashrc; cat /vagrant/vagrant-post-script/bashrc > /home/vagrant/.bashrc"
+  config.vm.provision "shell", inline: "dos2unix /vagrant/scripts-vagrant_provision/bashrc; cat /vagrant/scripts-vagrant_provision/bashrc > /home/vagrant/.bashrc"
 
   #provision docker orchestration (set to always run)
-  config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh", run: "always"
+  config.vm.provision "shell", path: "scripts-vagrant_provision/orchestrate_docker.sh", run: "always"
 
   config.vm.post_up_message = "[FINALLY!] Setup is complete, open your browser to http://my.appserver.test (did you configure /etc/hosts?)"
 
