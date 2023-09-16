@@ -1,13 +1,15 @@
+machine_name = "appserver.test"
+
 Vagrant.configure("2") do |config|
   #Machine name for Vagrant, and machine type
-  config.vm.define "appserver"
+  config.vm.define machine_name
   config.vm.box = "bento/ubuntu-18.04"
 
   #Machine name for virtualbox, and RAM size
   config.vm.provider :virtualbox do |vb|
     vb.customize [
       "modifyvm", :id,
-      "--name", "appserver-docker-AEGEE",
+      "--name", "#{machine_name}-docker-AEGEE",
       "--memory", "2048",
     ]
   end
@@ -16,7 +18,7 @@ Vagrant.configure("2") do |config|
   config.vbguest.auto_update = false
 
   ## Network configurations ##
-  config.vm.hostname = "appserver.test"
+  config.vm.hostname = machine_name
   config.vm.network :private_network, ip: "192.168.168.168"
   ## Port forwarding
   #NOTE: there could be a different script that sets the resolv.conf and then
@@ -42,7 +44,7 @@ Vagrant.configure("2") do |config|
   #provision docker orchestration (set to always run)
   config.vm.provision "shell", path: "scripts-vagrant_provision/orchestrate_docker.sh", run: "always"
 
-  config.vm.post_up_message = "[FINALLY!] Setup is complete, open your browser to http://my.appserver.test (did you configure /etc/hosts?)"
+  config.vm.post_up_message = "[FINALLY!] Setup is complete, open your browser to http://my.#{machine_name} (did you configure /etc/hosts via start.sh or manually?)"
 
   ## Deprovisioning scripts ##
   config.trigger.before :destroy do |trigger|
