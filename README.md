@@ -8,6 +8,15 @@ It makes use of docker, and docker-compose.
 
 [Read more about the project](https://myaegee.atlassian.net/wiki/spaces/GENERAL/overview)
 
+A short perspective: the educational value of this project. Head to [roadmap.sh](https://roadmap.sh) and see all you could learn thanks to this project (almost everything, short of blockchain):
+1. [software architecture](https://roadmap.sh/software-architect)
+1. [devops](https://roadmap.sh/devops)
+1. [backend](https://roadmap.sh/backend)
+1. [cybersecurity](https://roadmap.sh/cyber-security)
+1. [frontend](https://roadmap.sh/frontend)
+1. [QA](https://roadmap.sh/qa)
+1. ... and more ;)
+
 # Installation
 ## Pre-requisites: installations required
 
@@ -47,7 +56,7 @@ cd MyAEGEE
 
 **URL MAPPING for Linux**: You don't have to do anything, the mapping is handled by `start.sh`.
 
-You will have to wait for up to 20'. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [Usage section](#accessing-it).
+You will have to wait for up to 20'. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [Usage section](#accessing-it). Note that sometimes there WILL be red output, but it is not necessarily indicator of an error (unless it's the VERY last message, and it begins with the word "ERROR")
 
 See [below](#startsh-and-makefile) for explanation of `start.sh`
 
@@ -257,6 +266,18 @@ For better development experience: the files in your _HOST_ folder `MyAEGEE` are
 
 Make sure however to use an extension in your IDE called [editorconfig](https://editorconfig.org/#download)! It will avoid pains especially if your _HOST_ is a windows machine.
 
+### Example first tasks:
+1. change subdomain name, instead of accessing the app at `my.appserver.test` make it `imthebest.appserver.test`
+1. change the top left logo of AEGEE-Europe to some other (small enough) logo
+1. change background colour, instead of a white one make it green (and I don't mean by going to "inspect element" and changing it temporarily!)
+1. change content and/or style of the footer
+1. change order/remove one of the microservices from the menubar on the left
+1. In resources > resources, add another box linking to your antenna's website
+1. Add an user to an antenna/circle (this is less programming-wise, more getting to know the platform)
+1. Core-specific: change how many results you can visualise at a time
+1. Events-specific: in the Board view add an emoji to statuses "Accepted"/"Pending"/"Rejected"
+1. Statutory-specific: ?? (propose your own!)
+1. SU-specific: ?? (propose your own!)
 
 ## Contribute
 [You can read more about contributing on our confluence.](https://myaegee.atlassian.net/wiki/spaces/GENERAL/overview)
