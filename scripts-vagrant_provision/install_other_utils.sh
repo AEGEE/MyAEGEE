@@ -11,3 +11,6 @@ sudo apt-get install -y net-tools
 
 echo "[Vagrant] ###################     Installing vim"
 sudo apt-get install -y vim
+
+echo "[Vagrant] ###################     Installing sqlite3"
+sudo apt-get install -y sqlite3
