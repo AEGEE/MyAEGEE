@@ -25,7 +25,11 @@ build: #docker-compose build
 start: #docker-compose up -d
 	./helper.sh --start
 
-bootstrap: init bump build start
+bootstrap: init build start
+
+bootstrap_latest: init bump build start
+
+update: bump
 
 refresh:  build
 
