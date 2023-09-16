@@ -8,13 +8,22 @@ It makes use of docker, and docker-compose.
 
 [Read more about the project](https://myaegee.atlassian.net/wiki/spaces/GENERAL/overview)
 
+A short perspective: the educational value of this project. Head to [roadmap.sh](https://roadmap.sh) and see all you could learn thanks to this project (almost everything, short of blockchain):
+1. [software architecture](https://roadmap.sh/software-architect)
+1. [devops](https://roadmap.sh/devops)
+1. [backend](https://roadmap.sh/backend)
+1. [cybersecurity](https://roadmap.sh/cyber-security)
+1. [frontend](https://roadmap.sh/frontend)
+1. [QA](https://roadmap.sh/qa)
+1. ... and more ;)
+
 # Installation
 ## Pre-requisites: installations required
 
 Install
 1. First [Git](https://git-scm.com/downloads) (you might already have Git installed through other sources if you worked with git/GitHub before)
-2. then [Virtualbox](https://www.virtualbox.org/wiki/Downloads), 
-3. and finally [Vagrant](https://www.vagrantup.com/downloads.html). 
+2. then [Virtualbox](https://www.virtualbox.org/wiki/Downloads),
+3. and finally [Vagrant](https://www.vagrantup.com/downloads.html).
 
 Even if you have a linux box, this is **very** recommended. If you decide to not do it, *sigh...* but don't come to cry to us.
 
@@ -36,7 +45,7 @@ A note on terminology:
 
 For manual edits, see [Advanced URL mapping and troubleshoot](#advanced-url-mapping-and-troubleshoot).
 
-### Linux 
+### Linux
 
 > On the _HOST_
 ```
@@ -47,7 +56,7 @@ cd MyAEGEE
 
 **URL MAPPING for Linux**: You don't have to do anything, the mapping is handled by `start.sh`.
 
-You will have to wait for up to 20'. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [Usage section](#accessing-it).
+You will have to wait for up to 20'. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [Usage section](#accessing-it). Note that sometimes there WILL be red output, but it is not necessarily indicator of an error (unless it's the VERY last message, and it begins with the word "ERROR")
 
 See [below](#startsh-and-makefile) for explanation of `start.sh`
 
@@ -61,9 +70,9 @@ cd MyAEGEE
 As a helper in the windows case, you have the script "`run_as_win_administrator.bat`" (not very advanced).
 1. You have to right-click it and click "run as administrator".
 2. It will tell you the line to copy (on another terminal that will open) and open the file you need to edit in notepad.
-3. 	A) (Vagrant case) Paste the content at the last line of the file 
-	```192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```  
-    B) (Docker case) Paste the content at the last line of the file 
+3. 	A) (Vagrant case) Paste the content at the last line of the file
+	```192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```
+    B) (Docker case) Paste the content at the last line of the file
 	```127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```
 4. Save, and exit.
 
@@ -269,7 +278,6 @@ Make sure however to use an extension in your IDE called [editorconfig](https://
 1. Events-specific: in the Board view add an emoji to statuses "Accepted"/"Pending"/"Rejected"
 1. Statutory-specific: ?? (propose your own!)
 1. SU-specific: ?? (propose your own!)
-
 
 ## Contribute
 [You can read more about contributing on our confluence.](https://myaegee.atlassian.net/wiki/spaces/GENERAL/overview)
