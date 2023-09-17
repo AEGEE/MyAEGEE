@@ -19,7 +19,7 @@ done
 
 check_etc_hosts () {
   # shellcheck disable=SC2143
-  if grep -q 'traefik' /etc/hosts ; then
+  if grep -q 'traefik' /etc/hosts ; then #TODO improve by checking also the base_url
     echo '[Start script] ##### host file already good!'
   else
     echo '[Start script] ##### modifying the hosts file'
@@ -37,13 +37,16 @@ if [ ! -f "${DIR}"/.env ]; then #check if it exists, if not take the example
     cp "${DIR}"/.env.example "${DIR}"/.env
 fi
 
+#shellcheck disable=SC2046
+export $(grep -v '^#' ${DIR}/.env | xargs -d '\n')
+
 #run accordingly
 if ( $novagrant ); then
   check_etc_hosts "127.0.0.1" "localhost"
   sed -i 's/appserver/localhost/' .env
   make bootstrap
 else
-  check_etc_hosts "192.168.168.168" "appserver.test"
+  check_etc_hosts "192.168.168.168" "${BASE_URL}"
   if ( $fast ); then
     sed -i 's/development/production/' .env
   fi

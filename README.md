@@ -61,6 +61,9 @@ You will have to wait for up to 20'. A message appears when the bootstrap comple
 See [below](#startsh-and-makefile) for explanation of `start.sh`
 
 ### Non-linux
+
+Foreword: if you want to learn WSL (windows subsystem for linux) and help us improve the next steps, you're most welcome!
+
 > On the _HOST_
 ```
 git clone --recursive https://github.com/AEGEE/MyAEGEE.git
