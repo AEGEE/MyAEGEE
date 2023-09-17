@@ -1,21 +1,24 @@
+machine_name = "appserver.test"
+
 Vagrant.configure("2") do |config|
   #Machine name for Vagrant, and machine type
-  config.vm.define "appserver"
+  config.vm.define machine_name
   config.vm.box = "bento/ubuntu-18.04"
 
   #Machine name for virtualbox, and RAM size
   config.vm.provider :virtualbox do |vb|
     vb.customize [
       "modifyvm", :id,
-      "--name", "appserver-docker-AEGEE",
+      "--name", "#{machine_name}-docker-AEGEE",
       "--memory", "2048",
     ]
   end
 
+  # Avoids wasting time on virtualbox guest additions mismatch
   config.vbguest.auto_update = false
 
   ## Network configurations ##
-  config.vm.hostname = "appserver.test"
+  config.vm.hostname = machine_name
   config.vm.network :private_network, ip: "192.168.168.168"
   ## Port forwarding
   #NOTE: there could be a different script that sets the resolv.conf and then
@@ -27,21 +30,21 @@ Vagrant.configure("2") do |config|
 
   ## Provisioning scripts ##
   #make it work also when windows messes up the line ending
-  config.vm.provision "shell", inline: "apt-get install dos2unix -qq -y; cd /vagrant && dos2unix *.sh; dos2unix vagrant-post-script/*.sh"
-  config.vm.provision "shell", privileged: false, path: "vagrant-post-script/prerequisites.sh"
+  config.vm.provision "shell", inline: "apt-get install dos2unix -qq -y; cd /vagrant && dos2unix *.sh; dos2unix scripts-vagrant_provision/*.sh"
+  config.vm.provision "shell", privileged: false, path: "scripts-vagrant_provision/prerequisites.sh"
 
   #install docker and docker-composer the easy way
-  config.vm.provision "shell", path: "vagrant-post-script/install_docker.sh"
-  config.vm.provision "shell", path: "vagrant-post-script/install_docker_compose.sh"
-  config.vm.provision "shell", path: "vagrant-post-script/install_other_utils.sh"
+  config.vm.provision "shell", path: "scripts-vagrant_provision/install_docker.sh"
+  config.vm.provision "shell", path: "scripts-vagrant_provision/install_docker_compose.sh"
+  config.vm.provision "shell", path: "scripts-vagrant_provision/install_other_utils.sh"
 
   #nice-to-have prompt and completion
-  config.vm.provision "shell", inline: "dos2unix /vagrant/vagrant-post-script/bashrc; cat /vagrant/vagrant-post-script/bashrc > /home/vagrant/.bashrc"
+  config.vm.provision "shell", inline: "dos2unix /vagrant/scripts-vagrant_provision/bashrc; cat /vagrant/scripts-vagrant_provision/bashrc > /home/vagrant/.bashrc"
 
   #provision docker orchestration (set to always run)
-  config.vm.provision "shell", path: "vagrant-post-script/orchestrate_docker.sh", run: "always"
+  config.vm.provision "shell", path: "scripts-vagrant_provision/orchestrate_docker.sh", run: "always"
 
-  config.vm.post_up_message = "[FINALLY!] Setup is complete, open your browser to http://my.appserver.test (did you configure /etc/hosts?)"
+  config.vm.post_up_message = "[FINALLY!] Setup is complete, open your browser to http://my.#{machine_name} (did you configure /etc/hosts via start.sh or manually?)"
 
   ## Deprovisioning scripts ##
   config.trigger.before :destroy do |trigger|

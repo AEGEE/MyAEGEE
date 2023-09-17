@@ -25,7 +25,11 @@ build: #docker-compose build
 start: #docker-compose up -d
 	./helper.sh --start
 
-bootstrap: init bump build start
+bootstrap: init build start
+
+bootstrap_latest: init bump build start
+
+update: bump
 
 refresh:  build
 
@@ -120,28 +124,28 @@ remove-agents:
 
 # Backups
 backup:
-	./scripts/dump.sh postgres-core postgres-events postgres-statutory postgres-discounts postgres-network postgres-summeruniversity postgres-knowledge
+	./scripts-server/dump.sh postgres-core postgres-events postgres-statutory postgres-discounts postgres-network postgres-summeruniversity postgres-knowledge
 
 backup_core:
-	./scripts/dump.sh postgres-core
+	./scripts-server/dump.sh postgres-core
 
 backup_events:
-	./scripts/dump.sh postgres-events
+	./scripts-server/dump.sh postgres-events
 
 backup_statutory:
-	./scripts/dump.sh postgres-statutory
+	./scripts-server/dump.sh postgres-statutory
 
 backup_discounts:
-	./scripts/dump.sh postgres-discounts
+	./scripts-server/dump.sh postgres-discounts
 
 backup_network:
-	./scripts/dump.sh postgres-network
+	./scripts-server/dump.sh postgres-network
 
 backup_summeruniversity:
-	./scripts/dump.sh postgres-summeruniversity
+	./scripts-server/dump.sh postgres-summeruniversity
 
 backup_knowledge:
-	./scripts/dump.sh postgres-knowledge
+	./scripts-server/dump.sh postgres-knowledge
 
 backup_gsuite-wrapper:
 	echo "TODO: redis"
