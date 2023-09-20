@@ -2,12 +2,15 @@ version: "3.4"
 
 services:
 
-  rabbit:
+  rabbit: # login with guest:guest
     image: aegee/rabbit:3.11-mgmt-delayxch
     restart: always
     expose:
       - 5672
       - 15672
+    # environment:
+    #   RABBITMQ_DEFAULT_USER: "admin"
+    #   RABBITMQ_DEFAULT_PASS: "5ecr3t"
     labels:
       - "traefik.frontend.rule=Host:${SUBDOMAIN_RABBITMQ}${BASE_URL};PathPrefix:/"
       - "traefik.backend=rabbit"
@@ -18,6 +21,12 @@ services:
   dispatcher:
     image: aegee/dispatcher
     restart: always
+    environment:
+      ENV: "${MYAEGEE_ENV}"
+      EMAIL_HOST: "${ETHEREAL_SMTP_HOST}"
+      EMAIL_PORT: "${ETHEREAL_PORT}"
+      EMAIL_ADDRESS: "${ETHEREAL_USER}"
+      EMAIL_PASSWORD: "${ETHEREAL_PW}"
 
 
 networks:
