@@ -5,6 +5,7 @@ from email.message import EmailMessage
 from jinja2 import Environment, FileSystemLoader, exceptions
 import os
 import sys
+import logging
 
 """
 continuously polls(*) the email queue and renders+sends the template on every acked message
@@ -33,13 +34,13 @@ def connect_to_smtp():
             # (At least with ethereal.email.. didn't try with gmail!) #TODO
             smtpObj.starttls()
             smtpObj.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        print("   -> Connected")
+        logging.info("   -> Connected")
     except smtplib.SMTPConnectError:
-        print("Could not connect to the SMTP server.")
+        logging.error("Could not connect to the SMTP server.")
     except smtplib.SMTPAuthenticationError:
-        print("Failed to authenticate with given credentials.")
+        logging.error("Failed to authenticate with given credentials.")
     except Exception as e:
-        print(f"Could not connect to SMTP server for generic reason: {e}")
+        logging.error(f"Could not connect to SMTP server for generic reason: {e}")
 
 def requeue_wait(ch, method, properties, body, reason):
     REQUEUE_DELAY_DURATIONS = [
@@ -53,12 +54,12 @@ def requeue_wait(ch, method, properties, body, reason):
     if (properties.headers != None and "x-delay" in properties.headers):
         index = REQUEUE_DELAY_DURATIONS.index(int(properties.headers["x-delay"]))
         if (index+1 == len(REQUEUE_DELAY_DURATIONS) ):
-            print('Max retry time hit, dropping message')
+            logging.warn('Max retry time hit, dropping message')
             # TODO: notify someone that they've been sloppy
             ch.basic_ack(delivery_tag = method.delivery_tag)
             return
         else:
-            print(f'Attempt {index+1}/{len(REQUEUE_DELAY_DURATIONS)-1}')
+            logging.info(f'Attempt {index+1}/{len(REQUEUE_DELAY_DURATIONS)-1}')
             wait = REQUEUE_DELAY_DURATIONS[index+1]
     else:
         wait = REQUEUE_DELAY_DURATIONS[0]
@@ -91,7 +92,7 @@ def send_email(ch, method, properties, body):
     except exceptions.TemplateNotFound:
         # TODO: send a notification to someone about adding a template
         # NOTE: this is a requeuable message
-        print(f"Template {msg['template']}.jinja2 not found")
+        logging.error(f"Template {msg['template']}.jinja2 not found")
         requeue_wait(ch, method, properties, body, reason="template_not_found")
         return
 
@@ -99,12 +100,12 @@ def send_email(ch, method, properties, body):
         rendered = template.render(msg['parameters'], altro=msg['subject'])
     except exceptions.UndefinedError as e:
         # NOTE: this is a NON-requeuable message
-        print(f"Error in rendering: some parameter is undefined (error: {e}; message: {msg})")
+        logging.error(f"Error in rendering: some parameter is undefined (error: {e}; message: {msg})")
         requeue_wait(ch, method, properties, body, reason="parameter_undefined")
         return
     except exceptions.TemplateNotFound:
         # NOTE: this is a requeuable message
-        print(f"A sub-template in {msg['template']}.jinja2 was not found")
+        logging.error(f"A sub-template in {msg['template']}.jinja2 was not found")
         requeue_wait(ch, method, properties, body, reason="sub-template_not_found")
         return
 
@@ -118,13 +119,12 @@ def send_email(ch, method, properties, body):
         smtpObj.send_message(email)
         ch.basic_ack(delivery_tag = method.delivery_tag)
     except smtplib.SMTPServerDisconnected:
-        print("Server unexpectedly disconnected. Attempting to reconnect")
+        logging.error("Server unexpectedly disconnected. Attempting to reconnect")
         connect_to_smtp()
     except smtplib.SMTPResponseException as e:
-        print(f"SMTP error occurred: {e.smtp_code} - {e.smtp_error}")
+        logging.error(f"SMTP error occurred: {e.smtp_code} - {e.smtp_error}")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-    # TODO add logging (in info mode)
+        logging.error(f"An unexpected error occurred: {e}")
 
 def process_dead_letter_messages(ch, method, properties, body):
     """
@@ -169,7 +169,7 @@ def process_requeue(ch, method, properties, body):
     """
 
     if (properties.headers["reason"] == 'parameter_undefined'):
-        print('Impossible to fix error, dropping message')
+        logging.warn('Impossible to fix error, dropping message')
         #TODO output something/notify to leave a trail for better debugging on what was missing
         ch.basic_ack(delivery_tag = method.delivery_tag)
         return
@@ -188,6 +188,10 @@ def main():
     global tpl_environment
     global env
     global channel
+
+    # Configure logging for this app, and remove "info" of pika
+    logging.basicConfig(level=logging.INFO)
+    logging.getLogger('pika').setLevel(logging.WARNING)
 
     tpl_environment = Environment(loader=FileSystemLoader("../templates/"))
     env = os.environ.get("ENV") or 'development'
@@ -244,16 +248,16 @@ def main():
                         auto_ack=False,
                         on_message_callback=process_requeue)
 
-    print(' [*] Connecting to smtp')
+    logging.info(' [*] Connecting to smtp')
     connect_to_smtp()
-    print(' [*] Waiting for messages. To exit press CTRL+C')
+    logging.info(' [*] Waiting for messages. To exit press CTRL+C')
     channel.start_consuming()
 
 if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        print('Interrupted')
+        logging.error('Interrupted')
         smtpObj.quit()
         try:
             sys.exit(0)
