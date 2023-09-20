@@ -3,16 +3,48 @@ import json
 import smtplib
 from email.message import EmailMessage
 from jinja2 import Environment, FileSystemLoader, exceptions
+import os
+import sys
 
 """
 continuously polls(*) the email queue and renders+sends the template on every acked message
 (*) = waits for the queue to push a message onto the app
 """
 
-environment = Environment(loader=FileSystemLoader("../templates/"))
+tpl_environment = Environment(loader=FileSystemLoader("../templates/"))
+env = os.environ.get("ENV") or 'development'
 
-EMAIL_HOST='mailhog' #FIXME differentiate between dev and prod
-smtpObj = smtplib.SMTP( EMAIL_HOST, 1025 )
+EMAIL_HOST='mailhog'
+EMAIL_PORT=1025
+EMAIL_ADDRESS=None
+EMAIL_PASSWORD=None
+
+
+if env == 'production':
+    EMAIL_HOST= os.environ.get("EMAIL_HOST")
+    EMAIL_PORT= os.environ.get("EMAIL_PORT")
+    EMAIL_ADDRESS= os.environ.get("EMAIL_ADDRESS")
+    EMAIL_PASSWORD= os.environ.get("EMAIL_PASSWORD")
+
+smtpObj = None
+
+def connect_to_smtp():
+    global smtpObj
+    try:
+        smtpObj = smtplib.SMTP( EMAIL_HOST, EMAIL_PORT )
+
+        if env == 'production':
+            # we have to upgrade the connection and login
+            smtpObj.starttls()
+            smtpObj.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        print("   -> Connected")
+    except smtplib.SMTPConnectError:
+        print("Could not connect to the SMTP server.")
+    except smtplib.SMTPAuthenticationError:
+        print("Failed to authenticate with given credentials.")
+    except Exception as e:
+        print(f"Could not connect to SMTP server for generic reason: {e}")
+
 
 RABBIT_HOST='rabbit'
 connection = pika.BlockingConnection(pika.ConnectionParameters(RABBIT_HOST))
@@ -100,7 +132,7 @@ def send_email(ch, method, properties, body):
     msg = json.loads(body)
 
     try:
-        template = environment.get_template(f"{msg['template']}.jinja2")
+        template = tpl_environment.get_template(f"{msg['template']}.jinja2")
     except exceptions.TemplateNotFound:
         # TODO: send a notification to someone about adding a template
         # NOTE: this is a requeuable message
@@ -120,15 +152,23 @@ def send_email(ch, method, properties, body):
         print(f"A sub-template in {msg['template']}.jinja2 was not found")
         requeue_wait(ch, method, properties, body, reason="sub-template_not_found")
         return
-
-    email = EmailMessage()
-    email.set_content(rendered, subtype='html')
-    email['From'] = msg['from']
-    email['Reply-To'] = msg['reply_to']
-    email['To'] = msg['to']
-    email['Subject'] = msg['subject']
-    smtpObj.send_message(email) #TODO handle case in which smtp not ready
-    ch.basic_ack(delivery_tag = method.delivery_tag)
+    try:
+        email = EmailMessage()
+        email.set_content(rendered, subtype='html')
+        email['From'] = msg['from']
+        email['Reply-To'] = msg['reply_to']
+        email['To'] = msg['to']
+        email['Subject'] = msg['subject']
+        smtpObj.send_message(email)
+        ch.basic_ack(delivery_tag = method.delivery_tag)
+    except smtplib.SMTPServerDisconnected:
+        print("Server unexpectedly disconnected. Attempting to reconnect")
+        connect_to_smtp()
+    except smtplib.SMTPResponseException as e:
+        print(f"SMTP error occurred: {e.smtp_code} - {e.smtp_error}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    # TODO add logging (in info mode)
 
 def process_dead_letter_messages(ch, method, properties, body):
     """
@@ -199,7 +239,8 @@ channel.basic_consume(queue='requeue_queue',
                       auto_ack=False,
                       on_message_callback=process_requeue)
 
-
+print(' [*] Connecting to smtp')
+connect_to_smtp()
 print(' [*] Waiting for messages. To exit press CTRL+C')
 channel.start_consuming()
 
