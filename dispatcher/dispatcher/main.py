@@ -11,30 +11,26 @@ continuously polls(*) the email queue and renders+sends the template on every ac
 (*) = waits for the queue to push a message onto the app
 """
 
-tpl_environment = Environment(loader=FileSystemLoader("../templates/"))
-env = os.environ.get("ENV") or 'development'
-
-EMAIL_HOST='mailhog'
-EMAIL_PORT=1025
-EMAIL_ADDRESS=None
-EMAIL_PASSWORD=None
-
-
-if env == 'production':
-    EMAIL_HOST= os.environ.get("EMAIL_HOST")
-    EMAIL_PORT= os.environ.get("EMAIL_PORT")
-    EMAIL_ADDRESS= os.environ.get("EMAIL_ADDRESS")
-    EMAIL_PASSWORD= os.environ.get("EMAIL_PASSWORD")
-
-smtpObj = None
-
 def connect_to_smtp():
     global smtpObj
+
+    EMAIL_HOST='mailhog'
+    EMAIL_PORT=1025
+    EMAIL_ADDRESS=None
+    EMAIL_PASSWORD=None
+
+    if env == 'production':
+        EMAIL_HOST= os.environ.get("EMAIL_HOST")
+        EMAIL_PORT= os.environ.get("EMAIL_PORT")
+        EMAIL_ADDRESS= os.environ.get("EMAIL_ADDRESS")
+        EMAIL_PASSWORD= os.environ.get("EMAIL_PASSWORD")
+
     try:
         smtpObj = smtplib.SMTP( EMAIL_HOST, EMAIL_PORT )
 
         if env == 'production':
             # we have to upgrade the connection and login
+            # (At least with ethereal.email.. didn't try with gmail!) #TODO
             smtpObj.starttls()
             smtpObj.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         print("   -> Connected")
@@ -44,47 +40,6 @@ def connect_to_smtp():
         print("Failed to authenticate with given credentials.")
     except Exception as e:
         print(f"Could not connect to SMTP server for generic reason: {e}")
-
-
-RABBIT_HOST='rabbit'
-connection = pika.BlockingConnection(pika.ConnectionParameters(RABBIT_HOST))
-channel = connection.channel()
-
-channel.exchange_declare(exchange='eml',
-                         exchange_type='direct',
-                         durable=True)
-channel.queue_declare(queue='email',
-                      arguments={
-                        'x-dead-letter-exchange': "dead_letter_exchange",
-                        'x-dead-letter-routing-key': "dead_letter_routing_key",
-                        'x-death-header': True,
-                      },
-                      durable=True)
-channel.queue_bind(exchange='eml',
-                   queue='email',
-                   routing_key='mail')
-
-#channel.basic_qos(prefetch_count=1) #TODO: notice that with this enabled, an error processing a message will BLOCK the others from being processed
-
-channel.exchange_declare(exchange="dead_letter_exchange",
-                         exchange_type='direct',
-                         durable=True)
-channel.queue_declare(queue='error_queue',
-                      durable=True)
-channel.queue_bind(exchange='dead_letter_exchange',
-                   queue='error_queue',
-                   routing_key='dead_letter_routing_key')
-
-channel.exchange_declare(exchange="wait_exchange",
-                         exchange_type='x-delayed-message',
-                         durable=True,
-                         arguments={"x-delayed-type": "direct"}
-                         )
-channel.queue_declare(queue='requeue_queue',
-                      durable=True)
-channel.queue_bind(exchange='wait_exchange',
-                   queue='requeue_queue',
-                   routing_key='wait')
 
 def requeue_wait(ch, method, properties, body, reason):
     REQUEUE_DELAY_DURATIONS = [
@@ -152,6 +107,7 @@ def send_email(ch, method, properties, body):
         print(f"A sub-template in {msg['template']}.jinja2 was not found")
         requeue_wait(ch, method, properties, body, reason="sub-template_not_found")
         return
+
     try:
         email = EmailMessage()
         email.set_content(rendered, subtype='html')
@@ -186,7 +142,7 @@ def process_dead_letter_messages(ch, method, properties, body):
         5*60 * 60000, # 5 hrs
         5*60*10 * 60000, # 50 hrs
         5*60*20 * 60000, # 100 hrs
-    ]
+    ] #TODO: why is this here again?
     wait_for = REQUEUE_DELAY_DURATIONS[-1]
 
     headers = {
@@ -227,26 +183,75 @@ def process_requeue(ch, method, properties, body):
                           ))
     ch.basic_ack(delivery_tag = method.delivery_tag)
 
-channel.basic_consume(queue='email',
-                      auto_ack=False,
-                      on_message_callback=send_email)
+def main():
+    global smtpObj
+    global tpl_environment
+    global env
+    global channel
 
-channel.basic_consume(queue='error_queue',
-                      auto_ack=False,
-                      on_message_callback=process_dead_letter_messages)
+    tpl_environment = Environment(loader=FileSystemLoader("../templates/"))
+    env = os.environ.get("ENV") or 'development'
 
-channel.basic_consume(queue='requeue_queue',
-                      auto_ack=False,
-                      on_message_callback=process_requeue)
+    RABBIT_HOST='rabbit'
+    connection = pika.BlockingConnection(pika.ConnectionParameters(RABBIT_HOST))
+    channel = connection.channel()
 
-print(' [*] Connecting to smtp')
-connect_to_smtp()
-print(' [*] Waiting for messages. To exit press CTRL+C')
-channel.start_consuming()
+    channel.exchange_declare(exchange='eml',
+                            exchange_type='direct',
+                            durable=True)
+    channel.queue_declare(queue='email',
+                        arguments={
+                            'x-dead-letter-exchange': "dead_letter_exchange",
+                            'x-dead-letter-routing-key': "dead_letter_routing_key",
+                            'x-death-header': True,
+                        },
+                        durable=True)
+    channel.queue_bind(exchange='eml',
+                    queue='email',
+                    routing_key='mail')
+
+    #channel.basic_qos(prefetch_count=1) #TODO: notice that with this enabled, an error processing a message will BLOCK the others from being processed
+
+    channel.exchange_declare(exchange="dead_letter_exchange",
+                            exchange_type='direct',
+                            durable=True)
+    channel.queue_declare(queue='error_queue',
+                        durable=True)
+    channel.queue_bind(exchange='dead_letter_exchange',
+                    queue='error_queue',
+                    routing_key='dead_letter_routing_key')
+
+    channel.exchange_declare(exchange="wait_exchange",
+                            exchange_type='x-delayed-message',
+                            durable=True,
+                            arguments={"x-delayed-type": "direct"}
+                            )
+    channel.queue_declare(queue='requeue_queue',
+                        durable=True)
+    channel.queue_bind(exchange='wait_exchange',
+                    queue='requeue_queue',
+                    routing_key='wait')
+
+    channel.basic_consume(queue='email',
+                        auto_ack=False,
+                        on_message_callback=send_email)
+
+    channel.basic_consume(queue='error_queue',
+                        auto_ack=False,
+                        on_message_callback=process_dead_letter_messages)
+
+    channel.basic_consume(queue='requeue_queue',
+                        auto_ack=False,
+                        on_message_callback=process_requeue)
+
+    print(' [*] Connecting to smtp')
+    connect_to_smtp()
+    print(' [*] Waiting for messages. To exit press CTRL+C')
+    channel.start_consuming()
 
 if __name__ == '__main__':
     try:
-        main() #fixme lol
+        main()
     except KeyboardInterrupt:
         print('Interrupted')
         smtpObj.quit()
