@@ -51,18 +51,24 @@ def requeue_wait(ch, method, properties, body, reason):
         5*60*20 * 60000, # 100 hrs
     ]
 
-    if (properties.headers != None and "x-delay" in properties.headers):
-        index = REQUEUE_DELAY_DURATIONS.index(int(properties.headers["x-delay"]))
-        if (index+1 == len(REQUEUE_DELAY_DURATIONS) ):
-            logging.warn('Max retry time hit, dropping message')
-            # TODO: notify someone that they've been sloppy
-            ch.basic_ack(delivery_tag = method.delivery_tag)
-            return
-        else:
-            logging.info(f'Attempt {index+1}/{len(REQUEUE_DELAY_DURATIONS)-1}')
-            wait = REQUEUE_DELAY_DURATIONS[index+1]
-    else:
-        wait = REQUEUE_DELAY_DURATIONS[0]
+    current_delay = properties.headers.get("x-delay") if properties.headers else 0
+    try:
+        index = REQUEUE_DELAY_DURATIONS.index(int(current_delay))
+    except ValueError:
+        index = -1
+
+    next_index = index + 1
+
+    if next_index >= len(REQUEUE_DELAY_DURATIONS):
+        logging.warning('Max retry time hit, dropping message')
+        # TODO: notify someone that they've been sloppy
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+        return
+
+    wait = REQUEUE_DELAY_DURATIONS[next_index]
+    logging.info(f'Retry attempt {next_index + 1}/{len(REQUEUE_DELAY_DURATIONS)} in {int(wait/1000)} sec')
+    if next_index + 1 == len(REQUEUE_DELAY_DURATIONS):
+        logging.error(f'LAST ATTEMPT TO FIX: within {int(wait/1000)} sec')
 
     headers = {
         'reason': reason,
