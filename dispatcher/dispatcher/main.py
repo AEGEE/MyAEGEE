@@ -6,11 +6,14 @@ from jinja2 import Environment, FileSystemLoader, exceptions
 import os
 import sys
 import logging
+from notify import slack_alert
 
 """
 continuously polls(*) the email queue and renders+sends the template on every acked message
 (*) = waits for the queue to push a message onto the app
 """
+
+ONCALL_HANDLER = "@grasshopper"
 
 def connect_to_smtp():
     global smtpObj
@@ -61,14 +64,20 @@ def requeue_wait(ch, method, properties, body, reason):
 
     if next_index >= len(REQUEUE_DELAY_DURATIONS):
         logging.warning('Max retry time hit, dropping message')
-        # TODO: notify someone that they've been sloppy
+        slack_alert(f"Time over, a message was dropped ({reason})", submessage = ":poop:")
         ch.basic_ack(delivery_tag=method.delivery_tag)
         return
 
     wait = REQUEUE_DELAY_DURATIONS[next_index]
-    logging.info(f'Retry attempt {next_index + 1}/{len(REQUEUE_DELAY_DURATIONS)} in {int(wait/1000)} sec')
+    retry_message = f'Retry attempt {next_index + 1}/{len(REQUEUE_DELAY_DURATIONS)} will happen in {int(wait/1000)} sec'
+    logging.info(retry_message)
+    last_chance = ''
     if next_index + 1 == len(REQUEUE_DELAY_DURATIONS):
-        logging.error(f'LAST ATTEMPT TO FIX: within {int(wait/1000)} sec')
+        last_chance = f'-- LAST ATTEMPT TO FIX: within {int(wait/1000)} sec' + f' {ONCALL_HANDLER}'
+        logging.error(last_chance)
+    slack_alert(f"A template is missing! ({reason})",
+                    submessage = retry_message + " " + last_chance
+                )
 
     headers = {
         'reason': reason,
@@ -96,23 +105,22 @@ def send_email(ch, method, properties, body):
     try:
         template = tpl_environment.get_template(f"{msg['template']}.jinja2")
     except exceptions.TemplateNotFound:
-        # TODO: send a notification to someone about adding a template
-        # NOTE: this is a requeuable message
         logging.error(f"Template {msg['template']}.jinja2 not found")
-        requeue_wait(ch, method, properties, body, reason="template_not_found")
+        # NOTE: this is a requeuable message
+        requeue_wait(ch, method, properties, body, reason=f"template_not_found-{msg['template']}")
         return
 
     try:
         rendered = template.render(msg['parameters'], altro=msg['subject'])
     except exceptions.UndefinedError as e:
-        # NOTE: this is a NON-requeuable message
         logging.error(f"Error in rendering: some parameter is undefined (error: {e}; message: {msg})")
+        # NOTE: this is a NON-requeuable message
         requeue_wait(ch, method, properties, body, reason="parameter_undefined")
         return
     except exceptions.TemplateNotFound:
-        # NOTE: this is a requeuable message
         logging.error(f"A sub-template in {msg['template']}.jinja2 was not found")
-        requeue_wait(ch, method, properties, body, reason="sub-template_not_found")
+        # NOTE: this is a requeuable message
+        requeue_wait(ch, method, properties, body, reason=f"subtemplate_not_found-{msg['template']}")
         return
 
     try:
@@ -151,6 +159,9 @@ def process_dead_letter_messages(ch, method, properties, body):
     ] #TODO: why is this here again?
     wait_for = REQUEUE_DELAY_DURATIONS[-1]
 
+    logging.error("For some reason there's the DLQ handler that was triggered!")
+    slack_alert("For some reason there's the DLQ handler that was triggered!")
+
     headers = {
             'x-delay': wait_for,
         }
@@ -175,7 +186,7 @@ def process_requeue(ch, method, properties, body):
     """
 
     if (properties.headers["reason"] == 'parameter_undefined'):
-        logging.warn('Impossible to fix error, dropping message')
+        logging.warning('Impossible to fix error, dropping message')
         #TODO output something/notify to leave a trail for better debugging on what was missing
         ch.basic_ack(delivery_tag = method.delivery_tag)
         return

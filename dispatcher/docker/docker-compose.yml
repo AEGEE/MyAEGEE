@@ -27,6 +27,9 @@ services:
       EMAIL_PORT: "${ETHEREAL_PORT}"
       EMAIL_ADDRESS: "${ETHEREAL_USER}"
       EMAIL_PASSWORD: "${ETHEREAL_PW}"
+      NOTIFY_CHANNEL: "slack-tests-programmatic-stuff-other"
+    volumes:
+      - ./secrets/tokens.json:/usr/app/tokens.json
 
 
 networks:
