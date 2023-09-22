@@ -43,9 +43,10 @@ describe('Bodies list', () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken(user);
 
-        await generator.createBody();
-        const body = await generator.createBody();
-        await generator.createBody();
+        // Adding name to make sure sorting is correct
+        await generator.createBody({ name: 'AAA' });
+        const body = await generator.createBody({ name: 'BBB' });
+        await generator.createBody({ name: 'CCC' });
 
         const res = await request({
             uri: '/bodies?limit=1&offset=1', // second one should be returned
