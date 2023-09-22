@@ -27,6 +27,10 @@ exports.listAllBodies = async (req, res) => {
         where.status = 'active';
     }
 
+    if (!req.query.sort) {
+        req.query.sort = 'name';
+    }
+
     const result = await Body.findAndCountAll({
         where,
         ...helpers.getPagination(req.query),
