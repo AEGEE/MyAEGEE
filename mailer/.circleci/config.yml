@@ -5,7 +5,7 @@ version: 2.1
 jobs:
   test:
     machine:
-      image: ubuntu-2204:2023.04.2
+      image: ubuntu-2204:2023.07.2
     environment:
       MIX_ENV: test
       SMTP_USER: mailer@aegee.eu
@@ -22,7 +22,7 @@ jobs:
       - run: SMTP_USER=mailer@aegee.eu mix coveralls
   build:
     docker:
-      - image: cimg/base:2023.05
+      - image: cimg/base:2023.09
         environment:
           MIX_ENV: test
           SMTP_USER: mailer@aegee.eu
@@ -36,7 +36,7 @@ jobs:
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache mailer
   docker-build-and-push:
     docker:
-      - image: cimg/node:18.16.0
+      - image: cimg/node:18.18.0
         environment:
           MIX_ENV: test
           SMTP_USER: mailer@aegee.eu
