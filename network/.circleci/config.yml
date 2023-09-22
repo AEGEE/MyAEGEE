@@ -8,7 +8,7 @@ version: 2.1
 jobs:
   test:
     docker:
-      - image: cimg/node:18.16.0
+      - image: cimg/node:18.18.0
       - image: cimg/postgres:10.22
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
@@ -30,7 +30,7 @@ jobs:
           path: ~/reports
   build:
     docker:
-      - image: cimg/base:2023.05
+      - image: cimg/base:2023.09
     resource_class: large
     steps:
       - checkout
@@ -39,7 +39,7 @@ jobs:
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache network
   eslint:
     docker:
-      - image: cimg/node:18.16.0
+      - image: cimg/node:18.18.0
     resource_class: large
     steps:
       - checkout
@@ -52,7 +52,7 @@ jobs:
           path: ~/reports
   yamllint:
     docker:
-      - image: cimg/python:3.11.3
+      - image: cimg/python:3.11.5
     resource_class: large
     steps:
       - checkout
@@ -60,7 +60,7 @@ jobs:
       - run: yamllint -d .yamllint.yml .
   shellcheck:
     docker:
-      - image: cimg/base:2023.05
+      - image: cimg/base:2023.09
     resource_class: large
     steps:
       - checkout
@@ -68,7 +68,7 @@ jobs:
       - shellcheck/check
   audit:
     docker:
-      - image: cimg/node:18.16.0
+      - image: cimg/node:18.18.0
     resource_class: large
     steps:
       - checkout
@@ -115,7 +115,7 @@ jobs:
               }
   docker-build-and-push:
     docker:
-      - image: cimg/node:18.16.0
+      - image: cimg/node:18.18.0
     resource_class: large
     steps:
       - checkout
