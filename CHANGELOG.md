@@ -1,3 +1,10 @@
+## [1.36.12](https://github.com/AEGEE/core/compare/1.36.11...1.36.12) (2023-09-22)
+
+
+### Bug Fixes
+
+* **bodies:** sort by default on name. Fixes HELP-2306 ([#795](https://github.com/AEGEE/core/issues/795)) ([3615ed8](https://github.com/AEGEE/core/commit/3615ed8bac0939febc1dca8befd26eb00bae0724))
+
 ## [1.36.11](https://github.com/AEGEE/core/compare/1.36.10...1.36.11) (2023-07-11)
 
 
