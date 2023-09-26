@@ -262,6 +262,14 @@ module.exports = [
       auth: false
     }
   },
+  {
+    name: 'oms.bodies.boards',
+    path: '/bodies/:id/boards',
+    component: 'core/bodies/ViewBoards',
+    meta: {
+      label: 'View boards of a body'
+    }
+  },
   /* Permissions management */
   {
     name: 'oms.permissions.list',
@@ -822,6 +830,15 @@ module.exports = [
     component: 'statutory/ViewPlenary',
     meta: {
       label: 'Plenary details and marking attendance'
+    }
+  },
+  /* Network management. */
+  {
+    name: 'oms.network.boards.list',
+    path: '/network/boards',
+    component: 'network/BoardListing',
+    meta: {
+      label: 'View current boards'
     }
   },
   /* Static resources. */

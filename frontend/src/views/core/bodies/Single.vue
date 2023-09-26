@@ -17,6 +17,13 @@
             </router-link>
           </div>
 
+          <div class="field is-grouped" v-if="can.viewBoards">
+            <router-link :to="{ name: 'oms.bodies.boards', params: { id: body.id } }" :class="['button', 'is-fullwidth']">
+              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'users']" /></span>
+              <span class="field-label">Boards</span>
+            </router-link>
+          </div>
+
           <div class="field is-grouped" v-if="can.viewJoinRequests">
             <router-link :to="{ name: 'oms.bodies.join_requests', params: { id: body.id } }" :class="['button', 'is-fullwidth']">
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'users']" /></span>
@@ -62,6 +69,13 @@
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'edit']" /></span>
               <span class="field-label">Edit body details</span>
             </router-link>
+          </div>
+
+          <div class="field is-grouped" v-if="can.manageBoards">
+            <a @click="openChangeBoardModal()" :class="['button', 'is-fullwidth', 'is-primary']">
+              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'users']" /></span>
+              <span class="field-label">Change board</span>
+            </a>
           </div>
 
           <div class="field is-grouped" v-if="isMember">
@@ -155,6 +169,42 @@
         </div>
       </article>
 
+      <article class="tile is-child" v-if="boards.length">
+        <div class="content">
+          <p class="subtitle">Board</p>
+          <div class="content" v-for="board in boards" v-bind:key="board.id">
+            <table class="table is-narrow">
+              <tbody>
+                <tr v-if="board.name">
+                  <th>Name</th>
+                  <td>{{ board.name }}</td>
+                </tr>
+                <tr>
+                  <th>Term</th>
+                  <td>{{ board.start_date }} - {{ board.end_date }}</td>
+                </tr>
+                <tr>
+                  <th>President</th>
+                  <td>{{ board.president_user.first_name }} {{ board.president_user.last_name }}</td>
+                </tr>
+                <tr>
+                  <th>Secretary</th>
+                  <td>{{ board.secretary_user.first_name }} {{ board.secretary_user.last_name }}</td>
+                </tr>
+                <tr>
+                  <th>Treasurer</th>
+                  <td>{{ board.treasurer_user.first_name }} {{ board.treasurer_user.last_name }}</td>
+                </tr>
+                <tr v-for="position in board.other_members" v-bind:key="position.index">
+                  <th>{{ position.function }}</th>
+                  <td>{{ position.user.first_name }} {{ position.user.last_name }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+
       <article class="tile is-child" v-if="body.circles.length">
         <div class="content">
           <p class="subtitle">Bound circles</p>
@@ -184,6 +234,7 @@
 import { mapGetters } from 'vuex'
 import AddBoundCircleModal from './AddBoundCircleModal'
 import AddMemberModal from './AddMemberModal'
+import ChangeBoardModal from './ChangeBoardModal'
 
 export default {
   name: 'SingleBody',
@@ -206,6 +257,7 @@ export default {
         shadow_circle: null,
         shadow_circle_id: null
       },
+      boards: [],
       isLoading: false,
       isMember: false,
       isRequestingMembership: false,
@@ -213,9 +265,11 @@ export default {
       can: {
         viewMembers: false,
         viewMembersGlobal: false,
+        viewBoards: false,
         viewJoinRequests: false,
         viewCampaigns: false,
         createBoundCircles: false,
+        manageBoards: false,
         updateBody: false,
         deleteBody: false,
         addMembers: false
@@ -252,6 +306,19 @@ export default {
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess
+        }
+      })
+    },
+    openChangeBoardModal () {
+      this.$buefy.modal.open({
+        component: ChangeBoardModal,
+        hasModalCard: true,
+        props: {
+          body: this.body,
+          services: this.services,
+          showError: this.$root.showError,
+          showSuccess: this.$root.showSuccess,
+          router: this.$router
         }
       })
     },
@@ -342,8 +409,39 @@ export default {
   },
   mounted () {
     this.isLoading = true
+    // Get body for this page
     this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id).then((response) => {
       this.body = response.data.data
+
+      // Get current board(s) for this body
+      this.axios.get(this.services['network'] + '/bodies/' + this.body.id + '/boards/current').then((boardResponse) => {
+        this.boards = boardResponse.data.data
+
+        return this.axios.get(this.services['core'] + '/bodies/' + this.body.id + '/members')
+      }).then((memberResponse) => {
+        const members = memberResponse.data.data
+        const users = []
+        for (const member of members) {
+          users.push(member.user)
+        }
+
+        // Match members of a body to members on the board
+        for (const board of this.boards) {
+          this.$set(board, 'president_user', users.find(user => user.id === board.president))
+          this.$set(board, 'secretary_user', users.find(user => user.id === board.secretary))
+          this.$set(board, 'treasurer_user', users.find(user => user.id === board.treasurer))
+
+          for (const position of board.other_members) {
+            this.$set(position, 'user', users.find(user => user.id === position.user_id))
+          }
+        }
+      }).catch((err) => {
+        // TODO: remove 403 once all members can view boards
+        if (err.response.status === 403 || err.response.status === 404) {
+          return
+        }
+        this.$root.showError('Some error happened', err)
+      })
 
       if (this.loginUser) {
         this.isMember = this.loginUser.bodies.some(body => body.id === this.body.id)
@@ -353,10 +451,12 @@ export default {
           this.permissions = permissionsResponse.data.data
           this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
           this.can.viewMembersGlobal = this.permissions.some(permission => permission.combined.endsWith('global:view:member'))
+          this.can.viewBoards = this.permissions.some(permission => permission.combined.endsWith('view:board'))
           this.can.viewJoinRequests = this.permissions.some(permission => permission.combined.endsWith('view:join_request'))
           this.can.viewCampaigns = this.permissions.some(permission => permission.combined.endsWith('view:campaign'))
           this.can.viewShadowCircles = this.permissions.some(permission => permission.combined.endsWith('view:shadow_circle'))
           this.can.createBoundCircles = this.permissions.some(permission => permission.combined.endsWith('create:bound_circle'))
+          this.can.manageBoards = this.permissions.some(permission => permission.combined.endsWith('manage_network:boards'))
           this.can.updateBody = this.permissions.some(permission => permission.combined.endsWith('update:body'))
           this.can.deleteBody = this.permissions.some(permission => permission.combined.endsWith('delete:body'))
           this.can.addMembers = this.permissions.some(permission => permission.combined.endsWith('add_member:body'))

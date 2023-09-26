@@ -217,7 +217,6 @@ export default {
       })
     },
     changeApplicationPeriod (event, newApplicationEnds) {
-      console.log(newApplicationEnds)
       this.axios.put(this.services['summeruniversity'] + '/single/' + event.id + '/application_period', {
         application_ends: newApplicationEnds
       }).then(() => {
