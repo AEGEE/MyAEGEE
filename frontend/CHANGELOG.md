@@ -1,3 +1,10 @@
+# [1.34.0](https://github.com/AEGEE/frontend/compare/1.33.37...1.34.0) (2023-09-26)
+
+
+### Features
+
+* **network:** add board change ([#862](https://github.com/AEGEE/frontend/issues/862)) ([32e44a9](https://github.com/AEGEE/frontend/commit/32e44a923bd0811605cd0d392138fd411cbc31be))
+
 ## [1.33.37](https://github.com/AEGEE/frontend/compare/1.33.36...1.33.37) (2023-09-13)
 
 
