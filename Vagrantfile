@@ -1,9 +1,11 @@
 machine_name = "appserver.test"
+ip_address = "192.168.168.168"
+vm_box = "bento/ubuntu-18.04"
 
 Vagrant.configure("2") do |config|
   #Machine name for Vagrant, and machine type
   config.vm.define machine_name
-  config.vm.box = "bento/ubuntu-18.04"
+  config.vm.box = vm_box
 
   #Machine name for virtualbox, and RAM size
   config.vm.provider :virtualbox do |vb|
@@ -19,7 +21,7 @@ Vagrant.configure("2") do |config|
 
   ## Network configurations ##
   config.vm.hostname = machine_name
-  config.vm.network :private_network, ip: "192.168.168.168"
+  config.vm.network :private_network, ip: ip_address
   ## Port forwarding
   #NOTE: there could be a different script that sets the resolv.conf and then
   # calls vagrant up

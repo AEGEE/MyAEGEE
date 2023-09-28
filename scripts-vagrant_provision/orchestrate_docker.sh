@@ -17,15 +17,14 @@ else
   make bootstrap
 
 
-  DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
   #shellcheck disable=SC2046
-  export $(grep -v '^#' ${DIR}/.env | xargs -d '\n')
+  export $(grep -v '^#' /vagrant/.env | xargs -d '\n')
 
   # frontend helper: the first bootstrap will have its files be inaccessible
   #   (return 403 unauthorised) without these operations
   if [[ "${MYAEGEE_ENV}" == "development" ]]; then
     cd /vagrant/frontend || exit 1
-    echo "Changing frontend permissions"
+    echo "[Vagrant] ###################     Changing frontend permissions for first boot"
     echo "node: $(node --version)"
     echo "npm: $(npm --version)"
     #Node 16
