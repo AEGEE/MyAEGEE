@@ -83,6 +83,7 @@ For any troubleshoot, see [Advanced URL mapping and troubleshoot](#advanced-url-
 
 Once set up the mapping, you can continue the installation:
 ```
+vagrant plugin install vagrant-vbguest
 vagrant up
 ```
 
