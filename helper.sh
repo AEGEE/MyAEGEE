@@ -119,7 +119,8 @@ summary_images ()
     # shellcheck disable=SC2206
     services=( ${service_string//:/ } )
     for s in "${services[@]}"; do
-      if [[ " ${own_services[@]} " =~ " ${s} " ]]; then
+      # shellcheck disable=SC2076
+      if [[ " ${own_services[*]} " =~ " ${s} " ]]; then
         if [[ -f "${DIR}/${s}/docker/Dockerfile" ]]; then
             echo "${s}: $(head -n2 "${DIR}/${s}/docker/Dockerfile")"
         else
