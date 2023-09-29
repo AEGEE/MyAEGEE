@@ -61,6 +61,9 @@ hard_restart: nuke_dev restart
 nuke_dev:   #docker-compose down -v #TODO if needed: make this nuke take into account the .env like in deploy
 	./helper.sh --nuke
 
+diagnostics:
+	./helper.sh --diagnostics
+
 # Cleanup
 clean_docker_dangling_images:
 	docker rmi $(shell docker images -qf "dangling=true")
@@ -83,6 +86,8 @@ listen_frontend:
 	cd frontend && npm run build -- --watch
 
 rebuild_frontend:
+	#TODO: npx vue-cli-service build && chmod 775 -R dist && docker restart myaegee_frontend_1
+	#FIXME: below
 	./helper.sh --docker -- up -d --build --force-recreate frontend
 
 rebuild_core:
