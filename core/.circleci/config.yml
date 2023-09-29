@@ -1,0 +1,258 @@
+orbs:
+  codecov: codecov/codecov@3.2.5
+  docker: circleci/docker@2.2.0
+  node: circleci/node@5.1.0
+  shellcheck: circleci/shellcheck@3.1.2
+  slack: circleci/slack@4.12.5
+version: 2.1
+jobs:
+  test:
+    docker:
+      - image: cimg/node:18.18.0
+      - image: cimg/postgres:10.22
+        environment:
+          POSTGRES_PASSWORD: config.test.postgres.password
+    parallelism: 4
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages
+      - run: mkdir -p ~/reports/jest
+      - run:
+          name: Run tests
+          command: |
+            TEST=$(circleci tests glob test/**/*.js | circleci tests split --split-by=timings)
+            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
+      - codecov/upload
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  db-recreate:
+    docker:
+      - image: cimg/node:18.18.0
+      - image: cimg/postgres:10.22
+        environment:
+          POSTGRES_PASSWORD: config.test.postgres.password
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Run db:recreate
+          command: NODE_ENV=test npm run db:recreate
+  build:
+    docker:
+      - image: cimg/base:2023.09
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.23
+      - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache core
+  eslint:
+    docker:
+      - image: cimg/node:18.18.0
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages
+      - run: mkdir -p ~/reports
+      - run: npm run lint -- --format junit --output-file ~/reports/eslint.xml
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  yamllint:
+    docker:
+      - image: cimg/python:3.11.5
+    resource_class: large
+    steps:
+      - checkout
+      - run: pip install yamllint
+      - run: yamllint -d .yamllint.yml .
+  shellcheck:
+    docker:
+      - image: cimg/base:2023.09
+    resource_class: large
+    steps:
+      - checkout
+      - shellcheck/install
+      - shellcheck/check
+  audit:
+    docker:
+      - image: cimg/node:18.18.0
+    resource_class: large
+    steps:
+      - checkout
+      - run: npm audit --production
+      - slack/notify:
+          event: fail
+          custom: |
+              {
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": ":x: The audit check for `$CIRCLE_PROJECT_REPONAME` has failed."
+                    }
+                  },
+                  {
+                    "type": "section",
+                    "fields": [
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "actions",
+                    "elements": [
+                      {
+                        "type": "button",
+                        "text": {
+                          "type": "plain_text",
+                          "text": "Visit Job"
+                        },
+                        "url": "${CIRCLE_BUILD_URL}"
+                      }
+                    ]
+                  }
+                ]
+              }
+  docker-build-and-push:
+    docker:
+      - image: cimg/node:18.18.0
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.23
+      - node/install-packages
+      - run: npx semantic-release
+      - run: echo export PACKAGE_VERSION=$(node -p "require('./package.json').version") >> $BASH_ENV
+      - run: docker build --tag aegee/core:$PACKAGE_VERSION --tag aegee/core:latest -f docker/core/Dockerfile .
+      - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+      - run: docker push aegee/core:$PACKAGE_VERSION
+      - run: docker push aegee/core:latest
+      - slack/notify:
+          event: pass
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":white_check_mark: The Docker image for `$CIRCLE_PROJECT_REPONAME` with tags `$PACKAGE_VERSION` and `latest` has been pushed to Dockerhub."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":octagonal_sign: The Docker image for `$CIRCLE_PROJECT_REPONAME` build and push has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+
+workflows:
+  version: 2
+  linters:
+    jobs:
+      - eslint
+      - yamllint
+      - shellcheck
+      - docker/hadolint:
+          dockerfiles: $(find . -name '*Dockerfile*')
+  build:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: stable
+      - db-recreate
+  test:
+    jobs:
+      - test
+  docker-build-and-push:
+    jobs:
+      - docker-build-and-push:
+          filters:
+            branches:
+              only: stable
+  audit:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 5"
+          filters:
+            branches:
+              only: stable
+    jobs:
+      - audit
