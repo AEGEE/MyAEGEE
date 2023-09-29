@@ -115,7 +115,7 @@ compose_wrapper ()
 summary_images ()
 {
     service_string=$(printenv ENABLED_SERVICES)
-    own_services=( "frontend" "core" "events" "statutory" )
+    own_services=( "frontend" "core" "events" "statutory" "summeruniversity" "network" "discounts" "mailer" "gsuite-wrapper" )
     # shellcheck disable=SC2206
     services=( ${service_string//:/ } )
     for s in "${services[@]}"; do
