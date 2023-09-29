@@ -366,6 +366,8 @@ This file which is located on the _HOST_ machine is used to add new [subdomains 
 
 - Remember to check what is running on your _GUEST_ via `docker ps` (or portainer). Enter your _GUEST_ with `vagrant ssh` (from your _HOST_).
 
+- By running the system in development mode, you may get "NGINX error 403 (forbidden)" when you vist `my.appserver.test` the first time. To fix it, follow the steps after `frontend helper` in the file [orchestrate_docker.sh](scripts-vagrant_provision/orchestrate_docker.sh)
+
 - If you are stuck and something doesn't seem to work, make sure you don't have a mismatch between `/etc/hosts`, the URL you type in the browser, and the address that the system expects. See file `current-config.yml` for that: it is a file which is generated every time `make start` is launched. It contains the description of the desired state of the app. NB: `/etc/hosts` is the only file mentioned in this README that only exists in the _HOST_ and is not mounted (as described above).
 
 - You can add dev-tools to the array of services and troubleshoot docker using portainer (mentioned above). Make sure that you have added also the URL to the hostfile (`/etc/hosts`) and that it matches the variable defined in `.env`
