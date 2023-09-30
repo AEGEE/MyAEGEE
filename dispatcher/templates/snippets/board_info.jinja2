@@ -5,7 +5,7 @@
   <li><strong>End date: </strong>{{ board["end_date"] }}</li>
 
   {% for position in positions %}
-    <li><strong>{{ position["function"] }} </strong> {{ position["name"] }}</li>
+    <li><strong>{{ position["function"] }}: </strong> {{ position["name"] }}</li>
   {% endfor %}
 
   <li><strong>Message: </strong>{{ board["message"] }}</li>

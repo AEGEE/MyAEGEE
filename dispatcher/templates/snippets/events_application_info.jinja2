@@ -7,6 +7,6 @@
   <li><strong>Email: </strong>{{ application["email"] }}</li>
 
   {% for question in event["questions"] %}
-    <li><strong>{{ question["description"] }} </strong> {{ application["answers"][loop.index0] }}</li>
+    <li><strong>{{ question["description"] }}: </strong> {{ application["answers"][loop.index0] }}</li>
   {% endfor %}
 </ul>
