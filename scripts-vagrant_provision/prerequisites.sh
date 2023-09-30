@@ -1,10 +1,10 @@
 #!/bin/bash
 
-sudo apt-get update
+sudo apt-get update > /dev/null
 # For NVM
-sudo apt-get install -y curl
+sudo apt-get install -y curl > /dev/null
 # For pyenv
-sudo apt-get install -y git build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl
+sudo apt-get install -y git build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl > /dev/null
 
 NODE_VERSION=16
 NPM_VERSION=9.6.4

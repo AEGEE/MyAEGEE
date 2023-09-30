@@ -283,7 +283,12 @@ fi
 # build it for the first time
 # FIRST DEPLOYMENT
 if ( $build ); then
-    compose_wrapper config > current-config.yml && compose_wrapper build
+    compose_wrapper config > current-config.yml
+    if ( $verbose ); then
+        compose_wrapper build
+    else
+        compose_wrapper build > /dev/null
+    fi
     exit $?
 fi
 
