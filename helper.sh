@@ -115,7 +115,7 @@ compose_wrapper ()
 summary_images ()
 {
     service_string=$(printenv ENABLED_SERVICES)
-    own_services=( "frontend" "core" "events" "statutory" "summeruniversity" "network" "discounts" "mailer" "gsuite-wrapper" )
+    own_services=( "frontend" "core" "events" "statutory" "summeruniversity" "network" "discounts" "mailer" "gsuite-wrapper" "knowledge" )
     # shellcheck disable=SC2206
     services=( ${service_string//:/ } )
     for s in "${services[@]}"; do
@@ -267,6 +267,11 @@ fi
 if (( ${command_num} > 1 )); then
     echo "Too many commands! Only one command per time"
     echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump|--docker} [-v]"; exit 1
+fi
+
+if [[ $HOSTNAME != "appserver" ]]; then
+  echo "You're on $HOSTNAME, (the HOST) but you should be on 'appserver' (the GUEST). Exiting..."
+  exit 1
 fi
 
 # FIRST DEPLOYMENT
