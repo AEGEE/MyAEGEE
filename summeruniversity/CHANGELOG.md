@@ -1,3 +1,10 @@
+## [1.4.16](https://github.com/AEGEE/summeruniversity/compare/1.4.15...1.4.16) (2023-09-30)
+
+
+### Bug Fixes
+
+* **mailer:** pass event to SUCT mail ([#602](https://github.com/AEGEE/summeruniversity/issues/602)) ([3b6db48](https://github.com/AEGEE/summeruniversity/commit/3b6db4836d1f147813ae67159e266743225e3cb8))
+
 ## [1.4.15](https://github.com/AEGEE/summeruniversity/compare/1.4.14...1.4.15) (2023-04-25)
 
 
