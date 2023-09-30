@@ -188,6 +188,11 @@ function retry {
   done
 }
 
+if [[ ! $HOSTNAME =~ ^appserver\..* ]]; then
+  echo "You're on $HOSTNAME, (the HOST) but you should be on 'appserver' (the GUEST). Exiting..."
+  exit 1
+fi
+
 # HUMAN INTERVENTION NEEDED: register in .env your services
 ## Export all environment variables from .env to this script in case we need them some time
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -267,11 +272,6 @@ fi
 if (( ${command_num} > 1 )); then
     echo "Too many commands! Only one command per time"
     echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump|--docker} [-v]"; exit 1
-fi
-
-if [[ $HOSTNAME != "appserver" ]]; then
-  echo "You're on $HOSTNAME, (the HOST) but you should be on 'appserver' (the GUEST). Exiting..."
-  exit 1
 fi
 
 # FIRST DEPLOYMENT
