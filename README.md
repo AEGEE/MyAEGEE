@@ -27,7 +27,7 @@ Install
 
 Even if you have a linux box, this is **very** recommended. If you decide to not do it, *sigh...* but don't come to cry to us.
 
-If you decide you know better than us, [install docker and docker-compose](https://docs.docker.com/compose/install/) on your Windows/Linux/Mac machine, instead of Virtualbox and Vagrant. (Make sure you install the correct versions: tested with Docker CE 19.03.1 and docker-compose 1.24.1 --  also, [Mac and linux have different versions of grep](https://stackoverflow.com/a/59393993) so again, your problem ;-) )
+If you decide you know better than us, [install docker and docker-compose](https://docs.docker.com/compose/install/) on your Windows/Linux/Mac machine, instead of Virtualbox and Vagrant. (Make sure you install the correct versions, they can be found in the provisioning scripts --  also, [Mac and linux have different versions of grep](https://stackoverflow.com/a/59393993) so again, your problem ;-) )
 
 Note: if you use Vagrant, Docker will be already automatically on the virtual machine.
 
