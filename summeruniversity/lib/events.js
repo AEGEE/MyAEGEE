@@ -189,7 +189,7 @@ exports.addEvent = async (req, res) => {
             subject: 'A event was submitted.',
             template: 'summeruniversity_submitted.html',
             parameters: {
-                event: req.event
+                event
             }
         });
     });
@@ -309,7 +309,7 @@ exports.editEvent = async (req, res) => {
                 subject: 'A event was submitted.',
                 template: 'summeruniversity_submitted.html',
                 parameters: {
-                    event: req.event
+                    event
                 }
             });
         }
