@@ -28,7 +28,7 @@ else
     echo "node: $(node --version)"
     echo "npm: $(npm --version)"
     #Node 16
-    npm i || npm i --force && npx vue-cli-service build && chmod 775 -R dist && docker restart myaegee_frontend_1
+    npm i > /dev/null || npm i --force > /dev/null && npx vue-cli-service build > /dev/null && chmod 775 -R dist && docker restart myaegee_frontend_1
     #Node 18
     #npm i || npm i --force && npm run build && chmod 775 -R dist && docker restart myaegee_frontend_1
   fi

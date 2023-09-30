@@ -27,7 +27,7 @@ Install
 
 Even if you have a linux box, this is **very** recommended. If you decide to not do it, *sigh...* but don't come to cry to us.
 
-If you decide you know better than us, [install docker and docker-compose](https://docs.docker.com/compose/install/) on your Windows/Linux/Mac machine, instead of Virtualbox and Vagrant. (Make sure you install the correct versions: tested with Docker CE 19.03.1 and docker-compose 1.24.1)
+If you decide you know better than us, [install docker and docker-compose](https://docs.docker.com/compose/install/) on your Windows/Linux/Mac machine, instead of Virtualbox and Vagrant. (Make sure you install the correct versions, they can be found in the provisioning scripts --  also, [Mac and linux have different versions of grep](https://stackoverflow.com/a/59393993) so again, your problem ;-) )
 
 Note: if you use Vagrant, Docker will be already automatically on the virtual machine.
 
@@ -83,6 +83,7 @@ For any troubleshoot, see [Advanced URL mapping and troubleshoot](#advanced-url-
 
 Once set up the mapping, you can continue the installation:
 ```
+vagrant plugin install vagrant-vbguest
 vagrant up
 ```
 
@@ -397,7 +398,7 @@ You can use `5ecr3t` for a password reset token (for a member with email `passwo
 
 **NOTICE** if you use the `--fast` mode of `start.sh`, then core does NOT provision in production mode, so you will be fast in bootstrapping but without users to play with. This should not be an issue for you if you are interested in only the infrastructure work; if you however need a user, you can register yourself.
 
-## How to reset the database and recreate
+## How to reset the database and recreate
 
 A couple of options
 

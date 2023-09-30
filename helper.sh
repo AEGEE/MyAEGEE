@@ -112,6 +112,39 @@ compose_wrapper ()
     return $?
 }
 
+summary_images ()
+{
+    service_string=$(printenv ENABLED_SERVICES)
+    own_services=( "frontend" "core" "events" "statutory" "summeruniversity" "network" "discounts" "mailer" "gsuite-wrapper" "knowledge" )
+    # shellcheck disable=SC2206
+    services=( ${service_string//:/ } )
+    for s in "${services[@]}"; do
+      # shellcheck disable=SC2076
+      if [[ " ${own_services[*]} " =~ " ${s} " ]]; then
+        if [[ -f "${DIR}/${s}/docker/Dockerfile" ]]; then
+            echo "${s}: $(head -n2 "${DIR}/${s}/docker/Dockerfile")"
+        else
+            echo "${s}: $(head -n2 "${DIR}/${s}/docker/${s}/Dockerfile")"
+        fi
+      fi
+    done
+}
+
+diagnostics()
+{
+  echo "Docker version: client & server respectively"
+  docker version | grep Version | head -n2
+  echo
+  echo
+  echo "Node: $(node -v)"
+  echo "NPM: $(npm -v)"
+  echo "Python: $(python -V)"
+  echo
+  echo
+  echo "Images version:"
+  summary_images
+}
+
 # edit the env file before launching
 # FIRST DEPLOYMENT
 edit_env_file ()
@@ -155,6 +188,11 @@ function retry {
   done
 }
 
+if [[ ! $HOSTNAME =~ ^appserver\..* ]]; then
+  echo "You're on $HOSTNAME, (the HOST) but you should be on 'appserver' (the GUEST). Exiting..."
+  exit 1
+fi
+
 # HUMAN INTERVENTION NEEDED: register in .env your services
 ## Export all environment variables from .env to this script in case we need them some time
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -189,6 +227,7 @@ pull=false;
 wait_until_healthy=false;
 verbose=false;
 docker=false;
+diagnostics=false;
 command_num=0;
 declare -a arguments # = EMPTY ARRAY
 if [[ "$#" -ge 1 ]]; then
@@ -212,6 +251,7 @@ if [[ "$#" -ge 1 ]]; then
             --pull) pull=true; ((command_num++)); shift ;;
             --wait-until-healthy) wait_until_healthy=true; ((command_num++)); shift ;;
             --docker) docker=true; ((command_num++)); shift ;;
+            --diagnostics) diagnostics=true; ((command_num++)); shift ;;
             -v) verbose=true; shift ;;
 
             --) shift ; arguments+=("${@}"); break ;;
@@ -243,7 +283,12 @@ fi
 # build it for the first time
 # FIRST DEPLOYMENT
 if ( $build ); then
-    compose_wrapper config > current-config.yml && compose_wrapper build
+    compose_wrapper config > current-config.yml
+    if ( $verbose ); then
+        compose_wrapper build
+    else
+        compose_wrapper build > /dev/null
+    fi
     exit $?
 fi
 
@@ -362,6 +407,10 @@ if ( $nuke ); then
       compose_wrapper down -v
       exit $?
   fi
+fi
+
+if ( $diagnostics ); then
+  diagnostics
 fi
 
 #return 0;
