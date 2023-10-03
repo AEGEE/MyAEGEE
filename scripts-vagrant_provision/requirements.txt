@@ -5,4 +5,4 @@ logsnag==0.1.2
 pika==1.3.1
 requests==2.31.0
 slack-notifications==0.2.2
-urllib3==1.26.12
+urllib3==1.26.17
