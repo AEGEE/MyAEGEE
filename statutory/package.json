@@ -70,7 +70,7 @@
     "sequelize-cli": "^6.6.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.7.1",
+    "@commitlint/cli": "^18.0.0",
     "@commitlint/config-conventional": "^17.7.0",
     "@faker-js/faker": "^8.2.0",
     "@semantic-release/changelog": "^6.0.3",
