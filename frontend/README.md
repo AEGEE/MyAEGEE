@@ -15,7 +15,7 @@ This repository contains the united frontend for MyAEGEE (aka "the new frontend 
 
 ## Development
 
-The official way to run this project is to get the copy of [MyAEGEE project](github.com/AEGEE/MyAEGEE), which contains all of the repositories, including this one. See `MyAEGEE`'s README for the instructions for installation.
+The official way to run this project is to get the copy of [MyAEGEE project](https://github.com/AEGEE/MyAEGEE), which contains all of the repositories, including this one. See `MyAEGEE`'s README for the instructions for installation.
 
 ## Local development
 

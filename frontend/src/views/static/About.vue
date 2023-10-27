@@ -189,12 +189,12 @@
             <tbody>
               <tr>
                 <td><a href="https://github.com/linuxbandit">Fabrizio Bellicano</a></td>
-                <td>Deployment scripts and processes</td>
+                <td>Founder of the project; proof-of-concepts, infrastructure, deployment scripts, and processes. General integrations</td>
               </tr>
 
               <tr>
-                <td><a href="https://github.com/serge1peshcoff">Sergey Peshkov</a></td>
-                <td>Maintainer of events and statutory modules and the frontend</td>
+                <td><a href="https://github.com/wikirik">Rik Smale</a></td>
+                <td>Project manager & Maintainer of frontend, core, events, and statutory modules</td>
               </tr>
             </tbody>
           </table>
@@ -202,14 +202,15 @@
           <div class="content">
             <p>Also this website wouldn't exist without these people:</p>
             <ul>
-              <li><strong>Nico Westerbeck</strong> - deployment scripts and previous system of the core module</li>
-              <li><strong>Derk Snijders</strong> - deployment scripts and frontend</li>
-              <li><strong>Flaviu Porutiu</strong> - development of the previous system of the core module</li>
+              <li><strong>Sergey Peshkov</strong> - creator of frontend, core, events, and statutory modules</li>
               <li><strong>Dilyan Palauzov</strong> - helping integrating MyAEGEE with the mail server</li>
               <li><strong>George Dimitrakopoulos</strong> - helping integrating MyAEGEE with the JC OMS module</li>
               <li><strong>Philipp von Klitzing</strong> - monitoring improvements and general advices</li>
               <li><strong>Wim van Ravesteijn</strong> - maintaining the previous systems and helping with setting up domains and DNS</li>
               <li><strong>Tekla Hajdu</strong> - reporting a lot of bugs and clarifying procedures as a former CD/Chair/NetCom</li>
+              <li><strong>Nico Westerbeck</strong> - deployment scripts and previous system of the core module</li>
+              <li><strong>Derk Snijders</strong> - deployment scripts and previous system of the frontend</li>
+              <li><strong>Flaviu Porutiu</strong> - development of the previous system of the core module</li>
               <li><strong>Veva Chmelarova and Timo Haarman</strong> - clarifying procedures and collaboration as Chair Team</li>
               <li><strong>Giuseppe Aquilino and Lisette Kunst</strong> - clarifying procedures and collaboration as JC member</li>
               <li><strong>Oksana Prokopchenko and Karolina Lapczyk</strong> - clarifying procedures and collaboration as Netcommies</li>
