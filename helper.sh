@@ -188,7 +188,7 @@ function retry {
   done
 }
 
-if [[ ! $HOSTNAME =~ ^appserver\..* ]]; then
+if [[ ! $HOSTNAME =~ ^appserver ]]; then
   echo "You're on $HOSTNAME, (the HOST) but you should be on 'appserver' (the GUEST). Exiting..."
   exit 1
 fi
