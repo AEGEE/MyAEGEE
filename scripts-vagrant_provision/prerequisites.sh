@@ -30,7 +30,7 @@ sudo chown vagrant:vagrant /opt/myaegee
 sudo chown vagrant:vagrant /opt/backups
 
 ## Install python via pyenv
-git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+git clone https://github.com/pyenv/pyenv.git "$HOME/.pyenv"
 
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
