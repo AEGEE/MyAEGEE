@@ -2,7 +2,7 @@
 ## `MyAEGEE`
 
 ## Description
-The repository for the ["Online Membership System" (OMS)](https://github.com/AEGEE/MyAEGEE), an open-source project of the student/youth association [AEGEE-Europe](http://aegee.org/).
+The repository for the ["Online Membership System" (OMS)](https://github.com/AEGEE/MyAEGEE), an open-source intranet project of the student/youth association [AEGEE-Europe](http://aegee.org/).
 
 It makes use of docker, and docker-compose.
 
@@ -278,6 +278,7 @@ Make sure however to use an extension in your IDE called [editorconfig](https://
 1. change order/remove one of the microservices from the menubar on the left
 1. In resources > resources, add another box linking to your antenna's website
 1. Add an user to an antenna/circle (this is less programming-wise, more getting to know the platform)
+1. Change the email address of the first 5 users generated: instead of @example.com, make them @example.org
 1. Core-specific: change how many results you can visualise at a time
 1. Events-specific: in the Board view add an emoji to statuses "Accepted"/"Pending"/"Rejected"
 1. Statutory-specific: ?? (propose your own!)
