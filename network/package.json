@@ -55,7 +55,7 @@
     "nock": "^13.3.6",
     "nyc": "^15.1.0",
     "open-cli": "^8.0.0",
-    "semantic-release": "^22.0.5"
+    "semantic-release": "^22.0.12"
   },
   "dependencies": {
     "@bugsnag/js": "^7.21.0",
