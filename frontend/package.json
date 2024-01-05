@@ -21,7 +21,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@babel/core": "^7.23.2",
+    "@babel/core": "^7.23.7",
     "@babel/eslint-parser": "^7.22.15",
     "@babel/types": "^7.22.17",
     "@fortawesome/fontawesome-free": "^5.15.4",
