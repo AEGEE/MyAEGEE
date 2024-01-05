@@ -81,7 +81,7 @@
     "@semantic-release/git": "^10.0.1",
     "commitlint": "^18.0.0",
     "conventional-changelog": "^5.1.0",
-    "cypress": "^13.3.2",
+    "cypress": "^13.6.2",
     "husky": "^8.0.3",
     "istanbul-instrumenter-loader": "^3.0.1",
     "istanbul-lib-coverage": "^3.2.0",
