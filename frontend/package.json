@@ -84,7 +84,7 @@
     "cypress": "^13.6.2",
     "husky": "^8.0.3",
     "istanbul-instrumenter-loader": "^3.0.1",
-    "istanbul-lib-coverage": "^3.2.0",
+    "istanbul-lib-coverage": "^3.2.2",
     "semantic-release": "^22.0.12"
   },
   "optionalDependencies": {
