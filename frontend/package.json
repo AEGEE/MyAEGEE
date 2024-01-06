@@ -85,7 +85,7 @@
     "husky": "^8.0.3",
     "istanbul-instrumenter-loader": "^3.0.1",
     "istanbul-lib-coverage": "^3.2.0",
-    "semantic-release": "^22.0.5"
+    "semantic-release": "^22.0.12"
   },
   "optionalDependencies": {
     "iltorb": "^2.4.5"
