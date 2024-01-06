@@ -67,7 +67,7 @@
     "vue-input-tag": "^2.0.7",
     "vue-loader": "^16.8.3",
     "vue-mapbox": "^0.4.1",
-    "vue-multiselect": "^2.1.7",
+    "vue-multiselect": "^2.1.8",
     "vue-router": "^3.6.5",
     "vue-template-compiler": "^2.7.16",
     "vue2-touch-events": "^3.2.3",
