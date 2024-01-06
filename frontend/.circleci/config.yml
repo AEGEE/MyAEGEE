@@ -21,8 +21,7 @@ jobs:
     resource_class: large
     steps:
       - checkout
-      - node/install-packages:
-          override-ci-command: npm install --legacy-peer-deps
+      - node/install-packages
       - run: mkdir -p ~/reports
       - run: npx eslint --ext .js,.vue . --format junit --output-file ~/reports/eslint.xml
       - store_test_results:
@@ -100,8 +99,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 20.10.23
-      - node/install-packages:
-          override-ci-command: npm install --legacy-peer-deps
+      - node/install-packages
       - run: npx semantic-release
       - run: echo export PACKAGE_VERSION=$(node -p "require('./package.json').version") >> $BASH_ENV
       - run: docker build  --tag aegee/frontend:$PACKAGE_VERSION --tag aegee/frontend:latest -f docker/Dockerfile .
