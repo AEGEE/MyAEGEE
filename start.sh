@@ -12,8 +12,8 @@ while [ "$#" -gt 0 ]; do
         --fast) fast=true; shift ;;
         --reset) reset=true; shift ;;
 
-        -*) echo "Usage: start.sh [--novagrant] [--reset] [--fast]"; exit 1;;
-        *) echo "Usage: start.sh [--novagrant] [--reset] [--fast]"; exit 1;;
+        -*) echo "Usage: start.sh [--no-vagrant] [--reset] [--fast]"; exit 1;;
+        *) echo "Usage: start.sh [--no-vagrant] [--reset] [--fast]"; exit 1;;
     esac
 done
 

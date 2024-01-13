@@ -188,10 +188,7 @@ function retry {
   done
 }
 
-if [[ ! $HOSTNAME =~ ^appserver ]]; then
-  echo "You're on $HOSTNAME, (the HOST) but you should be on 'appserver' (the GUEST). Exiting..."
-  exit 1
-fi
+# TODO: ignore this when using --no-vagrant in start.sh
 
 # HUMAN INTERVENTION NEEDED: register in .env your services
 ## Export all environment variables from .env to this script in case we need them some time
