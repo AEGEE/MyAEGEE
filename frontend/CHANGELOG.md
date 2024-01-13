@@ -1,3 +1,10 @@
+## [1.34.2](https://github.com/AEGEE/frontend/compare/1.34.1...1.34.2) (2024-01-13)
+
+
+### Bug Fixes
+
+* **su:** accept 2024 submissions ([#2007](https://github.com/AEGEE/frontend/issues/2007)) ([52ce61a](https://github.com/AEGEE/frontend/commit/52ce61a67167a1f6bdda66d46d657896f1421804))
+
 ## [1.34.1](https://github.com/AEGEE/frontend/compare/1.34.0...1.34.1) (2024-01-13)
 
 
