@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/AEGEE/network/compare/1.1.0...1.1.1) (2024-01-13)
+
+
+### Bug Fixes
+
+* **board:** ensure that boards can be managed with local permissions ([#570](https://github.com/AEGEE/network/issues/570)) ([33d1af2](https://github.com/AEGEE/network/commit/33d1af2a1a65d379c792ab7421094b026c251b2c))
+
 # [1.1.0](https://github.com/AEGEE/network/compare/1.0.0...1.1.0) (2022-09-18)
 
 

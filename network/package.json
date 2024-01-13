@@ -1,6 +1,6 @@
 {
   "name": "network",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Network module for MyAEGEE, for network history and network status.",
   "main": "lib/run.js",
   "scripts": {
