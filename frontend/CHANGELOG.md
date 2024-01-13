@@ -1,3 +1,10 @@
+## [1.34.3](https://github.com/AEGEE/frontend/compare/1.34.2...1.34.3) (2024-01-13)
+
+
+### Bug Fixes
+
+* **menu:** Open KMS in same window, instead of new tab ([#2008](https://github.com/AEGEE/frontend/issues/2008)) ([37d6683](https://github.com/AEGEE/frontend/commit/37d6683c42a260071c36e91dcf1deea64ef81cc1))
+
 ## [1.34.2](https://github.com/AEGEE/frontend/compare/1.34.1...1.34.2) (2024-01-13)
 
 
