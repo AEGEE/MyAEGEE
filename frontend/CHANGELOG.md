@@ -1,3 +1,10 @@
+## [1.34.1](https://github.com/AEGEE/frontend/compare/1.34.0...1.34.1) (2024-01-13)
+
+
+### Bug Fixes
+
+* **resources:** add KMS. Fixes HELP-2352 ([#1986](https://github.com/AEGEE/frontend/issues/1986)) ([009b5e4](https://github.com/AEGEE/frontend/commit/009b5e411dc27a19abdfa2b4b26663d3936f1148))
+
 # [1.34.0](https://github.com/AEGEE/frontend/compare/1.33.37...1.34.0) (2023-09-26)
 
 
