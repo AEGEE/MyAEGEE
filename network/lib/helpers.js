@@ -34,11 +34,35 @@ function hasPermission(permissionsList, combinedPermission) {
     return permissionsList.some((permission) => permission.combined.endsWith(combinedPermission));
 }
 
-exports.getPermissions = (user, corePermissions) => {
-    return {
-        manage_boards: hasPermission(corePermissions, 'manage_network:boards'),
+// A helper to get bodies list where I have some permission
+// from POST /my_permissions
+function getBodiesListFromPermissions(result) {
+    if (!Array.isArray(result)) {
+        return [];
+    }
+
+    return result
+        .filter((elt) => elt.body_id)
+        .map((elt) => elt.body_id)
+        .filter((elt, index, array) => array.indexOf(elt) === index);
+}
+
+exports.getPermissions = (user, corePermissions, managePermissions) => {
+    const permissions = {
         view_board: hasPermission(corePermissions, 'view:board')
     };
+
+    permissions.manage_boards = {
+        global: hasPermission(corePermissions, 'global:manage_network:boards')
+    };
+
+    const manageBoardsList = getBodiesListFromPermissions(managePermissions);
+    const userBodies = user && Array.isArray(user.bodies) ? user.bodies : [];
+    for (const body of userBodies) {
+        permissions.manage_boards[body.id] = manageBoardsList.includes(body.id);
+    }
+
+    return permissions;
 };
 
 // A helper to add data to gauge Prometheus metric.

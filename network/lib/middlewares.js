@@ -1,7 +1,10 @@
+const request = require('request-promise-native');
+
 const core = require('./core');
 const errors = require('./errors');
 const helpers = require('./helpers');
 const logger = require('./logger');
+const config = require('../config');
 const Bugsnag = require('./bugsnag');
 const packageInfo = require('../package.json');
 
@@ -15,6 +18,26 @@ exports.authenticateUser = async (req, res, next) => {
         core.getMyProfile(req),
         core.getMyPermissions(req)
     ]);
+
+    // Fetching permissions for board management, the list of bodies
+    // where do you have the 'manage_network:boards' permission for it.
+    const manageRequest = await request({
+        url: config.core.url + ':' + config.core.port + '/my_permissions',
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Auth-Token': req.headers['x-auth-token'],
+        },
+        simple: false,
+        json: true,
+        body: {
+            action: 'manage_network',
+            object: 'boards'
+        },
+        resolveWithFullResponse: true
+    });
+
+    req.manageRequest = manageRequest;
 
     if (typeof userBody !== 'object') {
         throw new Error('Malformed response when fetching user: ' + userBody);
@@ -38,7 +61,8 @@ exports.authenticateUser = async (req, res, next) => {
 
     req.user = userBody.data;
     req.corePermissions = permissionsBody.data;
-    req.permissions = helpers.getPermissions(req.user, req.corePermissions);
+    if (req.manageRequest.body && req.manageRequest.body.success) req.managePermissions = manageRequest.body.data;
+    req.permissions = helpers.getPermissions(req.user, req.corePermissions, req.managePermissions);
 
     return next();
 };

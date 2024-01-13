@@ -10,7 +10,7 @@ const mailer = require('./mailer');
 const config = require('../config');
 
 exports.createBoard = async (req, res) => {
-    if (!req.permissions.manage_boards) {
+    if (!req.permissions.manage_boards[req.body.body_id] && !req.permissions.manage_boards.global) {
         return errors.makeForbiddenError(res, 'You are not allowed to create boards.');
     }
 
@@ -148,7 +148,7 @@ exports.getBoard = async (req, res) => {
 };
 
 exports.updateBoard = async (req, res) => {
-    if (!req.permissions.manage_boards) {
+    if (!req.permissions.manage_boards[req.board.body_id] && !req.permissions.manage_boards.global) {
         return errors.makeForbiddenError(res, 'You are not allowed to update boards.');
     }
 
@@ -161,7 +161,7 @@ exports.updateBoard = async (req, res) => {
 };
 
 exports.deleteBoard = async (req, res) => {
-    if (!req.permissions.manage_boards) {
+    if (!req.permissions.manage_boards[req.board.body_id] && !req.permissions.manage_boards.global) {
         return errors.makeForbiddenError(res, 'You are not allowed to delete boards.');
     }
 

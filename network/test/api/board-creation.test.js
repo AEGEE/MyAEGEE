@@ -223,7 +223,7 @@ describe('Board creation', () => {
     });
 
     test('should succeed if everything is okay', async () => {
-        const board = generator.generateBoard();
+        const board = generator.generateBoard({});
 
         const res = await request({
             uri: '/bodies/' + body.id + '/boards',
