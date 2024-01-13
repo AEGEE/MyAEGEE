@@ -5,7 +5,7 @@
   "main": "lib/run.js",
   "scripts": {
     "start": "nodemon -e 'js,json' lib/run.js",
-    "nodemon-start": "nodemon -e 'js,json' lib/run.js",
+    "nodemon-start": "nodemon -L -e 'js,json' lib/run.js",
     "lint": "eslint .",
     "lint-staged": "lint-staged",
     "db:create": "sequelize db:create",
