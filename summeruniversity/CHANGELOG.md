@@ -1,3 +1,10 @@
+## [1.4.17](https://github.com/AEGEE/summeruniversity/compare/1.4.16...1.4.17) (2024-01-13)
+
+
+### Bug Fixes
+
+* **events:** allow 2024 submissions ([#660](https://github.com/AEGEE/summeruniversity/issues/660)) ([36221f9](https://github.com/AEGEE/summeruniversity/commit/36221f9270ebea043e9c3688724303ab6beaef0e))
+
 ## [1.4.16](https://github.com/AEGEE/summeruniversity/compare/1.4.15...1.4.16) (2023-09-30)
 
 
