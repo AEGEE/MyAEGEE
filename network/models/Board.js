@@ -39,8 +39,8 @@ const Board = sequelize.define('board', {
                     return;
                 }
 
-                if (moment().isAfter(value)) {
-                    throw new Error('End date of the mandate should be in the future.');
+                if (moment(value).isSameOrBefore(this.start_date)) {
+                    throw new Error('End date of the mandate should be after start date.');
                 }
             }
         }
