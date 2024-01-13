@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/AEGEE/network/compare/1.1.1...1.1.2) (2024-01-13)
+
+
+### Bug Fixes
+
+* **board:** allow former boards to be added ([#571](https://github.com/AEGEE/network/issues/571)) ([fdfab28](https://github.com/AEGEE/network/commit/fdfab28a0cf90fed24cdf6bde5c432bc777f4b4d))
+
 ## [1.1.1](https://github.com/AEGEE/network/compare/1.1.0...1.1.1) (2024-01-13)
 
 
