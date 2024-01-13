@@ -125,7 +125,7 @@ export default {
       query: '',
       includeDeleted: false,
       can: {
-        viewDeleted: true
+        viewDeleted: false
       }
     }
   },
@@ -181,6 +181,15 @@ export default {
           // Apply filters on the final data
           if (this.filters.noCurrentBoard) {
             this.bodies = this.bodies.filter(x => !x.board || moment(x.board.end_date).isBefore(today, 'date'))
+          }
+
+          if (this.loginUser) {
+            return this.axios.get(this.services['core'] + '/my_permissions').then((permissionsResponse) => {
+              this.permissions = permissionsResponse.data.data
+
+              this.can.viewDeleted = this.permissions.some(permission => permission.combined.endsWith('view_deleted:body'))
+              this.isLoading = false
+            })
           }
           this.isLoading = false
         }).catch((err) => {
