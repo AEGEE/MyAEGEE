@@ -24,7 +24,8 @@ export default {
       namesMap: {
         'myaegee-how-to': '240615425',
         'terms-of-service': '327057442',
-        'mailing-lists': '962297917'
+        'mailing-lists': '962297917',
+        'kms': '2288287780'
       }
     }
   },

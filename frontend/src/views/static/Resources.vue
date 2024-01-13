@@ -76,7 +76,7 @@ export default {
             color: '#4CA0FF'
           },
           {
-            url: 'https://www.aegee.org/external/key-to-europe/',
+            url: 'https://drive.google.com/drive/folders/1kU6DQd0v5rsGMwdjnhYUerYcJMH7af0_',
             title: 'Key to Europe',
             description: 'Yearbook - the annual report publication',
             color: '#4CA0FF'
@@ -87,18 +87,6 @@ export default {
             url: '/pages/mailing-lists',
             title: 'Mailing Lists',
             description: 'AEGEE mailing lists',
-            color: '#FFDB4C'
-          },
-          {
-            url: 'https://aegee.org/wiki',
-            title: 'AEGEE Wiki',
-            description: 'A collaborative knowledge backbone of AEGEE',
-            color: '#FFDB4C'
-          },
-          {
-            url: 'https://drive.google.com/drive/folders/1IOg5hnbGmhgZ8pajYQgbY3CBTsETijS_',
-            title: 'AEGEE Materials Database',
-            description: 'Knowledge library of AEGEE materials',
             color: '#FFDB4C'
           },
           {
@@ -123,12 +111,6 @@ export default {
             url: 'https://aegee-academy.eu/request-a-training/',
             title: 'AEGEE-Academy',
             description: 'Request a trainer for your training events',
-            color: '#FFDB4C'
-          },
-          {
-            url: 'https://calendar.google.com/calendar/embed?src=powerhost.gr_uo2hj0qhr1493oqhpjel5v4lo8%40group.calendar.google.com&ctz=Europe%2FBrussels',
-            title: 'Calendar of CD',
-            description: 'Find out more about how the schedule of CD looks like',
             color: '#FFDB4C'
           },
           {
@@ -198,15 +180,9 @@ export default {
         ],
         'Useful guides': [
           {
-            url: 'https://drive.google.com/drive/folders/1FosqlM9zjSnpvAxZkOg0yoCW7swHdwM1',
+            url: 'https://myaegee.atlassian.net/wiki/spaces/KMS/pages/2238152708/Public+Relations',
             title: 'Visual Identity',
             description: 'Manual, logos, PR materials and more',
-            color: '#FF5543'
-          },
-          {
-            url: 'https://drive.google.com/drive/folders/1J9qCQP4Kbuol3Nutid3h04b-E-BM3QN5',
-            title: 'Internal Education',
-            description: 'LTC packages',
             color: '#FF5543'
           }
         ]

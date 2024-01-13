@@ -223,6 +223,12 @@
         "icon": "external-link-alt"
       },
       {
+        "name": "oms.kms",
+        "link": "/pages/kms",
+        "label": "KMS",
+        "icon": "book-reader"
+      },
+      {
         "name": "oms.helpdesk",
         "link": "https://myaegee.atlassian.net/servicedesk/customer/portals",
         "label": "Helpdesk",
