@@ -58,7 +58,8 @@
             <select v-model="season">
               <option value="2021">2021</option>
               <option value="2022">2022</option>
-              <option selected value="2023">2023</option>
+              <option value="2023">2023</option>
+              <option selected value="2024">2024</option>
             </select>
           </div>
           <p class="help is-danger" v-if="errors.season">{{ errors.season.join(', ') }}</p>
