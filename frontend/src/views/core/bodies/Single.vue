@@ -451,7 +451,7 @@ export default {
           this.permissions = permissionsResponse.data.data
           this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
           this.can.viewMembersGlobal = this.permissions.some(permission => permission.combined.endsWith('global:view:member'))
-          this.can.viewBoards = this.permissions.some(permission => permission.combined.endsWith('view:board'))
+          this.can.viewBoards = this.permissions.some(permission => permission.combined.endsWith('view:board')) && ['contact', 'contact antenna', 'antenna'].includes(this.body.type)
           this.can.viewJoinRequests = this.permissions.some(permission => permission.combined.endsWith('view:join_request'))
           this.can.viewCampaigns = this.permissions.some(permission => permission.combined.endsWith('view:campaign'))
           this.can.viewShadowCircles = this.permissions.some(permission => permission.combined.endsWith('view:shadow_circle'))

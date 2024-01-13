@@ -49,7 +49,7 @@
                 </div>
               </div>
 
-              <footer class="card-footer">
+              <footer class="card-footer" v-if="can.manageBoards">
                 <a @click="openChangeBoardModal(index)" :class="['button', 'is-fullwidth', 'is-info']">
                   <span class="field-label">Edit board</span>
                 </a>
@@ -76,7 +76,11 @@ export default {
   data () {
     return {
       boards: [],
-      isLoading: false
+      isLoading: false,
+      permissions: [],
+      can: {
+        manageBoards: false
+      }
     }
   },
   computed: {
@@ -104,8 +108,6 @@ export default {
       })
     },
     fetchData () {
-      this.isLoading = true
-
       // Get boards of the body
       this.axios.get(this.services['network'] + '/bodies/' + this.$route.params.id + '?sort=start_date&direction=desc').then((response) => {
         this.boards = response.data.data
@@ -129,8 +131,6 @@ export default {
             this.$set(position, 'user', users.find(user => user.id === position.user_id))
           }
         }
-
-        this.isLoading = false
       }).catch((err) => {
         if (err.response.status === 404) {
           return
@@ -140,7 +140,15 @@ export default {
     }
   },
   mounted () {
+    this.isLoading = true
     this.fetchData()
+
+    this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/my_permissions').then((permissionResponse) => {
+      this.permissions = permissionResponse.data.data
+      this.can.manageBoards = this.permissions.some(permission => permission.combined.endsWith('manage_network:boards'))
+    })
+
+    this.isLoading = false
   }
 }
 </script>
