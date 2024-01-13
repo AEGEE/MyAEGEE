@@ -1,3 +1,10 @@
+## [1.34.5](https://github.com/AEGEE/frontend/compare/1.34.4...1.34.5) (2024-01-13)
+
+
+### Bug Fixes
+
+* **boards:** hide button for deleted bodies if no permission ([#2010](https://github.com/AEGEE/frontend/issues/2010)) ([3167b81](https://github.com/AEGEE/frontend/commit/3167b814cba89fc65e2421790b97cb4a15e448a4))
+
 ## [1.34.4](https://github.com/AEGEE/frontend/compare/1.34.3...1.34.4) (2024-01-13)
 
 
