@@ -5,7 +5,7 @@ services:
             context: ./${PATH_SUMMERUNIVERSITY}/..
             dockerfile: ./docker/summeruniversity/Dockerfile
         image: aegee/summeruniversity:dev
-        command: sh -c "sh /usr/app/scripts/bootstrap.sh && nodemon -e 'js,json' lib/run.js | bunyan"
+        command: sh -c "sh /usr/app/scripts/bootstrap.sh && nodemon -L -e 'js,json' lib/run.js | bunyan"
         volumes:
             - ./${PATH_SUMMERUNIVERSITY}/../config:/usr/app/src/config
             - ./${PATH_SUMMERUNIVERSITY}/../lib:/usr/app/src/lib
