@@ -4,7 +4,7 @@
   "description": "Network module for MyAEGEE, for network history and network status.",
   "main": "lib/run.js",
   "scripts": {
-    "start": "nodemon -e 'js,json' lib/run.js",
+    "start": "nodemon -L -e 'js,json' lib/run.js",
     "nodemon-start": "nodemon -e 'js,json' lib/run.js",
     "lint": "eslint .",
     "lint-staged": "lint-staged",
