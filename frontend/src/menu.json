@@ -223,10 +223,10 @@
         "icon": "external-link-alt"
       },
       {
-        "name": "oms.kms",
-        "link": "/pages/kms",
+        "name": "oms.confluence",
         "label": "KMS",
-        "icon": "book-reader"
+        "icon": "book-reader",
+        "params": { "page_id": "kms" }
       },
       {
         "name": "oms.helpdesk",
