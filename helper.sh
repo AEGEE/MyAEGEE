@@ -188,6 +188,7 @@ function retry {
   done
 }
 
+# TODO: ignore this when using --no-vagrant in start.sh
 if [[ ! $HOSTNAME =~ ^appserver ]]; then
   echo "You're on $HOSTNAME, (the HOST) but you should be on 'appserver' (the GUEST). Exiting..."
   exit 1
