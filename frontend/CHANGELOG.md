@@ -1,3 +1,10 @@
+## [1.34.6](https://github.com/AEGEE/frontend/compare/1.34.5...1.34.6) (2024-01-20)
+
+
+### Bug Fixes
+
+* **boards:** only filter from local types ([#2011](https://github.com/AEGEE/frontend/issues/2011)) ([b207833](https://github.com/AEGEE/frontend/commit/b207833042bfc5ea5a8698667adecee48a56e65e))
+
 ## [1.34.5](https://github.com/AEGEE/frontend/compare/1.34.4...1.34.5) (2024-01-13)
 
 
