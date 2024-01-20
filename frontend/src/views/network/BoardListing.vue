@@ -103,14 +103,7 @@ export default {
       types: [
         { value: 'antenna', name: 'Antenna' },
         { value: 'contact antenna', name: 'Contact antenna' },
-        { value: 'contact', name: 'Contact' },
-        { value: 'interest group', name: 'Interest group' },
-        { value: 'working group', name: 'Working group' },
-        { value: 'commission', name: 'Commission' },
-        { value: 'committee', name: 'Committee' },
-        { value: 'project', name: 'Project' },
-        { value: 'partner', name: 'Partner' },
-        { value: 'other', name: 'Other' }
+        { value: 'contact', name: 'Contact' }
       ],
       isLoading: false,
       source: null,
