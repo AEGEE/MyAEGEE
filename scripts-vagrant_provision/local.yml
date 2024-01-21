@@ -1,6 +1,5 @@
 ---
 nodejs_version: "16.20.2"
-nodejs_version_output: "v{{ nodejs_version }}"
 npm_version: "9.6.4"
 
 python_version: "3.10.3"
