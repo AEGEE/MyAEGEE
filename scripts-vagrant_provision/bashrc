@@ -70,4 +70,6 @@ if command -v pyenv 1>/dev/null 2>&1; then
 fi
 
 #start session on the right folder for the job
-cd /vagrant
+cd /vagrant || echo "something's off"
+alias diagnostics="/vagrant/scripts-vagrant_provision/diagnostics.sh"
+diagnostics

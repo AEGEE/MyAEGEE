@@ -33,15 +33,16 @@ Vagrant.configure("2") do |config|
   ## Provisioning scripts ##
   #make it work also when windows messes up the line ending
   config.vm.provision "shell", inline: "apt-get install dos2unix -qq -y; cd /vagrant && dos2unix *.sh; dos2unix scripts-vagrant_provision/*.sh"
-  config.vm.provision "shell", privileged: false, path: "scripts-vagrant_provision/prerequisites.sh"
-
-  #install docker and docker-composer the easy way
-  config.vm.provision "shell", path: "scripts-vagrant_provision/install_docker.sh"
-  config.vm.provision "shell", path: "scripts-vagrant_provision/install_docker_compose.sh"
-  config.vm.provision "shell", path: "scripts-vagrant_provision/install_other_utils.sh"
 
   #nice-to-have prompt and completion
   config.vm.provision "shell", inline: "dos2unix /vagrant/scripts-vagrant_provision/bashrc; cat /vagrant/scripts-vagrant_provision/bashrc > /home/vagrant/.bashrc"
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "scripts-vagrant_provision/provision.yml"
+    ansible.compatibility_mode = "2.0"
+    ansible.extra_vars = "scripts-vagrant_provision/local.yml"
+    #ansible.tags = "docker"
+  end
 
   #provision docker orchestration (set to always run)
   config.vm.provision "shell", path: "scripts-vagrant_provision/orchestrate_docker.sh", run: "always"

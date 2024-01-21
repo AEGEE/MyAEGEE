@@ -52,6 +52,8 @@ else
   fi
   vagrant box list | grep "202303.13.0" -q || vagrant box add bento/ubuntu-18.04 --provider virtualbox --box-version "202303.13.0" -c
   vagrant plugin list | grep vbguest -q || vagrant plugin install vagrant-vbguest
+  ansible-galaxy role install -r scripts-vagrant_provision/requirements-ansible.yml
+  export ANSIBLE_NOCOWS=false
   vagrant up
 fi
 

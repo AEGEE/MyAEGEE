@@ -1,0 +1,175 @@
+# In order, vagrantfile goes:
+# DOS2UNIX (should probably stay)
+# install and run it
+# PREREQUISITES
+# installs curl, python stuff, python via pyenv, node via nvm, python global packages
+# creates folders
+# INSTALL DOCKER/COMPOSE/PIN
+# OTHER_UTILS
+# make jq net-tools vim sqlite3
+# BASHRC
+# ORCHESTRATE
+# set .env, start, fix frontend
+
+---
+
+- name: Prerequisites - folders
+  hosts: all
+  become: yes
+  tags: ['folders']
+
+  tasks:
+
+    - name: Set permissions of /opt
+      file:
+        dest: "/opt"
+        owner: vagrant
+        group: vagrant
+        mode: g=u
+        recurse: yes
+
+    - name: Create directories and set permissions
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: vagrant
+        group: vagrant
+        recurse: yes
+      loop:
+        - /opt/myaegee
+        - /opt/backups
+
+    - name: Check current Nodejs version
+      shell: node --version | tr -d 'v'
+      register: current_node_version
+      ignore_errors: yes
+
+    - name: Make sure there's no Node.js and npm
+      apt:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - node
+        - nodejs
+        - npm
+      when: current_node_version.stdout != nodejs_version
+
+- name: Install pyenv with better role but possibly with a deprecation inside
+  #TODO: pyenv role uses deprecated stuff?
+  hosts: all
+  tags: ['pyenv']
+
+  vars:
+    python_version: "3.10.3"
+
+  pre_tasks:
+    - name: Check current python version
+      shell: python --version | sed 's/Python //'
+      register: current_python_version
+      ignore_errors: yes
+
+  roles:
+    - role: avanov.pyenv
+      vars:
+        pyenv_path: "{{ ansible_env.HOME }}/.pyenv"
+        pyenv_python_versions: [ "{{ python_version }}" ]
+        pyenv_global: "{{ python_version }}"
+        pyenv_virtualenvs:
+          - venv_name: "notifications"
+            py_version: "{{ python_version }}"
+      when: current_python_version.stdout != python_version
+
+  # post_tasks:
+
+  #   - name: Install Python packages from requirements file
+  #     pip:
+  #       requirements: /vagrant/scripts-vagrant_provision/requirements.txt
+
+- name: Prerequisites - node/python itself
+  hosts: all
+  become: no #role asked so
+  tags: ['node']
+
+  vars:
+    nvm_commands:
+      - npm install -g npm@{{ npm_version }}
+
+  roles:
+    - role: morgangraphics.ansible_role_nvm
+      become: true
+      become_user: vagrant
+
+###
+- name: Install docker
+  hosts: all
+  become: true
+  tags: ['docker']
+
+  vars:
+    docker_packages:
+      - "docker-{{ docker_edition }}={{docker_ubuntu_version}}"
+      - "docker-{{ docker_edition }}-cli={{docker_ubuntu_version}}"
+      #- "docker-{{ docker_edition }}-rootless-extras={{docker_ubuntu_version}}"
+    docker_daemon_options:
+      log-driver: "json-file"
+      log-opts:
+        max-size: "10m"
+        max-file: "2"
+        labels: "host-{{ ansible_hostname }}"
+
+  roles:
+    - geerlingguy.docker
+
+###
+- name: Install last bunch of packages
+  hosts: all
+  become: true
+  tags: ['packages']
+
+  tasks:
+
+    - name: Install other required packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages_to_install }}"
+
+###
+- name: Create banners for connection
+  hosts: all
+  become: true
+  tags: ['motd']
+
+  tasks:
+      - name: Ensure a locale exists
+        locale_gen:
+          name: en_IE.UTF-8
+          state: present
+
+      - name: Creates banner before the big ubuntu messages
+        shell: echo {{ansible_hostname}} | cut -d'.' -f1 | sed 's/aegee//' | /usr/games/cowsay -f tux > /etc/ssh/sshd-banner
+        args:
+          creates: /etc/ssh/sshd-banner
+
+      - name: Creates banner after the big ubuntu messages (MOTD)
+        shell: echo "#!/bin/sh \nhostname | figlet -c" > /etc/update-motd.d/99-hostname-figlet && chmod +x /etc/update-motd.d/99-hostname-figlet
+        args:
+          creates: /etc/update-motd.d/99-hostname-figlet
+
+      - name: Remove useless parts of big ubuntu messages (MOTD)
+        file:
+          path: /etc/update-motd.d/10-help-text
+          mode: 'u-x,g-x,o-x'
+
+      - name: Remove other useless parts of big ubuntu messages (MOTD)
+        file:
+          path: /etc/update-motd.d/80-livepatch
+          mode: 'u-x,g-x,o-x'
+        ignore_errors: true
+
+      # The following is commented because it outputs bad versions
+      # becasue NVM/pyenv are not loaded (like in bashrc) and therefore it's kinda wrong
+      # - name: Creates banner with diagnostics somewhere
+      #   shell: sudo sh -c "cp /vagrant/scripts-vagrant_provision/diagnostics.sh /etc/update-motd.d/90-diagnostics-on-login"
+      #   args:
+      #     creates: /etc/update-motd.d/90-diagnostics-on-login
