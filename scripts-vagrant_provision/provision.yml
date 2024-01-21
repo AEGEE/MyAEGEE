@@ -55,7 +55,7 @@
       when: current_node_version.stdout != nodejs_version
 
 - name: Install pyenv with better role but possibly with a deprecation inside
-  #TODO: pyenv role uses deprecated stuff?
+  # TODO: pyenv role uses deprecated stuff?
   hosts: all
   tags: ['pyenv']
 
@@ -72,7 +72,7 @@
     - role: avanov.pyenv
       vars:
         pyenv_path: "{{ ansible_env.HOME }}/.pyenv"
-        pyenv_python_versions: [ "{{ python_version }}" ]
+        pyenv_python_versions: ["{{ python_version }}"]
         pyenv_global: "{{ python_version }}"
         pyenv_virtualenvs:
           - venv_name: "notifications"
@@ -87,7 +87,7 @@
 
 - name: Prerequisites - node/python itself
   hosts: all
-  become: no #role asked so
+  become: no  # role asked so
   tags: ['node']
 
   vars:
@@ -109,7 +109,7 @@
     docker_packages:
       - "docker-{{ docker_edition }}={{docker_ubuntu_version}}"
       - "docker-{{ docker_edition }}-cli={{docker_ubuntu_version}}"
-      #- "docker-{{ docker_edition }}-rootless-extras={{docker_ubuntu_version}}"
+      # - "docker-{{ docker_edition }}-rootless-extras={{docker_ubuntu_version}}"
     docker_daemon_options:
       log-driver: "json-file"
       log-opts:
@@ -141,35 +141,35 @@
   tags: ['motd']
 
   tasks:
-      - name: Ensure a locale exists
-        locale_gen:
-          name: en_IE.UTF-8
-          state: present
+    - name: Ensure a locale exists
+      locale_gen:
+        name: en_IE.UTF-8
+        state: present
 
-      - name: Creates banner before the big ubuntu messages
-        shell: echo {{ansible_hostname}} | cut -d'.' -f1 | sed 's/aegee//' | /usr/games/cowsay -f tux > /etc/ssh/sshd-banner
-        args:
-          creates: /etc/ssh/sshd-banner
+    - name: Creates banner before the big ubuntu messages
+      shell: echo {{ansible_hostname}} | cut -d'.' -f1 | sed 's/aegee//' | /usr/games/cowsay -f tux > /etc/ssh/sshd-banner
+      args:
+        creates: /etc/ssh/sshd-banner
 
-      - name: Creates banner after the big ubuntu messages (MOTD)
-        shell: echo "#!/bin/sh \nhostname | figlet -c" > /etc/update-motd.d/99-hostname-figlet && chmod +x /etc/update-motd.d/99-hostname-figlet
-        args:
-          creates: /etc/update-motd.d/99-hostname-figlet
+    - name: Creates banner after the big ubuntu messages (MOTD)
+      shell: echo "#!/bin/sh \nhostname | figlet -c" > /etc/update-motd.d/99-hostname-figlet && chmod +x /etc/update-motd.d/99-hostname-figlet
+      args:
+        creates: /etc/update-motd.d/99-hostname-figlet
 
-      - name: Remove useless parts of big ubuntu messages (MOTD)
-        file:
-          path: /etc/update-motd.d/10-help-text
-          mode: 'u-x,g-x,o-x'
+    - name: Remove useless parts of big ubuntu messages (MOTD)
+      file:
+        path: /etc/update-motd.d/10-help-text
+        mode: 'u-x,g-x,o-x'
 
-      - name: Remove other useless parts of big ubuntu messages (MOTD)
-        file:
-          path: /etc/update-motd.d/80-livepatch
-          mode: 'u-x,g-x,o-x'
-        ignore_errors: true
+    - name: Remove other useless parts of big ubuntu messages (MOTD)
+      file:
+        path: /etc/update-motd.d/80-livepatch
+        mode: 'u-x,g-x,o-x'
+      ignore_errors: true
 
-      # The following is commented because it outputs bad versions
-      # becasue NVM/pyenv are not loaded (like in bashrc) and therefore it's kinda wrong
-      # - name: Creates banner with diagnostics somewhere
-      #   shell: sudo sh -c "cp /vagrant/scripts-vagrant_provision/diagnostics.sh /etc/update-motd.d/90-diagnostics-on-login"
-      #   args:
-      #     creates: /etc/update-motd.d/90-diagnostics-on-login
+    # The following is commented because it outputs bad versions
+    # because NVM/pyenv are not loaded (like in bashrc) and therefore it's kinda wrong
+    # - name: Creates banner with diagnostics somewhere
+    #   shell: sudo sh -c "cp /vagrant/scripts-vagrant_provision/diagnostics.sh /etc/update-motd.d/90-diagnostics-on-login"
+    #   args:
+    #     creates: /etc/update-motd.d/90-diagnostics-on-login

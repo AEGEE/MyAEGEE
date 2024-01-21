@@ -9,4 +9,4 @@ docker_ubuntu_version: "5:{{ docker_version }}~3-0~ubuntu-bionic"
 docker_compose_version: "1.24.0"
 docker_users: ["vagrant"]
 
-packages_to_install: [ 'make', 'jq', 'net-tools', 'vim', 'sqlite3', 'cowsay', 'figlet']
+packages_to_install: ['make', 'jq', 'net-tools', 'vim', 'sqlite3', 'cowsay', 'figlet']
