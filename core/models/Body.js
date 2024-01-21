@@ -119,6 +119,14 @@ const Body = sequelize.define('body', {
             isEmail: { msg: 'GSuite ID must be a valid email.' }
         },
         unique: true
+    },
+    google_group: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        validate: {
+            isEmail: { msg: 'Google Group must be a valid email.' }
+        },
+        unique: true
     }
 }, {
     underscored: true,
@@ -132,6 +140,7 @@ Body.beforeValidate(async (body) => {
     if (typeof body.code === 'string') body.code = body.code.toUpperCase().trim();
     if (typeof body.email === 'string') body.email = body.email.toLowerCase().trim();
     if (typeof body.gsuite_id === 'string') body.gsuite_id = body.gsuite_id.toLowerCase().trim();
+    if (typeof body.google_group === 'string') body.google_group = body.google_group.toLowerCase().trim();
 
     if (typeof body.abbreviation === 'string') body.abbreviation = body.abbreviation.trim();
 });
