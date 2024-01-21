@@ -1,3 +1,10 @@
+# [1.37.0](https://github.com/AEGEE/core/compare/1.36.12...1.37.0) (2024-01-21)
+
+
+### Features
+
+* **body:** add google_group ([#867](https://github.com/AEGEE/core/issues/867)) ([6a2fea2](https://github.com/AEGEE/core/commit/6a2fea27b7518f44467081f09014a0dafd64ec12))
+
 ## [1.36.12](https://github.com/AEGEE/core/compare/1.36.11...1.36.12) (2023-09-22)
 
 
