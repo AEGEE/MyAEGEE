@@ -1,3 +1,10 @@
+# [1.38.0](https://github.com/AEGEE/core/compare/1.37.0...1.38.0) (2024-01-21)
+
+
+### Features
+
+* **member:** add subscribe to listserv ([#862](https://github.com/AEGEE/core/issues/862)) ([4de5d8b](https://github.com/AEGEE/core/commit/4de5d8b9799653f31ad6f13046c8836a6ca3a791))
+
 # [1.37.0](https://github.com/AEGEE/core/compare/1.36.12...1.37.0) (2024-01-21)
 
 
