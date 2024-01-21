@@ -4,7 +4,7 @@ npm_version: "9.6.4"
 
 python_version: "3.10.3"
 
-docker_version: "19.03.1"
+docker_version: "19.03.5"
 docker_ubuntu_version: "5:{{ docker_version }}~3-0~ubuntu-bionic"
 docker_compose_version: "1.24.0"
 docker_users: ["vagrant"]
