@@ -2,6 +2,7 @@
 
 ALMOST_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 DIR="${ALMOST_DIR}/.."
+# shellcheck disable=SC2046
 export $(grep -v '^#' "${DIR}/.env" | xargs -d '\n')
 
 summary_images ()
@@ -11,6 +12,8 @@ summary_images ()
     # shellcheck disable=SC2206
     services=( ${service_string//:/ } )
     for s in "${services[@]}"; do
+      # shellcheck disable=SC2076
+      # shellcheck disable=SC2199
       if [[ " ${own_services[@]} " =~ " ${s} " ]]; then
         if [[ -f "${DIR}/${s}/docker/Dockerfile" ]]; then
             echo "${s}: $(head -n2 "${DIR}/${s}/docker/Dockerfile")"
