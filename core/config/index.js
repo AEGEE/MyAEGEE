@@ -14,6 +14,9 @@ const config = {
             url: 'http://mailer',
             port: 4000
         },
+        listserv_email: [
+            process.env.LISTSERV_EMAIL || 'listserv@example.com'
+        ],
         logger: {
             silent: false,
             level: process.env.LOGLEVEL || 'info'

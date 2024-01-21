@@ -2,6 +2,7 @@ const moment = require('moment');
 const _ = require('lodash');
 
 const { User, Body, MailChange, MailConfirmation } = require('../models');
+const config = require('../config');
 const constants = require('../lib/constants');
 const helpers = require('../lib/helpers');
 const errors = require('../lib/errors');
@@ -296,5 +297,43 @@ exports.confirmEmailChange = async (req, res) => {
     return res.json({
         success: true,
         message: 'Mail was changed successfully.'
+    });
+};
+
+exports.subscribeListserv = async (req, res) => {
+    if (!req.permissions.hasPermission('global:subscribe:listserv') && req.user.id !== req.currentUser.id) {
+        return errors.makeForbiddenError(res, 'Permission update:member is required, but not present.');
+    }
+
+    if (!req.body.mailinglists) {
+        return errors.makeBadRequestError(res, 'No mailinglists are provided.');
+    }
+
+    if (!Array.isArray(req.body.mailinglists)) {
+        return errors.makeBadRequestError(res, 'Mailinglists must be an array of strings.');
+    }
+
+    if (req.body.mailinglists.length === 0) {
+        return errors.makeValidationError(res, 'Mailinglists must not be empty.');
+    }
+
+    const mailinglists = req.body.mailinglists.map((list) => list.toUpperCase());
+
+    await mailer.sendMail({
+        to: config.listserv_email,
+        from: req.user.notification_email,
+        subject: `SUBSCRIBE ${req.user.notification_email}`,
+        template: 'custom.html',
+        parameters: {
+            body: helpers.getMailText({
+                user: req.user,
+                mailinglists
+            })
+        }
+    });
+
+    return res.json({
+        success: true,
+        message: `Request for subscribing to ${mailinglists.join(', ')} has been sent.`
     });
 };

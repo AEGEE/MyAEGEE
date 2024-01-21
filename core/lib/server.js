@@ -98,6 +98,7 @@ MemberRouter.post('/confirm', members.confirmUser);
 MemberRouter.put('/primary-body', members.setPrimaryBody);
 MemberRouter.put('/email', members.triggerEmailChange);
 MemberRouter.put('/password', members.setUserPassword);
+MemberRouter.post('/listserv', members.subscribeListserv);
 MemberRouter.get('/', members.getUser);
 MemberRouter.put('/', members.updateUser);
 MemberRouter.delete('/', members.deleteUser);

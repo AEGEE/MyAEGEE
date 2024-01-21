@@ -30,6 +30,7 @@ services:
             HOST: "${SUBDOMAIN_FRONTEND}${BASE_URL}"
             CORE_LOGIN: "${CORE_LOGIN}"
             CORE_PASSWORD: "${CORE_PASSWORD}"
+            LISTSERV_EMAIL: "${LISTSERV_EMAIL}"
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:8084/healthcheck"]
             interval: 30s
