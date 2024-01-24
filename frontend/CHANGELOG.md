@@ -1,3 +1,10 @@
+# [1.35.0](https://github.com/AEGEE/frontend/compare/1.34.6...1.35.0) (2024-01-24)
+
+
+### Features
+
+* **statutory:** add ability to subscribe to mailinglist when applying to event ([#2014](https://github.com/AEGEE/frontend/issues/2014)) ([716b889](https://github.com/AEGEE/frontend/commit/716b889403aba71ee490fe9fddace9028f1d8001))
+
 ## [1.34.6](https://github.com/AEGEE/frontend/compare/1.34.5...1.34.6) (2024-01-20)
 
 
