@@ -269,6 +269,32 @@
                 </div>
               </div>
 
+              <div class="subtitle is-fullwidth has-text-centered" v-show="isOwn">Mailing Lists</div>
+              <hr v-show="isOwn" />
+
+              <div v-show="isOwn">
+                <div class="field is-fullwidth" v-for="(mailinglist, index) in mailinglists" v-bind:key="index">
+                  <div class="control">
+                    <input
+                      class="checkbox"
+                      type="checkbox"
+                      v-model="subscription[mailinglist.name]" />
+                    <label>
+                      Subscribe to <b>{{ mailinglist.name }}</b>; {{ mailinglist.description }}
+                    </label>
+                  </div>
+                </div>
+
+                <div class="tile is-parent">
+                  <div class="notification is-info">
+                    <div class="content">
+                      <p v-show="this.selectedMailinglists.length > 0">If the request was successful, you will get an email at {{ this.loginUser.notification_email }} to confirm your subscription.</p>
+                      <p>For more information about the mailing lists, <router-link :to="{ name: 'oms.confluence', params: { page_id: 'mailing-lists' } }" target='_blank'>click here</router-link> (opens in new tab).</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div class="field">
                 <button type="submit" class="button is-primary">
                   Save application!
@@ -372,6 +398,18 @@ export default {
         number_of_events_visited: 0
       },
       nationalities,
+      mailinglists: [
+        { name: 'ANNOUNCE-L', description: 'Announcement and news for AEGEE members: most important announcements from the Comité Directeur, Open calls for European level positions and announcements about the statutory events of AEGEE. Is moderated by the Comité Directeur.' },
+        { name: 'AEGEE-L', description: 'Discussion mailing list: place for any discussion. It is not a moderated mailing list, you can discuss as frequently as you would like.' },
+        { name: 'AEGEE-EVENT-L', description: 'Event announcements. For each new event in MyAEGEE or the Quarantine calendar a notification is sent over AEGEE-EVENT-L. There can be more emails.' },
+        { name: 'AEGEENEWS-L', description: 'Biweekly AEGEE newsletter' }
+      ],
+      subscription: {
+        'ANNOUNCE-L': false,
+        'AEGEE-L': false,
+        'AEGEE-EVENT-L': false,
+        'AEGEEENEWS-L': false
+      },
       can: {
         apply: false
       },
@@ -393,7 +431,16 @@ export default {
         : this.axios.put(this.services['statutory'] + '/events/' + this.$route.params.id + '/applications/' + this.$route.params.application_id, this.application)
 
       promise.then((application) => {
-        this.$root.showSuccess('Application is saved.')
+        if (this.selectedMailinglists.length > 0) {
+          this.axios.post(this.services['core'] + '/members/' + this.loginUser.id + '/listserv', { mailinglists: this.selectedMailinglists }).then(() => {
+            this.$root.showSuccess('Application is saved. Check your email to confirm your subscription to the mailing lists.')
+          })
+            .catch((err) => {
+              this.$root.showWarning('Application is saved, but subscribing to mailing lists failed.', err)
+            })
+        } else {
+          this.$root.showSuccess('Application is saved.')
+        }
 
         return this.$router.push({
           name: 'oms.statutory.applications.view',
@@ -459,6 +506,12 @@ export default {
     }),
     isNew () {
       return !this.$route.params.application_id
+    },
+    isOwn () {
+      return this.isNew || this.loginUser.id === this.application.user_id
+    },
+    selectedMailinglists () {
+      return Object.keys(this.subscription).filter(value => this.subscription[value] === true)
     }
   },
   watch: {
