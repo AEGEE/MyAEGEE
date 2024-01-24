@@ -1,3 +1,10 @@
+## [1.35.2](https://github.com/AEGEE/frontend/compare/1.35.1...1.35.2) (2024-01-24)
+
+
+### Bug Fixes
+
+* **core:** rename to Google Workspace and edit body gsuite_id and google_group ([#2024](https://github.com/AEGEE/frontend/issues/2024)) ([0e70580](https://github.com/AEGEE/frontend/commit/0e70580c2e0c5f3a49c686eac3240bcee2e71e8d))
+
 ## [1.35.1](https://github.com/AEGEE/frontend/compare/1.35.0...1.35.1) (2024-01-24)
 
 
