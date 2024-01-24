@@ -62,7 +62,7 @@ nuke_dev:   #docker-compose down -v #TODO if needed: make this nuke take into ac
 	./helper.sh --nuke
 
 diagnostics:
-	./helper.sh --diagnostics
+	/vagrant/scripts-vagrant_provision/diagnostics.sh
 
 # Cleanup
 clean_docker_dangling_images:
