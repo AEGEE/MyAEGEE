@@ -1,3 +1,10 @@
+## [1.35.3](https://github.com/AEGEE/frontend/compare/1.35.2...1.35.3) (2024-01-24)
+
+
+### Bug Fixes
+
+* **statutory:** remove canSeeBooklet ([#2026](https://github.com/AEGEE/frontend/issues/2026)) ([1ddf32b](https://github.com/AEGEE/frontend/commit/1ddf32b07f0497258d03665007118a470aff70f0))
+
 ## [1.35.2](https://github.com/AEGEE/frontend/compare/1.35.1...1.35.2) (2024-01-24)
 
 
