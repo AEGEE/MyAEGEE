@@ -1,5 +1,6 @@
 const moment = require('moment');
 const _ = require('lodash');
+const request = require('request-promise-native');
 
 const { User, Body, MailChange, MailConfirmation } = require('../models');
 const config = require('../config');
@@ -319,18 +320,25 @@ exports.subscribeListserv = async (req, res) => {
 
     const mailinglists = req.body.mailinglists.map((list) => list.toUpperCase());
 
-    await mailer.sendMail({
-        to: config.listserv_email,
-        from: req.user.notification_email,
-        subject: `SUBSCRIBE ${req.user.notification_email}`,
-        template: 'custom.html',
-        parameters: {
-            body: helpers.getMailText({
-                user: req.user,
-                mailinglists
-            })
-        }
-    });
+    if (mailinglists.some((list) => !constants.LISTSERV_LISTS.includes(list))) {
+        return errors.makeValidationError(res, `Mailinglists must be one of the following: ${constants.LISTSERV_LISTS.join(', ')}.`);
+    }
+
+    try {
+        await request({
+            url: config.listserv_endpoint,
+            method: 'POST',
+            simple: false,
+            form: {
+                token: config.listserv_token,
+                email: req.user.notification_email,
+                name: `${req.user.first_name} ${req.user.last_name}`,
+                lists: mailinglists.join(','),
+            }
+        });
+    } catch (err) {
+        return errors.makeInternalError(res, err);
+    }
 
     return res.json({
         success: true,

@@ -187,7 +187,7 @@ function getRandomBytes(length) {
 function getMailText({ user, mailinglists }) {
     return `OK BEGIN
 REG ${user.first_name} ${user.last_name}
-SUBSCRIBE ${mailinglists.join('\nSUBSCRIBE ')}
+SUBSCRIBE ${mailinglists.join('\r\nSUBSCRIBE ')}
 OK END`;
 }
 

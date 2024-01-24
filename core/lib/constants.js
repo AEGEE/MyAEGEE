@@ -92,5 +92,6 @@ module.exports = {
         NEW_JOIN_REQUEST: 'MyAEGEE: New join request for your body',
         NEW_MEMBER: 'MyAEGEE: Welcome to AEGEE'
     },
-    RESTRICTED_EMAILS: ['aegee.org', 'aegee.eu']
+    RESTRICTED_EMAILS: ['aegee.org', 'aegee.eu'],
+    LISTSERV_LISTS: ['AEGEE-L', 'AEGEENEWS-L', 'ANNOUNCE-L', 'AEGEE-EVENT-L']
 };
