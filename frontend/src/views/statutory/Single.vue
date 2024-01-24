@@ -183,7 +183,7 @@
                     <div class="content" v-html="$options.filters.markdown(event.description)" />
                   </td>
                 </tr>
-                <tr v-if="event.booklet_folder && canSeeBooklet">
+                <tr v-if="event.booklet_folder">
                   <th>KMS page</th>
                   <td><a :href="event.booklet_folder" target="_blank" rel="noopener noreferrer">{{ event.booklet_folder }}</a></td>
                 </tr>
@@ -460,9 +460,6 @@ export default {
     },
     duringAgora () {
       return this.event.type === 'agora' && moment().isBetween(this.event.starts, this.event.ends, null, '[]')
-    },
-    canSeeBooklet () {
-      return this.event.type !== 'agora'
     }
   }
 }
