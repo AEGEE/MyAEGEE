@@ -1,3 +1,10 @@
+## [1.38.1](https://github.com/AEGEE/core/compare/1.38.0...1.38.1) (2024-01-24)
+
+
+### Bug Fixes
+
+* **members:** update listserv to temp rest endpoint ([#868](https://github.com/AEGEE/core/issues/868)) ([80f1545](https://github.com/AEGEE/core/commit/80f1545931d05499113808aee543636c03e82f73))
+
 # [1.38.0](https://github.com/AEGEE/core/compare/1.37.0...1.38.0) (2024-01-21)
 
 
