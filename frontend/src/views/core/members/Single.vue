@@ -132,7 +132,7 @@
                   <td><a :href="'mailto:' + user.email" data-cy="notification_email">{{ user.notification_email }}</a></td>
                 </tr>
                 <tr>
-                  <th>GSuite account</th>
+                  <th>Google Workspace account</th>
                   <td v-if="user.gsuite_id"><a :href="'mailto:' + user.gsuite_id" data-cy="gsuite">{{ user.gsuite_id }}</a></td>
                   <td v-if="!user.gsuite_id"><i>Not set.</i></td>
                 </tr>

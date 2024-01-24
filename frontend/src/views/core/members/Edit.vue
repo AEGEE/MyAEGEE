@@ -27,9 +27,9 @@
         </div>
 
         <div class="field">
-          <label class="label">GSuite account</label>
+          <label class="label">Google Workspace account</label>
           <div class="control">
-            <input class="input" data-cy="gsuite_id" type="email" required :disabled="!can.editGsuite" v-model="user.gsuite_id" placeholder="Type your GSuite account..." />
+            <input class="input" data-cy="gsuite_id" type="email" required :disabled="!can.editGsuite" v-model="user.gsuite_id" placeholder="Type the Google Workspace email of the user" />
           </div>
           <p class="help is-danger" v-if="errors.gsuite_id">{{ errors.gsuite_id.join(', ')}}</p>
         </div>

@@ -120,8 +120,8 @@
             <a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/confluence.svg" alt="Confluence" />
             </a>
-            <a href="https://gsuite.google.com/" target="_blank" rel="noopener noreferrer">
-              <img src="/images/partners-logos/gsuite.svg" alt="GSuite" />
+            <a href="https://workspace.google.com/" target="_blank" rel="noopener noreferrer">
+              <img src="/images/partners-logos/gsuite.svg" alt="Google Workspace" />
             </a>
             <a href="https://www.elastic.co/" target="_blank" rel="noopener noreferrer">
               <img src="/images/partners-logos/elastic.svg" alt="Elastic" />
@@ -171,7 +171,7 @@
 
               <tr>
                 <td><a href="https://github.com/AEGEE/gsuite-wrapper">gsuite-wrapper</a></td>
-                <td>Integrates GSuite with MyAEGEE.</td>
+                <td>Integrates Google Workspace (formerly GSuite) with MyAEGEE.</td>
               </tr>
             </tbody>
           </table>

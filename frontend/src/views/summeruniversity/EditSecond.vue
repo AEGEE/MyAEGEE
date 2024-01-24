@@ -419,7 +419,7 @@
               You can take the templates for the budget and programme here.
             </a></p>
             <p><i>
-              Note: in case you cannot see AEGEE templates at the link above, try switching to AEGEE GSuite account.
+              Note: in case you cannot see AEGEE templates at the link above, try switching to AEGEE Google Workspace account.
               In case you don't have one,
               <a href="https://oms-project.atlassian.net/wiki/spaces/HEL/pages/248348673/Requesting+a+Gsuite+account+for+yourself" target="blank">
                 here's how to request it
