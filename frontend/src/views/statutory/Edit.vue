@@ -102,7 +102,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Link to booklet folder <URLTooltip /></label>
+          <label class="label">Link to KMS page <URLTooltip /></label>
           <div class="control">
             <input class="input" type="url" v-model="event.booklet_folder" />
           </div>
@@ -241,7 +241,7 @@
         </div>
 
         <div class="field" v-if="event.type === 'agora'">
-          <label class="label">Booklet publication deadline <span class="has-text-danger">*</span></label>
+          <label class="label">Documents publication deadline <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
               placeholder="Select date"
@@ -254,7 +254,7 @@
         </div>
 
         <div class="field" v-if="event.type === 'agora'">
-          <label class="label">Updated booklet publication deadline <span class="has-text-danger">*</span></label>
+          <label class="label">Updated documents publication deadline <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
               placeholder="Select date"
@@ -702,13 +702,13 @@ export default {
       }
 
       if (this.event.type === 'agora' && !this.event.booklet_publication_deadline) {
-        return this.$root.showError('Please set the booklet publication deadline.')
+        return this.$root.showError('Please set the documents publication deadline.')
       } if (this.event.type !== 'agora') {
         this.event.booklet_publication_deadline = null
       }
 
       if (this.event.type === 'agora' && !this.event.updated_booklet_publication_deadline) {
-        return this.$root.showError('Please set the updated booklet publication deadline.')
+        return this.$root.showError('Please set the updated documents publication deadline.')
       } if (this.event.type !== 'agora') {
         this.event.updated_booklet_publication_deadline = null
       }
@@ -783,7 +783,7 @@ export default {
         .toDate()
       this.dates.booklet_publication_deadline = moment(this.dates.starts).subtract(2, 'week').endOf('day').second(0)
         .toDate()
-      this.dates.updated_booklet_publication_deadline = moment(this.dates.starts).subtract(1, 'week').endOf('day').second(0)
+      this.dates.updated_booklet_publication_deadline = moment(this.dates.starts).subtract(5, 'days').endOf('day').second(0)
         .toDate()
     },
     'dates.ends': function (newDate) {

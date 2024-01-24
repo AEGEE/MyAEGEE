@@ -184,7 +184,7 @@
                   </td>
                 </tr>
                 <tr v-if="event.booklet_folder && canSeeBooklet">
-                  <th>Booklet</th>
+                  <th>KMS page</th>
                   <td><a :href="event.booklet_folder" target="_blank" rel="noopener noreferrer">{{ event.booklet_folder }}</a></td>
                 </tr>
                 <tr>
@@ -275,11 +275,11 @@
                   <td colspan="2">{{ event.candidature_deadline | datetime }}</td>
                 </tr>
                 <tr v-if="event.type === 'agora'">
-                  <th>Booklet publication</th>
+                  <th>Documents publication</th>
                   <td colspan="2">{{ event.booklet_publication_deadline | datetime }}</td>
                 </tr>
                 <tr v-if="event.type === 'agora'">
-                  <th>Updated booklet publication</th>
+                  <th>Updated documents publication</th>
                   <td colspan="2">{{ event.updated_booklet_publication_deadline | datetime }}</td>
                 </tr>
               </tbody>
@@ -462,7 +462,7 @@ export default {
       return this.event.type === 'agora' && moment().isBetween(this.event.starts, this.event.ends, null, '[]')
     },
     canSeeBooklet () {
-      return this.event.type !== 'agora' || moment().isAfter(this.event.booklet_publication_deadline) || this.can.edit_event
+      return this.event.type !== 'agora'
     }
   }
 }
