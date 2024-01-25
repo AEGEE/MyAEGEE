@@ -155,8 +155,8 @@ function retry {
   done
 }
 
-WANTEDNAME=$(head -n1 Vagrantfile | grep -oP 'machine_name = "\K[^"]+' | awk -F'.' '{print $1}')
-HOST=$(hostname)
+WANTEDNAME=$(head -n1 Vagrantfile | grep -oP 'machine_name = "\K[^"]+' )
+HOST=$(hostname -f)
 # TODO: ignore this when using --no-vagrant in start.sh
 if [[ ! ${HOST} =~ ^${WANTEDNAME} ]]; then
   echo "You're on ${HOST}, (the HOST) but you should be on '${WANTEDNAME}' (the GUEST). Exiting..."
