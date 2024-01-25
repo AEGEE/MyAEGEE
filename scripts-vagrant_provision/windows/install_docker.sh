@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DOCKERVERSION="19.03.1"
+DOCKERVERSION="19.03.5"
 
 sudo dpkg -l | grep docker && { echo "[Vagrant] ###################     Docker already installed, exiting"; exit; }
 

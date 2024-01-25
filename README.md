@@ -70,24 +70,22 @@ git clone --recursive https://github.com/AEGEE/MyAEGEE.git
 cd MyAEGEE
 ```
 **URL MAPPING for Windows:**
-As a helper in the windows case, you have the script "`run_as_win_administrator.bat`" (not very advanced).
-1. You have to right-click it and click "run as administrator".
-2. It will tell you the line to copy (on another terminal that will open) and open the file you need to edit in notepad.
-3. 	A) (Vagrant case) Paste the content at the last line of the file
+As a helper in the windows case, you have the script "`run_as_win_administrator.bat`" (not very advanced). When you open it, it will tell you what to do, which is written below. To open it:
+1. To open it you have to right-click it and click "run as administrator".
+2. It will open the file you need to edit in notepad, AND open a different terminal window that will tell you the line to copy (which you can find below).
+3. Paste the content at the last line of the file
 	```192.168.168.168 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```
-    B) (Docker case) Paste the content at the last line of the file
-	```127.0.0.1 appserver.test my.appserver.test traefik.appserver.test portainer.appserver.test pgadmin.appserver.test```
-4. Save, and exit.
+4. Delete the file called `Vagrantfile` and rename `Vagrantfile.windows` into `Vagrantfile`
+5. Save, and exit.
 
 For any troubleshoot, see [Advanced URL mapping and troubleshoot](#advanced-url-mapping-and-troubleshoot).
 
 Once set up the mapping, you can continue the installation:
 ```
-vagrant plugin install vagrant-vbguest
 vagrant up
 ```
 
-You will have to wait for up to 20 minutes. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [Usage section](#accessing-it).
+You will have to wait for up to 25 minutes. A message appears when the bootstrap completes, and you can check if it works in the ways described in the [Usage section](#accessing-it).
 
 
 ## Advanced URL mapping and troubleshoot

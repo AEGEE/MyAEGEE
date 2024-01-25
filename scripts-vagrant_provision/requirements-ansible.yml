@@ -1,0 +1,7 @@
+---
+- name: geerlingguy.docker
+  version: '6.1.0'
+- name: morgangraphics.ansible_role_nvm
+  version: 'v2.0.0'
+- name: avanov.pyenv
+  version: '1.1.0'
