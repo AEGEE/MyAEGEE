@@ -9,6 +9,7 @@ echo "192.168.168.168 appserver.test my.appserver.test traefik.appserver.test po
 notepad "C:\Windows\system32\drivers\etc\hosts"
 echo ""
 echo ""
+vagrant plugin install vagrant-vbguest
 echo "Delete the Vagrantfile, and rename Vagrantfile.windows to Vagrantfile"
 pause
 echo "now run 'vagrant up' in the folder you downloaded"
