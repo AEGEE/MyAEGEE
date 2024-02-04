@@ -36,7 +36,11 @@
         <div class="notification is-info" v-if="!$route.params.id">
           <div class="content">
             <!-- <p>If you want to upload a logo, please add it after creating the event by going to "Edit event" and uploading it there.</p> -->
-            <p>If you have any questions, please refer to the <a href="https://www.projects.aegee.org/suct/su2021/booklets.php" target="_blank" rel="noopener noreferrer">booklets</a> first.</p>
+            <p>If you have any questions, please refer to the <a href="https://drive.google.com/drive/folders/1D2OB5gGmyAScf-ITFK1URJ8ZuIZlWCbX" target="_blank" rel="noopener noreferrer">booklets</a> first.</p>
+            <p><i>You need a AEGEE Google Workspace account to be able to see the booklets. In case you don't have one,
+              <a href="https://oms-project.atlassian.net/wiki/spaces/HEL/pages/248348673/Requesting+a+Gsuite+account+for+yourself" target="blank">
+                here's how to request it
+              </a>.</i></p>
             <p><strong>Once the event is saved, you are only able to edit some information.</strong> So please check everything twice.</p>
             <p>If you will need the event info to be changed after saving, please contact <a href="mailto:suct@aegee.eu">SUCT</a>.</p>
           </div>
