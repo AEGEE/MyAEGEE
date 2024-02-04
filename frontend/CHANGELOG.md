@@ -1,3 +1,10 @@
+## [1.35.4](https://github.com/AEGEE/frontend/compare/1.35.3...1.35.4) (2024-02-04)
+
+
+### Bug Fixes
+
+* **su:** update booklet link ([#2043](https://github.com/AEGEE/frontend/issues/2043)) ([daa8dc1](https://github.com/AEGEE/frontend/commit/daa8dc1e441f890bbbe75310262cee11a5710b80))
+
 ## [1.35.3](https://github.com/AEGEE/frontend/compare/1.35.2...1.35.3) (2024-01-24)
 
 
