@@ -1,3 +1,10 @@
+## [1.35.5](https://github.com/AEGEE/frontend/compare/1.35.4...1.35.5) (2024-02-06)
+
+
+### Bug Fixes
+
+* **statutory:** add warning when fee is 0 ([#2045](https://github.com/AEGEE/frontend/issues/2045)) ([cb2d868](https://github.com/AEGEE/frontend/commit/cb2d8681c5dbff943bc332fbb51af4b8e386671e))
+
 ## [1.35.4](https://github.com/AEGEE/frontend/compare/1.35.3...1.35.4) (2024-02-04)
 
 
