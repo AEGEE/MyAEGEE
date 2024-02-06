@@ -52,7 +52,7 @@
             <div class="control">
               <button
                 class="button is-warning"
-                @click="saveMembersList()"
+                @click="checkMemberslist()"
                 :disabled="isLoading">
                 Save!
               </button>
@@ -238,6 +238,20 @@ export default {
         this.isLoading = false
         this.$root.showError('Some error happened', err)
       })
+    },
+    checkMemberslist () {
+      if (this.memberslist.members.every(member => member.fee === 0)) {
+        this.$buefy.dialog.confirm({
+          title: 'No fee set',
+          message: 'You submitted that your members have paid a fee of €0 to your local, is that correct?',
+          confirmText: 'Confirm',
+          type: 'is-warning',
+          hasIcon: true,
+          onConfirm: () => this.saveMembersList()
+        })
+      } else {
+        this.saveMembersList()
+      }
     },
     saveMembersList () {
       if (!this.memberslist.currency) {
