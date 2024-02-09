@@ -1,3 +1,10 @@
+## [1.4.18](https://github.com/AEGEE/summeruniversity/compare/1.4.17...1.4.18) (2024-02-09)
+
+
+### Bug Fixes
+
+* **event:** add new theme categories ([#675](https://github.com/AEGEE/summeruniversity/issues/675)) ([a378e24](https://github.com/AEGEE/summeruniversity/commit/a378e24dda5ef785a1b7e225a4a39615bc5117e1))
+
 ## [1.4.17](https://github.com/AEGEE/summeruniversity/compare/1.4.16...1.4.17) (2024-01-13)
 
 
