@@ -22,7 +22,9 @@ const constants = {
     political_activism: 'Political Activism',
     social_equity: 'Social Equity',
     sports: 'Sports',
-    leisure: 'Leisure'
+    leisure: 'Leisure',
+    personal_development: 'Personal Development',
+    volunteering: 'Volunteering'
   },
   SUMMERUNIVERSITY_ROLES: {
     main_coordinator: 'Main coordinator',
