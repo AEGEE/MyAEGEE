@@ -1,3 +1,10 @@
+## [1.35.6](https://github.com/AEGEE/frontend/compare/1.35.5...1.35.6) (2024-02-09)
+
+
+### Bug Fixes
+
+* **su:** add new theme categories ([#2047](https://github.com/AEGEE/frontend/issues/2047)) ([3c3ea8c](https://github.com/AEGEE/frontend/commit/3c3ea8c5423a119e95fcc79e8cd6d122801c3128))
+
 ## [1.35.5](https://github.com/AEGEE/frontend/compare/1.35.4...1.35.5) (2024-02-06)
 
 
