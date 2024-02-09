@@ -274,14 +274,14 @@ const Event = sequelize.define(
             }
         },
         theme_category: {
-            type: Sequelize.ENUM('arts_creativity', 'sustainability', 'local_culture', 'sports', 'social_equity', 'political_activism', 'mental_health', 'leisure'),
+            type: Sequelize.ENUM('arts_creativity', 'sustainability', 'local_culture', 'sports', 'social_equity', 'political_activism', 'mental_health', 'leisure', 'personal_development', 'volunteering'),
             allowNull: false,
             defaultValue: 'leisure',
             validate: {
                 notEmpty: { msg: 'Theme should be set.' },
                 isIn: {
-                    args: [['arts_creativity', 'sustainability', 'local_culture', 'sports', 'social_equity', 'political_activism', 'mental_health', 'leisure']],
-                    msg: 'Theme should be one of these: arts_creativity, sustainability, local_culture, sports, volunteering, social_equity, political_activism, mental_health, leisure.'
+                    args: [['arts_creativity', 'sustainability', 'local_culture', 'sports', 'social_equity', 'political_activism', 'mental_health', 'leisure', 'personal_development', 'volunteering']],
+                    msg: 'Theme should be one of these: arts_creativity, sustainability, local_culture, sports, volunteering, social_equity, political_activism, mental_health, leisure, personal_development, volunteering.'
                 }
             }
         },
