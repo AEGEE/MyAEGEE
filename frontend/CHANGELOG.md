@@ -1,3 +1,10 @@
+## [1.35.8](https://github.com/AEGEE/frontend/compare/1.35.7...1.35.8) (2024-02-20)
+
+
+### Bug Fixes
+
+* removed unnecessary paddings in the mobile breakpoint ([#2049](https://github.com/AEGEE/frontend/issues/2049)) ([79011d3](https://github.com/AEGEE/frontend/commit/79011d31bb9c279c5f231f8c7fe69a5277085946))
+
 ## [1.35.7](https://github.com/AEGEE/frontend/compare/1.35.6...1.35.7) (2024-02-20)
 
 
