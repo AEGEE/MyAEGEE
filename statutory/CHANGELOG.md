@@ -1,3 +1,10 @@
+## [1.11.3](https://github.com/AEGEE/statutory/compare/1.11.2...1.11.3) (2024-02-20)
+
+
+### Bug Fixes
+
+* **memberlists:** add special permissions for different views ([#1165](https://github.com/AEGEE/statutory/issues/1165)) ([1bac5f4](https://github.com/AEGEE/statutory/commit/1bac5f42965527d4b11370aa22487f99d438c439))
+
 ## [1.11.2](https://github.com/AEGEE/statutory/compare/1.11.1...1.11.2) (2023-07-05)
 
 
