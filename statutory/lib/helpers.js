@@ -342,6 +342,12 @@ exports.getEventPermissions = (data) => {
     permissions.see_memberslist = {
         global: hasPermission(corePermissions, 'global:see_memberslists:' + event.type)
     };
+    permissions.see_missing_memberslist = {
+        global: hasPermission(corePermissions, 'global:see_missing_memberslists:' + event.type)
+    };
+    permissions.see_memberslist_without_fee = {
+        global: hasPermission(corePermissions, 'global:see_memberslists_without_fee:' + event.type)
+    };
 
     permissions.set_memberslists_fee_paid = hasPermission(corePermissions, 'global:set_memberslists_fee_paid:' + event.type);
 

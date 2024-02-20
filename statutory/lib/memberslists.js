@@ -51,8 +51,8 @@ exports.getMemberslist = async (req, res) => {
 };
 
 exports.getMissingMemberslists = async (req, res) => {
-    if (!req.permissions.see_memberslist.global) {
-        return errors.makeForbiddenError(res, 'You are not allowed to see memberslists.');
+    if (!req.permissions.see_missing_memberslist.global) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see missing memberslists.');
     }
 
     const memberslists = await MembersList.findAll({ where: { event_id: req.event.id } });
@@ -70,8 +70,8 @@ exports.getMissingMemberslists = async (req, res) => {
 };
 
 exports.getMemberslistsWithoutFee = async (req, res) => {
-    if (!req.permissions.see_memberslist.global) {
-        return errors.makeForbiddenError(res, 'You are not allowed to see memberslists.');
+    if (!req.permissions.see_memberslist_without_fee.global) {
+        return errors.makeForbiddenError(res, 'You are not allowed to see memberslists without fee.');
     }
 
     const memberslists = await MembersList.findAll({ where: { event_id: req.event.id } });
