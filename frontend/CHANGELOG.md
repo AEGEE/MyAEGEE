@@ -1,3 +1,10 @@
+## [1.35.7](https://github.com/AEGEE/frontend/compare/1.35.6...1.35.7) (2024-02-20)
+
+
+### Bug Fixes
+
+* **statutory:** add special permissions for memberslist views ([#2058](https://github.com/AEGEE/frontend/issues/2058)) ([ce84a7e](https://github.com/AEGEE/frontend/commit/ce84a7eb4a1dac717c00e1844c14b69e7115a61b))
+
 ## [1.35.6](https://github.com/AEGEE/frontend/compare/1.35.5...1.35.6) (2024-02-09)
 
 
