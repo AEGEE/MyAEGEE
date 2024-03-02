@@ -4,11 +4,13 @@
 
 #check how to bootstrap
 novagrant=false
+nossl=true
 fast=false
 reset=false
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --no-vagrant) novagrant=true; shift ;;
+        --with-ssl) nossl=false; shift ;;
         --fast) fast=true; shift ;;
         --reset) reset=true; shift ;;
 
@@ -35,10 +37,30 @@ fi
 
 if [ ! -f "${DIR}"/.env ]; then #check if it exists, if not take the example
     cp "${DIR}"/.env.example "${DIR}"/.env
+    # TODO replace the base url with vagrant top line,
+    # OR generate vagrant based on that?
 fi
 
 #shellcheck disable=SC2046
 export $(grep -v '^#' ${DIR}/.env | xargs -d '\n')
+
+check_mkcert() {
+
+  if type mkcert >/dev/null 2>&1; then
+    if [[ ! -f "${DIR}/secrets/_wildcard.${BASE_URL}.pem" ]]; then
+      mkcert -install
+      mkcert "*.${BASE_URL}"
+      mv ./*.pem secrets/
+      echo '[Start script] ##### created cert files'
+    else
+      echo '[Start script] ##### cert files already good!'
+    fi
+  else
+    echo "You don't have mkcert, check how to install it on github.com/filosottile/mkcert"
+  fi
+
+  #TODO: pilot traefik to use this etc (either here or helper.sh)
+}
 
 #run accordingly
 if ( $novagrant ); then
@@ -47,6 +69,9 @@ if ( $novagrant ); then
   make bootstrap
 else
   check_etc_hosts "192.168.168.168" "${BASE_URL}"
+  if ( ! $nossl ); then
+    check_mkcert
+  fi
   if ( $fast ); then
     sed -i 's/development/production/' .env
   fi
