@@ -4,9 +4,6 @@
 [submodule "statutory"]
 	path = statutory
 	url = https://github.com/AEGEE/statutory
-[submodule "mailer"]
-	path = mailer
-	url = https://github.com/AEGEE/mailer
 [submodule "gateways/docker/portal/files"]
 	path = gateways/docker/portal/files
 	url = https://github.com/AEGEE/AEGEEPortal
