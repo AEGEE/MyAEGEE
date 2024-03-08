@@ -1,9 +1,6 @@
 [submodule "summeruniversity"]
 	path = summeruniversity
 	url = https://github.com/AEGEE/summeruniversity
-[submodule "statutory"]
-	path = statutory
-	url = https://github.com/AEGEE/statutory
 [submodule "gateways/docker/portal/files"]
 	path = gateways/docker/portal/files
 	url = https://github.com/AEGEE/AEGEEPortal
