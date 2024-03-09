@@ -1,3 +1,10 @@
+## [1.35.11](https://github.com/AEGEE/frontend/compare/1.35.10...1.35.11) (2024-03-09)
+
+
+### Bug Fixes
+
+* increase the mapbox popup width ([#2077](https://github.com/AEGEE/frontend/issues/2077)) ([b1b9d44](https://github.com/AEGEE/frontend/commit/b1b9d44f6934f235e8fa53996b9c47a8a7677410))
+
 ## [1.35.10](https://github.com/AEGEE/frontend/compare/1.35.9...1.35.10) (2024-03-09)
 
 
