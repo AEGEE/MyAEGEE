@@ -103,6 +103,7 @@ export default {
           start: new Date(event.starts),
           end: new Date(event.ends),
           backgroundColor: this.colors[event.type] || '#1468C5',
+          borderColor: '#FFFFFF',
           textColor: '#FFFFFF',
           url: '/events/' + (event.url || event.id),
           description: event.description
@@ -117,7 +118,8 @@ export default {
           title: event.name,
           start: new Date(event.starts),
           end: new Date(event.ends),
-          backgroundColor: this.colors[event.type] || '#00BBD8',
+          backgroundColor: '#00BBD8',
+          borderColor: '#FFFFFF',
           textColor: '#FFFFFF',
           url: '/summeruniversity/' + (event.url || event.id),
           description: event.description
@@ -133,6 +135,7 @@ export default {
           start: new Date(event.starts),
           end: new Date(event.ends),
           backgroundColor: '#1468C5',
+          borderColor: '#FFFFFF',
           textColor: '#FFFFFF',
           url: '/statutory/' + (event.url || event.id),
           description: event.description
@@ -151,6 +154,7 @@ export default {
           start: new Date(event.start),
           end: new Date(event.end),
           backgroundColor: '#898989',
+          borderColor: '#FFFFFF',
           textColor: '#FFFFFF',
           description: event.description
         }))
