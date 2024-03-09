@@ -1,6 +1,9 @@
 <template>
   <div class="tile is-ancestor ">
     <div class="tile is-child">
+      <span class="notification is-info" v-if="$route.params.candidate_id">
+        To withdraw your candidature, you should send an email to the <a href="mailto:juridical@aegee.eu">Juridical Commission</a>.
+      </span>
       <form @submit.prevent="saveCandidate()">
         <div class="field">
           <label class="label">Body <span class="has-text-danger">*</span></label>
