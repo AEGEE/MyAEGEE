@@ -230,7 +230,7 @@ export default {
         { name: 'First name', get: (pax) => pax.first_name },
         { name: 'Last name', get: (pax) => pax.last_name },
         { name: 'Gender', get: (pax) => pax.gender },
-        { name: 'Email', get: (pax) => pax.email },
+        { name: 'Email', get: (pax) => pax.notification_email },
         { name: 'Created at', get: (pax) => pax.created_at },
         { name: 'Updated at', get: (pax) => pax.updated_at },
         { name: 'Participant type', get: (pax) => (pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '') },
@@ -255,7 +255,7 @@ export default {
 
       const lowercaseQuery = this.query.toLowerCase()
 
-      return filterCancelled.filter(app => ['first_name', 'last_name', 'email'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
+      return filterCancelled.filter(app => ['first_name', 'last_name', 'notification_email'].some(field => app[field].toLowerCase().includes(lowercaseQuery)))
     },
     canEditSelectedBody () {
       return this.can.set_board_comment_and_participant_type.global

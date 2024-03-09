@@ -27,10 +27,10 @@
         </div>
 
         <div class="field">
-          <label class="label">Search by name or description</label>
+          <label class="label">Search by name or surname</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
+              <input class="input" type="text" v-model="query" placeholder="Search by name or surname" />
             </div>
             <div class="control">
               <button class="button is-primary" v-if="!displayCancelled" @click="displayCancelled = true">Display all applications</button>
@@ -78,19 +78,20 @@
               v-for="(field, index) in fields"
               :visible="selectedFields.some(sField => sField.name === field.name)"
               v-bind:key="index"
-              field="answers[index]"
+              :field="field.column"
               class="has-text-pre-wrap"
+              sortable
               :label="field.name">{{ field.get(props.row) | beautify }}</b-table-column>
 
-            <b-table-column field="cancelled" label="Cancelled?" centered :visible="displayCancelled">
+            <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled">
               {{ props.row.cancelled | beautify }}
             </b-table-column>
 
-            <b-table-column field="confirmed" label="Confirmed?" centered>
+            <b-table-column field="confirmed" label="Confirmed?" centered sortable>
               {{ props.row.confirmed | beautify }}
             </b-table-column>
 
-            <b-table-column field="attended" label="Attended?" centered>
+            <b-table-column field="attended" label="Attended?" centered sortable>
               {{ props.row.attended | beautify }}
             </b-table-column>
 
@@ -147,30 +148,30 @@ export default {
         { name: 'Last name', get: (pax) => pax.last_name }
       ],
       fields: [
-        { name: 'First name', get: (pax) => pax.first_name },
-        { name: 'Last name', get: (pax) => pax.last_name },
-        { name: 'Gender', get: (pax) => pax.gender },
-        { name: 'Nationality', get: (pax) => pax.nationality },
-        { name: 'Date of birth', get: (pax) => pax.date_of_birth },
-        { name: 'Email', get: (pax) => pax.email },
-        { name: 'Meals', get: (pax) => pax.meals },
-        { name: 'Allergies', get: (pax) => pax.allergies },
-        { name: 'Number of events visited', get: (pax) => pax.number_of_events_visited },
-        { name: 'Visa required?', get: (pax) => pax.visa_required },
-        { name: 'Visa passport number', get: (pax) => pax.visa_passport_number },
-        { name: 'Visa passport issue date', get: (pax) => pax.visa_passport_issue_date },
-        { name: 'Visa passport expiration date', get: (pax) => pax.visa_passport_expiration_date },
-        { name: 'Visa passport issue authority', get: (pax) => pax.visa_passport_issue_authority },
-        { name: 'Place of birth', get: (pax) => pax.visa_place_of_birth },
-        { name: 'Embassy', get: (pax) => pax.visa_embassy },
-        { name: 'Street and house number', get: (pax) => pax.visa_street_and_house },
-        { name: 'Postal code', get: (pax) => pax.visa_postal_code },
-        { name: 'City', get: (pax) => pax.visa_city },
-        { name: 'Country', get: (pax) => pax.visa_country },
-        { name: 'Created at', get: (pax) => pax.created_at },
-        { name: 'Updated at', get: (pax) => pax.updated_at },
-        { name: 'Participant type', get: (pax) => (pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '') },
-        { name: 'Board comment', get: (pax) => pax.board_comment }
+        { name: 'First name', column: 'first_name', get: (pax) => pax.first_name },
+        { name: 'Last name', column: 'last_name', get: (pax) => pax.last_name },
+        { name: 'Gender', column: 'gender', get: (pax) => pax.gender },
+        { name: 'Nationality', column: 'nationality', get: (pax) => pax.nationality },
+        { name: 'Date of birth', column: 'date_of_birth', get: (pax) => pax.date_of_birth },
+        { name: 'Email', column: 'notification_email', get: (pax) => pax.notification_email },
+        { name: 'Meals', column: 'meals', get: (pax) => pax.meals },
+        { name: 'Allergies', column: 'allergies', get: (pax) => pax.allergies },
+        { name: 'Number of events visited', column: 'number_of_events_visited', get: (pax) => pax.number_of_events_visited },
+        { name: 'Visa required?', column: 'visa_required', get: (pax) => pax.visa_required },
+        { name: 'Visa passport number', column: 'visa_passport_number', get: (pax) => pax.visa_passport_number },
+        { name: 'Visa passport issue date', column: 'visa_passport_issue_date', get: (pax) => pax.visa_passport_issue_date },
+        { name: 'Visa passport expiration date', column: 'visa_passport_expiration_date', get: (pax) => pax.visa_passport_expiration_date },
+        { name: 'Visa passport issue authority', column: 'visa_passport_issue_authority', get: (pax) => pax.visa_passport_issue_authority },
+        { name: 'Place of birth', column: 'visa_place_of_birth', get: (pax) => pax.visa_place_of_birth },
+        { name: 'Embassy', column: 'visa_embassy', get: (pax) => pax.visa_embassy },
+        { name: 'Street and house number', column: 'visa_street_and_house', get: (pax) => pax.visa_street_and_house },
+        { name: 'Postal code', column: 'visa_postal_code', get: (pax) => pax.visa_postal_code },
+        { name: 'City', column: 'visa_city', get: (pax) => pax.visa_city },
+        { name: 'Country', column: 'visa_country', get: (pax) => pax.visa_country },
+        { name: 'Created at', column: 'created_at', get: (pax) => pax.created_at },
+        { name: 'Updated at', column: 'updated_at', get: (pax) => pax.updated_at },
+        { name: 'Participant type', column: 'participant_type', get: (pax) => (pax.participant_type ? `${pax.participant_type} (${pax.participant_order})` : '') },
+        { name: 'Board comment', column: 'board_comment', get: (pax) => pax.board_comment }
       ],
       displayCancelled: false,
       isLoading: false,

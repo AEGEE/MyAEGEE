@@ -33,7 +33,7 @@
             </b-table-column>
 
             <b-table-column label="View">
-              <a href="#" @click.prevent="showModal(props.row)">View</a>
+              <a href="#" @click.prevent="showModal(props.row.id)">View</a>
             </b-table-column>
 
             <b-table-column label="Manage status" field="status" centered sortable>
@@ -158,18 +158,20 @@ export default {
         this.$root.showError('Could not update participant fee info', err)
       })
     },
-    showModal (participant) {
-      this.$buefy.modal.open({
-        component: ViewParticipantModal,
-        hasModalCard: true,
-        props: {
+    showModal (participantId) {
+      this.axios.get(this.services['events'] + '/single/' + this.event.id + '/applications/' + participantId).then((response) => {
+        this.$buefy.modal.open({
+          component: ViewParticipantModal,
+          hasModalCard: true,
+          props: {
           // When programmatically opening a modal, it doesn't have access to Vue instance
           // and therefore store, services and notifications functions. That's why
           // I'm passing them as props.
           // More info: https://github.com/buefy/buefy/issues/55
-          event: this.event,
-          participant
-        }
+            event: this.event,
+            participant: response.data.data
+          }
+        })
       })
     }
   },

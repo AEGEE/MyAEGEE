@@ -63,7 +63,7 @@
                 </tr>
                 <tr>
                   <th>Email</th>
-                  <td>{{ application.email }}</td>
+                  <td>{{ application.notification_email }}</td>
                 </tr>
                 <tr>
                   <th>Nationality</th>

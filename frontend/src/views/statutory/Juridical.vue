@@ -57,11 +57,11 @@
               {{ props.row.body_name }}
             </b-table-column>
 
-            <b-table-column field="participant_type" label="Participant type and order" centered>
+            <b-table-column field="participant_type" label="Participant type and order" centered sortable>
               {{ props.row.participant_type && `${props.row.participant_type} (${props.row.participant_order})` }}
             </b-table-column>
 
-            <b-table-column field="confirmed" label="Confirmed" centered>
+            <b-table-column field="confirmed" label="Confirmed" centered sortable>
               {{ props.row.confirmed | beautify }}
             </b-table-column>
 

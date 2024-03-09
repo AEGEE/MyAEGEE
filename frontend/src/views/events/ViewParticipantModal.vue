@@ -23,7 +23,7 @@
 
         <tr>
           <td><b>Email</b></td>
-          <td>{{ participant.email }}</td>
+          <td>{{ participant.notification_email }}</td>
         </tr>
 
         <tr>

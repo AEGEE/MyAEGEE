@@ -43,18 +43,18 @@
             </b-table-column>
 
             <b-table-column field="email" label="Email" centered sortable>
-              {{ props.row.email }}
+              {{ props.row.notification_email }}
             </b-table-column>
 
             <b-table-column field="body_name" label="Body" centered sortable>
               {{ props.row.body_name }}
             </b-table-column>
 
-            <b-table-column field="meals" label="Meals" centered>
+            <b-table-column field="meals" label="Meals" centered sortable>
               {{ props.row.meals }}
             </b-table-column>
 
-            <b-table-column field="allergies" label="Allergies" centered>
+            <b-table-column field="allergies" label="Allergies" centered sortable>
               {{ props.row.allergies }}
             </b-table-column>
 
