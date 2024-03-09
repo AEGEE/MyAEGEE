@@ -15,8 +15,8 @@ services:
         # cpu_count: 1
         # mem_limit: 900m
         labels:
-          - "traefik.http.routers.frontend.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`)"
-          - "traefik.http.routers.frontend.tls=true"
+            - "traefik.http.routers.frontend.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`)"
+            - "traefik.http.routers.frontend.tls=true"
 
 networks:
     default:
