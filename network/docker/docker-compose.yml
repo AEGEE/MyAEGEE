@@ -11,6 +11,9 @@ services:
         environment:
             POSTGRES_USER: "postgres"
             POSTGRES_PASSWORD: "${PW_POSTGRES}"
+        labels:
+            # we don't access via traefik
+            - "traefik.enable=false"
 
     network:
         restart: always
@@ -36,14 +39,16 @@ services:
         # cpu_count: 1
         # mem_limit: 900m
         labels:
-            - "traefik.backend=network"
-            - "traefik.port=8084"
-            - "traefik.auth.frontend.rule=PathPrefix:/api/network/metrics;PathPrefixStrip:/api/network;"
-            - "traefik.new.frontend.rule=PathPrefixStrip:/api/network;"
-            - "traefik.auth.frontend.auth.basic.users=admin:${METRICS_CREDENTIALS}"
-            - "traefik.new.frontend.priority=110"
-            - "traefik.auth.frontend.priority=120"
-            - "traefik.enable=true"
+            - "traefik.http.routers.network.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/network`)"
+            - "traefik.http.routers.network.tls=true"
+
+            - "traefik.http.routers.network.middlewares=network-stripprefix"
+            - "traefik.http.middlewares.network-stripprefix.stripprefix.prefixes=/api/network"
+
+            - "traefik.http.routers.metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/network/metrics`)"
+            - "traefik.http.routers.metrics.middlewares=network-stripprefix, metricsauthnetwork"
+
+            - "traefik.http.middlewares.metricsauthnetwork.basicauth.users=admin:${METRICS_CREDENTIALS}"
 
 volumes:
     postgres-network:

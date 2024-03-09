@@ -6,34 +6,64 @@ services:
 ### Proxy container #######################################
 
   traefik:
-    image: traefik:v1.7.4-alpine
+    image: traefik:v2.10.3
     restart: always
-    command: --web.metrics.prometheus
     ports:
       - 80:80
       - 443:443
+      - 8080:8080
     healthcheck:
-      test: ["CMD", "traefik", "healthcheck"]
-      interval: 30s
+      test: wget --quiet --tries=1 --spider http://localhost:8080 || exit 1
+      interval: 10s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 10s
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       # below: we have to mount it to preserve it on the host, so no secrets
       - ./secrets/acme.json:/etc/acme.json
-      - ./${PATH_GATEWAYS}/traefik/traefik.toml:/etc/traefik/traefik.toml
+      - ./secrets/certs:/certs
+      - ./${PATH_GATEWAYS}/traefik/cors.yml:/etc/traefik/cors.yml
       - ./${PATH_GATEWAYS}/traefik/logs:/var/log/traefik/
+      # only for dev, but we keep it in this file for now
+      - ./${PATH_GATEWAYS}/traefik/dynamic_conf_mkcert.yml:/etc/traefik/dynamic_conf_mkcert.yml
       # - shared_logs:/var/log/traefik/
 #        networks:
 #          - management
+    command:
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.entrypoint=metrics"
+      - "--log.level=INFO"
+
+      - "--providers.docker=true"
+      - "--providers.docker.swarmMode=false"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=tension"
+
+      #for prometheus, http, https
+      - "--entrypoints.metrics.address=:8082"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls=true"
+
+      #for CORS
+      - "--providers.file.filename=/etc/traefik/cors.yml"
+
+      # Use the following line to configure Traefik to use the manually provided certificates
+      # only for dev, but we keep it in this file for now
+      - "--providers.file.filename=/etc/traefik/dynamic_conf_mkcert.yml"
+
     labels:
-      - traefik.enable=true
-      - traefik.backend=traefik
-      - traefik.port=8080
-      - traefik.frontend.rule=Host:${SUBDOMAIN_TRAEFIK}${BASE_URL}
-      - traefik.frontend.priority=20
-      - traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}
+      - "traefik.http.routers.api.rule=Host(`${SUBDOMAIN_TRAEFIK}${BASE_URL}`)"
+      - "traefik.http.routers.api.service=api@internal"
+      - "traefik.http.routers.api.middlewares=traefikauth"
+      - "traefik.http.middlewares.traefikauth.basicauth.users=admin:${PW_TRAEFIK}"
+      - "traefik.http.routers.api.tls=true"
+
 # volumes:
 #    shared_logs:
 #        driver: "local"

@@ -16,11 +16,8 @@ services:
     volumes:
       - upload:/app/upload
     labels:
-      - "traefik.enable=true"
-      - "traefik.backend=survey"
-      - "traefik.port=80"
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_SURVEY}${BASE_URL}"
-      - "traefik.frontend.priority=20"
+      - "traefik.http.routers.survey.rule=Host(`${SUBDOMAIN_SURVEY}${BASE_URL}`)"
+      - "traefik.http.routers.survey.tls=true"
 
   postgres-limesurvey:
     restart: always
@@ -32,6 +29,9 @@ services:
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "${PW_POSTGRES}"
+    labels:
+      # we don't access via traefik
+      - "traefik.enable=false"
 
 volumes:
   postgres-limesurvey:
