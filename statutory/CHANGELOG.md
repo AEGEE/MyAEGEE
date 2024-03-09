@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/AEGEE/statutory/compare/1.11.3...1.12.0) (2024-03-09)
+
+
+### Features
+
+* use fetched notification_email instead of stored email ([#1164](https://github.com/AEGEE/statutory/issues/1164)) ([9c5d0cc](https://github.com/AEGEE/statutory/commit/9c5d0cc65ac1ebe62312207e4f8697a0654a6855))
+
 ## [1.11.3](https://github.com/AEGEE/statutory/compare/1.11.2...1.11.3) (2024-02-20)
 
 
