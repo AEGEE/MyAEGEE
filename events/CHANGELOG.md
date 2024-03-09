@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/AEGEE/events/compare/1.4.0...1.4.1) (2024-03-09)
+
+
+### Bug Fixes
+
+* **application:** use notification_email ([#1087](https://github.com/AEGEE/events/issues/1087)) ([eba2167](https://github.com/AEGEE/events/commit/eba2167ba992543ffc5b4ccd38dba612ff7c314e))
+
 # [1.4.0](https://github.com/AEGEE/events/compare/1.3.13...1.4.0) (2023-07-10)
 
 
