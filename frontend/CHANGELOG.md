@@ -1,3 +1,10 @@
+## [1.35.12](https://github.com/AEGEE/frontend/compare/1.35.11...1.35.12) (2024-03-09)
+
+
+### Bug Fixes
+
+* **statutory:** add information on how to withdraw your application ([#2069](https://github.com/AEGEE/frontend/issues/2069)) ([152d14e](https://github.com/AEGEE/frontend/commit/152d14e80f3018aa05b70fbbb697c6b4b7bf9394))
+
 ## [1.35.11](https://github.com/AEGEE/frontend/compare/1.35.10...1.35.11) (2024-03-09)
 
 
