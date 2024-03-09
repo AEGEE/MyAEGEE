@@ -1,3 +1,10 @@
+## [1.35.9](https://github.com/AEGEE/frontend/compare/1.35.8...1.35.9) (2024-03-09)
+
+
+### Bug Fixes
+
+* use notification_email in event modules ([#2057](https://github.com/AEGEE/frontend/issues/2057)) ([e4e788c](https://github.com/AEGEE/frontend/commit/e4e788c1c44dc8e79be68f3f534286d2088fde45))
+
 ## [1.35.8](https://github.com/AEGEE/frontend/compare/1.35.7...1.35.8) (2024-02-20)
 
 
