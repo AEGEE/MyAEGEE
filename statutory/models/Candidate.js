@@ -53,12 +53,7 @@ const Candidate = sequelize.define('candidate', {
     },
     email: {
         type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: '',
-        validate: {
-            notEmpty: { msg: 'Email should be set.' },
-            isEmail: { msg: 'Email should be valid.' }
-        }
+        allowNull: true
     },
     date_of_birth: {
         type: Sequelize.STRING,

@@ -20,6 +20,15 @@ exports.listAllApplications = async (req, res) => {
         query: req.query
     });
 
+    applications.rows = await Promise.all(applications.rows
+        .map(async (application) => {
+            const user = await core.fetchApplicationUser(application.user_id);
+
+            application.dataValues.notification_email = user.notification_email;
+
+            return application;
+        }));
+
     return res.json({
         success: true,
         data: applications.rows,
@@ -39,6 +48,15 @@ exports.listIncomingApplications = async (req, res) => {
         attributes: constants.ALLOWED_INCOMING_FIELDS,
         query: req.query
     });
+
+    applications.rows = await Promise.all(applications.rows
+        .map(async (application) => {
+            const user = await core.fetchApplicationUser(application.user_id);
+
+            application.dataValues.notification_email = user.notification_email;
+
+            return application;
+        }));
 
     return res.json({
         success: true,
@@ -190,9 +208,18 @@ exports.listBoardView = async (req, res) => {
     }
 
     // 'zzzzz' is used to be last, 'unset' won't do
-    const applications = await Application.findAll({
+    let applications = await Application.findAll({
         where: { event_id: req.event.id, body_id: parseInt(req.params.body_id, 10) },
     });
+
+    applications = await Promise.all(applications
+        .map(async (application) => {
+            const user = await core.fetchApplicationUser(application.user_id);
+
+            application.dataValues.notification_email = user.notification_email;
+
+            return application;
+        }));
 
     const sortedApplications = applications.sort((a, b) => {
         // first, comparing by participant type
@@ -257,7 +284,6 @@ exports.updateApplication = async (req, res) => {
     req.body.first_name = user.first_name;
     req.body.last_name = user.last_name;
     req.body.gender = user.gender;
-    req.body.email = user.email;
     req.body.date_of_birth = user.date_of_birth;
     if (req.body.body_id) {
         // Shouldn't crash, if the person is not a member of a body,
@@ -616,7 +642,6 @@ exports.postApplication = async (req, res) => {
     req.body.first_name = req.user.first_name;
     req.body.last_name = req.user.last_name;
     req.body.gender = req.user.gender;
-    req.body.email = req.user.email;
     req.body.body_name = req.user.bodies.find((b) => req.body.body_id === b.id).name;
     req.body.date_of_birth = req.user.date_of_birth;
 
@@ -698,10 +723,11 @@ exports.exportOpenslides = async (req, res) => {
         'Email'
     ];
 
-    // Returns a CSV string
-    const exportString = headers.map(wrap).join(',') + '\n' + applications.map((application) => {
+    const applicationsString = await Promise.all(applications.map(async (application) => {
         // Generating random pw for a user.
         const password = crypto.randomBytes(5).toString('hex');
+
+        const user = await core.fetchApplicationUser(application.user_id);
 
         return [
             '', // Title
@@ -715,9 +741,12 @@ exports.exportOpenslides = async (req, res) => {
             1, // Is present
             0, // Is committee
             password,
-            application.email // User email, currently not fetched from the system.
+            user.notification_email
         ].map(wrap).join(',');
-    }).filter((line) => line.length > 0).join('\n');
+    }));
+
+    // Returns a CSV string
+    const exportString = headers.map(wrap).join(',') + '\n' + applicationsString.filter((line) => line.length > 0).join('\n');
 
     res.setHeader('Content-type', 'text/csv');
     res.setHeader('Content-disposition', 'attachment; filename=openslides.csv');
@@ -759,7 +788,16 @@ exports.exportAll = async (req, res) => {
     const headersNames = helpers.getApplicationFields(req.event);
     const headers = req.query.select.map((field) => headersNames[field]);
 
-    const applications = await Application.findAll({ where: { event_id: req.event.id, ...applicationsFilter } });
+    let applications = await Application.findAll({ where: { event_id: req.event.id, ...applicationsFilter } });
+
+    applications = await Promise.all(applications
+        .map(async (application) => {
+            const user = await core.fetchApplicationUser(application.user_id);
+
+            application.dataValues.notification_email = user.notification_email;
+
+            return application;
+        }));
 
     const resultArray = applications
         .map((application) => application.toJSON())
@@ -802,7 +840,7 @@ exports.exportDelegatesJc = async (req, res) => {
 
         return [
             application.statutory_id,
-            user.email,
+            user.notification_email,
             application.first_name,
             application.last_name,
             body.code,

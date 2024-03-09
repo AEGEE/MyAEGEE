@@ -149,7 +149,44 @@ const getBodyUsersForPermission = async (permission, bodyId) => {
     return membersResponse.data;
 };
 
+const fetchApplicationUser = async (user) => {
+    // Getting access and refresh token.
+    const authRequest = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/login',
+        method: 'POST',
+        body: {
+            username: config.core.user.login,
+            password: config.core.user.password
+        }
+    });
+
+    if (typeof authRequest !== 'object') {
+        throw new Error('Malformed response when fetching auth request: ' + authRequest);
+    }
+
+    if (!authRequest.success) {
+        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
+    }
+
+    // Fetching user
+    const userResponse = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/members/' + user,
+        token: authRequest.access_token,
+    });
+
+    if (typeof userResponse !== 'object') {
+        throw new Error('Malformed response when fetching user: ' + userResponse);
+    }
+
+    if (!userResponse.success) {
+        throw new Error('Error fetching user: ' + JSON.stringify(userResponse));
+    }
+
+    return userResponse.data;
+};
+
 module.exports = {
+    fetchApplicationUser,
     getMember,
     getMails,
     getBody,

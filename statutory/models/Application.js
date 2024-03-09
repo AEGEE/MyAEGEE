@@ -248,13 +248,8 @@ const Application = sequelize.define('application', {
         }
     },
     email: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            notEmpty: { msg: 'Email should be set.' },
-            isEmail: { msg: 'Email should be valid.' }
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     gender: {
         allowNull: false,
@@ -447,12 +442,13 @@ Application.findWithParams = ({ where, attributes, query }) => {
     }
 
     // Trying to apply filtering.
-    // Only filtering by first name, last name and email is supported.
+    // Only filtering by first name, last name is supported. Email should be added again later, but fetched from the notification emails of the applied users
     if (query.query) {
         findAllObject.where[Sequelize.Op.or] = {
             first_name: { [Sequelize.Op.iLike]: '%' + query.query + '%' },
             last_name: { [Sequelize.Op.iLike]: '%' + query.query + '%' },
-            email: { [Sequelize.Op.iLike]: '%' + query.query + '%' }
+            // TODO: this should be searching through the emails in the database and the notification emails of the users that have applied
+            // email: { [Sequelize.Op.iLike]: '%' + query.query + '%' }
         };
     }
 

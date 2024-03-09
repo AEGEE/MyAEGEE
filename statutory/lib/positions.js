@@ -1,5 +1,6 @@
 const xlsx = require('node-xlsx').default;
 
+const core = require('./core');
 const errors = require('./errors');
 const { Position, Candidate, Image } = require('../models');
 const helpers = require('./helpers');
@@ -46,7 +47,7 @@ exports.listPositionsWithAllCandidates = async (req, res) => {
         return errors.makeForbiddenError(res, 'You cannot manage positions.');
     }
 
-    const positions = await Position.findAll({
+    let positions = await Position.findAll({
         where: { event_id: req.event.id, deleted: false },
         order: [
             ['created_at', 'ASC'],
@@ -57,6 +58,18 @@ exports.listPositionsWithAllCandidates = async (req, res) => {
             include: Image
         }]
     });
+
+    positions = await Promise.all(positions.map(async (position) => {
+        position.candidates = await Promise.all(position.candidates
+            .map(async (candidate) => {
+                const user = await core.fetchApplicationUser(candidate.user_id);
+
+                candidate.dataValues.notification_email = user.notification_email;
+
+                return candidate;
+            }));
+        return position;
+    }));
 
     return res.json({
         success: true,
@@ -65,7 +78,7 @@ exports.listPositionsWithAllCandidates = async (req, res) => {
 };
 
 exports.listPositionsWithApprovedCandidates = async (req, res) => {
-    const positions = await Position.findAll({
+    let positions = await Position.findAll({
         where: { event_id: req.event.id, deleted: false },
         order: [
             ['created_at', 'ASC'],
@@ -76,6 +89,18 @@ exports.listPositionsWithApprovedCandidates = async (req, res) => {
             include: Image
         }]
     });
+
+    positions = await Promise.all(positions.map(async (position) => {
+        position.candidates = await Promise.all(position.candidates
+            .map(async (candidate) => {
+                const user = await core.fetchApplicationUser(candidate.user_id);
+
+                candidate.dataValues.notification_email = user.notification_email;
+
+                return candidate;
+            }));
+        return position;
+    }));
 
     // Only returning these candidatures which are approved.
     // For those pending (rejected would be filtered out),
@@ -89,7 +114,7 @@ exports.listPositionsWithApprovedCandidates = async (req, res) => {
             .filter((candidate) => candidate.status !== 'rejected')
             .map((candidate) => {
                 if (candidate.status === 'approved') {
-                    return helpers.blacklistObject(candidate.toJSON(), ['email']); // the email should be visible to JC only
+                    return helpers.blacklistObject(candidate.toJSON(), ['email', 'notification_email']); // the email should be visible to JC only
                 }
 
                 return helpers.whitelistObject(candidate.toJSON(), constants.ALLOWED_PENDING_CANDIDATE_FIELDS);
@@ -187,7 +212,7 @@ exports.exportAll = async (req, res) => {
     const headersNames = constants.CANDIDATE_FIELDS;
     const headers = req.query.select.map((field) => headersNames[field]);
 
-    const applications = await Candidate.findAll({
+    let applications = await Candidate.findAll({
         where: {
             '$position.event_id$': req.event.id,
             ...applicationsFilter,
@@ -197,6 +222,15 @@ exports.exportAll = async (req, res) => {
             model: Position, select: ['name', 'id', 'deleted']
         }]
     });
+
+    applications = await Promise.all(applications
+        .map(async (application) => {
+            const user = await core.fetchApplicationUser(application.user_id);
+
+            application.dataValues.notification_email = user.notification_email;
+
+            return application;
+        }));
 
     const resultArray = applications
         .map((application) => application.toJSON())

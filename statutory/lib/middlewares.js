@@ -177,6 +177,10 @@ exports.fetchSingleApplication = async (req, res, next) => {
         return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.');
     }
 
+    const user = await core.fetchApplicationUser(application.user_id);
+
+    application.dataValues.notification_email = user.notification_email;
+
     req.application = application;
 
     req.permissions = helpers.getApplicationPermissions({
@@ -200,6 +204,8 @@ exports.fetchSingleApplication = async (req, res, next) => {
         if (!incomingApplication) {
             return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.');
         }
+
+        incomingApplication.dataValues.notification_email = user.notification_email;
 
         req.application = incomingApplication;
     }
