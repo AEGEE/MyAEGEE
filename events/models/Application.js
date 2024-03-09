@@ -57,12 +57,8 @@ const Application = sequelize.define('application', {
         }
     },
     email: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: '',
-        validate: {
-            notEmpty: { msg: 'Email should be set.' }
-        }
+        allowNull: true,
+        type: Sequelize.STRING
     },
     body_name: {
         allowNull: false,

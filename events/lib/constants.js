@@ -5,7 +5,7 @@ module.exports = {
         body_name: 'Body name',
         first_name: 'First name',
         last_name: 'Last name',
-        email: 'Email',
+        notification_email: 'Email',
         status: 'Status',
         confirmed: 'Confirmed',
         attended: 'Attended',

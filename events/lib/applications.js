@@ -52,15 +52,12 @@ exports.createApplication = async (req, res) => {
     req.body.body_name = req.user.bodies.find((b) => b.id === req.body.body_id).name;
     req.body.user_id = req.user.id;
     req.body.event_id = req.event.id;
-    req.body.email = req.user.email;
 
     let newApplication;
 
     // Doing it inside of a transaction, so it'd fail and revert if mail was not sent.
     await sequelize.transaction(async (t) => {
         newApplication = await Application.create(req.body, { transaction: t });
-
-        // We don't need to recalculate the votes amount, as the pax type is not set here.
 
         // Sending the mail to a user.
         await mailer.sendMail({
@@ -102,7 +99,6 @@ exports.updateApplication = async (req, res) => {
     }
     req.body.user_id = req.user.id;
     req.body.event_id = req.event.id;
-    req.body.email = req.user.email;
 
     await sequelize.transaction(async (t) => {
         // Updating application in a transaction, so if mail sending fails, the update would be reverted.
@@ -196,10 +192,19 @@ exports.exportAll = async (req, res) => {
         return errors.makeForbiddenError(res, 'You are not allowed to see statistics.');
     }
 
-    const applications = await Application.findAll({ where: { event_id: req.event.id } });
+    let applications = await Application.findAll({ where: { event_id: req.event.id } });
 
     const headersNames = helpers.getApplicationFields(req.event);
     const headers = Object.keys(headersNames).map((field) => headersNames[field]);
+
+    applications = await Promise.all(applications
+        .map(async (application) => {
+            const user = await core.fetchApplicationUser(application.user_id);
+
+            application.dataValues.notification_email = user.notification_email;
+
+            return application;
+        }));
 
     const resultArray = applications
         .map((application) => application.toJSON())
