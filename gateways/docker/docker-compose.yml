@@ -24,7 +24,7 @@ services:
       - ./secrets/acme.json:/etc/acme.json
       - ./secrets/certs:/certs
       - ./${PATH_GATEWAYS}/traefik/cors.yml:/etc/traefik/cors.yml
-      - ./${PATH_GATEWAYS}/traefik/logs:/var/log/traefik/
+      - ./${PATH_GATEWAYS}/traefik/logs:/var/log/
       # only for dev, but we keep it in this file for now
       - ./${PATH_GATEWAYS}/traefik/dynamic_conf_mkcert.yml:/etc/traefik/dynamic_conf_mkcert.yml
       # - shared_logs:/var/log/traefik/
@@ -36,6 +36,9 @@ services:
       - "--metrics.prometheus=true"
       - "--metrics.prometheus.entrypoint=metrics"
       - "--log.level=INFO"
+      - "--log.filePath=/var/log/traefik.log"
+      - "--accesslog=true"
+      - "--accesslog.filepath=/var/log/access.log"
 
       - "--providers.docker=true"
       - "--providers.docker.swarmMode=false"
@@ -59,6 +62,7 @@ services:
 
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls=true"
       - "traefik.http.routers.api.rule=Host(`${SUBDOMAIN_TRAEFIK}${BASE_URL}`)"
       - "traefik.http.routers.api.service=api@internal"
