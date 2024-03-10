@@ -43,16 +43,16 @@ services:
             retries: 3
             start_period: 40s
         labels:
-            - "traefik.http.routers.core.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/core`)"
+            - "traefik.enable=true"
+            - "traefik.http.routers.core.entrypoints=websecure"
             - "traefik.http.routers.core.tls=true"
+            - "traefik.http.routers.core.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/core`)"
 
             - "traefik.http.routers.core.middlewares=core-stripprefix"
             - "traefik.http.middlewares.core-stripprefix.stripprefix.prefixes=/api/core"
 
             - "traefik.http.routers.metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/core/metrics`)"
-            - "traefik.http.routers.metrics.middlewares=core-stripprefix, metricsauthcore"
-
-            - "traefik.http.middlewares.metricsauthcore.basicauth.users=admin:${METRICS_CREDENTIALS}"
+            - "traefik.http.routers.metrics.middlewares=core-stripprefix, metricsauth"
 
 volumes:
     postgres-core:

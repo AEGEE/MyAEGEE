@@ -40,16 +40,16 @@ services:
         # cpu_count: 1
         # mem_limit: 900m
         labels:
-            - "traefik.http.routers.summeruniversity.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/summeruniversity`)"
+            - "traefik.enable=true"
+            - "traefik.http.routers.summeruniversity.entrypoints=websecure"
             - "traefik.http.routers.summeruniversity.tls=true"
+            - "traefik.http.routers.summeruniversity.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/summeruniversity`)"
 
             - "traefik.http.routers.summeruniversity.middlewares=summeruniversity-stripprefix"
             - "traefik.http.middlewares.summeruniversity-stripprefix.stripprefix.prefixes=/api/summeruniversity"
 
             - "traefik.http.routers.metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/summeruniversity/metrics`)"
-            - "traefik.http.routers.metrics.middlewares=summeruniversity-stripprefix, metricsauthsummeruniversity"
-
-            - "traefik.http.middlewares.metricsauthsummeruniversity.basicauth.users=admin:${METRICS_CREDENTIALS}"
+            - "traefik.http.routers.metrics.middlewares=summeruniversity-stripprefix, metricsauth"
 
     summeruniversity-static:
         restart: on-failure
@@ -69,6 +69,7 @@ services:
             retries: 3
             start_period: 40s
         labels:
+            - "traefik.enable=true"
             - "traefik.http.routers.summeruniversity-static.rule=PathPrefix(`/media/summeruniversity`)"
             - "traefik.http.routers.summeruniversity-static.middlewares=summeruniversity-static-stripprefix"
             - "traefik.http.middlewares.summeruniversity-static-stripprefix.stripprefix.prefixes=/media/summeruniversity"

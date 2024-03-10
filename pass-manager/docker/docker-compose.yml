@@ -41,8 +41,10 @@ services:
       DATABASE_URL: "mysql://warden:${PW_BITWARDEN}@maria-bitwarden/bitwarden"
       ENABLE_DB_WAL: "false"
     labels:
-      - "traefik.http.routers.bitwarden.rule=Host(`${SUBDOMAIN_BITWARDEN}${BASE_URL}`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.bitwarden.entrypoints=websecure"
       - "traefik.http.routers.bitwarden.tls=true"
+      - "traefik.http.routers.bitwarden.rule=Host(`${SUBDOMAIN_BITWARDEN}${BASE_URL}`)"
 
 volumes:
   maria-bitwarden:

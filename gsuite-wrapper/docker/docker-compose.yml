@@ -28,16 +28,16 @@ services:
       #- "traefik.hc.frontend.rule=Path:/api/gsuite-wrapper/healthcheck;PathPrefixStrip:/api/gsuite-wrapper"
       #- "traefik.doc.frontend.rule=Path:/api/gsuite-wrapper/api-docs.json;PathPrefixStrip:/api/gsuite-wrapper"
       # ---------old ^ for some reason it was all that was exposed, TODO: check
-      - "traefik.http.routers.gsuite-wrapper.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/gsuite-wrapper`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.gsuite-wrapper.entrypoints=websecure"
       - "traefik.http.routers.gsuite-wrapper.tls=true"
+      - "traefik.http.routers.gsuite-wrapper.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/gsuite-wrapper`)"
 
       - "traefik.http.routers.gsuite-wrapper.middlewares=gsuite-wrapper-stripprefix"
       - "traefik.http.middlewares.gsuite-wrapper-stripprefix.stripprefix.prefixes=/api/gsuite-wrapper"
 
       - "traefik.http.routers.metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/gsuite-wrapper/metrics`)"
-      - "traefik.http.routers.metrics.middlewares=gsuite-wrapper-stripprefix, metricsauthgsuite-wrapper"
-
-      - "traefik.http.middlewares.metricsauthgsuite-wrapper.basicauth.users=admin:${METRICS_CREDENTIALS}"
+      - "traefik.http.routers.metrics.middlewares=gsuite-wrapper-stripprefix, metricsauth"
 
 volumes:
   redis_gsuite_persistence:

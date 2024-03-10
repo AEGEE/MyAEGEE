@@ -39,16 +39,16 @@ services:
         # cpu_count: 1
         # mem_limit: 900m
         labels:
-            - "traefik.http.routers.network.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/network`)"
+            - "traefik.enable=true"
+            - "traefik.http.routers.network.entrypoints=websecure"
             - "traefik.http.routers.network.tls=true"
+            - "traefik.http.routers.network.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/network`)"
 
             - "traefik.http.routers.network.middlewares=network-stripprefix"
             - "traefik.http.middlewares.network-stripprefix.stripprefix.prefixes=/api/network"
 
             - "traefik.http.routers.metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/network/metrics`)"
-            - "traefik.http.routers.metrics.middlewares=network-stripprefix, metricsauthnetwork"
-
-            - "traefik.http.middlewares.metricsauthnetwork.basicauth.users=admin:${METRICS_CREDENTIALS}"
+            - "traefik.http.routers.metrics.middlewares=network-stripprefix, metricsauth"
 
 volumes:
     postgres-network:

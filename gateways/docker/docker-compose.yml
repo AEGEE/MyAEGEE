@@ -6,7 +6,7 @@ services:
 ### Proxy container #######################################
 
   traefik:
-    image: traefik:v2.10.3
+    image: traefik:v2.11.0
     restart: always
     ports:
       - 80:80
@@ -40,7 +40,7 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.swarmMode=false"
       - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=tension"
+      - "--providers.docker.network=OMS"
 
       #for prometheus, http, https
       - "--entrypoints.metrics.address=:8082"
@@ -55,14 +55,20 @@ services:
 
       # Use the following line to configure Traefik to use the manually provided certificates
       # only for dev, but we keep it in this file for now
-      - "--providers.file.filename=/etc/traefik/dynamic_conf_mkcert.yml"
+      - "--providers.file.filename=/etc/traefik/dynamic_conf_mkcert.yml" #FIXME see if it overrides cors.yml somehow
 
     labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.tls=true"
       - "traefik.http.routers.api.rule=Host(`${SUBDOMAIN_TRAEFIK}${BASE_URL}`)"
       - "traefik.http.routers.api.service=api@internal"
+
       - "traefik.http.routers.api.middlewares=traefikauth"
       - "traefik.http.middlewares.traefikauth.basicauth.users=admin:${PW_TRAEFIK}"
-      - "traefik.http.routers.api.tls=true"
+
+      # Defined here and used in all microservices
+      - "traefik.http.middlewares.metricsauth.basicauth.users=admin:${METRICS_CREDENTIALS}"
+
 
 # volumes:
 #    shared_logs:

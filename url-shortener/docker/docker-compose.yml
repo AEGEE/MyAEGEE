@@ -28,9 +28,11 @@ services:
       YOURLS_PASS: "${PW_YOURLS}"
       YOURLS_PRIVATE: "true"
     labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.yourls.entrypoints=websecure"
+      - "traefik.http.routers.yourls.tls=true"
       - "traefik.domain=${SHORTENER_DOMAIN}"
       - "traefik.http.routers.yourls.rule=Host(`${SUBDOMAIN_SHORTENER}${SHORTENER_DOMAIN}`)"
-      - "traefik.http.routers.yourls.tls=true"
 
   maria-yourls:
     image: mariadb:10.4

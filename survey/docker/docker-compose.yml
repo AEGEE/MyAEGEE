@@ -16,8 +16,10 @@ services:
     volumes:
       - upload:/app/upload
     labels:
-      - "traefik.http.routers.survey.rule=Host(`${SUBDOMAIN_SURVEY}${BASE_URL}`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.survey.entrypoints=websecure"
       - "traefik.http.routers.survey.tls=true"
+      - "traefik.http.routers.survey.rule=Host(`${SUBDOMAIN_SURVEY}${BASE_URL}`)"
 
   postgres-limesurvey:
     restart: always

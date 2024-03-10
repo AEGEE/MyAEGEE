@@ -40,16 +40,16 @@ services:
         # cpu_count: 1
         # mem_limit: 900m
         labels:
-            - "traefik.http.routers.events.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/events`)"
+            - "traefik.enable=true"
+            - "traefik.http.routers.events.entrypoints=websecure"
             - "traefik.http.routers.events.tls=true"
+            - "traefik.http.routers.events.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/events`)"
 
             - "traefik.http.routers.events.middlewares=events-stripprefix"
             - "traefik.http.middlewares.events-stripprefix.stripprefix.prefixes=/api/events"
 
             - "traefik.http.routers.metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/events/metrics`)"
-            - "traefik.http.routers.metrics.middlewares=events-stripprefix, metricsauthevents"
-
-            - "traefik.http.middlewares.metricsauthevents.basicauth.users=admin:${METRICS_CREDENTIALS}"
+            - "traefik.http.routers.metrics.middlewares=events-stripprefix, metricsauth"
 
     events-static:
         restart: on-failure
@@ -69,6 +69,7 @@ services:
             retries: 3
             start_period: 40s
         labels:
+            - "traefik.enable=true"
             - "traefik.http.routers.events-static.rule=PathPrefix(`/media/events`)"
             - "traefik.http.routers.events-static.middlewares=events-static-stripprefix"
             - "traefik.http.middlewares.events-static-stripprefix.stripprefix.prefixes=/media/events"

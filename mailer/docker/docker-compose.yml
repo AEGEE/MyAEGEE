@@ -19,6 +19,7 @@ services:
             start_period: 40s
         # Only exposing /healthcheck endpoint
         labels:
+            - "traefik.enable=true"
             - "traefik.http.routers.mailer.rule=PathPrefix(`/api/mailer/healthcheck`)"
             - "traefik.http.routers.mailer.middlewares=mailer-stripprefix"
             - "traefik.http.middlewares.mailer-stripprefix.stripprefix.prefixes=/api/mailer"
