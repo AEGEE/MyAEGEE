@@ -53,12 +53,9 @@ services:
 
     summeruniversity-static:
         restart: on-failure
-        image: aegee/nginx-static:latest
+        image: aegee/nginx-static:prod
         volumes:
             - summeruniversity-media:/usr/app/media:ro
-            - ./${PATH_SUMMERUNIVERSITY}/summeruniversity-static/status.json:/usr/app/status.json:ro
-            - ./${PATH_SUMMERUNIVERSITY}/summeruniversity-static/nginx.conf:/etc/nginx/nginx.conf:ro
-            - ./${PATH_SUMMERUNIVERSITY}/summeruniversity-static/sites/default:/etc/nginx/sites-available/default:ro
             - shared:/usr/app/shared:ro
         expose:
             - "80"
