@@ -17,8 +17,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       # - portainer-data:/data
     labels:
-      - "traefik.http.routers.portainer.rule=Host(`${SUBDOMAIN_PORTAINER}${BASE_URL}`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
       - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.routers.portainer.rule=Host(`${SUBDOMAIN_PORTAINER}${BASE_URL}`)"
+
 
 ### DB admin (UIs) Containers #######################################
 
@@ -29,8 +32,10 @@ services:
     expose:
       - "5050"
     labels:
-      - "traefik.http.routers.pgadmin.rule=Host(`${SUBDOMAIN_PGADMIN}${BASE_URL}`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.entrypoints=websecure"
       - "traefik.http.routers.pgadmin.tls=true"
+      - "traefik.http.routers.pgadmin.rule=Host(`${SUBDOMAIN_PGADMIN}${BASE_URL}`)"
       - "traefik.http.routers.pgadmin.middlewares=traefikauth"
     environment:
       PGADMIN_DEFAULT_EMAIL: "myaegee-admins@${EMAIL_DOMAIN}"
@@ -46,8 +51,10 @@ services:
       # REDIS_1_HOST: redis-oms-gsuite-wrapper
       # REDIS_1_PORT: 6379
     labels:
-      - "traefik.http.routers.redisadmin.rule=Host(`${SUBDOMAIN_REDISADMIN}${BASE_URL}`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.redisadmin.entrypoints=websecure"
       - "traefik.http.routers.redisadmin.tls=true"
+      - "traefik.http.routers.redisadmin.rule=Host(`${SUBDOMAIN_REDISADMIN}${BASE_URL}`)"
       - "traefik.http.routers.redisadmin.middlewares=traefikauth"
 
 
@@ -72,8 +79,10 @@ services:
               name: \"knowledge\"}, \
               ]"
     labels:
-      - "traefik.http.routers.swagger.rule=Host(`${SUBDOMAIN_APIDOCS}${BASE_URL}`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.swagger.entrypoints=websecure"
       - "traefik.http.routers.swagger.tls=true"
+      - "traefik.http.routers.swagger.rule=Host(`${SUBDOMAIN_APIDOCS}${BASE_URL}`)"
 
 volumes:
   portainer-data:
