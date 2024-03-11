@@ -1,0 +1,48 @@
+http:
+  routers:
+    jira-cors-router:
+      rule: "PathPrefix(`/services/jira-cors/`)"
+      service: jira-cors-service
+      middlewares:
+        - strip-prefix
+      entryPoints:
+        - web
+
+    calendar-cors-router:
+      rule: "PathPrefix(`/services/calendar-cors/`)"
+      service: calendar-cors-service
+      middlewares:
+        - strip-prefix
+      entryPoints:
+        - web
+
+    dockerhub-cors-router:
+      rule: "PathPrefix(`/services/dockerhub/`)"
+      service: dockerhub-service
+      middlewares:
+        - strip-prefix
+      entryPoints:
+        - web
+  services:
+    jira-cors-service:
+      loadBalancer:
+        servers:
+          - url: "https://myaegee.atlassian.net/"
+
+    calendar-cors-service:
+      loadBalancer:
+        servers:
+          - url: "https://calendar.google.com/"
+
+    dockerhub-service:
+      loadBalancer:
+        servers:
+          - url: "https://hub.docker.com"
+
+  middlewares:
+    strip-prefix:
+      stripPrefix:
+        prefixes:
+          - "/services/jira-cors/"
+          - "/services/calendar-cors/"
+          - "/services/dockerhub/"

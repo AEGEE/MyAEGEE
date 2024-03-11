@@ -19,14 +19,10 @@ services:
             start_period: 40s
         # Only exposing /healthcheck endpoint
         labels:
-            - "traefik.backend=mailer"
-            - "traefik.port=4000"
-            - "traefik.old.frontend.rule=Path:/services/oms-mailer/api/healthcheck;PathPrefixStrip:/services/oms-mailer/api"
-            - "traefik.new.frontend.rule=Path:/api/mailer/healthcheck;PathPrefixStrip:/api/mailer"
-            - "traefik.old.frontend.priority=110"
-            - "traefik.new.frontend.priority=110"
-            - "traefik.frontend.priority=110"
             - "traefik.enable=true"
+            - "traefik.http.routers.mailer.rule=PathPrefix(`/api/mailer/healthcheck`)"
+            - "traefik.http.routers.mailer.middlewares=mailer-stripprefix"
+            - "traefik.http.middlewares.mailer-stripprefix.stripprefix.prefixes=/api/mailer"
         # cpu_count: 1
         # mem_limit: 900m
 

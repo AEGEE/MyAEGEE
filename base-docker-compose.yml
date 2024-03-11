@@ -11,11 +11,8 @@ services:
     expose:
       - 80
     labels:
-      - "traefik.enable=true"
-      - "traefik.backend=portal"
-      - "traefik.port=80"
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_PORTAL}${BASE_URL}"
-      - "traefik.frontend.priority=20"
+      - "traefik.http.routers.portal.rule=Host(`${SUBDOMAIN_PORTAL}${BASE_URL}`)"
+      - "traefik.http.routers.portal.tls=true"
 
 
 secrets:

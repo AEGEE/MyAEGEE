@@ -18,10 +18,10 @@ services:
       # - portainer-data:/data
     labels:
       - "traefik.enable=true"
-      - "traefik.backend=portainer"
-      - "traefik.port=9000"
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_PORTAINER}${BASE_URL}"
-      - "traefik.frontend.priority=20"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.routers.portainer.rule=Host(`${SUBDOMAIN_PORTAINER}${BASE_URL}`)"
+
 
 ### DB admin (UIs) Containers #######################################
 
@@ -33,11 +33,10 @@ services:
       - "5050"
     labels:
       - "traefik.enable=true"
-      - "traefik.backend=pgadmin"
-      - "traefik.port=5050"
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_PGADMIN}${BASE_URL}"
-      - "traefik.frontend.priority=20"
-      - "traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}"
+      - "traefik.http.routers.pgadmin.entrypoints=websecure"
+      - "traefik.http.routers.pgadmin.tls=true"
+      - "traefik.http.routers.pgadmin.rule=Host(`${SUBDOMAIN_PGADMIN}${BASE_URL}`)"
+      - "traefik.http.routers.pgadmin.middlewares=traefikauth"
     environment:
       PGADMIN_DEFAULT_EMAIL: "myaegee-admins@${EMAIL_DOMAIN}"
       PGADMIN_DEFAULT_PASSWORD: "${PW_PGADMIN}"
@@ -53,11 +52,10 @@ services:
       # REDIS_1_PORT: 6379
     labels:
       - "traefik.enable=true"
-      - "traefik.backend=redisadmin"
-      - "traefik.port=80"
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_REDISADMIN}${BASE_URL}"
-      - "traefik.frontend.priority=20"
-      - "traefik.frontend.auth.basic.users=admin:${PW_TRAEFIK}"
+      - "traefik.http.routers.redisadmin.entrypoints=websecure"
+      - "traefik.http.routers.redisadmin.tls=true"
+      - "traefik.http.routers.redisadmin.rule=Host(`${SUBDOMAIN_REDISADMIN}${BASE_URL}`)"
+      - "traefik.http.routers.redisadmin.middlewares=traefikauth"
 
 
 ### show api docs Container #######################################
@@ -81,11 +79,10 @@ services:
               name: \"knowledge\"}, \
               ]"
     labels:
-      - traefik.enable=true
-      - traefik.backend=swagger
-      - traefik.port=8080
-      - traefik.frontend.rule=Host:${SUBDOMAIN_APIDOCS}${BASE_URL}
-      - traefik.frontend.priority=20
+      - "traefik.enable=true"
+      - "traefik.http.routers.swagger.entrypoints=websecure"
+      - "traefik.http.routers.swagger.tls=true"
+      - "traefik.http.routers.swagger.rule=Host(`${SUBDOMAIN_APIDOCS}${BASE_URL}`)"
 
 volumes:
   portainer-data:

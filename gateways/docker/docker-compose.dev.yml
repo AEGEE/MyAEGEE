@@ -3,4 +3,6 @@ version: "3.4"
 services:
   traefik:
     volumes:
-      - ./${PATH_GATEWAYS}/traefik/traefik.toml.dev:/etc/traefik/traefik.toml
+      - ./${PATH_GATEWAYS}/traefik/dynamic_conf_mkcert.yml:/etc/traefik/dynamic_conf_mkcert.yml
+    command:
+      - "--providers.file.filename=/etc/traefik/dynamic_conf_mkcert.yml"

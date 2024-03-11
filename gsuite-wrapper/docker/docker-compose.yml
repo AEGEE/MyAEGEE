@@ -7,6 +7,9 @@ services:
     image: redis:6.2.6-alpine
     volumes:
       - redis_gsuite_persistence:/data
+    labels:
+      # we don't access via traefik
+      - "traefik.enable=false"
 
   gsuite-wrapper:
     restart: on-failure
@@ -22,11 +25,19 @@ services:
       NODE_ENV: "${MYAEGEE_ENV}"
       # BUGSNAG_KEY: "${BUGSNAG_KEY_GSUITE_WRAPPER}"
     labels:
-      - "traefik.backend=gsuite-wrapper"
-      - "traefik.port=8084"
-      - "traefik.hc.frontend.rule=Path:/api/gsuite-wrapper/healthcheck;PathPrefixStrip:/api/gsuite-wrapper"
-      - "traefik.doc.frontend.rule=Path:/api/gsuite-wrapper/api-docs.json;PathPrefixStrip:/api/gsuite-wrapper"
+      #- "traefik.hc.frontend.rule=Path:/api/gsuite-wrapper/healthcheck;PathPrefixStrip:/api/gsuite-wrapper"
+      #- "traefik.doc.frontend.rule=Path:/api/gsuite-wrapper/api-docs.json;PathPrefixStrip:/api/gsuite-wrapper"
+      # ---------old ^ for some reason it was all that was exposed, TODO: check
       - "traefik.enable=true"
+      - "traefik.http.routers.gsuite-wrapper.entrypoints=websecure"
+      - "traefik.http.routers.gsuite-wrapper.tls=true"
+      - "traefik.http.routers.gsuite-wrapper.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/gsuite-wrapper`)"
+
+      - "traefik.http.routers.gsuite-wrapper.middlewares=gsuite-wrapper-stripprefix"
+      - "traefik.http.middlewares.gsuite-wrapper-stripprefix.stripprefix.prefixes=/api/gsuite-wrapper"
+
+      - "traefik.http.routers.gsuite-wrapper-metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/gsuite-wrapper/metrics`)"
+      - "traefik.http.routers.gsuite-wrapper-metrics.middlewares=gsuite-wrapper-stripprefix, metricsauth"
 
 volumes:
   redis_gsuite_persistence:

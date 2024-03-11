@@ -28,12 +28,11 @@ services:
       YOURLS_PASS: "${PW_YOURLS}"
       YOURLS_PRIVATE: "true"
     labels:
-      - "traefik.backend=yourls"
-      - "traefik.port=80"
-      - "traefik.domain=${SHORTENER_DOMAIN}"
-      - "traefik.frontend.rule=Host:${SUBDOMAIN_SHORTENER}${SHORTENER_DOMAIN};PathPrefix:/"
-      - "traefik.frontend.priority=110"
       - "traefik.enable=true"
+      - "traefik.http.routers.yourls.entrypoints=websecure"
+      - "traefik.http.routers.yourls.tls=true"
+      - "traefik.domain=${SHORTENER_DOMAIN}"
+      - "traefik.http.routers.yourls.rule=Host(`${SUBDOMAIN_SHORTENER}${SHORTENER_DOMAIN}`)"
 
   maria-yourls:
     image: mariadb:10.4
@@ -45,6 +44,9 @@ services:
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
     volumes:
       - maria-yourls:/var/lib/mysql
+    labels:
+      # we don't access via traefik
+      - "traefik.enable=false"
 
 volumes:
   maria-yourls:
