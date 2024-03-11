@@ -47,8 +47,8 @@ services:
             - "traefik.http.routers.network.middlewares=network-stripprefix"
             - "traefik.http.middlewares.network-stripprefix.stripprefix.prefixes=/api/network"
 
-            - "traefik.http.routers.metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/network/metrics`)"
-            - "traefik.http.routers.metrics.middlewares=network-stripprefix, metricsauth"
+            - "traefik.http.routers.network-metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/network/metrics`)"
+            - "traefik.http.routers.network-metrics.middlewares=network-stripprefix, metricsauth"
 
 volumes:
     postgres-network:

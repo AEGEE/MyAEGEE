@@ -45,8 +45,8 @@ services:
             - "traefik.http.routers.knowledge.middlewares=knowledge-stripprefix"
             - "traefik.http.middlewares.knowledge-stripprefix.stripprefix.prefixes=/api/knowledge"
 
-            - "traefik.http.routers.metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/knowledge/metrics`)"
-            - "traefik.http.routers.metrics.middlewares=knowledge-stripprefix, metricsauth"
+            - "traefik.http.routers.knowledge-metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/knowledge/metrics`)"
+            - "traefik.http.routers.knowledge-metrics.middlewares=knowledge-stripprefix, metricsauth"
 
 volumes:
     postgres-knowledge:

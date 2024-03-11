@@ -48,8 +48,8 @@ services:
             - "traefik.http.routers.summeruniversity.middlewares=summeruniversity-stripprefix"
             - "traefik.http.middlewares.summeruniversity-stripprefix.stripprefix.prefixes=/api/summeruniversity"
 
-            - "traefik.http.routers.metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/summeruniversity/metrics`)"
-            - "traefik.http.routers.metrics.middlewares=summeruniversity-stripprefix, metricsauth"
+            - "traefik.http.routers.summeruniversity-metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/summeruniversity/metrics`)"
+            - "traefik.http.routers.summeruniversity-metrics.middlewares=summeruniversity-stripprefix, metricsauth"
 
     summeruniversity-static:
         restart: on-failure
@@ -67,6 +67,7 @@ services:
             start_period: 40s
         labels:
             - "traefik.enable=true"
+            - "traefik.http.routers.summeruniversity-static.entrypoints=websecure"
             - "traefik.http.routers.summeruniversity-static.rule=PathPrefix(`/media/summeruniversity`)"
             - "traefik.http.routers.summeruniversity-static.middlewares=summeruniversity-static-stripprefix"
             - "traefik.http.middlewares.summeruniversity-static-stripprefix.stripprefix.prefixes=/media/summeruniversity"

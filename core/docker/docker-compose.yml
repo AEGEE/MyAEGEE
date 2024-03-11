@@ -51,8 +51,8 @@ services:
             - "traefik.http.routers.core.middlewares=core-stripprefix"
             - "traefik.http.middlewares.core-stripprefix.stripprefix.prefixes=/api/core"
 
-            - "traefik.http.routers.metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/core/metrics`)"
-            - "traefik.http.routers.metrics.middlewares=core-stripprefix, metricsauth"
+            - "traefik.http.routers.core-metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/core/metrics`)"
+            - "traefik.http.routers.core-metrics.middlewares=core-stripprefix, metricsauth"
 
 volumes:
     postgres-core:

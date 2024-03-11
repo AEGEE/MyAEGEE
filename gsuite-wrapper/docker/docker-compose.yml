@@ -36,8 +36,8 @@ services:
       - "traefik.http.routers.gsuite-wrapper.middlewares=gsuite-wrapper-stripprefix"
       - "traefik.http.middlewares.gsuite-wrapper-stripprefix.stripprefix.prefixes=/api/gsuite-wrapper"
 
-      - "traefik.http.routers.metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/gsuite-wrapper/metrics`)"
-      - "traefik.http.routers.metrics.middlewares=gsuite-wrapper-stripprefix, metricsauth"
+      - "traefik.http.routers.gsuite-wrapper-metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/gsuite-wrapper/metrics`)"
+      - "traefik.http.routers.gsuite-wrapper-metrics.middlewares=gsuite-wrapper-stripprefix, metricsauth"
 
 volumes:
   redis_gsuite_persistence:

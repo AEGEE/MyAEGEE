@@ -45,8 +45,8 @@ services:
             - "traefik.http.routers.discounts.middlewares=discounts-stripprefix"
             - "traefik.http.middlewares.discounts-stripprefix.stripprefix.prefixes=/api/discounts"
 
-            - "traefik.http.routers.metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/discounts/metrics`)"
-            - "traefik.http.routers.metrics.middlewares=discounts-stripprefix, metricsauth"
+            - "traefik.http.routers.discounts-metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/discounts/metrics`)"
+            - "traefik.http.routers.discounts-metrics.middlewares=discounts-stripprefix, metricsauth"
 
 volumes:
     postgres-discounts:

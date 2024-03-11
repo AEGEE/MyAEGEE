@@ -48,8 +48,8 @@ services:
             - "traefik.http.routers.statutory.middlewares=statutory-stripprefix"
             - "traefik.http.middlewares.statutory-stripprefix.stripprefix.prefixes=/api/statutory"
 
-            - "traefik.http.routers.metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/statutory/metrics`)"
-            - "traefik.http.routers.metrics.middlewares=statutory-stripprefix, metricsauth"
+            - "traefik.http.routers.statutory-metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/statutory/metrics`)"
+            - "traefik.http.routers.statutory-metrics.middlewares=statutory-stripprefix, metricsauth"
 
     statutory-static:
         restart: on-failure
@@ -67,6 +67,7 @@ services:
             start_period: 40s
         labels:
             - "traefik.enable=true"
+            - "traefik.http.routers.statutory-static.entrypoints=websecure"
             - "traefik.http.routers.statutory-static.rule=PathPrefix(`/media/statutory`)"
             - "traefik.http.routers.statutory-static.middlewares=statutory-static-stripprefix"
             - "traefik.http.middlewares.statutory-static-stripprefix.stripprefix.prefixes=/media/statutory"

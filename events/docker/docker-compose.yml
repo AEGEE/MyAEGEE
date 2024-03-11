@@ -48,8 +48,8 @@ services:
             - "traefik.http.routers.events.middlewares=events-stripprefix"
             - "traefik.http.middlewares.events-stripprefix.stripprefix.prefixes=/api/events"
 
-            - "traefik.http.routers.metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/events/metrics`)"
-            - "traefik.http.routers.metrics.middlewares=events-stripprefix, metricsauth"
+            - "traefik.http.routers.events-metrics.rule=Host(`${SUBDOMAIN_FRONTEND}${BASE_URL}`) && PathPrefix(`/api/events/metrics`)"
+            - "traefik.http.routers.events-metrics.middlewares=events-stripprefix, metricsauth"
 
     events-static:
         restart: on-failure
@@ -67,6 +67,7 @@ services:
             start_period: 40s
         labels:
             - "traefik.enable=true"
+            - "traefik.http.routers.events-static.entrypoints=websecure"
             - "traefik.http.routers.events-static.rule=PathPrefix(`/media/events`)"
             - "traefik.http.routers.events-static.middlewares=events-static-stripprefix"
             - "traefik.http.middlewares.events-static-stripprefix.stripprefix.prefixes=/media/events"
