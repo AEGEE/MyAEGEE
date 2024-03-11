@@ -52,9 +52,19 @@ services:
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.websecure.http.tls=true"
+      - "--entrypoints.websecure.http.tls.certResolver=myresolver"
+      - "--entrypoints.websecure.http.tls.domains[0].main=${BASE_URL}"
+      - "--entrypoints.websecure.http.tls.domains[0].sans=*.${BASE_URL}"
 
       #for CORS
       - "--providers.file.filename=/etc/traefik/cors.yml"
+
+      #for HTTPS automatic
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=${DEVS_EMAIL}@aegee.eu"
+      - "--certificatesresolvers.myresolver.acme.storage=acme.json"
+      # For testing: staging certs of LE
+      #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
 
       # Use the following line to configure Traefik to use the manually provided certificates
       # only for dev, but we keep it in this file for now
