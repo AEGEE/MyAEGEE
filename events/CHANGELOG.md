@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/AEGEE/events/compare/1.4.1...1.4.2) (2024-03-13)
+
+
+### Bug Fixes
+
+* **applications:** allow organizers to view an application when published. Fixes HELP-2431 ([#1097](https://github.com/AEGEE/events/issues/1097)) ([a868b3f](https://github.com/AEGEE/events/commit/a868b3fe3afda4d8ce8eeb1fb08dc3a3473f8921))
+
 ## [1.4.1](https://github.com/AEGEE/events/compare/1.4.0...1.4.1) (2024-03-09)
 
 
