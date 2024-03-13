@@ -1,0 +1,30 @@
+version: "3.4"
+
+services:
+
+  rabbit:
+    build:
+      context: ./${PATH_DISPATCHER}/..
+      dockerfile: ./docker/Dockerfile.rabbit
+    image: aegee/rabbit:3.11-mgmt-delayxch
+
+  dispatcher:
+    build:
+      context: ./${PATH_DISPATCHER}/..
+      dockerfile: ./docker/Dockerfile
+    image: aegee/dispatcher:dev
+    volumes:
+      - ./${PATH_DISPATCHER}/../templates:/usr/app/templates:ro
+      - ./${PATH_DISPATCHER}/../dispatcher:/usr/app/src:ro
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    restart: always
+    ports:
+      - 8025:8025
+      - 1025:1025
+    labels:
+      - "traefik.frontend.rule=Host:${SUBDOMAIN_MAILHOG}${BASE_URL};"
+      - "traefik.backend=mailhog"
+      - "traefik.port=8025"
+      - "traefik.enable=true"

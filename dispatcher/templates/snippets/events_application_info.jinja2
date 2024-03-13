@@ -1,0 +1,12 @@
+<ul>
+  <li><strong>Body name: </strong>{{ application["body_name"] }}</li>
+  <li><strong>Applied on: </strong>{{ application["created_at"] }}</li>
+  <li><strong>Updated on: </strong>{{ application["updated_at"] }}</li>
+  <li><strong>First name: </strong>{{ application["first_name"] }}</li>
+  <li><strong>Last name: </strong>{{ application["last_name"] }}</li>
+  <li><strong>Email: </strong>{{ application["email"] }}</li>
+
+  {% for question in event["questions"] %}
+    <li><strong>{{ question["description"] }}: </strong> {{ application["answers"][loop.index0] }}</li>
+  {% endfor %}
+</ul>
