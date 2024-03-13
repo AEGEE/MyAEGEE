@@ -235,7 +235,7 @@ exports.getEventPermissions = ({ permissions, event, user }) => {
 exports.getApplicationPermissions = ({ permissions, user, application }) => {
     const isMine = application.user_id === user.id;
 
-    permissions.view_application = isMine || permissions.edit_event;
+    permissions.view_application = isMine || permissions.list_applications;
     permissions.edit_application = (isMine && permissions.apply) || permissions.edit_event;
 
     return permissions;
