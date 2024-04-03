@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/AEGEE/statutory/compare/1.12.0...1.12.1) (2024-04-03)
+
+
+### Bug Fixes
+
+* **application:** filter on statutory_id ([#1185](https://github.com/AEGEE/statutory/issues/1185)) ([90477b3](https://github.com/AEGEE/statutory/commit/90477b36a29ee874ec2e2bb349bef0c0adb06db7))
+
 # [1.12.0](https://github.com/AEGEE/statutory/compare/1.11.3...1.12.0) (2024-03-09)
 
 
