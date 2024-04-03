@@ -1,3 +1,10 @@
+## [1.35.13](https://github.com/AEGEE/frontend/compare/1.35.12...1.35.13) (2024-04-03)
+
+
+### Bug Fixes
+
+* **statutory:** mention filter on statutory ID ([#2102](https://github.com/AEGEE/frontend/issues/2102)) ([0d9e83c](https://github.com/AEGEE/frontend/commit/0d9e83ca6f7309427ad74491c36d76e029c6d0fa))
+
 ## [1.35.12](https://github.com/AEGEE/frontend/compare/1.35.11...1.35.12) (2024-03-09)
 
 
