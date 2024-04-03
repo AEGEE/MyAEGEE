@@ -447,6 +447,7 @@ Application.findWithParams = ({ where, attributes, query }) => {
         findAllObject.where[Sequelize.Op.or] = {
             first_name: { [Sequelize.Op.iLike]: '%' + query.query + '%' },
             last_name: { [Sequelize.Op.iLike]: '%' + query.query + '%' },
+            statutory_id: { [Sequelize.Op.iLike]: '%' + query.query + '%' },
             // TODO: this should be searching through the emails in the database and the notification emails of the users that have applied
             // email: { [Sequelize.Op.iLike]: '%' + query.query + '%' }
         };
