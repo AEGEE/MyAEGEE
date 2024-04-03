@@ -5,9 +5,9 @@
         <div class="title">Incoming</div>
 
         <div class="field">
-          <label class="label">Search by name or email</label>
+          <label class="label">Search by name or statutory ID (search by email is currently broken but will return)</label>
           <div class="control is-expanded">
-            <input class="input" type="text" v-model="query" placeholder="Search by name, surname or email" />
+            <input class="input" type="text" v-model="query" placeholder="Search by name, surname or statutory ID" />
           </div>
         </div>
 
