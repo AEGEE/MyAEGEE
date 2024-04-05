@@ -1,3 +1,10 @@
+## [1.12.3](https://github.com/AEGEE/statutory/compare/1.12.2...1.12.3) (2024-04-05)
+
+
+### Bug Fixes
+
+* **applications:** improve perf delegates export ([#1188](https://github.com/AEGEE/statutory/issues/1188)) ([aa5762d](https://github.com/AEGEE/statutory/commit/aa5762d653dc93a8f71ae1587085f6cee96a84a1))
+
 ## [1.12.2](https://github.com/AEGEE/statutory/compare/1.12.1...1.12.2) (2024-04-05)
 
 
