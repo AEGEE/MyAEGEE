@@ -1,3 +1,10 @@
+## [1.12.2](https://github.com/AEGEE/statutory/compare/1.12.1...1.12.2) (2024-04-05)
+
+
+### Bug Fixes
+
+* fetch all notification_emails together ([#1186](https://github.com/AEGEE/statutory/issues/1186)) ([ac40171](https://github.com/AEGEE/statutory/commit/ac40171a168b6d1291729e85b4d0948bd7cab717))
+
 ## [1.12.1](https://github.com/AEGEE/statutory/compare/1.12.0...1.12.1) (2024-04-03)
 
 
