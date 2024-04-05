@@ -5,6 +5,7 @@ const errors = require('./errors');
 const { Position, Candidate, Image } = require('../models');
 const helpers = require('./helpers');
 const constants = require('./constants');
+const logger = require('./logger');
 
 exports.findPosition = async (req, res, next) => {
     if (Number.isNaN(Number(req.params.position_id))) {
@@ -59,6 +60,7 @@ exports.listPositionsWithAllCandidates = async (req, res) => {
         }]
     });
 
+    // TODO: use core.getMails for this, fetching the notification_email of the candidates of all positions together
     positions = await Promise.all(positions.map(async (position) => {
         position.candidates = await Promise.all(position.candidates
             .map(async (candidate) => {
@@ -90,6 +92,7 @@ exports.listPositionsWithApprovedCandidates = async (req, res) => {
         }]
     });
 
+    // TODO: use core.getMails for this, fetching the notification_email of the candidates of all positions together
     positions = await Promise.all(positions.map(async (position) => {
         position.candidates = await Promise.all(position.candidates
             .map(async (candidate) => {
@@ -212,7 +215,7 @@ exports.exportAll = async (req, res) => {
     const headersNames = constants.CANDIDATE_FIELDS;
     const headers = req.query.select.map((field) => headersNames[field]);
 
-    let applications = await Candidate.findAll({
+    const applications = await Candidate.findAll({
         where: {
             '$position.event_id$': req.event.id,
             ...applicationsFilter,
@@ -223,14 +226,23 @@ exports.exportAll = async (req, res) => {
         }]
     });
 
-    applications = await Promise.all(applications
-        .map(async (application) => {
-            const user = await core.fetchApplicationUser(application.user_id);
+    let mails = [];
 
-            application.dataValues.notification_email = user.notification_email;
+    if (applications.length > 0) {
+        const userIds = applications.map((application) => application.user_id).toString();
+        mails = await core.getMails(req, userIds);
+    }
 
-            return application;
-        }));
+    for (const application of applications) {
+        const user = mails.find((m) => application.user_id === m.id);
+
+        if (!user) {
+            logger.warn({ user_id: application.user_id }, 'Could not find user');
+            continue;
+        }
+
+        application.dataValues.notification_email = user.notification_email;
+    }
 
     const resultArray = applications
         .map((application) => application.toJSON())

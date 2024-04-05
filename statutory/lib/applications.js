@@ -9,6 +9,7 @@ const { Application, VotesPerAntenna, PaxLimit } = require('../models');
 const constants = require('./constants');
 const helpers = require('./helpers');
 const { sequelize } = require('./sequelize');
+const logger = require('./logger');
 
 exports.listAllApplications = async (req, res) => {
     if (!req.permissions.see_applications) {
@@ -20,14 +21,21 @@ exports.listAllApplications = async (req, res) => {
         query: req.query
     });
 
-    applications.rows = await Promise.all(applications.rows
-        .map(async (application) => {
-            const user = await core.fetchApplicationUser(application.user_id);
+    if (applications.rows.length > 0) {
+        const userIds = applications.rows.map((application) => application.user_id).toString();
+        const mails = await core.getMails(req, userIds);
+
+        for (const application of applications.rows) {
+            const user = mails.find((m) => application.user_id === m.id);
+
+            if (!user) {
+                logger.warn({ user_id: application.user_id }, 'Could not find user');
+                continue;
+            }
 
             application.dataValues.notification_email = user.notification_email;
-
-            return application;
-        }));
+        }
+    }
 
     return res.json({
         success: true,
@@ -49,14 +57,21 @@ exports.listIncomingApplications = async (req, res) => {
         query: req.query
     });
 
-    applications.rows = await Promise.all(applications.rows
-        .map(async (application) => {
-            const user = await core.fetchApplicationUser(application.user_id);
+    if (applications.rows.length > 0) {
+        const userIds = applications.rows.map((application) => application.user_id).toString();
+        const mails = await core.getMails(req, userIds);
+
+        for (const application of applications.rows) {
+            const user = mails.find((m) => application.user_id === m.id);
+
+            if (!user) {
+                logger.warn({ user_id: application.user_id }, 'Could not find user');
+                continue;
+            }
 
             application.dataValues.notification_email = user.notification_email;
-
-            return application;
-        }));
+        }
+    }
 
     return res.json({
         success: true,
@@ -208,18 +223,25 @@ exports.listBoardView = async (req, res) => {
     }
 
     // 'zzzzz' is used to be last, 'unset' won't do
-    let applications = await Application.findAll({
+    const applications = await Application.findAll({
         where: { event_id: req.event.id, body_id: parseInt(req.params.body_id, 10) },
     });
 
-    applications = await Promise.all(applications
-        .map(async (application) => {
-            const user = await core.fetchApplicationUser(application.user_id);
+    if (applications.length > 0) {
+        const userIds = applications.map((application) => application.user_id).toString();
+        const mails = await core.getMails(req, userIds);
+
+        for (const application of applications) {
+            const user = mails.find((m) => application.user_id === m.id);
+
+            if (!user) {
+                logger.warn({ user_id: application.user_id }, 'Could not find user');
+                continue;
+            }
 
             application.dataValues.notification_email = user.notification_email;
-
-            return application;
-        }));
+        }
+    }
 
     const sortedApplications = applications.sort((a, b) => {
         // first, comparing by participant type
@@ -723,11 +745,22 @@ exports.exportOpenslides = async (req, res) => {
         'Email'
     ];
 
+    let mails = [];
+
+    if (applications.length > 0) {
+        const userIds = applications.map((application) => application.user_id).toString();
+        mails = await core.getMails(req, userIds);
+    }
+
     const applicationsString = await Promise.all(applications.map(async (application) => {
         // Generating random pw for a user.
         const password = crypto.randomBytes(5).toString('hex');
 
-        const user = await core.fetchApplicationUser(application.user_id);
+        const user = mails.find((m) => application.user_id === m.id);
+
+        if (!user) {
+            logger.warn({ user_id: application.user_id }, 'Could not find user');
+        }
 
         return [
             '', // Title
@@ -788,16 +821,23 @@ exports.exportAll = async (req, res) => {
     const headersNames = helpers.getApplicationFields(req.event);
     const headers = req.query.select.map((field) => headersNames[field]);
 
-    let applications = await Application.findAll({ where: { event_id: req.event.id, ...applicationsFilter } });
+    const applications = await Application.findAll({ where: { event_id: req.event.id, ...applicationsFilter } });
 
-    applications = await Promise.all(applications
-        .map(async (application) => {
-            const user = await core.fetchApplicationUser(application.user_id);
+    if (applications.length > 0) {
+        const userIds = applications.map((application) => application.user_id).toString();
+        const mails = await core.getMails(req, userIds);
+
+        for (const application of applications) {
+            const user = mails.find((m) => application.user_id === m.id);
+
+            if (!user) {
+                logger.warn({ user_id: application.user_id }, 'Could not find user');
+                continue;
+            }
 
             application.dataValues.notification_email = user.notification_email;
-
-            return application;
-        }));
+        }
+    }
 
     const resultArray = applications
         .map((application) => application.toJSON())

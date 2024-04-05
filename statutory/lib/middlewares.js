@@ -177,9 +177,11 @@ exports.fetchSingleApplication = async (req, res, next) => {
         return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.');
     }
 
-    const user = await core.fetchApplicationUser(application.user_id);
+    const mail = await core.getMails(req, application.user_id);
 
-    application.dataValues.notification_email = user.notification_email;
+    if (mail) {
+        application.dataValues.notification_email = mail.notification_email;
+    }
 
     req.application = application;
 
@@ -205,7 +207,7 @@ exports.fetchSingleApplication = async (req, res, next) => {
             return errors.makeNotFoundError(res, userPrefix + ' haven\'t applied to this event yet.');
         }
 
-        incomingApplication.dataValues.notification_email = user.notification_email;
+        incomingApplication.dataValues.notification_email = mail.notification_email;
 
         req.application = incomingApplication;
     }
