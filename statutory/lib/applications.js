@@ -870,9 +870,16 @@ exports.exportDelegatesJc = async (req, res) => {
 
     const applications = await Application.findAll({ where: { event_id: req.event.id, cancelled: false, status: 'accepted', participant_type: 'delegate' } });
 
+    let mails = [];
+
+    if (applications.length > 0) {
+        const userIds = applications.map((application) => application.user_id).toString();
+        mails = await core.getMails(req, userIds);
+    }
+
     // Returns a CSV string
     const exportString = await Promise.all(applications.map(async (application) => {
-        const user = await core.getMember(req, application.user_id);
+        const user = mails.find((m) => application.user_id === m.id);
         const body = await core.getBody(req, application.body_id);
         const regex = /[^a-zA-z\-\ ]/; // eslint-disable-line
         application.first_name = application.first_name.replace(regex, '?');
