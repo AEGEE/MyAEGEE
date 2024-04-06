@@ -1,3 +1,10 @@
+## [1.38.2](https://github.com/AEGEE/core/compare/1.38.1...1.38.2) (2024-04-06)
+
+
+### Bug Fixes
+
+* **members:** allow users to fetch own email. Fixes HELP-2449 ([#912](https://github.com/AEGEE/core/issues/912)) ([cf47798](https://github.com/AEGEE/core/commit/cf47798045c5660a46fdd233534121731fb9f01e))
+
 ## [1.38.1](https://github.com/AEGEE/core/compare/1.38.0...1.38.1) (2024-01-24)
 
 
