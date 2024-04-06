@@ -1,3 +1,10 @@
+## [1.12.4](https://github.com/AEGEE/statutory/compare/1.12.3...1.12.4) (2024-04-06)
+
+
+### Bug Fixes
+
+* **applications:** show email for single application. Fixes HELP-2449 ([#1193](https://github.com/AEGEE/statutory/issues/1193)) ([8e45484](https://github.com/AEGEE/statutory/commit/8e45484a62ddc9e4b52064ea5dd3b6cee0d8f0e0))
+
 ## [1.12.3](https://github.com/AEGEE/statutory/compare/1.12.2...1.12.3) (2024-04-05)
 
 
