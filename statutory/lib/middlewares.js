@@ -180,7 +180,7 @@ exports.fetchSingleApplication = async (req, res, next) => {
     const mail = await core.getMails(req, application.user_id);
 
     if (mail) {
-        application.dataValues.notification_email = mail.notification_email;
+        application.dataValues.notification_email = mail[0].notification_email;
     }
 
     req.application = application;
