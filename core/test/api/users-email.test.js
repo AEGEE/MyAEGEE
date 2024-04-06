@@ -15,12 +15,29 @@ describe('Users list', () => {
         await generator.clearAll();
     });
 
-    test('should fail if no permission', async () => {
+    test('should fail without query', async () => {
         const user = await generator.createUser();
         const token = await generator.createAccessToken(user);
 
         const res = await request({
             uri: '/members_email',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+        expect(res.body).not.toHaveProperty('data');
+    });
+
+    test('should fail if no permission', async () => {
+        const user = await generator.createUser();
+        const secondUser = await generator.createUser();
+        const token = await generator.createAccessToken(user);
+
+        const res = await request({
+            uri: '/members_email?query=' + secondUser.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -31,14 +48,12 @@ describe('Users list', () => {
         expect(res.body).not.toHaveProperty('data');
     });
 
-    test('should succeed when everything is okay', async () => {
-        const user = await generator.createUser({ superadmin: true });
+    test('should find own by id without permission', async () => {
+        const user = await generator.createUser();
         const token = await generator.createAccessToken(user);
 
-        await generator.createPermission({ scope: 'global', action: 'mail', object: 'member' });
-
         const res = await request({
-            uri: '/members_email',
+            uri: '/members_email?query=' + user.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -54,12 +69,13 @@ describe('Users list', () => {
 
     test('should find one by id', async () => {
         const user = await generator.createUser({ superadmin: true });
+        const secondUser = await generator.createUser();
         const token = await generator.createAccessToken(user);
 
         await generator.createPermission({ scope: 'global', action: 'mail', object: 'member' });
 
         const res = await request({
-            uri: '/members_email?query=' + user.id,
+            uri: '/members_email?query=' + secondUser.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });
@@ -70,7 +86,7 @@ describe('Users list', () => {
         expect(res.body).not.toHaveProperty('errors');
 
         expect(res.body.data.length).toEqual(1);
-        expect(res.body.data[0].id).toEqual(user.id);
+        expect(res.body.data[0].id).toEqual(secondUser.id);
     });
 
     test('should find multiple by id array', async () => {
@@ -121,7 +137,7 @@ describe('Users list', () => {
         await generator.createPermission({ scope: 'global', action: 'mail', object: 'member' });
 
         const res = await request({
-            uri: '/members_email',
+            uri: '/members_email?query=' + user.id,
             method: 'GET',
             headers: { 'X-Auth-Token': token.value }
         });

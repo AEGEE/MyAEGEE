@@ -92,19 +92,19 @@ exports.getUser = async (req, res) => {
 };
 
 exports.getUsersEmail = async (req, res) => {
-    if (!req.permissions.hasPermission('global:mail:member')) {
-        return errors.makeForbiddenError(res, 'Permission global:mail:member is required, but not present.');
-    }
+    const correctQuery = req.query.query && typeof req.query.query === 'string' && req.query.query.trim().length > 0 && req.query.query.match(/^\d+(?:,\d+)*$/g);
 
-    if (req.query.query && !req.query.query.match(/^\d+(?:,\d+)*$/g)) {
+    if (!correctQuery) {
         return errors.makeBadRequestError(res, 'Query should be a string of 1 id or multiple ids seperated by commas.');
     }
 
-    let where = {};
+    const userIds = req.query.query.split(',');
 
-    if (typeof req.query.query === 'string' && req.query.query.trim().length > 0) {
-        where = { id: { [Sequelize.Op.or]: req.query.query.split(',') } };
+    if (!req.permissions.hasPermission('global:mail:member') && Number(userIds[0]) !== req.user.id) {
+        return errors.makeForbiddenError(res, 'Permission global:mail:member is required, but not present.');
     }
+
+    const where = { id: { [Sequelize.Op.or]: userIds } };
 
     const result = await User.findAndCountAll({
         where,
