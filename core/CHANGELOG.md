@@ -1,3 +1,10 @@
+## [1.38.3](https://github.com/AEGEE/core/compare/1.38.2...1.38.3) (2024-04-10)
+
+
+### Bug Fixes
+
+* **bodies:** only show information of locals when not logged in ([#913](https://github.com/AEGEE/core/issues/913)) ([447016d](https://github.com/AEGEE/core/commit/447016d5df41e80cd4a471ecac99902bad3a8c0d))
+
 ## [1.38.2](https://github.com/AEGEE/core/compare/1.38.1...1.38.2) (2024-04-06)
 
 
