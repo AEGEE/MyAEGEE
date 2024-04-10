@@ -877,10 +877,12 @@ exports.exportDelegatesJc = async (req, res) => {
         mails = await core.getMails(req, userIds);
     }
 
+    const bodies = await core.getBodies(req);
+
     // Returns a CSV string
     const exportString = await Promise.all(applications.map(async (application) => {
         const user = mails.find((m) => application.user_id === m.id);
-        const body = await core.getBody(req, application.body_id);
+        const body = bodies.find((b) => application.body_id === b.id);
         const regex = /[^a-zA-z\-\ ]/; // eslint-disable-line
         application.first_name = application.first_name.replace(regex, '?');
         application.last_name = application.last_name.replace(regex, '?');

@@ -57,7 +57,7 @@ describe('Export Delegates JC', () => {
     });
 
     test('should return the application if it is not cancelled, accepted and a delegate', async () => {
-        await generator.createApplication({ user_id: regularUser.id, status: 'accepted', participant_type: 'delegate' }, event);
+        await generator.createApplication({ user_id: regularUser.id, status: 'accepted', participant_type: 'delegate', body_id: 34 }, event);
         const res = await request({
             uri: '/events/' + event.id + '/applications/export/delegates_jc',
             method: 'GET',
