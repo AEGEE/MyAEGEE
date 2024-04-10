@@ -1,3 +1,10 @@
+## [1.12.5](https://github.com/AEGEE/statutory/compare/1.12.4...1.12.5) (2024-04-10)
+
+
+### Bug Fixes
+
+* **image:** check extensions case insensitive ([#1194](https://github.com/AEGEE/statutory/issues/1194)) ([1e66ae0](https://github.com/AEGEE/statutory/commit/1e66ae0d35284803ed03488a2176e9e9b62d4ebb))
+
 ## [1.12.4](https://github.com/AEGEE/statutory/compare/1.12.3...1.12.4) (2024-04-06)
 
 
