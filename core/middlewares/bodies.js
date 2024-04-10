@@ -31,6 +31,10 @@ exports.listAllBodies = async (req, res) => {
         req.query.sort = 'name';
     }
 
+    if (!req.user) {
+        where.type = ['antenna', 'contact antenna', 'contact'];
+    }
+
     const result = await Body.findAndCountAll({
         where,
         ...helpers.getPagination(req.query),
