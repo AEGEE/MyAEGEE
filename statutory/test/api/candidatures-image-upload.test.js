@@ -109,7 +109,7 @@ describe('Candidates image upload', () => {
             method: 'POST',
             headers: { 'X-Auth-Token': 'blablabla' },
             formData: {
-                image: fs.createReadStream('./test/assets/valid_image.png')
+                image: fs.createReadStream('./test/assets/valid_image_2.Png')
             }
         });
 
