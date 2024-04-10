@@ -1,3 +1,10 @@
+## [1.35.14](https://github.com/AEGEE/frontend/compare/1.35.13...1.35.14) (2024-04-10)
+
+
+### Bug Fixes
+
+* **core:** only filter on body type when logged in ([#2113](https://github.com/AEGEE/frontend/issues/2113)) ([0e1b737](https://github.com/AEGEE/frontend/commit/0e1b737adf79c88f46f602c9943c898c3008fbbb))
+
 ## [1.35.13](https://github.com/AEGEE/frontend/compare/1.35.12...1.35.13) (2024-04-03)
 
 
