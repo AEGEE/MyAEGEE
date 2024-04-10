@@ -110,7 +110,7 @@
         <div class="field">
           <label class="label">Google Workspace account</label>
           <div class="control">
-            <input class="input" data-cy="gsuite_id" type="email" required :disabled="!can.editGsuite" v-model="body.gsuite_id" placeholder="Type the Google Workspace email of the body" />
+            <input class="input" data-cy="gsuite_id" type="email" :disabled="!can.editGsuite" v-model="body.gsuite_id" placeholder="Type the Google Workspace email of the body" />
           </div>
           <p class="help is-danger" v-if="errors.gsuite_id">{{ errors.gsuite_id.join(', ')}}</p>
         </div>
@@ -118,7 +118,7 @@
         <div class="field">
           <label class="label">Google Group</label>
           <div class="control">
-            <input class="input" data-cy="google_group" type="email" required :disabled="!can.editGsuite" v-model="body.google_group" placeholder="Type the Google Group of the body" />
+            <input class="input" data-cy="google_group" type="email" :disabled="!can.editGsuite" v-model="body.google_group" placeholder="Type the Google Group of the body" />
           </div>
           <p class="help is-danger" v-if="errors.google_group">{{ errors.google_group.join(', ')}}</p>
         </div>

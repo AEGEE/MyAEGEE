@@ -17,7 +17,7 @@
           </div>
         </div>
 
-        <div class="field">
+        <div class="field" v-if="loginUser">
           <label class="label">Filter on body type</label>
           <div class="control">
             <multiselect
