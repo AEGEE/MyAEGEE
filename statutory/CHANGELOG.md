@@ -1,3 +1,10 @@
+## [1.12.6](https://github.com/AEGEE/statutory/compare/1.12.5...1.12.6) (2024-04-10)
+
+
+### Bug Fixes
+
+* **applications:** fetch all bodies once for JC export ([#1195](https://github.com/AEGEE/statutory/issues/1195)) ([e718bfa](https://github.com/AEGEE/statutory/commit/e718bfa34f3b076d80daf374f257e6869e5369ce))
+
 ## [1.12.5](https://github.com/AEGEE/statutory/compare/1.12.4...1.12.5) (2024-04-10)
 
 
