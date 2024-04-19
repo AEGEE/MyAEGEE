@@ -30,6 +30,24 @@
           For each new question you have to submit a new response of A or B, putting A five times in one question will not be considered as a request for five different questions for example.<br>
         </div>
 
+        <div class="notification is-info" v-if="$route.params.id === 'spring-agora-novi-sad-2024'">
+          Every Agora participant can request a place in the question line in real time by <b>entering the corresponding number</b>.<br>
+          In case you are a visitor or observer, your submitted question line place request will be considered as a request for speaking rights as well.<br>
+          Based on the time left, the Chair will decide how many questions will be accepted and evaluate if they will grant speaking rights to individuals.<br>
+          The questions are not anonymous, the name, Local/Body and participant status of the person asking a question will be visible to everyone else attending the Agora.<br>
+          The Chair reserves the right to delete requests that do not conform to the rules listed underneath this text, are offensive or disrupt the order of the Agora.<br>
+          <br>
+          Online question lines will be used only for candidates.<br>
+          Chair Team will inform you when the question line will open and how much time you have to ask.<br>
+          You can ask as many questions as you wish, writing either A or B for every question you would like to ask. You do not have to write the whole question in the online box!<br>
+          <br>
+          Meaning of letters to write:<br>
+          A - one question to one candidate<br>
+          B - one yes or no question to few candidates<br>
+          <br>
+          For each new question you have to submit a new response of A or B, putting A five times in one question will not be considered as a request for five different questions for example.<br>
+        </div>
+
         <div class="field" v-if="can.manage_question_lines">
           <div class="control">
             <button class="button is-primary" @click="openCreateQuestionLineModal">Create a question line</button>
