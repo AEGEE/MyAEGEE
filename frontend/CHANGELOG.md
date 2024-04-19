@@ -1,3 +1,10 @@
+## [1.35.15](https://github.com/AEGEE/frontend/compare/1.35.14...1.35.15) (2024-04-19)
+
+
+### Bug Fixes
+
+* **statutory:** add question line explanation for Spring Agora 2024 ([#2134](https://github.com/AEGEE/frontend/issues/2134)) ([2050191](https://github.com/AEGEE/frontend/commit/2050191b54a153ffcc82f2326ec13f1cadc8b025))
+
 ## [1.35.14](https://github.com/AEGEE/frontend/compare/1.35.13...1.35.14) (2024-04-10)
 
 
