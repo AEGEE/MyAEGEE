@@ -26,7 +26,7 @@
       </div>
     </section>
     <footer class="modal-card-foot">
-      <button class="button is-primary" @click="saveQuestion()">Save changes</button>
+      <button class="button is-primary" :disabled="isLoading" @click="saveQuestion()">Save changes</button>
       <button class="button" @click="$parent.close()">Cancel</button>
     </footer>
   </div>
@@ -38,6 +38,7 @@ export default {
   props: ['event', 'questionLine', 'question', 'services', 'showSuccess', 'showError', 'router'],
   data () {
     return {
+      isLoading: true,
       errors: {}
     }
   },
@@ -57,7 +58,6 @@ export default {
       action.then(() => {
         this.showSuccess('Question is created.')
 
-        this.isLoading = false
         this.router.go(0) // Reloading the page.
       }).catch((err) => {
         this.isLoading = false
@@ -70,7 +70,7 @@ export default {
     }
   },
   mounted () {
-
+    this.isLoading = false
   }
 }
 </script>
