@@ -1,3 +1,10 @@
+## [1.35.16](https://github.com/AEGEE/frontend/compare/1.35.15...1.35.16) (2024-04-26)
+
+
+### Bug Fixes
+
+* **statutory:** disable submit button when loading ([#2135](https://github.com/AEGEE/frontend/issues/2135)) ([5b7a988](https://github.com/AEGEE/frontend/commit/5b7a988a1ce63192855e4b7a79f21372eb9a4964))
+
 ## [1.35.15](https://github.com/AEGEE/frontend/compare/1.35.14...1.35.15) (2024-04-19)
 
 
