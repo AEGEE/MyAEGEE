@@ -1,3 +1,10 @@
+## [1.35.17](https://github.com/AEGEE/frontend/compare/1.35.16...1.35.17) (2024-05-03)
+
+
+### Bug Fixes
+
+* **resources:** update request a trainer link. Fixes HELP-2499 ([#2142](https://github.com/AEGEE/frontend/issues/2142)) ([74c8a2d](https://github.com/AEGEE/frontend/commit/74c8a2dc7382a199f3ff9dba0fd8f9a9e51beec0))
+
 ## [1.35.16](https://github.com/AEGEE/frontend/compare/1.35.15...1.35.16) (2024-04-26)
 
 
