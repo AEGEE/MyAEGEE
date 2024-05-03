@@ -108,7 +108,7 @@ export default {
             color: '#FFDB4C'
           },
           {
-            url: 'https://aegee-academy.eu/request-a-training/',
+            url: 'https://forms.gle/DhfVStza9xhn1jRT6',
             title: 'AEGEE-Academy',
             description: 'Request a trainer for your training events',
             color: '#FFDB4C'
