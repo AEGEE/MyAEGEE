@@ -1,3 +1,10 @@
+## [1.35.18](https://github.com/AEGEE/frontend/compare/1.35.17...1.35.18) (2024-05-06)
+
+
+### Bug Fixes
+
+* **resources:** add SPC form to resources ([#2150](https://github.com/AEGEE/frontend/issues/2150)) ([aee8031](https://github.com/AEGEE/frontend/commit/aee8031ebc2a8c6f14963d5627ca9d74bb918002))
+
 ## [1.35.17](https://github.com/AEGEE/frontend/compare/1.35.16...1.35.17) (2024-05-03)
 
 
