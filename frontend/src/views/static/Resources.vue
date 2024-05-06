@@ -114,6 +114,12 @@ export default {
             color: '#FFDB4C'
           },
           {
+            url: 'https://forms.gle/EcaDkdyQfSb65Jdh8',
+            title: 'Safe Person Committee',
+            description: 'Request a Safe Person or workshop for your event',
+            color: '#FFDB4C'
+          },
+          {
             url: 'https://podio.com/webforms/2318137/167577',
             title: 'AEGEE Newsletter',
             description: 'Submitting content for the AEGEE newsletter',
