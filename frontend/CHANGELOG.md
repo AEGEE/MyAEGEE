@@ -1,3 +1,10 @@
+## [1.35.19](https://github.com/AEGEE/frontend/compare/1.35.18...1.35.19) (2024-05-24)
+
+
+### Bug Fixes
+
+* **sidebar:** update kollaboratio link. Fixes HELP-2510 ([#2171](https://github.com/AEGEE/frontend/issues/2171)) ([14a1119](https://github.com/AEGEE/frontend/commit/14a11199c270cf30690f93bcf2ab149365455fff))
+
 ## [1.35.18](https://github.com/AEGEE/frontend/compare/1.35.17...1.35.18) (2024-05-06)
 
 
