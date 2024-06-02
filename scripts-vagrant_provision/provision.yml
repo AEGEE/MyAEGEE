@@ -69,11 +69,11 @@
       ignore_errors: yes
 
   roles:
-    - role: avanov.pyenv
+    - role: staticdev.pyenv
       vars:
         pyenv_path: "{{ ansible_env.HOME }}/.pyenv"
         pyenv_python_versions: ["{{ python_version }}"]
-        pyenv_global: "{{ python_version }}"
+        pyenv_global: ["{{ python_version }}"]
         pyenv_virtualenvs:
           - venv_name: "notifications"
             py_version: "{{ python_version }}"
