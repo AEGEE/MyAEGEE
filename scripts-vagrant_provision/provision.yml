@@ -16,7 +16,7 @@
 - name: Upgrade apt cache
   hosts: all
   become: true
-  tags: ['pyenv','node','docker','packages'] # before any task
+  tags: ['pyenv', 'node', 'docker', 'packages'] #  before any task
 
   pre_tasks:
     - name: Update apt-cache
