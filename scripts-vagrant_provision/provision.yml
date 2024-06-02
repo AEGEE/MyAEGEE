@@ -13,6 +13,17 @@
 
 ---
 
+- name: Upgrade apt cache
+  hosts: all
+  become: true
+  tags: ['pyenv','node','docker','packages'] # before any task
+
+  pre_tasks:
+    - name: Update apt-cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 36000
+
 - name: Prerequisites - folders
   hosts: all
   become: yes
@@ -54,8 +65,7 @@
         - npm
       when: current_node_version.stdout != nodejs_version
 
-- name: Install pyenv with better role but possibly with a deprecation inside
-  # TODO: pyenv role uses deprecated stuff?
+- name: Prerequisites - python
   hosts: all
   tags: ['pyenv']
 
@@ -85,7 +95,7 @@
   #     pip:
   #       requirements: /vagrant/scripts-vagrant_provision/requirements.txt
 
-- name: Prerequisites - node/python itself
+- name: Prerequisites - node
   hosts: all
   become: no  # role asked so
   tags: ['node']
@@ -104,18 +114,6 @@
   hosts: all
   become: true
   tags: ['docker']
-
-  vars:
-    docker_packages:
-      - "docker-{{ docker_edition }}={{docker_ubuntu_version}}"
-      - "docker-{{ docker_edition }}-cli={{docker_ubuntu_version}}"
-      # - "docker-{{ docker_edition }}-rootless-extras={{docker_ubuntu_version}}"
-    docker_daemon_options:
-      log-driver: "json-file"
-      log-opts:
-        max-size: "10m"
-        max-file: "2"
-        labels: "host-{{ ansible_hostname }}"
 
   roles:
     - geerlingguy.docker

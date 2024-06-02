@@ -4,9 +4,23 @@ npm_version: "9.6.4"
 
 python_version: "3.10.3"
 
-docker_version: "19.03.5"
+docker_version: "19.03.15"
 docker_ubuntu_version: "5:{{ docker_version }}~3-0~ubuntu-bionic"
-docker_compose_version: "1.24.0"
+docker_compose_version: "1.29.2"
 docker_users: ["vagrant"]
+
+docker_install_compose: true
+docker_compose_package_state: absent
+
+docker_packages:
+  - "docker-{{ docker_edition }}={{docker_ubuntu_version}}"
+  - "docker-{{ docker_edition }}-cli={{docker_ubuntu_version}}"
+  # - "docker-{{ docker_edition }}-rootless-extras={{docker_ubuntu_version}}"
+docker_daemon_options:
+  log-driver: "json-file"
+  log-opts:
+    max-size: "10m"
+    max-file: "2"
+    labels: "host-{{ ansible_hostname }}"
 
 packages_to_install: ['make', 'jq', 'net-tools', 'vim', 'sqlite3', 'cowsay', 'figlet']
