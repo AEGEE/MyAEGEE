@@ -1,3 +1,10 @@
+# [1.36.0](https://github.com/AEGEE/frontend/compare/1.35.19...1.36.0) (2024-07-23)
+
+
+### Features
+
+* **resources:** remove the board submission form ([#2199](https://github.com/AEGEE/frontend/issues/2199)) ([9b8d71a](https://github.com/AEGEE/frontend/commit/9b8d71acc6567baa7fc247b08fd0f14ce8d933c3))
+
 ## [1.35.19](https://github.com/AEGEE/frontend/compare/1.35.18...1.35.19) (2024-05-24)
 
 
