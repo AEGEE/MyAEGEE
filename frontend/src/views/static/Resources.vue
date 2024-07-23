@@ -140,12 +140,6 @@ export default {
         ],
         'Network': [
           {
-            url: 'https://docs.google.com/forms/d/e/1FAIpQLSfheOjWEQjqua1UqaqYofuqlrBV2bQK_m8OOypeqq6fnfgQLQ/viewform',
-            title: 'Board Submission Form',
-            description: 'Submitting new board to NetCom',
-            color: '#C2DE5D'
-          },
-          {
             url: 'https://docs.google.com/forms/d/e/1FAIpQLSd2u-r1jFGyNwYCwsSnMf9-dApH7ZGeGltZusxqWqkB_VQ0zg/viewform',
             title: 'AEGEE Contact in your City',
             description: 'Leave your contact details behind to start the process of founding an AEGEE Contact in your city',
