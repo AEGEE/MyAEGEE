@@ -54,6 +54,8 @@ GeneralRouter.get('/boardview/:body_id', middlewares.ensureAuthorized, events.li
 
 GeneralRouter.get('/applications', middlewares.ensureAuthorized, applications.getStats);
 
+GeneralRouter.get('/recents', middlewares.ensureAuthorized, events.listMostRecentEvents);
+
 // All requests from here on use the getEvent middleware to fetch a single event from db
 EventsRouter.use(middlewares.fetchSingleEvent);
 
