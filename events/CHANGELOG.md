@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/AEGEE/events/compare/1.4.2...1.5.0) (2024-08-19)
+
+
+### Features
+
+* **AC check:** Add endpoint to get most recent events of a body ([#1074](https://github.com/AEGEE/events/issues/1074)) ([3cc469a](https://github.com/AEGEE/events/commit/3cc469aa5c4fd73794699af6d837e9f7522e7c28))
+
 ## [1.4.2](https://github.com/AEGEE/events/compare/1.4.1...1.4.2) (2024-03-13)
 
 
