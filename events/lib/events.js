@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const errors = require('./errors');
 const merge = require('./merge');
 const constants = require('./constants');
@@ -30,6 +32,29 @@ exports.listEvents = async (req, res) => {
             offset: queryObj.offset,
             limit: queryObj.limit
         }
+    });
+};
+
+exports.listMostRecentEvents = async (req, res) => {
+    const queryObj = {
+        where: {
+            deleted: false,
+            status: 'published'
+        },
+        group: 'organizing_bodies',
+        attributes: [
+            'organizing_bodies',
+            [Sequelize.fn('MAX', Sequelize.col('ends')), 'latest_event']
+        ]
+    };
+
+    if (req.query.ends) queryObj.where[Sequelize.Op.and] = { ends: { [Sequelize.Op.lte]: moment(req.query.ends, 'YYYY-MM-DD').endOf('day').toDate() } };
+
+    const events = await Event.findAll(queryObj);
+
+    return res.json({
+        success: true,
+        data: events
     });
 };
 

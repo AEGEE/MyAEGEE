@@ -52,6 +52,8 @@ GeneralRouter.get('/mine/participating', middlewares.ensureAuthorized, events.li
 GeneralRouter.get('/mine/approvable', middlewares.ensureAuthorized, events.listApprovableEvents);
 GeneralRouter.get('/boardview/:body_id', middlewares.ensureAuthorized, events.listBodyApplications);
 
+GeneralRouter.get('/recents', middlewares.ensureAuthorized, events.listMostRecentEvents);
+
 // All requests from here on use the getEvent middleware to fetch a single event from db
 EventsRouter.use(middlewares.fetchSingleEvent);
 
