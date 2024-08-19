@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/AEGEE/summeruniversity/compare/1.4.18...1.5.0) (2024-08-19)
+
+
+### Features
+
+* **AC check:** Add endpoint to get most recent events ([#758](https://github.com/AEGEE/summeruniversity/issues/758)) ([f4257fc](https://github.com/AEGEE/summeruniversity/commit/f4257fccb58b522be8f6a28f8f244b5393b26ea0))
+
 ## [1.4.18](https://github.com/AEGEE/summeruniversity/compare/1.4.17...1.4.18) (2024-02-09)
 
 
