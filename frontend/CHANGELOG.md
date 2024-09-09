@@ -1,3 +1,10 @@
+## [1.36.1](https://github.com/AEGEE/frontend/compare/1.36.0...1.36.1) (2024-09-09)
+
+
+### Bug Fixes
+
+* **resources:** add sexual harassment report ([#2200](https://github.com/AEGEE/frontend/issues/2200)) ([1aa808d](https://github.com/AEGEE/frontend/commit/1aa808d485a088d21d5b02d10de300c14c1da762))
+
 # [1.36.0](https://github.com/AEGEE/frontend/compare/1.35.19...1.36.0) (2024-07-23)
 
 
