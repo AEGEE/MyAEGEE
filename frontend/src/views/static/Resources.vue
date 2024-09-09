@@ -136,6 +136,12 @@ export default {
             title: 'ASRF Application Form',
             description: 'Apply for the AEGEE Social Responsibility Fund',
             color: '#FFDB4C'
+          },
+          {
+            url: 'https://docs.google.com/forms/d/e/1FAIpQLSf0OmluW11nce72VEuWOybQ1n83gMK6UcE9QvfJ5gIBETUwpA/viewform',
+            title: 'Sexual Harassment Report',
+            description: 'Report a case of sexual harassment',
+            color: '#FFDB4C'
           }
         ],
         'Network': [
