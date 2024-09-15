@@ -50,6 +50,32 @@ describe('Board listing', () => {
         expect(res.body.success).toEqual(false);
     });
 
+    test('should fail for most recent elected board of all bodies if no permission', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const res = await request({
+            uri: '/boards/recents',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+    });
+
+    test('should fail for all boards of body if no permission', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const res = await request({
+            uri: '/bodies/1/boards',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+    });
+
     test('should fail for the current board of body if no permission', async () => {
         mock.mockAll({ mainPermissions: { noPermissions: true } });
 
@@ -85,7 +111,7 @@ describe('Board listing', () => {
         await generator.createBoard({ body_id: 2 });
 
         const res = await request({
-            uri: '/bodies/1',
+            uri: '/bodies/1/boards',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -98,7 +124,7 @@ describe('Board listing', () => {
 
     test('should fail if body_id is not a number', async () => {
         const res = await request({
-            uri: 'bodies/NaN',
+            uri: 'bodies/NaN/boards',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -225,7 +251,7 @@ describe('Board listing', () => {
         await generator.createBoard({ body_id: 2 });
 
         const res = await request({
-            uri: '/bodies/1?sort=start_date&direction=desc',
+            uri: '/bodies/1/boards?sort=start_date&direction=desc',
             method: 'GET',
             headers: { 'X-Auth-Token': 'blablabla' }
         });
@@ -238,5 +264,53 @@ describe('Board listing', () => {
         expect(res.body.data[0].id).toEqual(first.id);
         expect(res.body.data[1].id).toEqual(second.id);
         expect(res.body.data[2].id).toEqual(third.id);
+    });
+
+    test('should list only most recently elected board', async () => {
+        await generator.createBoard({
+            body_id: 1,
+            elected_date: moment().subtract(2, 'weeks').toDate()
+        });
+        const mostRecentBoard = await generator.createBoard({
+            body_id: 1,
+            elected_date: moment().subtract(1, 'weeks').toDate()
+        });
+
+        const res = await request({
+            uri: '/boards/recents',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].latest_election).toEqual(mostRecentBoard.elected_date);
+    });
+
+    test('should not list boards elected in the future', async () => {
+        const formerBoard = await generator.createBoard({
+            body_id: 1,
+            elected_date: moment().subtract(2, 'weeks').toDate()
+        });
+        await generator.createBoard({
+            body_id: 1,
+            elected_date: moment().toDate()
+        });
+
+        const ends = moment().subtract(1, 'weeks').toISOString();
+
+        const res = await request({
+            uri: '/boards/recents?ends=' + ends,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].latest_election).toEqual(formerBoard.elected_date);
     });
 });

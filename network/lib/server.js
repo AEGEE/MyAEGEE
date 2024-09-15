@@ -34,7 +34,8 @@ GeneralRouter.get('/metrics/requests', endpointsMetrics.getEndpointMetrics);
 GeneralRouter.use(middlewares.authenticateUser);
 
 GeneralRouter.get('/boards', boards.listAllBoards);
-GeneralRouter.get('/bodies/:body_id', boards.listAllBoardsBody);
+GeneralRouter.get('/boards/recents', boards.listMostRecentBoardsElected);
+GeneralRouter.get('/bodies/:body_id/boards', boards.listAllBoardsBody);
 GeneralRouter.post('/bodies/:body_id/boards', boards.createBoard);
 GeneralRouter.get('/bodies/:body_id/boards/current', boards.listCurrentBoardBody);
 GeneralRouter.get('/bodies/:body_id/boards/:board_id', boards.findBoard, boards.getBoard);

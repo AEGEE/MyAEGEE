@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 const { Board } = require('../models');
 const errors = require('./errors');
 const helpers = require('./helpers');
-const { sequelize } = require('./sequelize');
+const { Sequelize, sequelize } = require('./sequelize');
 const core = require('./core');
 const mailer = require('./mailer');
 const config = require('../config');
@@ -55,6 +55,31 @@ exports.listAllBoards = async (req, res) => {
 
     const boards = await Board.findAll({
         order: helpers.getSorting(req.query)
+    });
+
+    return res.json({
+        success: true,
+        data: boards
+    });
+};
+
+exports.listMostRecentBoardsElected = async (req, res) => {
+    if (!req.permissions.view_board) {
+        return errors.makeForbiddenError(res, 'You are not allowed to list recently elected boards.');
+    }
+
+    let endDate = moment().endOf('day').toDate();
+    if (req.query.ends) endDate = moment(req.query.ends, 'YYYY-MM-DD').endOf('day').toDate();
+
+    const boards = await Board.findAll({
+        where: {
+            elected_date: { [Op.lte]: endDate },
+        },
+        group: 'body_id',
+        attributes: [
+            'body_id',
+            [Sequelize.fn('MAX', Sequelize.col('elected_date')), 'latest_election']
+        ]
     });
 
     return res.json({
