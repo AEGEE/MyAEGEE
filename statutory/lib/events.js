@@ -58,6 +58,26 @@ exports.listEvents = async (req, res) => {
     });
 };
 
+exports.listMostRecentEvents = async (req, res) => {
+    const queryObj = {
+        where: { status: 'published' },
+        group: 'body_id',
+        attributes: [
+            'body_id',
+            [Sequelize.fn('MAX', Sequelize.col('ends')), 'latest_event']
+        ]
+    };
+
+    if (req.query.ends) queryObj.where[Sequelize.Op.and] = { ends: { [Sequelize.Op.lte]: moment(req.query.ends, 'YYYY-MM-DD').endOf('day').toDate() } };
+
+    const events = await Event.findAll(queryObj);
+
+    return res.json({
+        success: true,
+        data: events
+    });
+};
+
 exports.displayEvent = async (req, res) => {
     req.event.permissions = req.permissions;
     const event = req.event.toJSON();

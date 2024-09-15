@@ -287,4 +287,100 @@ describe('Events listing', () => {
         expect(ids).toContain(first.id);
         expect(ids).toContain(second.id);
     });
+
+    test('should list most recent events per body', async () => {
+        await generator.createEvent({
+            status: 'published',
+            body_id: 1,
+            application_period_starts: moment().subtract(20, 'days').toDate(),
+            application_period_ends: moment().subtract(19, 'days').toDate(),
+            board_approve_deadline: moment().subtract(18, 'days').toDate(),
+            participants_list_publish_deadline: moment().subtract(17, 'days').toDate(),
+            memberslist_submission_deadline: moment().subtract(16, 'days').toDate(),
+            draft_proposal_deadline: moment().subtract(15, 'days').toDate(),
+            final_proposal_deadline: moment().subtract(14, 'days').toDate(),
+            candidature_deadline: moment().subtract(13, 'days').toDate(),
+            booklet_publication_deadline: moment().subtract(12, 'days').toDate(),
+            updated_booklet_publication_deadline: moment().subtract(11, 'days').toDate(),
+            starts: moment().subtract(8, 'days').toDate(),
+            ends: moment().subtract(7, 'days').toDate(),
+        });
+        const mostRecentEvent = await generator.createEvent({
+            status: 'published',
+            body_id: 1,
+            application_period_starts: moment().subtract(20, 'days').toDate(),
+            application_period_ends: moment().subtract(19, 'days').toDate(),
+            board_approve_deadline: moment().subtract(18, 'days').toDate(),
+            participants_list_publish_deadline: moment().subtract(17, 'days').toDate(),
+            memberslist_submission_deadline: moment().subtract(16, 'days').toDate(),
+            draft_proposal_deadline: moment().subtract(15, 'days').toDate(),
+            final_proposal_deadline: moment().subtract(14, 'days').toDate(),
+            candidature_deadline: moment().subtract(13, 'days').toDate(),
+            booklet_publication_deadline: moment().subtract(12, 'days').toDate(),
+            updated_booklet_publication_deadline: moment().subtract(11, 'days').toDate(),
+            starts: moment().subtract(3, 'days').toDate(),
+            ends: moment().subtract(2, 'days').toDate(),
+        });
+
+        const res = await request({
+            uri: '/recents',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].latest_event).toEqual(mostRecentEvent.ends.toISOString());
+    });
+
+    it('should not list most recent events in the future', async () => {
+        const previousEvent = await generator.createEvent({
+            status: 'published',
+            body_id: 1,
+            application_period_starts: moment().subtract(40, 'days').toDate(),
+            application_period_ends: moment().subtract(39, 'days').toDate(),
+            board_approve_deadline: moment().subtract(38, 'days').toDate(),
+            participants_list_publish_deadline: moment().subtract(37, 'days').toDate(),
+            memberslist_submission_deadline: moment().subtract(36, 'days').toDate(),
+            draft_proposal_deadline: moment().subtract(35, 'days').toDate(),
+            final_proposal_deadline: moment().subtract(34, 'days').toDate(),
+            candidature_deadline: moment().subtract(33, 'days').toDate(),
+            booklet_publication_deadline: moment().subtract(32, 'days').toDate(),
+            updated_booklet_publication_deadline: moment().subtract(31, 'days').toDate(),
+            starts: moment().subtract(18, 'days').toDate(),
+            ends: moment().subtract(17, 'days').toDate(),
+        });
+        await generator.createEvent({
+            status: 'published',
+            body_id: 1,
+            application_period_starts: moment().subtract(20, 'days').toDate(),
+            application_period_ends: moment().subtract(19, 'days').toDate(),
+            board_approve_deadline: moment().subtract(18, 'days').toDate(),
+            participants_list_publish_deadline: moment().subtract(17, 'days').toDate(),
+            memberslist_submission_deadline: moment().subtract(16, 'days').toDate(),
+            draft_proposal_deadline: moment().subtract(15, 'days').toDate(),
+            final_proposal_deadline: moment().subtract(14, 'days').toDate(),
+            candidature_deadline: moment().subtract(13, 'days').toDate(),
+            booklet_publication_deadline: moment().subtract(12, 'days').toDate(),
+            updated_booklet_publication_deadline: moment().subtract(11, 'days').toDate(),
+            starts: moment().subtract(3, 'days').toDate(),
+            ends: moment().subtract(2, 'days').toDate(),
+        });
+
+        const ends = moment().subtract(10, 'days').toISOString();
+
+        const res = await request({
+            uri: '/recents?ends=' + ends,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].latest_event).toEqual(previousEvent.ends.toISOString());
+    });
 });
