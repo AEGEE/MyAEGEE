@@ -101,7 +101,10 @@ exports.listCurrentBoardBody = async (req, res) => {
         where: {
             body_id: Number(req.params.body_id),
             start_date: { [Op.lte]: today },
-            end_date: { [Op.gte]: today }
+            [Op.or]: [
+                { end_date: { [Op.gte]: today } },
+                { end_date: null }
+            ]
         },
         order: [['start_date', 'DESC']]
     });

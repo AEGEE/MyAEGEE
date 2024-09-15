@@ -139,6 +139,21 @@ describe('Board listing', () => {
         expect(res.body.data.length).toEqual(1);
     });
 
+    test('should list current board if no end date is set', async () => {
+        await generator.createBoard({ body_id: 1, start_date: faker.date.past() });
+
+        const res = await request({
+            uri: 'bodies/1/boards/current',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(1);
+    });
+
     test('should fail if body_id current board is not a number', async () => {
         const res = await request({
             uri: 'bodies/NaN/boards/current',
