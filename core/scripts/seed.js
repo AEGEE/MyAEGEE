@@ -79,6 +79,18 @@ async function createBodies() {
             email: typeLowerCase.replace(' ', '') + '@example.com'
         }));
     });
+
+    bodies.push(await Body.create({
+        name: 'Network Commission',
+        code: 'XNE',
+        description: 'Network Commission',
+        type: 'commission',
+        phone: '1-800-111-11-11',
+        address: 'Somewhere in Europe',
+        founded_at: '1970-01-01',
+        email: 'netcom@example.com'
+    }));
+
     return bodies;
 }
 
@@ -234,6 +246,12 @@ async function createPermissions() {
         object: 'circle',
         scope: 'global',
         description: 'Add anyone to any circle in the system, no matter if the circle is joinable or not but still respecting that bound circles can only hold members of the same body. This also allows to add yourself to any circle and thus can be used for a privilege escalation'
+    });
+    permissions.manageAntennaCriteria = await Permission.create({
+        action: 'manage_network',
+        object: 'antenna_criteria',
+        scope: 'global',
+        description: 'Manage the Antenna Criteria fulfilment of Locals'
     });
 
     permissions.members = await Permission.bulkCreate([{
@@ -444,6 +462,12 @@ async function createPermissions() {
             scope: 'local',
             description: '-'
         },
+        {
+            action: 'manage_network',
+            object: 'boards',
+            scope: 'local',
+            description: 'Manage boards of a local'
+        }
     ], { individualHooks: true, validate: true });
 
     permissions.board = [...otherBoardPermissions, ...boardPermissions];
@@ -518,9 +542,22 @@ async function createPermissions() {
         object: 'join_request',
         scope: 'global',
         description: 'View join requests to any body in the system. This could disclose a bigger portion of the members database and thus should be assigned carefully'
-    }], { individualHooks: true, validate: true });
+    },
+    {
+        action: 'manage_network',
+        object: 'boards',
+        scope: 'global',
+        description: 'Manage boards of all locals'
+    },
+    {
+        action: 'manage_network',
+        object: 'communication',
+        scope: 'global',
+        description: 'Set the fulfilment of the `communication` Antenna Criterion'
+    }
+    ], { individualHooks: true, validate: true });
 
-    permissions.netCom = [...netComPermissions, permissions.viewMembersCircle, permissions.addMemberCircle];
+    permissions.netCom = [...netComPermissions, permissions.viewMembersCircle, permissions.addMemberCircle, permissions.seeMemberslistsAgora, permissions.manageAntennaCriteria];
 
     const networkDirectorPermissions = await Permission.bulkCreate([{
         action: 'view_deleted',
@@ -533,11 +570,60 @@ async function createPermissions() {
         object: 'agora',
         scope: 'global',
         description: 'Update the is_on_memberslist status for applications for Agora. Should be assigned to Network Director.'
+    },
+    {
+        action: 'manage_network',
+        object: 'communication_exception',
+        scope: 'global',
+        description: 'Give exceptions to the `communication` Antenna Criterion'
+    },
+    {
+        action: 'manage_network',
+        object: 'board_election',
+        scope: 'global',
+        description: 'Set the fulfilment of the `board election` Antenna Criterion'
+    },
+    {
+        action: 'manage_network',
+        object: 'members_list',
+        scope: 'global',
+        description: 'Set the fulfilment of the `members list` Antenna Criterion'
+    },
+    {
+        action: 'manage_network',
+        object: 'events',
+        scope: 'global',
+        description: 'Set the fulfilment of the `events` Antenna Criterion'
+    },
+    {
+        action: 'manage_network',
+        object: 'agora_attendance',
+        scope: 'global',
+        description: 'Set the fulfilment of the `agora attendance` Antenna Criterion'
+    },
+    {
+        action: 'manage_network',
+        object: 'development_plan',
+        scope: 'global',
+        description: 'Set the fulfilment of the `development plan` Antenna Criterion'
+    },
+    {
+        action: 'manage_network',
+        object: 'fulfilment_report',
+        scope: 'global',
+        description: 'Set the fulfilment of the `fulfilment report` Antenna Criterion'
     }], { individualHooks: true, validate: true });
 
-    permissions.networkDirector = [...networkDirectorPermissions, ...permissions.netCom, permissions.seeMemberslistsAgora, permissions.setMemberslistsFeePaidAgora];
+    permissions.networkDirector = [...networkDirectorPermissions, ...permissions.netCom, permissions.setMemberslistsFeePaidAgora];
 
-    permissions.financialDirector = [permissions.seeMemberslistsAgora, permissions.setMemberslistsFeePaidAgora];
+    const financialDirectorPermissions = await Permission.bulkCreate([{
+        action: 'manage_network',
+        object: 'membership_fee',
+        scope: 'global',
+        description: 'Set the fulfilment of the `membership fee` Antenna Criterion'
+    }], { individualHooks: true, validate: true });
+
+    permissions.financialDirector = [...financialDirectorPermissions, permissions.seeMemberslistsAgora, permissions.setMemberslistsFeePaidAgora, permissions.manageAntennaCriteria];
 
     const suctPermissions = await Permission.bulkCreate([{
         action: 'edit',
@@ -1160,6 +1246,7 @@ async function createPermissions() {
 
 async function createMembers() {
     const antenna = data.bodies.find((b) => b.type === 'antenna');
+    const netcom = data.bodies.find((b) => b.name === 'Network Commission');
 
     const member = await User.create({
         first_name: 'A',
@@ -1267,13 +1354,66 @@ async function createMembers() {
         active: false
     });
 
+    const netcomMember = await User.create({
+        first_name: 'NetCom',
+        last_name: 'Member',
+        username: 'netcom',
+        email: 'netcom@example.com',
+        password: '5ecr3t5ecr3t',
+        about_me: 'A member of the Network Commission',
+        date_of_birth: '1970-01-01',
+        gender: 'neutral',
+        address: 'Somewhere in Europe',
+        mail_confirmed_at: new Date()
+    });
+
+    await BodyMembership.create({
+        body_id: antenna.id,
+        user_id: netcomMember.id
+    });
+
+    await BodyMembership.create({
+        body_id: netcom.id,
+        user_id: netcomMember.id
+    });
+
+    await CircleMembership.create({
+        circle_id: data.circles.netcomCircle.id,
+        user_id: netcomMember.id
+    });
+
+    const ndMember = await User.create({
+        first_name: 'Network',
+        last_name: 'Director',
+        username: 'nd',
+        email: 'nd@example.com',
+        password: '5ecr3t5ecr3t',
+        about_me: 'The ND of CD',
+        date_of_birth: '1970-01-01',
+        gender: 'neutral',
+        address: 'Somewhere in Europe',
+        mail_confirmed_at: new Date()
+    });
+
+    await BodyMembership.create({
+        body_id: antenna.id,
+        user_id: ndMember.id
+    });
+
+    await CircleMembership.create({
+        circle_id: data.circles.networkDirectorCircle.id,
+        user_id: ndMember.id
+    });
+
     return {
         member,
         boardMember,
         notMember,
         notConfirmedMember,
         passwordResetMember,
-        suspendedMember
+        suspendedMember,
+        netcomMember,
+        ndMember
     };
 }
 
