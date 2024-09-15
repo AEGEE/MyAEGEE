@@ -1,3 +1,4 @@
 const Board = require('./Board');
+const AntennaCriterion = require('./AntennaCriterion');
 
-module.exports = { Board };
+module.exports = { Board, AntennaCriterion };

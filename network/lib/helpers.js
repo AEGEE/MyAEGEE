@@ -49,7 +49,8 @@ function getBodiesListFromPermissions(result) {
 
 exports.getPermissions = (user, corePermissions, managePermissions) => {
     const permissions = {
-        view_board: hasPermission(corePermissions, 'view:board')
+        view_board: hasPermission(corePermissions, 'view:board'),
+        manage_antenna_criteria: hasPermission(corePermissions, 'global:manage_network:antenna_criteria')
     };
 
     permissions.manage_boards = {
@@ -61,6 +62,18 @@ exports.getPermissions = (user, corePermissions, managePermissions) => {
     for (const body of userBodies) {
         permissions.manage_boards[body.id] = manageBoardsList.includes(body.id);
     }
+
+    permissions.antenna_criteria = {
+        communication: hasPermission(corePermissions, 'global:manage_network:communication'),
+        communication_exception: hasPermission(corePermissions, 'global:manage_network:communication_exception'),
+        board_election: hasPermission(corePermissions, 'global:manage_network:board_election'),
+        members_list: hasPermission(corePermissions, 'global:manage_network:members_list'),
+        membership_fee: hasPermission(corePermissions, 'global:manage_network:membership_fee'),
+        events: hasPermission(corePermissions, 'global:manage_network:events'),
+        agora_attendance: hasPermission(corePermissions, 'global:manage_network:agora_attendance'),
+        development_plan: hasPermission(corePermissions, 'global:manage_network:development_plan'),
+        fulfilment_report: hasPermission(corePermissions, 'global:manage_network:fulfilment_report'),
+    };
 
     return permissions;
 };

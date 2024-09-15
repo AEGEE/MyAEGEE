@@ -1,6 +1,6 @@
 const { faker } = require('@faker-js/faker');
 
-const { Board } = require('../../models');
+const { Board, AntennaCriterion } = require('../../models');
 
 const notSet = (field) => typeof field === 'undefined';
 
@@ -19,6 +19,19 @@ exports.createBoard = (options = {}) => {
     return Board.create(exports.generateBoard(options));
 };
 
+exports.generateAntennaCriterion = (options = {}) => {
+    if (notSet(options.agora_id)) options.agora_id = faker.number.int(100);
+    if (notSet(options.body_id)) options.body_id = faker.number.int(100);
+    if (notSet(options.antenna_criterion)) options.antenna_criterion = faker.helpers.arrayElement(['communication', 'board election', 'members list', 'membership fee', 'events', 'agora attendance', 'development plan', 'fulfilment report']);
+
+    return options;
+};
+
+exports.createAntennaCriterion = (options = {}) => {
+    return AntennaCriterion.create(exports.generateAntennaCriterion(options));
+};
+
 exports.clearAll = async () => {
     await Board.destroy({ where: {}, truncate: { cascade: true } });
+    await AntennaCriterion.destroy({ where: {}, truncate: { cascade: true } });
 };

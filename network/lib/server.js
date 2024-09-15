@@ -8,6 +8,7 @@ const Bugsnag = require('./bugsnag');
 const morgan = require('./morgan');
 const middlewares = require('./middlewares');
 const boards = require('./boards');
+const antennaCriteria = require('./antenna_criteria');
 const metrics = require('./metrics');
 const endpointsMetrics = require('./endpoints_metrics');
 const db = require('./sequelize');
@@ -39,6 +40,9 @@ GeneralRouter.get('/bodies/:body_id/boards/current', boards.listCurrentBoardBody
 GeneralRouter.get('/bodies/:body_id/boards/:board_id', boards.findBoard, boards.getBoard);
 GeneralRouter.put('/bodies/:body_id/boards/:board_id', boards.findBoard, boards.updateBoard);
 GeneralRouter.delete('/bodies/:body_id/boards/:board_id', boards.findBoard, boards.deleteBoard);
+
+GeneralRouter.get('/antennaCriteria/:agora_id', antennaCriteria.listCriteria);
+GeneralRouter.put('/antennaCriteria', antennaCriteria.setCriterion);
 
 server.use(endpointsMetrics.addEndpointMetrics);
 server.use('/', GeneralRouter);

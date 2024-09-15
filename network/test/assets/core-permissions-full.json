@@ -19,5 +19,35 @@
       "combined": "global:view:board",
       "circles": null,
       "action": "view"
+    },
+    {
+      "combined": "global:manage_network:antenna_criteria"
+    },
+    {
+      "combined": "global:manage_network:communication"
+    },
+    {
+      "combined": "global:manage_network:communication_exception"
+    },
+    {
+      "combined": "global:manage_network:board_election"
+    },
+    {
+      "combined": "global:manage_network:members_list"
+    },
+    {
+      "combined": "global:manage_network:membership_fee"
+    },
+    {
+      "combined": "global:manage_network:events"
+    },
+    {
+      "combined": "global:manage_network:agora_attendance"
+    },
+    {
+      "combined": "global:manage_network:development_plan"
+    },
+    {
+      "combined": "global:manage_network:fulfilment_report"
     }]
 }
