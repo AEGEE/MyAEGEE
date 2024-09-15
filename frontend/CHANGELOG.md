@@ -1,3 +1,10 @@
+# [1.37.0](https://github.com/AEGEE/frontend/compare/1.36.1...1.37.0) (2024-09-15)
+
+
+### Features
+
+* **network:** automatic Antenna Criteria check ([#2036](https://github.com/AEGEE/frontend/issues/2036)) ([94219f0](https://github.com/AEGEE/frontend/commit/94219f0d56cf57607d7e286a01f350d0a60a7755))
+
 ## [1.36.1](https://github.com/AEGEE/frontend/compare/1.36.0...1.36.1) (2024-09-09)
 
 
