@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/AEGEE/network/compare/1.2.0...1.2.1) (2024-09-15)
+
+
+### Bug Fixes
+
+* **boards:** add endpoint to get most recently elected boards ([#599](https://github.com/AEGEE/network/issues/599)) ([e399a72](https://github.com/AEGEE/network/commit/e399a7255997a34d9dce975ad80ab380e236ef17))
+
 # [1.2.0](https://github.com/AEGEE/network/compare/1.1.3...1.2.0) (2024-09-15)
 
 
