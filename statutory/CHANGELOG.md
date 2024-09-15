@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/AEGEE/statutory/compare/1.12.6...1.13.0) (2024-09-15)
+
+
+### Features
+
+* **AC check:** Add endpoint to get most recent events ([#1242](https://github.com/AEGEE/statutory/issues/1242)) ([f365e04](https://github.com/AEGEE/statutory/commit/f365e04ebd9ecefeb555dd13028b6ccc032e999f))
+
 ## [1.12.6](https://github.com/AEGEE/statutory/compare/1.12.5...1.12.6) (2024-04-10)
 
 
