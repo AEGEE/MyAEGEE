@@ -841,6 +841,14 @@ module.exports = [
       label: 'View current boards'
     }
   },
+  {
+    name: 'oms.network.ac_check',
+    path: '/network/ac_check',
+    component: 'network/AntennaCriteriaCheck',
+    meta: {
+      label: 'Antenna Criteria check'
+    }
+  },
   /* Static resources. */
   {
     name: 'oms.about',
