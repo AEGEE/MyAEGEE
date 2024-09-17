@@ -296,7 +296,7 @@ export default {
     },
     async fetchSummerUniversities () {
       await this.axios.get(this.services['summeruniversity'] + '/recents', { params: { ends: this.selectedAgora.ends } }).then((response) => {
-        this.statutoryEvents = response.data.data
+        this.summerUniversities = response.data.data
       }).catch((err) => {
         this.isLoading = false
         this.$root.showError('Could not fetch Summer University data', err)
