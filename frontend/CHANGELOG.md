@@ -1,3 +1,10 @@
+## [1.37.1](https://github.com/AEGEE/frontend/compare/1.37.0...1.37.1) (2024-09-17)
+
+
+### Bug Fixes
+
+* **network:** fix assignment to summerUniversities ([#2201](https://github.com/AEGEE/frontend/issues/2201)) ([2a4972e](https://github.com/AEGEE/frontend/commit/2a4972ec280c6b82c2cb767ffecab6693e41ee70))
+
 # [1.37.0](https://github.com/AEGEE/frontend/compare/1.36.1...1.37.0) (2024-09-15)
 
 
