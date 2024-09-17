@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/AEGEE/summeruniversity/compare/1.5.0...1.5.1) (2024-09-17)
+
+
+### Bug Fixes
+
+* **ci:** update to Node 20 and update CircleCI config ([#785](https://github.com/AEGEE/summeruniversity/issues/785)) ([9225032](https://github.com/AEGEE/summeruniversity/commit/92250327670d24f519c298030319304ff152bdd6))
+
 # [1.5.0](https://github.com/AEGEE/summeruniversity/compare/1.4.18...1.5.0) (2024-08-19)
 
 
