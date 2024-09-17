@@ -51,7 +51,7 @@ exports.listMostRecentEvents = async (req, res) => {
     const queryObj = {
         where: {
             deleted: false,
-            status: 'published'
+            published: 'covid'
         },
         group: 'organizing_bodies',
         attributes: [
