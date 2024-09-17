@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/AEGEE/summeruniversity/compare/1.5.1...1.5.2) (2024-09-17)
+
+
+### Bug Fixes
+
+* **network:** selection on existing fields for Summer Universities ([#784](https://github.com/AEGEE/summeruniversity/issues/784)) ([2aaac4e](https://github.com/AEGEE/summeruniversity/commit/2aaac4eab8cde64eafb8746f2c5e8744744c1ae8))
+
 ## [1.5.1](https://github.com/AEGEE/summeruniversity/compare/1.5.0...1.5.1) (2024-09-17)
 
 
