@@ -355,8 +355,16 @@ exports.getStats = async (req, res) => {
         by_nationality: []
     };
 
-    const applications = await Application.findAll({ attributes: ['event_id', 'body_name', 'nationality'] });
-    const events = await Event.findAll({ attributes: ['id', 'name'] });
+    let applicationQuery = { attributes: ['event_id', 'body_name', 'nationality'] };
+    let eventQuery = { attributes: ['id', 'name'] };
+
+    if (req.query.season) {
+        applicationQuery = { ...applicationQuery, ...{ include: [{ model: Event, where: { season: Number(req.query.season) } }] } };
+        eventQuery = { ...eventQuery, ...{ where: { season: Number(req.query.season) } } };
+    }
+
+    const applications = await Application.findAll(applicationQuery);
+    const events = await Event.findAll(eventQuery);
 
     statsObject.by_event = helpers
         .countByField(applications, 'event_id')
