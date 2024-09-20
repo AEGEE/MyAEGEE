@@ -241,7 +241,7 @@ export default {
     // Set the current fulfilment and comments
     for (const criterion in this.local.antennaCriteria) {
       this.antennaCriteria[criterion] = this.local.antennaCriteria[criterion]
-      this.comments[criterion] = this.local.comments[criterion]
+      this.comments[criterion] = this.local.comments[criterion] ?? ''
     }
 
     this.isLoading = false

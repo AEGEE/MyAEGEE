@@ -6,7 +6,7 @@
     </header>
 
     <section class="modal-card-body">
-      <template v-if="!local.comments">
+      <template v-if="noComments">
         <i>No comments to display for this body!</i>
       </template>
 
@@ -27,7 +27,16 @@
 <script>
 export default {
   name: 'AntennaCriteriaInfo',
-  props: ['local', 'agora', 'services', 'showError', 'showSuccess', 'router']
+  props: ['local', 'agora', 'services', 'showError', 'showSuccess', 'router'],
+  computed: {
+    noComments () {
+      if (!this.local.comments) return true
+      for (const comment in this.local.comments) {
+        if (this.local.comments[comment] !== '' && this.local.comments[comment] != null) return false
+      }
+      return true
+    }
+  }
 }
 
 </script>
