@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/AEGEE/summeruniversity/compare/1.5.2...1.5.3) (2024-09-20)
+
+
+### Bug Fixes
+
+* **application:** add season query parameter to stats ([#790](https://github.com/AEGEE/summeruniversity/issues/790)) ([f3cc396](https://github.com/AEGEE/summeruniversity/commit/f3cc396217a4cd6b7576d74e2b070c0210ba57ff))
+
 ## [1.5.2](https://github.com/AEGEE/summeruniversity/compare/1.5.1...1.5.2) (2024-09-17)
 
 
