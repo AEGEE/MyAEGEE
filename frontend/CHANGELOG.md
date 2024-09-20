@@ -1,3 +1,10 @@
+## [1.37.2](https://github.com/AEGEE/frontend/compare/1.37.1...1.37.2) (2024-09-20)
+
+
+### Bug Fixes
+
+* **network:** Fix various small problems for the Antenna Criteria check ([#2204](https://github.com/AEGEE/frontend/issues/2204)) ([9b44123](https://github.com/AEGEE/frontend/commit/9b44123bd63fedb84a695c7a50f75fd2ca2c37b3))
+
 ## [1.37.1](https://github.com/AEGEE/frontend/compare/1.37.0...1.37.1) (2024-09-17)
 
 
