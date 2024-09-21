@@ -1,3 +1,10 @@
+## [1.37.3](https://github.com/AEGEE/frontend/compare/1.37.2...1.37.3) (2024-09-21)
+
+
+### Bug Fixes
+
+* **network:** use Promise.allSettled in AC check ([#2205](https://github.com/AEGEE/frontend/issues/2205)) ([f77d8c9](https://github.com/AEGEE/frontend/commit/f77d8c946e3bb74d39d9bdc1e35287b637c37dbb))
+
 ## [1.37.2](https://github.com/AEGEE/frontend/compare/1.37.1...1.37.2) (2024-09-20)
 
 
