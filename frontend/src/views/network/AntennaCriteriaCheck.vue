@@ -245,7 +245,8 @@ export default {
         promises.push(this.checkMembersList())
         promises.push(this.checkEventsCriterium())
 
-        await Promise.all(promises)
+        // The allSettled() command waits for all promises to be done, so it is also 'fine' if some of them fail
+        await Promise.allSettled(promises)
 
         // Do this after the rest, to make sure it also "overrides" automatically computed fields
         await this.getAntennaCriteriaFulfilment()
@@ -283,22 +284,22 @@ export default {
       })
     },
     async fetchEvents () {
-      await this.axios.get(this.services['events'] + '/recents', { params: { ends: this.selectedAgora.ends } }).then((response) => {
-        this.events = response.data.data
+      await this.axios.get(this.services['events'] + '/recents', { params: { ends: this.selectedAgora.ends } }).then((eventResponse) => {
+        this.events = eventResponse.data.data
       }).catch((err) => {
         this.$root.showError('Could not fetch event data', err)
       })
     },
     async fetchStatutoryEvents () {
-      await this.axios.get(this.services['statutory'] + '/recents', { params: { ends: this.selectedAgora.ends } }).then((response) => {
-        this.statutoryEvents = response.data.data
+      await this.axios.get(this.services['statutory'] + '/recents', { params: { ends: this.selectedAgora.ends } }).then((statutoryResponse) => {
+        this.statutoryEvents = statutoryResponse.data.data
       }).catch((err) => {
         this.$root.showError('Could not fetch statutory event data', err)
       })
     },
     async fetchSummerUniversities () {
-      await this.axios.get(this.services['summeruniversity'] + '/recents', { params: { ends: this.selectedAgora.ends } }).then((response) => {
-        this.summerUniversities = response.data.data
+      await this.axios.get(this.services['summeruniversity'] + '/recents', { params: { ends: this.selectedAgora.ends } }).then((summerUniversityResponse) => {
+        this.summerUniversities = summerUniversityResponse.data.data
       }).catch((err) => {
         this.$root.showError('Could not fetch Summer University data', err)
       })
