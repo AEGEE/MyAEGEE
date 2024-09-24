@@ -355,7 +355,7 @@ exports.getStats = async (req, res) => {
         by_nationality: []
     };
 
-    let applicationQuery = { attributes: ['event_id', 'body_name', 'nationality'] };
+    let applicationQuery = { attributes: ['user_id', 'event_id', 'body_name', 'nationality'] };
     let eventQuery = { attributes: ['id', 'name'] };
 
     if (req.query.season) {
@@ -370,23 +370,12 @@ exports.getStats = async (req, res) => {
         .countByField(applications, 'event_id')
         .map(({ type, value }) => ({ type: events.find((event) => event.id === type).name, value }));
 
-    let uniqueApplicationUsersQuery = {
-        ...applicationQuery,
-        attributes: ['user_id', 'body_name', 'nationality', 'event_id'],
-        group: ['user_id', 'body_name', 'nationality', 'event_id'],
-    };
+    const uniqueApplicationUsers = Array.from(
+        new Map(applications.map((app) => [app.user_id, app])).values()
+    );
 
-    if (req.query.season) {
-        uniqueApplicationUsersQuery = { ...uniqueApplicationUsersQuery, group: ['user_id', 'body_name', 'nationality', 'event_id', 'event.id'] };
-    }
-
-    const uniqueApplicationUsers = await Application.findAll(uniqueApplicationUsersQuery);
-
-    statsObject.by_body = helpers
-        .countByField(uniqueApplicationUsers, 'body_name');
-
-    statsObject.by_nationality = helpers
-        .countByField(uniqueApplicationUsers, 'nationality');
+    statsObject.by_body = helpers.countByField(uniqueApplicationUsers, 'body_name');
+    statsObject.by_nationality = helpers.countByField(uniqueApplicationUsers, 'nationality');
 
     return res.json({
         success: true,
