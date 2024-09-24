@@ -1,3 +1,10 @@
+## [1.5.5](https://github.com/AEGEE/summeruniversity/compare/1.5.4...1.5.5) (2024-09-24)
+
+
+### Bug Fixes
+
+* **stats:** only use 1 application per user ([#794](https://github.com/AEGEE/summeruniversity/issues/794)) ([b21cd98](https://github.com/AEGEE/summeruniversity/commit/b21cd98085fa93f21edffd024564a9884a26bf46))
+
 ## [1.5.4](https://github.com/AEGEE/summeruniversity/compare/1.5.3...1.5.4) (2024-09-24)
 
 
