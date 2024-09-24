@@ -204,7 +204,9 @@ exports.getPermissions = (user, corePermissions, approvePermissions) => {
     permissions.apply_general = hasPermission(corePermissions, 'apply:summeruniversity');
 
     permissions.set_board_comment = {};
-    permissions.see_boardview = {};
+    permissions.see_boardview = {
+        global: hasPermission(corePermissions, 'global:approve_members:summeruniversity')
+    };
 
     const approveBodiesList = getBodiesListFromPermissions(approvePermissions);
     const userBodies = user && Array.isArray(user.bodies) ? user.bodies : [];

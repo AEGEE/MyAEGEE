@@ -77,8 +77,8 @@ exports.listBodyApplications = async (req, res) => {
         return errors.makeBadRequestError(res, 'bodyId is not a number.');
     }
 
-    // Only visible to board members
-    if (!req.permissions.see_boardview[bodyId]) {
+    // Only visible to board members and admins
+    if (!req.permissions.see_boardview.global && !req.permissions.see_boardview[bodyId]) {
         return errors.makeForbiddenError(res, 'You are not allowed to see this');
     }
 
