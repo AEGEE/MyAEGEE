@@ -1,3 +1,10 @@
+## [1.5.4](https://github.com/AEGEE/summeruniversity/compare/1.5.3...1.5.4) (2024-09-24)
+
+
+### Bug Fixes
+
+* **applications:** allow admin access to boardview ([#791](https://github.com/AEGEE/summeruniversity/issues/791)) ([8ff59d3](https://github.com/AEGEE/summeruniversity/commit/8ff59d36a04cf289f6cbdea8443a4e681ffc1a4c))
+
 ## [1.5.3](https://github.com/AEGEE/summeruniversity/compare/1.5.2...1.5.3) (2024-09-20)
 
 
