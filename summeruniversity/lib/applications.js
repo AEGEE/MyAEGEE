@@ -370,13 +370,23 @@ exports.getStats = async (req, res) => {
         .countByField(applications, 'event_id')
         .map(({ type, value }) => ({ type: events.find((event) => event.id === type).name, value }));
 
-    // TODO: only use one application per user from here
+    let uniqueApplicationUsersQuery = {
+        ...applicationQuery,
+        attributes: ['user_id', 'body_name', 'nationality', 'event_id'],
+        group: ['user_id', 'body_name', 'nationality', 'event_id'],
+    };
+
+    if (req.query.season) {
+        uniqueApplicationUsersQuery = { ...uniqueApplicationUsersQuery, group: ['user_id', 'body_name', 'nationality', 'event_id', 'event.id'] };
+    }
+
+    const uniqueApplicationUsers = await Application.findAll(uniqueApplicationUsersQuery);
 
     statsObject.by_body = helpers
-        .countByField(applications, 'body_name');
+        .countByField(uniqueApplicationUsers, 'body_name');
 
     statsObject.by_nationality = helpers
-        .countByField(applications, 'nationality');
+        .countByField(uniqueApplicationUsers, 'nationality');
 
     return res.json({
         success: true,

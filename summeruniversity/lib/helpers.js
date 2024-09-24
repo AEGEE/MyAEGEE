@@ -251,6 +251,8 @@ exports.getEventPermissions = async ({ permissions, event, user }) => {
             status: 'accepted'
         } });
 
+        // TODO: when is this permission checked? It should be done everytime an application is created or updated
+        // TODO: we've seen duplicate applications and people confirmed for two separate events
         permissions.apply = event.application_status === 'open'
             && event.published === 'covid'
             && permissions.apply_general
