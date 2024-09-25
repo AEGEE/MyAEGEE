@@ -13,7 +13,7 @@
             <option value="null">Not set</option>
             <option value="true">Yes</option>
             <option value="false">No</option>
-            <option v-if="can.giveExceptionCommunication" value="exception">Exception</option>
+            <option v-if="can.setCommunicationException" value="exception">Exception</option>
           </b-select>
 
           <b-input v-model="comments.communication" placeholder="Comment" expanded />
@@ -58,7 +58,7 @@
         </b-field>
       </template>
 
-      <template v-if="can.setMembershipFeePayement">
+      <template v-if="can.setMembershipFee">
         <b-field label="Membership fee (F)" />
         <b-field grouped>
           <b-select v-model="antennaCriteria.membershipFee">
@@ -170,10 +170,10 @@ export default {
       permissions: [],
       can: {
         setCommunication: false,
-        giveExceptionCommunication: false,
+        setCommunicationException: false,
         setBoardElection: false,
         setMembersList: false,
-        setMembershipFeePayement: false,
+        setMembershipFee: false,
         setEvents: false,
         setAgoraAttendance: false,
         setDevelopmentPlan: false,
@@ -228,10 +228,10 @@ export default {
     this.axios.get(this.services['core'] + '/my_permissions').then((permissionResponse) => {
       this.permissions = permissionResponse.data.data
       this.can.setCommunication = this.permissions.some(permission => permission.combined.endsWith('manage_network:communication'))
-      this.can.giveExceptionCommunication = this.permissions.some(permission => permission.combined.endsWith('manage_network:communication_exception'))
+      this.can.setCommunicationException = this.permissions.some(permission => permission.combined.endsWith('manage_network:communication_exception'))
       this.can.setBoardElection = this.permissions.some(permission => permission.combined.endsWith('manage_network:board_election'))
       this.can.setMembersList = this.permissions.some(permission => permission.combined.endsWith('manage_network:members_list'))
-      this.can.setMembershipFeePayement = this.permissions.some(permission => permission.combined.endsWith('manage_network:membership_fee'))
+      this.can.setMembershipFee = this.permissions.some(permission => permission.combined.endsWith('manage_network:membership_fee'))
       this.can.setEvents = this.permissions.some(permission => permission.combined.endsWith('manage_network:events'))
       this.can.setAgoraAttendance = this.permissions.some(permission => permission.combined.endsWith('manage_network:agora_attendance'))
       this.can.setDevelopmentPlan = this.permissions.some(permission => permission.combined.endsWith('manage_network:development_plan'))

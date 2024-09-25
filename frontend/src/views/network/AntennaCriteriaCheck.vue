@@ -4,6 +4,10 @@
       <article class="tile is-child">
         <h4 class="title">Antenna Criteria Check</h4>
 
+        <div class="notification is-warning">
+          The computation of the fulfilment of 'Events' is currently not working correctly. It does <strong>not</strong> yet take into account the Summer Universities organised. Please check these manually!
+        </div>
+
         <div class="field">
           <label class="label">Selected Agora</label>
           <div class="select">
@@ -308,7 +312,7 @@ export default {
       const promises = []
       promises.push(this.fetchEvents())
       promises.push(this.fetchStatutoryEvents())
-      promises.push(this.fetchSummerUniversities())
+      // promises.push(this.fetchSummerUniversities())
 
       await Promise.all(promises)
 
@@ -325,12 +329,12 @@ export default {
         body.latest_event = !body.latest_event || moment(event.latest_event).isAfter(moment(body.latest_event)) ? event.latest_event : body.latest_event
       }
 
-      for (const event of this.summerUniversities) {
-        for (const organizer of event.organizing_bodies) {
-          const body = this.bodies.find(x => x.id === organizer.body_id)
-          body.latest_event = !body.latest_event || moment(event.latest_event).isAfter(moment(body.latest_event)) ? event.latest_event : body.latest_event
-        }
-      }
+      // for (const event of this.summerUniversities) {
+      //   for (const organizer of event.organizing_bodies) {
+      //     const body = this.bodies.find(x => x.id === organizer.body_id)
+      //     body.latest_event = !body.latest_event || moment(event.latest_event).isAfter(moment(body.latest_event)) ? event.latest_event : body.latest_event
+      //   }
+      // }
       // ... until here
 
       for (const body in this.bodies) {
