@@ -1,3 +1,10 @@
+## [1.37.4](https://github.com/AEGEE/frontend/compare/1.37.3...1.37.4) (2024-09-25)
+
+
+### Bug Fixes
+
+* **network:** fix problems with saving of the membership fee and checking SU organisation ([#2207](https://github.com/AEGEE/frontend/issues/2207)) ([68d44d0](https://github.com/AEGEE/frontend/commit/68d44d0b64e312f11201e635ed37ba8ab80e02de))
+
 ## [1.37.3](https://github.com/AEGEE/frontend/compare/1.37.2...1.37.3) (2024-09-21)
 
 
