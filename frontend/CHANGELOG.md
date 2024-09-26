@@ -1,3 +1,10 @@
+## [1.37.5](https://github.com/AEGEE/frontend/compare/1.37.4...1.37.5) (2024-09-26)
+
+
+### Bug Fixes
+
+* **network:** fix the mapping of all events and board elections to Locals ([#2208](https://github.com/AEGEE/frontend/issues/2208)) ([cb7855e](https://github.com/AEGEE/frontend/commit/cb7855edebbbe8c5b3a09ba3ef31437d8e28914a))
+
 ## [1.37.4](https://github.com/AEGEE/frontend/compare/1.37.3...1.37.4) (2024-09-25)
 
 
