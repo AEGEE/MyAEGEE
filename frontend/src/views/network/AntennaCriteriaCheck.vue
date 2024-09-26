@@ -4,10 +4,6 @@
       <article class="tile is-child">
         <h4 class="title">Antenna Criteria Check</h4>
 
-        <div class="notification is-warning">
-          The computation of the fulfilment of 'Events' is currently not working correctly. It does <strong>not</strong> yet take into account the Summer Universities organised. Please check these manually!
-        </div>
-
         <div class="field">
           <label class="label">Selected Agora</label>
           <div class="select">
@@ -35,16 +31,11 @@
             </b-table-column>
 
             <b-table-column sortable field="status" label="Status">
-              <b-tag type="is-success" size="is-medium" v-if="props.row.status">Safe</b-tag>
-              <b-tag type="is-warning" size="is-medium" v-else>Danger</b-tag>
+              <b-tag :type="statusType(props.row)" size="is-medium">{{ statusValue(props.row) }}</b-tag>
             </b-table-column>
 
             <b-table-column field="communication" label="Communication (C)">
-              <b-tag type="is-light" size="is-medium" v-if="!props.row.antennaCriteria.communication && props.row.type !== 'contact antenna'">Empty</b-tag>
-              <b-tag type="is-link" size="is-medium" v-if="props.row.antennaCriteria.communication === 'exception' && props.row.type !== 'contact antenna'">Exception</b-tag>
-              <b-tag type="is-success" size="is-medium" v-if="props.row.antennaCriteria.communication === 'true' && props.row.type !== 'contact antenna'">Yes</b-tag>
-              <b-tag type="is-danger" size="is-medium" v-if="props.row.antennaCriteria.communication === 'false' && props.row.type !== 'contact antenna'">No</b-tag>
-              <b-tag type="is-info" size="is-medium" v-if="props.row.type === 'contact antenna'">Else</b-tag>
+              <b-tag :type="criterionTagType('communication', props.row)" size="is-medium">{{ criterionTagValue("communication", props.row) }}</b-tag>
             </b-table-column>
 
             <b-table-column field="boardElection" label="Board election (BE)">
@@ -61,21 +52,11 @@
             </b-table-column>
 
             <b-table-column field="membersList" label="Members list (ML)">
-              <b-tag type="is-success" size="is-medium" v-if="props.row.antennaCriteria.membersList === 'true'">Yes</b-tag>
-              <b-tag type="is-danger" size="is-medium" v-if="props.row.antennaCriteria.membersList !== 'true' && props.row.type !== 'contact'">No</b-tag>
-              <b-tag type="is-info" size="is-medium" v-if="props.row.antennaCriteria.membersList !== 'true' && props.row.type === 'contact'">Else</b-tag>
+              <b-tag :type="criterionTagType('membersList', props.row)" size="is-medium">{{ criterionTagValue("membersList", props.row) }}</b-tag>
             </b-table-column>
 
             <b-table-column field="membershipFee" label="Membership fee (F)">
-              <template v-if="!props.row.antennaCriteria.membershipFee">
-                <b-tag type="is-light" size="is-medium" v-if="props.row.type !== 'contact'">Empty</b-tag>
-                <b-tag type="is-info" size="is-medium" v-if="props.row.type === 'contact'">Else</b-tag>
-              </template>
-              <template v-else>
-                <b-tag type="is-success" size="is-medium" v-if="props.row.antennaCriteria.membershipFee === 'true'">Yes</b-tag>
-                <b-tag type="is-danger" size="is-medium" v-if="props.row.antennaCriteria.membershipFee === 'false'">No</b-tag>
-                <b-tag type="is-link" size="is-medium" v-if="props.row.antennaCriteria.membershipFee === 'exception'">Exception</b-tag>
-              </template>
+              <b-tag :type="criterionTagType('membershipFee', props.row)" size="is-medium">{{ criterionTagValue("membershipFee", props.row) }}</b-tag>
             </b-table-column>
 
             <b-table-column field="mostRecentEvent" label="Events (E)">
@@ -92,39 +73,15 @@
             </b-table-column>
 
             <b-table-column field="attendance" label="Agora attendance (AA)">
-              <template v-if="!props.row.antennaCriteria.agoraAttendance">
-                <b-tag type="is-light" size="is-medium" v-if="props.row.type === 'antenna'">Empty</b-tag>
-                <b-tag type="is-info" size="is-medium" v-if="props.row.type !== 'antenna'">Else</b-tag>
-              </template>
-              <template v-else>
-                <b-tag type="is-success" size="is-medium" v-if="props.row.antennaCriteria.agoraAttendance === 'true'">Yes</b-tag>
-                <b-tag type="is-danger" size="is-medium" v-if="props.row.antennaCriteria.agoraAttendance === 'false'">No</b-tag>
-                <b-tag type="is-link" size="is-medium" v-if="props.row.antennaCriteria.agoraAttendance === 'exception'">Exception</b-tag>
-              </template>
+              <b-tag :type="criterionTagType('agoraAttendance', props.row)" size="is-medium">{{ criterionTagValue("agoraAttendance", props.row) }}</b-tag>
             </b-table-column>
 
             <b-table-column field="development" label="Development plan (DP)">
-              <template v-if="!props.row.antennaCriteria.developmentPlan">
-                <b-tag type="is-light" size="is-medium" v-if="props.row.type === 'antenna'">Empty</b-tag>
-                <b-tag type="is-info" size="is-medium" v-if="props.row.type !== 'antenna'">Else</b-tag>
-              </template>
-              <template v-else>
-                <b-tag type="is-success" size="is-medium" v-if="props.row.antennaCriteria.developmentPlan === 'true'">Yes</b-tag>
-                <b-tag type="is-danger" size="is-medium" v-if="props.row.antennaCriteria.developmentPlan === 'false'">No</b-tag>
-                <b-tag type="is-link" size="is-medium" v-if="props.row.antennaCriteria.developmentPlan === 'exception'">Exception</b-tag>
-              </template>
+              <b-tag :type="criterionTagType('developmentPlan', props.row)" size="is-medium">{{ criterionTagValue("developmentPlan", props.row) }}</b-tag>
             </b-table-column>
 
             <b-table-column field="fulfilment" label="Fulfilment report (FR)">
-              <template v-if="!props.row.antennaCriteria.fulfilmentReport">
-                <b-tag type="is-light" size="is-medium" v-if="props.row.type === 'antenna'">Empty</b-tag>
-                <b-tag type="is-info" size="is-medium" v-if="props.row.type !== 'antenna'">Else</b-tag>
-              </template>
-              <template v-else>
-                <b-tag type="is-success" size="is-medium" v-if="props.row.antennaCriteria.fulfilmentReport === 'true'">Yes</b-tag>
-                <b-tag type="is-danger" size="is-medium" v-if="props.row.antennaCriteria.fulfilmentReport === 'false'">No</b-tag>
-                <b-tag type="is-link" size="is-medium" v-if="props.row.antennaCriteria.fulfilmentReport === 'exception'">Exception</b-tag>
-              </template>
+              <b-tag :type="criterionTagType('fulfilmentReport', props.row)" size="is-medium">{{ criterionTagValue("fulfilmentReport", props.row) }}</b-tag>
             </b-table-column>
 
             <b-table-column>
@@ -169,7 +126,12 @@ export default {
       statutoryEvents: [],
       summerUniversities: [],
       isLoading: false,
-      isLoadingAgora: false
+      isLoadingAgora: false,
+      antennaCriteriaMapping: {
+        'contact': ['communication'],
+        'contact antenna': ['membersList', 'membershipFee'],
+        'antenna': ['communication', 'boardElection', 'membersList', 'membershipFee', 'events', 'agoraAttendance', 'developmentPlan', 'fulfilmentReport']
+      }
     }
   },
   computed: {
@@ -179,7 +141,7 @@ export default {
     }),
     filteredBodies () {
       if (!this.hideSafeLocals) return this.bodies
-      return this.bodies.filter(body => { return body.status === false })
+      return this.bodies.filter(body => { return this.statusValue(body) === 'Danger' })
     }
   },
   methods: {
@@ -216,6 +178,32 @@ export default {
     },
     toggleHideSafeLocals () {
       this.hideSafeLocals = !this.hideSafeLocals
+    },
+    criterionTagType (criterion, local) {
+      if (local.antennaCriteria[criterion] === 'true') return 'is-success'
+      if (this.antennaCriteriaMapping[local.type].includes(criterion) && local.antennaCriteria[criterion] === 'exception') return 'is-link'
+      if (this.antennaCriteriaMapping[local.type].includes(criterion) && local.antennaCriteria[criterion] === 'false') return 'is-danger'
+      if (!this.antennaCriteriaMapping[local.type].includes(criterion)) return 'is-info'
+      return 'is-light'
+    },
+    criterionTagValue (criterion, local) {
+      if (local.antennaCriteria[criterion] === 'true') return 'Yes'
+      if (this.antennaCriteriaMapping[local.type].includes(criterion) && local.antennaCriteria[criterion] === 'exception') return 'Exception'
+      if (this.antennaCriteriaMapping[local.type].includes(criterion) && local.antennaCriteria[criterion] === 'false') return 'No'
+      if (!this.antennaCriteriaMapping[local.type].includes(criterion)) return 'Else'
+      return 'Empty'
+    },
+    statusType (local) {
+      return this.antennaCriteriaMapping[local.type].every(criterion => {
+        const fulfilment = local.antennaCriteria[criterion]
+        return fulfilment === 'true' || fulfilment === 'exception'
+      }) ? 'is-success' : 'is-warning'
+    },
+    statusValue (local) {
+      return this.antennaCriteriaMapping[local.type].every(criterion => {
+        const fulfilment = local.antennaCriteria[criterion]
+        return fulfilment === 'true' || fulfilment === 'exception'
+      }) ? 'Safe' : 'Danger'
     },
     fetchAgorae () {
       this.isLoadingAgora = true
@@ -255,32 +243,6 @@ export default {
         // Do this after the rest, to make sure it also "overrides" automatically computed fields
         await this.getAntennaCriteriaFulfilment()
 
-        for (const body in this.bodies) {
-          if (this.bodies[body].type === 'antenna') {
-            this.bodies[body].status = (
-              (this.bodies[body].antennaCriteria.communication === 'true' || this.bodies[body].antennaCriteria.communication === 'exception')
-              && (this.bodies[body].antennaCriteria.boardElection === 'true' || this.bodies[body].antennaCriteria.boardElection === 'exception')
-              && (this.bodies[body].antennaCriteria.membersList === 'true' || this.bodies[body].antennaCriteria.membersList === 'exception')
-              && (this.bodies[body].antennaCriteria.membershipFee === 'true' || this.bodies[body].antennaCriteria.membershipFee === 'exception')
-              && (this.bodies[body].antennaCriteria.events === 'true' || this.bodies[body].antennaCriteria.events === 'exception')
-              && (this.bodies[body].antennaCriteria.agoraAttendance === 'true' || this.bodies[body].antennaCriteria.agoraAttendance === 'exception')
-              && (this.bodies[body].antennaCriteria.developmentPlan === 'true' || this.bodies[body].antennaCriteria.developmentPlan === 'exception')
-              && (this.bodies[body].antennaCriteria.fulfilmentReport === 'true' || this.bodies[body].antennaCriteria.fulfilmentReport === 'exception')
-            )
-          }
-          if (this.bodies[body].type === 'contact antenna') {
-            this.bodies[body].status = (
-              (this.bodies[body].antennaCriteria.membersList === 'true' || this.bodies[body].antennaCriteria.membersList === 'exception')
-              && (this.bodies[body].antennaCriteria.membershipFee === 'true' || this.bodies[body].antennaCriteria.membershipFee === 'exception')
-            )
-          }
-          if (this.bodies[body].type === 'contact') {
-            this.bodies[body].status = (
-              (this.bodies[body].antennaCriteria.communication === 'true' || this.bodies[body].antennaCriteria.communication === 'exception')
-            )
-          }
-        }
-
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
@@ -312,7 +274,7 @@ export default {
       const promises = []
       promises.push(this.fetchEvents())
       promises.push(this.fetchStatutoryEvents())
-      // promises.push(this.fetchSummerUniversities())
+      promises.push(this.fetchSummerUniversities())
 
       await Promise.all(promises)
 
@@ -320,27 +282,39 @@ export default {
       for (const event of this.events) {
         for (const organizer of event.organizing_bodies) {
           const body = this.bodies.find(x => x.id === organizer.body_id)
-          body.latest_event = !body.latest_event || moment(event.latest_event).isAfter(moment(body.latest_event)) ? event.latest_event : body.latest_event
+          if (body) {
+            body.latest_event = !body.latest_event || moment(event.latest_event).isAfter(moment(body.latest_event))
+              ? event.latest_event
+              : body.latest_event
+          }
         }
       }
 
       for (const event of this.statutoryEvents) {
         const body = this.bodies.find(x => x.id === event.body_id)
-        body.latest_event = !body.latest_event || moment(event.latest_event).isAfter(moment(body.latest_event)) ? event.latest_event : body.latest_event
+        if (body) {
+          body.latest_event = !body.latest_event || moment(event.latest_event).isAfter(moment(body.latest_event))
+            ? event.latest_event
+            : body.latest_event
+        }
       }
 
-      // for (const event of this.summerUniversities) {
-      //   for (const organizer of event.organizing_bodies) {
-      //     const body = this.bodies.find(x => x.id === organizer.body_id)
-      //     body.latest_event = !body.latest_event || moment(event.latest_event).isAfter(moment(body.latest_event)) ? event.latest_event : body.latest_event
-      //   }
-      // }
+      for (const event of this.summerUniversities) {
+        for (const organizer of event.organizing_bodies) {
+          const body = this.bodies.find(x => x.id === organizer.body_id)
+          if (body) {
+            body.latest_event = !body.latest_event || moment(event.latest_event).isAfter(moment(body.latest_event))
+              ? event.latest_event
+              : body.latest_event
+          }
+        }
+      }
       // ... until here
 
-      for (const body in this.bodies) {
+      for (const body of this.bodies) {
         // Check if the last event is in the past 2 years
-        this.bodies[body].antennaCriteria.events = String(this.bodies[body].latest_event !== undefined && moment(this.bodies[body].latest_event).diff(moment(this.selectedAgora.ends), 'years', true) <= 2)
-        if (this.bodies[body].latest_event !== undefined) this.bodies[body].latest_event = moment(this.bodies[body].latest_event).format('M[/]YYYY')
+        body.antennaCriteria.events = String(body.latest_event !== undefined && moment(body.latest_event).diff(moment(this.selectedAgora.ends), 'years', true) <= 2)
+        if (body.latest_event !== undefined) body.latest_event = moment(body.latest_event).format('M[/]YYYY')
       }
     },
     async checkBoardCriterium () {
@@ -350,10 +324,10 @@ export default {
           body.latest_election = board.latest_election
         }
 
-        for (const body in this.bodies) {
+        for (const body of this.bodies) {
           // Check if the current board was elected within the past year
-          this.bodies[body].antennaCriteria.boardElection = String(this.bodies[body].latest_election !== undefined && moment(this.bodies[body].latest_election).diff(moment(this.selectedAgora.ends), 'years', true) <= 1)
-          if (this.bodies[body].latest_election !== undefined) this.bodies[body].latest_election = moment(this.bodies[body].latest_election).format('D[/]M[/]YYYY')
+          body.antennaCriteria.boardElection = String(body.latest_election !== undefined && moment(body.latest_election).diff(moment(this.selectedAgora.ends), 'years', true) <= 1)
+          if (body.latest_election !== undefined) body.latest_election = moment(body.latest_election).format('D[/]M[/]YYYY')
         }
       }).catch((err) => {
         this.$root.showError('Could not fetch boards data', err)
