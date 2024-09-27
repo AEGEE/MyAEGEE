@@ -1,3 +1,10 @@
+## [1.37.6](https://github.com/AEGEE/frontend/compare/1.37.5...1.37.6) (2024-09-27)
+
+
+### Bug Fixes
+
+* **network:** fix comparing of dates to the Agora time ([#2209](https://github.com/AEGEE/frontend/issues/2209)) ([126f29f](https://github.com/AEGEE/frontend/commit/126f29f772d27657c88b2a3a706cf11e0ff08b1d))
+
 ## [1.37.5](https://github.com/AEGEE/frontend/compare/1.37.4...1.37.5) (2024-09-26)
 
 
