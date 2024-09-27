@@ -311,10 +311,15 @@ export default {
       }
       // ... until here
 
+      // Check if the latest event is at most two years before the Agora
       for (const body of this.bodies) {
-        // Check if the last event is in the past 2 years
-        body.antennaCriteria.events = String(body.latest_event !== undefined && moment(body.latest_event).diff(moment(this.selectedAgora.ends), 'years', true) <= 2)
-        if (body.latest_event !== undefined) body.latest_event = moment(body.latest_event).format('M[/]YYYY')
+        if (body.latest_event) {
+          const diffInYears = moment(this.selectedAgora.ends).diff(moment(body.latest_event), 'years', true)
+          body.antennaCriteria.events = diffInYears >= 0 && diffInYears <= 2 ? 'true' : 'false'
+          body.latest_event = moment(body.latest_event).format('M[/]YYYY')
+        } else {
+          body.antennaCriteria.events = 'false'
+        }
       }
     },
     async checkBoardCriterium () {
@@ -324,10 +329,15 @@ export default {
           body.latest_election = board.latest_election
         }
 
+        // Check if the current board was elected within the past year
         for (const body of this.bodies) {
-          // Check if the current board was elected within the past year
-          body.antennaCriteria.boardElection = String(body.latest_election !== undefined && moment(body.latest_election).diff(moment(this.selectedAgora.ends), 'years', true) <= 1)
-          if (body.latest_election !== undefined) body.latest_election = moment(body.latest_election).format('D[/]M[/]YYYY')
+          if (body.latest_election) {
+            const diffInYears = moment(this.selectedAgora.ends).diff(moment(body.latest_election), 'years', true)
+            body.antennaCriteria.boardElection = diffInYears >= 0 && diffInYears <= 1 ? 'true' : 'false'
+            body.latest_election = moment(body.latest_election).format('D[/]M[/]YYYY')
+          } else {
+            body.antennaCriteria.boardElection = 'false'
+          }
         }
       }).catch((err) => {
         this.$root.showError('Could not fetch boards data', err)
