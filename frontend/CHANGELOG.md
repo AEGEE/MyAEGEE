@@ -1,3 +1,10 @@
+# [1.38.0](https://github.com/AEGEE/frontend/compare/1.37.7...1.38.0) (2024-10-09)
+
+
+### Features
+
+* **network:** automatically load membership fee payment ([#2211](https://github.com/AEGEE/frontend/issues/2211)) ([4193f91](https://github.com/AEGEE/frontend/commit/4193f918d413171259782c9b19e745d28a7d5e0c))
+
 ## [1.37.7](https://github.com/AEGEE/frontend/compare/1.37.6...1.37.7) (2024-10-09)
 
 
