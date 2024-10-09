@@ -1,3 +1,10 @@
+## [1.38.1](https://github.com/AEGEE/frontend/compare/1.38.0...1.38.1) (2024-10-09)
+
+
+### Bug Fixes
+
+* **network:** fix detailed AC display and sorting of boards on listing ([#2212](https://github.com/AEGEE/frontend/issues/2212)) ([5985913](https://github.com/AEGEE/frontend/commit/59859131bcf2ead73d16e29d870bd5843080fc72))
+
 # [1.38.0](https://github.com/AEGEE/frontend/compare/1.37.7...1.38.0) (2024-10-09)
 
 
