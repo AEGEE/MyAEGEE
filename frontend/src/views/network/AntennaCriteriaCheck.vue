@@ -39,16 +39,7 @@
             </b-table-column>
 
             <b-table-column field="boardElection" label="Board election (BE)">
-              <b-tag type="is-success" size="is-medium" v-if="props.row.antennaCriteria.boardElection === 'true' && !showDetails">Yes</b-tag>
-              <b-tag type="is-success" size="is-medium" v-if="props.row.antennaCriteria.boardElection === 'true' && showDetails">
-                {{ props.row.latest_election }}
-              </b-tag>
-              <b-tag type="is-danger" size="is-medium" v-if="props.row.antennaCriteria.boardElection !== 'true' && !showDetails && props.row.type === 'antenna'">No</b-tag>
-              <b-tag type="is-danger" size="is-medium" v-if="props.row.antennaCriteria.boardElection !== 'true' && showDetails && props.row.latest_election && props.row.type === 'antenna'">
-                {{ props.row.latest_election }}
-              </b-tag>
-              <b-tag type="is-danger" size="is-medium" v-if="props.row.antennaCriteria.boardElection !== 'true' && showDetails && !props.row.latest_election && props.row.type === 'antenna'">No</b-tag>
-              <b-tag type="is-info" size="is-medium" v-if="props.row.antennaCriteria.boardElection !== 'true' && props.row.type !== 'antenna'">Else</b-tag>
+              <b-tag :type="criterionTagType('boardElection', props.row)" size="is-medium">{{ criterionTagValue("boardElection", props.row) }}</b-tag>
             </b-table-column>
 
             <b-table-column field="membersList" label="Members list (ML)">
@@ -60,16 +51,7 @@
             </b-table-column>
 
             <b-table-column field="mostRecentEvent" label="Events (E)">
-              <b-tag type="is-success" size="is-medium" v-if="props.row.antennaCriteria.events === 'true' && !showDetails">Yes</b-tag>
-              <b-tag type="is-success" size="is-medium" v-if="props.row.antennaCriteria.events === 'true' && showDetails">
-                {{ props.row.latest_event }}
-              </b-tag>
-              <b-tag type="is-danger" size="is-medium" v-if="props.row.antennaCriteria.events !== 'true' && !showDetails && props.row.type === 'antenna'">No</b-tag>
-              <b-tag type="is-danger" size="is-medium" v-if="props.row.antennaCriteria.events !== 'true' && showDetails && props.row.latest_event && props.row.type === 'antenna'">
-                {{ props.row.latest_event }}
-              </b-tag>
-              <b-tag type="is-danger" size="is-medium" v-if="props.row.antennaCriteria.events !== 'true' && showDetails && !props.row.latest_event && props.row.type === 'antenna'">No</b-tag>
-              <b-tag type="is-info" size="is-medium" v-if="props.row.antennaCriteria.events !== 'true' && props.row.type !== 'antenna'">Else</b-tag>
+              <b-tag :type="criterionTagType('events', props.row)" size="is-medium">{{ criterionTagValue("events", props.row) }}</b-tag>
             </b-table-column>
 
             <b-table-column field="attendance" label="Agora attendance (AA)">
@@ -187,6 +169,20 @@ export default {
       return 'is-light'
     },
     criterionTagValue (criterion, local) {
+      if (this.showDetails) {
+        if (criterion === 'boardElection') {
+          if (local.antennaCriteria?.['boardElection'] === 'true') return local.latestElection
+          if (this.antennaCriteriaMapping[local.type].includes(criterion) && local.antennaCriteria[criterion] === 'exception') return 'Exception'
+          if (this.antennaCriteriaMapping[local.type].includes('boardElection')) return local.latestElection ?? 'No'
+        }
+
+        if (criterion === 'events') {
+          if (local.antennaCriteria?.['events'] === 'true') return local.latestEvent
+          if (this.antennaCriteriaMapping[local.type].includes(criterion) && local.antennaCriteria[criterion] === 'exception') return 'Exception'
+          if (this.antennaCriteriaMapping[local.type].includes('events')) return local.latestEvent ?? 'No'
+        }
+      }
+
       if (local.antennaCriteria[criterion] === 'true') return 'Yes'
       if (this.antennaCriteriaMapping[local.type].includes(criterion) && local.antennaCriteria[criterion] === 'exception') return 'Exception'
       if (this.antennaCriteriaMapping[local.type].includes(criterion) && local.antennaCriteria[criterion] === 'false') return 'No'
@@ -228,13 +224,13 @@ export default {
         this.bodies = bodiesResponse.data.data
         this.bodies = this.bodies.filter(x => ['antenna', 'contact antenna', 'contact'].includes(x.type))
         this.bodies.forEach(body => {
-          body.antennaCriteria = {}
-          body.comments = {}
+          this.$set(body, 'antennaCriteria', {})
+          this.$set(body, 'comments', {})
         })
 
         const promises = []
         promises.push(this.checkBoardCriterium())
-        promises.push(this.checkMembersList())
+        promises.push(this.checkMembersListAndFeeCriteria())
         promises.push(this.checkEventsCriterium())
 
         // The allSettled() command waits for all promises to be done, so it is also 'fine' if some of them fail
@@ -283,9 +279,10 @@ export default {
         for (const organizer of event.organizing_bodies) {
           const body = this.bodies.find(x => x.id === organizer.body_id)
           if (body) {
-            body.latest_event = !body.latest_event || moment(event.latest_event).isAfter(moment(body.latest_event))
-              ? event.latest_event
-              : body.latest_event
+            const latestEvent = !body.latestEvent || moment(event.latestEvent).isAfter(moment(body.latestEvent))
+              ? event.latestEvent
+              : body.latestEvent
+            this.$set(body, 'latestEvent', latestEvent)
           }
         }
       }
@@ -293,9 +290,10 @@ export default {
       for (const event of this.statutoryEvents) {
         const body = this.bodies.find(x => x.id === event.body_id)
         if (body) {
-          body.latest_event = !body.latest_event || moment(event.latest_event).isAfter(moment(body.latest_event))
-            ? event.latest_event
-            : body.latest_event
+          const latestEvent = !body.latestEvent || moment(event.latestEvent).isAfter(moment(body.latestEvent))
+            ? event.latestEvent
+            : body.latestEvent
+          this.$set(body, 'latestEvent', latestEvent)
         }
       }
 
@@ -303,9 +301,10 @@ export default {
         for (const organizer of event.organizing_bodies) {
           const body = this.bodies.find(x => x.id === organizer.body_id)
           if (body) {
-            body.latest_event = !body.latest_event || moment(event.latest_event).isAfter(moment(body.latest_event))
-              ? event.latest_event
-              : body.latest_event
+            const latestEvent = !body.latestEvent || moment(event.latestEvent).isAfter(moment(body.latestEvent))
+              ? event.latestEvent
+              : body.latestEvent
+            this.$set(body, 'latestEvent', latestEvent)
           }
         }
       }
@@ -313,12 +312,10 @@ export default {
 
       // Check if the latest event is at most two years before the Agora
       for (const body of this.bodies) {
-        if (body.latest_event) {
-          const diffInYears = moment(this.selectedAgora.ends).diff(moment(body.latest_event), 'years', true)
-          body.antennaCriteria.events = diffInYears >= 0 && diffInYears <= 2 ? 'true' : 'false'
-          body.latest_event = moment(body.latest_event).format('M[/]YYYY')
-        } else {
-          body.antennaCriteria.events = 'false'
+        if (body.latestEvent) {
+          const diffInYears = moment(this.selectedAgora.ends).diff(moment(body.latestEvent), 'years', true)
+          this.$set(body.antennaCriteria, 'events', diffInYears >= 0 && diffInYears <= 2 ? 'true' : 'false')
+          body.latestEvent = moment(body.latestEvent).format('M[/]YYYY')
         }
       }
     },
@@ -326,28 +323,30 @@ export default {
       await this.axios.get(this.services['network'] + '/boards/recents', { params: { ends: this.selectedAgora.ends } }).then((boardsResponse) => {
         for (const board of boardsResponse.data.data) {
           const body = this.bodies.find(x => x.id === board.body_id)
-          body.latest_election = board.latest_election
+          this.$set(body, 'latestElection', board.latestElection)
         }
 
         // Check if the current board was elected within the past year
         for (const body of this.bodies) {
-          if (body.latest_election) {
-            const diffInYears = moment(this.selectedAgora.ends).diff(moment(body.latest_election), 'years', true)
-            body.antennaCriteria.boardElection = diffInYears >= 0 && diffInYears <= 1 ? 'true' : 'false'
-            body.latest_election = moment(body.latest_election).format('D[/]M[/]YYYY')
-          } else {
-            body.antennaCriteria.boardElection = 'false'
+          if (body.latestElection) {
+            const diffInYears = moment(this.selectedAgora.ends).diff(moment(body.latestElection), 'years', true)
+            this.$set(body.antennaCriteria, 'boardElection', diffInYears >= 0 && diffInYears <= 1 ? 'true' : 'false')
+            body.latestElection = moment(body.latestElection).format('D[/]M[/]YYYY')
           }
         }
       }).catch((err) => {
         this.$root.showError('Could not fetch boards data', err)
       })
     },
-    async checkMembersList () {
+    async checkMembersListAndFeeCriteria () {
       await this.axios.get(this.services['statutory'] + '/events/' + this.selectedAgora.id + '/memberslists').then((membersListsResponse) => {
         for (const membersList of membersListsResponse.data.data) {
           const body = this.bodies.find(x => x.id === membersList.body_id)
-          body.antennaCriteria.membersList = 'true'
+          this.$set(body.antennaCriteria, 'membersList', 'true')
+
+          if (membersList.fee_not_paid === 0) {
+            this.$set(body.antennaCriteria, 'membershipFee', 'true')
+          }
         }
       }).catch((err) => {
         this.$root.showError('Could not fetch members list data', err)
@@ -358,11 +357,12 @@ export default {
         const antennaCriteriaFulfilment = antennaCriteriaResponse.data.data
         for (const criterion of antennaCriteriaFulfilment) {
           const body = this.bodies.find(x => x.id === criterion.body_id)
-          body.comments = body.comments || {}
+
           // Convert string to camelCase
           const criterionName = criterion.antenna_criterion.replace(/(?:^\w|\s\w)/g, match => match.trim().toUpperCase()).replace(/^\w/, match => match.toLowerCase())
-          body.antennaCriteria[criterionName] = criterion.value
-          body.comments[criterionName] = criterion.comment
+
+          this.$set(body.antennaCriteria, criterionName, criterion.value)
+          this.$set(body.comments, criterionName, criterion.comment)
         }
       }).catch((err) => {
         this.$root.showError('Could not fetch manual Antenna Criteria fulfilment', err)

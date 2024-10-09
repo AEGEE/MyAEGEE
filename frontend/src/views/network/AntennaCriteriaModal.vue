@@ -59,7 +59,12 @@
       </template>
 
       <template v-if="can.setMembershipFee">
-        <b-field label="Membership fee (F)" />
+        <b-field>
+          <template #label>
+            Membership fee (F)
+            <tooltip text="This is an automatic field" />
+          </template>
+        </b-field>
         <b-field grouped>
           <b-select v-model="antennaCriteria.membershipFee">
             <option value="null">Not set</option>
@@ -188,15 +193,23 @@ export default {
       const promises = []
       for (const criterion in this.antennaCriteria) {
         const permission = 'set' + criterion.charAt(0).toUpperCase() + criterion.slice(1)
-        if (this.can[permission] && (this.antennaCriteria[criterion] !== this.local.antennaCriteria[criterion] || this.comments[criterion] !== this.local.comments[criterion])) {
+        if (
+          this.can[permission]
+          && (
+            (this.antennaCriteria[criterion] !== null && this.antennaCriteria[criterion] !== this.local.antennaCriteria[criterion])
+            || (this.comments[criterion] !== '' && this.comments[criterion] !== this.local.comments[criterion])
+          )
+        ) {
           promises.push(this.setAntennaCriterionFulfilment(criterion))
+          this.$set(this.local.antennaCriteria, criterion, this.antennaCriteria[criterion])
+          this.$set(this.local.comments, criterion, this.comments[criterion])
         }
       }
 
       await Promise.all(promises).then(() => {
         this.isLoading = false
         this.showSuccess('Antenna Criteria fulfilment updated.')
-        this.router.go(0)
+        this.$parent.close()
       }).catch((err) => {
         this.isLoading = false
         this.showError('Something went wrong', err)
