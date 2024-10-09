@@ -126,7 +126,7 @@ export default {
             color: '#FFDB4C'
           },
           {
-            url: 'https://podio.com/webforms/13269615/901752',
+            url: 'https://forms.gle/s8vE6b9wrEHqV1xe9',
             title: 'CD House Guest Request',
             description: 'Visiting the CD house',
             color: '#FFDB4C'
