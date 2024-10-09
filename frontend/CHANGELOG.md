@@ -1,3 +1,10 @@
+## [1.37.7](https://github.com/AEGEE/frontend/compare/1.37.6...1.37.7) (2024-10-09)
+
+
+### Bug Fixes
+
+* **resources:** update CD House guest request form link ([#2210](https://github.com/AEGEE/frontend/issues/2210)) ([29b38c5](https://github.com/AEGEE/frontend/commit/29b38c545e31cd758f90fa160d0105e1f1b95c1c))
+
 ## [1.37.6](https://github.com/AEGEE/frontend/compare/1.37.5...1.37.6) (2024-09-27)
 
 
