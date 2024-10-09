@@ -36,11 +36,11 @@
 
         <div class="field">
           <label class="label">Other filters</label>
-          <input class="checkbox" type="checkbox" v-model="filters.noCurrentBoard" @change="refetch()" />
+          <input class="checkbox" type="checkbox" v-model="filters.noCurrentBoard" />
           Only display bodies without a current board
         </div>
 
-        <b-table :data="bodies" :loading="isLoading" narrowed>
+        <b-table :data="filteredBodies" :loading="isLoading" narrowed>
           <template slot-scope="props">
             <b-table-column field="code" label="Body code">
               {{ props.row.code }}
@@ -132,6 +132,12 @@ export default {
 
       return queryObj
     },
+    filteredBodies () {
+      if (!this.filters.noCurrentBoard) return this.bodies
+
+      const today = moment().format('YYYY-MM-DD')
+      return this.bodies.filter(x => !x.board || moment(x.board.end_date).isBefore(today, 'date'))
+    },
     ...mapGetters({
       services: 'services',
       loginUser: 'user'
@@ -161,19 +167,11 @@ export default {
 
         this.axios.get(this.services['network'] + '/boards?sort=start_date&direction=desc').then((boardsResponse) => {
           const boards = boardsResponse.data.data
-          const today = moment().format('YYYY-MM-DD')
 
           // Add most recent board to their corresponding body
-          for (const board of boards) {
-            const body = this.bodies.find(x => board.body_id === x.id)
-            if (body && moment(board.start_date).isSameOrBefore(today, 'date')) {
-              body.board = board
-            }
-          }
-
-          // Apply filters on the final data
-          if (this.filters.noCurrentBoard) {
-            this.bodies = this.bodies.filter(x => !x.board || moment(x.board.end_date).isBefore(today, 'date'))
+          for (const body of this.bodies) {
+            const recentBoard = boards.find(board => board.body_id === body.id)
+            if (recentBoard) this.$set(body, 'board', recentBoard)
           }
 
           if (this.loginUser) {

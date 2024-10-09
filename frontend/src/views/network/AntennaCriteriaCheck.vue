@@ -279,8 +279,8 @@ export default {
         for (const organizer of event.organizing_bodies) {
           const body = this.bodies.find(x => x.id === organizer.body_id)
           if (body) {
-            const latestEvent = !body.latestEvent || moment(event.latestEvent).isAfter(moment(body.latestEvent))
-              ? event.latestEvent
+            const latestEvent = !body.latestEvent || moment(event.latest_event).isAfter(moment(body.latestEvent))
+              ? event.latest_event
               : body.latestEvent
             this.$set(body, 'latestEvent', latestEvent)
           }
@@ -290,8 +290,8 @@ export default {
       for (const event of this.statutoryEvents) {
         const body = this.bodies.find(x => x.id === event.body_id)
         if (body) {
-          const latestEvent = !body.latestEvent || moment(event.latestEvent).isAfter(moment(body.latestEvent))
-            ? event.latestEvent
+          const latestEvent = !body.latestEvent || moment(event.latest_event).isAfter(moment(body.latestEvent))
+            ? event.latest_event
             : body.latestEvent
           this.$set(body, 'latestEvent', latestEvent)
         }
@@ -301,8 +301,8 @@ export default {
         for (const organizer of event.organizing_bodies) {
           const body = this.bodies.find(x => x.id === organizer.body_id)
           if (body) {
-            const latestEvent = !body.latestEvent || moment(event.latestEvent).isAfter(moment(body.latestEvent))
-              ? event.latestEvent
+            const latestEvent = !body.latestEvent || moment(event.latest_event).isAfter(moment(body.latestEvent))
+              ? event.latest_event
               : body.latestEvent
             this.$set(body, 'latestEvent', latestEvent)
           }
@@ -323,7 +323,7 @@ export default {
       await this.axios.get(this.services['network'] + '/boards/recents', { params: { ends: this.selectedAgora.ends } }).then((boardsResponse) => {
         for (const board of boardsResponse.data.data) {
           const body = this.bodies.find(x => x.id === board.body_id)
-          this.$set(body, 'latestElection', board.latestElection)
+          this.$set(body, 'latestElection', board.latest_election)
         }
 
         // Check if the current board was elected within the past year
