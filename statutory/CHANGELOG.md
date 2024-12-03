@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/AEGEE/statutory/compare/1.13.0...1.13.1) (2024-12-03)
+
+
+### Bug Fixes
+
+* **ci:** update to Node 20 and update CircleCI config ([#1285](https://github.com/AEGEE/statutory/issues/1285)) ([799d9f1](https://github.com/AEGEE/statutory/commit/799d9f17a81a127ea2f17b407788c4098f7754a7))
+
 # [1.13.0](https://github.com/AEGEE/statutory/compare/1.12.6...1.13.0) (2024-09-15)
 
 
