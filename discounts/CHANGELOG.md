@@ -1,3 +1,10 @@
+## [1.2.5](https://github.com/AEGEE/discounts/compare/1.2.4...1.2.5) (2024-12-03)
+
+
+### Bug Fixes
+
+* **ci:** update to Node 20 and update CircleCI config ([#939](https://github.com/AEGEE/discounts/issues/939)) ([37d9377](https://github.com/AEGEE/discounts/commit/37d9377536e5612b25bacf756b7100d7cd1c6b3d))
+
 ## [1.2.4](https://github.com/AEGEE/discounts/compare/1.2.3...1.2.4) (2021-11-12)
 
 
