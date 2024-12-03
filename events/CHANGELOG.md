@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/AEGEE/events/compare/1.5.0...1.5.1) (2024-12-03)
+
+
+### Bug Fixes
+
+* **ci:** update to Node 20 and update CircleCI config ([#1195](https://github.com/AEGEE/events/issues/1195)) ([c3d7122](https://github.com/AEGEE/events/commit/c3d712271c5ca468ab08667227f6b8f624232a72))
+
 # [1.5.0](https://github.com/AEGEE/events/compare/1.4.2...1.5.0) (2024-08-19)
 
 
