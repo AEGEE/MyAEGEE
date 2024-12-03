@@ -1,5 +1,5 @@
 # FIXME use alpine
-FROM node:18.18.0@sha256:ee0a21d64211d92d4340b225c556e9ef1a8bce1d5b03b49f5f07bf1dbbaa5626
+FROM node:20.18.1@sha256:48ca2016597303600e8ff125a42aa3fc7a08325da6615c89dc4cddf156bded6f
 
 RUN mkdir -p /usr/app/src \
 	&& mkdir -p /usr/app/media \
@@ -19,7 +19,7 @@ ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
 ENV PATH="/home/node/.npm-global/bin:${PATH}"
 
 # FIXME remove nodemon for production
-RUN npm install -g nodemon@2.0.19 \
+RUN npm install -g nodemon@3.1.4 \
  && npm install -g bunyan@1.8.15 \
  && npm cache clean --force \
  && npm ci
