@@ -1,3 +1,10 @@
+## [1.38.4](https://github.com/AEGEE/core/compare/1.38.3...1.38.4) (2024-12-03)
+
+
+### Bug Fixes
+
+* **ci:** update to Node 20 and update CircleCI config ([#1035](https://github.com/AEGEE/core/issues/1035)) ([bc51a1f](https://github.com/AEGEE/core/commit/bc51a1f1a5d111517b4ac33d515423f8d72d93be))
+
 ## [1.38.3](https://github.com/AEGEE/core/compare/1.38.2...1.38.3) (2024-04-10)
 
 
