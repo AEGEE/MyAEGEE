@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/AEGEE/network/compare/1.2.1...1.2.2) (2024-12-03)
+
+
+### Bug Fixes
+
+* **ci:** update to Node 20 and update CircleCI config ([#698](https://github.com/AEGEE/network/issues/698)) ([dbef2b9](https://github.com/AEGEE/network/commit/dbef2b9a20c4604b49816410c54f452fc13ca54a))
+
 ## [1.2.1](https://github.com/AEGEE/network/compare/1.2.0...1.2.1) (2024-09-15)
 
 
