@@ -1,15 +1,15 @@
 orbs:
-  codecov: codecov/codecov@3.2.5
-  docker: circleci/docker@2.2.0
-  node: circleci/node@5.1.0
-  shellcheck: circleci/shellcheck@3.1.2
-  slack: circleci/slack@4.12.5
+  codecov: codecov/codecov@4.1.0
+  docker: circleci/docker@2.7.1
+  node: circleci/node@6.1.0
+  shellcheck: circleci/shellcheck@3.2.0
+  slack: circleci/slack@4.13.3
 version: 2.1
 jobs:
   test:
     docker:
-      - image: cimg/node:18.18.0
-      - image: cimg/postgres:10.22
+      - image: cimg/node:20.17.0
+      - image: cimg/postgres:16.4
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
     parallelism: 4
@@ -30,16 +30,16 @@ jobs:
           path: ~/reports
   build:
     docker:
-      - image: cimg/base:2023.09
+      - image: cimg/base:2024.09
     resource_class: large
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.23
+          version: default
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache knowledge
   eslint:
     docker:
-      - image: cimg/node:18.18.0
+      - image: cimg/node:20.17.0
     resource_class: large
     steps:
       - checkout
@@ -52,7 +52,7 @@ jobs:
           path: ~/reports
   yamllint:
     docker:
-      - image: cimg/python:3.11.5
+      - image: cimg/python:3.12.6
     resource_class: large
     steps:
       - checkout
@@ -60,7 +60,7 @@ jobs:
       - run: yamllint -d .yamllint.yml .
   shellcheck:
     docker:
-      - image: cimg/base:2023.09
+      - image: cimg/base:2024.09
     resource_class: large
     steps:
       - checkout
@@ -68,7 +68,7 @@ jobs:
       - shellcheck/check
   audit:
     docker:
-      - image: cimg/node:18.18.0
+      - image: cimg/node:20.17.0
     resource_class: large
     steps:
       - checkout
@@ -115,12 +115,12 @@ jobs:
               }
   docker-build-and-push:
     docker:
-      - image: cimg/node:18.18.0
+      - image: cimg/node:20.17.0
     resource_class: large
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.23
+          version: default
       - node/install-packages
       - run: npx semantic-release
       - run: echo export PACKAGE_VERSION=$(node -p "require('./package.json').version") >> $BASH_ENV
