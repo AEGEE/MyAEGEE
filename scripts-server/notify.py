@@ -27,10 +27,10 @@ import slack_notifications as slack
 # }
 
 
-token_file = f'{os.path.realpath(os.path.dirname(__file__))}/../secrets/tokens.json'
+TOKEN_FILE = f'{os.path.realpath(os.path.dirname(__file__))}/../secrets/tokens.json'
 
 def open_credentials_file():
-    with open(token_file, encoding="utf-8") as tokens_json:
+    with open(TOKEN_FILE, encoding="utf-8") as tokens_json:
         return json.load(tokens_json)
 
 tokens = open_credentials_file()
