@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/AEGEE/gsuite-wrapper/compare/1.3.1...1.3.2) (2024-12-04)
+
+
+### Bug Fixes
+
+* **ci:** update to Node 20 and update CircleCI config ([#666](https://github.com/AEGEE/gsuite-wrapper/issues/666)) ([4c63e82](https://github.com/AEGEE/gsuite-wrapper/commit/4c63e82e1b75a583e565c7d20318523e3846c858))
+
 ## [1.3.1](https://github.com/AEGEE/gsuite-wrapper/compare/1.3.0...1.3.1) (2020-12-09)
 
 
