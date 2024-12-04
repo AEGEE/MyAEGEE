@@ -1,3 +1,10 @@
+## [1.0.5](https://github.com/AEGEE/knowledge/compare/1.0.4...1.0.5) (2024-12-04)
+
+
+### Bug Fixes
+
+* **ci:** update to Node 20 and update CircleCI config ([#678](https://github.com/AEGEE/knowledge/issues/678)) ([4192a79](https://github.com/AEGEE/knowledge/commit/4192a7982c0db94955384d35c0e5ea64ed44cb89))
+
 ## [1.0.4](https://github.com/AEGEE/knowledge/compare/1.0.3...1.0.4) (2021-12-01)
 
 
