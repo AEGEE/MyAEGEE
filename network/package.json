@@ -61,7 +61,7 @@
     "@bugsnag/js": "^7.25.0",
     "body-parser": "^1.20.2",
     "bunyan": "^1.8.15",
-    "express": "^4.19.2",
+    "express": "^4.21.1",
     "express-promise-router": "^4.1.1",
     "joi": "^17.12.3",
     "lodash": "^4.17.21",
