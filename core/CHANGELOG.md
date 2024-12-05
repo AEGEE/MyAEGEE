@@ -1,3 +1,10 @@
+## [1.38.5](https://github.com/AEGEE/core/compare/1.38.4...1.38.5) (2024-12-05)
+
+
+### Bug Fixes
+
+* **body:** add external type ([#1039](https://github.com/AEGEE/core/issues/1039)) ([fb4176b](https://github.com/AEGEE/core/commit/fb4176bbff50d4edc968b2cb32f0c24fe3262043))
+
 ## [1.38.4](https://github.com/AEGEE/core/compare/1.38.3...1.38.4) (2024-12-03)
 
 
