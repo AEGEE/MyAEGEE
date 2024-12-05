@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/AEGEE/statutory/compare/1.13.1...1.14.0) (2024-12-05)
+
+
+### Features
+
+* **events:** add field for previous Agora and logic on application ([#1288](https://github.com/AEGEE/statutory/issues/1288)) ([ed92f2f](https://github.com/AEGEE/statutory/commit/ed92f2f6a861a47d7c256ddf335ffb337222479b))
+
 ## [1.13.1](https://github.com/AEGEE/statutory/compare/1.13.0...1.13.1) (2024-12-03)
 
 
