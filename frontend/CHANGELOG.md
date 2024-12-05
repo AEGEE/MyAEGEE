@@ -1,3 +1,10 @@
+# [1.39.0](https://github.com/AEGEE/frontend/compare/1.38.2...1.39.0) (2024-12-05)
+
+
+### Features
+
+* **events:** add tile view for events listing ([#2222](https://github.com/AEGEE/frontend/issues/2222)) ([6a36cf6](https://github.com/AEGEE/frontend/commit/6a36cf6e85f9aadacec27df0a7234d2135e1610f))
+
 ## [1.38.2](https://github.com/AEGEE/frontend/compare/1.38.1...1.38.2) (2024-12-05)
 
 
