@@ -48,6 +48,7 @@ async function createBodies() {
         'Committee',
         'Project',
         'Partner',
+        'External',
         'Other'
     ];
 
@@ -61,6 +62,7 @@ async function createBodies() {
         'COT',
         'PRO',
         'PAR',
+        'EXT',
         'OTH'
     ];
 

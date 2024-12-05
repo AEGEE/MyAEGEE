@@ -62,13 +62,13 @@ const Body = sequelize.define('body', {
         allowNull: true,
     },
     type: {
-        type: Sequelize.ENUM('antenna', 'contact antenna', 'contact', 'interest group', 'working group', 'commission', 'committee', 'project', 'partner', 'other'),
+        type: Sequelize.ENUM('antenna', 'contact antenna', 'contact', 'interest group', 'working group', 'commission', 'committee', 'project', 'partner', 'external', 'other'),
         allowNull: false,
         defaultValue: 'antenna',
         validate: {
             isIn: {
-                args: [['antenna', 'contact antenna', 'contact', 'interest group', 'working group', 'commission', 'committee', 'project', 'partner', 'other']],
-                msg: 'Type must be one of these: "antenna", "contact antenna", "contact", "interest group", "working group", "commission", "committee", "project", "partner", "other".'
+                args: [['antenna', 'contact antenna', 'contact', 'interest group', 'working group', 'commission', 'committee', 'project', 'partner', 'external', 'other']],
+                msg: 'Type must be one of these: "antenna", "contact antenna", "contact", "interest group", "working group", "commission", "committee", "project", "partner", "external", "other".'
             }
         }
     },

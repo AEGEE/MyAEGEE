@@ -102,7 +102,7 @@ describe('Bodies creating', () => {
         });
     }
 
-    for (const type of ['interest group', 'working group', 'commission', 'committee', 'project', 'partner', 'other']) {
+    for (const type of ['interest group', 'working group', 'commission', 'committee', 'project', 'partner', 'external', 'other']) {
         test(`should succeed when foundation date is empty on ${type}`, async () => {
             const user = await generator.createUser({ username: 'test', mail_confirmed_at: new Date(), superadmin: true });
             const token = await generator.createAccessToken(user);
