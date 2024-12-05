@@ -16,6 +16,7 @@
                 <option value="committee">Committee</option>
                 <option value="project">Project</option>
                 <option value="partner">Partner association</option>
+                <option value="external">External association</option>
                 <option value="other">Other</option>
               </select>
             </div>

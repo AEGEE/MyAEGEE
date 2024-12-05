@@ -116,6 +116,7 @@ export default {
         { value: 'committee', name: 'Committee' },
         { value: 'project', name: 'Project' },
         { value: 'partner', name: 'Partner' },
+        { value: 'external', name: 'External' },
         { value: 'other', name: 'Other' }
       ],
       selectedTypes: [],

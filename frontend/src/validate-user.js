@@ -1,7 +1,7 @@
 const RESTRICTED_EMAILS = ['aegee.org', 'aegee.eu']
 
 // TODO: Remove 'other' and find a different way to allow non-AEGEEans in the system (Secretariat, but maybe also Honorary Members and Les Anciens until they can be anciens in their own body)
-const ALLOWED_BODY_TYPES = ['antenna', 'contact antenna', 'contact', 'other']
+const ALLOWED_BODY_TYPES = ['antenna', 'contact antenna', 'contact', 'external', 'other']
 
 const validate = (user) => {
   if (user.superadmin) {
