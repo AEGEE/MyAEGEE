@@ -356,6 +356,14 @@ const Application = sequelize.define('application', {
             isBoolean
         }
     },
+    is_on_previous_memberslist: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        validate: {
+            isBoolean
+        }
+    },
     statutory_id: {
         // no validation because it's set automatically in pre-create hook
         // allowNull: true is here for the same reason
@@ -480,13 +488,20 @@ Application.afterValidate(async (application, options) => {
     if (event.type !== 'agora') {
         return;
     }
-    const memberslistForBody = await MembersList.findOne({ where: {
+
+    const currentMemberslistForBody = await MembersList.findOne({ where: {
         body_id: application.body_id,
         event_id: application.event_id
     } });
-
     options.fields.push('is_on_memberslist');
-    application.setDataValue('is_on_memberslist', helpers.memberslistHasMember(memberslistForBody, application));
+    application.setDataValue('is_on_memberslist', helpers.memberslistHasMember(currentMemberslistForBody, application));
+
+    const previousMemberslistForBody = await MembersList.findOne({ where: {
+        body_id: application.body_id,
+        event_id: event.previous_agora_id
+    } });
+    options.fields.push('is_on_previous_memberslist');
+    application.setDataValue('is_on_previous_memberslist', helpers.memberslistHasMember(previousMemberslistForBody, application));
 });
 
 // Generating and setting statutory_id

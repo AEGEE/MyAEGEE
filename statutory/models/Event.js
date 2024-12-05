@@ -431,6 +431,13 @@ const Event = sequelize.define('event', {
             }
         }
     },
+    previous_agora_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        validate: {
+            isInt: { msg: 'Previous Agora ID should be a number.' }
+        }
+    },
     vegetarian: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

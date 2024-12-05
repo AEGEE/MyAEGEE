@@ -118,6 +118,7 @@ module.exports = {
         created_at: 'Applied on',
         updated_at: 'Updated at',
         is_on_memberslist: 'Is on memberslist?',
+        is_on_previous_memberslist: 'Was on previous memberslist?',
         visa_required: 'Visa required?',
         participant_type: 'Participant type',
         participant_order: 'Participant order',

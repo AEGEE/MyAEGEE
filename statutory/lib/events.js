@@ -15,6 +15,18 @@ exports.addEvent = async (req, res) => {
     delete req.body.status;
     delete req.body.id;
 
+    if (req.body.type === 'agora') {
+        const previousAgora = await Event.findOne({
+            where: {
+                type: 'agora',
+                status: 'published'
+            },
+            order: [['starts', 'DESC']]
+        });
+
+        if (previousAgora) req.body.previous_agora_id = previousAgora.id;
+    }
+
     const newEvent = await Event.create(req.body);
     return res.json({
         success: true,
