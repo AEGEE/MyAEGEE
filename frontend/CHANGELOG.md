@@ -1,3 +1,10 @@
+## [1.38.2](https://github.com/AEGEE/frontend/compare/1.38.1...1.38.2) (2024-12-05)
+
+
+### Bug Fixes
+
+* **core:** add external association to body type ([#2221](https://github.com/AEGEE/frontend/issues/2221)) ([e860466](https://github.com/AEGEE/frontend/commit/e860466266eb1d3532c6e6ded9108e80944fe858))
+
 ## [1.38.1](https://github.com/AEGEE/frontend/compare/1.38.0...1.38.1) (2024-10-09)
 
 
