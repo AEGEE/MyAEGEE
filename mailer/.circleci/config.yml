@@ -1,11 +1,11 @@
 orbs:
-  node: circleci/node@5.1.0
-  slack: circleci/slack@4.12.5
+  node: circleci/node@6.1.0
+  slack: circleci/slack@4.13.3
 version: 2.1
 jobs:
   test:
     machine:
-      image: ubuntu-2204:2023.07.2
+      image: ubuntu-2204:2024.11.1
     environment:
       MIX_ENV: test
       SMTP_USER: mailer@aegee.eu
@@ -22,7 +22,7 @@ jobs:
       - run: SMTP_USER=mailer@aegee.eu mix coveralls
   build:
     docker:
-      - image: cimg/base:2023.09
+      - image: cimg/base:2024.09
         environment:
           MIX_ENV: test
           SMTP_USER: mailer@aegee.eu
@@ -32,11 +32,11 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.23
+          version: default
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache mailer
   docker-build-and-push:
     docker:
-      - image: cimg/node:18.18.0
+      - image: cimg/node:20.17.0
         environment:
           MIX_ENV: test
           SMTP_USER: mailer@aegee.eu
@@ -46,7 +46,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.23
+          version: default
       - node/install-packages
       - run: npx semantic-release
       - run: echo export PACKAGE_VERSION=$(node -p "require('./package.json').version") >> $BASH_ENV
