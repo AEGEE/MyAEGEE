@@ -68,8 +68,14 @@
             </b-table-column>
 
             <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable :visible="event.type === 'agora'">
-              <span :class="calculateClassForMemberslist(props.row)">
+              <span :class="calculateClassForMemberslist(props.row.is_on_memberslist)">
                 {{ props.row.is_on_memberslist | beautify }}
+              </span>
+            </b-table-column>
+
+            <b-table-column field="was_on_memberslist" label="Was on previous memberslist?" centered sortable :visible="event.type === 'agora'">
+              <span :class="calculateClassForMemberslist(props.row.is_on_previous_memberslist)">
+                {{ props.row.is_on_previous_memberslist | beautify }}
               </span>
             </b-table-column>
 
@@ -216,8 +222,8 @@ export default {
         return ''
       }
     },
-    calculateClassForMemberslist (pax) {
-      return ['tag', 'is-small', pax.is_on_memberslist ? 'is-primary' : 'is-danger']
+    calculateClassForMemberslist (isOnMemberslist) {
+      return ['tag', 'is-small', isOnMemberslist ? 'is-primary' : 'is-danger']
     },
     switchPaxStatus (pax) {
       pax.isSaving = true

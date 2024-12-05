@@ -2,7 +2,7 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title">Export data</div>
+        <div class="title">Export data for {{ event.name }}</div>
         <div v-if="can.export.openslides">
           <div class="field">
             <div class="control">
@@ -30,6 +30,17 @@
                 <option value="accepted">Accepted participants</option>
                 <option value="rejected">Rejected participants</option>
                 <option value="pending">Pending participants</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field is-fullwidth" v-if="this.can.export.all">
+            <label class="label">Filter on cancellation</label>
+            <div class="select">
+              <select v-model="filter.cancelled">
+                <option :value="null">Everybody</option>
+                <option :value="true">Cancelled participants</option>
+                <option :value="false">Not cancelled participants</option>
               </select>
             </div>
           </div>
@@ -95,6 +106,7 @@ export default {
       },
       filter: {
         status: null,
+        cancelled: null,
         confirmed: null,
         participant_type: null
       },
@@ -156,6 +168,7 @@ export default {
       const filter = {}
 
       if (this.filter.status !== null) filter.status = this.filter.status
+      if (this.filter.cancelled !== null) filter.cancelled = this.filter.cancelled
       if (this.filter.confirmed !== null) filter.confirmed = this.filter.confirmed
       if (this.filter.participant_type !== null) filter.participant_type = this.filter.participant_type
 
