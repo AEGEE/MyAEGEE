@@ -1,3 +1,10 @@
+# [1.40.0](https://github.com/AEGEE/frontend/compare/1.39.0...1.40.0) (2024-12-05)
+
+
+### Features
+
+* **statutory:** update export of participants ([#2223](https://github.com/AEGEE/frontend/issues/2223)) ([bef4708](https://github.com/AEGEE/frontend/commit/bef47080799221ca65fd630198ffd2e7febe3cad))
+
 # [1.39.0](https://github.com/AEGEE/frontend/compare/1.38.2...1.39.0) (2024-12-05)
 
 
