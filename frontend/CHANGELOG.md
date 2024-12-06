@@ -1,3 +1,10 @@
+## [1.40.1](https://github.com/AEGEE/frontend/compare/1.40.0...1.40.1) (2024-12-06)
+
+
+### Bug Fixes
+
+* **events:** update small things on rendering events ([#2225](https://github.com/AEGEE/frontend/issues/2225)) ([f948029](https://github.com/AEGEE/frontend/commit/f9480292dfee98ae2d3f3bfe11a52ccd358e3c3f))
+
 # [1.40.0](https://github.com/AEGEE/frontend/compare/1.39.0...1.40.0) (2024-12-05)
 
 
