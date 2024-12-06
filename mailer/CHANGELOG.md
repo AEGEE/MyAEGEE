@@ -1,3 +1,10 @@
+## [0.16.5](https://github.com/AEGEE/mailer/compare/0.16.4...0.16.5) (2024-12-06)
+
+
+### Bug Fixes
+
+* revert env name change ([#106](https://github.com/AEGEE/mailer/issues/106)) ([4ac5cdb](https://github.com/AEGEE/mailer/commit/4ac5cdb6c313810289211e1e8a18af53fbea05dc))
+
 ## [0.16.4](https://github.com/AEGEE/mailer/compare/0.16.3...0.16.4) (2024-12-06)
 
 
