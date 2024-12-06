@@ -45,7 +45,7 @@
                 <div class="media-left">
                   <figure class="image is-96x96">
                     <img v-if="!event.image" src="/images/logo.png">
-                    <img v-if="event.image" :src="services['events-static'] + '/headimages/' + event.image">
+                    <img v-if="event.image" :src="services['events-static'] + '/headimages/' + event.image" style="max-height: 96px; object-fit: contain">
                   </figure>
                 </div>
                 <div class="media-content">
@@ -99,15 +99,13 @@
           <div class="columns is-multiline">
             <div class="column is-one-quarter" v-for="event in events" v-bind:key="event.id">
               <div class="card">
-                <div class="card-image">
+                <div class="card-content">
                   <figure class="image is-square">
                     <img v-if="!event.image" src="/images/logo.png">
-                    <img v-if="event.image" :src="services['events-static'] + '/headimages/' + event.image">
+                    <img v-if="event.image" :src="services['events-static'] + '/headimages/' + event.image" style="object-fit: contain; margin: auto">
                   </figure>
-                </div>
 
-                <div class="card-content" style="padding-top: 0;">
-                  <div class="content">
+                  <div class="content" style="padding-top: 1rem">
                     <ul style="list-style-type: none; padding: 0; margin: 0">
                       <li><span class="title is-4">{{ event.name }}</span></li>
                       <li style="display: flex; justify-content: space-between;">
@@ -123,7 +121,10 @@
                     <table>
                       <tr>
                         <td><span class="subtitle is-4"><font-awesome-icon :icon="['fa', 'calendar']" /></span></td>
-                        <td>{{ event.starts | date }} - {{ event.ends | date }}</td>
+                        <td>
+                          <span>{{ event.starts | date }}</span>
+                          <span v-if="!isOneDayEvent(event.starts, event.ends)"> - {{ event.ends | date }}</span>
+                        </td>
                       </tr>
                       <tr>
                         <td><span class="subtitle is-4"><font-awesome-icon :icon="['fa', 'coins']" /></span></td>
@@ -264,6 +265,9 @@ export default {
     })
   },
   methods: {
+    isOneDayEvent (start, end) {
+      return moment(start).isSame(moment(end), 'day')
+    },
     toggleDisplayPast () {
       this.displayPast = !this.displayPast
       this.refetch()
