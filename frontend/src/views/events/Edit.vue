@@ -33,16 +33,6 @@
       </div>
 
       <form @submit.prevent="saveEvent()">
-        <div class="field notification is-warning">
-          <label class="label">COVID-19 restrictions</label>
-          <p>
-            Please follow the advice of local authorities for organising public events!
-          </p><p>
-            Take into account the social distancing requirements and make sure you don't exceed the number of people allowed in the same place. Also, cleaning and sanitary measures must be respected.
-          </p><p>
-            If it is needed, you are allowed to expel participants who don't follow the rules after clear instructions.
-          </p>
-        </div>
         <div class="notification is-info" v-if="!$route.params.id">
           <div class="content">
             <p>If you want to upload the image, please add it after creating the event by going to "Edit event" and uploading it there.</p>
