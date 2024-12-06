@@ -1,3 +1,10 @@
+## [0.16.4](https://github.com/AEGEE/mailer/compare/0.16.3...0.16.4) (2024-12-06)
+
+
+### Bug Fixes
+
+* **env:** expose SMTP_NAME ([#105](https://github.com/AEGEE/mailer/issues/105)) ([706dd23](https://github.com/AEGEE/mailer/commit/706dd23cc4444480e798e52b30eda92d5dd63d1a))
+
 ## [0.16.3](https://github.com/AEGEE/mailer/compare/0.16.2...0.16.3) (2024-12-06)
 
 
