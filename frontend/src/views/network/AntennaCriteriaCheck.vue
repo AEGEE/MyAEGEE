@@ -19,6 +19,8 @@
 
           <a class="button is-info" v-if="hideSafeLocals" @click="toggleHideSafeLocals()">Show all Locals</a>
           <a class="button is-info" v-if="!hideSafeLocals" @click="toggleHideSafeLocals()">Show only Locals in danger</a>
+
+          <a class="button is-info" v-if="can.sendFulfilmentEmails" @click="openAntennaCriteriaMail()">Change fulfilment email text</a>
         </div>
         <b-table :data="filteredBodies" :loading="isLoading" narrowed>
           <template slot-scope="props">
@@ -28,6 +30,10 @@
 
             <b-table-column sortable field="type" label="Type">
               {{ props.row.type | capitalize }}
+            </b-table-column>
+
+            <b-table-column sortable field="netcom" label="NetCom">
+              {{ props.row.netcom?.first_name }}
             </b-table-column>
 
             <b-table-column sortable field="status" label="Status">
@@ -78,6 +84,12 @@
               </b-button>
             </b-table-column>
 
+            <b-table-column v-if="can.sendFulfilmentEmails">
+              <b-button @click="openAntennaCriteriaMailSend(props.row)" class="button is-danger">
+                <span class="white"><font-awesome-icon :icon="['fa', 'envelope']" /></span>
+              </b-button>
+            </b-table-column>
+
           </template>
 
           <template slot="empty">
@@ -94,12 +106,15 @@ import { mapGetters } from 'vuex'
 import moment from 'moment'
 import AntennaCriteriaModal from './AntennaCriteriaModal.vue'
 import AntennaCriteriaInfo from './AntennaCriteriaInfo.vue'
+import AntennaCriteriaMail from './AntennaCriteriaMail.vue'
+import AntennaCriteriaMailSend from './AntennaCriteriaMailSend.vue'
 
 export default {
   name: 'AntennaCriteriaCheck',
   data () {
     return {
       bodies: [],
+      netcommies: [],
       agorae: null,
       selectedAgora: null,
       showDetails: false,
@@ -109,9 +124,13 @@ export default {
       summerUniversities: [],
       isLoading: false,
       isLoadingAgora: false,
+      permissions: [],
+      can: {
+        sendFulfilmentEmails: false
+      },
       antennaCriteriaMapping: {
         'contact': ['communication'],
-        'contact antenna': ['membersList', 'membershipFee'],
+        'contact antenna': ['communication', 'membersList', 'membershipFee'],
         'antenna': ['communication', 'boardElection', 'membersList', 'membershipFee', 'events', 'agoraAttendance', 'developmentPlan', 'fulfilmentReport']
       }
     }
@@ -134,6 +153,8 @@ export default {
         props: {
           local: row,
           agora: this.selectedAgora,
+          netcommies: this.netcommies,
+          permissions: this.permissions,
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
@@ -148,6 +169,36 @@ export default {
         props: {
           local: row,
           agora: this.selectedAgora,
+          services: this.services,
+          showError: this.$root.showError,
+          showSuccess: this.$root.showSuccess,
+          router: this.$router
+        }
+      })
+    },
+    openAntennaCriteriaMail () {
+      this.$buefy.modal.open({
+        component: AntennaCriteriaMail,
+        hasModalCard: true,
+        props: {
+          agora: this.selectedAgora,
+          mailComponents: this.mailComponents,
+          services: this.services,
+          showError: this.$root.showError,
+          showSuccess: this.$root.showSuccess,
+          router: this.$router
+        }
+      })
+    },
+    openAntennaCriteriaMailSend (row) {
+      this.$buefy.modal.open({
+        component: AntennaCriteriaMailSend,
+        hasModalCard: true,
+        props: {
+          local: row,
+          agora: this.selectedAgora,
+          mailComponents: this.mailComponents,
+          antennaCriteriaMapping: this.antennaCriteriaMapping,
           services: this.services,
           showError: this.$root.showError,
           showSuccess: this.$root.showSuccess,
@@ -229,9 +280,11 @@ export default {
         })
 
         const promises = []
+        promises.push(this.fetchNetcomAssignment())
         promises.push(this.checkBoardCriterium())
         promises.push(this.checkMembersListAndFeeCriteria())
         promises.push(this.checkEventsCriterium())
+        promises.push(this.fetchMailComponents())
 
         // The allSettled() command waits for all promises to be done, so it is also 'fine' if some of them fail
         await Promise.allSettled(promises)
@@ -367,10 +420,49 @@ export default {
       }).catch((err) => {
         this.$root.showError('Could not fetch manual Antenna Criteria fulfilment', err)
       })
+    },
+    async fetchNetcom () {
+      await this.axios.get(this.services['core'] + '/bodies?query=network%20commission').then(async (netcomBodyResponse) => {
+        await this.axios.get(this.services['core'] + '/bodies/' + netcomBodyResponse.data.data[0].id + '/members').then((netcomMembersResponse) => {
+          this.netcommies = netcomMembersResponse.data.data.map(netcommie => ({
+            user_id: netcommie.user_id,
+            first_name: netcommie.user.first_name,
+            email: netcommie.user.email
+          }))
+          this.netcommies.push({ 'user_id': 0, 'first_name': 'Not set', 'email': '' })
+        })
+      }).catch((err) => {
+        this.$root.showError('Could not fetch NetCom data', err)
+      })
+    },
+    async fetchNetcomAssignment () {
+      await this.axios.get(this.services['network'] + '/netcom').then(async (netcomResponse) => {
+        const netcomAssignment = netcomResponse.data.data
+        await this.fetchNetcom()
+
+        for (const body of this.bodies) {
+          const assignment = netcomAssignment.find(x => x.body_id === body.id)
+          this.$set(body, 'netcom', assignment !== undefined ? this.netcommies.find(x => x.user_id === assignment.netcom_id) : this.netcommies[this.netcommies.length - 1])
+        }
+      }).catch((err) => {
+        this.$root.showError('Could not fetch NetCom assignment', err)
+      })
+    },
+    async fetchMailComponents () {
+      await this.axios.get(this.services['network'] + '/mailComponent/' + this.selectedAgora.id).then((mailResponse) => {
+        this.mailComponents = mailResponse.data.data
+      }).catch((err) => {
+        this.$root.showError('Could not fetch mail components', err)
+      })
     }
   },
   mounted () {
     this.fetchAgorae()
+
+    this.axios.get(this.services['core'] + '/my_permissions').then((permissionResponse) => {
+      this.permissions = permissionResponse.data.data
+      this.can.sendFulfilmentEmails = this.permissions.some(permission => permission.combined.endsWith('manage_network:fulfilment_email'))
+    })
   }
 }
 
