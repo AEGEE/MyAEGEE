@@ -9,6 +9,7 @@ jobs:
     environment:
       MIX_ENV: test
       SMTP_USER: mailer@aegee.eu
+      SMTP_NAME: AEGEE <mailer@aegee.eu>
       SMTP_PASSWORD: 5ecr3t
       SMTP_HOST: mail.aegee.eu
     resource_class: large
@@ -26,6 +27,7 @@ jobs:
         environment:
           MIX_ENV: test
           SMTP_USER: mailer@aegee.eu
+          SMTP_NAME: AEGEE <mailer@aegee.eu>
           SMTP_PASSWORD: 5ecr3t
           SMTP_HOST: mail.aegee.eu
     resource_class: large
@@ -40,6 +42,7 @@ jobs:
         environment:
           MIX_ENV: test
           SMTP_USER: mailer@aegee.eu
+          SMTP_NAME: AEGEE <mailer@aegee.eu>
           SMTP_PASSWORD: 5ecr3t
           SMTP_HOST: mail.aegee.eu
     resource_class: large
