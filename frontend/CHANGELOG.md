@@ -1,3 +1,10 @@
+## [1.41.1](https://github.com/AEGEE/frontend/compare/1.41.0...1.41.1) (2024-12-06)
+
+
+### Bug Fixes
+
+* **events:** remove Covid-19 information ([#2255](https://github.com/AEGEE/frontend/issues/2255)) ([014824f](https://github.com/AEGEE/frontend/commit/014824fadfba7493744800ed949baa1f6b57847b))
+
 # [1.41.0](https://github.com/AEGEE/frontend/compare/1.40.1...1.41.0) (2024-12-06)
 
 
