@@ -1,3 +1,10 @@
+# [1.41.0](https://github.com/AEGEE/frontend/compare/1.40.1...1.41.0) (2024-12-06)
+
+
+### Features
+
+* **network:** add emailing of Locals about their Antenna Criteria fulfilment ([#2206](https://github.com/AEGEE/frontend/issues/2206)) ([6671d8d](https://github.com/AEGEE/frontend/commit/6671d8d03bc665f9c50b8c29e45fcd488d9566bd))
+
 ## [1.40.1](https://github.com/AEGEE/frontend/compare/1.40.0...1.40.1) (2024-12-06)
 
 
