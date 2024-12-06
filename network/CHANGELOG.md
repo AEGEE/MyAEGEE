@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/AEGEE/network/compare/1.2.2...1.3.0) (2024-12-06)
+
+
+### Features
+
+* **network:** add NetCom assignment and mail building and sending for Antenna Criteria fulfilment ([#687](https://github.com/AEGEE/network/issues/687)) ([eb90318](https://github.com/AEGEE/network/commit/eb90318e568a19ac521edc7a47bf87d24b947ddd))
+
 ## [1.2.2](https://github.com/AEGEE/network/compare/1.2.1...1.2.2) (2024-12-03)
 
 
