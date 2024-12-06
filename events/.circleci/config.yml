@@ -28,6 +28,19 @@ jobs:
           path: ~/reports
       - store_artifacts:
           path: ~/reports
+  db-recreate:
+    docker:
+      - image: cimg/node:20.17.0
+      - image: cimg/postgres:16.4
+        environment:
+          POSTGRES_PASSWORD: config.test.postgres.password
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Run db:recreate
+          command: NODE_ENV=test npm run db:recreate
   build:
     docker:
       - image: cimg/base:2024.09
@@ -224,6 +237,7 @@ workflows:
           filters:
             branches:
               ignore: stable
+      - db-recreate
   test:
     jobs:
       - test
