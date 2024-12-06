@@ -1,3 +1,10 @@
+## [0.16.3](https://github.com/AEGEE/mailer/compare/0.16.2...0.16.3) (2024-12-06)
+
+
+### Bug Fixes
+
+* change name of the email sender ([#102](https://github.com/AEGEE/mailer/issues/102)) ([8191c9b](https://github.com/AEGEE/mailer/commit/8191c9ba583dd9a9b9e1178a945003bf446aaa19))
+
 ## [0.16.2](https://github.com/AEGEE/mailer/compare/0.16.1...0.16.2) (2023-08-18)
 
 
