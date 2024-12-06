@@ -1,5 +1,6 @@
 const { AntennaCriterion } = require('../models');
 const errors = require('./errors');
+const mailer = require('./mailer');
 
 exports.listCriteria = async (req, res) => {
     if (!req.permissions.manage_antenna_criteria) {
@@ -38,5 +39,26 @@ exports.setCriterion = async (req, res) => {
     return res.json({
         success: true,
         data: result[0]
+    });
+};
+
+exports.sendFulfilmentMail = async (req, res) => {
+    if (!req.permissions.send_mails) {
+        return errors.makeForbiddenError(res, 'You are not allowed to send Antenna Criteria fulfilment mails.');
+    }
+
+    await mailer.sendMail({
+        from: req.body.from,
+        to: req.body.to,
+        cc: req.body.cc,
+        subject: req.body.subject,
+        template: 'custom.html',
+        reply_to: req.body.reply_to,
+        parameters: { body: req.body.body }
+    });
+
+    return res.json({
+        success: true,
+        message: 'Successfully sent Antenna Criteria fulfilment mail',
     });
 };

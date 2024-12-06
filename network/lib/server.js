@@ -9,6 +9,8 @@ const morgan = require('./morgan');
 const middlewares = require('./middlewares');
 const boards = require('./boards');
 const antennaCriteria = require('./antenna_criteria');
+const netcom = require('./netcom');
+const mailComponent = require('./mail_component');
 const metrics = require('./metrics');
 const endpointsMetrics = require('./endpoints_metrics');
 const db = require('./sequelize');
@@ -44,6 +46,14 @@ GeneralRouter.delete('/bodies/:body_id/boards/:board_id', boards.findBoard, boar
 
 GeneralRouter.get('/antennaCriteria/:agora_id', antennaCriteria.listCriteria);
 GeneralRouter.put('/antennaCriteria', antennaCriteria.setCriterion);
+GeneralRouter.post('/antennaCriteria/sendFulfilmentMail', antennaCriteria.sendFulfilmentMail);
+
+GeneralRouter.get('/netcom', netcom.listNetcomAssignment);
+GeneralRouter.put('/netcom', netcom.setNetcomAssignment);
+GeneralRouter.delete('/netcom/:body_id', netcom.removeNetcomAssignment);
+
+GeneralRouter.get('/mailComponent/:agora_id', mailComponent.listMailComponents);
+GeneralRouter.put('/mailComponent', mailComponent.setMailComponent);
 
 server.use(endpointsMetrics.addEndpointMetrics);
 server.use('/', GeneralRouter);
