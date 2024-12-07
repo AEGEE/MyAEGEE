@@ -1,3 +1,10 @@
+## [1.42.3](https://github.com/AEGEE/frontend/compare/1.42.2...1.42.3) (2024-12-07)
+
+
+### Bug Fixes
+
+* **deps:** update to buefy 0.9 ([#2259](https://github.com/AEGEE/frontend/issues/2259)) ([07354e6](https://github.com/AEGEE/frontend/commit/07354e61a23f7d40e59ce2a011fd4437d7441840))
+
 ## [1.42.2](https://github.com/AEGEE/frontend/compare/1.42.1...1.42.2) (2024-12-07)
 
 
