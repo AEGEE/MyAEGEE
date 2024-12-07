@@ -78,7 +78,7 @@
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^18.4.4",
-    "@cypress/code-coverage": "3.12.18",
+    "@cypress/code-coverage": "3.13.8",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "commitlint": "^18.4.4",
