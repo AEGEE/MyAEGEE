@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/AEGEE/events/compare/1.5.1...1.5.2) (2024-12-07)
+
+
+### Bug Fixes
+
+* **events:** allowing uploading of images with extensions in caps ([#1202](https://github.com/AEGEE/events/issues/1202)) ([ad9ff90](https://github.com/AEGEE/events/commit/ad9ff90c6169ff9196d0136b9b3790a6421f9b7c))
+
 ## [1.5.1](https://github.com/AEGEE/events/compare/1.5.0...1.5.1) (2024-12-03)
 
 
