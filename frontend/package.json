@@ -32,7 +32,7 @@
     "@fortawesome/vue-fontawesome": "^2.0.10",
     "@fullcalendar/core": "^6.1.9",
     "@fullcalendar/daygrid": "^6.1.15",
-    "@fullcalendar/vue": "^6.1.10",
+    "@fullcalendar/vue": "^6.1.15",
     "@gfx/zopfli": "^1.0.15",
     "@vue/cli-plugin-babel": "^4.5.15",
     "@vue/cli-plugin-router": "^4.5.15",
