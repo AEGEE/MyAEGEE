@@ -551,6 +551,26 @@
           </div>
         </div>
 
+        <div class="notification" style="background-color: purple; color: white;">
+          <div class="content">
+            <p><strong>Creating a safe event</strong></p>
+            <p>AEGEE should be a place in which everyone can feel safe.
+              That is why it is important to take measures against sexual harassment.
+            </p>
+
+            <p><a href="https://myaegee.atlassian.net/wiki/spaces/KMS/pages/2451505153/Organising+Safe+Events" target="blank">Here</a>
+              you can find a checklist on how to make your event safer and educational posters to hang up during events.
+              You may also request a workshop or briefing around consent and active bystanding or a Safe Person
+              which acts as a first contact for people that experience sexual harassment during an AEGEE event
+              <a href="https://forms.gle/oKjTeWrhLadrWkwR7" target="blank">here</a>.
+            </p>
+
+            <p>For any further questions, please contact the Safe Person Committee via
+              <a href="mailto:safe.person@aegee.eu">safe.person@aegee.eu</a>
+            </p>
+          </div>
+        </div>
+
         <b-loading is-full-page="false" :active.sync="isLoading" />
 
         <div class="field">
