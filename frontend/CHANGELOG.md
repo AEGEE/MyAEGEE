@@ -1,3 +1,10 @@
+## [1.42.5](https://github.com/AEGEE/frontend/compare/1.42.4...1.42.5) (2024-12-07)
+
+
+### Bug Fixes
+
+* **events:** give warning when creating select  question without values ([#2261](https://github.com/AEGEE/frontend/issues/2261)) ([7ac211b](https://github.com/AEGEE/frontend/commit/7ac211bc0f865a5b7c5d69bb7138fe013855ea31))
+
 ## [1.42.4](https://github.com/AEGEE/frontend/compare/1.42.3...1.42.4) (2024-12-07)
 
 
