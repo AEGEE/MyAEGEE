@@ -11,7 +11,7 @@
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
-    "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
+    "test": "NODE_ENV=test npm run db:setup && jest test/**/*.test.js --runInBand --forceExit",
     "test:ci": "NODE_ENV=test npm run db:setup && jest --runInBand --forceExit",
     "open-coverage": "open-cli coverage/lcov-report/index.html",
     "prepare": "husky install"
@@ -61,6 +61,7 @@
     "@bugsnag/js": "^7.25.0",
     "body-parser": "^1.20.2",
     "bunyan": "^1.8.15",
+    "cron": "^3.2.1",
     "express": "^4.21.1",
     "express-promise-router": "^4.1.1",
     "joi": "^17.12.3",

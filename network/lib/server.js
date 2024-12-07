@@ -14,6 +14,7 @@ const mailComponent = require('./mail_component');
 const metrics = require('./metrics');
 const endpointsMetrics = require('./endpoints_metrics');
 const db = require('./sequelize');
+const { job } = require('./cron');
 
 const server = express();
 server.use(bodyParser.json());
@@ -68,6 +69,7 @@ async function startServer() {
             app = localApp;
             log.info({ host: 'http://localhost:' + config.port }, 'Up and running, listening');
             await db.authenticate();
+            job.start();
             return res();
         });
         /* istanbul ignore next */

@@ -210,6 +210,62 @@ exports.mockCoreMailer = (options) => {
         .reply(200, { success: true });
 };
 
+exports.mockCoreLogin = (options) => {
+    if (options.netError) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .post('/login')
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .post('/login')
+            .reply(500, 'Some error happened.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .post('/login')
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
+    return nock(`${config.core.url}:${config.core.port}`)
+        .persist()
+        .post('/login')
+        .reply(200, { success: true, access_token: '1', refresh_token: '1' });
+};
+
+exports.mockCoreMails = (options) => {
+    if (options.netError) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/members_email\?query=[0-9,].*/)
+            .replyWithError('Some random error.');
+    }
+
+    if (options.badResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/members_email\?query=[0-9,].*/)
+            .reply(500, 'Some error happened.');
+    }
+
+    if (options.unsuccessfulResponse) {
+        return nock(`${config.core.url}:${config.core.port}`)
+            .persist()
+            .get(/\/members_email\?query=[0-9,].*/)
+            .reply(500, { success: false, message: 'Some error' });
+    }
+
+    return nock(`${config.core.url}:${config.core.port}`)
+        .persist()
+        .get(/\/members_email\?query=[0-9,].*/)
+        .replyWithFile(200, path.join(__dirname, '..', 'assets', 'core-notification-mails.json'));
+};
+
 exports.mockAll = (options = {}) => {
     nock.cleanAll();
     const omsCoreStub = exports.mockCore(options.core || {});
@@ -217,6 +273,8 @@ exports.mockAll = (options = {}) => {
     const omsManagePermissionsStub = exports.mockCoreManagePermissions(options.managePermissions || {});
     const omsCoreBodyStub = exports.mockCoreBody(options.body || {});
     const omsCoreMemberStub = exports.mockCoreMember(options.member || {});
+    const coreLoginStub = exports.mockCoreLogin(options.login || {});
+    const coreMailsStub = exports.mockCoreMails(options.mails || {});
     const omsMailerStub = exports.mockCoreMailer(options.mailer || {});
 
     return {
@@ -225,6 +283,8 @@ exports.mockAll = (options = {}) => {
         omsManagePermissionsStub,
         omsCoreBodyStub,
         omsCoreMemberStub,
+        coreLoginStub,
+        coreMailsStub,
         omsMailerStub
     };
 };

@@ -48,6 +48,10 @@ const makeRequest = (options) => {
         resolveWithFullResponse: options.resolveWithFullResponse || false
     };
 
+    if (options.body) {
+        requestOptions.body = options.body;
+    }
+
     return request(requestOptions);
 };
 
@@ -91,4 +95,37 @@ module.exports.fetchUser = async (user, token) => {
         last_name: userRequest.data.last_name,
         name: userRequest.data.first_name + ' ' + userRequest.data.last_name
     };
+};
+
+module.exports.getMails = async (ids, token) => {
+    let adminToken = '';
+
+    if (!token) {
+        // Getting access and refresh token.
+        const authRequest = await makeRequest({
+            url: config.core.url + ':' + config.core.port + '/login',
+            method: 'POST',
+            body: {
+                username: config.core.user.login,
+                password: config.core.user.password
+            }
+        });
+
+        if (typeof authRequest !== 'object') {
+            throw new Error('Malformed response when fetching auth request: ' + authRequest);
+        }
+
+        if (!authRequest.success) {
+            throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
+        }
+
+        adminToken = authRequest.access_token;
+    }
+
+    const mails = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/members_email?query=' + ids,
+        token: token || adminToken
+    });
+
+    return mails.data;
 };

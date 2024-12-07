@@ -52,7 +52,7 @@ exports.getPermissions = (user, corePermissions, managePermissions) => {
         view_board: hasPermission(corePermissions, 'view:board'),
         manage_antenna_criteria: hasPermission(corePermissions, 'global:manage_network:antenna_criteria'),
         manage_netcom_assignment: hasPermission(corePermissions, 'global:manage_network:netcom_assignment'),
-        send_mails: hasPermission(corePermissions, 'global:manage_network:fulfilment_email')
+        send_mails: hasPermission(corePermissions, 'global:manage_network:fulfilment_email'),
     };
 
     permissions.manage_boards = {

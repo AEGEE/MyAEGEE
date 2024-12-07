@@ -8,6 +8,7 @@ const { Sequelize, sequelize } = require('./sequelize');
 const core = require('./core');
 const mailer = require('./mailer');
 const config = require('../config');
+const constants = require('./constants');
 
 exports.createBoard = async (req, res) => {
     if (!req.permissions.manage_boards[req.body.body_id] && !req.permissions.manage_boards.global) {
@@ -28,7 +29,7 @@ exports.createBoard = async (req, res) => {
     }
 
     await sequelize.transaction(async (t) => {
-        await Board.create(req.body, { transaction: t });
+        const createdBoard = await Board.create(req.body, { transaction: t });
 
         await mailer.sendMail({
             to: config.new_board_notifications,
@@ -40,6 +41,8 @@ exports.createBoard = async (req, res) => {
                 positions
             }
         });
+
+        await this.sendNewBoardEmail(createdBoard.id, true);
     });
 
     return res.json({
@@ -198,5 +201,36 @@ exports.deleteBoard = async (req, res) => {
     return res.json({
         success: true,
         data: req.board
+    });
+};
+
+exports.sendNewBoardEmail = async (id, newBoard) => {
+    const board = await Board.findByPk(id);
+
+    if (!board) {
+        return;
+    }
+
+    if (!newBoard && !moment(board.start_date).isSame(moment(), 'day')) {
+        return;
+    }
+
+    if (newBoard && moment(board.end_date).isBefore(moment())) {
+        return;
+    }
+
+    const memberIds = [board.president, board.secretary, board.treasurer];
+
+    if (board.other_members) {
+        memberIds.push(...board.other_members.map((member) => member.user_id));
+    }
+
+    const mails = await core.getMails(memberIds.join(','));
+
+    await mailer.sendMail({
+        to: mails.map((member) => member.notification_email),
+        subject: constants.MAIL_SUBJECTS.NEW_BOARD_EMAIL,
+        template: 'network_board_welcome.html',
+        parameters: {}
     });
 };
