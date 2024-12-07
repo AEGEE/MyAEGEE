@@ -1,7 +1,7 @@
 <template>
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">Add fee payment</p>
+      <p class="modal-card-title">Add fee payment for {{member.user.first_name }} {{ member.user.last_name }}</p>
       <button class="delete" aria-label="close" @click="$parent.close()" />
     </header>
     <section class="modal-card-body">
@@ -114,17 +114,7 @@ export default {
         body_id: this.body.id
       }).then((response) => {
         this.showSuccess('Payment is added.')
-
-        this.tmpPayment = {
-          starts: '',
-          expires: '',
-          currency: '',
-          amount: 0
-        }
-
         this.member.payments.push(response.data.data)
-        this.$set(this.member, 'lastPayment', this.member.payments[this.member.payments.length - 1])
-
         this.isLoading = false
         this.$parent.close()
       }).catch((err) => {
