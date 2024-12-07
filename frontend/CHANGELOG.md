@@ -1,3 +1,10 @@
+# [1.42.0](https://github.com/AEGEE/frontend/compare/1.41.1...1.42.0) (2024-12-07)
+
+
+### Features
+
+* **user:** add profile images ([#2256](https://github.com/AEGEE/frontend/issues/2256)) ([8ee0278](https://github.com/AEGEE/frontend/commit/8ee02789ea5dc3f714e6f9b02818e6a133a4f7ef))
+
 ## [1.41.1](https://github.com/AEGEE/frontend/compare/1.41.0...1.41.1) (2024-12-06)
 
 
