@@ -1,3 +1,10 @@
+## [1.42.1](https://github.com/AEGEE/frontend/compare/1.42.0...1.42.1) (2024-12-07)
+
+
+### Bug Fixes
+
+* **member:** only allow local as primary body ([#2258](https://github.com/AEGEE/frontend/issues/2258)) ([aaab664](https://github.com/AEGEE/frontend/commit/aaab664828af588744174acbecd4694fd8e588cd))
+
 # [1.42.0](https://github.com/AEGEE/frontend/compare/1.41.1...1.42.0) (2024-12-07)
 
 
