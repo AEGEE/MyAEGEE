@@ -1,3 +1,10 @@
+## [1.42.2](https://github.com/AEGEE/frontend/compare/1.42.1...1.42.2) (2024-12-07)
+
+
+### Bug Fixes
+
+* **payment:** add ability to delete fee payments through frontend for system admins ([#2153](https://github.com/AEGEE/frontend/issues/2153)) ([5e704fc](https://github.com/AEGEE/frontend/commit/5e704fc2ec42ad7e1b14a4d218b01d4db3c16972))
+
 ## [1.42.1](https://github.com/AEGEE/frontend/compare/1.42.0...1.42.1) (2024-12-07)
 
 
