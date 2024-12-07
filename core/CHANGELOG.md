@@ -1,3 +1,10 @@
+# [1.39.0](https://github.com/AEGEE/core/compare/1.38.5...1.39.0) (2024-12-07)
+
+
+### Features
+
+* **user:** add profile images ([#1041](https://github.com/AEGEE/core/issues/1041)) ([7e298d7](https://github.com/AEGEE/core/commit/7e298d725918e680f7836728e1dcde607905d185))
+
 ## [1.38.5](https://github.com/AEGEE/core/compare/1.38.4...1.38.5) (2024-12-05)
 
 
