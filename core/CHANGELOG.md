@@ -1,3 +1,10 @@
+## [1.39.1](https://github.com/AEGEE/core/compare/1.39.0...1.39.1) (2024-12-07)
+
+
+### Bug Fixes
+
+* **user:** correctly change image of another user ([#1042](https://github.com/AEGEE/core/issues/1042)) ([01a5e8b](https://github.com/AEGEE/core/commit/01a5e8b81b60a5c537f0a9af2b9467fd042f76c4))
+
 # [1.39.0](https://github.com/AEGEE/core/compare/1.38.5...1.39.0) (2024-12-07)
 
 
