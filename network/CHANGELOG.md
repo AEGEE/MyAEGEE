@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/AEGEE/network/compare/1.3.0...1.3.1) (2024-12-07)
+
+
+### Bug Fixes
+
+* **boards:** send mail to new board members ([#714](https://github.com/AEGEE/network/issues/714)) ([8006b80](https://github.com/AEGEE/network/commit/8006b80426d7750921c9417d7917644ce1d4daaa))
+
 # [1.3.0](https://github.com/AEGEE/network/compare/1.2.2...1.3.0) (2024-12-06)
 
 
