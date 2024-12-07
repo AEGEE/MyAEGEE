@@ -86,7 +86,7 @@
                   I agree with my personal data to be processed
                   by AEGEE-Europe for the purposes of the participant selection
                   and event organisation. AEGEE-Europe will disclose this data
-                  to organising local for the time period of the event organisation.
+                  to organising local for the time period of the event organisation.<span class="has-text-danger">*</span>
                   <input type="checkbox" required v-model="application.agreed_to_privacy_policy" />
                 </label>
                 <p class="help is-danger" v-if="errors.agreed_to_privacy_policy">{{ errors.agreed_to_privacy_policy.join(', ') }}</p>

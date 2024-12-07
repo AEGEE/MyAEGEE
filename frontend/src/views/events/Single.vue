@@ -210,7 +210,7 @@
 
           <div class="notification is-info" v-if="event.status === 'draft'">
             <p>
-              This event is in the "draft" status. Once you'll fill all the fields in,
+              This event is in the "draft" status. Once you have filled in all the fields,
               you can send it to EQAC approval.
             </p>
           </div>

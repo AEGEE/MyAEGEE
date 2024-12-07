@@ -361,7 +361,7 @@
             <tr>
               <th>Description <span class="has-text-danger">*</span></th>
               <th>Type <span class="has-text-danger">*</span></th>
-              <th>Required (works for text and string)?</th>
+              <th>Required?</th>
               <th>Values (for select)</th>
               <th />
             </tr>
@@ -791,6 +791,12 @@ export default {
 
       if (this.event.organizers.length === 0) {
         return this.$root.showError('Please add at least one organizer.')
+      }
+
+      for (const question of this.event.questions) {
+        if (question.type === 'select' && question.values.length === 0) {
+          return this.$root.showError('Please set values for select questions.')
+        }
       }
 
       this.isSaving = true
