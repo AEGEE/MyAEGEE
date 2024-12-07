@@ -19,25 +19,23 @@
         <b-table
           :data="campaigns"
           :loading="isLoading">
-          <template slot-scope="props">
-            <b-table-column field="id" label="#" numeric sortable>
-              {{ props.row.id }}
-            </b-table-column>
+          <b-table-column field="id" label="#" numeric sortable v-slot="props">
+            {{ props.row.id }}
+          </b-table-column>
 
-            <b-table-column field="name" label="Campaign name" sortable>
-              <router-link :to="{ name: 'oms.campaigns.view', params: { id: props.row.id } }">
-                {{ props.row.name }}
-              </router-link>
-            </b-table-column>
+          <b-table-column field="name" label="Campaign name" sortable v-slot="props">
+            <router-link :to="{ name: 'oms.campaigns.view', params: { id: props.row.id } }">
+              {{ props.row.name }}
+            </router-link>
+          </b-table-column>
 
-            <b-table-column field="description_long" label="Description">
-              <span class="description" v-html="$options.filters.markdown(props.row.description_long)" />
-            </b-table-column>
+          <b-table-column field="description_long" label="Description" v-slot="props">
+            <span class="description" v-html="$options.filters.markdown(props.row.description_long)" />
+          </b-table-column>
 
-            <b-table-column label="Link">
-              {{ '/signup/' + props.row.url }}
-            </b-table-column>
-          </template>
+          <b-table-column label="Link" v-slot="props">
+            {{ '/signup/' + props.row.url }}
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

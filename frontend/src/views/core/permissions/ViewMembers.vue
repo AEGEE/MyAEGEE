@@ -7,13 +7,11 @@
         <b-table
           :data="members"
           :loading="isLoading">
-          <template slot-scope="props">
-            <b-table-column field="first_name" label="Name and surname" sortable>
-              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.seo_url || props.row.id } }">
-                {{ props.row.first_name }} {{ props.row.last_name }}
-              </router-link>
-            </b-table-column>
-          </template>
+          <b-table-column field="first_name" label="Name and surname" sortable v-slot="props">
+            <router-link :to="{ name: 'oms.members.view', params: { id: props.row.seo_url || props.row.id } }">
+              {{ props.row.first_name }} {{ props.row.last_name }}
+            </router-link>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

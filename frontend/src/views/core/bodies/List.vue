@@ -47,32 +47,30 @@
         </div>
 
         <b-table :data="bodies" :loading="isLoading" narrowed>
-          <template slot-scope="props">
-            <b-table-column field="code" label="Body code" sortable>
-              {{ props.row.code }}
-            </b-table-column>
+          <b-table-column field="code" label="Body code" v-slot="props" sortable>
+            {{ props.row.code }}
+          </b-table-column>
 
-            <b-table-column field="name" label="Body name" sortable>
-              <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.id } }">{{ props.row.name}}</router-link>
-            </b-table-column>
+          <b-table-column field="name" label="Body name" v-slot="props" sortable>
+            <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.id } }">{{ props.row.name}}</router-link>
+          </b-table-column>
 
-            <b-table-column field="type" label="Type" sortable>
-              {{ props.row.type | capitalize }}
-            </b-table-column>
+          <b-table-column field="type" label="Type" v-slot="props" sortable>
+            {{ props.row.type | capitalize }}
+          </b-table-column>
 
-            <b-table-column field="description" label="Description">
-              <span class="body-description" v-html="$options.filters.markdown(props.row.description)" />
-            </b-table-column>
+          <b-table-column field="description" label="Description" v-slot="props">
+            <span class="body-description" v-html="$options.filters.markdown(props.row.description)" />
+          </b-table-column>
 
-            <b-table-column field="founded_at" label="Foundation date" sortable>
-              {{ props.row.founded_at }}
-            </b-table-column>
+          <b-table-column field="founded_at" label="Foundation date" v-slot="props" sortable>
+            {{ props.row.founded_at }}
+          </b-table-column>
 
-            <b-table-column field="status" label="Status" :visible="includeDeleted">
-              <span class="tag is-small is-info" v-if="props.row.status === 'active'">Active</span>
-              <span class="tag is-small is-danger" v-if="props.row.status === 'deleted'">Deleted</span>
-            </b-table-column>
-          </template>
+          <b-table-column field="status" label="Status" :visible="includeDeleted" v-slot="props">
+            <span class="tag is-small is-info" v-if="props.row.status === 'active'">Active</span>
+            <span class="tag is-small is-danger" v-if="props.row.status === 'deleted'">Deleted</span>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

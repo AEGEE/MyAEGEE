@@ -481,27 +481,25 @@
           <b-table
             :data="event.organizers"
             :loading="isLoading">
-            <template slot-scope="props">
-              <b-table-column field="first_name" label="First and last name" sortable>
-                <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
-                  {{ props.row.first_name }} {{ props.row.last_name }}
-                </router-link>
-              </b-table-column>
+            <b-table-column field="first_name" label="First and last name" sortable v-slot="props">
+              <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
+                {{ props.row.first_name }} {{ props.row.last_name }}
+              </router-link>
+            </b-table-column>
 
-              <b-table-column field="role" label="Role">
-                <div class="select">
-                  <select v-model="props.row.role">
-                    <option v-for="(name, role) in roles" v-bind:key="role" v-bind:value="role">{{ name }}</option>
-                  </select>
-                </div>
-              </b-table-column>
+            <b-table-column field="role" label="Role" v-slot="props">
+              <div class="select">
+                <select v-model="props.row.role">
+                  <option v-for="(name, role) in roles" v-bind:key="role" v-bind:value="role">{{ name }}</option>
+                </select>
+              </div>
+            </b-table-column>
 
-              <b-table-column label="Delete">
-                <button class="button is-small is-danger" v-if="!props.row.disableEdit" @click="deleteOrganizer(props.index)">
-                  Delete
-                </button>
-              </b-table-column>
-            </template>
+            <b-table-column label="Delete" v-slot="props">
+              <button class="button is-small is-danger" v-if="!props.row.disableEdit" @click="deleteOrganizer(props.index)">
+                Delete
+              </button>
+            </b-table-column>
 
             <template slot="empty">
               <empty-table-stub />

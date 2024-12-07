@@ -7,155 +7,153 @@
         <b-table
           :data="events"
           :loading="isLoading">
-          <template slot-scope="props">
-            <b-table-column field="type" label="Event type" sortable>
-              {{ eventTypes[props.row.type] }}
-            </b-table-column>
+          <b-table-column field="type" label="Event type" sortable v-slot="props">
+            {{ eventTypes[props.row.type] }}
+          </b-table-column>
 
-            <b-table-column field="name" label="Event name" sortable>
-              <router-link
-                :to="{ name: 'oms.summeruniversity.view', params: { id: props.row.url || props.row.id } }"
-                class="has-word-break">
-                {{ props.row.name }}
-              </router-link>
-            </b-table-column>
+          <b-table-column field="name" label="Event name" sortable v-slot="props">
+            <router-link
+              :to="{ name: 'oms.summeruniversity.view', params: { id: props.row.url || props.row.id } }"
+              class="has-word-break">
+              {{ props.row.name }}
+            </router-link>
+          </b-table-column>
 
-            <b-table-column field="organizing_bodies" label="Organizing bodies">
-              <ul>
-                <li v-for="body in props.row.organizing_bodies" v-bind:key="body._id">
-                  <router-link class="tag" :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }">
-                    {{ body.body_name }}
-                  </router-link>
-                </li>
-              </ul>
-            </b-table-column>
+          <b-table-column field="organizing_bodies" label="Organizing bodies" v-slot="props">
+            <ul>
+              <li v-for="body in props.row.organizing_bodies" v-bind:key="body._id">
+                <router-link class="tag" :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }">
+                  {{ body.body_name }}
+                </router-link>
+              </li>
+            </ul>
+          </b-table-column>
 
-            <b-table-column field="starts" label="Event dates" sortable>
-              {{ props.row.starts | date }} - {{ props.row.ends | date }}
-            </b-table-column>
+          <b-table-column field="starts" label="Event dates" sortable v-slot="props">
+            {{ props.row.starts | date }} - {{ props.row.ends | date }}
+          </b-table-column>
 
-            <b-table-column field="status" label="Current status" sortable>
-              {{ props.row.status | capitalize }}
-            </b-table-column>
+          <b-table-column field="status" label="Current status" sortable v-slot="props">
+            {{ props.row.status | capitalize }}
+          </b-table-column>
 
-            <b-table-column field="published" label="Current publication" sortable>
-              {{ props.row.published | capitalize }}
-            </b-table-column>
+          <b-table-column field="published" label="Current publication" sortable v-slot="props">
+            {{ props.row.published | capitalize }}
+          </b-table-column>
 
-            <b-table-column field="application_status" label="Current application status" sortable>
-              {{ props.row.application_status | capitalize }}
-            </b-table-column>
+          <b-table-column field="application_status" label="Current application status" sortable v-slot="props">
+            {{ props.row.application_status | capitalize }}
+          </b-table-column>
 
-            <b-table-column field="status" label="Change status" sortable>
-              <div class="buttons">
-                <button
-                  v-if="props.row.status === 'first draft'"
-                  class="button is-small is-warning"
-                  @click="changeStatus(props.row, 'first submission')">
-                  Submit first draft
-                </button>
-                <button
-                  v-if="props.row.status === 'first approval'"
-                  class="button is-small is-warning"
-                  @click="changeStatus(props.row, 'second submission')">
-                  Submit second draft
-                </button>
-                <button
-                  v-if="props.row.status === 'second draft'"
-                  class="button is-small is-warning"
-                  @click="changeStatus(props.row, 'second submission')">
-                  Submit second draft
-                </button>
-                <button
-                  v-if="props.row.status === 'second approval'"
-                  class="button is-small is-warning"
-                  @click="changeStatus(props.row, 'covid submission')">
-                  Submit covid draft
-                </button>
-                <button
-                  v-if="props.row.status === 'covid draft'"
-                  class="button is-small is-warning"
-                  @click="changeStatus(props.row, 'covid submission')">
-                  Submit covid draft
-                </button>
-                <button
-                  v-if="props.row.status === 'first submission'"
-                  class="button is-small is-primary"
-                  @click="changeStatus(props.row, 'first approval')">
-                  Approve first submission
-                </button>
-                <button
-                  v-if="props.row.status === 'second submission'"
-                  class="button is-small is-primary"
-                  @click="changeStatus(props.row, 'second approval')">
-                  Approve second submission
-                </button>
-                <button
-                  v-if="props.row.status === 'covid submission'"
-                  class="button is-small is-primary"
-                  @click="changeStatus(props.row, 'covid approval')">
-                  Approve covid submission
-                </button>
-                <button
-                  v-if="props.row.status === 'first submission'"
-                  class="button is-small is-danger"
-                  @click="changeStatus(props.row, 'first draft')">
-                  Reject first submission
-                </button>
-                <button
-                  v-if="props.row.status === 'second submission'"
-                  class="button is-small is-danger"
-                  @click="changeStatus(props.row, 'second draft')">
-                  Reject second submission
-                </button>
-                <button
-                  v-if="props.row.status === 'covid submission'"
-                  class="button is-small is-danger"
-                  @click="changeStatus(props.row, 'covid draft')">
-                  Reject covid submission
-                </button>
-              </div>
-            </b-table-column>
+          <b-table-column field="status" label="Change status" sortable v-slot="props">
+            <div class="buttons">
+              <button
+                v-if="props.row.status === 'first draft'"
+                class="button is-small is-warning"
+                @click="changeStatus(props.row, 'first submission')">
+                Submit first draft
+              </button>
+              <button
+                v-if="props.row.status === 'first approval'"
+                class="button is-small is-warning"
+                @click="changeStatus(props.row, 'second submission')">
+                Submit second draft
+              </button>
+              <button
+                v-if="props.row.status === 'second draft'"
+                class="button is-small is-warning"
+                @click="changeStatus(props.row, 'second submission')">
+                Submit second draft
+              </button>
+              <button
+                v-if="props.row.status === 'second approval'"
+                class="button is-small is-warning"
+                @click="changeStatus(props.row, 'covid submission')">
+                Submit covid draft
+              </button>
+              <button
+                v-if="props.row.status === 'covid draft'"
+                class="button is-small is-warning"
+                @click="changeStatus(props.row, 'covid submission')">
+                Submit covid draft
+              </button>
+              <button
+                v-if="props.row.status === 'first submission'"
+                class="button is-small is-primary"
+                @click="changeStatus(props.row, 'first approval')">
+                Approve first submission
+              </button>
+              <button
+                v-if="props.row.status === 'second submission'"
+                class="button is-small is-primary"
+                @click="changeStatus(props.row, 'second approval')">
+                Approve second submission
+              </button>
+              <button
+                v-if="props.row.status === 'covid submission'"
+                class="button is-small is-primary"
+                @click="changeStatus(props.row, 'covid approval')">
+                Approve covid submission
+              </button>
+              <button
+                v-if="props.row.status === 'first submission'"
+                class="button is-small is-danger"
+                @click="changeStatus(props.row, 'first draft')">
+                Reject first submission
+              </button>
+              <button
+                v-if="props.row.status === 'second submission'"
+                class="button is-small is-danger"
+                @click="changeStatus(props.row, 'second draft')">
+                Reject second submission
+              </button>
+              <button
+                v-if="props.row.status === 'covid submission'"
+                class="button is-small is-danger"
+                @click="changeStatus(props.row, 'covid draft')">
+                Reject covid submission
+              </button>
+            </div>
+          </b-table-column>
 
-            <b-table-column field="published" label="Change publication" sortable>
-              <div class="buttons">
-                <button
-                  v-if="props.row.published === 'none'"
-                  class="button is-small is-info"
-                  @click="changePublication(props.row, 'minimal')">
-                  Publish minimal event
-                </button>
-                <button
-                  v-if="props.row.published === 'minimal'"
-                  class="button is-small is-info"
-                  @click="changePublication(props.row, 'full')">
-                  Publish full event
-                </button>
-                <button
-                  v-if="props.row.published === 'full'"
-                  class="button is-small is-info"
-                  @click="changePublication(props.row, 'covid')">
-                  Publish covid event
-                </button>
-                <button
-                  v-if="props.row.published !== 'none'"
-                  class="button is-small is-danger"
-                  @click="changePublication(props.row, 'none')">
-                  Unpublish event
-                </button>
-              </div>
-            </b-table-column>
+          <b-table-column field="published" label="Change publication" sortable v-slot="props">
+            <div class="buttons">
+              <button
+                v-if="props.row.published === 'none'"
+                class="button is-small is-info"
+                @click="changePublication(props.row, 'minimal')">
+                Publish minimal event
+              </button>
+              <button
+                v-if="props.row.published === 'minimal'"
+                class="button is-small is-info"
+                @click="changePublication(props.row, 'full')">
+                Publish full event
+              </button>
+              <button
+                v-if="props.row.published === 'full'"
+                class="button is-small is-info"
+                @click="changePublication(props.row, 'covid')">
+                Publish covid event
+              </button>
+              <button
+                v-if="props.row.published !== 'none'"
+                class="button is-small is-danger"
+                @click="changePublication(props.row, 'none')">
+                Unpublish event
+              </button>
+            </div>
+          </b-table-column>
 
-            <b-table-column field="application_status" label="Change application deadline" sortable>
-              <div class="buttons">
-                <button
-                  class="button is-small is-info"
-                  @click="askChangeApplicationPeriod(props.row)">
-                  Change application deadline
-                </button>
-              </div>
-            </b-table-column>
-          </template>
+          <b-table-column field="application_status" label="Change application deadline" sortable v-slot="props">
+            <div class="buttons">
+              <button
+                class="button is-small is-info"
+                @click="askChangeApplicationPeriod(props.row)">
+                Change application deadline
+              </button>
+            </div>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

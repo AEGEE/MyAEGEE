@@ -7,60 +7,58 @@
         <b-table
           :data="events"
           :loading="isLoading">
-          <template slot-scope="props">
-            <b-table-column field="type" label="Event type" sortable>
-              {{ eventTypes[props.row.type] }}
-            </b-table-column>
+          <b-table-column field="type" label="Event type" sortable v-slot="props">
+            {{ eventTypes[props.row.type] }}
+          </b-table-column>
 
-            <b-table-column field="name" label="Event name" sortable>
-              <router-link
-                :to="{ name: 'oms.events.view', params: { id: props.row.url || props.row.id } }"
-                class="has-word-break">
-                {{ props.row.name }}
-              </router-link>
-            </b-table-column>
+          <b-table-column field="name" label="Event name" sortable v-slot="props">
+            <router-link
+              :to="{ name: 'oms.events.view', params: { id: props.row.url || props.row.id } }"
+              class="has-word-break">
+              {{ props.row.name }}
+            </router-link>
+          </b-table-column>
 
-            <b-table-column field="description" label="Description">
-              <div class="content has-word-break" v-html="$options.filters.markdown(props.row.description)" />
-            </b-table-column>
+          <b-table-column field="description" label="Description" v-slot="props">
+            <div class="content has-word-break" v-html="$options.filters.markdown(props.row.description)" />
+          </b-table-column>
 
-            <b-table-column field="starts" label="Event dates" sortable>
-              {{ props.row.starts | date }} - {{ props.row.ends | date }}
-            </b-table-column>
+          <b-table-column field="starts" label="Event dates" sortable v-slot="props">
+            {{ props.row.starts | date }} - {{ props.row.ends | date }}
+          </b-table-column>
 
-            <b-table-column field="status" label="Current status" sortable>
-              {{ props.row.status | capitalize }}
-            </b-table-column>
+          <b-table-column field="status" label="Current status" sortable v-slot="props">
+            {{ props.row.status | capitalize }}
+          </b-table-column>
 
-            <b-table-column field="status" label="Change status" sortable>
-              <div class="buttons">
-                <button
-                  v-if="props.row.status === 'draft'"
-                  class="button is-small is-warning"
-                  @click="changeStatus(props.row, 'submitted')">
-                  Request approval
-                </button>
-                <button
-                  v-if="props.row.status === 'submitted'"
-                  class="button is-small is-primary"
-                  @click="changeStatus(props.row, 'published')">
-                  Publish
-                </button>
-                <button
-                  v-if="props.row.status === 'submitted'"
-                  class="button is-small is-danger"
-                  @click="changeStatus(props.row, 'draft')">
-                  Request changes
-                </button>
-                <button
-                  v-if="props.row.status === 'published'"
-                  class="button is-small is-danger"
-                  @click="changeStatus(props.row, 'submitted')">
-                  Unpublish
-                </button>
-              </div>
-            </b-table-column>
-          </template>
+          <b-table-column field="status" label="Change status" sortable v-slot="props">
+            <div class="buttons">
+              <button
+                v-if="props.row.status === 'draft'"
+                class="button is-small is-warning"
+                @click="changeStatus(props.row, 'submitted')">
+                Request approval
+              </button>
+              <button
+                v-if="props.row.status === 'submitted'"
+                class="button is-small is-primary"
+                @click="changeStatus(props.row, 'published')">
+                Publish
+              </button>
+              <button
+                v-if="props.row.status === 'submitted'"
+                class="button is-small is-danger"
+                @click="changeStatus(props.row, 'draft')">
+                Request changes
+              </button>
+              <button
+                v-if="props.row.status === 'published'"
+                class="button is-small is-danger"
+                @click="changeStatus(props.row, 'submitted')">
+                Unpublish
+              </button>
+            </div>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

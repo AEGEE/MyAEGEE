@@ -31,52 +31,50 @@
           :per-page="limit"
           default-sort="user.first_name"
           default-sort-direction="asc">
-          <template slot-scope="props">
-            <b-table-column field="user.first_name" label="First and last name" sortable>
-              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }" v-if="can.viewMember">
-                {{ props.row.user.first_name }} {{ props.row.user.last_name }}
-              </router-link>
-              <span v-if="!can.viewMember">
-                {{ props.row.user.first_name }} {{ props.row.user.last_name }}
-              </span>
-            </b-table-column>
+          <b-table-column field="user.first_name" label="First and last name" sortable v-slot="props">
+            <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }" v-if="can.viewMember">
+              {{ props.row.user.first_name }} {{ props.row.user.last_name }}
+            </router-link>
+            <span v-if="!can.viewMember">
+              {{ props.row.user.first_name }} {{ props.row.user.last_name }}
+            </span>
+          </b-table-column>
 
-            <b-table-column field="comment" label="Comment">
-              {{ props.row.comment }}
-            </b-table-column>
+          <b-table-column field="comment" label="Comment" v-slot="props">
+            {{ props.row.comment }}
+          </b-table-column>
 
-            <b-table-column field="lastPaymentExpires" sortable label="Last payment exp. date" centered :visible="can.viewPayment && body.pays_fees">
-              <span v-if="props.row.payments && props.row.payments.length > 0">{{ getLastPaymentExpiration(props.row) | date }}</span>
-            </b-table-column>
+          <b-table-column field="lastPaymentExpires" sortable label="Last payment exp. date" centered :visible="can.viewPayment && body.pays_fees" v-slot="props">
+            <span v-if="props.row.payments && props.row.payments.length > 0">{{ getLastPaymentExpiration(props.row) | date }}</span>
+          </b-table-column>
 
-            <b-table-column label="View payments" centered :visible="(can.viewPayment || can.createPayment) && body.pays_fees">
-              <a class="button is-small is-primary" @click="openListFeePaymentsModal(props.row)">
-                <span class="icon"><font-awesome-icon icon="dollar-sign" /></span>
-                <span>View or manage payments</span>
-              </a>
-            </b-table-column>
+          <b-table-column label="View payments" centered :visible="(can.viewPayment || can.createPayment) && body.pays_fees" v-slot="props">
+            <a class="button is-small is-primary" @click="openListFeePaymentsModal(props.row)">
+              <span class="icon"><font-awesome-icon icon="dollar-sign" /></span>
+              <span>View or manage payments</span>
+            </a>
+          </b-table-column>
 
-            <b-table-column label="Add payment" centered :visible="can.createPayment && body.pays_fees">
-              <a class="button is-small is-primary" @click="openAddFeePaymentModal(props.row)">
-                <span class="icon"><font-awesome-icon icon="dollar-sign" /></span>
-                <span>Add fee payment</span>
-              </a>
-            </b-table-column>
+          <b-table-column label="Add payment" centered :visible="can.createPayment && body.pays_fees" v-slot="props">
+            <a class="button is-small is-primary" @click="openAddFeePaymentModal(props.row)">
+              <span class="icon"><font-awesome-icon icon="dollar-sign" /></span>
+              <span>Add fee payment</span>
+            </a>
+          </b-table-column>
 
-            <b-table-column label="Edit" centered :visible="can.edit">
-              <a class="button is-small is-warning" @click="askToChangeComment(props.row)">
-                <span class="icon"><font-awesome-icon icon="edit" /></span>
-                <span>Edit</span>
-              </a>
-            </b-table-column>
+          <b-table-column label="Edit" centered :visible="can.edit" v-slot="props">
+            <a class="button is-small is-warning" @click="askToChangeComment(props.row)">
+              <span class="icon"><font-awesome-icon icon="edit" /></span>
+              <span>Edit</span>
+            </a>
+          </b-table-column>
 
-            <b-table-column label="Delete" centered :visible="can.delete">
-              <a class="button is-small is-danger" @click="askDeleteMember(props.row, false)">
-                <span class="icon"><font-awesome-icon icon="minus" /></span>
-                <span>Delete</span>
-              </a>
-            </b-table-column>
-          </template>
+          <b-table-column label="Delete" centered :visible="can.delete" v-slot="props">
+            <a class="button is-small is-danger" @click="askDeleteMember(props.row, false)">
+              <span class="icon"><font-awesome-icon icon="minus" /></span>
+              <span>Delete</span>
+            </a>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

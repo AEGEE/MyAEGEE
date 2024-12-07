@@ -15,37 +15,35 @@
         <b-table
           :data="members"
           :loading="isLoading">
-          <template slot-scope="props">
-            <b-table-column field="user.first_name" label="Name and surname" sortable>
-              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user.username || props.row.user.id } }">
-                {{ props.row.user.first_name }} {{ props.row.user.last_name }}
-              </router-link>
-            </b-table-column>
+          <b-table-column field="user.first_name" label="Name and surname" sortable v-slot="props">
+            <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user.username || props.row.user.id } }">
+              {{ props.row.user.first_name }} {{ props.row.user.last_name }}
+            </router-link>
+          </b-table-column>
 
-            <b-table-column field="position" label="Position">
-              {{ props.row.position }}
-            </b-table-column>
+          <b-table-column field="position" label="Position" v-slot="props">
+            {{ props.row.position }}
+          </b-table-column>
 
-            <!-- <b-table-column field="circle_admin" label="Is circle admin?">
-              <span :class="{ 'tag': props.row.circle_admin, 'is-primary': props.row.circle_admin, 'is-small': props.row.circle_admin }">
-                {{ props.row.circle_admin | beautify}}
-              </span>
-            </b-table-column> -->
+          <!-- <b-table-column field="circle_admin" label="Is circle admin?" v-slot="props">
+            <span :class="{ 'tag': props.row.circle_admin, 'is-primary': props.row.circle_admin, 'is-small': props.row.circle_admin }">
+              {{ props.row.circle_admin | beautify}}
+            </span>
+          </b-table-column> -->
 
-            <b-table-column label="Edit" :visible="can.edit" centered>
-              <a class="button is-small is-warning" @click="editMemberModal(props.row)">
-                <span class="icon"><font-awesome-icon icon="edit" /></span>
-                <span>Edit</span>
-              </a>
-            </b-table-column>
+          <b-table-column label="Edit" :visible="can.edit" centered v-slot="props">
+            <a class="button is-small is-warning" @click="editMemberModal(props.row)">
+              <span class="icon"><font-awesome-icon icon="edit" /></span>
+              <span>Edit</span>
+            </a>
+          </b-table-column>
 
-            <b-table-column label="Delete" :visible="can.delete" centered>
-              <a class="button is-small is-danger" @click="askDeleteMember(props.row, false)">
-                <span class="icon"><font-awesome-icon icon="minus" /></span>
-                <span>Delete</span>
-              </a>
-            </b-table-column>
-          </template>
+          <b-table-column label="Delete" :visible="can.delete" centered v-slot="props">
+            <a class="button is-small is-danger" @click="askDeleteMember(props.row, false)">
+              <span class="icon"><font-awesome-icon icon="minus" /></span>
+              <span>Delete</span>
+            </a>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

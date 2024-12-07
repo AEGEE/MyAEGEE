@@ -18,43 +18,41 @@
         </div>
 
         <b-table :data="members" :loading="isLoading" narrowed>
-          <template slot-scope="props">
-            <b-table-column field="user.first_name" label="Name and surname" sortable>
-              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
-                {{ props.row.user.first_name }} {{ props.row.user.last_name }}
-              </router-link>
-            </b-table-column>
+          <b-table-column field="user.first_name" label="Name and surname" sortable v-slot="props">
+            <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
+              {{ props.row.user.first_name }} {{ props.row.user.last_name }}
+            </router-link>
+          </b-table-column>
 
-            <b-table-column field="motivation" label="Motivation">
-              {{ props.row.motivation }}
-            </b-table-column>
+          <b-table-column field="motivation" label="Motivation" v-slot="props">
+            {{ props.row.motivation }}
+          </b-table-column>
 
-            <b-table-column field="created_at" label="Date" sortable>
-              {{ props.row.created_at | datetime }}
-            </b-table-column>
+          <b-table-column field="created_at" label="Date" sortable v-slot="props">
+            {{ props.row.created_at | datetime }}
+          </b-table-column>
 
-            <b-table-column label="Approve">
-              <div class="field" v-if="props.row.status === 'pending'">
-                <div class="control">
-                  <a class="button is-small is-info" @click="askSetMemberApproved(props.row, true)">
-                    <span class="icon"><font-awesome-icon icon="plus" /></span>
-                    <span>Approve</span>
-                  </a>
-                </div>
+          <b-table-column label="Approve" v-slot="props">
+            <div class="field" v-if="props.row.status === 'pending'">
+              <div class="control">
+                <a class="button is-small is-info" @click="askSetMemberApproved(props.row, true)">
+                  <span class="icon"><font-awesome-icon icon="plus" /></span>
+                  <span>Approve</span>
+                </a>
               </div>
-            </b-table-column>
+            </div>
+          </b-table-column>
 
-            <b-table-column label="Reject">
-              <div class="field" v-if="props.row.status === 'pending'">
-                <div class="control">
-                  <a class="button is-small is-danger" @click="askSetMemberApproved(props.row, false)">
-                    <span class="icon"><font-awesome-icon icon="minus" /></span>
-                    <span>Reject</span>
-                  </a>
-                </div>
+          <b-table-column label="Reject" v-slot="props">
+            <div class="field" v-if="props.row.status === 'pending'">
+              <div class="control">
+                <a class="button is-small is-danger" @click="askSetMemberApproved(props.row, false)">
+                  <span class="icon"><font-awesome-icon icon="minus" /></span>
+                  <span>Reject</span>
+                </a>
               </div>
-            </b-table-column>
-          </template>
+            </div>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

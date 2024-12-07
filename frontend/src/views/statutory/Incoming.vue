@@ -25,72 +25,70 @@
           default-sort="statutory_id"
           default-sort-direction="desc"
           @sort="onSort">
-          <template slot-scope="props">
-            <b-table-column field="statutory_id" label="#" numeric sortable>
-              {{ props.row.statutory_id }}
-            </b-table-column>
+          <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
+            {{ props.row.statutory_id }}
+          </b-table-column>
 
-            <b-table-column field="user_id" label="User ID" sortable>
-              {{ props.row.user_id }}
-            </b-table-column>
+          <b-table-column field="user_id" label="User ID" sortable v-slot="props">
+            {{ props.row.user_id }}
+          </b-table-column>
 
-            <b-table-column field="first_name" label="First name" centered sortable>
-              {{ props.row.first_name | beautify }}
-            </b-table-column>
+          <b-table-column field="first_name" label="First name" centered sortable v-slot="props">
+            {{ props.row.first_name | beautify }}
+          </b-table-column>
 
-            <b-table-column field="last_name" label="Last name" centered sortable>
-              {{ props.row.last_name | beautify }}
-            </b-table-column>
+          <b-table-column field="last_name" label="Last name" centered sortable v-slot="props">
+            {{ props.row.last_name | beautify }}
+          </b-table-column>
 
-            <b-table-column field="email" label="Email" centered sortable>
-              {{ props.row.notification_email }}
-            </b-table-column>
+          <b-table-column field="email" label="Email" centered sortable v-slot="props">
+            {{ props.row.notification_email }}
+          </b-table-column>
 
-            <b-table-column field="body_name" label="Body" centered sortable>
-              {{ props.row.body_name }}
-            </b-table-column>
+          <b-table-column field="body_name" label="Body" centered sortable v-slot="props">
+            {{ props.row.body_name }}
+          </b-table-column>
 
-            <b-table-column field="meals" label="Meals" centered sortable>
-              {{ props.row.meals }}
-            </b-table-column>
+          <b-table-column field="meals" label="Meals" centered sortable v-slot="props">
+            {{ props.row.meals }}
+          </b-table-column>
 
-            <b-table-column field="allergies" label="Allergies" centered sortable>
-              {{ props.row.allergies }}
-            </b-table-column>
+          <b-table-column field="allergies" label="Allergies" centered sortable v-slot="props">
+            {{ props.row.allergies }}
+          </b-table-column>
 
-            <b-table-column field="confirmed" label="Confirmed?" centered sortable>
-              <div class="select" :class="{ 'is-loading': props.row.isSavingConfirmed }">
-                <select v-model="props.row.newConfirmed" @change="switchPaxConfirmed(props.row)" :disabled="props.row.attended">
-                  <option :value="true">Yes</option>
-                  <option :value="false">No</option>
-                </select>
-              </div>
-            </b-table-column>
+          <b-table-column field="confirmed" label="Confirmed?" centered sortable v-slot="props">
+            <div class="select" :class="{ 'is-loading': props.row.isSavingConfirmed }">
+              <select v-model="props.row.newConfirmed" @change="switchPaxConfirmed(props.row)" :disabled="props.row.attended">
+                <option :value="true">Yes</option>
+                <option :value="false">No</option>
+              </select>
+            </div>
+          </b-table-column>
 
-            <b-table-column field="incoming" label="Incoming form filled?" centered sortable>
-              <div class="select" :class="{ 'is-loading': props.row.isSavingIncoming }">
-                <select v-model="props.row.newIncoming" @change="switchPaxIncoming(props.row)" :disabled="props.row.attended">
-                  <option :value="true">Yes</option>
-                  <option :value="false">No</option>
-                </select>
-              </div>
-            </b-table-column>
+          <b-table-column field="incoming" label="Incoming form filled?" centered sortable v-slot="props">
+            <div class="select" :class="{ 'is-loading': props.row.isSavingIncoming }">
+              <select v-model="props.row.newIncoming" @change="switchPaxIncoming(props.row)" :disabled="props.row.attended">
+                <option :value="true">Yes</option>
+                <option :value="false">No</option>
+              </select>
+            </div>
+          </b-table-column>
 
-            <b-table-column field="attended" label="Attended?" centered sortable>
-              <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
-                <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.confirmed">
-                  <option :value="true">Yes</option>
-                  <option :value="false">No</option>
-                </select>
-              </div>
-            </b-table-column>
+          <b-table-column field="attended" label="Attended?" centered sortable v-slot="props">
+            <div class="select" :class="{ 'is-loading': props.row.isSavingAttended }">
+              <select v-model="props.row.newAttended" @change="switchPaxAttended(props.row)" :disabled="!props.row.confirmed">
+                <option :value="true">Yes</option>
+                <option :value="false">No</option>
+              </select>
+            </div>
+          </b-table-column>
 
-            <b-table-column label="View" centered>
-              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
-                View
-              </router-link>
-            </b-table-column>
-          </template>
+          <b-table-column label="View" centered v-slot="props">
+            <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
+              View
+            </router-link>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

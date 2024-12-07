@@ -54,70 +54,69 @@
           default-sort="statutory_id"
           default-sort-direction="desc"
           @sort="onSort">
-          <template slot-scope="props">
-            <b-table-column field="statutory_id" label="#" numeric sortable>
-              {{ props.row.statutory_id }}
-            </b-table-column>
+          <b-table-column field="statutory_id" label="#" numeric sortable v-slot="props">
+            {{ props.row.statutory_id }}
+          </b-table-column>
 
-            <b-table-column field="user_id" label="User ID" sortable>
-              {{ props.row.user_id }}
-            </b-table-column>
+          <b-table-column field="user_id" label="User ID" sortable v-slot="props">
+            {{ props.row.user_id }}
+          </b-table-column>
 
-            <b-table-column field="body_name" label="Body" centered sortable>
-              {{ props.row.body_name }}
-            </b-table-column>
+          <b-table-column field="body_name" label="Body" centered sortable v-slot="props">
+            {{ props.row.body_name }}
+          </b-table-column>
 
-            <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable :visible="event.type === 'agora'">
-              <span :class="calculateClassForMemberslist(props.row.is_on_memberslist)">
-                {{ props.row.is_on_memberslist | beautify }}
-              </span>
-            </b-table-column>
+          <b-table-column field="is_on_memberslist" label="Is on memberslist?" centered sortable :visible="event.type === 'agora'" v-slot="props">
+            <span :class="calculateClassForMemberslist(props.row.is_on_memberslist)">
+              {{ props.row.is_on_memberslist | beautify }}
+            </span>
+          </b-table-column>
 
-            <b-table-column field="was_on_memberslist" label="Was on previous memberslist?" centered sortable :visible="event.type === 'agora'">
-              <span :class="calculateClassForMemberslist(props.row.is_on_previous_memberslist)">
-                {{ props.row.is_on_previous_memberslist | beautify }}
-              </span>
-            </b-table-column>
+          <b-table-column field="was_on_memberslist" label="Was on previous memberslist?" centered sortable :visible="event.type === 'agora'" v-slot="props">
+            <span :class="calculateClassForMemberslist(props.row.is_on_previous_memberslist)">
+              {{ props.row.is_on_previous_memberslist | beautify }}
+            </span>
+          </b-table-column>
 
-            <!-- important: there should be no whitespaces/line breaks inside this tag, as it messes up the white-space: pre-wrap styling. !-->
-            <b-table-column
-              v-for="(field, index) in fields"
-              :visible="selectedFields.some(sField => sField.name === field.name)"
-              v-bind:key="index"
-              :field="field.column"
-              class="has-text-pre-wrap"
-              sortable
-              :label="field.name">{{ field.get(props.row) | beautify }}</b-table-column>
+          <!-- important: there should be no whitespaces/line breaks inside this tag, as it messes up the white-space: pre-wrap styling. !-->
+          <b-table-column
+            v-for="(field, index) in fields"
+            :visible="selectedFields.some(sField => sField.name === field.name)"
+            v-bind:key="index"
+            :field="field.column"
+            class="has-text-pre-wrap"
+            sortable
+            :label="field.name"
+            v-slot="props">{{ field.get(props.row) | beautify }}</b-table-column>
 
-            <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled">
-              {{ props.row.cancelled | beautify }}
-            </b-table-column>
+          <b-table-column field="cancelled" label="Cancelled?" centered sortable :visible="displayCancelled" v-slot="props">
+            {{ props.row.cancelled | beautify }}
+          </b-table-column>
 
-            <b-table-column field="confirmed" label="Confirmed?" centered sortable>
-              {{ props.row.confirmed | beautify }}
-            </b-table-column>
+          <b-table-column field="confirmed" label="Confirmed?" centered sortable v-slot="props">
+            {{ props.row.confirmed | beautify }}
+          </b-table-column>
 
-            <b-table-column field="attended" label="Attended?" centered sortable>
-              {{ props.row.attended | beautify }}
-            </b-table-column>
+          <b-table-column field="attended" label="Attended?" centered sortable v-slot="props">
+            {{ props.row.attended | beautify }}
+          </b-table-column>
 
-            <b-table-column label="View" centered>
-              <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
-                View
-              </router-link>
-            </b-table-column>
+          <b-table-column label="View" centered v-slot="props">
+            <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: props.row.statutory_id || props.row.id } }">
+              View
+            </router-link>
+          </b-table-column>
 
-            <b-table-column label="Manage status" field="status" centered sortable>
-              <div class="select" :class="{ 'is-loading': props.row.isSaving }">
-                <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)">
-                  <option value="pending">Pending</option>
-                  <option value="accepted">Accepted</option>
-                  <option value="waiting_list">Waiting list</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-              </div>
-            </b-table-column>
-          </template>
+          <b-table-column label="Manage status" field="status" centered sortable v-slot="props">
+            <div class="select" :class="{ 'is-loading': props.row.isSaving }">
+              <select v-model="props.row.newStatus" @change="switchPaxStatus(props.row)">
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="waiting_list">Waiting list</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

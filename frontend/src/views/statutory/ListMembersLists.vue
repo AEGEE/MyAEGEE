@@ -7,45 +7,43 @@
         <b-table
           :data="memberslists"
           :loading="isLoading">
-          <template slot-scope="props">
-            <b-table-column field="body_name" label="Body name" sortable>
-              <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
-                {{ props.row.body ? props.row.body.name : 'Loading...' }}
-              </router-link>
-            </b-table-column>
+          <b-table-column field="body_name" label="Body name" sortable v-slot="props">
+            <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
+              {{ props.row.body ? props.row.body.name : 'Loading...' }}
+            </router-link>
+          </b-table-column>
 
-            <b-table-column field="currency" label="Currency" sortable>
-              {{ props.row.currency }}
-            </b-table-column>
+          <b-table-column field="currency" label="Currency" sortable v-slot="props">
+            {{ props.row.currency }}
+          </b-table-column>
 
-            <b-table-column field="members.length" label="Members amount" numeric sortable>
-              {{ props.row.members.length }}
-            </b-table-column>
+          <b-table-column field="members.length" label="Members amount" numeric sortable v-slot="props">
+            {{ props.row.members.length }}
+          </b-table-column>
 
-            <b-table-column label="View">
-              <button class="button is-small is-primary" @click="openMembersListModal(props.row)">View memberslist</button>
-            </b-table-column>
+          <b-table-column label="View" v-slot="props">
+            <button class="button is-small is-primary" @click="openMembersListModal(props.row)">View memberslist</button>
+          </b-table-column>
 
-            <b-table-column field="updated_at" label="Last updated at" sortable>
-              {{ props.row.updated_at | datetime }}
-            </b-table-column>
+          <b-table-column field="updated_at" label="Last updated at" sortable v-slot="props">
+            {{ props.row.updated_at | datetime }}
+          </b-table-column>
 
-            <b-table-column field="fee_to_aegee" label="Fee to AEGEE-Europe" numeric sortable>
-              {{ props.row.fee_to_aegee.toFixed(2) }} EUR
-            </b-table-column>
+          <b-table-column field="fee_to_aegee" label="Fee to AEGEE-Europe" numeric sortable v-slot="props">
+            {{ props.row.fee_to_aegee.toFixed(2) }} EUR
+          </b-table-column>
 
-            <b-table-column field="fee_paid" label="Fee paid" numeric sortable>
-              {{ props.row.fee_paid.toFixed(2) }} EUR
-            </b-table-column>
+          <b-table-column field="fee_paid" label="Fee paid" numeric sortable v-slot="props">
+            {{ props.row.fee_paid.toFixed(2) }} EUR
+          </b-table-column>
 
-            <b-table-column field="fee_not_paid" label="Fee not paid" numeric sortable>
-              {{ props.row.fee_not_paid.toFixed(2) }} EUR
-            </b-table-column>
+          <b-table-column field="fee_not_paid" label="Fee not paid" numeric sortable v-slot="props">
+            {{ props.row.fee_not_paid.toFixed(2) }} EUR
+          </b-table-column>
 
-            <b-table-column label="Set fee paid" sortable :visible="can.set_memberslists_fee_paid">
-              <button class="button is-small is-primary" @click="askToSetFeePaid(props.row)">Set fee paid</button>
-            </b-table-column>
-          </template>
+          <b-table-column label="Set fee paid" sortable :visible="can.set_memberslists_fee_paid" v-slot="props">
+            <button class="button is-small is-primary" @click="askToSetFeePaid(props.row)">Set fee paid</button>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

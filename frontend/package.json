@@ -41,7 +41,7 @@
     "@vue/eslint-config-airbnb": "^7.0.0",
     "animate.css": "^4.1.1",
     "axios": "^1.6.5",
-    "buefy": "^0.8.20",
+    "buefy": "^0.9.23",
     "chart.js": "^2.9.4",
     "compression-webpack-plugin": "^6.1.1",
     "css-loader": "^5.2.7",

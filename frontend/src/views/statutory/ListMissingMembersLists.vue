@@ -7,17 +7,15 @@
         <b-table
           :data="memberslists"
           :loading="isLoading">
-          <template slot-scope="props">
-            <b-table-column field="body_name" label="Body name" sortable>
-              <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
-                {{ props.row.body ? props.row.body.name : 'Loading...' }}
-              </router-link>
-            </b-table-column>
+          <b-table-column field="body_name" label="Body name" sortable v-slot="props">
+            <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.body_id } }">
+              {{ props.row.body ? props.row.body.name : 'Loading...' }}
+            </router-link>
+          </b-table-column>
 
-            <b-table-column field="type" label="Type" sortable>
-              {{ props.row.type | capitalize }}
-            </b-table-column>
-          </template>
+          <b-table-column field="type" label="Type" sortable v-slot="props">
+            {{ props.row.type | capitalize }}
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

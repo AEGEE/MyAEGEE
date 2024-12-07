@@ -27,31 +27,29 @@
         </form>
 
         <b-table :data="plenary.attendances" :loading="isLoading">
-          <template slot-scope="props">
-            <b-table-column field="id" label="#" numeric>
-              {{ props.row.id }}
-            </b-table-column>
+          <b-table-column field="id" label="#" numeric v-slot="props">
+            {{ props.row.id }}
+          </b-table-column>
 
-            <b-table-column field="application.id" label="Application ID" numeric centered>
-              {{ props.row.application.id }}
-            </b-table-column>
+          <b-table-column field="application.id" label="Application ID" numeric centered v-slot="props">
+            {{ props.row.application.id }}
+          </b-table-column>
 
-            <b-table-column field="application.first_name" label="First/last name" centered>
-              {{ props.row.application.first_name }} {{ props.row.application.last_name }}
-            </b-table-column>
+          <b-table-column field="application.first_name" label="First/last name" centered v-slot="props">
+            {{ props.row.application.first_name }} {{ props.row.application.last_name }}
+          </b-table-column>
 
-            <b-table-column field="application.body_name" label="Body" centered>
-              {{ props.row.application.body_name }}
-            </b-table-column>
+          <b-table-column field="application.body_name" label="Body" centered v-slot="props">
+            {{ props.row.application.body_name }}
+          </b-table-column>
 
-            <b-table-column field="starts" label="Starts" centered>
-              {{ props.row.starts | datetimeseconds }}
-            </b-table-column>
+          <b-table-column field="starts" label="Starts" centered v-slot="props">
+            {{ props.row.starts | datetimeseconds }}
+          </b-table-column>
 
-            <b-table-column field="starts" label="Ends" centered>
-              <span v-if="props.row.ends">{{ props.row.ends | datetimeseconds }}</span>
-            </b-table-column>
-          </template>
+          <b-table-column field="starts" label="Ends" centered v-slot="props">
+            <span v-if="props.row.ends">{{ props.row.ends | datetimeseconds }}</span>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

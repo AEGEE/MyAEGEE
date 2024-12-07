@@ -55,53 +55,51 @@
         </div>
 
         <b-table :data="questionLines" :loading="isLoading" :selected.sync="selectedQuestionLine" narrowed>
-          <template slot-scope="props">
-            <b-table-column field="id" label="#" numeric>
-              {{ props.index + 1 }}
-            </b-table-column>
+          <b-table-column field="id" label="#" numeric v-slot="props">
+            {{ props.index + 1 }}
+          </b-table-column>
 
-            <b-table-column field="name" label="Name">
-              {{ props.row.name }}
-            </b-table-column>
+          <b-table-column field="name" label="Name" v-slot="props">
+            {{ props.row.name }}
+          </b-table-column>
 
-            <b-table-column label="Questions" numeric>
-              {{ props.row.questions.length }}
-            </b-table-column>
+          <b-table-column label="Questions" numeric v-slot="props">
+            {{ props.row.questions.length }}
+          </b-table-column>
 
-            <b-table-column field="starts" label="Status" centered>
-              <span
-                class="tag"
-                v-if="!can.manage_question_lines"
-                :class="props.row.status === 'open' ? 'is-primary' : 'is-danger'">
-                {{ props.row.status }}
-              </span>
-              <div v-else class="select is-small" :class="{ 'is-loading': props.row.isSaving }">
-                <select v-model="props.row.newStatus" @change="switchQuestionLineStatus(props.row)">
-                  <option value="open">Open</option>
-                  <option value="closed">Closed</option>
-                </select>
-              </div>
-            </b-table-column>
+          <b-table-column field="starts" label="Status" centered v-slot="props">
+            <span
+              class="tag"
+              v-if="!can.manage_question_lines"
+              :class="props.row.status === 'open' ? 'is-primary' : 'is-danger'">
+              {{ props.row.status }}
+            </span>
+            <div v-else class="select is-small" :class="{ 'is-loading': props.row.isSaving }">
+              <select v-model="props.row.newStatus" @change="switchQuestionLineStatus(props.row)">
+                <option value="open">Open</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+          </b-table-column>
 
-            <b-table-column label="Edit" centered v-if="can.manage_question_lines">
-              <a href="#" class="button is-warning is-small" @click.prevent="openEditQuestionLineModal(props.row)">Edit</a>
-            </b-table-column>
+          <b-table-column label="Edit" centered v-if="can.manage_question_lines" v-slot="props">
+            <a href="#" class="button is-warning is-small" @click.prevent="openEditQuestionLineModal(props.row)">Edit</a>
+          </b-table-column>
 
-            <b-table-column label="Delete" centered v-if="can.manage_question_lines">
-              <a href="#" class="button is-danger is-small" @click.prevent="askDeleteQuestionLine(props.row, props.index)">Delete</a>
-            </b-table-column>
+          <b-table-column label="Delete" centered v-if="can.manage_question_lines" v-slot="props">
+            <a href="#" class="button is-danger is-small" @click.prevent="askDeleteQuestionLine(props.row, props.index)">Delete</a>
+          </b-table-column>
 
-            <b-table-column label="Ask a question" centered>
-              <button
-                class="button is-small"
-                v-if="can.submit_questions && props.row.status === 'open'"
-                @click="openCreateQuestionModal(props.row)">
-                Ask a question!
-              </button>
-              <span v-else-if=" props.row.status !== 'open'">The question line is closed.</span>
-              <span v-else>You are not a confirmed participant.</span>
-            </b-table-column>
-          </template>
+          <b-table-column label="Ask a question" centered v-slot="props">
+            <button
+              class="button is-small"
+              v-if="can.submit_questions && props.row.status === 'open'"
+              @click="openCreateQuestionModal(props.row)">
+              Ask a question!
+            </button>
+            <span v-else-if=" props.row.status !== 'open'">The question line is closed.</span>
+            <span v-else>You are not a confirmed participant.</span>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />
@@ -113,44 +111,42 @@
         <div class="subtitle" v-if="selectedQuestionLine">Question for selected question line</div>
 
         <b-table :data.sync="selectedQuestionLine.questions" v-if="selectedQuestionLine" narrowed>
-          <template slot-scope="props">
-            <b-table-column label="#">
-              {{ props.index + 1 }}
-            </b-table-column>
+          <b-table-column label="#" v-slot="props">
+            {{ props.index + 1 }}
+          </b-table-column>
 
-            <b-table-column field="participant" label="Participant">
-              {{ props.row.application.first_name }} {{ props.row.application.last_name }}, {{ props.row.application.body_name }}
-            </b-table-column>
+          <b-table-column field="participant" label="Participant" v-slot="props">
+            {{ props.row.application.first_name }} {{ props.row.application.last_name }}, {{ props.row.application.body_name }}
+          </b-table-column>
 
-            <b-table-column :visible="can.manage_question_lines" field="paricipant_type" label="Participant type">
-              {{ props.row.application.participant_type }}
-            </b-table-column>
+          <b-table-column :visible="can.manage_question_lines" field="paricipant_type" label="Participant type" v-slot="props">
+            {{ props.row.application.participant_type }}
+          </b-table-column>
 
-            <b-table-column field="text" label="Text">
-              {{ props.row.text }}
-            </b-table-column>
+          <b-table-column field="text" label="Text" v-slot="props">
+            {{ props.row.text }}
+          </b-table-column>
 
-            <b-table-column field="updated_at" label="Last updated on">
-              {{ props.row.updated_at | datetime }}
-            </b-table-column>
+          <b-table-column field="updated_at" label="Last updated on" v-slot="props">
+            {{ props.row.updated_at | datetime }}
+          </b-table-column>
 
-            <b-table-column label="">
-              <button
-                class="button is-small is-warning"
-                v-show="(loginUser.id === props.row.application.user_id && selectedQuestionLine.status === 'open') || can.manage_question_lines"
-                @click="openEditQuestionModal(selectedQuestionLine, props.row)">
-                Edit
-              </button>
-            </b-table-column>
-            <b-table-column label=" ">
-              <button
-                class="button is-small is-danger"
-                v-show="loginUser.id === props.row.application.id || can.manage_question_lines"
-                @click="askDeleteQuestion(selectedQuestionLine, props.row, props.index)">
-                Delete
-              </button>
-            </b-table-column>
-          </template>
+          <b-table-column label="" v-slot="props">
+            <button
+              class="button is-small is-warning"
+              v-show="(loginUser.id === props.row.application.user_id && selectedQuestionLine.status === 'open') || can.manage_question_lines"
+              @click="openEditQuestionModal(selectedQuestionLine, props.row)">
+              Edit
+            </button>
+          </b-table-column>
+          <b-table-column label=" " v-slot="props">
+            <button
+              class="button is-small is-danger"
+              v-show="loginUser.id === props.row.application.id || can.manage_question_lines"
+              @click="askDeleteQuestion(selectedQuestionLine, props.row, props.index)">
+              Delete
+            </button>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

@@ -11,31 +11,29 @@
         </div>
 
         <b-table :data="integrations" :loading="isLoading" narrowed>
-          <template slot-scope="props">
-            <b-table-column field="name" label="Name">
-              {{ props.row.name }}
-            </b-table-column>
+          <b-table-column field="name" label="Name" v-slot="props">
+            {{ props.row.name }}
+          </b-table-column>
 
-            <b-table-column field="code" label="Code">
-              {{ props.row.code }}
-            </b-table-column>
+          <b-table-column field="code" label="Code" v-slot="props">
+            {{ props.row.code }}
+          </b-table-column>
 
-            <b-table-column field="description" label="Description">
-              <span v-html="$options.filters.markdown(props.row.description)" />
-            </b-table-column>
+          <b-table-column field="description" label="Description" v-slot="props">
+            <span v-html="$options.filters.markdown(props.row.description)" />
+          </b-table-column>
 
-            <b-table-column label="Quota">
-              {{ props.row.quota_amount }}/{{ props.row.quota_period }}
-            </b-table-column>
+          <b-table-column label="Quota" v-slot="props">
+            {{ props.row.quota_amount }}/{{ props.row.quota_period }}
+          </b-table-column>
 
-            <b-table-column label="Edit">
-              <router-link :to="{ name: 'oms.discounts.edit', params: { id: props.row.id } }" class="button is-small is-warning">Edit</router-link>
-            </b-table-column>
+          <b-table-column label="Edit" v-slot="props">
+            <router-link :to="{ name: 'oms.discounts.edit', params: { id: props.row.id } }" class="button is-small is-warning">Edit</router-link>
+          </b-table-column>
 
-            <b-table-column label="Add codes">
-              <router-link :to="{ name: 'oms.discounts.add_codes', params: { id: props.row.id } }" class="button is-small is-warning">Add codes</router-link>
-            </b-table-column>
-          </template>
+          <b-table-column label="Add codes" v-slot="props">
+            <router-link :to="{ name: 'oms.discounts.add_codes', params: { id: props.row.id } }" class="button is-small is-warning">Add codes</router-link>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

@@ -35,41 +35,39 @@
           default-sort="updated_at"
           default-sort-direction="desc"
           v-if="selectedBody && boardBodies.length > 0">
-          <template slot-scope="props">
-            <b-table-column field="updated_at" label="Date modified" sortable>
-              {{ props.row.updated_at | datetime }}
-            </b-table-column>
+          <b-table-column field="updated_at" label="Date modified" sortable v-slot="props">
+            {{ props.row.updated_at | datetime }}
+          </b-table-column>
 
-            <b-table-column field="event.name" label="Event" sortable>
-              <router-link :to="{ name: 'oms.events.view', params: { id: props.row.event.url } }">
-                {{ props.row.event.name }}
-              </router-link>
-            </b-table-column>
+          <b-table-column field="event.name" label="Event" sortable v-slot="props">
+            <router-link :to="{ name: 'oms.events.view', params: { id: props.row.event.url } }">
+              {{ props.row.event.name }}
+            </router-link>
+          </b-table-column>
 
-            <b-table-column field="first_name" label="Name" sortable>
-              <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
-                {{ props.row.first_name }} {{ props.row.last_name }}
-              </router-link>
-            </b-table-column>
+          <b-table-column field="first_name" label="Name" sortable v-slot="props">
+            <router-link :to="{ name: 'oms.members.view', params: { id: props.row.user_id } }">
+              {{ props.row.first_name }} {{ props.row.last_name }}
+            </router-link>
+          </b-table-column>
 
-            <b-table-column field="board_comment" label="Board comment">
-              <textarea class="textarea" v-model="props.row.board_comment" />
-            </b-table-column>
+          <b-table-column field="board_comment" label="Board comment" v-slot="props">
+            <textarea class="textarea" v-model="props.row.board_comment" />
+          </b-table-column>
 
-            <b-table-column field="status" label="Status" sortable>
-              <span v-if="props.row.status === 'accepted'">Accepted</span>
-              <span v-if="props.row.status === 'rejected'">Rejected</span>
-              <span v-if="props.row.status === 'waiting_list'">Waiting list</span>
-              <span v-if="props.row.status === 'pending'">Pending</span>
-            </b-table-column>
+          <b-table-column field="status" label="Status" sortable v-slot="props">
+            <span v-if="props.row.status === 'accepted'">Accepted</span>
+            <span v-if="props.row.status === 'rejected'">Rejected</span>
+            <span v-if="props.row.status === 'waiting_list'">Waiting list</span>
+            <span v-if="props.row.status === 'pending'">Pending</span>
+          </b-table-column>
 
-            <b-table-column label="Save">
-              <button type="button" class="button is-primary" @click="submitComment(props.row)">
-                <span class="icon"><font-awesome-icon icon="save" /></span>
-                <span>Save</span>
-              </button>
-            </b-table-column>
-          </template>
+          <b-table-column label="Save" v-slot="props">
+            <button type="button" class="button is-primary" @click="submitComment(props.row)">
+              <span class="icon"><font-awesome-icon icon="save" /></span>
+              <span>Save</span>
+            </button>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />

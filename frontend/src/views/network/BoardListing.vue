@@ -41,45 +41,43 @@
         </div>
 
         <b-table :data="filteredBodies" :loading="isLoading" narrowed>
-          <template slot-scope="props">
-            <b-table-column field="code" label="Body code">
-              {{ props.row.code }}
-            </b-table-column>
+          <b-table-column field="code" label="Body code" v-slot="props">
+            {{ props.row.code }}
+          </b-table-column>
 
-            <b-table-column field="name" label="Body name">
-              <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.id } }">{{ props.row.name }}</router-link>
-            </b-table-column>
+          <b-table-column field="name" label="Body name" v-slot="props">
+            <router-link :to="{ name: 'oms.bodies.view', params: { id: props.row.id } }">{{ props.row.name }}</router-link>
+          </b-table-column>
 
-            <b-table-column field="type" label="Type">
-              {{ props.row.type | capitalize }}
-            </b-table-column>
+          <b-table-column field="type" label="Type" v-slot="props">
+            {{ props.row.type | capitalize }}
+          </b-table-column>
 
-            <b-table-column field="election" label="Election">
-              <template v-if="props.row.board">
-                {{ props.row.board.elected_date }}
-              </template>
-              <span v-else>-</span>
-            </b-table-column>
+          <b-table-column field="election" label="Election" v-slot="props">
+            <template v-if="props.row.board">
+              {{ props.row.board.elected_date }}
+            </template>
+            <span v-else>-</span>
+          </b-table-column>
 
-            <b-table-column field="term_start" label="Term start">
-              <template v-if="props.row.board">
-                {{ props.row.board.start_date }}
-              </template>
-              <span v-else>-</span>
-            </b-table-column>
+          <b-table-column field="term_start" label="Term start" v-slot="props">
+            <template v-if="props.row.board">
+              {{ props.row.board.start_date }}
+            </template>
+            <span v-else>-</span>
+          </b-table-column>
 
-            <b-table-column field="term_end" label="Term end">
-              <template v-if="props.row.board">
-                {{ props.row.board.end_date }}
-              </template>
-              <span v-else>-</span>
-            </b-table-column>
+          <b-table-column field="term_end" label="Term end" v-slot="props">
+            <template v-if="props.row.board">
+              {{ props.row.board.end_date }}
+            </template>
+            <span v-else>-</span>
+          </b-table-column>
 
-            <b-table-column field="status" label="Status" v-if="includeDeleted">
-              <span class="tag is-small is-info" v-if="props.row.status === 'active'">Active</span>
-              <span class="tag is-small is-danger" v-if="props.row.status === 'deleted'">Deleted</span>
-            </b-table-column>
-          </template>
+          <b-table-column field="status" label="Status" v-if="includeDeleted" v-slot="props">
+            <span class="tag is-small is-info" v-if="props.row.status === 'active'">Active</span>
+            <span class="tag is-small is-danger" v-if="props.row.status === 'deleted'">Deleted</span>
+          </b-table-column>
 
           <template slot="empty">
             <empty-table-stub />
