@@ -1,45 +1,19 @@
 <template>
   <div class="tile is-ancestor ">
     <div class="tile is-child">
-      <div v-if="$route.params.id">
-        <div class="subtitle">Update event image</div>
-
-        <div class="field is-grouped">
-          <div class="control">
-            <div class="file has-name">
-              <label class="file-label">
-                <input class="file-input" type="file" name="resume" @change="setFile($event)">
-                <span class="file-cta">
-                  <span class="file-icon">
-                    <font-awesome-icon icon="upload" />
-                  </span>
-                  <span class="file-label">
-                    Choose a file
-                  </span>
-                </span>
-                <span class="file-name">
-                  {{ file ? file.name : 'Not set.' }}
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <div class="control">
-            <a class="button is-info" :disabled="!file" @click="updateImage()">Upload!</a>
-          </div>
-        </div>
-
-        <hr />
-      </div>
-
       <form @submit.prevent="saveEvent()">
         <div class="notification is-info" v-if="!$route.params.id">
           <div class="content">
-            <p>If you want to upload the image, please add it after creating the event by going to "Edit event" and uploading it there.</p>
+            <p>If you want to upload an image, please do it from the event page after creating the event.</p>
             <p><strong>If the event is not published, people won't be able to see the event in the listing or apply to it.</strong></p>
             <p>Also, <strong>once the event is published you won't be able to edit it.</strong> So please check everything twice.</p>
             <p>If you will need the event info to be changed after publishing, please contact CD or EQAC.</p>
             <p><strong>PLEASE KEEP IN MIND THAT THE APPROVAL OF YOUR SUBMITTED EVENT WILL TAKE 3-4 DAYS.</strong></p>
+          </div>
+        </div>
+        <div class="notification is-info" v-else>
+          <div class="content">
+            <p>If you want to upload an image, please do it from the event page.</p>
           </div>
         </div>
 
@@ -667,24 +641,6 @@ export default {
     }
   },
   methods: {
-    setFile (event) {
-      this.file = event.target.files[0]
-    },
-    updateImage () {
-      if (!this.file) {
-        return
-      }
-
-      const data = new FormData()
-      data.append('head_image', this.file)
-
-      this.axios.post(this.services['events'] + '/single/' + this.$route.params.id + '/upload', data).then(() => {
-        this.$root.showSuccess('Event image is updated.')
-        this.file = null
-      }).catch((err) => {
-        this.$root.showError('Could not update image', err)
-      })
-    },
     fetchMembers (query) {
       if (!query) return
 

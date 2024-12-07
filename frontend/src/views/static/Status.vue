@@ -119,6 +119,14 @@ export default {
           isAlive: 'Waiting...',
           changelog: 'https://github.com/AEGEE/frontend/blob/stable/CHANGELOG.md'
         },
+        'core-static': {
+          roundTrip: null,
+          version: '-',
+          latestVersion: '-',
+          latestTag: '-',
+          isAlive: 'Waiting...',
+          changelog: null
+        },
         'statutory-static': {
           roundTrip: null,
           version: '-',

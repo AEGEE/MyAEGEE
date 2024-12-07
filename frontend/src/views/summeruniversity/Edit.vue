@@ -1,41 +1,10 @@
 <template>
   <div class="tile is-ancestor">
     <div class="tile is-child">
-      <div v-if="$route.params.id">
-        <div class="subtitle">Update event logo</div>
-
-        <div class="field is-grouped">
-          <div class="control">
-            <div class="file has-name">
-              <label class="file-label">
-                <input class="file-input" type="file" name="resume" @change="setFile($event)">
-                <span class="file-cta">
-                  <span class="file-icon">
-                    <font-awesome-icon icon="upload" />
-                  </span>
-                  <span class="file-label">
-                    Choose a file
-                  </span>
-                </span>
-                <span class="file-name">
-                  {{ file ? file.name : 'Not set.' }}
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <div class="control">
-            <a class="button is-info" :disabled="!file" @click="updateImage()">Upload!</a>
-          </div>
-        </div>
-
-        <hr />
-      </div>
-
       <form @submit.prevent="saveEvent()">
         <div class="notification is-info" v-if="!$route.params.id">
           <div class="content">
-            <!-- <p>If you want to upload a logo, please add it after creating the event by going to "Edit event" and uploading it there.</p> -->
+            <p>If you want to upload an image, please do it from the event page after creating the event.</p>
             <p>If you have any questions, please refer to the <a href="https://drive.google.com/drive/folders/1D2OB5gGmyAScf-ITFK1URJ8ZuIZlWCbX" target="_blank" rel="noopener noreferrer">booklets</a> first.</p>
             <p><i>You need a AEGEE Google Workspace account to be able to see the booklets. In case you don't have one,
               <a href="https://oms-project.atlassian.net/wiki/spaces/HEL/pages/248348673/Requesting+a+Gsuite+account+for+yourself" target="blank">
@@ -43,6 +12,11 @@
               </a>.</i></p>
             <p><strong>Once the event is saved, you are only able to edit some information.</strong> So please check everything twice.</p>
             <p>If you will need the event info to be changed after saving, please contact <a href="mailto:suct@aegee.eu">SUCT</a>.</p>
+          </div>
+        </div>
+        <div class="notification is-info" v-else>
+          <div class="content">
+            <p>If you want to upload an image, please do it from the event page.</p>
           </div>
         </div>
 
@@ -899,24 +873,6 @@ export default {
     }
   },
   methods: {
-    setFile (event) {
-      this.file = event.target.files[0]
-    },
-    updateImage () {
-      if (!this.file) {
-        return
-      }
-
-      const data = new FormData()
-      data.append('head_image', this.file)
-
-      this.axios.post(this.services['summeruniversity'] + '/single/' + this.$route.params.id + '/upload', data).then(() => {
-        this.$root.showSuccess('Event image is updated.')
-        this.file = null
-      }).catch((err) => {
-        this.$root.showError('Could not update image', err)
-      })
-    },
     fetchMembers (query) {
       if (!query) return
 

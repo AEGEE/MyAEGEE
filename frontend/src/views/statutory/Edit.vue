@@ -1,41 +1,13 @@
 <template>
   <div class="tile is-ancestor ">
     <div class="tile is-child">
-      <div v-if="$route.params.id">
-        <div class="subtitle">Update event image</div>
-
-        <div class="field is-grouped">
-          <div class="control">
-            <div class="file has-name">
-              <label class="file-label">
-                <input class="file-input" type="file" name="resume" @change="setFile($event)">
-                <span class="file-cta">
-                  <span class="file-icon">
-                    <font-awesome-icon icon="upload" />
-                  </span>
-                  <span class="file-label">
-                    Choose a file
-                  </span>
-                </span>
-                <span class="file-name">
-                  {{ file ? file.name : 'Not set.' }}
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <div class="control">
-            <a class="button is-info" :disabled="!file" @click="updateImage()">Upload!</a>
+      <form @submit.prevent="saveEvent()">
+        <div class="notification is-info">
+          <div class="content">
+            <p>If you want to upload an image, please do it from the event page after creating the event.</p>
           </div>
         </div>
 
-        <hr />
-      </div>
-      <div class="notification is-info" v-else>
-        You can upload event image after saving it.
-      </div>
-
-      <form @submit.prevent="saveEvent()">
         <div class="field">
           <label class="label">Title <span class="has-text-danger">*</span></label>
           <div class="control">
@@ -538,22 +510,6 @@ export default {
     }
   },
   methods: {
-    setFile (event) {
-      this.file = event.target.files[0]
-    },
-    updateImage () {
-      if (!this.file) {
-        return
-      }
-
-      const data = new FormData()
-      data.append('image', this.file)
-
-      this.axios.post(this.services['statutory'] + '/events/' + this.$route.params.id + '/image', data).then(() => {
-        this.$root.showSuccess('Event image is updated.')
-        this.file = null
-      }).catch((err) => this.$root.showError('Could not update image', err))
-    },
     fetchBodies (query) {
       if (!query) return
 

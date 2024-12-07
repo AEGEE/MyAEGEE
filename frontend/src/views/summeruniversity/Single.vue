@@ -3,7 +3,7 @@
     <div class="tile is-vertical is-3">
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
-          <figure class="image is-1by1">
+          <figure class="image">
             <img v-if="!event.image" src="/images/logo.png">
             <img v-if="event.image" :src="services['summeruniversity-static'] + '/headimages/' + event.image">
           </figure>
@@ -52,6 +52,13 @@
             <a class="button is-fullwidth is-danger" @click="askCloseOpenCall()">
               <span>Close open call</span>
               <span class="icon"><font-awesome-icon icon="stop" /></span>
+            </a>
+          </div>
+
+          <div class="field is-grouped" v-if="can.edit_summeruniversity">
+            <a class="button is-fullwidth is-primary" data-cy="picture-change-link" @click="openPictureModal()">
+              <span>Change picture</span>
+              <span class="icon"><font-awesome-icon icon="camera" /></span>
             </a>
           </div>
 
@@ -418,6 +425,7 @@ import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
 import constants from '../../constants'
 import credentials from '../../credentials'
 import TimezoneTooltip from '../../components/tooltips/TimezoneTooltip'
+import PictureModal from './PictureModal.vue'
 
 export default {
   components: {
@@ -442,7 +450,7 @@ export default {
         ends: null,
         application_status: 'closed',
         application_ends: null,
-        head_image: null,
+        image: null,
         optional_fee: null,
         optional_programme: null,
         accommodation_type: ''
@@ -485,6 +493,20 @@ export default {
     }
   },
   methods: {
+    openPictureModal () {
+      this.$buefy.modal.open({
+        component: PictureModal,
+        hasModalCard: true,
+        props: {
+          event: this.event,
+          permissions: this.permissions,
+          services: this.services,
+          showError: this.$root.showError,
+          showSuccess: this.$root.showSuccess,
+          router: this.$router
+        }
+      })
+    },
     askDeleteEvent () {
       this.$buefy.dialog.confirm({
         title: 'Deleting an event',

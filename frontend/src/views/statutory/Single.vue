@@ -145,6 +145,13 @@
           </div>
 
           <div class="field is-grouped" v-if="can.edit_event">
+            <a class="button is-fullwidth is-primary" data-cy="picture-change-link" @click="openPictureModal()">
+              <span>Change picture</span>
+              <span class="icon"><font-awesome-icon icon="camera" /></span>
+            </a>
+          </div>
+
+          <div class="field is-grouped" v-if="can.edit_event">
             <router-link :to="{ name: 'oms.statutory.edit', params: { id: event.url || event.id } }" class="button is-fullwidth is-warning">
               <span>Edit event</span>
               <span class="icon"><font-awesome-icon icon="edit" /></span>
@@ -320,6 +327,7 @@ import { mapGetters } from 'vuex'
 import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
 import moment from 'moment'
 import credentials from '../../credentials'
+import PictureModal from './PictureModal.vue'
 
 export default {
   components: {
@@ -367,6 +375,20 @@ export default {
     }
   },
   methods: {
+    openPictureModal () {
+      this.$buefy.modal.open({
+        component: PictureModal,
+        hasModalCard: true,
+        props: {
+          event: this.event,
+          permissions: this.permissions,
+          services: this.services,
+          showError: this.$root.showError,
+          showSuccess: this.$root.showSuccess,
+          router: this.$router
+        }
+      })
+    },
     askSwitchStatus (newStatus) {
       this.$buefy.dialog.confirm({
         title: 'Switching status',

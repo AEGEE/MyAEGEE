@@ -3,15 +3,16 @@
     <div class="tile is-vertical is-3">
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
-          <figure class="image is-1by1">
-            <img src="/images/logo.png">
+          <figure class="image">
+            <img v-if="!user.image" src="/images/logo.png">
+            <img v-if="user.image" :src="services['core-static'] + '/headimages/' + user.image">
           </figure>
         </article>
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info" v-if="can.edit">
           <div class="field is-grouped">
-            <a class="button is-fullwidth is-primary" data-cy="picture-change-link" @click="updatePicture()">
+            <a class="button is-fullwidth is-primary" data-cy="picture-change-link" @click="openPictureModal()">
               <span>Change picture</span>
               <span class="icon"><font-awesome-icon icon="camera" /></span>
             </a>
@@ -197,6 +198,7 @@
 import { mapGetters } from 'vuex'
 import EditPrimaryBodyModal from './EditPrimaryBodyModal.vue'
 import EditPrimaryEmailModal from './EditPrimaryEmailModal.vue'
+import PictureModal from './PictureModal.vue'
 
 export default {
   name: 'SingleUser',
@@ -215,7 +217,8 @@ export default {
         notification_email: null,
         active: null,
         superadmin: null,
-        username: null
+        username: null,
+        image: null
       },
       isOwnProfile: false,
       isLoading: false,
@@ -230,8 +233,19 @@ export default {
     }
   },
   methods: {
-    updatePicture () {
-      this.$root.showInfo('This feature is not implemented yet, come join MyAEGEE to help us implementing it ;)')
+    openPictureModal () {
+      this.$buefy.modal.open({
+        component: PictureModal,
+        hasModalCard: true,
+        props: {
+          user: this.user,
+          permissions: this.permissions,
+          services: this.services,
+          showError: this.$root.showError,
+          showSuccess: this.$root.showSuccess,
+          router: this.$router
+        }
+      })
     },
     askDeleteUser () {
       this.$buefy.dialog.confirm({
