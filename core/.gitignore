@@ -2,3 +2,4 @@ node_modules/
 junit.xml
 coverage/
 .seed-executed
+tmp_upload/

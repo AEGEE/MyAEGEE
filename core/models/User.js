@@ -130,6 +130,10 @@ const User = sequelize.define('user', {
         allowNull: true,
         defaultValue: ''
     },
+    image: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
     about_me: {
         type: Sequelize.TEXT,
         allowNull: true,

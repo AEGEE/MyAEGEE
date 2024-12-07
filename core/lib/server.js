@@ -9,6 +9,7 @@ const log = require('./logger');
 const config = require('../config');
 const Bugsnag = require('./bugsnag');
 const cron = require('./cron');
+const imageserv = require('./imageserv');
 
 const middlewares = require('../middlewares/generic');
 const fetch = require('../middlewares/fetch');
@@ -102,6 +103,8 @@ MemberRouter.post('/listserv', members.subscribeListserv);
 MemberRouter.get('/', members.getUser);
 MemberRouter.put('/', members.updateUser);
 MemberRouter.delete('/', members.deleteUser);
+MemberRouter.post('/upload', imageserv.uploadImage);
+MemberRouter.delete('/image', imageserv.removeImage);
 
 // Everything related to a specific body. Auth only (except for body details).
 BodiesRouter.use(middlewares.maybeAuthorize, fetch.fetchBody);
