@@ -1,3 +1,10 @@
+## [1.5.7](https://github.com/AEGEE/summeruniversity/compare/1.5.6...1.5.7) (2024-12-07)
+
+
+### Bug Fixes
+
+* **image:** fix uploading images with file extension in capitals ([#819](https://github.com/AEGEE/summeruniversity/issues/819)) ([6e64909](https://github.com/AEGEE/summeruniversity/commit/6e649092c909967f3392bc1b2684bcfabad58023))
+
 ## [1.5.6](https://github.com/AEGEE/summeruniversity/compare/1.5.5...1.5.6) (2024-09-24)
 
 
