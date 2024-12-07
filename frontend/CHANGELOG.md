@@ -1,3 +1,10 @@
+## [1.42.4](https://github.com/AEGEE/frontend/compare/1.42.3...1.42.4) (2024-12-07)
+
+
+### Bug Fixes
+
+* **events:** add SPC text for creating an event. Fixes HELP-2577 ([#2260](https://github.com/AEGEE/frontend/issues/2260)) ([63cc227](https://github.com/AEGEE/frontend/commit/63cc2275783f60d5e0537ed90b36c3c60ea13f4f))
+
 ## [1.42.3](https://github.com/AEGEE/frontend/compare/1.42.2...1.42.3) (2024-12-07)
 
 
