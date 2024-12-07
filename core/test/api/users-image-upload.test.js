@@ -178,4 +178,49 @@ describe('Users image upload', () => {
         const oldImgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', userFromDb.image);
         expect(fs.existsSync(oldImgPath)).toEqual(false);
     });
+
+    it('should update a valid image to only another user if other user is selected', async () => {
+        const admin = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(admin);
+
+        const user = await generator.createUser();
+
+        const firstRequest = await request({
+            uri: '/members/' + admin.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            formData: {
+                head_image: fs.createReadStream('./test/assets/valid_image.png')
+            }
+        });
+
+        expect(firstRequest.statusCode).toEqual(200);
+
+        const adminFromDbBeforeChange = await User.findByPk(admin.id);
+
+        const res = await request({
+            uri: '/members/' + user.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': token.value },
+            formData: {
+                head_image: fs.createReadStream('./test/assets/valid_second_image.PNG')
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('message');
+
+        const userFromDb = await User.findByPk(user.id);
+
+        const imgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', userFromDb.image);
+        expect(fs.existsSync(imgPath)).toEqual(true);
+
+        const adminFromDb = await User.findByPk(admin.id);
+
+        expect(adminFromDbBeforeChange.image).toEqual(adminFromDb.image);
+
+        const adminImgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', adminFromDb.image);
+        expect(fs.existsSync(adminImgPath)).toEqual(true);
+    });
 });

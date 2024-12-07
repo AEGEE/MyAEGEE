@@ -42,7 +42,7 @@ const upload = multer({
 const uploadAsync = util.promisify(upload);
 
 exports.uploadImage = async (req, res) => {
-    const oldimg = req.user.image;
+    const oldimg = req.currentUser.image;
 
     // If upload folder doesn't exists, create it.
     if (!fs.existsSync(uploadFolderName)) {
@@ -72,7 +72,7 @@ exports.uploadImage = async (req, res) => {
         return errors.makeValidationError(res, 'Malformed file content.');
     }
 
-    await req.user.update({
+    await req.currentUser.update({
         image: req.file.filename
     });
 
@@ -84,24 +84,24 @@ exports.uploadImage = async (req, res) => {
     return res.json({
         success: true,
         message: 'File uploaded successfully',
-        data: req.user.image,
+        data: req.currentUser.image,
     });
 };
 
 exports.removeImage = async (req, res) => {
-    if (!req.user.image) {
+    if (!req.currentUser.image) {
         return errors.makeValidationError(res, 'No image is specified for the user.');
     }
 
-    await fs.promises.unlink(path.join(uploadFolderName, req.user.image));
+    await fs.promises.unlink(path.join(uploadFolderName, req.currentUser.image));
 
-    await req.user.update({
+    await req.currentUser.update({
         image: null
     });
 
     return res.json({
         success: true,
         message: 'File removed successfully',
-        data: req.user.image
+        data: req.currentUser.image
     });
 };
