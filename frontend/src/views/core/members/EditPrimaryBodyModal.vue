@@ -44,7 +44,7 @@ export default {
         primary_body_id: this.primaryBodyId
       }).then(() => {
         this.member.primary_body_id = this.primaryBodyId
-        this.member.primary_body = this.member.bodies.find((body) => body.id === this.primaryBodyId)
+        this.member.primary_body = this.member.bodies.find((body) => body.id === this.primaryBodyId && ['antenna', 'contact antenna', 'contact'].includes(body.type))
         this.showSuccess('Primary body is updated')
         this.isLoading = false
         this.$parent.close()
