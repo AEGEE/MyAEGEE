@@ -113,6 +113,26 @@ describe('File upload', () => {
         expect(fs.existsSync(imgPath)).toEqual(true);
     });
 
+    it('should upload a file if it\'s valid, but has extension in capital letters', async () => {
+        const res = await request({
+            uri: '/single/' + event.id + '/upload',
+            method: 'POST',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            formData: {
+                head_image: fs.createReadStream('./test/assets/valid_second_image.PNG')
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('message');
+
+        const eventFromDb = await Event.findByPk(event.id);
+
+        const imgPath = path.join(__dirname, '..', '..', config.media_dir, 'headimages', eventFromDb.image);
+        expect(fs.existsSync(imgPath)).toEqual(true);
+    });
+
     it('should remove the old file', async () => {
         // Uploading
         const firstRequest = await request({

@@ -29,7 +29,7 @@ const storage = multer.diskStorage({ // multers disk storage settings
 const upload = multer({
     storage,
     fileFilter(req, file, cb) {
-        const extension = path.extname(file.originalname);
+        const extension = path.extname(file.originalname).toLowerCase();
         if (!allowedExtensions.includes(extension)) {
             const allowed = allowedExtensions.map((e) => `'${e}'`).join(', ');
             return cb(new Error(`Allowed extensions: ${allowed}, but '${extension}' was passed.`));
@@ -65,7 +65,7 @@ exports.uploadImage = async (req, res) => {
     const buffer = readChunk.sync(req.file.path, 0, 4100);
     const type = await FileType.fromBuffer(buffer);
 
-    const originalExtension = path.extname(req.file.originalname);
+    const originalExtension = path.extname(req.file.originalname).toLowerCase();
     const determinedExtension = (type && type.ext ? `.${type.ext}` : 'unknown');
 
     if (originalExtension !== determinedExtension || !allowedExtensions.includes(determinedExtension)) {
