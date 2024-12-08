@@ -90,7 +90,8 @@ module.exports = {
         MAIL_CHANGE: 'MyAEGEE: Email change',
         PASSWORD_RESET: 'MyAEGEE: Password reset request',
         NEW_JOIN_REQUEST: 'MyAEGEE: New join request for your body',
-        NEW_MEMBER: 'MyAEGEE: Welcome to AEGEE'
+        NEW_MEMBER: 'MyAEGEE: Welcome to AEGEE',
+        WORKSPACE_NEW_MEMBER: 'MyAEGEE: A new member has joined their first local'
     },
     RESTRICTED_EMAILS: ['aegee.org', 'aegee.eu'],
     LISTSERV_LISTS: ['AEGEE-L', 'AEGEENEWS-L', 'ANNOUNCE-L', 'AEGEE-EVENT-L']

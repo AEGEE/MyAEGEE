@@ -10,6 +10,7 @@ const { sequelize, Sequelize } = require('../lib/sequelize');
 const mailer = require('../lib/mailer');
 const constants = require('../lib/constants');
 const errors = require('../lib/errors');
+const config = require('../config');
 
 exports.listAllMemberships = async (req, res) => {
     if (req.query.holds_permission) {
@@ -127,6 +128,18 @@ exports.createMembership = async (req, res) => {
                     member_lastname: user.last_name,
                     body_name: req.currentBody.name,
                     body_id: req.currentBody.id
+                }
+            });
+
+            await mailer.sendMail({
+                to: config.google_workspace_notifications,
+                subject: constants.MAIL_SUBJECTS.WORKSPACE_NEW_MEMBER,
+                template: 'workspace_new_member.html',
+                parameters: {
+                    member_firstname: user.first_name,
+                    member_lastname: user.last_name,
+                    user_id: user.id,
+                    member_email: user.email
                 }
             });
         }

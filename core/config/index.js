@@ -17,6 +17,9 @@ const config = {
         listserv_email: process.env.LISTSERV_EMAIL || 'listserv@example.com',
         listserv_endpoint: process.env.LISTSERV_ENDPOINT || 'https://lists.example.com/subscribe',
         listserv_token: process.env.LISTSERV_TOKEN || 'CHANGEME',
+        google_workspace_notifications: [
+            'workspace-admins@aegee.eu'
+        ],
         logger: {
             silent: false,
             level: process.env.LOGLEVEL || 'info'

@@ -5,6 +5,7 @@ const constants = require('../lib/constants');
 const logger = require('../lib/logger');
 const mailer = require('../lib/mailer');
 const { Sequelize, sequelize } = require('../lib/sequelize');
+const config = require('../config');
 
 exports.listAllJoinRequests = async (req, res) => {
     if (!req.permissions.hasPermission('view:join_request')) {
@@ -126,6 +127,18 @@ exports.changeRequestStatus = async (req, res) => {
                         member_lastname: user.last_name,
                         body_name: req.currentBody.name,
                         body_id: req.currentBody.id
+                    }
+                });
+
+                await mailer.sendMail({
+                    to: config.google_workspace_notifications,
+                    subject: constants.MAIL_SUBJECTS.WORKSPACE_NEW_MEMBER,
+                    template: 'workspace_new_member.html',
+                    parameters: {
+                        member_firstname: user.first_name,
+                        member_lastname: user.last_name,
+                        user_id: user.id,
+                        email: user.email
                     }
                 });
             }
