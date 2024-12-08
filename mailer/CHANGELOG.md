@@ -1,3 +1,10 @@
+## [0.16.6](https://github.com/AEGEE/mailer/compare/0.16.5...0.16.6) (2024-12-08)
+
+
+### Bug Fixes
+
+* **core:** add mail for new members to workspace admins ([#107](https://github.com/AEGEE/mailer/issues/107)) ([17053ea](https://github.com/AEGEE/mailer/commit/17053ea51acb83131179c1b6ed6c5e095100c7df))
+
 ## [0.16.5](https://github.com/AEGEE/mailer/compare/0.16.4...0.16.5) (2024-12-06)
 
 
