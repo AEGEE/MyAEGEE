@@ -64,6 +64,10 @@
             </div>
           </div>
 
+          <div class="notification is-warning">
+            <p>To allow for an anonymous selection procedure, please do not provide any personal information here (like the name of the applicant).</p>
+          </div>
+
           <div>
             <b-table
               :data="bodyStatuses">

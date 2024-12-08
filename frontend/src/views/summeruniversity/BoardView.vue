@@ -28,6 +28,10 @@
         <div class="subtitle" v-if="boardBodies.length === 0">You are not a board member of any body.</div>
         <div class="subtitle" v-if="!selectedBody && boardBodies.length > 0">You haven't selected the antenna yet.</div>
 
+        <div class="notification is-warning" v-if="selectedBody && boardBodies.length > 0">
+          <p>To allow for an anonymous selection procedure, please do not provide any personal information here (like the name of the applicant).</p>
+        </div>
+
         <b-table
           :data="applications"
           :row-class="row => calculateClassForApplication(row)"
