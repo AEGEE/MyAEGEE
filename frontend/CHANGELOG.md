@@ -1,3 +1,10 @@
+## [1.42.6](https://github.com/AEGEE/frontend/compare/1.42.5...1.42.6) (2024-12-08)
+
+
+### Bug Fixes
+
+* add message for anonymous board comments. Fixes HELP-2537 ([#2262](https://github.com/AEGEE/frontend/issues/2262)) ([2c8c7cc](https://github.com/AEGEE/frontend/commit/2c8c7cc80e260fbf43070593ec43dfe0fb2edff1))
+
 ## [1.42.5](https://github.com/AEGEE/frontend/compare/1.42.4...1.42.5) (2024-12-07)
 
 
