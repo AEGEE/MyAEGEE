@@ -1,3 +1,10 @@
+## [1.39.2](https://github.com/AEGEE/core/compare/1.39.1...1.39.2) (2024-12-08)
+
+
+### Bug Fixes
+
+* **body-membership:** send email to workspace admins for new members ([#1043](https://github.com/AEGEE/core/issues/1043)) ([85c0384](https://github.com/AEGEE/core/commit/85c0384abc1a2558e9629de37af1bc1625b2a329))
+
 ## [1.39.1](https://github.com/AEGEE/core/compare/1.39.0...1.39.1) (2024-12-07)
 
 
