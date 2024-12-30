@@ -123,7 +123,7 @@
         </div>
 
         <!-- TODO: If larger than max, show warning that higher fee can only be set by SUCT -->
-        <!-- TODO: Have two inputs, one without a maximum for people with the proper permission and one with the maximum based on duration (max 14 euros per night) -->
+        <!-- TODO: Have two inputs, one without a maximum for people with the proper permission and one with the maximum based on duration (max 19 euros per night) -->
         <div class="field" v-if="!event.status || event.status === 'first draft' || can.editFee">
           <label class="label">Fee <span class="has-text-danger">*</span></label>
           <div class="control">
@@ -746,7 +746,7 @@
               - We are able to provide meals 2x per day, also to people with specific dietary needs.<br />
               - We are able to provide accommodation for all the nights of the event for every participant.<br />
               - We are able to provide 2 hours of tuition per night on average.<br />
-              - We are able to provide all the activities with the participation fee of 14 EUR per night (excluding the optional fee and its activities).</p>
+              - We are able to provide all the activities with the participation fee of 19 EUR per night (excluding the optional fee and its activities).</p>
           </div>
         </div>
 
