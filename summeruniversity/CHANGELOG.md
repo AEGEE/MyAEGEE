@@ -1,3 +1,10 @@
+## [1.5.8](https://github.com/AEGEE/summeruniversity/compare/1.5.7...1.5.8) (2024-12-30)
+
+
+### Bug Fixes
+
+* **event:** update for 2025 season ([#824](https://github.com/AEGEE/summeruniversity/issues/824)) ([90ec1be](https://github.com/AEGEE/summeruniversity/commit/90ec1beff8cae7627b0aa671ac7e186c432553cb))
+
 ## [1.5.7](https://github.com/AEGEE/summeruniversity/compare/1.5.6...1.5.7) (2024-12-07)
 
 
