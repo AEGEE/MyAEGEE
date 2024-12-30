@@ -156,7 +156,7 @@ const Event = sequelize.define(
             }
         },
         fee: {
-        // TODO: validate that it is max 14 euros per night for normal people but no max for SUCT/people with proper permission
+        // TODO: validate that it is max 19.23 euros per night for normal people but no max for SUCT/people with proper permission
             type: Sequelize.DECIMAL,
             allowNull: false,
             defaultValue: 0,
