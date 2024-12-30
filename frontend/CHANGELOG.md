@@ -1,3 +1,10 @@
+## [1.42.7](https://github.com/AEGEE/frontend/compare/1.42.6...1.42.7) (2024-12-30)
+
+
+### Bug Fixes
+
+* **su:** update for 2025 season ([#2275](https://github.com/AEGEE/frontend/issues/2275)) ([5a25f10](https://github.com/AEGEE/frontend/commit/5a25f1087e543cfc8c402cd1ccb1a9e60ca47258))
+
 ## [1.42.6](https://github.com/AEGEE/frontend/compare/1.42.5...1.42.6) (2024-12-08)
 
 
