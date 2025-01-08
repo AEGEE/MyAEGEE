@@ -1,3 +1,10 @@
+## [1.42.8](https://github.com/AEGEE/frontend/compare/1.42.7...1.42.8) (2025-01-08)
+
+
+### Bug Fixes
+
+* **statutory:** add info about typing links in Markdown for MassMailer ([#2278](https://github.com/AEGEE/frontend/issues/2278)) ([42dfa86](https://github.com/AEGEE/frontend/commit/42dfa86e66fc7fb289ff32b90f519065fa3ba17f))
+
 ## [1.42.7](https://github.com/AEGEE/frontend/compare/1.42.6...1.42.7) (2024-12-30)
 
 
