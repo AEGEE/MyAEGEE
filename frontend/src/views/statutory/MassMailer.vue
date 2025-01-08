@@ -72,6 +72,7 @@
                       <ul>
                         <li>wrap text in *asterisks* to make it <i>italic</i></li>
                         <li>wrap text in **double asterisks** to make it <strong>bold</strong></li>
+                        <li>insert a link by typing "[text to display](url)"</li>
                       </ul>
                       <span>Keep in mind, that by default, if you put one line break, the line won't be broken and the next text line would be displayed at the same line as the previous. For making a piece of text a separate paragraph, use 2 line breaks. That way, the text would be displayed with an offset from the previous and the next line. For just breaking the line, add 2 spaces at the end of it.</span>
                     </div>
