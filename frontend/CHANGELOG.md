@@ -1,3 +1,10 @@
+## [1.42.9](https://github.com/AEGEE/frontend/compare/1.42.8...1.42.9) (2025-01-13)
+
+
+### Bug Fixes
+
+* **events:** add text for OG disclaimer to event creation ([#2284](https://github.com/AEGEE/frontend/issues/2284)) ([aeeb8cc](https://github.com/AEGEE/frontend/commit/aeeb8cccfc25f2b09731c4ace32024c8ec55f4db))
+
 ## [1.42.8](https://github.com/AEGEE/frontend/compare/1.42.7...1.42.8) (2025-01-08)
 
 
