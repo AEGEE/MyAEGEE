@@ -28,6 +28,17 @@
           <p class="help is-danger" v-if="errors.name">{{ errors.name.join(', ') }}</p>
         </div>
 
+        <div class="notification is-info">
+          <div class="content">
+            <p>
+              If your event is part of the Operating Grant, please add the following disclaimer at the end of the event description (including the asterisks):
+            </p>
+            <span>
+              *Disclaimer: Funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Education and Culture Executive Agency (EACEA). Neither the European Union nor the granting authority can be held responsible for them.*
+            </span>
+          </div>
+        </div>
+
         <div class="field">
           <label class="label">Description <span class="has-text-danger">*</span></label>
           <div class="control">
