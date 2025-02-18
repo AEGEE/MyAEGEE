@@ -1,3 +1,10 @@
+## [1.14.1](https://github.com/AEGEE/statutory/compare/1.14.0...1.14.1) (2025-02-18)
+
+
+### Bug Fixes
+
+* update memberslist edit deadline. FIxes HELP-2676 ([#1324](https://github.com/AEGEE/statutory/issues/1324)) ([7716c8a](https://github.com/AEGEE/statutory/commit/7716c8a7a94281bde934296997d6d60d72c9c782))
+
 # [1.14.0](https://github.com/AEGEE/statutory/compare/1.13.1...1.14.0) (2024-12-05)
 
 
