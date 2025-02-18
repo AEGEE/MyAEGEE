@@ -453,7 +453,7 @@ const Event = sequelize.define('event', {
     memberslist_edit_deadline: {
         type: Sequelize.VIRTUAL,
         get() {
-            return moment(this.starts).subtract(1, 'day').toDate(); // inclusive
+            return moment(this.starts).subtract(14, 'day').toDate(); // inclusive
         }
     },
     can_apply: {
