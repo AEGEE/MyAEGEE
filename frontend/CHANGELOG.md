@@ -1,3 +1,10 @@
+## [1.42.10](https://github.com/AEGEE/frontend/compare/1.42.9...1.42.10) (2025-02-21)
+
+
+### Bug Fixes
+
+* **discounts:** load missing icons for new discount codes ([#2319](https://github.com/AEGEE/frontend/issues/2319)) ([1c92ea7](https://github.com/AEGEE/frontend/commit/1c92ea76a0dd8e444ec115fa129fefe0c5f8a0ac)), closes [#2683](https://github.com/AEGEE/frontend/issues/2683)
+
 ## [1.42.9](https://github.com/AEGEE/frontend/compare/1.42.8...1.42.9) (2025-01-13)
 
 
