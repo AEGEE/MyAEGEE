@@ -373,7 +373,9 @@ export default {
       await this.axios.get(this.services['network'] + '/boards/recents', { params: { ends: this.selectedAgora.ends } }).then((boardsResponse) => {
         for (const board of boardsResponse.data.data) {
           const body = this.bodies.find(x => x.id === board.body_id)
-          this.$set(body, 'latestElection', board.latest_election)
+          if (body) {
+            this.$set(body, 'latestElection', board.latest_election)
+          }
         }
 
         // Check if the current board was elected within the past year
