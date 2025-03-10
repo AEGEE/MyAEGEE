@@ -1,3 +1,10 @@
+## [1.42.11](https://github.com/AEGEE/frontend/compare/1.42.10...1.42.11) (2025-03-10)
+
+
+### Bug Fixes
+
+* **network:** add check for body in ac check page ([#2322](https://github.com/AEGEE/frontend/issues/2322)) ([6143d7b](https://github.com/AEGEE/frontend/commit/6143d7bd4362e3394e57295705b418629d0b6d49))
+
 ## [1.42.10](https://github.com/AEGEE/frontend/compare/1.42.9...1.42.10) (2025-02-21)
 
 
