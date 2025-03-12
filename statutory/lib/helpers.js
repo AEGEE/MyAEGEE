@@ -215,14 +215,8 @@ exports.beautify = (value) => {
 
 // A helper to check if the given application matches one of the members in memberslist.
 exports.memberMatchApplication = (member, application) => {
-    // First, checking if user_id match.
-    if (member.user_id === application.user_id) {
-        return true;
-    }
-
-    // If this fails, check if the first_name and last_name match.
-    return member.first_name.toLowerCase() === application.first_name.toLowerCase()
-        && member.last_name.toLowerCase() === application.last_name.toLowerCase();
+    // Only checking if user_id match.
+    return member.user_id === application.user_id;
 };
 
 // A helper to check if the memberslist has this member on it.

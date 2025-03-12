@@ -382,7 +382,7 @@ describe('Applications listing', () => {
             expect(res.body.data[0].is_on_memberslist).toEqual(true);
         });
 
-        test('should return yes if there is memberslist and first_name and last_name match case-sensitive', async () => {
+        test('should return no if there is memberslist and first_name and last_name match case-sensitive', async () => {
             const event = await generator.createEvent({ applications: [] });
             const application = await generator.createApplication({ user_id: 1, first_name: 'first', last_name: 'last' }, event);
             await generator.createMembersList({
@@ -405,10 +405,10 @@ describe('Applications listing', () => {
 
             expect(res.body.data.length).toEqual(1);
             expect(res.body.data[0].id).toEqual(application.id);
-            expect(res.body.data[0].is_on_memberslist).toEqual(true);
+            expect(res.body.data[0].is_on_memberslist).toEqual(false);
         });
 
-        test('should return yes if there is memberslist and first_name and last_name match case-insensitive', async () => {
+        test('should return no if there is memberslist and first_name and last_name match case-insensitive', async () => {
             const event = await generator.createEvent({ applications: [] });
             const application = await generator.createApplication({ user_id: 1, first_name: 'first', last_name: 'last' }, event);
             await generator.createMembersList({
@@ -431,7 +431,7 @@ describe('Applications listing', () => {
 
             expect(res.body.data.length).toEqual(1);
             expect(res.body.data[0].id).toEqual(application.id);
-            expect(res.body.data[0].is_on_memberslist).toEqual(true);
+            expect(res.body.data[0].is_on_memberslist).toEqual(false);
         });
     });
 

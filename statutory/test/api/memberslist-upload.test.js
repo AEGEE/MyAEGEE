@@ -816,7 +816,7 @@ describe('Memberslist uploading', () => {
             expect(applicationFromDb.is_on_memberslist).toEqual(true);
         });
 
-        test('should set is_on_memberslist = true if first/last name matches', async () => {
+        test('should set is_on_memberslist = false if first/last name matches', async () => {
             const event = await generator.createEvent({
                 type: 'agora',
                 application_period_starts: moment().subtract(1, 'week').toDate(),
@@ -848,7 +848,7 @@ describe('Memberslist uploading', () => {
             expect(res.body).toHaveProperty('data');
 
             const applicationFromDb = await Application.findByPk(application.id);
-            expect(applicationFromDb.is_on_memberslist).toEqual(true);
+            expect(applicationFromDb.is_on_memberslist).toEqual(false);
         });
 
         test('should set is_on_memberslist = false if no match', async () => {
