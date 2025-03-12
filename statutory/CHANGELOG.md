@@ -1,3 +1,10 @@
+## [1.14.2](https://github.com/AEGEE/statutory/compare/1.14.1...1.14.2) (2025-03-12)
+
+
+### Bug Fixes
+
+* **application:** remove matching on name for members list check ([#1331](https://github.com/AEGEE/statutory/issues/1331)) ([97168ed](https://github.com/AEGEE/statutory/commit/97168ed786945eac040a0382a6e575802035f3df))
+
 ## [1.14.1](https://github.com/AEGEE/statutory/compare/1.14.0...1.14.1) (2025-02-18)
 
 
