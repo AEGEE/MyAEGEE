@@ -396,7 +396,7 @@ export default {
           const body = this.bodies.find(x => x.id === membersList.body_id)
           this.$set(body.antennaCriteria, 'membersList', 'true')
 
-          if (membersList.fee_not_paid === 0) {
+          if (membersList.fee_not_paid <= 0) {
             this.$set(body.antennaCriteria, 'membershipFee', 'true')
           }
         }
