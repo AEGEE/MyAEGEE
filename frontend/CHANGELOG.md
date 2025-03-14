@@ -1,3 +1,10 @@
+## [1.42.12](https://github.com/AEGEE/frontend/compare/1.42.11...1.42.12) (2025-03-14)
+
+
+### Bug Fixes
+
+* **network:** fix rounding error with fee payment automatic AC check ([#2324](https://github.com/AEGEE/frontend/issues/2324)) ([60a29f4](https://github.com/AEGEE/frontend/commit/60a29f42db11a48df0658ccc05bcdaa958346915))
+
 ## [1.42.11](https://github.com/AEGEE/frontend/compare/1.42.10...1.42.11) (2025-03-10)
 
 
