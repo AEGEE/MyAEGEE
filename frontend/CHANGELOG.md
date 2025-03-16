@@ -1,3 +1,10 @@
+## [1.42.13](https://github.com/AEGEE/frontend/compare/1.42.12...1.42.13) (2025-03-16)
+
+
+### Bug Fixes
+
+* **network:** use NetCom GSuite accounts if it is set ([#2325](https://github.com/AEGEE/frontend/issues/2325)) ([ee546ee](https://github.com/AEGEE/frontend/commit/ee546ee05403ce1e076c056a4931aba006b6353f))
+
 ## [1.42.12](https://github.com/AEGEE/frontend/compare/1.42.11...1.42.12) (2025-03-14)
 
 
