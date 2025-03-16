@@ -80,11 +80,13 @@
         "children": [
           {
             "name": "oms.events.change_status",
-            "label": "Change event status"
+            "label": "Change event status",
+            "permissions": ["global:approve_event:nwm", "global:approve_event:training", "global:approve_event:conference", "global:approve_event:cultural"]
           },
           {
             "name": "oms.events.boardview",
-            "label": "Board view"
+            "label": "Board view",
+            "permissions": ["local:approve_members:events"]
           }
         ]
       },
@@ -132,7 +134,8 @@
           },
           {
             "name": "oms.summeruniversity.boardview",
-            "label": "Board view"
+            "label": "Board view",
+            "permissions": ["local:approve_members:summeruniversity"]
           }
         ]
       },
