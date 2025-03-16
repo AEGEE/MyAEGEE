@@ -426,7 +426,7 @@ export default {
           this.netcommies = netcomMembersResponse.data.data.map(netcommie => ({
             user_id: netcommie.user_id,
             first_name: netcommie.user.first_name,
-            email: netcommie.user.email
+            email: netcommie.user.gsuite_id ? netcommie.user.gsuite_id : netcommie.user.email
           }))
           this.netcommies.push({ 'user_id': 0, 'first_name': 'Not set', 'email': '' })
         })
