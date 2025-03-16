@@ -1,3 +1,10 @@
+## [1.42.14](https://github.com/AEGEE/frontend/compare/1.42.13...1.42.14) (2025-03-16)
+
+
+### Bug Fixes
+
+* only show menu items with proper permissions. Fixes HELP-2691 ([#2321](https://github.com/AEGEE/frontend/issues/2321)) ([89c44f8](https://github.com/AEGEE/frontend/commit/89c44f85cf85e0e9953c8b2ed433c6efcdd0f1ee))
+
 ## [1.42.13](https://github.com/AEGEE/frontend/compare/1.42.12...1.42.13) (2025-03-16)
 
 
