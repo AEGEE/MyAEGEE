@@ -1,3 +1,10 @@
+## [1.42.15](https://github.com/AEGEE/frontend/compare/1.42.14...1.42.15) (2025-03-17)
+
+
+### Bug Fixes
+
+* **resources:** update resource page with Code of Conduct ([#2326](https://github.com/AEGEE/frontend/issues/2326)) ([1d1a0f6](https://github.com/AEGEE/frontend/commit/1d1a0f64abb758c1833b694869c049b47a7cedbd))
+
 ## [1.42.14](https://github.com/AEGEE/frontend/compare/1.42.13...1.42.14) (2025-03-16)
 
 
