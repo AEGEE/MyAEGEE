@@ -114,27 +114,27 @@ export default {
             color: '#FFDB4C'
           },
           {
-            url: 'https://forms.gle/EcaDkdyQfSb65Jdh8',
-            title: 'Safe Person Committee',
-            description: 'Request a Safe Person or workshop for your event',
-            color: '#FFDB4C'
-          },
-          {
-            url: 'https://podio.com/webforms/2318137/167577',
-            title: 'AEGEE Newsletter',
-            description: 'Submitting content for the AEGEE newsletter',
-            color: '#FFDB4C'
-          },
-          {
             url: 'https://forms.gle/s8vE6b9wrEHqV1xe9',
-            title: 'CD House Guest Request',
-            description: 'Visiting the CD house',
+            title: 'AEGEE House Guest Request',
+            description: 'Visiting the AEGEE house',
             color: '#FFDB4C'
           },
           {
             url: 'https://forms.gle/ZMfSByo5QEUAwoY4A',
             title: 'ASRF Application Form',
             description: 'Apply for the AEGEE Social Responsibility Fund',
+            color: '#FFDB4C'
+          },
+          {
+            url: 'https://www.aegee.org/code-of-conduct/',
+            title: 'Code of Conduct',
+            description: 'Read AEGEE\'s Code of Conduct',
+            color: '#FFDB4C'
+          },
+          {
+            url: 'https://forms.gle/EcaDkdyQfSb65Jdh8',
+            title: 'Safe Person Committee',
+            description: 'Request a Safe Person or workshop for your event',
             color: '#FFDB4C'
           },
           {
