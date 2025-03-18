@@ -115,6 +115,21 @@
         </b-field>
 
         <hr>
+
+        <div class="notification is-warning">
+          <div class="content">
+            <span>NB! As per the Antenna Criteria, the following documents have to be submitted <strong>within one month</strong> after the start of the board term:</span>
+            <ol>
+              <li>Health Indicators (<a href="https://docs.google.com/spreadsheets/d/1z4IS7oj02gouvKITD2c8piDQUZbAtKCuXFyg9Ndo78I/edit" target="_blank" rel="noopener noreferrer">template</a>) + Development Plan (<a href="https://docs.google.com/document/d/1Smv54WG-hum5g7CJapBvjsvOCbt3K1iB9bxKpsCMyt0/edit?tab=t.0" target="_blank" rel="noopener noreferrer">template</a>) [filled in by the starting board]</li>
+              <li>Fulfilment Report (<a href="https://docs.google.com/document/d/1e9ppe6k4HfmFnsC7pbC4Y_4nrmbs6FK5axaSsH_IHf0/edit" target="_blank" rel="noopener noreferrer">template</a>) [filled in by the ending board]</li>
+            </ol>
+            <span>
+              Send the filled documents to <a href="mailto:network@aegee.eu">network@aegee.eu</a> with your Network Commissioner in copy. You can read more about the Antenna Criteria in the <a href="https://drive.google.com/drive/folders/1GKd6jWeolMDRw7EXZO-ROXupBQUzAgk2?usp=drive_link" target="_blank" rel="noopener noreferrer">CIA</a>.
+            </span>
+          </div>
+        </div>
+
+        <hr>
       </template>
 
       <div class="field">
