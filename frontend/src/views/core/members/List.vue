@@ -39,8 +39,9 @@
             {{ props.row.date_of_birth }}
           </b-table-column>
 
-          <b-table-column field="address" label="Address" v-slot="props">
-            {{ props.row.address }}
+          <b-table-column field="primary_body_id" label="Primary body" v-slot="props">
+            <span v-if="props.row.primary_body_id">{{ bodyMapping[props.row.primary_body_id] }}</span>
+            <span v-else><i>Not set.</i></span>
           </b-table-column>
 
           <b-table-column field="about_me" label="About me" v-slot="props">
@@ -68,6 +69,7 @@ export default {
   data () {
     return {
       users: [],
+      bodyMapping: {},
       isLoading: false,
       query: '',
       limit: 30,
@@ -108,6 +110,7 @@ export default {
     onSort (field, order) {
       this.sortField = field
       this.sortOrder = order
+      this.page = 0
       this.fetchData()
     },
     fetchData () {
@@ -132,7 +135,15 @@ export default {
     }
   },
   mounted () {
-    this.fetchData()
+    this.axios.get(this.services['core'] + '/bodies').then((response) => {
+      const bodies = response.data.data
+      this.bodyMapping = Object.fromEntries(
+        bodies.map(({ id, name }) => [id, name])
+      )
+      this.fetchData()
+    }).catch((err) => {
+      this.$root.showError('Could not fetch bodies list', err)
+    })
   }
 }
 </script>
