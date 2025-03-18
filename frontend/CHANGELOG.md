@@ -1,3 +1,10 @@
+## [1.42.16](https://github.com/AEGEE/frontend/compare/1.42.15...1.42.16) (2025-03-18)
+
+
+### Bug Fixes
+
+* **core:** display user primary body on list view ([#2318](https://github.com/AEGEE/frontend/issues/2318)) ([9386daf](https://github.com/AEGEE/frontend/commit/9386daf2cdb5b3341b65cfb0d911232a0b548491)), closes [#2679](https://github.com/AEGEE/frontend/issues/2679)
+
 ## [1.42.15](https://github.com/AEGEE/frontend/compare/1.42.14...1.42.15) (2025-03-17)
 
 
