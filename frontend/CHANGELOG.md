@@ -1,3 +1,10 @@
+## [1.42.17](https://github.com/AEGEE/frontend/compare/1.42.16...1.42.17) (2025-03-18)
+
+
+### Bug Fixes
+
+* **network:** add information about needed documents to board change ([#2327](https://github.com/AEGEE/frontend/issues/2327)) ([6e1d568](https://github.com/AEGEE/frontend/commit/6e1d5684975b5a37d2b6d5290df6ce27e22658aa))
+
 ## [1.42.16](https://github.com/AEGEE/frontend/compare/1.42.15...1.42.16) (2025-03-18)
 
 
