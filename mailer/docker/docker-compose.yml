@@ -9,7 +9,7 @@ services:
         environment:
             MIX_ENV: "${MYAEGEE_ENV}"
             SMTP_USER: ${SMTP_USER?The SMTP_USER variable is not set.}
-            SMTP_NAME: ${SMTP_NAME?The SMTP_NAME variable is not set.}
+            # SMTP_NAME: ${SMTP_NAME?The SMTP_NAME variable is not set.}
         depends_on:
             - mail-transfer-agent
         healthcheck:
