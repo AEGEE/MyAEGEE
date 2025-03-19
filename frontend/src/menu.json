@@ -86,7 +86,7 @@
           {
             "name": "oms.events.boardview",
             "label": "Board view",
-            "permissions": ["local:approve_members:events"]
+            "permissions": ["global:see_boardview:events"]
           }
         ]
       },
@@ -135,7 +135,7 @@
           {
             "name": "oms.summeruniversity.boardview",
             "label": "Board view",
-            "permissions": ["local:approve_members:summeruniversity"]
+            "permissions": ["global:see_boardview:summeruniversity"]
           }
         ]
       },
