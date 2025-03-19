@@ -1,3 +1,10 @@
+## [1.42.18](https://github.com/AEGEE/frontend/compare/1.42.17...1.42.18) (2025-03-19)
+
+
+### Bug Fixes
+
+* add global permissions to board view on menu ([#2329](https://github.com/AEGEE/frontend/issues/2329)) ([f1b44c3](https://github.com/AEGEE/frontend/commit/f1b44c3aeaf330196615b5473018eb56da4ffac7))
+
 ## [1.42.17](https://github.com/AEGEE/frontend/compare/1.42.16...1.42.17) (2025-03-18)
 
 
