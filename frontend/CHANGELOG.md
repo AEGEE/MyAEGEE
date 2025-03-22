@@ -1,3 +1,10 @@
+# [1.43.0](https://github.com/AEGEE/frontend/compare/1.42.18...1.43.0) (2025-03-22)
+
+
+### Features
+
+* **event:** remove covid workflow ([#2328](https://github.com/AEGEE/frontend/issues/2328)) ([ade7c06](https://github.com/AEGEE/frontend/commit/ade7c065d435c1b52fe5344c9642004392930791))
+
 ## [1.42.18](https://github.com/AEGEE/frontend/compare/1.42.17...1.42.18) (2025-03-19)
 
 
