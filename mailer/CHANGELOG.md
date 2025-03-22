@@ -1,3 +1,10 @@
+# [0.17.0](https://github.com/AEGEE/mailer/compare/0.16.6...0.17.0) (2025-03-22)
+
+
+### Features
+
+* **events:** mail on changing status to European event for online event ([#108](https://github.com/AEGEE/mailer/issues/108)) ([84551ea](https://github.com/AEGEE/mailer/commit/84551ea9f1060057f37bf9cdb9852c9926cab1ba))
+
 ## [0.16.6](https://github.com/AEGEE/mailer/compare/0.16.5...0.16.6) (2024-12-08)
 
 
