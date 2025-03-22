@@ -1,3 +1,10 @@
+## [1.44.2](https://github.com/AEGEE/frontend/compare/1.44.1...1.44.2) (2025-03-22)
+
+
+### Bug Fixes
+
+* update organising in menu ([#2330](https://github.com/AEGEE/frontend/issues/2330)) ([90324ad](https://github.com/AEGEE/frontend/commit/90324ad0edc3cf19717e7fc65eb6da692add49c9))
+
 ## [1.44.1](https://github.com/AEGEE/frontend/compare/1.44.0...1.44.1) (2025-03-22)
 
 
