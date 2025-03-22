@@ -1,3 +1,10 @@
+## [1.44.1](https://github.com/AEGEE/frontend/compare/1.44.0...1.44.1) (2025-03-22)
+
+
+### Bug Fixes
+
+* changing the word "organize" to "organise" ([#2317](https://github.com/AEGEE/frontend/issues/2317)) ([76919cc](https://github.com/AEGEE/frontend/commit/76919cc0c28c7e88333ee3d0223239fb700064cf))
+
 # [1.44.0](https://github.com/AEGEE/frontend/compare/1.43.0...1.44.0) (2025-03-22)
 
 
