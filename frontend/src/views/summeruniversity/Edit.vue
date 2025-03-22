@@ -389,7 +389,7 @@
           <p class="help is-danger" v-if="errors.video">{{ errors.video.join(', ') }}</p>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Organizing bodies <span class="has-text-danger">*</span></div>
+        <div class="subtitle is-fullwidth has-text-centered">Organising bodies <span class="has-text-danger">*</span></div>
         <hr />
 
         <div class="tags">
@@ -404,7 +404,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Add organizing body</label>
+          <label class="label">Add organising body</label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
@@ -462,16 +462,16 @@
           </div>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Organizers <span class="has-text-danger">*</span></div>
+        <div class="subtitle is-fullwidth has-text-centered">Organisers <span class="has-text-danger">*</span></div>
         <hr />
 
         <div class="notification is-info">
           <div class="content">
-            <p>The user creating the event automatically becomes an organizer.</p>
-            <p>People who are not listed as organizers won't be able to see and manage event applications, even if they are the board members.</p>
-            <p><strong>You can only add people from the organizing bodies.</strong></p>
+            <p>The user creating the event automatically becomes an organiser.</p>
+            <p>People who are not listed as organisers won't be able to see and manage event applications, even if they are the board members.</p>
+            <p><strong>You can only add people from the organising bodies.</strong></p>
             <p>Please add at least:<br />
-              - 1 main coordinator per organizing body<br />
+              - 1 main coordinator per organising body<br />
               - 1 content manager<br />
               - 1 treasurer<br />
               - 1 incoming responsible</p>
@@ -508,7 +508,7 @@
           </b-table>
 
           <div class="field">
-            <label class="label">Add organizer</label>
+            <label class="label">Add organiser</label>
             <div class="control">
               <div class="field has-addons">
                 <b-autocomplete
@@ -872,7 +872,7 @@ export default {
       if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
-      // Fetch all of the members of the selected organizing bodies.
+      // Fetch all of the members of the selected organising bodies.
       const endpoints = this.event.organizing_bodies.map(body => this.services['core'] + '/bodies/' + body.body_id + '/members')
 
       // Ignoring the requests that failed (because of 403 most likely)
@@ -904,7 +904,7 @@ export default {
     },
     addOrganizer (organizer) {
       if (this.event.organizers.some(org => org.user_id === organizer.id)) {
-        return this.$root.showWarning('This user is already an organizer.')
+        return this.$root.showWarning('This user is already an organiser.')
       }
 
       this.event.organizers.push({
@@ -1016,11 +1016,11 @@ export default {
       }
 
       if (this.event.organizing_bodies.length === 0) {
-        return this.$root.showError('Please select at least one organizing body.')
+        return this.$root.showError('Please select at least one organising body.')
       }
 
       if (this.event.organizers.length === 0) {
-        return this.$root.showError('Please add at least one organizer.')
+        return this.$root.showError('Please add at least one organiser.')
       }
 
       this.isSaving = true

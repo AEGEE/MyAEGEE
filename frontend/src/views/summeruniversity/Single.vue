@@ -13,7 +13,7 @@
         <article class="tile is-child is-info">
           <div class="field is-grouped">
             <a :href="`mailto:${event.email}`" class="button is-fullwidth">
-              <span>Mail organizers</span>
+              <span>Mail organisers</span>
               <span class="icon"><font-awesome-icon icon="envelope" /></span>
             </a>
           </div>
@@ -294,7 +294,7 @@
                   <td>{{ event.published | capitalize }}</td>
                 </tr>
                 <tr>
-                  <th>Organizing bodies</th>
+                  <th>Organising bodies</th>
                   <td>
                     <ul>
                       <li v-for="body in event.organizing_bodies" v-bind:key="body._id">
@@ -339,7 +339,7 @@
           </div>
 
           <div class="notification is-info" v-if="event.published === 'none'">
-            <p><strong>This event is visible to SUCT and organizers only because it's not published yet.</strong></p>
+            <p><strong>This event is visible to SUCT and organisers only because it's not published yet.</strong></p>
             <p>Once the event will be published, others would be able to access it.</p>
           </div>
 

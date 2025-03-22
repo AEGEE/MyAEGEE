@@ -68,7 +68,7 @@
                     <span>{{ event.application_starts | date }} - {{ event.application_ends | date }}</span>
                   </li>
                   <li>
-                    <strong>Organizing bodies: </strong>
+                    <strong>Organising bodies: </strong>
                     <router-link
                       v-for="(body, index) in event.organizing_bodies"
                       v-bind:key="index"

@@ -170,14 +170,14 @@
         <div class="tile is-parent" v-if="application && !application.cancelled">
           <div class="tile is-child">
             <div class="notification is-warning" v-if="application.status === 'pending'">
-              Your application is recorded, please wait for the organizers to evaluate your application.
+              Your application is recorded, please wait for the organisers to evaluate your application.
               <span v-show="can.edit_application">You can still edit it till the application period ends.</span>
             </div>
             <div class="notification is-success" v-if="application.status === 'accepted'">
               Congratulations, you have been accepted to the event!
             </div>
             <div class="notification is-warning" v-if="application.status === 'waiting_list'">
-              Unfortunately you've been put to a waiting list. Please contact organizers to get more info on that.
+              Unfortunately you've been put to a waiting list. Please contact organisers to get more info on that.
             </div>
             <div class="notification is-danger" v-if="application.status === 'rejected'">
               Sorry, but you were not accepted to the event.

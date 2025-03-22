@@ -31,7 +31,7 @@ const constants = {
     content_manager: 'Content manager',
     treasurer: 'Treasurer',
     incoming_responsible: 'Incoming responsible',
-    general_organizer: 'General organizer'
+    general_organizer: 'General organiser'
   },
   SUMMERUNIVERSITY_PAX_CONFIRMATIONS: {
     no_confirmation: 'No confirmation needed',

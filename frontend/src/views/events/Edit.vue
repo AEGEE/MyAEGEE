@@ -259,7 +259,7 @@
           <p class="help is-danger" v-if="errors.ends">{{ errors.ends.join(', ') }}</p>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Organizing bodies <span class="has-text-danger">*</span></div>
+        <div class="subtitle is-fullwidth has-text-centered">Organising bodies <span class="has-text-danger">*</span></div>
         <hr />
 
         <div class="tags">
@@ -270,11 +270,11 @@
             {{ body ? body.body.name : 'Loading...' }}
             <button class="delete is-small" @click.prevent="body => event.organizing_bodies.splice(index, 1)" />
           </a>
-          <a class="tag is-danger is-medium" v-if="event.organizing_bodies.length === 0">No organizing bodies.</a>
+          <a class="tag is-danger is-medium" v-if="event.organizing_bodies.length === 0">No organising bodies.</a>
         </div>
 
         <div class="field">
-          <label class="label">Add organizing body</label>
+          <label class="label">Add organising body</label>
           <div class="control">
             <div class="field has-addons">
               <div class="control">
@@ -292,19 +292,19 @@
           </div>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Organizers <span class="has-text-danger">*</span></div>
+        <div class="subtitle is-fullwidth has-text-centered">Organisers <span class="has-text-danger">*</span></div>
         <hr />
 
         <div class="notification is-info">
           <div class="content">
-            <p>The user creating the event automatically becomes the organizer.</p>
-            <p>People who are not listed as organizers won't be able to see and manage event manage applications, even if they are the board members.</p>
+            <p>The user creating the event automatically becomes the organiser.</p>
+            <p>People who are not listed as organisers won't be able to see and manage event manage applications, even if they are the board members.</p>
             <p v-if="!can.viewAllMembers">
               <strong>You can only add people from your bodies.</strong>
-              If a person from another body needs to be added as an organizer, you can temporarily join this body to get the permissions
+              If a person from another body needs to be added as an organiser, you can temporarily join this body to get the permissions
               to see members of this body, add required people, then leave it.
             </p>
-            <p>Organizers list cannot be edited once the event is published, if you need to update it, please contact EQAC or CD.</p>
+            <p>Organisers list cannot be edited once the event is published, if you need to update it, please contact EQAC or CD.</p>
           </div>
         </div>
 
@@ -336,7 +336,7 @@
           </b-table>
 
           <div class="field">
-            <label class="label">Add organizer</label>
+            <label class="label">Add organiser</label>
             <div class="control">
               <div class="field has-addons">
                 <b-autocomplete
@@ -739,7 +739,7 @@ export default {
     },
     addOrganizer (organizer) {
       if (this.event.organizers.some(org => org.user_id === organizer.id)) {
-        return this.$root.showWarning('This user is already an organizer.')
+        return this.$root.showWarning('This user is already an organiser.')
       }
 
       this.event.organizers.push({

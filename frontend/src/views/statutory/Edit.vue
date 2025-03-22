@@ -240,7 +240,7 @@
 
         <div class="tile is-child">
           <div class="field">
-            <label class="label">Organizing body <span class="has-text-danger">*</span></label>
+            <label class="label">Organising body <span class="has-text-danger">*</span></label>
             <div class="control">
               <div class="field has-addons">
                 <b-autocomplete

@@ -214,7 +214,7 @@
                   <td v-if="!event.fee"><i>Free</i></td>
                 </tr>
                 <tr>
-                  <th>Organizing body</th>
+                  <th>Organising body</th>
                   <td>
                     <router-link :to="{ name: 'oms.bodies.view', params: { id: event.body_id } }">
                       {{ event.body ? event.body.name : 'Loading...' }}

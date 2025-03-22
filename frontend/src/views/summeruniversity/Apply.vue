@@ -472,7 +472,7 @@
         <div class="tile is-parent" v-show="!isNew && !this.can.apply">
           <div class="tile is-child">
             <div class="notification is-warning" v-if="application.status === 'pending'">
-              Your application is being processed, please wait for the organizers to evaluate your application. Unfortunately you can not edit it anymore.
+              Your application is being processed, please wait for the organisers to evaluate your application. Unfortunately you can not edit it anymore.
             </div>
             <div class="notification is-success" v-else-if="application.status === 'accepted'">
               Congratulations, you have been accepted to the event!

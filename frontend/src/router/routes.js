@@ -440,7 +440,7 @@ module.exports = [
     path: '/events/organizing',
     component: 'events/List',
     meta: {
-      label: 'List events I\'m organizing'
+      label: 'List events I\'m organising'
     }
   },
   {
@@ -531,7 +531,7 @@ module.exports = [
     path: '/summeruniversity/organizing',
     component: 'summeruniversity/List',
     meta: {
-      label: 'List events I\'m organizing'
+      label: 'List events I\'m organising'
     }
   },
   {
