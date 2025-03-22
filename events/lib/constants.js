@@ -37,6 +37,7 @@ module.exports = {
         'optional_programme',
         'optional_fee',
         'link_info_travel_country',
+        'method',
         'created_at',
         'updated_at'
     ],

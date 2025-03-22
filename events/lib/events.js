@@ -35,11 +35,13 @@ exports.listEvents = async (req, res) => {
     });
 };
 
-exports.listMostRecentEvents = async (req, res) => {
+// TODO: See if we want to you this function for something else than the AC check
+exports.listMostRecentEuropeanEvents = async (req, res) => {
     const queryObj = {
         where: {
             deleted: false,
-            status: 'published'
+            status: 'published',
+            is_european_event: true
         },
         group: 'organizing_bodies',
         attributes: [
@@ -154,6 +156,7 @@ exports.addEvent = async (req, res) => {
     delete data.image;
     delete data.status;
     delete data.deleted;
+    delete data.is_european_event;
 
     const event = new Event(data);
 
@@ -228,6 +231,7 @@ exports.editEvent = async (req, res) => {
     delete data.image;
     delete data.status;
     delete data.deleted;
+    delete data.is_european_event;
 
     if (Object.keys(data).length === 0) {
         return errors.makeValidationError(res, 'No valid field changes requested');
@@ -324,5 +328,37 @@ exports.setApprovalStatus = async (req, res) => {
     return res.json({
         success: true,
         message: 'Successfully changed approval status',
+    });
+};
+
+exports.setEuropeanEventStatus = async (req, res) => {
+    if (!req.permissions.change_european_event_status[req.event.type]) {
+        return errors.makeForbiddenError(res, 'You are not allowed to change the European Event status.');
+    }
+
+    await sequelize.transaction(async (t) => {
+        await req.event.update({ is_european_event: req.body.is_european_event }, { transaction: t });
+
+        if (req.body.is_european_event === false) {
+            return;
+        }
+
+        req.event.organizers = await Promise.all(req.event.organizers.map((organizer) =>
+            core.fetchUser(organizer, req.headers['x-auth-token'])));
+
+        // Send email to all organizers.
+        await mailer.sendMail({
+            to: req.event.organizers.map((organizer) => organizer.notification_email),
+            subject: 'Your event\'s status was changed',
+            template: 'events_european_status_changed.html',
+            parameters: {
+                event: req.event,
+            }
+        });
+    });
+
+    return res.json({
+        success: true,
+        message: 'Successfully changed European Event status',
     });
 };

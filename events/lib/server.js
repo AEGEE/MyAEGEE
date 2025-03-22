@@ -52,7 +52,7 @@ GeneralRouter.get('/mine/participating', middlewares.ensureAuthorized, events.li
 GeneralRouter.get('/mine/approvable', middlewares.ensureAuthorized, events.listApprovableEvents);
 GeneralRouter.get('/boardview/:body_id', middlewares.ensureAuthorized, events.listBodyApplications);
 
-GeneralRouter.get('/recents', middlewares.ensureAuthorized, events.listMostRecentEvents);
+GeneralRouter.get('/recents', middlewares.ensureAuthorized, events.listMostRecentEuropeanEvents);
 
 // All requests from here on use the getEvent middleware to fetch a single event from db
 EventsRouter.use(middlewares.fetchSingleEvent);
@@ -66,6 +66,7 @@ EventsRouter.put('/', events.editEvent);
 EventsRouter.delete('/', events.deleteEvent);
 EventsRouter.put('/status', events.setApprovalStatus);
 EventsRouter.post('/upload', imageserv.uploadImage);
+EventsRouter.put('/status/european_event', events.setEuropeanEventStatus);
 
 EventsRouter.get('/applications', applications.listAllApplications);
 EventsRouter.get('/applications/export', applications.exportAll);

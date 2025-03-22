@@ -186,4 +186,28 @@ describe('Events editing', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.organizing_bodies[0].body_name).toEqual(user.bodies[0].name);
     });
+
+    it('should not change the European Event status on normal edit request', async () => {
+        const res = await request({
+            uri: '/single/' + event.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: {
+                description: 'some new description',
+                is_european_event: false
+            }
+        });
+
+        expect(res.statusCode).toEqual(200);
+
+        const response = await request({
+            uri: '/single/' + event.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(response.statusCode).toEqual(200);
+        expect(response.body).toHaveProperty('data');
+        expect(response.body.data.is_european_event).toEqual(true);
+    });
 });

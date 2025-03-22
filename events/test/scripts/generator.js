@@ -38,6 +38,9 @@ exports.generateEvent = (options = {}) => {
     if (notSet(options.meals_per_day)) options.meals_per_day = faker.number.int({ min: 0, max: 3 });
     if (notSet(options.link_info_travel_country)) options.link_info_travel_country = faker.internet.url();
 
+    if (notSet(options.method)) options.method = 'in person';
+    if (notSet(options.is_european_event)) options.is_european_event = true;
+
     return options;
 };
 

@@ -173,12 +173,14 @@ exports.isOrganizer = (event, user) => {
 exports.getPermissions = (user, corePermissions, approvePermissions) => {
     const permissions = {
         approve_event: {},
-        manage_event: {}
+        manage_event: {},
+        change_european_event_status: {}
     };
 
     for (const type of constants.EVENT_TYPES) {
         permissions.approve_event[type] = hasPermission(corePermissions, 'approve_event:' + type);
         permissions.manage_event[type] = hasPermission(corePermissions, 'manage_event:' + type);
+        permissions.change_european_event_status[type] = hasPermission(corePermissions, 'change_european_event_status:' + type);
     }
 
     permissions.set_board_comment = {};

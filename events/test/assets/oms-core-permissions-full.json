@@ -200,6 +200,15 @@
         "action": "approve_event"
       }, {
         "scope": "global",
+        "object": "nwm",
+        "id": 71,
+        "filters": [],
+        "description": "Change European Event status",
+        "combined": "global:change_european_event_status:nwm",
+        "circles": null,
+        "action": "change_european_event_status"
+      }, {
+        "scope": "global",
         "object": "rtc",
         "id": 71,
         "filters": [],
@@ -281,6 +290,15 @@
         "action": "manage_event"
       }, {
         "scope": "global",
+        "object": "training",
+        "id": 71,
+        "filters": [],
+        "description": "Change European Event status",
+        "combined": "global:change_european_event_status:training",
+        "circles": null,
+        "action": "change_european_event_status"
+      }, {
+        "scope": "global",
         "object": "conference",
         "id": 71,
         "filters": [],
@@ -297,6 +315,15 @@
         "combined": "global:manage_event:conference",
         "circles": null,
         "action": "manage_event"
+      },{
+        "scope": "global",
+        "object": "conference",
+        "id": 71,
+        "filters": [],
+        "description": "Change European Event status",
+        "combined": "global:change_european_event_status:conference",
+        "circles": null,
+        "action": "change_european_event_status"
       }, {
         "scope": "global",
         "object": "cultural",
@@ -306,7 +333,7 @@
         "combined": "global:approve_event:cultural",
         "circles": null,
         "action": "approve_event"
-      },{
+      }, {
         "scope": "global",
         "object": "cultural",
         "id": 71,
@@ -315,5 +342,14 @@
         "combined": "global:manage_event:cultural",
         "circles": null,
         "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "cultural",
+        "id": 71,
+        "filters": [],
+        "description": "Change European Event status",
+        "combined": "global:change_european_event_status:cultural",
+        "circles": null,
+        "action": "change_european_event_status"
 }]
 }
