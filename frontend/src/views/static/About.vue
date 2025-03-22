@@ -194,7 +194,12 @@
 
               <tr>
                 <td><a href="https://github.com/wikirik">Rik Smale</a></td>
-                <td>Project manager & Maintainer of frontend, core, events, and statutory modules</td>
+                <td>Project manager & maintainer of frontend, core, events, Summer University and statutory modules</td>
+              </tr>
+
+              <tr>
+                <td><a href="https://github.com/leonvreling">Leon Vreling</a></td>
+                <td>Lead developer & maintainer of frontend and network module</td>
               </tr>
             </tbody>
           </table>
