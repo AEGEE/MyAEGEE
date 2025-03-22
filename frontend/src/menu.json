@@ -106,7 +106,7 @@
           {
             "name": "oms.events.list.organizing",
             "auth": "logged-in",
-            "label": "Organizing"
+            "label": "Organising"
           },
           {
             "name": "oms.events.create",
@@ -155,7 +155,7 @@
           {
             "name": "oms.summeruniversity.list.organizing",
             "auth": "logged-in",
-            "label": "Organizing"
+            "label": "Organising"
           },
           {
             "name": "oms.summeruniversity.create",
