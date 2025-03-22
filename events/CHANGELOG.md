@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/AEGEE/events/compare/1.5.2...1.6.0) (2025-03-22)
+
+
+### Features
+
+* **events:** change Events model to allow online events ([#1221](https://github.com/AEGEE/events/issues/1221)) ([cc1d8b6](https://github.com/AEGEE/events/commit/cc1d8b6f7f836ccfba66feecf24deae50dd544a7))
+
 ## [1.5.2](https://github.com/AEGEE/events/compare/1.5.1...1.5.2) (2024-12-07)
 
 
