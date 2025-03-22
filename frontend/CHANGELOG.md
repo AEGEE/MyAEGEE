@@ -1,3 +1,10 @@
+# [1.44.0](https://github.com/AEGEE/frontend/compare/1.43.0...1.44.0) (2025-03-22)
+
+
+### Features
+
+* **events:** add online events as event type ([#2290](https://github.com/AEGEE/frontend/issues/2290)) ([4bf53b8](https://github.com/AEGEE/frontend/commit/4bf53b8c36d23d5c241ba4c2db36c6f22e3b1b44))
+
 # [1.43.0](https://github.com/AEGEE/frontend/compare/1.42.18...1.43.0) (2025-03-22)
 
 
