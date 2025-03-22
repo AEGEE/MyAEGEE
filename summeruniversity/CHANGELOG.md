@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/AEGEE/summeruniversity/compare/1.5.8...1.6.0) (2025-03-22)
+
+
+### Features
+
+* **event:** remove covid workflow ([#852](https://github.com/AEGEE/summeruniversity/issues/852)) ([ddb5769](https://github.com/AEGEE/summeruniversity/commit/ddb5769cd8d2cbbc9d3f226e40471e064e8fab50))
+
 ## [1.5.8](https://github.com/AEGEE/summeruniversity/compare/1.5.7...1.5.8) (2024-12-30)
 
 
