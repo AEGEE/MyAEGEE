@@ -50,7 +50,10 @@
                 </div>
                 <div class="media-content">
                   <router-link :to="{ name: 'oms.events.view', params: { id: event.url || event.id } }">
-                    <p class="title is-4">{{ event.name }}</p>
+                    <p class="title is-4">
+                      {{ event.name }}
+                      <b-tag type="is-info" v-if="event.method === 'online'">Online</b-tag>
+                    </p>
                   </router-link>
                 </div>
               </div>
@@ -107,7 +110,12 @@
 
                   <div class="content" style="padding-top: 1rem">
                     <ul style="list-style-type: none; padding: 0; margin: 0">
-                      <li><span class="title is-4">{{ event.name }}</span></li>
+                      <li>
+                        <span class="title is-4">
+                          {{ event.name }}
+                          <b-tag type="is-info" v-if="event.method === 'online'">Online</b-tag>
+                        </span>
+                      </li>
                       <li style="display: flex; justify-content: space-between;">
                         <span class="tag" :style="{ 'background-color': colors[event.type], color: '#FFFFFF' }">
                           {{ eventTypesNames[event.type] }}

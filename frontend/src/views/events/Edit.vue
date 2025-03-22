@@ -79,6 +79,20 @@
         </div>
 
         <div class="notification is-info" v-if="!$route.params.id">
+          Please select how the event will take place wisely. <strong>It cannot be changed later.</strong>
+        </div>
+
+        <div class="field" v-if="!$route.params.id">
+          <label class="label">How will the event take place <span class="has-text-danger">*</span></label>
+          <div class="select">
+            <select v-model="event.method">
+              <option value="in person">In person</option>
+              <option value="online">Online</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="notification is-info" v-if="!$route.params.id">
           Please select the event type wisely. <strong>It cannot be changed later.</strong>
         </div>
 
@@ -92,7 +106,7 @@
           <p class="help is-danger" v-if="errors.type">{{ errors.type.join(', ') }}</p>
         </div>
 
-        <div class="field">
+        <div class="field" v-if="!isOnlineEvent">
           <label class="label">Fee <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="field has-addons">
@@ -113,7 +127,8 @@
           </div>
           <p class="help is-danger" v-if="errors.max_participants">{{ errors.max_participants.join(', ') }}</p>
         </div>
-        <div class="field notification is-info">
+
+        <div class="field notification is-info" v-if="!isOnlineEvent">
           <label class="label" style="color: white">Regarding water access</label>
           <p>
             Please make sure that the participants have access to a reasonable amount of water during the event.
@@ -123,7 +138,7 @@
           </p>
         </div>
 
-        <div class="field">
+        <div class="field" v-if="!isOnlineEvent">
           <label class="label">Number of meals provided per day <span class="has-text-danger">*</span></label>
           <div class="control">
             <div class="control">
@@ -133,7 +148,7 @@
           <p class="help is-danger" v-if="errors.meals_per_day">{{ errors.meals_per_day.join(', ') }}</p>
         </div>
 
-        <div class="field" v-if="!$route.params.id">
+        <div class="field" v-if="!$route.params.id && !isOnlineEvent">
           <label class="label">Is the event going to be fully vegetarian?</label>
           <div class="control">
             <input type="checkbox" v-model="event.vegetarian" />
@@ -141,11 +156,11 @@
           </div>
         </div>
 
-        <div class="notification is-success" v-if="!$route.params.id">
+        <div class="notification is-success" v-if="!$route.params.id && !isOnlineEvent">
           Consider if you want to make the event fully vegetarian / vegan! <strong>It can't be changed later.</strong>
         </div>
 
-        <div class="field">
+        <div class="field" v-if="!isOnlineEvent">
           <label class="label">Accommodation type <span class="has-text-danger">*</span></label>
           <div class="notification is-info" v-if="!$route.params.id">
             <p>Accommodation can be for instance camping, hostel, hosting by the members of the local, or in a gym. Write "none" for online events.</p>
@@ -156,35 +171,37 @@
           <p class="help is-danger" v-if="errors.accommodation_type">{{ errors.accommodation_type.join(', ') }}</p>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Optional Programme</div>
-        <hr />
+        <template v-if="!isOnlineEvent">
+          <div class="subtitle is-fullwidth has-text-centered">Optional Programme</div>
+          <hr />
 
-        <div class="notification is-info">
-          <div class="content">
-            <p>You may offer an optional feature to your event. If so, please specify the optional programme and its cost. Leave the fields empty if there is no extra fee charged. Be concise in the description: "trip to city X", "ice-skating", "extra museum".</p>
-          </div>
-        </div>
-        <div class="field">
-          <label class="label">Optional Fee</label>
-          <div class="control">
-            <div class="field has-addons">
-              <div class="control">
-                <a class="button is-static">€</a>
-              </div>
-              <div class="control">
-                <input class="input" type="number" v-model="event.optional_fee" min="0" />
-              </div>
+          <div class="notification is-info">
+            <div class="content">
+              <p>You may offer an optional feature to your event. If so, please specify the optional programme and its cost. Leave the fields empty if there is no extra fee charged. Be concise in the description: "trip to city X", "ice-skating", "extra museum".</p>
             </div>
           </div>
-          <p class="help is-danger" v-if="errors.optional_fee">{{ errors.optional_fee.join(', ') }}</p>
-        </div>
-        <div class="field">
-          <label class="label">Optional Programme</label>
-          <div class="control">
-            <input class="input" type="text" v-model="event.optional_programme" />
+          <div class="field">
+            <label class="label">Optional Fee</label>
+            <div class="control">
+              <div class="field has-addons">
+                <div class="control">
+                  <a class="button is-static">€</a>
+                </div>
+                <div class="control">
+                  <input class="input" type="number" v-model="event.optional_fee" min="0" />
+                </div>
+              </div>
+            </div>
+            <p class="help is-danger" v-if="errors.optional_fee">{{ errors.optional_fee.join(', ') }}</p>
           </div>
-          <p class="help is-danger" v-if="errors.optional_programme">{{ errors.optional_programme.join(', ') }}</p>
-        </div>
+          <div class="field">
+            <label class="label">Optional Programme</label>
+            <div class="control">
+              <input class="input" type="text" v-model="event.optional_programme" />
+            </div>
+            <p class="help is-danger" v-if="errors.optional_programme">{{ errors.optional_programme.join(', ') }}</p>
+          </div>
+        </template>
 
         <div class="subtitle is-fullwidth has-text-centered">Event dates</div>
         <hr />
@@ -429,75 +446,77 @@
 
         <p class="help is-danger" v-if="errors.fee">{{ errors.questions.message }}</p>
 
-        <div class="subtitle is-fullwidth has-text-centered">Locations</div>
-        <hr />
+        <template v-if="!isOnlineEvent">
+          <div class="subtitle is-fullwidth has-text-centered">Locations</div>
+          <hr />
 
-        <div class="notification is-info">
-          <div class="content">
-            <p>You can add a location and drag it on the map to the desired point.</p>
-            <p>The location name would be displayed as a map marker popup.</p>
+          <div class="notification is-info">
+            <div class="content">
+              <p>You can add a location and drag it on the map to the desired point.</p>
+              <p>The location name would be displayed as a map marker popup.</p>
+            </div>
           </div>
-        </div>
 
-        <div class="tile" style="position: relative; height: 400px">
-          <MglMap
-            :accessToken="accessToken"
-            :mapStyle="map.style"
-            :zoom="map.zoom"
-            :scrollZoom="false"
-            @load="onMapLoaded"
-            :center="map.center">
-            <MglNavigationControl position="top-right" />
-            <MglMarker
-              v-for="(location, index) in event.locations"
-              v-bind:key="index"
-              :coordinates="location.position"
-              color="red"
-              :draggable="true"
-              @dragend="setMarkerPosition($event, index)" />
-          </MglMap>
-        </div>
-
-        <table class="table is-narrowed is-stripped is-fullwidth">
-          <thead>
-            <tr>
-              <th>Latitude</th>
-              <th>Longitude</th>
-              <th>Name</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(marker, index) in event.locations" v-bind:key="index">
-              <td>{{ marker.position.lat }}</td>
-              <td>{{ marker.position.lng }}</td>
-              <td>
-                <input type="text" class="input" required v-model="marker.name" />
-              </td>
-              <td>
-                <button class="button is-danger" @click="deleteLocation(index)">Delete location</button>
-              </td>
-            </tr>
-            <tr colspan="4" v-if="event.locations.length === 0">
-              <td>No locations added.</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="field">
-          <div class="control">
-            <a class="button is-primary" @click="addLocation()">Add new location</a>
+          <div class="tile" style="position: relative; height: 400px">
+            <MglMap
+              :accessToken="accessToken"
+              :mapStyle="map.style"
+              :zoom="map.zoom"
+              :scrollZoom="false"
+              @load="onMapLoaded"
+              :center="map.center">
+              <MglNavigationControl position="top-right" />
+              <MglMarker
+                v-for="(location, index) in event.locations"
+                v-bind:key="index"
+                :coordinates="location.position"
+                color="red"
+                :draggable="true"
+                @dragend="setMarkerPosition($event, index)" />
+            </MglMap>
           </div>
-        </div>
 
-        <div class="field">
-          <label class="label">How to travel to your country</label>
-          <p>You may provide an optional link to provide useful information about travelling to your country.</p>
-          <div class="control">
-            <input class="input" type="url" v-model="event.link_info_travel_country" />
+          <table class="table is-narrowed is-stripped is-fullwidth">
+            <thead>
+              <tr>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Name</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(marker, index) in event.locations" v-bind:key="index">
+                <td>{{ marker.position.lat }}</td>
+                <td>{{ marker.position.lng }}</td>
+                <td>
+                  <input type="text" class="input" required v-model="marker.name" />
+                </td>
+                <td>
+                  <button class="button is-danger" @click="deleteLocation(index)">Delete location</button>
+                </td>
+              </tr>
+              <tr colspan="4" v-if="event.locations.length === 0">
+                <td>No locations added.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="field">
+            <div class="control">
+              <a class="button is-primary" @click="addLocation()">Add new location</a>
+            </div>
           </div>
-          <p class="help is-danger" v-if="errors.link_info_travel_country">{{ errors.link_info_travel_country.join(', ') }}</p>
-        </div>
+
+          <div class="field">
+            <label class="label">How to travel to your country</label>
+            <p>You may provide an optional link to provide useful information about travelling to your country.</p>
+            <div class="control">
+              <input class="input" type="url" v-model="event.link_info_travel_country" />
+            </div>
+            <p class="help is-danger" v-if="errors.link_info_travel_country">{{ errors.link_info_travel_country.join(', ') }}</p>
+          </div>
+        </template>
 
         <div class="subtitle is-fullwidth has-text-centered">EQAC approval fields</div>
         <hr />
@@ -508,12 +527,10 @@
             <p>
               You can omit specifying them when creating the event, but
               <strong> you won't be able to submit event to EQAC if these fields are not set.</strong>
-
-              For online events, you are able to use https://online-event.example.com/ as a placeholder for the budget.
             </p>
-            <p>Please provide the link to Google spreadsheets for the event program and budget.</p>
+            <p>Please provide the link to Google spreadsheets for the event program<span v-if="!isOnlineEvent"> and budget</span>.</p>
             <p><a href="https://docs.google.com/spreadsheets/u/1/?ftv=1&tgif=d" target="_blank" rel="noopener noreferrer">
-              You can take the template for the budget and the program here.
+              You can take the template for <span v-if="!isOnlineEvent">the budget and </span>the program here.
             </a></p>
             <p><i>
               Note: in case you cannot see AEGEE templates at the link above, try switching to AEGEE Google Workspace account.
@@ -525,7 +542,7 @@
           </div>
         </div>
 
-        <div class="field">
+        <div class="field" v-if="!isOnlineEvent">
           <label class="label">Link to event budget</label>
           <div class="control">
             <input class="input" type="url" v-model="event.budget" />
@@ -635,7 +652,8 @@ export default {
         vegetarian: false,
         optional_programme: null,
         link_info_travel_country: null,
-        accommodation_type: ''
+        accommodation_type: '',
+        method: 'in person'
       },
       autoComplete: {
         members: { name: '', values: [], loading: false }
@@ -877,10 +895,15 @@ export default {
       this.map.actions.fitBounds([minCoords, maxCoords], { padding: 50 })
     }
   },
-  computed: mapGetters({
-    services: 'services',
-    loginUser: 'user'
-  }),
+  computed: {
+    ...mapGetters({
+      services: 'services',
+      loginUser: 'user'
+    }),
+    isOnlineEvent () {
+      return this.event.method === 'online'
+    }
+  },
   watch: {
     'event.name': function (newName) {
       if (!this.$route.params.id) {

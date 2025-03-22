@@ -78,6 +78,14 @@
             </a>
           </div>
 
+          <!-- For CD: change European Event status-->
+          <div class="field is-grouped" v-if="can.change_european_event_status[event.type]">
+            <a class="button is-fullwidth is-primary" @click="askChangeEuropeanEventStatus()">
+              <span>Change European Event status</span>
+              <span class="icon"><font-awesome-icon icon="edit" /></span>
+            </a>
+          </div>
+
           <div class="field is-grouped" v-if="can.delete_event">
             <a class="button is-fullwidth is-danger" @click="askDeleteEvent()">
               <span>Delete event</span>
@@ -91,6 +99,10 @@
       <article class="tile is-child">
         <div class="content">
           <p class="title">{{ event.name }}</p>
+
+          <div class="notification is-info" v-if="isOnlineEvent">
+            This is an online event!
+          </div>
 
           <div class="content">
             <table class="table is-narrow">
@@ -133,7 +145,7 @@
                   <th>Type</th>
                   <td>{{ eventTypes[event.type] }}</td>
                 </tr>
-                <tr>
+                <tr v-if="!isOnlineEvent">
                   <th>Fee</th>
                   <td v-if="event.fee">€{{ event.fee }}</td>
                   <td v-if="!event.fee"><i>Free</i></td>
@@ -151,7 +163,7 @@
                   <td><a :href="event.link_info_travel_country" target="_blank" rel="noopener noreferrer">{{ event.link_info_travel_country }}</a>
                   </td>
                 </tr>
-                <tr>
+                <tr v-if="!isOnlineEvent">
                   <th>Number of meals provided per day</th>
                   <td>{{ event.meals_per_day }}</td>
                 </tr>
@@ -162,7 +174,7 @@
                     </div>
                   </td>
                 </tr>
-                <tr>
+                <tr v-if="!isOnlineEvent">
                   <th>Accommodation type</th>
                   <td>{{ event.accommodation_type }}</td>
                 </tr>
@@ -187,7 +199,7 @@
 
             <table class="table is-narrow" v-if="event.budget || event.programme">
               <tbody>
-                <tr>
+                <tr v-if="!isOnlineEvent">
                   <th>Budget link</th>
                   <td>
                     <a v-if="event.budget" :href="event.budget" target="_blank" rel="noopener noreferrer">{{ event.budget }}</a>
@@ -289,7 +301,9 @@ export default {
         meals_per_day: 0,
         optional_programme: null,
         link_info_travel_country: null,
-        accommodation_type: ''
+        accommodation_type: '',
+        method: '',
+        is_european_event: null
       },
       eventTypes: constants.EVENT_TYPES_NAMES,
       accessToken: '',
@@ -309,7 +323,8 @@ export default {
           draft: false,
           submitted: false,
           published: false
-        }
+        },
+        change_european_event_status: {}
       }
     }
   },
@@ -346,7 +361,7 @@ export default {
     },
     askChangeStatus (newStatus) {
       if (this.event.status === 'draft') {
-        if (!this.event.budget) {
+        if (!this.event.budget && !this.isOnlineEvent) {
           this.$root.showError('Please set the budget for the event in the event settings.')
         }
 
@@ -354,7 +369,7 @@ export default {
           this.$root.showError('Please set the program for the event in the event settings.')
         }
 
-        if (!this.event.budget || !this.event.programme) {
+        if ((!this.event.budget && !this.isOnlineEvent) || !this.event.programme) {
           return
         }
       }
@@ -383,7 +398,39 @@ export default {
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
-        this.$root.showError('Could not delete event', err)
+        this.$root.showError('Could not change event status', err)
+      })
+    },
+    askChangeEuropeanEventStatus () {
+      const message = this.event.is_european_event
+        ? 'Are you sure you want to change this event\'s status to <b>not</b> a European Event?'
+        : 'Are you sure you want to change this event\'s status to <b>a European Event</b>?'
+
+      this.$buefy.dialog.confirm({
+        title: 'Change European Event status',
+        message,
+        confirmText: 'Change European Event status',
+        type: 'is-warning',
+        hasIcon: true,
+        onConfirm: () => this.changeEuropeanEventStatus()
+      })
+    },
+    changeEuropeanEventStatus () {
+      this.isLoading = true
+      const body = { is_european_event: !this.event.is_european_event }
+
+      this.axios.put(this.services['events'] + '/single/' + this.event.id + '/status/european_event', body).then(() => {
+        this.$root.showInfo(`European Event status is now ${!this.event.is_european_event}`)
+
+        // Refetching the event to renew the permissions.
+        return this.axios.get(this.services['events'] + '/single/' + this.$route.params.id)
+      }).then((response) => {
+        this.event = response.data.data
+        this.can = response.data.permissions
+        this.isLoading = false
+      }).catch((err) => {
+        this.isLoading = false
+        this.$root.showError('Could not change European Event status', err)
       })
     },
     onMapLoaded (event) {
@@ -452,6 +499,9 @@ export default {
     }),
     isOrganizer () {
       return this.event.organizers.some(org => org.user_id === this.loginUser.id)
+    },
+    isOnlineEvent () {
+      return this.event.method === 'online'
     }
   }
 }
