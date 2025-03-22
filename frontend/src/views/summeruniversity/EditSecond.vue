@@ -127,9 +127,9 @@
           <label class="label">Social media <URLTooltip /></label>
           <table class="table is-narrowed">
             <tbody>
-              <tr v-for="(social_media, index) in event.social_media" v-bind:key="index">
+              <tr v-for="(social_medium, index) in event.social_media" v-bind:key="index">
                 <td>
-                  <input class="input" type="url" required v-model="event.social_media[index].description" />
+                  <input class="input" type="url" required v-model="social_medium.description" />
                 </td>
                 <td>
                   <a class="button is-danger" @click="deleteSocialMedia(index)">Delete</a>
@@ -164,9 +164,9 @@
           <label class="label">Photos <span class="has-text-danger">*</span> <URLTooltip /></label>
           <table class="table is-narrowed">
             <tbody>
-              <tr v-for="(photos, index) in event.photos" v-bind:key="index">
+              <tr v-for="(photo, index) in event.photos" v-bind:key="index">
                 <td>
-                  <input class="input" type="url" required v-model="event.photos[index].description" />
+                  <input class="input" type="url" required v-model="photo.description" />
                 </td>
                 <td>
                   <a class="button is-danger" @click="deletePhotos(index)">Delete</a>
@@ -384,9 +384,9 @@
         <div class="field">
           <table class="table is-narrowed">
             <tbody>
-              <tr v-for="(questions, index) in event.questions" v-bind:key="index">
+              <tr v-for="(question, index) in event.questions" v-bind:key="index">
                 <td>
-                  <input class="input" type="text" required v-model="event.questions[index].description" />
+                  <input class="input" type="text" required v-model="question.description" />
                 </td>
                 <td>
                   <a class="button is-danger" @click="deleteQuestion(index)">Delete</a>

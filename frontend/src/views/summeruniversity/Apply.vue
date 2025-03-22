@@ -292,42 +292,10 @@
 
               <div class="field">
                 <label class="has-text-weight-bold">
-                  SU Covid regulations <span class="has-text-danger">*</span>
+                  SU specific regulations <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
                   <b-checkbox required v-model="application.agreed_to_su_terms">
-                    I declare that, I will NOT travel, pursuant to the regulation in force,
-                    if at the time of travel: I am affected by Covid-19 or subjected to a
-                    mandatory quarantine period of at least 14 days; I am suffering from a
-                    fever with a temperature above 37,5°C; I have a persistent cough,
-                    difficulty breathing, cold, sore throat, headache, severe weakness
-                    (tiredness), decrease or loss of smell/taste, diarrhoea; I have had
-                    close contact with a person affected by Covid-19 between 2 days before
-                    the occurrence of symptoms and up to 14 days after the occurrence of
-                    symptoms. I also undertake to inform the local organisers and Local
-                    Health Authority of any possible occurrence of above mentioned symptoms
-                    arising within eight days after the conclusion of the event.<br />
-                    Failure to present any mandatory documentation may result in my
-                    participation in the event being denied by local authorities and/or
-                    the local organisers and my entry being denied in the destination country.<br />
-                    I declare that I will indemnify any local of AEGEE against any and all
-                    fines and/or costs the local may incur due to my failure to comply with
-                    any of the above Covid-19 government requirements.<br />
-                    I confirm that I will comply with all country specific Covid-19 requirements
-                    and the documents provided are valid and as required for travel. I understand
-                    that I am required to have these documents available (digitally or in paper
-                    format) for inspection by local authorities.
-                  </b-checkbox>
-                </div>
-                <p class="help is-danger" v-if="errors.agreed_to_su_terms">{{ errors.agreed_to_su_terms.join(', ') }}</p>
-              </div>
-
-              <div class="field">
-                <label class="has-text-weight-bold">
-                  SU specific Covid regulations <span class="has-text-danger">*</span>
-                </label>
-                <div class="control">
-                  <b-checkbox required>
                     I confirm that I have read and understood the regulations set up by the local organisers.
                   </b-checkbox>
                 </div>

@@ -8,7 +8,6 @@
             <p>On this page you will find the list of all Summer Universities that are most probably going to happen this summer. There are some however which are not open yet to applications,
               these SUs will open soon, once they have all information ready. In case you cannot find a SU anymore, it means they sadly had to cancel organizing it.</p>
             <p>To apply to a Summer University you will need to be a member of a local and login on MyAEGEE. You will be able to apply only to <strong>ONE</strong> SU at the same time.</p>
-            <p>Make sure you read the information of each SU carefully before applying, as there is crucial information in regards to COVID-19.</p>
             <p>We hope you will apply to an amazing adventure this summer!</p>
           </div>
         </div>

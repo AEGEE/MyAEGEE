@@ -199,7 +199,7 @@
             <tbody>
               <tr v-for="(learning_objective, index) in event.learning_objectives" v-bind:key="index">
                 <td>
-                  <input class="input" type="text" required v-model="event.learning_objectives[index].description" />
+                  <input class="input" type="text" required v-model="learning_objective.description" />
                 </td>
                 <td>
                   <a class="button is-danger" @click="deleteLearningObjective(index)">Delete</a>
@@ -316,9 +316,9 @@
           <label class="label">Social media <URLTooltip /></label>
           <table class="table is-narrowed">
             <tbody>
-              <tr v-for="(social_media, index) in event.social_media" v-bind:key="index">
+              <tr v-for="(social_medium, index) in event.social_media" v-bind:key="index">
                 <td>
-                  <input class="input" type="url" required v-model="event.social_media[index].description" />
+                  <input class="input" type="url" required v-model="social_medium.description" />
                 </td>
                 <td>
                   <a class="button is-danger" @click="deleteSocialMedia(index)">Delete</a>
@@ -354,9 +354,9 @@
           <label class="label">Photos <URLTooltip /></label>
           <table class="table is-narrowed">
             <tbody>
-              <tr v-for="(photos, index) in event.photos" v-bind:key="index">
+              <tr v-for="(photo, index) in event.photos" v-bind:key="index">
                 <td>
-                  <input class="input" type="url" required v-model="event.photos[index].description" />
+                  <input class="input" type="url" required v-model="photo.description" />
                 </td>
                 <td>
                   <a class="button is-danger" @click="deletePhotos(index)">Delete</a>
@@ -568,7 +568,7 @@
             <tr>
               <th>Latitude</th>
               <th>Longitude</th>
-              <th>Name</th>
+              <th>Name <span class="has-text-danger">*</span></th>
               <th>Description</th>
               <th>Starting city</th>
               <th>Ending city</th>
@@ -647,9 +647,9 @@
         <div class="field">
           <table class="table is-narrowed">
             <tbody>
-              <tr v-for="(questions, index) in event.questions" v-bind:key="index">
+              <tr v-for="(question, index) in event.questions" v-bind:key="index">
                 <td>
-                  <input class="input" type="text" required v-model="event.questions[index].description" />
+                  <input class="input" type="text" required v-model="question.description" />
                 </td>
                 <td>
                   <a class="button is-danger" @click="deleteQuestion(index)">Delete</a>
@@ -674,16 +674,8 @@
         </div>
         <p class="help is-danger" v-if="errors.questions">{{ errors.questions.message }}</p>
 
-        <div class="subtitle is-fullwidth has-text-centered">Covid regulations</div>
+        <div class="subtitle is-fullwidth has-text-centered">Regulations</div>
         <hr />
-
-        <div class="field">
-          <label class="label">Where to find covid regulations <span class="has-text-danger">*</span></label>
-          <div class="control">
-            <textarea class="textarea" placeholder="Where to find information on destinations' covid regulations." required v-model="event.covid_regulations" />
-          </div>
-          <p class="help is-danger" v-if="errors.covid_regulations">{{ errors.covid_regulations.join(', ') }}</p>
-        </div>
 
         <div class="field">
           <label class="label">Payment and cancellation rules <span class="has-text-danger">*</span></label>
@@ -830,7 +822,6 @@ export default {
         pax_confirmation: null,
         pax_description: null,
         special_equipment: null,
-        covid_regulations: null,
         cancellation_rules: null,
         additional_regulation: null,
         agreed_to_su_terms: false
