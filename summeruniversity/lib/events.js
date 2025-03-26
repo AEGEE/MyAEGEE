@@ -208,7 +208,7 @@ exports.addEvent = async (req, res) => {
 
         await mailer.sendMail({
             to: config.new_event_notifications,
-            subject: 'A event was submitted.',
+            subject: 'A new event was submitted.',
             template: 'summeruniversity_submitted.html',
             parameters: {
                 event
