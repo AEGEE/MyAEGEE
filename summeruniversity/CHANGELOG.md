@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/AEGEE/summeruniversity/compare/1.6.0...1.6.1) (2025-03-26)
+
+
+### Bug Fixes
+
+* **events:** make email subject consistent with other events ([#853](https://github.com/AEGEE/summeruniversity/issues/853)) ([9770d4a](https://github.com/AEGEE/summeruniversity/commit/9770d4aa5ae21fb484b2c2c0da728e6c457ed1da))
+
 # [1.6.0](https://github.com/AEGEE/summeruniversity/compare/1.5.8...1.6.0) (2025-03-22)
 
 
