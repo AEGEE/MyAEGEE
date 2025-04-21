@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/AEGEE/events/compare/1.6.0...1.6.1) (2025-04-21)
+
+
+### Bug Fixes
+
+* **events:** move validation back to original model position ([#1243](https://github.com/AEGEE/events/issues/1243)) ([8fc189f](https://github.com/AEGEE/events/commit/8fc189fc9819a498cd0943065567bf0a7888ccd8))
+
 # [1.6.0](https://github.com/AEGEE/events/compare/1.5.2...1.6.0) (2025-03-22)
 
 
