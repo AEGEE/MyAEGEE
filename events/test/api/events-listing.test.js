@@ -382,6 +382,7 @@ describe('Events listing', () => {
             application_ends: moment().subtract(9, 'days').toDate(),
             starts: moment().subtract(8, 'days').toDate(),
             ends: moment().subtract(7, 'days').toDate(),
+            is_european_event: true,
         });
         const mostRecentEvent = await generator.createEvent({
             status: 'published',
@@ -390,6 +391,7 @@ describe('Events listing', () => {
             application_ends: moment().subtract(4, 'days').toDate(),
             starts: moment().subtract(3, 'days').toDate(),
             ends: moment().subtract(2, 'days').toDate(),
+            is_european_event: true,
         });
 
         const res = await request({
@@ -413,6 +415,7 @@ describe('Events listing', () => {
             application_ends: moment().subtract(19, 'days').toDate(),
             starts: moment().subtract(18, 'days').toDate(),
             ends: moment().subtract(17, 'days').toDate(),
+            is_european_event: true,
         });
         await generator.createEvent({
             status: 'published',
@@ -421,6 +424,7 @@ describe('Events listing', () => {
             application_ends: moment().subtract(4, 'days').toDate(),
             starts: moment().subtract(3, 'days').toDate(),
             ends: moment().subtract(2, 'days').toDate(),
+            is_european_event: true,
         });
 
         const ends = moment().subtract(10, 'days').toISOString();
@@ -436,5 +440,38 @@ describe('Events listing', () => {
         expect(res.body).toHaveProperty('data');
         expect(res.body.data.length).toEqual(1);
         expect(res.body.data[0].latest_event).toEqual(previousEvent.ends.toISOString());
+    });
+
+    it('should only list most recent events that are set as European events', async () => {
+        const mostRecentEuropeanEvent = await generator.createEvent({
+            status: 'published',
+            organizing_bodies: [{ body_id: 1, body_name: 'blabla' }],
+            application_starts: moment().subtract(10, 'days').toDate(),
+            application_ends: moment().subtract(9, 'days').toDate(),
+            starts: moment().subtract(8, 'days').toDate(),
+            ends: moment().subtract(7, 'days').toDate(),
+            is_european_event: true,
+        });
+        await generator.createEvent({
+            status: 'published',
+            organizing_bodies: [{ body_id: 1, body_name: 'blabla' }],
+            application_starts: moment().subtract(5, 'days').toDate(),
+            application_ends: moment().subtract(4, 'days').toDate(),
+            starts: moment().subtract(3, 'days').toDate(),
+            ends: moment().subtract(2, 'days').toDate(),
+            is_european_event: false,
+        });
+
+        const res = await request({
+            uri: '/recents',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].latest_event).toEqual(mostRecentEuropeanEvent.ends.toISOString());
     });
 });

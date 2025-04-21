@@ -202,8 +202,7 @@ describe('Events creation', () => {
         expect(res.body.data.status).not.toEqual('published');
     });
 
-    // TODO: Update this test to work with the new validation of in person events
-    it.skip('should return validation errors on malformed / POST', async () => {
+    it('should return validation errors on malformed / POST', async () => {
         const res = await request({
             uri: '/',
             headers: { 'X-Auth-Token': 'foobar' },
@@ -217,6 +216,7 @@ describe('Events creation', () => {
                 fee: -150,
                 meals_per_day: 5,
                 optional_fee: 'string',
+                accommodation_type: 3
             }
         });
 
@@ -231,7 +231,7 @@ describe('Events creation', () => {
         expect(res.body.errors).toHaveProperty('application_starts');
         expect(res.body.errors).toHaveProperty('optional_fee');
         expect(res.body.errors).toHaveProperty('meals_per_day');
-        expect(res.body.errors).toHaveProperty('accommodation_type');
+        expect(res.body.errors).toHaveProperty('everything_set_for_in_person_events');
     });
 
     it('should return 422 if the locations is not an array', async () => {
@@ -779,7 +779,7 @@ describe('Events creation', () => {
     });
 
     it('should return 422 if fee is not a number', async () => {
-        const event = generator.generateEvent({ fee: '5' });
+        const event = generator.generateEvent({ fee: 'blabla' });
         event.body_id = user.bodies[0].id;
 
         const res = await request({
@@ -811,7 +811,7 @@ describe('Events creation', () => {
     });
 
     it('should return 422 if meals per day is not a number', async () => {
-        const event = generator.generateEvent({ meals_per_day: '2' });
+        const event = generator.generateEvent({ meals_per_day: 'blabla' });
         event.body_id = user.bodies[0].id;
 
         const res = await request({
@@ -826,7 +826,7 @@ describe('Events creation', () => {
         expect(res.body).toHaveProperty('errors');
     });
 
-    it('should return 422 if meals per day is not negative', async () => {
+    it('should return 422 if meals per day is negative', async () => {
         const event = generator.generateEvent({ meals_per_day: -1 });
         event.body_id = user.bodies[0].id;
 
