@@ -2,6 +2,7 @@ const express = require('express');
 const router = require('express-promise-router');
 const bodyParser = require('body-parser');
 const boolParser = require('express-query-boolean');
+const cors = require('cors');
 
 const morgan = require('./morgan');
 const db = require('./sequelize');
@@ -46,6 +47,7 @@ const server = express();
 server.use(bodyParser.json());
 server.use(morgan);
 server.use(boolParser());
+server.use(cors());
 
 /* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
