@@ -1,3 +1,10 @@
+## [1.39.3](https://github.com/AEGEE/core/compare/1.39.2...1.39.3) (2025-07-27)
+
+
+### Bug Fixes
+
+* **server:** add cors ([#1090](https://github.com/AEGEE/core/issues/1090)) ([dc44019](https://github.com/AEGEE/core/commit/dc440192b0924726354dc0fb8c11cb7895a3115f))
+
 ## [1.39.2](https://github.com/AEGEE/core/compare/1.39.1...1.39.2) (2024-12-08)
 
 
