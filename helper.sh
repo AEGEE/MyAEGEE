@@ -232,8 +232,9 @@ if [[ "$#" -ge 1 ]]; then
     done
 
 else
-    echo "Too few parameters"; exit 1
-    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump|--docker} [-v]"; exit 1
+    echo "Too few parameters"
+    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump|--docker} [-v]"
+    exit 1
 fi
 
 # shellcheck disable=SC2004
