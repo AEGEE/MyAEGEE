@@ -155,18 +155,33 @@ exports.getStats = async (req, res) => {
         where: { event_id: req.event.id }
     });
 
-    statsObject.numbers = {
-        total: applications.length,
-        accepted: applications.filter((app) => helpers.filterObject(app, { cancelled: false, status: 'accepted' })).length,
-        rejected: applications.filter((app) => helpers.filterObject(app, { cancelled: false, status: 'rejected' })).length,
-        pending: applications.filter((app) => helpers.filterObject(app, { cancelled: false, status: 'pending' })).length,
-        waiting_list: applications.filter((app) => helpers.filterObject(app, { cancelled: false, status: 'waiting_list' })).length,
-        cancelled: applications.filter((app) => helpers.filterObject(app, { cancelled: true })).length,
-        confirmed: applications.filter((app) => helpers.filterObject(app, { confirmed: true })).length,
-        registered: applications.filter((app) => helpers.filterObject(app, { registered: true })).length,
-        attended: applications.filter((app) => helpers.filterObject(app, { attended: true })).length,
-        departed: applications.filter((app) => helpers.filterObject(app, { departed: true })).length
-    };
+    if (!req.permissions.change_status && moment().isBefore(moment(req.event.participants_list_publish_deadline))) {
+        statsObject.numbers = {
+            total: applications.length,
+            accepted: 0,
+            rejected: 0,
+            pending: applications.length - applications.filter((app) => helpers.filterObject(app, { cancelled: true })).length,
+            waiting_list: 0,
+            cancelled: applications.filter((app) => helpers.filterObject(app, { cancelled: true })).length,
+            confirmed: 0,
+            registered: 0,
+            attended: 0,
+            departed: 0
+        };
+    } else {
+        statsObject.numbers = {
+            total: applications.length,
+            accepted: applications.filter((app) => helpers.filterObject(app, { cancelled: false, status: 'accepted' })).length,
+            rejected: applications.filter((app) => helpers.filterObject(app, { cancelled: false, status: 'rejected' })).length,
+            pending: applications.filter((app) => helpers.filterObject(app, { cancelled: false, status: 'pending' })).length,
+            waiting_list: applications.filter((app) => helpers.filterObject(app, { cancelled: false, status: 'waiting_list' })).length,
+            cancelled: applications.filter((app) => helpers.filterObject(app, { cancelled: true })).length,
+            confirmed: applications.filter((app) => helpers.filterObject(app, { confirmed: true })).length,
+            registered: applications.filter((app) => helpers.filterObject(app, { registered: true })).length,
+            attended: applications.filter((app) => helpers.filterObject(app, { attended: true })).length,
+            departed: applications.filter((app) => helpers.filterObject(app, { departed: true })).length
+        };
+    }
 
     // Filtering out cancelled applications.
     const notCancelledApplications = applications.filter((app) => !app.cancelled);
@@ -273,6 +288,10 @@ exports.getApplication = async (req, res) => {
 
     const application = req.application.toJSON();
     application.permissions = req.permissions;
+
+    if (!req.permissions.change_status && moment().isBefore(moment(req.event.participants_list_publish_deadline))) {
+        application.status = 'pending';
+    }
 
     return res.json({
         success: true,

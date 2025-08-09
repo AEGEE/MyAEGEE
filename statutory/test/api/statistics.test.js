@@ -305,7 +305,14 @@ describe('Statistics testing', () => {
         expect(res.body.data.by_number_of_events_visited[2].type).toEqual(3);
     });
 
-    test('should calculate numbers properly', async () => {
+    test('should calculate numbers properly if participant list publication is in the past', async () => {
+        event = await generator.createEvent({
+            application_period_starts: moment().subtract(7, 'months').toDate(),
+            application_period_ends: moment().subtract(6, 'months').toDate(),
+            board_approve_deadline: moment().subtract(5, 'months').toDate(),
+            participants_list_publish_deadline: moment().subtract(4, 'months').toDate()
+        });
+
         await generator.createApplication({ user_id: 1, status: 'pending' }, event);
         await generator.createApplication({ user_id: 2, status: 'rejected' }, event);
         await generator.createApplication({ user_id: 3, status: 'accepted' }, event);
@@ -338,6 +345,39 @@ describe('Statistics testing', () => {
         expect(res.body.data.numbers.attended).toEqual(3);
         expect(res.body.data.numbers.registered).toEqual(2);
         expect(res.body.data.numbers.departed).toEqual(1);
+        expect(res.body.data.numbers.cancelled).toEqual(3);
+    });
+
+    test('should calculate numbers properly if participant list publication is in the future', async () => {
+        await generator.createApplication({ user_id: 1, status: 'pending' }, event);
+        await generator.createApplication({ user_id: 2, status: 'rejected' }, event);
+        await generator.createApplication({ user_id: 3, status: 'accepted' }, event);
+        await generator.createApplication({ user_id: 4, status: 'accepted' }, event);
+
+        // cancelled aplications shouldn't count
+        await generator.createApplication({ user_id: 8, status: 'pending', cancelled: true }, event);
+        await generator.createApplication({ user_id: 9, status: 'rejected', cancelled: true }, event);
+        await generator.createApplication({ user_id: 10, status: 'accepted', cancelled: true }, event);
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/stats',
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+
+        expect(res.body.data.numbers.total).toEqual(7);
+        expect(res.body.data.numbers.rejected).toEqual(0);
+        expect(res.body.data.numbers.pending).toEqual(4);
+        expect(res.body.data.numbers.accepted).toEqual(0);
+        expect(res.body.data.numbers.confirmed).toEqual(0);
+        expect(res.body.data.numbers.attended).toEqual(0);
+        expect(res.body.data.numbers.registered).toEqual(0);
+        expect(res.body.data.numbers.departed).toEqual(0);
         expect(res.body.data.numbers.cancelled).toEqual(3);
     });
 });

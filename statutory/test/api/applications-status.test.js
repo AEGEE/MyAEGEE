@@ -130,4 +130,31 @@ describe('Applications status', () => {
         expect(res.body.data.id).toEqual(application.id);
         expect(res.body.data.status).toEqual('waiting_list');
     });
+
+    test('should return pending if participant list publication date is in the future', async () => {
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({ user_id: regularUser.id }, event);
+
+        await request({
+            uri: '/events/' + event.id + '/applications/' + application.id + '/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { status: 'accepted' }
+        });
+
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': 'blablabla' }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).not.toHaveProperty('errors');
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.id).toEqual(application.id);
+        expect(res.body.data.status).toEqual('pending');
+    });
 });
