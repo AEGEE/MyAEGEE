@@ -1,3 +1,10 @@
+## [1.14.3](https://github.com/AEGEE/statutory/compare/1.14.2...1.14.3) (2025-08-09)
+
+
+### Bug Fixes
+
+* **applications:** hide application status if before participant list publish date ([#1333](https://github.com/AEGEE/statutory/issues/1333)) ([062a3ab](https://github.com/AEGEE/statutory/commit/062a3ab9cb20ad8bd959be4d8b75b290380e4774))
+
 ## [1.14.2](https://github.com/AEGEE/statutory/compare/1.14.1...1.14.2) (2025-03-12)
 
 
