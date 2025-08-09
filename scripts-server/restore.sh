@@ -42,7 +42,7 @@ tar --force-local --one-top-level="${tmp_folder}" -xvf "${input_file}"
 cd "${tmp_folder}" || exit 4
 
 
-for name in ${postgres_hosts[*]} #FOREACH because the backup folder could have more dbs
+for name in "${postgres_hosts[*]}" #FOREACH because the backup folder could have more dbs
 do
   error=0
   echo "Restoring postgres host ${name}"
