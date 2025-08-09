@@ -1,18 +1,18 @@
 orbs:
-  shellcheck: circleci/shellcheck@3.2.0
-  docker: circleci/docker@2.7.1
+  shellcheck: circleci/shellcheck@3.4.0
+  docker: circleci/docker@2.8.2
 version: 2.1
 jobs:
   yamllint:
     docker:
-      - image: cimg/python:3.12.6
+      - image: cimg/python:3.13.6
     steps:
       - checkout
       - run: pip install yamllint
       - run: yamllint -d .yamllint.yml .
   pylint:
     docker:
-      - image: cimg/python:3.12.6
+      - image: cimg/python:3.13.6
     steps:
       - checkout
       - run: pip install pylint
@@ -20,14 +20,13 @@ jobs:
       - run: pylint scripts-server --disable C0114,C0116,W0511,E0401
   shellcheck:
     docker:
-      - image: cimg/base:2024.09
+      - image: cimg/base:2025.08
     steps:
       - checkout
       - shellcheck/install
       - shellcheck/check:
           exclude: SC2002,SC2086,SC2126,SC2154
 workflows:
-  version: 2
   lint-yaml:
     jobs:
       - yamllint
