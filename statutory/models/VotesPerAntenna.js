@@ -120,7 +120,7 @@ VotesPerAntenna.recalculateVotesForAntenna = async function recalculateVotesForA
 };
 
 // Recalculates how many votes each delegate has for this event based on
-// how much votes this antenna has.
+// how many votes this antenna has.
 // Should be called in any place where the pax type/order or amount of votes has changed, so:
 // - updating/setting/unsetting pax type/order
 // - updating application's body (need to recalculate for both old and new body)
@@ -195,7 +195,7 @@ VotesPerAntenna.recalculateVotesForDelegates = async function recalculateVotesFo
         }
 
         // Okay, so here's some hard math going on.
-        // First, we calculate how much votes should go for a delegate.
+        // First, we calculate how many votes should go for a delegate.
         // But there can be cases when you cannot divide votes without a remainder.
         // For example, the antenna has 10 votes and 3 delegates.
         // In this approach, the delegate (1) will receive 4 votes

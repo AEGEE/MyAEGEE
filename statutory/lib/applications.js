@@ -483,7 +483,7 @@ exports.setApplicationBoard = async (req, res) => {
     if (helpers.isDefined(req.body.board_comment)) toUpdate.board_comment = req.body.board_comment;
 
     // Well, this is tricky.
-    // Simplest way possible: executing it, then checking how much people
+    // Simplest way possible: executing it, then checking how many people
     // from this body with this pax type we have and matching it
     // against the limit for this body. If something goes wrong or there's a
     // calculation error, rollback everything. Advantages: don't need to worry

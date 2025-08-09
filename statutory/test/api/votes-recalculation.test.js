@@ -295,7 +295,7 @@ describe('Votes per antenna/delegate recalculation', () => {
                 // Recalculating the votes.
                 await VotesPerAntenna.recalculateVotesForAntenna(regularUser.bodies[0], event);
 
-                // And checking how much do we have.
+                // And checking how many do we have.
                 const votes = await VotesPerDelegate.findAll({
                     where: { event_id: event.id, body_id: regularUser.bodies[0].id, type: 'on-event' },
                     order: [['user_id', 'ASC']] // Well they have the same user_id as pax_order.

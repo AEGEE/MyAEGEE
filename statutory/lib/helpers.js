@@ -50,7 +50,7 @@ exports.checkApplicationBoardviewValidity = async ({ event, application, body, t
     // Fetching pax limits for this body for this event.
     const limit = await PaxLimit.fetchOrUseDefaultForBody(body, event.type);
 
-    // Second, get from database how much people we have for this event
+    // Second, get from database how many people we have for this event
     // from this body with this pax type.
     // If we got the validation error, it'll fail the transaction.
     // Therefore, all the data here is valid.
