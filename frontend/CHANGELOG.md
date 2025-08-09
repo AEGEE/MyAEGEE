@@ -1,3 +1,10 @@
+## [1.44.4](https://github.com/AEGEE/frontend/compare/1.44.3...1.44.4) (2025-08-09)
+
+
+### Bug Fixes
+
+* **core:** change view members body permission ([#2367](https://github.com/AEGEE/frontend/issues/2367)) ([17c47e0](https://github.com/AEGEE/frontend/commit/17c47e06de2dc0f668d9bbd66088320d75debe20))
+
 ## [1.44.3](https://github.com/AEGEE/frontend/compare/1.44.2...1.44.3) (2025-08-09)
 
 
