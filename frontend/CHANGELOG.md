@@ -1,3 +1,10 @@
+## [1.44.6](https://github.com/AEGEE/frontend/compare/1.44.5...1.44.6) (2025-08-09)
+
+
+### Bug Fixes
+
+* improve grammar when using 'how many' ([#2369](https://github.com/AEGEE/frontend/issues/2369)) ([bf794a7](https://github.com/AEGEE/frontend/commit/bf794a7235fdd46cb931e2d8ac908a110a45593c))
+
 ## [1.44.5](https://github.com/AEGEE/frontend/compare/1.44.4...1.44.5) (2025-08-09)
 
 
