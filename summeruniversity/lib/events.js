@@ -193,12 +193,13 @@ exports.addEvent = async (req, res) => {
         // Creating the event in a transaction, so if mail sending fails, the update would be reverted.
         await event.save({ transaction: t });
 
-        event.organizers = await Promise.all(event.organizers.map((organizer) =>
-            core.fetchUser(organizer, req.headers['x-auth-token'])));
+        const adminToken = await core.getAdminToken();
+        const organizers = await Promise.all(event.organizers.map((organizer) =>
+            core.fetchUser(organizer, adminToken)));
 
         // Sending the mail to a user.
         await mailer.sendMail({
-            to: event.organizers.map((organizer) => organizer.notification_email),
+            to: organizers.map((organizer) => organizer.notification_email),
             subject: 'The event was created',
             template: 'summeruniversity_event_created.html',
             parameters: {
@@ -302,8 +303,9 @@ exports.editEvent = async (req, res) => {
         // Updating the event in a transaction, so if mail sending fails, the update would be reverted.
         await event.update(data, { transaction: t });
 
+        const adminToken = await core.getAdminToken();
         data.organizers = await Promise.all(data.organizers.map((organizer) =>
-            core.fetchUser(organizer, req.headers['x-auth-token'])));
+            core.fetchUser(organizer, adminToken)));
 
         // Sending the mail to a user.
         await mailer.sendMail({
@@ -356,8 +358,9 @@ exports.setApprovalStatus = async (req, res) => {
 
     await sequelize.transaction(async (t) => {
         const event = req.event;
+        const adminToken = await core.getAdminToken();
         event.organizers = await Promise.all(event.organizers.map((organizer) =>
-            core.fetchUser(organizer, req.headers['x-auth-token'])));
+            core.fetchUser(organizer, adminToken)));
 
         await req.event.update({ status: req.body.status }, { transaction: t });
 

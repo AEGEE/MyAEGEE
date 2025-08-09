@@ -71,8 +71,9 @@ exports.createApplication = async (req, res) => {
             }
         });
 
+        const adminToken = await core.getAdminToken();
         req.event.organizers = await Promise.all(req.event.organizers.map((organizer) =>
-            core.fetchUser(organizer, req.headers['x-auth-token'])));
+            core.fetchUser(organizer, adminToken)));
 
         // Sending the mail to the organizers
         await mailer.sendMail({
@@ -150,8 +151,9 @@ exports.updateApplication = async (req, res) => {
             }
         });
 
+        const adminToken = await core.getAdminToken();
         req.event.organizers = await Promise.all(req.event.organizers.map((organizer) =>
-            core.fetchUser(organizer, req.headers['x-auth-token'])));
+            core.fetchUser(organizer, adminToken)));
 
         // Sending the mail to the organizers
         await mailer.sendMail({
@@ -255,7 +257,8 @@ exports.setApplicationStatus = async (req, res) => {
         // Updating application in a transaction, so if mail sending fails, the update would be reverted.
         await req.application.update({ status: req.body.status }, { transaction: t });
 
-        const notificationEmail = (await core.fetchUser(req.application, req.headers['x-auth-token'])).notification_email;
+        const adminToken = await core.getAdminToken();
+        const notificationEmail = (await core.fetchUser(req.application, adminToken)).notification_email;
 
         // Sending the mail to a user.
         await mailer.sendMail({

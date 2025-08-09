@@ -150,9 +150,32 @@ const getBodyUsersForPermission = async (permission, bodyId) => {
     return membersResponse.data;
 };
 
+const getAdminToken = async () => {
+    // Getting access and refresh token using admin credentials.
+    const authRequest = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/login',
+        method: 'POST',
+        body: {
+            username: config.core.user.login,
+            password: config.core.user.password
+        }
+    });
+
+    if (typeof authRequest !== 'object') {
+        throw new Error('Malformed response when fetching auth request: ' + authRequest);
+    }
+
+    if (!authRequest.success) {
+        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
+    }
+
+    return authRequest.access_token;
+};
+
 module.exports = {
     fetchUser,
     fetchApplicationUser,
     fetchBody,
-    getBodyUsersForPermission
+    getBodyUsersForPermission,
+    getAdminToken
 };
