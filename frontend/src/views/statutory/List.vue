@@ -37,7 +37,7 @@
             <div class="content">
               <span v-html="$options.filters.markdown(event.description)" />
               <ul>
-                <li><strong>Type:</strong> {{ event.type }} </li>
+                <li><strong>Type:</strong> {{ constants.STATUTORY_TYPES_NAMES[event.type] }} </li>
                 <li><strong>From:</strong> {{ event.starts | date }} </li>
                 <li><strong>To:</strong> {{ event.ends | date }} </li>
                 <li>
@@ -95,11 +95,13 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import constants from '../../constants.js'
 
 export default {
   name: 'StatutoryList',
   data () {
     return {
+      constants,
       events: [],
       isLoading: false,
       query: '',

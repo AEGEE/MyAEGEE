@@ -196,9 +196,7 @@
                 </tr>
                 <tr>
                   <th>Type</th>
-                  <td v-if="event.type === 'agora'">Agora</td>
-                  <td v-if="event.type === 'epm'">EPM</td>
-                  <td v-if="event.type === 'spm'">SPM</td>
+                  <td>{{ constants.STATUTORY_TYPES_NAMES[event.type] }}</td>
                 </tr>
                 <tr>
                   <th>Starts</th>
@@ -328,6 +326,7 @@ import { MglMap, MglMarker, MglPopup, MglNavigationControl } from 'vue-mapbox'
 import moment from 'moment'
 import credentials from '../../credentials'
 import PictureModal from './PictureModal.vue'
+import constants from '../../constants.js'
 
 export default {
   components: {
@@ -339,6 +338,7 @@ export default {
   name: 'SingleStatutory',
   data () {
     return {
+      constants,
       event: {
         name: '',
         description: '',
