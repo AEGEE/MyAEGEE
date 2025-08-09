@@ -58,6 +58,7 @@ async function createEvents() {
         accommodation_type: 'none',
         budget: 'https://online-event.example.com',
         programme: 'https://online-event.example.com',
+        method: 'in person'
     });
 
     events.publishedEventWithoutFee = await Event.create({
@@ -159,6 +160,22 @@ async function createEvents() {
         accommodation_type: 'none',
         budget: 'https://online-event.example.com',
         programme: 'https://online-event.example.com',
+    });
+
+    events.publishedOnlineEvent = await Event.create({
+        name: 'Online Event',
+        url: 'published-online-event',
+        description: 'This is a published online event.',
+        application_starts: new Date(),
+        application_ends: moment().add(1, 'week').toDate(),
+        starts: moment().add(2, 'weeks').toDate(),
+        ends: moment().add(2, 'weeks').add(1, 'hour').toDate(),
+        organizing_bodies: [{ body_id: 1, body_name: 'AEGEE-Antenna' }],
+        type: 'conference',
+        status: 'published',
+        organizers: [{ user_id: 1, first_name: 'Admin', last_name: 'Admin' }],
+        programme: 'https://online-event.example.com',
+        method: 'online'
     });
 
     return events;
