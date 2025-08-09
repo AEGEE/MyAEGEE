@@ -18,6 +18,14 @@ jobs:
       - run: pip install pylint
       # FIXME: enable W0511 and E0401 as well
       - run: pylint scripts-server --disable C0114,C0116,W0511,E0401
+  hadolint:
+    docker:
+      - image: hadolint/hadolint:latest-alpine
+    steps:
+      - checkout
+      - run:
+          name: Lint Dockerfiles
+          command: hadolint $(find . -name '*Dockerfile*')
   shellcheck:
     docker:
       - image: cimg/base:2025.08
@@ -38,5 +46,4 @@ workflows:
       - pylint
   lint-dockerfile:
     jobs:
-      - docker/hadolint:
-          dockerfiles: ./docker
+      - hadolint
