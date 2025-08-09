@@ -1,3 +1,10 @@
+## [1.14.4](https://github.com/AEGEE/statutory/compare/1.14.3...1.14.4) (2025-08-09)
+
+
+### Bug Fixes
+
+* **candidates:** rename conferences to European Events ([#1334](https://github.com/AEGEE/statutory/issues/1334)) ([301f2a9](https://github.com/AEGEE/statutory/commit/301f2a9b6d470248a6ca116992f41bec1ee10cbe))
+
 ## [1.14.3](https://github.com/AEGEE/statutory/compare/1.14.2...1.14.3) (2025-08-09)
 
 
