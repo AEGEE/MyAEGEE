@@ -143,7 +143,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Attended AEGEE conferences</label>
+          <label class="label">Attended European Events</label>
           <div class="control">
             <textarea class="textarea" required v-model="candidate.attended_conferences" />
           </div>

@@ -74,7 +74,7 @@
             </td>
           </tr>
           <tr>
-            <th>Attended AEGEE conferences</th>
+            <th>Attended European Events</th>
             <td>
               <div class="content" v-html="$options.filters.markdown(candidate.attended_conferences)" />
             </td>
