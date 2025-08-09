@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/AEGEE/summeruniversity/compare/1.6.1...1.6.2) (2025-08-09)
+
+
+### Bug Fixes
+
+* use core login instead of user login ([#854](https://github.com/AEGEE/summeruniversity/issues/854)) ([28ed818](https://github.com/AEGEE/summeruniversity/commit/28ed81884e065f01028cd04aaace83c64e12cbab))
+
 ## [1.6.1](https://github.com/AEGEE/summeruniversity/compare/1.6.0...1.6.1) (2025-03-26)
 
 
