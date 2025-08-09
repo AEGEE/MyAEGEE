@@ -171,7 +171,7 @@ module.exports = {
         local_experience: 'Local experience',
         attended_agorae: 'Number of Agorae visited',
         attended_epms: 'Number of EPMs visited',
-        attended_conferences: 'Attended AEGEE conferences',
+        attended_conferences: 'Attended European Events',
         external_experience: 'External experience',
         motivation: 'Motivation',
         program: 'Program',

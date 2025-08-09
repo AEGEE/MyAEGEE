@@ -167,7 +167,7 @@ const Candidate = sequelize.define('candidate', {
         allowNull: false,
         defaultValue: '',
         validate: {
-            notEmpty: { msg: 'Please fill in your attended AEGEE conferences.' },
+            notEmpty: { msg: 'Please fill in your attended European Events.' },
         }
     },
     external_experience: {
