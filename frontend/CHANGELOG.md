@@ -1,3 +1,10 @@
+## [1.44.3](https://github.com/AEGEE/frontend/compare/1.44.2...1.44.3) (2025-08-09)
+
+
+### Bug Fixes
+
+* **statutory:** update capitalisation of event types ([08948d3](https://github.com/AEGEE/frontend/commit/08948d3cfb4948efe9ccfb4d67c4f9f7ed107e85))
+
 ## [1.44.2](https://github.com/AEGEE/frontend/compare/1.44.1...1.44.2) (2025-03-22)
 
 
