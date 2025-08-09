@@ -42,7 +42,7 @@ tar --force-local --one-top-level="${tmp_folder}" -xvf "${input_file}"
 cd "${tmp_folder}" || exit 4
 
 
-for name in ${postgres_hosts[*]} #FOREACH because the backup folder could have more dbs
+for name in "${postgres_hosts[@]}" #FOREACH because the backup folder could have more dbs
 do
   error=0
   echo "Restoring postgres host ${name}"
@@ -81,7 +81,7 @@ done
 # Restore a volume using rsync
 # That way only actual necessary changes should be copied over and not the entire directory
 # TODO change this to use the clone_volume utility instead, if they do the same thing
-for vol in ${volumes[*]}
+for vol in "${volumes[@]}"
 do
   error=0
   echo "Restoring volume ${vol}"

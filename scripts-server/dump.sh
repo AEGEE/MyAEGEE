@@ -59,7 +59,7 @@ export $(grep -v '^#' ${MAIN_DIR}/.env | xargs -d '\n')
 
 # Loop through postgres host
 # For each host, spawn a container which will pull all information with pg_dumpall
-for host in ${postgres_hosts[*]}; do
+for host in "${postgres_hosts[@]}"; do
   file="${tmp_dir}/postgres-${host}"
   docker run --rm --name "${host}-backupper"  -t --network="OMS" -e "PGPASSWORD=${PW_POSTGRES:-5ecr3t}" "postgres:${POSTGRES_VERSION}" pg_dumpall -c -U postgres -h "${host}" > "${file}"
 
