@@ -1,3 +1,10 @@
+## [1.44.5](https://github.com/AEGEE/frontend/compare/1.44.4...1.44.5) (2025-08-09)
+
+
+### Bug Fixes
+
+* **statutory:** rename conferences to European Events ([#2368](https://github.com/AEGEE/frontend/issues/2368)) ([948630d](https://github.com/AEGEE/frontend/commit/948630d28e77cc85faad93264812277c10f0e97d))
+
 ## [1.44.4](https://github.com/AEGEE/frontend/compare/1.44.3...1.44.4) (2025-08-09)
 
 
