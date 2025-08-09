@@ -274,7 +274,6 @@ export default {
       permissions: [],
       can: {
         viewMembers: false,
-        viewMembersGlobal: false,
         viewBoards: false,
         viewJoinRequests: false,
         viewCampaigns: false,
@@ -460,8 +459,7 @@ export default {
 
         return this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/my_permissions').then((permissionsResponse) => {
           this.permissions = permissionsResponse.data.data
-          this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view:member'))
-          this.can.viewMembersGlobal = this.permissions.some(permission => permission.combined.endsWith('global:view:member'))
+          this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view_members:body'))
           this.can.viewBoards = this.permissions.some(permission => permission.combined.endsWith('view:board')) && ['contact', 'contact antenna', 'antenna'].includes(this.body.type)
           this.can.viewJoinRequests = this.permissions.some(permission => permission.combined.endsWith('view:join_request'))
           this.can.viewCampaigns = this.permissions.some(permission => permission.combined.endsWith('view:campaign'))
