@@ -4,7 +4,7 @@
       <article class="tile is-child">
         <h4 class="title">Manage participants limits for a statutory event</h4>
 
-        <p>Here you can specify how much envoys, delegates, visitors and observers can go to a statutory event for every body.</p>
+        <p>Here you can specify how many envoys, delegates, visitors and observers can go to a statutory event for every body.</p>
         <p>When editing, type the empty value for unlimited.</p>
         <p>The limits that were set in a custom way have grey background. Others use the default limits.</p>
         <br />

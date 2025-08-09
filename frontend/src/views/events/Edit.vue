@@ -375,7 +375,7 @@
             <ul>
               <li><b>string</b> - short string value (like "Meals type")</li>
               <li><b>text</b> - long string value (like "Why I'm a good participant")</li>
-              <li><b>number</b> - a number (like "How much events in AEGEE I've visited")</li>
+              <li><b>number</b> - a number (like "How many events in AEGEE I've visited")</li>
               <li><b>select</b> - predefined set of values (like "Vegan", "Vegetarian" and "Meat-eater" for meals type)</li>
               <li><b>checkbox</b> - a yes/no question (like "Do I need a visa?").
                 Combine it with "required" field to only allow this to be checked in order to to apply (like "I give my consent to share my data with third parties")
