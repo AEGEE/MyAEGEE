@@ -441,7 +441,8 @@ export default {
 
         for (const body of this.bodies) {
           const assignment = netcomAssignment.find(x => x.body_id === body.id)
-          this.$set(body, 'netcom', assignment !== undefined ? this.netcommies.find(x => x.user_id === assignment.netcom_id) : this.netcommies[this.netcommies.length - 1])
+          const netcom = this.netcommies.find(x => x.user_id === assignment?.netcom_id)
+          this.$set(body, 'netcom', assignment !== undefined && netcom !== undefined ? netcom : this.netcommies[this.netcommies.length - 1])
         }
       }).catch((err) => {
         this.$root.showError('Could not fetch NetCom assignment', err)
