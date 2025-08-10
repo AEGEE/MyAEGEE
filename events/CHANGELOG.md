@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/AEGEE/events/compare/1.6.1...1.7.0) (2025-08-10)
+
+
+### Features
+
+* **events:** add online events without application process ([#1246](https://github.com/AEGEE/events/issues/1246)) ([0cf86f0](https://github.com/AEGEE/events/commit/0cf86f0addde78910e7fe8b287202f2cce9b3581))
+
 ## [1.6.1](https://github.com/AEGEE/events/compare/1.6.0...1.6.1) (2025-04-21)
 
 
