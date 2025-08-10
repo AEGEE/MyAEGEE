@@ -1,3 +1,10 @@
+## [1.44.7](https://github.com/AEGEE/frontend/compare/1.44.6...1.44.7) (2025-08-10)
+
+
+### Bug Fixes
+
+* **network:** show fallback NetCom in AC check ([#2372](https://github.com/AEGEE/frontend/issues/2372)) ([37b0466](https://github.com/AEGEE/frontend/commit/37b0466174269fa8fba5485ad9ee78abcd275c4d))
+
 ## [1.44.6](https://github.com/AEGEE/frontend/compare/1.44.5...1.44.6) (2025-08-09)
 
 
