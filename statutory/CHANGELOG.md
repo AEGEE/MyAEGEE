@@ -1,3 +1,10 @@
+## [1.14.5](https://github.com/AEGEE/statutory/compare/1.14.4...1.14.5) (2025-08-10)
+
+
+### Bug Fixes
+
+* **applications:** only allow manage permission to edit accepted applications ([#1338](https://github.com/AEGEE/statutory/issues/1338)) ([2312002](https://github.com/AEGEE/statutory/commit/2312002ec0a02e5d757d124c835c4f45e689ec27))
+
 ## [1.14.4](https://github.com/AEGEE/statutory/compare/1.14.3...1.14.4) (2025-08-09)
 
 
