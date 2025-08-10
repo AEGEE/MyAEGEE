@@ -74,7 +74,67 @@ describe('Applications editing', () => {
         expect(res.body).toHaveProperty('message');
     });
 
-    test('should succeed for use who has permissions', async () => {
+    test('should return 403 for current user with an accepted application', async () => {
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
+
+        const event = await generator.createEvent();
+        const application = await generator.createApplication({}, event);
+
+        await request({
+            uri: '/events/' + event.id + '/applications/' + application.id + '/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { status: 'accepted' }
+        });
+
+        tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { body_id: regularUser.bodies[0].id }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should return 403 for user with apply permissions with an accepted application', async () => {
+        const event = await generator.createEvent({ type: 'agora' });
+        const application = await generator.createApplication({}, event);
+
+        await request({
+            uri: '/events/' + event.id + '/applications/' + application.id + '/status',
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { status: 'accepted' }
+        });
+
+        tk.travel(moment(event.application_period_ends).add(5, 'minutes').toDate());
+
+        mock.mockAll({ mainPermissions: { applyPermissions: true } });
+
+        const res = await request({
+            uri: '/events/' + event.id + '/applications/' + application.id,
+            method: 'PUT',
+            headers: { 'X-Auth-Token': 'blablabla' },
+            body: { body_id: regularUser.bodies[0].id }
+        });
+
+        tk.reset();
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.success).toEqual(false);
+        expect(res.body).not.toHaveProperty('data');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test('should succeed for user who has permissions', async () => {
         const event = await generator.createEvent();
         const application = await generator.createApplication({}, event);
 

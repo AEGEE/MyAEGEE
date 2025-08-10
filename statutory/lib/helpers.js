@@ -395,8 +395,8 @@ exports.getApplicationPermissions = ({ permissions, corePermissions, event, mine
     permissions.see_application = mine || canManage || permissions.see_boardview[application.body_id];
     permissions.see_application_incoming = isIncoming;
 
-    // User can edit application if it's his application and it's within the deadline, or if he has the permission.
-    permissions.edit_application = (mine && event.can_apply) || canManage || canApply;
+    // User can edit application if it's his application and it's within the deadline and it's not accepted yet, or if he has the permission.
+    permissions.edit_application = (mine && event.can_apply && application.status !== 'accepted') || canManage || (canApply && application.status !== 'accepted');
 
     // For cancellation, the same.
     permissions.set_application_cancelled = (mine && event.can_apply) || canManage;
