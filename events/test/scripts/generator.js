@@ -40,6 +40,7 @@ exports.generateEvent = (options = {}) => {
 
     if (notSet(options.method)) options.method = 'in person';
     if (notSet(options.is_european_event)) options.is_european_event = true;
+    if (notSet(options.has_applications)) options.has_applications = true;
 
     return options;
 };

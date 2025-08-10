@@ -38,6 +38,7 @@ module.exports = {
         'optional_fee',
         'link_info_travel_country',
         'method',
+        'has_applications',
         'created_at',
         'updated_at'
     ],

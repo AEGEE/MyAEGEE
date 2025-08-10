@@ -103,6 +103,54 @@ describe('Events creation', () => {
         expect(res.body.data).toHaveProperty('questions');
         expect(res.body.data).toHaveProperty('organizers');
         expect(res.body.data).toHaveProperty('method');
+        expect(res.body.data).toHaveProperty('has_applications');
+
+        // Check auto-filled fields
+        expect(res.body.data.status).toEqual('draft');
+        expect(res.body.data.application_status).toEqual('closed');
+        expect(res.body.data.questions.length).toEqual(0);
+        expect(res.body.data.is_european_event).toEqual(false);
+        expect(res.body.data.has_applications).toEqual(true);
+    });
+
+    it('should create a new online event without application process on minimal sane / POST', async () => {
+        const res = await request({
+            uri: '/',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: {
+                name: 'Develop Yourself 4',
+                description: 'Test',
+                application_starts: '2017-12-03 15:00',
+                application_ends: '2017-12-05 15:00',
+                starts: '2017-12-11 15:00',
+                ends: '2017-12-14 12:00',
+                type: 'cultural',
+                organizing_bodies: [{ body_id: user.bodies[0].id }],
+                organizers: [{ user_id: user.id }],
+                method: 'online',
+                has_applications: false
+            }
+        });
+
+        expect(res.statusCode).toEqual(201);
+
+        expect(res.body.success).toEqual(true);
+        expect(res.body.data).toHaveProperty('id');
+        expect(res.body.data).toHaveProperty('name');
+        expect(res.body.data).toHaveProperty('application_starts');
+        expect(res.body.data).toHaveProperty('application_ends');
+        expect(res.body.data).toHaveProperty('starts');
+        expect(res.body.data).toHaveProperty('ends');
+        expect(res.body.data).toHaveProperty('application_status');
+        expect(res.body.data).toHaveProperty('status');
+        expect(res.body.data).toHaveProperty('type');
+        expect(res.body.data).toHaveProperty('organizing_bodies');
+        expect(res.body.data).toHaveProperty('description');
+        expect(res.body.data).toHaveProperty('questions');
+        expect(res.body.data).toHaveProperty('organizers');
+        expect(res.body.data).toHaveProperty('method');
+        expect(res.body.data).toHaveProperty('has_applications');
 
         // Check auto-filled fields
         expect(res.body.data.status).toEqual('draft');
@@ -193,13 +241,15 @@ describe('Events creation', () => {
                 organizing_bodies: [{ body_id: user.bodies[0].id }],
                 accommodation_type: 'camping',
                 meals_per_day: 2,
-                status: 'published'
+                status: 'published',
+                has_applications: false
             }
         });
 
         expect(res.statusCode).toEqual(201);
 
         expect(res.body.data.status).not.toEqual('published');
+        expect(res.body.data.has_applications).toEqual(true);
     });
 
     it('should return validation errors on malformed / POST', async () => {

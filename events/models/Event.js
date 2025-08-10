@@ -405,6 +405,14 @@ const Event = sequelize.define(
             validate: {
                 isBoolean
             }
+        },
+        has_applications: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+            validate: {
+                isBoolean
+            }
         }
     },
     {
@@ -464,6 +472,7 @@ Event.beforeValidate(async (event) => {
         if (event.fee === null || event.fee === undefined) event.fee = 0;
         if (event.meals_per_day === null || event.meals_per_day === undefined) event.meals_per_day = 0;
         if (event.accommodation_type === null || event.accommodation_type === undefined) event.accommodation_type = '';
+        event.has_applications = true;
     }
 });
 

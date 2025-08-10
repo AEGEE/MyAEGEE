@@ -41,6 +41,26 @@ describe('Events application creating', () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    it('should disallow application for online events without application process', async () => {
+        const event = await generator.createEvent({
+            status: 'published',
+            method: 'online',
+            has_applications: false
+        });
+
+        const res = await request({
+            uri: '/single/' + event.id + '/applications',
+            headers: { 'X-Auth-Token': 'foobar' },
+            method: 'POST',
+            body: { body_id: user.bodies[0].id }
+        });
+
+        expect(res.statusCode).toEqual(403);
+
+        expect(res.body.success).toEqual(false);
+        expect(res.body).toHaveProperty('message');
+    });
+
     it('should not add the application if the person is not a member of a body', async () => {
         const event = await generator.createEvent({
             application_starts: moment().subtract(1, 'weeks').toDate(),

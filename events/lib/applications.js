@@ -36,7 +36,7 @@ exports.getApplication = async (req, res) => {
 
 exports.createApplication = async (req, res) => {
     // Check for permission
-    if (!req.permissions.apply) {
+    if (!req.permissions.apply || !req.event.has_applications) {
         return errors.makeForbiddenError(res, 'You cannot apply to this event.');
     }
 
