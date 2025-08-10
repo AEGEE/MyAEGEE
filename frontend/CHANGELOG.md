@@ -1,3 +1,10 @@
+# [1.45.0](https://github.com/AEGEE/frontend/compare/1.44.7...1.45.0) (2025-08-10)
+
+
+### Features
+
+* **events:** add online events without application process ([#2374](https://github.com/AEGEE/frontend/issues/2374)) ([7d2520c](https://github.com/AEGEE/frontend/commit/7d2520c65fd0d60747ae6126733760dcd13def03))
+
 ## [1.44.7](https://github.com/AEGEE/frontend/compare/1.44.6...1.44.7) (2025-08-10)
 
 
