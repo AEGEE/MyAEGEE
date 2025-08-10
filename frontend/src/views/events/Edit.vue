@@ -92,6 +92,20 @@
           </div>
         </div>
 
+        <div class="notification is-info" v-if="!$route.params.id && isOnlineEvent">
+          Please select whether you want an application period for participants. <strong>It cannot be changed later.</strong>
+        </div>
+
+        <div class="field" v-if="!$route.params.id && isOnlineEvent">
+          <label class="label">Do you want people to apply for this event? <span class="has-text-danger">*</span></label>
+          <div class="select">
+            <select v-model="event.has_applications" @change="event.has_applications = event.has_applications === 'true' || event.has_applications === true">
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+        </div>
+
         <div class="notification is-info" v-if="!$route.params.id">
           Please select the event type wisely. <strong>It cannot be changed later.</strong>
         </div>
@@ -120,7 +134,8 @@
           </div>
           <p class="help is-danger" v-if="errors.fee">{{ errors.fee.join(', ') }}</p>
         </div>
-        <div class="field">
+
+        <div class="field" v-if="(isOnlineEvent && event.has_applications) || !isOnlineEvent">
           <label class="label">Max. participants</label>
           <div class="control">
             <input class="input" type="number" v-model="event.max_participants" min="0" @input="$root.nullifyIfEmpty(event, 'max_participants')" />
@@ -208,7 +223,7 @@
 
         <timezone-notification />
 
-        <div class="field">
+        <div class="field" v-if="(isOnlineEvent && event.has_applications) || !isOnlineEvent">
           <label class="label">Application period starts <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
@@ -221,7 +236,7 @@
           <p class="help is-danger" v-if="errors.application_starts">{{ errors.application_starts.join(', ') }}</p>
         </div>
 
-        <div class="field">
+        <div class="field" v-if="(isOnlineEvent && event.has_applications) || !isOnlineEvent">
           <label class="label">Application period ends <span class="has-text-danger">*</span></label>
           <div class="control">
             <flat-pickr
@@ -361,90 +376,92 @@
           </div>
         </div>
 
-        <div class="subtitle is-fullwidth has-text-centered">Questions</div>
-        <hr />
+        <template v-if="(isOnlineEvent && event.has_applications) || !isOnlineEvent">
+          <div class="subtitle is-fullwidth has-text-centered">Questions</div>
+          <hr />
 
-        <div class="notification is-info">
-          <div class="content">
-            <p>
-              Keep in mind that the only questions gathered from users by default are body name and application consent.
-              So, if you need some other fields in the application form (like motivation, visa fields etc.), you have to add them manually.
-            </p>
-            <p>Some fields (specifically, the email) are copied from the profile when applying, so you don't need to ask for it.</p>
-            <p>Here are the question types that can be used:</p>
-            <ul>
-              <li><b>string</b> - short string value (like "Meals type")</li>
-              <li><b>text</b> - long string value (like "Why I'm a good participant")</li>
-              <li><b>number</b> - a number (like "How many events in AEGEE I've visited")</li>
-              <li><b>select</b> - predefined set of values (like "Vegan", "Vegetarian" and "Meat-eater" for meals type)</li>
-              <li><b>checkbox</b> - a yes/no question (like "Do I need a visa?").
-                Combine it with "required" field to only allow this to be checked in order to to apply (like "I give my consent to share my data with third parties")
-              </li>
-            </ul>
+          <div class="notification is-info">
+            <div class="content">
+              <p>
+                Keep in mind that the only questions gathered from users by default are body name and application consent.
+                So, if you need some other fields in the application form (like motivation, visa fields etc.), you have to add them manually.
+              </p>
+              <p>Some fields (specifically, the email) are copied from the profile when applying, so you don't need to ask for it.</p>
+              <p>Here are the question types that can be used:</p>
+              <ul>
+                <li><b>string</b> - short string value (like "Meals type")</li>
+                <li><b>text</b> - long string value (like "Why I'm a good participant")</li>
+                <li><b>number</b> - a number (like "How many events in AEGEE I've visited")</li>
+                <li><b>select</b> - predefined set of values (like "Vegan", "Vegetarian" and "Meat-eater" for meals type)</li>
+                <li><b>checkbox</b> - a yes/no question (like "Do I need a visa?").
+                  Combine it with "required" field to only allow this to be checked in order to to apply (like "I give my consent to share my data with third parties")
+                </li>
+              </ul>
+            </div>
           </div>
-        </div>
 
-        <table class="table is-fullwidth is-narrowed">
-          <thead>
-            <tr>
-              <th>Description <span class="has-text-danger">*</span></th>
-              <th>Type <span class="has-text-danger">*</span></th>
-              <th>Required?</th>
-              <th>Values (for select)</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(question, index) in event.questions" v-bind:key="index">
-              <td>
-                <input class="input" type="text" required v-model="event.questions[index].description" />
-              </td>
-              <td>
-                <div class="select">
-                  <select v-model="event.questions[index].type" @change="nullifyOrDeleteSelect(index)">
-                    <option value="string">String</option>
-                    <option value="text">Text</option>
-                    <option value="number">Number</option>
-                    <option value="checkbox">Checkbox</option>
-                    <option value="select">Select</option>
-                  </select>
-                </div>
-              </td>
-              <td>
-                <input type="checkbox" v-model="event.questions[index].required" />
-              </td>
-              <td>
-                <input-tag
-                  v-if="event.questions[index].type === 'select'"
-                  v-model="event.questions[index].values"
-                  :before-adding="value => value.trim()" />
-              </td>
-              <td>
-                <a class="button is-danger" @click="deleteQuestion(index)">Delete question</a>
-              </td>
-            </tr>
-            <tr colspan="5" v-if="event.questions.length === 0">
-              <td>No questions are set.</td>
-            </tr>
-          </tbody>
-        </table>
+          <table class="table is-fullwidth is-narrowed">
+            <thead>
+              <tr>
+                <th>Description <span class="has-text-danger">*</span></th>
+                <th>Type <span class="has-text-danger">*</span></th>
+                <th>Required?</th>
+                <th>Values (for select)</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(question, index) in event.questions" v-bind:key="index">
+                <td>
+                  <input class="input" type="text" required v-model="event.questions[index].description" />
+                </td>
+                <td>
+                  <div class="select">
+                    <select v-model="event.questions[index].type" @change="nullifyOrDeleteSelect(index)">
+                      <option value="string">String</option>
+                      <option value="text">Text</option>
+                      <option value="number">Number</option>
+                      <option value="checkbox">Checkbox</option>
+                      <option value="select">Select</option>
+                    </select>
+                  </div>
+                </td>
+                <td>
+                  <input type="checkbox" v-model="event.questions[index].required" />
+                </td>
+                <td>
+                  <input-tag
+                    v-if="event.questions[index].type === 'select'"
+                    v-model="event.questions[index].values"
+                    :before-adding="value => value.trim()" />
+                </td>
+                <td>
+                  <a class="button is-danger" @click="deleteQuestion(index)">Delete question</a>
+                </td>
+              </tr>
+              <tr colspan="5" v-if="event.questions.length === 0">
+                <td>No questions are set.</td>
+              </tr>
+            </tbody>
+          </table>
 
-        <div class="notification is-danger" v-if="errors.questions">
-          <div class="content">
-            Could not create/edit event because of these reasons:
-            <ul v-if="errors.questions">
-              <li v-for="(error, index) in errors.questions" v-bind:key="index">{{ error }}</li>
-            </ul>
+          <div class="notification is-danger" v-if="errors.questions">
+            <div class="content">
+              Could not create/edit event because of these reasons:
+              <ul v-if="errors.questions">
+                <li v-for="(error, index) in errors.questions" v-bind:key="index">{{ error }}</li>
+              </ul>
+            </div>
           </div>
-        </div>
 
-        <div class="field">
-          <div class="control">
-            <a class="button is-primary" @click="addQuestion()">Add new question</a>
+          <div class="field">
+            <div class="control">
+              <a class="button is-primary" @click="addQuestion()">Add new question</a>
+            </div>
           </div>
-        </div>
 
-        <p class="help is-danger" v-if="errors.fee">{{ errors.questions.message }}</p>
+          <p class="help is-danger" v-if="errors.questions">{{ errors.questions.message }}</p>
+        </template>
 
         <template v-if="!isOnlineEvent">
           <div class="subtitle is-fullwidth has-text-centered">Locations</div>
@@ -614,6 +631,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { MglMap, MglMarker, MglNavigationControl } from 'vue-mapbox'
+import moment from 'moment'
 import constants from '../../constants'
 import credentials from '../../credentials'
 import TimezoneNotification from '../../components/notifications/TimezoneNotification'
@@ -653,7 +671,8 @@ export default {
         optional_programme: null,
         link_info_travel_country: null,
         accommodation_type: '',
-        method: 'in person'
+        method: 'in person',
+        has_applications: true
       },
       autoComplete: {
         members: { name: '', values: [], loading: false }
@@ -798,11 +817,11 @@ export default {
       this.selectedBody = null
     },
     saveEvent () {
-      if (!this.event.application_starts) {
+      if (!this.event.application_starts && this.event.has_applications) {
         return this.$root.showError('Please set the date when applications period will start.')
       }
 
-      if (!this.event.application_ends) {
+      if (!this.event.application_ends && this.event.has_applications) {
         return this.$root.showError('Please set the date when applications period will end.')
       }
 
@@ -822,14 +841,21 @@ export default {
         return this.$root.showError('Please add at least one organizer.')
       }
 
-      for (const question of this.event.questions) {
-        if (question.type === 'select' && question.values.length === 0) {
-          return this.$root.showError('Please set values for select questions.')
+      if (this.event.has_applications) {
+        for (const question of this.event.questions) {
+          if (question.type === 'select' && question.values.length === 0) {
+            return this.$root.showError('Please set values for select questions.')
+          }
         }
       }
 
       this.isSaving = true
       this.errors = {}
+
+      if (!this.event.has_applications) {
+        this.event.application_starts = moment()
+        this.event.application_ends = this.event.starts - moment.duration(1, 'minutes')
+      }
 
       // we don't need to pass body objects there
       const eventToSave = JSON.parse(JSON.stringify(this.event))

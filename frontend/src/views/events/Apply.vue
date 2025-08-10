@@ -2,162 +2,167 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <div class="tile is-child">
-        <div class="title" v-show="isNew">Apply to {{ event.name }}</div>
-        <div class="title" v-show="!isNew && this.can.apply">Edit your application on {{ event.name }}</div>
-        <div class="title" v-show="!isNew && !this.can.apply">See your application on {{ event.name }}</div>
+        <div class="notification is-info" v-if="!event.has_applications">
+          This event does not accept any applications, you can join without applying.
+        </div>
+        <template v-else>
+          <div class="title" v-show="isNew">Apply to {{ event.name }}</div>
+          <div class="title" v-show="!isNew && this.can.apply">Edit your application on {{ event.name }}</div>
+          <div class="title" v-show="!isNew && !this.can.apply">See your application on {{ event.name }}</div>
 
-        <div class="subtitle" v-show="isNew && !this.can.apply">You cannot apply: the applications are closed or the event is not published yet.</div>
+          <div class="subtitle" v-show="isNew && !this.can.apply">You cannot apply: the applications are closed or the event is not published yet.</div>
 
-        <form @submit.prevent="saveApplication()">
-          <div class="tile is-parent" v-show="this.can.apply">
-            <div class="tile is-child">
-              <div class="field">
-                <label class="label">Body <span class="has-text-danger">*</span></label>
-                <div class="select" v-show="bodies.length > 0">
-                  <select v-model="application.body_id">
-                    <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
-                  </select>
-                </div>
-              </div>
-
-              <event-no-body-notification v-show="bodies.length == 0" />
-
-              <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender || errors.date_of_birth">
-                <div class="content">
-                  Could not apply because of these reasons:
-                  <ul>
-                    <li v-for="(error, index) in errors.answers" v-bind:key="index">{{ error }}</li>
-                  </ul>
-                  <ul>
-                    <li v-for="(error, index) in errors.body_id" v-bind:key="index">{{ error }}</li>
-                  </ul>
-                  <ul v-if="errors.gender">
-                    <li>Please set the gender in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank' rel='noopener noreferrer'>your profile.</router-link></li>
-                  </ul>
-                  <ul v-if="errors.date_of_birth">
-                    <li>Please set the date of birth in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank' rel='noopener noreferrer'>your profile.</router-link></li>
-                  </ul>
-                </div>
-              </div>
-
-              <div class="field is-fullwidth" v-for="(question, index) in event.questions" v-bind:key="index">
-                <div class="control">
-                  <label class="has-text-weight-bold">
-                    {{ question.description }} <span class="has-text-danger" v-if="question.required">*</span>
-                  </label>
-                </div>
-                <div class="control" v-if="question.type === 'text'">
-                  <textarea
-                    class="textarea"
-                    :required="question.required"
-                    v-model="application.answers[index]" />
-                </div>
-                <div class="control" v-if="question.type === 'string'">
-                  <input
-                    class="input"
-                    type="text"
-                    :required="question.required"
-                    v-model="application.answers[index]" />
-                </div>
-                <div class="control" v-if="question.type === 'number'">
-                  <input
-                    class="input"
-                    type="number"
-                    v-model.number="application.answers[index]" />
-                </div>
-                <div class="control" v-if="question.type === 'checkbox'">
-                  <input
-                    class="checkbox"
-                    type="checkbox"
-                    :required="question.required"
-                    v-model="application.answers[index]" />
-                </div>
-                <div class="control" v-if="question.type === 'select'">
-                  <div class="select">
-                    <select v-model="application.answers[index]" required>
-                      <option v-for="(value, index) in question.values" v-bind:key="index">{{ value }}</option>
+          <form @submit.prevent="saveApplication()">
+            <div class="tile is-parent" v-show="this.can.apply">
+              <div class="tile is-child">
+                <div class="field">
+                  <label class="label">Body <span class="has-text-danger">*</span></label>
+                  <div class="select" v-show="bodies.length > 0">
+                    <select v-model="application.body_id">
+                      <option v-for="body in bodies" v-bind:key="body.id" :value="body.id">{{ body.name }}</option>
                     </select>
                   </div>
                 </div>
-              </div>
 
-              <div class="field">
-                <label class="checkbox">
-                  I agree with my personal data to be processed
-                  by AEGEE-Europe for the purposes of the participant selection
-                  and event organisation. AEGEE-Europe will disclose this data
-                  to organising local for the time period of the event organisation.<span class="has-text-danger">*</span>
-                  <input type="checkbox" required v-model="application.agreed_to_privacy_policy" />
-                </label>
-                <p class="help is-danger" v-if="errors.agreed_to_privacy_policy">{{ errors.agreed_to_privacy_policy.join(', ') }}</p>
-              </div>
+                <event-no-body-notification v-show="bodies.length == 0" />
 
-              <div class="field">
-                <button type="submit" class="button is-primary">
-                  Save application!
-                </button>
-              </div>
-            </div>
-          </div>
+                <div class="notification is-danger" v-if="errors.answers || errors.body_id || errors.gender || errors.date_of_birth">
+                  <div class="content">
+                    Could not apply because of these reasons:
+                    <ul>
+                      <li v-for="(error, index) in errors.answers" v-bind:key="index">{{ error }}</li>
+                    </ul>
+                    <ul>
+                      <li v-for="(error, index) in errors.body_id" v-bind:key="index">{{ error }}</li>
+                    </ul>
+                    <ul v-if="errors.gender">
+                      <li>Please set the gender in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank' rel='noopener noreferrer'>your profile.</router-link></li>
+                    </ul>
+                    <ul v-if="errors.date_of_birth">
+                      <li>Please set the date of birth in <router-link :to="{ name: 'oms.members.view', params: { id: 'me' } }" target='_blank' rel='noopener noreferrer'>your profile.</router-link></li>
+                    </ul>
+                  </div>
+                </div>
 
-          <div v-show="!isNew && !this.can.apply" class="tile is-parent">
-            <div class="tile is-child">
-              <p>
-                <b>You applied from this body:</b>
-                <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
-                  {{ application.body ? application.body.name : 'Loading...' }}
-                </router-link>
-              </p>
-              <table class="table is-narrow is-fullwidth">
-                <thead>
-                  <tr>
-                    <th>Description</th>
-                    <th>Your answer</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(field, index) in event.questions" v-bind:key="index">
-                    <td><b>{{ field.description }}</b><span class="is-danger" ng-show="field.required">*</span></td>
-                    <td>{{ application.answers[index] | beautify }}</td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <b>
-                        I agree with my personal data to be processed
-                        by AEGEE-Europe for the purposes of the participant selection
-                        and event organisation. AEGEE-Europe will disclose this data
-                        to organising local for the time period of the event organisation.
-                      </b>
-                    </td>
-                    <td>{{ application.agreed_to_privacy_policy | beautify }}</td>
-                  </tr>
-                </tbody>
-              </table>
+                <div class="field is-fullwidth" v-for="(question, index) in event.questions" v-bind:key="index">
+                  <div class="control">
+                    <label class="has-text-weight-bold">
+                      {{ question.description }} <span class="has-text-danger" v-if="question.required">*</span>
+                    </label>
+                  </div>
+                  <div class="control" v-if="question.type === 'text'">
+                    <textarea
+                      class="textarea"
+                      :required="question.required"
+                      v-model="application.answers[index]" />
+                  </div>
+                  <div class="control" v-if="question.type === 'string'">
+                    <input
+                      class="input"
+                      type="text"
+                      :required="question.required"
+                      v-model="application.answers[index]" />
+                  </div>
+                  <div class="control" v-if="question.type === 'number'">
+                    <input
+                      class="input"
+                      type="number"
+                      v-model.number="application.answers[index]" />
+                  </div>
+                  <div class="control" v-if="question.type === 'checkbox'">
+                    <input
+                      class="checkbox"
+                      type="checkbox"
+                      :required="question.required"
+                      v-model="application.answers[index]" />
+                  </div>
+                  <div class="control" v-if="question.type === 'select'">
+                    <div class="select">
+                      <select v-model="application.answers[index]" required>
+                        <option v-for="(value, index) in question.values" v-bind:key="index">{{ value }}</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
 
-              <div class="field" v-show="event.questions.length === 0">
-                <div class="notification is-info">
-                  You didn't need to fill in the application fields.
+                <div class="field">
+                  <label class="checkbox">
+                    I agree with my personal data to be processed
+                    by AEGEE-Europe for the purposes of the participant selection
+                    and event organisation. AEGEE-Europe will disclose this data
+                    to organising local for the time period of the event organisation.<span class="has-text-danger">*</span>
+                    <input type="checkbox" required v-model="application.agreed_to_privacy_policy" />
+                  </label>
+                  <p class="help is-danger" v-if="errors.agreed_to_privacy_policy">{{ errors.agreed_to_privacy_policy.join(', ') }}</p>
+                </div>
+
+                <div class="field">
+                  <button type="submit" class="button is-primary">
+                    Save application!
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="tile is-parent" v-show="!isNew && !this.can.apply">
-            <div class="tile is-child">
-              <div class="notification is-warning" v-if="application.status === 'pending'">
-                Your application is being processed, please wait for the organisers to evaluate your application. Unfortunately you can not edit it anymore.
-              </div>
-              <div class="notification is-success" v-else-if="application.status === 'accepted'">
-                Congratulations, you have been accepted to the event!
-              </div>
-              <div class="notification is-success" v-else-if="application.status === 'rejected'">
-                Sorry, but you were not accepted to the event.
+            <div v-show="!isNew && !this.can.apply" class="tile is-parent">
+              <div class="tile is-child">
+                <p>
+                  <b>You applied from this body:</b>
+                  <router-link target="_blank" rel="noopener noreferrer" :to="{ name: 'oms.bodies.view', params: { id: application.body_id } }">
+                    {{ application.body ? application.body.name : 'Loading...' }}
+                  </router-link>
+                </p>
+                <table class="table is-narrow is-fullwidth">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Your answer</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(field, index) in event.questions" v-bind:key="index">
+                      <td><b>{{ field.description }}</b><span class="is-danger" ng-show="field.required">*</span></td>
+                      <td>{{ application.answers[index] | beautify }}</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <b>
+                          I agree with my personal data to be processed
+                          by AEGEE-Europe for the purposes of the participant selection
+                          and event organisation. AEGEE-Europe will disclose this data
+                          to organising local for the time period of the event organisation.
+                        </b>
+                      </td>
+                      <td>{{ application.agreed_to_privacy_policy | beautify }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div class="field" v-show="event.questions.length === 0">
+                  <div class="notification is-info">
+                    You didn't need to fill in the application fields.
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <b-loading is-full-page="false" :active.sync="isLoading" />
-        </form>
+            <div class="tile is-parent" v-show="!isNew && !this.can.apply">
+              <div class="tile is-child">
+                <div class="notification is-warning" v-if="application.status === 'pending'">
+                  Your application is being processed, please wait for the organisers to evaluate your application. Unfortunately you can not edit it anymore.
+                </div>
+                <div class="notification is-success" v-else-if="application.status === 'accepted'">
+                  Congratulations, you have been accepted to the event!
+                </div>
+                <div class="notification is-success" v-else-if="application.status === 'rejected'">
+                  Sorry, but you were not accepted to the event.
+                </div>
+              </div>
+            </div>
+
+            <b-loading is-full-page="false" :active.sync="isLoading" />
+          </form>
+        </template>
       </div>
     </div>
   </div>

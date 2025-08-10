@@ -25,7 +25,7 @@
             </router-link>
           </div>-->
 
-          <div class="field is-grouped" v-if="event.status === 'published'">
+          <div class="field is-grouped" v-if="event.status === 'published' && event.has_applications">
             <router-link :to="{ name: 'oms.events.apply', params: { id: event.url || event.id, application_id: 'me' } }" class="button is-warning is-fullwidth">
               <span>Manage my application</span>
               <span class="icon"><font-awesome-icon icon="plus" /></span>
@@ -101,7 +101,7 @@
           <p class="title">{{ event.name }}</p>
 
           <div class="notification is-info" v-if="isOnlineEvent">
-            This is an online event!
+            This is an online event<span v-if="!event.has_applications">, you can join without applying</span>!
           </div>
 
           <div class="content">
@@ -121,18 +121,20 @@
                   <th>Max. participants</th>
                   <td>{{ event.max_participants }}</td>
                 </tr>
-                <tr>
-                  <th>Application status</th>
-                  <td>{{ event.application_status | capitalize }}</td>
-                </tr>
-                <tr>
-                  <th>Application period starts <timezone-tooltip /></th>
-                  <td>{{ event.application_starts | datetime }}</td>
-                </tr>
-                <tr>
-                  <th>Application period ends <timezone-tooltip /></th>
-                  <td>{{ event.application_ends | datetime }}</td>
-                </tr>
+                <template v-if="event.has_applications">
+                  <tr>
+                    <th>Application status</th>
+                    <td>{{ event.application_status | capitalize }}</td>
+                  </tr>
+                  <tr>
+                    <th>Application period starts <timezone-tooltip /></th>
+                    <td>{{ event.application_starts | datetime }}</td>
+                  </tr>
+                  <tr>
+                    <th>Application period ends <timezone-tooltip /></th>
+                    <td>{{ event.application_ends | datetime }}</td>
+                  </tr>
+                </template>
                 <tr>
                   <th>Starts <timezone-tooltip /></th>
                   <td>{{ event.starts | datetime }}</td>
