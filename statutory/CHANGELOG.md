@@ -1,3 +1,10 @@
+## [1.14.6](https://github.com/AEGEE/statutory/compare/1.14.5...1.14.6) (2025-08-11)
+
+
+### Bug Fixes
+
+* **constants:** update URL to conversation rate API to https ([#1339](https://github.com/AEGEE/statutory/issues/1339)) ([ada7ace](https://github.com/AEGEE/statutory/commit/ada7aceb50afb1116eda8bfe5b0e81df1025abce))
+
 ## [1.14.5](https://github.com/AEGEE/statutory/compare/1.14.4...1.14.5) (2025-08-10)
 
 
