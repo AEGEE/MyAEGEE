@@ -180,7 +180,7 @@ module.exports = {
         status: 'Status'
     },
     CONVERSION_RATE_API: {
-        host: 'http://ec.europa.eu',
+        host: 'https://ec.europa.eu',
         path: '/budg/inforeuro/api/public/monthly-rates',
     },
     CONVERSION_RATE_MAP: {
