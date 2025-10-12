@@ -1,3 +1,10 @@
+## [1.45.1](https://github.com/AEGEE/frontend/compare/1.45.0...1.45.1) (2025-10-12)
+
+
+### Bug Fixes
+
+* default comparison on PaxLimits after a manual change ([#2401](https://github.com/AEGEE/frontend/issues/2401)) ([6fd3c07](https://github.com/AEGEE/frontend/commit/6fd3c07f4974447b34b8f3a7f29d99213f770c48))
+
 # [1.45.0](https://github.com/AEGEE/frontend/compare/1.44.7...1.45.0) (2025-08-10)
 
 
