@@ -1,3 +1,10 @@
+## [1.14.7](https://github.com/AEGEE/statutory/compare/1.14.6...1.14.7) (2025-10-12)
+
+
+### Bug Fixes
+
+* **deps:** update deps and cleanup package.json ([#1367](https://github.com/AEGEE/statutory/issues/1367)) ([ff25f29](https://github.com/AEGEE/statutory/commit/ff25f295ea43fc39c644267cda407e297aea0653))
+
 ## [1.14.6](https://github.com/AEGEE/statutory/compare/1.14.5...1.14.6) (2025-08-11)
 
 
