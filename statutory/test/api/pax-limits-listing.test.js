@@ -22,7 +22,7 @@ describe('Pax limits listing', () => {
         await generator.clearAll();
     });
 
-    test('should display default limits', async () => {
+    test('should display limits', async () => {
         const res = await request({
             uri: '/limits/agora',
             method: 'GET',

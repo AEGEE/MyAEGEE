@@ -27,6 +27,18 @@ exports.listAllLimits = async (req, res) => {
     });
 };
 
+exports.listAllDefaultLimits = async (req, res) => {
+    const bodies = await core.getBodies(req);
+    const result = bodies.map((body) => {
+        return PaxLimit.getDefaultForBody(body, req.params.event_type);
+    });
+
+    return res.json({
+        success: true,
+        data: result
+    });
+};
+
 exports.getSingleLimit = async (req, res) => {
     // Fetching bodies list
     const body = await core.getBody(req, req.params.body_id);

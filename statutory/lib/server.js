@@ -71,6 +71,7 @@ GeneralRouter.get('/mine', events.listUserAppliedEvents);
 GeneralRouter.get('/recents', middlewares.ensureAuthorized, events.listMostRecentEvents);
 
 PaxLimitsRouter.use(middlewares.authenticateUser, middlewares.ensureAuthorized, paxLimits.checkEventType);
+PaxLimitsRouter.get('/defaults', paxLimits.listAllDefaultLimits);
 PaxLimitsRouter.get('/:body_id', paxLimits.getSingleLimit);
 PaxLimitsRouter.delete('/:body_id', paxLimits.deleteSingleLimit);
 PaxLimitsRouter.post('/', paxLimits.updateLimit);
