@@ -52,17 +52,17 @@
               </tr>
             </tfoot>
             <tbody>
-              <tr v-for="limit in limits" v-bind:key="limit.body_id" :class="{ 'has-background-grey-light': !limit.default }">
+              <tr v-for="limit in limits" v-bind:key="limit.body_id">
                 <td>
                   <router-link :to="{ name: 'oms.bodies.view', params: { id: limit.body_id } }">
                     {{ limit.body ? limit.body.name : 'Loading...' }}
                   </router-link>
                 </td>
                 <td>{{ (limit.body ? limit.body.type : 'Loading...') | capitalize }}</td>
-                <td v-if="!limit.isEditing">{{ limit.delegate | numberOrUnlimited }}</td>
-                <td v-if="!limit.isEditing">{{ limit.envoy | numberOrUnlimited }}</td>
-                <td v-if="!limit.isEditing">{{ limit.observer | numberOrUnlimited }}</td>
-                <td v-if="!limit.isEditing">{{ limit.visitor | numberOrUnlimited }}</td>
+                <td v-if="!limit.isEditing" :class="{ 'has-background-grey-light': !limit.default }"> {{ limit.delegate | numberOrUnlimited }} </td>
+                <td v-if="!limit.isEditing" :class="{ 'has-background-grey-light': !limit.default }"> {{ limit.envoy | numberOrUnlimited }} </td>
+                <td v-if="!limit.isEditing" :class="{ 'has-background-grey-light': !limit.default }"> {{ limit.observer | numberOrUnlimited }} </td>
+                <td v-if="!limit.isEditing" :class="{ 'has-background-grey-light': !limit.default }"> {{ limit.visitor | numberOrUnlimited }} </td>
                 <td v-if="limit.isEditing">
                   <input type="number" min="0" v-model.number="limit.delegate" @input="$root.nullifyIfEmpty(limit, 'delegate')">
                 </td>
@@ -104,6 +104,7 @@ export default {
   name: 'PaxLimits',
   data () {
     return {
+      defaultLimits: [],
       limits: [],
       bodies: [],
       eventType: 'agora',
@@ -116,7 +117,7 @@ export default {
       this.axios.post(this.services['statutory'] + '/limits/' + this.eventType, limit).then(() => {
         this.$root.showSuccess('Limit is saved.')
         this.$set(limit, 'isEditing', false)
-        this.$set(limit, 'default', false)
+        this.compareWithDefaults()
       }).catch((err) => {
         this.$root.showError('Error saving limit', err)
       })
@@ -142,11 +143,51 @@ export default {
           this.$set(limit, 'body', this.bodies.find(body => body.id === limit.body_id))
           this.$set(limit, 'isEditing', false)
         }
+        this.compareWithDefaults()
         this.isLoading = false
       }).catch((err) => {
         this.isLoading = false
         this.$root.showError('Could not fetch participants limits', err)
       })
+    },
+    fetchDefaultLimits () {
+      this.isLoading = true
+      this.axios.get(this.services['statutory'] + '/limits/' + this.eventType + '/defaults/').then((response) => {
+        this.defaultLimits = response.data.data
+
+        return this.axios.get(this.services['core'] + '/bodies/')
+      }).then((response) => {
+        this.bodies = response.data.data
+
+        for (const defaultLimit of this.defaultLimits) {
+          this.$set(defaultLimit, 'body', this.bodies.find(body => body.id === defaultLimit.body_id))
+          this.$set(defaultLimit, 'isEditing', false)
+        }
+        this.compareWithDefaults()
+        this.isLoading = false
+      }).catch((err) => {
+        this.isLoading = false
+        this.$root.showError('Could not fetch participants limits', err)
+      })
+    },
+    compareWithDefaults () {
+      if (this.limits.length === 0 || this.defaultLimits.length === 0) {
+        return
+      }
+      for (const limit of this.limits) {
+        const defaultLimit = this.defaultLimits.find(def => def.body_id === limit.body_id)
+        if (defaultLimit) {
+          this.$set(limit, 'default', this.isSameAsOriginal(limit, defaultLimit))
+        }
+      }
+    },
+    isSameAsOriginal (limit, defaultLimit) {
+      return (
+        limit.delegate === defaultLimit.delegate
+        && limit.envoy === defaultLimit.envoy
+        && limit.observer === defaultLimit.observer
+        && limit.visitor === defaultLimit.visitor
+      )
     }
   },
   filters: {
@@ -157,10 +198,12 @@ export default {
   watch: {
     eventType () {
       this.fetchLimits()
+      this.fetchDefaultLimits()
     }
   },
   mounted () {
     this.fetchLimits()
+    this.fetchDefaultLimits()
   }
 }
 </script>
