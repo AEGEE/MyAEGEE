@@ -1,3 +1,10 @@
+## [1.14.8](https://github.com/AEGEE/statutory/compare/1.14.7...1.14.8) (2025-10-12)
+
+
+### Bug Fixes
+
+* **paxLimits:** when editing participant limits manually it should check if the limit is different than the default ([#1368](https://github.com/AEGEE/statutory/issues/1368)) ([ff021b2](https://github.com/AEGEE/statutory/commit/ff021b2be0cef19cf7ed746f33d47ed0110b6b6f))
+
 ## [1.14.7](https://github.com/AEGEE/statutory/compare/1.14.6...1.14.7) (2025-10-12)
 
 
