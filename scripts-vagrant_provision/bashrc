@@ -52,8 +52,11 @@ function nonzero_return() {
 
 export PS1="\[\e[41m\]\`nonzero_return\`\[\e[m\] \[\e[32m\]\h\[\e[m\][\[\e[36m\]\w\[\e[m\]]\\$ \[\e[31;40m\]\`parse_git_branch\`\[\e[m\] "
 
-bind 'set show-all-if-ambiguous on'
-bind 'TAB:menu-complete'
+# Only set bind options in interactive shells
+if [[ $- == *i* ]]; then
+  bind 'set show-all-if-ambiguous on'
+  bind 'TAB:menu-complete'
+fi
 
 #utils
 alias dry='docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=$DOCKER_HOST moncho/dry'
@@ -72,4 +75,8 @@ fi
 #start session on the right folder for the job
 cd /vagrant || echo "something's off"
 alias diagnostics="/vagrant/scripts-vagrant_provision/diagnostics.sh"
-diagnostics
+
+# Only run diagnostics in interactive shells
+if [[ $- == *i* ]]; then
+  diagnostics
+fi

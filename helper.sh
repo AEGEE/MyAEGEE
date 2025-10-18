@@ -1,11 +1,22 @@
 #!/bin/bash
-# THIS IS RUN ON THE GUEST MACHINE
+# THIS IS RUN ON THE GUEST MACHINE OR HOST (auto-detected)
 
 # Structure: now everything here will be a target of makefile.
 # Then helper.sh will be called by the target with correct parameter for
 # the shell script
 
 # with this file you can:
+
+# CATEGORY: ENVIRONMENT DETECTION
+# Detect if running inside Vagrant VM or on host Docker
+is_vagrant() {
+    # Check for Vagrant-specific indicators
+    if [ -d "/vagrant" ] || [ -n "$VAGRANT" ]; then
+        return 0  # true - inside Vagrant
+    else
+        return 1  # false - direct host
+    fi
+}
 
 # CATEGORY: DEV
 # bump the version of the oms submodules and commit (currently not there)

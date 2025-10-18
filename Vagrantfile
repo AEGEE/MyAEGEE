@@ -1,5 +1,5 @@
 machine_name = "appserver.test"
-ip_address = "192.168.168.168"
+ip_address = "192.168.56.168"
 vm_box = "bento/ubuntu-18.04"
 
 Vagrant.configure("2") do |config|

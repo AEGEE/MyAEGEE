@@ -34,6 +34,33 @@ jobs:
       - shellcheck/install
       - shellcheck/check:
           exclude: SC2002,SC2086,SC2126,SC2154
+  test-setup-scripts:
+    machine:
+      image: ubuntu-2404:current
+    steps:
+      - checkout
+      - run:
+          name: Install bats
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y bats
+      - run:
+          name: Run setup script tests
+          command: |
+            if [ -d tests/setup ] && ls tests/setup/*.bats 1> /dev/null 2>&1; then
+              bats tests/setup/*.bats
+            else
+              echo "No bats tests found yet, skipping"
+            fi
+      - run:
+          name: Lint setup scripts
+          command: |
+            if [ -d scripts-ubuntu ] && ls scripts-ubuntu/*.sh 1> /dev/null 2>&1; then
+              sudo apt-get install -y shellcheck
+              find scripts-ubuntu/ -name "*.sh" -exec shellcheck {} +
+            else
+              echo "No setup scripts found yet, skipping"
+            fi
 workflows:
   lint-yaml:
     jobs:
@@ -47,3 +74,6 @@ workflows:
   lint-dockerfile:
     jobs:
       - hadolint
+  test-setup:
+    jobs:
+      - test-setup-scripts

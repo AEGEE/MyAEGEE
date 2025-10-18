@@ -12,11 +12,11 @@
 # set .env, start, fix frontend
 
 ---
-
 - name: Upgrade apt cache
   hosts: all
   become: true
-  tags: ['pyenv', 'node', 'docker', 'packages'] #  before any task
+  tags: ["pyenv", "node", "docker", "packages"] #  before any task
+  # Use default Python 3.6 for Ansible compatibility with Ubuntu 18.04
 
   pre_tasks:
     - name: Update apt-cache
@@ -27,10 +27,9 @@
 - name: Prerequisites - folders
   hosts: all
   become: yes
-  tags: ['folders']
+  tags: ["folders"]
 
   tasks:
-
     - name: Set permissions of /opt
       file:
         dest: "/opt"
@@ -67,7 +66,7 @@
 
 - name: Prerequisites - python
   hosts: all
-  tags: ['pyenv']
+  tags: ["pyenv"]
 
   vars:
     python_version: "3.10.3"
@@ -97,8 +96,8 @@
 
 - name: Prerequisites - node
   hosts: all
-  become: no  # role asked so
-  tags: ['node']
+  become: no # role asked so
+  tags: ["node"]
 
   vars:
     nvm_commands:
@@ -113,7 +112,7 @@
 - name: Install docker
   hosts: all
   become: true
-  tags: ['docker']
+  tags: ["docker"]
 
   roles:
     - geerlingguy.docker
@@ -122,10 +121,9 @@
 - name: Install last bunch of packages
   hosts: all
   become: true
-  tags: ['packages']
+  tags: ["packages"]
 
   tasks:
-
     - name: Install other required packages
       apt:
         name: "{{ item }}"
@@ -136,7 +134,7 @@
 - name: Create banners for connection
   hosts: all
   become: true
-  tags: ['motd']
+  tags: ["motd"]
 
   tasks:
     - name: Ensure a locale exists
@@ -157,12 +155,12 @@
     - name: Remove useless parts of big ubuntu messages (MOTD)
       file:
         path: /etc/update-motd.d/10-help-text
-        mode: 'u-x,g-x,o-x'
+        mode: "u-x,g-x,o-x"
 
     - name: Remove other useless parts of big ubuntu messages (MOTD)
       file:
         path: /etc/update-motd.d/80-livepatch
-        mode: 'u-x,g-x,o-x'
+        mode: "u-x,g-x,o-x"
       ignore_errors: true
 
     # The following is commented because it outputs bad versions

@@ -1,13 +1,14 @@
-# NOTE: this file is only ever used by `make` being run on the GUEST
-#  Those commands are intended to be executed on the GUEST system,
-#  i.e. within the vagrant VM
+# NOTE: This file works in both Vagrant VM and direct Docker on Ubuntu environments
+#  Commands automatically adapt based on the environment (detected by helper.sh)
+#  - In Vagrant: Runs inside the VM after `vagrant ssh`
+#  - On Ubuntu 24.04: Runs directly on the host with Docker
 
 # TODO: are all commands idempotent??? (do i want them to be?)
 
 include .env
 export $(shell sed 's/=.*//' .env)
 
-.PHONY: default init build start bootstrap refresh live_refresh list debug config monitor stop down restart hard_restart \
+.PHONY: default init build start bootstrap bootstrap-ubuntu bootstrap_latest refresh live_refresh list debug config monitor stop down restart hard_restart \
         nuke_dev clean_docker_dangling_images clean_docker_images clean prune listen_frontend rebuild_frontend rebuild_core \
         rebuild_events rebuild_summeruniversity rebuild_statutory rebuild_discounts rebuild_mailer rebuild_network rebuild_knowledge \
         bump install-agents remove-agents backup backup_core backup_events backup_discounts backup_network backup_summeruniversity \
@@ -15,6 +16,11 @@ export $(shell sed 's/=.*//' .env)
 
 default:
 	@echo 'Most common options are bootstrap, start, monitor, live_refresh, restart, nuke_dev, clean (cleans untagged/unnamed images)'
+	@echo ''
+	@echo 'For initial setup:'
+	@echo '  - Ubuntu 24.04: make bootstrap-ubuntu  (sets up Docker, then runs bootstrap)'
+	@echo '  - Other systems: ./start.sh            (sets up Vagrant, then runs bootstrap)'
+	@echo ''
 
 init: #check recursive & make secrets, change pw, change .env file
 	./helper.sh -v --init
@@ -28,6 +34,15 @@ start: #docker-compose up -d
 bootstrap: init build start
 
 bootstrap_latest: init bump build start
+
+bootstrap-ubuntu: #Ubuntu 24.04 direct Docker setup (no Vagrant)
+	@if [ -x scripts-ubuntu/bootstrap.sh ]; then \
+		scripts-ubuntu/bootstrap.sh; \
+	else \
+		echo "Error: scripts-ubuntu/bootstrap.sh not found or not executable"; \
+		echo "This feature requires Ubuntu 24.04 LTS"; \
+		exit 1; \
+	fi
 
 update: bump
 
