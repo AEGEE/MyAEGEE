@@ -1,0 +1,18 @@
+# Dev container log files and temporary files
+*.log
+*.tmp
+*.swp
+*~
+
+# Environment-specific files
+.env.devcontainer
+aliases.sh
+
+# VS Code specific
+.vscode-server/
+.vscode-test/
+
+# Build artifacts
+node_modules/
+dist/
+build/

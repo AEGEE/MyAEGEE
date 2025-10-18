@@ -1,0 +1,164 @@
+{
+  // Dev Container Configuration for MyAEGEE
+  // This file defines the development container setup for VS Code Dev Containers and GitHub Codespaces
+  // See: https://containers.dev/implementors/json_reference/
+
+  "name": "MyAEGEE Development",
+
+  // Docker Compose Configuration
+  // Using docker-compose instead of single Dockerfile for complex multi-container setup
+  "dockerComposeFile": "docker-compose.devcontainer.yml",
+
+  // Service Selection
+  // Specifies which service from docker-compose to use as the dev container
+  // The 'workspace' service is our main development environment
+  "service": "workspace",
+
+  // Workspace Folder Mapping
+  // Where the repository code will be mounted inside the container
+  "workspaceFolder": "/workspace",
+
+  // Dev Container Features
+  // Additional features can be added here (e.g., GitHub CLI, Docker-in-Docker)
+  // Currently empty as we install everything in Dockerfile
+  "features": {},
+
+  // VS Code customizations
+  "customizations": {
+    "vscode": {
+      // Extensions to install
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "editorconfig.editorconfig",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode.makefile-tools",
+        "vue.volar",
+        "octref.vetur",
+        "esbenp.prettier-vscode"
+      ],
+
+      // VS Code settings
+      "settings": {
+        // Terminal configuration
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash",
+            "icon": "terminal-bash"
+          }
+        },
+        "terminal.integrated.scrollback": 10000,
+        "terminal.integrated.copyOnSelection": true,
+        "terminal.integrated.cursorBlinking": true,
+
+        // File handling
+        "files.eol": "\n",
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true,
+
+        // Editor configuration
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+
+        // Git configuration
+        "git.autofetch": true,
+        "git.confirmSync": false,
+
+        // Docker extension
+        "docker.showStartPage": false
+      }
+    }
+  },
+
+  // Port forwarding - Forward these ports to localhost
+  "forwardPorts": [
+    3000, // Frontend
+    8080, // Traefik Dashboard
+    8084, // Core API
+    8085, // Events API
+    8086, // Statutory API
+    8087, // Discounts API
+    8088, // Knowledge API
+    8089, // Summer University API
+    8090, // Network API
+    8091, // Mailer API
+    8092, // GSuite Wrapper API
+    9000, // Portainer
+    5050 // pgAdmin
+  ],
+
+  // Port attributes for Codespaces
+  "portsAttributes": {
+    "3000": {
+      "label": "Frontend",
+      "onAutoForward": "notify",
+      "visibility": "public"
+    },
+    "8080": {
+      "label": "Traefik Dashboard",
+      "visibility": "public"
+    },
+    "8084": {
+      "label": "Core API",
+      "visibility": "public"
+    },
+    "8085": {
+      "label": "Events API",
+      "visibility": "public"
+    },
+    "8086": {
+      "label": "Statutory API",
+      "visibility": "public"
+    },
+    "8087": {
+      "label": "Discounts API",
+      "visibility": "public"
+    },
+    "8088": {
+      "label": "Knowledge API",
+      "visibility": "public"
+    },
+    "8089": {
+      "label": "Summer University API",
+      "visibility": "public"
+    },
+    "8090": {
+      "label": "Network API",
+      "visibility": "public"
+    },
+    "8091": {
+      "label": "Mailer API",
+      "visibility": "public"
+    },
+    "8092": {
+      "label": "GSuite Wrapper",
+      "visibility": "public"
+    },
+    "9000": {
+      "label": "Portainer",
+      "visibility": "public"
+    },
+    "5050": {
+      "label": "pgAdmin",
+      "visibility": "public"
+    }
+  },
+
+  // Commands to run after container is created (runs once)
+  "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",
+
+  // Commands to run after container starts (runs every time)
+  "postStartCommand": "bash .devcontainer/scripts/post-start.sh",
+
+  // Set container user
+  "remoteUser": "vscode",
+
+  // Environment variables
+  "remoteEnv": {
+    "MYAEGEE_ENV": "development"
+  }
+}

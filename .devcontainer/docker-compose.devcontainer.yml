@@ -1,0 +1,169 @@
+# Docker Compose Configuration for MyAEGEE Dev Container
+#
+# This file defines the development container setup used by VS Code Dev Containers
+# and GitHub Codespaces. It creates a single workspace container that uses host
+# networking to access services started by the existing helper.sh infrastructure.
+#
+# Architecture Decision:
+# - Single workspace container (not defining all 12 services here)
+# - Uses host network mode for direct localhost access
+# - Services are started via helper.sh script (preserves Vagrant compatibility)
+# - Database volumes are named explicitly for easy management
+#
+# See: https://docs.docker.com/compose/compose-file/
+
+version: "3.8"
+
+services:
+  # ============================================================================
+  # Workspace Container - Main Development Environment
+  # ============================================================================
+  workspace:
+    # Build Configuration
+    # Uses the Dockerfile in the same directory (.devcontainer/)
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # Volume Mounts
+    volumes:
+      # Workspace Mount (Repository Code)
+      # - Source: Parent directory (..) containing the repository
+      # - Target: /workspace inside container
+      # - cached: Optimizes performance on macOS (slight delay for writes)
+      # This allows editing files on host and seeing changes in container instantly
+      - ..:/workspace:cached
+
+      # Docker Socket Mount (Docker-in-Docker)
+      # - Allows container to control Docker on the host
+      # - Required for starting/stopping services via helper.sh
+      # - Security note: Container has full Docker access
+      - /var/run/docker.sock:/var/run/docker.sock
+
+      # Bash History Persistence
+      # - Preserves command history across container rebuilds
+      # - Stored in named volume 'devcontainer-bashhistory'
+      - devcontainer-bashhistory:/home/vscode/.bash_history
+
+    # Container Lifecycle
+    # Keeps container running indefinitely (required for dev containers)
+    # The actual work happens via VS Code Remote connection
+    command: /bin/sh -c "while sleep 1000; do :; done"
+
+    # Network Configuration
+    # - host mode: Container shares host's network stack
+    # - Services accessible at localhost:PORT (no port mapping needed)
+    # - Simplifies networking but reduces isolation
+    # - Alternative would be bridge mode with explicit port mappings
+    network_mode: "host"
+
+    # Environment Variables
+    # These are passed to processes running inside the container
+    environment:
+      # Development Mode Flag
+      - MYAEGEE_ENV=development
+
+      # Service Configuration
+      # Controls which microservices are started by helper.sh
+      # Can be overridden in .env file or via minimal mode prompt
+      - ENABLED_SERVICES=gateways:frontend:core:statutory:events:network:summeruniversity:discounts:knowledge:mailer
+
+      # Logging Level
+      - LOGLEVEL=info
+
+# ============================================================================
+# Named Volumes - Data Persistence
+# ============================================================================
+# Named volumes persist data even when containers are removed.
+# They are stored on the host and can be managed with `docker volume` commands.
+volumes:
+  # Development Container State
+  # -------------------------
+  # Bash History
+  # Preserves command history for better developer experience
+  devcontainer-bashhistory:
+
+  # Database Volumes
+  # -------------------------
+  # These volumes will be used by PostgreSQL containers started via helper.sh
+  # Each microservice has its own dedicated database and volume for data isolation
+  #
+  # Volume Naming Convention: postgres-<service-name>
+  # Database Naming Convention: oms-<service>-db
+  #
+  # Management Commands:
+  # - List volumes: docker volume ls
+  # - Inspect volume: docker volume inspect postgres-core
+  # - Remove volume: docker volume rm postgres-core (destructive!)
+  # - Remove all: make reset-db (removes all volumes and recreates)
+
+  # Core Service Database
+  # Contains: users, bodies, circles, permissions, authentication data
+  postgres-core:
+    name: postgres-core
+
+  # Events Service Database
+  # Contains: events, applications, participants, organizers
+  postgres-events:
+    name: postgres-events
+
+  # Statutory Service Database
+  # Contains: Agora, EPM, SPM events, candidatures, plenary voting
+  postgres-statutory:
+    name: postgres-statutory
+
+  # Discounts Service Database
+  # Contains: discount codes, usage tracking
+  postgres-discounts:
+    name: postgres-discounts
+
+  # Summer University Service Database
+  # Contains: summer universities, applications, participants
+  postgres-summeruniversity:
+    name: postgres-summeruniversity
+
+  # Network Service Database
+  # Contains: network bodies, local/contact antenna information
+  postgres-network:
+    name: postgres-network
+
+  # Knowledge Service Database
+  # Contains: knowledge base articles, documentation
+  postgres-knowledge:
+    name: postgres-knowledge
+# ============================================================================
+# Notes
+# ============================================================================
+#
+# Why not define all services here?
+# - Avoids duplicating 12 service definitions from individual folders
+# - Leverages existing battle-tested helper.sh orchestration
+# - Maintains Vagrant compatibility (same infrastructure)
+# - Simpler configuration and easier maintenance
+#
+# How services are started:
+# 1. Dev container starts (this file)
+# 2. post-start.sh runs automatically
+# 3. post-start.sh calls: make start
+# 4. Make calls: helper.sh --start
+# 5. helper.sh reads .env and starts enabled services
+#
+# How to manage services:
+# - Start all: make start
+# - Stop all: make stop
+# - Restart: make restart
+# - List running: docker ps
+# - View logs: make monitor
+# - Health check: health (alias)
+#
+# Database persistence:
+# - Data persists across container stops/starts
+# - Only lost if volume is explicitly deleted
+# - Reset to seed state: make reset-db
+#
+# Network topology:
+# - Dev container: host network (access via localhost)
+# - Services: OMS bridge network (created by helper.sh)
+# - Communication: localhost:PORT for dev container to services
+#
+# ============================================================================

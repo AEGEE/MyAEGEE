@@ -11,7 +11,9 @@ export $(shell sed 's/=.*//' .env)
         nuke_dev clean_docker_dangling_images clean_docker_images clean prune listen_frontend rebuild_frontend rebuild_core \
         rebuild_events rebuild_summeruniversity rebuild_statutory rebuild_discounts rebuild_mailer rebuild_network rebuild_knowledge \
         bump install-agents remove-agents backup backup_core backup_events backup_discounts backup_network backup_summeruniversity \
-	    backup_knowledge backup_gsuite-wrapper backup_statping backup_statistics backup_security backup_shortener backup_survey
+	    backup_knowledge backup_gsuite-wrapper backup_statping backup_statistics backup_security backup_shortener backup_survey \
+	    reset-db reset-db-minimal reset-db-core reset-db-events reset-db-statutory reset-db-discounts reset-db-network \
+	    reset-db-summeruniversity reset-db-knowledge
 
 default:
 	@echo 'Most common options are bootstrap, start, monitor, live_refresh, restart, nuke_dev, clean (cleans untagged/unnamed images)'
@@ -169,3 +171,75 @@ backup_shortener:
 
 backup_survey:
 	./helper.sh --execute postgres-limesurvey -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/limesurvey' --inserts > limesurvey.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+
+# Database Reset Commands
+reset-db: ## Reset all databases (removes volumes and recreates with seed data)
+	@echo "⚠️  WARNING: This will delete all database data and reset to seed state!"
+	@echo "Press Ctrl+C within 5 seconds to cancel..."
+	@sleep 5
+	@echo "🗑️  Stopping services..."
+	./helper.sh --stop
+	@echo "🗑️  Removing database volumes..."
+	-docker volume rm myaegee_postgres-core-db 2>/dev/null || true
+	-docker volume rm myaegee_postgres-events-db 2>/dev/null || true
+	-docker volume rm myaegee_postgres-statutory-db 2>/dev/null || true
+	-docker volume rm myaegee_postgres-discounts-db 2>/dev/null || true
+	-docker volume rm myaegee_postgres-summeruniversity-db 2>/dev/null || true
+	-docker volume rm myaegee_postgres-network-db 2>/dev/null || true
+	-docker volume rm myaegee_postgres-knowledge-db 2>/dev/null || true
+	@echo "♻️  Restarting services with fresh databases..."
+	./helper.sh --start
+	@echo "✅ Database reset complete! Seed data will be loaded automatically."
+
+reset-db-minimal: ## Reset databases with minimal seed profile
+	@echo "Setting SEED_PROFILE=minimal"
+	@export SEED_PROFILE=minimal && $(MAKE) reset-db
+
+reset-db-core: ## Reset only Core database
+	@echo "⚠️  Resetting Core database..."
+	./helper.sh --stop core
+	-docker volume rm myaegee_postgres-core-db 2>/dev/null || true
+	./helper.sh --start core
+	@echo "✅ Core database reset complete!"
+
+reset-db-events: ## Reset only Events database
+	@echo "⚠️  Resetting Events database..."
+	./helper.sh --stop events
+	-docker volume rm myaegee_postgres-events-db 2>/dev/null || true
+	./helper.sh --start events
+	@echo "✅ Events database reset complete!"
+
+reset-db-statutory: ## Reset only Statutory database
+	@echo "⚠️  Resetting Statutory database..."
+	./helper.sh --stop statutory
+	-docker volume rm myaegee_postgres-statutory-db 2>/dev/null || true
+	./helper.sh --start statutory
+	@echo "✅ Statutory database reset complete!"
+
+reset-db-discounts: ## Reset only Discounts database
+	@echo "⚠️  Resetting Discounts database..."
+	./helper.sh --stop discounts
+	-docker volume rm myaegee_postgres-discounts-db 2>/dev/null || true
+	./helper.sh --start discounts
+	@echo "✅ Discounts database reset complete!"
+
+reset-db-network: ## Reset only Network database
+	@echo "⚠️  Resetting Network database..."
+	./helper.sh --stop network
+	-docker volume rm myaegee_postgres-network-db 2>/dev/null || true
+	./helper.sh --start network
+	@echo "✅ Network database reset complete!"
+
+reset-db-summeruniversity: ## Reset only Summer University database
+	@echo "⚠️  Resetting Summer University database..."
+	./helper.sh --stop summeruniversity
+	-docker volume rm myaegee_postgres-summeruniversity-db 2>/dev/null || true
+	./helper.sh --start summeruniversity
+	@echo "✅ Summer University database reset complete!"
+
+reset-db-knowledge: ## Reset only Knowledge database
+	@echo "⚠️  Resetting Knowledge database..."
+	./helper.sh --stop knowledge
+	-docker volume rm myaegee_postgres-knowledge-db 2>/dev/null || true
+	./helper.sh --start knowledge
+	@echo "✅ Knowledge database reset complete!"
