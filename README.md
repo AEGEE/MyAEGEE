@@ -311,6 +311,141 @@ You can invoke the easy scripting in the following way (this shell command must 
 
 Guest? Host? wtf? read the [under the hood](#under-the-hood) section, and the [difference between start.sh and makefile](#start.sh-and-Makefile).
 
+## Development Workflow & Live Reload
+
+### Watch Mode (Auto-Reload) ✨
+
+**Good news!** All Node.js services run with automatic reload enabled by default. This means:
+
+- ✅ **Edit any JavaScript or JSON file** - Service automatically restarts
+- ✅ **See changes in ~2 seconds** (Direct Docker) or ~5-10 seconds (Vagrant)
+- ✅ **No manual restart needed** - Just save your file and refresh the browser
+
+**How it works:**
+
+All Node.js services (core, events, statutory, network, summeruniversity, discounts) use `nodemon` with Docker volume mounting:
+
+```bash
+# Your file changes are detected automatically:
+MyAEGEE/core/lib/server.js → /usr/app/src/lib/server.js (in container)
+                    ↓
+              Nodemon detects change
+                    ↓
+            Service restarts (~2 seconds)
+                    ↓
+              Changes are live!
+```
+
+**What triggers a reload:**
+
+- `.js` files (JavaScript)
+- `.json` files (config files)
+- Files in mounted directories: `lib/`, `models/`, `middlewares/`, `config/`
+
+**What does NOT trigger a reload:**
+
+- `package.json` changes (requires `make rebuild_<service>`)
+- New npm dependencies (requires rebuild)
+- Dockerfile changes (requires rebuild)
+
+**Example workflow:**
+
+```bash
+# 1. Start the system (one time)
+make start
+
+# 2. Edit a file in your favorite editor
+vim core/lib/server.js   # Or use VS Code, etc.
+
+# 3. Save the file
+# Service automatically restarts in ~2 seconds
+
+# 4. Refresh browser - changes are live!
+```
+
+### Service Selection for Faster Development
+
+You can choose which services to run based on what you're working on:
+
+**Minimal setup (fastest startup ~30 seconds):**
+
+```bash
+# Edit .env file:
+ENABLED_SERVICES=gateways:frontend:core
+
+# Start services
+make start
+```
+
+**Frontend + Core + Events:**
+
+```bash
+ENABLED_SERVICES=gateways:frontend:core:events
+```
+
+**Full development environment:**
+
+```bash
+ENABLED_SERVICES=gateways:frontend:core:events:statutory:network:summeruniversity:discounts:mailer
+```
+
+**With development tools:**
+
+```bash
+ENABLED_SERVICES=gateways:frontend:core:events:dev-tools
+# Adds: portainer, pgadmin, swagger
+```
+
+### Convenience Commands
+
+**Follow logs for a specific service:**
+
+```bash
+# On the GUEST (after `vagrant ssh`)
+./helper.sh --monitor core events
+# Or for a single service
+docker-compose logs -f core
+```
+
+**Rebuild a single service after dependency changes:**
+
+```bash
+make rebuild_core        # Rebuild core service
+make rebuild_frontend    # Rebuild frontend
+make rebuild_events      # Rebuild events service
+```
+
+**Quick restart of all services:**
+
+```bash
+make restart            # Stop and start all services
+```
+
+### Understanding Traefik Routing
+
+Your services are behind a **Traefik reverse proxy** that routes requests:
+
+```
+Browser Request                Traefik Routes To          Container
+─────────────────────────────────────────────────────────────────────
+my.appserver.test          →   frontend:80           →   Vue.js app
+my.appserver.test/api/core →   core:8084             →   Core service
+my.appserver.test/api/events→  events:8084           →   Events service
+traefik.appserver.test     →   traefik:8080          →   Dashboard
+```
+
+**Why keep Traefik?**
+
+- ✅ Single entry point (just port 80)
+- ✅ No CORS configuration needed
+- ✅ Matches production architecture
+- ✅ Automatic service discovery
+- ✅ Path rewriting (strips `/api/core` prefix)
+- ✅ Serves static media files
+
+**Check Traefik dashboard:**
+Visit http://traefik.appserver.test to see all registered services and routes.
+
 ### Reading the logs
 
 For now, if one wants to follow some specific logs, they have to invoke helper.sh manually e.g.

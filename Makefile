@@ -12,7 +12,8 @@ export $(shell sed 's/=.*//' .env)
         nuke_dev clean_docker_dangling_images clean_docker_images clean prune listen_frontend rebuild_frontend rebuild_core \
         rebuild_events rebuild_summeruniversity rebuild_statutory rebuild_discounts rebuild_mailer rebuild_network rebuild_knowledge \
         bump install-agents remove-agents backup backup_core backup_events backup_discounts backup_network backup_summeruniversity \
-	    backup_knowledge backup_gsuite-wrapper backup_statping backup_statistics backup_security backup_shortener backup_survey
+	    backup_knowledge backup_gsuite-wrapper backup_statping backup_statistics backup_security backup_shortener backup_survey \
+	    dev full logs status
 
 default:
 	@echo 'Most common options are bootstrap, start, monitor, live_refresh, restart, nuke_dev, clean (cleans untagged/unnamed images)'
@@ -20,6 +21,12 @@ default:
 	@echo 'For initial setup:'
 	@echo '  - Ubuntu 24.04: make bootstrap-ubuntu  (sets up Docker, then runs bootstrap)'
 	@echo '  - Other systems: ./start.sh            (sets up Vagrant, then runs bootstrap)'
+	@echo ''
+	@echo 'Development commands:'
+	@echo '  - make dev              Start minimal services (fast startup)'
+	@echo '  - make full             Start all services'
+	@echo '  - make logs service=X   Follow logs for service X'
+	@echo '  - make status           Show running services'
 	@echo ''
 
 init: #check recursive & make secrets, change pw, change .env file
@@ -184,3 +191,75 @@ backup_shortener:
 
 backup_survey:
 	./helper.sh --execute postgres-limesurvey -- pg_dump 'postgresql://postgres:$${PW_POSTGRES}@localhost/limesurvey' --inserts > limesurvey.sql.backup-$(shell date +%Y-%m-%dT%H:%M)
+
+# Convenience commands for development
+dev: # Start minimal development environment (fastest startup)
+	@echo "🚀 Starting minimal development environment..."
+	@echo "   Services: Traefik, Frontend, Core"
+	@echo ""
+	@if [ ! -f .env ]; then \
+		echo "❌ Error: .env file not found"; \
+		echo "   Run 'make init' or './start.sh' first"; \
+		exit 1; \
+	fi
+	@# Temporarily override ENABLED_SERVICES for minimal setup
+	@ENABLED_SERVICES=gateways:frontend:core ./helper.sh --start
+	@echo ""
+	@echo "✅ Minimal environment started!"
+	@echo ""
+	@echo "Access your services:"
+	@echo "  Frontend:          http://my.appserver.test"
+	@echo "  Traefik Dashboard: http://traefik.appserver.test"
+	@echo ""
+	@echo "To start more services, edit .env and run 'make start'"
+
+full: # Start full development environment
+	@echo "🚀 Starting full development environment..."
+	@echo "   This may take 2-3 minutes..."
+	@echo ""
+	@if [ ! -f .env ]; then \
+		echo "❌ Error: .env file not found"; \
+		echo "   Run 'make init' or './start.sh' first"; \
+		exit 1; \
+	fi
+	@# Start all common services
+	@ENABLED_SERVICES=gateways:frontend:core:events:statutory:network:summeruniversity:discounts:mailer ./helper.sh --start
+	@echo ""
+	@echo "✅ Full environment started!"
+	@echo ""
+	@echo "Access your services:"
+	@echo "  Frontend:          http://my.appserver.test"
+	@echo "  Traefik Dashboard: http://traefik.appserver.test"
+	@echo "  API Core:          http://my.appserver.test/api/core"
+	@echo "  API Events:        http://my.appserver.test/api/events"
+	@echo ""
+
+logs: # Follow logs for a specific service (usage: make logs service=core)
+	@if [ -z "$(service)" ]; then \
+		echo "Usage: make logs service=<service_name>"; \
+		echo ""; \
+		echo "Examples:"; \
+		echo "  make logs service=core"; \
+		echo "  make logs service=frontend"; \
+		echo "  make logs service=events"; \
+		echo ""; \
+		echo "To see all logs: make monitor"; \
+		exit 1; \
+	fi
+	@echo "📋 Following logs for service: $(service)"
+	@echo "   Press Ctrl+C to stop"
+	@echo ""
+	@./helper.sh --docker -- logs -f $(service) || docker-compose logs -f $(service)
+
+status: # Show status of all running services
+	@echo "📊 Service Status"
+	@echo "=================="
+	@echo ""
+	@./helper.sh --list || docker-compose ps
+	@echo ""
+	@echo "Quick access URLs:"
+	@echo "  Frontend:          http://my.appserver.test"
+	@echo "  Traefik Dashboard: http://traefik.appserver.test"
+	@echo ""
+	@echo "To see logs: make monitor (all) or make logs service=<name> (specific)"
+
