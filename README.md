@@ -37,15 +37,19 @@ MyAEGEE supports two development environment options:
 - 🔥 **Hot reload in <3 seconds** (vs 5-10s with Vagrant)
 - 🚀 Native filesystem performance
 
+## Quick Start
+
 **Quick Start**:
 
 ```bash
 git clone --recursive https://github.com/AEGEE/MyAEGEE.git
 cd MyAEGEE
-./scripts-ubuntu/bootstrap.sh
-# Log out and back in
+./scripts-ubuntu/bootstrap.sh    # Includes optional CI tools setup
+# Log out and back in (if prompted)
 make start
 ```
+
+**Note**: The bootstrap script now optionally installs CI linting tools and git hooks during setup!
 
 **Documentation**: See [docs/setup-ubuntu-direct.md](docs/setup-ubuntu-direct.md) for complete guide
 
@@ -312,6 +316,39 @@ You can invoke the easy scripting in the following way (this shell command must 
 Guest? Host? wtf? read the [under the hood](#under-the-hood) section, and the [difference between start.sh and makefile](#start.sh-and-Makefile).
 
 ## Development Workflow & Live Reload
+
+### Pre-Push CI Checks 🔍
+
+**Catch issues before pushing!** Run the same checks that CircleCI does, locally:
+
+```bash
+# One-time setup: install dependencies and git hooks
+make install-ci-deps    # Installs shellcheck, hadolint, yamllint, pylint
+make setup-hooks        # Installs pre-push hook
+
+# Checks will now run automatically before every push
+git push
+
+# Or run checks manually anytime
+make ci-check
+```
+
+**Benefits:**
+
+- ✅ **Catch linting errors** before CI fails
+- ✅ **Faster feedback** - know immediately if tests pass
+- ✅ **Automatic on push** - pre-push hook runs checks for you
+- ✅ **Smart detection** - only checks changed modules
+
+**Quick commands:**
+
+- `make install-ci-deps` - Install all required linting tools
+- `make ci-check` - Check changed modules
+- `make ci-check-all` - Check everything
+- `make ci-check-fast` - Skip slow tests
+- `git push --no-verify` - Bypass checks temporarily
+
+📖 **Full documentation**: See [docs/local-ci-checks.md](docs/local-ci-checks.md)
 
 ### Watch Mode (Auto-Reload) ✨
 

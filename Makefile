@@ -13,7 +13,7 @@ export $(shell sed 's/=.*//' .env)
         rebuild_events rebuild_summeruniversity rebuild_statutory rebuild_discounts rebuild_mailer rebuild_network rebuild_knowledge \
         bump install-agents remove-agents backup backup_core backup_events backup_discounts backup_network backup_summeruniversity \
 	    backup_knowledge backup_gsuite-wrapper backup_statping backup_statistics backup_security backup_shortener backup_survey \
-	    dev full logs status
+	    dev full logs status install-ci-deps ci-check ci-check-fast ci-check-all setup-hooks
 
 default:
 	@echo 'Most common options are bootstrap, start, monitor, live_refresh, restart, nuke_dev, clean (cleans untagged/unnamed images)'
@@ -27,6 +27,13 @@ default:
 	@echo '  - make full             Start all services'
 	@echo '  - make logs service=X   Follow logs for service X'
 	@echo '  - make status           Show running services'
+	@echo ''
+	@echo 'CI/Quality checks:'
+	@echo '  - make install-ci-deps  Install linting tools (shellcheck, hadolint, etc.)'
+	@echo '  - make setup-hooks      Install pre-push git hooks'
+	@echo '  - make ci-check         Run CI checks on changed modules'
+	@echo '  - make ci-check-fast    Run fast CI checks (skip tests)'
+	@echo '  - make ci-check-all     Run CI checks on all modules'
 	@echo ''
 
 init: #check recursive & make secrets, change pw, change .env file
@@ -258,6 +265,27 @@ status: # Show status of all running services
 	@./helper.sh --list || docker-compose ps
 	@echo ""
 	@echo "Quick access URLs:"
+
+# CI/Quality checks
+install-ci-deps: # Install CI check dependencies (shellcheck, hadolint, yamllint, pylint)
+	@echo "📦 Installing CI dependencies..."
+	@./scripts-ubuntu/install-ci-dependencies.sh
+
+setup-hooks: # Install pre-push git hooks
+	@echo "🔧 Installing git hooks..."
+	@./scripts-ubuntu/setup-git-hooks.sh
+
+ci-check: # Run CI checks on changed modules
+	@echo "🔍 Running CI checks on changed modules..."
+	@./scripts-ubuntu/run-ci-checks.sh
+
+ci-check-fast: # Run fast CI checks (skip tests)
+	@echo "⚡ Running fast CI checks..."
+	@./scripts-ubuntu/run-ci-checks.sh --fast
+
+ci-check-all: # Run CI checks on all modules
+	@echo "🔍 Running CI checks on all modules..."
+	@./scripts-ubuntu/run-ci-checks.sh --all
 	@echo "  Frontend:          http://my.appserver.test"
 	@echo "  Traefik Dashboard: http://traefik.appserver.test"
 	@echo ""

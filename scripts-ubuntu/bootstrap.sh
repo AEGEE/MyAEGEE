@@ -197,6 +197,69 @@ increase_inotify_limits() {
     return 0
 }
 
+install_ci_dependencies() {
+    log_info "Installing CI/lint checking tools (optional)..."
+    echo ""
+    
+    log_info "These tools allow you to run the same checks locally that CircleCI runs:"
+    log_info "  • shellcheck - Shell script linter"
+    log_info "  • hadolint - Dockerfile linter"
+    log_info "  • yamllint - YAML linter"
+    log_info "  • pylint - Python linter"
+    echo ""
+    log_info "This helps catch issues before pushing to prevent CI failures."
+    echo ""
+    
+    if confirm "Install CI checking tools? (Recommended for contributors)"; then
+        local install_script="${SCRIPT_DIR}/install-ci-dependencies.sh"
+        
+        if [ -x "$install_script" ]; then
+            log_info "Running CI dependencies installer..."
+            echo ""
+            
+            if bash "$install_script"; then
+                log_success "CI dependencies installed"
+                echo ""
+                
+                # Offer to setup git hooks
+                log_info "Would you also like to set up pre-push git hooks?"
+                log_info "This will automatically run checks before you push code."
+                echo ""
+                
+                if confirm "Setup pre-push hooks?"; then
+                    local hooks_script="${SCRIPT_DIR}/setup-git-hooks.sh"
+                    if [ -x "$hooks_script" ]; then
+                        echo ""
+                        bash "$hooks_script"
+                        log_success "Git hooks configured"
+                    else
+                        log_warning "setup-git-hooks.sh not found or not executable"
+                        log_info "You can set up hooks later with: make setup-hooks"
+                    fi
+                else
+                    log_info "Skipping git hooks setup"
+                    log_info "You can set up hooks later with: make setup-hooks"
+                fi
+                
+                return 0
+            else
+                log_warning "CI dependencies installation had issues"
+                log_info "You can try again later with: make install-ci-deps"
+                return 0  # Don't fail bootstrap
+            fi
+        else
+            log_warning "install-ci-dependencies.sh not found"
+            log_info "You can install CI tools later with: make install-ci-deps"
+            return 0
+        fi
+    else
+        log_info "Skipping CI tools installation"
+        log_info "You can install them later with: make install-ci-deps"
+        echo ""
+        return 0
+    fi
+}
+
 validate_installation() {
     log_step "Step 7/7: Validating Installation"
     
@@ -275,9 +338,16 @@ print_next_steps() {
     fi
     
     echo ""
+    log_info "Development workflow tips:"
+    log_info "  - Run CI checks before pushing: make ci-check"
+    log_info "  - Fast CI checks (no tests): make ci-check-fast"
+    log_info "  - Setup git pre-push hooks: make setup-hooks"
+    log_info "  - See full CI docs: docs/local-ci-checks.md"
+    
+    echo ""
     log_info "For help and troubleshooting:"
-    log_info "  - See: specs/001-direct-docker-ubuntu/quickstart.md"
-    log_info "  - Or: docs/troubleshooting-ubuntu.md"
+    log_info "  - Quickstart: docs/setup-ubuntu-direct.md"
+    log_info "  - Troubleshooting: docs/troubleshooting-ubuntu.md"
     echo ""
 }
 
@@ -308,6 +378,7 @@ main() {
     log_info "  • Add your user to the docker group"
     log_info "  • Configure /etc/hosts for local development"
     log_info "  • Set up environment configuration"
+    log_info "  • Optionally install CI linting tools"
     log_info "  • Validate the installation"
     echo ""
     
@@ -338,6 +409,10 @@ main() {
     echo ""
     
     increase_inotify_limits
+    echo ""
+    
+    # Optional: Install CI dependencies
+    install_ci_dependencies
     echo ""
     
     validate_installation

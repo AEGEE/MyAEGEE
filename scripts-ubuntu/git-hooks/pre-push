@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+#
+# Git pre-push hook
+# Runs CI checks before allowing a push
+#
+# To bypass this hook temporarily, use: git push --no-verify
+#
+
+set -e
+
+# Get the root directory of the git repo
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+CI_SCRIPT="${ROOT_DIR}/scripts-ubuntu/run-ci-checks.sh"
+
+echo ""
+echo "🔍 Running pre-push CI checks..."
+echo ""
+
+# Check if the CI script exists
+if [[ ! -f "$CI_SCRIPT" ]]; then
+    echo "⚠️  Warning: CI check script not found at $CI_SCRIPT"
+    echo "   Skipping CI checks. Install with: scripts-ubuntu/setup-git-hooks.sh"
+    exit 0
+fi
+
+# Run the CI checks (only on changed modules for speed)
+if "$CI_SCRIPT" --fast; then
+    echo ""
+    echo "✓ Pre-push checks passed!"
+    echo ""
+    exit 0
+else
+    echo ""
+    echo "✗ Pre-push checks failed!"
+    echo ""
+    echo "To bypass this check temporarily, use:"
+    echo "  git push --no-verify"
+    echo ""
+    echo "To run checks manually:"
+    echo "  $CI_SCRIPT"
+    echo ""
+    exit 1
+fi
