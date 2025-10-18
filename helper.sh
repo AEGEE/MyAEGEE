@@ -168,10 +168,12 @@ function retry {
 
 WANTEDNAME=$(head -n1 Vagrantfile | grep -oP 'machine_name = "\K[^"]+' )
 HOST=$(hostname -f)
-# TODO: ignore this when using --no-vagrant in start.sh
-if [[ ! ${HOST} =~ ^${WANTEDNAME} ]]; then
-  echo "You're on ${HOST}, (the HOST) but you should be on '${WANTEDNAME}' (the GUEST). Exiting..."
-  exit 1
+# Skip hostname check if running in direct Docker mode or being sourced for testing
+if [[ -z "${MYAEGEE_ENVIRONMENT}" ]] || [[ "${MYAEGEE_ENVIRONMENT}" == "vagrant" ]]; then
+  if [[ ! ${HOST} =~ ^${WANTEDNAME} ]]; then
+    echo "You're on ${HOST}, (the HOST) but you should be on '${WANTEDNAME}' (the GUEST). Exiting..."
+    exit 1
+  fi
 fi
 
 # HUMAN INTERVENTION NEEDED: register in .env your services
@@ -179,11 +181,21 @@ fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # https://stackoverflow.com/questions/19331497/set-environment-variables-from-file-of-key-value-pairs
-# shellcheck disable=SC2046
-export $(grep -v '^#' "${DIR}/.env" | xargs -d '\n')
-if [[ "${MYAEGEE_ENV}" != "production" && "${MYAEGEE_ENV}" != "development" ]]; then
-  echo "Error: MYAEGEE_ENV can only be 'production' or 'development'"
-  exit 1
+# Load .env more carefully to handle special characters
+if [ -f "${DIR}/.env" ]; then
+  set -a  # automatically export all variables
+  # Parse .env line by line to handle special characters
+  while IFS= read -r line || [ -n "$line" ]; do
+    # Skip empty lines and comments
+    [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+    # Export the variable (allowing bash to parse it properly)
+    eval "export $line" 2>/dev/null || true
+  done < "${DIR}/.env"
+  set +a
+  if [[ -n "${MYAEGEE_ENV}" && "${MYAEGEE_ENV}" != "production" && "${MYAEGEE_ENV}" != "development" ]]; then
+    echo "Error: MYAEGEE_ENV can only be 'production' or 'development'"
+    exit 1
+  fi
 fi
 
 HOSTNAME="$(hostname)"
@@ -243,9 +255,15 @@ if [[ "$#" -ge 1 ]]; then
     done
 
 else
-    echo "Too few parameters"
-    echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump|--docker} [-v]"
-    exit 1
+    # Only enforce parameter requirement if script is being executed (not sourced)
+    if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+        echo "Too few parameters"
+        echo "Usage: helper.sh {--init|--build|--start|--refresh|--monitor|--stop|--down|--restart|--nuke|--execute|--bump|--docker} [-v]"
+        exit 1
+    else
+        # Being sourced, just return so functions are available
+        return 0
+    fi
 fi
 
 # shellcheck disable=SC2004

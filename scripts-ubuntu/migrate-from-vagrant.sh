@@ -13,7 +13,7 @@ source "${SCRIPT_DIR}/common.sh"
 
 # Migration configuration
 BACKUP_DIR="${REPO_ROOT}/migration-backup-$(date +%Y%m%d-%H%M%S)"
-VAGRANT_VM_NAME="default"
+# VAGRANT_VM_NAME="default"  # Reserved for future use
 
 # Services with PostgreSQL databases to migrate
 declare -a DB_SERVICES=(
@@ -226,12 +226,10 @@ import_database_volumes() {
         fi
         
         # Import data using a temporary container
-        docker run --rm \
+        if docker run --rm \
             -v "${volume_name}:/target" \
             -v "${import_file}:/backup.tar:ro" \
-            busybox tar xzf /backup.tar -C /target 2>/dev/null
-        
-        if [ $? -eq 0 ]; then
+            busybox tar xzf /backup.tar -C /target 2>/dev/null; then
             log_success "✓ ${service} database imported"
             success_count=$((success_count + 1))
         else
@@ -266,12 +264,10 @@ import_other_volumes() {
             docker volume create "${volume_name}" >/dev/null
         fi
         
-        docker run --rm \
+        if docker run --rm \
             -v "${volume_name}:/target" \
             -v "${import_file}:/backup.tar:ro" \
-            busybox tar xzf /backup.tar -C /target 2>/dev/null
-        
-        if [ $? -eq 0 ]; then
+            busybox tar xzf /backup.tar -C /target 2>/dev/null; then
             log_success "✓ ${service} data imported"
         else
             log_warning "✗ ${service} data import failed"
@@ -313,9 +309,11 @@ migrate_env_configuration() {
     if grep -q "^MYAEGEE_ENVIRONMENT=" "${REPO_ROOT}/.env"; then
         sed -i 's/^MYAEGEE_ENVIRONMENT=.*/MYAEGEE_ENVIRONMENT=direct/' "${REPO_ROOT}/.env"
     else
-        echo "" >> "${REPO_ROOT}/.env"
-        echo "# Environment type: 'vagrant' or 'direct'" >> "${REPO_ROOT}/.env"
-        echo "MYAEGEE_ENVIRONMENT=direct" >> "${REPO_ROOT}/.env"
+        {
+            echo ""
+            echo "# Environment type: 'vagrant' or 'direct'"
+            echo "MYAEGEE_ENVIRONMENT=direct"
+        } >> "${REPO_ROOT}/.env"
     fi
     
     log_success "Environment configuration migrated"

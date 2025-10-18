@@ -58,11 +58,13 @@ benchmark_container_startup() {
     make stop >/dev/null 2>&1 || true
     
     log_info "Starting containers and measuring time..."
-    local start_time=$(date +%s)
+    local start_time
+    start_time=$(date +%s)
     
     make start >/dev/null 2>&1
     
-    local end_time=$(date +%s)
+    local end_time
+    end_time=$(date +%s)
     local duration=$((end_time - start_time))
     
     log_result "=== Container Startup ==="
@@ -72,7 +74,8 @@ benchmark_container_startup() {
     sleep 10
     
     # Count running containers
-    local container_count=$(docker ps --format "{{.Names}}" | wc -l)
+    local container_count
+    container_count=$(docker ps --format "{{.Names}}" | wc -l)
     log_result "Running containers: ${container_count}"
     log_result ""
 }
@@ -83,10 +86,14 @@ benchmark_memory_usage() {
     log_info "Measuring memory consumption..."
     sleep 5  # Let containers stabilize
     
-    local total_mem=$(free -m | grep Mem | awk '{print $2}')
-    local used_mem=$(free -m | grep Mem | awk '{print $3}')
-    local free_mem=$(free -m | grep Mem | awk '{print $4}')
-    local available_mem=$(free -m | grep Mem | awk '{print $7}')
+    local total_mem
+    total_mem=$(free -m | grep Mem | awk '{print $2}')
+    local used_mem
+    used_mem=$(free -m | grep Mem | awk '{print $3}')
+    local free_mem
+    free_mem=$(free -m | grep Mem | awk '{print $4}')
+    local available_mem
+    available_mem=$(free -m | grep Mem | awk '{print $7}')
     
     log_result "=== Memory Usage ==="
     log_result "Total: ${total_mem} MB"
@@ -120,7 +127,8 @@ benchmark_hot_reload() {
     # Add a comment
     echo "// Benchmark test $(date +%s)" >> "$test_file"
     
-    local start_time=$(date +%s.%N)
+    local start_time
+    start_time=$(date +%s.%N)
     
     # Wait for restart message in logs
     local max_wait=30
@@ -136,8 +144,10 @@ benchmark_hot_reload() {
         waited=$((waited + 1))
     done
     
-    local end_time=$(date +%s.%N)
-    local duration=$(echo "$end_time - $start_time" | bc)
+    local end_time
+    end_time=$(date +%s.%N)
+    local duration
+    duration=$(echo "$end_time - $start_time" | bc)
     
     # Restore file
     git checkout "$test_file" 2>/dev/null || true
@@ -171,22 +181,30 @@ benchmark_disk_io() {
     
     # Write test
     log_info "Testing write speed (${test_size_mb}MB)..."
-    local write_start=$(date +%s.%N)
+    local write_start
+    write_start=$(date +%s.%N)
     dd if=/dev/zero of="$test_file" bs=1M count=$test_size_mb 2>/dev/null
     sync
-    local write_end=$(date +%s.%N)
-    local write_duration=$(echo "$write_end - $write_start" | bc)
-    local write_speed=$(echo "$test_size_mb / $write_duration" | bc)
+    local write_end
+    write_end=$(date +%s.%N)
+    local write_duration
+    write_duration=$(echo "$write_end - $write_start" | bc)
+    local write_speed
+    write_speed=$(echo "$test_size_mb / $write_duration" | bc)
     
     # Read test
     log_info "Testing read speed (${test_size_mb}MB)..."
     # Clear cache
     sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches' 2>/dev/null || true
-    local read_start=$(date +%s.%N)
+    local read_start
+    read_start=$(date +%s.%N)
     dd if="$test_file" of=/dev/null bs=1M 2>/dev/null
-    local read_end=$(date +%s.%N)
-    local read_duration=$(echo "$read_end - $read_start" | bc)
-    local read_speed=$(echo "$test_size_mb / $read_duration" | bc)
+    local read_end
+    read_end=$(date +%s.%N)
+    local read_duration
+    read_duration=$(echo "$read_end - $read_start" | bc)
+    local read_speed
+    read_speed=$(echo "$test_size_mb / $read_duration" | bc)
     
     # Cleanup
     rm -f "$test_file"
@@ -207,7 +225,8 @@ benchmark_response_time() {
     
     # Test frontend
     if curl -s -o /dev/null -w '' http://my.appserver.test 2>/dev/null; then
-        local frontend_time=$(curl -s -o /dev/null -w '%{time_total}' http://my.appserver.test 2>/dev/null || echo "N/A")
+        local frontend_time
+        frontend_time=$(curl -s -o /dev/null -w '%{time_total}' http://my.appserver.test 2>/dev/null || echo "N/A")
         log_result "=== HTTP Response Times ==="
         log_result "Frontend (http://my.appserver.test): ${frontend_time}s"
     else
@@ -217,7 +236,8 @@ benchmark_response_time() {
     
     # Test Traefik dashboard
     if curl -s -o /dev/null -w '' http://traefik.appserver.test 2>/dev/null; then
-        local traefik_time=$(curl -s -o /dev/null -w '%{time_total}' http://traefik.appserver.test 2>/dev/null || echo "N/A")
+        local traefik_time
+        traefik_time=$(curl -s -o /dev/null -w '%{time_total}' http://traefik.appserver.test 2>/dev/null || echo "N/A")
         log_result "Traefik Dashboard: ${traefik_time}s"
     else
         log_result "Traefik Dashboard: ❌ Not accessible"

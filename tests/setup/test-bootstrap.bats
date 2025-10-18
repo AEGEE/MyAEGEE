@@ -66,10 +66,11 @@ teardown() {
 }
 
 @test "detect Docker already installed" {
-    run bash -c '. scripts-ubuntu/common.sh && command_exists docker && echo "found"'
+    run bash -c '. scripts-ubuntu/common.sh && (command_exists docker && echo "found" || echo "not found")'
     
-    # Just verify the function works
+    # Just verify the function works (returns either "found" or "not found")
     [ "$status" -eq 0 ]
+    [[ "$output" =~ ^(found|not\ found)$ ]]
 }
 
 @test "check Docker version meets requirements" {

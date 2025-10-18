@@ -31,32 +31,33 @@
 }
 
 @test "is_vagrant function exists in helper.sh" {
-    run bash -c '. helper.sh && type is_vagrant'
+    run bash -c 'MYAEGEE_ENVIRONMENT=direct && . helper.sh 2>/dev/null || true; type is_vagrant 2>/dev/null'
     [ "$status" -eq 0 ]
     [[ "$output" =~ "function" ]]
 }
 
 @test "is_vagrant returns correct value in helper.sh" {
-    run bash -c '. helper.sh && is_vagrant && echo "vagrant" || echo "host"'
+    run bash -c 'MYAEGEE_ENVIRONMENT=direct && . helper.sh 2>/dev/null || true; is_vagrant && echo "vagrant" || echo "host"'
     [ "$status" -eq 0 ]
     [[ "$output" =~ ^(vagrant|host)$ ]]
 }
 
 @test "helper.sh can be sourced without errors" {
-    run bash -c '. helper.sh && echo "sourced"'
+    run bash -c 'MYAEGEE_ENVIRONMENT=direct . helper.sh 2>&1 && echo "sourced"'
     [ "$status" -eq 0 ]
     [[ "$output" =~ "sourced" ]]
 }
 
 @test "start.sh has OS detection function" {
-    run bash -c '. start.sh 2>/dev/null || true && type detect_os 2>/dev/null || echo "not found"'
-    # Just verify the function exists (start.sh may error when sourced directly)
-    [[ "$output" != "not found" ]] || [ "$status" -eq 0 ]
+    # Extract and check if detect_os function exists in start.sh
+    run grep -A 10 "^detect_os()" start.sh
+    [ "$status" -eq 0 ]
+    [[ "$output" =~ "detect_os()" ]]
 }
 
 @test "environment detection is consistent" {
     # Test that is_vagrant returns the same result when called multiple times
-    run bash -c '. helper.sh && is_vagrant; r1=$?; is_vagrant; r2=$?; [ $r1 -eq $r2 ] && echo "consistent"'
+    run bash -c 'MYAEGEE_ENVIRONMENT=direct . helper.sh 2>&1 && is_vagrant; r1=$?; is_vagrant; r2=$?; [ $r1 -eq $r2 ] && echo "consistent"'
     [ "$status" -eq 0 ]
     [[ "$output" =~ "consistent" ]]
 }

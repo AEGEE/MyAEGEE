@@ -127,7 +127,8 @@ version_ge() {
 # Extract version number from string
 # Usage: extract_version "Docker version 24.0.7, build afdd53b"
 extract_version() {
-    echo "$1" | grep -oP '\d+\.\d+(\.\d+)?' | head -n1
+    local input="$1"
+    echo "$input" | grep -oP '\d+\.\d+(\.\d+)?' | head -n1
 }
 
 # Check if Docker is installed and meets minimum version
@@ -139,7 +140,7 @@ check_docker_version() {
     fi
     
     local docker_version
-    docker_version=$(docker --version | extract_version)
+    docker_version=$(docker --version | extract_version "$(docker --version)")
     
     if [ -z "$docker_version" ]; then
         return 1
@@ -150,6 +151,9 @@ check_docker_version() {
 
 # Check if Docker Compose V2 is available
 check_docker_compose_v2() {
+    if ! command_exists docker; then
+        return 1
+    fi
     docker compose version >/dev/null 2>&1
 }
 
@@ -175,7 +179,8 @@ append_if_missing() {
 # Create backup of file
 backup_file() {
     local file="$1"
-    local backup="${file}.backup.$(date +%Y%m%d_%H%M%S)"
+    local backup
+    backup="${file}.backup.$(date +%Y%m%d_%H%M%S)"
     
     if [ -f "$file" ]; then
         sudo cp "$file" "$backup"
@@ -187,7 +192,7 @@ backup_file() {
 spinner() {
     local pid=$1
     local delay=0.1
-    local spinstr='|/-\'
+    local spinstr='|/-\\'
     
     while ps -p "$pid" > /dev/null 2>&1; do
         local temp=${spinstr#?}
