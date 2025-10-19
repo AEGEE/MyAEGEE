@@ -154,45 +154,96 @@ fi
 
 print_section "Checking Docker availability"
 
-# Check if Docker daemon is accessible
-# In Codespaces, Docker daemon may take a few seconds to start
-log_info "Waiting for Docker daemon..."
-DOCKER_TIMEOUT=60
-DOCKER_WAIT=0
+# Check if Docker socket exists
+if [ ! -S /var/run/docker.sock ]; then
+    log_error "Docker socket not found at /var/run/docker.sock"
+    log_error "This dev container requires Docker to be available"
 
-while ! docker ps > /dev/null 2>&1; do
+    if [ -n "$CODESPACES" ]; then
+        log_error "GitHub Codespaces should provide Docker automatically"
+        log_error "This might be a Codespaces platform issue"
+    fi
+
+    exit 1
+fi
+
+# Fix Docker socket permissions for Codespaces
+# In Codespaces, the Docker socket is mounted from the host and may have a different group ID
+# than our container's docker group. We'll use sudo for Docker commands to avoid permission issues.
+SOCKET_GROUP=$(stat -c '%g' /var/run/docker.sock 2>/dev/null || echo "unknown")
+DOCKER_GROUP_ID=$(getent group docker | cut -d: -f3 2>/dev/null || echo "unknown")
+
+USE_SUDO_FOR_DOCKER=false
+if [ "$SOCKET_GROUP" != "$DOCKER_GROUP_ID" ] && [ "$SOCKET_GROUP" != "unknown" ]; then
+    log_info "Docker socket group ($SOCKET_GROUP) differs from container docker group ($DOCKER_GROUP_ID)"
+    log_info "Will use sudo for Docker commands to avoid permission issues"
+    USE_SUDO_FOR_DOCKER=true
+fi
+
+# Test Docker access
+log_info "Verifying Docker daemon access..."
+
+DOCKER_TIMEOUT=15
+DOCKER_WAIT=0
+WAIT_INTERVAL=1
+
+# Function to run docker commands (with or without sudo)
+docker_cmd() {
+    if [ "$USE_SUDO_FOR_DOCKER" = true ]; then
+        sudo docker "$@"
+    else
+        docker "$@"
+    fi
+}
+
+while true; do
+    # Try docker info
+    if docker_cmd info > /dev/null 2>&1; then
+        break
+    fi
+
+    # Check timeout
     if [ $DOCKER_WAIT -ge $DOCKER_TIMEOUT ]; then
-        log_error "Docker daemon is not accessible after ${DOCKER_TIMEOUT}s"
-        log_error "Please ensure Docker is running on your host machine"
+        log_error "Docker daemon is not responding after ${DOCKER_TIMEOUT}s"
+
         echo ""
-        echo "Solutions:"
+        echo "Diagnostic information:"
+        echo "  Docker socket: $(ls -l /var/run/docker.sock 2>&1)"
+        echo "  Socket group: $SOCKET_GROUP"
+        echo "  Container docker group: $DOCKER_GROUP_ID"
+        echo "  Current user: $(whoami)"
+        echo "  User groups: $(groups)"
+        echo ""
+
         if [ -n "$CODESPACES" ]; then
-            echo "  - Wait a moment and try rebuilding the container"
-            echo "  - Check Codespaces logs for Docker startup errors"
-            echo "  - Try restarting the Codespace"
+            log_error "Docker should be available in Codespaces"
+            echo "Try: Rebuild the container"
         else
-            echo "  - Start Docker Desktop"
-            echo "  - Check Docker service: sudo systemctl start docker"
-            echo "  - Verify Docker socket is mounted: ls -l /var/run/docker.sock"
+            echo "Try: Ensure Docker Desktop is running"
         fi
-        echo ""
+
         exit 1
     fi
 
-    if [ $((DOCKER_WAIT % 10)) -eq 0 ] && [ $DOCKER_WAIT -gt 0 ]; then
-        log_info "Still waiting for Docker... (${DOCKER_WAIT}s elapsed)"
+    # Progress indicator
+    if [ $((DOCKER_WAIT % 5)) -eq 0 ] && [ $DOCKER_WAIT -gt 0 ]; then
+        log_info "Waiting for Docker... (${DOCKER_WAIT}s elapsed)"
     fi
 
-    sleep 2
-    DOCKER_WAIT=$((DOCKER_WAIT + 2))
+    sleep $WAIT_INTERVAL
+    DOCKER_WAIT=$((DOCKER_WAIT + WAIT_INTERVAL))
 done
 
-log_success "Docker daemon is accessible"
+if [ "$USE_SUDO_FOR_DOCKER" = true ]; then
+    log_success "Docker is accessible (using sudo)"
+else
+    log_success "Docker is accessible"
+fi
 
 # Check if OMS network exists, create if not
-if ! docker network inspect OMS > /dev/null 2>&1; then
+if ! docker_cmd network inspect OMS > /dev/null 2>&1; then
     log_info "Creating OMS Docker network..."
-    docker network create OMS
+    docker_cmd network create OMS
     log_success "OMS network created"
 else
     log_success "OMS network exists"
@@ -244,7 +295,7 @@ log_info "[2/3] Starting backend services and frontend..."
 cd /workspace
 
 # Check if services are already running
-RUNNING_SERVICES=$(docker ps --format '{{.Names}}' | grep -c 'myaegee' || true)
+RUNNING_SERVICES=$(docker_cmd ps --format '{{.Names}}' | grep -c 'myaegee' || true)
 
 if [ "$RUNNING_SERVICES" -gt 5 ]; then
     log_success "Services are already running ($RUNNING_SERVICES containers)"
