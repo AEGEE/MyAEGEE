@@ -1,11 +1,18 @@
 # NOTE: this file is only ever used by `make` being run on the GUEST
 #  Those commands are intended to be executed on the GUEST system,
-#  i.e. within the vagrant VM
+#  i.e. within the vagrant VM (or a Dev Container / Codespaces in migration).
 
 # TODO: are all commands idempotent??? (do i want them to be?)
 
+# Include environment configuration if available.
+# Prefer .env (legacy/Vagrant), fall back to .env.devcontainer (Dev Containers/Codespaces)
+ifneq (,$(wildcard .env))
 include .env
 export $(shell sed 's/=.*//' .env)
+else ifneq (,$(wildcard .env.devcontainer))
+include .env.devcontainer
+export $(shell sed 's/=.*//' .env.devcontainer)
+endif
 
 .PHONY: default init build start bootstrap refresh live_refresh list debug config monitor stop down restart hard_restart \
         nuke_dev clean_docker_dangling_images clean_docker_images clean prune listen_frontend rebuild_frontend rebuild_core \
@@ -56,7 +63,7 @@ down: # docker-compose down
 	./helper.sh --down
 
 restart:
-	./helper.sh --down
+	./helper.sh --restart
 
 hard_restart: nuke_dev restart
 

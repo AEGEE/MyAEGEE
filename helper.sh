@@ -52,7 +52,7 @@ init_boot ()
     #always check if the repo is "complete"
     git submodule update --init
 
-    docker network inspect OMS &>/dev/null || (echo -e "[MyAEGEE] Creating 'OMS' docker network" && docker network create OMS)
+    docker_cmd network inspect OMS &>/dev/null || (echo -e "[MyAEGEE] Creating 'OMS' docker network" && docker_cmd network create OMS)
 
     touch "${DIR}"/secrets/acme.json # to avoid making it think it's a folder
     chmod 600 "${DIR}"/secrets/acme.json # Traefik doesn't let ACME challenge go through otherwise
@@ -92,23 +92,45 @@ compose_wrapper ()
     service_string=$(printenv ENABLED_SERVICES)
     # shellcheck disable=SC2206
     services=( ${service_string//:/ } )
-    command=( docker-compose -f "${DIR}/base-docker-compose.yml" )
+  command=( -f "${DIR}/base-docker-compose.yml" )
+    # Choose env file for compose variable interpolation
+    ENVFILE=""
+    if [[ -f "${DIR}/.env" ]]; then
+        ENVFILE="${DIR}/.env"
+    elif [[ -f "${DIR}/.env.devcontainer" ]]; then
+        ENVFILE="${DIR}/.env.devcontainer"
+    fi
     for s in "${services[@]}"; do
         if [[ -f "${DIR}/${s}/docker/docker-compose.yml" ]]; then
             if [[ "${MYAEGEE_ENV}" == "production" ]]; then
-              command+=( -f "${DIR}/${s}/docker/docker-compose.yml" )
+        command+=( -f "${DIR}/${s}/docker/docker-compose.yml" )
             else
-              command+=( -f "${DIR}/${s}/docker/docker-compose.yml" -f "${DIR}/${s}/docker/docker-compose.dev.yml" )
+        command+=( -f "${DIR}/${s}/docker/docker-compose.yml" -f "${DIR}/${s}/docker/docker-compose.dev.yml" )
             fi
         else
             echo -e "[MyAEGEE] WARNING: No docker file found for ${s} (full path ${DIR}/${s}/docker/docker-compose.yml)"
         fi
     done
-    command+=( "${@}" )
-    if ( $verbose ); then
-        echo -e "\n[MyAEGEE] Full command:\n${command[*]}\n"
+  # Prepend the compose runner
+  if command -v docker-compose >/dev/null 2>&1; then
+    # docker-compose (v1) does not support --env-file; relies on .env in CWD
+    full_cmd=( docker-compose "${command[@]}" )
+  else
+    full_cmd=( docker compose )
+    if [[ -n "${ENVFILE}" ]]; then
+      full_cmd+=( --env-file "${ENVFILE}" )
     fi
-    "${command[@]}"
+    full_cmd+=( "${command[@]}" )
+  fi
+  full_cmd+=( "${@}" )
+    if ( $verbose ); then
+    echo -e "\n[MyAEGEE] Full command:\n${full_cmd[*]}\n"
+    fi
+  if [[ -n "${SUDO}" ]]; then
+    sudo -E "${full_cmd[@]}"
+  else
+    "${full_cmd[@]}"
+  fi
     return $?
 }
 
@@ -142,7 +164,7 @@ function retry {
   while true; do
     # shellcheck disable=SC2015
     {
-      docker inspect --format '{{json .State.Health.Status }}' "${1}" | grep 'healthy'
+      docker_cmd inspect --format '{{json .State.Health.Status }}' "${1}" | grep 'healthy'
     } && break || {
       if [[ ${n} -lt ${max} ]]; then
         ((n++))
@@ -157,10 +179,24 @@ function retry {
 
 WANTEDNAME=$(head -n1 Vagrantfile | grep -oP 'machine_name = "\K[^"]+' )
 HOST=$(hostname -f)
-# TODO: ignore this when using --no-vagrant in start.sh
+
+# Allow running helper.sh outside Vagrant when explicitly permitted or in devcontainer/codespaces
+# Conditions to bypass the strict hostname check:
+#  - Environment variable MYAEGEE_ALLOW_NON_VAGRANT=true
+#  - Running inside GitHub Codespaces (CODESPACES set)
+#  - Running inside VS Code Dev Containers (container marker files or REMOTE_CONTAINERS set)
+ALLOW_NON_VAGRANT=false
+if [[ "${MYAEGEE_ALLOW_NON_VAGRANT}" == "true" || -n "${CODESPACES}" || -n "${REMOTE_CONTAINERS}" || -f "/.dockerenv" || -f "/.devcontainer" ]]; then
+  ALLOW_NON_VAGRANT=true
+fi
+
 if [[ ! ${HOST} =~ ^${WANTEDNAME} ]]; then
-  echo "You're on ${HOST}, (the HOST) but you should be on '${WANTEDNAME}' (the GUEST). Exiting..."
-  exit 1
+  if [[ "${ALLOW_NON_VAGRANT}" == "true" ]]; then
+    echo "[MyAEGEE] Non-Vagrant environment detected (HOST='${HOST}', expected='${WANTEDNAME}'). Proceeding due to devcontainer/codespaces context or explicit override."
+  else
+    echo "You're on ${HOST}, (the HOST) but you should be on '${WANTEDNAME}' (the GUEST). Exiting..."
+    exit 1
+  fi
 fi
 
 # HUMAN INTERVENTION NEEDED: register in .env your services
@@ -168,8 +204,51 @@ fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # https://stackoverflow.com/questions/19331497/set-environment-variables-from-file-of-key-value-pairs
-# shellcheck disable=SC2046
-export $(grep -v '^#' "${DIR}/.env" | xargs -d '\n')
+# Load env vars from .env if present, otherwise fall back to .env.devcontainer
+if [[ -f "${DIR}/.env" ]]; then
+  # shellcheck disable=SC2046
+  export $(grep -v '^#' "${DIR}/.env" | xargs -d '\n')
+elif [[ -f "${DIR}/.env.devcontainer" ]]; then
+  # shellcheck disable=SC2046
+  export $(grep -v '^#' "${DIR}/.env.devcontainer" | xargs -d '\n')
+else
+  echo "[MyAEGEE] WARNING: No .env or .env.devcontainer found; proceeding with default environment variables."
+fi
+
+# Determine if Docker requires sudo (common in Codespaces/Dev Containers due to socket group mismatch)
+SUDO=""
+if ! docker info >/dev/null 2>&1; then
+  if sudo -n docker info >/dev/null 2>&1; then
+    SUDO="sudo"
+    echo "[MyAEGEE] Using sudo for Docker/Compose commands (docker socket requires elevated access)."
+  fi
+fi
+
+# Helper wrapper functions
+docker_cmd() {
+  if [[ -n "${SUDO}" ]]; then
+    sudo docker "$@"
+  else
+    docker "$@"
+  fi
+}
+
+compose_cmd() {
+  # Prefer docker-compose binary; if not present, try docker compose as fallback
+  if command -v docker-compose >/dev/null 2>&1; then
+    if [[ -n "${SUDO}" ]]; then
+      sudo docker-compose "$@"
+    else
+      docker-compose "$@"
+    fi
+  else
+    if [[ -n "${SUDO}" ]]; then
+      sudo docker compose "$@"
+    else
+      docker compose "$@"
+    fi
+  fi
+}
 if [[ "${MYAEGEE_ENV}" != "production" && "${MYAEGEE_ENV}" != "development" ]]; then
   echo "Error: MYAEGEE_ENV can only be 'production' or 'development'"
   exit 1
@@ -343,30 +422,30 @@ fi
 #
 
 if ( $stop ); then
-  if [[ -n "${arguments[*]}" ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
-    compose_wrapper stop "${arguments[@]}" #TODO: improve robustness. if there is rubbish it is still not empty
-    exit $?
+  if [[ -n "${arguments[*]}" ]]; then
+    compose_wrapper stop "${arguments[@]}"
+  else
+    compose_wrapper stop
   fi
-  echo "'Stop' must only be used with a container name"
-  exit 0
+  exit $?
 fi
 
 if ( $down ); then
-  if [[ -n "${arguments[*]}" ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
-    compose_wrapper down "${arguments[@]}" #TODO: improve robustness. if there is rubbish it is still not empty
-    exit $?
+  if [[ -n "${arguments[*]}" ]]; then
+    compose_wrapper down "${arguments[@]}"
+  else
+    compose_wrapper down
   fi
-  echo "'Down' must only be used with a container name"
-  exit 0
+  exit $?
 fi
 
 if ( $restart ); then
-  if [[ -n "${arguments[*]}" ]]; then #IF NOT EMPTY, continue: we only want this command to be used for a single container
-    compose_wrapper restart "${arguments[*]}"  #TODO: improve robustness. if there is rubbish it is still not empty
-    exit $?
+  if [[ -n "${arguments[*]}" ]]; then
+    compose_wrapper restart "${arguments[@]}"
+  else
+    compose_wrapper restart
   fi
-  echo "'Restart' must only be used with a container name"
-  exit 0
+  exit $?
 fi
 
 if ( $nuke ); then
