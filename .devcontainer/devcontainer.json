@@ -19,9 +19,15 @@
   "workspaceFolder": "/workspace",
 
   // Dev Container Features
-  // Additional features can be added here (e.g., GitHub CLI, Docker-in-Docker)
-  // Currently empty as we install everything in Dockerfile
-  "features": {},
+  // Docker-in-Docker is required for GitHub Codespaces to access Docker daemon
+  // This installs Docker CE inside the container and starts the Docker daemon
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true,
+      "dockerDashComposeVersion": "v2"
+    }
+  },
 
   // VS Code customizations
   "customizations": {

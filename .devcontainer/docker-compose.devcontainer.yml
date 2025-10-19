@@ -51,11 +51,29 @@ services:
     command: /bin/sh -c "while sleep 1000; do :; done"
 
     # Network Configuration
-    # - host mode: Container shares host's network stack
-    # - Services accessible at localhost:PORT (no port mapping needed)
-    # - Simplifies networking but reduces isolation
-    # - Alternative would be bridge mode with explicit port mappings
-    network_mode: "host"
+    # - Using bridge network for GitHub Codespaces compatibility
+    # - host mode doesn't work in Codespaces, only on local Docker
+    # - Services accessible via the OMS network
+    networks:
+      - oms_network
+
+    # Port Forwarding
+    # Maps container ports to host for access from outside
+    # These are automatically forwarded by VS Code / Codespaces
+    ports:
+      - "3000:3000" # Frontend
+      - "8080:8080" # Traefik Dashboard
+      - "8084:8084" # Core API
+      - "8085:8085" # Events API
+      - "8086:8086" # Statutory API
+      - "8087:8087" # Discounts API
+      - "8088:8088" # Knowledge API
+      - "8089:8089" # Summer University API
+      - "8090:8090" # Network API
+      - "8091:8091" # Mailer API
+      - "8092:8092" # GSuite Wrapper API
+      - "9000:9000" # Portainer
+      - "5050:5050" # pgAdmin
 
     # Environment Variables
     # These are passed to processes running inside the container
@@ -70,6 +88,14 @@ services:
 
       # Logging Level
       - LOGLEVEL=info
+
+# ============================================================================
+# Networks
+# ============================================================================
+networks:
+  oms_network:
+    name: OMS
+    external: true
 
 # ============================================================================
 # Named Volumes - Data Persistence

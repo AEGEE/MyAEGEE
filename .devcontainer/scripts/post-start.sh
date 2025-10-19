@@ -61,7 +61,7 @@ fi
 # Minimal mode prompt for limited RAM
 if [ "$AVAILABLE_RAM" -lt 6 ] && [ "$AVAILABLE_RAM" -ge 4 ]; then
     log_warning "Limited RAM detected (${AVAILABLE_RAM}GB available)"
-    
+
     # Only prompt if ENABLED_SERVICES is not already set
     if [ -z "$ENABLED_SERVICES" ]; then
         echo ""
@@ -84,15 +84,15 @@ if [ "$AVAILABLE_RAM" -lt 6 ] && [ "$AVAILABLE_RAM" -ge 4 ]; then
         echo "Would you like to use MINIMAL MODE? [y/N]"
         echo "(Auto-selecting 'N' in 15 seconds...)"
         echo ""
-        
+
         # Read with timeout
         read -t 15 -r minimal_choice
         minimal_choice=${minimal_choice:-N}
-        
+
         if [[ "$minimal_choice" =~ ^[Yy]$ ]]; then
             log_success "Minimal mode selected"
             export ENABLED_SERVICES="core:frontend"
-            
+
             # Save preference to .devcontainer/.env.devcontainer
             if [ -f /workspace/.devcontainer/.env.devcontainer ]; then
                 if grep -q "^ENABLED_SERVICES=" /workspace/.devcontainer/.env.devcontainer; then
@@ -129,15 +129,15 @@ fi
 # Display which services are enabled/disabled
 if [ -n "$ENABLED_SERVICES" ]; then
     print_section "Service Configuration"
-    
+
     IFS=':' read -ra ENABLED_ARRAY <<< "$ENABLED_SERVICES"
-    
+
     echo ""
     echo "✅ ENABLED SERVICES:"
     for service in "${ENABLED_ARRAY[@]}"; do
         echo "   • $service"
     done
-    
+
     # Show common disabled services if in minimal mode
     if [[ "$ENABLED_SERVICES" == "core:frontend" ]] || [[ "$ENABLED_SERVICES" == "frontend:core" ]]; then
         echo ""
@@ -155,17 +155,37 @@ fi
 print_section "Checking Docker availability"
 
 # Check if Docker daemon is accessible
-if ! docker ps > /dev/null 2>&1; then
-    log_error "Docker daemon is not accessible"
-    log_error "Please ensure Docker is running on your host machine"
-    echo ""
-    echo "Solutions:"
-    echo "  - Start Docker Desktop"
-    echo "  - Check Docker service: sudo systemctl start docker"
-    echo "  - Verify Docker socket is mounted: ls -l /var/run/docker.sock"
-    echo ""
-    exit 1
-fi
+# In Codespaces, Docker daemon may take a few seconds to start
+log_info "Waiting for Docker daemon..."
+DOCKER_TIMEOUT=60
+DOCKER_WAIT=0
+
+while ! docker ps > /dev/null 2>&1; do
+    if [ $DOCKER_WAIT -ge $DOCKER_TIMEOUT ]; then
+        log_error "Docker daemon is not accessible after ${DOCKER_TIMEOUT}s"
+        log_error "Please ensure Docker is running on your host machine"
+        echo ""
+        echo "Solutions:"
+        if [ -n "$CODESPACES" ]; then
+            echo "  - Wait a moment and try rebuilding the container"
+            echo "  - Check Codespaces logs for Docker startup errors"
+            echo "  - Try restarting the Codespace"
+        else
+            echo "  - Start Docker Desktop"
+            echo "  - Check Docker service: sudo systemctl start docker"
+            echo "  - Verify Docker socket is mounted: ls -l /var/run/docker.sock"
+        fi
+        echo ""
+        exit 1
+    fi
+
+    if [ $((DOCKER_WAIT % 10)) -eq 0 ] && [ $DOCKER_WAIT -gt 0 ]; then
+        log_info "Still waiting for Docker... (${DOCKER_WAIT}s elapsed)"
+    fi
+
+    sleep 2
+    DOCKER_WAIT=$((DOCKER_WAIT + 2))
+done
 
 log_success "Docker daemon is accessible"
 
@@ -230,11 +250,11 @@ if [ "$RUNNING_SERVICES" -gt 5 ]; then
     log_success "Services are already running ($RUNNING_SERVICES containers)"
 else
     log_info "Starting services (this may take a few minutes on first run)..."
-    
+
     # Start services in background
     make start > /tmp/make-start.log 2>&1 &
     START_PID=$!
-    
+
     # Show progress
     echo -n "Starting"
     for i in {1..30}; do
@@ -245,10 +265,10 @@ else
         sleep 2
     done
     echo ""
-    
+
     # Wait a bit for services to initialize
     sleep 10
-    
+
     log_success "Services started"
 fi
 
