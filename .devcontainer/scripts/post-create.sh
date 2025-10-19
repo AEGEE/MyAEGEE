@@ -130,7 +130,7 @@ alias dlogs='docker-compose logs -f --tail=100'
 alias dstop='docker-compose stop'
 alias drestart='docker-compose restart'
 
-# Make shortcuts  
+# Make shortcuts
 alias mstart='make start'
 alias mstop='make stop'
 alias mrestart='make restart'
@@ -170,19 +170,33 @@ fi
 
 print_section "Setting up shell completion"
 
-# Enable bash completion for docker and docker-compose
-if ! grep -q "bash-completion for docker" /home/vscode/.bashrc; then
+# Enable bash completion for docker and docker-compose via docker's built-in generator
+# Avoid sourcing /usr/share/bash-completion/completions/docker directly because some images
+# ship a non-text file at that path, causing startup errors.
+if ! grep -q "docker CLI completion (generated)" /home/vscode/.bashrc; then
     echo "" >> /home/vscode/.bashrc
-    echo "# Enable bash-completion for docker and docker-compose" >> /home/vscode/.bashrc
-    echo "if [ -f /usr/share/bash-completion/completions/docker ]; then" >> /home/vscode/.bashrc
-    echo "    source /usr/share/bash-completion/completions/docker" >> /home/vscode/.bashrc
+    echo "# Enable bash completion for Docker CLI (generated)" >> /home/vscode/.bashrc
+    echo "# docker CLI completion (generated)" >> /home/vscode/.bashrc
+    echo "if command -v docker >/dev/null 2>&1; then" >> /home/vscode/.bashrc
+    echo "    source <(docker completion bash)" >> /home/vscode/.bashrc
     echo "fi" >> /home/vscode/.bashrc
-    log_success "Docker completion added to .bashrc"
+    echo "" >> /home/vscode/.bashrc
+    echo "# Enable bash completion for Docker Compose V2 (generated, if supported)" >> /home/vscode/.bashrc
+    echo "if command -v docker >/dev/null 2>&1; then" >> /home/vscode/.bashrc
+    echo "    if docker compose completion bash >/dev/null 2>&1; then" >> /home/vscode/.bashrc
+    echo "        source <(docker compose completion bash)" >> /home/vscode/.bashrc
+    echo "    fi" >> /home/vscode/.bashrc
+    echo "fi" >> /home/vscode/.bashrc
+    log_success "Docker and Compose completions added to .bashrc (generated)"
 fi
 
-# Note: docker-compose completion is typically installed with docker-compose-plugin
-# The completion should be available at /usr/share/bash-completion/completions/docker-compose
-# or via the docker compose subcommand which provides its own completion
+# Note: We still source the global bash_completion in the Dockerfile to enable on-demand loading
+# for other tools. The above lines ensure Docker's own completions are always correct.
+
+# Remove any old/broken docker completion sourcing lines to avoid syntax errors like:
+# "/usr/share/bash-completion/completions/docker: line 1: syntax error near unexpected token ')'"
+sed -i '/\/usr\/share\/bash-completion\/completions\/docker/d' /home/vscode/.bashrc || true
+sed -i '/\/usr\/share\/bash-completion\/completions\/docker-compose/d' /home/vscode/.bashrc || true
 
 log_info "Shell completion configured (will be active on next shell session)"
 
