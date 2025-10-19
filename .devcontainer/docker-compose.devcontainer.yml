@@ -58,22 +58,9 @@ services:
       - oms_network
 
     # Port Forwarding
-    # Maps container ports to host for access from outside
-    # These are automatically forwarded by VS Code / Codespaces
-    ports:
-      - "3000:3000" # Frontend
-      - "8080:8080" # Traefik Dashboard
-      - "8084:8084" # Core API
-      - "8085:8085" # Events API
-      - "8086:8086" # Statutory API
-      - "8087:8087" # Discounts API
-      - "8088:8088" # Knowledge API
-      - "8089:8089" # Summer University API
-      - "8090:8090" # Network API
-      - "8091:8091" # Mailer API
-      - "8092:8092" # GSuite Wrapper API
-      - "9000:9000" # Portainer
-      - "5050:5050" # pgAdmin
+    # Do not publish application ports from the devcontainer itself.
+    # Service containers started by helper.sh will publish required ports,
+    # and Codespaces will auto-forward them. This avoids port conflicts.
 
     # Environment Variables
     # These are passed to processes running inside the container
@@ -94,8 +81,12 @@ services:
 # ============================================================================
 networks:
   oms_network:
+    # Use a named bridge network that will be created by this compose file.
+    # Many service compose files reference an external network named "OMS".
+    # By creating it here (without `external: true`), those services can attach
+    # to the same network when they start, avoiding startup failures in Codespaces.
     name: OMS
-    external: true
+    driver: bridge
 
 # ============================================================================
 # Named Volumes - Data Persistence
