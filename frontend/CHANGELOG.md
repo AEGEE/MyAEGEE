@@ -1,3 +1,10 @@
+## [1.45.2](https://github.com/AEGEE/frontend/compare/1.45.1...1.45.2) (2025-11-12)
+
+
+### Bug Fixes
+
+* **menu:** add new section "My Development" ([#2472](https://github.com/AEGEE/frontend/issues/2472)) ([645a639](https://github.com/AEGEE/frontend/commit/645a639fa122a713765d4b565488e67ae0813ca2))
+
 ## [1.45.1](https://github.com/AEGEE/frontend/compare/1.45.0...1.45.1) (2025-10-12)
 
 
