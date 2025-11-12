@@ -1,3 +1,10 @@
+## [1.45.3](https://github.com/AEGEE/frontend/compare/1.45.2...1.45.3) (2025-11-12)
+
+
+### Bug Fixes
+
+* **menu:** add correct link for open calls ([#2473](https://github.com/AEGEE/frontend/issues/2473)) ([f3da67a](https://github.com/AEGEE/frontend/commit/f3da67a5ee2a1c4faa368ae07088af1c818274db))
+
 ## [1.45.2](https://github.com/AEGEE/frontend/compare/1.45.1...1.45.2) (2025-11-12)
 
 
