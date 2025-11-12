@@ -33,6 +33,18 @@
     ]
   },
   {
+    "categoryName": "My Development",
+    "auth": "logged-in",
+    "components": [
+      {
+        "name": "oms.opencalls",
+        "link": "https://myaegee.atlassian.net/servicedesk/customer/portals",
+        "label": "Open Calls",
+        "icon": "globe-europe"
+      }
+    ]
+  },
+  {
     "categoryName": "Core",
     "components": [
       {
@@ -81,7 +93,12 @@
           {
             "name": "oms.events.change_status",
             "label": "Change event status",
-            "permissions": ["global:approve_event:nwm", "global:approve_event:training", "global:approve_event:conference", "global:approve_event:cultural"]
+            "permissions": [
+              "global:approve_event:nwm",
+              "global:approve_event:training",
+              "global:approve_event:conference",
+              "global:approve_event:cultural"
+            ]
           },
           {
             "name": "oms.events.boardview",
@@ -130,7 +147,10 @@
             "name": "oms.summeruniversity.change_status",
             "label": "Change SU status",
             "icon": "check",
-            "permissions": ["global:approve_summeruniversity:regular", "global:approve_summeruniversity:pilot"]
+            "permissions": [
+              "global:approve_summeruniversity:regular",
+              "global:approve_summeruniversity:pilot"
+            ]
           },
           {
             "name": "oms.summeruniversity.boardview",
@@ -181,7 +201,11 @@
           {
             "name": "oms.statutory.create",
             "label": "Create event",
-            "permissions": ["global:manage_event:agora", "global:manage_event:epm", "global:manage_event:spm"]
+            "permissions": [
+              "global:manage_event:agora",
+              "global:manage_event:epm",
+              "global:manage_event:spm"
+            ]
           }
         ]
       },
@@ -189,7 +213,11 @@
         "name": "oms.statutory.limits",
         "icon": "users",
         "label": "Participants types amount",
-        "permissions": ["global:manage_event:agora", "global:manage_event:epm", "global:manage_event:spm"]
+        "permissions": [
+          "global:manage_event:agora",
+          "global:manage_event:epm",
+          "global:manage_event:spm"
+        ]
       },
       {
         "name": "oms.statutory.tasks",

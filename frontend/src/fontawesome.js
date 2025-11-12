@@ -67,6 +67,7 @@ import { faBookReader } from '@fortawesome/free-solid-svg-icons/faBookReader'
 import { faHome } from '@fortawesome/free-solid-svg-icons/faHome'
 import { faHandHoldingMedical } from '@fortawesome/free-solid-svg-icons/faHandHoldingMedical'
 import { faLanguage } from '@fortawesome/free-solid-svg-icons/faLanguage'
+import { faGlobeEurope } from '@fortawesome/free-solid-svg-icons/faGlobeEurope'
 
 library.add(faTimesCircle)
 library.add(faHeart)
@@ -133,5 +134,6 @@ library.add(faBookReader)
 library.add(faHome)
 library.add(faHandHoldingMedical)
 library.add(faLanguage)
+library.add(faGlobeEurope)
 
 export default FontAwesomeIcon
