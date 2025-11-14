@@ -355,10 +355,11 @@ exports.getStats = async (req, res) => {
     const statsObject = {
         by_event: [],
         by_body: [],
-        by_nationality: []
+        by_nationality: [],
+        by_status: []
     };
 
-    let applicationQuery = { attributes: ['user_id', 'event_id', 'body_name', 'nationality'] };
+    let applicationQuery = { attributes: ['user_id', 'event_id', 'body_name', 'nationality', 'confirmed'] };
     let eventQuery = { attributes: ['id', 'name'] };
 
     if (req.query.season) {
@@ -379,6 +380,11 @@ exports.getStats = async (req, res) => {
 
     statsObject.by_body = helpers.countByField(uniqueApplicationUsers, 'body_name');
     statsObject.by_nationality = helpers.countByField(uniqueApplicationUsers, 'nationality');
+
+    statsObject.by_status = [
+        { type: 'total', value: applications.length },
+        { type: 'confirmed', value: applications.filter((app) => app.confirmed === true).length }
+    ];
 
     return res.json({
         success: true,
