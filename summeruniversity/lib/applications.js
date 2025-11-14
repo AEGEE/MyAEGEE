@@ -382,7 +382,8 @@ exports.getStats = async (req, res) => {
     statsObject.by_nationality = helpers.countByField(uniqueApplicationUsers, 'nationality');
 
     statsObject.by_status = [
-        { type: 'total', value: applications.length },
+        { type: 'total_applications', value: applications.length },
+        { type: 'total_members', value: uniqueApplicationUsers.length },
         { type: 'confirmed', value: applications.filter((app) => app.confirmed === true).length }
     ];
 
