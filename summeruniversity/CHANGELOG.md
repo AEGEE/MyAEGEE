@@ -1,3 +1,10 @@
+## [1.6.4](https://github.com/AEGEE/summeruniversity/compare/1.6.3...1.6.4) (2025-11-14)
+
+
+### Bug Fixes
+
+* **applications:** add total_members to by_status stats ([#919](https://github.com/AEGEE/summeruniversity/issues/919)) ([547bcfe](https://github.com/AEGEE/summeruniversity/commit/547bcfee3180dcfa35eb042ca804e3d046b0608e))
+
 ## [1.6.3](https://github.com/AEGEE/summeruniversity/compare/1.6.2...1.6.3) (2025-11-14)
 
 
