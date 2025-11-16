@@ -1,3 +1,10 @@
+# [1.40.0](https://github.com/AEGEE/core/compare/1.39.3...1.40.0) (2025-11-16)
+
+
+### Features
+
+* **body-memberships:** add email for when member leaves their last body ([#1162](https://github.com/AEGEE/core/issues/1162)) ([3313db4](https://github.com/AEGEE/core/commit/3313db463d926b6d58dc4f004a31d3325ae210ee))
+
 ## [1.39.3](https://github.com/AEGEE/core/compare/1.39.2...1.39.3) (2025-07-27)
 
 
