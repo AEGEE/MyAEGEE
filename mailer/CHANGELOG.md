@@ -1,3 +1,10 @@
+# [0.18.0](https://github.com/AEGEE/mailer/compare/0.17.0...0.18.0) (2025-11-16)
+
+
+### Features
+
+* **workspace:** add email for when a member is deleted from their last local ([#110](https://github.com/AEGEE/mailer/issues/110)) ([8ea37c5](https://github.com/AEGEE/mailer/commit/8ea37c535d356bc0ca41575a227069c98392807d))
+
 # [0.17.0](https://github.com/AEGEE/mailer/compare/0.16.6...0.17.0) (2025-03-22)
 
 
