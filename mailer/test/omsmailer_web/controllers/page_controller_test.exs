@@ -132,7 +132,14 @@ defmodule OmsmailerWeb.PageControllerTest do
 
   # Workspace new member works
   test "POST / workspace_new_member", %{conn: conn} do
-    conn = post conn, "/", %{template: "workspace_new_member.html", parameters: %{member_firstname: "Franz", member_lastname: "Ferdinant", user_id: 1, email: "f.ferdinant@aegee.test"}, from: "mailer@aegee.org", to: "test@aegee.org", subject: "pirates"}
+    conn = post conn, "/", %{template: "workspace_new_member.html", parameters: %{member_firstname: "Franz", member_lastname: "Ferdinant", user_id: 1, member_email: "f.ferdinant@aegee.test"}, from: "mailer@aegee.org", to: "test@aegee.org", subject: "pirates"}
+    assert json_response(conn, 200)
+    assert_email_delivered_with(subject: "pirates")
+  end
+
+  # Workspace deleted member works
+  test "POST / workspace_deleted_member", %{conn: conn} do
+    conn = post conn, "/", %{template: "workspace_deleted_member.html", parameters: %{member_firstname: "Franz", member_lastname: "Ferdinant", user_id: 1, member_workspace_email: "f.ferdinant@aegee.test"}, from: "mailer@aegee.org", to: "test@aegee.org", subject: "pirates"}
     assert json_response(conn, 200)
     assert_email_delivered_with(subject: "pirates")
   end
