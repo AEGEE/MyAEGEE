@@ -138,7 +138,7 @@ exports.changeRequestStatus = async (req, res) => {
                         member_firstname: user.first_name,
                         member_lastname: user.last_name,
                         user_id: user.id,
-                        email: user.email
+                        member_email: user.email
                     }
                 });
             }

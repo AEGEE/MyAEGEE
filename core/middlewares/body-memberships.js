@@ -3,7 +3,7 @@ const {
     BodyMembership,
     CircleMembership,
     Circle,
-    User
+    User,
 } = require('../models');
 const helpers = require('../lib/helpers');
 const { sequelize, Sequelize } = require('../lib/sequelize');
@@ -18,41 +18,56 @@ exports.listAllMemberships = async (req, res) => {
     }
 
     if (!req.permissions.hasPermission('view_members:body')) {
-        return errors.makeForbiddenError(res, 'Permission view_members:body is required, but not present.');
+        return errors.makeForbiddenError(
+            res,
+            'Permission view_members:body is required, but not present.'
+        );
     }
 
     const result = await BodyMembership.findAndCountAll({
         where: {
             body_id: req.currentBody.id,
-            ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.BODY_MEMBERSHIP)
+            ...helpers.filterBy(
+                req.query.query,
+                constants.FIELDS_TO_QUERY.BODY_MEMBERSHIP
+            ),
         },
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query),
-        include: [User]
+        include: [User],
     });
 
     return res.json({
         success: true,
         data: result.rows,
-        meta: { count: result.count }
+        meta: { count: result.count },
     });
 };
 
 exports.listAllMembershipsWithPermission = async (req, res) => {
     if (!req.permissions.hasPermission('view_members:body')) {
-        return errors.makeForbiddenError(res, 'Permission view_members:body is required, but not present.');
+        return errors.makeForbiddenError(
+            res,
+            'Permission view_members:body is required, but not present.'
+        );
     }
 
-    if (!req.query.holds_permission.action || !req.query.holds_permission.object) {
-        return errors.makeBadRequestError(res, 'Action or object is not specified.');
+    if (
+        !req.query.holds_permission.action
+    || !req.query.holds_permission.object
+    ) {
+        return errors.makeBadRequestError(
+            res,
+            'Action or object is not specified.'
+        );
     }
 
     const permission = await Permission.findOne({
         where: {
             scope: 'local',
             action: req.query.holds_permission.action,
-            object: req.query.holds_permission.object
-        }
+            object: req.query.holds_permission.object,
+        },
     });
 
     if (!permission) {
@@ -67,40 +82,53 @@ exports.listAllMembershipsWithPermission = async (req, res) => {
             body_id: req.currentBody.id,
             '$user.circle_memberships.circle_id$': { [Sequelize.Op.in]: circleIds },
             '$user.circle_memberships.circle.body_id$': req.currentBody.id,
-            ...helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.BODY_MEMBERSHIP)
+            ...helpers.filterBy(
+                req.query.query,
+                constants.FIELDS_TO_QUERY.BODY_MEMBERSHIP
+            ),
         },
         ...helpers.getPagination(req.query),
         order: helpers.getSorting(req.query),
-        include: [{
-            model: User,
-            include: [{
-                model: CircleMembership,
-                include: [Circle]
-            }]
-        }]
+        include: [
+            {
+                model: User,
+                include: [
+                    {
+                        model: CircleMembership,
+                        include: [Circle],
+                    },
+                ],
+            },
+        ],
     });
 
     return res.json({
         success: true,
         data: result.rows,
-        meta: { count: result.count }
+        meta: { count: result.count },
     });
 };
 
 exports.getMembership = async (req, res) => {
     if (!req.permissions.hasPermission('view_members:body')) {
-        return errors.makeForbiddenError(res, 'Permission view_members:body is required, but not present.');
+        return errors.makeForbiddenError(
+            res,
+            'Permission view_members:body is required, but not present.'
+        );
     }
 
     return res.json({
         success: true,
-        data: req.currentBodyMembership
+        data: req.currentBodyMembership,
     });
 };
 
 exports.createMembership = async (req, res) => {
     if (!req.permissions.hasPermission('add_member:body')) {
-        return errors.makeForbiddenError(res, 'Permission add_member:body is required, but not present.');
+        return errors.makeForbiddenError(
+            res,
+            'Permission add_member:body is required, but not present.'
+        );
     }
 
     const user = await User.findByPk(req.body.user_id);
@@ -111,12 +139,17 @@ exports.createMembership = async (req, res) => {
     let membership;
 
     await sequelize.transaction(async (t) => {
-        const bodyCount = await BodyMembership.count({ where: { user_id: user.id } });
+        const bodyCount = await BodyMembership.count({
+            where: { user_id: user.id },
+        });
 
-        membership = await BodyMembership.create({
-            user_id: user.id,
-            body_id: req.currentBody.id
-        }, { transaction: t });
+        membership = await BodyMembership.create(
+            {
+                user_id: user.id,
+                body_id: req.currentBody.id,
+            },
+            { transaction: t }
+        );
 
         if (bodyCount === 0) {
             await mailer.sendMail({
@@ -127,8 +160,8 @@ exports.createMembership = async (req, res) => {
                     member_firstname: user.first_name,
                     member_lastname: user.last_name,
                     body_name: req.currentBody.name,
-                    body_id: req.currentBody.id
-                }
+                    body_id: req.currentBody.id,
+                },
             });
 
             await mailer.sendMail({
@@ -139,46 +172,72 @@ exports.createMembership = async (req, res) => {
                     member_firstname: user.first_name,
                     member_lastname: user.last_name,
                     user_id: user.id,
-                    member_email: user.email
-                }
+                    member_email: user.email,
+                },
             });
         }
     });
 
     return res.json({
         success: true,
-        data: membership
+        data: membership,
     });
 };
 
 exports.updateMembership = async (req, res) => {
     if (!req.permissions.hasPermission('update_member:body')) {
-        return errors.makeForbiddenError(res, 'Permission update_member:body is required, but not present.');
+        return errors.makeForbiddenError(
+            res,
+            'Permission update_member:body is required, but not present.'
+        );
     }
 
     await req.currentBodyMembership.update({ comment: req.body.comment });
     return res.json({
         success: true,
-        data: req.currentBodyMembership
+        data: req.currentBodyMembership,
     });
 };
 
 exports.deleteMembership = async (req, res) => {
     if (!req.permissions.hasPermission('delete_member:body')) {
-        return errors.makeForbiddenError(res, 'Permission delete_member:body is required, but not present.');
+        return errors.makeForbiddenError(
+            res,
+            'Permission delete_member:body is required, but not present.'
+        );
     }
 
     await req.currentBodyMembership.destroy();
 
+    const bodyCount = await BodyMembership.count({
+        where: { user_id: req.currentBodyMembership.user_id },
+    });
+
+    if (bodyCount === 0) {
+        const user = await User.findByPk(req.currentBodyMembership.user_id);
+
+        await mailer.sendMail({
+            to: config.google_workspace_notifications,
+            subject: constants.MAIL_SUBJECTS.WORKSPACE_DELETED_MEMBER,
+            template: 'workspace_deleted_member.html',
+            parameters: {
+                member_firstname: user.first_name,
+                member_lastname: user.last_name,
+                user_id: user.id,
+                member_workspace_email: user.gsuite_id,
+            },
+        });
+    }
+
     return res.json({
         success: true,
-        message: 'Membership is deleted.'
+        message: 'Membership is deleted',
     });
 };
 
 exports.deleteOwnMembership = async (req, res) => {
     const bodyMembership = await BodyMembership.findOne({
-        where: { user_id: req.user.id, body_id: req.currentBody.id }
+        where: { user_id: req.user.id, body_id: req.currentBody.id },
     });
 
     if (!bodyMembership) {
@@ -189,6 +248,6 @@ exports.deleteOwnMembership = async (req, res) => {
 
     return res.json({
         success: true,
-        message: 'Membership is deleted.'
+        message: 'Membership is deleted.',
     });
 };

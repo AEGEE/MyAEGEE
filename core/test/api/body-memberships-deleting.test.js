@@ -2,6 +2,7 @@ const { startServer, stopServer } = require('../../lib/server');
 const { request } = require('../scripts/helpers');
 const generator = require('../scripts/generator');
 const { BodyMembership, CircleMembership, User } = require('../../models');
+const mock = require('../scripts/mock');
 
 describe('Body memberships deleting', () => {
     beforeAll(async () => {
@@ -12,8 +13,13 @@ describe('Body memberships deleting', () => {
         await stopServer();
     });
 
+    beforeEach(async () => {
+        await mock.mockAll();
+    });
+
     afterEach(async () => {
         await generator.clearAll();
+        await mock.cleanAll();
     });
 
     test('should return 404 if the membership is not found', async () => {
@@ -21,12 +27,16 @@ describe('Body memberships deleting', () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);
 
-        await generator.createPermission({ scope: 'global', action: 'delete_member', object: 'body' });
+        await generator.createPermission({
+            scope: 'global',
+            action: 'delete_member',
+            object: 'body',
+        });
 
         const res = await request({
             uri: '/bodies/' + body.id + '/members/1337',
             method: 'DELETE',
-            headers: { 'X-Auth-Token': token.value }
+            headers: { 'X-Auth-Token': token.value },
         });
 
         expect(res.statusCode).toEqual(404);
@@ -41,12 +51,16 @@ describe('Body memberships deleting', () => {
         const token = await generator.createAccessToken(user);
         const membership = await generator.createBodyMembership(body, user);
 
-        await generator.createPermission({ scope: 'global', action: 'delete_member', object: 'body' });
+        await generator.createPermission({
+            scope: 'global',
+            action: 'delete_member',
+            object: 'body',
+        });
 
         const res = await request({
             uri: '/bodies/' + body.id + '/members/' + membership.id,
             method: 'DELETE',
-            headers: { 'X-Auth-Token': token.value }
+            headers: { 'X-Auth-Token': token.value },
         });
 
         expect(res.statusCode).toEqual(200);
@@ -64,15 +78,22 @@ describe('Body memberships deleting', () => {
         const user = await generator.createUser({ superadmin: true });
         const token = await generator.createAccessToken(user);
 
-        await generator.createPermission({ scope: 'global', action: 'delete_member', object: 'body' });
+        await generator.createPermission({
+            scope: 'global',
+            action: 'delete_member',
+            object: 'body',
+        });
 
-        const circleMembership = await generator.createCircleMembership(circle, user);
+        const circleMembership = await generator.createCircleMembership(
+            circle,
+            user
+        );
         const membership = await generator.createBodyMembership(body, user);
 
         const res = await request({
             uri: '/bodies/' + body.id + '/members/' + membership.id,
             method: 'DELETE',
-            headers: { 'X-Auth-Token': token.value }
+            headers: { 'X-Auth-Token': token.value },
         });
 
         expect(res.statusCode).toEqual(200);
@@ -80,22 +101,31 @@ describe('Body memberships deleting', () => {
         expect(res.body).not.toHaveProperty('errors');
         expect(res.body).toHaveProperty('message');
 
-        const membershipFromDb = await CircleMembership.findByPk(circleMembership.id);
+        const membershipFromDb = await CircleMembership.findByPk(
+            circleMembership.id
+        );
         expect(membershipFromDb).toEqual(null);
     });
 
     test('should unset primary body', async () => {
         const body = await generator.createBody();
-        const user = await generator.createUser({ superadmin: true, primary_body_id: body.id });
+        const user = await generator.createUser({
+            superadmin: true,
+            primary_body_id: body.id,
+        });
         const token = await generator.createAccessToken(user);
         const membership = await generator.createBodyMembership(body, user);
 
-        await generator.createPermission({ scope: 'global', action: 'delete_member', object: 'body' });
+        await generator.createPermission({
+            scope: 'global',
+            action: 'delete_member',
+            object: 'body',
+        });
 
         const res = await request({
             uri: '/bodies/' + body.id + '/members/' + membership.id,
             method: 'DELETE',
-            headers: { 'X-Auth-Token': token.value }
+            headers: { 'X-Auth-Token': token.value },
         });
 
         expect(res.statusCode).toEqual(200);
@@ -113,7 +143,11 @@ describe('Body memberships deleting', () => {
         const token = await generator.createAccessToken(user);
         const membership = await generator.createBodyMembership(body, user);
 
-        const permission = await generator.createPermission({ scope: 'local', action: 'delete_member', object: 'body' });
+        const permission = await generator.createPermission({
+            scope: 'local',
+            action: 'delete_member',
+            object: 'body',
+        });
         const circle = await generator.createCircle({ body_id: body.id });
         await generator.createCircleMembership(circle, user);
         await generator.createCirclePermission(circle, permission);
@@ -121,7 +155,7 @@ describe('Body memberships deleting', () => {
         const res = await request({
             uri: '/bodies/' + body.id + '/members/' + membership.id,
             method: 'DELETE',
-            headers: { 'X-Auth-Token': token.value }
+            headers: { 'X-Auth-Token': token.value },
         });
 
         expect(res.statusCode).toEqual(200);
@@ -139,7 +173,7 @@ describe('Body memberships deleting', () => {
         const res = await request({
             uri: '/bodies/' + body.id + '/members/' + membership.id,
             method: 'DELETE',
-            headers: { 'X-Auth-Token': token.value }
+            headers: { 'X-Auth-Token': token.value },
         });
 
         expect(res.statusCode).toEqual(403);
