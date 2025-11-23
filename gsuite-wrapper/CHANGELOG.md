@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/AEGEE/gsuite-wrapper/compare/1.3.2...1.3.3) (2025-11-23)
+
+
+### Bug Fixes
+
+* update redis version ([#776](https://github.com/AEGEE/gsuite-wrapper/issues/776)) ([6a943c5](https://github.com/AEGEE/gsuite-wrapper/commit/6a943c5cd0b8e43bbc2657aa5c15ff9b7f7c72a7))
+
 ## [1.3.2](https://github.com/AEGEE/gsuite-wrapper/compare/1.3.1...1.3.2) (2024-12-04)
 
 
