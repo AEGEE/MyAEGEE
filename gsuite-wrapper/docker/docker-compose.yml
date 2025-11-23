@@ -4,7 +4,7 @@ version: "3.4"
 services:
   redis-gsuite-wrapper:
     restart: always
-    image: redis:6.2.6-alpine
+    image: redis:8.2.0-alpine
     volumes:
       - redis_gsuite_persistence:/data
 
