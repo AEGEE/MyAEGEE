@@ -1,18 +1,17 @@
 orbs:
   shellcheck: circleci/shellcheck@3.4.0
-  docker: circleci/docker@2.8.2
 version: 2.1
 jobs:
   yamllint:
     docker:
-      - image: cimg/python:3.13.6
+      - image: cimg/python:3.13.11
     steps:
       - checkout
       - run: pip install yamllint
       - run: yamllint -d .yamllint.yml .
   pylint:
     docker:
-      - image: cimg/python:3.13.6
+      - image: cimg/python:3.13.11
     steps:
       - checkout
       - run: pip install pylint
@@ -28,7 +27,7 @@ jobs:
           command: hadolint $(find . -name '*Dockerfile*')
   shellcheck:
     docker:
-      - image: cimg/base:2025.08
+      - image: cimg/base:2025.12
     steps:
       - checkout
       - shellcheck/install
