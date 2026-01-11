@@ -5,3 +5,4 @@ log
 nginx.conf
 npm-debug.log
 **/.DS_Store
+junit.xml
