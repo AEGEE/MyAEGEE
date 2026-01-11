@@ -1,3 +1,10 @@
+## [1.45.4](https://github.com/AEGEE/frontend/compare/1.45.3...1.45.4) (2026-01-11)
+
+
+### Bug Fixes
+
+* **deps:** remove Cypress (and iltorb) ([#2488](https://github.com/AEGEE/frontend/issues/2488)) ([5f33b2f](https://github.com/AEGEE/frontend/commit/5f33b2ffdafe4b79639ae35b818d3d11ce440e84))
+
 ## [1.45.3](https://github.com/AEGEE/frontend/compare/1.45.2...1.45.3) (2025-11-12)
 
 
