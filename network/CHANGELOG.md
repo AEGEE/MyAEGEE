@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/AEGEE/network/compare/1.3.1...1.3.2) (2026-01-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependencies and cleanup ([#750](https://github.com/AEGEE/network/issues/750)) ([5511a8f](https://github.com/AEGEE/network/commit/5511a8f2b6b15a29b1cd7f1cc50042ca610336f0))
+
 ## [1.3.1](https://github.com/AEGEE/network/compare/1.3.0...1.3.1) (2024-12-07)
 
 
