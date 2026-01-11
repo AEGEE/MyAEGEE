@@ -4,8 +4,11 @@
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
           <figure class="image">
-            <img v-if="!event.image" src="/images/logo.png">
-            <img v-if="event.image" :src="services['statutory-static'] + event.image.frontend_path">
+            <img v-if="!event.image" src="/images/logo.png" />
+            <img
+              v-if="event.image"
+              :src="services['statutory-static'] + event.image.frontend_path"
+            />
           </figure>
         </article>
       </div>
@@ -19,152 +22,256 @@
           </div> -->
 
           <div class="field is-grouped" v-if="can.see_applications">
-            <router-link :to="{ name: 'oms.statutory.applications', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link
+              :to="{ name: 'oms.statutory.applications', params: { id: event.url || event.id } }"
+              class="button is-fullwidth"
+            >
               <span>View applications</span>
               <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.see_applications_incoming">
-            <router-link :to="{ name: 'oms.statutory.incoming', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link
+              :to="{ name: 'oms.statutory.incoming', params: { id: event.url || event.id } }"
+              class="button is-fullwidth"
+            >
               <span>Manage incoming info</span>
               <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.see_applications_juridical">
-            <router-link :to="{ name: 'oms.statutory.juridical', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link
+              :to="{ name: 'oms.statutory.juridical', params: { id: event.url || event.id } }"
+              class="button is-fullwidth"
+            >
               <span>Manage juridical info</span>
               <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.see_applications_network">
-            <router-link :to="{ name: 'oms.statutory.network', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link
+              :to="{ name: 'oms.statutory.network', params: { id: event.url || event.id } }"
+              class="button is-fullwidth"
+            >
               <span>Manage members list status</span>
               <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.export.all || can.export.incoming || can.export.openslides">
-            <router-link :to="{ name: 'oms.statutory.applications.export', params: { id: event.url || event.id } }" class="button is-fullwidth">
+          <div
+            class="field is-grouped"
+            v-if="can.export.all || can.export.incoming || can.export.openslides"
+          >
+            <router-link
+              :to="{
+                name: 'oms.statutory.applications.export',
+                params: { id: event.url || event.id },
+              }"
+              class="button is-fullwidth"
+            >
               <span>Export participants info</span>
               <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.see_plenaries || can.manage_plenaries">
-            <router-link :to="{ name: 'oms.statutory.plenaries', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link
+              :to="{ name: 'oms.statutory.plenaries', params: { id: event.url || event.id } }"
+              class="button is-fullwidth"
+            >
               <span>Manage/view plenaries</span>
               <span class="icon"><font-awesome-icon icon="check" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.see_participants_list">
-            <router-link :to="{ name: 'oms.statutory.accepted', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link
+              :to="{ name: 'oms.statutory.accepted', params: { id: event.url || event.id } }"
+              class="button is-fullwidth"
+            >
               <span>Participants list</span>
               <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="canAccessBoardview">
-            <router-link :to="{ name: 'oms.statutory.boardview', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link
+              :to="{ name: 'oms.statutory.boardview', params: { id: event.url || event.id } }"
+              class="button is-fullwidth"
+            >
               <span>Board view</span>
               <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="canAccessMembersLists && this.event.type === 'agora'">
-            <router-link :to="{ name: 'oms.statutory.memberslist.upload', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link
+              :to="{
+                name: 'oms.statutory.memberslist.upload',
+                params: { id: event.url || event.id },
+              }"
+              class="button is-fullwidth"
+            >
               <span>Manage members list</span>
               <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.see_memberslist.global && this.event.type === 'agora'">
-            <router-link :to="{ name: 'oms.statutory.memberslist.list', params: { id: event.url || event.id } }" class="button is-fullwidth">
+          <div
+            class="field is-grouped"
+            v-if="can.see_memberslist.global && this.event.type === 'agora'"
+          >
+            <router-link
+              :to="{
+                name: 'oms.statutory.memberslist.list',
+                params: { id: event.url || event.id },
+              }"
+              class="button is-fullwidth"
+            >
               <span>See members lists</span>
               <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.see_missing_memberslist.global && this.event.type === 'agora'">
-            <router-link :to="{ name: 'oms.statutory.memberslist.list.missing', params: { id: event.url || event.id } }" class="button is-fullwidth">
+          <div
+            class="field is-grouped"
+            v-if="can.see_missing_memberslist.global && this.event.type === 'agora'"
+          >
+            <router-link
+              :to="{
+                name: 'oms.statutory.memberslist.list.missing',
+                params: { id: event.url || event.id },
+              }"
+              class="button is-fullwidth"
+            >
               <span>See missing members lists</span>
               <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
-          <div class="field is-grouped" v-if="can.see_memberslist_without_fee.global && this.event.type === 'agora'">
-            <router-link :to="{ name: 'oms.statutory.memberslist.list.without_fee', params: { id: event.url || event.id } }" class="button is-fullwidth">
+          <div
+            class="field is-grouped"
+            v-if="can.see_memberslist_without_fee.global && this.event.type === 'agora'"
+          >
+            <router-link
+              :to="{
+                name: 'oms.statutory.memberslist.list.without_fee',
+                params: { id: event.url || event.id },
+              }"
+              class="button is-fullwidth"
+            >
               <span>See members lists without fee</span>
               <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.use_massmailer">
-            <router-link :to="{ name: 'oms.statutory.massmailer', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link
+              :to="{ name: 'oms.statutory.massmailer', params: { id: event.url || event.id } }"
+              class="button is-fullwidth"
+            >
               <span>Mass mailer</span>
               <span class="icon"><font-awesome-icon icon="envelope" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.manage_candidates && this.event.type === 'agora'">
-            <router-link :to="{ name: 'oms.statutory.positions', params: { id: event.url || event.id, prefix: 'all' } }" class="button is-fullwidth">
+            <router-link
+              :to="{
+                name: 'oms.statutory.positions',
+                params: { id: event.url || event.id, prefix: 'all' },
+              }"
+              class="button is-fullwidth"
+            >
               <span>Manage candidates</span>
               <span class="icon"><font-awesome-icon icon="vote-yea" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="this.event.type === 'agora'">
-            <router-link :to="{ name: 'oms.statutory.positions', params: { id: event.url || event.id, prefix: 'approved' } }" class="button is-fullwidth">
+            <router-link
+              :to="{
+                name: 'oms.statutory.positions',
+                params: { id: event.url || event.id, prefix: 'approved' },
+              }"
+              class="button is-fullwidth"
+            >
               <span>View candidates</span>
               <span class="icon"><font-awesome-icon icon="vote-yea" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.see_questions || can.manage_question_lines">
-            <router-link :to="{ name: 'oms.statutory.question_lines', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link
+              :to="{ name: 'oms.statutory.question_lines', params: { id: event.url || event.id } }"
+              class="button is-fullwidth"
+            >
               <span>Question lines</span>
               <span class="icon"><font-awesome-icon icon="question" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped">
-            <router-link :to="{ name: 'oms.statutory.applications.stats', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link
+              :to="{
+                name: 'oms.statutory.applications.stats',
+                params: { id: event.url || event.id },
+              }"
+              class="button is-fullwidth"
+            >
               <span>Applications stats</span>
               <span class="icon"><font-awesome-icon icon="table" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped">
-            <router-link :to="{ name: 'oms.statutory.applications.view', params: { id: event.url || event.id, application_id: 'me' } }" class="button is-warning is-fullwidth">
+            <router-link
+              :to="{
+                name: 'oms.statutory.applications.view',
+                params: { id: event.url || event.id, application_id: 'me' },
+              }"
+              class="button is-warning is-fullwidth"
+            >
               <span>My application</span>
               <span class="icon"><font-awesome-icon icon="plus" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.edit_event">
-            <a class="button is-fullwidth is-primary" data-cy="picture-change-link" @click="openPictureModal()">
+            <a class="button is-fullwidth is-primary" @click="openPictureModal()">
               <span>Change picture</span>
               <span class="icon"><font-awesome-icon icon="camera" /></span>
             </a>
           </div>
 
           <div class="field is-grouped" v-if="can.edit_event">
-            <router-link :to="{ name: 'oms.statutory.edit', params: { id: event.url || event.id } }" class="button is-fullwidth is-warning">
+            <router-link
+              :to="{ name: 'oms.statutory.edit', params: { id: event.url || event.id } }"
+              class="button is-fullwidth is-warning"
+            >
               <span>Edit event</span>
               <span class="icon"><font-awesome-icon icon="edit" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.edit_event">
-            <a @click="askSwitchStatus('draft')" v-if="event.status === 'published'" class="button is-danger is-fullwidth">
+            <a
+              @click="askSwitchStatus('draft')"
+              v-if="event.status === 'published'"
+              class="button is-danger is-fullwidth"
+            >
               <span>Unpublish</span>
               <span class="icon"><font-awesome-icon icon="pen" /></span>
             </a>
 
-            <a @click="askSwitchStatus('published')" v-if="event.status === 'draft'" class="button is-info is-fullwidth">
+            <a
+              @click="askSwitchStatus('published')"
+              v-if="event.status === 'draft'"
+              class="button is-info is-fullwidth"
+            >
               <span>Publish</span>
               <span class="icon"><font-awesome-icon icon="globe" /></span>
             </a>
@@ -192,7 +299,11 @@
                 </tr>
                 <tr v-if="event.booklet_folder">
                   <th>KMS page</th>
-                  <td><a :href="event.booklet_folder" target="_blank" rel="noopener noreferrer">{{ event.booklet_folder }}</a></td>
+                  <td>
+                    <a :href="event.booklet_folder" target="_blank" rel="noopener noreferrer">{{
+                      event.booklet_folder
+                    }}</a>
+                  </td>
                 </tr>
                 <tr>
                   <th>Type</th>
@@ -233,7 +344,10 @@
         <div class="content">
           <p class="subtitle">Deadlines</p>
           <div class="content">
-            <p>Please keep in mind that the dates are in your localtime, which is not necessarily CET.</p>
+            <p>
+              Please keep in mind that the dates are in your localtime, which is not necessarily
+              CET.
+            </p>
             <table class="table is-narrow">
               <thead>
                 <tr>
@@ -291,7 +405,11 @@
             </table>
           </div>
 
-          <div class="tile" style="position: relative; height: 400px" v-if="this.event.locations.length > 0">
+          <div
+            class="tile"
+            style="position: relative; height: 400px"
+            v-if="this.event.locations.length > 0"
+          >
             <MglMap
               id="map"
               accessToken=""
@@ -299,13 +417,15 @@
               :zoom="map.zoom"
               :scrollZoom="false"
               @load="onMapLoaded"
-              :center="map.center">
+              :center="map.center"
+            >
               <MglNavigationControl position="top-right" />
               <MglMarker
                 v-for="(location, index) in event.locations"
                 v-bind:key="index"
                 :coordinates="location.position"
-                color="red">
+                color="red"
+              >
                 <MglPopup>
                   <div class="mapbox-popup-custom">{{ location.name }}</div>
                 </MglPopup>
@@ -400,10 +520,15 @@ export default {
       })
     },
     switchStatus (newStatus) {
-      this.axios.put(this.services['statutory'] + '/events/' + this.event.id + '/status', { status: newStatus }).then(() => {
-        this.$root.showInfo('Status is updated.')
-        this.event.status = newStatus
-      }).catch((err) => this.$root.showError('Could not update status', err))
+      this.axios
+        .put(this.services['statutory'] + '/events/' + this.event.id + '/status', {
+          status: newStatus
+        })
+        .then(() => {
+          this.$root.showInfo('Status is updated.')
+          this.event.status = newStatus
+        })
+        .catch((err) => this.$root.showError('Could not update status', err))
     },
     onMapLoaded (event) {
       this.map.actions = event.component.actions
@@ -430,12 +555,12 @@ export default {
       }
 
       const minCoords = {
-        lat: Math.min(...this.event.locations.map(location => location.position.lat)),
-        lng: Math.min(...this.event.locations.map(location => location.position.lng))
+        lat: Math.min(...this.event.locations.map((location) => location.position.lat)),
+        lng: Math.min(...this.event.locations.map((location) => location.position.lng))
       }
       const maxCoords = {
-        lat: Math.max(...this.event.locations.map(location => location.position.lat)),
-        lng: Math.max(...this.event.locations.map(location => location.position.lng))
+        lat: Math.max(...this.event.locations.map((location) => location.position.lat)),
+        lng: Math.max(...this.event.locations.map((location) => location.position.lng))
       }
 
       this.map.actions.fitBounds([minCoords, maxCoords], { padding: 50 })
@@ -443,29 +568,33 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    this.axios.get(this.services['statutory'] + '/events/' + this.$route.params.id).then((response) => {
-      this.event = response.data.data
-      this.can = response.data.data.permissions
+    this.axios
+      .get(this.services['statutory'] + '/events/' + this.$route.params.id)
+      .then((response) => {
+        this.event = response.data.data
+        this.can = response.data.data.permissions
 
-      return this.axios.get(this.services['core'] + '/bodies/' + this.event.body_id)
-    }).then((response) => {
-      this.event.body = response.data.data
+        return this.axios.get(this.services['core'] + '/bodies/' + this.event.body_id)
+      })
+      .then((response) => {
+        this.event.body = response.data.data
 
-      if (this.map.actions) {
-        this.centerMap()
-      }
+        if (this.map.actions) {
+          this.centerMap()
+        }
 
-      this.isLoading = false
-    }).catch((err) => {
-      this.isLoading = false
-      if (err.response.status === 404) {
-        this.$root.showError('Event is not found')
-      } else {
-        this.$root.showError('Some error happened', err)
-      }
+        this.isLoading = false
+      })
+      .catch((err) => {
+        this.isLoading = false
+        if (err.response.status === 404) {
+          this.$root.showError('Event is not found')
+        } else {
+          this.$root.showError('Some error happened', err)
+        }
 
-      this.$router.push({ name: 'oms.statutory.list.all' })
-    })
+        this.$router.push({ name: 'oms.statutory.list.all' })
+      })
   },
   computed: {
     ...mapGetters({
@@ -473,17 +602,21 @@ export default {
       services: 'services'
     }),
     canAccessBoardview () {
-      return Object.keys(this.can.see_boardview)
-        .filter(key => this.can.see_boardview[key])
-        .length > 0
+      return (
+        Object.keys(this.can.see_boardview).filter((key) => this.can.see_boardview[key]).length > 0
+      )
     },
     canAccessMembersLists () {
-      return Object.keys(this.can.see_memberslist)
-        .filter(key => this.can.see_memberslist[key])
-        .length > 0
+      return (
+        Object.keys(this.can.see_memberslist).filter((key) => this.can.see_memberslist[key])
+          .length > 0
+      )
     },
     duringAgora () {
-      return this.event.type === 'agora' && moment().isBetween(this.event.starts, this.event.ends, null, '[]')
+      return (
+        this.event.type === 'agora'
+        && moment().isBetween(this.event.starts, this.event.ends, null, '[]')
+      )
     }
   }
 }

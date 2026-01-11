@@ -12,14 +12,9 @@
   "scripts": {
     "serve": "export NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
     "build": "export NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
-    "build-and-test": "NODE_ENV=test npm run build && npm test",
     "build-and-refresh": "npm run build && npm run refresh",
     "lint": "eslint --ext .js,.vue .",
     "refresh": "chmod 775 -R dist && docker restart myaegee_frontend_1",
-    "test": "npm run cypress:run && npm run nyc:report",
-    "cypress:run": "cypress run",
-    "cypress:open": "cypress open",
-    "nyc:report": "nyc report",
     "prepare": "husky install"
   },
   "dependencies": {
@@ -47,7 +42,6 @@
     "css-loader": "^5.2.7",
     "dompurify": "^3.2.2",
     "eslint": "^8.56.0",
-    "eslint-plugin-cypress": "^2.15.1",
     "eslint-plugin-vue": "^9.32.0",
     "eslint-plugin-vuejs-accessibility": "^2.4.1",
     "ical": "^0.8.0",
@@ -78,18 +72,11 @@
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^18.4.4",
-    "@cypress/code-coverage": "3.13.8",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "commitlint": "^18.4.4",
     "conventional-changelog": "^5.1.0",
-    "cypress": "^13.16.1",
     "husky": "^8.0.3",
-    "istanbul-instrumenter-loader": "^3.0.1",
-    "istanbul-lib-coverage": "^3.2.2",
     "semantic-release": "^24.2.7"
-  },
-  "optionalDependencies": {
-    "iltorb": "^2.4.5"
   }
 }

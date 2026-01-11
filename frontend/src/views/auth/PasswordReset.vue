@@ -7,7 +7,13 @@
             <div class="field">
               <label class="label">Email</label>
               <div class="control">
-                <input v-model="email" data-cy="email" required class="input" type="email" placeholder="Type the email you've registered with.">
+                <input
+                  v-model="email"
+                  required
+                  class="input"
+                  type="email"
+                  placeholder="Type the email you've registered with."
+                />
               </div>
               <p class="help is-danger" v-if="error">{{ error }}</p>
             </div>
@@ -15,7 +21,11 @@
             <hr />
             <p class="control">
               <button type="submit" class="button is-primary">Reset password</button>
-              <router-link :to="{ name: 'oms.password_confirm' }" class="button">Confirm password</router-link>
+              <router-link
+                :to="{ name: 'oms.password_confirm' }"
+                class="button"
+              >Confirm password</router-link
+              >
             </p>
           </form>
         </div>
@@ -25,7 +35,6 @@
 </template>
 
 <script>
-
 import { mapGetters } from 'vuex'
 
 export default {
@@ -41,18 +50,21 @@ export default {
     resetPassword () {
       this.error = ''
 
-      this.axios.post(this.services['core'] + '/password_reset', {
-        email: this.email
-      }).then(() => {
-        this.$root.showSuccess('Password reset triggered. Check your email.')
-        this.$router.push({ name: 'oms.password_confirm' })
-      }).catch((err) => {
-        if (err.response.status === 404) {
-          return this.$root.showError('Could not find this email.')
-        }
+      this.axios
+        .post(this.services['core'] + '/password_reset', {
+          email: this.email
+        })
+        .then(() => {
+          this.$root.showSuccess('Password reset triggered. Check your email.')
+          this.$router.push({ name: 'oms.password_confirm' })
+        })
+        .catch((err) => {
+          if (err.response.status === 404) {
+            return this.$root.showError('Could not find this email.')
+          }
 
-        this.$root.showError('Could not reset password', err)
-      })
+          this.$root.showError('Could not reset password', err)
+        })
     }
   }
 }
@@ -60,6 +72,6 @@ export default {
 
 <style lang="scss" scoped>
 .confirm-block {
-  width: 100%
+  width: 100%;
 }
 </style>

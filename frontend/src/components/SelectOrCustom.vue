@@ -5,18 +5,15 @@
       <div class="control">
         <div class="select">
           <select v-model="selectValue">
-            <option v-for="(val, index) in values" v-bind:key="index" :value="val">{{ val }}</option>
+            <option v-for="(val, index) in values" v-bind:key="index" :value="val">
+              {{ val }}
+            </option>
             <option value="custom">Custom...</option>
           </select>
         </div>
       </div>
       <div class="control is-expanded" v-show="selectValue === 'custom'">
-        <input
-          :data-cy="dataCy"
-          class="input"
-          type="text"
-          :required="required"
-          v-model="customValue" />
+        <input class="input" type="text" :required="required" v-model="customValue" />
       </div>
       <slot name="errors-slot" />
     </div>
@@ -26,7 +23,7 @@
 <script>
 export default {
   name: 'SelectOrCustom',
-  props: ['value', 'label', 'values', 'required', 'data-cy'],
+  props: ['value', 'label', 'values', 'required'],
   data () {
     return {
       selectValue: '',
@@ -35,7 +32,7 @@ export default {
   },
   watch: {
     selectValue () {
-      this.value = (this.selectValue === 'custom') ? this.customValue : this.selectValue
+      this.value = this.selectValue === 'custom' ? this.customValue : this.selectValue
       this.$emit('input', this.value)
     },
     customValue () {

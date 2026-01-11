@@ -4,15 +4,21 @@
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
           <figure class="image">
-            <img v-if="!event.image" src="/images/logo.png">
-            <img v-if="event.image" :src="services['events-static'] + '/headimages/' + event.image">
+            <img v-if="!event.image" src="/images/logo.png" />
+            <img
+              v-if="event.image"
+              :src="services['events-static'] + '/headimages/' + event.image"
+            />
           </figure>
         </article>
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info">
           <div class="field is-grouped" v-if="can.list_applications">
-            <router-link :to="{ name: 'oms.events.participants', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link
+              :to="{ name: 'oms.events.participants', params: { id: event.url || event.id } }"
+              class="button is-fullwidth"
+            >
               <span>View applications</span>
               <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
@@ -25,29 +31,44 @@
             </router-link>
           </div>-->
 
-          <div class="field is-grouped" v-if="event.status === 'published' && event.has_applications">
-            <router-link :to="{ name: 'oms.events.apply', params: { id: event.url || event.id, application_id: 'me' } }" class="button is-warning is-fullwidth">
+          <div
+            class="field is-grouped"
+            v-if="event.status === 'published' && event.has_applications"
+          >
+            <router-link
+              :to="{
+                name: 'oms.events.apply',
+                params: { id: event.url || event.id, application_id: 'me' },
+              }"
+              class="button is-warning is-fullwidth"
+            >
               <span>Manage my application</span>
               <span class="icon"><font-awesome-icon icon="plus" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.edit_event">
-            <a class="button is-fullwidth is-primary" data-cy="picture-change-link" @click="openPictureModal()">
+            <a class="button is-fullwidth is-primary" @click="openPictureModal()">
               <span>Change picture</span>
               <span class="icon"><font-awesome-icon icon="camera" /></span>
             </a>
           </div>
 
           <div class="field is-grouped" v-if="can.edit_event">
-            <router-link :to="{ name: 'oms.events.edit', params: { id: event.url || event.id } }" class="button is-fullwidth is-warning">
+            <router-link
+              :to="{ name: 'oms.events.edit', params: { id: event.url || event.id } }"
+              class="button is-fullwidth is-warning"
+            >
               <span>Edit event</span>
               <span class="icon"><font-awesome-icon icon="edit" /></span>
             </router-link>
           </div>
 
           <!-- For LOs/EQAC: ask for approval (draft -> submitted) -->
-          <div class="field is-grouped" v-if="can.change_status.submitted && event.status === 'draft'">
+          <div
+            class="field is-grouped"
+            v-if="can.change_status.submitted && event.status === 'draft'"
+          >
             <a class="button is-fullwidth is-warning" @click="askChangeStatus('submitted')">
               <span>Ask for approval</span>
               <span class="icon"><font-awesome-icon icon="sign-in-alt" /></span>
@@ -55,7 +76,10 @@
           </div>
 
           <!-- For EQAC: unpublish event (published -> submitted)  -->
-          <div class="field is-grouped" v-if="can.change_status.submitted && event.status === 'published'">
+          <div
+            class="field is-grouped"
+            v-if="can.change_status.submitted && event.status === 'published'"
+          >
             <a class="button is-fullwidth is-danger" @click="askChangeStatus('submitted')">
               <span>Unpublish</span>
               <span class="icon"><font-awesome-icon icon="times-circle" /></span>
@@ -63,7 +87,10 @@
           </div>
 
           <!-- For EQAC: approve (submitted -> published) -->
-          <div class="field is-grouped" v-if="can.change_status.published && event.status === 'submitted'">
+          <div
+            class="field is-grouped"
+            v-if="can.change_status.published && event.status === 'submitted'"
+          >
             <a class="button is-fullwidth is-primary" @click="askChangeStatus('published')">
               <span>Approve event</span>
               <span class="icon"><font-awesome-icon icon="check" /></span>
@@ -71,7 +98,10 @@
           </div>
 
           <!-- For EQAC: reject/request for changes (submitted -> draft) -->
-          <div class="field is-grouped" v-if="can.change_status.draft && event.status === 'submitted'">
+          <div
+            class="field is-grouped"
+            v-if="can.change_status.draft && event.status === 'submitted'"
+          >
             <a class="button is-fullwidth is-danger" @click="askChangeStatus('draft')">
               <span>Request changes</span>
               <span class="icon"><font-awesome-icon icon="times-circle" /></span>
@@ -101,7 +131,9 @@
           <p class="title">{{ event.name }}</p>
 
           <div class="notification is-info" v-if="isOnlineEvent">
-            This is an online event<span v-if="!event.has_applications">, you can join without applying</span>!
+            This is an online event<span v-if="!event.has_applications"
+            >, you can join without applying</span
+            >!
           </div>
 
           <div class="content">
@@ -162,7 +194,13 @@
                 </tr>
                 <tr v-if="event.link_info_travel_country">
                   <th>Useful information to travel to this country</th>
-                  <td><a :href="event.link_info_travel_country" target="_blank" rel="noopener noreferrer">{{ event.link_info_travel_country }}</a>
+                  <td>
+                    <a
+                      :href="event.link_info_travel_country"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >{{ event.link_info_travel_country }}</a
+                    >
                   </td>
                 </tr>
                 <tr v-if="!isOnlineEvent">
@@ -171,16 +209,14 @@
                 </tr>
                 <tr v-if="event.vegetarian">
                   <td colspan="2">
-                    <div class="notification is-success">
-                      This event is fully vegetarian!
-                    </div>
+                    <div class="notification is-success">This event is fully vegetarian!</div>
                   </td>
                 </tr>
                 <tr v-if="!isOnlineEvent">
                   <th>Accommodation type</th>
                   <td>{{ event.accommodation_type }}</td>
                 </tr>
-                <tr v-if="can.approve_event ">
+                <tr v-if="can.approve_event">
                   <th>Status</th>
                   <td>{{ event.status | capitalize }}</td>
                 </tr>
@@ -189,7 +225,10 @@
                   <td>
                     <ul>
                       <li v-for="body in event.organizing_bodies" v-bind:key="body._id">
-                        <router-link class="tag" :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }">
+                        <router-link
+                          class="tag"
+                          :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }"
+                        >
                           {{ body.body_name }}
                         </router-link>
                       </li>
@@ -204,13 +243,25 @@
                 <tr v-if="!isOnlineEvent">
                   <th>Budget link</th>
                   <td>
-                    <a v-if="event.budget" :href="event.budget" target="_blank" rel="noopener noreferrer">{{ event.budget }}</a>
+                    <a
+                      v-if="event.budget"
+                      :href="event.budget"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >{{ event.budget }}</a
+                    >
                   </td>
                 </tr>
                 <tr>
                   <th>Program link</th>
                   <td>
-                    <a v-if="event.programme" :href="event.programme" target="_blank" rel="noopener noreferrer">{{ event.programme }}</a>
+                    <a
+                      v-if="event.programme"
+                      :href="event.programme"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >{{ event.programme }}</a
+                    >
                   </td>
                 </tr>
               </tbody>
@@ -218,24 +269,31 @@
           </div>
 
           <div class="notification is-info" v-if="event.status !== 'published'">
-            <p><strong>This event is visible to EQAC and organisers only because it's not approved yet.</strong></p>
+            <p>
+              <strong
+              >This event is visible to EQAC and organisers only because it's not approved
+                yet.</strong
+              >
+            </p>
             <p>Once the event will be published, others would be able to access it.</p>
           </div>
 
           <div class="notification is-info" v-if="event.status === 'draft'">
             <p>
-              This event is in the "draft" status. Once you have filled in all the fields,
-              you can send it to EQAC approval.
+              This event is in the "draft" status. Once you have filled in all the fields, you can
+              send it to EQAC approval.
             </p>
           </div>
 
           <div class="notification is-info" v-if="event.status === 'submitted'">
-            <p>
-              This event is under approval. Wait a little till EQAC approves it.
-            </p>
+            <p>This event is under approval. Wait a little till EQAC approves it.</p>
           </div>
 
-          <div class="tile" style="position: relative; height: 400px" v-if="this.event.locations.length > 0">
+          <div
+            class="tile"
+            style="position: relative; height: 400px"
+            v-if="this.event.locations.length > 0"
+          >
             <MglMap
               id="map"
               :accessToken="accessToken"
@@ -243,13 +301,15 @@
               :zoom="map.zoom"
               :scrollZoom="false"
               @load="onMapLoaded"
-              :center="map.center">
+              :center="map.center"
+            >
               <MglNavigationControl position="top-right" />
               <MglMarker
                 v-for="(location, index) in event.locations"
                 v-bind:key="index"
                 :coordinates="location.position"
-                color="red">
+                color="red"
+              >
                 <MglPopup>
                   <div class="mapbox-popup-custom">{{ location.name }}</div>
                 </MglPopup>
@@ -356,10 +416,13 @@ export default {
       })
     },
     deleteEvent () {
-      this.axios.delete(this.services['events'] + '/single/' + this.event.id).then(() => {
-        this.$root.showInfo('Event is deleted.')
-        this.$router.push({ name: 'oms.events.list.all' })
-      }).catch((err) => this.$root.showError('Could not delete event', err))
+      this.axios
+        .delete(this.services['events'] + '/single/' + this.event.id)
+        .then(() => {
+          this.$root.showInfo('Event is deleted.')
+          this.$router.push({ name: 'oms.events.list.all' })
+        })
+        .catch((err) => this.$root.showError('Could not delete event', err))
     },
     askChangeStatus (newStatus) {
       if (this.event.status === 'draft') {
@@ -389,24 +452,28 @@ export default {
       this.isLoading = true
       const body = { status: newStatus }
 
-      this.axios.put(this.services['events'] + '/single/' + this.event.id + '/status', body).then(() => {
-        this.$root.showInfo(`Event status is now ${newStatus}`)
+      this.axios
+        .put(this.services['events'] + '/single/' + this.event.id + '/status', body)
+        .then(() => {
+          this.$root.showInfo(`Event status is now ${newStatus}`)
 
-        // Refetching the event to renew the permissions.
-        return this.axios.get(this.services['events'] + '/single/' + this.$route.params.id)
-      }).then((response) => {
-        this.event = response.data.data
-        this.can = response.data.permissions
-        this.isLoading = false
-      }).catch((err) => {
-        this.isLoading = false
-        this.$root.showError('Could not change event status', err)
-      })
+          // Refetching the event to renew the permissions.
+          return this.axios.get(this.services['events'] + '/single/' + this.$route.params.id)
+        })
+        .then((response) => {
+          this.event = response.data.data
+          this.can = response.data.permissions
+          this.isLoading = false
+        })
+        .catch((err) => {
+          this.isLoading = false
+          this.$root.showError('Could not change event status', err)
+        })
     },
     askChangeEuropeanEventStatus () {
       const message = this.event.is_european_event
-        ? 'Are you sure you want to change this event\'s status to <b>not</b> a European Event?'
-        : 'Are you sure you want to change this event\'s status to <b>a European Event</b>?'
+        ? "Are you sure you want to change this event's status to <b>not</b> a European Event?"
+        : "Are you sure you want to change this event's status to <b>a European Event</b>?"
 
       this.$buefy.dialog.confirm({
         title: 'Change European Event status',
@@ -421,19 +488,23 @@ export default {
       this.isLoading = true
       const body = { is_european_event: !this.event.is_european_event }
 
-      this.axios.put(this.services['events'] + '/single/' + this.event.id + '/status/european_event', body).then(() => {
-        this.$root.showInfo(`European Event status is now ${!this.event.is_european_event}`)
+      this.axios
+        .put(this.services['events'] + '/single/' + this.event.id + '/status/european_event', body)
+        .then(() => {
+          this.$root.showInfo(`European Event status is now ${!this.event.is_european_event}`)
 
-        // Refetching the event to renew the permissions.
-        return this.axios.get(this.services['events'] + '/single/' + this.$route.params.id)
-      }).then((response) => {
-        this.event = response.data.data
-        this.can = response.data.permissions
-        this.isLoading = false
-      }).catch((err) => {
-        this.isLoading = false
-        this.$root.showError('Could not change European Event status', err)
-      })
+          // Refetching the event to renew the permissions.
+          return this.axios.get(this.services['events'] + '/single/' + this.$route.params.id)
+        })
+        .then((response) => {
+          this.event = response.data.data
+          this.can = response.data.permissions
+          this.isLoading = false
+        })
+        .catch((err) => {
+          this.isLoading = false
+          this.$root.showError('Could not change European Event status', err)
+        })
     },
     onMapLoaded (event) {
       this.map.actions = event.component.actions
@@ -460,12 +531,12 @@ export default {
       }
 
       const minCoords = {
-        lat: Math.min(...this.event.locations.map(location => location.position.lat)),
-        lng: Math.min(...this.event.locations.map(location => location.position.lng))
+        lat: Math.min(...this.event.locations.map((location) => location.position.lat)),
+        lng: Math.min(...this.event.locations.map((location) => location.position.lng))
       }
       const maxCoords = {
-        lat: Math.max(...this.event.locations.map(location => location.position.lat)),
-        lng: Math.max(...this.event.locations.map(location => location.position.lng))
+        lat: Math.max(...this.event.locations.map((location) => location.position.lat)),
+        lng: Math.max(...this.event.locations.map((location) => location.position.lng))
       }
 
       this.map.actions.fitBounds([minCoords, maxCoords], { padding: 50 })
@@ -474,25 +545,28 @@ export default {
   mounted () {
     this.isLoading = true
 
-    this.axios.get(this.services['events'] + '/single/' + this.$route.params.id).then((response) => {
-      this.event = response.data.data
-      this.can = response.data.permissions
+    this.axios
+      .get(this.services['events'] + '/single/' + this.$route.params.id)
+      .then((response) => {
+        this.event = response.data.data
+        this.can = response.data.permissions
 
-      this.isLoading = false
+        this.isLoading = false
 
-      if (this.map.actions) {
-        this.centerMap()
-      }
-    }).catch((err) => {
-      this.isLoading = false
-      if (err.response && err.response.status === 404) {
-        this.$root.showError('Event is not found')
-      } else {
-        this.$root.showError('Some error happened', err)
-      }
+        if (this.map.actions) {
+          this.centerMap()
+        }
+      })
+      .catch((err) => {
+        this.isLoading = false
+        if (err.response && err.response.status === 404) {
+          this.$root.showError('Event is not found')
+        } else {
+          this.$root.showError('Some error happened', err)
+        }
 
-      this.$router.push({ name: 'oms.events.list.all' })
-    })
+        this.$router.push({ name: 'oms.events.list.all' })
+      })
   },
   computed: {
     ...mapGetters({
@@ -500,7 +574,7 @@ export default {
       services: 'services'
     }),
     isOrganizer () {
-      return this.event.organizers.some(org => org.user_id === this.loginUser.id)
+      return this.event.organizers.some((org) => org.user_id === this.loginUser.id)
     },
     isOnlineEvent () {
       return this.event.method === 'online'

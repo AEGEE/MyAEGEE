@@ -6,7 +6,13 @@
         <div class="field">
           <label class="label">Search by name or surname</label>
           <div class="control">
-            <input class="input" type="text" data-cy="query" v-model="query" placeholder="Search by name or surname" @input="refetch()">
+            <input
+              class="input"
+              type="text"
+              v-model="query"
+              placeholder="Search by name or surname"
+              @input="refetch()"
+            />
           </div>
         </div>
 
@@ -20,13 +26,22 @@
           :per-page="limit"
           @page-change="onPageChange"
           :default-sort="[sortField, sortOrder]"
-          @sort="onSort">
+          @sort="onSort"
+        >
           <b-table-column field="id" label="#" numeric sortable v-slot="props">
             {{ props.row.id }}
           </b-table-column>
 
-          <b-table-column field="first_name" label="Name and surname" sortable width="150" v-slot="props">
-            <router-link :to="{ name: 'oms.members.view', params: { id: props.row.username || props.row.id } }">
+          <b-table-column
+            field="first_name"
+            label="Name and surname"
+            sortable
+            width="150"
+            v-slot="props"
+          >
+            <router-link
+              :to="{ name: 'oms.members.view', params: { id: props.row.username || props.row.id } }"
+            >
               {{ props.row.first_name }} {{ props.row.last_name }}
             </router-link>
           </b-table-column>
@@ -101,12 +116,15 @@ export default {
       })
     },
     confirm (user, index) {
-      this.axios.post(this.services['core'] + '/members/' + user.id + '/confirm').then(() => {
-        this.$root.showSuccess('User is confirmed.')
-        this.users.splice(index, 1)
-      }).catch((err) => {
-        this.$root.showError('Error changing user status', err)
-      })
+      this.axios
+        .post(this.services['core'] + '/members/' + user.id + '/confirm')
+        .then(() => {
+          this.$root.showSuccess('User is confirmed.')
+          this.users.splice(index, 1)
+        })
+        .catch((err) => {
+          this.$root.showError('Error changing user status', err)
+        })
     },
     refetch () {
       this.users = []
@@ -129,20 +147,26 @@ export default {
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['core'] + '/members/unconfirmed', { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
-        this.users = response.data.data
-        this.total = response.data.meta.count
-        this.page++
-        this.canLoadMore = response.data.data.length === this.limit
-        this.isLoading = false
-      }).catch((err) => {
-        if (this.axios.isCancel(err)) {
-          return
-        }
-        this.isLoading = false
+      this.axios
+        .get(this.services['core'] + '/members/unconfirmed', {
+          params: this.queryObject,
+          cancelToken: this.source.token
+        })
+        .then((response) => {
+          this.users = response.data.data
+          this.total = response.data.meta.count
+          this.page++
+          this.canLoadMore = response.data.data.length === this.limit
+          this.isLoading = false
+        })
+        .catch((err) => {
+          if (this.axios.isCancel(err)) {
+            return
+          }
+          this.isLoading = false
 
-        this.$root.showError('Could not fetch user list', err)
-      })
+          this.$root.showError('Could not fetch user list', err)
+        })
     }
   },
   mounted () {

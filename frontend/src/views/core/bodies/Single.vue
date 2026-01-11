@@ -4,43 +4,61 @@
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
           <figure class="image is-1by1">
-            <img src="/images/logo.png">
+            <img src="/images/logo.png" />
           </figure>
         </article>
       </div>
       <div class="tile is-parent">
         <article class="tile is-child is-info">
           <div class="field is-grouped" v-if="can.viewMembers">
-            <router-link :to="{ name: 'oms.bodies.members', params: { id: body.id } }" :class="['button', 'is-fullwidth']">
+            <router-link
+              :to="{ name: 'oms.bodies.members', params: { id: body.id } }"
+              :class="['button', 'is-fullwidth']"
+            >
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'users']" /></span>
               <span class="field-label">Members</span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.viewBoards">
-            <router-link :to="{ name: 'oms.bodies.boards', params: { id: body.id } }" :class="['button', 'is-fullwidth']">
+            <router-link
+              :to="{ name: 'oms.bodies.boards', params: { id: body.id } }"
+              :class="['button', 'is-fullwidth']"
+            >
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'users']" /></span>
               <span class="field-label">Boards</span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.viewJoinRequests">
-            <router-link :to="{ name: 'oms.bodies.join_requests', params: { id: body.id } }" :class="['button', 'is-fullwidth']">
+            <router-link
+              :to="{ name: 'oms.bodies.join_requests', params: { id: body.id } }"
+              :class="['button', 'is-fullwidth']"
+            >
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'users']" /></span>
               <span class="field-label">Join requests</span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.viewCampaigns">
-            <router-link :to="{ name: 'oms.bodies.campaigns', params: { id: body.id } }" :class="['button', 'is-fullwidth']">
+            <router-link
+              :to="{ name: 'oms.bodies.campaigns', params: { id: body.id } }"
+              :class="['button', 'is-fullwidth']"
+            >
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'users']" /></span>
               <span class="field-label">Recruitment campaigns</span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="!isMember">
-            <a @click="askToJoinBody()" v-if="!isRequestingMembership" :class="['button', 'is-fullwidth', 'is-info']">
-              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'user-plus']" /></span>
+            <a
+              @click="askToJoinBody()"
+              v-if="!isRequestingMembership"
+              :class="['button', 'is-fullwidth', 'is-info']"
+            >
+              <span class="field-icon icon"
+              ><font-awesome-icon :icon="['fas', 'user-plus']"
+              /></span>
               <span class="field-label">Ask to join body</span>
             </a>
 
@@ -52,7 +70,9 @@
 
           <div class="field is-grouped" v-if="can.viewMembers && can.addMembers">
             <a @click="openAddMemberModal()" :class="['button', 'is-fullwidth']">
-              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'user-plus']" /></span>
+              <span class="field-icon icon"
+              ><font-awesome-icon :icon="['fas', 'user-plus']"
+              /></span>
               <span class="field-label">Add member</span>
             </a>
           </div>
@@ -65,7 +85,10 @@
           </div>
 
           <div class="field is-grouped" v-if="can.updateBody">
-            <router-link :to="{ name: 'oms.bodies.edit', params: { id: body.id } }" :class="['button', 'is-fullwidth', 'is-warning']">
+            <router-link
+              :to="{ name: 'oms.bodies.edit', params: { id: body.id } }"
+              :class="['button', 'is-fullwidth', 'is-warning']"
+            >
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'edit']" /></span>
               <span class="field-label">Edit body details</span>
             </router-link>
@@ -80,18 +103,28 @@
 
           <div class="field is-grouped" v-if="isMember">
             <a @click="askLeaveBody()" :class="['button', 'is-fullwidth', 'is-danger']">
-              <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'sign-out-alt']" /></span>
+              <span class="field-icon icon"
+              ><font-awesome-icon :icon="['fas', 'sign-out-alt']"
+              /></span>
               <span class="field-label">Leave body</span>
             </a>
           </div>
 
           <div class="field is-grouped" v-if="can.deleteBody">
-            <a @click="askChangeStatus('deleted')" :class="['button', 'is-fullwidth', 'is-danger']" v-if="body.status === 'active'">
+            <a
+              @click="askChangeStatus('deleted')"
+              :class="['button', 'is-fullwidth', 'is-danger']"
+              v-if="body.status === 'active'"
+            >
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'times']" /></span>
               <span class="field-label">Delete body</span>
             </a>
 
-            <a @click="askChangeStatus('active')" :class="['button', 'is-fullwidth', 'is-info']" v-else>
+            <a
+              @click="askChangeStatus('active')"
+              :class="['button', 'is-fullwidth', 'is-info']"
+              v-else
+            >
               <span class="field-icon icon"><font-awesome-icon :icon="['fas', 'history']" /></span>
               <span class="field-label">Restore body</span>
             </a>
@@ -110,7 +143,12 @@
                   <th>Title</th>
                   <td>{{ body.name }}</td>
                 </tr>
-                <tr v-if="!['antenna', 'contact antenna', 'contact'].includes(body.type) && body.abbreviation">
+                <tr
+                  v-if="
+                    !['antenna', 'contact antenna', 'contact'].includes(body.type)
+                      && body.abbreviation
+                  "
+                >
                   <th>Abbreviation</th>
                   <td>{{ body.abbreviation }}</td>
                 </tr>
@@ -125,6 +163,8 @@
                   <td>
                     <span v-html="$options.filters.markdown(body.task_description)" />
                   </td>
+                </tr>
+
                 <tr>
                   <th>Type</th>
                   <td>{{ body.type | capitalize }}</td>
@@ -139,17 +179,23 @@
                 </tr>
                 <tr>
                   <th>Email</th>
-                  <td v-if="body.email"><a :href="'mailto:' + body.email">{{ body.email }}</a></td>
+                  <td v-if="body.email">
+                    <a :href="'mailto:' + body.email">{{ body.email }}</a>
+                  </td>
                   <td v-if="!body.email"><i>Not set.</i></td>
                 </tr>
                 <tr v-if="can.editGsuite">
                   <th>Google Workspace account</th>
-                  <td v-if="body.gsuite_id"><a :href="'mailto:' + body.gsuite_id" data-cy="gsuite">{{ body.gsuite_id }}</a></td>
+                  <td v-if="body.gsuite_id">
+                    <a :href="'mailto:' + body.gsuite_id">{{ body.gsuite_id }}</a>
+                  </td>
                   <td v-if="!body.gsuite_id"><i>Not set.</i></td>
                 </tr>
                 <tr v-if="can.editGsuite">
                   <th>Google Group</th>
-                  <td v-if="body.google_group"><a :href="'mailto:' + body.google_group" data-cy="google_group">{{ body.google_group }}</a></td>
+                  <td v-if="body.google_group">
+                    <a :href="'mailto:' + body.google_group">{{ body.google_group }}</a>
+                  </td>
                   <td v-if="!body.google_group"><i>Not set.</i></td>
                 </tr>
                 <tr v-if="body.phone">
@@ -166,11 +212,20 @@
                 </tr>
                 <tr v-if="body.website">
                   <th>Website</th>
-                  <td><a :href="body.website" target="_blank" rel="noopener noreferrer">{{ body.website }}</a></td>
+                  <td>
+                    <a :href="body.website" target="_blank" rel="noopener noreferrer">{{
+                      body.website
+                    }}</a>
+                  </td>
                 </tr>
                 <tr v-if="can.viewShadowCircles">
                   <th>Shadow circle</th>
-                  <td v-if="body.shadow_circle"><router-link :to="{ name: 'oms.circles.view', params: { id: body.shadow_circle.id } }">{{ body.shadow_circle.name }}</router-link></td>
+                  <td v-if="body.shadow_circle">
+                    <router-link
+                      :to="{ name: 'oms.circles.view', params: { id: body.shadow_circle.id } }"
+                    >{{ body.shadow_circle.name }}</router-link
+                    >
+                  </td>
                   <td v-if="!body.shadow_circle"><i>No shadow circle assigned.</i></td>
                 </tr>
               </tbody>
@@ -195,15 +250,21 @@
                 </tr>
                 <tr>
                   <th>President</th>
-                  <td>{{ board.president_user.first_name }} {{ board.president_user.last_name }}</td>
+                  <td>
+                    {{ board.president_user.first_name }} {{ board.president_user.last_name }}
+                  </td>
                 </tr>
                 <tr>
                   <th>Secretary</th>
-                  <td>{{ board.secretary_user.first_name }} {{ board.secretary_user.last_name }}</td>
+                  <td>
+                    {{ board.secretary_user.first_name }} {{ board.secretary_user.last_name }}
+                  </td>
                 </tr>
                 <tr>
                   <th>Treasurer</th>
-                  <td>{{ board.treasurer_user.first_name }} {{ board.treasurer_user.last_name }}</td>
+                  <td>
+                    {{ board.treasurer_user.first_name }} {{ board.treasurer_user.last_name }}
+                  </td>
                 </tr>
                 <tr v-for="position in board.other_members" v-bind:key="position.index">
                   <th>{{ position.function }}</th>
@@ -226,7 +287,11 @@
                   <th>Description</th>
                 </tr>
                 <tr v-for="circle in body.circles" v-bind:key="circle.id">
-                  <td><router-link :to="{ name: 'oms.circles.view', params: { id: circle.id } }">{{ circle.name }}</router-link></td>
+                  <td>
+                    <router-link :to="{ name: 'oms.circles.view', params: { id: circle.id } }">{{
+                      circle.name
+                    }}</router-link>
+                  </td>
                   <td>{{ circle.description }}</td>
                 </tr>
               </tbody>
@@ -339,7 +404,9 @@ export default {
       const confirmText = isDeleting ? 'Delete body' : 'Restore body'
       const type = isDeleting ? 'is-danger' : 'is-info'
 
-      let message = `Are you sure you want to <b>${isDeleting ? 'delete' : 'restore'}</b> this body?`
+      let message = `Are you sure you want to <b>${
+        isDeleting ? 'delete' : 'restore'
+      }</b> this body?`
       if (isDeleting) {
         message += 'This action cannot be undone.'
       }
@@ -357,18 +424,26 @@ export default {
       const isDeleting = newStatus === 'deleted'
       this.isLoading = true
 
-      this.axios.put(this.services['core'] + '/bodies/' + this.$route.params.id + '/status', { status: newStatus }).then(() => {
-        this.isLoading = false
-        this.$root.showSuccess(isDeleting ? 'Body is deleted.' : 'Body is restored')
-        this.body.status = newStatus
-      }).catch((err) => {
-        this.isLoading = false
-        this.$root.showError('Could not change body status', err)
-      })
+      this.axios
+        .put(this.services['core'] + '/bodies/' + this.$route.params.id + '/status', {
+          status: newStatus
+        })
+        .then(() => {
+          this.isLoading = false
+          this.$root.showSuccess(isDeleting ? 'Body is deleted.' : 'Body is restored')
+          this.body.status = newStatus
+        })
+        .catch((err) => {
+          this.isLoading = false
+          this.$root.showError('Could not change body status', err)
+        })
     },
     askToJoinBody () {
       if (!this.loginUser) {
-        return this.$router.push({ name: 'oms.login', query: { to: '/bodies/' + this.$route.params.id } })
+        return this.$router.push({
+          name: 'oms.login',
+          query: { to: '/bodies/' + this.$route.params.id }
+        })
       }
 
       this.$buefy.dialog.prompt({
@@ -382,25 +457,29 @@ export default {
     },
     joinBody (motivation) {
       this.isLoading = true
-      this.axios.post(this.services['core'] + '/bodies/' + this.$route.params.id + '/join-requests', {
-        motivation
-      }).then(() => {
-        this.$root.showSuccess('Join request is sent.')
-        this.isLoading = false
-        this.isRequestingMembership = true
-      }).catch((err) => {
-        this.isLoading = false
-        if (err.response.status === 422) {
-          this.$root.showError('You\'ve already requested to join this body.')
-        } else {
-          this.$root.showError('Could not sent join request', err)
-        }
-      })
+      this.axios
+        .post(this.services['core'] + '/bodies/' + this.$route.params.id + '/join-requests', {
+          motivation
+        })
+        .then(() => {
+          this.$root.showSuccess('Join request is sent.')
+          this.isLoading = false
+          this.isRequestingMembership = true
+        })
+        .catch((err) => {
+          this.isLoading = false
+          if (err.response.status === 422) {
+            this.$root.showError("You've already requested to join this body.")
+          } else {
+            this.$root.showError('Could not sent join request', err)
+          }
+        })
     },
     askLeaveBody () {
       this.$buefy.dialog.confirm({
         title: 'Leaving a body',
-        message: 'Are you sure you want to <b>leave</b> this body? You will probably not be able to join later.',
+        message:
+          'Are you sure you want to <b>leave</b> this body? You will probably not be able to join later.',
         confirmText: 'Leave body',
         type: 'is-danger',
         hasIcon: true,
@@ -408,82 +487,113 @@ export default {
       })
     },
     leaveBody () {
-      this.axios.delete(this.services['core'] + '/bodies/' + this.$route.params.id + '/members').then(() => {
-        this.isMember = false
-        this.isRequestingMembership = false
-        this.$root.showSuccess('You are not the member anymore.')
-      }).catch((err) => {
-        this.$root.showError('Could not delete body', err)
-      })
+      this.axios
+        .delete(this.services['core'] + '/bodies/' + this.$route.params.id + '/members')
+        .then(() => {
+          this.isMember = false
+          this.isRequestingMembership = false
+          this.$root.showSuccess('You are not the member anymore.')
+        })
+        .catch((err) => {
+          this.$root.showError('Could not delete body', err)
+        })
     }
   },
   mounted () {
     this.isLoading = true
     // Get body for this page
-    this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id).then((response) => {
-      this.body = response.data.data
+    this.axios
+      .get(this.services['core'] + '/bodies/' + this.$route.params.id)
+      .then((response) => {
+        this.body = response.data.data
 
-      // Get current board(s) for this body
-      this.axios.get(this.services['network'] + '/bodies/' + this.body.id + '/boards/current').then((boardResponse) => {
-        this.boards = boardResponse.data.data
+        // Get current board(s) for this body
+        this.axios
+          .get(this.services['network'] + '/bodies/' + this.body.id + '/boards/current')
+          .then((boardResponse) => {
+            this.boards = boardResponse.data.data
 
-        return this.axios.get(this.services['core'] + '/bodies/' + this.body.id + '/members')
-      }).then((memberResponse) => {
-        const members = memberResponse.data.data
-        const users = []
-        for (const member of members) {
-          users.push(member.user)
+            return this.axios.get(this.services['core'] + '/bodies/' + this.body.id + '/members')
+          })
+          .then((memberResponse) => {
+            const members = memberResponse.data.data
+            const users = []
+            for (const member of members) {
+              users.push(member.user)
+            }
+
+            // Match members of a body to members on the board
+            for (const board of this.boards) {
+              this.$set(
+                board,
+                'president_user',
+                users.find((user) => user.id === board.president)
+              )
+              this.$set(
+                board,
+                'secretary_user',
+                users.find((user) => user.id === board.secretary)
+              )
+              this.$set(
+                board,
+                'treasurer_user',
+                users.find((user) => user.id === board.treasurer)
+              )
+
+              for (const position of board.other_members) {
+                this.$set(
+                  position,
+                  'user',
+                  users.find((user) => user.id === position.user_id)
+                )
+              }
+            }
+          })
+          .catch((err) => {
+            // TODO: remove 403 once all members can view boards
+            if (err.response.status === 403 || err.response.status === 404) {
+              return
+            }
+            this.$root.showError('Some error happened', err)
+          })
+
+        if (this.loginUser) {
+          this.isMember = this.loginUser.bodies.some((body) => body.id === this.body.id)
+          this.isRequestingMembership = this.loginUser.join_requests.some(
+            (request) => request.body_id === this.body.id
+          )
+
+          return this.axios
+            .get(this.services['core'] + '/bodies/' + this.$route.params.id + '/my_permissions')
+            .then((permissionsResponse) => {
+              this.permissions = permissionsResponse.data.data
+              this.can.viewMembers = this.permissions.some((permission) => permission.combined.endsWith('view_members:body'))
+              this.can.viewBoards = this.permissions.some((permission) => permission.combined.endsWith('view:board'))
+                && ['contact', 'contact antenna', 'antenna'].includes(this.body.type)
+              this.can.viewJoinRequests = this.permissions.some((permission) => permission.combined.endsWith('view:join_request'))
+              this.can.viewCampaigns = this.permissions.some((permission) => permission.combined.endsWith('view:campaign'))
+              this.can.viewShadowCircles = this.permissions.some((permission) => permission.combined.endsWith('view:shadow_circle'))
+              this.can.createBoundCircles = this.permissions.some((permission) => permission.combined.endsWith('create:bound_circle'))
+              this.can.manageBoards = this.permissions.some((permission) => permission.combined.endsWith('manage_network:boards'))
+              this.can.updateBody = this.permissions.some((permission) => permission.combined.endsWith('update:body'))
+              this.can.deleteBody = this.permissions.some((permission) => permission.combined.endsWith('delete:body'))
+              this.can.addMembers = this.permissions.some((permission) => permission.combined.endsWith('add_member:body'))
+              this.can.editGsuite = this.permissions.some((permission) => permission.combined.endsWith('global:update:body'))
+
+              this.isLoading = false
+            })
         }
-
-        // Match members of a body to members on the board
-        for (const board of this.boards) {
-          this.$set(board, 'president_user', users.find(user => user.id === board.president))
-          this.$set(board, 'secretary_user', users.find(user => user.id === board.secretary))
-          this.$set(board, 'treasurer_user', users.find(user => user.id === board.treasurer))
-
-          for (const position of board.other_members) {
-            this.$set(position, 'user', users.find(user => user.id === position.user_id))
-          }
-        }
-      }).catch((err) => {
-        // TODO: remove 403 once all members can view boards
-        if (err.response.status === 403 || err.response.status === 404) {
-          return
-        }
-        this.$root.showError('Some error happened', err)
+        this.isLoading = false
       })
+      .catch((err) => {
+        if (err.response.status === 404) {
+          this.$root.showError('Body is not found')
+        } else {
+          this.$root.showError('Some error happened', err)
+        }
 
-      if (this.loginUser) {
-        this.isMember = this.loginUser.bodies.some(body => body.id === this.body.id)
-        this.isRequestingMembership = this.loginUser.join_requests.some(request => request.body_id === this.body.id)
-
-        return this.axios.get(this.services['core'] + '/bodies/' + this.$route.params.id + '/my_permissions').then((permissionsResponse) => {
-          this.permissions = permissionsResponse.data.data
-          this.can.viewMembers = this.permissions.some(permission => permission.combined.endsWith('view_members:body'))
-          this.can.viewBoards = this.permissions.some(permission => permission.combined.endsWith('view:board')) && ['contact', 'contact antenna', 'antenna'].includes(this.body.type)
-          this.can.viewJoinRequests = this.permissions.some(permission => permission.combined.endsWith('view:join_request'))
-          this.can.viewCampaigns = this.permissions.some(permission => permission.combined.endsWith('view:campaign'))
-          this.can.viewShadowCircles = this.permissions.some(permission => permission.combined.endsWith('view:shadow_circle'))
-          this.can.createBoundCircles = this.permissions.some(permission => permission.combined.endsWith('create:bound_circle'))
-          this.can.manageBoards = this.permissions.some(permission => permission.combined.endsWith('manage_network:boards'))
-          this.can.updateBody = this.permissions.some(permission => permission.combined.endsWith('update:body'))
-          this.can.deleteBody = this.permissions.some(permission => permission.combined.endsWith('delete:body'))
-          this.can.addMembers = this.permissions.some(permission => permission.combined.endsWith('add_member:body'))
-          this.can.editGsuite = this.permissions.some(permission => permission.combined.endsWith('global:update:body'))
-
-          this.isLoading = false
-        })
-      }
-      this.isLoading = false
-    }).catch((err) => {
-      if (err.response.status === 404) {
-        this.$root.showError('Body is not found')
-      } else {
-        this.$root.showError('Some error happened', err)
-      }
-
-      this.$router.push({ name: 'oms.bodies.list' })
-    })
+        this.$router.push({ name: 'oms.bodies.list' })
+      })
   },
   computed: mapGetters({
     loginUser: 'user',

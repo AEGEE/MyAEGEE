@@ -6,7 +6,13 @@
         <div class="field">
           <label class="label">Search by name or surname</label>
           <div class="control">
-            <input class="input" type="text" data-cy="query" v-model="query" placeholder="Search by name or surname" @input="refetch()">
+            <input
+              class="input"
+              type="text"
+              v-model="query"
+              placeholder="Search by name or surname"
+              @input="refetch()"
+            />
           </div>
         </div>
 
@@ -20,13 +26,22 @@
           :per-page="limit"
           @page-change="onPageChange"
           :default-sort="[sortField, sortOrder]"
-          @sort="onSort">
+          @sort="onSort"
+        >
           <b-table-column field="id" label="#" numeric sortable v-slot="props">
             {{ props.row.id }}
           </b-table-column>
 
-          <b-table-column field="first_name" label="Name and surname" sortable width="150" v-slot="props">
-            <router-link :to="{ name: 'oms.members.view', params: { id: props.row.username || props.row.id } }">
+          <b-table-column
+            field="first_name"
+            label="Name and surname"
+            sortable
+            width="150"
+            v-slot="props"
+          >
+            <router-link
+              :to="{ name: 'oms.members.view', params: { id: props.row.username || props.row.id } }"
+            >
               {{ props.row.first_name }} {{ props.row.last_name }}
             </router-link>
           </b-table-column>
@@ -35,12 +50,20 @@
             {{ props.row.notification_email }}
           </b-table-column>
 
-          <b-table-column field="date_of_birth" label="Birthday" sortable width="150" v-slot="props">
+          <b-table-column
+            field="date_of_birth"
+            label="Birthday"
+            sortable
+            width="150"
+            v-slot="props"
+          >
             {{ props.row.date_of_birth }}
           </b-table-column>
 
           <b-table-column field="primary_body_id" label="Primary body" v-slot="props">
-            <span v-if="props.row.primary_body_id">{{ bodyMapping[props.row.primary_body_id] }}</span>
+            <span v-if="props.row.primary_body_id">{{
+              bodyMapping[props.row.primary_body_id]
+            }}</span>
             <span v-else><i>Not set.</i></span>
           </b-table-column>
 
@@ -118,32 +141,39 @@ export default {
       if (this.source) this.source.cancel()
       this.source = this.axios.CancelToken.source()
 
-      this.axios.get(this.services['core'] + '/members', { params: this.queryObject, cancelToken: this.source.token }).then((response) => {
-        this.users = response.data.data
-        this.total = response.data.meta.count
-        this.page++
-        this.canLoadMore = response.data.data.length === this.limit
-        this.isLoading = false
-      }).catch((err) => {
-        if (this.axios.isCancel(err)) {
-          return
-        }
-        this.isLoading = false
+      this.axios
+        .get(this.services['core'] + '/members', {
+          params: this.queryObject,
+          cancelToken: this.source.token
+        })
+        .then((response) => {
+          this.users = response.data.data
+          this.total = response.data.meta.count
+          this.page++
+          this.canLoadMore = response.data.data.length === this.limit
+          this.isLoading = false
+        })
+        .catch((err) => {
+          if (this.axios.isCancel(err)) {
+            return
+          }
+          this.isLoading = false
 
-        this.$root.showError('Could not fetch user list', err)
-      })
+          this.$root.showError('Could not fetch user list', err)
+        })
     }
   },
   mounted () {
-    this.axios.get(this.services['core'] + '/bodies').then((response) => {
-      const bodies = response.data.data
-      this.bodyMapping = Object.fromEntries(
-        bodies.map(({ id, name }) => [id, name])
-      )
-      this.fetchData()
-    }).catch((err) => {
-      this.$root.showError('Could not fetch bodies list', err)
-    })
+    this.axios
+      .get(this.services['core'] + '/bodies')
+      .then((response) => {
+        const bodies = response.data.data
+        this.bodyMapping = Object.fromEntries(bodies.map(({ id, name }) => [id, name]))
+        this.fetchData()
+      })
+      .catch((err) => {
+        this.$root.showError('Could not fetch bodies list', err)
+      })
   }
 }
 </script>

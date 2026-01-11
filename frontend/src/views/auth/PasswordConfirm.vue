@@ -7,32 +7,64 @@
             <div class="field">
               <label class="label">Token</label>
               <div class="control">
-                <input v-model="token" data-cy="token" required class="input" type="text" placeholder="Type the token you've received by your email.">
+                <input
+                  v-model="token"
+                  required
+                  class="input"
+                  type="text"
+                  placeholder="Type the token you've received by your email."
+                />
               </div>
               <p class="help is-danger" v-if="errors.token">{{ errors.token.join(', ') }}</p>
             </div>
 
-            <password-toggle v-model="password" data-cy="password" required placeholder="Type your new password." label="Password">
+            <password-toggle
+              v-model="password"
+              required
+              placeholder="Type your new password."
+              label="Password"
+            >
               <template slot="errors-slot">
-                <p class="help is-danger" v-if="errors.password">{{ errors.password.join(', ')}}</p>
+                <p class="help is-danger" v-if="errors.password">
+                  {{ errors.password.join(', ') }}
+                </p>
               </template>
             </password-toggle>
 
-            <password-toggle v-model="password_confirmation" data-cy="password-confirmation" required placeholder="Confirm your password." label="Password confirmation" />
+            <password-toggle
+              v-model="password_confirmation"
+              required
+              placeholder="Confirm your password."
+              label="Password confirmation"
+            />
 
             <hr />
             <p class="control">
               <button type="submit" class="button is-primary">Confirm password</button>
-              <router-link :to="{ name: 'oms.password_reset' }" class="button">I don't have a token</router-link>
+              <router-link
+                :to="{ name: 'oms.password_reset' }"
+                class="button"
+              >I don't have a token</router-link
+              >
             </p>
           </form>
         </div>
 
         <div class="notification is-info">
           Please make up your mind for a second why a
-          <a href="https://howsecureismypassword.net/" target="_blank" rel="noopener noreferrer">strong password</a>
+          <a
+            href="https://howsecureismypassword.net/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >strong password</a
+          >
           is a good idea. We recommend a
-          <a href="https://padlock.io/" target="_blank" rel="noopener noreferrer">password manager.</a>
+          <a
+            href="https://padlock.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >password manager.</a
+          >
         </div>
       </div>
     </div>
@@ -40,7 +72,6 @@
 </template>
 
 <script>
-
 import { mapGetters } from 'vuex'
 
 export default {
@@ -63,24 +94,28 @@ export default {
         return
       }
 
-      this.axios.post(this.services['core'] + '/password_confirm', {
-        token: this.token,
-        password: this.password
-      }).then(() => {
-        this.$root.showSuccess('Password is changed.')
-        this.$router.push({ name: 'oms.login' })
-      }).catch((err) => {
-        if (err.response.status === 422) { // validation errors
-          this.errors = err.response.data.errors
-          return this.$root.showError('Some of the password data is invalid.')
-        }
+      this.axios
+        .post(this.services['core'] + '/password_confirm', {
+          token: this.token,
+          password: this.password
+        })
+        .then(() => {
+          this.$root.showSuccess('Password is changed.')
+          this.$router.push({ name: 'oms.login' })
+        })
+        .catch((err) => {
+          if (err.response.status === 422) {
+            // validation errors
+            this.errors = err.response.data.errors
+            return this.$root.showError('Some of the password data is invalid.')
+          }
 
-        if (err.response.status === 404) {
-          return this.$root.showError('Your token is invalid.')
-        }
+          if (err.response.status === 404) {
+            return this.$root.showError('Your token is invalid.')
+          }
 
-        this.$root.showError('Could not change password', err)
-      })
+          this.$root.showError('Could not change password', err)
+        })
     }
   },
   mounted () {
@@ -93,6 +128,6 @@ export default {
 
 <style lang="scss" scoped>
 .confirm-block {
-  width: 100%
+  width: 100%;
 }
 </style>

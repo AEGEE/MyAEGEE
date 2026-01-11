@@ -5,9 +5,13 @@
         <font-awesome-icon icon="bars" aria-hidden="true" v-show="!sidebar.hidden" />
       </a>
       <a href="/" class="logo">
-        <img src="../../images/AEGEE_logo.png" class="image">
+        <img src="../../images/AEGEE_logo.png" class="image" />
       </a>
-      <a role="button" class="navbar-burger burger" data-cy="navbar-menu" @click="toggleNavbarMenu({ opened: !navbar.menuOpened })">
+      <a
+        role="button"
+        class="navbar-burger burger"
+        @click="toggleNavbarMenu({ opened: !navbar.menuOpened })"
+      >
         <span aria-hidden="true">
           <font-awesome-icon icon="user" />
         </span>
@@ -15,13 +19,16 @@
     </div>
     <div class="navbar-menu" :class="{ 'is-active': navbar.menuOpened }">
       <div class="navbar-end">
-        <div class="navbar-item has-dropdown is-hoverable" v-if="loggedIn && user && user.first_name">
+        <div
+          class="navbar-item has-dropdown is-hoverable"
+          v-if="loggedIn && user && user.first_name"
+        >
           <a class="navbar-link">
             {{ user.first_name + ' ' + user.last_name }}
           </a>
 
           <div class="navbar-dropdown is-right">
-            <router-link to="/members/me" class="navbar-item" data-cy="navbar-my-account-link">See my account</router-link>
+            <router-link to="/members/me" class="navbar-item">See my account</router-link>
             <hr class="navbar-divider" />
             <a class="navbar-item" @click="logout">Logout</a>
           </div>
@@ -49,10 +56,7 @@ export default {
     permissions: 'permissions'
   }),
   methods: {
-    ...mapActions([
-      'toggleSidebar',
-      'toggleNavbarMenu'
-    ]),
+    ...mapActions(['toggleSidebar', 'toggleNavbarMenu']),
     logout () {
       this.$auth.logout().then(() => this.$router.push('/login'))
     }
@@ -61,9 +65,9 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~bulma/sass/utilities/initial-variables";
-@import "~bulma/sass/utilities/derived-variables";
-@import "~bulma/sass/utilities/mixins";
+@import '~bulma/sass/utilities/initial-variables';
+@import '~bulma/sass/utilities/derived-variables';
+@import '~bulma/sass/utilities/mixins';
 
 .navbar {
   position: fixed;
@@ -98,10 +102,10 @@ export default {
 .hero-brand {
   .vue {
     margin-left: 10px;
-    color: #36AC70;
+    color: #36ac70;
   }
   .admin {
-    color: #28374B;
+    color: #28374b;
   }
 }
 </style>

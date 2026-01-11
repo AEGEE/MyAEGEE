@@ -4,8 +4,11 @@
       <div class="tile is-parent is-vertical">
         <article class="tile is-child is-primary">
           <figure class="image">
-            <img v-if="!event.image" src="/images/logo.png">
-            <img v-if="event.image" :src="services['summeruniversity-static'] + '/headimages/' + event.image">
+            <img v-if="!event.image" src="/images/logo.png" />
+            <img
+              v-if="event.image"
+              :src="services['summeruniversity-static'] + '/headimages/' + event.image"
+            />
           </figure>
         </article>
       </div>
@@ -19,28 +22,53 @@
           </div>
 
           <div class="field is-grouped" v-if="can.list_applications">
-            <router-link :to="{ name: 'oms.summeruniversity.participants', params: { id: event.url || event.id } }" class="button is-fullwidth">
+            <router-link
+              :to="{
+                name: 'oms.summeruniversity.participants',
+                params: { id: event.url || event.id },
+              }"
+              class="button is-fullwidth"
+            >
               <span>View applications</span>
               <span class="icon"><font-awesome-icon icon="users" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.apply">
-            <router-link :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }" class="button is-primary is-fullwidth">
+            <router-link
+              :to="{
+                name: 'oms.summeruniversity.apply',
+                params: { id: event.url || event.id, application_id: 'me' },
+              }"
+              class="button is-primary is-fullwidth"
+            >
               <span>Apply</span>
               <span class="icon"><font-awesome-icon icon="plus" /></span>
             </router-link>
           </div>
 
           <div class="field is-grouped" v-if="can.see_own_application">
-            <router-link :to="{ name: 'oms.summeruniversity.apply', params: { id: event.url || event.id, application_id: 'me' } }" class="button is-fullwidth">
+            <router-link
+              :to="{
+                name: 'oms.summeruniversity.apply',
+                params: { id: event.url || event.id, application_id: 'me' },
+              }"
+              class="button is-fullwidth"
+            >
               <span>Manage application</span>
               <span class="icon"><font-awesome-icon icon="plus" /></span>
             </router-link>
           </div>
 
           <!-- For SUCT & LOs: open Open Call period -->
-          <div class="field is-grouped" v-if="can.edit_summeruniversity_open_call && event.open_call != true && event.available_spots != 0">
+          <div
+            class="field is-grouped"
+            v-if="
+              can.edit_summeruniversity_open_call
+                && event.open_call != true
+                && event.available_spots != 0
+            "
+          >
             <a class="button is-fullwidth is-warning" @click="askStartOpenCall()">
               <span>Start open call</span>
               <span class="icon"><font-awesome-icon icon="play" /></span>
@@ -48,7 +76,10 @@
           </div>
 
           <!-- For SUCT & LOs: close Open Call period -->
-          <div class="field is-grouped" v-if="can.edit_summeruniversity_open_call && event.open_call === true">
+          <div
+            class="field is-grouped"
+            v-if="can.edit_summeruniversity_open_call && event.open_call === true"
+          >
             <a class="button is-fullwidth is-danger" @click="askCloseOpenCall()">
               <span>Close open call</span>
               <span class="icon"><font-awesome-icon icon="stop" /></span>
@@ -56,7 +87,7 @@
           </div>
 
           <div class="field is-grouped" v-if="can.edit_summeruniversity">
-            <a class="button is-fullwidth is-primary" data-cy="picture-change-link" @click="openPictureModal()">
+            <a class="button is-fullwidth is-primary" @click="openPictureModal()">
               <span>Change picture</span>
               <span class="icon"><font-awesome-icon icon="camera" /></span>
             </a>
@@ -65,7 +96,10 @@
           <div class="field is-grouped" v-if="can.edit_summeruniversity">
             <!-- TODO: fix this, this is a hack because of covid submissions -->
             <!-- v-if="can.approve_summeruniversity[event.type] || event.status === 'first draft' || event.status === 'first submission'" -->
-            <router-link :to="{ name: 'oms.summeruniversity.edit', params: { id: event.url || event.id } }" class="button is-fullwidth is-warning">
+            <router-link
+              :to="{ name: 'oms.summeruniversity.edit', params: { id: event.url || event.id } }"
+              class="button is-fullwidth is-warning"
+            >
               <span>Edit event</span>
               <span class="icon"><font-awesome-icon icon="edit" /></span>
             </router-link>
@@ -76,7 +110,10 @@
           </div>
 
           <!-- For SUCT: submit first draft (first draft -> first submission) -->
-          <div class="field is-grouped" v-if="can.change_status.first_submission && event.status === 'first draft'">
+          <div
+            class="field is-grouped"
+            v-if="can.change_status.first_submission && event.status === 'first draft'"
+          >
             <a class="button is-fullwidth is-warning" @click="askChangeStatus('first submission')">
               <span>Submit first draft</span>
               <span class="icon"><font-awesome-icon icon="sign-in-alt" /></span>
@@ -84,7 +121,10 @@
           </div>
 
           <!-- For SUCT: submit second draft (second draft -> second submission) -->
-          <div class="field is-grouped" v-if="can.change_status.second_submission && event.status === 'second draft'">
+          <div
+            class="field is-grouped"
+            v-if="can.change_status.second_submission && event.status === 'second draft'"
+          >
             <a class="button is-fullwidth is-warning" @click="askChangeStatus('second submission')">
               <span>Submit second draft</span>
               <span class="icon"><font-awesome-icon icon="sign-in-alt" /></span>
@@ -92,7 +132,10 @@
           </div>
 
           <!-- For SUCT & LOs: submit first approval (first approval -> second submission) -->
-          <div class="field is-grouped" v-if="can.change_status.second_submission && event.status === 'first approval'">
+          <div
+            class="field is-grouped"
+            v-if="can.change_status.second_submission && event.status === 'first approval'"
+          >
             <a class="button is-fullwidth is-warning" @click="askChangeStatus('second submission')">
               <span>Submit event for second approval</span>
               <span class="icon"><font-awesome-icon icon="sign-in-alt" /></span>
@@ -100,7 +143,10 @@
           </div>
 
           <!-- For SUCT: approve first submission (first submission -> first approval) -->
-          <div class="field is-grouped" v-if="can.change_status.first_approval && event.status === 'first submission'">
+          <div
+            class="field is-grouped"
+            v-if="can.change_status.first_approval && event.status === 'first submission'"
+          >
             <a class="button is-fullwidth is-primary" @click="askChangeStatus('first approval')">
               <span>Approve first submission</span>
               <span class="icon"><font-awesome-icon icon="check" /></span>
@@ -108,7 +154,10 @@
           </div>
 
           <!-- For SUCT: approve second submission (second submission -> second approval) -->
-          <div class="field is-grouped" v-if="can.change_status.second_approval && event.status === 'second submission'">
+          <div
+            class="field is-grouped"
+            v-if="can.change_status.second_approval && event.status === 'second submission'"
+          >
             <a class="button is-fullwidth is-primary" @click="askChangeStatus('second approval')">
               <span>Approve second submission</span>
               <span class="icon"><font-awesome-icon icon="check" /></span>
@@ -116,7 +165,10 @@
           </div>
 
           <!-- For SUCT: reject first submission (first submission -> first draft) -->
-          <div class="field is-grouped" v-if="can.change_status.first_draft && event.status === 'first submission'">
+          <div
+            class="field is-grouped"
+            v-if="can.change_status.first_draft && event.status === 'first submission'"
+          >
             <a class="button is-fullwidth is-danger" @click="askChangeStatus('first draft')">
               <span>Reject first submission</span>
               <span class="icon"><font-awesome-icon icon="times-circle" /></span>
@@ -124,7 +176,10 @@
           </div>
 
           <!-- For SUCT: reject second submission (second submission -> second draft) -->
-          <div class="field is-grouped" v-if="can.change_status.second_draft && event.status === 'second submission'">
+          <div
+            class="field is-grouped"
+            v-if="can.change_status.second_draft && event.status === 'second submission'"
+          >
             <a class="button is-fullwidth is-danger" @click="askChangeStatus('second draft')">
               <span>Reject second submission</span>
               <span class="icon"><font-awesome-icon icon="times-circle" /></span>
@@ -132,7 +187,10 @@
           </div>
 
           <!-- For SUCT: publish minimal event -->
-          <div class="field is-grouped" v-if="can.manage_summeruniversity[event.type] && event.published === 'none'">
+          <div
+            class="field is-grouped"
+            v-if="can.manage_summeruniversity[event.type] && event.published === 'none'"
+          >
             <a class="button is-fullwidth is-info" @click="askChangePublication('minimal')">
               <span>Publish minimal event</span>
               <span class="icon"><font-awesome-icon icon="globe" /></span>
@@ -140,7 +198,10 @@
           </div>
 
           <!-- For SUCT: publish full event -->
-          <div class="field is-grouped" v-if="can.manage_summeruniversity[event.type] && event.published === 'minimal'">
+          <div
+            class="field is-grouped"
+            v-if="can.manage_summeruniversity[event.type] && event.published === 'minimal'"
+          >
             <a class="button is-fullwidth is-info" @click="askChangePublication('full')">
               <span>Publish full event</span>
               <span class="icon"><font-awesome-icon icon="globe" /></span>
@@ -148,7 +209,10 @@
           </div>
 
           <!-- For SUCT: unpublish event -->
-          <div class="field is-grouped" v-if="can.manage_summeruniversity[event.type] && event.published !== 'none'">
+          <div
+            class="field is-grouped"
+            v-if="can.manage_summeruniversity[event.type] && event.published !== 'none'"
+          >
             <a class="button is-fullwidth is-danger" @click="askChangePublication('none')">
               <span>Unpublish event</span>
               <span class="icon"><font-awesome-icon icon="pen" /></span>
@@ -298,7 +362,10 @@
                   <td>
                     <ul>
                       <li v-for="body in event.organizing_bodies" v-bind:key="body._id">
-                        <router-link class="tag" :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }">
+                        <router-link
+                          class="tag"
+                          :to="{ name: 'oms.bodies.view', params: { id: body.body_id } }"
+                        >
                           {{ body.body_name }}
                         </router-link>
                       </li>
@@ -307,13 +374,24 @@
                 </tr>
                 <tr v-if="event.website">
                   <th>Website</th>
-                  <td><a :href="event.website" target="_blank" rel="noopener noreferrer">{{ event.website }}</a></td>
+                  <td>
+                    <a :href="event.website" target="_blank" rel="noopener noreferrer">{{
+                      event.website
+                    }}</a>
+                  </td>
                 </tr>
                 <tr v-if="event.social_media">
                   <th>Social media</th>
                   <td>
                     <ul>
-                      <li v-for="social_medium in event.social_media" v-bind:key="social_medium"><a :href="social_medium.description" target="_blank" rel="noopener noreferrer">{{ social_medium.description }}</a></li>
+                      <li v-for="social_medium in event.social_media" v-bind:key="social_medium">
+                        <a
+                          :href="social_medium.description"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >{{ social_medium.description }}</a
+                        >
+                      </li>
                     </ul>
                   </td>
                 </tr>
@@ -325,13 +403,25 @@
                 <tr>
                   <th>Budget link</th>
                   <td>
-                    <a v-if="event.budget" :href="event.budget" target="_blank" rel="noopener noreferrer">{{ event.budget }}</a>
+                    <a
+                      v-if="event.budget"
+                      :href="event.budget"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >{{ event.budget }}</a
+                    >
                   </td>
                 </tr>
                 <tr>
                   <th>Programme link</th>
                   <td>
-                    <a v-if="event.programme_suct" :href="event.programme_suct" target="_blank" rel="noopener noreferrer">{{ event.programme_suct }}</a>
+                    <a
+                      v-if="event.programme_suct"
+                      :href="event.programme_suct"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >{{ event.programme_suct }}</a
+                    >
                   </td>
                 </tr>
               </tbody>
@@ -339,11 +429,20 @@
           </div>
 
           <div class="notification is-info" v-if="event.published === 'none'">
-            <p><strong>This event is visible to SUCT and organisers only because it's not published yet.</strong></p>
+            <p>
+              <strong
+              >This event is visible to SUCT and organisers only because it's not published
+                yet.</strong
+              >
+            </p>
             <p>Once the event will be published, others would be able to access it.</p>
           </div>
 
-          <div class="tile" style="position: relative; height: 400px" v-if="this.event.locations.length > 0">
+          <div
+            class="tile"
+            style="position: relative; height: 400px"
+            v-if="this.event.locations.length > 0"
+          >
             <MglMap
               id="map"
               :accessToken="accessToken"
@@ -351,16 +450,19 @@
               :zoom="map.zoom"
               :scrollZoom="false"
               @load="onMapLoaded"
-              :center="map.center">
+              :center="map.center"
+            >
               <MglNavigationControl position="top-right" />
               <MglMarker
                 v-for="(location, index) in event.locations"
                 v-bind:key="index"
                 :coordinates="location.position"
-                color="red">
+                color="red"
+              >
                 <MglPopup>
                   <div class="mapbox-popup-custom">
-                    <strong>{{ location.name }}</strong><br>
+                    <strong>{{ location.name }}</strong
+                    ><br />
                     {{ location.description }}
                   </div>
                 </MglPopup>
@@ -471,10 +573,13 @@ export default {
       })
     },
     deleteEvent () {
-      this.axios.delete(this.services['summeruniversity'] + '/single/' + this.event.id).then(() => {
-        this.$root.showInfo('Event is deleted.')
-        this.$router.push({ name: 'oms.summeruniversity.list.all' })
-      }).catch((err) => this.$root.showError('Could not delete event', err))
+      this.axios
+        .delete(this.services['summeruniversity'] + '/single/' + this.event.id)
+        .then(() => {
+          this.$root.showInfo('Event is deleted.')
+          this.$router.push({ name: 'oms.summeruniversity.list.all' })
+        })
+        .catch((err) => this.$root.showError('Could not delete event', err))
     },
     askChangeStatus (newStatus) {
       this.$buefy.dialog.confirm({
@@ -490,19 +595,25 @@ export default {
       this.isLoading = true
       const body = { status: newStatus }
 
-      this.axios.put(this.services['summeruniversity'] + '/single/' + this.event.id + '/status', body).then(() => {
-        this.$root.showInfo(`Event status is now ${newStatus}`)
+      this.axios
+        .put(this.services['summeruniversity'] + '/single/' + this.event.id + '/status', body)
+        .then(() => {
+          this.$root.showInfo(`Event status is now ${newStatus}`)
 
-        // Refetching the event to renew the permissions.
-        return this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id)
-      }).then((response) => {
-        this.event = response.data.data
-        this.can = response.data.permissions
-        this.isLoading = false
-      }).catch((err) => {
-        this.isLoading = false
-        this.$root.showError('Could not change event status', err)
-      })
+          // Refetching the event to renew the permissions.
+          return this.axios.get(
+            this.services['summeruniversity'] + '/single/' + this.$route.params.id
+          )
+        })
+        .then((response) => {
+          this.event = response.data.data
+          this.can = response.data.permissions
+          this.isLoading = false
+        })
+        .catch((err) => {
+          this.isLoading = false
+          this.$root.showError('Could not change event status', err)
+        })
     },
     askChangePublication (newPublication) {
       this.$buefy.dialog.confirm({
@@ -518,19 +629,25 @@ export default {
       this.isLoading = true
       const body = { published: newPublication }
 
-      this.axios.put(this.services['summeruniversity'] + '/single/' + this.event.id + '/published', body).then(() => {
-        this.$root.showInfo(`Event publication is now ${newPublication}`)
+      this.axios
+        .put(this.services['summeruniversity'] + '/single/' + this.event.id + '/published', body)
+        .then(() => {
+          this.$root.showInfo(`Event publication is now ${newPublication}`)
 
-        // Refetching the event to renew the permissions.
-        return this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id)
-      }).then((response) => {
-        this.event = response.data.data
-        this.can = response.data.permissions
-        this.isLoading = false
-      }).catch((err) => {
-        this.isLoading = false
-        this.$root.showError('Could not change event publication', err)
-      })
+          // Refetching the event to renew the permissions.
+          return this.axios.get(
+            this.services['summeruniversity'] + '/single/' + this.$route.params.id
+          )
+        })
+        .then((response) => {
+          this.event = response.data.data
+          this.can = response.data.permissions
+          this.isLoading = false
+        })
+        .catch((err) => {
+          this.isLoading = false
+          this.$root.showError('Could not change event publication', err)
+        })
     },
     askStartOpenCall () {
       this.$buefy.dialog.prompt({
@@ -563,19 +680,28 @@ export default {
         openCall = { open_call: true, max_participants: openCall }
       }
 
-      this.axios.put(this.services['summeruniversity'] + '/single/' + this.event.id + '/open_call', openCall).then(() => {
-        this.$root.showInfo('Event open call is succesfully changed')
+      this.axios
+        .put(
+          this.services['summeruniversity'] + '/single/' + this.event.id + '/open_call',
+          openCall
+        )
+        .then(() => {
+          this.$root.showInfo('Event open call is succesfully changed')
 
-        // Refetching the event to renew the permissions.
-        return this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id)
-      }).then((response) => {
-        this.event = response.data.data
-        this.can = response.data.permissions
-        this.isLoading = false
-      }).catch((err) => {
-        this.isLoading = false
-        this.$root.showError('Could not change event open call', err)
-      })
+          // Refetching the event to renew the permissions.
+          return this.axios.get(
+            this.services['summeruniversity'] + '/single/' + this.$route.params.id
+          )
+        })
+        .then((response) => {
+          this.event = response.data.data
+          this.can = response.data.permissions
+          this.isLoading = false
+        })
+        .catch((err) => {
+          this.isLoading = false
+          this.$root.showError('Could not change event open call', err)
+        })
     },
     onMapLoaded (event) {
       this.map.actions = event.component.actions
@@ -602,12 +728,12 @@ export default {
       }
 
       const minCoords = {
-        lat: Math.min(...this.event.locations.map(location => location.position.lat)),
-        lng: Math.min(...this.event.locations.map(location => location.position.lng))
+        lat: Math.min(...this.event.locations.map((location) => location.position.lat)),
+        lng: Math.min(...this.event.locations.map((location) => location.position.lng))
       }
       const maxCoords = {
-        lat: Math.max(...this.event.locations.map(location => location.position.lat)),
-        lng: Math.max(...this.event.locations.map(location => location.position.lng))
+        lat: Math.max(...this.event.locations.map((location) => location.position.lat)),
+        lng: Math.max(...this.event.locations.map((location) => location.position.lng))
       }
 
       this.map.actions.fitBounds([minCoords, maxCoords], { padding: 50 })
@@ -616,34 +742,39 @@ export default {
   mounted () {
     this.isLoading = true
 
-    this.axios.get(this.services['summeruniversity'] + '/single/' + this.$route.params.id).then((response) => {
-      this.event = response.data.data
-      this.can = response.data.permissions
+    this.axios
+      .get(this.services['summeruniversity'] + '/single/' + this.$route.params.id)
+      .then((response) => {
+        this.event = response.data.data
+        this.can = response.data.permissions
 
-      const startLocation = this.event.locations.find(location => location.start === 'true') || this.event.locations.find(location => location.start === true)
-      if (startLocation) {
-        this.event.startLocation = startLocation.name
-      }
-      const endLocation = this.event.locations.find(location => location.end === 'true') || this.event.locations.find(location => location.end === true)
-      if (endLocation) {
-        this.event.endLocation = endLocation.name
-      }
+        const startLocation = this.event.locations.find((location) => location.start === 'true')
+          || this.event.locations.find((location) => location.start === true)
+        if (startLocation) {
+          this.event.startLocation = startLocation.name
+        }
+        const endLocation = this.event.locations.find((location) => location.end === 'true')
+          || this.event.locations.find((location) => location.end === true)
+        if (endLocation) {
+          this.event.endLocation = endLocation.name
+        }
 
-      this.isLoading = false
+        this.isLoading = false
 
-      if (this.map.actions) {
-        this.centerMap()
-      }
-    }).catch((err) => {
-      this.isLoading = false
-      if (err.response && err.response.status === 404) {
-        this.$root.showError('Event is not found')
-      } else {
-        this.$root.showError('Some error happened', err)
-      }
+        if (this.map.actions) {
+          this.centerMap()
+        }
+      })
+      .catch((err) => {
+        this.isLoading = false
+        if (err.response && err.response.status === 404) {
+          this.$root.showError('Event is not found')
+        } else {
+          this.$root.showError('Some error happened', err)
+        }
 
-      this.$router.push({ name: 'oms.summeruniversity.list.all' })
-    })
+        this.$router.push({ name: 'oms.summeruniversity.list.all' })
+      })
   },
   computed: {
     ...mapGetters({
@@ -651,7 +782,7 @@ export default {
       services: 'services'
     }),
     isOrganizer () {
-      return this.event.organizers.some(org => org.user_id === this.loginUser.id)
+      return this.event.organizers.some((org) => org.user_id === this.loginUser.id)
     }
   }
 }

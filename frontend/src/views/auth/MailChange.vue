@@ -7,7 +7,13 @@
             <div class="field">
               <label class="label">Token</label>
               <div class="control">
-                <input v-model="token" data-cy="token" required class="input" type="text" placeholder="Type the token you've received at your mailbox here.">
+                <input
+                  v-model="token"
+                  required
+                  class="input"
+                  type="text"
+                  placeholder="Type the token you've received at your mailbox here."
+                />
               </div>
               <p class="help is-danger" v-if="error">{{ error }}</p>
             </div>
@@ -24,7 +30,6 @@
 </template>
 
 <script>
-
 import { mapGetters } from 'vuex'
 
 export default {
@@ -40,16 +45,20 @@ export default {
     confirmToken () {
       this.error = ''
 
-      this.axios.post(this.services['core'] + '/confirm-email-change', { token: this.token }).then(() => {
-        this.$root.showSuccess('Your email is changed.')
-        return this.$router.push({ name: 'oms.members.view', params: { id: 'me' } })
-      }).catch((err) => {
-        if (err.response.status === 404) { // validation errors
-          return this.$root.showError('The token is invalid.')
-        }
+      this.axios
+        .post(this.services['core'] + '/confirm-email-change', { token: this.token })
+        .then(() => {
+          this.$root.showSuccess('Your email is changed.')
+          return this.$router.push({ name: 'oms.members.view', params: { id: 'me' } })
+        })
+        .catch((err) => {
+          if (err.response.status === 404) {
+            // validation errors
+            return this.$root.showError('The token is invalid.')
+          }
 
-        this.$root.showError('Could not change email', err)
-      })
+          this.$root.showError('Could not change email', err)
+        })
     }
   },
   mounted () {
@@ -62,6 +71,6 @@ export default {
 
 <style lang="scss" scoped>
 .confirm-block {
-  width: 100%
+  width: 100%;
 }
 </style>

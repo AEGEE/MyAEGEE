@@ -21,10 +21,6 @@ yarn-error.log*
 *.sln
 *.sw?
 
-# Cypress tests
-cypress/screenshots
-cypress/videos
-
 # Coverage
 .nyc_output
 coverage
