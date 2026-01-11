@@ -1,3 +1,10 @@
+## [1.0.6](https://github.com/AEGEE/knowledge/compare/1.0.5...1.0.6) (2026-01-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependencies and cleanup ([#794](https://github.com/AEGEE/knowledge/issues/794)) ([3aac4ed](https://github.com/AEGEE/knowledge/commit/3aac4ed8f54a5b229670dd7cfc48081068ed4419))
+
 ## [1.0.5](https://github.com/AEGEE/knowledge/compare/1.0.4...1.0.5) (2024-12-04)
 
 
