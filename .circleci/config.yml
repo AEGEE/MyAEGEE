@@ -85,7 +85,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: default
-      - run: docker build --no-cache -f core/docker/core/Dockerfile core
+      - run: docker-compose -f core/docker/docker-compose.yml -f core/docker/docker-compose.dev.yml build --no-cache core
   core-eslint:
     docker:
       - image: cimg/node:22.20.0
