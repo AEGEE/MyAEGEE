@@ -1,5 +1,8 @@
 orbs:
+  codecov: codecov/codecov@5.4.3
+  node: circleci/node@7.2.1
   shellcheck: circleci/shellcheck@3.4.0
+  slack: circleci/slack@6.1.2
 version: 2.1
 jobs:
   yamllint:
@@ -33,6 +36,228 @@ jobs:
       - shellcheck/install
       - shellcheck/check:
           exclude: SC2002,SC2086,SC2126,SC2154
+  core-test:
+    docker:
+      - image: cimg/node:22.20.0
+      - image: cimg/postgres:17.6
+        environment:
+          POSTGRES_PASSWORD: config.test.postgres.password
+    parallelism: 4
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/core
+      - run: mkdir -p ~/reports/jest
+      - run:
+          name: Run core tests
+          working_directory: ~/project/core
+          command: |
+            TEST=$(circleci tests glob test/**/*.js | circleci tests split --split-by=timings)
+            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
+      - codecov/upload
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  core-db-recreate:
+    docker:
+      - image: cimg/node:22.20.0
+      - image: cimg/postgres:17.6
+        environment:
+          POSTGRES_PASSWORD: config.test.postgres.password
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/core
+      - run:
+          name: Run core db:recreate
+          working_directory: ~/project/core
+          command: NODE_ENV=test npm run db:recreate
+  core-build:
+    docker:
+      - image: cimg/base:2025.12
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - run: docker build --no-cache -f core/docker/core/Dockerfile core
+  core-eslint:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/core
+      - run: mkdir -p ~/reports
+      - run:
+          name: Run core eslint
+          working_directory: ~/project/core
+          command: npm run lint -- --format junit --output-file ~/reports/eslint.xml
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  core-audit:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Run core audit
+          working_directory: ~/project/core
+          command: npm audit --production
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":x: The audit check for core module in `$CIRCLE_PROJECT_REPONAME` has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+  core-docker-build-and-push:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/core
+      - run:
+          name: Run semantic-release for core
+          working_directory: ~/project/core
+          command: npx semantic-release
+      - run:
+          name: Build and push core Docker image
+          working_directory: ~/project/core
+          command: |
+            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
+            docker build --tag aegee/core:$PACKAGE_VERSION --tag aegee/core:latest -f docker/core/Dockerfile .
+            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            docker push aegee/core:$PACKAGE_VERSION
+            docker push aegee/core:latest
+      - slack/notify:
+          event: pass
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":white_check_mark: The Docker image for core module with tags `$PACKAGE_VERSION` and `latest` has been pushed to Dockerhub."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":octagonal_sign: The Docker image for core module build and push has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
 workflows:
   lint-yaml:
     jobs:
@@ -46,3 +271,31 @@ workflows:
   lint-dockerfile:
     jobs:
       - hadolint
+  core-linters:
+    jobs:
+      - core-eslint
+  core-build:
+    jobs:
+      - core-build:
+          filters:
+            branches:
+              ignore: stable
+      - core-db-recreate
+  core-test:
+    jobs:
+      - core-test
+  core-docker-build-and-push:
+    jobs:
+      - core-docker-build-and-push:
+          filters:
+            branches:
+              only: stable
+  core-audit:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 5"
+          filters:
+            branches:
+              only: stable
+    jobs:
+      - core-audit

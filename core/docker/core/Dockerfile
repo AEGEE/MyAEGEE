@@ -24,6 +24,6 @@ RUN npm install -g nodemon@3.1.4 \
  && npm cache clean --force \
  && npm ci
 
-CMD sh /usr/app/scripts/bootstrap.sh && nodemon -e "js,json" lib/run.js
+CMD ["sh", "-c", "sh /usr/app/scripts/bootstrap.sh && nodemon -e 'js,json' lib/run.js"]
 
 EXPOSE 8084
