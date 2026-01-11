@@ -53,12 +53,12 @@ exports.uploadImage = async (req, res) => {
         await uploadAsync(req, res);
     } catch (err) {
         log.error({ err }, 'Could not store image');
-        return errors.makeValidationError(res, err);
-    }
 
-    // If the head_image field is missing, do nothing.
-    if (!req.file) {
-        return errors.makeValidationError(res, 'No head_image is specified.');
+        if (err.message === 'Unexpected end of form') {
+            return errors.makeValidationError(res, 'No head_image is specified.');
+        }
+
+        return errors.makeValidationError(res, err);
     }
 
     // If the file's content is malformed, don't save it.
