@@ -53,6 +53,11 @@ exports.uploadImage = async (req, res) => {
         await uploadAsync(req, res);
     } catch (err) {
         log.error({ err }, 'Could not store image');
+
+        if (err.message === 'Unexpected end of form') {
+            return errors.makeValidationError(res, 'No head_image is specified.');
+        }
+
         return errors.makeValidationError(res, err);
     }
 
