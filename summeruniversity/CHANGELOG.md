@@ -1,3 +1,10 @@
+## [1.6.5](https://github.com/AEGEE/summeruniversity/compare/1.6.4...1.6.5) (2026-01-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependencies and cleanup ([#943](https://github.com/AEGEE/summeruniversity/issues/943)) ([b66df4d](https://github.com/AEGEE/summeruniversity/commit/b66df4de0ef186155ec0150b96d76af50b6b62d7))
+
 ## [1.6.4](https://github.com/AEGEE/summeruniversity/compare/1.6.3...1.6.4) (2025-11-14)
 
 
