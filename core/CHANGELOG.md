@@ -1,3 +1,10 @@
+## [1.40.1](https://github.com/AEGEE/core/compare/1.40.0...1.40.1) (2026-01-11)
+
+
+### Bug Fixes
+
+* **deps:** update deps and cleanup package.json ([#1198](https://github.com/AEGEE/core/issues/1198)) ([85899bb](https://github.com/AEGEE/core/commit/85899bb277ff1f1e7685588bd0b0c8d7640598f8))
+
 # [1.40.0](https://github.com/AEGEE/core/compare/1.39.3...1.40.0) (2025-11-16)
 
 
