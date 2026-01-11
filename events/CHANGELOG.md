@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/AEGEE/events/compare/1.7.0...1.7.1) (2026-01-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependencies and cleanup ([#1327](https://github.com/AEGEE/events/issues/1327)) ([def3db4](https://github.com/AEGEE/events/commit/def3db46b51cefd8cad7a5408e7a9fa3db7ab467))
+
 # [1.7.0](https://github.com/AEGEE/events/compare/1.6.1...1.7.0) (2025-08-10)
 
 
