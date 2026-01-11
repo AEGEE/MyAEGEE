@@ -1,15 +1,14 @@
 orbs:
   codecov: codecov/codecov@5.4.3
-  docker: circleci/docker@2.8.2
-  node: circleci/node@7.1.1
+  node: circleci/node@7.2.1
   shellcheck: circleci/shellcheck@3.4.0
-  slack: circleci/slack@5.2.0
+  slack: circleci/slack@6.1.2
 version: 2.1
 jobs:
   test:
     docker:
-      - image: cimg/node:22.18.0
-      - image: cimg/postgres:17.5
+      - image: cimg/node:22.20.0
+      - image: cimg/postgres:17.6
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
     parallelism: 4
@@ -30,8 +29,8 @@ jobs:
           path: ~/reports
   db-recreate:
     docker:
-      - image: cimg/node:22.18.0
-      - image: cimg/postgres:17.5
+      - image: cimg/node:22.20.0
+      - image: cimg/postgres:17.6
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
     resource_class: large
@@ -43,7 +42,7 @@ jobs:
           command: NODE_ENV=test npm run db:recreate
   build:
     docker:
-      - image: cimg/base:2025.08
+      - image: cimg/base:2025.12
     resource_class: large
     steps:
       - checkout
@@ -52,7 +51,7 @@ jobs:
       - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache events
   eslint:
     docker:
-      - image: cimg/node:22.18.0
+      - image: cimg/node:22.20.0
     resource_class: large
     steps:
       - checkout
@@ -65,7 +64,7 @@ jobs:
           path: ~/reports
   yamllint:
     docker:
-      - image: cimg/python:3.13.6
+      - image: cimg/python:3.13.11
     resource_class: large
     steps:
       - checkout
@@ -81,7 +80,7 @@ jobs:
           command: hadolint $(find . -name '*Dockerfile*')
   shellcheck:
     docker:
-      - image: cimg/base:2025.08
+      - image: cimg/base:2025.12
     resource_class: large
     steps:
       - checkout
@@ -89,7 +88,7 @@ jobs:
       - shellcheck/check
   audit:
     docker:
-      - image: cimg/node:22.18.0
+      - image: cimg/node:22.20.0
     resource_class: large
     steps:
       - checkout
@@ -136,7 +135,7 @@ jobs:
             }
   docker-build-and-push:
     docker:
-      - image: cimg/node:22.18.0
+      - image: cimg/node:22.20.0
     resource_class: large
     steps:
       - checkout
