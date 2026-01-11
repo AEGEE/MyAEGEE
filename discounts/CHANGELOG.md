@@ -1,3 +1,10 @@
+## [1.2.6](https://github.com/AEGEE/discounts/compare/1.2.5...1.2.6) (2026-01-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependencies and cleanup ([#1053](https://github.com/AEGEE/discounts/issues/1053)) ([82d3c86](https://github.com/AEGEE/discounts/commit/82d3c86f533846487dfaa62c92f4f986ef759c27))
+
 ## [1.2.5](https://github.com/AEGEE/discounts/compare/1.2.4...1.2.5) (2024-12-03)
 
 
