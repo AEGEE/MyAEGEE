@@ -1,3 +1,10 @@
+## [1.45.5](https://github.com/AEGEE/frontend/compare/1.45.4...1.45.5) (2026-01-11)
+
+
+### Bug Fixes
+
+* **su:** update for 2026 season ([#2513](https://github.com/AEGEE/frontend/issues/2513)) ([dca92cd](https://github.com/AEGEE/frontend/commit/dca92cd8b013c8f27fe332509c83c2f4a6917854))
+
 ## [1.45.4](https://github.com/AEGEE/frontend/compare/1.45.3...1.45.4) (2026-01-11)
 
 
