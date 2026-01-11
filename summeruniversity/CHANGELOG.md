@@ -1,3 +1,10 @@
+## [1.6.6](https://github.com/AEGEE/summeruniversity/compare/1.6.5...1.6.6) (2026-01-11)
+
+
+### Bug Fixes
+
+* **event:** update for 2026 season ([#944](https://github.com/AEGEE/summeruniversity/issues/944)) ([2bc0efb](https://github.com/AEGEE/summeruniversity/commit/2bc0efb9edef07236508fad86c72c33f0be6074b))
+
 ## [1.6.5](https://github.com/AEGEE/summeruniversity/compare/1.6.4...1.6.5) (2026-01-11)
 
 
