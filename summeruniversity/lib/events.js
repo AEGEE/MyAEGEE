@@ -167,7 +167,7 @@ exports.addEvent = async (req, res) => {
     data.status = 'first submission';
 
     if (!data.season) {
-        data.season = 2025;
+        data.season = 2026;
     }
 
     const event = new Event(data);
@@ -266,7 +266,7 @@ exports.editEvent = async (req, res) => {
     delete data.published;
 
     if (!data.season) {
-        data.season = 2025;
+        data.season = 2026;
     }
 
     if (Object.keys(data).length === 0) {
