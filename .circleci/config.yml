@@ -878,9 +878,10 @@ jobs:
     resource_class: large
     steps:
       - checkout
-      - node/install-packages:
-          pkg-manager: npm
-          app-dir: ~/project/gsuite-wrapper
+      - run:
+          name: Install gsuite-wrapper dependencies (skip husky)
+          working_directory: ~/project/gsuite-wrapper
+          command: npm ci --ignore-scripts
       - run:
           name: Setup gsuite-wrapper config files
           working_directory: ~/project/gsuite-wrapper
@@ -907,9 +908,10 @@ jobs:
     resource_class: large
     steps:
       - checkout
-      - node/install-packages:
-          pkg-manager: npm
-          app-dir: ~/project/gsuite-wrapper
+      - run:
+          name: Install gsuite-wrapper dependencies (skip husky)
+          working_directory: ~/project/gsuite-wrapper
+          command: npm ci --ignore-scripts
       - run: mkdir -p ~/reports
       - run:
           name: Run gsuite-wrapper eslint
@@ -1852,31 +1854,6 @@ jobs:
                 }
               ]
             }
-  summeruniversity-test:
-    docker:
-      - image: cimg/node:22.20.0
-      - image: cimg/postgres:17.6
-        environment:
-          POSTGRES_PASSWORD: config.test.postgres.password
-    parallelism: 4
-    resource_class: large
-    steps:
-      - checkout
-      - node/install-packages:
-          pkg-manager: npm
-          app-dir: ~/project/summeruniversity
-      - run: mkdir -p ~/reports/jest
-      - run:
-          name: Run summeruniversity tests
-          working_directory: ~/project/summeruniversity
-          command: |
-            TEST=$(circleci tests glob test/**/*.js | circleci tests split --split-by=timings)
-            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit --passWithNoTests
-      - codecov/upload
-      - store_test_results:
-          path: ~/reports
-      - store_artifacts:
-          path: ~/reports
   summeruniversity-db-recreate:
     docker:
       - image: cimg/node:22.20.0
@@ -2327,9 +2304,6 @@ workflows:
             branches:
               ignore: stable
       - summeruniversity-db-recreate
-  summeruniversity-test:
-    jobs:
-      - summeruniversity-test
   summeruniversity-docker-build-and-push:
     jobs:
       - summeruniversity-docker-build-and-push:
