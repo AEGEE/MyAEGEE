@@ -1,0 +1,181 @@
+const request = require('request-promise-native');
+
+const config = require('../config');
+
+const makeRequest = (options) => {
+    const requestOptions = {
+        url: options.url,
+        method: options.method || 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Auth-Token': options.token,
+            'X-Service': 'summeruniversity'
+        },
+        simple: false,
+        json: true,
+        resolveWithFullResponse: options.resolveWithFullResponse || false
+    };
+
+    if (options.body) {
+        requestOptions.body = options.body;
+    }
+
+    if (options.qs) {
+        requestOptions.qs = options.qs;
+    }
+
+    return request(requestOptions);
+};
+
+const fetchUser = async (user, token) => {
+    const userRequest = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/members/' + user.user_id,
+        token
+    });
+
+    if (typeof userRequest !== 'object') {
+        throw new Error('Malformed response when fetching user: ' + userRequest);
+    }
+
+    if (!userRequest.success) {
+        throw new Error('Error fetching user: ' + JSON.stringify(userRequest));
+    }
+
+    return {
+        user_id: userRequest.data.id,
+        first_name: userRequest.data.first_name,
+        last_name: userRequest.data.last_name,
+        notification_email: userRequest.data.notification_email,
+        role: user.role
+    };
+};
+
+const fetchApplicationUser = async (user) => {
+    // Getting access and refresh token.
+    const authRequest = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/login',
+        method: 'POST',
+        body: {
+            username: config.core.user.login,
+            password: config.core.user.password
+        }
+    });
+
+    if (typeof authRequest !== 'object') {
+        throw new Error('Malformed response when fetching auth request: ' + authRequest);
+    }
+
+    if (!authRequest.success) {
+        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
+    }
+
+    // Fetching user
+    const userResponse = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/members/' + user,
+        token: authRequest.access_token,
+    });
+
+    if (typeof userResponse !== 'object') {
+        throw new Error('Malformed response when fetching user: ' + userResponse);
+    }
+
+    if (!userResponse.success) {
+        throw new Error('Error fetching user: ' + JSON.stringify(userResponse));
+    }
+
+    return userResponse.data;
+};
+
+const fetchBody = async (body, token) => {
+    // return invalid body as it is, will catch it in Event validation.
+    if (typeof body !== 'object' || typeof body.body_id !== 'number') {
+        return body;
+    }
+
+    const bodyRequest = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/bodies/' + body.body_id,
+        token
+    });
+
+    if (typeof bodyRequest !== 'object') {
+        throw new Error('Malformed response when fetching body: ' + bodyRequest);
+    }
+
+    if (!bodyRequest.success) {
+        throw new Error('Error fetching body: ' + JSON.stringify(bodyRequest));
+    }
+
+    return {
+        body_id: bodyRequest.data.id,
+        body_name: bodyRequest.data.name
+    };
+};
+
+const getBodyUsersForPermission = async (permission, bodyId) => {
+    // Getting access and refresh token.
+    const authRequest = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/login',
+        method: 'POST',
+        body: {
+            username: config.core.user.login,
+            password: config.core.user.password
+        }
+    });
+
+    if (typeof authRequest !== 'object') {
+        throw new Error('Malformed response when fetching auth request: ' + authRequest);
+    }
+
+    if (!authRequest.success) {
+        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
+    }
+
+    // Fetching members.
+    const membersResponse = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/bodies/' + bodyId + '/members',
+        token: authRequest.access_token,
+        qs: {
+            holds_permission: { action: permission.action, object: permission.object }
+        }
+    });
+
+    if (typeof membersResponse !== 'object') {
+        throw new Error('Malformed response when fetching members for permission: ' + membersResponse);
+    }
+
+    if (!membersResponse.success) {
+        throw new Error('Error fetching members for permission: ' + JSON.stringify(membersResponse));
+    }
+
+    return membersResponse.data;
+};
+
+const getAdminToken = async () => {
+    // Getting access and refresh token using admin credentials.
+    const authRequest = await makeRequest({
+        url: config.core.url + ':' + config.core.port + '/login',
+        method: 'POST',
+        body: {
+            username: config.core.user.login,
+            password: config.core.user.password
+        }
+    });
+
+    if (typeof authRequest !== 'object') {
+        throw new Error('Malformed response when fetching auth request: ' + authRequest);
+    }
+
+    if (!authRequest.success) {
+        throw new Error('Error fetching auth request: ' + JSON.stringify(authRequest));
+    }
+
+    return authRequest.access_token;
+};
+
+module.exports = {
+    fetchUser,
+    fetchApplicationUser,
+    fetchBody,
+    getBodyUsersForPermission,
+    getAdminToken
+};
