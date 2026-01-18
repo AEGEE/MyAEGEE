@@ -34,9 +34,10 @@ jobs:
     steps:
       - checkout
       - shellcheck/install
-      - shellcheck/check:
-          exclude: SC2002,SC2086,SC2126,SC2154
-          ignore-dirs: mailer
+      - run:
+          name: Run shellcheck
+          command: |
+            shellcheck --exclude=SC2002,SC2086,SC2126,SC2154 $(find . -name '*.sh' -not -path '*/node_modules/*' -not -path './mailer/*' -type f)
   core-test:
     docker:
       - image: cimg/node:22.20.0
