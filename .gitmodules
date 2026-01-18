@@ -4,9 +4,6 @@
 [submodule "statutory"]
 	path = statutory
 	url = https://github.com/AEGEE/statutory
-[submodule "frontend"]
-	path = frontend
-	url = https://github.com/AEGEE/frontend
 [submodule "mailer"]
 	path = mailer
 	url = https://github.com/AEGEE/mailer
