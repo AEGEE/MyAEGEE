@@ -1,0 +1,20 @@
+{
+  "name": "mailer",
+  "version": "0.19.0",
+  "description": "The internal mailer module of my.aegee.eu",
+  "keywords": [],
+  "author": "Nico Westerbeck",
+  "license": "ISC",
+  "devDependencies": {
+    "@commitlint/cli": "^17.6.1",
+    "@commitlint/config-conventional": "^17.6.6",
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "conventional-changelog": "^4.0.0",
+    "husky": "^8.0.3",
+    "semantic-release": "^21.0.1"
+  },
+  "scripts": {
+    "prepare": "husky install"
+  }
+}

@@ -1,0 +1,315 @@
+# [0.19.0](https://github.com/AEGEE/mailer/compare/0.18.0...0.19.0) (2026-01-18)
+
+
+### Features
+
+* **mailer:** add SPC information email template for event organizers ([#113](https://github.com/AEGEE/mailer/issues/113)) ([a2979b2](https://github.com/AEGEE/mailer/commit/a2979b27e4538baf704ae59a07180739f2ac04b8))
+
+# [0.18.0](https://github.com/AEGEE/mailer/compare/0.17.0...0.18.0) (2025-11-16)
+
+
+### Features
+
+* **workspace:** add email for when a member is deleted from their last local ([#110](https://github.com/AEGEE/mailer/issues/110)) ([8ea37c5](https://github.com/AEGEE/mailer/commit/8ea37c535d356bc0ca41575a227069c98392807d))
+
+# [0.17.0](https://github.com/AEGEE/mailer/compare/0.16.6...0.17.0) (2025-03-22)
+
+
+### Features
+
+* **events:** mail on changing status to European event for online event ([#108](https://github.com/AEGEE/mailer/issues/108)) ([84551ea](https://github.com/AEGEE/mailer/commit/84551ea9f1060057f37bf9cdb9852c9926cab1ba))
+
+## [0.16.6](https://github.com/AEGEE/mailer/compare/0.16.5...0.16.6) (2024-12-08)
+
+
+### Bug Fixes
+
+* **core:** add mail for new members to workspace admins ([#107](https://github.com/AEGEE/mailer/issues/107)) ([17053ea](https://github.com/AEGEE/mailer/commit/17053ea51acb83131179c1b6ed6c5e095100c7df))
+
+## [0.16.5](https://github.com/AEGEE/mailer/compare/0.16.4...0.16.5) (2024-12-06)
+
+
+### Bug Fixes
+
+* revert env name change ([#106](https://github.com/AEGEE/mailer/issues/106)) ([4ac5cdb](https://github.com/AEGEE/mailer/commit/4ac5cdb6c313810289211e1e8a18af53fbea05dc))
+
+## [0.16.4](https://github.com/AEGEE/mailer/compare/0.16.3...0.16.4) (2024-12-06)
+
+
+### Bug Fixes
+
+* **env:** expose SMTP_NAME ([#105](https://github.com/AEGEE/mailer/issues/105)) ([706dd23](https://github.com/AEGEE/mailer/commit/706dd23cc4444480e798e52b30eda92d5dd63d1a))
+
+## [0.16.3](https://github.com/AEGEE/mailer/compare/0.16.2...0.16.3) (2024-12-06)
+
+
+### Bug Fixes
+
+* change name of the email sender ([#102](https://github.com/AEGEE/mailer/issues/102)) ([8191c9b](https://github.com/AEGEE/mailer/commit/8191c9ba583dd9a9b9e1178a945003bf446aaa19))
+
+## [0.16.2](https://github.com/AEGEE/mailer/compare/0.16.1...0.16.2) (2023-08-18)
+
+
+### Bug Fixes
+
+* update new member email and add welcome email for board members ([#92](https://github.com/AEGEE/mailer/issues/92)) ([bf862c7](https://github.com/AEGEE/mailer/commit/bf862c7a71cad14b8ddcf8979eea469daf5c4770))
+
+## [0.16.1](https://github.com/AEGEE/mailer/compare/0.16.0...0.16.1) (2023-07-11)
+
+
+### Bug Fixes
+
+* add poison to fix healthcheck ([#96](https://github.com/AEGEE/mailer/issues/96)) ([508fb4b](https://github.com/AEGEE/mailer/commit/508fb4bf3c281d52541bbe09f391e48182a16b93))
+
+# [0.16.0](https://github.com/AEGEE/mailer/compare/0.15.2...0.16.0) (2022-09-18)
+
+
+### Features
+
+* **board:** add mail netcom new board ([#65](https://github.com/AEGEE/mailer/issues/65)) ([726314c](https://github.com/AEGEE/mailer/commit/726314c58c35416f54fa55e1b07e69f4b60520fd))
+
+## [0.15.2](https://github.com/AEGEE/mailer/compare/0.15.1...0.15.2) (2021-12-01)
+
+
+### Bug Fixes
+
+* **deps:** update CI config and update deps ([#82](https://github.com/AEGEE/mailer/issues/82)) ([b4ce9e1](https://github.com/AEGEE/mailer/commit/b4ce9e1356de88feae3d408bca7f303532ca1e84))
+
+## [0.15.1](https://github.com/AEGEE/mailer/compare/0.15.0...0.15.1) (2021-05-31)
+
+
+### Bug Fixes
+
+* **su:** add board/organizer application emails ([#75](https://github.com/AEGEE/mailer/issues/75)) ([28ec9ab](https://github.com/AEGEE/mailer/commit/28ec9ab265bd01e37f8892bc152a7907518ce6d1))
+
+# [0.15.0](https://github.com/AEGEE/mailer/compare/0.14.0...0.15.0) (2021-05-26)
+
+
+### Features
+
+* **su:** add extra summeruniversity mails ([#74](https://github.com/AEGEE/mailer/issues/74)) ([875c8c0](https://github.com/AEGEE/mailer/commit/875c8c001a47da39d3f73b3b46fd13141f5760f8))
+
+# [0.14.0](https://github.com/AEGEE/mailer/compare/0.13.0...0.14.0) (2021-04-18)
+
+
+### Features
+
+* **new_member:** add new member email ([#69](https://github.com/AEGEE/mailer/issues/69)) ([e61978c](https://github.com/AEGEE/mailer/commit/e61978c99369792de34f3265a84a73ae543aa090))
+
+# [0.13.0](https://github.com/AEGEE/mailer/compare/0.12.4...0.13.0) (2021-04-05)
+
+
+### Features
+
+* **statutory:** add mails for memberslist ([#68](https://github.com/AEGEE/mailer/issues/68)) ([2bd5d0c](https://github.com/AEGEE/mailer/commit/2bd5d0cc784d4d75e528c286bd848ba3ab26533e))
+
+## [0.12.4](https://github.com/AEGEE/mailer/compare/0.12.3...0.12.4) (2021-03-31)
+
+
+### Bug Fixes
+
+* **statutory:** add mailing lists link to application email ([#66](https://github.com/AEGEE/mailer/issues/66)) ([48bf2fb](https://github.com/AEGEE/mailer/commit/48bf2fbb5728bca81c4e5d32936be8f2e630a4ea))
+
+## [0.12.3](https://github.com/AEGEE/mailer/compare/0.12.2...0.12.3) (2021-02-19)
+
+
+### Bug Fixes
+
+* **SU:** template changed for status change ([#63](https://github.com/AEGEE/mailer/issues/63)) ([4c4d6dd](https://github.com/AEGEE/mailer/commit/4c4d6dd90261aa5db99570f5ff94415a50242b1a))
+
+## [0.12.2](https://github.com/AEGEE/mailer/compare/0.12.1...0.12.2) (2021-02-15)
+
+
+### Bug Fixes
+
+* **SU:** template added for SU status change ([#62](https://github.com/AEGEE/mailer/issues/62)) ([e5244e8](https://github.com/AEGEE/mailer/commit/e5244e833c9c3c97b36e6bcb9cad0b8308df17be))
+
+## [0.12.1](https://github.com/AEGEE/mailer/compare/0.12.0...0.12.1) (2021-02-08)
+
+
+### Bug Fixes
+
+* **SU:** templates added for SU event creation/updating ([#60](https://github.com/AEGEE/mailer/issues/60)) ([aad3693](https://github.com/AEGEE/mailer/commit/aad36934a7e18b918e2ebda2bcde6581feb7cd86))
+
+# [0.12.0](https://github.com/AEGEE/mailer/compare/0.11.1...0.12.0) (2020-11-03)
+
+
+### Features
+
+* **statutory:** add template JC mail for new candidature ([#54](https://github.com/AEGEE/mailer/issues/54)) ([ec7b6d4](https://github.com/AEGEE/mailer/commit/ec7b6d484105aaa61389a58014db36514412b39e))
+
+## [0.11.1](https://github.com/AEGEE/mailer/compare/0.11.0...0.11.1) (2020-10-27)
+
+
+### Bug Fixes
+
+* **templates:** Update alt text ([#53](https://github.com/AEGEE/mailer/issues/53)) ([16e084b](https://github.com/AEGEE/mailer/commit/16e084b3567bd69382fbd8646270b30f6a54e504))
+
+# [0.11.0](https://github.com/AEGEE/mailer/compare/0.10.0...0.11.0) (2020-06-20)
+
+
+### Features
+
+* **docker:** use shorter prefix ([#34](https://github.com/AEGEE/mailer/issues/34)) ([fe434a8](https://github.com/AEGEE/mailer/commit/fe434a8473ba92d155d9f158310bb1869494efb7))
+
+# [0.10.0](https://github.com/AEGEE/oms-mailer/compare/0.9.0...0.10.0) (2020-05-12)
+
+
+### Features
+
+* **general:** mail change template ([#33](https://github.com/AEGEE/oms-mailer/issues/33)) ([090fbd5](https://github.com/AEGEE/oms-mailer/commit/090fbd5d1e0331f026ed3a870b53a0b141d9dfe1))
+
+# [0.9.0](https://github.com/AEGEE/oms-mailer/compare/0.8.0...0.9.0) (2020-03-15)
+
+
+### Features
+
+* **release:** added semantic-release. Fixes MEMB-829 ([cc349b8](https://github.com/AEGEE/oms-mailer/commit/cc349b8a20bd7ebdfc95f6579c960fa860604274))
+
+# [0.8.0](https://github.com/AEGEE/oms-docker/compare/0.7.1...0.8.0) (2020-01-12)
+
+
+### Features
+
+* **general:** event submitted template for EQAC. Fixes MEMB-759 ([2c45cbc](https://github.com/AEGEE/oms-docker/commit/2c45cbc3e37f9f47ca4e12d44fdbff793d7f7350))
+
+
+
+## [0.7.1](https://github.com/AEGEE/oms-docker/compare/0.7.0...0.7.1) (2020-01-10)
+
+
+### Bug Fixes
+
+* **general:** fixed statutory board applied/edited template ([afa85ad](https://github.com/AEGEE/oms-docker/commit/afa85ad130949ff4d1207e55dba11b782745e357))
+
+
+
+# [0.7.0](https://github.com/AEGEE/oms-docker/compare/0.6.0...0.7.0) (2020-01-04)
+
+
+### Features
+
+* **general:** added events_event_created and events_event_updated templates. Fixes MEMB-748 ([3256b73](https://github.com/AEGEE/oms-docker/commit/3256b737900771de76498f6f8d14806bc8a71fc1))
+
+
+
+# [0.6.0](https://github.com/AEGEE/oms-docker/compare/0.5.0...0.6.0) (2020-01-03)
+
+
+### Bug Fixes
+
+* **general:** refactored statutory applications template ([b0337a7](https://github.com/AEGEE/oms-docker/commit/b0337a76237238acfbbf7e99666a04346ba0d0db))
+
+
+### Features
+
+* **general:** added events_applied and events_edited templates. Fixes MEMB-751 ([3f02ab6](https://github.com/AEGEE/oms-docker/commit/3f02ab61b0e5a0faf0c5705878bb923b24876198))
+
+
+
+# [0.5.0](https://github.com/AEGEE/oms-docker/compare/0.4.3...0.5.0) (2020-01-03)
+
+
+### Features
+
+* added statutory templates for board ([20320e0](https://github.com/AEGEE/oms-docker/commit/20320e0737aa3161b718e5150bddfec673040091))
+
+
+
+## [0.4.3](https://github.com/AEGEE/oms-docker/compare/0.4.2...0.4.3) (2020-01-03)
+
+
+### Bug Fixes
+
+* **events:** fixed events status change text ([9a24e13](https://github.com/AEGEE/oms-docker/commit/9a24e1389cde6c43d97862a4cb5916e77c71b230))
+
+
+
+## [0.4.2](https://github.com/AEGEE/oms-docker/compare/0.4.1...0.4.2) (2020-01-03)
+
+
+### Bug Fixes
+
+* **ci:** fixed CircleCI ([0fbede1](https://github.com/AEGEE/oms-docker/commit/0fbede1345d14e6a89675d6b9f4a223bc94162b8))
+* **ci:** fixed travis ([5ebe4d3](https://github.com/AEGEE/oms-docker/commit/5ebe4d3941833b055ee16bc4eed4079ab5906164))
+
+
+### Features
+
+* **templates:** added events status changed template. Fixes MEMB-747 ([5cbce55](https://github.com/AEGEE/oms-docker/commit/5cbce55376833b3c1bdbb6134de281270bf107e9))
+
+
+
+## [0.4.1](https://github.com/AEGEE/oms-docker/compare/0.4.0...0.4.1) (2019-12-30)
+
+
+### Bug Fixes
+
+* **docker:** require env variables to be set ([84b080f](https://github.com/AEGEE/oms-docker/commit/84b080f25bb56ce8cf3462f92551513b2f3bdc6e))
+* **general:** forgot to change the project name in package.json ([599138e](https://github.com/AEGEE/oms-docker/commit/599138e126c908855e75eebaeeea6d93e689cffd))
+* **test:** fixed circleci ([0d9da43](https://github.com/AEGEE/oms-docker/commit/0d9da430a2e7fd83b62f498b2f5907fab361d0f3))
+* **test:** fixed travis ([9b8b0c3](https://github.com/AEGEE/oms-docker/commit/9b8b0c35a70e69d13e2293df6ec08caa5b06c647))
+
+
+
+# [0.4.0](https://github.com/AEGEE/oms-docker/compare/0.3.2...0.4.0) (2019-11-30)
+
+
+### Features
+
+* **general:** refactored env settings. Fixes MEMB-676 ([5dc4ab3](https://github.com/AEGEE/oms-docker/commit/5dc4ab35555e475d3aa0d5e09981fb1a5f319b15))
+
+
+
+## [0.3.2](https://github.com/AEGEE/oms-docker/compare/0.3.1...0.3.2) (2019-11-08)
+
+
+### Bug Fixes
+
+* **docker:** fixed mail-transfer-agent building ([fae61c0](https://github.com/AEGEE/oms-docker/commit/fae61c0faa8880bb0a6c82fac726bb4fc8394f27))
+
+
+
+## [0.3.1](https://github.com/AEGEE/oms-docker/compare/0.3.0...0.3.1) (2019-11-08)
+
+
+### Bug Fixes
+
+* **docker:** building oms-mail-transfer-agent along with oms-mailer ([a45c3a2](https://github.com/AEGEE/oms-docker/commit/a45c3a2722af86fded1b65ec99565e9716e27707))
+* **docker:** fixed docker tag generation in docker-compose ([3e49625](https://github.com/AEGEE/oms-docker/commit/3e4962533f130963aed46a13e5330115c817a383))
+
+
+
+# [0.3.0](https://github.com/AEGEE/oms-docker/compare/0.2.1...0.3.0) (2019-11-07)
+
+
+### Features
+
+* **general:** switched to CircleCI from Travis. Fixes MEMB-678 ([d9a13a7](https://github.com/AEGEE/oms-docker/commit/d9a13a7895e9de8ea39217fd985e59b9f5191990))
+
+
+
+## [0.2.1](https://github.com/AEGEE/oms-docker/compare/0.2.0...0.2.1) (2019-10-30)
+
+
+### Features
+
+* **general:** log request body. Fixes MEMB-692 ([d8830f0](https://github.com/AEGEE/oms-docker/commit/d8830f00785f7208c8911be20a3c67f99204ebd2))
+
+
+
+# [0.2.0](https://github.com/AEGEE/oms-docker/compare/67177f6e6616ac5654ec79c92a96dd6b6ff272a3...0.2.0) (2019-10-25)
+
+
+### Bug Fixes
+
+* **docker:** finish separation between prod-dev ([dc78d1b](https://github.com/AEGEE/oms-docker/commit/dc78d1bf139b03c760feb956a9a3535c3f96b697))
+* **docker:** have to go around secrets ([b623974](https://github.com/AEGEE/oms-docker/commit/b6239743fbb617b8248e7834ceb3a674c8883d97))
+* **docker:** manifest version mismatch ([80cff56](https://github.com/AEGEE/oms-docker/commit/80cff5673b0c6da053d087ea3df716263447ab90))
+* fixed mail template for join request ([67177f6](https://github.com/AEGEE/oms-docker/commit/67177f6e6616ac5654ec79c92a96dd6b6ff272a3))
+
+
+### Features
+
+* **general:** added conventional commits. Fixes MEMB-555 ([3fda935](https://github.com/AEGEE/oms-docker/commit/3fda935a8c1135f4ea897296f3020a27ab57049e))
+* **general:** added healthcheck. Fixes MEMB-646 ([89e1a0e](https://github.com/AEGEE/oms-docker/commit/89e1a0eee5ded4c0a5286de02da7c8cb326ff0fe))

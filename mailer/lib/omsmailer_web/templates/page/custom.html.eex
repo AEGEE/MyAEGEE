@@ -1,0 +1,2 @@
+<!-- Just takes one parameter and renders that one unescaped -->
+<%= raw(Map.fetch!(@parameters, "body")) %>

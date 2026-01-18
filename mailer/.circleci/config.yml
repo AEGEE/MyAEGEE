@@ -1,0 +1,161 @@
+orbs:
+  node: circleci/node@7.2.1
+  slack: circleci/slack@6.1.2
+version: 2.1
+jobs:
+  test:
+    machine:
+      image: ubuntu-2204:2025.09.1
+    environment:
+      MIX_ENV: test
+      SMTP_USER: mailer@aegee.eu
+      SMTP_NAME: AEGEE <mailer@aegee.eu>
+      SMTP_PASSWORD: 5ecr3t
+      SMTP_HOST: mail.aegee.eu
+    resource_class: large
+    steps:
+      - checkout
+      - run: sudo apt-get update
+      - run: sudo apt-get install elixir erlang
+      - run: mix local.hex --force
+      - run: mix local.rebar --force
+      - run: mix deps.get
+      - run: SMTP_USER=mailer@aegee.eu mix coveralls
+  build:
+    docker:
+      - image: cimg/base:2025.12
+        environment:
+          MIX_ENV: test
+          SMTP_USER: mailer@aegee.eu
+          SMTP_NAME: AEGEE <mailer@aegee.eu>
+          SMTP_PASSWORD: 5ecr3t
+          SMTP_HOST: mail.aegee.eu
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - run: docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build --no-cache mailer
+  docker-build-and-push:
+    docker:
+      - image: cimg/node:20.19.6
+        environment:
+          MIX_ENV: test
+          SMTP_USER: mailer@aegee.eu
+          SMTP_NAME: AEGEE <mailer@aegee.eu>
+          SMTP_PASSWORD: 5ecr3t
+          SMTP_HOST: mail.aegee.eu
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - node/install-packages
+      - run: npx semantic-release
+      - run: echo export PACKAGE_VERSION=$(node -p "require('./package.json').version") >> $BASH_ENV
+      - run: docker build --tag aegee/mailer:$PACKAGE_VERSION --tag aegee/mailer:latest -f docker/mailer/Dockerfile .
+      - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+      - run: docker push aegee/mailer:$PACKAGE_VERSION
+      - run: docker push aegee/mailer:latest
+      - run: docker build --tag aegee/mail-transfer-agent:$PACKAGE_VERSION --tag aegee/mail-transfer-agent:latest -f docker/mail_transfer_agent/Dockerfile .
+      - run: docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+      - run: docker push aegee/mail-transfer-agent:$PACKAGE_VERSION
+      - run: docker push aegee/mail-transfer-agent:latest
+      - slack/notify:
+          event: pass
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":white_check_mark: The Docker image for `$CIRCLE_PROJECT_REPONAME` with tags `$PACKAGE_VERSION` and `latest` has been pushed to Dockerhub."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":octagonal_sign: The Docker image for `$CIRCLE_PROJECT_REPONAME` build and push has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
+  build:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: stable
+  docker-build-and-push:
+    jobs:
+      - docker-build-and-push:
+          filters:
+            branches:
+              only: stable
