@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/AEGEE/events/compare/1.7.1...1.8.0) (2026-01-18)
+
+
+### Features
+
+* **events:** send SPC information email to organizers on event creation ([#1332](https://github.com/AEGEE/events/issues/1332)) ([992a032](https://github.com/AEGEE/events/commit/992a032eb007dcdd0f1a0fece0ac62a654c0e86d))
+
 ## [1.7.1](https://github.com/AEGEE/events/compare/1.7.0...1.7.1) (2026-01-11)
 
 
