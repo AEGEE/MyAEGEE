@@ -1,3 +1,10 @@
+# [0.19.0](https://github.com/AEGEE/mailer/compare/0.18.0...0.19.0) (2026-01-18)
+
+
+### Features
+
+* **mailer:** add SPC information email template for event organizers ([#113](https://github.com/AEGEE/mailer/issues/113)) ([a2979b2](https://github.com/AEGEE/mailer/commit/a2979b27e4538baf704ae59a07180739f2ac04b8))
+
 # [0.18.0](https://github.com/AEGEE/mailer/compare/0.17.0...0.18.0) (2025-11-16)
 
 
