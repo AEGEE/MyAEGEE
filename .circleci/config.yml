@@ -258,6 +258,212 @@ jobs:
                 }
               ]
             }
+  discounts-test:
+    docker:
+      - image: cimg/node:22.20.0
+      - image: cimg/postgres:17.6
+        environment:
+          POSTGRES_PASSWORD: config.test.postgres.password
+    parallelism: 4
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/discounts
+      - run: mkdir -p ~/reports/jest
+      - run:
+          name: Run discounts tests
+          working_directory: ~/project/discounts
+          command: |
+            TEST=$(circleci tests glob test/api/*.js | circleci tests split --split-by=timings)
+            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
+      - codecov/upload
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  discounts-build:
+    docker:
+      - image: cimg/base:2025.12
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - run: docker-compose -f discounts/docker/docker-compose.yml -f discounts/docker/docker-compose.dev.yml build --no-cache discounts
+  discounts-eslint:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/discounts
+      - run: mkdir -p ~/reports
+      - run:
+          name: Run discounts eslint
+          working_directory: ~/project/discounts
+          command: npm run lint -- --format junit --output-file ~/reports/eslint.xml
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  discounts-audit:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Run discounts audit
+          working_directory: ~/project/discounts
+          command: npm audit --production
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":x: The audit check for discounts module in `$CIRCLE_PROJECT_REPONAME` has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+  discounts-docker-build-and-push:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/discounts
+      - run:
+          name: Run semantic-release for discounts
+          working_directory: ~/project/discounts
+          command: npx semantic-release
+      - run:
+          name: Build and push discounts Docker image
+          working_directory: ~/project/discounts
+          command: |
+            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
+            docker build --tag aegee/discounts:$PACKAGE_VERSION --tag aegee/discounts:latest -f docker/discounts/Dockerfile .
+            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            docker push aegee/discounts:$PACKAGE_VERSION
+            docker push aegee/discounts:latest
+      - slack/notify:
+          event: pass
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":white_check_mark: The Docker image for discounts module with tags `$PACKAGE_VERSION` and `latest` has been pushed to Dockerhub."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":octagonal_sign: The Docker image for discounts module build and push has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
 workflows:
   lint-yaml:
     jobs:
@@ -299,3 +505,30 @@ workflows:
               only: stable
     jobs:
       - core-audit
+  discounts-linters:
+    jobs:
+      - discounts-eslint
+  discounts-build:
+    jobs:
+      - discounts-build:
+          filters:
+            branches:
+              ignore: stable
+  discounts-test:
+    jobs:
+      - discounts-test
+  discounts-docker-build-and-push:
+    jobs:
+      - discounts-docker-build-and-push:
+          filters:
+            branches:
+              only: stable
+  discounts-audit:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 5"
+          filters:
+            branches:
+              only: stable
+    jobs:
+      - discounts-audit
