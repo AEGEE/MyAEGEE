@@ -1,0 +1,9 @@
+node_modules/
+coverage*
+commitmsg
+log
+npm-debug.log
+frontend/
+.nyc_output/
+**/.DS_Store
+junit.xml

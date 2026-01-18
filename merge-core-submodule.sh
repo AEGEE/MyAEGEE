@@ -13,8 +13,8 @@
 
 set -e  # Exit on error
 
-SUBMODULE_NAME="network"
-SUBMODULE_URL="https://github.com/AEGEE/network"
+SUBMODULE_NAME="statutory"
+SUBMODULE_URL="https://github.com/AEGEE/statutory"
 TEMP_DIR="/tmp/core-merge-$$"
 
 echo "========================================="
