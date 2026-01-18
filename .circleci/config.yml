@@ -701,9 +701,10 @@ jobs:
     resource_class: large
     steps:
       - checkout
-      - node/install-packages:
-          pkg-manager: npm
-          app-dir: ~/project/frontend
+      - run:
+          name: Install frontend dependencies (skip husky)
+          working_directory: ~/project/frontend
+          command: npm ci --ignore-scripts
       - run: mkdir -p ~/reports
       - run:
           name: Run frontend eslint
@@ -771,9 +772,10 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: default
-      - node/install-packages:
-          pkg-manager: npm
-          app-dir: ~/project/frontend
+      - run:
+          name: Install frontend dependencies (skip husky)
+          working_directory: ~/project/frontend
+          command: npm ci --ignore-scripts
       - run:
           name: Run semantic-release for frontend
           working_directory: ~/project/frontend
