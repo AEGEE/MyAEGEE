@@ -3,19 +3,19 @@
 if [ -z "$SMTP_USER" ]
 then
   echo '$SMTP_USER is not set'
-  exit -1
+  exit 1
 fi
 
 if [ -z "$SMTP_PASSWORD" ]
 then
   echo '$SMTP_PASSWORD is not set'
-  exit -1
+  exit 1
 fi
 
 if [ -z "$SMTP_HOST" ]
 then
   echo '$SMTP_HOST is not set'
-  exit -1
+  exit 1
 fi
 
 #! /usr/bin/env ash
@@ -31,7 +31,7 @@ export ACCEPTED_NETWORKS=${ACCEPTED_NETWORKS:-"192.168.0.0/16 172.16.0.0/12 10.0
 export USE_TLS=${USE_TLS:-"yes"}
 export TLS_VERIFY=${TLS_VERIFY:-"may"}
 
-echo $RELAY_HOST_NAME > /etc/mailname
+echo "$RELAY_HOST_NAME" > /etc/mailname
 
 # Templates
 j2 /root/conf/postfix-main.cf > /etc/postfix/main.cf

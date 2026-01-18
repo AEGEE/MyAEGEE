@@ -23,4 +23,4 @@ RUN ["mix", "compile"]
 
 EXPOSE ${PORT}
 
-CMD mix phx.server
+CMD ["mix", "phx.server"]

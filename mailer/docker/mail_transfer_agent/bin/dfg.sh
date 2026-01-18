@@ -11,7 +11,7 @@ dfg: Daemon Foreground
 Starts a daemon and runs in foreground while the daemon is active, and proxies signals.
 As a result, a daemonizing process can be run with supervisor.
 
-Usage: $(basename $0) <pidfile> <command...>
+Usage: $(basename "$0") <pidfile> <command...>
 EOF
 }
 [ $# -lt 2 ] && display_help
@@ -19,11 +19,11 @@ EOF
 # Arguments
 pidfile="$1"
 shift
-command=$@
+command=$*
 
 # Go foreground, proxy signals
 kill_app(){
-    kill $(cat $pidfile)
+    kill "$(cat "$pidfile")"
     exit 0
 }
 trap "kill_app" SIGINT SIGTERM
@@ -33,7 +33,7 @@ $command
 sleep 2
 
 # Loop while the pidfile and the process exist
-while [ -f $pidfile ] && kill -0 $(cat $pidfile) ; do
+while [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" ; do
     sleep 0.5
 done
 exit 1000
