@@ -5,7 +5,7 @@ services:
         build:
             context: ./${PATH_MAILER}/../
             dockerfile: ./docker/mailer/Dockerfile
-            args: 
+            args:
                 MIX_ENV: development
         image: aegee/mailer:dev
         volumes:

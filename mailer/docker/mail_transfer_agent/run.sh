@@ -2,18 +2,21 @@
 
 if [ -z "$SMTP_USER" ]
 then
+  # shellcheck disable=SC2016
   echo '$SMTP_USER is not set'
   exit 1
 fi
 
 if [ -z "$SMTP_PASSWORD" ]
 then
+  # shellcheck disable=SC2016
   echo '$SMTP_PASSWORD is not set'
   exit 1
 fi
 
 if [ -z "$SMTP_HOST" ]
 then
+  # shellcheck disable=SC2016
   echo '$SMTP_HOST is not set'
   exit 1
 fi

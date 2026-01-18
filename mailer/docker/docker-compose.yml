@@ -41,7 +41,7 @@ services:
             SMTP_PORT: 587
             SMTP_USER: ${SMTP_USER?The SMTP_USER variable is not set.}
             SMTP_PASSWORD: ${SMTP_PASSWORD?The SMTP_PASSWORD variable is not set.}
-        #healthcheck?
+        # healthcheck?
         # cpu_count: 1
         # mem_limit: 900m
 

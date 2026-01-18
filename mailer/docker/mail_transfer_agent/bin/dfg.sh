@@ -1,4 +1,5 @@
 #! /usr/bin/env ash
+# shellcheck shell=dash
 set -eu
 
 # dfg: Daemon Foreground
@@ -26,7 +27,7 @@ kill_app(){
     kill "$(cat "$pidfile")"
     exit 0
 }
-trap "kill_app" SIGINT SIGTERM
+trap "kill_app" INT TERM
 
 # Launch daemon
 eval "$command"
@@ -36,4 +37,4 @@ sleep 2
 while [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" ; do
     sleep 0.5
 done
-exit 1000
+exit 1
