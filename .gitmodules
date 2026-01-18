@@ -1,6 +1,3 @@
-[submodule "mailer"]
-	path = mailer
-	url = https://github.com/AEGEE/mailer
 [submodule "gsuite-wrapper"]
 	path = gsuite-wrapper
 	url = https://github.com/AEGEE/gsuite-wrapper
