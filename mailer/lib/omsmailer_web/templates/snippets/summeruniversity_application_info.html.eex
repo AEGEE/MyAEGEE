@@ -1,0 +1,13 @@
+<ul>
+  <li><strong>Body name: </strong><%= @parameters["application"]["body_name"] %></li>
+  <li><strong>Applied on: </strong><%= @parameters["application"]["created_at"] %></li>
+  <li><strong>Updated on: </strong><%= @parameters["application"]["updated_at"] %></li>
+  <li><strong>First name: </strong><%= @parameters["application"]["first_name"] %></li>
+  <li><strong>Last name: </strong><%= @parameters["application"]["last_name"] %></li>
+  <li><strong>AEGEE experience: </strong><%= @parameters["application"]["aegee_experience"] %></li>
+  <li><strong>Ideal SU: </strong><%= @parameters["application"]["ideal_su"] %></li>
+  <li><strong>Motivation: </strong><%= @parameters["application"]["motivation"] %></li>
+  <%= for {question, index} <- @parameters["event"]["questions"] |> Enum.with_index() do %>
+    <li><strong><%= question["description"] %> </strong> <%= @parameters["application"]["answers"] |> Enum.at(index) %></li>
+  <% end %>
+</ul>

@@ -27,15 +27,17 @@ jobs:
       - checkout
       - run:
           name: Lint Dockerfiles
-          command: hadolint $(find . -name '*Dockerfile*')
+          command: hadolint $(find . -name '*Dockerfile*' -not -path './mailer/*')
   shellcheck:
     docker:
       - image: cimg/base:2025.12
     steps:
       - checkout
       - shellcheck/install
-      - shellcheck/check:
-          exclude: SC2002,SC2086,SC2126,SC2154
+      - run:
+          name: Run shellcheck
+          command: |
+            shellcheck --exclude=SC2002,SC2086,SC2126,SC2154 $(find . -name '*.sh' -not -path '*/node_modules/*' -not -path './mailer/*' -type f)
   core-test:
     docker:
       - image: cimg/node:22.20.0
@@ -869,6 +871,210 @@ jobs:
                 }
               ]
             }
+  gsuite-wrapper-test:
+    docker:
+      - image: cimg/node:22.20.0
+      - image: cimg/redis:8.4.0
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Install gsuite-wrapper dependencies (skip husky)
+          working_directory: ~/project/gsuite-wrapper
+          command: npm ci --ignore-scripts
+      - run:
+          name: Setup gsuite-wrapper config files
+          working_directory: ~/project/gsuite-wrapper
+          command: |
+            echo $SERVICEACCOUNT_JSON > lib/config/myaegee-serviceaccount.json
+            echo $SECRETS_JSON > lib/config/secrets.json
+      - run: mkdir -p ~/reports/mocha
+      - run:
+          name: Run gsuite-wrapper tests
+          working_directory: ~/project/gsuite-wrapper
+          command: npm run test
+  gsuite-wrapper-build:
+    docker:
+      - image: cimg/base:2025.12
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - run: docker-compose -f gsuite-wrapper/docker/docker-compose.yml -f gsuite-wrapper/docker/docker-compose.dev.yml build --no-cache gsuite-wrapper
+  gsuite-wrapper-eslint:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Install gsuite-wrapper dependencies (skip husky)
+          working_directory: ~/project/gsuite-wrapper
+          command: npm ci --ignore-scripts
+      - run: mkdir -p ~/reports
+      - run:
+          name: Run gsuite-wrapper eslint
+          working_directory: ~/project/gsuite-wrapper
+          command: npm run lint -- --format junit --output-file ~/reports/eslint.xml
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  gsuite-wrapper-audit:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Run gsuite-wrapper audit
+          working_directory: ~/project/gsuite-wrapper
+          command: npm audit --production
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":x: The audit check for gsuite-wrapper module in `$CIRCLE_PROJECT_REPONAME` has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+  gsuite-wrapper-docker-build-and-push:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/gsuite-wrapper
+      - run:
+          name: Run semantic-release for gsuite-wrapper
+          working_directory: ~/project/gsuite-wrapper
+          command: npx semantic-release
+      - run:
+          name: Build and push gsuite-wrapper Docker image
+          working_directory: ~/project/gsuite-wrapper
+          command: |
+            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
+            docker build --tag aegee/gsuite-wrapper:$PACKAGE_VERSION --tag aegee/gsuite-wrapper:latest -f docker/Dockerfile .
+            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            docker push aegee/gsuite-wrapper:$PACKAGE_VERSION
+            docker push aegee/gsuite-wrapper:latest
+      - slack/notify:
+          event: pass
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":white_check_mark: The Docker image for gsuite-wrapper module with tags `$PACKAGE_VERSION` and `latest` has been pushed to Dockerhub."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":octagonal_sign: The Docker image for gsuite-wrapper module build and push has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
   knowledge-test:
     docker:
       - image: cimg/node:22.20.0
@@ -1045,6 +1251,167 @@ jobs:
                   "text": {
                     "type": "mrkdwn",
                     "text": ":octagonal_sign: The Docker image for knowledge module build and push has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+  mailer-test:
+    machine:
+      image: ubuntu-2204:2025.09.1
+    environment:
+      MIX_ENV: test
+      SMTP_USER: mailer@aegee.eu
+      SMTP_NAME: AEGEE <mailer@aegee.eu>
+      SMTP_PASSWORD: 5ecr3t
+      SMTP_HOST: mail.aegee.eu
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Install Elixir and Erlang for mailer
+          working_directory: ~/project/mailer
+          command: |
+            sudo apt-get update
+            sudo apt-get install elixir erlang
+      - run:
+          name: Setup mailer hex and rebar
+          working_directory: ~/project/mailer
+          command: |
+            mix local.hex --force
+            mix local.rebar --force
+      - run:
+          name: Get mailer dependencies
+          working_directory: ~/project/mailer
+          command: mix deps.get
+      - run:
+          name: Run mailer tests
+          working_directory: ~/project/mailer
+          command: SMTP_USER=mailer@aegee.eu mix coveralls
+  mailer-build:
+    docker:
+      - image: cimg/base:2025.12
+        environment:
+          MIX_ENV: test
+          SMTP_USER: mailer@aegee.eu
+          SMTP_NAME: AEGEE <mailer@aegee.eu>
+          SMTP_PASSWORD: 5ecr3t
+          SMTP_HOST: mail.aegee.eu
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - run: docker-compose -f mailer/docker/docker-compose.yml -f mailer/docker/docker-compose.dev.yml build --no-cache mailer
+  mailer-docker-build-and-push:
+    docker:
+      - image: cimg/node:20.19.6
+        environment:
+          MIX_ENV: test
+          SMTP_USER: mailer@aegee.eu
+          SMTP_NAME: AEGEE <mailer@aegee.eu>
+          SMTP_PASSWORD: 5ecr3t
+          SMTP_HOST: mail.aegee.eu
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/mailer
+      - run:
+          name: Run semantic-release for mailer
+          working_directory: ~/project/mailer
+          command: npx semantic-release
+      - run:
+          name: Build and push mailer Docker images
+          working_directory: ~/project/mailer
+          command: |
+            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
+            docker build --tag aegee/mailer:$PACKAGE_VERSION --tag aegee/mailer:latest -f docker/mailer/Dockerfile .
+            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            docker push aegee/mailer:$PACKAGE_VERSION
+            docker push aegee/mailer:latest
+            docker build --tag aegee/mail-transfer-agent:$PACKAGE_VERSION --tag aegee/mail-transfer-agent:latest -f docker/mail_transfer_agent/Dockerfile .
+            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            docker push aegee/mail-transfer-agent:$PACKAGE_VERSION
+            docker push aegee/mail-transfer-agent:latest
+      - slack/notify:
+          event: pass
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":white_check_mark: The Docker image for mailer module with tags `$PACKAGE_VERSION` and `latest` has been pushed to Dockerhub."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":octagonal_sign: The Docker image for mailer module build and push has failed."
                   }
                 },
                 {
@@ -1487,6 +1854,203 @@ jobs:
                 }
               ]
             }
+  summeruniversity-db-recreate:
+    docker:
+      - image: cimg/node:22.20.0
+      - image: cimg/postgres:17.6
+        environment:
+          POSTGRES_PASSWORD: config.test.postgres.password
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/summeruniversity
+      - run:
+          name: Run summeruniversity db:recreate
+          working_directory: ~/project/summeruniversity
+          command: NODE_ENV=test npm run db:setup
+  summeruniversity-build:
+    docker:
+      - image: cimg/base:2025.12
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - run: docker-compose -f summeruniversity/docker/docker-compose.yml -f summeruniversity/docker/docker-compose.dev.yml build --no-cache summeruniversity
+  summeruniversity-eslint:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/summeruniversity
+      - run: mkdir -p ~/reports
+      - run:
+          name: Run summeruniversity eslint
+          working_directory: ~/project/summeruniversity
+          command: npm run lint -- --format junit --output-file ~/reports/eslint.xml
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  summeruniversity-audit:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Run summeruniversity audit
+          working_directory: ~/project/summeruniversity
+          command: npm audit --production
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":x: The audit check for summeruniversity module in `$CIRCLE_PROJECT_REPONAME` has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+  summeruniversity-docker-build-and-push:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/summeruniversity
+      - run:
+          name: Run semantic-release for summeruniversity
+          working_directory: ~/project/summeruniversity
+          command: npx semantic-release
+      - run:
+          name: Build and push summeruniversity Docker image
+          working_directory: ~/project/summeruniversity
+          command: |
+            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
+            docker build --tag aegee/summeruniversity:$PACKAGE_VERSION --tag aegee/summeruniversity:latest -f docker/summeruniversity/Dockerfile .
+            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            docker push aegee/summeruniversity:$PACKAGE_VERSION
+            docker push aegee/summeruniversity:latest
+      - slack/notify:
+          event: pass
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":white_check_mark: The Docker image for summeruniversity module with tags `$PACKAGE_VERSION` and `latest` has been pushed to Dockerhub."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":octagonal_sign: The Docker image for summeruniversity module build and push has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
 workflows:
   lint-yaml:
     jobs:
@@ -1688,3 +2252,70 @@ workflows:
               only: stable
     jobs:
       - statutory-audit
+  gsuite-wrapper-linters:
+    jobs:
+      - gsuite-wrapper-eslint
+  gsuite-wrapper-build:
+    jobs:
+      - gsuite-wrapper-build:
+          filters:
+            branches:
+              ignore: stable
+  gsuite-wrapper-test:
+    jobs:
+      - gsuite-wrapper-test
+  gsuite-wrapper-docker-build-and-push:
+    jobs:
+      - gsuite-wrapper-docker-build-and-push:
+          filters:
+            branches:
+              only: stable
+  gsuite-wrapper-audit:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 5"
+          filters:
+            branches:
+              only: stable
+    jobs:
+      - gsuite-wrapper-audit
+  mailer-build:
+    jobs:
+      - mailer-build:
+          filters:
+            branches:
+              ignore: stable
+  mailer-test:
+    jobs:
+      - mailer-test
+  mailer-docker-build-and-push:
+    jobs:
+      - mailer-docker-build-and-push:
+          filters:
+            branches:
+              only: stable
+  summeruniversity-linters:
+    jobs:
+      - summeruniversity-eslint
+  summeruniversity-build:
+    jobs:
+      - summeruniversity-build:
+          filters:
+            branches:
+              ignore: stable
+      - summeruniversity-db-recreate
+  summeruniversity-docker-build-and-push:
+    jobs:
+      - summeruniversity-docker-build-and-push:
+          filters:
+            branches:
+              only: stable
+  summeruniversity-audit:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 5"
+          filters:
+            branches:
+              only: stable
+    jobs:
+      - summeruniversity-audit

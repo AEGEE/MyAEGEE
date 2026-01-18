@@ -1,0 +1,28 @@
+<ul>
+  <li><strong>Body name: </strong><%= @parameters["application"]["body_name"] %></li>
+  <li><strong>Applied on: </strong><%= @parameters["application"]["created_at"] %></li>
+  <li><strong>Updated on: </strong><%= @parameters["application"]["updated_at"] %></li>
+  <li><strong>First name: </strong><%= @parameters["application"]["first_name"] %></li>
+  <li><strong>Last name: </strong><%= @parameters["application"]["last_name"] %></li>
+  <li><strong>Gender: </strong><%= @parameters["application"]["gender"] %></li>
+  <li><strong>Date of birth: </strong><%= @parameters["application"]["date_of_birth"] %></li>
+  <li><strong>Email: </strong><%= @parameters["application"]["email"] %></li>
+  <li><strong>Nationality: </strong><%= @parameters["application"]["nationality"] %></li>
+  <li><strong>Meals: </strong><%= @parameters["application"]["meals"] %></li>
+  <li><strong>Allergies: </strong><%= @parameters["application"]["allergies"] %></li>
+  <li><strong>Number of events visited: </strong><%= @parameters["application"]["number_of_events_visited"] %></li>
+  <li><strong>Visa required?: </strong><%= @parameters["application"]["visa_required"] %></li>
+  <li><strong>Visa passport number: </strong><%= @parameters["application"]["visa_passport_number"] %></li>
+  <li><strong>Visa passport issue date: </strong><%= @parameters["application"]["visa_passport_issue_date"] %></li>
+  <li><strong>Visa passport expiration date: </strong><%= @parameters["application"]["visa_passport_expiration_date"] %></li>
+  <li><strong>Visa passport issue authority: </strong><%= @parameters["application"]["visa_passport_issue_authority"] %></li>
+  <li><strong>Place of birth: </strong><%= @parameters["application"]["visa_place_of_birth"] %></li>
+  <li><strong>Street and house number: </strong><%= @parameters["application"]["visa_street_and_house"] %></li>
+  <li><strong>Postal code: </strong><%= @parameters["application"]["visa_postal_code"] %></li>
+  <li><strong>City: </strong><%= @parameters["application"]["visa_city"] %></li>
+  <li><strong>Country: </strong><%= @parameters["application"]["visa_country"] %></li>
+  <li><strong>Embassy: </strong><%= @parameters["application"]["visa_embassy"] %></li>
+  <%= for {question, index} <- @parameters["event"]["questions"] |> Enum.with_index() do %>
+    <li><strong><%= question["description"] %> </strong> <%= @parameters["application"]["answers"] |> Enum.at(index) %></li>
+  <% end %>
+</ul>
