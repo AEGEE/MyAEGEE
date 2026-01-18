@@ -1,0 +1,13 @@
+{
+    "success": true,
+    "data": [{
+      "scope": "global",
+      "object": "discounts",
+      "id": 71,
+      "filters": [],
+      "description": "Manage discounts",
+      "combined": "global:manage:discounts",
+      "circles": null,
+      "action": "manage"
+    }]
+}
