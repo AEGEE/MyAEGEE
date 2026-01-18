@@ -13,8 +13,8 @@
 
 set -e  # Exit on error
 
-SUBMODULE_NAME="events"
-SUBMODULE_URL="https://github.com/AEGEE/events"
+SUBMODULE_NAME="frontend"
+SUBMODULE_URL="https://github.com/AEGEE/frontend"
 TEMP_DIR="/tmp/core-merge-$$"
 
 echo "========================================="
