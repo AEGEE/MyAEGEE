@@ -1281,6 +1281,212 @@ jobs:
                 }
               ]
             }
+  statutory-test:
+    docker:
+      - image: cimg/node:22.20.0
+      - image: cimg/postgres:17.6
+        environment:
+          POSTGRES_PASSWORD: config.test.postgres.password
+    parallelism: 4
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/statutory
+      - run: mkdir -p ~/reports/jest
+      - run:
+          name: Run statutory tests
+          working_directory: ~/project/statutory
+          command: |
+            TEST=$(circleci tests glob test/api/*.js | circleci tests split --split-by=timings)
+            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
+      - codecov/upload
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  statutory-build:
+    docker:
+      - image: cimg/base:2025.12
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - run: docker-compose -f statutory/docker/docker-compose.yml -f statutory/docker/docker-compose.dev.yml build --no-cache statutory
+  statutory-eslint:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/statutory
+      - run: mkdir -p ~/reports
+      - run:
+          name: Run statutory eslint
+          working_directory: ~/project/statutory
+          command: npm run lint -- --format junit --output-file ~/reports/eslint.xml
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  statutory-audit:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Run statutory audit
+          working_directory: ~/project/statutory
+          command: npm audit --production
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":x: The audit check for statutory module in `$CIRCLE_PROJECT_REPONAME` has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+  statutory-docker-build-and-push:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: ~/project/statutory
+      - run:
+          name: Run semantic-release for statutory
+          working_directory: ~/project/statutory
+          command: npx semantic-release
+      - run:
+          name: Build and push statutory Docker image
+          working_directory: ~/project/statutory
+          command: |
+            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
+            docker build --tag aegee/statutory:$PACKAGE_VERSION --tag aegee/statutory:latest -f docker/statutory/Dockerfile .
+            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            docker push aegee/statutory:$PACKAGE_VERSION
+            docker push aegee/statutory:latest
+      - slack/notify:
+          event: pass
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":white_check_mark: The Docker image for statutory module with tags `$PACKAGE_VERSION` and `latest` has been pushed to Dockerhub."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":octagonal_sign: The Docker image for statutory module build and push has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
 workflows:
   lint-yaml:
     jobs:
@@ -1455,3 +1661,30 @@ workflows:
               only: stable
     jobs:
       - network-audit
+  statutory-linters:
+    jobs:
+      - statutory-eslint
+  statutory-build:
+    jobs:
+      - statutory-build:
+          filters:
+            branches:
+              ignore: stable
+  statutory-test:
+    jobs:
+      - statutory-test
+  statutory-docker-build-and-push:
+    jobs:
+      - statutory-docker-build-and-push:
+          filters:
+            branches:
+              only: stable
+  statutory-audit:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 5"
+          filters:
+            branches:
+              only: stable
+    jobs:
+      - statutory-audit
