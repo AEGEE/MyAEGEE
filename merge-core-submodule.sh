@@ -13,8 +13,8 @@
 
 set -e  # Exit on error
 
-SUBMODULE_NAME="mailer"
-SUBMODULE_URL="https://github.com/AEGEE/mailer"
+SUBMODULE_NAME="gsuite-wrapper"
+SUBMODULE_URL="https://github.com/AEGEE/gsuite-wrapper"
 TEMP_DIR="/tmp/core-merge-$$"
 
 echo "========================================="
