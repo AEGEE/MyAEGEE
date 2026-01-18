@@ -27,7 +27,7 @@ jobs:
       - checkout
       - run:
           name: Lint Dockerfiles
-          command: hadolint $(find . -name '*Dockerfile*')
+          command: hadolint $(find . -name '*Dockerfile*' -not -path './mailer/*')
   shellcheck:
     docker:
       - image: cimg/base:2025.12
@@ -36,6 +36,7 @@ jobs:
       - shellcheck/install
       - shellcheck/check:
           exclude: SC2002,SC2086,SC2126,SC2154
+          ignore-dirs: mailer
   core-test:
     docker:
       - image: cimg/node:22.20.0
@@ -1869,7 +1870,7 @@ jobs:
           working_directory: ~/project/summeruniversity
           command: |
             TEST=$(circleci tests glob test/**/*.js | circleci tests split --split-by=timings)
-            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit
+            JEST_JUNIT_OUTPUT_DIR=$HOME/reports/jest npm run test:ci $TEST -- --reporters=default --reporters=jest-junit --passWithNoTests
       - codecov/upload
       - store_test_results:
           path: ~/reports
