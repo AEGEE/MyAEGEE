@@ -14,7 +14,7 @@ services:
     links:
       - redis-gsuite-wrapper
     expose:
-      - 8084
+      - "8084"
     volumes:
       - ./${PATH_GSUITE_WRAPPER}/../lib/config/myaegee-serviceaccount.json:/usr/app/src/lib/config/myaegee-serviceaccount.json
       - ./${PATH_GSUITE_WRAPPER}/../lib/config/secrets.json:/usr/app/src/lib/config/secrets.json

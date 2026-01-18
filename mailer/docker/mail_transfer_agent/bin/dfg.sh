@@ -29,7 +29,7 @@ kill_app(){
 trap "kill_app" SIGINT SIGTERM
 
 # Launch daemon
-$command
+eval "$command"
 sleep 2
 
 # Loop while the pidfile and the process exist
