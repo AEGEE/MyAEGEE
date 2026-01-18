@@ -1,0 +1,10 @@
+{
+    "success": true,
+    "data": [{
+        "scope": "global",
+        "object": "agora",
+        "id": 1,
+        "combined": "global:apply:agora",
+        "action": "apply"
+      }]
+}
