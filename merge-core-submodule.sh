@@ -13,8 +13,8 @@
 
 set -e  # Exit on error
 
-SUBMODULE_NAME="frontend"
-SUBMODULE_URL="https://github.com/AEGEE/frontend"
+SUBMODULE_NAME="knowledge"
+SUBMODULE_URL="https://github.com/AEGEE/knowledge"
 TEMP_DIR="/tmp/core-merge-$$"
 
 echo "========================================="

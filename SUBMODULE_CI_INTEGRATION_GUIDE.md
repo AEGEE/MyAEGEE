@@ -350,19 +350,54 @@ For discounts module integration, follow the same pattern:
 3. **Not updating Slack messages**: Makes it unclear which module failed
 4. **Wrong docker-compose paths**: Must use absolute paths from repo root
 5. **Branch filters**: Ensure build jobs ignore `stable` and deploy jobs only run on `stable`
+6. **Husky prepare script**: Frontend and other modules with husky will fail in CI because `.git` is at repo root, not in the submodule directory. Use `npm ci --ignore-scripts` instead of `node/install-packages` orb
+7. **Hadolint DL3025 violations**: Many Dockerfiles use shell form for CMD. Convert to JSON notation: `CMD ["sh", "-c", "command"]`
 
-## Submodules to Integrate
+## Submodules Integration Status
 
-Based on `.gitmodules`, these submodules likely have CI to integrate:
-- ✅ core (completed)
-- events
-- summeruniversity
-- statutory
-- discounts (in progress)
-- frontend
-- mailer
-- gsuite-wrapper
-- network
-- knowledge
+Based on `.gitmodules`, these submodules have been integrated:
+- ✅ core (completed - #1449)
+- ✅ discounts (completed - #1463)
+- ✅ events (completed - #1464)
+- ✅ frontend (completed - #1466) - **Note**: Uses `npm ci --ignore-scripts` to skip husky
+- ✅ knowledge (completed - #1472)
+
+Remaining submodules to integrate:
+- ⏳ statutory
+- ⏳ summeruniversity
+- ⏳ mailer
+- ⏳ gsuite-wrapper
+- ⏳ network
 
 Always check if a submodule has `.circleci/config.yml` before integration.
+
+## Special Cases
+
+### Frontend Module (Husky Issue)
+The frontend module has a husky `prepare` script that fails in CI because it looks for `.git` in the wrong location. 
+
+**Solution**: Use `npm ci --ignore-scripts` instead of the `node/install-packages` orb:
+
+```yaml
+- run:
+    name: Install frontend dependencies (skip husky)
+    working_directory: ~/project/frontend
+    command: npm ci --ignore-scripts
+```
+
+This applies to any module with lifecycle scripts that depend on the `.git` directory being in the submodule folder.
+
+### Hadolint Violations
+Most backend modules have a Dockerfile with shell-form CMD that violates DL3025.
+
+**Before:**
+```dockerfile
+CMD sh /usr/app/scripts/bootstrap.sh && nodemon -e "js,json" lib/run.js
+```
+
+**After:**
+```dockerfile
+CMD ["sh", "-c", "sh /usr/app/scripts/bootstrap.sh && nodemon -e js,json lib/run.js"]
+```
+
+Fix these before or immediately after CI integration.
