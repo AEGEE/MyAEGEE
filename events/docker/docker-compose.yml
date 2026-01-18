@@ -1,0 +1,86 @@
+version: "3.4"
+services:
+    postgres-events:
+        restart: always
+        image: postgres:10.18
+        volumes:
+            - postgres-events:/var/lib/postgresql/data
+        expose:
+            - "5432"
+        environment:
+            POSTGRES_USER: "postgres"
+            POSTGRES_PASSWORD: "${PW_POSTGRES}"
+
+    events:
+        restart: on-failure
+        image: aegee/events:latest
+        volumes:
+            - events-media:/usr/app/media
+            - shared:/usr/app/shared:ro
+        depends_on:
+            - postgres-events
+        expose:
+            - "8084"
+        environment:
+            BUGSNAG_KEY: "${BUGSNAG_KEY_EVENTS}"
+            PG_PASSWORD: "${PW_POSTGRES}"
+            NODE_ENV: "${MYAEGEE_ENV}"
+            HOST: "${SUBDOMAIN_FRONTEND}${BASE_URL}"
+            CORE_LOGIN: "${CORE_LOGIN}"
+            CORE_PASSWORD: "${CORE_PASSWORD}"
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8084/healthcheck"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+        # cpu_count: 1
+        # mem_limit: 900m
+        labels:
+            - "traefik.backend=events"
+            - "traefik.port=8084"
+            - "traefik.auth.frontend.rule=PathPrefix:/api/events/metrics;PathPrefixStrip:/api/events;"
+            - "traefik.old.frontend.rule=PathPrefixStrip:/services/oms-events/api;"
+            - "traefik.new.frontend.rule=PathPrefixStrip:/api/events;"
+            - "traefik.auth.frontend.auth.basic.users=admin:${METRICS_CREDENTIALS}"
+            - "traefik.old.frontend.priority=110"
+            - "traefik.new.frontend.priority=110"
+            - "traefik.auth.frontend.priority=120"
+            - "traefik.enable=true"
+
+    events-static:
+        restart: on-failure
+        image: aegee/nginx-static:latest
+        volumes:
+            - events-media:/usr/app/media:ro
+            - ./${PATH_EVENTS}/events-static/status.json:/usr/app/status.json:ro
+            - ./${PATH_EVENTS}/events-static/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./${PATH_EVENTS}/events-static/sites/default:/etc/nginx/sites-available/default:ro
+            - shared:/usr/app/shared:ro
+        expose:
+            - "80"
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:80/healthcheck"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+        labels:
+            - "traefik.backend=events-static"
+            - "traefik.port=80"
+            - "traefik.frontend.rule=PathPrefix:/media/events;PathPrefixStrip:/media/events"
+            - "traefik.frontend.priority=110"
+            - "traefik.enable=true"
+
+volumes:
+    postgres-events:
+        driver: local
+    events-media:
+        driver: local
+    shared:
+        driver: local
+
+networks:
+    default:
+        external:
+            name: OMS
