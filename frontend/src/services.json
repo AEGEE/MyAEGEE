@@ -1,0 +1,15 @@
+{
+  "core": "/api/core",
+  "mailer": "/api/mailer",
+  "events": "/api/events",
+  "summeruniversity": "/api/summeruniversity",
+  "statutory": "/api/statutory",
+  "discounts": "/api/discounts",
+  "network": "/api/network",
+  "gsuite-wrapper": "/api/gsuite-wrapper",
+  "oms-frontend": "",
+  "core-static": "/media/core",
+  "events-static": "/media/events",
+  "summeruniversity-static": "/media/summeruniversity",
+  "statutory-static": "/media/statutory"
+}

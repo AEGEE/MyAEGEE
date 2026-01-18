@@ -686,6 +686,189 @@ jobs:
                 }
               ]
             }
+  frontend-build:
+    docker:
+      - image: cimg/base:2025.12
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - run: docker-compose -f frontend/docker/docker-compose.yml -f frontend/docker/docker-compose.dev.yml build --no-cache frontend
+  frontend-eslint:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Install frontend dependencies (skip husky)
+          working_directory: ~/project/frontend
+          command: npm ci --ignore-scripts
+      - run: mkdir -p ~/reports
+      - run:
+          name: Run frontend eslint
+          working_directory: ~/project/frontend
+          command: npx eslint --ext .js,.vue . --format junit --output-file ~/reports/eslint.xml
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  frontend-audit:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Run frontend audit
+          working_directory: ~/project/frontend
+          command: npm audit --production
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":x: The audit check for frontend module in `$CIRCLE_PROJECT_REPONAME` has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+  frontend-docker-build-and-push:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - run:
+          name: Install frontend dependencies (skip husky)
+          working_directory: ~/project/frontend
+          command: npm ci --ignore-scripts
+      - run:
+          name: Run semantic-release for frontend
+          working_directory: ~/project/frontend
+          command: npx semantic-release
+      - run:
+          name: Build and push frontend Docker image
+          working_directory: ~/project/frontend
+          command: |
+            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
+            docker build --tag aegee/frontend:$PACKAGE_VERSION --tag aegee/frontend:latest -f docker/Dockerfile .
+            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            docker push aegee/frontend:$PACKAGE_VERSION
+            docker push aegee/frontend:latest
+      - slack/notify:
+          event: pass
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":white_check_mark: The Docker image for frontend module with tags `$PACKAGE_VERSION` and `latest` has been pushed to Dockerhub."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":octagonal_sign: The Docker image for frontend module build and push has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
 workflows:
   lint-yaml:
     jobs:
@@ -782,3 +965,27 @@ workflows:
               only: stable
     jobs:
       - events-audit
+  frontend-linters:
+    jobs:
+      - frontend-eslint
+  frontend-build:
+    jobs:
+      - frontend-build:
+          filters:
+            branches:
+              ignore: stable
+  frontend-docker-build-and-push:
+    jobs:
+      - frontend-docker-build-and-push:
+          filters:
+            branches:
+              only: stable
+  frontend-audit:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 5"
+          filters:
+            branches:
+              only: stable
+    jobs:
+      - frontend-audit

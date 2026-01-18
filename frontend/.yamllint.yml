@@ -1,0 +1,13 @@
+# Disabling some rules for yamllint
+
+extends: default
+
+ignore: |
+  **/node_modules/**
+
+rules:
+  document-start:
+    present: false
+  line-length: disable
+  truthy:
+    check-keys: false
