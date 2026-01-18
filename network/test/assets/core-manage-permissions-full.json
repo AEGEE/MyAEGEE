@@ -1,0 +1,55 @@
+{
+    "success": true,
+    "data": [
+        {
+            "seo_url": 134,
+            "permissions": [],
+            "parent_circle_id": 2,
+            "parent_circle": {
+                "seo_url": 2,
+                "permissions": null,
+                "parent_circle_id": null,
+                "parent_circle": null,
+                "name": "General board circle",
+                "joinable": false,
+                "id": 2,
+                "description": "This is the toplevel circle for all boards in the system. It grants boards administrative rights for their body.",
+                "child_circles": null,
+                "body_id": null,
+                "body": null
+            },
+            "name": "Board AEGEE-Alicante",
+            "joinable": false,
+            "id": 134,
+            "description": "Board circle of AEGEE-Alicante",
+            "child_circles": [],
+            "body_id": 9,
+            "body": null
+        },
+        {
+            "seo_url": 134,
+            "permissions": [],
+            "parent_circle_id": 2,
+            "parent_circle": {
+                "seo_url": 2,
+                "permissions": null,
+                "parent_circle_id": null,
+                "parent_circle": null,
+                "name": "General board circle",
+                "joinable": false,
+                "id": 2,
+                "description": "This is the toplevel circle for all boards in the system. It grants boards administrative rights for their body.",
+                "child_circles": null,
+                "body_id": null,
+                "body": null
+            },
+            "name": "Board AEGEE-Alicante",
+            "joinable": false,
+            "id": 134,
+            "description": "Board circle of AEGEE-Alicante",
+            "child_circles": [],
+            "body_id": 34,
+            "body": null
+        }
+    ]
+}

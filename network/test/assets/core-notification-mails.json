@@ -1,0 +1,19 @@
+{
+    "success": true,
+    "data": [{
+        "id": 1,
+        "notification_email": "admin@example.com"
+    },{
+        "id": 2,
+        "notification_email": "test@example.com"
+    },{
+        "id": 3,
+        "notification_email": "example@example.com"
+    },{
+        "id": 4,
+        "notification_email": "mail@example.com"
+    },{
+        "id": 5,
+        "notification_email": "testing@example.com"
+    }]
+}
