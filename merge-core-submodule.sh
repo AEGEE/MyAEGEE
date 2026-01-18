@@ -13,8 +13,8 @@
 
 set -e  # Exit on error
 
-SUBMODULE_NAME="summeruniversity"
-SUBMODULE_URL="https://github.com/AEGEE/summeruniversity"
+SUBMODULE_NAME="mailer"
+SUBMODULE_URL="https://github.com/AEGEE/mailer"
 TEMP_DIR="/tmp/core-merge-$$"
 
 echo "========================================="
