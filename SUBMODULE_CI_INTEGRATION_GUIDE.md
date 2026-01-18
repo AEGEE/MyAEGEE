@@ -10,6 +10,32 @@ This guide provides instructions for integrating a submodule's CircleCI configur
 
 ## Integration Steps
 
+### 0. Merge Submodule into Monorepo (If Not Already Done)
+
+**IMPORTANT**: Before integrating CI, you must first merge the submodule into the parent repository using the merge script.
+
+1. **Update the merge script** `merge-core-submodule.sh`:
+   - Change the `SUBMODULE_NAME` variable to the submodule you're merging (e.g., `network`)
+   - Verify the script paths and branch names are correct
+
+2. **Run the merge script**:
+   ```bash
+   bash merge-core-submodule.sh
+   ```
+
+3. **Verify the merge**:
+   - The submodule should now be a regular directory at the root level
+   - Run `git submodule status` to confirm it's no longer listed as a submodule
+   - Check that all files from the submodule are present in the directory
+
+4. **Commit the merge**:
+   ```bash
+   git add .
+   git commit -m "Merge '<submodule>' submodule into parent repository"
+   ```
+
+**Note**: Only proceed to CI integration after the submodule has been successfully merged.
+
 ### 1. Analyze Submodule's CI Configuration
 
 Read the submodule's CircleCI config:
