@@ -1,0 +1,300 @@
+[
+  {
+    "categoryName": "Authorization",
+    "auth": "not-logged-in",
+    "components": [
+      {
+        "name": "oms.login",
+        "label": "Login",
+        "icon": "sign-in-alt"
+      },
+      {
+        "name": "oms.register",
+        "label": "Register",
+        "icon": "user-plus",
+        "params": { "id": "default" }
+      }
+    ]
+  },
+  {
+    "categoryName": "General",
+    "components": [
+      {
+        "name": "oms.dashboard",
+        "label": "Dashboard",
+        "auth": "logged-in",
+        "icon": "tachometer-alt"
+      },
+      {
+        "name": "oms.calendar",
+        "label": "Events calendar",
+        "icon": "calendar"
+      }
+    ]
+  },
+  {
+    "categoryName": "My Development",
+    "auth": "logged-in",
+    "components": [
+      {
+        "name": "oms.opencalls",
+        "link": "https://forms.gle/Bf5YHtozNig5hQ8n9",
+        "label": "Open Calls",
+        "icon": "globe-europe"
+      }
+    ]
+  },
+  {
+    "categoryName": "Core",
+    "components": [
+      {
+        "name": "oms.members.list",
+        "label": "Members",
+        "icon": "user",
+        "permissions": ["global:view:member"],
+        "auth": "logged-in"
+      },
+      {
+        "name": "oms.bodies.list",
+        "label": "Bodies",
+        "icon": "flag"
+      },
+      {
+        "name": "oms.permissions.list",
+        "label": "Permissions",
+        "icon": "key",
+        "permissions": ["global:update:permission", "global:create:permission"],
+        "auth": "logged-in"
+      },
+      {
+        "name": "oms.circles.list",
+        "label": "Circles",
+        "icon": "circle",
+        "permissions": ["global:view:circle"],
+        "auth": "logged-in"
+      },
+      {
+        "name": "oms.campaigns.list",
+        "label": "Campaigns",
+        "icon": "sign-in-alt",
+        "permissions": ["global:view:campaign"],
+        "auth": "logged-in"
+      }
+    ]
+  },
+  {
+    "categoryName": "Events",
+    "components": [
+      {
+        "label": "Events admin",
+        "icon": "wrench",
+        "auth": "logged-in",
+        "children": [
+          {
+            "name": "oms.events.change_status",
+            "label": "Change event status",
+            "permissions": [
+              "global:approve_event:nwm",
+              "global:approve_event:training",
+              "global:approve_event:conference",
+              "global:approve_event:cultural"
+            ]
+          },
+          {
+            "name": "oms.events.boardview",
+            "label": "Board view",
+            "permissions": ["global:see_boardview:events"]
+          }
+        ]
+      },
+      {
+        "label": "Events listing",
+        "icon": "calendar",
+        "children": [
+          {
+            "name": "oms.events.list.all",
+            "label": "All events"
+          },
+          {
+            "name": "oms.events.list.participating",
+            "auth": "logged-in",
+            "label": "Participating"
+          },
+          {
+            "name": "oms.events.list.organizing",
+            "auth": "logged-in",
+            "label": "Organising"
+          },
+          {
+            "name": "oms.events.create",
+            "auth": "logged-in",
+            "permissions": ["global:create:event"],
+            "label": "Create event"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "categoryName": "Summer University",
+    "components": [
+      {
+        "label": "Events admin",
+        "icon": "wrench",
+        "auth": "logged-in",
+        "children": [
+          {
+            "name": "oms.summeruniversity.change_status",
+            "label": "Change SU status",
+            "icon": "check",
+            "permissions": [
+              "global:approve_summeruniversity:regular",
+              "global:approve_summeruniversity:pilot"
+            ]
+          },
+          {
+            "name": "oms.summeruniversity.boardview",
+            "label": "Board view",
+            "permissions": ["global:see_boardview:summeruniversity"]
+          }
+        ]
+      },
+      {
+        "label": "SU listing",
+        "icon": "calendar",
+        "children": [
+          {
+            "name": "oms.summeruniversity.list.all",
+            "label": "All Summer Universities"
+          },
+          {
+            "name": "oms.summeruniversity.list.participating",
+            "auth": "logged-in",
+            "label": "Participating"
+          },
+          {
+            "name": "oms.summeruniversity.list.organizing",
+            "auth": "logged-in",
+            "label": "Organising"
+          },
+          {
+            "name": "oms.summeruniversity.create",
+            "label": "Create SU",
+            "permissions": ["global:create:summeruniversity"]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "categoryName": "Statutory events",
+    "auth": "logged-in",
+    "components": [
+      {
+        "label": "Statutory listing",
+        "icon": "calendar",
+        "children": [
+          {
+            "name": "oms.statutory.list.all",
+            "label": "All statutory events"
+          },
+          {
+            "name": "oms.statutory.create",
+            "label": "Create event",
+            "permissions": [
+              "global:manage_event:agora",
+              "global:manage_event:epm",
+              "global:manage_event:spm"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "oms.statutory.limits",
+        "icon": "users",
+        "label": "Participants types amount",
+        "permissions": [
+          "global:manage_event:agora",
+          "global:manage_event:epm",
+          "global:manage_event:spm"
+        ]
+      },
+      {
+        "name": "oms.statutory.tasks",
+        "icon": "tasks",
+        "label": "Background tasks",
+        "permissions": ["global:see_background_tasks:statutory"]
+      }
+    ]
+  },
+  {
+    "categoryName": "Network",
+    "auth": "logged-in",
+    "components": [
+      {
+        "name": "oms.network.boards.list",
+        "icon": "users",
+        "label": "Boards listing",
+        "permissions": ["global:manage_network:boards"]
+      },
+      {
+        "name": "oms.network.ac_check",
+        "icon": "users",
+        "label": "AC check",
+        "permissions": ["global:manage_network:antenna_criteria"]
+      }
+    ]
+  },
+  {
+    "categoryName": "Resources",
+    "auth": "logged-in",
+    "components": [
+      {
+        "name": "oms.discounts",
+        "label": "Discounts",
+        "icon": "percent"
+      },
+      {
+        "name": "oms.resources",
+        "label": "Resources",
+        "icon": "external-link-alt"
+      },
+      {
+        "name": "oms.confluence",
+        "label": "KMS",
+        "icon": "book-reader",
+        "params": { "page_id": "kms" }
+      },
+      {
+        "name": "oms.helpdesk",
+        "link": "https://myaegee.atlassian.net/servicedesk/customer/portals",
+        "label": "Helpdesk",
+        "icon": "question"
+      },
+      {
+        "name": "oms.ideas.platform",
+        "link": "https://aegee.kollaboratio.eu",
+        "label": "Ideas Platform",
+        "icon": "microphone"
+      }
+    ]
+  },
+  {
+    "categoryName": "For admins",
+    "auth": "logged-in",
+    "components": [
+      {
+        "name": "oms.status",
+        "label": "Status",
+        "icon": "check",
+        "permissions": ["global:access:admin"]
+      },
+      {
+        "name": "oms.members.list.unconfirmed",
+        "label": "Unconfirmed users",
+        "icon": "user",
+        "permissions": ["global:view_unconfirmed:member"]
+      }
+    ]
+  }
+]

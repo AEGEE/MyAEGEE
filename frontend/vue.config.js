@@ -1,0 +1,75 @@
+const path = require('path');
+
+module.exports = {
+  lintOnSave: true,
+  configureWebpack: {
+    resolve: {
+      alias: {
+        // https://github.com/vuejs/vue/wiki/Vue-2.0-RC-Starter-Resources
+        // vue: 'vue/dist/vue',
+        package: path.resolve(__dirname, 'package.json'),
+        src: path.resolve(__dirname, 'src'),
+        assets: path.resolve(__dirname, 'src/assets'),
+        components: path.resolve(__dirname, 'src/components'),
+        views: path.resolve(__dirname, 'src/views'),
+        // vue-addon
+        'vuex-store': path.resolve(__dirname, 'src/store'),
+      },
+    },
+    // https://stackoverflow.com/a/55372086/1206421
+    optimization: {
+      splitChunks: {
+        cacheGroups: {
+          app: {
+            chunks: 'all',
+            name: 'all',
+            test: /[\\/]src[\\/](.*)[\\/]/,
+          },
+          vendor: {
+            chunks: 'all',
+            name: 'vendor',
+            test: /[\\/]node_modules[\\/](.*)[\\/]/,
+          },
+          styles: {
+            name: 'styles',
+            test: /\.s?css$/,
+            chunks: 'all',
+            minChunks: 1,
+            reuseExistingChunk: true,
+            enforce: true,
+          },
+        },
+      },
+    },
+    // so it'd work with Webpack 4, which doesn't like [contenthash], which is there by default
+    output: {
+      filename: '[name].[hash].js',
+      chunkFilename: '[name].[hash].js',
+    },
+  },
+};
+
+if (process.env.NODE_ENV === 'production') {
+  const CompressionPlugin = require('compression-webpack-plugin');
+
+  module.exports.configureWebpack.plugins = [
+    new CompressionPlugin({
+      algorithm: require('@gfx/zopfli').gzip,
+      compressionOptions: {
+        numiterations: 15,
+      },
+      minRatio: 0.99,
+      test: /\.(js|css|json|html|ico|svg)(\?.*)?$/i,
+    }),
+  ];
+
+    module.exports.configureWebpack.plugins.push(
+      new CompressionPlugin({
+        filename: '[path].br[query]',
+        algorithm: 'brotliCompress',
+        compressionOptions: { level: 11 }, // matches BROTLI_MAX_QUALITY
+        minRatio: 0.99,
+        test: /\.(js|css|json|html|ico|svg)(\?.*)?$/i,
+      })
+    );
+}
