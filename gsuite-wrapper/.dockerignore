@@ -1,0 +1,16 @@
+docker/
+node_modules/
+.git/
+
+/coverage/
+.nyc_output/
+
+.dockerignore
+.gitignore
+contributors.txt
+.travis.yml
+LICENCE.md
+README.md
+swagger.yml
+note-APIscope
+#Dockerfile #why not, at least one can know how badly one thing was packaged (if at all)
