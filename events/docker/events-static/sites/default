@@ -1,0 +1,22 @@
+server {
+    listen 80;
+    server_name oms-frontend;
+    root "/usr/app/media";
+
+    charset utf-8;
+
+    location /healthcheck {
+        alias /usr/app/status.json;
+        add_header "Content-Type" "application/json";
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    access_log /dev/stdout;
+    error_log stderr;
+
+    sendfile off;
+
+    client_max_body_size 100m;
+}

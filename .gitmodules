@@ -1,6 +1,3 @@
-[submodule "events"]
-	path = events
-	url = https://github.com/AEGEE/events
 [submodule "summeruniversity"]
 	path = summeruniversity
 	url = https://github.com/AEGEE/summeruniversity

@@ -1,0 +1,355 @@
+{
+    "success": true,
+    "data": [{
+        "scope": "global",
+        "object": "epm",
+        "id": 62,
+        "filters": [],
+        "description": "Set paid, cancelled or attended status for EPM statutory events. Would be useful for incoming organizers.",
+        "combined": "global:manage_applications:epm",
+        "circles": null,
+        "action": "manage_applications"
+    }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 55,
+        "filters": [],
+        "description": "Create, edit and delete Agora statutory events.",
+        "combined": "global:manage_event:agora",
+        "circles": null,
+        "action": "manage_event"
+    }, {
+        "scope": "global",
+        "object": "epm",
+        "id": 58,
+        "filters": [],
+        "description": "See all applications for EPM statutory events.",
+        "combined": "global:see_applications:epm",
+        "circles": null,
+        "action": "see_applications"
+    }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 59,
+        "filters": [],
+        "description": "Accept or reject applications for Agora statutory events. Would be useful for Chair Team.",
+        "combined": "global:accept_applications:agora",
+        "circles": null,
+        "action": "accept_applications"
+    }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 57,
+        "filters": [],
+        "description": "See all applications for Agora statutory events.",
+        "combined": "global:see_applications:agora",
+        "circles": null,
+        "action": "see_applications"
+    }, {
+        "scope": "global",
+        "object": "epm",
+        "id": 60,
+        "filters": [],
+        "description": "Accept or reject applications for EPM statutory events. Would be useful for CD.",
+        "combined": "global:accept_applications:epm",
+        "circles": null,
+        "action": "accept_applications"
+    }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 61,
+        "filters": [],
+        "description": "Set paid, cancelled or attended status for Agora statutory events. Would be useful for incoming organizers.",
+        "combined": "global:manage_applications:agora",
+        "circles": null,
+        "action": "manage_applications"
+    }, {
+        "scope": "global",
+        "object": "epm",
+        "id": 56,
+        "filters": [],
+        "description": "Create, edit and delete EPM statutory events.",
+        "combined": "global:manage_event:epm",
+        "circles": null,
+        "action": "manage_event"
+    }, {
+      "scope": "global",
+      "object": "agora",
+      "id": 65,
+      "filters": [],
+      "description": "Approve every board.",
+      "combined": "global:approve_members:agora",
+      "circles": null,
+      "action": "approve_members"
+    }, {
+      "scope": "global",
+      "object": "epm",
+      "id": 66,
+      "filters": [],
+      "description": "Approve every board.",
+      "combined": "global:approve_members:epm",
+      "circles": null,
+      "action": "approve_members"
+    }, {
+      "scope": "global",
+      "object": "agora",
+      "id": 6,
+      "filters": [],
+      "description": "See memberslists.",
+      "combined": "global:see_memberslists:agora",
+      "circles": null,
+      "action": "see_memberslists"
+    }, {
+      "scope": "global",
+      "object": "epm",
+      "id": 68,
+      "filters": [],
+      "description": "See memberslists.",
+      "combined": "global:see_memberslists:epm",
+      "circles": null,
+      "action": "see_memberslists"
+    }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 69,
+        "filters": [],
+        "description": "Use massmailer.",
+        "combined": "global:use_massmailer:agora",
+        "circles": null,
+        "action": "use_massmailer"
+      }, {
+        "scope": "global",
+        "object": "epm",
+        "id": 70,
+        "filters": [],
+        "description": "Use massmailer.",
+        "combined": "global:use_massmailer:epm",
+        "circles": null,
+        "action": "use_massmailer"
+      }, {
+        "scope": "global",
+        "object": "agora",
+        "id": 71,
+        "filters": [],
+        "description": "Manage candidates",
+        "combined": "global:manage_candidates:agora",
+        "circles": null,
+        "action": "manage_candidates"
+      }, {
+        "scope": "global",
+        "object": "nwm",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:nwm",
+        "circles": null,
+        "action": "manage_event"
+      },  {
+        "scope": "global",
+        "object": "rtc",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:rtc",
+        "circles": null,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "wu",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:wu",
+        "circles": null,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "local",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:local",
+        "circles": null,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "ees",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:es",
+        "circles": null,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "other",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:other",
+        "circles": null,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "nwm",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:nwm",
+        "circles": null,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "nwm",
+        "id": 71,
+        "filters": [],
+        "description": "Change European Event status",
+        "combined": "global:change_european_event_status:nwm",
+        "circles": null,
+        "action": "change_european_event_status"
+      }, {
+        "scope": "global",
+        "object": "rtc",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:rtc",
+        "circles": null,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "wu",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:wu",
+        "circles": null,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "local",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:local",
+        "circles": null,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "ees",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:es",
+        "circles": null,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "other",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:other",
+        "circles": null,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "european",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:european",
+        "circles": null,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "european",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:european",
+        "circles": null,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "training",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:training",
+        "circles": null,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "training",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:training",
+        "circles": null,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "training",
+        "id": 71,
+        "filters": [],
+        "description": "Change European Event status",
+        "combined": "global:change_european_event_status:training",
+        "circles": null,
+        "action": "change_european_event_status"
+      }, {
+        "scope": "global",
+        "object": "conference",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:conference",
+        "circles": null,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "conference",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:conference",
+        "circles": null,
+        "action": "manage_event"
+      },{
+        "scope": "global",
+        "object": "conference",
+        "id": 71,
+        "filters": [],
+        "description": "Change European Event status",
+        "combined": "global:change_european_event_status:conference",
+        "circles": null,
+        "action": "change_european_event_status"
+      }, {
+        "scope": "global",
+        "object": "cultural",
+        "id": 71,
+        "filters": [],
+        "description": "Approve event",
+        "combined": "global:approve_event:cultural",
+        "circles": null,
+        "action": "approve_event"
+      }, {
+        "scope": "global",
+        "object": "cultural",
+        "id": 71,
+        "filters": [],
+        "description": "Manage event",
+        "combined": "global:manage_event:cultural",
+        "circles": null,
+        "action": "manage_event"
+      }, {
+        "scope": "global",
+        "object": "cultural",
+        "id": 71,
+        "filters": [],
+        "description": "Change European Event status",
+        "combined": "global:change_european_event_status:cultural",
+        "circles": null,
+        "action": "change_european_event_status"
+}]
+}
