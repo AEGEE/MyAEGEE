@@ -2089,9 +2089,7 @@ workflows:
       - core-docker-build-and-push:
           filters:
             branches:
-              only:
-                - stable
-                - fix/semantic-release-monorepo-module-not-found
+              only: stable
   core-audit:
     triggers:
       - schedule:
@@ -2118,9 +2116,7 @@ workflows:
       - discounts-docker-build-and-push:
           filters:
             branches:
-              only:
-                - stable
-                - fix/semantic-release-monorepo-module-not-found
+              only: stable
   discounts-audit:
     triggers:
       - schedule:
@@ -2148,9 +2144,7 @@ workflows:
       - events-docker-build-and-push:
           filters:
             branches:
-              only:
-                - stable
-                - fix/semantic-release-monorepo-module-not-found
+              only: stable
   events-audit:
     triggers:
       - schedule:
@@ -2174,9 +2168,7 @@ workflows:
       - frontend-docker-build-and-push:
           filters:
             branches:
-              only:
-                - stable
-                - fix/semantic-release-monorepo-module-not-found
+              only: stable
   frontend-audit:
     triggers:
       - schedule:
@@ -2203,9 +2195,7 @@ workflows:
       - knowledge-docker-build-and-push:
           filters:
             branches:
-              only:
-                - stable
-                - fix/semantic-release-monorepo-module-not-found
+              only: stable
   knowledge-audit:
     triggers:
       - schedule:
@@ -2232,9 +2222,7 @@ workflows:
       - network-docker-build-and-push:
           filters:
             branches:
-              only:
-                - stable
-                - fix/semantic-release-monorepo-module-not-found
+              only: stable
   network-audit:
     triggers:
       - schedule:
@@ -2261,9 +2249,7 @@ workflows:
       - statutory-docker-build-and-push:
           filters:
             branches:
-              only:
-                - stable
-                - fix/semantic-release-monorepo-module-not-found
+              only: stable
   statutory-audit:
     triggers:
       - schedule:
@@ -2290,9 +2276,7 @@ workflows:
       - gsuite-wrapper-docker-build-and-push:
           filters:
             branches:
-              only:
-                - stable
-                - fix/semantic-release-monorepo-module-not-found
+              only: stable
   gsuite-wrapper-audit:
     triggers:
       - schedule:
@@ -2316,9 +2300,7 @@ workflows:
       - mailer-docker-build-and-push:
           filters:
             branches:
-              only:
-                - stable
-                - fix/semantic-release-monorepo-module-not-found
+              only: stable
   summeruniversity-linters:
     jobs:
       - summeruniversity-eslint
@@ -2334,9 +2316,7 @@ workflows:
       - summeruniversity-docker-build-and-push:
           filters:
             branches:
-              only:
-                - stable
-                - fix/semantic-release-monorepo-module-not-found
+              only: stable
   summeruniversity-audit:
     triggers:
       - schedule:
