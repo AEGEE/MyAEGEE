@@ -14,8 +14,7 @@
     "build": "export NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
     "build-and-refresh": "npm run build && npm run refresh",
     "lint": "eslint --ext .js,.vue .",
-    "refresh": "chmod 775 -R dist && docker restart myaegee_frontend_1",
-    "prepare": "husky install"
+    "refresh": "chmod 775 -R dist && docker restart myaegee_frontend_1"
   },
   "dependencies": {
     "@babel/core": "^7.26.0",
@@ -72,11 +71,8 @@
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^18.4.4",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
     "commitlint": "^18.4.4",
     "conventional-changelog": "^5.1.0",
-    "husky": "^8.0.3",
-    "semantic-release": "^24.2.7"
+    "husky": "^8.0.3"
   }
 }

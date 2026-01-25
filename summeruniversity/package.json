@@ -13,8 +13,7 @@
     "lint:fix": "eslint --fix .",
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
-    "db:migrate": "sequelize db:migrate",
-    "prepare": "husky"
+    "db:migrate": "sequelize db:migrate"
   },
   "lint-staged": {
     "*.{js,jsx}": "eslint"
@@ -70,8 +69,6 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
     "eslint": "^8.56.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.32.0",
@@ -81,7 +78,6 @@
     "lint-staged": "^16.2.4",
     "nock": "^14.0.10",
     "rimraf": "^6.0.1",
-    "semantic-release": "^24.2.7",
     "timekeeper": "^2.3.1"
   }
 }
