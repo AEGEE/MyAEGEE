@@ -12,8 +12,7 @@
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
     "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
-    "test:ci": "NODE_ENV=test npm run db:setup && jest --runInBand --forceExit",
-    "prepare": "husky"
+    "test:ci": "NODE_ENV=test npm run db:setup && jest --runInBand --forceExit"
   },
   "keywords": [],
   "author": "Sergey Peshkov <github.com/serge1peshcoff>",
@@ -45,8 +44,6 @@
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@faker-js/faker": "^9.9.0",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
     "eslint": "^8.56.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.32.0",
@@ -55,8 +52,7 @@
     "jest-junit": "^16.0.0",
     "lint-staged": "^16.2.4",
     "nock": "^14.0.10",
-    "rimraf": "^6.0.1",
-    "semantic-release": "^24.2.7"
+    "rimraf": "^6.0.1"
   },
   "dependencies": {
     "@bugsnag/js": "^8.4.0",

@@ -16,8 +16,7 @@
     "db:migrate": "sequelize db:migrate",
     "db:seed": "LOGLEVEL=info node --experimental-repl-await scripts/seed.js && touch state/.seed-executed-$NODE_ENV",
     "db:clear": "LOGLEVEL=info node  --experimental-repl-await scripts/clear.js; rm -f state/.seed-executed-$NODE_ENV",
-    "db:recreate": "npm run db:setup && npm run db:seed",
-    "prepare": "husky"
+    "db:recreate": "npm run db:setup && npm run db:seed"
   },
   "lint-staged": {
     "*.{js,jsx}": "eslint"
@@ -72,8 +71,6 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
     "eslint": "^8.56.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.32.0",
@@ -83,7 +80,6 @@
     "lint-staged": "^16.2.4",
     "nock": "^14.0.10",
     "rimraf": "^6.0.1",
-    "semantic-release": "^24.2.7",
     "timekeeper": "^2.3.1"
   }
 }
