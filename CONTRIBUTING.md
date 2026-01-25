@@ -65,13 +65,19 @@ git commit -m "fix(core): something"
 
 ### Automated Releases
 
-This monorepo uses **independent versioning** - each module releases independently when it has changes.
+This monorepo uses **independent versioning** with `semantic-release-monorepo` - each module releases independently when it has changes.
 
+**How it works:**
+- The `semantic-release-monorepo` plugin filters commits to only analyze changes affecting each specific module
+- Only commits that touch a module's directory or have the module's scope trigger a release
+- This prevents unnecessary releases when unrelated modules change
+
+**Workflow:**
 1. Create feature branch from `stable`
 2. Make changes with properly scoped commits
 3. Push and create Pull Request
 4. After PR approval and merge, CI automatically:
-   - Determines affected modules based on commit scopes
+   - Determines affected modules based on commit paths and scopes
    - Runs semantic-release for each affected module
    - Creates version tags (e.g., `core@1.40.2`)
    - Updates CHANGELOGs

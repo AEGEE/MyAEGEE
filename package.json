@@ -24,15 +24,16 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
-    "semantic-release": "^24.2.7",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "latest",
-    "@semantic-release/release-notes-generator": "latest",
-    "@semantic-release/npm": "latest",
-    "@semantic-release/github": "latest",
-    "@semantic-release/git": "^10.0.1",
     "@semantic-release/exec": "^6.0.3",
-    "husky": "^9.1.7"
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "latest",
+    "@semantic-release/npm": "latest",
+    "@semantic-release/release-notes-generator": "latest",
+    "husky": "^9.1.7",
+    "semantic-release": "^24.2.7",
+    "semantic-release-monorepo": "^8.0.2"
   },
   "engines": {
     "node": ">=18.0.0",
