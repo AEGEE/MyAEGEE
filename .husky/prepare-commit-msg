@@ -1,6 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 # Add helpful comment to commit message template
 if [ -z "$2" ]; then
   echo "# Commit format: <type>(<scope>): <subject>" >> $1
