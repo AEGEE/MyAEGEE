@@ -1,6 +1,6 @@
 {
   "branches": ["stable"],
-  "tagFormat": "knowledge@${version}",
+  "tagFormat": "events@${version}",
   "repositoryUrl": "https://github.com/AEGEE/MyAEGEE",
   "plugins": [
     [
@@ -32,7 +32,7 @@
       "@semantic-release/changelog",
       {
         "changelogFile": "CHANGELOG.md",
-        "changelogTitle": "# knowledge Module Changelog"
+        "changelogTitle": "# events Module Changelog"
       }
     ],
     [
@@ -46,7 +46,7 @@
       {
         "successComment": false,
         "failComment": false,
-        "releasedLabels": ["released-knowledge"],
+        "releasedLabels": ["released-events"],
         "addReleases": "bottom"
       }
     ],
@@ -54,7 +54,7 @@
       "@semantic-release/git",
       {
         "assets": ["package.json", "package-lock.json", "CHANGELOG.md"],
-        "message": "chore(release): knowledge@\${nextRelease.version} [skip ci]\n\n\${nextRelease.notes}"
+        "message": "chore(release): events@${nextRelease.version} [skip ci]\\n\\n${nextRelease.notes}"
       }
     ]
   ]

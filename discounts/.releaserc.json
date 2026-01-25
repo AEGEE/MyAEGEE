@@ -1,6 +1,6 @@
 {
   "branches": ["stable"],
-  "tagFormat": "summeruniversity@${version}",
+  "tagFormat": "discounts@${version}",
   "repositoryUrl": "https://github.com/AEGEE/MyAEGEE",
   "plugins": [
     [
@@ -32,7 +32,7 @@
       "@semantic-release/changelog",
       {
         "changelogFile": "CHANGELOG.md",
-        "changelogTitle": "# summeruniversity Module Changelog"
+        "changelogTitle": "# discounts Module Changelog"
       }
     ],
     [
@@ -46,7 +46,7 @@
       {
         "successComment": false,
         "failComment": false,
-        "releasedLabels": ["released-summeruniversity"],
+        "releasedLabels": ["released-discounts"],
         "addReleases": "bottom"
       }
     ],
@@ -54,7 +54,7 @@
       "@semantic-release/git",
       {
         "assets": ["package.json", "package-lock.json", "CHANGELOG.md"],
-        "message": "chore(release): summeruniversity@\${nextRelease.version} [skip ci]\n\n\${nextRelease.notes}"
+        "message": "chore(release): discounts@${nextRelease.version} [skip ci]\\n\\n${nextRelease.notes}"
       }
     ]
   ]

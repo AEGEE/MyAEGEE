@@ -1,6 +1,6 @@
 {
   "branches": ["stable"],
-  "tagFormat": "mailer@${version}",
+  "tagFormat": "core@${version}",
   "repositoryUrl": "https://github.com/AEGEE/MyAEGEE",
   "plugins": [
     [
@@ -32,7 +32,7 @@
       "@semantic-release/changelog",
       {
         "changelogFile": "CHANGELOG.md",
-        "changelogTitle": "# mailer Module Changelog"
+        "changelogTitle": "# core Module Changelog"
       }
     ],
     [
@@ -46,7 +46,7 @@
       {
         "successComment": false,
         "failComment": false,
-        "releasedLabels": ["released-mailer"],
+        "releasedLabels": ["released-core"],
         "addReleases": "bottom"
       }
     ],
@@ -54,7 +54,7 @@
       "@semantic-release/git",
       {
         "assets": ["package.json", "package-lock.json", "CHANGELOG.md"],
-        "message": "chore(release): mailer@\${nextRelease.version} [skip ci]\n\n\${nextRelease.notes}"
+        "message": "chore(release): core@${nextRelease.version} [skip ci]\\n\\n${nextRelease.notes}"
       }
     ]
   ]
