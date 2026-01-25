@@ -1,5 +1,9 @@
 # discounts Module Changelog
 
+## discounts-v1.3.1 (2026-01-25)
+
+* fix(monorepo): resolve semantic-release module not found error (#1498) ([9a743d8](https://github.com/AEGEE/MyAEGEE/commit/9a743d8)), closes [#1498](https://github.com/AEGEE/MyAEGEE/issues/1498)
+
 ## discounts-v1.3.0 (2026-01-25)
 
 * fix(monorepo): add semantic-release-monorepo plugin for proper commit filtering (#1497) ([ada3bd6](https://github.com/AEGEE/MyAEGEE/commit/ada3bd6)), closes [#1497](https://github.com/AEGEE/MyAEGEE/issues/1497)
