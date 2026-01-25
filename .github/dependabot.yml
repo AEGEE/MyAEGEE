@@ -179,6 +179,32 @@ updates:
     reviewers:
       - "WikiRik"
 
+  # Mailer module
+  - package-ecosystem: "npm"
+    directory: "/mailer"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    open-pull-requests-limit: 99
+    reviewers:
+      - "WikiRik"
+  - package-ecosystem: "docker"
+    directory: "/mailer/docker/mailer"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    open-pull-requests-limit: 99
+    reviewers:
+      - "WikiRik"
+  - package-ecosystem: "docker"
+    directory: "/mailer/docker/mail_transfer_agent"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    open-pull-requests-limit: 99
+    reviewers:
+      - "WikiRik"
+
   # Network module
   - package-ecosystem: "npm"
     directory: "/network"
