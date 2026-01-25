@@ -714,7 +714,7 @@ jobs:
       - run:
           name: Install frontend dependencies (skip husky)
           working_directory: ~/project/frontend
-          command: npm ci --ignore-scripts
+          command: npm ci --legacy-peer-deps --ignore-scripts
       - run: mkdir -p ~/reports
       - run:
           name: Run frontend eslint
@@ -788,7 +788,7 @@ jobs:
       - run:
           name: Install frontend dependencies (skip husky)
           working_directory: ~/project/frontend
-          command: npm ci --ignore-scripts
+          command: npm ci --legacy-peer-deps --ignore-scripts
       - run:
           name: Run semantic-release for frontend
           working_directory: ~/project/frontend
@@ -892,7 +892,7 @@ jobs:
       - run:
           name: Install gsuite-wrapper dependencies (skip husky)
           working_directory: ~/project/gsuite-wrapper
-          command: npm ci --ignore-scripts
+          command: npm ci --legacy-peer-deps --ignore-scripts
       - run:
           name: Setup gsuite-wrapper config files
           working_directory: ~/project/gsuite-wrapper
@@ -922,7 +922,7 @@ jobs:
       - run:
           name: Install gsuite-wrapper dependencies (skip husky)
           working_directory: ~/project/gsuite-wrapper
-          command: npm ci --ignore-scripts
+          command: npm ci --legacy-peer-deps --ignore-scripts
       - run: mkdir -p ~/reports
       - run:
           name: Run gsuite-wrapper eslint
@@ -996,7 +996,7 @@ jobs:
       - run:
           name: Install gsuite-wrapper dependencies (skip husky)
           working_directory: ~/project/gsuite-wrapper
-          command: npm ci --ignore-scripts
+          command: npm ci --legacy-peer-deps --ignore-scripts
       - run:
           name: Run semantic-release for gsuite-wrapper
           working_directory: ~/project/gsuite-wrapper
