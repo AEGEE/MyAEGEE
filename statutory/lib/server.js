@@ -41,7 +41,6 @@ const QuestionLinesRouter = router({ mergeParams: true });
 const QuestionsRouter = router({ mergeParams: true });
 
 const server = express();
-server.set('query parser', 'extended');
 server.use(bodyParser.json());
 server.use(boolParser());
 server.use(morgan);
