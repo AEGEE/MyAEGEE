@@ -40,7 +40,7 @@ jobs:
             shellcheck --exclude=SC2002,SC2086,SC2126,SC2154 $(find . -name '*.sh' -not -path '*/node_modules/*' -not -path './mailer/*' -type f)
   core-test:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
       - image: cimg/postgres:17.6
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
@@ -51,6 +51,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/core
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run core tests
@@ -65,7 +66,7 @@ jobs:
           path: ~/reports
   core-db-recreate:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
       - image: cimg/postgres:17.6
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
@@ -75,6 +76,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/core
+          override-ci-command: npm ci --legacy-peer-deps
       - run:
           name: Run core db:recreate
           working_directory: ~/project/core
@@ -90,13 +92,14 @@ jobs:
       - run: docker-compose -f core/docker/docker-compose.yml -f core/docker/docker-compose.dev.yml build --no-cache core
   core-eslint:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/core
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports
       - run:
           name: Run core eslint
@@ -108,7 +111,7 @@ jobs:
           path: ~/reports
   core-audit:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -158,7 +161,7 @@ jobs:
             }
   core-docker-build-and-push:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -262,7 +265,7 @@ jobs:
             }
   discounts-test:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
       - image: cimg/postgres:17.6
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
@@ -273,6 +276,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/discounts
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run discounts tests
@@ -296,13 +300,14 @@ jobs:
       - run: docker-compose -f discounts/docker/docker-compose.yml -f discounts/docker/docker-compose.dev.yml build --no-cache discounts
   discounts-eslint:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/discounts
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports
       - run:
           name: Run discounts eslint
@@ -314,7 +319,7 @@ jobs:
           path: ~/reports
   discounts-audit:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -364,7 +369,7 @@ jobs:
             }
   discounts-docker-build-and-push:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -468,7 +473,7 @@ jobs:
             }
   events-test:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
       - image: cimg/postgres:17.6
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
@@ -479,6 +484,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/events
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run events tests
@@ -493,7 +499,7 @@ jobs:
           path: ~/reports
   events-db-recreate:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
       - image: cimg/postgres:17.6
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
@@ -503,6 +509,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/events
+          override-ci-command: npm ci --legacy-peer-deps
       - run:
           name: Run events db:recreate
           working_directory: ~/project/events
@@ -518,13 +525,14 @@ jobs:
       - run: docker-compose -f events/docker/docker-compose.yml -f events/docker/docker-compose.dev.yml build --no-cache events
   events-eslint:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/events
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports
       - run:
           name: Run events eslint
@@ -536,7 +544,7 @@ jobs:
           path: ~/reports
   events-audit:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -586,7 +594,7 @@ jobs:
             }
   events-docker-build-and-push:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -699,14 +707,14 @@ jobs:
       - run: docker-compose -f frontend/docker/docker-compose.yml -f frontend/docker/docker-compose.dev.yml build --no-cache frontend
   frontend-eslint:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
       - run:
           name: Install frontend dependencies (skip husky)
           working_directory: ~/project/frontend
-          command: npm ci --ignore-scripts
+          command: npm ci --legacy-peer-deps --ignore-scripts
       - run: mkdir -p ~/reports
       - run:
           name: Run frontend eslint
@@ -718,7 +726,7 @@ jobs:
           path: ~/reports
   frontend-audit:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -768,7 +776,7 @@ jobs:
             }
   frontend-docker-build-and-push:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -780,7 +788,7 @@ jobs:
       - run:
           name: Install frontend dependencies (skip husky)
           working_directory: ~/project/frontend
-          command: npm ci --ignore-scripts
+          command: npm ci --legacy-peer-deps --ignore-scripts
       - run:
           name: Run semantic-release for frontend
           working_directory: ~/project/frontend
@@ -876,7 +884,7 @@ jobs:
             }
   gsuite-wrapper-test:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
       - image: cimg/redis:8.4.0
     resource_class: large
     steps:
@@ -884,7 +892,7 @@ jobs:
       - run:
           name: Install gsuite-wrapper dependencies (skip husky)
           working_directory: ~/project/gsuite-wrapper
-          command: npm ci --ignore-scripts
+          command: npm ci --legacy-peer-deps --ignore-scripts
       - run:
           name: Setup gsuite-wrapper config files
           working_directory: ~/project/gsuite-wrapper
@@ -907,14 +915,14 @@ jobs:
       - run: docker-compose -f gsuite-wrapper/docker/docker-compose.yml -f gsuite-wrapper/docker/docker-compose.dev.yml build --no-cache gsuite-wrapper
   gsuite-wrapper-eslint:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
       - run:
           name: Install gsuite-wrapper dependencies (skip husky)
           working_directory: ~/project/gsuite-wrapper
-          command: npm ci --ignore-scripts
+          command: npm ci --legacy-peer-deps --ignore-scripts
       - run: mkdir -p ~/reports
       - run:
           name: Run gsuite-wrapper eslint
@@ -926,7 +934,7 @@ jobs:
           path: ~/reports
   gsuite-wrapper-audit:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -976,7 +984,7 @@ jobs:
             }
   gsuite-wrapper-docker-build-and-push:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -988,7 +996,7 @@ jobs:
       - run:
           name: Install gsuite-wrapper dependencies (skip husky)
           working_directory: ~/project/gsuite-wrapper
-          command: npm ci --ignore-scripts
+          command: npm ci --legacy-peer-deps --ignore-scripts
       - run:
           name: Run semantic-release for gsuite-wrapper
           working_directory: ~/project/gsuite-wrapper
@@ -1084,7 +1092,7 @@ jobs:
             }
   knowledge-test:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
       - image: cimg/postgres:17.6
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
@@ -1095,6 +1103,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/knowledge
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run knowledge tests
@@ -1118,13 +1127,14 @@ jobs:
       - run: docker-compose -f knowledge/docker/docker-compose.yml -f knowledge/docker/docker-compose.dev.yml build --no-cache knowledge
   knowledge-eslint:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/knowledge
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports
       - run:
           name: Run knowledge eslint
@@ -1136,7 +1146,7 @@ jobs:
           path: ~/reports
   knowledge-audit:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -1186,7 +1196,7 @@ jobs:
             }
   knowledge-docker-build-and-push:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -1337,7 +1347,7 @@ jobs:
       - run: docker-compose -f mailer/docker/docker-compose.yml -f mailer/docker/docker-compose.dev.yml build --no-cache mailer
   mailer-docker-build-and-push:
     docker:
-      - image: cimg/node:20.19.6
+      - image: cimg/node:22.22.0
     environment:
       MIX_ENV: test
       SMTP_USER: mailer@aegee.eu
@@ -1451,7 +1461,7 @@ jobs:
             }
   network-test:
     docker:
-      - image: cimg/node:20.19.6
+      - image: cimg/node:22.22.0
       - image: cimg/postgres:16.10
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
@@ -1462,6 +1472,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/network
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run network tests
@@ -1485,13 +1496,14 @@ jobs:
       - run: docker-compose -f network/docker/docker-compose.yml -f network/docker/docker-compose.dev.yml build --no-cache network
   network-eslint:
     docker:
-      - image: cimg/node:20.19.6
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/network
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports
       - run:
           name: Run network eslint
@@ -1503,7 +1515,7 @@ jobs:
           path: ~/reports
   network-audit:
     docker:
-      - image: cimg/node:20.19.6
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -1553,7 +1565,7 @@ jobs:
             }
   network-docker-build-and-push:
     docker:
-      - image: cimg/node:20.19.6
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -1657,7 +1669,7 @@ jobs:
             }
   statutory-test:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
       - image: cimg/postgres:17.6
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
@@ -1668,6 +1680,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/statutory
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run statutory tests
@@ -1691,13 +1704,14 @@ jobs:
       - run: docker-compose -f statutory/docker/docker-compose.yml -f statutory/docker/docker-compose.dev.yml build --no-cache statutory
   statutory-eslint:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/statutory
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports
       - run:
           name: Run statutory eslint
@@ -1709,7 +1723,7 @@ jobs:
           path: ~/reports
   statutory-audit:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -1759,7 +1773,7 @@ jobs:
             }
   statutory-docker-build-and-push:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -1863,7 +1877,7 @@ jobs:
             }
   summeruniversity-db-recreate:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
       - image: cimg/postgres:17.6
         environment:
           POSTGRES_PASSWORD: config.test.postgres.password
@@ -1873,6 +1887,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/summeruniversity
+          override-ci-command: npm ci --legacy-peer-deps
       - run:
           name: Run summeruniversity db:recreate
           working_directory: ~/project/summeruniversity
@@ -1888,13 +1903,14 @@ jobs:
       - run: docker-compose -f summeruniversity/docker/docker-compose.yml -f summeruniversity/docker/docker-compose.dev.yml build --no-cache summeruniversity
   summeruniversity-eslint:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/summeruniversity
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports
       - run:
           name: Run summeruniversity eslint
@@ -1906,7 +1922,7 @@ jobs:
           path: ~/reports
   summeruniversity-audit:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout
@@ -1956,7 +1972,7 @@ jobs:
             }
   summeruniversity-docker-build-and-push:
     docker:
-      - image: cimg/node:22.20.0
+      - image: cimg/node:22.22.0
     resource_class: large
     steps:
       - checkout

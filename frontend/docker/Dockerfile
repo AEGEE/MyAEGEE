@@ -1,11 +1,11 @@
 # FIXME use alpine
-FROM node:18.18.0 AS builder
+FROM node:22.22.0 AS builder
 
 COPY . /usr/app/src
 WORKDIR /usr/app/src
 
 RUN npm pkg delete scripts.prepare \
- && npm ci --omit=dev \
+ && npm ci --legacy-peer-deps --omit=dev \
  && npm run build
 
 FROM nginx:1.27.3-alpine

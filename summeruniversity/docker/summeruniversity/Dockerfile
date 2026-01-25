@@ -1,5 +1,5 @@
 # FIXME use alpine
-FROM node:22.18.0
+FROM node:22.22.0
 
 RUN mkdir -p /usr/app/src \
 	&& mkdir -p /usr/app/media/headimages \
@@ -21,7 +21,7 @@ ENV PATH="/home/node/.npm-global/bin:${PATH}"
 RUN npm install -g nodemon@3.1.4 \
  && npm install -g bunyan@1.8.15 \
  && npm cache clean --force \
- && npm ci
+ && npm ci --legacy-peer-deps
 
 CMD ["sh", "-c", "sh /usr/app/scripts/bootstrap.sh && nodemon -e js,json lib/run.js"]
 
