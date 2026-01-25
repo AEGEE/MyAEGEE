@@ -12,7 +12,8 @@
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
     "test": "NODE_ENV=test npm run db:setup && jest test/**/*.test.js --runInBand --forceExit",
-    "test:ci": "NODE_ENV=test npm run db:setup && jest --runInBand --forceExit"
+    "test:ci": "NODE_ENV=test npm run db:setup && jest --runInBand --forceExit",
+    "semantic-release": "semantic-release"
   },
   "keywords": [],
   "author": "Rik Smale <github.com/WikiRik>",

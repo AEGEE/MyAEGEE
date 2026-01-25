@@ -14,7 +14,8 @@
     "build": "export NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
     "build-and-refresh": "npm run build && npm run refresh",
     "lint": "eslint --ext .js,.vue .",
-    "refresh": "chmod 775 -R dist && docker restart myaegee_frontend_1"
+    "refresh": "chmod 775 -R dist && docker restart myaegee_frontend_1",
+    "semantic-release": "semantic-release"
   },
   "dependencies": {
     "@babel/core": "^7.26.0",
