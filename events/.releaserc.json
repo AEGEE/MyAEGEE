@@ -1,4 +1,5 @@
 {
+  "extends": "semantic-release-monorepo",
   "branches": ["stable"],
   "tagFormat": "events@${version}",
   "repositoryUrl": "https://github.com/AEGEE/MyAEGEE",
