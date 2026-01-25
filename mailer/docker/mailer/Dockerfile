@@ -4,7 +4,7 @@ RUN mkdir -p /usr/src/myapp \
 	&& mkdir -p /usr/src/scripts \
 	&& mix local.hex --force \
   	&& mix local.rebar --force \
-	&& apk add --update --no-cache nodejs make gcc g++ curl
+	&& apk add --update --no-cache nodejs make gcc g++ curl cmake zlib-dev perl bsd-compat-headers
 
 WORKDIR /usr/src/myapp
 
