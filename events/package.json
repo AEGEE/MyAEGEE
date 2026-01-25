@@ -17,7 +17,7 @@
     "db:seed": "LOGLEVEL=info node --experimental-repl-await scripts/seed.js && touch state/.seed-executed-$NODE_ENV",
     "db:clear": "LOGLEVEL=info node  --experimental-repl-await scripts/clear.js; rm -f state/.seed-executed-$NODE_ENV",
     "db:recreate": "npm run db:setup && npm run db:seed",
-    "semantic-release": "../node_modules/.bin/semantic-release"
+    "semantic-release": "semantic-release"
   },
   "lint-staged": {
     "*.{js,jsx}": "eslint"
@@ -72,6 +72,13 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^12.0.2",
+    "@semantic-release/npm": "^13.1.3",
+    "@semantic-release/release-notes-generator": "^14.1.0",
     "eslint": "^8.56.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.32.0",
@@ -81,6 +88,8 @@
     "lint-staged": "^16.2.4",
     "nock": "^14.0.10",
     "rimraf": "^6.0.1",
+    "semantic-release": "^24.2.9",
+    "semantic-release-monorepo": "^8.0.2",
     "timekeeper": "^2.3.1"
   }
 }
