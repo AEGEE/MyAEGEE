@@ -57,7 +57,7 @@
     "vue": "^2.6.14",
     "vue-axios": "^3.5.2",
     "vue-bulma-collapse": "^1.0.3",
-    "vue-chartjs": "^3.5.1",
+    "vue-chartjs": "^5.3.3",
     "vue-flatpickr-component": "^8.1.7",
     "vue-infinite-loading": "^2.4.5",
     "vue-input-tag": "^2.0.7",
