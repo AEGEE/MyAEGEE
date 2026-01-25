@@ -1,15 +1,61 @@
 {
-    "branches": ["stable"],
-    "plugins": [
-        "@semantic-release/commit-analyzer",
-        "@semantic-release/release-notes-generator",
-        "@semantic-release/changelog",
-        [
-            "@semantic-release/npm",
-            { "npmPublish": false }
+  "branches": ["stable"],
+  "tagFormat": "discounts@${version}",
+  "repositoryUrl": "https://github.com/AEGEE/MyAEGEE",
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          { "type": "feat", "release": "minor" },
+          { "type": "fix", "release": "patch" },
+          { "type": "perf", "release": "patch" },
+          { "type": "refactor", "release": "patch" },
+          { "breaking": true, "release": "major" }
         ],
-        "@semantic-release/github",
-        "@semantic-release/git"
+        "parserOpts": {
+          "noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES"]
+        }
+      }
     ],
-    "tagFormat": "${version}"
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "writerOpts": {
+          "commitsSort": ["subject", "scope"]
+        }
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md",
+        "changelogTitle": "# discounts Module Changelog"
+      }
+    ],
+    [
+      "@semantic-release/npm",
+      { 
+        "npmPublish": false
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "successComment": false,
+        "failComment": false,
+        "releasedLabels": ["released-discounts"],
+        "addReleases": "bottom"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["package.json", "package-lock.json", "CHANGELOG.md"],
+        "message": "chore(release): discounts@\${nextRelease.version} [skip ci]\n\n\${nextRelease.notes}"
+      }
+    ]
+  ]
 }
