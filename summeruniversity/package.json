@@ -14,7 +14,7 @@
     "db:create": "sequelize db:create",
     "db:setup": "sequelize db:drop; sequelize db:create; sequelize db:migrate",
     "db:migrate": "sequelize db:migrate",
-    "semantic-release": "semantic-release"
+    "semantic-release": "../node_modules/.bin/semantic-release"
   },
   "lint-staged": {
     "*.{js,jsx}": "eslint"

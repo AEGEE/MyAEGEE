@@ -11,7 +11,7 @@
     "test": "export NODE_ENV=test; nyc --cache --reporter=none mocha",
     "posttest": "nyc report --reporter=html --reporter=text; echo 'time to get scared.. run <npm run lint>'",
     "lint": "eslint .",
-    "semantic-release": "semantic-release"
+    "semantic-release": "../node_modules/.bin/semantic-release"
   },
   "dependencies": {
     "body-parser": "^1.20.2",

@@ -13,7 +13,7 @@
     "db:migrate": "sequelize db:migrate",
     "test": "NODE_ENV=test npm run db:setup && jest test/api/*.js --runInBand --forceExit",
     "test:ci": "NODE_ENV=test npm run db:setup && jest --runInBand --forceExit",
-    "semantic-release": "semantic-release"
+    "semantic-release": "../node_modules/.bin/semantic-release"
   },
   "keywords": [],
   "author": "Sergey Peshkov <github.com/serge1peshcoff>",
