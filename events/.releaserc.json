@@ -50,13 +50,6 @@
         "releasedLabels": ["released-events"],
         "addReleases": "bottom"
       }
-    ],
-    [
-      "@semantic-release/git",
-      {
-        "assets": ["package.json", "package-lock.json", "CHANGELOG.md"],
-        "message": "chore(release): events@${nextRelease.version} [skip ci]\\n\\n${nextRelease.notes}"
-      }
     ]
   ]
 }

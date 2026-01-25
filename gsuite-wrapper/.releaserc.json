@@ -50,13 +50,6 @@
         "releasedLabels": ["released-gsuite-wrapper"],
         "addReleases": "bottom"
       }
-    ],
-    [
-      "@semantic-release/git",
-      {
-        "assets": ["package.json", "package-lock.json", "CHANGELOG.md"],
-        "message": "chore(release): gsuite-wrapper@${nextRelease.version} [skip ci]\\n\\n${nextRelease.notes}"
-      }
     ]
   ]
 }

@@ -50,13 +50,6 @@
         "releasedLabels": ["released-knowledge"],
         "addReleases": "bottom"
       }
-    ],
-    [
-      "@semantic-release/git",
-      {
-        "assets": ["package.json", "package-lock.json", "CHANGELOG.md"],
-        "message": "chore(release): knowledge@${nextRelease.version} [skip ci]\\n\\n${nextRelease.notes}"
-      }
     ]
   ]
 }
