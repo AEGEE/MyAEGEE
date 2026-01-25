@@ -1,5 +1,5 @@
 # FIXME use alpine
-FROM node:18.18.0 AS builder
+FROM node:22.22.0 AS builder
 
 COPY . /usr/app/src
 WORKDIR /usr/app/src
