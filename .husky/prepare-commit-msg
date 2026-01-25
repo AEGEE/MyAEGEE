@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Add helpful comment to commit message template
+if [ -z "$2" ]; then
+  echo "# Commit format: <type>(<scope>): <subject>" >> $1
+  echo "#" >> $1
+  echo "# Valid scopes: core, events, frontend, discounts, knowledge," >> $1
+  echo "#                network, statutory, summeruniversity, mailer," >> $1
+  echo "#                gsuite-wrapper, ci, docker, deps, docs" >> $1
+  echo "#" >> $1
+  echo "# Examples:" >> $1
+  echo "#   feat(core): add new user authentication" >> $1
+  echo "#   fix(frontend): resolve rendering bug on dashboard" >> $1
+  echo "#   chore(ci): update CircleCI configuration" >> $1
+fi
