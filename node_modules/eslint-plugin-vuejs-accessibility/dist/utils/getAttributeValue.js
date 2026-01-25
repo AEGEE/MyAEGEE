@@ -1,0 +1,23 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+function getAttributeValue(node) {
+    if (!node.value) {
+        return null;
+    }
+    if (!node.directive) {
+        return node.value.value;
+    }
+    if (node.key.name.name === "bind" && node.value.expression) {
+        // <div :height="100" />
+        if (node.value.expression.type === "Literal") {
+            return node.value.expression.value;
+        }
+        // TODO we're effectively using this as just a placeholder to let rules know
+        // that a value has been passed in for this attribute. We should replace
+        // this with a stronger API to either explicitly handle all of the different
+        // types of values or just return a special symbol or something else.
+        return node.value.expression;
+    }
+    return null;
+}
+exports.default = getAttributeValue;

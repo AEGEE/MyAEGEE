@@ -39,7 +39,7 @@
     "npm": ">=9.0.0"
   },
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "husky",
     "postinstall": "echo '✓ Workspace setup complete - all 10 modules ready'",
     "test": "echo 'Run tests in individual modules'",
     "lint": "echo 'Run linters in individual modules'"

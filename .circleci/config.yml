@@ -164,9 +164,30 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: default
-      - node/install-packages:
-          pkg-manager: npm
-          app-dir: ~/project/core
+      - run:
+          name: Install monorepo workspace dependencies
+          command: npm install --ignore-scripts
+      - run:
+          name: Check if core needs release
+          working_directory: ~/project/core
+          command: |
+            LAST_TAG=$(git tag --list "core@*" --sort=-version:refname | head -1)
+            if [ -z "$LAST_TAG" ]; then
+              echo "No previous tag, will attempt release"
+              exit 0
+            fi
+            
+            echo "Checking commits since $LAST_TAG"
+            CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
+              --grep="(core)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
+              -- core/ .circleci/ Makefile docker-compose*.yml || echo "")
+            
+            if [ -z "$CHANGES" ]; then
+              echo "No relevant commits found for core"
+              circleci-agent step halt
+            else
+              echo "Found changes, proceeding with release"
+            fi
       - run:
           name: Run semantic-release for core
           working_directory: ~/project/core
@@ -370,9 +391,30 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: default
-      - node/install-packages:
-          pkg-manager: npm
-          app-dir: ~/project/discounts
+      - run:
+          name: Install monorepo workspace dependencies
+          command: npm install --ignore-scripts
+      - run:
+          name: Check if discounts needs release
+          working_directory: ~/project/discounts
+          command: |
+            LAST_TAG=$(git tag --list "discounts@*" --sort=-version:refname | head -1)
+            if [ -z "$LAST_TAG" ]; then
+              echo "No previous tag, will attempt release"
+              exit 0
+            fi
+            
+            echo "Checking commits since $LAST_TAG"
+            CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
+              --grep="(discounts)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
+              -- discounts/ .circleci/ Makefile docker-compose*.yml || echo "")
+            
+            if [ -z "$CHANGES" ]; then
+              echo "No relevant commits found for discounts"
+              circleci-agent step halt
+            else
+              echo "Found changes, proceeding with release"
+            fi
       - run:
           name: Run semantic-release for discounts
           working_directory: ~/project/discounts
@@ -592,9 +634,30 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: default
-      - node/install-packages:
-          pkg-manager: npm
-          app-dir: ~/project/events
+      - run:
+          name: Install monorepo workspace dependencies
+          command: npm install --ignore-scripts
+      - run:
+          name: Check if events needs release
+          working_directory: ~/project/events
+          command: |
+            LAST_TAG=$(git tag --list "events@*" --sort=-version:refname | head -1)
+            if [ -z "$LAST_TAG" ]; then
+              echo "No previous tag, will attempt release"
+              exit 0
+            fi
+            
+            echo "Checking commits since $LAST_TAG"
+            CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
+              --grep="(events)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
+              -- events/ .circleci/ Makefile docker-compose*.yml || echo "")
+            
+            if [ -z "$CHANGES" ]; then
+              echo "No relevant commits found for events"
+              circleci-agent step halt
+            else
+              echo "Found changes, proceeding with release"
+            fi
       - run:
           name: Run semantic-release for events
           working_directory: ~/project/events
@@ -775,9 +838,33 @@ jobs:
       - setup_remote_docker:
           version: default
       - run:
+          name: Install monorepo workspace dependencies
+          command: npm install --ignore-scripts
+      - run:
           name: Install frontend dependencies (skip husky)
           working_directory: ~/project/frontend
           command: npm ci --ignore-scripts
+      - run:
+          name: Check if frontend needs release
+          working_directory: ~/project/frontend
+          command: |
+            LAST_TAG=$(git tag --list "frontend@*" --sort=-version:refname | head -1)
+            if [ -z "$LAST_TAG" ]; then
+              echo "No previous tag, will attempt release"
+              exit 0
+            fi
+            
+            echo "Checking commits since $LAST_TAG"
+            CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
+              --grep="(frontend)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
+              -- frontend/ .circleci/ Makefile docker-compose*.yml || echo "")
+            
+            if [ -z "$CHANGES" ]; then
+              echo "No relevant commits found for frontend"
+              circleci-agent step halt
+            else
+              echo "Found changes, proceeding with release"
+            fi
       - run:
           name: Run semantic-release for frontend
           working_directory: ~/project/frontend
@@ -979,9 +1066,34 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: default
-      - node/install-packages:
-          pkg-manager: npm
-          app-dir: ~/project/gsuite-wrapper
+      - run:
+          name: Install monorepo workspace dependencies
+          command: npm install --ignore-scripts
+      - run:
+          name: Install gsuite-wrapper dependencies (skip husky)
+          working_directory: ~/project/gsuite-wrapper
+          command: npm ci --ignore-scripts
+      - run:
+          name: Check if gsuite-wrapper needs release
+          working_directory: ~/project/gsuite-wrapper
+          command: |
+            LAST_TAG=$(git tag --list "gsuite-wrapper@*" --sort=-version:refname | head -1)
+            if [ -z "$LAST_TAG" ]; then
+              echo "No previous tag, will attempt release"
+              exit 0
+            fi
+            
+            echo "Checking commits since $LAST_TAG"
+            CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
+              --grep="(gsuite-wrapper)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
+              -- gsuite-wrapper/ .circleci/ Makefile docker-compose*.yml || echo "")
+            
+            if [ -z "$CHANGES" ]; then
+              echo "No relevant commits found for gsuite-wrapper"
+              circleci-agent step halt
+            else
+              echo "Found changes, proceeding with release"
+            fi
       - run:
           name: Run semantic-release for gsuite-wrapper
           working_directory: ~/project/gsuite-wrapper
@@ -1185,9 +1297,30 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: default
-      - node/install-packages:
-          pkg-manager: npm
-          app-dir: ~/project/knowledge
+      - run:
+          name: Install monorepo workspace dependencies
+          command: npm install --ignore-scripts
+      - run:
+          name: Check if knowledge needs release
+          working_directory: ~/project/knowledge
+          command: |
+            LAST_TAG=$(git tag --list "knowledge@*" --sort=-version:refname | head -1)
+            if [ -z "$LAST_TAG" ]; then
+              echo "No previous tag, will attempt release"
+              exit 0
+            fi
+            
+            echo "Checking commits since $LAST_TAG"
+            CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
+              --grep="(knowledge)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
+              -- knowledge/ .circleci/ Makefile docker-compose*.yml || echo "")
+            
+            if [ -z "$CHANGES" ]; then
+              echo "No relevant commits found for knowledge"
+              circleci-agent step halt
+            else
+              echo "Found changes, proceeding with release"
+            fi
       - run:
           name: Run semantic-release for knowledge
           working_directory: ~/project/knowledge
@@ -1331,20 +1464,41 @@ jobs:
   mailer-docker-build-and-push:
     docker:
       - image: cimg/node:20.19.6
-        environment:
-          MIX_ENV: test
-          SMTP_USER: mailer@aegee.eu
-          SMTP_NAME: AEGEE <mailer@aegee.eu>
-          SMTP_PASSWORD: 5ecr3t
-          SMTP_HOST: mail.aegee.eu
+    environment:
+      MIX_ENV: test
+      SMTP_USER: mailer@aegee.eu
+      SMTP_NAME: AEGEE <mailer@aegee.eu>
+      SMTP_PASSWORD: 5ecr3t
+      SMTP_HOST: mail.aegee.eu
     resource_class: large
     steps:
       - checkout
       - setup_remote_docker:
           version: default
-      - node/install-packages:
-          pkg-manager: npm
-          app-dir: ~/project/mailer
+      - run:
+          name: Install monorepo workspace dependencies
+          command: npm install --ignore-scripts
+      - run:
+          name: Check if mailer needs release
+          working_directory: ~/project/mailer
+          command: |
+            LAST_TAG=$(git tag --list "mailer@*" --sort=-version:refname | head -1)
+            if [ -z "$LAST_TAG" ]; then
+              echo "No previous tag, will attempt release"
+              exit 0
+            fi
+            
+            echo "Checking commits since $LAST_TAG"
+            CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
+              --grep="(mailer)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
+              -- mailer/ .circleci/ Makefile docker-compose*.yml || echo "")
+            
+            if [ -z "$CHANGES" ]; then
+              echo "No relevant commits found for mailer"
+              circleci-agent step halt
+            else
+              echo "Found changes, proceeding with release"
+            fi
       - run:
           name: Run semantic-release for mailer
           working_directory: ~/project/mailer
@@ -1552,9 +1706,30 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: default
-      - node/install-packages:
-          pkg-manager: npm
-          app-dir: ~/project/network
+      - run:
+          name: Install monorepo workspace dependencies
+          command: npm install --ignore-scripts
+      - run:
+          name: Check if network needs release
+          working_directory: ~/project/network
+          command: |
+            LAST_TAG=$(git tag --list "network@*" --sort=-version:refname | head -1)
+            if [ -z "$LAST_TAG" ]; then
+              echo "No previous tag, will attempt release"
+              exit 0
+            fi
+            
+            echo "Checking commits since $LAST_TAG"
+            CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
+              --grep="(network)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
+              -- network/ .circleci/ Makefile docker-compose*.yml || echo "")
+            
+            if [ -z "$CHANGES" ]; then
+              echo "No relevant commits found for network"
+              circleci-agent step halt
+            else
+              echo "Found changes, proceeding with release"
+            fi
       - run:
           name: Run semantic-release for network
           working_directory: ~/project/network
@@ -1758,9 +1933,30 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: default
-      - node/install-packages:
-          pkg-manager: npm
-          app-dir: ~/project/statutory
+      - run:
+          name: Install monorepo workspace dependencies
+          command: npm install --ignore-scripts
+      - run:
+          name: Check if statutory needs release
+          working_directory: ~/project/statutory
+          command: |
+            LAST_TAG=$(git tag --list "statutory@*" --sort=-version:refname | head -1)
+            if [ -z "$LAST_TAG" ]; then
+              echo "No previous tag, will attempt release"
+              exit 0
+            fi
+            
+            echo "Checking commits since $LAST_TAG"
+            CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
+              --grep="(statutory)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
+              -- statutory/ .circleci/ Makefile docker-compose*.yml || echo "")
+            
+            if [ -z "$CHANGES" ]; then
+              echo "No relevant commits found for statutory"
+              circleci-agent step halt
+            else
+              echo "Found changes, proceeding with release"
+            fi
       - run:
           name: Run semantic-release for statutory
           working_directory: ~/project/statutory
@@ -1955,9 +2151,30 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: default
-      - node/install-packages:
-          pkg-manager: npm
-          app-dir: ~/project/summeruniversity
+      - run:
+          name: Install monorepo workspace dependencies
+          command: npm install --ignore-scripts
+      - run:
+          name: Check if summeruniversity needs release
+          working_directory: ~/project/summeruniversity
+          command: |
+            LAST_TAG=$(git tag --list "summeruniversity@*" --sort=-version:refname | head -1)
+            if [ -z "$LAST_TAG" ]; then
+              echo "No previous tag, will attempt release"
+              exit 0
+            fi
+            
+            echo "Checking commits since $LAST_TAG"
+            CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
+              --grep="(summeruniversity)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
+              -- summeruniversity/ .circleci/ Makefile docker-compose*.yml || echo "")
+            
+            if [ -z "$CHANGES" ]; then
+              echo "No relevant commits found for summeruniversity"
+              circleci-agent step halt
+            else
+              echo "Found changes, proceeding with release"
+            fi
       - run:
           name: Run semantic-release for summeruniversity
           working_directory: ~/project/summeruniversity
