@@ -170,7 +170,7 @@ jobs:
       - run:
           name: Run semantic-release for core
           working_directory: ~/project/core
-          command: npx semantic-release
+          command: npm run semantic-release
       - run:
           name: Build and push core Docker image
           working_directory: ~/project/core
@@ -376,7 +376,7 @@ jobs:
       - run:
           name: Run semantic-release for discounts
           working_directory: ~/project/discounts
-          command: npx semantic-release
+          command: npm run semantic-release
       - run:
           name: Build and push discounts Docker image
           working_directory: ~/project/discounts
@@ -598,7 +598,7 @@ jobs:
       - run:
           name: Run semantic-release for events
           working_directory: ~/project/events
-          command: npx semantic-release
+          command: npm run semantic-release
       - run:
           name: Build and push events Docker image
           working_directory: ~/project/events
@@ -784,7 +784,7 @@ jobs:
       - run:
           name: Run semantic-release for frontend
           working_directory: ~/project/frontend
-          command: npx semantic-release
+          command: npm run semantic-release
       - run:
           name: Build and push frontend Docker image
           working_directory: ~/project/frontend
@@ -992,7 +992,7 @@ jobs:
       - run:
           name: Run semantic-release for gsuite-wrapper
           working_directory: ~/project/gsuite-wrapper
-          command: npx semantic-release
+          command: npm run semantic-release
       - run:
           name: Build and push gsuite-wrapper Docker image
           working_directory: ~/project/gsuite-wrapper
@@ -1198,7 +1198,7 @@ jobs:
       - run:
           name: Run semantic-release for knowledge
           working_directory: ~/project/knowledge
-          command: npx semantic-release
+          command: npm run semantic-release
       - run:
           name: Build and push knowledge Docker image
           working_directory: ~/project/knowledge
@@ -1355,7 +1355,7 @@ jobs:
       - run:
           name: Run semantic-release for mailer
           working_directory: ~/project/mailer
-          command: npx semantic-release
+          command: npm run semantic-release
       - run:
           name: Build and push mailer Docker images
           working_directory: ~/project/mailer
@@ -1565,7 +1565,7 @@ jobs:
       - run:
           name: Run semantic-release for network
           working_directory: ~/project/network
-          command: npx semantic-release
+          command: npm run semantic-release
       - run:
           name: Build and push network Docker image
           working_directory: ~/project/network
@@ -1771,7 +1771,7 @@ jobs:
       - run:
           name: Run semantic-release for statutory
           working_directory: ~/project/statutory
-          command: npx semantic-release
+          command: npm run semantic-release
       - run:
           name: Build and push statutory Docker image
           working_directory: ~/project/statutory
@@ -1968,7 +1968,7 @@ jobs:
       - run:
           name: Run semantic-release for summeruniversity
           working_directory: ~/project/summeruniversity
-          command: npx semantic-release
+          command: npm run semantic-release
       - run:
           name: Build and push summeruniversity Docker image
           working_directory: ~/project/summeruniversity
