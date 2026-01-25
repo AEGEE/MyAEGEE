@@ -176,12 +176,12 @@ jobs:
               echo "No previous tag, will attempt release"
               exit 0
             fi
-            
+
             echo "Checking commits since $LAST_TAG"
             CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
               --grep="(core)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
               -- core/ .circleci/ Makefile docker-compose*.yml || echo "")
-            
+
             if [ -z "$CHANGES" ]; then
               echo "No relevant commits found for core"
               circleci-agent step halt
@@ -403,12 +403,12 @@ jobs:
               echo "No previous tag, will attempt release"
               exit 0
             fi
-            
+
             echo "Checking commits since $LAST_TAG"
             CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
               --grep="(discounts)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
               -- discounts/ .circleci/ Makefile docker-compose*.yml || echo "")
-            
+
             if [ -z "$CHANGES" ]; then
               echo "No relevant commits found for discounts"
               circleci-agent step halt
@@ -646,12 +646,12 @@ jobs:
               echo "No previous tag, will attempt release"
               exit 0
             fi
-            
+
             echo "Checking commits since $LAST_TAG"
             CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
               --grep="(events)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
               -- events/ .circleci/ Makefile docker-compose*.yml || echo "")
-            
+
             if [ -z "$CHANGES" ]; then
               echo "No relevant commits found for events"
               circleci-agent step halt
@@ -853,12 +853,12 @@ jobs:
               echo "No previous tag, will attempt release"
               exit 0
             fi
-            
+
             echo "Checking commits since $LAST_TAG"
             CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
               --grep="(frontend)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
               -- frontend/ .circleci/ Makefile docker-compose*.yml || echo "")
-            
+
             if [ -z "$CHANGES" ]; then
               echo "No relevant commits found for frontend"
               circleci-agent step halt
@@ -1082,12 +1082,12 @@ jobs:
               echo "No previous tag, will attempt release"
               exit 0
             fi
-            
+
             echo "Checking commits since $LAST_TAG"
             CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
               --grep="(gsuite-wrapper)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
               -- gsuite-wrapper/ .circleci/ Makefile docker-compose*.yml || echo "")
-            
+
             if [ -z "$CHANGES" ]; then
               echo "No relevant commits found for gsuite-wrapper"
               circleci-agent step halt
@@ -1309,12 +1309,12 @@ jobs:
               echo "No previous tag, will attempt release"
               exit 0
             fi
-            
+
             echo "Checking commits since $LAST_TAG"
             CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
               --grep="(knowledge)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
               -- knowledge/ .circleci/ Makefile docker-compose*.yml || echo "")
-            
+
             if [ -z "$CHANGES" ]; then
               echo "No relevant commits found for knowledge"
               circleci-agent step halt
@@ -1487,12 +1487,12 @@ jobs:
               echo "No previous tag, will attempt release"
               exit 0
             fi
-            
+
             echo "Checking commits since $LAST_TAG"
             CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
               --grep="(mailer)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
               -- mailer/ .circleci/ Makefile docker-compose*.yml || echo "")
-            
+
             if [ -z "$CHANGES" ]; then
               echo "No relevant commits found for mailer"
               circleci-agent step halt
@@ -1718,12 +1718,12 @@ jobs:
               echo "No previous tag, will attempt release"
               exit 0
             fi
-            
+
             echo "Checking commits since $LAST_TAG"
             CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
               --grep="(network)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
               -- network/ .circleci/ Makefile docker-compose*.yml || echo "")
-            
+
             if [ -z "$CHANGES" ]; then
               echo "No relevant commits found for network"
               circleci-agent step halt
@@ -1945,12 +1945,12 @@ jobs:
               echo "No previous tag, will attempt release"
               exit 0
             fi
-            
+
             echo "Checking commits since $LAST_TAG"
             CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
               --grep="(statutory)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
               -- statutory/ .circleci/ Makefile docker-compose*.yml || echo "")
-            
+
             if [ -z "$CHANGES" ]; then
               echo "No relevant commits found for statutory"
               circleci-agent step halt
@@ -2163,12 +2163,12 @@ jobs:
               echo "No previous tag, will attempt release"
               exit 0
             fi
-            
+
             echo "Checking commits since $LAST_TAG"
             CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --no-merges \
               --grep="(summeruniversity)" --grep="(ci)" --grep="(docker)" --grep="(deps)" --grep="(monorepo)" \
               -- summeruniversity/ .circleci/ Makefile docker-compose*.yml || echo "")
-            
+
             if [ -z "$CHANGES" ]; then
               echo "No relevant commits found for summeruniversity"
               circleci-agent step halt

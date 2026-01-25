@@ -106,11 +106,11 @@ if [ ${#OLD_TAGS_TO_DELETE[@]} -gt 0 ]; then
   
   if [ "$DRY_RUN" = false ]; then
     echo "To delete old tags locally:"
-    echo "  git tag -d ${OLD_TAGS_TO_DELETE[@]}"
+    echo "  git tag -d ${OLD_TAGS_TO_DELETE[*]}"
     echo ""
     echo "To push changes to remote:"
     echo "  git push origin --tags"
-    echo "  git push origin --delete ${OLD_TAGS_TO_DELETE[@]}"
+    echo "  git push origin --delete ${OLD_TAGS_TO_DELETE[*]}"
   fi
 fi
 
