@@ -61,7 +61,7 @@
     "vue-flatpickr-component": "^8.1.7",
     "vue-infinite-loading": "^2.4.5",
     "vue-input-tag": "^2.0.7",
-    "vue-loader": "^16.8.3",
+    "vue-loader": "^17.4.2",
     "vue-mapbox": "^0.4.1",
     "vue-multiselect": "^2.1.8",
     "vue-router": "^3.6.5",
