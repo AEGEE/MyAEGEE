@@ -47,7 +47,7 @@
     "nyc": "^15.1.0",
     "request": "^2.88.2",
     "request-promise-native": "^1.0.9",
-    "semantic-release": "^24.2.9",
+    "semantic-release": "^25.0.2",
     "semantic-release-monorepo": "^8.0.2"
   }
 }
