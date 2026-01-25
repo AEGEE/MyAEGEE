@@ -51,6 +51,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/core
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run core tests
@@ -75,6 +76,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/core
+          override-ci-command: npm ci --legacy-peer-deps
       - run:
           name: Run core db:recreate
           working_directory: ~/project/core
@@ -97,6 +99,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/core
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports
       - run:
           name: Run core eslint
@@ -273,6 +276,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/discounts
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run discounts tests
@@ -303,6 +307,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/discounts
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports
       - run:
           name: Run discounts eslint
@@ -479,6 +484,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/events
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run events tests
@@ -503,6 +509,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/events
+          override-ci-command: npm ci --legacy-peer-deps
       - run:
           name: Run events db:recreate
           working_directory: ~/project/events
@@ -525,6 +532,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/events
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports
       - run:
           name: Run events eslint
@@ -1095,6 +1103,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/knowledge
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run knowledge tests
@@ -1125,6 +1134,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/knowledge
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports
       - run:
           name: Run knowledge eslint
@@ -1462,6 +1472,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/network
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run network tests
@@ -1492,6 +1503,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/network
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports
       - run:
           name: Run network eslint
@@ -1668,6 +1680,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/statutory
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports/jest
       - run:
           name: Run statutory tests
@@ -1698,6 +1711,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/statutory
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports
       - run:
           name: Run statutory eslint
@@ -1873,6 +1887,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/summeruniversity
+          override-ci-command: npm ci --legacy-peer-deps
       - run:
           name: Run summeruniversity db:recreate
           working_directory: ~/project/summeruniversity
@@ -1895,6 +1910,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
           app-dir: ~/project/summeruniversity
+          override-ci-command: npm ci --legacy-peer-deps
       - run: mkdir -p ~/reports
       - run:
           name: Run summeruniversity eslint
