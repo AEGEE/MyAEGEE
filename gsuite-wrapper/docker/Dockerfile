@@ -7,7 +7,7 @@ COPY --chown=node:node package.json /usr/app/src
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
 ENV PATH="/home/node/.npm-global/bin:${PATH}"
 
-RUN npm install --loglevel warn
+RUN npm install --legacy-peer-deps --loglevel warn
 
 COPY . /usr/app/src
 
