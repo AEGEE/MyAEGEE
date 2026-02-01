@@ -1,5 +1,5 @@
 # Multi-platform support (linux/amd64, linux/arm64)
-FROM --platform=$BUILDPLATFORM elixir:1.14-alpine
+FROM --platform=$BUILDPLATFORM elixir:1.19-alpine
 
 RUN mkdir -p /usr/src/myapp \
 	&& mkdir -p /usr/src/scripts \
