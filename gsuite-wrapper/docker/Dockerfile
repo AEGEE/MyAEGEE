@@ -1,4 +1,5 @@
-FROM node:22.22.0
+# Multi-platform support (linux/amd64, linux/arm64)
+FROM --platform=$BUILDPLATFORM node:22.22.0
 
 WORKDIR /usr/app/src
 

@@ -175,14 +175,21 @@ jobs:
           working_directory: ~/project/core
           command: npm run semantic-release
       - run:
-          name: Build and push core Docker image
+          name: Set up Docker Buildx for multi-platform builds
+          command: |
+            docker buildx create --name multiarch --use
+            docker buildx inspect --bootstrap
+      - run:
+          name: Build and push core Docker image (multi-platform)
           working_directory: ~/project/core
           command: |
             export PACKAGE_VERSION=$(node -p "require('./package.json').version")
-            docker build --tag aegee/core:$PACKAGE_VERSION --tag aegee/core:latest -f docker/core/Dockerfile .
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-            docker push aegee/core:$PACKAGE_VERSION
-            docker push aegee/core:latest
+            docker buildx build --platform linux/amd64,linux/arm64 \
+              --tag aegee/core:$PACKAGE_VERSION \
+              --tag aegee/core:latest \
+              -f docker/core/Dockerfile \
+              --push .
       - slack/notify:
           event: pass
           custom: |
@@ -383,14 +390,21 @@ jobs:
           working_directory: ~/project/discounts
           command: npm run semantic-release
       - run:
-          name: Build and push discounts Docker image
+          name: Set up Docker Buildx for multi-platform builds
+          command: |
+            docker buildx create --name multiarch --use
+            docker buildx inspect --bootstrap
+      - run:
+          name: Build and push discounts Docker image (multi-platform)
           working_directory: ~/project/discounts
           command: |
             export PACKAGE_VERSION=$(node -p "require('./package.json').version")
-            docker build --tag aegee/discounts:$PACKAGE_VERSION --tag aegee/discounts:latest -f docker/discounts/Dockerfile .
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-            docker push aegee/discounts:$PACKAGE_VERSION
-            docker push aegee/discounts:latest
+            docker buildx build --platform linux/amd64,linux/arm64 \
+              --tag aegee/discounts:$PACKAGE_VERSION \
+              --tag aegee/discounts:latest \
+              -f docker/discounts/Dockerfile \
+              --push .
       - slack/notify:
           event: pass
           custom: |
@@ -608,14 +622,21 @@ jobs:
           working_directory: ~/project/events
           command: npm run semantic-release
       - run:
-          name: Build and push events Docker image
+          name: Set up Docker Buildx for multi-platform builds
+          command: |
+            docker buildx create --name multiarch --use
+            docker buildx inspect --bootstrap
+      - run:
+          name: Build and push events Docker image (multi-platform)
           working_directory: ~/project/events
           command: |
             export PACKAGE_VERSION=$(node -p "require('./package.json').version")
-            docker build --tag aegee/events:$PACKAGE_VERSION --tag aegee/events:latest -f docker/events/Dockerfile .
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-            docker push aegee/events:$PACKAGE_VERSION
-            docker push aegee/events:latest
+            docker buildx build --platform linux/amd64,linux/arm64 \
+              --tag aegee/events:$PACKAGE_VERSION \
+              --tag aegee/events:latest \
+              -f docker/events/Dockerfile \
+              --push .
       - slack/notify:
           event: pass
           custom: |
@@ -794,14 +815,21 @@ jobs:
           working_directory: ~/project/frontend
           command: npm run semantic-release
       - run:
-          name: Build and push frontend Docker image
+          name: Set up Docker Buildx for multi-platform builds
+          command: |
+            docker buildx create --name multiarch --use
+            docker buildx inspect --bootstrap
+      - run:
+          name: Build and push frontend Docker image (multi-platform)
           working_directory: ~/project/frontend
           command: |
             export PACKAGE_VERSION=$(node -p "require('./package.json').version")
-            docker build --tag aegee/frontend:$PACKAGE_VERSION --tag aegee/frontend:latest -f docker/Dockerfile .
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-            docker push aegee/frontend:$PACKAGE_VERSION
-            docker push aegee/frontend:latest
+            docker buildx build --platform linux/amd64,linux/arm64 \
+              --tag aegee/frontend:$PACKAGE_VERSION \
+              --tag aegee/frontend:latest \
+              -f docker/Dockerfile \
+              --push .
       - slack/notify:
           event: pass
           custom: |
@@ -1002,14 +1030,21 @@ jobs:
           working_directory: ~/project/gsuite-wrapper
           command: npm run semantic-release
       - run:
-          name: Build and push gsuite-wrapper Docker image
+          name: Set up Docker Buildx for multi-platform builds
+          command: |
+            docker buildx create --name multiarch --use
+            docker buildx inspect --bootstrap
+      - run:
+          name: Build and push gsuite-wrapper Docker image (multi-platform)
           working_directory: ~/project/gsuite-wrapper
           command: |
             export PACKAGE_VERSION=$(node -p "require('./package.json').version")
-            docker build --tag aegee/gsuite-wrapper:$PACKAGE_VERSION --tag aegee/gsuite-wrapper:latest -f docker/Dockerfile .
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-            docker push aegee/gsuite-wrapper:$PACKAGE_VERSION
-            docker push aegee/gsuite-wrapper:latest
+            docker buildx build --platform linux/amd64,linux/arm64 \
+              --tag aegee/gsuite-wrapper:$PACKAGE_VERSION \
+              --tag aegee/gsuite-wrapper:latest \
+              -f docker/Dockerfile \
+              --push .
       - slack/notify:
           event: pass
           custom: |
@@ -1210,14 +1245,21 @@ jobs:
           working_directory: ~/project/knowledge
           command: npm run semantic-release
       - run:
-          name: Build and push knowledge Docker image
+          name: Set up Docker Buildx for multi-platform builds
+          command: |
+            docker buildx create --name multiarch --use
+            docker buildx inspect --bootstrap
+      - run:
+          name: Build and push knowledge Docker image (multi-platform)
           working_directory: ~/project/knowledge
           command: |
             export PACKAGE_VERSION=$(node -p "require('./package.json').version")
-            docker build --tag aegee/knowledge:$PACKAGE_VERSION --tag aegee/knowledge:latest -f docker/knowledge/Dockerfile .
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-            docker push aegee/knowledge:$PACKAGE_VERSION
-            docker push aegee/knowledge:latest
+            docker buildx build --platform linux/amd64,linux/arm64 \
+              --tag aegee/knowledge:$PACKAGE_VERSION \
+              --tag aegee/knowledge:latest \
+              -f docker/knowledge/Dockerfile \
+              --push .
       - slack/notify:
           event: pass
           custom: |
@@ -1367,18 +1409,26 @@ jobs:
           working_directory: ~/project/mailer
           command: npm run semantic-release
       - run:
-          name: Build and push mailer Docker images
+          name: Set up Docker Buildx for multi-platform builds
+          command: |
+            docker buildx create --name multiarch --use
+            docker buildx inspect --bootstrap
+      - run:
+          name: Build and push mailer Docker images (multi-platform)
           working_directory: ~/project/mailer
           command: |
             export PACKAGE_VERSION=$(node -p "require('./package.json').version")
-            docker build --tag aegee/mailer:$PACKAGE_VERSION --tag aegee/mailer:latest -f docker/mailer/Dockerfile .
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-            docker push aegee/mailer:$PACKAGE_VERSION
-            docker push aegee/mailer:latest
-            docker build --tag aegee/mail-transfer-agent:$PACKAGE_VERSION --tag aegee/mail-transfer-agent:latest -f docker/mail_transfer_agent/Dockerfile .
-            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-            docker push aegee/mail-transfer-agent:$PACKAGE_VERSION
-            docker push aegee/mail-transfer-agent:latest
+            docker buildx build --platform linux/amd64,linux/arm64 \
+              --tag aegee/mailer:$PACKAGE_VERSION \
+              --tag aegee/mailer:latest \
+              -f docker/mailer/Dockerfile \
+              --push .
+            docker buildx build --platform linux/amd64,linux/arm64 \
+              --tag aegee/mail-transfer-agent:$PACKAGE_VERSION \
+              --tag aegee/mail-transfer-agent:latest \
+              -f docker/mail_transfer_agent/Dockerfile \
+              --push .
       - slack/notify:
           event: pass
           custom: |
@@ -1429,6 +1479,110 @@ jobs:
                   "text": {
                     "type": "mrkdwn",
                     "text": ":octagonal_sign: The Docker image for mailer module build and push has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+  nginx-static-docker-build-and-push:
+    docker:
+      - image: cimg/base:2025.12
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - run:
+          name: Set up Docker Buildx for multi-platform builds
+          command: |
+            docker buildx create --name multiarch --use
+            docker buildx inspect --bootstrap
+      - run:
+          name: Build and push nginx-static Docker image (multi-platform)
+          working_directory: ~/project
+          command: |
+            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            docker buildx build --platform linux/amd64,linux/arm64 \
+              --tag aegee/nginx-static:1.28.1 \
+              --tag aegee/nginx-static:stable \
+              --tag aegee/nginx-static:latest \
+              -f docker/nginx-static/Dockerfile \
+              --push docker/nginx-static/
+      - slack/notify:
+          event: pass
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":white_check_mark: The Docker image for nginx-static with tags `1.28.1`, `stable` and `latest` has been pushed to Dockerhub."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":octagonal_sign: The Docker image for nginx-static build and push has failed."
                   }
                 },
                 {
@@ -1579,14 +1733,21 @@ jobs:
           working_directory: ~/project/network
           command: npm run semantic-release
       - run:
-          name: Build and push network Docker image
+          name: Set up Docker Buildx for multi-platform builds
+          command: |
+            docker buildx create --name multiarch --use
+            docker buildx inspect --bootstrap
+      - run:
+          name: Build and push network Docker image (multi-platform)
           working_directory: ~/project/network
           command: |
             export PACKAGE_VERSION=$(node -p "require('./package.json').version")
-            docker build --tag aegee/network:$PACKAGE_VERSION --tag aegee/network:latest -f docker/network/Dockerfile .
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-            docker push aegee/network:$PACKAGE_VERSION
-            docker push aegee/network:latest
+            docker buildx build --platform linux/amd64,linux/arm64 \
+              --tag aegee/network:$PACKAGE_VERSION \
+              --tag aegee/network:latest \
+              -f docker/network/Dockerfile \
+              --push .
       - slack/notify:
           event: pass
           custom: |
@@ -1787,14 +1948,21 @@ jobs:
           working_directory: ~/project/statutory
           command: npm run semantic-release
       - run:
-          name: Build and push statutory Docker image
+          name: Set up Docker Buildx for multi-platform builds
+          command: |
+            docker buildx create --name multiarch --use
+            docker buildx inspect --bootstrap
+      - run:
+          name: Build and push statutory Docker image (multi-platform)
           working_directory: ~/project/statutory
           command: |
             export PACKAGE_VERSION=$(node -p "require('./package.json').version")
-            docker build --tag aegee/statutory:$PACKAGE_VERSION --tag aegee/statutory:latest -f docker/statutory/Dockerfile .
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-            docker push aegee/statutory:$PACKAGE_VERSION
-            docker push aegee/statutory:latest
+            docker buildx build --platform linux/amd64,linux/arm64 \
+              --tag aegee/statutory:$PACKAGE_VERSION \
+              --tag aegee/statutory:latest \
+              -f docker/statutory/Dockerfile \
+              --push .
       - slack/notify:
           event: pass
           custom: |
@@ -1986,14 +2154,21 @@ jobs:
           working_directory: ~/project/summeruniversity
           command: npm run semantic-release
       - run:
-          name: Build and push summeruniversity Docker image
+          name: Set up Docker Buildx for multi-platform builds
+          command: |
+            docker buildx create --name multiarch --use
+            docker buildx inspect --bootstrap
+      - run:
+          name: Build and push summeruniversity Docker image (multi-platform)
           working_directory: ~/project/summeruniversity
           command: |
             export PACKAGE_VERSION=$(node -p "require('./package.json').version")
-            docker build --tag aegee/summeruniversity:$PACKAGE_VERSION --tag aegee/summeruniversity:latest -f docker/summeruniversity/Dockerfile .
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
-            docker push aegee/summeruniversity:$PACKAGE_VERSION
-            docker push aegee/summeruniversity:latest
+            docker buildx build --platform linux/amd64,linux/arm64 \
+              --tag aegee/summeruniversity:$PACKAGE_VERSION \
+              --tag aegee/summeruniversity:latest \
+              -f docker/summeruniversity/Dockerfile \
+              --push .
       - slack/notify:
           event: pass
           custom: |
@@ -2342,3 +2517,9 @@ workflows:
               only: stable
     jobs:
       - summeruniversity-audit
+  nginx-static-docker-build-and-push:
+    jobs:
+      - nginx-static-docker-build-and-push:
+          filters:
+            branches:
+              only: stable

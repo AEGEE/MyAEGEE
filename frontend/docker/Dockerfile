@@ -1,5 +1,6 @@
+# Multi-platform support (linux/amd64, linux/arm64)
 # FIXME use alpine
-FROM node:22.22.0 AS builder
+FROM --platform=$BUILDPLATFORM node:22.22.0 AS builder
 
 COPY . /usr/app/src
 WORKDIR /usr/app/src
@@ -8,7 +9,8 @@ RUN npm pkg delete scripts.prepare \
  && npm ci --legacy-peer-deps --omit=dev \
  && npm run build
 
-FROM nginx:1.27.3-alpine
+# Multi-platform nginx for ARM64 and AMD64
+FROM --platform=$TARGETPLATFORM nginx:1.27.3-alpine
 
 RUN adduser -D -H -u 1000 -s /bin/bash www-data -G www-data
 
