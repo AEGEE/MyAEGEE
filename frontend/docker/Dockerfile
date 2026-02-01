@@ -10,7 +10,7 @@ RUN npm pkg delete scripts.prepare \
  && npm run build
 
 # Multi-platform nginx for ARM64 and AMD64
-FROM --platform=$TARGETPLATFORM nginx:1.27.3-alpine
+FROM --platform=$TARGETPLATFORM nginx:1.29.4-alpine
 
 RUN adduser -D -H -u 1000 -s /bin/bash www-data -G www-data
 
