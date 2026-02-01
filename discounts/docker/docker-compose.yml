@@ -3,7 +3,6 @@ version: "3.4"
 services:
     postgres-discounts:
         image: postgres:10.18
-        platform: linux/${DOCKER_PLATFORM:-amd64}
         volumes:
             - postgres-discounts:/var/lib/postgresql/data
         expose:

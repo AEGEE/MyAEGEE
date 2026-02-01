@@ -3,7 +3,6 @@ services:
     postgres-summeruniversity:
         restart: always
         image: postgres:10.18
-        platform: linux/${DOCKER_PLATFORM:-amd64}
         volumes:
             - postgres-summeruniversity:/var/lib/postgresql/data
         expose:
