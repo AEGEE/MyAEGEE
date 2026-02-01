@@ -1509,6 +1509,110 @@ jobs:
                 }
               ]
             }
+  nginx-static-docker-build-and-push:
+    docker:
+      - image: cimg/base:2025.12
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - run:
+          name: Set up Docker Buildx for multi-platform builds
+          command: |
+            docker buildx create --name multiarch --use
+            docker buildx inspect --bootstrap
+      - run:
+          name: Build and push nginx-static Docker image (multi-platform)
+          working_directory: ~/project
+          command: |
+            docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
+            docker buildx build --platform linux/amd64,linux/arm64 \
+              --tag aegee/nginx-static:1.28.1 \
+              --tag aegee/nginx-static:stable \
+              --tag aegee/nginx-static:latest \
+              -f docker/nginx-static/Dockerfile \
+              --push docker/nginx-static/
+      - slack/notify:
+          event: pass
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":white_check_mark: The Docker image for nginx-static with tags `1.28.1`, `stable` and `latest` has been pushed to Dockerhub."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":octagonal_sign: The Docker image for nginx-static build and push has failed."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Number*\n$CIRCLE_BUILD_NUM"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Visit Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
   network-test:
     docker:
       - image: cimg/node:22.22.0
@@ -2413,3 +2517,9 @@ workflows:
               only: stable
     jobs:
       - summeruniversity-audit
+  nginx-static-docker-build-and-push:
+    jobs:
+      - nginx-static-docker-build-and-push:
+          filters:
+            branches:
+              only: stable
