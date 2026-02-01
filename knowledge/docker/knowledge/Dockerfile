@@ -1,5 +1,6 @@
+# Multi-platform support (linux/amd64, linux/arm64)
 # FIXME use alpine
-FROM node:22.22.0
+FROM --platform=$BUILDPLATFORM node:22.22.0
 
 RUN mkdir -p /usr/app/src \
 	&& mkdir -p /usr/app/media \
