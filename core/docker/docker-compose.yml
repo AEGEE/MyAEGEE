@@ -4,6 +4,7 @@ services:
     postgres-core:
         restart: always
         image: postgres:10.21
+        platform: linux/${DOCKER_PLATFORM:-amd64}
         volumes:
             - postgres-core:/var/lib/postgresql/data
         expose:

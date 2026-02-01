@@ -65,21 +65,35 @@ docker buildx build --platform linux/arm64 .
 docker buildx build --platform linux/amd64,linux/arm64 .
 ```
 
-### Using docker-compose with Buildx
+### Using docker-compose with ARM64
 
-When using `docker-compose`, you can specify the platform:
+The docker-compose files have been updated to support ARM64 through the `DOCKER_PLATFORM` environment variable:
 
 ```bash
-# Build and run for ARM64
-DOCKER_DEFAULT_PLATFORM=linux/arm64 docker-compose build
-DOCKER_DEFAULT_PLATFORM=linux/arm64 docker-compose up
+# On ARM64 systems (Apple Silicon, etc.)
+export DOCKER_PLATFORM=arm64
+docker-compose up
+
+# On AMD64 systems (default)
+export DOCKER_PLATFORM=amd64  # or omit, as amd64 is the default
+docker-compose up
 ```
 
 Alternatively, add to your `.env` file:
 
 ```bash
-DOCKER_DEFAULT_PLATFORM=linux/arm64
+# For ARM64 machines
+DOCKER_PLATFORM=arm64
+
+# For AMD64 machines (default)
+DOCKER_PLATFORM=amd64
 ```
+
+**How it works:**
+- PostgreSQL and Redis services use `platform: linux/${DOCKER_PLATFORM:-amd64}`
+- This defaults to AMD64 for backward compatibility
+- On ARM64 machines, set `DOCKER_PLATFORM=arm64` to use native ARM64 images
+- Our custom services (core, events, etc.) automatically use the correct platform via multi-arch manifests
 
 ## Platform Variables Explained
 

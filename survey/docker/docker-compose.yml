@@ -25,6 +25,7 @@ services:
   postgres-limesurvey:
     restart: always
     image: postgres:10.6
+    platform: linux/${DOCKER_PLATFORM:-amd64}
     volumes:
       - postgres-limesurvey:/var/lib/postgresql/data
     expose:

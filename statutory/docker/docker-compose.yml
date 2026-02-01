@@ -3,6 +3,7 @@ services:
     postgres-statutory:
         restart: always
         image: postgres:10.18
+        platform: linux/${DOCKER_PLATFORM:-amd64}
         volumes:
             - postgres-statutory:/var/lib/postgresql/data
         expose:

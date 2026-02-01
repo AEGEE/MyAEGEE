@@ -4,6 +4,7 @@ services:
     postgres-network:
         restart: always
         image: postgres:10.18
+        platform: linux/${DOCKER_PLATFORM:-amd64}
         volumes:
             - postgres-network:/var/lib/postgresql/data
         expose:

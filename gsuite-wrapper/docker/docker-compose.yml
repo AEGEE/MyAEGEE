@@ -5,6 +5,7 @@ services:
   redis-gsuite-wrapper:
     restart: always
     image: redis:8.2.0-alpine
+    platform: linux/${DOCKER_PLATFORM:-amd64}
     volumes:
       - redis_gsuite_persistence:/data
 
