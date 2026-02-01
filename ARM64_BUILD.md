@@ -112,12 +112,40 @@ DOCKER_DEFAULT_PLATFORM=linux/arm64 make build
 DOCKER_DEFAULT_PLATFORM=linux/arm64 make start
 ```
 
-## CI/CD Considerations
+## CI/CD Integration
 
-For building multi-architecture images in CI/CD pipelines:
+### CircleCI (Current Setup)
+
+The MyAEGEE project uses CircleCI for CI/CD, and all build jobs have been updated to support multi-platform builds:
+
+**What's Automated:**
+- All `*-docker-build-and-push` jobs now use Docker Buildx
+- Images are automatically built for both `linux/amd64` and `linux/arm64`
+- Multi-arch manifests are pushed to Docker Hub
+- Services included: core, discounts, events, frontend, gsuite-wrapper, knowledge, mailer, mail-transfer-agent, network, statutory, summeruniversity
+
+**How it works:**
+```bash
+# CircleCI jobs now execute:
+docker buildx create --name multiarch --use
+docker buildx inspect --bootstrap
+docker buildx build --platform linux/amd64,linux/arm64 \
+  --tag aegee/service:$VERSION \
+  --tag aegee/service:latest \
+  --push .
+```
+
+**Benefits:**
+- Single build step produces images for both architectures
+- Developers on Apple Silicon (ARM64) get native performance
+- Production servers (AMD64) continue to work without changes
+- Future ARM64 deployments are supported out of the box
+
+### GitHub Actions (Example)
+
+For reference, here's how to set up multi-platform builds in GitHub Actions:
 
 ```yaml
-# Example GitHub Actions workflow
 - name: Set up Docker Buildx
   uses: docker/setup-buildx-action@v2
 
