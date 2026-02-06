@@ -1,6 +1,6 @@
 # Multi-platform support (linux/amd64, linux/arm64)
 # FIXME use alpine
-FROM --platform=$BUILDPLATFORM node:22.22.0 AS builder
+FROM --platform=$BUILDPLATFORM node:25.6.0 AS builder
 
 COPY . /usr/app/src
 WORKDIR /usr/app/src
