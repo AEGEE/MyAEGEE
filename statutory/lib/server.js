@@ -3,6 +3,7 @@ const cors = require('cors');
 const router = require('express-promise-router');
 const bodyParser = require('body-parser');
 const boolParser = require('express-query-boolean');
+const qs = require('qs');
 
 const config = require('../config');
 const log = require('./logger');
@@ -41,7 +42,7 @@ const QuestionLinesRouter = router({ mergeParams: true });
 const QuestionsRouter = router({ mergeParams: true });
 
 const server = express();
-server.set('query parser', (str) => require('qs').parse(str, { arrayLimit: 100 }));
+server.set('query parser', (str) => qs.parse(str, { arrayLimit: 100 }));
 server.use(bodyParser.json());
 server.use(boolParser());
 server.use(morgan);
