@@ -21,7 +21,7 @@ COPY --chown=node:node package.json package-lock.json ./
 USER node
 
 RUN if [ -n "$PACKAGE_VERSION" ]; then npm version "$PACKAGE_VERSION" --no-git-tag-version --allow-same-version; fi \
- && npm ci --legacy-peer-deps
+ && npm ci --legacy-peer-deps --omit=dev
 
 # Now copy the rest of the source
 COPY --chown=node:node . .
