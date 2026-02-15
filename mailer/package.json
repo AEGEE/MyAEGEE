@@ -6,7 +6,7 @@
   "author": "Nico Westerbeck",
   "license": "ISC",
   "devDependencies": {
-    "conventional-changelog": "^5.1.0"
+    "conventional-changelog": "^7.1.1"
   },
   "scripts": {
     "semantic-release": "semantic-release"

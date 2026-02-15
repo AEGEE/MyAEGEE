@@ -71,6 +71,6 @@
     "vuex-router-sync": "^5.0.0"
   },
   "devDependencies": {
-    "conventional-changelog": "^5.1.0"
+    "conventional-changelog": "^7.1.1"
   }
 }
