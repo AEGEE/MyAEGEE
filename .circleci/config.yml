@@ -181,8 +181,7 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for core
-          working_directory: ~/project/core
-          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'core@*' --sort=-v:refname | head -1 | sed 's/core@//')" >> "$BASH_ENV"
       - run:
           name: Build and push core Docker image (multi-platform)
           working_directory: ~/project/core
@@ -399,8 +398,7 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for discounts
-          working_directory: ~/project/discounts
-          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'discounts@*' --sort=-v:refname | head -1 | sed 's/discounts@//')" >> "$BASH_ENV"
       - run:
           name: Build and push discounts Docker image (multi-platform)
           working_directory: ~/project/discounts
@@ -634,8 +632,7 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for events
-          working_directory: ~/project/events
-          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'events@*' --sort=-v:refname | head -1 | sed 's/events@//')" >> "$BASH_ENV"
       - run:
           name: Build and push events Docker image (multi-platform)
           working_directory: ~/project/events
@@ -830,8 +827,7 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for frontend
-          working_directory: ~/project/frontend
-          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'frontend@*' --sort=-v:refname | head -1 | sed 's/frontend@//')" >> "$BASH_ENV"
       - run:
           name: Build and push frontend Docker image (multi-platform)
           working_directory: ~/project/frontend
@@ -1048,8 +1044,7 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for gsuite-wrapper
-          working_directory: ~/project/gsuite-wrapper
-          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'gsuite-wrapper@*' --sort=-v:refname | head -1 | sed 's/gsuite-wrapper@//')" >> "$BASH_ENV"
       - run:
           name: Build and push gsuite-wrapper Docker image (multi-platform)
           working_directory: ~/project/gsuite-wrapper
@@ -1266,8 +1261,7 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for knowledge
-          working_directory: ~/project/knowledge
-          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'knowledge@*' --sort=-v:refname | head -1 | sed 's/knowledge@//')" >> "$BASH_ENV"
       - run:
           name: Build and push knowledge Docker image (multi-platform)
           working_directory: ~/project/knowledge
@@ -1433,8 +1427,7 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for mailer
-          working_directory: ~/project/mailer
-          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'mailer@*' --sort=-v:refname | head -1 | sed 's/mailer@//')" >> "$BASH_ENV"
       - run:
           name: Build and push mailer Docker images (multi-platform)
           working_directory: ~/project/mailer
@@ -1760,8 +1753,7 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for network
-          working_directory: ~/project/network
-          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'network@*' --sort=-v:refname | head -1 | sed 's/network@//')" >> "$BASH_ENV"
       - run:
           name: Build and push network Docker image (multi-platform)
           working_directory: ~/project/network
@@ -1978,8 +1970,7 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for statutory
-          working_directory: ~/project/statutory
-          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'statutory@*' --sort=-v:refname | head -1 | sed 's/statutory@//')" >> "$BASH_ENV"
       - run:
           name: Build and push statutory Docker image (multi-platform)
           working_directory: ~/project/statutory
@@ -2187,8 +2178,7 @@ jobs:
             docker buildx inspect --bootstrap
       - run:
           name: Export PACKAGE_VERSION for summeruniversity
-          working_directory: ~/project/summeruniversity
-          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'summeruniversity@*' --sort=-v:refname | head -1 | sed 's/summeruniversity@//')" >> "$BASH_ENV"
       - run:
           name: Build and push summeruniversity Docker image (multi-platform)
           working_directory: ~/project/summeruniversity
