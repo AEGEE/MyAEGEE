@@ -1,5 +1,5 @@
 # Multi-platform support (linux/amd64, linux/arm64)
-FROM --platform=$BUILDPLATFORM node:22-alpine
+FROM --platform=$BUILDPLATFORM node:25-alpine
 
 # hadolint ignore=DL3018
 RUN apk add --no-cache curl \
