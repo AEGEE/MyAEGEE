@@ -873,26 +873,14 @@ export default {
       if (this.token) this.token.cancel()
       this.token = this.axios.CancelToken.source()
 
-      // Fetch all of the members of the selected organising bodies.
-      const endpoints = this.event.organizing_bodies.map(body => this.services['core'] + '/bodies/' + body.body_id + '/members')
+      // Search members using the lightweight endpoint, scoped to the organising bodies.
+      const bodyIds = this.event.organizing_bodies.map(body => body.body_id).join(',')
 
-      // Ignoring the requests that failed (because of 403 most likely)
-      // since the user does not always has the permissions to see
-      // the members of the body.
-      const fetchEndpoint = (endpoint) => this.axios.get(endpoint, {
+      this.axios.get(this.services['core'] + '/members_search', {
         cancelToken: this.token.token,
-        params: { query }
-      }).then(res => res.data.data).catch(() => [])
-
-      // Merging all of the responses into one array.
-      // Then filtering out duplicate users.
-      // .map is there because the /bodies/:id/members returns users, not members.
-      Promise.all(endpoints.map(fetchEndpoint)).then((responses) => {
-        this.autoComplete.members.values = responses
-          .reduce((acc, val) => acc.concat(val), [])
-          .map(value => (value.user))
-          .filter((elt, index, array) => array.findIndex(e => e.id === elt.id) === index)
-
+        params: { query, body_id: bodyIds }
+      }).then((res) => {
+        this.autoComplete.members.values = res.data.data
         this.autoComplete.members.loading = false
       }).catch((err) => {
         if (this.axios.isCancel(err)) {

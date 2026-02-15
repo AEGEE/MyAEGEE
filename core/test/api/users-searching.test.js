@@ -233,4 +233,133 @@ describe('Users list', () => {
         expect(res.body.data.length).toEqual(1);
         expect(res.body.data[0]).toEqual(expectedOutput);
     });
+
+    test('should filter by body_id', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
+
+        const body = await generator.createBody();
+        const memberInBody = await generator.createUser();
+        await generator.createBodyMembership(body, memberInBody);
+
+        const memberNotInBody = await generator.createUser();
+
+        const res = await request({
+            uri: '/members_search?body_id=' + body.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+
+        const returnedIds = res.body.data.map((u) => u.id);
+        expect(returnedIds).toContain(memberInBody.id);
+        expect(returnedIds).not.toContain(memberNotInBody.id);
+        expect(returnedIds).not.toContain(user.id);
+    });
+
+    test('should filter by multiple body_ids', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
+
+        const body1 = await generator.createBody();
+        const body2 = await generator.createBody();
+        const memberInBody1 = await generator.createUser();
+        const memberInBody2 = await generator.createUser();
+        await generator.createBodyMembership(body1, memberInBody1);
+        await generator.createBodyMembership(body2, memberInBody2);
+
+        const memberNotInAnyBody = await generator.createUser();
+
+        const res = await request({
+            uri: '/members_search?body_id=' + body1.id + ',' + body2.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const returnedIds = res.body.data.map((u) => u.id);
+        expect(returnedIds).toContain(memberInBody1.id);
+        expect(returnedIds).toContain(memberInBody2.id);
+        expect(returnedIds).not.toContain(memberNotInAnyBody.id);
+    });
+
+    test('should not duplicate users in multiple bodies when filtering by body_id', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
+
+        const body1 = await generator.createBody();
+        const body2 = await generator.createBody();
+        const memberInBothBodies = await generator.createUser();
+        await generator.createBodyMembership(body1, memberInBothBodies);
+        await generator.createBodyMembership(body2, memberInBothBodies);
+
+        const res = await request({
+            uri: '/members_search?body_id=' + body1.id + ',' + body2.id,
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        const matchingUsers = res.body.data.filter((u) => u.id === memberInBothBodies.id);
+        expect(matchingUsers.length).toEqual(1);
+        expect(res.body.meta.count).toEqual(1);
+    });
+
+    test('should combine body_id filter with query search', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
+
+        const body = await generator.createBody();
+        const matchingMember = await generator.createUser({ first_name: 'TestSearchName' });
+        const nonMatchingMember = await generator.createUser({ first_name: 'OtherName' });
+        await generator.createBodyMembership(body, matchingMember);
+        await generator.createBodyMembership(body, nonMatchingMember);
+
+        const res = await request({
+            uri: '/members_search?body_id=' + body.id + '&query=TestSearchName',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(matchingMember.id);
+    });
+
+    test('should ignore invalid body_id values', async () => {
+        const user = await generator.createUser({ superadmin: true });
+        const token = await generator.createAccessToken(user);
+
+        await generator.createPermission({ scope: 'global', action: 'search', object: 'member' });
+
+        const res = await request({
+            uri: '/members_search?body_id=invalid,nonsense',
+            method: 'GET',
+            headers: { 'X-Auth-Token': token.value }
+        });
+
+        // With all invalid IDs filtered out, it should behave like no body_id filter (return all)
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data.length).toEqual(1);
+        expect(res.body.data[0].id).toEqual(user.id);
+    });
 });
