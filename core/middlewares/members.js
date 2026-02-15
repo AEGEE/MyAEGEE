@@ -2,7 +2,7 @@ const moment = require('moment');
 const _ = require('lodash');
 const request = require('request-promise-native');
 
-const { User, Body, MailChange, MailConfirmation } = require('../models');
+const { User, Body, BodyMembership, MailChange, MailConfirmation } = require('../models');
 const config = require('../config');
 const constants = require('../lib/constants');
 const helpers = require('../lib/helpers');
@@ -33,11 +33,30 @@ exports.searchAllUsers = async (req, res) => {
         return errors.makeForbiddenError(res, 'Permission global:search:member is required, but not present.');
     }
 
+    const where = helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.MEMBER);
+
+    // Optional body_id filter: comma-separated list of body IDs.
+    // When provided, only returns users who are members of at least one of the specified bodies.
+    const include = [];
+    if (req.query.body_id) {
+        const bodyIds = req.query.body_id.split(',').map((id) => parseInt(id, 10)).filter((id) => !Number.isNaN(id));
+        if (bodyIds.length > 0) {
+            include.push({
+                model: BodyMembership,
+                where: { body_id: { [Sequelize.Op.in]: bodyIds } },
+                attributes: [],
+                required: true
+            });
+        }
+    }
+
     const result = await User.findAndCountAll({
-        where: helpers.filterBy(req.query.query, constants.FIELDS_TO_QUERY.MEMBER),
+        where,
         ...helpers.getPagination(req.query),
         attributes: ['id', 'first_name', 'last_name', 'username', 'email', 'gsuite_id'],
-        order: helpers.getSorting(req.query)
+        include,
+        order: helpers.getSorting(req.query),
+        ...(include.length > 0 && { distinct: true })
     });
 
     return res.json({
