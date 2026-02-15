@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # Root repository configurations
+  # Git submodules
   - package-ecosystem: "gitsubmodule"
     directory: "/"
     schedule:
@@ -8,277 +8,88 @@ updates:
     open-pull-requests-limit: 99
     reviewers:
       - "WikiRik"
-  - package-ecosystem: "docker"
-    directory: "/gateways/docker/portal"
-    schedule:
-      interval: daily
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "docker"
-    directory: "/monitor/docker/logstash"
-    schedule:
-      interval: daily
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
 
-  # Core module
+  # NPM dependencies across all workspaces
   - package-ecosystem: "npm"
-    directory: "/core"
+    directories:
+      - "/"
+      - "/core"
+      - "/events"
+      - "/frontend"
+      - "/discounts"
+      - "/knowledge"
+      - "/network"
+      - "/statutory"
+      - "/summeruniversity"
+      - "/mailer"
+      - "/gsuite-wrapper"
     schedule:
       interval: "weekly"
       day: "friday"
     open-pull-requests-limit: 99
     reviewers:
       - "WikiRik"
+    groups:
+      dev-tooling:
+        applies-to: version-updates
+        dependency-type: "development"
+        patterns:
+          - "*"
+      production-minor-patch:
+        applies-to: version-updates
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Docker images across all modules
   - package-ecosystem: "docker"
-    directory: "/core/docker/core"
+    directories:
+      - "/core/docker/core"
+      - "/discounts/docker/discounts"
+      - "/events/docker/events"
+      - "/frontend/docker"
+      - "/gsuite-wrapper/docker"
+      - "/knowledge/docker/knowledge"
+      - "/mailer/docker/mailer"
+      - "/mailer/docker/mail_transfer_agent"
+      - "/network/docker/network"
+      - "/statutory/docker/statutory"
+      - "/summeruniversity/docker/summeruniversity"
+      - "/gateways/docker/portal"
+      - "/monitor/docker/logstash"
     schedule:
       interval: "weekly"
       day: "friday"
     open-pull-requests-limit: 99
     reviewers:
       - "WikiRik"
+    groups:
+      docker-images:
+        applies-to: version-updates
+        patterns:
+          - "*"
+
+  # GitHub Actions across all modules
   - package-ecosystem: "github-actions"
-    directory: "/core"
+    directories:
+      - "/core"
+      - "/discounts"
+      - "/events"
+      - "/frontend"
+      - "/gsuite-wrapper"
+      - "/knowledge"
+      - "/network"
+      - "/statutory"
+      - "/summeruniversity"
     schedule:
       interval: "weekly"
       day: "friday"
     open-pull-requests-limit: 99
     reviewers:
       - "WikiRik"
-
-  # Discounts module
-  - package-ecosystem: "npm"
-    directory: "/discounts"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "docker"
-    directory: "/discounts/docker/discounts"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "github-actions"
-    directory: "/discounts"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-
-  # Events module
-  - package-ecosystem: "npm"
-    directory: "/events"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "docker"
-    directory: "/events/docker/events"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "github-actions"
-    directory: "/events"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-
-  # Frontend module
-  - package-ecosystem: "npm"
-    directory: "/frontend"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "docker"
-    directory: "/frontend/docker"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "github-actions"
-    directory: "/frontend"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-
-  # Gsuite-wrapper module
-  - package-ecosystem: "npm"
-    directory: "/gsuite-wrapper"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "docker"
-    directory: "/gsuite-wrapper/docker"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "github-actions"
-    directory: "/gsuite-wrapper"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-
-  # Knowledge module
-  - package-ecosystem: "npm"
-    directory: "/knowledge"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "docker"
-    directory: "/knowledge/docker/knowledge"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "github-actions"
-    directory: "/knowledge"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-
-  # Mailer module
-  - package-ecosystem: "npm"
-    directory: "/mailer"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "docker"
-    directory: "/mailer/docker/mailer"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "docker"
-    directory: "/mailer/docker/mail_transfer_agent"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-
-  # Network module
-  - package-ecosystem: "npm"
-    directory: "/network"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "docker"
-    directory: "/network/docker/network"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "github-actions"
-    directory: "/network"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-
-  # Statutory module
-  - package-ecosystem: "npm"
-    directory: "/statutory"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "docker"
-    directory: "/statutory/docker/statutory"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "github-actions"
-    directory: "/statutory"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-
-  # Summeruniversity module
-  - package-ecosystem: "npm"
-    directory: "/summeruniversity"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "docker"
-    directory: "/summeruniversity/docker/summeruniversity"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
-  - package-ecosystem: "github-actions"
-    directory: "/summeruniversity"
-    schedule:
-      interval: "weekly"
-      day: "friday"
-    open-pull-requests-limit: 99
-    reviewers:
-      - "WikiRik"
+    groups:
+      actions:
+        applies-to: version-updates
+        patterns:
+          - "*"
