@@ -15,7 +15,12 @@ RUN ["mix", "deps.get"]
 COPY config /usr/src/myapp/config
 COPY lib /usr/src/myapp/lib
 COPY test /usr/src/myapp/test
+
+# Inject version from CI if provided (defaults to whatever is in package.json).
+# Uses sed instead of npm version because npm is not installed in the elixir image.
+ARG PACKAGE_VERSION
 COPY package.json /usr/src/myapp/package.json
+RUN if [ -n "$PACKAGE_VERSION" ]; then sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$PACKAGE_VERSION\"/" package.json; fi
 
 ARG MIX_ENV=production
 ENV MIX_ENV=${MIX_ENV}

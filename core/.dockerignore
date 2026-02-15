@@ -1,3 +1,7 @@
 .git
 node_modules/
 state/
+*.md
+.husky/
+.nyc_output/
+coverage/
