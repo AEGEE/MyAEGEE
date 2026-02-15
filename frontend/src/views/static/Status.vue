@@ -182,16 +182,17 @@ export default {
         this.statuses[service].isAlive = false
       })
     },
-    fetchLatestVersionForService (service) {
-      const githubLink = 'https://api.github.com/repos/AEGEE/MyAEGEE/contents/' + service + '/package.json'
-
-      fetch(githubLink)
+    fetchLatestVersions () {
+      fetch('https://api.github.com/repos/AEGEE/MyAEGEE/releases?per_page=100')
         .then((res) => res.json())
-        .then((response) => {
-          const content = window.atob(response.content)
-          const jsonContent = JSON.parse(content)
-
-          this.statuses[service].latestVersion = jsonContent.version
+        .then((releases) => {
+          for (const service in this.statuses) {
+            const prefix = service + '@'
+            const release = releases.find((r) => r.tag_name.startsWith(prefix))
+            if (release) {
+              this.statuses[service].latestVersion = release.tag_name.replace(prefix, '')
+            }
+          }
         }).catch((err) => {
           console.log(err)
         })
@@ -219,9 +220,9 @@ export default {
     ...mapGetters(['services'])
   },
   mounted () {
+    this.fetchLatestVersions()
     for (const service in this.statuses) {
       this.fetchHealthcheckForService(service)
-      this.fetchLatestVersionForService(service)
       this.fetchLatestDockerTagForService(service)
     }
   }
