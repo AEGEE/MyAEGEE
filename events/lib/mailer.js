@@ -11,6 +11,7 @@ module.exports.sendMail = async (options) => {
         body: {
             from: options.from,
             to: options.to,
+            cc: options.cc,
             subject: options.subject,
             template: options.template,
             parameters: options.parameters,
