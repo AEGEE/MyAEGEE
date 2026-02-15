@@ -44,7 +44,7 @@
   "dependencies": {
     "@bugsnag/js": "^8.4.0",
     "@faker-js/faker": "^9.9.0",
-    "body-parser": "^2.2.0",
+    "body-parser": "^2.2.2",
     "bunyan": "^1.8.15",
     "cors": "^2.8.5",
     "express": "^4.21.2",
