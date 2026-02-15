@@ -192,6 +192,8 @@ exports.addEvent = async (req, res) => {
         // Sending SPC information email to organizers.
         await mailer.sendMail({
             to: event.organizers.map((organizer) => organizer.notification_email),
+            cc: 'safe.person@aegee.eu',
+            reply_to: 'safe.person@aegee.eu',
             subject: 'MyAEGEE: Tips on make your event a safer space',
             template: 'events_spc_info.html',
             parameters: {
