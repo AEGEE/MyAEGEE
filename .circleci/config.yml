@@ -189,6 +189,7 @@ jobs:
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
+              --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
               --tag aegee/core:$PACKAGE_VERSION \
               --tag aegee/core:latest \
               -f docker/core/Dockerfile \
@@ -407,6 +408,7 @@ jobs:
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
+              --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
               --tag aegee/discounts:$PACKAGE_VERSION \
               --tag aegee/discounts:latest \
               -f docker/discounts/Dockerfile \
@@ -642,6 +644,7 @@ jobs:
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
+              --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
               --tag aegee/events:$PACKAGE_VERSION \
               --tag aegee/events:latest \
               -f docker/events/Dockerfile \
@@ -838,6 +841,7 @@ jobs:
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
+              --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
               --tag aegee/frontend:$PACKAGE_VERSION \
               --tag aegee/frontend:latest \
               -f docker/Dockerfile \
@@ -1056,6 +1060,7 @@ jobs:
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
+              --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
               --tag aegee/gsuite-wrapper:$PACKAGE_VERSION \
               --tag aegee/gsuite-wrapper:latest \
               -f docker/Dockerfile \
@@ -1274,6 +1279,7 @@ jobs:
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
+              --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
               --tag aegee/knowledge:$PACKAGE_VERSION \
               --tag aegee/knowledge:latest \
               -f docker/knowledge/Dockerfile \
@@ -1441,6 +1447,7 @@ jobs:
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
+              --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
               --tag aegee/mailer:$PACKAGE_VERSION \
               --tag aegee/mailer:latest \
               -f docker/mailer/Dockerfile \
@@ -1770,6 +1777,7 @@ jobs:
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
+              --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
               --tag aegee/network:$PACKAGE_VERSION \
               --tag aegee/network:latest \
               -f docker/network/Dockerfile \
@@ -1988,6 +1996,7 @@ jobs:
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
+              --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
               --tag aegee/statutory:$PACKAGE_VERSION \
               --tag aegee/statutory:latest \
               -f docker/statutory/Dockerfile \
@@ -2197,6 +2206,7 @@ jobs:
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
+              --build-arg PACKAGE_VERSION=$PACKAGE_VERSION \
               --tag aegee/summeruniversity:$PACKAGE_VERSION \
               --tag aegee/summeruniversity:latest \
               -f docker/summeruniversity/Dockerfile \

@@ -1,16 +1,11 @@
-docker/
+.git
 node_modules/
-.git/
-
-/coverage/
+docker/
+*.md
+.husky/
 .nyc_output/
-
+coverage/
 .dockerignore
 .gitignore
-contributors.txt
 .travis.yml
-LICENCE.md
-README.md
 swagger.yml
-note-APIscope
-#Dockerfile #why not, at least one can know how badly one thing was packaged (if at all)
