@@ -19,7 +19,7 @@ RUN npm run build
 
 # ------- runtime stage -------
 # Multi-platform nginx for ARM64 and AMD64
-FROM --platform=$TARGETPLATFORM nginx:1.27.3-alpine
+FROM --platform=$TARGETPLATFORM nginx:1.29.5-alpine
 
 # Remove default config that displays the nginx welcome page
 RUN rm -rf /etc/nginx/conf.d \
