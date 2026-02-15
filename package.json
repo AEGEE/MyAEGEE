@@ -40,7 +40,7 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "prepare": "husky",
+    "prepare": "husky || true",
     "postinstall": "echo '✓ Workspace setup complete - all 10 modules ready'",
     "test": "echo 'Run tests in individual modules'",
     "lint": "echo 'Run linters in individual modules'"
