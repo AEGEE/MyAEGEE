@@ -180,10 +180,13 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for core
+          working_directory: ~/project/core
+          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+      - run:
           name: Build and push core Docker image (multi-platform)
           working_directory: ~/project/core
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             docker buildx build --platform linux/amd64,linux/arm64 \
               --tag aegee/core:$PACKAGE_VERSION \
@@ -395,10 +398,13 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for discounts
+          working_directory: ~/project/discounts
+          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+      - run:
           name: Build and push discounts Docker image (multi-platform)
           working_directory: ~/project/discounts
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             docker buildx build --platform linux/amd64,linux/arm64 \
               --tag aegee/discounts:$PACKAGE_VERSION \
@@ -627,10 +633,13 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for events
+          working_directory: ~/project/events
+          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+      - run:
           name: Build and push events Docker image (multi-platform)
           working_directory: ~/project/events
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             docker buildx build --platform linux/amd64,linux/arm64 \
               --tag aegee/events:$PACKAGE_VERSION \
@@ -820,10 +829,13 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for frontend
+          working_directory: ~/project/frontend
+          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+      - run:
           name: Build and push frontend Docker image (multi-platform)
           working_directory: ~/project/frontend
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             docker buildx build --platform linux/amd64,linux/arm64 \
               --tag aegee/frontend:$PACKAGE_VERSION \
@@ -1035,10 +1047,13 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for gsuite-wrapper
+          working_directory: ~/project/gsuite-wrapper
+          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+      - run:
           name: Build and push gsuite-wrapper Docker image (multi-platform)
           working_directory: ~/project/gsuite-wrapper
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             docker buildx build --platform linux/amd64,linux/arm64 \
               --tag aegee/gsuite-wrapper:$PACKAGE_VERSION \
@@ -1250,10 +1265,13 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for knowledge
+          working_directory: ~/project/knowledge
+          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+      - run:
           name: Build and push knowledge Docker image (multi-platform)
           working_directory: ~/project/knowledge
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             docker buildx build --platform linux/amd64,linux/arm64 \
               --tag aegee/knowledge:$PACKAGE_VERSION \
@@ -1414,10 +1432,13 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for mailer
+          working_directory: ~/project/mailer
+          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+      - run:
           name: Build and push mailer Docker images (multi-platform)
           working_directory: ~/project/mailer
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             docker buildx build --platform linux/amd64,linux/arm64 \
               --tag aegee/mailer:$PACKAGE_VERSION \
@@ -1738,10 +1759,13 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for network
+          working_directory: ~/project/network
+          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+      - run:
           name: Build and push network Docker image (multi-platform)
           working_directory: ~/project/network
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             docker buildx build --platform linux/amd64,linux/arm64 \
               --tag aegee/network:$PACKAGE_VERSION \
@@ -1953,10 +1977,13 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for statutory
+          working_directory: ~/project/statutory
+          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+      - run:
           name: Build and push statutory Docker image (multi-platform)
           working_directory: ~/project/statutory
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             docker buildx build --platform linux/amd64,linux/arm64 \
               --tag aegee/statutory:$PACKAGE_VERSION \
@@ -2159,10 +2186,13 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for summeruniversity
+          working_directory: ~/project/summeruniversity
+          command: echo "export PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$BASH_ENV"
+      - run:
           name: Build and push summeruniversity Docker image (multi-platform)
           working_directory: ~/project/summeruniversity
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             docker buildx build --platform linux/amd64,linux/arm64 \
               --tag aegee/summeruniversity:$PACKAGE_VERSION \
