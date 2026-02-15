@@ -157,6 +157,10 @@ exports.listApprovableEvents = async (req, res) => {
 };
 
 exports.addEvent = async (req, res) => {
+    if (!req.permissions.create_summeruniversity) {
+        return errors.makeForbiddenError(res, 'You are not allowed to create summer university events.');
+    }
+
     // Make sure the user doesn't insert malicious stuff
     const data = req.body;
     delete data.id;
