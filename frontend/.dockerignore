@@ -1,2 +1,13 @@
-.git
-node_modules/
+# Ignore everything by default
+**
+
+# Allow only what the build needs
+!src/
+!public/
+!package.json
+!package-lock.json
+!babel.config.js
+!vue.config.js
+
+# Nginx configs needed in the final stage
+!docker/frontend-nginx/
