@@ -180,10 +180,12 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for core
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'core@*' --sort=-v:refname | head -1 | sed 's/core@//')" >> "$BASH_ENV"
+      - run:
           name: Build and push core Docker image (multi-platform)
           working_directory: ~/project/core
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
@@ -396,10 +398,12 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for discounts
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'discounts@*' --sort=-v:refname | head -1 | sed 's/discounts@//')" >> "$BASH_ENV"
+      - run:
           name: Build and push discounts Docker image (multi-platform)
           working_directory: ~/project/discounts
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
@@ -629,10 +633,12 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for events
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'events@*' --sort=-v:refname | head -1 | sed 's/events@//')" >> "$BASH_ENV"
+      - run:
           name: Build and push events Docker image (multi-platform)
           working_directory: ~/project/events
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
@@ -823,10 +829,12 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for frontend
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'frontend@*' --sort=-v:refname | head -1 | sed 's/frontend@//')" >> "$BASH_ENV"
+      - run:
           name: Build and push frontend Docker image (multi-platform)
           working_directory: ~/project/frontend
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
@@ -1039,10 +1047,12 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for gsuite-wrapper
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'gsuite-wrapper@*' --sort=-v:refname | head -1 | sed 's/gsuite-wrapper@//')" >> "$BASH_ENV"
+      - run:
           name: Build and push gsuite-wrapper Docker image (multi-platform)
           working_directory: ~/project/gsuite-wrapper
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
@@ -1255,10 +1265,12 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for knowledge
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'knowledge@*' --sort=-v:refname | head -1 | sed 's/knowledge@//')" >> "$BASH_ENV"
+      - run:
           name: Build and push knowledge Docker image (multi-platform)
           working_directory: ~/project/knowledge
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
@@ -1420,10 +1432,12 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for mailer
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'mailer@*' --sort=-v:refname | head -1 | sed 's/mailer@//')" >> "$BASH_ENV"
+      - run:
           name: Build and push mailer Docker images (multi-platform)
           working_directory: ~/project/mailer
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
@@ -1747,10 +1761,12 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for network
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'network@*' --sort=-v:refname | head -1 | sed 's/network@//')" >> "$BASH_ENV"
+      - run:
           name: Build and push network Docker image (multi-platform)
           working_directory: ~/project/network
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
@@ -1963,10 +1979,12 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for statutory
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'statutory@*' --sort=-v:refname | head -1 | sed 's/statutory@//')" >> "$BASH_ENV"
+      - run:
           name: Build and push statutory Docker image (multi-platform)
           working_directory: ~/project/statutory
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
@@ -2170,10 +2188,12 @@ jobs:
             docker buildx create --name multiarch --use
             docker buildx inspect --bootstrap
       - run:
+          name: Export PACKAGE_VERSION for summeruniversity
+          command: echo "export PACKAGE_VERSION=$(git tag --list 'summeruniversity@*' --sort=-v:refname | head -1 | sed 's/summeruniversity@//')" >> "$BASH_ENV"
+      - run:
           name: Build and push summeruniversity Docker image (multi-platform)
           working_directory: ~/project/summeruniversity
           command: |
-            export PACKAGE_VERSION=$(node -p "require('./package.json').version")
             docker login --username $DOCKER_LOGIN --password $DOCKER_PASSWORD
             # TODO: re-enable provenance and sbom once Docker has been updated
             docker buildx build --provenance=false --sbom=false --platform linux/amd64,linux/arm64 \
