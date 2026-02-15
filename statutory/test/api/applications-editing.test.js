@@ -75,17 +75,19 @@ describe('Applications editing', () => {
     });
 
     test('should return 403 for current user with an accepted application', async () => {
-        mock.mockAll({ mainPermissions: { noPermissions: true } });
-
         const event = await generator.createEvent();
         const application = await generator.createApplication({}, event);
 
+        // First, change status to accepted with full permissions (from beforeEach mock).
         await request({
             uri: '/events/' + event.id + '/applications/' + application.id + '/status',
             method: 'PUT',
             headers: { 'X-Auth-Token': 'blablabla' },
             body: { status: 'accepted' }
         });
+
+        // Then re-mock with no permissions so the user can only edit their own application.
+        mock.mockAll({ mainPermissions: { noPermissions: true } });
 
         tk.travel(moment(event.application_period_starts).add(5, 'minutes').toDate());
 
