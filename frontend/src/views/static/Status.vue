@@ -11,7 +11,7 @@
               <th>Current version</th>
               <th>Latest Github version</th>
               <th>Latest Dockerhub tag</th>
-              <th>Changelog</th>
+              <th>Releases</th>
               <th>Round-trip time</th>
               <th>Is alive?</th>
             </tr>
@@ -22,8 +22,8 @@
               <td>{{ value.version }}</td>
               <td>{{ value.latestVersion }}</td>
               <td>{{ value.latestTag }}</td>
-              <td v-if="value.changelog">
-                <a :href="value.changelog" target="_blank" rel="noopener noreferrer">{{ value.changelog }}</a>
+              <td v-if="value.releasesUrl">
+                <a :href="value.releasesUrl" target="_blank" rel="noopener noreferrer">View releases</a>
               </td>
               <td v-else>-</td>
               <td v-if="value.roundTrip">{{ value.roundTrip }} ms.</td>
@@ -53,7 +53,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/core/blob/stable/CHANGELOG.md'
+          releasesUrl: 'https://github.com/AEGEE/MyAEGEE/releases?q=core'
         },
         mailer: {
           roundTrip: null,
@@ -61,7 +61,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/mailer/blob/stable/CHANGELOG.md'
+          releasesUrl: 'https://github.com/AEGEE/MyAEGEE/releases?q=mailer'
         },
         events: {
           roundTrip: null,
@@ -69,7 +69,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/events/blob/stable/CHANGELOG.md'
+          releasesUrl: 'https://github.com/AEGEE/MyAEGEE/releases?q=events'
         },
         summeruniversity: {
           roundTrip: null,
@@ -77,7 +77,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/summeruniversity/blob/stable/CHANGELOG.md'
+          releasesUrl: 'https://github.com/AEGEE/MyAEGEE/releases?q=summeruniversity'
         },
         statutory: {
           roundTrip: null,
@@ -85,7 +85,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/statutory/blob/stable/CHANGELOG.md'
+          releasesUrl: 'https://github.com/AEGEE/MyAEGEE/releases?q=statutory'
         },
         discounts: {
           roundTrip: null,
@@ -93,7 +93,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/discounts/blob/stable/CHANGELOG.md'
+          releasesUrl: 'https://github.com/AEGEE/MyAEGEE/releases?q=discounts'
         },
         network: {
           roundTrip: null,
@@ -101,7 +101,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/network/blob/stable/CHANGELOG.md'
+          releasesUrl: 'https://github.com/AEGEE/MyAEGEE/releases?q=network'
         },
         'gsuite-wrapper': {
           roundTrip: null,
@@ -109,7 +109,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/gsuite-wrapper/blob/stable/CHANGELOG.md'
+          releasesUrl: 'https://github.com/AEGEE/MyAEGEE/releases?q=gsuite-wrapper'
         },
         frontend: {
           roundTrip: null,
@@ -117,7 +117,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: 'https://github.com/AEGEE/frontend/blob/stable/CHANGELOG.md'
+          releasesUrl: 'https://github.com/AEGEE/MyAEGEE/releases?q=frontend'
         },
         'core-static': {
           roundTrip: null,
@@ -125,7 +125,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: null
+          releasesUrl: null
         },
         'statutory-static': {
           roundTrip: null,
@@ -133,7 +133,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: null
+          releasesUrl: null
         },
         'events-static': {
           roundTrip: null,
@@ -141,7 +141,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: null
+          releasesUrl: null
         },
         'summeruniversity-static': {
           roundTrip: null,
@@ -149,7 +149,7 @@ export default {
           latestVersion: '-',
           latestTag: '-',
           isAlive: 'Waiting...',
-          changelog: null
+          releasesUrl: null
         }
       }
     }
@@ -182,16 +182,17 @@ export default {
         this.statuses[service].isAlive = false
       })
     },
-    fetchLatestVersionForService (service) {
-      const githubLink = 'https://api.github.com/repos/AEGEE/' + service + '/contents/package.json'
-
-      fetch(githubLink)
+    fetchLatestVersions () {
+      fetch('https://api.github.com/repos/AEGEE/MyAEGEE/releases?per_page=100')
         .then((res) => res.json())
-        .then((response) => {
-          const content = window.atob(response.content)
-          const jsonContent = JSON.parse(content)
-
-          this.statuses[service].latestVersion = jsonContent.version
+        .then((releases) => {
+          for (const service in this.statuses) {
+            const prefix = service + '@'
+            const release = releases.find((r) => r.tag_name.startsWith(prefix))
+            if (release) {
+              this.statuses[service].latestVersion = release.tag_name.replace(prefix, '')
+            }
+          }
         }).catch((err) => {
           console.log(err)
         })
@@ -219,9 +220,9 @@ export default {
     ...mapGetters(['services'])
   },
   mounted () {
+    this.fetchLatestVersions()
     for (const service in this.statuses) {
       this.fetchHealthcheckForService(service)
-      this.fetchLatestVersionForService(service)
       this.fetchLatestDockerTagForService(service)
     }
   }
