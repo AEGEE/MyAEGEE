@@ -29,18 +29,6 @@ updates:
     open-pull-requests-limit: 99
     reviewers:
       - "WikiRik"
-    groups:
-      dev-tooling:
-        applies-to: version-updates
-        dependency-type: "development"
-        patterns:
-          - "*"
-      production-minor-patch:
-        applies-to: version-updates
-        dependency-type: "production"
-        update-types:
-          - "minor"
-          - "patch"
 
   # Docker images across all modules
   - package-ecosystem: "docker"
@@ -64,11 +52,6 @@ updates:
     open-pull-requests-limit: 99
     reviewers:
       - "WikiRik"
-    groups:
-      docker-images:
-        applies-to: version-updates
-        patterns:
-          - "*"
 
   # GitHub Actions across all modules
   - package-ecosystem: "github-actions"
@@ -88,8 +71,3 @@ updates:
     open-pull-requests-limit: 99
     reviewers:
       - "WikiRik"
-    groups:
-      actions:
-        applies-to: version-updates
-        patterns:
-          - "*"
