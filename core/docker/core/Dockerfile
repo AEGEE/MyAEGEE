@@ -1,7 +1,9 @@
 # Multi-platform support (linux/amd64, linux/arm64)
 FROM --platform=$BUILDPLATFORM node:22-alpine
 
-RUN mkdir -p /usr/app/src \
+# hadolint ignore=DL3018
+RUN apk add --no-cache curl \
+ && mkdir -p /usr/app/src \
  && mkdir -p /usr/app/media \
  && mkdir -p /usr/app/scripts
 
