@@ -819,10 +819,6 @@ jobs:
           name: Install monorepo workspace dependencies
           command: npm install --ignore-scripts
       - run:
-          name: Install frontend dependencies (skip husky)
-          working_directory: ~/project/frontend
-          command: npm ci --legacy-peer-deps --ignore-scripts
-      - run:
           name: Run semantic-release for frontend
           working_directory: ~/project/frontend
           command: npm run semantic-release
@@ -1037,10 +1033,6 @@ jobs:
       - run:
           name: Install monorepo workspace dependencies
           command: npm install --ignore-scripts
-      - run:
-          name: Install gsuite-wrapper dependencies (skip husky)
-          working_directory: ~/project/gsuite-wrapper
-          command: npm ci --legacy-peer-deps --ignore-scripts
       - run:
           name: Run semantic-release for gsuite-wrapper
           working_directory: ~/project/gsuite-wrapper
