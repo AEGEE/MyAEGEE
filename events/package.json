@@ -70,7 +70,7 @@
     "sequelize-cli": "^6.6.3"
   },
   "devDependencies": {
-    "eslint": "^8.56.0",
+    "eslint": "^10.0.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.32.0",
     "jest": "^30.2.0",
